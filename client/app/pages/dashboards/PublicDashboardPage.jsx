@@ -97,6 +97,6 @@ class PublicDashboardPage extends React.Component {
 
 export default routeWithApiKeySession({
   path: "/public/dashboards/:token",
-  render: (currentRoute, props) => <PublicDashboardPage {...currentRoute.routeParams} {...props} />,
-  getApiKey: curentRoute => curentRoute.routeParams.token,
+  render: pageProps => <PublicDashboardPage {...pageProps} />,
+  getApiKey: currentRoute => currentRoute.routeParams.token,
 });

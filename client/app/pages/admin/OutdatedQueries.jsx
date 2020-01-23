@@ -172,12 +172,5 @@ const OutdatedQueriesPage = itemsList(
 export default routeWithUserSession({
   path: "/admin/queries/outdated",
   title: "Outdated Queries",
-  render: (currentRoute, props) => (
-    <OutdatedQueriesPage
-      {...currentRoute.routeParams}
-      {...props}
-      title={currentRoute.title}
-      currentPage="outdated_queries"
-    />
-  ),
+  render: pageProps => <OutdatedQueriesPage {...pageProps} currentPage="outdated_queries" />,
 });

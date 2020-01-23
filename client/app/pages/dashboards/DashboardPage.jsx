@@ -408,5 +408,5 @@ DashboardPage.defaultProps = {
 
 export default routeWithUserSession({
   path: "/dashboard/:dashboardSlug",
-  render: (currentRoute, props) => <DashboardPage {...currentRoute.routeParams} {...props} />,
+  render: pageProps => <DashboardPage {...pageProps} />,
 });

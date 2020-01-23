@@ -69,7 +69,7 @@ class AlertsList extends React.Component {
     return (
       <div className="page-alerts-list">
         <div className="container">
-          <PageHeader title={controller.params.title} />
+          <PageHeader title={controller.params.pageTitle} />
           <div className="m-l-15 m-r-15">
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && (
@@ -123,7 +123,5 @@ const AlertsListPage = itemsList(
 export default routeWithUserSession({
   path: "/alerts",
   title: "Alerts",
-  render: (currentRoute, props) => (
-    <AlertsListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="alerts" />
-  ),
+  render: pageProps => <AlertsListPage {...pageProps} currentPage="alerts" />,
 });

@@ -5,7 +5,7 @@ import hoistNonReactStatics from "hoist-non-react-statics";
 import { clientConfig } from "@/services/auth";
 
 export const ControllerType = PropTypes.shape({
-  // values of props declared by wrapped component, current route's locals (`resolve: { ... }`) and title
+  // values of props declared by wrapped component and some additional props from items list
   params: PropTypes.object.isRequired,
 
   isLoaded: PropTypes.bool.isRequired,

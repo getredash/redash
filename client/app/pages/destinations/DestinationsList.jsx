@@ -146,13 +146,11 @@ export default [
   routeWithUserSession({
     path: "/destinations",
     title: "Alert Destinations",
-    render: (currentRoute, props) => <DestinationsListPage {...currentRoute.routeParams} {...props} />,
+    render: pageProps => <DestinationsListPage {...pageProps} />,
   }),
   routeWithUserSession({
     path: "/destinations/new",
     title: "Alert Destinations",
-    render: (currentRoute, props) => (
-      <DestinationsListPage {...currentRoute.routeParams} {...props} isNewDestinationPage />
-    ),
+    render: pageProps => <DestinationsListPage {...pageProps} isNewDestinationPage />,
   }),
 ];

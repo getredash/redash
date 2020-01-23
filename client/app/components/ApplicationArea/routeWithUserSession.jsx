@@ -6,6 +6,12 @@ import organizationStatus from "@/services/organizationStatus";
 import ApplicationHeader from "./ApplicationHeader";
 import ErrorMessage from "./ErrorMessage";
 
+// This wrapper modifies `route.render` function and instead of passing `currentRoute` passes an object
+// that contains:
+// - `currentRoute.routeParams`
+// - `pageTitle` field which is equal to `currentRoute.title`
+// - `onError` field which is a `handleError` method of nearest error boundary
+
 function UserSessionWrapper({ bodyClass, currentRoute, renderChildren }) {
   const [isAuthenticated, setIsAuthenticated] = useState(!!Auth.isAuthenticated());
 
@@ -46,7 +52,9 @@ function UserSessionWrapper({ bodyClass, currentRoute, renderChildren }) {
       <React.Fragment key={currentRoute.key}>
         <ErrorBoundary renderError={error => <ErrorMessage error={error} />}>
           <ErrorBoundaryContext.Consumer>
-            {({ handleError }) => renderChildren(currentRoute, { onError: handleError })}
+            {({ handleError }) =>
+              renderChildren({ ...currentRoute.routeParams, pageTitle: currentRoute.title, onError: handleError })
+            }
           </ErrorBoundaryContext.Consumer>
         </ErrorBoundary>
       </React.Fragment>
@@ -67,6 +75,8 @@ UserSessionWrapper.defaultProps = {
 export default function routeWithUserSession({ render, bodyClass, ...rest }) {
   return {
     ...rest,
-    render: currentRoute => <UserSessionWrapper bodyClass={bodyClass} currentRoute={currentRoute} renderChildren={render} />,
+    render: currentRoute => (
+      <UserSessionWrapper bodyClass={bodyClass} currentRoute={currentRoute} renderChildren={render} />
+    ),
   };
 }

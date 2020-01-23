@@ -280,35 +280,21 @@ export default [
   routeWithUserSession({
     path: "/users/new",
     title: "Users",
-    render: (currentRoute, props) => (
-      <UsersListPage
-        {...currentRoute.routeParams}
-        {...props}
-        title={currentRoute.title}
-        currentPage="active"
-        isNewUserPage
-      />
-    ),
+    render: pageProps => <UsersListPage {...pageProps} currentPage="active" isNewUserPage />,
   }),
   routeWithUserSession({
     path: "/users",
     title: "Users",
-    render: (currentRoute, props) => (
-      <UsersListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="active" />
-    ),
+    render: pageProps => <UsersListPage {...pageProps} currentPage="active" />,
   }),
   routeWithUserSession({
     path: "/users/pending",
     title: "Pending Invitations",
-    render: (currentRoute, props) => (
-      <UsersListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="pending" />
-    ),
+    render: pageProps => <UsersListPage {...pageProps} currentPage="pending" />,
   }),
   routeWithUserSession({
     path: "/users/disabled",
     title: "Disabled Users",
-    render: (currentRoute, props) => (
-      <UsersListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="disabled" />
-    ),
+    render: pageProps => <UsersListPage {...pageProps} currentPage="disabled" />,
   }),
 ];

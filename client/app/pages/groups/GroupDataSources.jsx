@@ -249,12 +249,5 @@ const GroupDataSourcesPage = wrapSettingsTab(
 export default routeWithUserSession({
   path: "/groups/:groupId([0-9]+)/data_sources",
   title: "Group Data Sources",
-  render: (currentRoute, props) => (
-    <GroupDataSourcesPage
-      {...currentRoute.routeParams}
-      {...props}
-      title={currentRoute.title}
-      currentPage="datasources"
-    />
-  ),
+  render: pageProps => <GroupDataSourcesPage {...pageProps} currentPage="datasources" />,
 });

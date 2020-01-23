@@ -255,16 +255,16 @@ export default [
   routeWithUserSession({
     path: "/alerts/new",
     title: "New Alert",
-    render: (currentRoute, props) => <Alert {...currentRoute.routeParams} {...props} mode={MODES.NEW} />,
+    render: pageProps => <Alert {...pageProps} mode={MODES.NEW} />,
   }),
   routeWithUserSession({
     path: "/alerts/:alertId([0-9]+)",
     title: "Alert",
-    render: (currentRoute, props) => <Alert {...currentRoute.routeParams} {...props} mode={MODES.VIEW} />,
+    render: pageProps => <Alert {...pageProps} mode={MODES.VIEW} />,
   }),
   routeWithUserSession({
     path: "/alerts/:alertId([0-9]+)/edit",
     title: "Alert",
-    render: (currentRoute, props) => <Alert {...currentRoute.routeParams} {...props} mode={MODES.EDIT} />,
+    render: pageProps => <Alert {...pageProps} mode={MODES.EDIT} />,
   }),
 ];

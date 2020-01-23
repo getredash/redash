@@ -212,26 +212,11 @@ export default [
   routeWithUserSession({
     path: "/query_snippets",
     title: "Query Snippets",
-    render: (currentRoute, props) => (
-      <QuerySnippetsListPage
-        {...currentRoute.routeParams}
-        {...props}
-        title={currentRoute.title}
-        currentPage="query_snippets"
-      />
-    ),
+    render: pageProps => <QuerySnippetsListPage {...pageProps} currentPage="query_snippets" />,
   }),
   routeWithUserSession({
     path: "/query_snippets/:querySnippetId(new|[0-9]+)",
     title: "Query Snippets",
-    render: (currentRoute, props) => (
-      <QuerySnippetsListPage
-        {...currentRoute.routeParams}
-        {...props}
-        title={currentRoute.title}
-        currentPage="query_snippets"
-        isNewOrEditPage
-      />
-    ),
+    render: pageProps => <QuerySnippetsListPage {...pageProps} currentPage="query_snippets" isNewOrEditPage />,
   }),
 ];

@@ -123,5 +123,5 @@ class Jobs extends React.Component {
 export default routeWithUserSession({
   path: "/admin/queries/jobs",
   title: "RQ Status",
-  render: (currentRoute, props) => <Jobs {...currentRoute.routeParams} {...props} />,
+  render: pageProps => <Jobs {...pageProps} />,
 });

@@ -83,5 +83,5 @@ class SystemStatus extends React.Component {
 export default routeWithUserSession({
   path: "/admin/status",
   title: "System Status",
-  render: (currentRoute, props) => <SystemStatus {...currentRoute.routeParams} {...props} />,
+  render: pageProps => <SystemStatus {...pageProps} />,
 });

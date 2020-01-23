@@ -92,7 +92,7 @@ class QueriesList extends React.Component {
     return (
       <div className="page-queries-list">
         <div className="container">
-          <PageHeader title={controller.params.title} />
+          <PageHeader title={controller.params.pageTitle} />
           <Layout className="m-l-15 m-r-15">
             <Layout.Sidebar className="m-b-0">
               <Sidebar.SearchInput
@@ -166,29 +166,21 @@ export default [
   routeWithUserSession({
     path: "/queries",
     title: "Queries",
-    render: (currentRoute, props) => (
-      <QueriesListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="all" />
-    ),
+    render: pageProps => <QueriesListPage {...pageProps} currentPage="all" />,
   }),
   routeWithUserSession({
     path: "/queries/favorites",
     title: "Favorite Queries",
-    render: (currentRoute, props) => (
-      <QueriesListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="favorites" />
-    ),
+    render: pageProps => <QueriesListPage {...pageProps} currentPage="favorites" />,
   }),
   routeWithUserSession({
     path: "/queries/archive",
     title: "Archived Queries",
-    render: (currentRoute, props) => (
-      <QueriesListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="archive" />
-    ),
+    render: pageProps => <QueriesListPage {...pageProps} currentPage="archive" />,
   }),
   routeWithUserSession({
     path: "/queries/my",
     title: "My Queries",
-    render: (currentRoute, props) => (
-      <QueriesListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="my" />
-    ),
+    render: pageProps => <QueriesListPage {...pageProps} currentPage="my" />,
   }),
 ];

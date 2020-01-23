@@ -108,5 +108,5 @@ const EditDestinationPage = wrapSettingsTab(null, EditDestination);
 export default routeWithUserSession({
   path: "/destinations/:destinationId([0-9]+)",
   title: "Alert Destinations",
-  render: (currentRoute, props) => <EditDestinationPage {...currentRoute.routeParams} {...props} />,
+  render: pageProps => <EditDestinationPage {...pageProps} />,
 });

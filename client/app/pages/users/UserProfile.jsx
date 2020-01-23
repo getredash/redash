@@ -60,11 +60,11 @@ export default [
   routeWithUserSession({
     path: "/users/me",
     title: "Account",
-    render: (currentRoute, props) => <UserProfilePage {...currentRoute.routeParams} {...props} />,
+    render: pageProps => <UserProfilePage {...pageProps} />,
   }),
   routeWithUserSession({
     path: "/users/:userId([0-9]+)",
     title: "Users",
-    render: (currentRoute, props) => <UserProfilePage {...currentRoute.routeParams} {...props} />,
+    render: pageProps => <UserProfilePage {...pageProps} />,
   }),
 ];

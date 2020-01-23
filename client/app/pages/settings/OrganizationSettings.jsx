@@ -283,5 +283,5 @@ const OrganizationSettingsPage = wrapSettingsTab(
 export default routeWithUserSession({
   path: "/settings/organization",
   title: "Organization Settings",
-  render: (currentRoute, props) => <OrganizationSettingsPage {...currentRoute.routeParams} {...props} />,
+  render: pageProps => <OrganizationSettingsPage {...pageProps} />,
 });

@@ -141,5 +141,5 @@ const EditDataSourcePage = wrapSettingsTab(null, EditDataSource);
 export default routeWithUserSession({
   path: "/data_sources/:dataSourceId([0-9]+)",
   title: "Data Sources",
-  render: (currentRoute, props) => <EditDataSourcePage {...currentRoute.routeParams} {...props} />,
+  render: pageProps => <EditDataSourcePage {...pageProps} />,
 });

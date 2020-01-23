@@ -75,7 +75,7 @@ class DashboardList extends React.Component {
     return (
       <div className="page-dashboard-list">
         <div className="container">
-          <PageHeader title={controller.params.title} />
+          <PageHeader title={controller.params.pageTitle} />
           <Layout className="m-l-15 m-r-15">
             <Layout.Sidebar className="m-b-0">
               <Sidebar.SearchInput
@@ -151,15 +151,11 @@ export default [
   routeWithUserSession({
     path: "/dashboards",
     title: "Dashboards",
-    render: (currentRoute, props) => (
-      <DashboardListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="all" />
-    ),
+    render: pageProps => <DashboardListPage {...pageProps} currentPage="all" />,
   }),
   routeWithUserSession({
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
-    render: (currentRoute, props) => (
-      <DashboardListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="favorites" />
-    ),
+    render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
   }),
 ];

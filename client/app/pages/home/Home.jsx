@@ -176,5 +176,5 @@ function Home() {
 export default routeWithUserSession({
   path: "/",
   title: "Redash",
-  render: (currentRoute, props) => <Home {...currentRoute.routeParams} {...props} />,
+  render: pageProps => <Home {...pageProps} />,
 });

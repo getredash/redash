@@ -186,7 +186,7 @@ QueryView.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-
 
 export default routeWithUserSession({
   path: "/queries/:queryId([0-9]+)",
-  render: (currentRoute, props) => <QueryView {...currentRoute.routeParams} {...props} />,
+  render: pageProps => <QueryView {...pageProps} />,
   resolve: {
     query: ({ queryId }) => Query.get({ id: queryId }),
   },

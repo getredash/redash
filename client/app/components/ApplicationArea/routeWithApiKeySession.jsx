@@ -3,6 +3,13 @@ import PropTypes from "prop-types";
 import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { Auth } from "@/services/auth";
 
+// This wrapper modifies `route.render` function and instead of passing `currentRoute` passes an object
+// that contains:
+// - `currentRoute.routeParams`
+// - `pageTitle` field which is equal to `currentRoute.title`
+// - `onError` field which is a `handleError` method of nearest error boundary
+// - `apiKey` field
+
 function ApiKeySessionWrapper({ apiKey, currentRoute, renderChildren }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { handleError } = useContext(ErrorBoundaryContext);
@@ -32,7 +39,7 @@ function ApiKeySessionWrapper({ apiKey, currentRoute, renderChildren }) {
 
   return (
     <React.Fragment key={currentRoute.key}>
-      {renderChildren(currentRoute, { apiKey, onError: handleError })}
+      {renderChildren({ ...currentRoute.routeParams, pageTitle: currentRoute.title, onError: handleError, apiKey })}
     </React.Fragment>
   );
 }

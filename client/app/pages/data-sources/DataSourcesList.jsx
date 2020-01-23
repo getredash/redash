@@ -158,13 +158,11 @@ export default [
   routeWithUserSession({
     path: "/data_sources",
     title: "Data Sources",
-    render: (currentRoute, props) => <DataSourcesListPage {...currentRoute.routeParams} {...props} />,
+    render: pageProps => <DataSourcesListPage {...pageProps} />,
   }),
   routeWithUserSession({
     path: "/data_sources/new",
     title: "Data Sources",
-    render: (currentRoute, props) => (
-      <DataSourcesListPage {...currentRoute.routeParams} {...props} isNewDataSourcePage />
-    ),
+    render: pageProps => <DataSourcesListPage {...pageProps} isNewDataSourcePage />,
   }),
 ];

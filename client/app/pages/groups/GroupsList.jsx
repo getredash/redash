@@ -151,7 +151,5 @@ const GroupsListPage = wrapSettingsTab(
 export default routeWithUserSession({
   path: "/groups",
   title: "Groups",
-  render: (currentRoute, props) => (
-    <GroupsListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="groups" />
-  ),
+  render: pageProps => <GroupsListPage {...pageProps} currentPage="groups" />,
 });

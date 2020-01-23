@@ -266,6 +266,6 @@ VisualizationEmbed.defaultProps = {
 
 export default routeWithApiKeySession({
   path: "/embed/query/:queryId/visualization/:visualizationId",
-  render: (currentRoute, props) => <VisualizationEmbed {...currentRoute.routeParams} {...props} />,
+  render: pageProps => <VisualizationEmbed {...pageProps} />,
   getApiKey: () => location.search.api_key,
 });

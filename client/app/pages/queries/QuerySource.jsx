@@ -446,7 +446,7 @@ QuerySource.propTypes = {
 export default [
   routeWithUserSession({
     path: "/queries/new",
-    render: (currentRoute, props) => <QuerySource {...currentRoute.routeParams} {...props} />,
+    render: pageProps => <QuerySource {...pageProps} />,
     resolve: {
       query: () => Query.newQuery(),
     },
@@ -454,7 +454,7 @@ export default [
   }),
   routeWithUserSession({
     path: "/queries/:queryId([0-9]+)/source",
-    render: (currentRoute, props) => <QuerySource {...currentRoute.routeParams} {...props} />,
+    render: pageProps => <QuerySource {...pageProps} />,
     resolve: {
       query: ({ queryId }) => Query.get({ id: queryId }),
     },
