@@ -183,6 +183,7 @@ class MongoDB(BaseQueryRunner):
             db_connection = pymongo.MongoClient(
                 self.configuration["connectionString"],
                 replicaSet=self.configuration["replicaSetName"],
+                readPreference=self.configuration.get("readPreference", "primaryPreferred")
             )
         else:
             db_connection = pymongo.MongoClient(self.configuration["connectionString"])
