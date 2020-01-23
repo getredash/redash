@@ -144,10 +144,17 @@ class MongoDB(BaseQueryRunner):
                     'type': 'string',
                     'title': 'Replica Set Name'
                 },
-                'readPreference': {
-                    'type': 'string',
-                    'title': 'Read preference (when replica set exists): primary, primaryPreferred, secondary, secondaryPreferred, or nearest'
-                }
+                "readPreference": {
+                    "type": "string",
+                    "extendedEnum": [
+                        {"value": "primary", "name": "Primary"},
+                        {"value": "primaryPreferred", "name": "Primary Preferred"},
+                        {"value": "secondary", "name": "Secondary"},
+                        {"value": "secondaryPreferred", "name": "Secondary Preferred"},
+                        {"value": "nearest", "name": "Nearest"},
+                    ],
+                    "title": "Replica Set Read Preference",
+                }                
             },
             "required": ["connectionString", "dbName"],
         }
