@@ -151,23 +151,15 @@ export default [
   routeWithUserSession({
     path: "/dashboards",
     title: "Dashboards",
-    render: (currentRoute, ...props) => (
-      <DashboardListPage
-        routeParams={{ ...currentRoute.routeParams, currentPage: "all" }}
-        currentRoute={currentRoute}
-        {...props}
-      />
+    render: (currentRoute, props) => (
+      <DashboardListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="all" />
     ),
   }),
   routeWithUserSession({
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
     render: (currentRoute, props) => (
-      <DashboardListPage
-        routeParams={{ ...currentRoute.routeParams, currentPage: "favorites" }}
-        currentRoute={currentRoute}
-        {...props}
-      />
+      <DashboardListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="favorites" />
     ),
   }),
 ];

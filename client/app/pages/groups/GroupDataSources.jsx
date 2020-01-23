@@ -251,9 +251,10 @@ export default routeWithUserSession({
   title: "Group Data Sources",
   render: (currentRoute, props) => (
     <GroupDataSourcesPage
-      routeParams={{ ...currentRoute.routeParams, currentPage: "datasources" }}
-      currentRoute={currentRoute}
+      {...currentRoute.routeParams}
       {...props}
+      title={currentRoute.title}
+      currentPage="datasources"
     />
   ),
 });

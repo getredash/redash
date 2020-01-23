@@ -174,9 +174,10 @@ export default routeWithUserSession({
   title: "Outdated Queries",
   render: (currentRoute, props) => (
     <OutdatedQueriesPage
-      routeParams={{ ...currentRoute.routeParams, currentPage: "outdated_queries" }}
-      currentRoute={currentRoute}
+      {...currentRoute.routeParams}
       {...props}
+      title={currentRoute.title}
+      currentPage="outdated_queries"
     />
   ),
 });

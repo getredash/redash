@@ -167,44 +167,28 @@ export default [
     path: "/queries",
     title: "Queries",
     render: (currentRoute, props) => (
-      <QueriesListPage
-        routeParams={{ ...currentRoute.routeParams, currentPage: "all" }}
-        currentRoute={currentRoute}
-        {...props}
-      />
+      <QueriesListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="all" />
     ),
   }),
   routeWithUserSession({
     path: "/queries/favorites",
     title: "Favorite Queries",
     render: (currentRoute, props) => (
-      <QueriesListPage
-        routeParams={{ ...currentRoute.routeParams, currentPage: "favorites" }}
-        currentRoute={currentRoute}
-        {...props}
-      />
+      <QueriesListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="favorites" />
     ),
   }),
   routeWithUserSession({
     path: "/queries/archive",
     title: "Archived Queries",
     render: (currentRoute, props) => (
-      <QueriesListPage
-        routeParams={{ ...currentRoute.routeParams, currentPage: "archive" }}
-        currentRoute={currentRoute}
-        {...props}
-      />
+      <QueriesListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="archive" />
     ),
   }),
   routeWithUserSession({
     path: "/queries/my",
     title: "My Queries",
     render: (currentRoute, props) => (
-      <QueriesListPage
-        routeParams={{ ...currentRoute.routeParams, currentPage: "my" }}
-        currentRoute={currentRoute}
-        {...props}
-      />
+      <QueriesListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="my" />
     ),
   }),
 ];

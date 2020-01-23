@@ -38,13 +38,11 @@ export const ControllerType = PropTypes.shape({
 export function wrap(WrappedComponent, createItemsSource, createStateStorage) {
   class ItemsListWrapper extends React.Component {
     static propTypes = {
-      ...omit(WrappedComponent.propTypes, ["controller"]),
       onError: PropTypes.func,
       children: PropTypes.node,
     };
 
     static defaultProps = {
-      ...omit(WrappedComponent.defaultProps, ["controller"]),
       onError: error => {
         // Allow calling chain to roll up, and then throw the error in global context
         setTimeout(() => {
@@ -102,20 +100,13 @@ export function wrap(WrappedComponent, createItemsSource, createStateStorage) {
 
     // eslint-disable-next-line class-methods-use-this
     getState({ isLoaded, totalCount, pageItems, params, ...rest }) {
-      params = {
-        // Custom params from items source
-        ...params,
-
-        title: this.props.currentRoute.title,
-        ...this.props.routeParams,
-
-        // Add to params all props except of own ones
-        ...omit(this.props, ["onError", "children", "currentRoute", "routeParams"]),
-      };
       return {
         ...rest,
 
-        params,
+        params: {
+          ...params, // custom params from items source
+          ...omit(this.props, ["onError", "children"]), // add all props except of own ones
+        },
 
         isLoaded,
         isEmpty: !isLoaded || totalCount === 0,
@@ -128,8 +119,11 @@ export function wrap(WrappedComponent, createItemsSource, createStateStorage) {
     render() {
       // don't pass own props to wrapped component
       const { children, onError, ...props } = this.props;
-      props.controller = this.state;
-      return <WrappedComponent {...props}>{children}</WrappedComponent>;
+      return (
+        <WrappedComponent {...props} controller={this.state}>
+          {children}
+        </WrappedComponent>
+      );
     }
   }
 

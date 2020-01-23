@@ -214,9 +214,10 @@ export default [
     title: "Query Snippets",
     render: (currentRoute, props) => (
       <QuerySnippetsListPage
-        routeParams={{ ...currentRoute.routeParams, currentPage: "query_snippets" }}
-        currentRoute={currentRoute}
+        {...currentRoute.routeParams}
         {...props}
+        title={currentRoute.title}
+        currentPage="query_snippets"
       />
     ),
   }),
@@ -225,9 +226,11 @@ export default [
     title: "Query Snippets",
     render: (currentRoute, props) => (
       <QuerySnippetsListPage
-        routeParams={{ ...currentRoute.routeParams, currentPage: "query_snippets", isNewOrEditPage: true }}
-        currentRoute={currentRoute}
+        {...currentRoute.routeParams}
         {...props}
+        title={currentRoute.title}
+        currentPage="query_snippets"
+        isNewOrEditPage
       />
     ),
   }),

@@ -124,10 +124,6 @@ export default routeWithUserSession({
   path: "/alerts",
   title: "Alerts",
   render: (currentRoute, props) => (
-    <AlertsListPage
-      routeParams={{ ...currentRoute.routeParams, currentPage: "alerts" }}
-      currentRoute={currentRoute}
-      {...props}
-    />
+    <AlertsListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="alerts" />
   ),
 });

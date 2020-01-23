@@ -213,10 +213,6 @@ export default routeWithUserSession({
   path: "/groups/:groupId([0-9]+)",
   title: "Group Members",
   render: (currentRoute, props) => (
-    <GroupMembersPage
-      routeParams={{ ...currentRoute.routeParams, currentPage: "users" }}
-      currentRoute={currentRoute}
-      {...props}
-    />
+    <GroupMembersPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="users" />
   ),
 });

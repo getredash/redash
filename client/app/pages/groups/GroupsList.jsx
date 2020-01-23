@@ -152,10 +152,6 @@ export default routeWithUserSession({
   path: "/groups",
   title: "Groups",
   render: (currentRoute, props) => (
-    <GroupsListPage
-      routeParams={{ ...currentRoute.routeParams, currentPage: "groups" }}
-      currentRoute={currentRoute}
-      {...props}
-    />
+    <GroupsListPage {...currentRoute.routeParams} {...props} title={currentRoute.title} currentPage="groups" />
   ),
 });
