@@ -57,8 +57,13 @@ class DynamicForm extends React.Component {
     super(props);
 
     const hasFilledExtraField = some(props.fields, field => {
-      const { extra, initialValue } = field;
-      return extra && (!isEmpty(initialValue) || isNumber(initialValue) || (isBoolean(initialValue) && initialValue));
+      const { extra, initialValue, placeholder } = field;
+      return (
+        extra &&
+        (!isEmpty(initialValue) ||
+          isNumber(initialValue) ||
+          (isBoolean(initialValue) && initialValue.toString() !== placeholder))
+      );
     });
 
     const inProgressActions = {};
