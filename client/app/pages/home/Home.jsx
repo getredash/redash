@@ -123,9 +123,7 @@ function DashboardAndQueryFavoritesList() {
               itemUrl={dashboard => `dashboard/${dashboard.slug}`}
               emptyState={
                 <p>
-                  <span className="btn-favourite m-r-5">
-                    <i className="fa fa-star" aria-hidden="true" />
-                  </span>
+                  <FavoritesControl className="m-r-5" item={{ is_favorite: true }} readOnly />
                   Favorite <a href="dashboards">Dashboards</a> will appear here
                 </p>
               }
@@ -138,9 +136,7 @@ function DashboardAndQueryFavoritesList() {
               itemUrl={query => `queries/${query.id}`}
               emptyState={
                 <p>
-                  <span className="btn-favourite m-r-5">
-                    <i className="fa fa-star" aria-hidden="true" />
-                  </span>
+                  <FavoritesControl className="m-r-5" item={{ is_favorite: true }} readOnly />
                   Favorite <a href="queries">Queries</a> will appear here
                 </p>
               }

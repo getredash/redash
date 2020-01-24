@@ -6,6 +6,7 @@ import Dropdown from "antd/lib/dropdown";
 import Icon from "antd/lib/icon";
 import Menu from "antd/lib/menu";
 
+import FavoritesControl from "@/components/FavoritesControl";
 import HelpTrigger from "@/components/HelpTrigger";
 
 export default function FavoritesDropdown({ fetch, urlTemplate }) {
@@ -41,18 +42,14 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
     <Menu className="favorites-dropdown">
       {noItems ? (
         <Menu.Item>
-          <span className="btn-favourite m-r-5">
-            <i className="fa fa-star" />
-          </span>
+          <FavoritesControl className="m-r-5" item={{ is_favorite: true }} readOnly />
           No favorites selected yet <HelpTrigger type="FAVORITES" />
         </Menu.Item>
       ) : (
         items.map(item => (
           <Menu.Item key={item.id}>
             <a href={urlCompiled(item)}>
-              <span className="btn-favourite m-r-5">
-                <i className="fa fa-star" />
-              </span>
+              <FavoritesControl className="m-r-5" item={item} readOnly />
               {item.name}
             </a>
           </Menu.Item>
