@@ -4,7 +4,9 @@ import PropTypes from "prop-types";
 import { includes, isEmpty } from "lodash";
 import Alert from "antd/lib/alert";
 import Icon from "antd/lib/icon";
+import List from "antd/lib/list";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import FavoritesControl from "@/components/FavoritesControl";
 import EmptyState from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
 import BeaconConsent from "@/components/BeaconConsent";
@@ -80,17 +82,21 @@ function FavoriteList({ title, resource, itemUrl, emptyState }) {
         {loading && <Icon type="loading" />}
       </div>
       {!isEmpty(items) && (
-        <div className="list-group">
-          {items.map(item => (
-            <a key={itemUrl(item)} className="list-group-item" href={itemUrl(item)}>
-              <span className="btn-favourite m-r-5">
-                <i className="fa fa-star" aria-hidden="true" />
-              </span>
-              {item.name}
-              {item.is_draft && <span className="label label-default m-l-5">Unpublished</span>}
-            </a>
-          ))}
-        </div>
+        <List
+          bordered
+          size="small"
+          dataSource={items}
+          rowKey={item => itemUrl(item)}
+          renderItem={item => (
+            <List.Item className="ant-list-item-link">
+              <a href={itemUrl(item)}>
+                <FavoritesControl className="m-r-5" item={item} readOnly />
+                {item.name}
+                {item.is_draft && <span className="label label-default m-l-5">Unpublished</span>}
+              </a>
+            </List.Item>
+          )}
+        />
       )}
       {isEmpty(items) && !loading && emptyState}
     </>

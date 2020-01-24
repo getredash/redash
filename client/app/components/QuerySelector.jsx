@@ -10,8 +10,6 @@ import notification from "@/services/notification";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import useSearchResults from "@/lib/hooks/useSearchResults";
 
-import "./QuerySelector.less";
-
 function search(term) {
   // get recent
   if (!term) {
@@ -69,12 +67,11 @@ export default function QuerySelector(props) {
         dataSource={searchResults}
         rowKey="id"
         renderItem={query => (
-          <List.Item
-            className={cx("query-selector-result", { inactive: query.is_draft })}
-            onClick={query.is_draft ? null : () => selectQuery(query.id)}
-            data-test={`QueryId${query.id}`}>
-            {query.name}
-            <QueryTagsControl isDraft={query.is_draft} tags={query.tags} className="inline-tags-control m-l-10" />
+          <List.Item className={cx("query-selector-result", "ant-list-item-link", { inactive: query.is_draft })}>
+            <a onClick={query.is_draft ? null : () => selectQuery(query.id)} data-test={`QueryId${query.id}`}>
+              {query.name}
+              <QueryTagsControl isDraft={query.is_draft} tags={query.tags} className="inline-tags-control m-l-10" />
+            </a>
           </List.Item>
         )}
       />
