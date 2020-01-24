@@ -1,4 +1,4 @@
-@import '../assets/less/ant';
+@import "../assets/less/ant";
 
 .parameter-block {
   display: inline-block;
@@ -20,27 +20,43 @@
   }
 
   &.parameter-dragged {
-    box-shadow:  0 4px 9px -3px rgba(102, 136, 153, 0.15);
+    box-shadow: 0 4px 9px -3px rgba(102, 136, 153, 0.15);
   }
 }
 
 .parameter-heading {
   display: flex;
   align-items: center;
+  justify-content: stretch;
   padding-bottom: 4px;
 
   label {
+    flex: 1 1 auto;
     margin-bottom: 1px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 100%;
-    max-width: 195px;
-    white-space: nowrap;
+    position: relative;
 
-    .parameter-block[data-editable] & {
-      min-width: calc(100% - 27px); // make room for settings button
-      max-width: 195px - 27px;
+    &:before {
+      content: "Ij"; // placeholder
+      visibility: hidden;
     }
+
+    span {
+      position: absolute;
+      left: 0;
+      right: 0;
+
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .ant-btn {
+    flex: 0 0 auto;
+    margin-left: 5px;
+    padding: 0 !important;
+    width: 26px;
+    text-align: center;
   }
 }
 
@@ -88,7 +104,9 @@
         height: 27px;
       }
 
-      &:hover, &:focus, &:active {
+      &:hover,
+      &:focus,
+      &:active {
         background-color: #eef7fe;
       }
 

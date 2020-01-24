@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import Button from "antd/lib/button";
 import BigMessage from "@/components/BigMessage";
 import NoTaggedObjectsFound from "@/components/NoTaggedObjectsFound";
 import EmptyState from "@/components/empty-state/EmptyState";
@@ -19,10 +20,10 @@ export default function QueriesListEmptyState({ page, searchTerm, selectedTags }
     case "my":
       return (
         <div className="tiled bg-white p-15">
-          <a href="queries/new" className="btn btn-primary btn-sm">
+          <Button type="primary" size="small" href="queries/new">
             Create your first query
-          </a>{" "}
-          to populate My Queries list. Need help? Check out our{" "}
+          </Button>
+          <span> to populate My Queries list. Need help? Check out our </span>
           <a href="https://redash.io/help/user-guide/querying/writing-queries">query writing documentation</a>.
         </div>
       );

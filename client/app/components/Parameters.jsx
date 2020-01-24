@@ -1,6 +1,7 @@
 import { size, filter, forEach, extend } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
+import Button from "antd/lib/button";
 import { SortableContainer, SortableElement, DragHandle } from "@/components/sortable";
 import location from "@/services/location";
 import { Parameter, createParameter } from "@/services/parameters";
@@ -123,15 +124,16 @@ export default class Parameters extends React.Component {
     return (
       <div key={param.name} className="di-block" data-test={`ParameterName-${param.name}`}>
         <div className="parameter-heading">
-          <label>{param.title || toHuman(param.name)}</label>
+          <label>
+            <span>{param.title || toHuman(param.name)}</span>
+          </label>
           {editable && (
-            <button
-              className="btn btn-default btn-xs m-l-5"
+            <Button
+              size="small"
+              icon="setting"
               onClick={() => this.showParameterSettings(param, index)}
               data-test={`ParameterSettings-${param.name}`}
-              type="button">
-              <i className="fa fa-cog" />
-            </button>
+            />
           )}
         </div>
         <ParameterValueInput

@@ -1,4 +1,4 @@
-@import '../../../assets/less/inc/variables';
+@import "../../../assets/less/inc/variables";
 
 .tile .t-header .th-title a.query-link {
   color: rgba(0, 0, 0, 0.5);
@@ -151,7 +151,7 @@
     transition: all 100ms linear;
     transition-delay: 150ms;
     color: #bbbbbb;
-    background-color: rgba(255,255,255,.9);
+    background-color: rgba(255, 255, 255, 0.9);
     padding-left: 2px;
     padding-right: 1px;
     margin-right: -4px;
@@ -182,7 +182,8 @@
 }
 
 .tile {
-  .widget-menu-regular, .btn__refresh {
+  .widget-menu-regular,
+  .btn__refresh {
     opacity: 0 !important;
     transition: opacity 0.35s ease-in-out;
   }
@@ -214,7 +215,8 @@
   }
 
   &:hover {
-    .widget-menu-regular, .btn__refresh {
+    .widget-menu-regular,
+    .btn__refresh {
       opacity: 1 !important;
       transition: opacity 0.35s ease-in-out;
     }
@@ -230,17 +232,18 @@
     justify-content: space-between;
     align-items: center;
 
-    .btn-transparent {
+    .refresh-button,
+    .btn__refresh {
+      cursor: pointer;
+      padding: 5px 10px;
+
       &:first-child {
         margin-left: -10px;
       }
-
       &:last-child {
         margin-right: -10px;
       }
     }
-
-
 
     a {
       color: fade(@redash-black, 65%);
