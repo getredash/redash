@@ -15,7 +15,6 @@ export function SearchInput({ placeholder, value, showIcon, onChange }) {
   return (
     <div className="m-b-10">
       <InputControl
-        className="form-control"
         placeholder={placeholder}
         defaultValue={value}
         onChange={event => onChange(event.target.value)}

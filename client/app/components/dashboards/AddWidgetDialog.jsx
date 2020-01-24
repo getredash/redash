@@ -101,25 +101,23 @@ class AddWidgetDialog extends React.Component {
     }
     visualizationGroups = values(visualizationGroups);
     return (
-      <div>
-        <div className="form-group">
-          <label htmlFor="choose-visualization">Choose Visualization</label>
-          <Select
-            id="choose-visualization"
-            className="w-100"
-            defaultValue={first(this.state.selectedQuery.visualizations).id}
-            onChange={visualizationId => this.selectVisualization(this.state.selectedQuery, visualizationId)}>
-            {visualizationGroups.map(visualizations => (
-              <OptGroup label={visualizations[0].type} key={visualizations[0].type}>
-                {visualizations.map(visualization => (
-                  <Option value={visualization.id} key={visualization.id}>
-                    {visualization.name}
-                  </Option>
-                ))}
-              </OptGroup>
-            ))}
-          </Select>
-        </div>
+      <div className="m-t-15">
+        <label htmlFor="choose-visualization">Choose Visualization</label>
+        <Select
+          id="choose-visualization"
+          className="w-100"
+          defaultValue={first(this.state.selectedQuery.visualizations).id}
+          onChange={visualizationId => this.selectVisualization(this.state.selectedQuery, visualizationId)}>
+          {visualizationGroups.map(visualizations => (
+            <OptGroup label={visualizations[0].type} key={visualizations[0].type}>
+              {visualizations.map(visualization => (
+                <Option value={visualization.id} key={visualization.id}>
+                  {visualization.name}
+                </Option>
+              ))}
+            </OptGroup>
+          ))}
+        </Select>
       </div>
     );
   }
@@ -140,21 +138,23 @@ class AddWidgetDialog extends React.Component {
         okText="Add to Dashboard"
         width={700}>
         <div data-test="AddWidgetDialog">
-          <QuerySelector className="m-b-15" onChange={query => this.selectQuery(query)} />
+          <QuerySelector onChange={query => this.selectQuery(query)} />
           {this.state.selectedQuery && this.renderVisualizationInput()}
 
-          {this.state.parameterMappings.length > 0 && [
-            <label key="parameters-title" htmlFor="parameter-mappings">
-              Parameters
-            </label>,
-            <ParameterMappingListInput
-              key="parameters-list"
-              id="parameter-mappings"
-              mappings={this.state.parameterMappings}
-              existingParams={existingParams}
-              onChange={mappings => this.updateParamMappings(mappings)}
-            />,
-          ]}
+          {this.state.parameterMappings.length > 0 && (
+            <div className="m-t-15">
+              <label key="parameters-title" htmlFor="parameter-mappings">
+                Parameters
+              </label>
+              <ParameterMappingListInput
+                key="parameters-list"
+                id="parameter-mappings"
+                mappings={this.state.parameterMappings}
+                existingParams={existingParams}
+                onChange={mappings => this.updateParamMappings(mappings)}
+              />
+            </div>
+          )}
         </div>
       </Modal>
     );
