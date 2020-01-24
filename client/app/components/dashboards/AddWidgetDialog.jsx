@@ -140,7 +140,7 @@ class AddWidgetDialog extends React.Component {
         okText="Add to Dashboard"
         width={700}>
         <div data-test="AddWidgetDialog">
-          <QuerySelector onChange={query => this.selectQuery(query)} />
+          <QuerySelector className="m-b-15" onChange={query => this.selectQuery(query)} />
           {this.state.selectedQuery && this.renderVisualizationInput()}
 
           {this.state.parameterMappings.length > 0 && [

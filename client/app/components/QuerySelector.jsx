@@ -4,12 +4,14 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";
+import List from "antd/lib/list";
 import { Query } from "@/services/query";
 import notification from "@/services/notification";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import useSearchResults from "@/lib/hooks/useSearchResults";
 
-const { Option } = Select;
+import "./QuerySelector.less";
+
 function search(term) {
   // get recent
   if (!term) {
@@ -61,17 +63,21 @@ export default function QuerySelector(props) {
     }
 
     return (
-      <div className="list-group">
-        {searchResults.map(q => (
-          <a
-            className={cx("query-selector-result", "list-group-item", { inactive: q.is_draft })}
-            key={q.id}
-            onClick={() => selectQuery(q.id)}
-            data-test={`QueryId${q.id}`}>
-            {q.name} <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className="inline-tags-control" />
-          </a>
-        ))}
-      </div>
+      <List
+        bordered
+        size="small"
+        dataSource={searchResults}
+        rowKey="id"
+        renderItem={query => (
+          <List.Item
+            className={cx("query-selector-result", { inactive: query.is_draft })}
+            onClick={query.is_draft ? null : () => selectQuery(query.id)}
+            data-test={`QueryId${query.id}`}>
+            {query.name}
+            <QueryTagsControl isDraft={query.is_draft} tags={query.tags} className="inline-tags-control m-l-10" />
+          </List.Item>
+        )}
+      />
     );
   }
 
@@ -95,13 +101,13 @@ export default function QuerySelector(props) {
         notFoundContent={null}
         filterOption={false}
         defaultActiveFirstOption={false}
-        className={props.className}
+        className={cx("query-selector", props.className)}
         data-test="QuerySelector">
         {searchResults &&
           searchResults.map(q => {
             const disabled = q.is_draft;
             return (
-              <Option
+              <Select.Option
                 value={q.id}
                 key={q.id}
                 disabled={disabled}
@@ -113,7 +119,7 @@ export default function QuerySelector(props) {
                   tags={q.tags}
                   className={cx("inline-tags-control", { disabled })}
                 />
-              </Option>
+              </Select.Option>
             );
           })}
       </Select>
@@ -121,7 +127,7 @@ export default function QuerySelector(props) {
   }
 
   return (
-    <span data-test="QuerySelector">
+    <div className={cx("query-selector", props.className)} data-test="QuerySelector">
       {selectedQuery ? (
         <Input value={selectedQuery.name} suffix={clearIcon} readOnly />
       ) : (
@@ -135,7 +141,7 @@ export default function QuerySelector(props) {
       <div className="scrollbox" style={{ maxHeight: "50vh", marginTop: 15 }}>
         {searchResults && renderResults()}
       </div>
-    </span>
+    </div>
   );
 }
 

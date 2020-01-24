@@ -1,0 +1,17 @@
+@import (reference, less) "~@/assets/less/inc/variables.less";
+
+.query-selector {
+  .query-selector-result {
+    cursor: pointer;
+
+    &:hover,
+    &:active {
+      background: fade(@redash-gray, 5%);
+    }
+
+    &.inactive {
+      cursor: not-allowed;
+      background: fade(@redash-gray, 5%);
+    }
+  }
+}
