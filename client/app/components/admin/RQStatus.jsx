@@ -43,7 +43,7 @@ const otherJobsColumns = [
 const workersColumns = [
   Columns.custom(
     value => (
-      <span>
+      <span className="text-nowrap">
         <Badge status={{ busy: "processing", idle: "default", started: "success", suspended: "warning" }[value]} />{" "}
         {value}
       </span>

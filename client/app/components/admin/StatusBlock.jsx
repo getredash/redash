@@ -1,13 +1,22 @@
-/* eslint-disable react/prop-types */
-
-import { toPairs } from "lodash";
+import { isObject, toPairs } from "lodash";
 import React from "react";
 
 import List from "antd/lib/list";
 import Card from "antd/lib/card";
+import AntBadge from "antd/lib/badge";
 import TimeAgo from "@/components/TimeAgo";
 
 import { toHuman, prettySize } from "@/lib/utils";
+
+function Badge({ children }) {
+  // <Badge> does not properly render if children is a React node, so this is a "hack"
+  // to fix its appearance.
+  // TODO: Check if this will be fixed in next Antd versions
+  if (isObject(children)) {
+    children = <span className="ant-scroll-number ant-badge-count ant-badge-multiple-words">{children}</span>;
+  }
+  return <AntBadge count={children} showZero overflowCount={Infinity} />;
+}
 
 export function General({ info }) {
   info = toPairs(info);
@@ -19,9 +28,7 @@ export function General({ info }) {
           size="small"
           itemLayout="vertical"
           dataSource={info}
-          renderItem={([name, value]) => (
-            <List.Item extra={<span className="badge">{value}</span>}>{toHuman(name)}</List.Item>
-          )}
+          renderItem={([name, value]) => <List.Item extra={<Badge>{value}</Badge>}>{toHuman(name)}</List.Item>}
         />
       )}
     </Card>
@@ -37,9 +44,7 @@ export function DatabaseMetrics({ info }) {
           size="small"
           itemLayout="vertical"
           dataSource={info}
-          renderItem={([name, size]) => (
-            <List.Item extra={<span className="badge">{prettySize(size)}</span>}>{name}</List.Item>
-          )}
+          renderItem={([name, size]) => <List.Item extra={<Badge>{prettySize(size)}</Badge>}>{name}</List.Item>}
         />
       )}
     </Card>
@@ -56,9 +61,7 @@ export function Queues({ info }) {
           size="small"
           itemLayout="vertical"
           dataSource={info}
-          renderItem={([name, queue]) => (
-            <List.Item extra={<span className="badge">{queue.size}</span>}>{name}</List.Item>
-          )}
+          renderItem={([name, queue]) => <List.Item extra={<Badge>{queue.size}</Badge>}>{name}</List.Item>}
         />
       )}
     </Card>
@@ -70,23 +73,21 @@ export function Manager({ info }) {
     ? [
         <List.Item
           extra={
-            <span className="badge">
+            <Badge>
               <TimeAgo date={info.lastRefreshAt} placeholder="n/a" />
-            </span>
+            </Badge>
           }>
           Last Refresh
         </List.Item>,
         <List.Item
           extra={
-            <span className="badge">
+            <Badge>
               <TimeAgo date={info.startedAt} placeholder="n/a" />
-            </span>
+            </Badge>
           }>
           Started
         </List.Item>,
-        <List.Item extra={<span className="badge">{info.outdatedQueriesCount}</span>}>
-          Outdated Queries Count
-        </List.Item>,
+        <List.Item extra={<Badge>{info.outdatedQueriesCount}</Badge>}>Outdated Queries Count</List.Item>,
       ]
     : [];
 
