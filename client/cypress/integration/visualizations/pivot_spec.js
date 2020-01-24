@@ -105,6 +105,9 @@ describe("Pivot", () => {
         .focus()
         .type(" UNION ALL {enter}SELECT 'c' AS stage1, 'c5' AS stage2, 55 AS value");
 
+      // Editor changes are debounced, so wait a bit for Query Editor to receive new text and update its state
+      cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+
       cy.getByTestId("SaveButton").click();
       cy.getByTestId("ExecuteButton").click();
 
