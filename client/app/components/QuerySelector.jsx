@@ -67,8 +67,10 @@ export default function QuerySelector(props) {
         dataSource={searchResults}
         rowKey="id"
         renderItem={query => (
-          <List.Item className={cx("query-selector-result", "ant-list-item-link", { inactive: query.is_draft })}>
-            <a onClick={query.is_draft ? null : () => selectQuery(query.id)} data-test={`QueryId${query.id}`}>
+          <List.Item className={cx("ant-list-item-link", { inactive: query.is_draft })}>
+            <a
+              onClick={query.is_draft ? null : () => selectQuery(query.id)}
+              data-test={`QuerySelector.Query${query.id}`}>
               {query.name}
               <QueryTagsControl isDraft={query.is_draft} tags={query.tags} className="inline-tags-control m-l-10" />
             </a>
@@ -108,8 +110,7 @@ export default function QuerySelector(props) {
                 value={q.id}
                 key={q.id}
                 disabled={disabled}
-                className="query-selector-result"
-                data-test={`QueryId${q.id}`}>
+                data-test={`QuerySelector.Query${q.id}`}>
                 {q.name}{" "}
                 <QueryTagsControl
                   isDraft={q.is_draft}

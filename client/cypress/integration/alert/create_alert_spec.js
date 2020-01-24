@@ -17,7 +17,7 @@ describe("Create Alert", () => {
       cy.getByTestId("QuerySelector")
         .click()
         .type("Create Alert Query");
-      cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
+      cy.getByTestId(`QuerySelector.Query${queryId}`).click();
       cy.getByTestId("Criteria").should("exist");
       cy.percySnapshot("Create Alert second screen");
     });

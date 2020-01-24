@@ -28,7 +28,7 @@ describe("Dashboard Sharing", () => {
       editDashboard();
       cy.getByTestId("AddWidgetButton").click();
       cy.getByTestId("AddWidgetDialog").within(() => {
-        cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
+        cy.getByTestId(`QuerySelector.Query${queryId}`).click();
       });
       cy.contains("button", "Add to Dashboard").click();
       cy.getByTestId("AddWidgetDialog").should("not.exist");
@@ -153,7 +153,7 @@ describe("Dashboard Sharing", () => {
       editDashboard();
       cy.getByTestId("AddWidgetButton").click();
       cy.getByTestId("AddWidgetDialog").within(() => {
-        cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
+        cy.getByTestId(`QuerySelector.Query${queryId}`).click();
       });
       cy.contains("button", "Add to Dashboard").click();
       cy.getByTestId("AddWidgetDialog").should("not.exist");
