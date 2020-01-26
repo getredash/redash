@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { get, find, toUpper } from "lodash";
 import Modal from "antd/lib/modal";
 import DataSource, { IMG_ROOT } from "@/services/data-source";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import LoadingState from "@/components/items-list/components/LoadingState";
@@ -11,7 +11,6 @@ import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import HelpTrigger, { TYPES as HELP_TRIGGER_TYPES } from "@/components/HelpTrigger";
 import wrapSettingsTab from "@/components/SettingsWrapper";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 class EditDataSource extends React.Component {
   static propTypes = {
@@ -139,14 +138,8 @@ class EditDataSource extends React.Component {
 
 const EditDataSourcePage = wrapSettingsTab(null, EditDataSource);
 
-export default {
+export default routeWithUserSession({
   path: "/data_sources/:dataSourceId([0-9]+)",
   title: "Data Sources",
-  render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => <EditDataSourcePage {...currentRoute.routeParams} onError={handleError} />}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
-  ),
-};
+  render: pageProps => <EditDataSourcePage {...pageProps} />,
+});

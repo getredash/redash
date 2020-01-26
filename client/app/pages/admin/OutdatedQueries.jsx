@@ -4,13 +4,12 @@ import { axios } from "@/services/axios";
 
 import Switch from "antd/lib/switch";
 import * as Grid from "antd/lib/grid";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Paginator from "@/components/Paginator";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
 import TimeAgo from "@/components/TimeAgo";
 import Layout from "@/components/admin/Layout";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ItemsSource } from "@/components/items-list/classes/ItemsSource";
@@ -170,20 +169,8 @@ const OutdatedQueriesPage = itemsList(
   () => new StateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
-export default {
+export default routeWithUserSession({
   path: "/admin/queries/outdated",
   title: "Outdated Queries",
-  render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => (
-          <OutdatedQueriesPage
-            routeParams={{ ...currentRoute.routeParams, currentPage: "outdated_queries" }}
-            currentRoute={currentRoute}
-            onError={handleError}
-          />
-        )}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
-  ),
-};
+  render: pageProps => <OutdatedQueriesPage {...pageProps} currentPage="outdated_queries" />,
+});

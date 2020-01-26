@@ -9,9 +9,8 @@ import Input from "antd/lib/input";
 import Select from "antd/lib/select";
 import Checkbox from "antd/lib/checkbox";
 import Tooltip from "antd/lib/tooltip";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import LoadingState from "@/components/items-list/components/LoadingState";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { clientConfig } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
@@ -281,14 +280,8 @@ const OrganizationSettingsPage = wrapSettingsTab(
   OrganizationSettings
 );
 
-export default {
+export default routeWithUserSession({
   path: "/settings/organization",
   title: "Organization Settings",
-  render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => <OrganizationSettingsPage {...currentRoute.routeParams} onError={handleError} />}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
-  ),
-};
+  render: pageProps => <OrganizationSettingsPage {...pageProps} />,
+});

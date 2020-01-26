@@ -3,19 +3,18 @@ import React from "react";
 
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 import QuerySnippetDialog from "@/components/query-snippets/QuerySnippetDialog";
 
-import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
+import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
 
 import LoadingState from "@/components/items-list/components/LoadingState";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 import wrapSettingsTab from "@/components/SettingsWrapper";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import QuerySnippet from "@/services/query-snippet";
 import { currentUser } from "@/services/auth";
@@ -193,7 +192,7 @@ const QuerySnippetsListPage = wrapSettingsTab(
     path: "query_snippets",
     order: 5,
   },
-  liveItemsList(
+  itemsList(
     QuerySnippetsList,
     () =>
       new ResourceItemsSource({
@@ -210,38 +209,14 @@ const QuerySnippetsListPage = wrapSettingsTab(
 );
 
 export default [
-  {
+  routeWithUserSession({
     path: "/query_snippets",
     title: "Query Snippets",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <QuerySnippetsListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "query_snippets" }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
-  {
+    render: pageProps => <QuerySnippetsListPage {...pageProps} currentPage="query_snippets" />,
+  }),
+  routeWithUserSession({
     path: "/query_snippets/:querySnippetId(new|[0-9]+)",
     title: "Query Snippets",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <QuerySnippetsListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "query_snippets", isNewOrEditPage: true }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
+    render: pageProps => <QuerySnippetsListPage {...pageProps} currentPage="query_snippets" isNewOrEditPage />,
+  }),
 ];

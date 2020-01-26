@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Paginator from "@/components/Paginator";
 import DynamicComponent from "@/components/DynamicComponent";
 import { UserPreviewCard } from "@/components/PreviewCard";
@@ -22,7 +22,6 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 import Layout from "@/components/layouts/ContentWithSidebar";
 import CreateUserDialog from "@/components/users/CreateUserDialog";
 import wrapSettingsTab from "@/components/SettingsWrapper";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { currentUser } from "@/services/auth";
 import { policy } from "@/services/policy";
@@ -278,72 +277,24 @@ const UsersListPage = wrapSettingsTab(
 );
 
 export default [
-  {
-    path: "/users",
-    title: "Users",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <UsersListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "active" }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
-  {
+  routeWithUserSession({
     path: "/users/new",
     title: "Users",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <UsersListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "active", isNewUserPage: true }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
-  {
+    render: pageProps => <UsersListPage {...pageProps} currentPage="active" isNewUserPage />,
+  }),
+  routeWithUserSession({
+    path: "/users",
+    title: "Users",
+    render: pageProps => <UsersListPage {...pageProps} currentPage="active" />,
+  }),
+  routeWithUserSession({
     path: "/users/pending",
     title: "Pending Invitations",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <UsersListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "pending" }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
-  {
+    render: pageProps => <UsersListPage {...pageProps} currentPage="pending" />,
+  }),
+  routeWithUserSession({
     path: "/users/disabled",
     title: "Disabled Users",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <UsersListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "disabled" }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
+    render: pageProps => <UsersListPage {...pageProps} currentPage="disabled" />,
+  }),
 ];

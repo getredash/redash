@@ -9,14 +9,13 @@ import Menu from "antd/lib/menu";
 import Icon from "antd/lib/icon";
 import Modal from "antd/lib/modal";
 import Tooltip from "antd/lib/tooltip";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import FavoritesControl from "@/components/FavoritesControl";
 import EditInPlace from "@/components/EditInPlace";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
 import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
 import getTags from "@/services/getTags";
@@ -407,13 +406,7 @@ DashboardPage.defaultProps = {
   onError: PropTypes.func,
 };
 
-export default {
+export default routeWithUserSession({
   path: "/dashboard/:dashboardSlug",
-  render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => <DashboardPage {...currentRoute.routeParams} onError={handleError} />}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
-  ),
-};
+  render: pageProps => <DashboardPage {...pageProps} />,
+});

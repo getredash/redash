@@ -1,11 +1,10 @@
 import { toUpper } from "lodash";
 import React from "react";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import EmptyState from "@/components/empty-state/EmptyState";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
-import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
+import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
 
@@ -70,7 +69,7 @@ class AlertsList extends React.Component {
     return (
       <div className="page-alerts-list">
         <div className="container">
-          <PageHeader title={controller.params.title} />
+          <PageHeader title={controller.params.pageTitle} />
           <div className="m-l-15 m-r-15">
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && (
@@ -106,7 +105,7 @@ class AlertsList extends React.Component {
   }
 }
 
-const AlertsListPage = liveItemsList(
+const AlertsListPage = itemsList(
   AlertsList,
   () =>
     new ResourceItemsSource({
@@ -121,20 +120,8 @@ const AlertsListPage = liveItemsList(
   () => new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 20 })
 );
 
-export default {
+export default routeWithUserSession({
   path: "/alerts",
   title: "Alerts",
-  render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => (
-          <AlertsListPage
-            routeParams={{ ...currentRoute.routeParams, currentPage: "alerts" }}
-            currentRoute={currentRoute}
-            onError={handleError}
-          />
-        )}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
-  ),
-};
+  render: pageProps => <AlertsListPage {...pageProps} currentPage="alerts" />,
+});
