@@ -2,11 +2,11 @@ import { includes, map } from "lodash";
 import React from "react";
 import Button from "antd/lib/button";
 
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
-import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
+import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
 
@@ -20,7 +20,6 @@ import ListItemAddon from "@/components/groups/ListItemAddon";
 import Sidebar from "@/components/groups/DetailsPageSidebar";
 import Layout from "@/components/layouts/ContentWithSidebar";
 import wrapSettingsTab from "@/components/SettingsWrapper";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
@@ -194,7 +193,7 @@ class GroupMembers extends React.Component {
 
 const GroupMembersPage = wrapSettingsTab(
   null,
-  liveItemsList(
+  itemsList(
     GroupMembers,
     () =>
       new ResourceItemsSource({
@@ -210,20 +209,8 @@ const GroupMembersPage = wrapSettingsTab(
   )
 );
 
-export default {
+export default routeWithUserSession({
   path: "/groups/:groupId([0-9]+)",
   title: "Group Members",
-  render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => (
-          <GroupMembersPage
-            routeParams={{ ...currentRoute.routeParams, currentPage: "users" }}
-            currentRoute={currentRoute}
-            onError={handleError}
-          />
-        )}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
-  ),
-};
+  render: pageProps => <GroupMembersPage {...pageProps} currentPage="users" />,
+});
