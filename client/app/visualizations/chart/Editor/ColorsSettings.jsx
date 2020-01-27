@@ -1,5 +1,5 @@
 import React from "react";
-import { EditorPropTypes } from "@/visualizations";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 import PieColorsSettings from "./PieColorsSettings";
 import HeatmapColorsSettings from "./HeatmapColorsSettings";

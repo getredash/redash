@@ -1,6 +1,6 @@
 import React from "react";
 import { Section, Input } from "@/components/visualizations/editor";
-import { EditorPropTypes } from "@/visualizations";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function Editor({ options, onOptionsChange }) {
   const onXAxisLabelChanged = xAxisLabel => {

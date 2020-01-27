@@ -12,7 +12,8 @@ import notification from "@/services/notification";
 import Visualization from "@/services/visualization";
 import recordEvent from "@/services/recordEvent";
 import useQueryResult from "@/lib/hooks/useQueryResult";
-import { VisualizationType, registeredVisualizations, getDefaultVisualization, newVisualization } from "./index";
+import { VisualizationType } from "./prop-types";
+import registeredVisualizations, { getDefaultVisualization, newVisualization } from "./index";
 
 function updateQueryVisualizations(query, visualization) {
   const index = findIndex(query.visualizations, v => v.id === visualization.id);

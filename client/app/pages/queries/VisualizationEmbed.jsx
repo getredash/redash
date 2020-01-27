@@ -20,7 +20,7 @@ import Timer from "@/components/Timer";
 import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
 import VisualizationName from "@/visualizations/VisualizationName";
 import VisualizationRenderer from "@/visualizations/VisualizationRenderer";
-import { VisualizationType } from "@/visualizations";
+import { VisualizationType } from "@/visualizations/prop-types";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
 function VisualizationEmbedHeader({ queryName, queryDescription, visualization }) {

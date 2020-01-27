@@ -1,7 +1,7 @@
 import { isArray, isObject } from "lodash";
 import React, { useState, useEffect, useContext } from "react";
 import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
-import { RendererPropTypes } from "@/visualizations";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 import resizeObserver from "@/services/resizeObserver";
 
 import getChartData from "../getChartData";
