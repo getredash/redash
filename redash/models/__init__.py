@@ -187,9 +187,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
         if cache is None:
             query_runner = self.query_runner
-            schema = sorted(
-                query_runner.get_schema(get_stats=refresh), key=lambda t: t["name"]
-            )
+            schema = query_runner.get_schema(get_stats=refresh)
 
             redis_connection.set(self._schema_key, json_dumps(schema))
         else:

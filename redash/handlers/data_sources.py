@@ -200,12 +200,13 @@ class DataSourceSchemaResource(BaseResource):
             response["error"] = {"code": 2, "message": "Error retrieving schema."}
 
         try:
-            sorted_schema = [{"name": i['name'], "columns": sorted(i['columns'])} for i in schema]
+            sorted_schema = [{"name": i['name'], "columns": sorted(i['columns'])}
+                for i in sorted(schema, key=lambda x: x['name'])]
             response["schema"] = sorted_schema
         except Exception:
             logging.exception(
                 "Error sorting schema columns for data_source {}"\
-                .format(self.data_source.id))
+                .format(data_source_id))
             response['schema'] = schema
 
         return response
