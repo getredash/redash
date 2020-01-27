@@ -101,6 +101,7 @@ class GroupMembers extends React.Component {
 
   addMembers = () => {
     const alreadyAddedUsers = map(this.props.controller.allItems, u => u.id);
+    const handleDialogClose = () => this.props.controller.update();
     SelectItemsDialog.showModal({
       dialogTitle: "Add Members",
       inputPlaceholder: "Search users...",
@@ -130,10 +131,8 @@ class GroupMembers extends React.Component {
         return Promise.all(promises);
       },
     })
-      .result.catch(() => {}) // ignore dismiss
-      .finally(() => {
-        this.props.controller.update();
-      });
+      .onClose(handleDialogClose)
+      .onDismiss(handleDialogClose);
   };
 
   render() {

@@ -55,7 +55,7 @@ function useDashboard(dashboardData) {
       aclUrl,
       context: "dashboard",
       author: dashboard.user,
-    }).result.catch(() => {}); // ignore dismiss
+    });
   }, [dashboard]);
 
   const updateDashboard = useCallback(
@@ -141,12 +141,14 @@ function useDashboard(dashboardData) {
   }, [dashboard]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showShareDashboardDialog = useCallback(() => {
+    const handleDialogClose = () => setDashboard(currentDashboard => extend({}, currentDashboard));
+
     ShareDashboardDialog.showModal({
       dashboard,
       hasOnlySafeQueries,
     })
-      .result.catch(() => {}) // ignore dismiss
-      .finally(() => setDashboard(currentDashboard => extend({}, currentDashboard)));
+      .onClose(handleDialogClose)
+      .onDismiss(handleDialogClose);
   }, [dashboard, hasOnlySafeQueries]);
 
   const showAddTextboxDialog = useCallback(() => {
@@ -154,7 +156,7 @@ function useDashboard(dashboardData) {
       dashboard,
       onConfirm: text =>
         dashboard.addWidget(text).then(() => setDashboard(currentDashboard => extend({}, currentDashboard))),
-    }).result.catch(() => {}); // ignore dismiss
+    });
   }, [dashboard]);
 
   const showAddWidgetDialog = useCallback(() => {
@@ -174,7 +176,7 @@ function useDashboard(dashboardData) {
               setDashboard(currentDashboard => extend({}, currentDashboard))
             );
           }),
-    }).result.catch(() => {}); // ignore dismiss
+    });
   }, [dashboard]);
 
   const [refreshRate, setRefreshRate, disableRefreshRate] = useRefreshRateHandler(refreshDashboard);

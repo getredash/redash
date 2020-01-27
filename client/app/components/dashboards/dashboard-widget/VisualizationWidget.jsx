@@ -215,7 +215,7 @@ class VisualizationWidget extends React.Component {
   }
 
   expandWidget = () => {
-    ExpandedWidgetDialog.showModal({ widget: this.props.widget }).result.catch(() => {}); // ignore dismiss
+    ExpandedWidgetDialog.showModal({ widget: this.props.widget });
   };
 
   editParameterMappings = () => {
@@ -223,16 +223,14 @@ class VisualizationWidget extends React.Component {
     EditParameterMappingsDialog.showModal({
       dashboard,
       widget,
-    })
-      .result.then(valuesChanged => {
-        // refresh widget if any parameter value has been updated
-        if (valuesChanged) {
-          onRefresh();
-        }
-        onParameterMappingsChange();
-        this.setState({ localParameters: widget.getLocalParameters() });
-      })
-      .catch(() => {}); // ignore dismiss
+    }).onClose(valuesChanged => {
+      // refresh widget if any parameter value has been updated
+      if (valuesChanged) {
+        onRefresh();
+      }
+      onParameterMappingsChange();
+      this.setState({ localParameters: widget.getLocalParameters() });
+    });
   };
 
   renderVisualization() {

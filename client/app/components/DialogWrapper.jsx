@@ -14,9 +14,10 @@ import ReactDOM from "react-dom";
 
     {
       showModal: (dialogProps) => object({
-          result: Promise,
           close: (result) => void,
           dismiss: (reason) => void,
+          onClose: (handler) => this,
+          onDismiss: (handler) => this,
         }),
       Component: React.Component, // wrapped dialog component
     }
@@ -28,15 +29,14 @@ import ReactDOM from "react-dom";
 
     const dialog = SomeWrappedDialog.showModal({ greeting: 'Hello' })
 
-  To get result of modal, use `result` property:
+  To get result of modal, use `onClose`/`onDismiss` setters:
 
-    dialog.result
-      .then(...) // pressed OK button or used `close` method; resolved value is a result of dialog
-      .catch(...) // pressed Cancel button or used `dismiss` method; optional argument is a rejection reason.
+    dialog
+      .onClose(result => { ... }) // pressed OK button or used `close` method
+      .onDismiss(result => { ... }) // pressed Cancel button or used `dismiss` method
 
   Also, dialog has `close` and `dismiss` methods that allows to close dialog by caller. Passed arguments
-  will be used to resolve/reject `dialog.result` promise. `update` methods allows to pass new properties
-  to dialog.
+  will be passed to a corresponding handler. `update` method allows to pass new properties to dialog.
 
 
   Creating a dialog
@@ -88,21 +88,6 @@ import ReactDOM from "react-dom";
           <Modal {...dialog.props} onOk={() => this.customOkHandler()}>
         );
     }
-
-
-  Settings
-  ========
-
-  You can setup this wrapper to use custom `Promise` library (for example, Bluebird):
-
-    import DialogWrapper from 'path/to/DialogWrapper';
-    import Promise from 'bluebird';
-
-    DialogWrapper.Promise = Promise;
-
-  It could be useful to avoid `unhandledrejection` exception that would fire with native Promises,
-  or when some custom Promise library is used in application.
-
 */
 
 export const DialogPropType = PropTypes.shape({
@@ -116,13 +101,6 @@ export const DialogPropType = PropTypes.shape({
   dismiss: PropTypes.func.isRequired,
 });
 
-// default export of module
-const DialogWrapper = {
-  Promise,
-  DialogPropType,
-  wrap() {},
-};
-
 function openDialog(DialogComponent, props) {
   const dialog = {
     props: {
@@ -135,9 +113,9 @@ function openDialog(DialogComponent, props) {
     dismiss: () => {},
   };
 
-  const dialogResult = {
-    resolve: () => {},
-    reject: () => {},
+  const handlers = {
+    onClose: () => {},
+    onDismiss: () => {},
   };
 
   const container = document.createElement("div");
@@ -156,13 +134,13 @@ function openDialog(DialogComponent, props) {
   }
 
   function closeDialog(result) {
-    dialogResult.resolve(result);
+    handlers.onClose(result);
     dialog.props.visible = false;
     render();
   }
 
-  function dismissDialog(reason) {
-    dialogResult.reject(reason);
+  function dismissDialog(result) {
+    handlers.onDismiss(result);
     dialog.props.visible = false;
     render();
   }
@@ -180,19 +158,21 @@ function openDialog(DialogComponent, props) {
       props = { ...props, ...newProps };
       render();
     },
-    result: new DialogWrapper.Promise((resolve, reject) => {
-      dialogResult.resolve = resolve;
-      dialogResult.reject = reject;
-    }),
+    onClose: (handler) => {
+      if (isFunction(handler)) {
+        handlers.onClose = handler;
+      }
+      return result;
+    },
+    onDismiss: (handler) => {
+      if (isFunction(handler)) {
+        handlers.onDismiss = handler;
+      }
+      return result;
+    },
   };
 
   render(); // show it only when all structures initialized to avoid unnecessary re-rendering
-
-  // Some known libraries support
-  // Bluebird: http://bluebirdjs.com/docs/api/suppressunhandledrejections.html
-  if (isFunction(result.result.suppressUnhandledRejections)) {
-    result.result.suppressUnhandledRejections();
-  }
 
   return result;
 }
@@ -204,6 +184,7 @@ export function wrap(DialogComponent) {
   };
 }
 
-DialogWrapper.wrap = wrap;
-
-export default DialogWrapper;
+export default {
+  DialogPropType,
+  wrap,
+};

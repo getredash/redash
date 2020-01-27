@@ -135,6 +135,7 @@ class GroupDataSources extends React.Component {
   addDataSources = () => {
     const allDataSources = DataSource.query();
     const alreadyAddedDataSources = map(this.props.controller.allItems, ds => ds.id);
+    const handleDialogClose = () => this.props.controller.update();
     SelectItemsDialog.showModal({
       dialogTitle: "Add Data Sources",
       inputPlaceholder: "Search data sources...",
@@ -167,10 +168,8 @@ class GroupDataSources extends React.Component {
         return Promise.all(promises);
       },
     })
-      .result.catch(() => {}) // ignore dismiss
-      .finally(() => {
-        this.props.controller.update();
-      });
+      .onClose(handleDialogClose)
+      .onDismiss(handleDialogClose);
   };
 
   render() {
