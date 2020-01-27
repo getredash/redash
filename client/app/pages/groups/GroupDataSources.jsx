@@ -1,4 +1,4 @@
-import { filter, map, includes } from "lodash";
+import { filter, map, includes, toLower } from "lodash";
 import React from "react";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
@@ -135,14 +135,13 @@ class GroupDataSources extends React.Component {
   addDataSources = () => {
     const allDataSources = DataSource.query();
     const alreadyAddedDataSources = map(this.props.controller.allItems, ds => ds.id);
-    const handleDialogClose = () => this.props.controller.update();
     SelectItemsDialog.showModal({
       dialogTitle: "Add Data Sources",
       inputPlaceholder: "Search data sources...",
       selectedItemsTitle: "New Data Sources",
       searchItems: searchTerm => {
-        searchTerm = searchTerm.toLowerCase();
-        return allDataSources.then(items => filter(items, ds => ds.name.toLowerCase().includes(searchTerm)));
+        searchTerm = toLower(searchTerm);
+        return allDataSources.then(items => filter(items, ds => includes(toLower(ds.name), searchTerm)));
       },
       renderItem: (item, { isSelected }) => {
         const alreadyInGroup = includes(alreadyAddedDataSources, item.id);
@@ -163,13 +162,10 @@ class GroupDataSources extends React.Component {
           </DataSourcePreviewCard>
         ),
       }),
-      save: items => {
-        const promises = map(items, ds => Group.addDataSource({ id: this.groupId }, { data_source_id: ds.id }));
-        return Promise.all(promises);
-      },
-    })
-      .onClose(handleDialogClose)
-      .onDismiss(handleDialogClose);
+    }).onClose(items => {
+      const promises = map(items, ds => Group.addDataSource({ id: this.groupId }, { data_source_id: ds.id }));
+      return Promise.all(promises).then(() => this.props.controller.update());
+    });
   };
 
   render() {

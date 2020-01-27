@@ -13,11 +13,10 @@ function TextboxWidget(props) {
   const editTextBox = () => {
     TextboxDialog.showModal({
       text: widget.text,
-      onConfirm: newText => {
-        widget.text = newText;
-        setText(newText);
-        return widget.save();
-      },
+    }).onClose(newText => {
+      widget.text = newText;
+      setText(newText);
+      return widget.save();
     });
   };
 

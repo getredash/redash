@@ -153,30 +153,30 @@ function useDashboard(dashboardData) {
 
   const showAddTextboxDialog = useCallback(() => {
     TextboxDialog.showModal({
-      dashboard,
-      onConfirm: text =>
-        dashboard.addWidget(text).then(() => setDashboard(currentDashboard => extend({}, currentDashboard))),
-    });
+      isNew: true,
+    }).onClose(text =>
+      dashboard.addWidget(text).then(() => setDashboard(currentDashboard => extend({}, currentDashboard)))
+    );
   }, [dashboard]);
 
   const showAddWidgetDialog = useCallback(() => {
     AddWidgetDialog.showModal({
       dashboard,
-      onConfirm: (visualization, parameterMappings) =>
-        dashboard
-          .addWidget(visualization, {
-            parameterMappings: editableMappingsToParameterMappings(parameterMappings),
-          })
-          .then(widget => {
-            const widgetsToSave = [
-              widget,
-              ...synchronizeWidgetTitles(widget.options.parameterMappings, dashboard.widgets),
-            ];
-            return Promise.all(widgetsToSave.map(w => w.save())).then(() =>
-              setDashboard(currentDashboard => extend({}, currentDashboard))
-            );
-          }),
-    });
+    }).onClose(({ visualization, parameterMappings }) =>
+      dashboard
+        .addWidget(visualization, {
+          parameterMappings: editableMappingsToParameterMappings(parameterMappings),
+        })
+        .then(widget => {
+          const widgetsToSave = [
+            widget,
+            ...synchronizeWidgetTitles(widget.options.parameterMappings, dashboard.widgets),
+          ];
+          return Promise.all(widgetsToSave.map(w => w.save())).then(() =>
+            setDashboard(currentDashboard => extend({}, currentDashboard))
+          );
+        })
+    );
   }, [dashboard]);
 
   const [refreshRate, setRefreshRate, disableRefreshRate] = useRefreshRateHandler(refreshDashboard);

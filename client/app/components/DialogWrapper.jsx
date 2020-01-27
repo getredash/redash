@@ -35,8 +35,14 @@ import ReactDOM from "react-dom";
       .onClose(result => { ... }) // pressed OK button or used `close` method
       .onDismiss(result => { ... }) // pressed Cancel button or used `dismiss` method
 
+  If `onClose`/`onDismiss` returns a promise - dialog wrapper will stop handling further close/dismiss
+  requests and will show loader on a corresponding button until that promise is fullfilled (either resolved or
+  rejected). If that promise will be rejected - dialog close/dismiss will be abandoned. Use promise returned
+  from `close`/`dismiss` methods to handle errors (if needed).
+
   Also, dialog has `close` and `dismiss` methods that allows to close dialog by caller. Passed arguments
-  will be passed to a corresponding handler. `update` method allows to pass new properties to dialog.
+  will be passed to a corresponding handler. Both methods will return the promise returned from `onClose` and
+ `onDismiss` callbacks. `update` method allows to pass new properties to dialog.
 
 
   Creating a dialog
@@ -105,6 +111,8 @@ function openDialog(DialogComponent, props) {
   const dialog = {
     props: {
       visible: true,
+      okButtonProps: {},
+      cancelButtonProps: {},
       onOk: () => {},
       onCancel: () => {},
       afterClose: () => {},
@@ -112,6 +120,8 @@ function openDialog(DialogComponent, props) {
     close: () => {},
     dismiss: () => {},
   };
+
+  let pendingCloseTask = null;
 
   const handlers = {
     onClose: () => {},
@@ -133,16 +143,43 @@ function openDialog(DialogComponent, props) {
     }, 10);
   }
 
-  function closeDialog(result) {
-    handlers.onClose(result);
-    dialog.props.visible = false;
+  function processDialogClose(result, setAdditionalDialogProps) {
+    dialog.props.okButtonProps = { disabled: true };
+    dialog.props.cancelButtonProps = { disabled: true };
+    setAdditionalDialogProps();
     render();
+
+    return Promise.resolve(result)
+      .then(() => {
+        dialog.props.visible = false;
+      })
+      .finally(() => {
+        dialog.props.okButtonProps = {};
+        dialog.props.cancelButtonProps = {};
+        render();
+      });
+  }
+
+  function closeDialog(result) {
+    if (!pendingCloseTask) {
+      pendingCloseTask = processDialogClose(handlers.onClose(result), () => {
+        dialog.props.okButtonProps.loading = true;
+      }).finally(() => {
+        pendingCloseTask = null;
+      });
+    }
+    return pendingCloseTask;
   }
 
   function dismissDialog(result) {
-    handlers.onDismiss(result);
-    dialog.props.visible = false;
-    render();
+    if (!pendingCloseTask) {
+      pendingCloseTask = processDialogClose(handlers.onDismiss(result), () => {
+        dialog.props.cancelButtonProps.loading = true;
+      }).finally(() => {
+        pendingCloseTask = null;
+      });
+    }
+    return pendingCloseTask;
   }
 
   dialog.props.onOk = closeDialog;
@@ -158,13 +195,13 @@ function openDialog(DialogComponent, props) {
       props = { ...props, ...newProps };
       render();
     },
-    onClose: (handler) => {
+    onClose: handler => {
       if (isFunction(handler)) {
         handlers.onClose = handler;
       }
       return result;
     },
-    onDismiss: (handler) => {
+    onDismiss: handler => {
       if (isFunction(handler)) {
         handlers.onDismiss = handler;
       }

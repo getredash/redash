@@ -101,7 +101,6 @@ class GroupMembers extends React.Component {
 
   addMembers = () => {
     const alreadyAddedUsers = map(this.props.controller.allItems, u => u.id);
-    const handleDialogClose = () => this.props.controller.update();
     SelectItemsDialog.showModal({
       dialogTitle: "Add Members",
       inputPlaceholder: "Search users...",
@@ -126,13 +125,10 @@ class GroupMembers extends React.Component {
           </UserPreviewCard>
         ),
       }),
-      save: items => {
-        const promises = map(items, u => Group.addMember({ id: this.groupId }, { user_id: u.id }));
-        return Promise.all(promises);
-      },
-    })
-      .onClose(handleDialogClose)
-      .onDismiss(handleDialogClose);
+    }).onClose(items => {
+      const promises = map(items, u => Group.addMember({ id: this.groupId }, { user_id: u.id }));
+      return Promise.all(promises).then(() => this.props.controller.update());
+    });
   };
 
   render() {
