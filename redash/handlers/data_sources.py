@@ -190,7 +190,7 @@ class DataSourceSchemaResource(BaseResource):
         response = {}
 
         try:
-            response['schema'] = data_source.get_schema(refresh)
+            response["schema"] = data_source.get_schema(refresh)
         except NotSupported:
             response["error"] = {
                 "code": 1,
