@@ -190,7 +190,7 @@ class DataSourceSchemaResource(BaseResource):
         response = {}
 
         try:
-            schema = data_source.get_schema(refresh)
+            response['schema'] = data_source.get_schema(refresh)
         except NotSupported:
             response["error"] = {
                 "code": 1,
@@ -198,16 +198,6 @@ class DataSourceSchemaResource(BaseResource):
             }
         except Exception:
             response["error"] = {"code": 2, "message": "Error retrieving schema."}
-
-        try:
-            sorted_schema = [{"name": i['name'], "columns": sorted(i['columns'])}
-                for i in sorted(schema, key=lambda x: x['name'])]
-            response["schema"] = sorted_schema
-        except Exception:
-            logging.exception(
-                "Error sorting schema columns for data_source {}"\
-                .format(data_source_id))
-            response['schema'] = schema
 
         return response
 
