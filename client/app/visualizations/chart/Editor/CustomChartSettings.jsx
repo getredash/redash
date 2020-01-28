@@ -1,7 +1,7 @@
 import { isNil, trimStart } from "lodash";
 import React from "react";
 import { Section, Switch, TextArea } from "@/components/visualizations/editor";
-import { EditorPropTypes } from "@/visualizations";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 const defaultCustomCode = trimStart(`
 // Available variables are x, ys, element, and Plotly

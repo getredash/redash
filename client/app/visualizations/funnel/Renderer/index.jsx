@@ -2,7 +2,7 @@ import { maxBy } from "lodash";
 import React, { useMemo } from "react";
 import Table from "antd/lib/table";
 import Tooltip from "antd/lib/tooltip";
-import { RendererPropTypes } from "@/visualizations";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 import ColorPalette from "@/visualizations/ColorPalette";
 import { createNumberFormatter } from "@/lib/value-format";
 

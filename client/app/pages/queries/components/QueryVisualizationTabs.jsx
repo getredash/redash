@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { find, orderBy } from "lodash";
 import useMedia from "use-media";
 import Tabs from "antd/lib/tabs";
-import VisualizationRenderer from "@/visualizations/VisualizationRenderer";
+import VisualizationRenderer from "@/visualizations/components/VisualizationRenderer";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
 

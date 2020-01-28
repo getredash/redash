@@ -1,15 +1,18 @@
 // This polyfill is needed to support PhantomJS which we use to generate PNGs from embeds.
 import "core-js/fn/typed/array-buffer";
 
-// Ensure that this image will be available in assets folder
-import "@/assets/images/avatar.svg";
-
+import moment from "moment";
 import * as Pace from "pace-progress";
 import { isFunction } from "lodash";
 import url from "@/services/url";
 
+// Ensure that this image will be available in assets folder
+import "@/assets/images/avatar.svg";
+
+// Register visualizations
+import "@/visualizations";
+
 import "./antd-spinner";
-import moment from "moment";
 
 Pace.options.shouldHandlePushState = (prevUrl, newUrl) => {
   // Show pace progress bar only if URL path changed; when query params
@@ -37,7 +40,14 @@ moment.updateLocale("en", {
   },
 });
 
-function registerAll(context) {
+function requireImages() {
+  // client/app/assets/images/<path> => /images/<path>
+  const ctx = require.context("@/assets/images/", true, /\.(png|jpe?g|gif|svg)$/);
+  ctx.keys().forEach(ctx);
+}
+
+function registerExtensions() {
+  const context = require.context("extensions", true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
   const modules = context
     .keys()
     .map(context)
@@ -49,22 +59,5 @@ function registerAll(context) {
     .map(f => f());
 }
 
-function requireImages() {
-  // client/app/assets/images/<path> => /images/<path>
-  const ctx = require.context("@/assets/images/", true, /\.(png|jpe?g|gif|svg)$/);
-  ctx.keys().forEach(ctx);
-}
-
-function registerExtensions() {
-  const context = require.context("extensions", true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
-  registerAll(context);
-}
-
-function registerVisualizations() {
-  const context = require.context("@/visualizations", true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
-  registerAll(context);
-}
-
 requireImages();
 registerExtensions();
-registerVisualizations();

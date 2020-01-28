@@ -1,7 +1,7 @@
 import { omit, merge } from "lodash";
 import React, { useState, useEffect } from "react";
 import { axios } from "@/services/axios";
-import { RendererPropTypes } from "@/visualizations";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 import useMemoWithDeepCompare from "@/lib/hooks/useMemoWithDeepCompare";
 
 import initChoropleth from "./initChoropleth";
