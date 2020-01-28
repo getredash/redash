@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { RendererPropTypes } from "@/visualizations/prop-types";
-import ColorPalette from "@/visualizations/ColorPalette";
 
 import prepareData from "./prepareData";
 import "./renderer.less";
@@ -14,10 +13,19 @@ export default function Renderer({ data, options }) {
     () => ({
       initialDate,
       timeInterval: options.timeInterval,
-      peopleColumnTitle: "Users",
-      colors: {
-        max: ColorPalette["Dark Blue"],
-      },
+
+      noValuePlaceholder: options.noValuePlaceholder,
+      rawNumberOnHover: options.showTooltips,
+      displayAbsoluteValues: !options.percentValues,
+
+      timeColumnTitle: options.timeColumnTitle,
+      peopleColumnTitle: options.peopleColumnTitle,
+      stageColumnTitle: options.stageColumnTitle,
+
+      numberFormat: options.numberFormat,
+      percentFormat: options.percentFormat,
+
+      colors: options.colors,
     }),
     [options, initialDate]
   );
