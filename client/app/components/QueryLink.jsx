@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { VisualizationType } from "@/visualizations";
-import VisualizationName from "@/visualizations/VisualizationName";
+import { VisualizationType } from "@/visualizations/prop-types";
+import VisualizationName from "@/visualizations/components/VisualizationName";
 
 import "./QueryLink.less";
 

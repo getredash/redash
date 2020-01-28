@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { map, mapValues, keyBy } from "lodash";
 import moment from "moment";
-import { RendererPropTypes } from "@/visualizations";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 import { clientConfig } from "@/services/auth";
 import Pagination from "antd/lib/pagination";
 

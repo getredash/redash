@@ -1,6 +1,6 @@
 import { map } from "lodash";
 import React, { useMemo } from "react";
-import { EditorPropTypes } from "@/visualizations";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 import { Section, Select } from "@/components/visualizations/editor";
 import { inferCountryCodeType } from "./utils";
 

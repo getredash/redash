@@ -2,7 +2,7 @@ import { isFunction, map, filter, extend, merge } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import Tabs from "antd/lib/tabs";
-import { EditorPropTypes } from "@/visualizations";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export const UpdateOptionsStrategy = {
   replace: (existingOptions, newOptions) => merge({}, newOptions),
