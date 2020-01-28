@@ -2,7 +2,7 @@ import { map } from "lodash";
 import React, { useMemo } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Section, Select, Input, Checkbox } from "@/components/visualizations/editor";
-import { EditorPropTypes } from "@/visualizations";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function GeneralSettings({ options, data, onOptionsChange }) {
   const columnNames = useMemo(() => map(data.columns, c => c.name), [data]);

@@ -2,7 +2,7 @@ import { map, each } from "lodash";
 import d3 from "d3";
 import React, { useState, useEffect } from "react";
 import resizeObserver from "@/services/resizeObserver";
-import { RendererPropTypes } from "@/visualizations";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 import box from "./d3box";
 import "./renderer.less";
 

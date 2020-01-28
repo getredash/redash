@@ -2,7 +2,7 @@ import { map } from "lodash";
 import React, { useMemo, useCallback } from "react";
 import Table from "antd/lib/table";
 import ColorPicker from "@/components/ColorPicker";
-import { EditorPropTypes } from "@/visualizations";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 import ColorPalette from "@/visualizations/ColorPalette";
 
 import prepareData from "../prepareData";

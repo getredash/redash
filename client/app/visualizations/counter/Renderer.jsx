@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import cx from "classnames";
 import Tooltip from "antd/lib/tooltip";
 import resizeObserver from "@/services/resizeObserver";
-import { RendererPropTypes } from "@/visualizations";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 
 import { getCounterData } from "./utils";
 

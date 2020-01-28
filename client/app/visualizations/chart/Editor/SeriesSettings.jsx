@@ -6,7 +6,7 @@ import Input from "antd/lib/input";
 import Radio from "antd/lib/radio";
 import { sortableElement } from "react-sortable-hoc";
 import { SortableContainer, DragHandle } from "@/components/sortable";
-import { EditorPropTypes } from "@/visualizations";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 import ChartTypeSelect from "./ChartTypeSelect";
 import getChartData from "../getChartData";
 

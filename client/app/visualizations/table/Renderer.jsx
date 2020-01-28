@@ -2,7 +2,7 @@ import { filter } from "lodash";
 import React, { useMemo, useState, useRef, useCallback, useEffect } from "react";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
-import { RendererPropTypes } from "@/visualizations";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 
 import { prepareColumns, initRows, filterRows, sortRows } from "./utils";
 

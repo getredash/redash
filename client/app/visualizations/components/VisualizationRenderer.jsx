@@ -4,7 +4,8 @@ import PropTypes from "prop-types";
 import useQueryResult from "@/lib/hooks/useQueryResult";
 import ErrorBoundary, { ErrorMessage } from "@/components/ErrorBoundary";
 import Filters, { FiltersType, filterData } from "@/components/Filters";
-import { registeredVisualizations, VisualizationType } from "./index";
+import { VisualizationType } from "@/visualizations/prop-types";
+import registeredVisualizations from "@/visualizations";
 
 function combineFilters(localFilters, globalFilters) {
   // tiny optimization - to avoid unnecessary updates
