@@ -79,7 +79,7 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
 
       <Section>
         <Checkbox
-          data-test="Counter.Formatting.FormatTargetValue"
+          data-test="Counter.ShowTooltip"
           checked={options.showTooltip}
           onChange={event => onOptionsChange({ showTooltip: event.target.checked })}>
           Show Tooltip
