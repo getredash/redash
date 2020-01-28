@@ -19,6 +19,7 @@ export default function OptionsSettings({ options, onOptionsChange }) {
     <React.Fragment>
       <Section>
         <Select
+          layout="horizontal"
           label="Time Interval"
           data-test="Cohort.TimeInterval"
           className="w-100"
@@ -34,6 +35,7 @@ export default function OptionsSettings({ options, onOptionsChange }) {
 
       <Section>
         <Select
+          layout="horizontal"
           label="Mode"
           data-test="Cohort.Mode"
           className="w-100"
