@@ -1,6 +1,6 @@
 import { map } from "lodash";
 import React from "react";
-import { Section, Select, Input, InputNumber, Switch } from "@/components/visualizations/editor";
+import { Section, Select, Input, InputNumber, Checkbox } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function GeneralSettings({ options, data, visualizationName, onOptionsChange }) {
@@ -76,12 +76,12 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
       </Section>
 
       <Section>
-        <Switch
+        <Checkbox
           data-test="Counter.General.CountRows"
-          defaultChecked={options.countRow}
-          onChange={countRow => onOptionsChange({ countRow })}>
+          checked={options.countRow}
+          onChange={event => onOptionsChange({ countRow: event.target.checked })}>
           Count Rows
-        </Switch>
+        </Checkbox>
       </Section>
     </React.Fragment>
   );

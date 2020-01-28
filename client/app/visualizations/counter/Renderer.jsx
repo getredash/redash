@@ -59,14 +59,15 @@ export default function Renderer({ data, options, visualizationName }) {
       className={cx("counter-visualization-container", {
         "trend-positive": showTrend && trendPositive,
         "trend-negative": showTrend && !trendPositive,
+        "with-tooltips": options.showTooltip,
       })}>
       <div className="counter-visualization-content" ref={setContainer}>
         <div style={getCounterStyles(scale)}>
-          <Tooltip title={counterValueTooltip} placement="bottom" mouseEnterDelay={0} mouseLeaveDelay={0}>
+          <Tooltip title={options.showTooltip ? counterValueTooltip : null} mouseEnterDelay={0} mouseLeaveDelay={0}>
             <div className="counter-visualization-value">{counterValue}</div>
           </Tooltip>
           {targetValue && (
-            <Tooltip title={targetValueTooltip} placement="bottom" mouseEnterDelay={0} mouseLeaveDelay={0}>
+            <Tooltip title={options.showTooltip ? targetValueTooltip : null} mouseEnterDelay={0} mouseLeaveDelay={0}>
               <div className="counter-visualization-target">({targetValue})</div>
             </Tooltip>
           )}

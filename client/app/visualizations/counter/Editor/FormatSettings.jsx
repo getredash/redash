@@ -1,5 +1,5 @@
 import React from "react";
-import { Section, Input, InputNumber, Switch, ContextHelp } from "@/components/visualizations/editor";
+import { Section, Input, InputNumber, Checkbox, ContextHelp } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 import { isValueNumber } from "../utils";
@@ -69,28 +69,37 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
       </Section>
 
       <Section>
+        <Checkbox
+          data-test="Counter.Formatting.FormatTargetValue"
+          checked={options.formatTargetValue}
+          onChange={event => onOptionsChange({ formatTargetValue: event.target.checked })}>
+          Format Target Value
+        </Checkbox>
+      </Section>
+
+      <Section>
+        <Checkbox
+          data-test="Counter.Formatting.FormatTargetValue"
+          checked={options.showTooltip}
+          onChange={event => onOptionsChange({ showTooltip: event.target.checked })}>
+          Show Tooltip
+        </Checkbox>
+      </Section>
+
+      <Section>
         <Input
           layout="horizontal"
           label={
             <React.Fragment>
-              Tooltip format <ContextHelp.NumberFormatSpecs />
+              Tooltip Format <ContextHelp.NumberFormatSpecs />
             </React.Fragment>
           }
           className="w-100"
           data-test="Counter.TooltipFormat"
           defaultValue={options.tooltipFormat}
-          disabled={!inputsEnabled}
+          disabled={!inputsEnabled || !options.showTooltip}
           onChange={e => onOptionsChange({ tooltipFormat: e.target.value })}
         />
-      </Section>
-
-      <Section>
-        <Switch
-          data-test="Counter.Formatting.FormatTargetValue"
-          defaultChecked={options.formatTargetValue}
-          onChange={formatTargetValue => onOptionsChange({ formatTargetValue })}>
-          Format Target Value
-        </Switch>
       </Section>
     </React.Fragment>
   );

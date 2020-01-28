@@ -9,6 +9,7 @@ const DEFAULT_OPTIONS = {
   stringDecimal: 0,
   stringDecChar: ".",
   stringThouSep: ",",
+  showTooltip: true,
   tooltipFormat: "0,0.000",
 };
 
