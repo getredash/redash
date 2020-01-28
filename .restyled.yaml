@@ -1,0 +1,61 @@
+enabled: true
+
+auto: false
+
+# Open Restyle PRs?
+pull_requests: true
+
+# Leave comments on the original PR linking to the Restyle PR?
+comments: true
+
+# Set commit statuses on the original PR?
+statuses:
+  # Red status in the case of differences found
+  differences: true
+  # Green status in the case of no differences found
+  no_differences: true
+  # Red status if we encounter errors restyling
+  error: true
+
+# Request review on the Restyle PR?
+#
+# Possible values:
+#
+#   author: From the author of the original PR
+#   owner: From the owner of the repository
+#   none: Don't
+#
+# One value will apply to both origin and forked PRs, but you can also specify
+# separate values.
+#
+#   request_review:
+#     origin: author
+#     forked: owner
+#
+request_review: author
+
+# Add labels to any created Restyle PRs
+#
+# These can be used to tell other automation to avoid our PRs.
+#
+labels: ["Skip CI"]
+
+# Labels to ignore
+#
+# PRs with any of these labels will be ignored by Restyled.
+#
+# ignore_labels:
+#   - restyled-ignore
+
+# Restylers to run, and how
+restylers:
+  - name: black
+    include:
+      - redash
+      - tests
+      - migrations/versions
+  - name: prettier
+    include:
+      - client/app/**/*.js
+      - client/app/**/*.jsx
+      - client/cypress/**/*.js

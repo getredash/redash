@@ -41,14 +41,18 @@ class TestAlertAll(BaseTestCase):
 
 
 def get_results(value):
-    return json_dumps({'rows': [{'foo': value}], 'columns': [{'name': 'foo', 'type': 'STRING'}]})
+    return json_dumps(
+        {"rows": [{"foo": value}], "columns": [{"name": "foo", "type": "STRING"}]}
+    )
 
 
 class TestAlertEvaluate(BaseTestCase):
-    def create_alert(self, results, column='foo', value="1"):
+    def create_alert(self, results, column="foo", value="1"):
         result = self.factory.create_query_result(data=results)
         query = self.factory.create_query(latest_query_data_id=result.id)
-        alert = self.factory.create_alert(query_rel=query, options={'op': 'equals', 'column': column, 'value': value})
+        alert = self.factory.create_alert(
+            query_rel=query, options={"op": "equals", "column": column, "value": value}
+        )
         return alert
 
     def test_evaluate_triggers_alert_when_equal(self):
@@ -60,29 +64,41 @@ class TestAlertEvaluate(BaseTestCase):
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
     def test_evaluate_return_unknown_when_missing_column(self):
-        alert = self.create_alert(get_results(1), column='bar')
+        alert = self.create_alert(get_results(1), column="bar")
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
     def test_evaluate_return_unknown_when_empty_results(self):
-        results = json_dumps({'rows': [], 'columns': [{'name': 'foo', 'type': 'STRING'}]})
+        results = json_dumps(
+            {"rows": [], "columns": [{"name": "foo", "type": "STRING"}]}
+        )
         alert = self.create_alert(results)
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
 
 class TestNextState(TestCase):
     def test_numeric_value(self):
-        self.assertEqual(Alert.TRIGGERED_STATE, next_state(OPERATORS.get('=='), 1, "1"))
-        self.assertEqual(Alert.TRIGGERED_STATE, next_state(OPERATORS.get('=='), 1, "1.0"))
-    
+        self.assertEqual(Alert.TRIGGERED_STATE, next_state(OPERATORS.get("=="), 1, "1"))
+        self.assertEqual(
+            Alert.TRIGGERED_STATE, next_state(OPERATORS.get("=="), 1, "1.0")
+        )
+
     def test_numeric_value_and_plain_string(self):
-        self.assertEqual(Alert.UNKNOWN_STATE, next_state(OPERATORS.get('=='), 1, "string"))
+        self.assertEqual(
+            Alert.UNKNOWN_STATE, next_state(OPERATORS.get("=="), 1, "string")
+        )
 
     def test_non_numeric_value(self):
-        self.assertEqual(Alert.OK_STATE, next_state(OPERATORS.get('=='), "1", "1.0"))
+        self.assertEqual(Alert.OK_STATE, next_state(OPERATORS.get("=="), "1", "1.0"))
 
     def test_string_value(self):
-        self.assertEqual(Alert.TRIGGERED_STATE, next_state(OPERATORS.get('=='), "string", "string"))
-    
+        self.assertEqual(
+            Alert.TRIGGERED_STATE, next_state(OPERATORS.get("=="), "string", "string")
+        )
+
     def test_boolean_value(self):
-        self.assertEqual(Alert.TRIGGERED_STATE, next_state(OPERATORS.get('=='), False, 'false'))
-        self.assertEqual(Alert.TRIGGERED_STATE, next_state(OPERATORS.get('!='), False, 'true'))
+        self.assertEqual(
+            Alert.TRIGGERED_STATE, next_state(OPERATORS.get("=="), False, "false")
+        )
+        self.assertEqual(
+            Alert.TRIGGERED_STATE, next_state(OPERATORS.get("!="), False, "true")
+        )

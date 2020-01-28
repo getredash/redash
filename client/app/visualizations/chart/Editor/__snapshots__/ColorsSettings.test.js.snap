@@ -24,7 +24,7 @@ Object {
 
 exports[`Visualizations -> Chart -> Editor -> Colors Settings for heatmap Sets custom color scheme 2`] = `
 Object {
-  "heatMinColor": "#FF0000",
+  "heatMaxColor": "#FF0000",
 }
 `;
 

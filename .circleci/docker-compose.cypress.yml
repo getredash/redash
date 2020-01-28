@@ -31,26 +31,12 @@ services:
       REDASH_LOG_LEVEL: "INFO"
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
-      QUEUES: "default periodic schemas"
-  celery_worker:
-    build: ../
-    command: celery_worker
-    depends_on:
-      - server
-    environment:
-      PYTHONUNBUFFERED: 0
-      REDASH_LOG_LEVEL: "INFO"
-      REDASH_REDIS_URL: "redis://redis:6379/0"
-      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
-      QUEUES: "queries,scheduled_queries"
-      WORKERS_COUNT: 2
   cypress:
     build:
       context: ../
       dockerfile: .circleci/Dockerfile.cypress
     depends_on:
       - server
-      - celery_worker
       - worker
       - scheduler
     environment:

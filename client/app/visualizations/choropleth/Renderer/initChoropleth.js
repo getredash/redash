@@ -1,13 +1,13 @@
-import { isFunction, isObject, isArray, map } from 'lodash';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import 'leaflet-fullscreen';
-import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
-import { formatSimpleTemplate } from '@/lib/value-format';
-import { $sanitize } from '@/services/ng';
-import resizeObserver from '@/services/resizeObserver';
+import { isFunction, isObject, isArray, map } from "lodash";
+import React from "react";
+import ReactDOM from "react-dom";
+import { sanitize } from "dompurify";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet-fullscreen";
+import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
+import { formatSimpleTemplate } from "@/lib/value-format";
+import resizeObserver from "@/services/resizeObserver";
 import {
   createNumberFormatter,
   createScale,
@@ -15,18 +15,18 @@ import {
   getColorByValue,
   getValueForFeature,
   prepareFeatureProperties,
-} from './utils';
-import Legend from './Legend';
+} from "./utils";
+import Legend from "./Legend";
 
 const CustomControl = L.Control.extend({
   options: {
-    position: 'topright',
+    position: "topright",
   },
   onAdd() {
-    const div = document.createElement('div');
-    div.className = 'leaflet-bar leaflet-custom-toolbar';
-    div.style.background = '#fff';
-    div.style.backgroundClip = 'padding-box';
+    const div = document.createElement("div");
+    div.className = "leaflet-bar leaflet-custom-toolbar";
+    div.style.background = "#fff";
+    div.style.backgroundClip = "padding-box";
     return div;
   },
   onRemove() {
@@ -37,12 +37,7 @@ const CustomControl = L.Control.extend({
 function prepareLayer({ feature, layer, data, options, limits, colors, formatValue }) {
   const value = getValueForFeature(feature, data, options.countryCodeType);
   const valueFormatted = formatValue(value);
-  const featureData = prepareFeatureProperties(
-    feature,
-    valueFormatted,
-    data,
-    options.countryCodeType,
-  );
+  const featureData = prepareFeatureProperties(feature, valueFormatted, data, options.countryCodeType);
   const color = getColorByValue(value, limits, colors, options.colors.noValue);
 
   layer.setStyle({
@@ -53,26 +48,20 @@ function prepareLayer({ feature, layer, data, options, limits, colors, formatVal
   });
 
   if (options.tooltip.enabled) {
-    layer.bindTooltip($sanitize(formatSimpleTemplate(
-      options.tooltip.template,
-      featureData,
-    )), { sticky: true });
+    layer.bindTooltip(sanitize(formatSimpleTemplate(options.tooltip.template, featureData)), { sticky: true });
   }
 
   if (options.popup.enabled) {
-    layer.bindPopup($sanitize(formatSimpleTemplate(
-      options.popup.template,
-      featureData,
-    )));
+    layer.bindPopup(sanitize(formatSimpleTemplate(options.popup.template, featureData)));
   }
 
-  layer.on('mouseover', () => {
+  layer.on("mouseover", () => {
     layer.setStyle({
       weight: 2,
       fillColor: darkenColor(color),
     });
   });
-  layer.on('mouseout', () => {
+  layer.on("mouseout", () => {
     layer.setStyle({
       weight: 1,
       fillColor: color,
@@ -103,13 +92,15 @@ export default function initChoropleth(container) {
   }
 
   let boundsChangedFromMap = false;
-  const onMapMoveEnd = () => { handleMapBoundsChange(); };
-  _map.on('focus', () => {
+  const onMapMoveEnd = () => {
+    handleMapBoundsChange();
+  };
+  _map.on("focus", () => {
     boundsChangedFromMap = true;
-    _map.on('moveend', onMapMoveEnd);
+    _map.on("moveend", onMapMoveEnd);
   });
-  _map.on('blur', () => {
-    _map.off('moveend', onMapMoveEnd);
+  _map.on("blur", () => {
+    _map.off("moveend", onMapMoveEnd);
     boundsChangedFromMap = false;
   });
 
@@ -142,15 +133,15 @@ export default function initChoropleth(container) {
     }, 10);
 
     // update legend
-    if (options.legend.visible && (legend.length > 0)) {
-      _legend.setPosition(options.legend.position.replace('-', ''));
+    if (options.legend.visible && legend.length > 0) {
+      _legend.setPosition(options.legend.position.replace("-", ""));
       _map.addControl(_legend);
       ReactDOM.render(
         <Legend
           items={map(legend, item => ({ ...item, text: formatValue(item.limit) }))}
           alignText={options.legend.alignText}
         />,
-        _legend.getContainer(),
+        _legend.getContainer()
       );
     }
   }
@@ -165,7 +156,9 @@ export default function initChoropleth(container) {
     }
   }
 
-  const unwatchResize = resizeObserver(container, () => { _map.invalidateSize(false); });
+  const unwatchResize = resizeObserver(container, () => {
+    _map.invalidateSize(false);
+  });
 
   return {
     get onBoundsChange() {

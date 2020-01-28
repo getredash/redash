@@ -4,11 +4,11 @@
   This test suite relies on Percy (does not validate rendered visualizations)
 */
 
-import { createQuery, createVisualization } from '../../../support/redash-api';
-import * as AllCellTypes from './.mocks/all-cell-types';
-import * as MultiColumnSort from './.mocks/multi-column-sort';
-import * as SearchInData from './.mocks/search-in-data';
-import * as LargeDataset from './.mocks/large-dataset';
+import { createQuery, createVisualization } from "../../../support/redash-api";
+import * as AllCellTypes from "./.mocks/all-cell-types";
+import * as MultiColumnSort from "./.mocks/multi-column-sort";
+import * as SearchInData from "./.mocks/search-in-data";
+import * as LargeDataset from "./.mocks/large-dataset";
 
 function prepareVisualization(query, type, name, options) {
   return createQuery({ query })
@@ -18,106 +18,119 @@ function prepareVisualization(query, type, name, options) {
       // free more space for visualizations. Also, we'll hide schema browser (via shortcut)
       cy.visit(`queries/${queryId}`);
 
-      cy.getByTestId('ExecuteButton').click();
-      cy.get('body').type('{alt}D');
+      cy.getByTestId("ExecuteButton").click();
+      cy.get("body").type("{alt}D");
 
       // do some pre-checks here to ensure that visualization was created and is visible
-      cy.getByTestId('QueryPageVisualizationTabs').find(`li[tab-id=${visualizationId}]`)
-        .should('exist').click();
-      cy.getByTestId(`QueryPageVisualization${visualizationId}`).should('exist')
-        .find('table').should('exist');
+      cy.getByTestId(`QueryPageVisualizationTab${visualizationId}`)
+        .should("exist")
+        .click();
+      cy.getByTestId(`QueryPageVisualization${visualizationId}`)
+        .should("exist")
+        .find("table")
+        .should("exist");
 
       return cy.then(() => ({ queryId, visualizationId }));
     });
 }
 
-describe('Table', () => {
-  const viewportWidth = Cypress.config('viewportWidth');
+describe("Table", () => {
+  const viewportWidth = Cypress.config("viewportWidth");
 
   beforeEach(() => {
     cy.login();
   });
 
-  it('renders all cell types', () => {
+  it("renders all cell types", () => {
     const { query, config } = AllCellTypes;
-    prepareVisualization(query, 'TABLE', 'All cell types', config)
-      .then(() => {
-        // expand JSON cell
-        cy.get('.jvi-item.jvi-root .jvi-toggle').should('exist').click();
-        cy.get('.jvi-item.jvi-root .jvi-item .jvi-toggle').should('exist').click({ multiple: true });
+    prepareVisualization(query, "TABLE", "All cell types", config).then(() => {
+      // expand JSON cell
+      cy.get(".jvi-item.jvi-root .jvi-toggle")
+        .should("exist")
+        .click();
+      cy.get(".jvi-item.jvi-root .jvi-item .jvi-toggle")
+        .should("exist")
+        .click({ multiple: true });
 
-        cy.percySnapshot('Visualizations - Table (All cell types)', { widths: [viewportWidth] });
-      });
+      cy.percySnapshot("Visualizations - Table (All cell types)", { widths: [viewportWidth] });
+    });
   });
 
-  describe('Sorting data', () => {
-    beforeEach(function () {
+  describe("Sorting data", () => {
+    beforeEach(function() {
       const { query, config } = MultiColumnSort;
-      prepareVisualization(query, 'TABLE', 'Sort data', config)
-        .then(({ queryId, visualizationId }) => {
-          this.queryId = queryId;
-          this.visualizationId = visualizationId;
-        });
+      prepareVisualization(query, "TABLE", "Sort data", config).then(({ queryId, visualizationId }) => {
+        this.queryId = queryId;
+        this.visualizationId = visualizationId;
+      });
     });
 
-    it('sorts data by a single column', function () {
+    it("sorts data by a single column", function() {
       const { visualizationId } = this;
 
       cy.getByTestId(`QueryPageVisualization${visualizationId}`)
-        .find('table th').contains('c').should('exist')
+        .find("table th")
+        .contains("c")
+        .should("exist")
         .click();
-      cy.percySnapshot('Visualizations - Table (Single-column sort)', { widths: [viewportWidth] });
+      cy.percySnapshot("Visualizations - Table (Single-column sort)", { widths: [viewportWidth] });
     });
 
-    it('sorts data by a multiple columns', function () {
+    it("sorts data by a multiple columns", function() {
       const { visualizationId } = this;
 
       cy.getByTestId(`QueryPageVisualization${visualizationId}`)
-        .find('table th').contains('a').should('exist')
+        .find("table th")
+        .contains("a")
+        .should("exist")
         .click();
 
-      cy.get('body').type('{shift}', { release: false });
+      cy.get("body").type("{shift}", { release: false });
       cy.getByTestId(`QueryPageVisualization${visualizationId}`)
-        .find('table th').contains('b').should('exist')
+        .find("table th")
+        .contains("b")
+        .should("exist")
         .click();
 
-      cy.percySnapshot('Visualizations - Table (Multi-column sort)', { widths: [viewportWidth] });
+      cy.percySnapshot("Visualizations - Table (Multi-column sort)", { widths: [viewportWidth] });
     });
 
-    it('sorts data in reverse order', function () {
+    it("sorts data in reverse order", function() {
       const { visualizationId } = this;
 
       cy.getByTestId(`QueryPageVisualization${visualizationId}`)
-        .find('table th').contains('c').should('exist')
+        .find("table th")
+        .contains("c")
+        .should("exist")
         .click()
         .click();
-      cy.percySnapshot('Visualizations - Table (Single-column reverse sort)', { widths: [viewportWidth] });
+      cy.percySnapshot("Visualizations - Table (Single-column reverse sort)", { widths: [viewportWidth] });
     });
   });
 
-  it('searches in multiple columns', () => {
+  it("searches in multiple columns", () => {
     const { query, config } = SearchInData;
-    prepareVisualization(query, 'TABLE', 'Search', config)
-      .then(({ visualizationId }) => {
-        cy.getByTestId(`QueryPageVisualization${visualizationId}`)
-          .find('table input').should('exist')
-          .type('test');
-        cy.percySnapshot('Visualizations - Table (Search in data)', { widths: [viewportWidth] });
-      });
+    prepareVisualization(query, "TABLE", "Search", config).then(({ visualizationId }) => {
+      cy.getByTestId(`QueryPageVisualization${visualizationId}`)
+        .find("table input")
+        .should("exist")
+        .type("test");
+      cy.percySnapshot("Visualizations - Table (Search in data)", { widths: [viewportWidth] });
+    });
   });
 
-  it('shows pagination and navigates to third page', () => {
+  it("shows pagination and navigates to third page", () => {
     const { query, config } = LargeDataset;
-    prepareVisualization(query, 'TABLE', 'With pagination', config)
-      .then(({ visualizationId }) => {
-        cy.getByTestId(`QueryPageVisualization${visualizationId}`)
-          .find('.ant-table-pagination').should('exist')
-          .find('li')
-          .contains('3')
-          .should('exist')
-          .click();
+    prepareVisualization(query, "TABLE", "With pagination", config).then(({ visualizationId }) => {
+      cy.getByTestId(`QueryPageVisualization${visualizationId}`)
+        .find(".ant-table-pagination")
+        .should("exist")
+        .find("li")
+        .contains("3")
+        .should("exist")
+        .click();
 
-        cy.percySnapshot('Visualizations - Table (Pagination)', { widths: [viewportWidth] });
-      });
+      cy.percySnapshot("Visualizations - Table (Pagination)", { widths: [viewportWidth] });
+    });
   });
 });

@@ -1,13 +1,11 @@
-import { omit, debounce } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import hoistNonReactStatics from 'hoist-non-react-statics';
-import { $route, $routeParams } from '@/services/ng';
-import { clientConfig } from '@/services/auth';
-import { StateStorage } from './classes/StateStorage';
+import { omit, debounce } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import hoistNonReactStatics from "hoist-non-react-statics";
+import { clientConfig } from "@/services/auth";
 
 export const ControllerType = PropTypes.shape({
-  // values of props declared by wrapped component, current route's locals (`resolve: { ... }`) and title
+  // values of props declared by wrapped component and some additional props from items list
   params: PropTypes.object.isRequired,
 
   isLoaded: PropTypes.bool.isRequired,
@@ -37,19 +35,19 @@ export const ControllerType = PropTypes.shape({
   handleError: PropTypes.func.isRequired, // (error) => void
 });
 
-export function wrap(WrappedComponent, itemsSource, stateStorage) {
+export function wrap(WrappedComponent, createItemsSource, createStateStorage) {
   class ItemsListWrapper extends React.Component {
     static propTypes = {
-      ...omit(WrappedComponent.propTypes, ['controller']),
       onError: PropTypes.func,
       children: PropTypes.node,
     };
 
     static defaultProps = {
-      ...omit(WrappedComponent.defaultProps, ['controller']),
-      onError: (error) => {
+      onError: error => {
         // Allow calling chain to roll up, and then throw the error in global context
-        setTimeout(() => { throw error; });
+        setTimeout(() => {
+          throw error;
+        });
       },
       children: null,
     };
@@ -57,7 +55,10 @@ export function wrap(WrappedComponent, itemsSource, stateStorage) {
     constructor(props) {
       super(props);
 
-      stateStorage = stateStorage || new StateStorage();
+      const stateStorage = createStateStorage();
+      const itemsSource = createItemsSource();
+      this._itemsSource = itemsSource;
+
       itemsSource.setState({ ...stateStorage.getState(), validate: false });
       itemsSource.getCallbackContext = () => this.state;
 
@@ -92,33 +93,23 @@ export function wrap(WrappedComponent, itemsSource, stateStorage) {
     }
 
     componentWillUnmount() {
-      itemsSource.onBeforeUpdate = () => {};
-      itemsSource.onAfterUpdate = () => {};
-      itemsSource.onError = () => {};
+      this._itemsSource.onBeforeUpdate = () => {};
+      this._itemsSource.onAfterUpdate = () => {};
+      this._itemsSource.onError = () => {};
     }
 
     // eslint-disable-next-line class-methods-use-this
     getState({ isLoaded, totalCount, pageItems, params, ...rest }) {
-      params = {
-        // Custom params from items source
-        ...params,
-
-        // Add some properties of current route (`$resolve`, title, route params)
-        // ANGULAR_REMOVE_ME Revisit when some React router will be used
-        title: $route.current.title,
-        ...$routeParams,
-        ...omit($route.current.locals, ['$scope', '$template']),
-
-        // Add to params all props except of own ones
-        ...omit(this.props, ['onError', 'children']),
-      };
       return {
         ...rest,
 
-        params,
+        params: {
+          ...params, // custom params from items source
+          ...omit(this.props, ["onError", "children"]), // add all props except of own ones
+        },
 
         isLoaded,
-        isEmpty: !isLoaded || (totalCount === 0),
+        isEmpty: !isLoaded || totalCount === 0,
         totalItemsCount: isLoaded ? totalCount : 0,
         pageSizeOptions: clientConfig.pageSizeOptions,
         pageItems: isLoaded ? pageItems : [],
@@ -128,8 +119,11 @@ export function wrap(WrappedComponent, itemsSource, stateStorage) {
     render() {
       // don't pass own props to wrapped component
       const { children, onError, ...props } = this.props;
-      props.controller = this.state;
-      return <WrappedComponent {...props}>{ children }</WrappedComponent>;
+      return (
+        <WrappedComponent {...props} controller={this.state}>
+          {children}
+        </WrappedComponent>
+      );
     }
   }
 

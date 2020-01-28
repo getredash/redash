@@ -1,33 +1,33 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import Form from 'antd/lib/form';
-import Input from 'antd/lib/input';
-import InputNumber from 'antd/lib/input-number';
-import Checkbox from 'antd/lib/checkbox';
-import Button from 'antd/lib/button';
-import Upload from 'antd/lib/upload';
-import Icon from 'antd/lib/icon';
-import { includes, isFunction, filter, difference, isEmpty, some, isNumber, isBoolean } from 'lodash';
-import Select from 'antd/lib/select';
-import notification from '@/services/notification';
-import Collapse from '@/components/Collapse';
-import AceEditorInput from '@/components/AceEditorInput';
-import { toHuman } from '@/filters';
-import { Field, Action, AntdForm } from '../proptypes';
-import helper from './dynamicFormHelper';
+import React from "react";
+import PropTypes from "prop-types";
+import cx from "classnames";
+import Form from "antd/lib/form";
+import Input from "antd/lib/input";
+import InputNumber from "antd/lib/input-number";
+import Checkbox from "antd/lib/checkbox";
+import Button from "antd/lib/button";
+import Upload from "antd/lib/upload";
+import Icon from "antd/lib/icon";
+import { includes, isFunction, filter, difference, isEmpty, some, isNumber, isBoolean } from "lodash";
+import Select from "antd/lib/select";
+import notification from "@/services/notification";
+import Collapse from "@/components/Collapse";
+import AceEditorInput from "@/components/AceEditorInput";
+import { toHuman } from "@/lib/utils";
+import { Field, Action, AntdForm } from "../proptypes";
+import helper from "./dynamicFormHelper";
 
-import './DynamicForm.less';
+import "./DynamicForm.less";
 
 const fieldRules = ({ type, required, minLength }) => {
   const requiredRule = required;
-  const minLengthRule = minLength && includes(['text', 'email', 'password'], type);
-  const emailTypeRule = type === 'email';
+  const minLengthRule = minLength && includes(["text", "email", "password"], type);
+  const emailTypeRule = type === "email";
 
   return [
-    requiredRule && { required, message: 'This field is required.' },
-    minLengthRule && { min: minLength, message: 'This field is too short.' },
-    emailTypeRule && { type: 'email', message: 'This field must be a valid email.' },
+    requiredRule && { required, message: "This field is required." },
+    minLengthRule && { min: minLength, message: "This field is too short." },
+    emailTypeRule && { type: "email", message: "This field must be a valid email." },
   ].filter(rule => rule);
 };
 
@@ -49,31 +49,34 @@ class DynamicForm extends React.Component {
     actions: [],
     feedbackIcons: false,
     hideSubmitButton: false,
-    saveText: 'Save',
+    saveText: "Save",
     onSubmit: () => {},
   };
 
   constructor(props) {
     super(props);
 
-    const hasFilledExtraField = some(props.fields, (field) => {
+    const hasFilledExtraField = some(props.fields, field => {
       const { extra, initialValue } = field;
-      return extra && (!isEmpty(initialValue) || isNumber(initialValue) || isBoolean(initialValue) && initialValue);
+      return extra && (!isEmpty(initialValue) || isNumber(initialValue) || (isBoolean(initialValue) && initialValue));
     });
+
+    const inProgressActions = {};
+    props.actions.forEach(action => (inProgressActions[action.name] = false));
+
     this.state = {
       isSubmitting: false,
-      inProgressActions: [],
       showExtraFields: hasFilledExtraField,
+      inProgressActions,
     };
 
-    this.actionCallbacks = this.props.actions.reduce((acc, cur) => ({
-      ...acc,
-      [cur.name]: cur.callback,
-    }), null);
-
-    props.actions.forEach((action) => {
-      this.state.inProgressActions[action.name] = false;
-    });
+    this.actionCallbacks = this.props.actions.reduce(
+      (acc, cur) => ({
+        ...acc,
+        [cur.name]: cur.callback,
+      }),
+      null
+    );
   }
 
   setActionInProgress = (actionName, inProgress) => {
@@ -85,29 +88,37 @@ class DynamicForm extends React.Component {
     }));
   };
 
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     this.setState({ isSubmitting: true });
     e.preventDefault();
+
     this.props.form.validateFieldsAndScroll((err, values) => {
+      Object.entries(values).forEach(([key, value]) => {
+        const initialValue = this.props.fields.find(f => f.name === key).initialValue;
+        if ((initialValue === null || initialValue === undefined || initialValue === '') && value === '') {
+          values[key] = null;
+        }
+      });
+
       if (!err) {
         this.props.onSubmit(
           values,
-          (msg) => {
+          msg => {
             const { setFieldsValue, getFieldsValue } = this.props.form;
             this.setState({ isSubmitting: false });
             setFieldsValue(getFieldsValue()); // reset form touched state
             notification.success(msg);
           },
-          (msg) => {
+          msg => {
             this.setState({ isSubmitting: false });
             notification.error(msg);
-          },
+          }
         );
       } else this.setState({ isSubmitting: false });
     });
   };
 
-  handleAction = (e) => {
+  handleAction = e => {
     const actionName = e.target.dataset.action;
 
     this.setActionInProgress(actionName, true);
@@ -118,7 +129,7 @@ class DynamicForm extends React.Component {
 
   base64File = (fieldName, e) => {
     if (e && e.fileList[0]) {
-      helper.getBase64(e.file).then((value) => {
+      helper.getBase64(e.file).then(value => {
         this.props.form.setFieldsValue({ [fieldName]: value });
       });
     }
@@ -138,7 +149,9 @@ class DynamicForm extends React.Component {
 
     const upload = (
       <Upload {...props} beforeUpload={() => false}>
-        <Button disabled={disabled}><Icon type="upload" /> Click to upload</Button>
+        <Button disabled={disabled}>
+          <Icon type="upload" /> Click to upload
+        </Button>
       </Upload>
     );
 
@@ -155,24 +168,23 @@ class DynamicForm extends React.Component {
       initialValue,
     };
 
-    return getFieldDecorator(name, decoratorOptions)(
+    return getFieldDecorator(
+      name,
+      decoratorOptions
+    )(
       <Select
         {...props}
         optionFilterProp="children"
         loading={loading || false}
         mode={mode}
-        getPopupContainer={trigger => trigger.parentNode}
-      >
-        {options && options.map(option => (
-          <Option
-            key={`${option.value}`}
-            value={option.value}
-            disabled={readOnly}
-          >
-            {option.name || option.value}
-          </Option>
-        ))}
-      </Select>,
+        getPopupContainer={trigger => trigger.parentNode}>
+        {options &&
+          options.map(option => (
+            <Option key={`${option.value}`} value={option.value} disabled={readOnly}>
+              {option.name || option.value}
+            </Option>
+          ))}
+      </Select>
     );
   }
 
@@ -183,50 +195,50 @@ class DynamicForm extends React.Component {
 
     const options = {
       rules: fieldRules(field),
-      valuePropName: type === 'checkbox' ? 'checked' : 'value',
+      valuePropName: type === "checkbox" ? "checked" : "value",
       initialValue,
     };
 
-    if (type === 'checkbox') {
+    if (type === "checkbox") {
       return getFieldDecorator(name, options)(<Checkbox {...props}>{fieldLabel}</Checkbox>);
-    } else if (type === 'file') {
+    } else if (type === "file") {
       return this.renderUpload(field, props);
-    } else if (type === 'select') {
+    } else if (type === "select") {
       return this.renderSelect(field, props);
-    } else if (type === 'content') {
+    } else if (type === "content") {
       return field.content;
-    } else if (type === 'number') {
+    } else if (type === "number") {
       return getFieldDecorator(name, options)(<InputNumber {...props} />);
-    } else if (type === 'textarea') {
+    } else if (type === "textarea") {
       return getFieldDecorator(name, options)(<Input.TextArea {...props} />);
-    } else if (type === 'ace') {
+    } else if (type === "ace") {
       return getFieldDecorator(name, options)(<AceEditorInput {...props} />);
     }
     return getFieldDecorator(name, options)(<Input {...props} />);
   }
 
   renderFields(fields) {
-    return fields.map((field) => {
+    return fields.map(field => {
       const FormItem = Form.Item;
       const { name, title, type, readOnly, autoFocus, contentAfter } = field;
       const fieldLabel = title || toHuman(name);
       const { feedbackIcons, form } = this.props;
 
       const formItemProps = {
-        className: 'm-b-10',
-        hasFeedback: type !== 'checkbox' && type !== 'file' && feedbackIcons,
-        label: type === 'checkbox' ? '' : fieldLabel,
+        className: "m-b-10",
+        hasFeedback: type !== "checkbox" && type !== "file" && feedbackIcons,
+        label: type === "checkbox" ? "" : fieldLabel,
       };
 
       const fieldProps = {
         ...field.props,
-        className: 'w-100',
+        className: "w-100",
         name,
         type,
         readOnly,
         autoFocus,
         placeholder: field.placeholder,
-        'data-test': fieldLabel,
+        "data-test": fieldLabel,
       };
 
       return (
@@ -239,29 +251,33 @@ class DynamicForm extends React.Component {
   }
 
   renderActions() {
-    return this.props.actions.map((action) => {
+    return this.props.actions.map(action => {
       const inProgress = this.state.inProgressActions[action.name];
       const { isFieldsTouched } = this.props.form;
 
       const actionProps = {
         key: action.name,
-        htmlType: 'button',
-        className: action.pullRight ? 'pull-right m-t-10' : 'm-t-10',
+        htmlType: "button",
+        className: action.pullRight ? "pull-right m-t-10" : "m-t-10",
         type: action.type,
-        disabled: (isFieldsTouched() && action.disableWhenDirty),
+        disabled: isFieldsTouched() && action.disableWhenDirty,
         loading: inProgress,
         onClick: this.handleAction,
       };
 
-      return (<Button {...actionProps} data-action={action.name}>{action.name}</Button>);
+      return (
+        <Button {...actionProps} data-action={action.name}>
+          {action.name}
+        </Button>
+      );
     });
   }
 
   render() {
     const submitProps = {
-      type: 'primary',
-      htmlType: 'submit',
-      className: 'w-100 m-t-20',
+      type: "primary",
+      htmlType: "submit",
+      className: "w-100 m-t-20",
       disabled: this.state.isSubmitting,
       loading: this.state.isSubmitting,
     };
@@ -280,10 +296,9 @@ class DynamicForm extends React.Component {
               type="dashed"
               block
               className="extra-options-button"
-              onClick={() => this.setState({ showExtraFields: !showExtraFields })}
-            >
+              onClick={() => this.setState({ showExtraFields: !showExtraFields })}>
               Additional Settings
-              <i className={cx('fa m-l-5', { 'fa-caret-up': showExtraFields, 'fa-caret-down': !showExtraFields })} />
+              <i className={cx("fa m-l-5", { "fa-caret-up": showExtraFields, "fa-caret-down": !showExtraFields })} />
             </Button>
             <Collapse collapsed={!showExtraFields} className="extra-options-content">
               {this.renderFields(extraFields)}

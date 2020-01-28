@@ -1,9 +1,9 @@
-import { $http } from '@/services/ng';
+import { axios } from "@/services/axios";
 
 function processTags(data) {
   return data.tags || [];
 }
 
 export default function getTags(url) {
-  return $http.get(url).then(response => processTags(response.data));
+  return axios.get(url).then(processTags);
 }
