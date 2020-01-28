@@ -11,7 +11,7 @@ const DEFAULT_OPTIONS = {
   stringDecimal: 0,
   stringDecChar: ".",
   stringThouSep: ",",
-  tooltipFormat: "0,0.000", // TODO: Show in editor
+  tooltipFormat: "0,0.000",
 };
 
 export default function init() {

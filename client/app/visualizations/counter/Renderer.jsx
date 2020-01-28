@@ -1,6 +1,7 @@
 import { isFinite } from "lodash";
 import React, { useState, useEffect } from "react";
 import cx from "classnames";
+import Tooltip from "antd/lib/tooltip";
 import resizeObserver from "@/services/resizeObserver";
 import { RendererPropTypes } from "@/visualizations";
 
@@ -61,13 +62,13 @@ export default function Renderer({ data, options, visualizationName }) {
       })}>
       <div className="counter-visualization-content" ref={setContainer}>
         <div style={getCounterStyles(scale)}>
-          <div className="counter-visualization-value" title={counterValueTooltip}>
-            {counterValue}
-          </div>
+          <Tooltip title={counterValueTooltip} placement="bottom" mouseEnterDelay={0} mouseLeaveDelay={0}>
+            <div className="counter-visualization-value">{counterValue}</div>
+          </Tooltip>
           {targetValue && (
-            <div className="counter-visualization-target" title={targetValueTooltip}>
-              ({targetValue})
-            </div>
+            <Tooltip title={targetValueTooltip} placement="bottom" mouseEnterDelay={0} mouseLeaveDelay={0}>
+              <div className="counter-visualization-target">({targetValue})</div>
+            </Tooltip>
           )}
           <div className="counter-visualization-label">{counterLabel}</div>
         </div>

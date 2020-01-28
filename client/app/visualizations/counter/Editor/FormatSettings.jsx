@@ -1,5 +1,5 @@
 import React from "react";
-import { Section, Input, InputNumber, Switch } from "@/components/visualizations/editor";
+import { Section, Input, InputNumber, Switch, ContextHelp } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations";
 
 import { isValueNumber } from "../utils";
@@ -65,6 +65,22 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
           defaultValue={options.stringSuffix}
           disabled={!inputsEnabled}
           onChange={e => onOptionsChange({ stringSuffix: e.target.value })}
+        />
+      </Section>
+
+      <Section>
+        <Input
+          layout="horizontal"
+          label={
+            <React.Fragment>
+              Tooltip format <ContextHelp.NumberFormatSpecs />
+            </React.Fragment>
+          }
+          className="w-100"
+          data-test="Counter.TooltipFormat"
+          defaultValue={options.tooltipFormat}
+          disabled={!inputsEnabled}
+          onChange={e => onOptionsChange({ tooltipFormat: e.target.value })}
         />
       </Section>
 
