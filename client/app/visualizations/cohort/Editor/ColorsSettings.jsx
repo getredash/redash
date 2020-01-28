@@ -29,6 +29,7 @@ export default function ColorsSettings({ options, onOptionsChange }) {
           interactive
           color={options.colors.min}
           onChange={min => onOptionsChange({ colors: { min } })}
+          addonAfter={<ColorPicker.Label color={options.colors.min} presetColors={ColorPalette} />}
         />
       </Section>
       <Section>
@@ -39,6 +40,7 @@ export default function ColorsSettings({ options, onOptionsChange }) {
           interactive
           color={options.colors.max}
           onChange={max => onOptionsChange({ colors: { max } })}
+          addonAfter={<ColorPicker.Label color={options.colors.max} presetColors={ColorPalette} />}
         />
       </Section>
       <Section>
