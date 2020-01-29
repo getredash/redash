@@ -3,15 +3,10 @@ import { useState, useEffect } from "react";
 import { axios } from "@/services/axios";
 import createReferenceCountingCache from "@/lib/referenceCountingCache";
 
-const defaultGeoJson = {
-  type: "FeatureCollection",
-  features: [],
-};
-
 const cache = createReferenceCountingCache();
 
 export default function useLoadGeoJson(url) {
-  const [geoJson, setGeoJson] = useState(defaultGeoJson);
+  const [geoJson, setGeoJson] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -19,10 +14,10 @@ export default function useLoadGeoJson(url) {
       setIsLoading(true);
       let cancelled = false;
 
-      const promise = cache.get(url, () => axios.get(url).catch(() => defaultGeoJson));
+      const promise = cache.get(url, () => axios.get(url).catch(() => null));
       promise.then(data => {
         if (!cancelled) {
-          setGeoJson(isObject(data) ? data : defaultGeoJson);
+          setGeoJson(isObject(data) ? data : null);
           setIsLoading(false);
         }
       });
@@ -32,7 +27,7 @@ export default function useLoadGeoJson(url) {
         cache.release(url);
       };
     } else {
-      setGeoJson(defaultGeoJson);
+      setGeoJson(null);
       setIsLoading(false);
     }
   }, [url]);

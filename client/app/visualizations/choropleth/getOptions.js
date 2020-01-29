@@ -1,4 +1,4 @@
-import { isNil, merge, first, keys } from "lodash";
+import { isNil, merge, first, keys, get } from "lodash";
 import ColorPalette from "./ColorPalette";
 import availableMaps from "./maps";
 
@@ -38,6 +38,9 @@ const DEFAULT_OPTIONS = {
 
 export default function getOptions(options) {
   const result = merge({}, DEFAULT_OPTIONS, options);
+  // Both renderer and editor always provide new `bounds` array, so no need to clone it here.
+  // Keeping original object also reduces amount of updates in components
+  result.bounds = get(options, "bounds");
 
   if (isNil(availableMaps[result.mapType]) && result.mapType !== "custom") {
     result.mapType = defaultMap;
