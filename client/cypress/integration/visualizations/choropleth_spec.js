@@ -49,12 +49,12 @@ describe("Choropleth", () => {
 
     cy.clickThrough(`
       VisualizationEditor.Tabs.General
-      Choropleth.Editor.MapType
-      Choropleth.Editor.MapType.Countries
+      Choropleth.Editor.MapUrl
+      Choropleth.Editor.MapUrl.Countries
       Choropleth.Editor.KeyColumn
       Choropleth.Editor.KeyColumn.name
-      Choropleth.Editor.KeyType
-      Choropleth.Editor.KeyType.name
+      Choropleth.Editor.TargetField
+      Choropleth.Editor.TargetField.name
       Choropleth.Editor.ValueColumn
       Choropleth.Editor.ValueColumn.value
     `);
