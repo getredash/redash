@@ -1,13 +1,15 @@
 import { isString, isObject } from "lodash";
 import { useState, useEffect } from "react";
 import { axios } from "@/services/axios";
+import createReferenceCountingCache from "@/lib/referenceCountingCache";
 
 const defaultGeoJson = {
   type: "FeatureCollection",
   features: [],
 };
 
-// TODO: It needs some cache
+const cache = createReferenceCountingCache();
+
 export default function useLoadGeoJson(url) {
   const [geoJson, setGeoJson] = useState(defaultGeoJson);
   const [isLoading, setIsLoading] = useState(false);
@@ -16,18 +18,18 @@ export default function useLoadGeoJson(url) {
     if (isString(url)) {
       setIsLoading(true);
       let cancelled = false;
-      axios
-        .get(url)
-        .catch(() => defaultGeoJson)
-        .then(data => {
-          if (!cancelled) {
-            setGeoJson(isObject(data) ? data : defaultGeoJson);
-            setIsLoading(false);
-          }
-        });
+
+      const promise = cache.get(url, () => axios.get(url).catch(() => defaultGeoJson));
+      promise.then(data => {
+        if (!cancelled) {
+          setGeoJson(isObject(data) ? data : defaultGeoJson);
+          setIsLoading(false);
+        }
+      });
 
       return () => {
         cancelled = true;
+        cache.release(url);
       };
     } else {
       setGeoJson(defaultGeoJson);
