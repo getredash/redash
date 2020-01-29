@@ -196,12 +196,12 @@ class DataSource(BelongsToOrgMixin, db.Model):
                     "Error sorting schema columns for data_source {}".format(self.id)
                 )
                 out_schema = schema
-
-            redis_connection.set(self._schema_key, json_dumps(out_schema))
+            finally:
+                redis_connection.set(self._schema_key, json_dumps(out_schema))
         else:
-            schema = json_loads(cache)
+            out_schema = json_loads(cache)
 
-        return schema
+        return out_schema
 
     def _sort_schema(self, schema):
         return [
