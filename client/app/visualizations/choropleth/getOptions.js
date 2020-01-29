@@ -39,11 +39,8 @@ const DEFAULT_OPTIONS = {
 export default function getOptions(options) {
   const result = merge({}, DEFAULT_OPTIONS, options);
 
-  if (result.mapType !== "custom") {
-    result.customMapUrl = null;
-    if (isNil(availableMaps[result.mapType])) {
-      result.mapType = defaultMap;
-    }
+  if (isNil(availableMaps[result.mapType]) && result.mapType !== "custom") {
+    result.mapType = defaultMap;
   }
 
   // backward compatibility
