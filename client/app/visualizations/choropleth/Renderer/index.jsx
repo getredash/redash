@@ -11,7 +11,7 @@ import "./renderer.less";
 
 export default function Renderer({ data, options, onOptionsChange }) {
   const [container, setContainer] = useState(null);
-  const [geoJson] = useLoadGeoJson(getMapUrl(options.mapType, options.customMapUrl));
+  const [geoJson, isLoadingGeoJson] = useLoadGeoJson(getMapUrl(options.mapType, options.customMapUrl));
 
   const optionsWithoutBounds = useMemoWithDeepCompare(() => omit(options, ["bounds"]), [options]);
 
@@ -38,18 +38,18 @@ export default function Renderer({ data, options, onOptionsChange }) {
   }, [map, geoJson, data, optionsWithoutBounds]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (map) {
+    if (map && !isLoadingGeoJson) {
       map.updateBounds(options.bounds);
     }
-  }, [map, options.bounds]);
+  }, [map, isLoadingGeoJson, options.bounds]);
 
   useEffect(() => {
-    if (map && onOptionsChange) {
+    if (map && onOptionsChange && !isLoadingGeoJson) {
       map.onBoundsChange = bounds => {
         onOptionsChange(merge({}, options, { bounds }));
       };
     }
-  }, [map, options, onOptionsChange]);
+  }, [map, isLoadingGeoJson, options, onOptionsChange]);
 
   return (
     <div className="map-visualization-container" style={{ background: options.colors.background }} ref={setContainer} />
