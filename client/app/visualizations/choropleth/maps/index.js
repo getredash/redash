@@ -1,7 +1,7 @@
 import countriesDataUrl from "./countries.geo.json";
 import subdivJapanDataUrl from "./japan.prefectures.geo.json";
 
-export default {
+const availableMaps = {
   countries: {
     name: "Countries",
     url: countriesDataUrl,
@@ -11,3 +11,9 @@ export default {
     url: subdivJapanDataUrl,
   },
 };
+
+export function getMapUrl(mapType, defaultUrl) {
+  return availableMaps[mapType] ? availableMaps[mapType].url : defaultUrl;
+}
+
+export default availableMaps;

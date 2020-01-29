@@ -1,9 +1,12 @@
-import { isNil, merge } from "lodash";
+import { isNil, merge, first, keys } from "lodash";
 import ColorPalette from "./ColorPalette";
 import availableMaps from "./maps";
 
+const defaultMap = first(keys(availableMaps));
+
 const DEFAULT_OPTIONS = {
-  mapUrl: availableMaps.countries.url,
+  mapType: defaultMap,
+  customMapUrl: null,
   keyColumn: null,
   targetField: null,
   valueColumn: null,
@@ -36,14 +39,19 @@ const DEFAULT_OPTIONS = {
 export default function getOptions(options) {
   const result = merge({}, DEFAULT_OPTIONS, options);
 
-  // backward compatibility
-  if (!isNil(result.mapType)) {
-    result.mapUrl = availableMaps[result.mapType] ? availableMaps[result.mapType].url : null;
-    delete result.mapType;
+  if (result.mapType !== "custom") {
+    result.customMapUrl = null;
+    if (isNil(availableMaps[result.mapType])) {
+      result.mapType = defaultMap;
+    }
+  }
 
+  // backward compatibility
+  if (!isNil(result.countryCodeColumn)) {
     result.keyColumn = result.countryCodeColumn;
     delete result.countryCodeColumn;
-
+  }
+  if (!isNil(result.countryCodeType)) {
     result.targetField = result.countryCodeType;
     delete result.countryCodeType;
   }

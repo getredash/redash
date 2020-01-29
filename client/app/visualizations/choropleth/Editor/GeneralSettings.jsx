@@ -1,59 +1,55 @@
-import { isString, map, filter, find } from "lodash";
-import React, { useMemo, useState, useCallback } from "react";
+import { isString, map, filter } from "lodash";
+import React, { useMemo } from "react";
+import { useDebouncedCallback } from "use-debounce";
 import * as Grid from "antd/lib/grid";
 import { EditorPropTypes } from "@/visualizations/prop-types";
-import { Section, Select } from "@/components/visualizations/editor";
+import { Section, Select, Input } from "@/components/visualizations/editor";
 
 import useLoadGeoJson from "../hooks/useLoadGeoJson";
-import availableMaps from "../maps";
+import availableMaps, { getMapUrl } from "../maps";
 import { getGeoJsonFields } from "./utils";
 
-function getMapLabel(mapUrl) {
-  const result = find(availableMaps, item => item.url === mapUrl);
-  return result ? result.name : mapUrl;
-}
-
 export default function GeneralSettings({ options, data, onOptionsChange }) {
-  const [geoJson, isLoadingGeoJson] = useLoadGeoJson(options.mapUrl);
+  const [geoJson, isLoadingGeoJson] = useLoadGeoJson(getMapUrl(options.mapType, options.customMapUrl));
   const geoJsonFields = useMemo(() => getGeoJsonFields(geoJson), [geoJson]);
-  const [customGeoJsonUrl, setCustomGeoJsonUrl] = useState(null);
 
   // While geoJson is loading - show last selected field in select
   const targetFields = isLoadingGeoJson ? filter([options.targetField], isString) : geoJsonFields;
 
-  const handleMapUrlChange = useCallback(
-    mapUrl => {
-      if (!mapUrl) {
-        setCustomGeoJsonUrl(null);
-      }
-      onOptionsChange({ mapUrl: mapUrl || null });
-    },
-    [onOptionsChange]
-  );
+  const [handleCustomMapUrlChange] = useDebouncedCallback(customMapUrl => {
+    onOptionsChange({ customMapUrl });
+  }, 200);
 
   return (
     <React.Fragment>
       <Section>
         <Select
-          label="Map URL"
+          label="Map type"
           className="w-100"
-          data-test="Choropleth.Editor.MapUrl"
-          showSearch
-          showArrow
-          filterOption={false}
-          allowClear
-          placeholder="Choose map or type GeoJSON URL..."
-          value={options.mapUrl || undefined}
-          onSearch={value => setCustomGeoJsonUrl(value !== "" ? value : null)}
-          onChange={handleMapUrlChange}>
-          {customGeoJsonUrl && <Select.Option key={customGeoJsonUrl}>{customGeoJsonUrl}</Select.Option>}
-          {map(availableMaps, ({ url: mapUrl }, mapKey) => (
-            <Select.Option key={mapUrl} data-test={`Choropleth.Editor.MapUrl.${mapKey}`}>
-              {getMapLabel(mapUrl)}
+          data-test="Choropleth.Editor.MapType"
+          defaultValue={options.mapType}
+          onChange={mapType => onOptionsChange({ mapType })}>
+          {map(availableMaps, ({ name }, mapKey) => (
+            <Select.Option key={mapKey} data-test={`Choropleth.Editor.MapType.${mapKey}`}>
+              {name}
             </Select.Option>
           ))}
+          <Select.Option key="custom" data-test="Choropleth.Editor.MapType.custom">
+            Custom...
+          </Select.Option>
         </Select>
       </Section>
+
+      {options.mapType === "custom" && (
+        <Section>
+          <Input
+            data-test="Choropleth.Editor.CustomMapUrl"
+            placeholder="Custom map URL..."
+            defaultValue={options.customMapUrl}
+            onChange={event => handleCustomMapUrlChange(event.target.value)}
+          />
+        </Section>
+      )}
 
       <Section>
         <Grid.Row gutter={15}>

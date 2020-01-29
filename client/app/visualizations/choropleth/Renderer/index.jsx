@@ -4,13 +4,14 @@ import { RendererPropTypes } from "@/visualizations/prop-types";
 import useMemoWithDeepCompare from "@/lib/hooks/useMemoWithDeepCompare";
 
 import useLoadGeoJson from "../hooks/useLoadGeoJson";
+import { getMapUrl } from "../maps";
 import initChoropleth from "./initChoropleth";
 import { prepareData } from "./utils";
 import "./renderer.less";
 
 export default function Renderer({ data, options, onOptionsChange }) {
   const [container, setContainer] = useState(null);
-  const [geoJson] = useLoadGeoJson(options.mapUrl);
+  const [geoJson] = useLoadGeoJson(getMapUrl(options.mapType, options.customMapUrl));
 
   const optionsWithoutBounds = useMemoWithDeepCompare(() => omit(options, ["bounds"]), [options]);
 

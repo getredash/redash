@@ -8,16 +8,16 @@ const defaultGeoJson = {
 };
 
 // TODO: It needs some cache
-export default function useLoadGeoJson(mapUrl) {
+export default function useLoadGeoJson(url) {
   const [geoJson, setGeoJson] = useState(defaultGeoJson);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (isString(mapUrl)) {
+    if (isString(url)) {
       setIsLoading(true);
       let cancelled = false;
       axios
-        .get(mapUrl)
+        .get(url)
         .catch(() => defaultGeoJson)
         .then(data => {
           if (!cancelled) {
@@ -33,7 +33,7 @@ export default function useLoadGeoJson(mapUrl) {
       setGeoJson(defaultGeoJson);
       setIsLoading(false);
     }
-  }, [mapUrl]);
+  }, [url]);
 
   return [geoJson, isLoading];
 }

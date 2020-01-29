@@ -15,6 +15,7 @@ import {
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 import useLoadGeoJson from "../hooks/useLoadGeoJson";
+import { getMapUrl } from "../maps";
 import { getGeoJsonFields } from "./utils";
 
 function TemplateFormatHint({ geoJsonProperties }) {
@@ -54,7 +55,7 @@ TemplateFormatHint.defaultProps = {
 
 export default function GeneralSettings({ options, onOptionsChange }) {
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
-  const [geoJson] = useLoadGeoJson(options.mapUrl);
+  const [geoJson] = useLoadGeoJson(getMapUrl(options.mapType, options.customMapUrl));
   const geoJsonFields = useMemo(() => getGeoJsonFields(geoJson), [geoJson]);
 
   const templateFormatHint = <TemplateFormatHint geoJsonProperties={geoJsonFields} />;
