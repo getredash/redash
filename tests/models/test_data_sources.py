@@ -68,6 +68,32 @@ class DataSourceTest(BaseTestCase):
 
         self.assertEqual(real_output, expected_output)
 
+    def test_model_uses_schema_sorter(self):
+        orig_schema = [
+            {"name": "zoo", "columns": ["is_zebra", "is_snake", "is_cow"]},
+            {
+                "name": "all_terain_vehicle",
+                "columns": ["has_wheels", "has_engine", "has_all_wheel_drive"],
+            },
+        ]
+
+        sorted_schema = [
+            {
+                "name": "all_terain_vehicle",
+                "columns": ["has_all_wheel_drive", "has_engine", "has_wheels"],
+            },
+            {"name": "zoo", "columns": ["is_cow", "is_snake", "is_zebra"]},
+        ]
+
+        with mock.patch(
+            "redash.query_runner.pg.PostgreSQL.get_schema"
+        ) as patched_get_schema:
+            patched_get_schema.return_value = orig_schema
+
+            out_schema = self.factory.data_source.get_schema()
+
+            self.assertEqual(out_schema, sorted_schema)
+
 
 class TestDataSourceCreate(BaseTestCase):
     def test_adds_data_source_to_default_group(self):
