@@ -1,17 +1,15 @@
-import { each } from "lodash";
+import { each, debounce } from "lodash";
 
 export default function createReferenceCountingCache({ cleanupDelay = 2000 } = {}) {
   const items = {};
 
-  function cleanup() {
-    setTimeout(() => {
-      each(items, (item, key) => {
-        if (item.refCount <= 0) {
-          delete items[key];
-        }
-      });
-    }, cleanupDelay);
-  }
+  const cleanup = debounce(() => {
+    each(items, (item, key) => {
+      if (item.refCount <= 0) {
+        delete items[key];
+      }
+    });
+  }, cleanupDelay);
 
   function get(key, getter) {
     if (!items[key]) {
@@ -30,7 +28,9 @@ export default function createReferenceCountingCache({ cleanupDelay = 2000 } = {
       const item = items[key];
       if (item.refCount > 0) {
         item.refCount -= 1;
-        cleanup();
+        if (item.refCount <= 0) {
+          cleanup();
+        }
       }
     }
   }

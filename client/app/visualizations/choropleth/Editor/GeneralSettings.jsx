@@ -70,7 +70,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           </Grid.Col>
           <Grid.Col span={12}>
             <Select
-              label="Target Field"
+              label="Target field"
               className="w-100"
               data-test="Choropleth.Editor.TargetField"
               disabled={isLoadingGeoJson || targetFields.length === 0}
