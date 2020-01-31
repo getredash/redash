@@ -24,6 +24,7 @@ export default function ColumnMappingSelect({ value, availableColumns, type, onC
         data-test={`Chart.ColumnMapping.${type}`}
         mode={multiple ? "multiple" : "default"}
         allowClear
+        showSearch
         placeholder={multiple ? "Choose columns..." : "Choose column..."}
         value={value || undefined}
         onChange={column => onChange(column || null, type)}>
