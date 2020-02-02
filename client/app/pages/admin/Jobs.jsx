@@ -1,4 +1,4 @@
-import { flatMap, values } from "lodash";
+import { partition, flatMap, values } from "lodash";
 import React from "react";
 import { axios } from "@/services/axios";
 
@@ -7,7 +7,7 @@ import Tabs from "antd/lib/tabs";
 import * as Grid from "antd/lib/grid";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Layout from "@/components/admin/Layout";
-import { CounterCard, WorkersTable, QueuesTable, OtherJobsTable } from "@/components/admin/RQStatus";
+import { CounterCard, WorkersTable, QueuesTable, QueryJobsTable, OtherJobsTable } from "@/components/admin/RQStatus";
 
 import location from "@/services/location";
 import recordEvent from "@/services/recordEvent";
@@ -79,6 +79,10 @@ class Jobs extends React.Component {
 
   render() {
     const { isLoading, error, queueCounters, startedJobs, overallCounters, workers, activeTab } = this.state;
+    const [startedQueryJobs, otherStartedJobs] = partition(startedJobs, [
+      "name",
+      "redash.tasks.queries.execution.execute_query",
+    ]);
 
     const changeTab = newTab => {
       location.setHash(newTab);
@@ -108,8 +112,11 @@ class Jobs extends React.Component {
                 <Tabs.TabPane key="workers" tab="Workers">
                   <WorkersTable loading={isLoading} items={workers} />
                 </Tabs.TabPane>
+                <Tabs.TabPane key="queries" tab="Queries">
+                  <QueryJobsTable loading={isLoading} items={startedQueryJobs} />
+                </Tabs.TabPane>
                 <Tabs.TabPane key="other" tab="Other Jobs">
-                  <OtherJobsTable loading={isLoading} items={startedJobs} />
+                  <OtherJobsTable loading={isLoading} items={otherStartedJobs} />
                 </Tabs.TabPane>
               </Tabs>
             </React.Fragment>
