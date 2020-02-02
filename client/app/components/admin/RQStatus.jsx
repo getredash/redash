@@ -117,13 +117,37 @@ export function QueuesTable({ loading, items }) {
 QueuesTable.propTypes = TablePropTypes;
 
 export function QueryJobsTable({ loading, items }) {
-  return <Table loading={loading} columns={queryJobsColumns} rowKey="id" dataSource={items} />;
+  return (
+    <Table
+      loading={loading}
+      columns={queryJobsColumns}
+      rowKey="id"
+      dataSource={items}
+      pagination={{
+        defaultPageSize: 25,
+        pageSizeOptions: ["10", "25", "50"],
+        showSizeChanger: true,
+      }}
+    />
+  );
 }
 
 QueryJobsTable.propTypes = TablePropTypes;
 
 export function OtherJobsTable({ loading, items }) {
-  return <Table loading={loading} columns={otherJobsColumns} rowKey="id" dataSource={items} />;
+  return (
+    <Table
+      loading={loading}
+      columns={otherJobsColumns}
+      rowKey="id"
+      dataSource={items}
+      pagination={{
+        defaultPageSize: 25,
+        pageSizeOptions: ["10", "25", "50"],
+        showSizeChanger: true,
+      }}
+    />
+  );
 }
 
 OtherJobsTable.propTypes = TablePropTypes;
