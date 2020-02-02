@@ -99,7 +99,19 @@ export function WorkersTable({ loading, items }) {
 WorkersTable.propTypes = TablePropTypes;
 
 export function QueuesTable({ loading, items }) {
-  return <Table loading={loading} columns={queuesColumns} rowKey="name" dataSource={items} />;
+  return (
+    <Table
+      loading={loading}
+      columns={queuesColumns}
+      rowKey="name"
+      dataSource={items}
+      pagination={{
+        defaultPageSize: 25,
+        pageSizeOptions: ["10", "25", "50"],
+        showSizeChanger: true,
+      }}
+    />
+  );
 }
 
 QueuesTable.propTypes = TablePropTypes;
