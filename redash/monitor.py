@@ -92,7 +92,7 @@ def rq_queues():
             "started": fetch_jobs(StartedJobRegistry(queue=q).get_job_ids()),
             "queued": len(q.job_ids),
         }
-        for q in Queue.all()
+        for q in sorted(Queue.all(), key=lambda q: q.name)
     }
 
 
