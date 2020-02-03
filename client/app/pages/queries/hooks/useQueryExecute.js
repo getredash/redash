@@ -1,4 +1,4 @@
-import { useReducer, useCallback, useEffect } from "react";
+import { useReducer, useCallback, useEffect, useRef } from "react";
 import location from "@/services/location";
 import recordEvent from "@/services/recordEvent";
 import { ExecutionStatus } from "@/services/query-result";
@@ -26,6 +26,14 @@ export default function useQueryExecute(query) {
     error: null,
   });
 
+  const queryResultInExecution = useRef(null);
+  // Clear executing queryResult when component is unmounted to avoid errors
+  useEffect(() => {
+    return () => {
+      queryResultInExecution.current = null;
+    };
+  }, []);
+
   const executeQuery = useCallback(
     (maxAge = 0, queryExecutor) => {
       let newQueryResult;
@@ -34,6 +42,8 @@ export default function useQueryExecute(query) {
       } else {
         newQueryResult = query.getQueryResult(maxAge);
       }
+
+      queryResultInExecution.current = newQueryResult;
 
       setExecutionState({
         updatedAt: newQueryResult.getUpdatedAt(),
@@ -46,34 +56,40 @@ export default function useQueryExecute(query) {
       });
 
       const onStatusChange = status => {
-        setExecutionState({ updatedAt: newQueryResult.getUpdatedAt(), executionStatus: status });
+        if (queryResultInExecution.current === newQueryResult) {
+          setExecutionState({ updatedAt: newQueryResult.getUpdatedAt(), executionStatus: status });
+        }
       };
 
       newQueryResult
         .toPromise(onStatusChange)
         .then(queryResult => {
-          // TODO: this should probably belong in the QueryEditor page.
-          if (queryResult && queryResult.query_result.query === query.query) {
-            query.latest_query_data_id = queryResult.getId();
-            query.queryResult = queryResult;
-          }
+          if (queryResultInExecution.current === newQueryResult) {
+            // TODO: this should probably belong in the QueryEditor page.
+            if (queryResult && queryResult.query_result.query === query.query) {
+              query.latest_query_data_id = queryResult.getId();
+              query.queryResult = queryResult;
+            }
 
-          setExecutionState({
-            queryResult,
-            error: null,
-            isExecuting: false,
-            isCancelling: false,
-            executionStatus: null,
-          });
+            setExecutionState({
+              queryResult,
+              error: null,
+              isExecuting: false,
+              isCancelling: false,
+              executionStatus: null,
+            });
+          }
         })
         .catch(queryResult => {
-          setExecutionState({
-            queryResult,
-            error: queryResult.getError(),
-            isExecuting: false,
-            isCancelling: false,
-            executionStatus: ExecutionStatus.FAILED,
-          });
+          if (queryResultInExecution.current === newQueryResult) {
+            setExecutionState({
+              queryResult,
+              error: queryResult.getError(),
+              isExecuting: false,
+              isCancelling: false,
+              executionStatus: ExecutionStatus.FAILED,
+            });
+          }
         });
     },
     [query]
