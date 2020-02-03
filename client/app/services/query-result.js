@@ -312,7 +312,7 @@ class QueryResult {
     const queryResult = new QueryResult();
 
     queryResult.isLoadingResult = true;
-    queryResult.deferred.onStatusChange(ExecutionStatus.LOADING);
+    queryResult.deferred.onStatusChange(ExecutionStatus.LOADING_RESULT);
 
     axios
       .get(`api/queries/${queryId}/results/${id}.json`)
@@ -343,7 +343,7 @@ class QueryResult {
 
   loadResult(tryCount) {
     this.isLoadingResult = true;
-    this.deferred.onStatusChange(ExecutionStatus.LOADING);
+    this.deferred.onStatusChange(ExecutionStatus.LOADING_RESULT);
 
     QueryResultResource.get({ id: this.job.query_result_id })
       .then(response => {

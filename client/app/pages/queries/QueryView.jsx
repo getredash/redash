@@ -56,6 +56,7 @@ function QueryView(props) {
 
   const {
     queryResult,
+    loadedInitialResults,
     isExecuting,
     executionStatus,
     executeQuery,
@@ -168,7 +169,7 @@ function QueryView(props) {
               />
             </div>
           )}
-          {true && (
+          {loadedInitialResults && (
             <QueryVisualizationTabs
               queryResult={queryResult}
               visualizations={query.visualizations}

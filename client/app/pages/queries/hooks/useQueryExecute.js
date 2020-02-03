@@ -20,6 +20,7 @@ export default function useQueryExecute(query) {
   const [executionState, setExecutionState] = useReducer(reducer, {
     queryResult: null,
     isExecuting: false,
+    loadedInitialResults: false,
     executionStatus: null,
     isCancelling: false,
     cancelCallback: null,
@@ -47,6 +48,7 @@ export default function useQueryExecute(query) {
 
       setExecutionState({
         updatedAt: newQueryResult.getUpdatedAt(),
+        executionStatus: newQueryResult.getStatus(),
         isExecuting: true,
         cancelCallback: () => {
           recordEvent("cancel_execute", "query", query.id);
@@ -73,6 +75,7 @@ export default function useQueryExecute(query) {
 
             setExecutionState({
               queryResult,
+              loadedInitialResults: true,
               error: null,
               isExecuting: false,
               isCancelling: false,
@@ -84,6 +87,7 @@ export default function useQueryExecute(query) {
           if (queryResultInExecution.current === newQueryResult) {
             setExecutionState({
               queryResult,
+              loadedInitialResults: true,
               error: queryResult.getError(),
               isExecuting: false,
               isCancelling: false,
@@ -104,8 +108,11 @@ export default function useQueryExecute(query) {
 
   useEffect(() => {
     // TODO: this belongs on the query page?
+    // loadedInitialResults can be removed if so
     if (queryRef.current.hasResult() || queryRef.current.paramsRequired()) {
       executeQueryRef.current(getMaxAge());
+    } else {
+      setExecutionState({ loadedInitialResults: true });
     }
   }, []);
 
