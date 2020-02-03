@@ -95,12 +95,19 @@ export default function useQueryExecute(query) {
     [query]
   );
 
+  const queryRef = useRef(query);
+  const executeQueryRef = useRef(executeQuery);
+  useEffect(() => {
+    queryRef.current = query;
+    executeQueryRef.current = executeQuery;
+  }, [executeQuery, query]);
+
   useEffect(() => {
     // TODO: this belongs on the query page?
-    if (query.hasResult() || query.paramsRequired()) {
-      executeQuery(getMaxAge());
+    if (queryRef.current.hasResult() || queryRef.current.paramsRequired()) {
+      executeQueryRef.current(getMaxAge());
     }
-  }, [query, executeQuery]);
+  }, []);
 
   return { ...executionState, ...{ executeQuery } };
 }
