@@ -1,8 +1,8 @@
+import { isFunction, get } from "lodash";
 import React from "react";
 import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
-import { isFunction } from "lodash";
 import User from "@/services/user";
 import notification from "@/services/notification";
 import { UserProfile } from "../proptypes";
@@ -72,8 +72,8 @@ class ChangePasswordDialog extends React.Component {
               notification.success("Saved.");
               this.props.dialog.close({ success: true });
             })
-            .catch((error = {}) => {
-              notification.error((error.data && error.data.message) || "Failed saving.");
+            .catch(error => {
+              notification.error(get(error, "response.data.message", "Failed saving."));
               this.setState({ updatingPassword: false });
             });
         } else {

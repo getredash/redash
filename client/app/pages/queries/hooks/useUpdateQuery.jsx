@@ -1,4 +1,4 @@
-import { isNil, isObject, extend, keys, map, omit, pick, uniq, isFunction } from "lodash";
+import { isNil, isObject, isFunction, extend, keys, map, omit, pick, uniq, get } from "lodash";
 import React, { useRef, useCallback } from "react";
 import Modal from "antd/lib/modal";
 import { Query } from "@/services/query";
@@ -57,7 +57,7 @@ function doSaveQuery(data, { canOverwrite = false } = {}) {
   }
 
   return Query.save(data).catch(error => {
-    if (error.status === 409) {
+    if (get(error, "response.status") === 409) {
       if (canOverwrite) {
         return confirmOverwrite()
           .then(() => Query.save(omit(data, ["version"])))

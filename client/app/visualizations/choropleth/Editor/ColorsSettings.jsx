@@ -1,7 +1,7 @@
 import React from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Section, Select, InputNumber, ColorPicker } from "@/components/visualizations/editor";
-import { EditorPropTypes } from "@/visualizations";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 import ColorPalette from "../ColorPalette";
 
 export default function ColorsSettings({ options, onOptionsChange }) {

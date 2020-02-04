@@ -1,8 +1,12 @@
-import { axios } from "@/services/axios";
-import { isString, get } from "lodash";
+import { isString, get, find } from "lodash";
 import { sanitize } from "dompurify";
+import { axios } from "@/services/axios";
 import notification from "@/services/notification";
 import { clientConfig } from "@/services/auth";
+
+function getErrorMessage(error) {
+  return find([get(error, "response.data.message"), get(error, "response.statusText"), "Unknown error"], isString);
+}
 
 function disableResource(user) {
   return `api/users/${user.id}/disable`;
@@ -19,12 +23,8 @@ function enableUser(user) {
       user.profile_image_url = data.profile_image_url;
       return data;
     })
-    .catch(response => {
-      let message = get(response, "data.message", response.statusText);
-      if (!isString(message)) {
-        message = "Unknown error";
-      }
-      notification.error("Cannot enable user", message);
+    .catch(error => {
+      notification.error("Cannot enable user", getErrorMessage(error));
     });
 }
 
@@ -38,9 +38,8 @@ function disableUser(user) {
       user.profile_image_url = data.profile_image_url;
       return data;
     })
-    .catch((response = {}) => {
-      const message = get(response, "data.message", response.statusText);
-      notification.error("Cannot disable user", message);
+    .catch(error => {
+      notification.error("Cannot disable user", getErrorMessage(error));
     });
 }
 
@@ -52,9 +51,8 @@ function deleteUser(user) {
       notification.warning(`User ${userName} has been deleted.`);
       return data;
     })
-    .catch((response = {}) => {
-      const message = get(response, "data.message", response.statusText);
-      notification.error("Cannot delete user", message);
+    .catch(error => {
+      notification.error("Cannot delete user", getErrorMessage(error));
     });
 }
 
@@ -78,9 +76,8 @@ function regenerateApiKey(user) {
       notification.success("The API Key has been updated.");
       return data.api_key;
     })
-    .catch((response = {}) => {
-      const message = get(response, "data.message", response.statusText);
-      notification.error("Failed regenerating API Key", message);
+    .catch(error => {
+      notification.error("Failed regenerating API Key", getErrorMessage(error));
     });
 }
 
@@ -94,9 +91,8 @@ function sendPasswordReset(user) {
       }
       notification.success("Password reset email sent.");
     })
-    .catch((response = {}) => {
-      const message = get(response, "data.message", response.statusText);
-      notification.error("Failed to send password reset email", message);
+    .catch(error => {
+      notification.error("Failed to send password reset email", getErrorMessage(error));
     });
 }
 
@@ -110,10 +106,8 @@ function resendInvitation(user) {
       }
       notification.success("Invitation sent.");
     })
-    .catch((response = {}) => {
-      const message = get(response, "data.message", response.statusText);
-
-      notification.error("Failed to resend invitation", message);
+    .catch(error => {
+      notification.error("Failed to resend invitation", getErrorMessage(error));
     });
 }
 

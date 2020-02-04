@@ -1,17 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmailSettingsWarning from "@/components/EmailSettingsWarning";
 import UserEdit from "@/components/users/UserEdit";
 import UserShow from "@/components/users/UserShow";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import wrapSettingsTab from "@/components/SettingsWrapper";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
-
 import User from "@/services/user";
 import { currentUser } from "@/services/auth";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 import "./settings.less";
 
 class UserProfile extends React.Component {
@@ -34,9 +31,7 @@ class UserProfile extends React.Component {
     const userId = this.props.userId || currentUser.id;
     User.get({ id: userId })
       .then(user => this.setState({ user: User.convertUserInfo(user) }))
-      .catch(error => {
-        this.props.onError(new PromiseRejectionError(error));
-      });
+      .catch(error => this.props.onError(error));
   }
 
   render() {
@@ -62,26 +57,14 @@ const UserProfilePage = wrapSettingsTab(
 );
 
 export default [
-  {
+  routeWithUserSession({
     path: "/users/me",
     title: "Account",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <UserProfilePage {...currentRoute.routeParams} onError={handleError} />}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
-  {
+    render: pageProps => <UserProfilePage {...pageProps} />,
+  }),
+  routeWithUserSession({
     path: "/users/:userId([0-9]+)",
     title: "Users",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <UserProfilePage {...currentRoute.routeParams} onError={handleError} />}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
+    render: pageProps => <UserProfilePage {...pageProps} />,
+  }),
 ];

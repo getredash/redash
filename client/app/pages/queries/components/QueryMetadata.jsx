@@ -11,7 +11,7 @@ import "./QueryMetadata.less";
 
 export default function QueryMetadata({ query, dataSource, layout, onEditSchedule }) {
   return (
-    <div className={`query-metadata-new query-metadata-${layout}`}>
+    <div className={`query-metadata query-metadata-${layout}`}>
       <div className="query-metadata-item">
         <img className="profile__image_thumb" src={query.user.profile_image_url} alt="Avatar" />
         <div className="query-metadata-property">

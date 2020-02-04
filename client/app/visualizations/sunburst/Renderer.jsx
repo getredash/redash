@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import resizeObserver from "@/services/resizeObserver";
-import { RendererPropTypes } from "@/visualizations";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 
 import initSunburst from "./initSunburst";
 import "./renderer.less";

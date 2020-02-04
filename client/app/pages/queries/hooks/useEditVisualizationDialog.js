@@ -1,6 +1,6 @@
 import { isFunction, extend, filter, find } from "lodash";
 import { useCallback, useRef } from "react";
-import EditVisualizationDialog from "@/visualizations/EditVisualizationDialog";
+import EditVisualizationDialog from "@/visualizations/components/EditVisualizationDialog";
 
 export default function useEditVisualizationDialog(query, queryResult, onChange) {
   const onChangeRef = useRef();

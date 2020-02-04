@@ -11,10 +11,9 @@ import Filters, { filterData } from "@/components/Filters";
 import notification from "@/services/notification";
 import Visualization from "@/services/visualization";
 import recordEvent from "@/services/recordEvent";
-
 import getQueryResultData from "@/lib/getQueryResultData";
-
-import { VisualizationType, registeredVisualizations, getDefaultVisualization, newVisualization } from "./index";
+import { VisualizationType } from "@/visualizations/prop-types";
+import registeredVisualizations, { getDefaultVisualization, newVisualization } from "@/visualizations";
 
 function updateQueryVisualizations(query, visualization) {
   const index = findIndex(query.visualizations, v => v.id === visualization.id);

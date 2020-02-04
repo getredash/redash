@@ -4,7 +4,7 @@ import Button from "antd/lib/button";
 import { isEmpty } from "lodash";
 import DataSource, { IMG_ROOT } from "@/services/data-source";
 import { policy } from "@/services/policy";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
 import LoadingState from "@/components/items-list/components/LoadingState";
@@ -12,9 +12,7 @@ import CreateSourceDialog from "@/components/CreateSourceDialog";
 import DynamicComponent from "@/components/DynamicComponent";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import recordEvent from "@/services/recordEvent";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 class DataSourcesList extends React.Component {
   static propTypes = {
@@ -56,7 +54,7 @@ class DataSourcesList extends React.Component {
           }
         )
       )
-      .catch(error => this.props.onError(new PromiseRejectionError(error)));
+      .catch(error => this.props.onError(error));
   }
 
   componentWillUnmount() {
@@ -69,13 +67,11 @@ class DataSourcesList extends React.Component {
     const target = { options: {}, type: selectedType.type };
     helper.updateTargetWithValues(target, values);
 
-    return DataSource.create(target)
-      .then(dataSource => {
-        this.setState({ loading: true });
-        DataSource.query().then(dataSources => this.setState({ dataSources, loading: false }));
-        return dataSource;
-      })
-      .catch(error => Promise.reject(new PromiseRejectionError(error)));
+    return DataSource.create(target).then(dataSource => {
+      this.setState({ loading: true });
+      DataSource.query().then(dataSources => this.setState({ dataSources, loading: false }));
+      return dataSource;
+    });
   };
 
   showCreateSourceDialog = () => {
@@ -159,28 +155,14 @@ const DataSourcesListPage = wrapSettingsTab(
 );
 
 export default [
-  {
+  routeWithUserSession({
     path: "/data_sources",
     title: "Data Sources",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <DataSourcesListPage {...currentRoute.routeParams} onError={handleError} />}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
-  {
+    render: pageProps => <DataSourcesListPage {...pageProps} />,
+  }),
+  routeWithUserSession({
     path: "/data_sources/new",
     title: "Data Sources",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <DataSourcesListPage {...currentRoute.routeParams} isNewDataSourcePage onError={handleError} />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
+    render: pageProps => <DataSourcesListPage {...pageProps} isNewDataSourcePage />,
+  }),
 ];

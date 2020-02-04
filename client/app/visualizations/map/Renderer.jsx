@@ -1,6 +1,6 @@
 import { isEqual, omit, merge } from "lodash";
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { RendererPropTypes } from "@/visualizations";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 
 import prepareData from "./prepareData";
 import initMap from "./initMap";

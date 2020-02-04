@@ -3,7 +3,7 @@ import moment from "moment";
 import { axios } from "@/services/axios";
 import { QueryResultError } from "@/services/query";
 import { Auth } from "@/services/auth";
-import { uniqBy, each, isNumber, isString, includes, extend, forOwn } from "lodash";
+import { isString, uniqBy, each, isNumber, includes, extend, forOwn, get } from "lodash";
 
 const logger = debug("redash:services:QueryResult");
 const filterTypes = ["filter", "multi-filter", "multiFilter"];
@@ -68,27 +68,36 @@ const statuses = {
   4: ExecutionStatus.FAILED,
 };
 
-function handleErrorResponse(queryResult, response) {
-  if (response.status === 403) {
-    queryResult.update(response.data);
-  } else if (response.status === 400 && "job" in response.data) {
-    queryResult.update(response.data);
-  } else if (response.status === 404) {
-    queryResult.update({
-      job: {
-        error: "cached query result unavailable, please execute again.",
-        status: 4,
-      },
-    });
-  } else {
-    logger("Unknown error", response);
-    queryResult.update({
-      job: {
-        error: response.data.message || "unknown error occurred. Please try again later.",
-        status: 4,
-      },
-    });
+function handleErrorResponse(queryResult, error) {
+  const status = get(error, "response.status");
+  switch (status) {
+    case 403:
+      queryResult.update(error.response.data);
+      return;
+    case 400:
+      if ("job" in error.response.data) {
+        queryResult.update(error.response.data);
+        return;
+      }
+      break;
+    case 404:
+      queryResult.update({
+        job: {
+          error: "cached query result unavailable, please execute again.",
+          status: 4,
+        },
+      });
+      return;
+    // no default
   }
+
+  logger("Unknown error", error);
+  queryResult.update({
+    job: {
+      error: get(error, "response.data.message", "Unknown error occurred. Please try again later."),
+      status: 4,
+    },
+  });
 }
 
 class QueryResult {

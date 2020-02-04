@@ -82,6 +82,13 @@ def enqueue_query(
                     scheduled_query_id=scheduled_query_id,
                     is_api_key=is_api_key,
                     job_timeout=time_limit,
+                    meta={
+                        "data_source_id": data_source.id,
+                        "org_id": data_source.org_id,
+                        "scheduled": scheduled_query_id is not None,
+                        "query_id": metadata.get("Query ID"),
+                        "user_id": user_id,
+                    }
                 )
 
                 logging.info("[%s] Created new job: %s", query_hash, job.id)

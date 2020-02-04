@@ -1,6 +1,6 @@
 import React from "react";
 
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
@@ -8,7 +8,6 @@ import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
@@ -17,7 +16,7 @@ import Layout from "@/components/layouts/ContentWithSidebar";
 
 import { Dashboard } from "@/services/dashboard";
 
-import DashboardListEmptyState from "./DashboardListEmptyState";
+import DashboardListEmptyState from "./components/DashboardListEmptyState";
 
 import "./dashboard-list.css";
 
@@ -76,7 +75,7 @@ class DashboardList extends React.Component {
     return (
       <div className="page-dashboard-list">
         <div className="container">
-          <PageHeader title={controller.params.title} />
+          <PageHeader title={controller.params.pageTitle} />
           <Layout className="m-l-15 m-r-15">
             <Layout.Sidebar className="m-b-0">
               <Sidebar.SearchInput
@@ -149,38 +148,14 @@ const DashboardListPage = itemsList(
 );
 
 export default [
-  {
+  routeWithUserSession({
     path: "/dashboards",
     title: "Dashboards",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <DashboardListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "all" }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
-  {
+    render: pageProps => <DashboardListPage {...pageProps} currentPage="all" />,
+  }),
+  routeWithUserSession({
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <DashboardListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "favorites" }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
+    render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
+  }),
 ];

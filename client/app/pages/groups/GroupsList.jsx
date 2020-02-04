@@ -1,11 +1,11 @@
 import React from "react";
 
 import Button from "antd/lib/button";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
-import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
+import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
 
@@ -16,7 +16,6 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 import CreateGroupDialog from "@/components/groups/CreateGroupDialog";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import wrapSettingsTab from "@/components/SettingsWrapper";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import Group from "@/services/group";
 import { currentUser } from "@/services/auth";
@@ -133,7 +132,7 @@ const GroupsListPage = wrapSettingsTab(
     path: "groups",
     order: 3,
   },
-  liveItemsList(
+  itemsList(
     GroupsList,
     () =>
       new ResourceItemsSource({
@@ -149,20 +148,8 @@ const GroupsListPage = wrapSettingsTab(
   )
 );
 
-export default {
+export default routeWithUserSession({
   path: "/groups",
   title: "Groups",
-  render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => (
-          <GroupsListPage
-            routeParams={{ ...currentRoute.routeParams, currentPage: "groups" }}
-            currentRoute={currentRoute}
-            onError={handleError}
-          />
-        )}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
-  ),
-};
+  render: pageProps => <GroupsListPage {...pageProps} currentPage="groups" />,
+});

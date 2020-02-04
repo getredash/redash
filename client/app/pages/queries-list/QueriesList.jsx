@@ -1,6 +1,6 @@
 import React from "react";
 
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
@@ -15,7 +15,6 @@ import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
 import Layout from "@/components/layouts/ContentWithSidebar";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { Query } from "@/services/query";
 import { currentUser } from "@/services/auth";
@@ -93,7 +92,7 @@ class QueriesList extends React.Component {
     return (
       <div className="page-queries-list">
         <div className="container">
-          <PageHeader title={controller.params.title} />
+          <PageHeader title={controller.params.pageTitle} />
           <Layout className="m-l-15 m-r-15">
             <Layout.Sidebar className="m-b-0">
               <Sidebar.SearchInput
@@ -164,72 +163,24 @@ const QueriesListPage = itemsList(
 );
 
 export default [
-  {
+  routeWithUserSession({
     path: "/queries",
     title: "Queries",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <QueriesListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "all" }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
-  {
+    render: pageProps => <QueriesListPage {...pageProps} currentPage="all" />,
+  }),
+  routeWithUserSession({
     path: "/queries/favorites",
     title: "Favorite Queries",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <QueriesListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "favorites" }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
-  {
+    render: pageProps => <QueriesListPage {...pageProps} currentPage="favorites" />,
+  }),
+  routeWithUserSession({
     path: "/queries/archive",
     title: "Archived Queries",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <QueriesListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "archive" }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
-  {
+    render: pageProps => <QueriesListPage {...pageProps} currentPage="archive" />,
+  }),
+  routeWithUserSession({
     path: "/queries/my",
     title: "My Queries",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <QueriesListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "my" }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
+    render: pageProps => <QueriesListPage {...pageProps} currentPage="my" />,
+  }),
 ];

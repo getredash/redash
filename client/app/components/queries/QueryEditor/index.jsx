@@ -78,15 +78,15 @@ const QueryEditor = React.forwardRef(function(
 
   const initEditor = useCallback(editor => {
     // Release Cmd/Ctrl+L to the browser
-    editor.commands.bindKey("Cmd+L", null);
-    editor.commands.bindKey("Ctrl+P", null);
-    editor.commands.bindKey("Ctrl+L", null);
+    editor.commands.bindKey({ win: "Ctrl+L", mac: "Cmd+L" }, null);
 
-    // Ignore Ctrl+P to open new parameter dialog
+    // Release Cmd/Ctrl+Shift+F for format query action
+    editor.commands.bindKey({ win: "Ctrl+Shift+F", mac: "Cmd+Shift+F" }, null);
+
+    // Release Ctrl+P for open new parameter dialog
     editor.commands.bindKey({ win: "Ctrl+P", mac: null }, null);
     // Lineup only mac
     editor.commands.bindKey({ win: null, mac: "Ctrl+P" }, "golineup");
-    editor.commands.bindKey({ win: "Ctrl+Shift+F", mac: "Cmd+Shift+F" }, () => console.log("formatQuery"));
 
     // Reset Completer in case dot is pressed
     editor.commands.on("afterExec", e => {

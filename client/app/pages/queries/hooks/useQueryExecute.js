@@ -2,6 +2,7 @@ import { useReducer, useCallback, useEffect, useRef } from "react";
 import location from "@/services/location";
 import recordEvent from "@/services/recordEvent";
 import { ExecutionStatus } from "@/services/query-result";
+import notifications from "@/services/notifications";
 
 function getMaxAge() {
   const { maxAge } = location.search;
@@ -44,6 +45,9 @@ export default function useQueryExecute(query) {
         newQueryResult = query.getQueryResult(maxAge);
       }
 
+      recordEvent("execute", "query", query.id);
+      notifications.getPermissions();
+
       queryResultInExecution.current = newQueryResult;
 
       setExecutionState({
@@ -73,6 +77,8 @@ export default function useQueryExecute(query) {
               query.queryResult = queryResult;
             }
 
+            notifications.showNotification("Redash", `${query.name} updated.`);
+
             setExecutionState({
               queryResult,
               loadedInitialResults: true,
@@ -85,6 +91,8 @@ export default function useQueryExecute(query) {
         })
         .catch(queryResult => {
           if (queryResultInExecution.current === newQueryResult) {
+            notifications.showNotification("Redash", `${query.name} failed to run: ${queryResult.getError()}`);
+
             setExecutionState({
               queryResult,
               loadedInitialResults: true,
