@@ -17,6 +17,7 @@ import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { durationHumanize, prettySize } from "@/lib/utils";
 import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
+import { ExecutionStatus } from "@/services/query-result";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryMetadata from "./components/QueryMetadata";
@@ -372,7 +373,7 @@ function QuerySource(props) {
                   <QueryVisualizationTabs
                     queryResult={queryResult}
                     visualizations={query.visualizations}
-                    showNewVisualizationButton={queryFlags.canEdit}
+                    showNewVisualizationButton={queryFlags.canEdit && queryResultData.status === ExecutionStatus.DONE}
                     canDeleteVisualizations={queryFlags.canEdit}
                     selectedTab={selectedVisualization}
                     onChangeTab={setSelectedVisualization}
