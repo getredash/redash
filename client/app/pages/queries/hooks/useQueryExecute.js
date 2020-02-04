@@ -77,7 +77,9 @@ export default function useQueryExecute(query) {
               query.queryResult = queryResult;
             }
 
-            notifications.showNotification("Redash", `${query.name} updated.`);
+            if (executionState.loadedInitialResults) {
+              notifications.showNotification("Redash", `${query.name} updated.`);
+            }
 
             setExecutionState({
               queryResult,
@@ -91,7 +93,9 @@ export default function useQueryExecute(query) {
         })
         .catch(queryResult => {
           if (queryResultInExecution.current === newQueryResult) {
-            notifications.showNotification("Redash", `${query.name} failed to run: ${queryResult.getError()}`);
+            if (executionState.loadedInitialResults) {
+              notifications.showNotification("Redash", `${query.name} failed to run: ${queryResult.getError()}`);
+            }
 
             setExecutionState({
               queryResult,
@@ -104,7 +108,7 @@ export default function useQueryExecute(query) {
           }
         });
     },
-    [query]
+    [executionState.loadedInitialResults, query]
   );
 
   const queryRef = useRef(query);
