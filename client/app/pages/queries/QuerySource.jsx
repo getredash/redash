@@ -12,7 +12,6 @@ import QueryControlDropdown from "@/components/EditVisualizationButton/QueryCont
 import QueryEditor from "@/components/queries/QueryEditor";
 import TimeAgo from "@/components/TimeAgo";
 import { durationHumanize, prettySize } from "@/lib/utils";
-import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
 
 import QueryPageHeader from "./components/QueryPageHeader";
@@ -21,6 +20,7 @@ import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import SchemaBrowser from "./components/SchemaBrowser";
 import QuerySourceAlerts from "./components/QuerySourceAlerts";
+import wrapQueryPage from "./components/wrapQueryPage";
 
 import useQuery from "./hooks/useQuery";
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
@@ -443,21 +443,17 @@ QuerySource.propTypes = {
   query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
+const QuerySourcePage = wrapQueryPage(QuerySource);
+
 export default [
   routeWithUserSession({
     path: "/queries/new",
-    render: pageProps => <QuerySource {...pageProps} />,
-    resolve: {
-      query: () => Query.newQuery(),
-    },
+    render: pageProps => <QuerySourcePage {...pageProps} />,
     bodyClass: "fixed-layout",
   }),
   routeWithUserSession({
     path: "/queries/:queryId([0-9]+)/source",
-    render: pageProps => <QuerySource {...pageProps} />,
-    resolve: {
-      query: ({ queryId }) => Query.get({ id: queryId }),
-    },
+    render: pageProps => <QuerySourcePage {...pageProps} />,
     bodyClass: "fixed-layout",
   }),
 ];

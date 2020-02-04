@@ -9,7 +9,6 @@ import TimeAgo from "@/components/TimeAgo";
 import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
 import EditVisualizationButton from "@/components/EditVisualizationButton";
 
-import { Query } from "@/services/query";
 import DataSource from "@/services/data-source";
 import { pluralize, durationHumanize } from "@/lib/utils";
 
@@ -18,6 +17,7 @@ import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import QueryMetadata from "./components/QueryMetadata";
 import QueryViewExecuteButton from "./components/QueryViewExecuteButton";
+import wrapQueryPage from "./components/wrapQueryPage";
 
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 import useQueryExecute from "./hooks/useQueryExecute";
@@ -184,10 +184,9 @@ function QueryView(props) {
 
 QueryView.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-line react/forbid-prop-types
 
+const QueryViewPage = wrapQueryPage(QueryView);
+
 export default routeWithUserSession({
   path: "/queries/:queryId([0-9]+)",
-  render: pageProps => <QueryView {...pageProps} />,
-  resolve: {
-    query: ({ queryId }) => Query.get({ id: queryId }),
-  },
+  render: pageProps => <QueryViewPage {...pageProps} />,
 });
