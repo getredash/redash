@@ -113,10 +113,8 @@ export default function useQueryExecute(query) {
 
   const queryRef = useRef(query);
   const executeQueryRef = useRef(executeQuery);
-  useEffect(() => {
-    queryRef.current = query;
-    executeQueryRef.current = executeQuery;
-  }, [executeQuery, query]);
+  queryRef.current = query;
+  executeQueryRef.current = executeQuery;
 
   useEffect(() => {
     // TODO: this belongs on the query page?
