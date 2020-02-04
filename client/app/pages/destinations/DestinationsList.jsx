@@ -1,18 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
-import { isEmpty, get } from "lodash";
+import { isEmpty, isString, find, get } from "lodash";
 import Destination, { IMG_ROOT } from "@/services/destination";
 import { policy } from "@/services/policy";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import CreateSourceDialog from "@/components/CreateSourceDialog";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 class DestinationsList extends React.Component {
   static propTypes = {
@@ -52,7 +50,7 @@ class DestinationsList extends React.Component {
           }
         )
       )
-      .catch(error => this.props.onError(new PromiseRejectionError(error)));
+      .catch(error => this.props.onError(error));
   }
 
   createDestination = (selectedType, values) => {
@@ -66,10 +64,8 @@ class DestinationsList extends React.Component {
         return destination;
       })
       .catch(error => {
-        if (!(error instanceof Error)) {
-          error = new Error(get(error, "data.message", "Failed saving."));
-        }
-        return Promise.reject(error);
+        const message = find([get(error, "response.data.message"), get(error, "message"), "Failed saving."], isString);
+        return Promise.reject(new Error(message));
       });
   };
 
@@ -147,28 +143,14 @@ const DestinationsListPage = wrapSettingsTab(
 );
 
 export default [
-  {
+  routeWithUserSession({
     path: "/destinations",
     title: "Alert Destinations",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <DestinationsListPage {...currentRoute.routeParams} onError={handleError} />}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
-  {
+    render: pageProps => <DestinationsListPage {...pageProps} />,
+  }),
+  routeWithUserSession({
     path: "/destinations/new",
     title: "Alert Destinations",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <DestinationsListPage {...currentRoute.routeParams} isNewDestinationPage onError={handleError} />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
-  },
+    render: pageProps => <DestinationsListPage {...pageProps} isNewDestinationPage />,
+  }),
 ];

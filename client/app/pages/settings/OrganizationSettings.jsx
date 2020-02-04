@@ -9,9 +9,8 @@ import Input from "antd/lib/input";
 import Select from "antd/lib/select";
 import Checkbox from "antd/lib/checkbox";
 import Tooltip from "antd/lib/tooltip";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import LoadingState from "@/components/items-list/components/LoadingState";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { clientConfig } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
@@ -19,7 +18,6 @@ import OrgSettings from "@/services/organizationSettings";
 import HelpTrigger from "@/components/HelpTrigger";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 import DynamicComponent from "@/components/DynamicComponent";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 const Option = Select.Option;
 
@@ -46,7 +44,7 @@ class OrganizationSettings extends React.Component {
         const settings = get(response, "settings");
         this.setState({ settings, formValues: { ...settings }, loading: false });
       })
-      .catch(error => this.props.onError(new PromiseRejectionError(error)));
+      .catch(error => this.props.onError(error));
   }
 
   disablePasswordLoginToggle = () => !(clientConfig.googleLoginEnabled || this.state.formValues.auth_saml_enabled);
@@ -60,7 +58,7 @@ class OrganizationSettings extends React.Component {
           const settings = get(response, "settings");
           this.setState({ settings, formValues: { ...settings } });
         })
-        .catch(error => this.props.onError(new PromiseRejectionError(error)))
+        .catch(error => this.props.onError(error))
         .finally(() => this.setState({ submitting: false }));
     }
   };
@@ -282,14 +280,8 @@ const OrganizationSettingsPage = wrapSettingsTab(
   OrganizationSettings
 );
 
-export default {
+export default routeWithUserSession({
   path: "/settings/organization",
   title: "Organization Settings",
-  render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => <OrganizationSettingsPage {...currentRoute.routeParams} onError={handleError} />}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
-  ),
-};
+  render: pageProps => <OrganizationSettingsPage {...pageProps} />,
+});

@@ -1,7 +1,7 @@
 import React from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Section, Input, Checkbox, TextArea, ContextHelp } from "@/components/visualizations/editor";
-import { EditorPropTypes } from "@/visualizations";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 function TemplateFormatHint() {
   // eslint-disable-line react/prop-types

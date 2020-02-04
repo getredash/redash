@@ -5,7 +5,7 @@ import cx from "classnames";
 import { useDebouncedCallback } from "use-debounce";
 import useMedia from "use-media";
 import Select from "antd/lib/select";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";
 import EditInPlace from "@/components/EditInPlace";
@@ -13,7 +13,6 @@ import EditVisualizationButton from "@/components/EditVisualizationButton";
 import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
 import QueryEditor from "@/components/queries/QueryEditor";
 import TimeAgo from "@/components/TimeAgo";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { durationHumanize, prettySize } from "@/lib/utils";
 import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
@@ -235,7 +234,7 @@ function QuerySource(props) {
             </div>
 
             {!query.isNew() && (
-              <div className="query-metadata query-metadata--description">
+              <div className="query-page-query-description">
                 <EditInPlace
                   isEditable={queryFlags.canEdit}
                   markdown
@@ -406,12 +405,12 @@ function QuerySource(props) {
                   openAddToDashboardForm={openAddToDashboardDialog}
                 />
 
-                <span className="query-metadata__bottom">
-                  <span className="query-metadata__property">
+                <span className="m-l-10 m-r-10">
+                  <span>
                     <strong>{queryResultData.rows.length}</strong>
                     {queryResultData.rows.length === 1 ? " row" : " rows"}
                   </span>
-                  <span className="query-metadata__property">
+                  <span className="m-l-5">
                     {!isQueryExecuting && (
                       <React.Fragment>
                         <strong>{durationHumanize(queryResultData.runtime)}</strong>
@@ -421,7 +420,7 @@ function QuerySource(props) {
                     {isQueryExecuting && <span>Running&hellip;</span>}
                   </span>
                   {queryResultData.metadata.data_scanned && (
-                    <span className="query-metadata__property">
+                    <span className="m-l-5">
                       Data Scanned
                       <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>
                     </span>
@@ -429,7 +428,7 @@ function QuerySource(props) {
                 </span>
 
                 <div>
-                  <span className="query-metadata__property hidden-xs">
+                  <span className="m-l-5">
                     <span className="hidden-xs">Updated </span>
                     <TimeAgo date={queryResultData.retrievedAt} placeholder="-" />
                   </span>
@@ -448,30 +447,20 @@ QuerySource.propTypes = {
 };
 
 export default [
-  {
+  routeWithUserSession({
     path: "/queries/new",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key} bodyClass="fixed-layout">
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <QuerySource {...currentRoute.routeParams} onError={handleError} />}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
+    render: pageProps => <QuerySource {...pageProps} />,
     resolve: {
       query: () => Query.newQuery(),
     },
-  },
-  {
+    bodyClass: "fixed-layout",
+  }),
+  routeWithUserSession({
     path: "/queries/:queryId([0-9]+)/source",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key} bodyClass="fixed-layout">
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <QuerySource {...currentRoute.routeParams} onError={handleError} />}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
+    render: pageProps => <QuerySource {...pageProps} />,
     resolve: {
       query: ({ queryId }) => Query.get({ id: queryId }),
     },
-  },
+    bodyClass: "fixed-layout",
+  }),
 ];

@@ -9,22 +9,20 @@ import Menu from "antd/lib/menu";
 import Icon from "antd/lib/icon";
 import Modal from "antd/lib/modal";
 import Tooltip from "antd/lib/tooltip";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import FavoritesControl from "@/components/FavoritesControl";
 import EditInPlace from "@/components/EditInPlace";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
 import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
 import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
 import { policy } from "@/services/policy";
 import { durationHumanize } from "@/lib/utils";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
-import useDashboard, { DashboardStatusEnum } from "./useDashboard";
+import useDashboard, { DashboardStatusEnum } from "./hooks/useDashboard";
 
 import "./DashboardPage.less";
 
@@ -389,9 +387,7 @@ function DashboardPage({ dashboardSlug, onError }) {
         recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
       })
-      .catch(error => {
-        onErrorRef.current(new PromiseRejectionError(error));
-      });
+      .catch(error => onErrorRef.current(error));
   }, [dashboardSlug]);
 
   return (
@@ -410,13 +406,7 @@ DashboardPage.defaultProps = {
   onError: PropTypes.func,
 };
 
-export default {
+export default routeWithUserSession({
   path: "/dashboard/:dashboardSlug",
-  render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => <DashboardPage {...currentRoute.routeParams} onError={handleError} />}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
-  ),
-};
+  render: pageProps => <DashboardPage {...pageProps} />,
+});

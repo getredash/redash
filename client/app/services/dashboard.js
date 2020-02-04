@@ -232,7 +232,7 @@ Dashboard.prototype.addWidget = function addWidget(textOrVisualization, options 
   widget.options.position.row = position.row;
 
   return widget.save().then(() => {
-    this.widgets = [...this.widgets, widget]; // ANGULAR_REMOVE_ME
+    this.widgets = [...this.widgets, widget];
     return widget;
   });
 };

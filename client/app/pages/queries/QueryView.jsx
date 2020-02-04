@@ -4,13 +4,12 @@ import cx from "classnames";
 import useMedia from "use-media";
 import Button from "antd/lib/button";
 
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EditInPlace from "@/components/EditInPlace";
 import Parameters from "@/components/Parameters";
 import TimeAgo from "@/components/TimeAgo";
 import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
 import EditVisualizationButton from "@/components/EditVisualizationButton";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { Query } from "@/services/query";
 import DataSource from "@/services/data-source";
@@ -247,16 +246,10 @@ function QueryView(props) {
 
 QueryView.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-line react/forbid-prop-types
 
-export default {
+export default routeWithUserSession({
   path: "/queries/:queryId([0-9]+)",
-  render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => <QueryView {...currentRoute.routeParams} onError={handleError} />}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
-  ),
+  render: pageProps => <QueryView {...pageProps} />,
   resolve: {
     query: ({ queryId }) => Query.get({ id: queryId }),
   },
-};
+});

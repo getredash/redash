@@ -91,7 +91,15 @@ class DynamicForm extends React.Component {
   handleSubmit = e => {
     this.setState({ isSubmitting: true });
     e.preventDefault();
+
     this.props.form.validateFieldsAndScroll((err, values) => {
+      Object.entries(values).forEach(([key, value]) => {
+        const initialValue = this.props.fields.find(f => f.name === key).initialValue;
+        if ((initialValue === null || initialValue === undefined || initialValue === '') && value === '') {
+          values[key] = null;
+        }
+      });
+
       if (!err) {
         this.props.onSubmit(
           values,

@@ -1,16 +1,40 @@
+import { isObject, get } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
-export default function ErrorMessage({ error, showOriginalMessage }) {
+function getErrorMessageByStatus(status, defaultMessage) {
+  switch (status) {
+    case 404:
+      return "It seems like the page you're looking for cannot be found.";
+    case 401:
+    case 403:
+      return "It seems like you don’t have permission to see this page.";
+    default:
+      return defaultMessage;
+  }
+}
+
+export function getErrorMessage(error) {
+  const message = "It seems like we encountered an error. Try refreshing this page or contact your administrator.";
+  if (isObject(error)) {
+    // HTTP errors
+    if (error.isAxiosError && isObject(error.response)) {
+      return getErrorMessageByStatus(error.response.status, get(error, "response.data.message", message));
+    }
+    // Router errors
+    if (error.status) {
+      return getErrorMessageByStatus(error.status, message);
+    }
+  }
+  return message;
+}
+
+export default function ErrorMessage({ error }) {
   if (!error) {
     return null;
   }
 
   console.error(error);
-
-  const message = showOriginalMessage
-    ? error.message
-    : "It seems like we encountered an error. Try refreshing this page or contact your administrator.";
 
   return (
     <div className="fixed-container" data-test="ErrorMessage">
@@ -21,7 +45,7 @@ export default function ErrorMessage({ error, showOriginalMessage }) {
               <i className="zmdi zmdi-alert-circle-o" />
             </div>
             <div className="error-state__details">
-              <h4>{message}</h4>
+              <h4>{getErrorMessage(error)}</h4>
             </div>
           </div>
         </div>
@@ -32,9 +56,4 @@ export default function ErrorMessage({ error, showOriginalMessage }) {
 
 ErrorMessage.propTypes = {
   error: PropTypes.object.isRequired,
-  showOriginalMessage: PropTypes.bool,
-};
-
-ErrorMessage.defaultProps = {
-  showOriginalMessage: true,
 };

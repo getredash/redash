@@ -5,7 +5,6 @@ import UniversalRouter from "universal-router";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import location from "@/services/location";
 import url from "@/services/url";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 import ErrorMessage from "./ErrorMessage";
 
@@ -97,8 +96,8 @@ export default function Router({ routes, onRouteChange }) {
           .catch(error => {
             if (!isAbandoned && currentPathRef.current === pathname) {
               setCurrentRoute({
-                render: params => <ErrorMessage {...params} />,
-                routeParams: { error: new PromiseRejectionError(error) },
+                render: currentRoute => <ErrorMessage {...currentRoute.routeParams} />,
+                routeParams: { error },
               });
             }
           });
@@ -124,9 +123,7 @@ export default function Router({ routes, onRouteChange }) {
   }
 
   return (
-    <ErrorBoundary
-      ref={errorHandlerRef}
-      renderError={error => <ErrorMessage error={error} showOriginalMessage={false} />}>
+    <ErrorBoundary ref={errorHandlerRef} renderError={error => <ErrorMessage error={error} />}>
       {currentRoute.render(currentRoute)}
     </ErrorBoundary>
   );
