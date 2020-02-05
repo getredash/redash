@@ -38,6 +38,13 @@ function useDashboard(dashboardData) {
   const [gridDisabled, setGridDisabled] = useState(false);
   const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
   const canEditDashboard = useMemo(() => !dashboard.is_archived && dashboard.can_edit, [dashboard]);
+  const isDashboardOwnerOrAdmin = useMemo(
+    () =>
+      !dashboard.is_archived &&
+      has(dashboard, "user.id") &&
+      (currentUser.id === dashboard.user.id || currentUser.hasPermission("admin")),
+    [dashboard]
+  );
   const hasOnlySafeQueries = useMemo(
     () => every(dashboard.widgets, w => (w.getQuery() ? w.getQuery().is_safe : true)),
     [dashboard]
@@ -204,6 +211,7 @@ function useDashboard(dashboardData) {
     refreshWidget,
     removeWidget,
     canEditDashboard,
+    isDashboardOwnerOrAdmin,
     refreshRate,
     setRefreshRate,
     disableRefreshRate,
