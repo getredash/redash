@@ -1,14 +1,28 @@
-import { map } from 'lodash';
-import React from 'react';
-import { Section, Select, ColorPicker } from '@/components/visualizations/editor';
-import { EditorPropTypes } from '@/visualizations';
-import ColorPalette from '@/visualizations/ColorPalette';
+import { map } from "lodash";
+import React from "react";
+import { Section, Select, ColorPicker } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@/visualizations/prop-types";
+import ColorPalette from "@/visualizations/ColorPalette";
 
 const ColorSchemes = [
-  'Blackbody', 'Bluered', 'Blues', 'Earth', 'Electric',
-  'Greens', 'Greys', 'Hot', 'Jet', 'Picnic', 'Portland',
-  'Rainbow', 'RdBu', 'Reds', 'Viridis', 'YlGnBu', 'YlOrRd',
-  'Custom...',
+  "Blackbody",
+  "Bluered",
+  "Blues",
+  "Earth",
+  "Electric",
+  "Greens",
+  "Greys",
+  "Hot",
+  "Jet",
+  "Picnic",
+  "Portland",
+  "Rainbow",
+  "RdBu",
+  "Reds",
+  "Viridis",
+  "YlGnBu",
+  "YlOrRd",
+  "Custom...",
 ];
 
 export default function HeatmapColorsSettings({ options, onOptionsChange }) {
@@ -22,8 +36,7 @@ export default function HeatmapColorsSettings({ options, onOptionsChange }) {
           placeholder="Choose Color Scheme..."
           allowClear
           value={options.colorScheme || undefined}
-          onChange={value => onOptionsChange({ colorScheme: value || null })}
-        >
+          onChange={value => onOptionsChange({ colorScheme: value || null })}>
           {map(ColorSchemes, scheme => (
             <Select.Option key={scheme} value={scheme} data-test={`Chart.Colors.Heatmap.ColorScheme.${scheme}`}>
               {scheme}
@@ -32,7 +45,7 @@ export default function HeatmapColorsSettings({ options, onOptionsChange }) {
         </Select>
       </Section>
 
-      {(options.colorScheme === 'Custom...') && (
+      {options.colorScheme === "Custom..." && (
         <React.Fragment>
           <Section>
             <ColorPicker

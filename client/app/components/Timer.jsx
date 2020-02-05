@@ -1,40 +1,31 @@
-import React, { useMemo, useEffect } from 'react';
-import moment from 'moment';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
-import { Moment } from '@/components/proptypes';
-import useForceUpdate from '@/lib/hooks/useForceUpdate';
+import React, { useMemo, useState, useEffect } from "react";
+import moment from "moment";
+import PropTypes from "prop-types";
+import { Moment } from "@/components/proptypes";
 
-export function Timer({ from }) {
+export default function Timer({ from }) {
   const startTime = useMemo(() => moment(from).valueOf(), [from]);
-  const forceUpdate = useForceUpdate();
+  const [value, setValue] = useState(null);
 
   useEffect(() => {
-    const timer = setInterval(forceUpdate, 1000);
+    function update() {
+      const diff = moment.now() - startTime;
+      const format = diff > 1000 * 60 * 60 ? "HH:mm:ss" : "mm:ss"; // no HH under an hour
+      setValue(moment.utc(diff).format(format));
+    }
+    update();
+
+    const timer = setInterval(update, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [startTime]);
 
-  const diff = moment.now() - startTime;
-  const format = diff > 1000 * 60 * 60 ? 'HH:mm:ss' : 'mm:ss'; // no HH under an hour
-
-  return (<span className="rd-timer">{moment.utc(diff).format(format)}</span>);
+  return <span className="rd-timer">{value}</span>;
 }
 
 Timer.propTypes = {
-  from: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-    PropTypes.instanceOf(Date),
-    Moment,
-  ]),
+  from: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.instanceOf(Date), Moment]),
 };
 
 Timer.defaultProps = {
   from: null,
 };
-
-export default function init(ngModule) {
-  ngModule.component('rdTimer', react2angular(Timer));
-}
-
-init.init = true;

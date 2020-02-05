@@ -1,7 +1,7 @@
-import { isNil, trimStart } from 'lodash';
-import React from 'react';
-import { Section, Switch, TextArea } from '@/components/visualizations/editor';
-import { EditorPropTypes } from '@/visualizations';
+import { isNil, trimStart } from "lodash";
+import React from "react";
+import { Section, Switch, TextArea } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 const defaultCustomCode = trimStart(`
 // Available variables are x, ys, element, and Plotly
@@ -28,8 +28,7 @@ export default function CustomChartSettings({ options, onOptionsChange }) {
         <Switch
           data-test="Chart.Custom.EnableConsoleLogs"
           defaultChecked={options.enableConsoleLogs}
-          onChange={enableConsoleLogs => onOptionsChange({ enableConsoleLogs })}
-        >
+          onChange={enableConsoleLogs => onOptionsChange({ enableConsoleLogs })}>
           Show errors in the console
         </Switch>
       </Section>
@@ -39,8 +38,7 @@ export default function CustomChartSettings({ options, onOptionsChange }) {
           id="chart-editor-auto-update-custom-chart"
           data-test="Chart.Custom.AutoUpdate"
           defaultChecked={options.autoRedraw}
-          onChange={autoRedraw => onOptionsChange({ autoRedraw })}
-        >
+          onChange={autoRedraw => onOptionsChange({ autoRedraw })}>
           Auto update graph
         </Switch>
       </Section>

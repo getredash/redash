@@ -1,6 +1,6 @@
 /* global cy, Cypress */
 
-import { createQuery } from '../../support/redash-api';
+import { createQuery } from "../../support/redash-api";
 
 const { map } = Cypress._;
 
@@ -24,21 +24,25 @@ const SQL = `
 // case, it's "Roboto" just because it's in the list of fallback fonts and we already have this
 // webfont in assets folder (so browser can load it).
 function injectFont(document) {
-  const style = document.createElement('style');
-  style.setAttribute('id', 'percy-fix');
-  style.setAttribute('type', 'text/css');
+  const style = document.createElement("style");
+  style.setAttribute("id", "percy-fix");
+  style.setAttribute("type", "text/css");
 
   const fonts = [
-    ['Roboto', 'Roboto-Light-webfont', 300],
-    ['Roboto', 'Roboto-Regular-webfont', 400],
-    ['Roboto', 'Roboto-Medium-webfont', 500],
-    ['Roboto', 'Roboto-Bold-webfont', 700],
+    ["Roboto", "Roboto-Light-webfont", 300],
+    ["Roboto", "Roboto-Regular-webfont", 400],
+    ["Roboto", "Roboto-Medium-webfont", 500],
+    ["Roboto", "Roboto-Bold-webfont", 700],
   ];
 
-  const basePath = '/static/fonts/roboto/';
+  const basePath = "/static/fonts/roboto/";
 
   // `insertRule` does not load font for some reason. Using text content works ¯\_(ツ)_/¯
-  style.appendChild(document.createTextNode(map(fonts, ([fontFamily, fileName, fontWeight]) => (`
+  style.appendChild(
+    document.createTextNode(
+      map(
+        fonts,
+        ([fontFamily, fileName, fontWeight]) => `
     @font-face {
       font-family: "${fontFamily}";
       font-weight: ${fontWeight};
@@ -48,23 +52,26 @@ function injectFont(document) {
            url("${basePath}${fileName}.ttf") format("truetype"),
            url("${basePath}${fileName}.svg") format("svg");
     }
-  `)).join('\n\n')));
-  document.getElementsByTagName('head')[0].appendChild(style);
+  `
+      ).join("\n\n")
+    )
+  );
+  document.getElementsByTagName("head")[0].appendChild(style);
 }
 
-describe('Word Cloud', () => {
-  const viewportWidth = Cypress.config('viewportWidth');
+describe("Word Cloud", () => {
+  const viewportWidth = Cypress.config("viewportWidth");
 
   beforeEach(() => {
     cy.login();
     createQuery({ query: SQL }).then(({ id }) => {
       cy.visit(`queries/${id}/source`);
-      cy.getByTestId('ExecuteButton').click();
+      cy.getByTestId("ExecuteButton").click();
     });
     cy.document().then(injectFont);
   });
 
-  it('creates visualization with automatic word frequencies', () => {
+  it("creates visualization with automatic word frequencies", () => {
     cy.clickThrough(`
       NewVisualization
       VisualizationType
@@ -77,12 +84,14 @@ describe('Word Cloud', () => {
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
 
-    cy.getByTestId('VisualizationPreview').find('svg text').should('have.length', 11);
+    cy.getByTestId("VisualizationPreview")
+      .find("svg text")
+      .should("have.length", 11);
 
-    cy.percySnapshot('Visualizations - Word Cloud (Automatic word frequencies)', { widths: [viewportWidth] });
+    cy.percySnapshot("Visualizations - Word Cloud (Automatic word frequencies)", { widths: [viewportWidth] });
   });
 
-  it('creates visualization with word frequencies from another column', () => {
+  it("creates visualization with word frequencies from another column", () => {
     cy.clickThrough(`
       NewVisualization
       VisualizationType
@@ -98,12 +107,14 @@ describe('Word Cloud', () => {
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
 
-    cy.getByTestId('VisualizationPreview').find('svg text').should('have.length', 5);
+    cy.getByTestId("VisualizationPreview")
+      .find("svg text")
+      .should("have.length", 5);
 
-    cy.percySnapshot('Visualizations - Word Cloud (Frequencies from another column)', { widths: [viewportWidth] });
+    cy.percySnapshot("Visualizations - Word Cloud (Frequencies from another column)", { widths: [viewportWidth] });
   });
 
-  it('creates visualization with word length and frequencies limits', () => {
+  it("creates visualization with word length and frequencies limits", () => {
     cy.clickThrough(`
       NewVisualization
       VisualizationType
@@ -117,17 +128,19 @@ describe('Word Cloud', () => {
     `);
 
     cy.fillInputs({
-      'WordCloud.WordLengthLimit.Min': '4',
-      'WordCloud.WordLengthLimit.Max': '5',
-      'WordCloud.WordCountLimit.Min': '1',
-      'WordCloud.WordCountLimit.Max': '3',
+      "WordCloud.WordLengthLimit.Min": "4",
+      "WordCloud.WordLengthLimit.Max": "5",
+      "WordCloud.WordCountLimit.Min": "1",
+      "WordCloud.WordCountLimit.Max": "3",
     });
 
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
 
-    cy.getByTestId('VisualizationPreview').find('svg text').should('have.length', 2);
+    cy.getByTestId("VisualizationPreview")
+      .find("svg text")
+      .should("have.length", 2);
 
-    cy.percySnapshot('Visualizations - Word Cloud (With filters)', { widths: [viewportWidth] });
+    cy.percySnapshot("Visualizations - Word Cloud (With filters)", { widths: [viewportWidth] });
   });
 });

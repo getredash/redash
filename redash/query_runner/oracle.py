@@ -48,25 +48,14 @@ class Oracle(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "user": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "host": {
-                    "type": "string"
-                },
-                "port": {
-                    "type": "number"
-                },
-                "servicename": {
-                    "type": "string",
-                    "title": "DSN Service Name"
-                }
+                "user": {"type": "string"},
+                "password": {"type": "string"},
+                "host": {"type": "string"},
+                "port": {"type": "number"},
+                "servicename": {"type": "string", "title": "DSN Service Name"},
             },
             "required": ["servicename", "user", "password", "host", "port"],
-            "secret": ["password"]
+            "secret": ["password"],
         }
 
     @classmethod
@@ -79,9 +68,12 @@ class Oracle(BaseSQLQueryRunner):
         dsn = cx_Oracle.makedsn(
             self.configuration["host"],
             self.configuration["port"],
-            service_name=self.configuration["servicename"])
+            service_name=self.configuration["servicename"],
+        )
 
-        self.connection_string = "{}/{}@{}".format(self.configuration["user"], self.configuration["password"], dsn)
+        self.connection_string = "{}/{}@{}".format(
+            self.configuration["user"], self.configuration["password"], dsn
+        )
 
     def _get_tables(self, schema):
         query = """
@@ -100,16 +92,16 @@ class Oracle(BaseSQLQueryRunner):
 
         results = json_loads(results)
 
-        for row in results['rows']:
-            if row['OWNER'] != None:
-                table_name = '{}.{}'.format(row['OWNER'], row['TABLE_NAME'])
+        for row in results["rows"]:
+            if row["OWNER"] != None:
+                table_name = "{}.{}".format(row["OWNER"], row["TABLE_NAME"])
             else:
-                table_name = row['TABLE_NAME']
+                table_name = row["TABLE_NAME"]
 
             if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': []}
+                schema[table_name] = {"name": table_name, "columns": []}
 
-            schema[table_name]['columns'].append(row['COLUMN_NAME'])
+            schema[table_name]["columns"].append(row["COLUMN_NAME"])
 
         return list(schema.values())
 
@@ -130,7 +122,12 @@ class Oracle(BaseSQLQueryRunner):
 
         if default_type == cx_Oracle.NUMBER:
             if scale <= 0:
-                return cursor.var(cx_Oracle.STRING, 255, outconverter=Oracle._convert_number, arraysize=cursor.arraysize)
+                return cursor.var(
+                    cx_Oracle.STRING,
+                    255,
+                    outconverter=Oracle._convert_number,
+                    arraysize=cursor.arraysize,
+                )
 
     def run_query(self, query, user):
         connection = cx_Oracle.connect(self.connection_string)
@@ -142,19 +139,27 @@ class Oracle(BaseSQLQueryRunner):
             cursor.execute(query)
             rows_count = cursor.rowcount
             if cursor.description is not None:
-                columns = self.fetch_columns([(i[0], Oracle.get_col_type(i[1], i[5])) for i in cursor.description])
-                rows = [dict(zip((column['name'] for column in columns), row)) for row in cursor]
-                data = {'columns': columns, 'rows': rows}
+                columns = self.fetch_columns(
+                    [
+                        (i[0], Oracle.get_col_type(i[1], i[5]))
+                        for i in cursor.description
+                    ]
+                )
+                rows = [
+                    dict(zip((column["name"] for column in columns), row))
+                    for row in cursor
+                ]
+                data = {"columns": columns, "rows": rows}
                 error = None
                 json_data = json_dumps(data)
             else:
-                columns = [{'name': 'Row(s) Affected', 'type': 'TYPE_INTEGER'}]
-                rows = [{'Row(s) Affected': rows_count}]
-                data = {'columns': columns, 'rows': rows}
+                columns = [{"name": "Row(s) Affected", "type": "TYPE_INTEGER"}]
+                rows = [{"Row(s) Affected": rows_count}]
+                data = {"columns": columns, "rows": rows}
                 json_data = json_dumps(data)
                 connection.commit()
         except cx_Oracle.DatabaseError as err:
-            error = "Query failed. {}.".format(err.message)
+            error = "Query failed. {}.".format(str(err))
             json_data = None
         except KeyboardInterrupt:
             connection.cancel()

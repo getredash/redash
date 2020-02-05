@@ -8,9 +8,11 @@ from redash.utils.configuration import ConfigurationContainer
 
 class DataSourceTest(BaseTestCase):
     def test_get_schema(self):
-        return_value = [{'name': 'table', 'columns': []}]
+        return_value = [{"name": "table", "columns": []}]
 
-        with mock.patch('redash.query_runner.pg.PostgreSQL.get_schema') as patched_get_schema:
+        with mock.patch(
+            "redash.query_runner.pg.PostgreSQL.get_schema"
+        ) as patched_get_schema:
             patched_get_schema.return_value = return_value
 
             schema = self.factory.data_source.get_schema()
@@ -18,8 +20,10 @@ class DataSourceTest(BaseTestCase):
             self.assertEqual(return_value, schema)
 
     def test_get_schema_uses_cache(self):
-        return_value = [{'name': 'table', 'columns': []}]
-        with mock.patch('redash.query_runner.pg.PostgreSQL.get_schema') as patched_get_schema:
+        return_value = [{"name": "table", "columns": []}]
+        with mock.patch(
+            "redash.query_runner.pg.PostgreSQL.get_schema"
+        ) as patched_get_schema:
             patched_get_schema.return_value = return_value
 
             self.factory.data_source.get_schema()
@@ -29,12 +33,14 @@ class DataSourceTest(BaseTestCase):
             self.assertEqual(patched_get_schema.call_count, 1)
 
     def test_get_schema_skips_cache_with_refresh_true(self):
-        return_value = [{'name': 'table', 'columns': []}]
-        with mock.patch('redash.query_runner.pg.PostgreSQL.get_schema') as patched_get_schema:
+        return_value = [{"name": "table", "columns": []}]
+        with mock.patch(
+            "redash.query_runner.pg.PostgreSQL.get_schema"
+        ) as patched_get_schema:
             patched_get_schema.return_value = return_value
 
             self.factory.data_source.get_schema()
-            new_return_value = [{'name': 'new_table', 'columns': []}]
+            new_return_value = [{"name": "new_table", "columns": []}]
             patched_get_schema.return_value = new_return_value
             schema = self.factory.data_source.get_schema(refresh=True)
 
@@ -44,7 +50,12 @@ class DataSourceTest(BaseTestCase):
 
 class TestDataSourceCreate(BaseTestCase):
     def test_adds_data_source_to_default_group(self):
-        data_source = DataSource.create_with_group(org=self.factory.org, name='test', options=ConfigurationContainer.from_json('{"dbname": "test"}'), type='pg')
+        data_source = DataSource.create_with_group(
+            org=self.factory.org,
+            name="test",
+            options=ConfigurationContainer.from_json('{"dbname": "test"}'),
+            type="pg",
+        )
         self.assertIn(self.factory.org.default_group.id, data_source.groups)
 
 
@@ -92,13 +103,18 @@ class TestDataSourceDelete(BaseTestCase):
     def test_deletes_child_models(self):
         data_source = self.factory.create_data_source()
         self.factory.create_query_result(data_source=data_source)
-        self.factory.create_query(data_source=data_source, latest_query_data=self.factory.create_query_result(data_source=data_source))
+        self.factory.create_query(
+            data_source=data_source,
+            latest_query_data=self.factory.create_query_result(data_source=data_source),
+        )
 
         data_source.delete()
         self.assertIsNone(DataSource.query.get(data_source.id))
-        self.assertEqual(0, QueryResult.query.filter(QueryResult.data_source == data_source).count())
+        self.assertEqual(
+            0, QueryResult.query.filter(QueryResult.data_source == data_source).count()
+        )
 
-    @patch('redash.redis_connection.delete')
+    @patch("redash.redis_connection.delete")
     def test_deletes_schema(self, mock_redis):
         data_source = self.factory.create_data_source()
         data_source.delete()

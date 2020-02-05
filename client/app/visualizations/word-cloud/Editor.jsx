@@ -1,11 +1,11 @@
-import { map, merge } from 'lodash';
-import React from 'react';
-import * as Grid from 'antd/lib/grid';
-import { Section, Select, InputNumber, ControlLabel } from '@/components/visualizations/editor';
-import { EditorPropTypes } from '@/visualizations';
+import { map, merge } from "lodash";
+import React from "react";
+import * as Grid from "antd/lib/grid";
+import { Section, Select, InputNumber, ControlLabel } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function Editor({ options, data, onOptionsChange }) {
-  const optionsChanged = (newOptions) => {
+  const optionsChanged = newOptions => {
     onOptionsChange(merge({}, options, newOptions));
   };
 
@@ -17,10 +17,11 @@ export default function Editor({ options, data, onOptionsChange }) {
           data-test="WordCloud.WordsColumn"
           className="w-100"
           value={options.column}
-          onChange={column => optionsChanged({ column })}
-        >
+          onChange={column => optionsChanged({ column })}>
           {map(data.columns, ({ name }) => (
-            <Select.Option key={name} data-test={'WordCloud.WordsColumn.' + name}>{name}</Select.Option>
+            <Select.Option key={name} data-test={"WordCloud.WordsColumn." + name}>
+              {name}
+            </Select.Option>
           ))}
         </Select>
       </Section>
@@ -30,11 +31,14 @@ export default function Editor({ options, data, onOptionsChange }) {
           data-test="WordCloud.FrequenciesColumn"
           className="w-100"
           value={options.frequenciesColumn}
-          onChange={frequenciesColumn => optionsChanged({ frequenciesColumn })}
-        >
-          <Select.Option key="none" value=""><i>(count word frequencies automatically)</i></Select.Option>
+          onChange={frequenciesColumn => optionsChanged({ frequenciesColumn })}>
+          <Select.Option key="none" value="">
+            <i>(count word frequencies automatically)</i>
+          </Select.Option>
           {map(data.columns, ({ name }) => (
-            <Select.Option key={'column-' + name} value={name} data-test={'WordCloud.FrequenciesColumn.' + name}>{name}</Select.Option>
+            <Select.Option key={"column-" + name} value={name} data-test={"WordCloud.FrequenciesColumn." + name}>
+              {name}
+            </Select.Option>
           ))}
         </Select>
       </Section>

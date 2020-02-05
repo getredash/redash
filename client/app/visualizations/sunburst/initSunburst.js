@@ -2,10 +2,10 @@
  * The following is based on @chrisrzhou's example from: http://bl.ocks.org/chrisrzhou/d5bdd8546f64ca0e4366.
  */
 
-import * as d3 from 'd3';
-import { has, map, keys, groupBy, sortBy, filter, find, compact, first, every, identity } from 'lodash';
+import * as d3 from "d3";
+import { has, map, keys, groupBy, sortBy, filter, find, compact, first, every, identity } from "lodash";
 
-const exitNode = '<<<Exit>>>';
+const exitNode = "<<<Exit>>>";
 const colors = d3.scale.category10();
 
 // helper function colorMap - color gray if "end" is detected
@@ -26,10 +26,10 @@ function getAncestors(node) {
 }
 
 function buildNodesFromHierarchyData(data) {
-  const grouped = groupBy(data, 'sequence');
+  const grouped = groupBy(data, "sequence");
 
-  return map(grouped, (value) => {
-    const sorted = sortBy(value, 'stage');
+  return map(grouped, value => {
+    const sorted = sortBy(value, "stage");
     return {
       size: value[0].value || 0,
       sequence: value[0].sequence,
@@ -39,8 +39,7 @@ function buildNodesFromHierarchyData(data) {
 }
 
 function buildNodesFromTableData(data) {
-  // ANGULAR_REMOVE_ME $$ check is for Angular's internal properties
-  const validKey = key => key !== 'value' && key.indexOf('$$') !== 0;
+  const validKey = key => key !== "value";
   const dataKeys = sortBy(filter(keys(data[0]), validKey), identity);
 
   return map(data, (row, sequence) => ({
@@ -52,10 +51,7 @@ function buildNodesFromTableData(data) {
 
 function isDataInHierarchyFormat(data) {
   const firstRow = first(data);
-  return every(
-    ['sequence', 'stage', 'node', 'value'],
-    field => has(firstRow, field),
-  );
+  return every(["sequence", "stage", "node", "value"], field => has(firstRow, field));
 }
 
 function buildHierarchy(data) {
@@ -63,11 +59,11 @@ function buildHierarchy(data) {
 
   // build tree
   const root = {
-    name: 'root',
+    name: "root",
     children: [],
   };
 
-  data.forEach((d) => {
+  data.forEach(d => {
     const nodes = d.nodes;
     const size = parseInt(d.size, 10);
 
@@ -117,20 +113,24 @@ function buildHierarchy(data) {
 }
 
 function isDataValid(data) {
-  return data && (data.rows.length > 0);
+  return data && data.rows.length > 0;
 }
 
 export default function initSunburst(data) {
   if (!isDataValid(data)) {
-    return (element) => {
-      d3.select(element).selectAll('*').remove();
+    return element => {
+      d3.select(element)
+        .selectAll("*")
+        .remove();
     };
   }
 
   data = buildHierarchy(data.rows);
 
-  return (element) => {
-    d3.select(element).selectAll('*').remove();
+  return element => {
+    d3.select(element)
+      .selectAll("*")
+      .remove();
 
     // svg dimensions
     const width = element.clientWidth;
@@ -185,38 +185,36 @@ export default function initSunburst(data) {
 
     // create and position breadcrumbs container and svg
     const breadcrumbs = vis
-      .append('div')
-      .classed('breadcrumbs-container', true)
-      .append('svg')
-      .attr('width', width)
-      .attr('height', b.h)
-      .attr('fill', 'white')
-      .attr('font-weight', 600);
+      .append("div")
+      .classed("breadcrumbs-container", true)
+      .append("svg")
+      .attr("width", width)
+      .attr("height", b.h)
+      .attr("fill", "white")
+      .attr("font-weight", 600);
 
     // create and position SVG
-    const container = vis.append('div');
+    const container = vis.append("div");
 
     // create and position summary container
-    const summary = container
-      .append('div')
-      .classed('summary-container', true);
+    const summary = container.append("div").classed("summary-container", true);
 
     const sunburst = container
-      .append('div')
-      .classed('sunburst-container', true)
-      .append('svg')
-      .attr('width', radius * 2)
-      .attr('height', radius * 2)
-      .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`);
+      .append("div")
+      .classed("sunburst-container", true)
+      .append("svg")
+      .attr("width", radius * 2)
+      .attr("height", radius * 2)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // create last breadcrumb element
-    const lastCrumb = breadcrumbs.append('text').classed('lastCrumb', true);
+    const lastCrumb = breadcrumbs.append("text").classed("lastCrumb", true);
 
     // Generate a string representation for drawing a breadcrumb polygon.
     function breadcrumbPoints(d, i) {
       const points = [];
-      points.push('0,0');
+      points.push("0,0");
       points.push(`${b.w},0`);
       points.push(`${b.w + b.t},${b.h / 2}`);
       points.push(`${b.w},${b.h}`);
@@ -226,47 +224,47 @@ export default function initSunburst(data) {
         // Leftmost breadcrumb; don't include 6th vertex.
         points.push(`${b.t},${b.h / 2}`);
       }
-      return points.join(' ');
+      return points.join(" ");
     }
 
     // Update the breadcrumb breadcrumbs to show the current sequence and percentage.
     function updateBreadcrumbs(ancestors, percentageString) {
       // Data join, where primary key = name + depth.
-      const g = breadcrumbs.selectAll('g').data(ancestors, d => d.name + d.depth);
+      const g = breadcrumbs.selectAll("g").data(ancestors, d => d.name + d.depth);
 
       // Add breadcrumb and label for entering nodes.
-      const breadcrumb = g.enter().append('g');
+      const breadcrumb = g.enter().append("g");
 
       breadcrumb
-        .append('polygon')
-        .classed('breadcrumbs-shape', true)
-        .attr('points', breadcrumbPoints)
-        .attr('fill', colorMap);
+        .append("polygon")
+        .classed("breadcrumbs-shape", true)
+        .attr("points", breadcrumbPoints)
+        .attr("fill", colorMap);
 
       breadcrumb
-        .append('text')
-        .classed('breadcrumbs-text', true)
-        .attr('x', (b.w + b.t) / 2)
-        .attr('y', b.h / 2)
-        .attr('dy', '0.35em')
-        .attr('font-size', '10px')
-        .attr('text-anchor', 'middle')
+        .append("text")
+        .classed("breadcrumbs-text", true)
+        .attr("x", (b.w + b.t) / 2)
+        .attr("y", b.h / 2)
+        .attr("dy", "0.35em")
+        .attr("font-size", "10px")
+        .attr("text-anchor", "middle")
         .text(d => d.name);
 
       // Set position for entering and updating nodes.
-      g.attr('transform', (d, i) => `translate(${i * (b.w + b.s)}, 0)`);
+      g.attr("transform", (d, i) => `translate(${i * (b.w + b.s)}, 0)`);
 
       // Remove exiting nodes.
       g.exit().remove();
 
       // Update percentage at the lastCrumb.
       lastCrumb
-        .attr('x', (ancestors.length + 0.5) * (b.w + b.s))
-        .attr('y', b.h / 2)
-        .attr('dy', '0.35em')
-        .attr('text-anchor', 'middle')
-        .attr('fill', 'black')
-        .attr('font-weight', 600)
+        .attr("x", (ancestors.length + 0.5) * (b.w + b.s))
+        .attr("y", b.h / 2)
+        .attr("dy", "0.35em")
+        .attr("text-anchor", "middle")
+        .attr("fill", "black")
+        .attr("font-weight", 600)
         .text(percentageString);
     }
 
@@ -274,10 +272,10 @@ export default function initSunburst(data) {
     // of ancestor nodes etc
     function mouseover(d) {
       // build percentage string
-      const percentage = (100 * d.value / totalSize).toPrecision(3);
+      const percentage = ((100 * d.value) / totalSize).toPrecision(3);
       let percentageString = `${percentage}%`;
       if (percentage < 1) {
-        percentageString = '< 1.0%';
+        percentageString = "< 1.0%";
       }
 
       // update breadcrumbs (get all ancestors)
@@ -285,11 +283,11 @@ export default function initSunburst(data) {
       updateBreadcrumbs(ancestors, percentageString);
 
       // update sunburst (Fade all the segments and highlight only ancestors of current segment)
-      sunburst.selectAll('path').attr('opacity', 0.3);
+      sunburst.selectAll("path").attr("opacity", 0.3);
       sunburst
-        .selectAll('path')
+        .selectAll("path")
         .filter(node => ancestors.indexOf(node) >= 0)
-        .attr('opacity', 1);
+        .attr("opacity", 1);
 
       // update summary
       summary.html(`
@@ -299,26 +297,26 @@ export default function initSunburst(data) {
     `);
 
       // display summary and breadcrumbs if hidden
-      summary.style('visibility', '');
-      breadcrumbs.style('visibility', '');
+      summary.style("visibility", "");
+      breadcrumbs.style("visibility", "");
     }
 
     // helper function click to handle mouseleave events/animations
     function click() {
       // Deactivate all segments then retransition each segment to full opacity.
-      sunburst.selectAll('path').on('mouseover', null);
+      sunburst.selectAll("path").on("mouseover", null);
       sunburst
-        .selectAll('path')
+        .selectAll("path")
         .transition()
         .duration(1000)
-        .attr('opacity', 1)
-        .each('end', function endClick() {
-          d3.select(this).on('mouseover', mouseover);
+        .attr("opacity", 1)
+        .each("end", function endClick() {
+          d3.select(this).on("mouseover", mouseover);
         });
 
       // hide summary and breadcrumbs if visible
-      breadcrumbs.style('visibility', 'hidden');
-      summary.style('visibility', 'hidden');
+      breadcrumbs.style("visibility", "hidden");
+      summary.style("visibility", "hidden");
     }
 
     // Build only nodes of a threshold "visible" sizes to improve efficiency
@@ -328,30 +326,30 @@ export default function initSunburst(data) {
     // this section is required to update the colors.domain() every time the data updates
     const uniqueNames = (function uniqueNames(a) {
       const output = [];
-      a.forEach((d) => {
+      a.forEach(d => {
         if (output.indexOf(d.name) === -1) output.push(d.name);
       });
       return output;
-    }(nodes));
+    })(nodes);
     colors.domain(uniqueNames); // update domain colors
 
     // create path based on nodes
     const path = sunburst
       .data([data])
-      .selectAll('path')
+      .selectAll("path")
       .data(nodes)
       .enter()
-      .append('path')
-      .classed('nodePath', true)
-      .attr('display', d => (d.depth ? null : 'none'))
-      .attr('d', arc)
-      .attr('fill', colorMap)
-      .attr('opacity', 1)
-      .attr('stroke', 'white')
-      .on('mouseover', mouseover);
+      .append("path")
+      .classed("nodePath", true)
+      .attr("display", d => (d.depth ? null : "none"))
+      .attr("d", arc)
+      .attr("fill", colorMap)
+      .attr("opacity", 1)
+      .attr("stroke", "white")
+      .on("mouseover", mouseover);
 
     // // trigger mouse click over sunburst to reset visualization summary
-    vis.on('click', click);
+    vis.on("click", click);
 
     // Update totalSize of the tree = value of root node from partition.
     totalSize = path.node().__data__.value;

@@ -1,9 +1,10 @@
-export let Visualization = null; // eslint-disable-line import/no-mutable-exports
+import { axios } from "@/services/axios";
 
-export default function init(ngModule) {
-  ngModule.run(($resource) => {
-    Visualization = $resource('api/visualizations/:id', { id: '@id' });
-  });
-}
+const saveOrCreateUrl = data => (data.id ? `api/visualizations/${data.id}` : "api/visualizations");
 
-init.init = true;
+const Visualization = {
+  save: data => axios.post(saveOrCreateUrl(data), data),
+  delete: data => axios.delete(`api/visualizations/${data.id}`),
+};
+
+export default Visualization;

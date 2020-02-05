@@ -1,5 +1,5 @@
-import { isArray, isEmpty, includes, intersection, get, map, join, has } from 'lodash';
-import { Parameter } from '.';
+import { isArray, isEmpty, includes, intersection, get, map, join, has } from "lodash";
+import Parameter from "./Parameter";
 
 class EnumParameter extends Parameter {
   constructor(parameter, parentQueryId) {
@@ -14,7 +14,7 @@ class EnumParameter extends Parameter {
       return null;
     }
 
-    const enumOptionsArray = this.enumOptions.split('\n') || [];
+    const enumOptionsArray = this.enumOptions.split("\n") || [];
     if (this.multiValuesOptions) {
       if (!isArray(value)) {
         value = [value];
@@ -33,9 +33,9 @@ class EnumParameter extends Parameter {
   getExecutionValue(extra = {}) {
     const { joinListValues } = extra;
     if (joinListValues && isArray(this.value)) {
-      const separator = get(this.multiValuesOptions, 'separator', ',');
-      const prefix = get(this.multiValuesOptions, 'prefix', '');
-      const suffix = get(this.multiValuesOptions, 'suffix', '');
+      const separator = get(this.multiValuesOptions, "separator", ",");
+      const prefix = get(this.multiValuesOptions, "prefix", "");
+      const suffix = get(this.multiValuesOptions, "suffix", "");
       const parameterValues = map(this.value, v => `${prefix}${v}${suffix}`);
       return join(parameterValues, separator);
     }

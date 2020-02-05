@@ -9,15 +9,17 @@ export const config = {
   itemsPerPage: 25,
   columns: [
     {
-      name: 'a',
-      displayAs: 'string',
+      name: "a",
+      displayAs: "string",
       allowSearch: true,
-    }, {
-      name: 'b',
-      displayAs: 'string',
+    },
+    {
+      name: "b",
+      displayAs: "string",
       allowSearch: true,
-    }, {
-      name: 'c',
+    },
+    {
+      name: "c",
       allowSearch: false,
     },
   ],

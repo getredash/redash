@@ -1,8 +1,8 @@
-import React from 'react';
-import { Section, Switch } from '@/components/visualizations/editor';
-import { EditorPropTypes } from '@/visualizations';
+import React from "react";
+import { Section, Switch } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
-import AxisSettings from './AxisSettings';
+import AxisSettings from "./AxisSettings";
 
 export default function YAxisSettings({ options, onOptionsChange }) {
   const [leftYAxis, rightYAxis] = options.yAxis;
@@ -20,7 +20,7 @@ export default function YAxisSettings({ options, onOptionsChange }) {
         />
       </Section>
 
-      {(options.globalSeriesType !== 'heatmap') && (
+      {options.globalSeriesType !== "heatmap" && (
         <React.Fragment>
           <Section.Title>Right Y Axis</Section.Title>
 
@@ -35,15 +35,14 @@ export default function YAxisSettings({ options, onOptionsChange }) {
         </React.Fragment>
       )}
 
-      {(options.globalSeriesType === 'heatmap') && (
+      {options.globalSeriesType === "heatmap" && (
         <React.Fragment>
           <Section>
             <Switch
               id="chart-editor-y-axis-sort"
               data-test="Chart.LeftYAxis.Sort"
               defaultChecked={options.sortY}
-              onChange={sortY => onOptionsChange({ sortY })}
-            >
+              onChange={sortY => onOptionsChange({ sortY })}>
               Sort Values
             </Switch>
           </Section>
@@ -53,8 +52,7 @@ export default function YAxisSettings({ options, onOptionsChange }) {
               id="chart-editor-y-axis-reverse"
               data-test="Chart.LeftYAxis.Reverse"
               defaultChecked={options.reverseY}
-              onChange={reverseY => onOptionsChange({ reverseY })}
-            >
+              onChange={reverseY => onOptionsChange({ reverseY })}>
               Reverse Order
             </Switch>
           </Section>

@@ -1,8 +1,8 @@
-import { isFunction, map, filter, extend, merge } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import Tabs from 'antd/lib/tabs';
-import { EditorPropTypes } from '@/visualizations';
+import { isFunction, map, filter, extend, merge } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import Tabs from "antd/lib/tabs";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export const UpdateOptionsStrategy = {
   replace: (existingOptions, newOptions) => merge({}, newOptions),
@@ -30,12 +30,14 @@ export function TabbedEditor({ tabs, options, data, onOptionsChange, ...restProp
 
 TabbedEditor.propTypes = {
   ...EditorPropTypes,
-  tabs: PropTypes.arrayOf(PropTypes.shape({
-    key: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    isAvailable: PropTypes.func, // (options) => boolean
-    component: PropTypes.func.isRequired,
-  })),
+  tabs: PropTypes.arrayOf(
+    PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+      isAvailable: PropTypes.func, // (options) => boolean
+      component: PropTypes.func.isRequired,
+    })
+  ),
 };
 
 TabbedEditor.defaultProps = {
@@ -44,8 +46,6 @@ TabbedEditor.defaultProps = {
 
 export default function createTabbedEditor(tabs) {
   return function TabbedEditorWrapper(props) {
-    return (
-      <TabbedEditor {...props} tabs={tabs} />
-    );
+    return <TabbedEditor {...props} tabs={tabs} />;
   };
 }

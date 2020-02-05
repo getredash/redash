@@ -1,8 +1,8 @@
-import React from 'react';
-import { Section, Input, InputNumber, Switch } from '@/components/visualizations/editor';
-import { EditorPropTypes } from '@/visualizations';
+import React from "react";
+import { Section, Input, InputNumber, Switch } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
-import { isValueNumber } from '../utils';
+import { isValueNumber } from "../utils";
 
 export default function FormatSettings({ options, data, onOptionsChange }) {
   const inputsEnabled = isValueNumber(data.rows, options);
@@ -72,8 +72,7 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
         <Switch
           data-test="Counter.Formatting.FormatTargetValue"
           defaultChecked={options.formatTargetValue}
-          onChange={formatTargetValue => onOptionsChange({ formatTargetValue })}
-        >
+          onChange={formatTargetValue => onOptionsChange({ formatTargetValue })}>
           Format Target Value
         </Switch>
       </Section>

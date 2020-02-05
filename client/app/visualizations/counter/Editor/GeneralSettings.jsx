@@ -1,11 +1,11 @@
-import { map, keys, includes, get } from 'lodash';
-import React from 'react';
-import { Section, Select, Input, InputNumber } from '@/components/visualizations/editor';
-import { EditorPropTypes } from '@/visualizations';
-import { COUNTER_TYPES } from '../utils';
+import { map, keys, includes, get } from "lodash";
+import React from "react";
+import { Section, Select, Input, InputNumber } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@/visualizations/prop-types";
+import { COUNTER_TYPES } from "../utils";
 
 export default function GeneralSettings({ options, data, visualizationName, onOptionsChange }) {
-  const showOptionForType = option => includes(get(COUNTER_TYPES[options.counterType], 'options'), option);
+  const showOptionForType = option => includes(get(COUNTER_TYPES[options.counterType], "options"), option);
   return (
     <React.Fragment>
       <Section>
@@ -20,7 +20,6 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
         />
       </Section>
 
-
       <Section>
         <Select
           layout="horizontal"
@@ -29,15 +28,16 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           className="w-100"
           data-test="Counter.General.Type"
           value={options.counterType}
-          onChange={counterType => onOptionsChange({ counterType })}
-        >
+          onChange={counterType => onOptionsChange({ counterType })}>
           {map(keys(COUNTER_TYPES), type => (
-            <Select.Option key={type} data-test={'Counter.General.Type.' + type}>{COUNTER_TYPES[type].name}</Select.Option>
+            <Select.Option key={type} data-test={"Counter.General.Type." + type}>
+              {COUNTER_TYPES[type].name}
+            </Select.Option>
           ))}
         </Select>
       </Section>
 
-      {showOptionForType('counterColName') && (
+      {showOptionForType("counterColName") && (
         <Section>
           <Select
             layout="horizontal"
@@ -45,17 +45,17 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
             className="w-100"
             data-test="Counter.General.ValueColumn"
             defaultValue={options.counterColName}
-            disabled={options.countRow}
-            onChange={counterColName => onOptionsChange({ counterColName })}
-          >
+            onChange={counterColName => onOptionsChange({ counterColName })}>
             {map(data.columns, col => (
-              <Select.Option key={col.name} data-test={'Counter.General.ValueColumn.' + col.name}>{col.name}</Select.Option>
+              <Select.Option key={col.name} data-test={"Counter.General.ValueColumn." + col.name}>
+                {col.name}
+              </Select.Option>
             ))}
           </Select>
         </Section>
       )}
 
-      {showOptionForType('rowNumber') && (
+      {showOptionForType("rowNumber") && (
         <Section>
           <InputNumber
             layout="horizontal"
@@ -63,29 +63,31 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
             className="w-100"
             data-test="Counter.General.ValueRowNumber"
             defaultValue={options.rowNumber}
-            disabled={options.countRow}
             onChange={rowNumber => onOptionsChange({ rowNumber })}
           />
         </Section>
       )}
 
-      <Section>
-        <Select
-          layout="horizontal"
-          label="Target Value Column Name"
-          className="w-100"
-          data-test="Counter.General.TargetValueColumn"
-          defaultValue={options.targetColName}
-          onChange={targetColName => onOptionsChange({ targetColName })}
-        >
-          <Select.Option value="">No target value</Select.Option>
-          {map(data.columns, col => (
-            <Select.Option key={col.name} data-test={'Counter.General.TargetValueColumn.' + col.name}>{col.name}</Select.Option>
-          ))}
-        </Select>
-      </Section>
+      {showOptionForType("targetColName") && (
+        <Section>
+          <Select
+            layout="horizontal"
+            label="Target Value Column Name"
+            className="w-100"
+            data-test="Counter.General.TargetValueColumn"
+            defaultValue={options.targetColName}
+            onChange={targetColName => onOptionsChange({ targetColName })}>
+            <Select.Option value="">No target value</Select.Option>
+            {map(data.columns, col => (
+              <Select.Option key={col.name} data-test={"Counter.General.TargetValueColumn." + col.name}>
+                {col.name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Section>
+      )}
 
-      {showOptionForType('targetRowNumber') && (
+      {showOptionForType("TargetValueRowNumber") && (
         <Section>
           <InputNumber
             layout="horizontal"

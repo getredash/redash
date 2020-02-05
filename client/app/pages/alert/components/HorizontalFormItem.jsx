@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import Form from 'antd/lib/form';
+import React from "react";
+import PropTypes from "prop-types";
+import cx from "classnames";
+import Form from "antd/lib/form";
 
 export default function HorizontalFormItem({ children, label, className, ...props }) {
   const labelCol = { span: 4 };
@@ -10,11 +10,11 @@ export default function HorizontalFormItem({ children, label, className, ...prop
     wrapperCol.offset = 4;
   }
 
-  className = cx('alert-form-item', className);
+  className = cx("alert-form-item", className);
 
   return (
     <Form.Item labelCol={labelCol} wrapperCol={wrapperCol} label={label} className={className} {...props}>
-      { children }
+      {children}
     </Form.Item>
   );
 }

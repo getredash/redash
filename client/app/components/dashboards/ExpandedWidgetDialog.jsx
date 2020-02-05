@@ -1,24 +1,22 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Button from 'antd/lib/button';
-import Modal from 'antd/lib/modal';
-import { VisualizationRenderer } from '@/visualizations/VisualizationRenderer';
-import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import { VisualizationName } from '@/visualizations/VisualizationName';
+import React from "react";
+import PropTypes from "prop-types";
+import Button from "antd/lib/button";
+import Modal from "antd/lib/modal";
+import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import VisualizationRenderer from "@/visualizations/components/VisualizationRenderer";
+import VisualizationName from "@/visualizations/components/VisualizationName";
 
 function ExpandedWidgetDialog({ dialog, widget }) {
   return (
     <Modal
       {...dialog.props}
-      title={(
+      title={
         <>
-          <VisualizationName visualization={widget.visualization} />{' '}
-          <span>{widget.getQuery().name}</span>
+          <VisualizationName visualization={widget.visualization} /> <span>{widget.getQuery().name}</span>
         </>
-      )}
+      }
       width="95%"
-      footer={(<Button onClick={dialog.dismiss}>Close</Button>)}
-    >
+      footer={<Button onClick={dialog.dismiss}>Close</Button>}>
       <VisualizationRenderer
         visualization={widget.visualization}
         queryResult={widget.getQueryResult()}

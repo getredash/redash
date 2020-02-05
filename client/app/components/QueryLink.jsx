@@ -1,15 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { VisualizationType } from '@/visualizations';
-import { VisualizationName } from '@/visualizations/VisualizationName';
+import React from "react";
+import PropTypes from "prop-types";
+import { VisualizationType } from "@/visualizations/prop-types";
+import VisualizationName from "@/visualizations/components/VisualizationName";
+
+import "./QueryLink.less";
 
 function QueryLink({ query, visualization, readOnly }) {
   const getUrl = () => {
     let hash = null;
     if (visualization) {
-      if (visualization.type === 'TABLE') {
+      if (visualization.type === "TABLE") {
         // link to hard-coded table tab instead of the (hidden) visualization tab
-        hash = 'table';
+        hash = "table";
       } else {
         hash = visualization.id;
       }
@@ -20,8 +22,7 @@ function QueryLink({ query, visualization, readOnly }) {
 
   return (
     <a href={readOnly ? null : getUrl()} className="query-link">
-      <VisualizationName visualization={visualization} />{' '}
-      <span>{query.name}</span>
+      <VisualizationName visualization={visualization} /> <span>{query.name}</span>
     </a>
   );
 }

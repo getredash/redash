@@ -1,31 +1,31 @@
-import { isNumber, isFinite, toString, invoke, nth, get, sumBy, map, min, max } from 'lodash';
-import numeral from 'numeral';
+import { isNumber, isFinite, toString, invoke, nth, get, sumBy, map, min, max } from "lodash";
+import numeral from "numeral";
 
 export const COUNTER_TYPES = {
   rowValue: {
-    name: 'Row Value',
+    name: "Row Value",
     getValue: (rows, { rowNumber, counterColName }) => get(nth(rows, rowNumber), counterColName),
-    options: ['counterColName', 'rowNumber', 'targetColName', 'targetRowNumber'],
+    options: ["counterColName", "rowNumber", "targetColName", "targetRowNumber"],
   },
   countRows: {
-    name: 'Count Rows',
+    name: "Count Rows",
     getValue: rows => rows.length,
-    options: ['targetColName', 'targetRowNumber'],
+    options: ["targetColName", "targetRowNumber"],
   },
   sumRows: {
-    name: 'Sum Values',
+    name: "Sum Values",
     getValue: (rows, { counterColName }) => sumBy(rows, counterColName),
-    options: ['counterColName', 'targetColName', 'targetRowNumber'],
+    options: ["counterColName", "targetColName", "targetRowNumber"],
   },
   minValue: {
-    name: 'Min Value',
+    name: "Min Value",
     getValue: (rows, { counterColName }) => min(map(rows, row => get(row, counterColName))),
-    options: ['counterColName', 'targetColName', 'targetRowNumber'],
+    options: ["counterColName", "targetColName", "targetRowNumber"],
   },
   maxValue: {
-    name: 'Max Value',
+    name: "Max Value",
     getValue: (rows, { counterColName }) => max(map(rows, row => get(row, counterColName))),
-    options: ['counterColName', 'targetColName', 'targetRowNumber'],
+    options: ["counterColName", "targetColName", "targetRowNumber"],
   },
 };
 
@@ -42,25 +42,21 @@ function numberFormat(value, decimalPoints, decimalDelimiter, thousandsDelimiter
   // - `.` as decimal delimiter
   // - three decimal points
   locale.delimiters = {
-    thousands: ',',
-    decimal: '.',
+    thousands: ",",
+    decimal: ".",
   };
-  let formatString = '0,0.000';
-  if (
-    (Number.isFinite(decimalPoints) && (decimalPoints >= 0)) ||
-    decimalDelimiter ||
-    thousandsDelimiter
-  ) {
+  let formatString = "0,0.000";
+  if ((Number.isFinite(decimalPoints) && decimalPoints >= 0) || decimalDelimiter || thousandsDelimiter) {
     locale.delimiters = {
       thousands: thousandsDelimiter,
-      decimal: decimalDelimiter || '.',
+      decimal: decimalDelimiter || ".",
     };
 
-    formatString = '0,0';
+    formatString = "0,0";
     if (decimalPoints > 0) {
-      formatString += '.';
+      formatString += ".";
       while (decimalPoints > 0) {
-        formatString += '0';
+        formatString += "0";
         decimalPoints -= 1;
       }
     }
@@ -88,23 +84,19 @@ function formatTooltip(value, formatString) {
 
 export function getCounterData(rows, options, visualizationName) {
   const result = {};
-
   const rowsCount = rows.length;
-  if (rowsCount > 0) {
-    const { counterType, counterLabel, targetRowNumber, targetColName } = options;
+  const { counterType, counterLabel, targetRowNumber, targetColName } = options;
 
-    if (counterLabel) {
-      result.counterLabel = counterLabel;
-    } else {
-      result.counterLabel = visualizationName;
-    }
+  if (rowsCount > 0 || counterType === "countRows") {
+    result.counterLabel = counterLabel || visualizationName;
 
-    const counterValue = invoke(COUNTER_TYPES[counterType], 'getValue', rows, options);
+    const counterValue = invoke(COUNTER_TYPES[counterType], "getValue", rows, options);
     if (counterValue !== null && counterValue !== undefined) {
       result.counterValue = counterValue;
     }
 
     result.showTrend = false;
+
     if (targetColName) {
       result.targetValue = get(nth(rows, targetRowNumber), targetColName);
 
@@ -126,7 +118,7 @@ export function getCounterData(rows, options, visualizationName) {
       result.targetValue = formatValue(result.targetValue, options);
     } else {
       if (isFinite(result.targetValue)) {
-        result.targetValue = numeral(result.targetValue).format('0[.]00[0]');
+        result.targetValue = numeral(result.targetValue).format("0[.]00[0]");
       }
     }
   }
@@ -135,7 +127,7 @@ export function getCounterData(rows, options, visualizationName) {
 }
 
 export function isValueNumber(rows, options) {
-  if (options.countRow) {
+  if (options.counterType === "countRows") {
     return true; // array length is always a number
   }
 

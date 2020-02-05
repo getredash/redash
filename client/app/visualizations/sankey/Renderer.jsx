@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import resizeObserver from '@/services/resizeObserver';
-import { RendererPropTypes } from '@/visualizations';
+import React, { useState, useEffect, useMemo } from "react";
+import resizeObserver from "@/services/resizeObserver";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 
-import initSankey from './initSankey';
-import './renderer.less';
+import initSankey from "./initSankey";
+import "./renderer.less";
 
 export default function Renderer({ data }) {
   const [container, setContainer] = useState(null);
@@ -20,7 +20,7 @@ export default function Renderer({ data }) {
     }
   }, [container, render]);
 
-  return (<div className="sankey-visualization-container" ref={setContainer} />);
+  return <div className="sankey-visualization-container" ref={setContainer} />;
 }
 
 Renderer.propTypes = RendererPropTypes;

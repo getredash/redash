@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import Card from 'antd/lib/card';
-import Button from 'antd/lib/button';
-import Typography from 'antd/lib/typography';
-import { clientConfig } from '@/services/auth';
-import HelpTrigger from '@/components/HelpTrigger';
-import DynamicComponent from '@/components/DynamicComponent';
-import OrgSettings from '@/services/organizationSettings';
+import React, { useState } from "react";
+import Card from "antd/lib/card";
+import Button from "antd/lib/button";
+import Typography from "antd/lib/typography";
+import { clientConfig } from "@/services/auth";
+import HelpTrigger from "@/components/HelpTrigger";
+import DynamicComponent from "@/components/DynamicComponent";
+import OrgSettings from "@/services/organizationSettings";
 
 const Text = Typography.Text;
 
@@ -21,11 +21,11 @@ function BeaconConsent() {
     setHide(true);
   };
 
-  const confirmConsent = (confirm) => {
-    let message = '🙏 Thank you.';
+  const confirmConsent = confirm => {
+    let message = "🙏 Thank you.";
 
     if (!confirm) {
-      message = 'Settings Saved.';
+      message = "Settings Saved.";
     }
 
     OrgSettings.save({ beacon_consent: confirm }, message)
@@ -40,14 +40,13 @@ function BeaconConsent() {
     <DynamicComponent name="BeaconConsent">
       <div className="m-t-10 tiled">
         <Card
-          title={(
+          title={
             <>
-              Would you be ok with sharing anonymous usage data with the Redash team?{' '}
+              Would you be ok with sharing anonymous usage data with the Redash team?{" "}
               <HelpTrigger type="USAGE_DATA_SHARING" />
             </>
-          )}
-          bordered={false}
-        >
+          }
+          bordered={false}>
           <Text>Help Redash improve by automatically sending anonymous usage data:</Text>
           <div className="m-t-5">
             <ul>
@@ -66,7 +65,8 @@ function BeaconConsent() {
           </div>
           <div className="m-t-15">
             <Text type="secondary">
-              You can change this setting anytime from the <a href="settings/organization">Organization Settings</a> page.
+              You can change this setting anytime from the <a href="settings/organization">Organization Settings</a>{" "}
+              page.
             </Text>
           </div>
         </Card>

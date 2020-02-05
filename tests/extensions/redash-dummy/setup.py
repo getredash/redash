@@ -15,9 +15,7 @@ setup(
             "not_importable_extension = missing_extension_module:extension",
             "assertive_extension = redash_dummy:assertive_extension",
         ],
-        "redash.periodic_tasks": [
-            "dummy_periodic_task = redash_dummy:periodic_task"
-        ],
+        "redash.periodic_tasks": ["dummy_periodic_task = redash_dummy:periodic_task"],
     },
     py_modules=["redash_dummy"],
 )

@@ -1,9 +1,9 @@
-import { isEqual, omit, merge } from 'lodash';
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { RendererPropTypes } from '@/visualizations';
+import { isEqual, omit, merge } from "lodash";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 
-import prepareData from './prepareData';
-import initMap from './initMap';
+import prepareData from "./prepareData";
+import initMap from "./initMap";
 
 function useMemoWithDeepCompare(create, inputs) {
   const valueRef = useRef();
@@ -17,15 +17,9 @@ function useMemoWithDeepCompare(create, inputs) {
 export default function Renderer({ data, options, onOptionsChange }) {
   const [container, setContainer] = useState(null);
 
-  const optionsWithoutBounds = useMemoWithDeepCompare(
-    () => omit(options, ['bounds']),
-    [options],
-  );
+  const optionsWithoutBounds = useMemoWithDeepCompare(() => omit(options, ["bounds"]), [options]);
 
-  const groups = useMemo(
-    () => prepareData(data, optionsWithoutBounds),
-    [data, optionsWithoutBounds],
-  );
+  const groups = useMemo(() => prepareData(data, optionsWithoutBounds), [data, optionsWithoutBounds]);
 
   const [map, setMap] = useState(null);
 
@@ -33,7 +27,9 @@ export default function Renderer({ data, options, onOptionsChange }) {
     if (container) {
       const _map = initMap(container);
       setMap(_map);
-      return () => { _map.destroy(); };
+      return () => {
+        _map.destroy();
+      };
     }
   }, [container]);
 
@@ -51,13 +47,13 @@ export default function Renderer({ data, options, onOptionsChange }) {
 
   useEffect(() => {
     if (map && onOptionsChange) {
-      map.onBoundsChange = (bounds) => {
+      map.onBoundsChange = bounds => {
         onOptionsChange(merge({}, options, { bounds }));
       };
     }
   }, [map, options, onOptionsChange]);
 
-  return (<div className="map-visualization-container" ref={setContainer} />);
+  return <div className="map-visualization-container" ref={setContainer} />;
 }
 
 Renderer.propTypes = RendererPropTypes;

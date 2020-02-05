@@ -1,3 +1,120 @@
+.dashboard-wrapper {
+  flex-grow: 1;
+  margin-bottom: 70px;
+
+  .layout {
+    margin: -15px -15px 0;
+  }
+
+  .tile {
+    display: flex;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+  .pivot-table-visualization-container > table,
+  .visualization-renderer > .visualization-renderer-wrapper {
+    overflow: visible;
+  }
+
+  &.preview-mode {
+    .widget-menu-regular {
+      display: block;
+    }
+    .widget-menu-remove {
+      display: none;
+    }
+  }
+
+  &.editing-mode {
+    /* Y axis lines */
+    background: linear-gradient(to right, transparent, transparent 1px, #f6f8f9 1px, #f6f8f9),
+      linear-gradient(to bottom, #b3babf, #b3babf 1px, transparent 1px, transparent);
+    background-size: 5px 50px;
+    background-position-y: -8px;
+
+    /* X axis lines */
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 85px;
+      right: 15px;
+      background: linear-gradient(to bottom, transparent, transparent 2px, #f6f8f9 2px, #f6f8f9 5px),
+        linear-gradient(to left, #b3babf, #b3babf 1px, transparent 1px, transparent);
+      background-size: calc((100vw - 15px) / 6) 5px;
+      background-position: -7px 1px;
+    }
+  }
+
+  .dashboard-widget-wrapper:not(.widget-auto-height-enabled) {
+    .visualization-renderer {
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+
+      > .visualization-renderer-wrapper {
+        flex-grow: 1;
+        position: relative;
+      }
+
+      > .filters-wrapper {
+        flex-grow: 0;
+      }
+    }
+
+    .sunburst-visualization-container,
+    .sankey-visualization-container,
+    .map-visualization-container,
+    .word-cloud-visualization-container,
+    .box-plot-deprecated-visualization-container,
+    .chart-visualization-container {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: auto;
+      height: auto;
+      overflow: hidden;
+    }
+
+    .counter-visualization-content {
+      position: absolute;
+      left: 10px;
+      top: 15px;
+      right: 10px;
+      bottom: 15px;
+      height: auto;
+      overflow: hidden;
+      padding: 0;
+    }
+  }
+
+  .widget-auto-height-enabled {
+    .spinner {
+      position: static;
+    }
+
+    .scrollbox {
+      overflow-y: hidden;
+    }
+  }
+}
+
 .react-grid-layout {
   &.disable-animations {
     & > .react-grid-item {
@@ -8,11 +125,10 @@
 
 // react-grid-layout overrides
 .react-grid-item {
-
   // placeholder color
   &.react-grid-placeholder {
     border-radius: 3px;
-    background-color: #E0E6EB;
+    background-color: #e0e6eb;
     opacity: 0.5;
   }
 
@@ -27,10 +143,13 @@
   }
 
   // resize handle size
-  & > .react-resizable-handle::after {
-    width: 11px;
-    height: 11px;
-    right: 5px;
-    bottom: 5px;
+  & > .react-resizable-handle {
+    background: none;
+    &:after {
+      width: 11px;
+      height: 11px;
+      right: 5px;
+      bottom: 5px;
+    }
   }
 }

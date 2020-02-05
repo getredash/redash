@@ -1,9 +1,9 @@
-import { extend, trim } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import { useDebouncedCallback } from 'use-debounce';
-import { Section, Input, Checkbox, ContextHelp } from '@/components/visualizations/editor';
-import { formatSimpleTemplate } from '@/lib/value-format';
+import { extend, trim } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import { useDebouncedCallback } from "use-debounce";
+import { Section, Input, Checkbox, ContextHelp } from "@/components/visualizations/editor";
+import { formatSimpleTemplate } from "@/lib/value-format";
 
 function Editor({ column, onChange }) {
   const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
@@ -41,8 +41,7 @@ function Editor({ column, onChange }) {
         <Checkbox
           data-test="Table.ColumnEditor.Link.OpenInNewTab"
           checked={column.linkOpenInNewTab}
-          onChange={event => onChange({ linkOpenInNewTab: event.target.checked })}
-        >
+          onChange={event => onChange({ linkOpenInNewTab: event.target.checked })}>
           Open in new tab
         </Checkbox>
       </Section>
@@ -51,14 +50,13 @@ function Editor({ column, onChange }) {
         <ContextHelp
           placement="topLeft"
           arrowPointAtCenter
-          icon={(
-            <span style={{ cursor: 'default' }}>
-              Format specs {ContextHelp.defaultIcon}
-            </span>
-          )}
-        >
-          <div>All columns can be referenced using <code>{'{{ column_name }}'}</code> syntax.</div>
-          <div>Use <code>{'{{ @ }}'}</code> to reference current (this) column.</div>
+          icon={<span style={{ cursor: "default" }}>Format specs {ContextHelp.defaultIcon}</span>}>
+          <div>
+            All columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
+          </div>
+          <div>
+            Use <code>{"{{ @ }}"}</code> to reference current (this) column.
+          </div>
           <div>This syntax is applicable to URL, Text and Title options.</div>
         </ContextHelp>
       </Section>
@@ -79,10 +77,10 @@ Editor.propTypes = {
 
 export default function initLinkColumn(column) {
   function prepareData(row) {
-    row = extend({ '@': row[column.name] }, row);
+    row = extend({ "@": row[column.name] }, row);
 
     const href = trim(formatSimpleTemplate(column.linkUrlTemplate, row));
-    if (href === '') {
+    if (href === "") {
       return {};
     }
 
@@ -91,20 +89,21 @@ export default function initLinkColumn(column) {
 
     const result = {
       href,
-      text: text !== '' ? text : href,
+      text: text !== "" ? text : href,
     };
 
-    if (title !== '') {
+    if (title !== "") {
       result.title = title;
     }
     if (column.linkOpenInNewTab) {
-      result.target = '_blank';
+      result.target = "_blank";
     }
 
     return result;
   }
 
-  function LinkColumn({ row }) { // eslint-disable-line react/prop-types
+  function LinkColumn({ row }) {
+    // eslint-disable-line react/prop-types
     const { text, ...props } = prepareData(row);
     return <a {...props}>{text}</a>;
   }
@@ -114,5 +113,5 @@ export default function initLinkColumn(column) {
   return LinkColumn;
 }
 
-initLinkColumn.friendlyName = 'Link';
+initLinkColumn.friendlyName = "Link";
 initLinkColumn.Editor = Editor;

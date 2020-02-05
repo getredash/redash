@@ -1,14 +1,14 @@
-import React from 'react';
-import { Section, Input } from '@/components/visualizations/editor';
-import { EditorPropTypes } from '@/visualizations';
+import React from "react";
+import { Section, Input } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function Editor({ options, onOptionsChange }) {
-  const onXAxisLabelChanged = (xAxisLabel) => {
+  const onXAxisLabelChanged = xAxisLabel => {
     const newOptions = { ...options, xAxisLabel };
     onOptionsChange(newOptions);
   };
 
-  const onYAxisLabelChanged = (yAxisLabel) => {
+  const onYAxisLabelChanged = yAxisLabel => {
     const newOptions = { ...options, yAxisLabel };
     onOptionsChange(newOptions);
   };

@@ -1,8 +1,8 @@
-import { map } from 'lodash';
-import React, { useMemo } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
-import { Section, Select, Input, Checkbox } from '@/components/visualizations/editor';
-import { EditorPropTypes } from '@/visualizations';
+import { map } from "lodash";
+import React, { useMemo } from "react";
+import { useDebouncedCallback } from "use-debounce";
+import { Section, Select, Input, Checkbox } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function GeneralSettings({ options, data, onOptionsChange }) {
   const columnNames = useMemo(() => map(data.columns, c => c.name), [data]);
@@ -19,10 +19,11 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           data-test="Funnel.StepColumn"
           placeholder="Choose column..."
           defaultValue={options.stepCol.colName || undefined}
-          onChange={colName => onOptionsChange({ stepCol: { colName: colName || null } })}
-        >
+          onChange={colName => onOptionsChange({ stepCol: { colName: colName || null } })}>
           {map(columnNames, col => (
-            <Select.Option key={col} data-test={`Funnel.StepColumn.${col}`}>{col}</Select.Option>
+            <Select.Option key={col} data-test={`Funnel.StepColumn.${col}`}>
+              {col}
+            </Select.Option>
           ))}
         </Select>
       </Section>
@@ -46,10 +47,11 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           data-test="Funnel.ValueColumn"
           placeholder="Choose column..."
           defaultValue={options.valueCol.colName || undefined}
-          onChange={colName => onOptionsChange({ valueCol: { colName: colName || null } })}
-        >
+          onChange={colName => onOptionsChange({ valueCol: { colName: colName || null } })}>
           {map(columnNames, col => (
-            <Select.Option key={col} data-test={`Funnel.ValueColumn.${col}`}>{col}</Select.Option>
+            <Select.Option key={col} data-test={`Funnel.ValueColumn.${col}`}>
+              {col}
+            </Select.Option>
           ))}
         </Select>
       </Section>
@@ -69,8 +71,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Checkbox
           data-test="Funnel.CustomSort"
           checked={!options.autoSort}
-          onChange={event => onOptionsChange({ autoSort: !event.target.checked })}
-        >
+          onChange={event => onOptionsChange({ autoSort: !event.target.checked })}>
           Custom Sorting
         </Checkbox>
       </Section>
@@ -86,10 +87,11 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
               allowClear
               placeholder="Choose column..."
               defaultValue={options.sortKeyCol.colName || undefined}
-              onChange={colName => onOptionsChange({ sortKeyCol: { colName: colName || null } })}
-            >
+              onChange={colName => onOptionsChange({ sortKeyCol: { colName: colName || null } })}>
               {map(columnNames, col => (
-                <Select.Option key={col} data-test={`Funnel.SortColumn.${col}`}>{col}</Select.Option>
+                <Select.Option key={col} data-test={`Funnel.SortColumn.${col}`}>
+                  {col}
+                </Select.Option>
               ))}
             </Select>
           </Section>
@@ -101,11 +103,14 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
               className="w-100"
               data-test="Funnel.SortDirection"
               disabled={!options.sortKeyCol.colName}
-              defaultValue={options.sortKeyCol.reverse ? 'desc' : 'asc'}
-              onChange={order => onOptionsChange({ sortKeyCol: { reverse: order === 'desc' } })}
-            >
-              <Select.Option value="asc" data-test="Funnel.SortDirection.Ascending">ascending</Select.Option>
-              <Select.Option value="desc" data-test="Funnel.SortDirection.Descending">descending</Select.Option>
+              defaultValue={options.sortKeyCol.reverse ? "desc" : "asc"}
+              onChange={order => onOptionsChange({ sortKeyCol: { reverse: order === "desc" } })}>
+              <Select.Option value="asc" data-test="Funnel.SortDirection.Ascending">
+                ascending
+              </Select.Option>
+              <Select.Option value="desc" data-test="Funnel.SortDirection.Descending">
+                descending
+              </Select.Option>
             </Select>
           </Section>
         </React.Fragment>

@@ -22,10 +22,14 @@ class Configuration(TypeDecorator):
 
 class EncryptedConfiguration(EncryptedType):
     def process_bind_param(self, value, dialect):
-        return super(EncryptedConfiguration, self).process_bind_param(value.to_json(), dialect)
+        return super(EncryptedConfiguration, self).process_bind_param(
+            value.to_json(), dialect
+        )
 
     def process_result_value(self, value, dialect):
-        return ConfigurationContainer.from_json(super(EncryptedConfiguration, self).process_result_value(value, dialect))
+        return ConfigurationContainer.from_json(
+            super(EncryptedConfiguration, self).process_result_value(value, dialect)
+        )
 
 
 # XXX replace PseudoJSON and MutableDict with real JSON field

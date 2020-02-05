@@ -1,6 +1,6 @@
 # This configuration file is for the **development** setup.
-# For a production example please refer to setup/docker-compose.yml.
 version: '3.2'
+# For a production example please refer to getredash/setup repository on GitHub.
 services:
   server:
     build: .
@@ -19,6 +19,8 @@ services:
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       REDASH_RATELIMIT_ENABLED: "false"
+      REDASH_MAIL_DEFAULT_SENDER: redash@example.com
+      REDASH_MAIL_SERVER: email
   scheduler:
     build: .
     command: dev_scheduler
@@ -41,29 +43,11 @@ services:
         target: /app
     depends_on:
       - server
-    tty: true
     environment:
       PYTHONUNBUFFERED: 0
       REDASH_LOG_LEVEL: "INFO"
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
-  celery-worker:
-    build: .
-    command: dev_celery_worker
-    volumes:
-      - type: bind
-        source: .
-        target: /app
-    depends_on:
-      - server
-      - email
-    environment:
-      PYTHONUNBUFFERED: 0
-      REDASH_LOG_LEVEL: "INFO"
-      REDASH_REDIS_URL: "redis://redis:6379/0"
-      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
-      QUEUES: "queries,scheduled_queries"
-      WORKERS_COUNT: 2
       REDASH_MAIL_DEFAULT_SENDER: redash@example.com
       REDASH_MAIL_SERVER: email
   redis:

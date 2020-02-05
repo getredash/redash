@@ -1,7 +1,7 @@
-import React from 'react';
-import { useDebouncedCallback } from 'use-debounce';
-import { Section, Input, InputNumber, ContextHelp } from '@/components/visualizations/editor';
-import { EditorPropTypes } from '@/visualizations';
+import React from "react";
+import { useDebouncedCallback } from "use-debounce";
+import { Section, Input, InputNumber, ContextHelp } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function AppearanceSettings({ options, onOptionsChange }) {
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
@@ -11,7 +11,12 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
       <Section>
         <Input
           layout="horizontal"
-          label={(<React.Fragment>Number Values Format<ContextHelp.NumberFormatSpecs /></React.Fragment>)}
+          label={
+            <React.Fragment>
+              Number Values Format
+              <ContextHelp.NumberFormatSpecs />
+            </React.Fragment>
+          }
           className="w-100"
           data-test="Funnel.NumberFormat"
           defaultValue={options.numberFormat}
@@ -22,7 +27,12 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
       <Section>
         <Input
           layout="horizontal"
-          label={(<React.Fragment>Percent Values Format<ContextHelp.NumberFormatSpecs /></React.Fragment>)}
+          label={
+            <React.Fragment>
+              Percent Values Format
+              <ContextHelp.NumberFormatSpecs />
+            </React.Fragment>
+          }
           className="w-100"
           data-test="Funnel.PercentFormat"
           defaultValue={options.percentFormat}

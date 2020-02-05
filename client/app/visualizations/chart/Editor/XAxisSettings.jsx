@@ -1,8 +1,8 @@
-import React from 'react';
-import { Section, Switch } from '@/components/visualizations/editor';
-import { EditorPropTypes } from '@/visualizations';
+import React from "react";
+import { Section, Switch } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
-import AxisSettings from './AxisSettings';
+import AxisSettings from "./AxisSettings";
 
 export default function XAxisSettings({ options, onOptionsChange }) {
   return (
@@ -18,8 +18,7 @@ export default function XAxisSettings({ options, onOptionsChange }) {
         <Switch
           data-test="Chart.XAxis.Sort"
           defaultChecked={options.sortX}
-          onChange={sortX => onOptionsChange({ sortX })}
-        >
+          onChange={sortX => onOptionsChange({ sortX })}>
           Sort Values
         </Switch>
       </Section>
@@ -28,8 +27,7 @@ export default function XAxisSettings({ options, onOptionsChange }) {
         <Switch
           data-test="Chart.XAxis.Reverse"
           defaultChecked={options.reverseX}
-          onChange={reverseX => onOptionsChange({ reverseX })}
-        >
+          onChange={reverseX => onOptionsChange({ reverseX })}>
           Reverse Order
         </Switch>
       </Section>
@@ -38,8 +36,7 @@ export default function XAxisSettings({ options, onOptionsChange }) {
         <Switch
           data-test="Chart.XAxis.ShowLabels"
           defaultChecked={options.xAxis.labels.enabled}
-          onChange={enabled => onOptionsChange({ xAxis: { labels: { enabled } } })}
-        >
+          onChange={enabled => onOptionsChange({ xAxis: { labels: { enabled } } })}>
           Show Labels
         </Switch>
       </Section>

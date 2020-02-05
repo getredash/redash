@@ -1,49 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import { react2angular } from 'react2angular';
-import { debounce, find } from 'lodash';
-import Input from 'antd/lib/input';
-import Select from 'antd/lib/select';
-import { Query } from '@/services/query';
-import notification from '@/services/notification';
-import { QueryTagsControl } from '@/components/tags-control/TagsControl';
+import { find } from "lodash";
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import cx from "classnames";
+import Input from "antd/lib/input";
+import Select from "antd/lib/select";
+import { Query } from "@/services/query";
+import notification from "@/services/notification";
+import { QueryTagsControl } from "@/components/tags-control/TagsControl";
+import useSearchResults from "@/lib/hooks/useSearchResults";
 
-const SEARCH_DEBOUNCE_DURATION = 200;
 const { Option } = Select;
-
-class StaleSearchError extends Error {
-  constructor() {
-    super('stale search');
-  }
-}
-
 function search(term) {
   // get recent
   if (!term) {
-    return Query.recent().$promise
-      .then((results) => {
-        const filteredResults = results.filter(item => !item.is_draft); // filter out draft
-        return Promise.resolve(filteredResults);
-      });
+    return Query.recent().then(results => results.filter(item => !item.is_draft)); // filter out draft
   }
 
   // search by query
-  return Query.query({ q: term }).$promise
-    .then(({ results }) => Promise.resolve(results));
+  return Query.query({ q: term }).then(({ results }) => results);
 }
 
-export function QuerySelector(props) {
-  const [searchTerm, setSearchTerm] = useState();
-  const [searching, setSearching] = useState();
-  const [searchResults, setSearchResults] = useState([]);
+export default function QuerySelector(props) {
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedQuery, setSelectedQuery] = useState();
+  const [doSearch, searchResults, searching] = useSearchResults(search, { initialResults: [] });
 
-  let isStaleSearch = false;
-  const debouncedSearch = debounce(_search, SEARCH_DEBOUNCE_DURATION);
-  const placeholder = 'Search a query by name';
+  const placeholder = "Search a query by name";
   const clearIcon = <i className="fa fa-times hide-in-percy" onClick={() => selectQuery(null)} />;
-  const spinIcon = <i className={cx('fa fa-spinner fa-pulse hide-in-percy', { hidden: !searching })} />;
+  const spinIcon = <i className={cx("fa fa-spinner fa-pulse hide-in-percy", { hidden: !searching })} />;
+
+  useEffect(() => {
+    doSearch(searchTerm);
+  }, [doSearch, searchTerm]);
 
   // set selected from prop
   useEffect(() => {
@@ -52,53 +40,17 @@ export function QuerySelector(props) {
     }
   }, [props.selectedQuery]);
 
-  // on search term changed, debounced
-  useEffect(() => {
-    // clear results, no search
-    if (searchTerm === null) {
-      setSearchResults(null);
-      return () => {};
-    }
-
-    // search
-    debouncedSearch(searchTerm);
-    return () => {
-      debouncedSearch.cancel();
-      isStaleSearch = true;
-    };
-  }, [searchTerm]);
-
-  function _search(term) {
-    setSearching(true);
-    search(term)
-      .then(rejectStale)
-      .then((results) => {
-        setSearchResults(results);
-        setSearching(false);
-      })
-      .catch((err) => {
-        if (!(err instanceof StaleSearchError)) {
-          setSearching(false);
-        }
-      });
-  }
-
-  function rejectStale(results) {
-    return isStaleSearch
-      ? Promise.reject(new StaleSearchError())
-      : Promise.resolve(results);
-  }
-
   function selectQuery(queryId) {
     let query = null;
     if (queryId) {
       query = find(searchResults, { id: queryId });
-      if (!query) { // shouldn't happen
-        notification.error('Something went wrong...', 'Couldn\'t select query');
+      if (!query) {
+        // shouldn't happen
+        notification.error("Something went wrong...", "Couldn't select query");
       }
     }
 
-    setSearchTerm(query ? null : ''); // empty string triggers recent fetch
+    setSearchTerm(query ? null : ""); // empty string triggers recent fetch
     setSelectedQuery(query);
     props.onChange(query);
   }
@@ -112,14 +64,11 @@ export function QuerySelector(props) {
       <div className="list-group">
         {searchResults.map(q => (
           <a
-            className={cx('query-selector-result', 'list-group-item', { inactive: q.is_draft })}
+            className={cx("query-selector-result", "list-group-item", { inactive: q.is_draft })}
             key={q.id}
             onClick={() => selectQuery(q.id)}
-            data-test={`QueryId${q.id}`}
-          >
-            {q.name}
-            {' '}
-            <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className="inline-tags-control" />
+            data-test={`QueryId${q.id}`}>
+            {q.name} <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className="inline-tags-control" />
           </a>
         ))}
       </div>
@@ -130,7 +79,7 @@ export function QuerySelector(props) {
     return <Input value={selectedQuery && selectedQuery.name} placeholder={placeholder} disabled />;
   }
 
-  if (props.type === 'select') {
+  if (props.type === "select") {
     const suffixIcon = selectedQuery ? clearIcon : null;
     const value = selectedQuery ? selectedQuery.name : searchTerm;
 
@@ -147,17 +96,26 @@ export function QuerySelector(props) {
         filterOption={false}
         defaultActiveFirstOption={false}
         className={props.className}
-        data-test="QuerySelector"
-      >
-        {searchResults && searchResults.map((q) => {
-          const disabled = q.is_draft;
-          return (
-            <Option value={q.id} key={q.id} disabled={disabled} className="query-selector-result" data-test={`QueryId${q.id}`}>
-              {q.name}{' '}
-              <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className={cx('inline-tags-control', { disabled })} />
-            </Option>
-          );
-        })}
+        data-test="QuerySelector">
+        {searchResults &&
+          searchResults.map(q => {
+            const disabled = q.is_draft;
+            return (
+              <Option
+                value={q.id}
+                key={q.id}
+                disabled={disabled}
+                className="query-selector-result"
+                data-test={`QueryId${q.id}`}>
+                {q.name}{" "}
+                <QueryTagsControl
+                  isDraft={q.is_draft}
+                  tags={q.tags}
+                  className={cx("inline-tags-control", { disabled })}
+                />
+              </Option>
+            );
+          })}
       </Select>
     );
   }
@@ -174,7 +132,7 @@ export function QuerySelector(props) {
           suffix={spinIcon}
         />
       )}
-      <div className="scrollbox" style={{ maxHeight: '50vh', marginTop: 15 }}>
+      <div className="scrollbox" style={{ maxHeight: "50vh", marginTop: 15 }}>
         {searchResults && renderResults()}
       </div>
     </span>
@@ -184,20 +142,14 @@ export function QuerySelector(props) {
 QuerySelector.propTypes = {
   onChange: PropTypes.func.isRequired,
   selectedQuery: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  type: PropTypes.oneOf(['select', 'default']),
+  type: PropTypes.oneOf(["select", "default"]),
   className: PropTypes.string,
   disabled: PropTypes.bool,
 };
 
 QuerySelector.defaultProps = {
   selectedQuery: null,
-  type: 'default',
+  type: "default",
   className: null,
   disabled: false,
 };
-
-export default function init(ngModule) {
-  ngModule.component('querySelector', react2angular(QuerySelector));
-}
-
-init.init = true;

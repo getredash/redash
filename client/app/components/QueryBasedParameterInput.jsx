@@ -1,16 +1,15 @@
-import { find, isArray, map, intersection, isEqual } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
-import Select from 'antd/lib/select';
+import { find, isArray, map, intersection, isEqual } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import Select from "antd/lib/select";
 
 const { Option } = Select;
 
-export class QueryBasedParameterInput extends React.Component {
+export default class QueryBasedParameterInput extends React.Component {
   static propTypes = {
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    mode: PropTypes.oneOf(['default', 'multiple']),
+    mode: PropTypes.oneOf(["default", "multiple"]),
     queryId: PropTypes.number,
     onSelect: PropTypes.func,
     className: PropTypes.string,
@@ -18,11 +17,11 @@ export class QueryBasedParameterInput extends React.Component {
 
   static defaultProps = {
     value: null,
-    mode: 'default',
+    mode: "default",
     parameter: null,
     queryId: null,
     onSelect: () => {},
-    className: '',
+    className: "",
   };
 
   constructor(props) {
@@ -49,7 +48,7 @@ export class QueryBasedParameterInput extends React.Component {
 
   setValue(value) {
     const { options } = this.state;
-    if (this.props.mode === 'multiple') {
+    if (this.props.mode === "multiple") {
       value = isArray(value) ? value : [value];
       const optionValues = map(options, option => option.value);
       const validValues = intersection(value, optionValues);
@@ -63,7 +62,7 @@ export class QueryBasedParameterInput extends React.Component {
   }
 
   async _loadOptions(queryId) {
-    if (queryId && (queryId !== this.state.queryId)) {
+    if (queryId && queryId !== this.state.queryId) {
       this.setState({ loading: true });
       const options = await this.props.parameter.loadDropdownValues();
 
@@ -86,7 +85,7 @@ export class QueryBasedParameterInput extends React.Component {
       <span>
         <Select
           className={className}
-          disabled={loading || (options.length === 0)}
+          disabled={loading || options.length === 0}
           loading={loading}
           mode={mode}
           value={this.state.value}
@@ -96,17 +95,14 @@ export class QueryBasedParameterInput extends React.Component {
           showSearch
           showArrow
           notFoundContent={null}
-          {...otherProps}
-        >
-          {options.map(option => (<Option value={option.value} key={option.value}>{option.name}</Option>))}
+          {...otherProps}>
+          {options.map(option => (
+            <Option value={option.value} key={option.value}>
+              {option.name}
+            </Option>
+          ))}
         </Select>
       </span>
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component('queryBasedParameterInput', react2angular(QueryBasedParameterInput));
-}
-
-init.init = true;

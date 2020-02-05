@@ -1,22 +1,34 @@
-import debug from 'debug';
-import moment from 'moment';
-import { uniqBy, each, isNumber, isString, includes, extend, forOwn } from 'lodash';
+import debug from "debug";
+import moment from "moment";
+import { axios } from "@/services/axios";
+import { QueryResultError } from "@/services/query";
+import { Auth } from "@/services/auth";
+import { isString, uniqBy, each, isNumber, includes, extend, forOwn, get } from "lodash";
 
-const logger = debug('redash:services:QueryResult');
-const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
+const logger = debug("redash:services:QueryResult");
+const filterTypes = ["filter", "multi-filter", "multiFilter"];
+
+function defer() {
+  const result = {};
+  result.promise = new Promise((resolve, reject) => {
+    result.resolve = resolve;
+    result.reject = reject;
+  });
+  return result;
+}
 
 function getColumnNameWithoutType(column) {
   let typeSplit;
-  if (column.indexOf('::') !== -1) {
-    typeSplit = '::';
-  } else if (column.indexOf('__') !== -1) {
-    typeSplit = '__';
+  if (column.indexOf("::") !== -1) {
+    typeSplit = "::";
+  } else if (column.indexOf("__") !== -1) {
+    typeSplit = "__";
   } else {
     return column;
   }
 
   const parts = column.split(typeSplit);
-  if (parts[0] === '' && parts.length === 2) {
+  if (parts[0] === "" && parts.length === 2) {
     return parts[1];
   }
 
@@ -35,411 +47,414 @@ function getColumnFriendlyName(column) {
   return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 }
 
-function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
-  const QueryResultResource = $resource('api/query_results/:id', { id: '@id' }, { post: { method: 'POST' } });
-  const QueryResultByQueryIdResource = $resource('api/queries/:queryId/results/:id.json', { queryId: '@queryId', id: '@id' });
-  const Job = $resource('api/jobs/:id', { id: '@id' });
-  const JobWithApiKey = $resource('api/queries/:queryId/jobs/:id', { queryId: '@queryId', id: '@id' });
-  const statuses = {
-    1: 'waiting',
-    2: 'processing',
-    3: 'done',
-    4: 'failed',
-  };
+const createOrSaveUrl = data => (data.id ? `api/query_results/${data.id}` : "api/query_results");
+const QueryResultResource = {
+  get: ({ id }) => axios.get(`api/query_results/${id}`),
+  post: data => axios.post(createOrSaveUrl(data), data),
+};
 
-  function handleErrorResponse(queryResult, response) {
-    if (response.status === 403) {
-      queryResult.update(response.data);
-    } else if (response.status === 400 && 'job' in response.data) {
-      queryResult.update(response.data);
-    } else {
-      logger('Unknown error', response);
+const statuses = {
+  1: "waiting",
+  2: "processing",
+  3: "done",
+  4: "failed",
+};
+
+function handleErrorResponse(queryResult, error) {
+  const status = get(error, "response.status");
+  switch (status) {
+    case 403:
+      queryResult.update(error.response.data);
+      return;
+    case 400:
+      if ("job" in error.response.data) {
+        queryResult.update(error.response.data);
+        return;
+      }
+      break;
+    case 404:
       queryResult.update({
         job: {
-          error: response.data.message || 'unknown error occurred. Please try again later.',
+          error: "cached query result unavailable, please execute again.",
           status: 4,
         },
       });
+      return;
+    // no default
+  }
+
+  logger("Unknown error", error);
+  queryResult.update({
+    job: {
+      error: get(error, "response.data.message", "Unknown error occurred. Please try again later."),
+      status: 4,
+    },
+  });
+}
+
+class QueryResult {
+  constructor(props) {
+    this.deferred = defer();
+    this.job = {};
+    this.query_result = {};
+    this.status = "waiting";
+
+    this.updatedAt = moment();
+
+    // extended status flags
+    this.isLoadingResult = false;
+
+    if (props) {
+      this.update(props);
     }
   }
 
-  class QueryResult {
-    constructor(props) {
-      this.deferred = $q.defer();
-      this.job = {};
-      this.query_result = {};
-      this.status = 'waiting';
+  update(props) {
+    extend(this, props);
 
-      this.updatedAt = moment();
+    if ("query_result" in props) {
+      this.status = "done";
 
-      // extended status flags
-      this.isLoadingResult = false;
+      const columnTypes = {};
 
-      if (props) {
-        this.update(props);
-      }
-    }
-
-    update(props) {
-      extend(this, props);
-
-      if ('query_result' in props) {
-        this.status = 'done';
-
-        const columnTypes = {};
-
-        // TODO: we should stop manipulating incoming data, and switch to relaying
-        // on the column type set by the backend. This logic is prone to errors,
-        // and better be removed. Kept for now, for backward compatability.
-        each(this.query_result.data.rows, (row) => {
-          forOwn(row, (v, k) => {
-            let newType = null;
-            if (isNumber(v)) {
-              newType = 'float';
-            } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {
-              row[k] = moment.utc(v);
-              newType = 'datetime';
-            } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
-              row[k] = moment.utc(v);
-              newType = 'date';
-            } else if (typeof v === 'object' && v !== null) {
-              row[k] = JSON.stringify(v);
-            } else {
-              newType = 'string';
-            }
-
-            if (newType !== null) {
-              if (columnTypes[k] !== undefined && columnTypes[k] !== newType) {
-                columnTypes[k] = 'string';
-              } else {
-                columnTypes[k] = newType;
-              }
-            }
-          });
-        });
-
-        each(this.query_result.data.columns, (column) => {
-          column.name = '' + column.name;
-          if (columnTypes[column.name]) {
-            if (column.type == null || column.type === 'string') {
-              column.type = columnTypes[column.name];
-            }
-          }
-        });
-
-        this.deferred.resolve(this);
-      } else if (this.job.status === 3) {
-        this.status = 'processing';
-      } else if (this.job.status === 4) {
-        this.status = statuses[this.job.status];
-        this.deferred.reject(new QueryResultError(this.job.error));
-      } else {
-        this.status = undefined;
-      }
-    }
-
-    getId() {
-      let id = null;
-      if ('query_result' in this) {
-        id = this.query_result.id;
-      }
-      return id;
-    }
-
-    cancelExecution() {
-      Job.delete({ id: this.job.id });
-    }
-
-    getStatus() {
-      if (this.isLoadingResult) {
-        return 'loading-result';
-      }
-      return this.status || statuses[this.job.status];
-    }
-
-    getError() {
-      // TODO: move this logic to the server...
-      if (this.job.error === 'None') {
-        return undefined;
-      }
-
-      return this.job.error;
-    }
-
-    getLog() {
-      if (!this.query_result.data || !this.query_result.data.log || this.query_result.data.log.length === 0) {
-        return null;
-      }
-
-      return this.query_result.data.log;
-    }
-
-    getUpdatedAt() {
-      return this.query_result.retrieved_at || this.job.updated_at * 1000.0 || this.updatedAt;
-    }
-
-    getRuntime() {
-      return this.query_result.runtime;
-    }
-
-    getRawData() {
-      if (!this.query_result.data) {
-        return null;
-      }
-
-      return this.query_result.data.rows;
-    }
-
-    getData() {
-      return this.query_result.data ? this.query_result.data.rows : null;
-    }
-
-    isEmpty() {
-      return this.getData() === null || this.getData().length === 0;
-    }
-
-    getColumns() {
-      if (this.columns === undefined && this.query_result.data) {
-        this.columns = this.query_result.data.columns;
-      }
-
-      return this.columns;
-    }
-
-    getColumnNames() {
-      if (this.columnNames === undefined && this.query_result.data) {
-        this.columnNames = this.query_result.data.columns.map(v => v.name);
-      }
-
-      return this.columnNames;
-    }
-
-    getColumnCleanNames() {
-      return this.getColumnNames().map(col => getColumnCleanName(col));
-    }
-
-    getColumnFriendlyNames() {
-      return this.getColumnNames().map(col => getColumnFriendlyName(col));
-    }
-
-    getFilters() {
-      if (!this.getColumns()) {
-        return [];
-      }
-
-      const filters = [];
-
-      this.getColumns().forEach((col) => {
-        const name = col.name;
-        const type = name.split('::')[1] || name.split('__')[1];
-        if (includes(filterTypes, type)) {
-          // filter found
-          const filter = {
-            name,
-            friendlyName: getColumnFriendlyName(name),
-            column: col,
-            values: [],
-            multiple: type === 'multiFilter' || type === 'multi-filter',
-          };
-          filters.push(filter);
-        }
-      }, this);
-
-      this.getRawData().forEach((row) => {
-        filters.forEach((filter) => {
-          filter.values.push(row[filter.name]);
-          if (filter.values.length === 1) {
-            if (filter.multiple) {
-              filter.current = [row[filter.name]];
-            } else {
-              filter.current = row[filter.name];
-            }
-          }
-        });
-      });
-
-      filters.forEach((filter) => {
-        filter.values = uniqBy(filter.values, (v) => {
-          if (moment.isMoment(v)) {
-            return v.unix();
-          }
-          return v;
-        });
-      });
-
-      return filters;
-    }
-
-    toPromise() {
-      return this.deferred.promise;
-    }
-
-    static getById(queryId, id) {
-      const queryResult = new QueryResult();
-
-      queryResult.isLoadingResult = true;
-      QueryResultByQueryIdResource.get(
-        { queryId, id },
-        (response) => {
-          // Success handler
-          queryResult.isLoadingResult = false;
-          queryResult.update(response);
-        },
-        (error) => {
-          // Error handler
-          queryResult.isLoadingResult = false;
-          handleErrorResponse(queryResult, error);
-        },
-      );
-
-      return queryResult;
-    }
-
-    loadLatestCachedResult(queryId, parameters) {
-      $resource('api/queries/:id/results', { id: '@queryId' }, { post: { method: 'POST' } })
-        .post({ queryId, parameters },
-          (response) => { this.update(response); },
-          (error) => { handleErrorResponse(this, error); });
-    }
-
-    loadResult(tryCount) {
-      this.isLoadingResult = true;
-      QueryResultResource.get(
-        { id: this.job.query_result_id },
-        (response) => {
-          this.update(response);
-          this.isLoadingResult = false;
-        },
-        (error) => {
-          if (tryCount === undefined) {
-            tryCount = 0;
-          }
-
-          if (tryCount > 3) {
-            logger('Connection error while trying to load result', error);
-            this.update({
-              job: {
-                error: 'failed communicating with server. Please check your Internet connection and try again.',
-                status: 4,
-              },
-            });
-            this.isLoadingResult = false;
+      // TODO: we should stop manipulating incoming data, and switch to relaying
+      // on the column type set by the backend. This logic is prone to errors,
+      // and better be removed. Kept for now, for backward compatability.
+      each(this.query_result.data.rows, row => {
+        forOwn(row, (v, k) => {
+          let newType = null;
+          if (isNumber(v)) {
+            newType = "float";
+          } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {
+            row[k] = moment.utc(v);
+            newType = "datetime";
+          } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            row[k] = moment.utc(v);
+            newType = "date";
+          } else if (typeof v === "object" && v !== null) {
+            row[k] = JSON.stringify(v);
           } else {
-            $timeout(() => {
-              this.loadResult(tryCount + 1);
-            }, 1000 * Math.pow(2, tryCount));
+            newType = "string";
           }
-        },
-      );
+
+          if (newType !== null) {
+            if (columnTypes[k] !== undefined && columnTypes[k] !== newType) {
+              columnTypes[k] = "string";
+            } else {
+              columnTypes[k] = newType;
+            }
+          }
+        });
+      });
+
+      each(this.query_result.data.columns, column => {
+        column.name = "" + column.name;
+        if (columnTypes[column.name]) {
+          if (column.type == null || column.type === "string") {
+            column.type = columnTypes[column.name];
+          }
+        }
+      });
+
+      this.deferred.resolve(this);
+    } else if (this.job.status === 3) {
+      this.status = "processing";
+    } else if (this.job.status === 4) {
+      this.status = statuses[this.job.status];
+      this.deferred.reject(new QueryResultError(this.job.error));
+    } else {
+      this.status = undefined;
+    }
+  }
+
+  getId() {
+    let id = null;
+    if ("query_result" in this) {
+      id = this.query_result.id;
+    }
+    return id;
+  }
+
+  cancelExecution() {
+    axios.delete(`api/jobs/${this.job.id}`);
+  }
+
+  getStatus() {
+    if (this.isLoadingResult) {
+      return "loading-result";
+    }
+    return this.status || statuses[this.job.status];
+  }
+
+  getError() {
+    // TODO: move this logic to the server...
+    if (this.job.error === "None") {
+      return undefined;
     }
 
-    refreshStatus(query, parameters, tryNumber = 1) {
-      const resource = Auth.isAuthenticated() ? Job : JobWithApiKey;
-      const loadResult = () => (Auth.isAuthenticated()
-        ? this.loadResult()
-        : this.loadLatestCachedResult(query, parameters));
-      const params = Auth.isAuthenticated() ? { id: this.job.id } : { queryId: query, id: this.job.id };
+    return this.job.error;
+  }
 
-      resource.get(
-        params,
-        (jobResponse) => {
-          this.update(jobResponse);
+  getLog() {
+    if (!this.query_result.data || !this.query_result.data.log || this.query_result.data.log.length === 0) {
+      return null;
+    }
 
-          if (this.getStatus() === 'processing' && this.job.query_result_id && this.job.query_result_id !== 'None') {
-            loadResult();
-          } else if (this.getStatus() !== 'failed') {
-            const waitTime = tryNumber > 10 ? 3000 : 500;
-            $timeout(() => {
-              this.refreshStatus(query, parameters, tryNumber + 1);
-            }, waitTime);
+    return this.query_result.data.log;
+  }
+
+  getUpdatedAt() {
+    return this.query_result.retrieved_at || this.job.updated_at * 1000.0 || this.updatedAt;
+  }
+
+  getRuntime() {
+    return this.query_result.runtime;
+  }
+
+  getRawData() {
+    if (!this.query_result.data) {
+      return null;
+    }
+
+    return this.query_result.data.rows;
+  }
+
+  getData() {
+    return this.query_result.data ? this.query_result.data.rows : null;
+  }
+
+  isEmpty() {
+    return this.getData() === null || this.getData().length === 0;
+  }
+
+  getColumns() {
+    if (this.columns === undefined && this.query_result.data) {
+      this.columns = this.query_result.data.columns;
+    }
+
+    return this.columns;
+  }
+
+  getColumnNames() {
+    if (this.columnNames === undefined && this.query_result.data) {
+      this.columnNames = this.query_result.data.columns.map(v => v.name);
+    }
+
+    return this.columnNames;
+  }
+
+  getColumnCleanNames() {
+    return this.getColumnNames().map(col => getColumnCleanName(col));
+  }
+
+  getColumnFriendlyNames() {
+    return this.getColumnNames().map(col => getColumnFriendlyName(col));
+  }
+
+  getFilters() {
+    if (!this.getColumns()) {
+      return [];
+    }
+
+    const filters = [];
+
+    this.getColumns().forEach(col => {
+      const name = col.name;
+      const type = name.split("::")[1] || name.split("__")[1];
+      if (includes(filterTypes, type)) {
+        // filter found
+        const filter = {
+          name,
+          friendlyName: getColumnFriendlyName(name),
+          column: col,
+          values: [],
+          multiple: type === "multiFilter" || type === "multi-filter",
+        };
+        filters.push(filter);
+      }
+    }, this);
+
+    this.getRawData().forEach(row => {
+      filters.forEach(filter => {
+        filter.values.push(row[filter.name]);
+        if (filter.values.length === 1) {
+          if (filter.multiple) {
+            filter.current = [row[filter.name]];
+          } else {
+            filter.current = row[filter.name];
           }
-        },
-        (error) => {
-          logger('Connection error', error);
-          // TODO: use QueryResultError, or better yet: exception/reject of promise.
+        }
+      });
+    });
+
+    filters.forEach(filter => {
+      filter.values = uniqBy(filter.values, v => {
+        if (moment.isMoment(v)) {
+          return v.unix();
+        }
+        return v;
+      });
+    });
+
+    return filters;
+  }
+
+  toPromise() {
+    return this.deferred.promise;
+  }
+
+  static getById(queryId, id) {
+    const queryResult = new QueryResult();
+
+    queryResult.isLoadingResult = true;
+    axios
+      .get(`api/queries/${queryId}/results/${id}.json`)
+      .then(response => {
+        // Success handler
+        queryResult.isLoadingResult = false;
+        queryResult.update(response);
+      })
+      .catch(error => {
+        // Error handler
+        queryResult.isLoadingResult = false;
+        handleErrorResponse(queryResult, error);
+      });
+
+    return queryResult;
+  }
+
+  loadLatestCachedResult(queryId, parameters) {
+    axios
+      .post(`api/queries/${queryId}/results`, { queryId, parameters })
+      .then(response => {
+        this.update(response);
+      })
+      .catch(error => {
+        handleErrorResponse(this, error);
+      });
+  }
+
+  loadResult(tryCount) {
+    this.isLoadingResult = true;
+    QueryResultResource.get({ id: this.job.query_result_id })
+      .then(response => {
+        this.update(response);
+        this.isLoadingResult = false;
+      })
+      .catch(error => {
+        if (tryCount === undefined) {
+          tryCount = 0;
+        }
+
+        if (tryCount > 3) {
+          logger("Connection error while trying to load result", error);
           this.update({
             job: {
-              error: 'failed communicating with server. Please check your Internet connection and try again.',
+              error: "failed communicating with server. Please check your Internet connection and try again.",
               status: 4,
             },
           });
-        },
-      );
-    }
-
-    getLink(queryId, fileType, apiKey) {
-      let link = `api/queries/${queryId}/results/${this.getId()}.${fileType}`;
-      if (apiKey) {
-        link = `${link}?api_key=${apiKey}`;
-      }
-      return link;
-    }
-
-    getName(queryName, fileType) {
-      return `${queryName.replace(/ /g, '_') + moment(this.getUpdatedAt()).format('_YYYY_MM_DD')}.${fileType}`;
-    }
-
-    static getByQueryId(id, parameters, maxAge) {
-      const queryResult = new QueryResult();
-
-      $resource('api/queries/:id/results', { id: '@id' }, { post: { method: 'POST' } }).post(
-        {
-          id,
-          parameters,
-          max_age: maxAge,
-        },
-        (response) => {
-          queryResult.update(response);
-
-          if ('job' in response) {
-            queryResult.refreshStatus(id, parameters);
-          }
-        },
-        (error) => {
-          handleErrorResponse(queryResult, error);
-        },
-      );
-
-      return queryResult;
-    }
-
-    static get(dataSourceId, query, parameters, maxAge, queryId) {
-      const queryResult = new QueryResult();
-
-      const params = {
-        data_source_id: dataSourceId,
-        parameters,
-        query,
-        max_age: maxAge,
-      };
-
-      if (queryId !== undefined) {
-        params.query_id = queryId;
-      }
-
-      QueryResultResource.post(
-        params,
-        (response) => {
-          queryResult.update(response);
-
-          if ('job' in response) {
-            queryResult.refreshStatus(query, parameters);
-          }
-        },
-        (error) => {
-          handleErrorResponse(queryResult, error);
-        },
-      );
-
-      return queryResult;
-    }
+          this.isLoadingResult = false;
+        } else {
+          setTimeout(() => {
+            this.loadResult(tryCount + 1);
+          }, 1000 * Math.pow(2, tryCount));
+        }
+      });
   }
 
-  return QueryResult;
+  refreshStatus(query, parameters, tryNumber = 1) {
+    const loadResult = () =>
+      Auth.isAuthenticated() ? this.loadResult() : this.loadLatestCachedResult(query, parameters);
+
+    const request = Auth.isAuthenticated()
+      ? axios.get(`api/jobs/${this.job.id}`)
+      : axios.get(`api/queries/${query}/jobs/${this.job.id}`);
+
+    request
+      .then(jobResponse => {
+        this.update(jobResponse);
+
+        if (this.getStatus() === "processing" && this.job.query_result_id && this.job.query_result_id !== "None") {
+          loadResult();
+        } else if (this.getStatus() !== "failed") {
+          const waitTime = tryNumber > 10 ? 3000 : 500;
+          setTimeout(() => {
+            this.refreshStatus(query, parameters, tryNumber + 1);
+          }, waitTime);
+        }
+      })
+      .catch(error => {
+        logger("Connection error", error);
+        // TODO: use QueryResultError, or better yet: exception/reject of promise.
+        this.update({
+          job: {
+            error: "failed communicating with server. Please check your Internet connection and try again.",
+            status: 4,
+          },
+        });
+      });
+  }
+
+  getLink(queryId, fileType, apiKey) {
+    let link = `api/queries/${queryId}/results/${this.getId()}.${fileType}`;
+    if (apiKey) {
+      link = `${link}?api_key=${apiKey}`;
+    }
+    return link;
+  }
+
+  getName(queryName, fileType) {
+    return `${queryName.replace(/ /g, "_") + moment(this.getUpdatedAt()).format("_YYYY_MM_DD")}.${fileType}`;
+  }
+
+  static getByQueryId(id, parameters, maxAge) {
+    const queryResult = new QueryResult();
+
+    axios
+      .post(`api/queries/${id}/results`, { id, parameters, max_age: maxAge })
+      .then(response => {
+        queryResult.update(response);
+
+        if ("job" in response) {
+          queryResult.refreshStatus(id, parameters);
+        }
+      })
+      .catch(error => {
+        handleErrorResponse(queryResult, error);
+      });
+
+    return queryResult;
+  }
+
+  static get(dataSourceId, query, parameters, maxAge, queryId) {
+    const queryResult = new QueryResult();
+
+    const params = {
+      data_source_id: dataSourceId,
+      parameters,
+      query,
+      max_age: maxAge,
+    };
+
+    if (queryId !== undefined) {
+      params.query_id = queryId;
+    }
+
+    QueryResultResource.post(params)
+      .then(response => {
+        queryResult.update(response);
+
+        if ("job" in response) {
+          queryResult.refreshStatus(query, parameters);
+        }
+      })
+      .catch(error => {
+        handleErrorResponse(queryResult, error);
+      });
+
+    return queryResult;
+  }
 }
 
-export default function init(ngModule) {
-  ngModule.factory('QueryResult', QueryResultService);
-}
-
-init.init = true;
+export default QueryResult;
