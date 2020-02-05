@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import { useDebouncedCallback } from "use-debounce";
 import useMedia from "use-media";
+import Button from "antd/lib/button";
 import Select from "antd/lib/select";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Resizable from "@/components/Resizable";
@@ -74,6 +75,7 @@ function QuerySource(props) {
     cancelCallback: cancelExecution,
     isCancelling: isExecutionCancelling,
     updatedAt,
+    loadedInitialResults,
   } = useQueryExecute(query);
 
   const queryResultData = getQueryResultData(queryResult);
@@ -369,16 +371,28 @@ function QuerySource(props) {
                       ))}
                     </div>
                   )}
-                  <QueryVisualizationTabs
-                    queryResult={queryResult}
-                    visualizations={query.visualizations}
-                    showNewVisualizationButton={queryFlags.canEdit && queryResultData.status === ExecutionStatus.DONE}
-                    canDeleteVisualizations={queryFlags.canEdit}
-                    selectedTab={selectedVisualization}
-                    onChangeTab={setSelectedVisualization}
-                    onAddVisualization={addVisualization}
-                    onDeleteVisualization={deleteVisualization}
-                  />
+                  {loadedInitialResults && (
+                    <QueryVisualizationTabs
+                      queryResult={queryResult}
+                      visualizations={query.visualizations}
+                      showNewVisualizationButton={queryFlags.canEdit && queryResultData.status === ExecutionStatus.DONE}
+                      canDeleteVisualizations={queryFlags.canEdit}
+                      selectedTab={selectedVisualization}
+                      onChangeTab={setSelectedVisualization}
+                      onAddVisualization={addVisualization}
+                      onDeleteVisualization={deleteVisualization}
+                      refreshButton={
+                        <Button
+                          type="primary"
+                          disabled={!queryFlags.canExecute || areParametersDirty}
+                          loading={isQueryExecuting}
+                          onClick={doExecuteQuery}>
+                          {!isQueryExecuting && <i className="zmdi zmdi-refresh m-r-5" aria-hidden="true" />}
+                          Refresh Now
+                        </Button>
+                      }
+                    />
+                  )}
                 </React.Fragment>
               </section>
             </div>
