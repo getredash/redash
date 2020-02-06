@@ -87,7 +87,7 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
         </Section>
       )}
 
-      {showOptionForType("TargetValueRowNumber") && (
+      {showOptionForType("targetRowNumber") && (
         <Section>
           <InputNumber
             layout="horizontal"
