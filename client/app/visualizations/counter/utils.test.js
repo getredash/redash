@@ -119,7 +119,7 @@ describe("Visualizations -> Counter -> Utils", () => {
       });
 
       test("Rows are counted correctly", () => {
-        const result = getCounterData(dummy.rows, { countRow: true }, dummy.visualisationName);
+        const result = getCounterData(dummy.rows, { counterType: "countRows" }, dummy.visualisationName);
         expect(result).toEqual(dummy.result);
       });
 
@@ -127,7 +127,7 @@ describe("Visualizations -> Counter -> Utils", () => {
         const result = getCounterData(
           dummy.rows,
           {
-            countRow: true,
+            counterType: "countRows",
             rowNumber: 3,
             counterColName: "population",
           },
@@ -140,7 +140,7 @@ describe("Visualizations -> Counter -> Utils", () => {
         const result = getCounterData(
           dummy.rows,
           {
-            countRow: true,
+            counterType: "countRows",
             targetRowNumber: 2,
             targetColName: "population",
           },
@@ -156,7 +156,7 @@ describe("Visualizations -> Counter -> Utils", () => {
       });
 
       test("Empty rows return counter value 0", () => {
-        const result = getCounterData([], { countRow: true }, dummy.visualisationName);
+        const result = getCounterData([], { counterType: "countRows" }, dummy.visualisationName);
         expect(result).toEqual({
           ...dummy.result,
           counterValue: "0.000",

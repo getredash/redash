@@ -4,7 +4,7 @@ import numeral from "numeral";
 export const COUNTER_TYPES = {
   rowValue: {
     name: "Row Value",
-    getValue: (rows, { rowNumber, counterColName }) => get(nth(rows, rowNumber), counterColName),
+    getValue: (rows, { rowNumber, counterColName }) => getCellValue(rows, rowNumber, counterColName),
     options: ["counterColName", "rowNumber", "targetColName", "targetRowNumber"],
   },
   countRows: {
@@ -67,6 +67,17 @@ function numberFormat(value, decimalPoints, decimalDelimiter, thousandsDelimiter
   return result;
 }
 
+// 0 - special case, use first record
+// 1..N - 1-based record number from beginning (wraps if greater than dataset size)
+// -1..-N - 1-based record number from end (wraps if greater than dataset size)
+function getCellValue(rows, index, columnName) {
+  index = parseInt(index, 10) || 0;
+  if (index > 0) {
+    index = index - 1;
+  }
+  return get(nth(rows, index), columnName);
+}
+
 function formatValue(value, { stringPrefix, stringSuffix, stringDecimal, stringDecChar, stringThouSep }) {
   if (isNumber(value)) {
     value = numberFormat(value, stringDecimal, stringDecChar, stringThouSep);
@@ -85,7 +96,7 @@ function formatTooltip(value, formatString) {
 export function getCounterData(rows, options, visualizationName) {
   const result = {};
   const rowsCount = rows.length;
-  const { counterType, counterLabel, targetRowNumber, targetColName } = options;
+  const { counterType = "rowValue", counterLabel, targetRowNumber, targetColName } = options;
 
   if (rowsCount > 0 || counterType === "countRows") {
     result.counterLabel = counterLabel || visualizationName;
@@ -98,7 +109,7 @@ export function getCounterData(rows, options, visualizationName) {
     result.showTrend = false;
 
     if (targetColName) {
-      result.targetValue = get(nth(rows, targetRowNumber), targetColName);
+      result.targetValue = getCellValue(rows, targetRowNumber, targetColName);
 
       if (Number.isFinite(result.counterValue) && isFinite(result.targetValue)) {
         const delta = result.counterValue - result.targetValue;
@@ -135,7 +146,7 @@ export function isValueNumber(rows, options) {
   if (rowsCount > 0) {
     const { rowNumber, counterColName } = options;
     if (counterColName) {
-      return isNumber(get(nth(rows, rowNumber), counterColName));
+      return isNumber(getCellValue(rows, rowNumber, counterColName));
     }
   }
 
