@@ -1,4 +1,3 @@
-import logging
 import signal
 import time
 import redis
@@ -31,7 +30,7 @@ def enqueue_query(
     query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}
 ):
     query_hash = gen_query_hash(query)
-    logging.info("Inserting job for %s with metadata=%s", query_hash, metadata)
+    logger.info("Inserting job for %s with metadata=%s", query_hash, metadata)
     try_count = 0
     job = None
 
@@ -43,13 +42,13 @@ def enqueue_query(
             pipe.watch(_job_lock_id(query_hash, data_source.id))
             job_id = pipe.get(_job_lock_id(query_hash, data_source.id))
             if job_id:
-                logging.info("[%s] Found existing job: %s", query_hash, job_id)
+                logger.info("[%s] Found existing job: %s", query_hash, job_id)
 
                 job = Job.fetch(job_id)
 
                 status = job.get_status()
                 if status in [JobStatus.FINISHED, JobStatus.FAILED]:
-                    logging.info(
+                    logger.info(
                         "[%s] job found is ready (%s), removing lock",
                         query_hash,
                         status,
@@ -88,10 +87,10 @@ def enqueue_query(
                         "scheduled": scheduled_query_id is not None,
                         "query_id": metadata.get("Query ID"),
                         "user_id": user_id,
-                    }
+                    },
                 )
 
-                logging.info("[%s] Created new job: %s", query_hash, job.id)
+                logger.info("[%s] Created new job: %s", query_hash, job.id)
                 pipe.set(
                     _job_lock_id(query_hash, data_source.id),
                     job.id,
@@ -104,7 +103,7 @@ def enqueue_query(
             continue
 
     if not job:
-        logging.error("[Manager][%s] Failed adding job for query.", query_hash)
+        logger.error("[Manager][%s] Failed adding job for query.", query_hash)
 
     return job
 
@@ -171,7 +170,7 @@ class QueryExecutor(object):
                 error = str(e)
 
             data = None
-            logging.warning("Unexpected error while running query:", exc_info=1)
+            logger.warning("Unexpected error while running query:", exc_info=1)
 
         run_time = time.time() - started_at
 
