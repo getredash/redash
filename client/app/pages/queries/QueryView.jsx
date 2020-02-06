@@ -159,7 +159,7 @@ function QueryView(props) {
         )}
         <div className="query-results m-t-15">
           {(executionError || isExecuting) && (
-            <div style={{ position: "absolute", bottom: "75px", right: "20px", zIndex: 1000 }}>
+            <div className="query-execution-status">
               <QueryExecutionStatus
                 status={executionStatus}
                 error={executionError}

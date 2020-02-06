@@ -8,7 +8,15 @@ page-query-view {
 
   .query-view-content {
     .query-results {
-      padding: 0px 15px 0px;
+      position: relative;
+      margin: 0px 15px 0px;
+
+      .query-execution-status {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        z-index: 1000;
+      }
 
       .query-results-footer {
         border: 1px solid #d9d9d9;
