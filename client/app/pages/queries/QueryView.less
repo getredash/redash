@@ -12,10 +12,14 @@ page-query-view {
       margin: 0px 15px 0px;
 
       .query-execution-status {
-        position: absolute;
+        position: fixed;
         bottom: 5px;
         right: 5px;
         z-index: 1000;
+
+        @media (min-width: 768px) {
+          position: absolute;
+        }
       }
 
       .query-results-footer {
