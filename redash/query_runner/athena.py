@@ -129,7 +129,7 @@ class Athena(BaseQueryRunner):
             schema['properties'].update({
                 'cost_per_tb': {
                     'type': 'number',
-                    'title': 'Athena cost per Tb scanned',
+                    'title': 'Athena cost per Tb scanned (USD)',
                     'default': 5
                 }
                 })
@@ -251,7 +251,7 @@ class Athena(BaseQueryRunner):
             }
             if EXPOSE_COST:
                 price = self.configuration.get('cost_per_tb', 5)
-                data['metadata'].update({'query_cost': '${0:.2f}'.format(price * qbytes * 10e-12)})
+                data['metadata'].update({'query_cost': price * qbytes * 10e-12})
             json_data = json_dumps(data, ignore_nan=True)
             error = None
         except (KeyboardInterrupt, InterruptException):
