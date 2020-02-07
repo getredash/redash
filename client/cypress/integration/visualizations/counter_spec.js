@@ -141,10 +141,8 @@ describe("Counter", () => {
       VisualizationType
       VisualizationType.COUNTER
 
-      Counter.General.ValueColumn
-      Counter.General.ValueColumn.a
-
-      Counter.General.CountRows
+      Counter.General.Type
+      Counter.General.Type.countRows
     `);
 
     cy.getByTestId("VisualizationPreview")
