@@ -47,6 +47,53 @@ class DataSourceTest(BaseTestCase):
             self.assertEqual(new_return_value, schema)
             self.assertEqual(patched_get_schema.call_count, 2)
 
+    def test_schema_sorter(self):
+        input_data = [
+            {"name": "zoo", "columns": ["is_zebra", "is_snake", "is_cow"]},
+            {
+                "name": "all_terain_vehicle",
+                "columns": ["has_wheels", "has_engine", "has_all_wheel_drive"],
+            },
+        ]
+
+        expected_output = [
+            {
+                "name": "all_terain_vehicle",
+                "columns": ["has_all_wheel_drive", "has_engine", "has_wheels"],
+            },
+            {"name": "zoo", "columns": ["is_cow", "is_snake", "is_zebra"]},
+        ]
+
+        real_output = self.factory.data_source._sort_schema(input_data)
+
+        self.assertEqual(real_output, expected_output)
+
+    def test_model_uses_schema_sorter(self):
+        orig_schema = [
+            {"name": "zoo", "columns": ["is_zebra", "is_snake", "is_cow"]},
+            {
+                "name": "all_terain_vehicle",
+                "columns": ["has_wheels", "has_engine", "has_all_wheel_drive"],
+            },
+        ]
+
+        sorted_schema = [
+            {
+                "name": "all_terain_vehicle",
+                "columns": ["has_all_wheel_drive", "has_engine", "has_wheels"],
+            },
+            {"name": "zoo", "columns": ["is_cow", "is_snake", "is_zebra"]},
+        ]
+
+        with mock.patch(
+            "redash.query_runner.pg.PostgreSQL.get_schema"
+        ) as patched_get_schema:
+            patched_get_schema.return_value = orig_schema
+
+            out_schema = self.factory.data_source.get_schema()
+
+            self.assertEqual(out_schema, sorted_schema)
+
 
 class TestDataSourceCreate(BaseTestCase):
     def test_adds_data_source_to_default_group(self):
