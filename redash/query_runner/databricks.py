@@ -48,8 +48,8 @@ class Databricks(Hive):
         transport = THttpClient.THttpClient(http_uri)
 
         password = self.configuration.get("http_password", "")
-        auth = base64.b64encode("token:" + password)
-        transport.setCustomHeaders({"Authorization": "Basic " + auth})
+        auth = base64.b64encode(b"token:" + password.encode("ascii"))
+        transport.setCustomHeaders({"Authorization": "Basic " + auth.decode()})
 
         connection = hive.connect(thrift_transport=transport)
         return connection
