@@ -37,7 +37,7 @@ function useDashboard(dashboardData) {
   const [refreshing, setRefreshing] = useState(false);
   const [gridDisabled, setGridDisabled] = useState(false);
   const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
-  const canEditDashboard = useMemo(() => !dashboard.is_archived && dashboard.can_edit, [dashboard]);
+  const canEditDashboard = !dashboard.is_archived && dashboard.can_edit;
   const isDashboardOwnerOrAdmin = useMemo(
     () =>
       !dashboard.is_archived &&
