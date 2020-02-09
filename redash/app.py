@@ -1,5 +1,5 @@
 from flask import Flask
-from werkzeug.contrib.fixers import ProxyFix
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from . import settings
 
@@ -17,7 +17,7 @@ class Redash(Flask):
         )
         super(Redash, self).__init__(__name__, *args, **kwargs)
         # Make sure we get the right referral address even behind proxies like nginx.
-        self.wsgi_app = ProxyFix(self.wsgi_app, settings.PROXIES_COUNT)
+        self.wsgi_app = ProxyFix(self.wsgi_app, x_for=settings.PROXIES_COUNT, x_host=1)
         # Configure Redash using our settings
         self.config.from_object("redash.settings")
 
