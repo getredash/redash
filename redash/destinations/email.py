@@ -46,7 +46,7 @@ class Email(BaseDestination):
         logging.debug("Notifying: %s", recipients)
 
         try:
-            alert_name = alert.name.encode("utf-8", "ignore")
+            alert_name = alert.name
             state = new_state.upper()
             if alert.custom_subject:
                 subject = alert.custom_subject
