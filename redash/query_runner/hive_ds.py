@@ -223,8 +223,8 @@ class HiveHttp(Hive):
         username = self.configuration.get("username", "")
         password = self.configuration.get("http_password", "")
         if username or password:
-            auth = base64.b64encode(username + ":" + password)
-            transport.setCustomHeaders({"Authorization": "Basic " + auth})
+            auth = base64.b64encode(username.encode("ascii") + b":" + password.encode("ascii"))
+            transport.setCustomHeaders({"Authorization": "Basic " + auth.decode()})
 
         # create connection
         connection = hive.connect(thrift_transport=transport)
