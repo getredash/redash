@@ -176,7 +176,7 @@ class AxibaseTSD(BaseQueryRunner):
             minInsertDate=self.configuration.get("min_insert_date", None),
             limit=self.configuration.get("limit", 5000),
         )
-        metrics_list = [i.name.encode("utf-8") for i in ml]
+        metrics_list = [i.name for i in ml]
         metrics_list.append("atsd_series")
         schema = {}
         default_columns = [

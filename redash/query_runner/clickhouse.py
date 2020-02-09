@@ -61,7 +61,7 @@ class ClickHouse(BaseSQLQueryRunner):
         try:
             r = requests.post(
                 url,
-                data=data.encode("utf-8"),
+                data=data,
                 stream=stream,
                 timeout=self.configuration.get("timeout", 30),
                 params={
