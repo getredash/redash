@@ -126,13 +126,7 @@ class Snowflake(BaseQueryRunner):
         return data, error
 
     def get_schema(self, get_stats=False):
-        query = """
-        SHOW COLUMNS IN DATABASE {database}
-        """.format(
-            database=self.configuration["database"]
-        )
-
-        results, error = self._run_query_without_warehouse(query)
+        results, error = self._run_query_without_warehouse("SHOW COLUMNS")
 
         if error is not None:
             raise Exception("Failed getting schema.")
