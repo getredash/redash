@@ -128,7 +128,7 @@ function QueryView(props) {
           }
         />
         {(query.description || addingDescription) && (
-          <div className={cx("m-t-5 m-l-15 m-r-15", { hidden: fullscreen })}>
+          <div className={cx("m-t-5", { hidden: fullscreen })}>
             <EditInPlace
               className="w-100"
               value={query.description}
