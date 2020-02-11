@@ -10,11 +10,7 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";
 import EditInPlace from "@/components/EditInPlace";
-import EditVisualizationButton from "@/components/EditVisualizationButton";
-import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
 import QueryEditor from "@/components/queries/QueryEditor";
-import TimeAgo from "@/components/TimeAgo";
-import { durationHumanize, prettySize } from "@/lib/utils";
 import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
 import { ExecutionStatus } from "@/services/query-result";
@@ -25,6 +21,7 @@ import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import SchemaBrowser from "./components/SchemaBrowser";
 import QuerySourceAlerts from "./components/QuerySourceAlerts";
+import QueryExecutionMetadata from "./components/QueryExecutionMetadata";
 
 import useQuery from "./hooks/useQuery";
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
@@ -35,8 +32,6 @@ import useQueryDataSources from "./hooks/useQueryDataSources";
 import useDataSourceSchema from "./hooks/useDataSourceSchema";
 import useQueryFlags from "./hooks/useQueryFlags";
 import useQueryParameters from "./hooks/useQueryParameters";
-import useAddToDashboardDialog from "./hooks/useAddToDashboardDialog";
-import useEmbedDialog from "./hooks/useEmbedDialog";
 import useAddNewParameterDialog from "./hooks/useAddNewParameterDialog";
 import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useAddVisualizationDialog from "./hooks/useAddVisualizationDialog";
@@ -136,8 +131,6 @@ function QuerySource(props) {
     }
   }, [query.data_source_id, queryFlags.isNew, dataSourcesLoaded, dataSources, handleDataSourceChange]);
 
-  const openAddToDashboardDialog = useAddToDashboardDialog(query);
-  const openEmbedDialog = useEmbedDialog(query);
   const editSchedule = useEditScheduleDialog(query, setQuery);
   const openAddNewParameterDialog = useAddNewParameterDialog(query, (newQuery, param) => {
     if (editorRef.current) {
@@ -399,53 +392,14 @@ function QuerySource(props) {
           </div>
           {queryResult && !queryResult.getError() && (
             <div className="bottom-controller-container">
-              <div className="bottom-controller">
-                {!queryFlags.isNew && queryFlags.canEdit && (
-                  <EditVisualizationButton
-                    openVisualizationEditor={editVisualization}
-                    selectedTab={selectedVisualization}
-                  />
-                )}
-                <QueryControlDropdown
-                  query={query}
-                  queryResult={queryResult}
-                  queryExecuting={isQueryExecuting}
-                  showEmbedDialog={openEmbedDialog}
-                  embed={false}
-                  apiKey={query.api_key}
-                  selectedTab={selectedVisualization}
-                  openAddToDashboardForm={openAddToDashboardDialog}
-                />
-
-                <span className="m-l-10 m-r-10">
-                  <span>
-                    <strong>{queryResultData.rows.length}</strong>
-                    {queryResultData.rows.length === 1 ? " row" : " rows"}
-                  </span>
-                  <span className="m-l-5">
-                    {!isQueryExecuting && (
-                      <React.Fragment>
-                        <strong>{durationHumanize(queryResultData.runtime)}</strong>
-                        <span className="hidden-xs"> runtime</span>
-                      </React.Fragment>
-                    )}
-                    {isQueryExecuting && <span>Running&hellip;</span>}
-                  </span>
-                  {queryResultData.metadata.data_scanned && (
-                    <span className="m-l-5">
-                      Data Scanned
-                      <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>
-                    </span>
-                  )}
-                </span>
-
-                <div>
-                  <span className="m-l-5">
-                    <span className="hidden-xs">Updated </span>
-                    <TimeAgo date={queryResultData.retrievedAt} placeholder="-" />
-                  </span>
-                </div>
-              </div>
+              <QueryExecutionMetadata
+                query={query}
+                queryResult={queryResult}
+                selectedVisualization={selectedVisualization}
+                isQueryExecuting={isQueryExecuting}
+                showEditVisualizationButton={!queryFlags.isNew && queryFlags.canEdit}
+                onEditVisualization={editVisualization}
+              />
             </div>
           )}
         </div>

@@ -8,14 +8,10 @@ import Icon from "antd/lib/icon";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EditInPlace from "@/components/EditInPlace";
 import Parameters from "@/components/Parameters";
-import TimeAgo from "@/components/TimeAgo";
-import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
-import EditVisualizationButton from "@/components/EditVisualizationButton";
 
 import { Query } from "@/services/query";
 import DataSource from "@/services/data-source";
 import { ExecutionStatus } from "@/services/query-result";
-import { pluralize, durationHumanize } from "@/lib/utils";
 import getQueryResultData from "@/lib/getQueryResultData";
 
 import QueryPageHeader from "./components/QueryPageHeader";
@@ -23,14 +19,13 @@ import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import QueryMetadata from "./components/QueryMetadata";
 import QueryViewButton from "./components/QueryViewButton";
+import QueryExecutionMetadata from "./components/QueryExecutionMetadata";
 
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 import useQueryExecute from "./hooks/useQueryExecute";
 import useUpdateQueryDescription from "./hooks/useUpdateQueryDescription";
 import useQueryFlags from "./hooks/useQueryFlags";
 import useQueryParameters from "./hooks/useQueryParameters";
-import useAddToDashboardDialog from "./hooks/useAddToDashboardDialog";
-import useEmbedDialog from "./hooks/useEmbedDialog";
 import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
@@ -69,8 +64,6 @@ function QueryView(props) {
   const queryResultData = getQueryResultData(queryResult);
 
   const updateQueryDescription = useUpdateQueryDescription(query, setQuery);
-  const openAddToDashboardDialog = useAddToDashboardDialog(query);
-  const openEmbedDialog = useEmbedDialog(query);
   const editSchedule = useEditScheduleDialog(query, setQuery);
   const addVisualization = useEditVisualizationDialog(query, queryResult, (newQuery, visualization) => {
     setQuery(newQuery);
@@ -192,47 +185,25 @@ function QueryView(props) {
             />
           )}
           {queryResult && !queryResult.getError() && (
-            <div className="query-results-footer d-flex align-items-center">
-              <span className="m-r-5">
-                <QueryControlDropdown
-                  query={query}
-                  queryResult={queryResult}
-                  queryExecuting={isExecuting}
-                  showEmbedDialog={openEmbedDialog}
-                  embed={false}
-                  apiKey={query.api_key}
-                  selectedTab={selectedVisualization}
-                  openAddToDashboardForm={openAddToDashboardDialog}
-                />
-              </span>
-              <QueryViewButton
-                className="icon-button m-r-5 hidden-xs"
-                title="Toggle Fullscreen"
-                type="default"
-                shortcut="alt+f"
-                onClick={toggleFullscreen}>
-                <Icon type={fullscreen ? "fullscreen-exit" : "fullscreen"} />
-              </QueryViewButton>
-              {queryFlags.canEdit && (
-                <EditVisualizationButton
-                  openVisualizationEditor={editVisualization}
-                  selectedTab={selectedVisualization}
-                />
-              )}
-              <span className="m-l-5">
-                <strong>{queryResultData.rows.length}</strong> {pluralize("row", queryResultData.rows.length)}
-              </span>
-              <span className="m-l-10">
-                <strong>{durationHumanize(queryResultData.runtime)}</strong>
-                <span className="hidden-xs"> runtime</span>
-              </span>
-              <span className="flex-fill" />
-              <span className="m-r-10 hidden-xs">
-                Refreshed{" "}
-                <strong>
-                  <TimeAgo date={queryResultData.retrievedAt} />
-                </strong>
-              </span>
+            <div className="query-results-footer">
+              <QueryExecutionMetadata
+                query={query}
+                queryResult={queryResult}
+                selectedVisualization={selectedVisualization}
+                isQueryExecuting={isExecuting}
+                showEditVisualizationButton={queryFlags.canEdit}
+                onEditVisualization={editVisualization}
+                extraActions={
+                  <QueryViewButton
+                    className="icon-button m-r-5 hidden-xs"
+                    title="Toggle Fullscreen"
+                    type="default"
+                    shortcut="alt+f"
+                    onClick={toggleFullscreen}>
+                    <Icon type={fullscreen ? "fullscreen-exit" : "fullscreen"} />
+                  </QueryViewButton>
+                }
+              />
             </div>
           )}
         </div>
