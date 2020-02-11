@@ -1,5 +1,6 @@
-from flask import jsonify
+from flask import jsonify, request, Response
 from flask_login import login_required
+import requests
 
 from redash.handlers.api import api
 from redash.handlers.base import routes
@@ -20,6 +21,14 @@ def ping():
 def status_api():
     status = get_status()
     return jsonify(status)
+
+
+@routes.route("/resource-proxy", methods=["GET"])
+def resource_proxy():
+    response = requests.get(request.args.get('url'))
+    allow_headers = ['content-type']
+    headers = [(name, value) for (name, value) in response.raw.headers.items() if name.lower() in allow_headers]
+    return Response(response.content, response.status_code, headers)
 
 
 def init_app(app):
