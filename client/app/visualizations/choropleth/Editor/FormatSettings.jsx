@@ -58,6 +58,19 @@ function TemplateFormatHint({ mapType }) {
           </div>
         </React.Fragment>
       )}
+      {mapType === "subdiv_korea" && (
+        <React.Fragment>
+          <div>
+            <code>{"{{ @@name }}"}</code> Prefecture name in ;
+          </div>
+          <div>
+            <code>{"{{ @@name_local }}"}</code> Prefecture name in Korean;
+          </div>
+          <div>
+            <code>{"{{ @@admin_code }}"}</code> five-number ISO subdivision code;
+          </div>
+        </React.Fragment>
+      )}
     </ContextHelp>
   );
 }

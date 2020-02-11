@@ -22,6 +22,12 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           name_local: "Name (local)",
           iso_3166_2: "ISO-3166-2",
         };
+      case "subdiv_korea":
+        return {
+          name: "Name",
+          name_local: "Name (local)",
+          code: "code (5 letters)",
+        };
       default:
         return {};
     }
@@ -51,6 +57,9 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           </Select.Option>
           <Select.Option key="subdiv_japan" data-test="Choropleth.Editor.MapType.Japan">
             Japan/Prefectures
+          </Select.Option>
+          <Select.Option key="subdiv_korea" data-test="Choropleth.Editor.MapType.Korea">
+            Korea/Prefectures
           </Select.Option>
         </Select>
       </Section>

@@ -10,13 +10,15 @@ import "./renderer.less";
 
 import countriesDataUrl from "../maps/countries.geo.json";
 import subdivJapanDataUrl from "../maps/japan.prefectures.geo.json";
-
+import subdivKoreaDataUrl from "../maps/korea.prefectures.geo.json";
 function getDataUrl(type) {
   switch (type) {
     case "countries":
       return countriesDataUrl;
     case "subdiv_japan":
       return subdivJapanDataUrl;
+    case "subdiv_korea":
+      return subdivKoreaDataUrl;
     default:
       return null;
   }
