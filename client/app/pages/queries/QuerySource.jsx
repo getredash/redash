@@ -371,7 +371,7 @@ function QuerySource(props) {
                       ))}
                     </div>
                   )}
-                  {loadedInitialResults && (
+                  {loadedInitialResults && !(queryFlags.isNew && !queryResult) && (
                     <QueryVisualizationTabs
                       queryResult={queryResult}
                       visualizations={query.visualizations}
