@@ -222,13 +222,13 @@ STATIC_ASSETS_PATH = fix_assets_path(
     os.environ.get("REDASH_STATIC_ASSETS_PATH", "../client/dist/")
 )
 
-# Time limit for scheduled queries. Set this to -1 to execute without a time limit.
+# Time limit (in seconds) for scheduled queries. Set this to -1 to execute without a time limit.
 SCHEDULED_QUERY_TIME_LIMIT = int(
-    os.environ.get("REDASH_SCHEDULED_QUERY_TIME_LIMIT", 3600)
+    os.environ.get("REDASH_SCHEDULED_QUERY_TIME_LIMIT", -1)
 )
 
-# Time limit for adhoc queries. Set this to -1 to execute without a time limit.
-ADHOC_QUERY_TIME_LIMIT = int(os.environ.get("REDASH_ADHOC_QUERY_TIME_LIMIT", 3600))
+# Time limit (in seconds) for adhoc queries. Set this to -1 to execute without a time limit.
+ADHOC_QUERY_TIME_LIMIT = int(os.environ.get("REDASH_ADHOC_QUERY_TIME_LIMIT", -1))
 
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 12))
 JOB_DEFAULT_FAILURE_TTL = int(
