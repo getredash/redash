@@ -72,22 +72,25 @@ def enqueue_query(
                 metadata["Queue"] = queue_name
 
                 queue = Queue(queue_name)
-                job = queue.enqueue(
-                    execute_query,
-                    query,
-                    data_source.id,
-                    metadata,
-                    user_id=user_id,
-                    scheduled_query_id=scheduled_query_id,
-                    is_api_key=is_api_key,
-                    job_timeout=time_limit,
-                    meta={
+                enqueue_kwargs = {
+                    "user_id": user_id,
+                    "scheduled_query_id": scheduled_query_id,
+                    "is_api_key": is_api_key,
+                    "job_timeout": time_limit,
+                    "meta": {
                         "data_source_id": data_source.id,
                         "org_id": data_source.org_id,
                         "scheduled": scheduled_query_id is not None,
                         "query_id": metadata.get("Query ID"),
                         "user_id": user_id,
                     },
+                }
+
+                if not scheduled_query:
+                    enqueue_kwargs["result_ttl"] = settings.JOB_EXPIRY_TIME
+
+                job = queue.enqueue(
+                    execute_query, query, data_source.id, metadata, **enqueue_kwargs
                 )
 
                 logger.info("[%s] Created new job: %s", query_hash, job.id)
