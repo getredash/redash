@@ -23,7 +23,7 @@ def status_api():
     return jsonify(status)
 
 
-@routes.route("/resource-proxy", methods=["GET"])
+@routes.route("/api/resource-proxy", methods=["GET"])
 def resource_proxy():
     response = requests.get(request.args.get('url'))
     allow_headers = ['content-type']

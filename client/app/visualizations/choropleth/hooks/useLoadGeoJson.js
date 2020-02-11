@@ -1,12 +1,17 @@
-import { isString, isObject } from "lodash";
+import { isString, isObject, find } from "lodash";
 import { useState, useEffect } from "react";
 import { axios } from "@/services/axios";
 import createReferenceCountingCache from "@/lib/referenceCountingCache";
+import maps from "../maps";
 
 const cache = createReferenceCountingCache();
 
 function withProxy(url) {
-  return `/resource-proxy?url=${encodeURIComponent(url)}`;
+  // if it's one of predefined maps - use it directly
+  if (find(maps, map => map.url === url)) {
+    return url;
+  }
+  return `/api/resource-proxy?url=${encodeURIComponent(url)}`;
 }
 
 export default function useLoadGeoJson(url) {
