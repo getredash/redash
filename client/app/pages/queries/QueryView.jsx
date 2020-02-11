@@ -120,7 +120,7 @@ function QueryView(props) {
             queryFlags.canEdit &&
             !addingDescription &&
             !fullscreen && (
-              <a className="label label-tag" role="none" onClick={() => setAddingDescription(true)}>
+              <a className="label label-tag hidden-xs" role="none" onClick={() => setAddingDescription(true)}>
                 <i className="zmdi zmdi-plus m-r-5" />
                 Add description
               </a>

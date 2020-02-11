@@ -34,7 +34,10 @@ export class TagsControl extends React.Component {
   renderEditButton() {
     const tags = map(this.props.tags, trim);
     return (
-      <a className="label label-tag" role="none" onClick={() => this.editTags(tags, this.props.getAvailableTags)}>
+      <a
+        className="label label-tag hidden-xs"
+        role="none"
+        onClick={() => this.editTags(tags, this.props.getAvailableTags)}>
         {tags.length === 0 && (
           <React.Fragment>
             <i className="zmdi zmdi-plus m-r-5" />
