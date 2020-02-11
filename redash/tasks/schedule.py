@@ -61,7 +61,6 @@ def periodic_job_definitions():
         {
             "func": sync_user_details,
             "timeout": 60,
-            "ttl": 45,
             "interval": timedelta(minutes=1),
         },
         {"func": purge_failed_jobs, "interval": timedelta(days=1)},
