@@ -17,4 +17,4 @@ export default {
 
   defaultColumns: 2,
   defaultRows: 5,
-}
+};

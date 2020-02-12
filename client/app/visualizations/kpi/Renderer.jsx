@@ -44,26 +44,18 @@ export default function Renderer({ data, options, visualizationName }) {
     }
   }, [data, options, container]);
 
-  const {
-    currentValue,
-    trendDirection,
-    deltaValue,
-    targetValuePrefixLabel,
-    targetValue,
-  } = getKpiData(data.rows, options);
+  const { currentValue, trendDirection, deltaValue, targetValuePrefixLabel, targetValue } = getKpiData(
+    data.rows,
+    options
+  );
   return (
     <div className="kpi-visualization-container">
       <div className="kpi-visualization-content" ref={setContainer}>
         <div style={getContainerStyles(scale)}>
-
-          <div className="kpi-visualization-current-value">
-            {currentValue}
-          </div>
+          <div className="kpi-visualization-current-value">{currentValue}</div>
 
           {targetValue && (
-            <div className={cx("kpi-visualization-delta-value", "trend-" + trendDirection)}>
-              {deltaValue}
-            </div>
+            <div className={cx("kpi-visualization-delta-value", "trend-" + trendDirection)}>{deltaValue}</div>
           )}
 
           {targetValue && (

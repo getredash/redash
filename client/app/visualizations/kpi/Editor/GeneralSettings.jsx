@@ -6,7 +6,6 @@ import { EditorPropTypes } from "@/visualizations";
 export default function GeneralSettings({ options, data, visualizationName, onOptionsChange }) {
   return (
     <React.Fragment>
-
       <Section>
         <Select
           layout="horizontal"
@@ -15,9 +14,7 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           defaultValue={options.currentValueColName}
           onChange={currentValueColName => onOptionsChange({ currentValueColName })}>
           {map(data.columns, col => (
-            <Select.Option key={col.name}>
-              {col.name}
-            </Select.Option>
+            <Select.Option key={col.name}>{col.name}</Select.Option>
           ))}
         </Select>
       </Section>
@@ -31,9 +28,7 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           onChange={targetValueColName => onOptionsChange({ targetValueColName })}>
           <Select.Option value="">No target value</Select.Option>
           {map(data.columns, col => (
-            <Select.Option key={col.name}>
-              {col.name}
-            </Select.Option>
+            <Select.Option key={col.name}>{col.name}</Select.Option>
           ))}
         </Select>
       </Section>
@@ -48,7 +43,6 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           onChange={e => onOptionsChange({ targetValuePrefixLabel: e.target.value })}
         />
       </Section>
-
     </React.Fragment>
   );
 }

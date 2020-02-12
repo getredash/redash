@@ -73,7 +73,7 @@ each(
     sunburstVisualization,
     tableVisualization,
     wordCloudVisualization,
-    kpiVisualization
+    kpiVisualization,
   ]),
   registerVisualization
 );

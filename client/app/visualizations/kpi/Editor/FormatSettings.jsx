@@ -1,5 +1,5 @@
 import React from "react";
-import {Section, Input, InputNumber, Switch, ContextHelp} from "@/components/visualizations/editor";
+import { Section, Input, InputNumber, Switch, ContextHelp } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations";
 
 import { isValueNumber } from "../utils";
@@ -61,7 +61,6 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
           Invert trend direction
         </Switch>
       </Section>
-
     </React.Fragment>
   );
 }

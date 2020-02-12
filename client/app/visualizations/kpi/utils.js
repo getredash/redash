@@ -1,5 +1,5 @@
 import { isNumber } from "lodash";
-import {createNumberFormatter} from "@/lib/value-format";
+import { createNumberFormatter } from "@/lib/value-format";
 
 export function getKpiData(rows, options) {
   if (rows.length === 0 || !options.currentValueColName) {
@@ -56,7 +56,7 @@ export function getKpiData(rows, options) {
   let deltaValueString;
   if (deltaPercentageString) {
     if (deltaAmountString) {
-      deltaValueString = `${deltaPercentageString} (${deltaAmountString})`
+      deltaValueString = `${deltaPercentageString} (${deltaAmountString})`;
     } else {
       deltaValueString = deltaPercentageString;
     }
@@ -74,7 +74,7 @@ export function getKpiData(rows, options) {
     trendDirection: trendDirection,
     deltaValue: deltaValue,
     targetValuePrefixLabel: options.targetValuePrefixLabel,
-    targetValue: targetValue ? formatValue(targetValue, options) : null
+    targetValue: targetValue ? formatValue(targetValue, options) : null,
   };
 }
 
