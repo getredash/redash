@@ -58,21 +58,21 @@ export default function Renderer({ data, options, visualizationName }) {
       })}>
       <div className="counter-visualization-content" ref={setContainer}>
         <div style={getCounterStyles(scale)}>
-          {options.primaryValue.show && primaryValue.display && (
+          {primaryValue.display !== null && (
             <Tooltip title={primaryValue.tooltip} mouseEnterDelay={0} mouseLeaveDelay={0}>
               <div className={cx("counter-visualization-value", { "with-tooltip": primaryValue.tooltip !== null })}>
                 {primaryValue.display}
               </div>
             </Tooltip>
           )}
-          {options.secondaryValue.show && secondaryValue.display && (
+          {secondaryValue.display !== null && (
             <Tooltip title={secondaryValue.tooltip} mouseEnterDelay={0} mouseLeaveDelay={0}>
               <div className={cx("counter-visualization-target", { "with-tooltip": secondaryValue.tooltip !== null })}>
                 ({secondaryValue.display})
               </div>
             </Tooltip>
           )}
-          {counterLabel !== "" && <div className="counter-visualization-label">{counterLabel}</div>}
+          {counterLabel !== null && <div className="counter-visualization-label">{counterLabel}</div>}
         </div>
       </div>
     </div>

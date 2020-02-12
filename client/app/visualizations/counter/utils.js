@@ -27,6 +27,10 @@ function formatValue(value, { numberFormat, stringDecChar, stringThouSep }) {
 function getCounterValue(rows, valueOptions, counterOptions) {
   const value = invoke(counterTypes[valueOptions.type], "getValue", rows, valueOptions);
 
+  if (!valueOptions.show) {
+    return { value, display: null, tooltip: null };
+  }
+
   const formatData = {
     "@@raw": toString(value),
     "@@formatted": isFinite(value) ? formatValue(value, counterOptions) : toString(value),
@@ -46,10 +50,16 @@ function getCounterValue(rows, valueOptions, counterOptions) {
 export function getCounterData(rows, options, visualizationName) {
   const result = {};
   const rowsCount = rows.length;
-  const { counterType = "rowValue", counterLabel } = options;
 
-  if (rowsCount > 0 || counterType === "countRows") {
-    result.counterLabel = counterLabel || visualizationName;
+  // TODO: Revisit this condition
+  const canRender =
+    rowsCount > 0 || options.primaryValue.type === "countRows" || options.secondaryValue.type === "countRows";
+
+  if (canRender) {
+    result.counterLabel = toString(options.counterLabel);
+    if (result.counterLabel === "") {
+      result.counterLabel = visualizationName;
+    }
 
     result.primaryValue = getCounterValue(rows, options.primaryValue, options);
     result.secondaryValue = getCounterValue(rows, options.secondaryValue, options);

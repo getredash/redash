@@ -1,4 +1,4 @@
-import { get, keys, map, includes } from "lodash";
+import { isNil, get, keys, map, includes } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { Section, InputNumber, Input, Select, Checkbox } from "@/components/visualizations/editor";
@@ -28,8 +28,10 @@ export default function CounterValueOptions({ options, data, onChange }) {
             layout="horizontal"
             label="Column Name"
             className="w-100"
-            defaultValue={options.column}
-            onChange={column => onChange({ column })}>
+            allowClear
+            placeholder="Select column..."
+            defaultValue={isNil(options.column) ? undefined : options.column}
+            onChange={column => onChange({ column: column || null })}>
             {map(data.columns, col => (
               <Select.Option key={col.name}>{col.name}</Select.Option>
             ))}
