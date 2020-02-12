@@ -1,6 +1,7 @@
 import { isFinite } from "lodash";
 import React, { useState, useEffect } from "react";
 import cx from "classnames";
+import Tooltip from "antd/lib/tooltip";
 import resizeObserver from "@/services/resizeObserver";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 
@@ -45,13 +46,11 @@ export default function Renderer({ data, options, visualizationName }) {
   }, [data, options, container]);
 
   const {
+    counterLabel,
     showTrend,
     trendPositive,
-    counterValue,
-    counterValueTooltip,
-    targetValue,
-    targetValueTooltip,
-    counterLabel,
+    primaryValue,
+    secondaryValue,
   } = getCounterData(data.rows, options, visualizationName);
   return (
     <div
@@ -61,15 +60,23 @@ export default function Renderer({ data, options, visualizationName }) {
       })}>
       <div className="counter-visualization-content" ref={setContainer}>
         <div style={getCounterStyles(scale)}>
-          <div className="counter-visualization-value" title={counterValueTooltip}>
-            {counterValue}
-          </div>
-          {targetValue && (
-            <div className="counter-visualization-target" title={targetValueTooltip}>
-              ({targetValue})
-            </div>
+          {options.primaryValue.show && primaryValue.display && (
+            <Tooltip title={primaryValue.tooltip} mouseEnterDelay={0} mouseLeaveDelay={0}>
+              <div className={cx("counter-visualization-value", { "with-tooltip": primaryValue.tooltip !== null })}>
+                {primaryValue.display}
+              </div>
+            </Tooltip>
           )}
-          <div className="counter-visualization-label">{counterLabel}</div>
+          {options.secondaryValue.show && secondaryValue.display && (
+            <Tooltip title={secondaryValue.tooltip} mouseEnterDelay={0} mouseLeaveDelay={0}>
+              <div className={cx("counter-visualization-target", { "with-tooltip": secondaryValue.tooltip !== null })}>
+                ({secondaryValue.display})
+              </div>
+            </Tooltip>
+          )}
+          {counterLabel !== "" && (
+            <div className="counter-visualization-label">{counterLabel}</div>
+          )}
         </div>
       </div>
     </div>

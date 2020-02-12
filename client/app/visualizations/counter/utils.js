@@ -1,154 +1,67 @@
-import { isNumber, isFinite, toString, invoke, nth, get, sumBy, map, min, max } from "lodash";
+import { isNumber, isFinite, toString, invoke } from "lodash";
 import numeral from "numeral";
+import { formatSimpleTemplate } from "@/lib/value-format";
+import counterTypes from "./counterTypes";
 
-export const COUNTER_TYPES = {
-  rowValue: {
-    name: "Row Value",
-    getValue: (rows, { rowNumber, counterColName }) => getCellValue(rows, rowNumber, counterColName),
-    options: ["counterColName", "rowNumber", "targetColName", "targetRowNumber"],
-  },
-  countRows: {
-    name: "Count Rows",
-    getValue: rows => rows.length,
-    options: ["targetColName", "targetRowNumber"],
-  },
-  sumRows: {
-    name: "Sum Values",
-    getValue: (rows, { counterColName }) => sumBy(rows, counterColName),
-    options: ["counterColName", "targetColName", "targetRowNumber"],
-  },
-  minValue: {
-    name: "Min Value",
-    getValue: (rows, { counterColName }) => min(map(rows, row => get(row, counterColName))),
-    options: ["counterColName", "targetColName", "targetRowNumber"],
-  },
-  maxValue: {
-    name: "Max Value",
-    getValue: (rows, { counterColName }) => max(map(rows, row => get(row, counterColName))),
-    options: ["counterColName", "targetColName", "targetRowNumber"],
-  },
-};
+function formatValue(value, { numberFormat, stringDecChar, stringThouSep }) {
+  if (!isNumber(value)) {
+    return toString(value);
+  }
 
-// TODO: allow user to specify number format string instead of delimiters only
-// It will allow to remove this function (move all that weird formatting logic to a migration
-// that will set number format for all existing counter visualization)
-function numberFormat(value, decimalPoints, decimalDelimiter, thousandsDelimiter) {
   // Temporarily update locale data (restore defaults after formatting)
   const locale = numeral.localeData();
   const savedDelimiters = locale.delimiters;
 
-  // Mimic old behavior - AngularJS `number` filter defaults:
-  // - `,` as thousands delimiter
-  // - `.` as decimal delimiter
-  // - three decimal points
-  locale.delimiters = {
-    thousands: ",",
-    decimal: ".",
-  };
-  let formatString = "0,0.000";
-  if ((Number.isFinite(decimalPoints) && decimalPoints >= 0) || decimalDelimiter || thousandsDelimiter) {
+  if (stringDecChar || stringThouSep) {
     locale.delimiters = {
-      thousands: thousandsDelimiter,
-      decimal: decimalDelimiter || ".",
+      thousands: stringThouSep,
+      decimal: stringDecChar || ".",
     };
-
-    formatString = "0,0";
-    if (decimalPoints > 0) {
-      formatString += ".";
-      while (decimalPoints > 0) {
-        formatString += "0";
-        decimalPoints -= 1;
-      }
-    }
   }
-  const result = numeral(value).format(formatString);
+  const result = numeral(value).format(numberFormat);
 
   locale.delimiters = savedDelimiters;
   return result;
 }
 
-// 0 - special case, use first record
-// 1..N - 1-based record number from beginning (wraps if greater than dataset size)
-// -1..-N - 1-based record number from end (wraps if greater than dataset size)
-function getCellValue(rows, index, columnName) {
-  index = parseInt(index, 10) || 0;
-  if (index > 0) {
-    index = index - 1;
-  }
-  return get(nth(rows, index), columnName);
-}
+function getCounterValue(rows, valueOptions, counterOptions) {
+  const value = invoke(counterTypes[valueOptions.type], "getValue", rows, valueOptions);
 
-function formatValue(value, { stringPrefix, stringSuffix, stringDecimal, stringDecChar, stringThouSep }) {
-  if (isNumber(value)) {
-    value = numberFormat(value, stringDecimal, stringDecChar, stringThouSep);
-    return toString(stringPrefix) + value + toString(stringSuffix);
-  }
-  return toString(value);
-}
+  const formatData = {
+    "@@raw": toString(value),
+    "@@formatted": isFinite(value) ? formatValue(value, counterOptions) : toString(value),
+    // TODO: use row fields if available
+  };
 
-function formatTooltip(value, formatString) {
-  if (isNumber(value)) {
-    return numeral(value).format(formatString);
-  }
-  return toString(value);
+  const display = formatSimpleTemplate(valueOptions.displayFormat, formatData);
+  const tooltip = valueOptions.showTooltip ? formatSimpleTemplate(valueOptions.tooltipFormat, formatData) : null;
+
+  return {
+    value,
+    display: display !== "" ? display : null,
+    tooltip: tooltip !== "" ? tooltip : null,
+  };
 }
 
 export function getCounterData(rows, options, visualizationName) {
   const result = {};
   const rowsCount = rows.length;
-  const { counterType = "rowValue", counterLabel, targetRowNumber, targetColName } = options;
+  const { counterType = "rowValue", counterLabel } = options;
 
   if (rowsCount > 0 || counterType === "countRows") {
     result.counterLabel = counterLabel || visualizationName;
 
-    const counterValue = invoke(COUNTER_TYPES[counterType], "getValue", rows, options);
-    if (counterValue !== null && counterValue !== undefined) {
-      result.counterValue = counterValue;
-    }
+    result.primaryValue = getCounterValue(rows, options.primaryValue, options);
+    result.secondaryValue = getCounterValue(rows, options.secondaryValue, options);
 
+    // TODO: Make this logic configurable
     result.showTrend = false;
-
-    if (targetColName) {
-      result.targetValue = getCellValue(rows, targetRowNumber, targetColName);
-
-      if (Number.isFinite(result.counterValue) && isFinite(result.targetValue)) {
-        const delta = result.counterValue - result.targetValue;
-        result.showTrend = true;
-        result.trendPositive = delta >= 0;
-      }
-    } else {
-      result.targetValue = null;
-    }
-
-    result.counterValueTooltip = formatTooltip(result.counterValue, options.tooltipFormat);
-    result.targetValueTooltip = formatTooltip(result.targetValue, options.tooltipFormat);
-
-    result.counterValue = formatValue(result.counterValue, options);
-
-    if (options.formatTargetValue) {
-      result.targetValue = formatValue(result.targetValue, options);
-    } else {
-      if (isFinite(result.targetValue)) {
-        result.targetValue = numeral(result.targetValue).format("0[.]00[0]");
-      }
+    if (isFinite(result.primaryValue.value) && isFinite(result.secondaryValue.value)) {
+      const delta = result.primaryValue.value - result.secondaryValue.value;
+      result.showTrend = true;
+      result.trendPositive = delta >= 0;
     }
   }
 
   return result;
-}
-
-export function isValueNumber(rows, options) {
-  if (options.counterType === "countRows") {
-    return true; // array length is always a number
-  }
-
-  const rowsCount = rows.length;
-  if (rowsCount > 0) {
-    const { rowNumber, counterColName } = options;
-    if (counterColName) {
-      return isNumber(getCellValue(rows, rowNumber, counterColName));
-    }
-  }
-
-  return false;
 }
