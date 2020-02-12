@@ -33,10 +33,11 @@ def create_job(*args, **kwargs):
     return Job(connection=rq_redis_connection)
 
 
+@patch("redash.tasks.queries.execution.Job.exists", return_value=True)
 @patch("redash.tasks.queries.execution.Job.fetch", side_effect=fetch_job)
 @patch("redash.tasks.queries.execution.Queue.enqueue", side_effect=create_job)
 class TestEnqueueTask(BaseTestCase):
-    def test_multiple_enqueue_of_same_query(self, enqueue, _):
+    def test_multiple_enqueue_of_same_query(self, enqueue, _, __):
         query = self.factory.create_query()
 
         with Connection(rq_redis_connection):
@@ -67,8 +68,34 @@ class TestEnqueueTask(BaseTestCase):
 
         self.assertEqual(1, enqueue.call_count)
 
+    def test_multiple_enqueue_of_expired_job(self, enqueue, _, exists):
+        query = self.factory.create_query()
+
+        with Connection(rq_redis_connection):
+            enqueue_query(
+                query.query_text,
+                query.data_source,
+                query.user_id,
+                False,
+                query,
+                {"Username": "Arik", "Query ID": query.id},
+            )
+
+            exists.return_value = False
+
+            enqueue_query(
+                query.query_text,
+                query.data_source,
+                query.user_id,
+                False,
+                query,
+                {"Username": "Arik", "Query ID": query.id},
+            )
+
+        self.assertEqual(2, enqueue.call_count)
+
     @patch("redash.settings.dynamic_settings.query_time_limit", return_value=60)
-    def test_limits_query_time(self, _, enqueue, __):
+    def test_limits_query_time(self, _, enqueue, __, ___):
         query = self.factory.create_query()
 
         with Connection(rq_redis_connection):
@@ -84,7 +111,7 @@ class TestEnqueueTask(BaseTestCase):
         _, kwargs = enqueue.call_args
         self.assertEqual(60, kwargs.get("job_timeout"))
 
-    def test_multiple_enqueue_of_different_query(self, enqueue, _):
+    def test_multiple_enqueue_of_different_query(self, enqueue, _, __):
         query = self.factory.create_query()
 
         with Connection(rq_redis_connection):

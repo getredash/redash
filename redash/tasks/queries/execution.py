@@ -43,16 +43,24 @@ def enqueue_query(
             job_id = pipe.get(_job_lock_id(query_hash, data_source.id))
             if job_id:
                 logger.info("[%s] Found existing job: %s", query_hash, job_id)
+                job_exists = Job.exists(job_id)
+                job_complete = None
 
-                job = Job.fetch(job_id)
+                if job_exists:
+                    job = Job.fetch(job_id)
+                    status = job.get_status()
+                    job_complete = status in [JobStatus.FINISHED, JobStatus.FAILED]
 
-                status = job.get_status()
-                if status in [JobStatus.FINISHED, JobStatus.FAILED]:
-                    logger.info(
-                        "[%s] job found is ready (%s), removing lock",
-                        query_hash,
-                        status,
-                    )
+                    if job_complete:
+                        logger.info(
+                            "[%s] job found is complete (%s), removing lock",
+                            query_hash,
+                            status,
+                        )
+                else:
+                    logger.info("[%s] job found has expired, removing lock", query_hash)
+
+                if job_complete or not job_exists:
                     redis_connection.delete(_job_lock_id(query_hash, data_source.id))
                     job = None
 
