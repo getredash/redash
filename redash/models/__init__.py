@@ -11,6 +11,7 @@ from sqlalchemy.event import listens_for
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, contains_eager, joinedload, subqueryload, load_only
 from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
+from sqlalchemy.sql import expression
 from sqlalchemy import func
 from sqlalchemy_utils import generic_relationship
 from sqlalchemy_utils.types import TSVectorType
@@ -617,11 +618,18 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def outdated_queries(cls):
+        with_valid_schedule = and_(
+            Query.schedule.isnot(None),
+            expression.func.coalesce(
+                expression.text("schedule::json->>'interval'"), None
+            ).isnot(None),
+        )
+
         queries = (
             Query.query.options(
                 joinedload(Query.latest_query_data).load_only("retrieved_at")
             )
-            .filter(Query.schedule.isnot(None))
+            .filter(with_valid_schedule)
             .order_by(Query.id)
         )
 
@@ -630,8 +638,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         scheduled_queries_executions.refresh()
 
         for query in queries:
-            if query.schedule["interval"] is None:
-                continue
 
             if query.schedule["until"] is not None:
                 schedule_until = pytz.utc.localize(
