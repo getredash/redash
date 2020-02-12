@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback } from "react";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 import CounterValueOptions from "./CounterValueOptions";
 

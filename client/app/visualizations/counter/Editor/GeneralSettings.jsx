@@ -20,7 +20,11 @@ export default function GeneralSettings({ options, visualizationName, onOptionsC
       <Section>
         <Input
           layout="horizontal"
-          label={<>Number Format <ContextHelp.NumberFormatSpecs /></>}
+          label={
+            <>
+              Number Format <ContextHelp.NumberFormatSpecs />
+            </>
+          }
           className="w-100"
           data-test="Counter.NumberFormat"
           defaultValue={options.numberFormat}

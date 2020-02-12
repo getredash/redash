@@ -1,6 +1,6 @@
 import { get, keys, map, includes } from "lodash";
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 import { Section, InputNumber, Input, Select, Checkbox } from "@/components/visualizations/editor";
 import counterTypes from "../counterTypes";
 
@@ -89,9 +89,11 @@ CounterValueOptions.propTypes = {
     tooltipFormat: PropTypes.string,
   }).isRequired,
   data: PropTypes.shape({
-    columns: PropTypes.arrayOf(PropTypes.shape({
-      name: PropTypes.string,
-    }).isRequired),
+    columns: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+      }).isRequired
+    ),
   }).isRequired,
   onChange: PropTypes.func,
 };
