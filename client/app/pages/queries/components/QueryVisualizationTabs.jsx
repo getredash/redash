@@ -142,17 +142,20 @@ export default function QueryVisualizationTabs({
               onDelete={() => onDeleteVisualization(visualization.id)}
             />
           }>
-          {queryResult && !(queryResult.isEmpty && queryResult.isEmpty()) && (
-            <VisualizationRenderer visualization={visualization} queryResult={queryResult} context="query" />
-          )}
-          {queryResult && queryResult.isEmpty && queryResult.isEmpty() && (
-            <EmptyState
-              title="No rows returned"
-              message="Please update your query or refresh the results using the button below."
-              refreshButton={refreshButton}
+          {queryResult ? (
+            <VisualizationRenderer
+              visualization={visualization}
+              queryResult={queryResult}
+              context="query"
+              emptyState={
+                <EmptyState
+                  title="No rows returned"
+                  message="Please update your query or refresh the results using the button below."
+                  refreshButton={refreshButton}
+                />
+              }
             />
-          )}
-          {!queryResult && (
+          ) : (
             <EmptyState
               title="No results found!"
               message="Please update your query or refresh the results using the button below."

@@ -1,3 +1,4 @@
+import { get, isEmpty } from "lodash";
 import Renderer from "./Renderer";
 import Editor from "./Editor";
 
@@ -16,6 +17,7 @@ export default {
   type: "COUNTER",
   name: "Counter",
   getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
+  isVisualizationEmpty: (data, options) => !get(options, "countRow") && isEmpty(data.rows),
   Renderer,
   Editor,
 
