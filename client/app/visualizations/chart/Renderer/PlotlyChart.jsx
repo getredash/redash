@@ -27,7 +27,7 @@ export default function PlotlyChart({ options, data }) {
         const plotlyOptions = {
           showLink: false,
           displaylogo: false,
-          displayModeBar: !clientConfig.hidePlotlyModeBar
+          displayModeBar: !clientConfig.hidePlotlyModeBar,
         };
 
         const chartData = getChartData(data.rows, options);
