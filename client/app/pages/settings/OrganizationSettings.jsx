@@ -168,6 +168,14 @@ class OrganizationSettings extends React.Component {
             ))}
           </Select>
         </Form.Item>
+        <Form.Item label="Chart Visualization">
+          <Checkbox
+            name="hide_plotly_mode_bar"
+            checked={formValues.hide_plotly_mode_bar}
+            onChange={e => this.handleChange("hide_plotly_mode_bar", e.target.checked)}>
+            Hide Plotly mode bar
+          </Checkbox>
+        </Form.Item>
         <Form.Item label="Feature Flags">
           <Checkbox
             name="feature_show_permissions_control"
