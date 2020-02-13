@@ -1,5 +1,6 @@
 import { isNull, isUndefined, isArray, isEmpty, get, map, join, has } from "lodash";
 import { Query } from "@/services/query";
+import QueryResult from "@/services/query-result";
 import Parameter from "./Parameter";
 
 class QueryBasedDropdownParameter extends Parameter {
@@ -7,6 +8,7 @@ class QueryBasedDropdownParameter extends Parameter {
     super(parameter, parentQueryId);
     this.queryId = parameter.queryId;
     this.multiValuesOptions = parameter.multiValuesOptions;
+    this.searchTerm = parameter.searchTerm;
     this.setValue(parameter.value);
   }
 
@@ -66,11 +68,23 @@ class QueryBasedDropdownParameter extends Parameter {
   }
 
   loadDropdownValues() {
-    if (this.parentQueryId) {
-      return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId });
-    }
-
-    return Query.asDropdown({ id: this.queryId });
+    return Query.get({ id: this.queryId }).then(query => {
+      if (query.hasParameters()) {
+        this.searchFunction = searchTerm =>
+          QueryResult.getByQueryId(query.id, { search: searchTerm }, 0)
+            .toPromise()
+            .then(result => {
+              this.searchTerm = searchTerm;
+              return get(result, "query_result.data.rows");
+            });
+        return this.searchTerm ? this.searchFunction(this.searchTerm) : Promise.resolve([]);
+      } else {
+        if (this.parentQueryId) {
+          return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId });
+        }
+        return Query.asDropdown({ id: this.queryId });
+      }
+    });
   }
 }
 

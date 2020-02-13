@@ -1,4 +1,4 @@
-import { find, isArray, map, intersection, isEqual } from "lodash";
+import { debounce, find, isArray, get, first, map, trim, intersection, isEqual } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import Select from "antd/lib/select";
@@ -30,6 +30,7 @@ export default class QueryBasedParameterInput extends React.Component {
       options: [],
       value: null,
       loading: false,
+      currentSearchTerm: null,
     };
   }
 
@@ -56,7 +57,7 @@ export default class QueryBasedParameterInput extends React.Component {
       return validValues;
     }
     const found = find(options, option => option.value === this.props.value) !== undefined;
-    value = found ? value : options[0].value;
+    value = found ? value : get(first(options), "value");
     this.setState({ value });
     return value;
   }
@@ -79,13 +80,26 @@ export default class QueryBasedParameterInput extends React.Component {
   }
 
   render() {
-    const { className, value, mode, onSelect, ...otherProps } = this.props;
+    const { parameter, className, value, mode, onSelect, ...otherProps } = this.props;
     const { loading, options } = this.state;
+    const selectProps = { ...otherProps };
+    if (parameter.searchFunction) {
+      selectProps.onSearch = debounce(searchTerm => {
+        if (trim(searchTerm)) {
+          this.setState({ loading: true, currentSearchTerm: searchTerm });
+          parameter.searchFunction(searchTerm).then(values => {
+            if (this.state.currentSearchTerm === searchTerm) {
+              this.setState({ options: values, loading: false });
+            }
+          });
+        }
+      }, 200);
+    }
     return (
       <span>
         <Select
           className={className}
-          disabled={loading || options.length === 0}
+          disabled={!parameter.searchFunction && (loading || options.length === 0)}
           loading={loading}
           mode={mode}
           value={this.state.value}
@@ -95,7 +109,7 @@ export default class QueryBasedParameterInput extends React.Component {
           showSearch
           showArrow
           notFoundContent={null}
-          {...otherProps}>
+          {...selectProps}>
           {options.map(option => (
             <Option value={option.value} key={option.value}>
               {option.name}
