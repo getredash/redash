@@ -26,7 +26,7 @@ function combineFilters(localFilters, globalFilters) {
 }
 
 export default function VisualizationRenderer(props) {
-  const data = getQueryResultData(props.queryResult);
+  const data = useMemo(() => getQueryResultData(props.queryResult), [props.queryResult]);
   const [filters, setFilters] = useState(data.filters);
   const filtersRef = useRef();
   filtersRef.current = filters;
@@ -37,7 +37,7 @@ export default function VisualizationRenderer(props) {
   // Reset local filters when query results updated
   useEffect(() => {
     setFilters(combineFilters(data.filters, props.filters));
-  }, [data, props.filters]);
+  }, [data.filters, props.filters]);
 
   // Update local filters when global filters changed.
   // For correct behavior need to watch only `props.filters` here,
