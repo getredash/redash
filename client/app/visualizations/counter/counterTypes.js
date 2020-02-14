@@ -1,4 +1,4 @@
-import { get, map, max, min, sumBy } from "lodash";
+import { map, max, min, sumBy } from "lodash";
 
 // 0 - special case, use first record
 // 1..N - 1-based record number from beginning (wraps if greater than dataset size)
@@ -15,27 +15,31 @@ function getRowNumber(rowNumber, rowsCount) {
 export default {
   rowValue: {
     name: "Row Value",
-    getValue: (rows, { column, rowNumber }) => get(rows[getRowNumber(rowNumber, rows.length)], [column]),
+    getValue: (rows, { column, rowNumber }) => {
+      const row = rows[getRowNumber(rowNumber, rows.length)];
+      const value = row ? row[column] : undefined;
+      return [value, row];
+    },
     options: ["column", "rowNumber"],
   },
   countRows: {
     name: "Count Rows",
-    getValue: rows => rows.length,
+    getValue: rows => [rows.length, null],
     options: [],
   },
   sumRows: {
     name: "Sum Values",
-    getValue: (rows, { column }) => sumBy(rows, column),
+    getValue: (rows, { column }) => [sumBy(rows, column), null],
     options: ["column"],
   },
   minValue: {
     name: "Min Value",
-    getValue: (rows, { column }) => min(map(rows, row => row[column])),
+    getValue: (rows, { column }) => [min(map(rows, row => row[column])), null],
     options: ["column"],
   },
   maxValue: {
     name: "Max Value",
-    getValue: (rows, { column }) => max(map(rows, row => row[column])),
+    getValue: (rows, { column }) => [max(map(rows, row => row[column])), null],
     options: ["column"],
   },
 };

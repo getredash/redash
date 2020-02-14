@@ -17,18 +17,18 @@ const defaultOptions = {
     type: "rowValue",
     column: "counter",
     rowNumber: 1,
-    displayFormat: "{{ @@formatted }}",
+    displayFormat: "{{ @@value_formatted }}",
     showTooltip: true,
-    tooltipFormat: "{{ @@raw }}",
+    tooltipFormat: "{{ @@value }}",
   },
   secondaryValue: {
     show: true,
     type: "rowValue",
     column: null,
     rowNumber: 1,
-    displayFormat: "{{ @@formatted }}",
+    displayFormat: "{{ @@value_formatted }}",
     showTooltip: true,
-    tooltipFormat: "{{ @@raw }}",
+    tooltipFormat: "{{ @@value }}",
   },
 };
 
@@ -52,7 +52,7 @@ function migrateFromV1(options) {
     type: "rowValue",
     column: options.counterColName,
     rowNumber: options.rowNumber,
-    displayFormat: `${prefix}{{ @@formatted }}${suffix}`,
+    displayFormat: `${prefix}{{ @@value_formatted }}${suffix}`,
   };
 
   result.secondaryValue = {
@@ -60,7 +60,7 @@ function migrateFromV1(options) {
     type: "rowValue",
     column: options.targetColName,
     rowNumber: options.targetRowNumber,
-    displayFormat: options.formatTargetValue ? `${prefix}{{ @@formatted }}${suffix}` : "{{ @@raw }}",
+    displayFormat: options.formatTargetValue ? `${prefix}{{ @@value_formatted }}${suffix}` : "{{ @@value }}",
   };
 
   return result;
