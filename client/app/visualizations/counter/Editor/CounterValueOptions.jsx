@@ -1,10 +1,28 @@
 import { isNil, get, map, includes } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import { Section, InputNumber, Input, Select, Checkbox } from "@/components/visualizations/editor";
+import { Section, InputNumber, Input, Select, Checkbox, ContextHelp } from "@/components/visualizations/editor";
 
 export default function CounterValueOptions({ disabled, counterTypes, options, data, onChange }) {
   const additionalOptions = get(counterTypes, [options.type, "options"], []);
+  const returnsAdditionalFields = get(counterTypes, [options.type, "returnsAdditionalFields"], false);
+
+  const formatInfo = (
+    <ContextHelp placement="topLeft" arrowPointAtCenter>
+      <div className="m-b-5">Use special names to access additional properties:</div>
+      <div>
+        <code>{"{{ @@value }}"}</code> raw value (as string);
+      </div>
+      <div>
+        <code>{"{{ @@value_formatted }}"}</code> formatted value;
+      </div>
+      {returnsAdditionalFields && (
+        <div className="m-t-5">
+          Query result columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
+        </div>
+      )}
+    </ContextHelp>
+  );
 
   return (
     <React.Fragment>
@@ -55,7 +73,7 @@ export default function CounterValueOptions({ disabled, counterTypes, options, d
       <Section>
         <Input
           layout="horizontal"
-          label="Display Format"
+          label={<React.Fragment>Display Format {formatInfo}</React.Fragment>}
           className="w-100"
           disabled={disabled}
           defaultValue={options.displayFormat}
@@ -75,7 +93,7 @@ export default function CounterValueOptions({ disabled, counterTypes, options, d
       <Section>
         <Input
           layout="horizontal"
-          label="Tooltip Format"
+          label={<React.Fragment>Tooltip Format {formatInfo}</React.Fragment>}
           className="w-100"
           disabled={disabled || !options.showTooltip}
           defaultValue={options.tooltipFormat}

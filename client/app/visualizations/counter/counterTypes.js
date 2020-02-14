@@ -25,6 +25,7 @@ export default {
       const value = row ? row[column] : undefined;
       return [value, row];
     },
+    returnsAdditionalFields: true,
     options: ["column", "rowNumber"],
   },
   countRows: {
