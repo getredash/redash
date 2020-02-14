@@ -1,10 +1,9 @@
-import { isNil, get, keys, map, includes } from "lodash";
+import { isNil, get, map, includes } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { Section, InputNumber, Input, Select, Checkbox } from "@/components/visualizations/editor";
-import counterTypes from "../counterTypes";
 
-export default function CounterValueOptions({ disabled, options, data, onChange }) {
+export default function CounterValueOptions({ disabled, counterTypes, options, data, onChange }) {
   const additionalOptions = get(counterTypes, [options.type, "options"], []);
 
   return (
@@ -14,7 +13,6 @@ export default function CounterValueOptions({ disabled, options, data, onChange 
           layout="horizontal"
           label="Type"
           className="w-100"
-          disabled={disabled}
           defaultValue={options.type}
           onChange={type => onChange({ type })}>
           {map(counterTypes, ({ name }, type) => (
@@ -90,8 +88,9 @@ export default function CounterValueOptions({ disabled, options, data, onChange 
 
 CounterValueOptions.propTypes = {
   disabled: PropTypes.bool,
+  counterTypes: PropTypes.object,
   options: PropTypes.shape({
-    type: PropTypes.oneOf(keys(counterTypes)),
+    type: PropTypes.string,
     column: PropTypes.string,
     rowNumber: PropTypes.number,
     displayFormat: PropTypes.string,
@@ -110,5 +109,6 @@ CounterValueOptions.propTypes = {
 
 CounterValueOptions.defaultProps = {
   disabled: false,
+  counterTypes: {},
   onChange: () => {},
 };

@@ -13,6 +13,11 @@ function getRowNumber(rowNumber, rowsCount) {
 }
 
 export default {
+  unused: {
+    name: "Unused",
+    getValue: () => [undefined, null],
+    options: [],
+  },
   rowValue: {
     name: "Row Value",
     getValue: (rows, { column, rowNumber }) => {

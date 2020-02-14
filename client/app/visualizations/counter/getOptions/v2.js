@@ -23,7 +23,7 @@ const defaultOptions = {
   },
   secondaryValue: {
     show: true,
-    type: "rowValue",
+    type: "unused",
     column: null,
     rowNumber: 1,
     displayFormat: "({{ @@value_formatted }})",
@@ -50,14 +50,14 @@ function migrateFromV1(options) {
 
   result.primaryValue = {
     show: true,
-    type: "rowValue",
+    type: options.counterColName ? "rowValue" : "unused",
     column: options.counterColName,
     rowNumber: options.rowNumber,
     displayFormat: `${prefix}{{ @@value_formatted }}${suffix}`,
   };
 
   result.secondaryValue = {
-    show: !!options.targetColName,
+    show: true,
     type: "rowValue",
     column: options.targetColName,
     rowNumber: options.targetRowNumber,
