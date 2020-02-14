@@ -50,7 +50,7 @@ function migrateFromV1(options) {
 
   result.primaryValue = {
     show: true,
-    type: options.counterColName ? "rowValue" : "unused",
+    type: options.countRow ? "countRows" : "rowValue",
     column: options.counterColName,
     rowNumber: options.rowNumber,
     displayFormat: `${prefix}{{ @@value_formatted }}${suffix}`,
@@ -58,7 +58,7 @@ function migrateFromV1(options) {
 
   result.secondaryValue = {
     show: true,
-    type: "rowValue",
+    type: options.targetColName ? "rowValue" : "unused",
     column: options.targetColName,
     rowNumber: options.targetRowNumber,
     displayFormat: options.formatTargetValue ? `(${prefix}{{ @@value_formatted }}${suffix})` : "({{ @@value }})",

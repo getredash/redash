@@ -14,6 +14,7 @@ const defaultOptions = {
   stringPrefix: null,
   stringSuffix: null,
   formatTargetValue: false,
+  countRow: false,
 };
 
 export default function getOptions(options) {
