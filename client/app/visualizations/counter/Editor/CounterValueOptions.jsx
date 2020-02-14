@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { Section, InputNumber, Input, Select, Checkbox } from "@/components/visualizations/editor";
 import counterTypes from "../counterTypes";
 
-export default function CounterValueOptions({ options, data, onChange }) {
+export default function CounterValueOptions({ disabled, options, data, onChange }) {
   const additionalOptions = get(counterTypes, [options.type, "options"], []);
 
   return (
@@ -14,6 +14,7 @@ export default function CounterValueOptions({ options, data, onChange }) {
           layout="horizontal"
           label="Type"
           className="w-100"
+          disabled={disabled}
           defaultValue={options.type}
           onChange={type => onChange({ type })}>
           {map(counterTypes, ({ name }, type) => (
@@ -28,6 +29,7 @@ export default function CounterValueOptions({ options, data, onChange }) {
             layout="horizontal"
             label="Column Name"
             className="w-100"
+            disabled={disabled}
             allowClear
             placeholder="Select column..."
             defaultValue={isNil(options.column) ? undefined : options.column}
@@ -45,6 +47,7 @@ export default function CounterValueOptions({ options, data, onChange }) {
             layout="horizontal"
             label="Row Number"
             className="w-100"
+            disabled={disabled}
             defaultValue={options.rowNumber}
             onChange={rowNumber => onChange({ rowNumber })}
           />
@@ -56,13 +59,17 @@ export default function CounterValueOptions({ options, data, onChange }) {
           layout="horizontal"
           label="Display Format"
           className="w-100"
+          disabled={disabled}
           defaultValue={options.displayFormat}
           onChange={e => onChange({ displayFormat: e.target.value })}
         />
       </Section>
 
       <Section>
-        <Checkbox checked={options.showTooltip} onChange={e => onChange({ showTooltip: e.target.checked })}>
+        <Checkbox
+          disabled={disabled}
+          checked={options.showTooltip}
+          onChange={e => onChange({ showTooltip: e.target.checked })}>
           Show Tooltip
         </Checkbox>
       </Section>
@@ -72,7 +79,7 @@ export default function CounterValueOptions({ options, data, onChange }) {
           layout="horizontal"
           label="Tooltip Format"
           className="w-100"
-          disabled={!options.showTooltip}
+          disabled={disabled || !options.showTooltip}
           defaultValue={options.tooltipFormat}
           onChange={e => onChange({ tooltipFormat: e.target.value })}
         />
@@ -82,6 +89,7 @@ export default function CounterValueOptions({ options, data, onChange }) {
 }
 
 CounterValueOptions.propTypes = {
+  disabled: PropTypes.bool,
   options: PropTypes.shape({
     type: PropTypes.oneOf(keys(counterTypes)),
     column: PropTypes.string,
@@ -101,5 +109,6 @@ CounterValueOptions.propTypes = {
 };
 
 CounterValueOptions.defaultProps = {
+  disabled: false,
   onChange: () => {},
 };
