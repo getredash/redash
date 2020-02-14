@@ -47,24 +47,20 @@ function getCounterValue(rows, valueOptions, counterOptions) {
 }
 
 export function getCounterData(rows, options, visualizationName) {
-  const result = {};
-  const rowsCount = rows.length;
+  const result = {
+    counterLabel: null,
+    primaryValue: getCounterValue(rows, options.primaryValue, options),
+    secondaryValue: getCounterValue(rows, options.secondaryValue, options),
+    showTrend: false,
+  };
 
-  // TODO: Revisit this condition
-  const canRender =
-    rowsCount > 0 || options.primaryValue.type === "countRows" || options.secondaryValue.type === "countRows";
-
-  if (canRender) {
+  if (!isNil(result.primaryValue.value) || !isNil(result.secondaryValue.value)) {
     result.counterLabel = toString(options.counterLabel);
     if (result.counterLabel === "") {
       result.counterLabel = visualizationName;
     }
 
-    result.primaryValue = getCounterValue(rows, options.primaryValue, options);
-    result.secondaryValue = getCounterValue(rows, options.secondaryValue, options);
-
     // TODO: Make this logic configurable
-    result.showTrend = false;
     if (isFinite(result.primaryValue.value) && isFinite(result.secondaryValue.value)) {
       const delta = result.primaryValue.value - result.secondaryValue.value;
       result.showTrend = true;
