@@ -40,7 +40,8 @@ function migrateFromV1(options) {
   if (isFinite(options.stringDecimal) && options.stringDecimal >= 0) {
     result.numberFormat = "0,0";
     if (options.stringDecimal > 0) {
-      result.numberFormat += padEnd("", options.stringDecimal, "0");
+      const decimals = padEnd("", options.stringDecimal, "0");
+      result.numberFormat = `${result.numberFormat}.${decimals}`;
     }
   }
 
