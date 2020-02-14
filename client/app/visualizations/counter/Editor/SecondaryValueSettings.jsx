@@ -13,12 +13,7 @@ export default function SecondaryValueSettings({ options, data, onOptionsChange 
           Show Secondary Value
         </Checkbox>
       </Section>
-      <CounterValueOptions
-        disabled={!options.secondaryValue.show}
-        options={options.secondaryValue}
-        data={data}
-        onChange={onChange}
-      />
+      <CounterValueOptions options={options.secondaryValue} data={data} onChange={onChange} />
     </React.Fragment>
   );
 }
