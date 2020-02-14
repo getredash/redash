@@ -26,7 +26,7 @@ const defaultOptions = {
     type: "rowValue",
     column: null,
     rowNumber: 1,
-    displayFormat: "{{ @@value_formatted }}",
+    displayFormat: "({{ @@value_formatted }})",
     showTooltip: true,
     tooltipFormat: "{{ @@value }}",
   },
@@ -60,7 +60,7 @@ function migrateFromV1(options) {
     type: "rowValue",
     column: options.targetColName,
     rowNumber: options.targetRowNumber,
-    displayFormat: options.formatTargetValue ? `${prefix}{{ @@value_formatted }}${suffix}` : "{{ @@value }}",
+    displayFormat: options.formatTargetValue ? `(${prefix}{{ @@value_formatted }}${suffix})` : "({{ @@value }})",
   };
 
   return result;

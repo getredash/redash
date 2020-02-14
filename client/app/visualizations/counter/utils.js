@@ -1,4 +1,4 @@
-import { isNumber, isFinite, toString, invoke, extend } from "lodash";
+import { isNil, isNumber, isFinite, toString, invoke, extend } from "lodash";
 import numeral from "numeral";
 import { formatSimpleTemplate } from "@/lib/value-format";
 import counterTypes from "./counterTypes";
@@ -27,14 +27,13 @@ function formatValue(value, { numberFormat, stringDecChar, stringThouSep }) {
 function getCounterValue(rows, valueOptions, counterOptions) {
   const [value, additionalFields] = invoke(counterTypes[valueOptions.type], "getValue", rows, valueOptions);
 
-  if (!valueOptions.show) {
+  if (!valueOptions.show || isNil(value)) {
     return { value, display: null, tooltip: null };
   }
 
   const formatData = extend({}, additionalFields, {
     "@@value": toString(value),
     "@@value_formatted": isFinite(value) ? formatValue(value, counterOptions) : toString(value),
-    // TODO: use row fields if available
   });
 
   const display = formatSimpleTemplate(valueOptions.displayFormat, formatData);

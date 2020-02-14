@@ -68,7 +68,7 @@ export default function Renderer({ data, options, visualizationName }) {
           {secondaryValue.display !== null && (
             <Tooltip title={secondaryValue.tooltip} mouseEnterDelay={0} mouseLeaveDelay={0}>
               <div className={cx("counter-visualization-target", { "with-tooltip": secondaryValue.tooltip !== null })}>
-                ({secondaryValue.display})
+                {secondaryValue.display}
               </div>
             </Tooltip>
           )}
