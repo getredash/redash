@@ -1,14 +1,20 @@
-import { isNull, isUndefined, isArray, isEmpty, get, map, join, has } from "lodash";
+import { isNull, isUndefined, isArray, isEmpty, isString, get, map, join, has, toString } from "lodash";
 import { Query } from "@/services/query";
 import QueryResult from "@/services/query-result";
 import Parameter from "./Parameter";
+
+function mapOptionValuesToString(options) {
+  return map(options, option => ({ ...option, value: toString(option.value) }));
+}
 
 class QueryBasedDropdownParameter extends Parameter {
   constructor(parameter, parentQueryId) {
     super(parameter, parentQueryId);
     this.queryId = parameter.queryId;
     this.multiValuesOptions = parameter.multiValuesOptions;
+    this.searchColumn = parameter.searchColumn || "search"; // TODO: Make search col select
     this.searchTerm = parameter.searchTerm;
+    this.staticParams = { ...parameter.staticParams };
     this.setValue(parameter.value);
   }
 
@@ -34,7 +40,11 @@ class QueryBasedDropdownParameter extends Parameter {
       const parameterValues = map(this.value, v => `${prefix}${v}${suffix}`);
       return join(parameterValues, separator);
     }
-    return this.value;
+    const executionParamValues = { ...this.staticParams };
+    if (isString(this.searchColumn)) {
+      executionParamValues[this.searchColumn] = this.searchTerm;
+    }
+    return !isEmpty(executionParamValues) ? { value: this.value, executionParamValues } : this.value;
   }
 
   toUrlParams() {
@@ -43,6 +53,10 @@ class QueryBasedDropdownParameter extends Parameter {
     let urlParam = this.value;
     if (this.multiValuesOptions && isArray(this.value)) {
       urlParam = JSON.stringify(this.value);
+    }
+
+    if (this.searchColumn) {
+      urlParam = `${this.searchTerm}|-|${urlParam}`;
     }
 
     return {
@@ -54,15 +68,24 @@ class QueryBasedDropdownParameter extends Parameter {
     const prefix = this.urlPrefix;
     const key = `${prefix}${this.name}`;
     if (has(query, key)) {
+      let queryKey = query[key];
+      if (this.searchColumn) {
+        const searchTermAndValue = queryKey.split("|-|");
+        if (searchTermAndValue.length === 2) {
+          this.searchTerm = searchTermAndValue[0];
+          queryKey = searchTermAndValue[1];
+        }
+      }
+
       if (this.multiValuesOptions) {
         try {
-          const valueFromJson = JSON.parse(query[key]);
-          this.setValue(isArray(valueFromJson) ? valueFromJson : query[key]);
+          const valueFromJson = JSON.parse(queryKey);
+          this.setValue(isArray(valueFromJson) ? valueFromJson : queryKey);
         } catch (e) {
-          this.setValue(query[key]);
+          this.setValue(queryKey);
         }
       } else {
-        this.setValue(query[key]);
+        this.setValue(queryKey);
       }
     }
   }
@@ -71,18 +94,21 @@ class QueryBasedDropdownParameter extends Parameter {
     return Query.get({ id: this.queryId }).then(query => {
       if (query.hasParameters()) {
         this.searchFunction = searchTerm =>
-          QueryResult.getByQueryId(query.id, { search: searchTerm }, 0)
+          QueryResult.getByQueryId(query.id, { ...this.staticParams, search: searchTerm }, -1)
             .toPromise()
             .then(result => {
               this.searchTerm = searchTerm;
               return get(result, "query_result.data.rows");
-            });
+            })
+            .then(mapOptionValuesToString);
         return this.searchTerm ? this.searchFunction(this.searchTerm) : Promise.resolve([]);
       } else {
         if (this.parentQueryId) {
-          return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId });
+          return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId }).then(
+            mapOptionValuesToString
+          );
         }
-        return Query.asDropdown({ id: this.queryId });
+        return Query.asDropdown({ id: this.queryId }).then(mapOptionValuesToString);
       }
     });
   }

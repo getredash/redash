@@ -15,43 +15,50 @@ def _pluck_name_and_value(default_column, row):
     return {"name": row[name_column], "value": str(row[value_column])}
 
 
-def _load_result(query_id, org):
+def _load_result(query_id, org, parameters = None):
     from redash import models
 
     query = models.Query.get_by_id_and_org(query_id, org)
 
     if query.data_source:
-        query_result = models.QueryResult.get_by_id_and_org(
-            query.latest_query_data_id, org
-        )
+        if parameters:
+            param_query = query.parameterized
+            param_query.apply(parameters)
+            query_result = models.QueryResult.get_latest(query.data_source, param_query.text, -1)
+        else:
+            query_result = models.QueryResult.get_by_id_and_org(
+                query.latest_query_data_id, org
+            )
         return query_result.data
     else:
         raise QueryDetachedFromDataSourceError(query_id)
 
 
-def dropdown_values(query_id, org):
-    data = _load_result(query_id, org)
+def dropdown_values(query_id, org, parameters=None):
+    data = _load_result(query_id, org, parameters)
     first_column = data["columns"][0]["name"]
     pluck = partial(_pluck_name_and_value, first_column)
     return list(map(pluck, data["rows"]))
 
 
-def join_parameter_list_values(parameters, schema):
+def join_parameter_list_value(value, key, schema):
+    definition = next(
+        (definition for definition in schema if definition["name"] == key), {}
+    )
+    multi_values_options = definition.get("multiValuesOptions", {})
+    separator = str(multi_values_options.get("separator", ","))
+    prefix = str(multi_values_options.get("prefix", ""))
+    suffix = str(multi_values_options.get("suffix", ""))
+    return separator.join(
+        [prefix + v + suffix for v in value]
+    )
+
+def resolve_parameter_values(parameters, schema):
     updated_parameters = {}
     for (key, value) in parameters.items():
-        if isinstance(value, list):
-            definition = next(
-                (definition for definition in schema if definition["name"] == key), {}
-            )
-            multi_values_options = definition.get("multiValuesOptions", {})
-            separator = str(multi_values_options.get("separator", ","))
-            prefix = str(multi_values_options.get("prefix", ""))
-            suffix = str(multi_values_options.get("suffix", ""))
-            updated_parameters[key] = separator.join(
-                [prefix + v + suffix for v in value]
-            )
-        else:
-            updated_parameters[key] = value
+        if isinstance(value, dict) and "value" in value:
+            value = value["value"]
+        updated_parameters[key] = join_parameter_list_value(value, key, schema) if isinstance(value, list) else value
     return updated_parameters
 
 
@@ -76,7 +83,7 @@ def _collect_query_parameters(query):
 def _parameter_names(parameter_values):
     names = []
     for key, value in parameter_values.items():
-        if isinstance(value, dict):
+        if isinstance(value, dict) and ("start" in value or "end" in value):
             for inner_key in value.keys():
                 names.append("{}.{}".format(key, inner_key))
         else:
@@ -134,7 +141,7 @@ class ParameterizedQuery(object):
         else:
             self.parameters.update(parameters)
             self.query = mustache_render(
-                self.template, join_parameter_list_values(parameters, self.schema)
+                self.template, resolve_parameter_values(parameters, self.schema)
             )
 
         return self
@@ -158,6 +165,14 @@ class ParameterizedQuery(object):
         if isinstance(enum_options, str):
             enum_options = enum_options.split("\n")
 
+        if definition.get("type") == "query":
+            if isinstance(value, dict) and "executionParamValues" in value:
+                query_based_with_parameter = True
+                dpd_values = [v["value"] for v in dropdown_values(query_id, self.org, value["executionParamValues"])]
+            else:
+                query_based_with_parameter = False
+                dpd_values = [v["value"] for v in dropdown_values(query_id, self.org)]
+
         validators = {
             "text": lambda value: isinstance(value, str),
             "number": _is_number,
@@ -165,8 +180,8 @@ class ParameterizedQuery(object):
                 value, enum_options, allow_multiple_values
             ),
             "query": lambda value: _is_value_within_options(
-                value,
-                [v["value"] for v in dropdown_values(query_id, self.org)],
+                value["value"] if query_based_with_parameter else value,
+                dpd_values,
                 allow_multiple_values,
             ),
             "date": _is_date,

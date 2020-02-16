@@ -62,6 +62,15 @@ export default class QueryBasedParameterInput extends React.Component {
     return value;
   }
 
+  updateOptions(options) {
+    this.setState({ options, loading: false }, () => {
+      const updatedValue = this.setValue(this.props.value);
+      if (!isEqual(updatedValue, this.props.value)) {
+        this.props.onSelect(updatedValue);
+      }
+    });
+  }
+
   async _loadOptions(queryId) {
     if (queryId && queryId !== this.state.queryId) {
       this.setState({ loading: true });
@@ -69,12 +78,7 @@ export default class QueryBasedParameterInput extends React.Component {
 
       // stale queryId check
       if (this.props.queryId === queryId) {
-        this.setState({ options, loading: false }, () => {
-          const updatedValue = this.setValue(this.props.value);
-          if (!isEqual(updatedValue, this.props.value)) {
-            this.props.onSelect(updatedValue);
-          }
-        });
+        this.updateOptions(options);
       }
     }
   }
@@ -84,16 +88,17 @@ export default class QueryBasedParameterInput extends React.Component {
     const { loading, options } = this.state;
     const selectProps = { ...otherProps };
     if (parameter.searchFunction) {
+      selectProps.filterOption = false;
       selectProps.onSearch = debounce(searchTerm => {
         if (trim(searchTerm)) {
           this.setState({ loading: true, currentSearchTerm: searchTerm });
-          parameter.searchFunction(searchTerm).then(values => {
+          parameter.searchFunction(searchTerm).then(options => {
             if (this.state.currentSearchTerm === searchTerm) {
-              this.setState({ options: values, loading: false });
+              this.updateOptions(options);
             }
           });
         }
-      }, 200);
+      }, 300);
     }
     return (
       <span>
