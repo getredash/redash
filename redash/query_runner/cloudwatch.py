@@ -3,7 +3,7 @@ import yaml
 import datetime
 
 from redash.query_runner import BaseQueryRunner, register
-from redash.utils import json_dumps
+from redash.utils import json_dumps, parse_human_time
 
 
 def parse_response(results):
@@ -28,6 +28,18 @@ def parse_response(results):
             )
 
     return rows, columns
+
+
+def parse_query(query):
+    query = yaml.safe_load(query)
+
+    for timeKey in ["StartTime", "EndTime"]:
+        if isinstance(query.get(timeKey), str):
+            query[timeKey] = int(parse_human_time(query[timeKey]).timestamp())
+    if not query.get("EndTime"):
+        query["EndTime"] = int(datetime.datetime.now().timestamp())
+
+    return query
 
 
 class CloudWatch(BaseQueryRunner):
@@ -89,7 +101,7 @@ class CloudWatch(BaseQueryRunner):
     def run_query(self, query, user):
         cloudwatch = self._get_client()
 
-        query = yaml.safe_load(query)
+        query = parse_query(query)
 
         results = []
         paginator = cloudwatch.get_paginator("get_metric_data")
