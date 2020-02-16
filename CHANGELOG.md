@@ -1,5 +1,11 @@
 # Change Log
 
+## v8.0.2 - 2020-02-16
+
+* Update snowflake-connector version to address issues with Azure dependencies and requests monkey patching.
+* Update RDS CA Certificate for the new 2019 one (#4581, #4304).
+* Update cassandra-driver to speed up Docker builds.
+
 ## v8.0.1 - 2019-11-17
 
 * Fix the DB migration so that the correct key is used for encrypting Data Source credentials. Otherwise direct upgrades from versions older than v7 will not work properly.
