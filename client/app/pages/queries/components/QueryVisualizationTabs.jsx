@@ -143,18 +143,7 @@ export default function QueryVisualizationTabs({
             />
           }>
           {queryResult ? (
-            <VisualizationRenderer
-              visualization={visualization}
-              queryResult={queryResult}
-              context="query"
-              emptyState={
-                <EmptyState
-                  title="No rows returned"
-                  message="Please update your query or refresh the results using the button below."
-                  refreshButton={refreshButton}
-                />
-              }
-            />
+            <VisualizationRenderer visualization={visualization} queryResult={queryResult} context="query" />
           ) : (
             <EmptyState
               title="No results found!"

@@ -1,4 +1,4 @@
-import { isEqual, isEmpty, map, find } from "lodash";
+import { isEqual, map, find } from "lodash";
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import getQueryResultData from "@/lib/getQueryResultData";
@@ -55,9 +55,7 @@ export default function VisualizationRenderer(props) {
   );
 
   const { showFilters, visualization } = props;
-  const { Renderer, getOptions, isVisualizationEmpty = data => isEmpty(data.rows) } = registeredVisualizations[
-    visualization.type
-  ];
+  const { Renderer, getOptions } = registeredVisualizations[visualization.type];
 
   // Avoid unnecessary updates (which may be expensive or cause issues with
   // internal state of some visualizations like Table) - compare options deeply
@@ -80,22 +78,16 @@ export default function VisualizationRenderer(props) {
       <ErrorBoundary
         ref={errorHandlerRef}
         renderError={() => <ErrorMessage>Error while rendering visualization.</ErrorMessage>}>
-        {!isVisualizationEmpty(data, options) ? (
-          <>
-            {showFilters && <Filters filters={filters} onChange={setFilters} />}
-            <div className="visualization-renderer-wrapper">
-              <Renderer
-                key={`visualization${visualization.id}`}
-                options={options}
-                data={filteredData}
-                visualizationName={visualization.name}
-                context={props.context}
-              />
-            </div>
-          </>
-        ) : (
-          props.emptyState
-        )}
+        {showFilters && <Filters filters={filters} onChange={setFilters} />}
+        <div className="visualization-renderer-wrapper">
+          <Renderer
+            key={`visualization${visualization.id}`}
+            options={options}
+            data={filteredData}
+            visualizationName={visualization.name}
+            context={props.context}
+          />
+        </div>
       </ErrorBoundary>
     </div>
   );
@@ -107,11 +99,9 @@ VisualizationRenderer.propTypes = {
   filters: FiltersType,
   showFilters: PropTypes.bool,
   context: PropTypes.oneOf(["query", "widget"]).isRequired,
-  emptyState: PropTypes.node,
 };
 
 VisualizationRenderer.defaultProps = {
   filters: [],
   showFilters: true,
-  emptyState: null,
 };
