@@ -19,7 +19,7 @@ class QueryBasedDropdownParameter extends Parameter {
     this.queryId = parameter.queryId;
     this.multiValuesOptions = parameter.multiValuesOptions;
     this.parameterMapping = parameter.parameterMapping;
-    this.searchColumn = parameter.searchColumn || "search"; // TODO: Make search col select
+    this.searchColumn = parameter.searchColumn;
     this.searchTerm = parameter.searchTerm;
     this.staticParams = { ...parameter.staticParams };
     this.setValue(parameter.value);

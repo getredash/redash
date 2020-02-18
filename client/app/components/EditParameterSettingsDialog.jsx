@@ -1,4 +1,4 @@
-import { includes, words, capitalize, clone, isNull, keys, values } from "lodash";
+import { includes, words, capitalize, clone, isNull, keys, values, omit } from "lodash";
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import Checkbox from "antd/lib/checkbox";
@@ -16,6 +16,7 @@ import Radio from "antd/lib/radio";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import QuerySelector from "@/components/QuerySelector";
 import ParameterMappingEditor from "@/components//ParameterMappingEditor";
+import ParameterValueInput from "@/components/ParameterValueInput";
 import { Query } from "@/services/query";
 import { QueryBasedParameterMappingType } from "@/services/parameters/QueryBasedDropdownParameter";
 
@@ -76,6 +77,24 @@ NameInput.propTypes = {
 // TODO: put this component in its own file
 function QueryBasedParamMappingEditor({ parameter, mappingType, staticValue, searchAvailable, onChange }) {
   const [showPopover, setShowPopover] = useState(false);
+  const [newMappingType, setNewMappingType] = useState(mappingType);
+  const [newStaticValue, setNewStaticValue] = useState(staticValue);
+
+  const parameterRef = useRef(parameter);
+  useEffect(() => {
+    parameterRef.current.setValue(staticValue);
+  }, [staticValue]);
+
+  const onCancel = () => {
+    setNewMappingType(mappingType);
+    setNewStaticValue(staticValue);
+    setShowPopover(false);
+  };
+
+  const onSave = () => {
+    onChange({ mappingType: newMappingType, staticValue: newStaticValue });
+    setShowPopover(false);
+  };
 
   let currentState = "Undefined";
   if (mappingType === QueryBasedParameterMappingType.DROPDOWN_SEARCH) {
@@ -90,10 +109,10 @@ function QueryBasedParamMappingEditor({ parameter, mappingType, staticValue, sea
         placement="left"
         trigger="click"
         content={
-          <ParameterMappingEditor header="Edit Parameter Source" onCancel={() => setShowPopover(false)}>
+          <ParameterMappingEditor header="Edit Parameter Source" onCancel={onCancel} onSave={onSave}>
             <Form>
-              <Form.Item label="Source" {...formItemProps}>
-                <Radio.Group value={mappingType}>
+              <Form.Item className="m-b-15" label="Source" {...formItemProps}>
+                <Radio.Group value={newMappingType} onChange={({ target }) => setNewMappingType(target.value)}>
                   <Radio
                     className="radio"
                     value={QueryBasedParameterMappingType.DROPDOWN_SEARCH}
@@ -110,6 +129,21 @@ function QueryBasedParamMappingEditor({ parameter, mappingType, staticValue, sea
                   </Radio>
                 </Radio.Group>
               </Form.Item>
+              {newMappingType === QueryBasedParameterMappingType.STATIC && (
+                <Form.Item label="Value" {...formItemProps}>
+                  <ParameterValueInput
+                    type={parameter.type}
+                    value={parameter.normalizedValue}
+                    enumOptions={parameter.enumOptions}
+                    queryId={parameter.queryId}
+                    parameter={parameter}
+                    onSelect={value => {
+                      parameter.setValue(value);
+                      setNewStaticValue(parameter.getExecutionValue({ joinListValues: true }));
+                    }}
+                  />
+                </Form.Item>
+              )}
             </Form>
           </ParameterMappingEditor>
         }
@@ -135,7 +169,7 @@ QueryBasedParamMappingEditor.defaultProps = {
   mappingType: QueryBasedParameterMappingType.UNDEFINED,
   staticValue: undefined,
   searchAvailable: false,
-  onChance: () => {},
+  onChange: () => {},
 };
 
 function EditParameterSettingsDialog(props) {
@@ -292,19 +326,36 @@ function EditParameterSettingsDialog(props) {
                 title="Value Source"
                 key="source"
                 render={mappingParam => {
+                  const onChangeMapping = ({ mappingType, staticValue }) => {
+                    const paramUpdates = {};
+                    if (mappingType === QueryBasedParameterMappingType.DROPDOWN_SEARCH) {
+                      paramUpdates.searchColumn = mappingParam.name;
+                    } else if (param.searchColumn === mappingParam.name) {
+                      paramUpdates.searchColumn = null;
+                    }
+                    if (mappingType === QueryBasedParameterMappingType.STATIC) {
+                      paramUpdates.staticParams = {
+                        ...param.staticParams,
+                        [mappingParam.name]: staticValue,
+                      };
+                    } else {
+                      paramUpdates.staticParams = omit(param.staticParams, [mappingProps.name]);
+                    }
+                    setParam({ ...param, ...paramUpdates });
+                  };
                   const mappingProps = {
                     parameter: mappingParam,
                     mappingType: QueryBasedParameterMappingType.UNDEFINED,
                     searchAvailable: !param.searchColumn,
+                    onChange: onChangeMapping,
                   };
-
                   // TODO: Update backend verification accordingly and avoid this
                   if (param.searchColumn === mappingParam.name) {
                     mappingProps.mappingType = QueryBasedParameterMappingType.DROPDOWN_SEARCH;
                     mappingProps.searchAvailable = true;
-                  } else if (includes(keys(param.staticValues), mappingParam.name)) {
+                  } else if (includes(keys(param.staticParams), mappingParam.name)) {
                     mappingProps.mappingType = QueryBasedParameterMappingType.STATIC;
-                    mappingProps.staticValue = param.staticValues[mappingParam.name];
+                    mappingProps.staticValue = param.staticParams[mappingParam.name];
                   }
                   return <QueryBasedParamMappingEditor {...mappingProps} />;
                 }}
