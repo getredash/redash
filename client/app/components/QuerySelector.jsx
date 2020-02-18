@@ -11,6 +11,10 @@ import useSearchResults from "@/lib/hooks/useSearchResults";
 
 const { Option } = Select;
 function search(term) {
+  if (term === null) {
+    return Promise.resolve(null);
+  }
+
   // get recent
   if (!term) {
     return Query.recent().then(results => results.filter(item => !item.is_draft)); // filter out draft
