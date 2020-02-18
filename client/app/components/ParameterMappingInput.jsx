@@ -18,6 +18,7 @@ import ParameterValueInput from "@/components/ParameterValueInput";
 import { ParameterMappingType } from "@/services/widget";
 import { Parameter, cloneParameter } from "@/services/parameters";
 import HelpTrigger from "@/components/HelpTrigger";
+import ParameterMappingEditor from "@/components/ParameterMappingEditor";
 
 import "./ParameterMappingInput.less";
 
@@ -325,23 +326,22 @@ class MappingEditor extends React.Component {
     const { mapping, inputError } = this.state;
 
     return (
-      <div className="parameter-mapping-editor" data-test="EditParamMappingPopover">
-        <header>
-          Edit Source and Value <HelpTrigger type="VALUE_SOURCE_OPTIONS" />
-        </header>
+      <ParameterMappingEditor
+        header={
+          <>
+            Edit Source and Value <HelpTrigger type="VALUE_SOURCE_OPTIONS" />
+          </>
+        }
+        saveDisabled={!!inputError}
+        onSave={this.save}
+        onCancel={this.hide}>
         <ParameterMappingInput
           mapping={mapping}
           existingParamNames={this.props.existingParamNames}
           onChange={this.onChange}
           inputError={inputError}
         />
-        <footer>
-          <Button onClick={this.hide}>Cancel</Button>
-          <Button onClick={this.save} disabled={!!inputError} type="primary">
-            OK
-          </Button>
-        </footer>
-      </div>
+      </ParameterMappingEditor>
     );
   }
 

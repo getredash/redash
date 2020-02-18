@@ -1,16 +1,23 @@
-import { includes, words, capitalize, clone, isNull } from "lodash";
-import React, { useState, useEffect } from "react";
+import { includes, words, capitalize, clone, isNull, keys, values } from "lodash";
+import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import Checkbox from "antd/lib/checkbox";
 import Modal from "antd/lib/modal";
 import Form from "antd/lib/form";
 import Button from "antd/lib/button";
 import Select from "antd/lib/select";
+import Icon from "antd/lib/icon";
 import Input from "antd/lib/input";
+import Table from "antd/lib/table";
 import Divider from "antd/lib/divider";
+import Tooltip from "antd/lib/tooltip";
+import Popover from "antd/lib/popover";
+import Radio from "antd/lib/radio";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import QuerySelector from "@/components/QuerySelector";
+import ParameterMappingEditor from "@/components//ParameterMappingEditor";
 import { Query } from "@/services/query";
+import { QueryBasedParameterMappingType } from "@/services/parameters/QueryBasedDropdownParameter";
 
 const { Option } = Select;
 const formItemProps = { labelCol: { span: 6 }, wrapperCol: { span: 16 } };
@@ -66,20 +73,85 @@ NameInput.propTypes = {
   type: PropTypes.string.isRequired,
 };
 
+// TODO: put this component in its own file
+function QueryBasedParamMappingEditor({ parameter, mappingType, staticValue, searchAvailable, onChange }) {
+  const [showPopover, setShowPopover] = useState(false);
+
+  let currentState = "Undefined";
+  if (mappingType === QueryBasedParameterMappingType.DROPDOWN_SEARCH) {
+    currentState = "Dropdown Search";
+  } else if (mappingType === QueryBasedParameterMappingType.STATIC) {
+    currentState = `Static value: ${staticValue}`;
+  }
+  return (
+    <>
+      {currentState}
+      <Popover
+        placement="left"
+        trigger="click"
+        content={
+          <ParameterMappingEditor header="Edit Parameter Source" onCancel={() => setShowPopover(false)}>
+            <Form>
+              <Form.Item label="Source" {...formItemProps}>
+                <Radio.Group value={mappingType}>
+                  <Radio
+                    className="radio"
+                    value={QueryBasedParameterMappingType.DROPDOWN_SEARCH}
+                    disabled={!searchAvailable}>
+                    Dropdown Search{" "}
+                    {!searchAvailable && (
+                      <Tooltip title="There is already a parameter mapped with the Dropdown Search type.">
+                        <Icon type="question-circle" theme="filled" />
+                      </Tooltip>
+                    )}
+                  </Radio>
+                  <Radio className="radio" value={QueryBasedParameterMappingType.STATIC}>
+                    Static Value
+                  </Radio>
+                </Radio.Group>
+              </Form.Item>
+            </Form>
+          </ParameterMappingEditor>
+        }
+        visible={showPopover}
+        onVisibleChange={setShowPopover}>
+        <Button className="m-l-5" size="small" type="dashed">
+          <Icon type="edit" />
+        </Button>
+      </Popover>
+    </>
+  );
+}
+
+QueryBasedParamMappingEditor.propTypes = {
+  parameter: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  mappingType: PropTypes.oneOf(values(QueryBasedParameterMappingType)),
+  staticValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  searchAvailable: PropTypes.bool,
+  onChange: PropTypes.func,
+};
+
+QueryBasedParamMappingEditor.defaultProps = {
+  mappingType: QueryBasedParameterMappingType.UNDEFINED,
+  staticValue: undefined,
+  searchAvailable: false,
+  onChance: () => {},
+};
+
 function EditParameterSettingsDialog(props) {
   const [param, setParam] = useState(clone(props.parameter));
   const [isNameValid, setIsNameValid] = useState(true);
-  const [initialQuery, setInitialQuery] = useState();
+  const [paramQuery, setParamQuery] = useState();
 
   const isNew = !props.parameter.name;
 
   // fetch query by id
+  const initialQueryId = useRef(props.parameter.queryId);
   useEffect(() => {
-    const queryId = props.parameter.queryId;
-    if (queryId) {
-      Query.get({ id: queryId }).then(setInitialQuery);
+    if (initialQueryId.current) {
+      Query.get({ id: initialQueryId.current }).then(setParamQuery);
     }
-  }, [props.parameter.queryId]);
+  }, []);
 
   function isFulfilled() {
     // name
@@ -191,10 +263,53 @@ function EditParameterSettingsDialog(props) {
         {param.type === "query" && (
           <Form.Item label="Query" help="Select query to load dropdown values from" {...formItemProps}>
             <QuerySelector
-              selectedQuery={initialQuery}
-              onChange={q => setParam({ ...param, queryId: q && q.id })}
+              selectedQuery={paramQuery}
+              onChange={q => {
+                if (q) {
+                  setParamQuery(q);
+                  setParam({ ...param, queryId: q.id });
+                }
+              }}
               type="select"
             />
+          </Form.Item>
+        )}
+        {param.type === "query" && paramQuery && paramQuery.hasParameters() && (
+          <Form.Item className="m-t-15 m-b-5" label="Parameters" {...formItemProps}>
+            <Table
+              dataSource={paramQuery.getParametersDefs()}
+              size="middle"
+              pagination={false}
+              rowKey={(record, idx) => `row${idx}`}>
+              <Table.Column title="Title" key="title" render={mappingParam => mappingParam.getTitle()} />
+              <Table.Column
+                title="Keyword"
+                key="keyword"
+                className="keyword"
+                render={mappingParam => <code>{`{{ ${mappingParam.name} }}`}</code>}
+              />
+              <Table.Column
+                title="Value Source"
+                key="source"
+                render={mappingParam => {
+                  const mappingProps = {
+                    parameter: mappingParam,
+                    mappingType: QueryBasedParameterMappingType.UNDEFINED,
+                    searchAvailable: !param.searchColumn,
+                  };
+
+                  // TODO: Update backend verification accordingly and avoid this
+                  if (param.searchColumn === mappingParam.name) {
+                    mappingProps.mappingType = QueryBasedParameterMappingType.DROPDOWN_SEARCH;
+                    mappingProps.searchAvailable = true;
+                  } else if (includes(keys(param.staticValues), mappingParam.name)) {
+                    mappingProps.mappingType = QueryBasedParameterMappingType.STATIC;
+                    mappingProps.staticValue = param.staticValues[mappingParam.name];
+                  }
+                  return <QueryBasedParamMappingEditor {...mappingProps} />;
+                }}
+              />
+            </Table>
           </Form.Item>
         )}
         {(param.type === "enum" || param.type === "query") && (

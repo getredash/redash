@@ -7,11 +7,18 @@ function mapOptionValuesToString(options) {
   return map(options, option => ({ ...option, value: toString(option.value) }));
 }
 
+export const QueryBasedParameterMappingType = {
+  DROPDOWN_SEARCH: "search",
+  STATIC: "static",
+  UNDEFINED: "undefined",
+};
+
 class QueryBasedDropdownParameter extends Parameter {
   constructor(parameter, parentQueryId) {
     super(parameter, parentQueryId);
     this.queryId = parameter.queryId;
     this.multiValuesOptions = parameter.multiValuesOptions;
+    this.parameterMapping = parameter.parameterMapping;
     this.searchColumn = parameter.searchColumn || "search"; // TODO: Make search col select
     this.searchTerm = parameter.searchTerm;
     this.staticParams = { ...parameter.staticParams };
