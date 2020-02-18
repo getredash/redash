@@ -50,8 +50,11 @@ class HardLimitingWorker(BaseWorker):
         self.log.warning("Job %s has been cancelled.", job.id)
 
     def soft_limit_exceeded(self, job):
-        seconds_under_monitor = (utcnow() - self.monitor_started).seconds
-        return seconds_under_monitor > job.timeout + self.grace_period
+        if job.timeout < 0:
+            return False
+        else:
+            seconds_under_monitor = (utcnow() - self.monitor_started).seconds
+            return seconds_under_monitor > job.timeout + self.grace_period
 
     def enforce_hard_limit(self, job):
         self.log.warning(
