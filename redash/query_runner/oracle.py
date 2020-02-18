@@ -130,7 +130,11 @@ class Oracle(BaseSQLQueryRunner):
                 )
 
     def run_query(self, query, user):
-        connection = cx_Oracle.connect(self.connection_string)
+        dsn_t = cx_Oracle.makedsn(
+            self.configuration["host"],
+            self.configuration["port"],
+            service_name=self.configuration["servicename"])
+        connection = cx_Oracle.connect(user=self.configuration["user"],password=self.configuration["password"], dsn=dsn_t)
         connection.outputtypehandler = Oracle.output_handler
 
         cursor = connection.cursor()
