@@ -1,85 +1,76 @@
-import { react2angular } from 'react2angular';
-import React from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import Tooltip from 'antd/lib/tooltip';
-import Drawer from 'antd/lib/drawer';
-import Icon from 'antd/lib/icon';
-import { BigMessage } from '@/components/BigMessage';
-import DynamicComponent from '@/components/DynamicComponent';
+import { react2angular } from "react2angular";
+import React from "react";
+import PropTypes from "prop-types";
+import cx from "classnames";
+import Tooltip from "antd/lib/tooltip";
+import Drawer from "antd/lib/drawer";
+import Icon from "antd/lib/icon";
+import { BigMessage } from "@/components/BigMessage";
+import DynamicComponent from "@/components/DynamicComponent";
 
-import './HelpTrigger.less';
+import "./HelpTrigger.less";
 
-const DOMAIN = 'https://redash.io';
-const HELP_PATH = '/help';
+const DOMAIN = "https://redash.io";
+const HELP_PATH = "/help";
 const IFRAME_TIMEOUT = 20000;
-const IFRAME_URL_UPDATE_MESSAGE = 'iframe_url';
+const IFRAME_URL_UPDATE_MESSAGE = "iframe_url";
 
 export const TYPES = {
-  HOME: [
-    '',
-    'Help',
-  ],
+  HOME: ["", "Help"],
   VALUE_SOURCE_OPTIONS: [
-    '/user-guide/querying/query-parameters#Value-Source-Options',
-    'Guide: Value Source Options',
+    "/user-guide/querying/query-parameters#Value-Source-Options",
+    "Guide: Value Source Options"
   ],
   SHARE_DASHBOARD: [
-    '/user-guide/dashboards/sharing-dashboards',
-    'Guide: Sharing and Embedding Dashboards',
+    "/user-guide/dashboards/sharing-dashboards",
+    "Guide: Sharing and Embedding Dashboards"
   ],
   AUTHENTICATION_OPTIONS: [
-    '/user-guide/users/authentication-options',
-    'Guide: Authentication Options',
+    "/user-guide/users/authentication-options",
+    "Guide: Authentication Options"
   ],
   USAGE_DATA_SHARING: [
-    '/open-source/admin-guide/usage-data',
-    'Help: Anonymous Usage Data Sharing',
+    "/open-source/admin-guide/usage-data",
+    "Help: Anonymous Usage Data Sharing"
   ],
   DS_ATHENA: [
-    '/data-sources/amazon-athena-setup',
-    'Guide: Help Setting up Amazon Athena',
+    "/data-sources/amazon-athena-setup",
+    "Guide: Help Setting up Amazon Athena"
   ],
   DS_BIGQUERY: [
-    '/data-sources/bigquery-setup',
-    'Guide: Help Setting up BigQuery',
+    "/data-sources/bigquery-setup",
+    "Guide: Help Setting up BigQuery"
   ],
-  DS_URL: [
-    '/data-sources/querying-urls',
-    'Guide: Help Setting up URL',
-  ],
-  DS_MONGODB: [
-    '/data-sources/mongodb-setup',
-    'Guide: Help Setting up MongoDB',
-  ],
+  DS_URL: ["/data-sources/querying-urls", "Guide: Help Setting up URL"],
+  DS_MONGODB: ["/data-sources/mongodb-setup", "Guide: Help Setting up MongoDB"],
   DS_GOOGLE_SPREADSHEETS: [
-    '/data-sources/querying-a-google-spreadsheet',
-    'Guide: Help Setting up Google Spreadsheets',
+    "/data-sources/querying-a-google-spreadsheet",
+    "Guide: Help Setting up Google Spreadsheets"
   ],
   DS_GOOGLE_ANALYTICS: [
-    '/data-sources/google-analytics-setup',
-    'Guide: Help Setting up Google Analytics',
+    "/data-sources/google-analytics-setup",
+    "Guide: Help Setting up Google Analytics"
   ],
   DS_AXIBASETSD: [
-    '/data-sources/axibase-time-series-database',
-    'Guide: Help Setting up Axibase Time Series',
+    "/data-sources/axibase-time-series-database",
+    "Guide: Help Setting up Axibase Time Series"
   ],
   DS_RESULTS: [
-    '/user-guide/querying/query-results-data-source',
-    'Guide: Help Setting up Query Results',
-  ],
+    "/user-guide/querying/query-results-data-source",
+    "Guide: Help Setting up Query Results"
+  ]
 };
 
 export class HelpTrigger extends React.Component {
   static propTypes = {
     type: PropTypes.oneOf(Object.keys(TYPES)).isRequired,
     className: PropTypes.string,
-    children: PropTypes.node,
+    children: PropTypes.node
   };
 
   static defaultProps = {
     className: null,
-    children: <i className="fa fa-question-circle" />,
+    children: <i className="fa fa-question-circle" />
   };
 
   iframeRef = null;
@@ -95,19 +86,19 @@ export class HelpTrigger extends React.Component {
     visible: false,
     loading: false,
     error: false,
-    currentUrl: null,
+    currentUrl: null
   };
 
   componentDidMount() {
-    window.addEventListener('message', this.onPostMessageReceived, DOMAIN);
+    window.addEventListener("message", this.onPostMessageReceived, DOMAIN);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('message', this.onPostMessageReceived);
+    window.removeEventListener("message", this.onPostMessageReceived);
     clearTimeout(this.iframeLoadingTimeout);
   }
 
-  loadIframe = (url) => {
+  loadIframe = url => {
     clearTimeout(this.iframeLoadingTimeout);
     this.setState({ loading: true, error: false });
 
@@ -122,14 +113,14 @@ export class HelpTrigger extends React.Component {
     clearTimeout(this.iframeLoadingTimeout);
   };
 
-  onPostMessageReceived = (event) => {
+  onPostMessageReceived = event => {
     const { type, message: currentUrl } = event.data || {};
     if (type !== IFRAME_URL_UPDATE_MESSAGE) {
       return;
     }
 
     this.setState({ currentUrl });
-  }
+  };
 
   openDrawer = () => {
     this.setState({ visible: true });
@@ -140,7 +131,7 @@ export class HelpTrigger extends React.Component {
     setTimeout(() => this.loadIframe(url), 300);
   };
 
-  closeDrawer = (event) => {
+  closeDrawer = event => {
     if (event) {
       event.preventDefault();
     }
@@ -150,7 +141,7 @@ export class HelpTrigger extends React.Component {
 
   render() {
     const [, tooltip] = TYPES[this.props.type];
-    const className = cx('help-trigger', this.props.className);
+    const className = cx("help-trigger", this.props.className);
     const url = this.state.currentUrl;
 
     return (
@@ -199,15 +190,22 @@ export class HelpTrigger extends React.Component {
 
             {/* loading indicator */}
             {this.state.loading && (
-              <BigMessage icon="fa-spinner fa-2x fa-pulse" message="Loading..." className="help-message" />
+              <BigMessage
+                icon="fa-spinner fa-2x fa-pulse"
+                message="Loading..."
+                className="help-message"
+              />
             )}
 
             {/* error message */}
             {this.state.error && (
               <BigMessage icon="fa-exclamation-circle" className="help-message">
-                Something went wrong.<br />
+                Something went wrong.
+                <br />
                 {/* eslint-disable-next-line react/jsx-no-target-blank */}
-                <a href={this.state.error} target="_blank" rel="noopener">Click here</a>{' '}
+                <a href={this.state.error} target="_blank" rel="noopener">
+                  Click here
+                </a>{" "}
                 to open the page in a new window.
               </BigMessage>
             )}
@@ -226,7 +224,7 @@ export class HelpTrigger extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('helpTrigger', react2angular(HelpTrigger));
+  ngModule.component("helpTrigger", react2angular(HelpTrigger));
 }
 
 init.init = true;

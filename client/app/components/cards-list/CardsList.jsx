@@ -1,10 +1,10 @@
-import Input from 'antd/lib/input';
-import { includes, isEmpty } from 'lodash';
-import PropTypes from 'prop-types';
-import React from 'react';
-import EmptyState from '@/components/items-list/components/EmptyState';
+import Input from "antd/lib/input";
+import { includes, isEmpty } from "lodash";
+import PropTypes from "prop-types";
+import React from "react";
+import EmptyState from "@/components/items-list/components/EmptyState";
 
-import './CardsList.less';
+import "./CardsList.less";
 
 const { Search } = Input;
 
@@ -15,19 +15,19 @@ export default class CardsList extends React.Component {
         title: PropTypes.string.isRequired,
         imgSrc: PropTypes.string.isRequired,
         onClick: PropTypes.func,
-        href: PropTypes.string,
-      }),
+        href: PropTypes.string
+      })
     ),
-    showSearch: PropTypes.bool,
+    showSearch: PropTypes.bool
   };
 
   static defaultProps = {
     items: [],
-    showSearch: false,
+    showSearch: false
   };
 
   state = {
-    searchText: '',
+    searchText: ""
   };
 
   constructor(props) {
@@ -35,7 +35,7 @@ export default class CardsList extends React.Component {
     this.items = [];
 
     let itemId = 1;
-    props.items.forEach((item) => {
+    props.items.forEach(item => {
       this.items.push({ id: itemId, ...item });
       itemId += 1;
     });
@@ -44,7 +44,12 @@ export default class CardsList extends React.Component {
   // eslint-disable-next-line class-methods-use-this
   renderListItem(item) {
     return (
-      <a key={`card${item.id}`} className="visual-card" onClick={item.onClick} href={item.href}>
+      <a
+        key={`card${item.id}`}
+        className="visual-card"
+        onClick={item.onClick}
+        href={item.href}
+      >
         <img alt={item.title} src={item.imgSrc} />
         <h3>{item.title}</h3>
       </a>
@@ -55,8 +60,11 @@ export default class CardsList extends React.Component {
     const { showSearch } = this.props;
     const { searchText } = this.state;
 
-    const filteredItems = this.items.filter(item => isEmpty(searchText) ||
-      includes(item.title.toLowerCase(), searchText.toLowerCase()));
+    const filteredItems = this.items.filter(
+      item =>
+        isEmpty(searchText) ||
+        includes(item.title.toLowerCase(), searchText.toLowerCase())
+    );
 
     return (
       <div data-test="CardsList">
@@ -71,7 +79,9 @@ export default class CardsList extends React.Component {
             </div>
           </div>
         )}
-        {isEmpty(filteredItems) ? (<EmptyState className="" />) : (
+        {isEmpty(filteredItems) ? (
+          <EmptyState className="" />
+        ) : (
           <div className="row">
             <div className="col-lg-12 d-inline-flex flex-wrap visual-card-list">
               {filteredItems.map(item => this.renderListItem(item))}

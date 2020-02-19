@@ -1,11 +1,11 @@
-import React from 'react';
-import * as Grid from 'antd/lib/grid';
-import Input from 'antd/lib/input';
-import InputNumber from 'antd/lib/input-number';
-import Switch from 'antd/lib/switch';
-import { EditorPropTypes } from '@/visualizations';
+import React from "react";
+import * as Grid from "antd/lib/grid";
+import Input from "antd/lib/input";
+import InputNumber from "antd/lib/input-number";
+import Switch from "antd/lib/switch";
+import { EditorPropTypes } from "@/visualizations";
 
-import { isValueNumber } from '../utils';
+import { isValueNumber } from "../utils";
 
 export default function FormatSettings({ options, data, onOptionsChange }) {
   const inputsEnabled = isValueNumber(data.rows, options);
@@ -13,7 +13,9 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
     <React.Fragment>
       <Grid.Row type="flex" align="middle" className="m-b-10">
         <Grid.Col span={12}>
-          <label htmlFor="counter-formatting-decimal-place">Formatting Decimal Place</label>
+          <label htmlFor="counter-formatting-decimal-place">
+            Formatting Decimal Place
+          </label>
         </Grid.Col>
         <Grid.Col span={12}>
           <InputNumber
@@ -29,7 +31,9 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
 
       <Grid.Row type="flex" align="middle" className="m-b-10">
         <Grid.Col span={12}>
-          <label htmlFor="counter-formatting-decimal-character">Formatting Decimal Character</label>
+          <label htmlFor="counter-formatting-decimal-character">
+            Formatting Decimal Character
+          </label>
         </Grid.Col>
         <Grid.Col span={12}>
           <Input
@@ -45,7 +49,9 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
 
       <Grid.Row type="flex" align="middle" className="m-b-10">
         <Grid.Col span={12}>
-          <label htmlFor="counter-formatting-thousands-separator">Formatting Thousands Separator</label>
+          <label htmlFor="counter-formatting-thousands-separator">
+            Formatting Thousands Separator
+          </label>
         </Grid.Col>
         <Grid.Col span={12}>
           <Input
@@ -61,7 +67,9 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
 
       <Grid.Row type="flex" align="middle" className="m-b-10">
         <Grid.Col span={12}>
-          <label htmlFor="counter-formatting-string-prefix">Formatting String Prefix</label>
+          <label htmlFor="counter-formatting-string-prefix">
+            Formatting String Prefix
+          </label>
         </Grid.Col>
         <Grid.Col span={12}>
           <Input
@@ -77,7 +85,9 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
 
       <Grid.Row type="flex" align="middle" className="m-b-10">
         <Grid.Col span={12}>
-          <label htmlFor="counter-formatting-string-suffix">Formatting String Suffix</label>
+          <label htmlFor="counter-formatting-string-suffix">
+            Formatting String Suffix
+          </label>
         </Grid.Col>
         <Grid.Col span={12}>
           <Input
@@ -91,7 +101,10 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
         </Grid.Col>
       </Grid.Row>
 
-      <label className="d-flex align-items-center" htmlFor="counter-format-target-value">
+      <label
+        className="d-flex align-items-center"
+        htmlFor="counter-format-target-value"
+      >
         <Switch
           id="counter-format-target-value"
           data-test="Counter.Formatting.FormatTargetValue"
