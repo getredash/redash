@@ -1,22 +1,34 @@
 import logging
 
-from flask import abort, flash, redirect, render_template, request, url_for
-
-from flask_login import current_user, login_required, login_user, logout_user
-from redash import __version__, limiter, models, settings
-from redash.authentication import current_org, get_login_url, get_next_path
-from redash.authentication.account import (
-    BadSignature,
-    SignatureExpired,
-    send_password_reset_email,
-    send_user_disabled_email,
-    send_verify_email,
-    validate_token,
-)
-from redash.handlers import routes
-from redash.handlers.base import json_response, org_scoped_rule
-from redash.version_check import get_latest_version
+from flask import abort
+from flask import flash
+from flask import redirect
+from flask import render_template
+from flask import request
+from flask import url_for
+from flask_login import current_user
+from flask_login import login_required
+from flask_login import login_user
+from flask_login import logout_user
 from sqlalchemy.orm.exc import NoResultFound
+
+from redash import __version__
+from redash import limiter
+from redash import models
+from redash import settings
+from redash.authentication import current_org
+from redash.authentication import get_login_url
+from redash.authentication import get_next_path
+from redash.authentication.account import BadSignature
+from redash.authentication.account import send_password_reset_email
+from redash.authentication.account import send_user_disabled_email
+from redash.authentication.account import send_verify_email
+from redash.authentication.account import SignatureExpired
+from redash.authentication.account import validate_token
+from redash.handlers import routes
+from redash.handlers.base import json_response
+from redash.handlers.base import org_scoped_rule
+from redash.version_check import get_latest_version
 
 logger = logging.getLogger(__name__)
 

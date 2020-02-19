@@ -1,21 +1,19 @@
-import os
 import logging
+import os
 import re
 
 from dateutil import parser
-
 from six import text_type
 
-from redash.query_runner import (
-    BaseHTTPQueryRunner,
-    register,
-    TYPE_DATETIME,
-    TYPE_INTEGER,
-    TYPE_FLOAT,
-    TYPE_BOOLEAN,
-    guess_type,
-)
-from redash.utils import json_dumps, json_loads
+from redash.query_runner import BaseHTTPQueryRunner
+from redash.query_runner import guess_type
+from redash.query_runner import register
+from redash.query_runner import TYPE_BOOLEAN
+from redash.query_runner import TYPE_DATETIME
+from redash.query_runner import TYPE_FLOAT
+from redash.query_runner import TYPE_INTEGER
+from redash.utils import json_dumps
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 

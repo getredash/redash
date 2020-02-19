@@ -2,7 +2,8 @@ import re
 from collections import OrderedDict
 
 from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_dumps
+from redash.utils import json_loads
 
 
 # TODO: make this more general and move into __init__.py

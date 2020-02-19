@@ -1,25 +1,24 @@
-from flask import request, url_for
-from funcy import project, partial
-
+from flask import request
+from flask import url_for
 from flask_restful import abort
-from redash import models, serializers
-from redash.handlers.base import (
-    BaseResource,
-    get_object_or_404,
-    paginate,
-    filter_by_tags,
-    order_results as _order_results,
-)
-from redash.permissions import (
-    can_modify,
-    require_admin_or_owner,
-    require_object_modify_permission,
-    require_permission,
-    is_public_access_allowed,
-)
+from funcy import partial
+from funcy import project
+from sqlalchemy.orm.exc import StaleDataError
+
+from redash import models
+from redash import serializers
+from redash.handlers.base import BaseResource
+from redash.handlers.base import filter_by_tags
+from redash.handlers.base import get_object_or_404
+from redash.handlers.base import order_results as _order_results
+from redash.handlers.base import paginate
+from redash.permissions import can_modify
+from redash.permissions import is_public_access_allowed
+from redash.permissions import require_admin_or_owner
+from redash.permissions import require_object_modify_permission
+from redash.permissions import require_permission
 from redash.security import csp_allows_embeding
 from redash.serializers import serialize_dashboard
-from sqlalchemy.orm.exc import StaleDataError
 
 
 # Ordering map for relationships

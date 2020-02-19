@@ -1,14 +1,17 @@
 from __future__ import absolute_import
 
 from flask import request
+from flask_login import current_user
+from flask_login import login_required
 
 from .authentication import current_org
-from flask_login import current_user, login_required
 from redash import models
 from redash.handlers import routes
-from redash.handlers.base import get_object_or_404, org_scoped_rule, record_event
-from redash.permissions import is_public_access_allowed
+from redash.handlers.base import get_object_or_404
+from redash.handlers.base import org_scoped_rule
+from redash.handlers.base import record_event
 from redash.handlers.static import render_index
+from redash.permissions import is_public_access_allowed
 from redash.security import csp_allows_embeding
 
 

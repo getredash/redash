@@ -1,10 +1,12 @@
-from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
+import datetime
+import logging
 
 import jwt
-import datetime
 import requests
-import logging
+
+from redash.query_runner import *
+from redash.utils import json_dumps
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 

@@ -1,13 +1,13 @@
-from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import (
-    TYPE_STRING,
-    TYPE_DATE,
-    TYPE_DATETIME,
-    TYPE_INTEGER,
-    TYPE_FLOAT,
-    TYPE_BOOLEAN,
-)
-from redash.utils import json_dumps, json_loads
+from redash.query_runner import BaseQueryRunner
+from redash.query_runner import register
+from redash.query_runner import TYPE_BOOLEAN
+from redash.query_runner import TYPE_DATE
+from redash.query_runner import TYPE_DATETIME
+from redash.query_runner import TYPE_FLOAT
+from redash.query_runner import TYPE_INTEGER
+from redash.query_runner import TYPE_STRING
+from redash.utils import json_dumps
+from redash.utils import json_loads
 
 
 try:

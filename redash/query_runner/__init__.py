@@ -1,8 +1,7 @@
 import logging
 
-from dateutil import parser
 import requests
-
+from dateutil import parser
 from six import text_type
 
 from redash import settings
