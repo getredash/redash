@@ -9,7 +9,7 @@ import KeyboardShortcuts, { humanReadableShortcut } from "@/services/KeyboardSho
 import AutocompleteToggle from "./AutocompleteToggle";
 import "./QueryEditorControls.less";
 
-function ButtonTooltip({ title, shortcut, ...props }) {
+export function ButtonTooltip({ title, shortcut, ...props }) {
   shortcut = humanReadableShortcut(shortcut, 1); // show only primary shortcut
   title =
     title && shortcut ? (

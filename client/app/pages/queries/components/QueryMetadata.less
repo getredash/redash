@@ -25,6 +25,10 @@
     }
   }
 
+  .query-metadata-space {
+    display: none;
+  }
+
   &.query-metadata-table {
     padding: 15px;
     border-top: 1px solid #efefef;
@@ -64,7 +68,8 @@
       align-items: flex-start;
       justify-content: flex-start;
 
-      .query-metadata-item:last-child {
+      .query-metadata-space {
+        display: block;
         flex: 1 1 auto;
         text-align: right;
       }
