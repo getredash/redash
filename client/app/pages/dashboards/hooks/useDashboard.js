@@ -10,7 +10,7 @@ import TextboxDialog from "@/components/dashboards/TextboxDialog";
 import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
 import { editableMappingsToParameterMappings, synchronizeWidgetTitles } from "@/components/ParameterMappingInput";
 import ShareDashboardDialog from "../components/ShareDashboardDialog";
-import useFullscreenHandler from "./useFullscreenHandler";
+import useFullscreenHandler from "../../../lib/hooks/useFullscreenHandler";
 import useRefreshRateHandler from "./useRefreshRateHandler";
 import useEditModeHandler from "./useEditModeHandler";
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import useMedia from "use-media";
@@ -29,15 +29,9 @@ import useQueryParameters from "./hooks/useQueryParameters";
 import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
+import useFullscreenHandler from '../../lib/hooks/useFullscreenHandler';
 
 import "./QueryView.less";
-
-function useFullscreenHandler(available) {
-  const [fullscreen, setFullscreen] = useState(false);
-  const toggleFullscreen = useCallback(() => setFullscreen(!fullscreen), [fullscreen]);
-
-  return useMemo(() => [available && fullscreen, toggleFullscreen], [available, fullscreen, toggleFullscreen]);
-}
 
 function QueryView(props) {
   const [query, setQuery] = useState(props.query);
