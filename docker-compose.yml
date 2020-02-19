@@ -1,6 +1,6 @@
 # This configuration file is for the **development** setup.
 # For a production example please refer to setup/docker-compose.yml.
-version: '3.2'
+version: "3.2"
 services:
   server:
     build: .
@@ -44,7 +44,7 @@ services:
     # improvement on my personal machine). We should consider moving this into a dedicated Docker Compose configuration for
     # tests.
     environment:
-      POSTGRES_USER: 'postgres'
+      POSTGRES_USER: "postgres"
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "15432:5432"
