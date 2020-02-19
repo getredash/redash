@@ -43,6 +43,7 @@ export default function QueryMetadata({ query, dataSource, layout, onEditSchedul
       <div className="query-metadata-space" />
       {dataSource && (
         <div className="query-metadata-item">
+          Data Source:
           <img src={`${IMG_ROOT}/${dataSource.type}.png`} width="20" alt={dataSource.type} />
           <div className="query-metadata-property">
             <div className="query-metadata-label">{dataSource.name}</div>

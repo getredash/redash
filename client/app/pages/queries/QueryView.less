@@ -8,14 +8,28 @@ page-query-view {
 
   .query-view-content {
     .query-results {
-      padding: 0px 15px 0px;
+      position: relative;
+      margin: 0px 15px 0px;
+
+      .query-execution-status {
+        position: fixed;
+        min-width: 250px;
+        bottom: 0;
+        right: 0;
+        padding: 15px;
+        z-index: 1000;
+
+        @media (min-width: 768px) {
+          position: absolute;
+          padding: 5px;
+        }
+      }
 
       .query-results-footer {
         border: 1px solid #d9d9d9;
         border-top-width: 0px;
         box-sizing: border-box;
         border-radius: 0px 0px 4px 4px;
-        padding: 15px;
         background: white;
       }
 

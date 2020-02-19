@@ -33,14 +33,9 @@ export default class EditInPlace extends React.Component {
     this.state = {
       editing: props.defaultEditing,
     };
-    this.inputRef = React.createRef();
   }
 
   componentDidUpdate(_, prevState) {
-    if (this.state.editing && !prevState.editing) {
-      this.inputRef.current.focus();
-    }
-
     if (!this.state.editing && prevState.editing) {
       this.props.onStopEditing();
     }
@@ -90,10 +85,10 @@ export default class EditInPlace extends React.Component {
     const InputComponent = multiline ? Input.TextArea : Input;
     return (
       <InputComponent
-        ref={this.inputRef}
         defaultValue={value}
         onBlur={e => this.stopEditing(e.target.value)}
         onKeyDown={this.handleKeyDown}
+        autoFocus
         {...editorProps}
       />
     );

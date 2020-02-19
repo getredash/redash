@@ -12,13 +12,15 @@ import "./QueryVisualizationTabs.less";
 
 const { TabPane } = Tabs;
 
-function EmptyState({ onRefresh, refreshButton }) {
+function EmptyState({ title, message, refreshButton }) {
   return (
     <div className="query-results-empty-state">
       <div className="empty-state-content">
-        <img src="/static/images/illustrations/no-query-results.svg" alt="No Query Results Illustration" />
-        <h3>No results found!</h3>
-        <div className="m-b-20">Please update your query or refresh the results using the button below.</div>
+        <div>
+          <img src="/static/images/illustrations/no-query-results.svg" alt="No Query Results Illustration" />
+        </div>
+        <h3>{title}</h3>
+        <div className="m-b-20">{message}</div>
         {refreshButton}
       </div>
     </div>
@@ -26,6 +28,8 @@ function EmptyState({ onRefresh, refreshButton }) {
 }
 
 EmptyState.propTypes = {
+  title: PropTypes.string.isRequired,
+  message: PropTypes.string.isRequired,
   refreshButton: PropTypes.node,
 };
 
@@ -138,10 +142,14 @@ export default function QueryVisualizationTabs({
               onDelete={() => onDeleteVisualization(visualization.id)}
             />
           }>
-          {queryResult && !(queryResult.isEmpty && queryResult.isEmpty()) ? (
+          {queryResult ? (
             <VisualizationRenderer visualization={visualization} queryResult={queryResult} context="query" />
           ) : (
-            <EmptyState refreshButton={refreshButton} />
+            <EmptyState
+              title="No results found!"
+              message="Please update your query or refresh the results using the button below."
+              refreshButton={refreshButton}
+            />
           )}
         </TabPane>
       ))}
