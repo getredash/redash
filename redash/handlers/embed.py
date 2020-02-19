@@ -8,6 +8,7 @@ from redash import models
 from redash.handlers import routes
 from redash.handlers.base import (get_object_or_404, org_scoped_rule,
                                   record_event)
+from redash.permissions import is_public_access_allowed
 from redash.handlers.static import render_index
 from redash.security import csp_allows_embeding
 

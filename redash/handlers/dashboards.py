@@ -8,7 +8,7 @@ from redash.handlers.base import (BaseResource, get_object_or_404, paginate,
                                   order_results as _order_results)
 from redash.permissions import (can_modify, require_admin_or_owner,
                                 require_object_modify_permission,
-                                require_permission)
+                                require_permission, is_public_access_allowed)
 from redash.security import csp_allows_embeding
 from redash.serializers import serialize_dashboard
 from sqlalchemy.orm.exc import StaleDataError
@@ -265,6 +265,7 @@ class DashboardShareResource(BaseResource):
         """
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
         require_admin_or_owner(dashboard.user_id)
+        is_public_access_allowed()
         api_key = models.ApiKey.create_for_object(dashboard, self.current_user)
         models.db.session.flush()
         models.db.session.commit()

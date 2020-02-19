@@ -101,6 +101,10 @@ def require_admin_or_owner(object_owner_id):
         abort(403, message="You don't have permission to edit this resource.")
 
 
+def is_public_access_allowed():
+    abort(403, message="Creating public dashboards is not allowed.")
+
+
 def can_modify(obj, user):
     return is_admin_or_owner(obj.user_id) or user.has_access(obj, ACCESS_TYPE_MODIFY)
 

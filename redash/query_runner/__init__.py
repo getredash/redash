@@ -87,6 +87,14 @@ class BaseQueryRunner(object):
         annotated_query = u"/* {} */ {}".format(annotation, query)
         return annotated_query
 
+    def annotate_query_with_single_line_comment(self, query, metadata):
+        if not self.should_annotate_query:
+            return query
+
+        annotation = u", ".join([u"{}: {}".format(k, v) for k, v in metadata.iteritems()])
+        annotated_query = u"-- {} -- \n {}".format(annotation, query)
+        return annotated_query
+
     def test_connection(self):
         if self.noop_query is None:
             raise NotImplementedError()

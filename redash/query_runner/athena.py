@@ -7,6 +7,7 @@ from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
+ANNOTATE_QUERY_FOR_DML = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY_FOR_DML', 'true'))
 SHOW_EXTRA_SETTINGS = parse_boolean(os.environ.get('ATHENA_SHOW_EXTRA_SETTINGS', 'true'))
 ASSUME_ROLE = parse_boolean(os.environ.get('ATHENA_ASSUME_ROLE', 'false'))
 OPTIONAL_CREDENTIALS = parse_boolean(os.environ.get('ATHENA_OPTIONAL_CREDENTIALS', 'true'))
@@ -134,7 +135,10 @@ class Athena(BaseQueryRunner):
 
     def annotate_query(self, query, metadata):
         if ANNOTATE_QUERY:
-            return super(Athena, self).annotate_query(query, metadata)
+            if ANNOTATE_QUERY_FOR_DML:
+                return super(Athena, self).annotate_query_with_single_line_comment(query, metadata)
+            else:
+                return super(Athena, self).annotate_query(query, metadata)
         return query
 
     @classmethod
