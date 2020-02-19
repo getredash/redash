@@ -16,12 +16,13 @@ from .app import create_app  # noqa
 from .query_runner import import_query_runners
 from .destinations import import_destinations
 
-__version__ = '8.0.1'
+__version__ = "8.0.1"
 
 
 if os.environ.get("REMOTE_DEBUG"):
     import ptvsd
-    ptvsd.enable_attach(address=('0.0.0.0', 5678))
+
+    ptvsd.enable_attach(address=("0.0.0.0", 5678))
 
 
 def setup_logging():
@@ -33,7 +34,12 @@ def setup_logging():
 
     # Make noisy libraries less noisy
     if settings.LOG_LEVEL != "DEBUG":
-        for name in ["passlib", "requests.packages.urllib3", "snowflake.connector", "apiclient"]:
+        for name in [
+            "passlib",
+            "requests.packages.urllib3",
+            "snowflake.connector",
+            "apiclient",
+        ]:
             logging.getLogger(name).setLevel("ERROR")
 
 
@@ -42,7 +48,9 @@ setup_logging()
 redis_connection = redis.from_url(settings.REDIS_URL)
 mail = Mail()
 migrate = Migrate()
-statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
+statsd_client = StatsClient(
+    host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX
+)
 limiter = Limiter(key_func=get_ipaddr, storage_uri=settings.LIMITER_STORAGE)
 
 import_query_runners(settings.QUERY_RUNNERS)
