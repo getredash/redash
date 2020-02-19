@@ -1,11 +1,11 @@
-import { isNil, each, forOwn, sortBy, values } from 'lodash';
+import {each, forOwn, isNil, sortBy, values} from 'lodash';
 
 function addPointToSeries(point, seriesCollection, seriesName) {
   if (seriesCollection[seriesName] === undefined) {
     seriesCollection[seriesName] = {
-      name: seriesName,
-      type: 'column',
-      data: [],
+      name : seriesName,
+      type : 'column',
+      data : [],
     };
   }
 
@@ -18,7 +18,7 @@ export default function getChartData(data, options) {
   const mappings = options.columnMapping;
 
   each(data, (row) => {
-    let point = { $raw: row };
+    let point = {$raw : row};
     let seriesName = null;
     let xValue = 0;
     const yValues = {};
@@ -70,7 +70,7 @@ export default function getChartData(data, options) {
 
     if (isNil(seriesName)) {
       each(yValues, (yValue, ySeriesName) => {
-        point = { x: xValue, y: yValue, $raw: point.$raw };
+        point = {x : xValue, y : yValue, $raw : point.$raw};
         if (eValue !== null) {
           point.yError = eValue;
         }
@@ -88,7 +88,7 @@ export default function getChartData(data, options) {
       addPointToSeries(point, series, seriesName);
     }
   });
-  return sortBy(values(series), ({ name }) => {
+  return sortBy(values(series), ({name}) => {
     if (options.seriesOptions[name]) {
       return options.seriesOptions[name].zIndex;
     }

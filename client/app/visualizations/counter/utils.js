@@ -1,10 +1,12 @@
-import { isNumber, isFinite, toString } from 'lodash';
+import {isFinite, isNumber, toString} from 'lodash';
 import numeral from 'numeral';
 
 // TODO: allow user to specify number format string instead of delimiters only
-// It will allow to remove this function (move all that weird formatting logic to a migration
-// that will set number format for all existing counter visualization)
-function numberFormat(value, decimalPoints, decimalDelimiter, thousandsDelimiter) {
+// It will allow to remove this function (move all that weird formatting logic
+// to a migration that will set number format for all existing counter
+// visualization)
+function numberFormat(value, decimalPoints, decimalDelimiter,
+                      thousandsDelimiter) {
   // Temporarily update locale data (restore defaults after formatting)
   const locale = numeral.localeData();
   const savedDelimiters = locale.delimiters;
@@ -14,18 +16,15 @@ function numberFormat(value, decimalPoints, decimalDelimiter, thousandsDelimiter
   // - `.` as decimal delimiter
   // - three decimal points
   locale.delimiters = {
-    thousands: ',',
-    decimal: '.',
+    thousands : ',',
+    decimal : '.',
   };
   let formatString = '0,0.000';
-  if (
-    (Number.isFinite(decimalPoints) && (decimalPoints >= 0)) ||
-    decimalDelimiter ||
-    thousandsDelimiter
-  ) {
+  if ((Number.isFinite(decimalPoints) && (decimalPoints >= 0)) ||
+      decimalDelimiter || thousandsDelimiter) {
     locale.delimiters = {
-      thousands: thousandsDelimiter,
-      decimal: decimalDelimiter || '.',
+      thousands : thousandsDelimiter,
+      decimal : decimalDelimiter || '.',
     };
 
     formatString = '0,0';
@@ -44,8 +43,9 @@ function numberFormat(value, decimalPoints, decimalDelimiter, thousandsDelimiter
 }
 
 // 0 - special case, use first record
-// 1..N - 1-based record number from beginning (wraps if greater than dataset size)
-// -1..-N - 1-based record number from end (wraps if greater than dataset size)
+// 1..N - 1-based record number from beginning (wraps if greater than dataset
+// size) -1..-N - 1-based record number from end (wraps if greater than dataset
+// size)
 function getRowNumber(index, rowsCount) {
   index = parseInt(index, 10) || 0;
   if (index === 0) {
@@ -55,7 +55,9 @@ function getRowNumber(index, rowsCount) {
   return index > 0 ? wrappedIndex : rowsCount - wrappedIndex - 1;
 }
 
-function formatValue(value, { stringPrefix, stringSuffix, stringDecimal, stringDecChar, stringThouSep }) {
+function formatValue(
+    value,
+    {stringPrefix, stringSuffix, stringDecimal, stringDecChar, stringThouSep}) {
   if (isNumber(value)) {
     value = numberFormat(value, stringDecimal, stringDecChar, stringThouSep);
     return toString(stringPrefix) + value + toString(stringSuffix);
@@ -97,7 +99,8 @@ export function getCounterData(rows, options, visualizationName) {
     if (targetColName) {
       result.targetValue = rows[targetRowNumber][targetColName];
 
-      if (Number.isFinite(result.counterValue) && isFinite(result.targetValue)) {
+      if (Number.isFinite(result.counterValue) &&
+          isFinite(result.targetValue)) {
         const delta = result.counterValue - result.targetValue;
         result.showTrend = true;
         result.trendPositive = delta >= 0;
@@ -106,8 +109,10 @@ export function getCounterData(rows, options, visualizationName) {
       result.targetValue = null;
     }
 
-    result.counterValueTooltip = formatTooltip(result.counterValue, options.tooltipFormat);
-    result.targetValueTooltip = formatTooltip(result.targetValue, options.tooltipFormat);
+    result.counterValueTooltip =
+        formatTooltip(result.counterValue, options.tooltipFormat);
+    result.targetValueTooltip =
+        formatTooltip(result.targetValue, options.tooltipFormat);
 
     result.counterValue = formatValue(result.counterValue, options);
 

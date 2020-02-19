@@ -1,15 +1,18 @@
-import { isNil, each, includes, isString, map, sortBy } from 'lodash';
-import { cleanNumber, normalizeValue, getSeriesAxis } from './utils';
-import { ColorPaletteArray } from '@/visualizations/ColorPalette';
+import {ColorPaletteArray} from '@/visualizations/ColorPalette';
+import {each, includes, isNil, isString, map, sortBy} from 'lodash';
+
+import {cleanNumber, getSeriesAxis, normalizeValue} from './utils';
 
 function getSeriesColor(seriesOptions, seriesIndex) {
-  return seriesOptions.color || ColorPaletteArray[seriesIndex % ColorPaletteArray.length];
+  return seriesOptions.color ||
+         ColorPaletteArray[seriesIndex % ColorPaletteArray.length];
 }
 
 function getFontColor(backgroundColor) {
   let result = '#333333';
   if (isString(backgroundColor)) {
-    let matches = /#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(backgroundColor);
+    let matches =
+        /#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(backgroundColor);
     let r;
     let g;
     let b;
@@ -41,8 +44,10 @@ function getHoverInfoPattern(options) {
   const hasX = /{{\s*@@x\s*}}/.test(options.textFormat);
   const hasName = /{{\s*@@name\s*}}/.test(options.textFormat);
   let result = 'text';
-  if (!hasX) result += '+x';
-  if (!hasName) result += '+name';
+  if (!hasX)
+    result += '+x';
+  if (!hasName)
+    result += '+name';
   return result;
 }
 
@@ -71,24 +76,24 @@ function prepareScatterSeries(series, options) {
   return series;
 }
 
-function prepareBubbleSeries(series, options, { seriesColor, data }) {
+function prepareBubbleSeries(series, options, {seriesColor, data}) {
   series.mode = 'markers';
   series.marker = {
-    color: seriesColor,
-    size: map(data, i => i.size),
+    color : seriesColor,
+    size : map(data, i => i.size),
   };
   return series;
 }
 
-function prepareBoxSeries(series, options, { seriesColor }) {
+function prepareBoxSeries(series, options, {seriesColor}) {
   series.type = 'box';
   series.mode = 'markers';
 
   series.boxpoints = 'outliers';
   series.hoverinfo = false;
   series.marker = {
-    color: seriesColor,
-    size: 3,
+    color : seriesColor,
+    size : 3,
   };
   if (options.showpoints) {
     series.boxpoints = 'all';
@@ -99,37 +104,47 @@ function prepareBoxSeries(series, options, { seriesColor }) {
 }
 
 function prepareSeries(series, options, additionalOptions) {
-  const { hoverInfoPattern, index } = additionalOptions;
+  const {hoverInfoPattern, index} = additionalOptions;
 
-  const seriesOptions = options.seriesOptions[series.name] || { type: options.globalSeriesType };
+  const seriesOptions =
+      options.seriesOptions[series.name] || {type : options.globalSeriesType};
   const seriesColor = getSeriesColor(seriesOptions, index);
   const seriesYAxis = getSeriesAxis(series, options);
 
   // Sort by x - `Map` preserves order of items
-  const data = options.sortX ? sortBy(series.data, d => normalizeValue(d.x, options.xAxis.type)) : series.data;
+  const data =
+      options.sortX
+          ? sortBy(series.data, d => normalizeValue(d.x, options.xAxis.type))
+          : series.data;
 
-  // For bubble/scatter charts `y` may be any (similar to `x`) - numeric is only bubble size;
-  // for other types `y` is always number
-  const cleanYValue = includes(['bubble', 'scatter'], seriesOptions.type) ? normalizeValue : (v) => {
-    v = cleanNumber(v);
-    return (options.missingValuesAsZero && isNil(v)) ? 0.0 : v;
-  };
+  // For bubble/scatter charts `y` may be any (similar to `x`) - numeric is only
+  // bubble size; for other types `y` is always number
+  const cleanYValue =
+      includes([ 'bubble', 'scatter' ], seriesOptions.type)
+          ? normalizeValue
+          : (v) => {
+              v = cleanNumber(v);
+              return (options.missingValuesAsZero && isNil(v)) ? 0.0 : v;
+            };
 
   const sourceData = new Map();
   const xValues = [];
   const yValues = [];
   const yErrorValues = [];
   each(data, (row) => {
-    const x = normalizeValue(row.x, options.xAxis.type); // number/datetime/category
-    const y = cleanYValue(row.y, seriesYAxis === 'y2' ? options.yAxis[1].type : options.yAxis[0].type); // depends on series type!
+    const x =
+        normalizeValue(row.x, options.xAxis.type); // number/datetime/category
+    const y = cleanYValue(
+        row.y,
+        seriesYAxis === 'y2' ? options.yAxis[1].type : options.yAxis[0].type); // depends on series type!
     const yError = cleanNumber(row.yError); // always number
-    const size = cleanNumber(row.size); // always number
+    const size = cleanNumber(row.size);     // always number
     sourceData.set(x, {
       x,
       y,
       yError,
       size,
-      yPercent: null, // will be updated later
+      yPercent : null, // will be updated later
       row,
     });
     xValues.push(x);
@@ -138,40 +153,48 @@ function prepareSeries(series, options, additionalOptions) {
   });
 
   const plotlySeries = {
-    visible: true,
-    hoverinfo: hoverInfoPattern,
-    x: xValues,
-    y: yValues,
-    error_y: {
-      array: yErrorValues,
-      color: seriesColor,
+    visible : true,
+    hoverinfo : hoverInfoPattern,
+    x : xValues,
+    y : yValues,
+    error_y : {
+      array : yErrorValues,
+      color : seriesColor,
     },
-    name: seriesOptions.name || series.name,
-    marker: { color: seriesColor },
-    insidetextfont: {
-      color: getFontColor(seriesColor),
+    name : seriesOptions.name || series.name,
+    marker : {color : seriesColor},
+    insidetextfont : {
+      color : getFontColor(seriesColor),
     },
-    yaxis: seriesYAxis,
+    yaxis : seriesYAxis,
     sourceData,
   };
 
-  additionalOptions = { ...additionalOptions, seriesColor, data };
+  additionalOptions = {...additionalOptions, seriesColor, data};
 
   switch (seriesOptions.type) {
-    case 'column': return prepareBarSeries(plotlySeries, options, additionalOptions);
-    case 'line': return prepareLineSeries(plotlySeries, options, additionalOptions);
-    case 'area': return prepareAreaSeries(plotlySeries, options, additionalOptions);
-    case 'scatter': return prepareScatterSeries(plotlySeries, options, additionalOptions);
-    case 'bubble': return prepareBubbleSeries(plotlySeries, options, additionalOptions);
-    case 'box': return prepareBoxSeries(plotlySeries, options, additionalOptions);
-    default: return plotlySeries;
+  case 'column':
+    return prepareBarSeries(plotlySeries, options, additionalOptions);
+  case 'line':
+    return prepareLineSeries(plotlySeries, options, additionalOptions);
+  case 'area':
+    return prepareAreaSeries(plotlySeries, options, additionalOptions);
+  case 'scatter':
+    return prepareScatterSeries(plotlySeries, options, additionalOptions);
+  case 'bubble':
+    return prepareBubbleSeries(plotlySeries, options, additionalOptions);
+  case 'box':
+    return prepareBoxSeries(plotlySeries, options, additionalOptions);
+  default:
+    return plotlySeries;
   }
 }
 
 export default function prepareDefaultData(seriesList, options) {
   const additionalOptions = {
-    hoverInfoPattern: getHoverInfoPattern(options),
+    hoverInfoPattern : getHoverInfoPattern(options),
   };
 
-  return map(seriesList, (series, index) => prepareSeries(series, options, { ...additionalOptions, index }));
+  return map(seriesList, (series, index) => prepareSeries(
+                             series, options, {...additionalOptions, index}));
 }

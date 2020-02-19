@@ -1,70 +1,85 @@
-import {
-  some, partial, intersection, without, includes, sortBy, each, map, keys, difference, merge, isNil, trim, pick,
-} from 'lodash';
-import { angular2react } from 'angular2react';
-import { registerVisualization } from '@/visualizations';
-import { clientConfig } from '@/services/auth';
+import {clientConfig} from '@/services/auth';
+import {registerVisualization} from '@/visualizations';
 import ColorPalette from '@/visualizations/ColorPalette';
-import getChartData from './getChartData';
-import editorTemplate from './chart-editor.html';
+import {angular2react} from 'angular2react';
+import {
+  difference,
+  each,
+  includes,
+  intersection,
+  isNil,
+  keys,
+  map,
+  merge,
+  partial,
+  pick,
+  some,
+  sortBy,
+  trim,
+  without,
+} from 'lodash';
 
+import editorTemplate from './chart-editor.html';
+import getChartData from './getChartData';
 import Renderer from './Renderer';
 
 const DEFAULT_OPTIONS = {
-  globalSeriesType: 'column',
-  sortX: true,
-  legend: { enabled: true },
-  yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
-  xAxis: { type: '-', labels: { enabled: true } },
-  error_y: { type: 'data', visible: true },
-  series: { stacking: null, error_y: { type: 'data', visible: true } },
-  seriesOptions: {},
-  valuesOptions: {},
-  columnMapping: {},
-  direction: { type: 'counterclockwise' },
+  globalSeriesType : 'column',
+  sortX : true,
+  legend : {enabled : true},
+  yAxis : [ {type : 'linear'}, {type : 'linear', opposite : true} ],
+  xAxis : {type : '-', labels : {enabled : true}},
+  error_y : {type : 'data', visible : true},
+  series : {stacking : null, error_y : {type : 'data', visible : true}},
+  seriesOptions : {},
+  valuesOptions : {},
+  columnMapping : {},
+  direction : {type : 'counterclockwise'},
 
   // showDataLabels: false, // depends on chart type
-  numberFormat: '0,0[.]00000',
-  percentFormat: '0[.]00%',
+  numberFormat : '0,0[.]00000',
+  percentFormat : '0[.]00%',
   // dateTimeFormat: 'DD/MM/YYYY HH:mm', // will be set from clientConfig
-  textFormat: '', // default: combination of {{ @@yPercent }} ({{ @@y }} ± {{ @@yError }})
+  textFormat : '', // default: combination of {{ @@yPercent }} ({{ @@y }} ± {{
+                   // @@yError }})
 
-  missingValuesAsZero: true,
+  missingValuesAsZero : true,
 };
 
 function initEditorForm(options, columns) {
   const result = {
-    yAxisColumns: [],
-    seriesList: sortBy(keys(options.seriesOptions), name => options.seriesOptions[name].zIndex),
-    valuesList: keys(options.valuesOptions),
+    yAxisColumns : [],
+    seriesList : sortBy(keys(options.seriesOptions),
+                        name => options.seriesOptions[name].zIndex),
+    valuesList : keys(options.valuesOptions),
   };
 
   // Use only mappings for columns that exists in query results
   const mappings = pick(
-    options.columnMapping,
-    map(columns, c => c.name),
+      options.columnMapping,
+      map(columns, c => c.name),
   );
 
   each(mappings, (type, column) => {
     switch (type) {
-      case 'x':
-        result.xAxisColumn = column;
-        break;
-      case 'y':
-        result.yAxisColumns.push(column);
-        break;
-      case 'series':
-        result.groupby = column;
-        break;
-      case 'yError':
-        result.errorColumn = column;
-        break;
-      case 'size':
-        result.sizeColumn = column;
-        break;
-      case 'zVal':
-        result.zValColumn = column;
-        break;
+    case 'x':
+      result.xAxisColumn = column;
+      break;
+    case 'y':
+      result.yAxisColumns.push(column);
+      break;
+    case 'series':
+      result.groupby = column;
+      break;
+    case 'yError':
+      result.errorColumn = column;
+      break;
+    case 'size':
+      result.sizeColumn = column;
+      break;
+    case 'zVal':
+      result.zValColumn = column;
+      break;
       // no default
     }
   });
@@ -73,60 +88,60 @@ function initEditorForm(options, columns) {
 }
 
 const ChartEditor = {
-  template: editorTemplate,
-  bindings: {
-    data: '<',
-    options: '<',
-    onOptionsChange: '<',
+  template : editorTemplate,
+  bindings : {
+    data : '<',
+    options : '<',
+    onOptionsChange : '<',
   },
   controller($scope) {
     this.currentTab = 'general';
-    this.setCurrentTab = (tab) => {
-      this.currentTab = tab;
-    };
+    this.setCurrentTab = (tab) => { this.currentTab = tab; };
 
     this.colors = {
-      Automatic: null,
+      Automatic : null,
       ...ColorPalette,
     };
 
     this.stackingOptions = {
-      Disabled: null,
-      Stack: 'stack',
+      Disabled : null,
+      Stack : 'stack',
     };
 
     this.chartTypes = {
-      line: { name: 'Line', icon: 'line-chart' },
-      column: { name: 'Bar', icon: 'bar-chart' },
-      area: { name: 'Area', icon: 'area-chart' },
-      pie: { name: 'Pie', icon: 'pie-chart' },
-      scatter: { name: 'Scatter', icon: 'circle-o' },
-      bubble: { name: 'Bubble', icon: 'circle-o' },
-      heatmap: { name: 'Heatmap', icon: 'th' },
-      box: { name: 'Box', icon: 'square-o' },
+      line : {name : 'Line', icon : 'line-chart'},
+      column : {name : 'Bar', icon : 'bar-chart'},
+      area : {name : 'Area', icon : 'area-chart'},
+      pie : {name : 'Pie', icon : 'pie-chart'},
+      scatter : {name : 'Scatter', icon : 'circle-o'},
+      bubble : {name : 'Bubble', icon : 'circle-o'},
+      heatmap : {name : 'Heatmap', icon : 'th'},
+      box : {name : 'Box', icon : 'square-o'},
     };
 
     if (clientConfig.allowCustomJSVisualizations) {
-      this.chartTypes.custom = { name: 'Custom', icon: 'code' };
+      this.chartTypes.custom = {name : 'Custom', icon : 'code'};
     }
 
     this.directions = [
-      { label: 'Counterclockwise', value: 'counterclockwise' },
-      { label: 'Clockwise', value: 'clockwise' },
+      {label : 'Counterclockwise', value : 'counterclockwise'},
+      {label : 'Clockwise', value : 'clockwise'},
     ];
 
     this.xAxisScales = [
-      { label: 'Auto Detect', value: '-' },
-      { label: 'Datetime', value: 'datetime' },
-      { label: 'Linear', value: 'linear' },
-      { label: 'Logarithmic', value: 'logarithmic' },
-      { label: 'Category', value: 'category' },
+      {label : 'Auto Detect', value : '-'},
+      {label : 'Datetime', value : 'datetime'},
+      {label : 'Linear', value : 'linear'},
+      {label : 'Logarithmic', value : 'logarithmic'},
+      {label : 'Category', value : 'category'},
     ];
-    this.yAxisScales = ['linear', 'logarithmic', 'datetime', 'category'];
+    this.yAxisScales = [ 'linear', 'logarithmic', 'datetime', 'category' ];
 
-    this.colorScheme = ['Blackbody', 'Bluered', 'Blues', 'Earth', 'Electric',
-      'Greens', 'Greys', 'Hot', 'Jet', 'Picnic', 'Portland',
-      'Rainbow', 'RdBu', 'Reds', 'Viridis', 'YlGnBu', 'YlOrRd', 'Custom...'];
+    this.colorScheme = [
+      'Blackbody', 'Bluered', 'Blues', 'Earth', 'Electric', 'Greens', 'Greys',
+      'Hot', 'Jet', 'Picnic', 'Portland', 'Rainbow', 'RdBu', 'Reds', 'Viridis',
+      'YlGnBu', 'YlOrRd', 'Custom...'
+    ];
 
     this.chartTypeChanged = () => {
       keys(this.options.seriesOptions).forEach((key) => {
@@ -136,8 +151,10 @@ const ChartEditor = {
       $scope.$applyAsync();
     };
 
-    this.showSizeColumnPicker = () => some(this.options.seriesOptions, options => options.type === 'bubble');
-    this.showZColumnPicker = () => some(this.options.seriesOptions, options => options.type === 'heatmap');
+    this.showSizeColumnPicker = () =>
+        some(this.options.seriesOptions, options => options.type === 'bubble');
+    this.showZColumnPicker = () =>
+        some(this.options.seriesOptions, options => options.type === 'heatmap');
 
     if (isNil(this.options.customCode)) {
       this.options.customCode = trim(`
@@ -154,9 +171,8 @@ const ChartEditor = {
       this.columns = this.data.columns;
       this.columnNames = map(this.columns, c => c.name);
       if (this.columnNames.length > 0) {
-        each(difference(keys(this.options.columnMapping), this.columnNames), (column) => {
-          delete this.options.columnMapping[column];
-        });
+        each(difference(keys(this.options.columnMapping), this.columnNames),
+             (column) => { delete this.options.columnMapping[column]; });
       }
     };
 
@@ -164,7 +180,8 @@ const ChartEditor = {
       refreshColumns();
       const data = this.data;
       if (data && (data.columns.length > 0) && (data.rows.length > 0)) {
-        this.form.yAxisColumns = intersection(this.form.yAxisColumns, this.columnNames);
+        this.form.yAxisColumns =
+            intersection(this.form.yAxisColumns, this.columnNames);
         if (!includes(this.columnNames, this.form.xAxisColumn)) {
           this.form.xAxisColumn = undefined;
         }
@@ -180,8 +197,8 @@ const ChartEditor = {
       const existing = keys(this.options.seriesOptions);
       each(difference(seriesNames, existing), (name) => {
         this.options.seriesOptions[name] = {
-          type: this.options.globalSeriesType,
-          yAxis: 0,
+          type : this.options.globalSeriesType,
+          yAxis : 0,
         };
         this.form.seriesList.push(name);
       });
@@ -193,15 +210,14 @@ const ChartEditor = {
       if (this.options.globalSeriesType === 'pie') {
         const uniqueValuesNames = new Set();
         each(chartData, (series) => {
-          each(series.data, (row) => {
-            uniqueValuesNames.add(row.x);
-          });
+          each(series.data, (row) => { uniqueValuesNames.add(row.x); });
         });
         const valuesNames = [];
         uniqueValuesNames.forEach(v => valuesNames.push(v));
 
         // initialize newly added values
-        const newValues = difference(valuesNames, keys(this.options.valuesOptions));
+        const newValues =
+            difference(valuesNames, keys(this.options.valuesOptions));
         each(newValues, (name) => {
           this.options.valuesOptions[name] = {};
           this.form.valuesList.push(name);
@@ -216,9 +232,8 @@ const ChartEditor = {
       }
     };
 
-    const setColumnRole = (role, column) => {
-      this.options.columnMapping[column] = role;
-    };
+    const setColumnRole =
+        (role, column) => { this.options.columnMapping[column] = role; };
 
     const unsetColumn = column => setColumnRole('unused', column);
 
@@ -244,33 +259,52 @@ const ChartEditor = {
     });
 
     $scope.$watch('$ctrl.form.xAxisColumn', (value, old) => {
-      if (old !== undefined) { unsetColumn(old); }
-      if (value !== undefined) { setColumnRole('x', value); }
+      if (old !== undefined) {
+        unsetColumn(old);
+      }
+      if (value !== undefined) {
+        setColumnRole('x', value);
+      }
     });
 
     $scope.$watch('$ctrl.form.errorColumn', (value, old) => {
-      if (old !== undefined) { unsetColumn(old); }
-      if (value !== undefined) { setColumnRole('yError', value); }
+      if (old !== undefined) {
+        unsetColumn(old);
+      }
+      if (value !== undefined) {
+        setColumnRole('yError', value);
+      }
     });
 
     $scope.$watch('$ctrl.form.sizeColumn', (value, old) => {
-      if (old !== undefined) { unsetColumn(old); }
-      if (value !== undefined) { setColumnRole('size', value); }
+      if (old !== undefined) {
+        unsetColumn(old);
+      }
+      if (value !== undefined) {
+        setColumnRole('size', value);
+      }
     });
 
     $scope.$watch('$ctrl.form.zValColumn', (value, old) => {
-      if (old !== undefined) { unsetColumn(old); }
-      if (value !== undefined) { setColumnRole('zVal', value); }
+      if (old !== undefined) {
+        unsetColumn(old);
+      }
+      if (value !== undefined) {
+        setColumnRole('zVal', value);
+      }
     });
 
     $scope.$watch('$ctrl.form.groupby', (value, old) => {
-      if (old !== undefined) { unsetColumn(old); }
-      if (value !== undefined) { setColumnRole('series', value); }
+      if (old !== undefined) {
+        unsetColumn(old);
+      }
+      if (value !== undefined) {
+        setColumnRole('series', value);
+      }
     });
 
-    $scope.$watch('$ctrl.options', (options) => {
-      this.onOptionsChange(options);
-    }, true);
+    $scope.$watch('$ctrl.options',
+                  (options) => { this.onOptionsChange(options); }, true);
 
     this.templateHint = `
       <div class="p-b-5">Use special names to access additional properties:</div>
@@ -291,17 +325,18 @@ export default function init(ngModule) {
 
   ngModule.run(($injector) => {
     registerVisualization({
-      type: 'CHART',
-      name: 'Chart',
-      isDefault: true,
-      getOptions: (options) => {
+      type : 'CHART',
+      name : 'Chart',
+      isDefault : true,
+      getOptions : (options) => {
         const result = merge({}, DEFAULT_OPTIONS, {
-          showDataLabels: options.globalSeriesType === 'pie',
-          dateTimeFormat: clientConfig.dateTimeFormat,
-        }, options);
+          showDataLabels : options.globalSeriesType === 'pie',
+          dateTimeFormat : clientConfig.dateTimeFormat,
+        },
+                             options);
 
         // Backward compatibility
-        if (['normal', 'percent'].indexOf(result.series.stacking) >= 0) {
+        if ([ 'normal', 'percent' ].indexOf(result.series.stacking) >= 0) {
           result.series.percentValues = result.series.stacking === 'percent';
           result.series.stacking = 'stack';
         }
@@ -309,12 +344,12 @@ export default function init(ngModule) {
         return result;
       },
       Renderer,
-      Editor: angular2react('chartEditor', ChartEditor, $injector),
+      Editor : angular2react('chartEditor', ChartEditor, $injector),
 
-      defaultColumns: 3,
-      defaultRows: 8,
-      minColumns: 1,
-      minRows: 5,
+      defaultColumns : 3,
+      defaultRows : 8,
+      minColumns : 1,
+      minRows : 5,
     });
   });
 }
