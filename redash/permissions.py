@@ -44,7 +44,8 @@ def has_access_to_groups(obj, user, need_view_only):
 
     required_level = 1 if need_view_only else 2
 
-    group_level = 1 if all(flatten([groups[group] for group in matching_groups])) else 2
+    group_level = 1 if all(
+        flatten([groups[group] for group in matching_groups])) else 2
 
     return required_level <= group_level
 
@@ -72,7 +73,7 @@ class require_permissions(object):
 
 
 def require_permission(permission):
-    return require_permissions((permission,))
+    return require_permissions((permission, ))
 
 
 def require_admin(fn):
@@ -84,9 +85,8 @@ def require_super_admin(fn):
 
 
 def has_permission_or_owner(permission, object_owner_id):
-    return int(object_owner_id) == current_user.id or current_user.has_permission(
-        permission
-    )
+    return int(object_owner_id
+               ) == current_user.id or current_user.has_permission(permission)
 
 
 def is_admin_or_owner(object_owner_id):
@@ -108,7 +108,8 @@ def is_public_access_allowed():
 
 
 def can_modify(obj, user):
-    return is_admin_or_owner(obj.user_id) or user.has_access(obj, ACCESS_TYPE_MODIFY)
+    return is_admin_or_owner(obj.user_id) or user.has_access(
+        obj, ACCESS_TYPE_MODIFY)
 
 
 def require_object_modify_permission(obj, user):

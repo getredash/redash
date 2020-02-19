@@ -19,7 +19,6 @@ try:
 except ImportError as e:
     logger.error("Failed to import: " + str(e))
 
-
 TYPES_MAP = {
     str: TYPE_STRING,
     text_type: TYPE_STRING,
@@ -50,27 +49,28 @@ def parse_results(results):
                 for inner_key in row[key]:
                     column_name = u"{}.{}".format(key, inner_key)
                     if _get_column_by_name(columns, column_name) is None:
-                        columns.append(
-                            {
-                                "name": column_name,
-                                "friendly_name": column_name,
-                                "type": TYPES_MAP.get(
-                                    type(row[key][inner_key]), TYPE_STRING
-                                ),
-                            }
-                        )
+                        columns.append({
+                            "name":
+                            column_name,
+                            "friendly_name":
+                            column_name,
+                            "type":
+                            TYPES_MAP.get(type(row[key][inner_key]),
+                                          TYPE_STRING),
+                        })
 
                     parsed_row[column_name] = row[key][inner_key]
 
             else:
                 if _get_column_by_name(columns, key) is None:
-                    columns.append(
-                        {
-                            "name": key,
-                            "friendly_name": key,
-                            "type": TYPES_MAP.get(type(row[key]), TYPE_STRING),
-                        }
-                    )
+                    columns.append({
+                        "name":
+                        key,
+                        "friendly_name":
+                        key,
+                        "type":
+                        TYPES_MAP.get(type(row[key]), TYPE_STRING),
+                    })
 
                 parsed_row[key] = row[key]
 
@@ -87,15 +87,24 @@ class Couchbase(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "protocol": {"type": "string", "default": "http"},
-                "host": {"type": "string",},
+                "protocol": {
+                    "type": "string",
+                    "default": "http"
+                },
+                "host": {
+                    "type": "string",
+                },
                 "port": {
                     "type": "string",
                     "title": "Port (Defaults: 8095 - Analytics, 8093 - N1QL)",
                     "default": "8095",
                 },
-                "user": {"type": "string",},
-                "password": {"type": "string",},
+                "user": {
+                    "type": "string",
+                },
+                "password": {
+                    "type": "string",
+                },
             },
             "required": ["host", "user", "password"],
             "order": ["protocol", "host", "port", "user", "password"],
@@ -118,7 +127,10 @@ class Couchbase(BaseQueryRunner):
         schema = {}
         for row in result:
             table_name = row.get(name_param)
-            schema[table_name] = {"name": table_name, "columns": defaultColumns}
+            schema[table_name] = {
+                "name": table_name,
+                "columns": defaultColumns
+            }
 
         return schema.values()
 
@@ -132,7 +144,8 @@ class Couchbase(BaseQueryRunner):
             )
         except Exception:
             # Try fetch from N1QL
-            return self.get_buckets("select name from system:keyspaces", "name")
+            return self.get_buckets("select name from system:keyspaces",
+                                    "name")
 
     def call_service(self, query, user):
         try:

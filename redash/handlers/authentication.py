@@ -35,9 +35,9 @@ logger = logging.getLogger(__name__)
 
 def get_google_auth_url(next_path):
     if settings.MULTI_ORG:
-        google_auth_url = url_for(
-            "google_oauth.authorize_org", next=next_path, org_slug=current_org.slug
-        )
+        google_auth_url = url_for("google_oauth.authorize_org",
+                                  next=next_path,
+                                  org_slug=current_org.slug)
     else:
         google_auth_url = url_for("google_oauth.authorize", next=next_path)
     return google_auth_url
@@ -63,11 +63,13 @@ def render_token_login_page(template, org_slug, token, invite):
             400,
         )
     except (SignatureExpired, BadSignature):
-        logger.exception("Failed to verify invite token: %s, org=%s", token, org_slug)
+        logger.exception("Failed to verify invite token: %s, org=%s", token,
+                         org_slug)
         return (
             render_template(
                 "error.html",
-                error_message="Your invite link has expired. Please ask for a new one.",
+                error_message=
+                "Your invite link has expired. Please ask for a new one.",
             ),
             400,
         )
@@ -76,10 +78,8 @@ def render_token_login_page(template, org_slug, token, invite):
         return (
             render_template(
                 "error.html",
-                error_message=(
-                    "This invitation has already been accepted. "
-                    "Please try resetting your password instead."
-                ),
+                error_message=("This invitation has already been accepted. "
+                               "Please try resetting your password instead."),
             ),
             400,
         )
@@ -104,7 +104,8 @@ def render_token_login_page(template, org_slug, token, invite):
             models.db.session.commit()
             return redirect(url_for("redash.index", org_slug=org_slug))
 
-    google_auth_url = get_google_auth_url(url_for("redash.index", org_slug=org_slug))
+    google_auth_url = get_google_auth_url(
+        url_for("redash.index", org_slug=org_slug))
 
     return (
         render_template(
@@ -139,12 +140,13 @@ def verify(token, org_slug=None):
         user = models.User.get_by_id_and_org(user_id, org)
     except (BadSignature, NoResultFound):
         logger.exception(
-            "Failed to verify email verification token: %s, org=%s", token, org_slug
-        )
+            "Failed to verify email verification token: %s, org=%s", token,
+            org_slug)
         return (
             render_template(
                 "error.html",
-                error_message="Your verification link is invalid. Please ask for a new one.",
+                error_message=
+                "Your verification link is invalid. Please ask for a new one.",
             ),
             400,
         )
@@ -186,11 +188,10 @@ def verification_email(org_slug=None):
     if not current_user.is_email_verified:
         send_verify_email(current_user, current_org)
 
-    return json_response(
-        {
-            "message": "Please check your email inbox in order to verify your email address."
-        }
-    )
+    return json_response({
+        "message":
+        "Please check your email inbox in order to verify your email address."
+    })
 
 
 @routes.route(org_scoped_rule("/login"), methods=["GET", "POST"])
@@ -213,11 +214,8 @@ def login(org_slug=None):
         try:
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(request.form["email"], org)
-            if (
-                user
-                and not user.is_disabled
-                and user.verify_password(request.form["password"])
-            ):
+            if (user and not user.is_disabled
+                    and user.verify_password(request.form["password"])):
                 remember = "remember" in request.form
                 login_user(user, remember=remember)
                 return redirect(next_path)
@@ -235,7 +233,8 @@ def login(org_slug=None):
         email=request.form.get("email", ""),
         show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
         google_auth_url=google_auth_url,
-        show_password_login=current_org.get_setting("auth_password_login_enabled"),
+        show_password_login=current_org.get_setting(
+            "auth_password_login_enabled"),
         show_saml_login=current_org.get_setting("auth_saml_enabled"),
         show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
         show_ldap_login=settings.LDAP_LOGIN_ENABLED,
@@ -250,7 +249,9 @@ def logout(org_slug=None):
 
 def base_href():
     if settings.MULTI_ORG:
-        base_href = url_for("redash.index", _external=True, org_slug=current_org.slug)
+        base_href = url_for("redash.index",
+                            _external=True,
+                            org_slug=current_org.slug)
     else:
         base_href = url_for("redash.index", _external=True)
 
@@ -259,9 +260,11 @@ def base_href():
 
 def date_time_format_config():
     date_format = current_org.get_setting("date_format")
-    date_format_list = set(["DD/MM/YY", "MM/DD/YY", "YYYY-MM-DD", settings.DATE_FORMAT])
+    date_format_list = set(
+        ["DD/MM/YY", "MM/DD/YY", "YYYY-MM-DD", settings.DATE_FORMAT])
     time_format = current_org.get_setting("time_format")
-    time_format_list = set(["HH:mm", "HH:mm:ss", "HH:mm:ss.SSS", settings.TIME_FORMAT])
+    time_format_list = set(
+        ["HH:mm", "HH:mm:ss", "HH:mm:ss.SSS", settings.TIME_FORMAT])
     return {
         "dateFormat": date_format,
         "dateFormatList": list(date_format_list),
@@ -286,27 +289,35 @@ def client_config():
     else:
         client_config = {}
 
-    if (
-        current_user.has_permission("admin")
-        and current_org.get_setting("beacon_consent") is None
-    ):
+    if (current_user.has_permission("admin")
+            and current_org.get_setting("beacon_consent") is None):
         client_config["showBeaconConsentMessage"] = True
 
     defaults = {
-        "allowScriptsInUserInput": settings.ALLOW_SCRIPTS_IN_USER_INPUT,
-        "showPermissionsControl": current_org.get_setting(
-            "feature_show_permissions_control"
-        ),
-        "allowCustomJSVisualizations": settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
-        "autoPublishNamedQueries": settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
-        "extendedAlertOptions": settings.FEATURE_EXTENDED_ALERT_OPTIONS,
-        "mailSettingsMissing": not settings.email_server_is_configured(),
-        "dashboardRefreshIntervals": settings.DASHBOARD_REFRESH_INTERVALS,
-        "queryRefreshIntervals": settings.QUERY_REFRESH_INTERVALS,
-        "googleLoginEnabled": settings.GOOGLE_OAUTH_ENABLED,
-        "pageSize": settings.PAGE_SIZE,
-        "pageSizeOptions": settings.PAGE_SIZE_OPTIONS,
-        "tableCellMaxJSONSize": settings.TABLE_CELL_MAX_JSON_SIZE,
+        "allowScriptsInUserInput":
+        settings.ALLOW_SCRIPTS_IN_USER_INPUT,
+        "showPermissionsControl":
+        current_org.get_setting("feature_show_permissions_control"),
+        "allowCustomJSVisualizations":
+        settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
+        "autoPublishNamedQueries":
+        settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
+        "extendedAlertOptions":
+        settings.FEATURE_EXTENDED_ALERT_OPTIONS,
+        "mailSettingsMissing":
+        not settings.email_server_is_configured(),
+        "dashboardRefreshIntervals":
+        settings.DASHBOARD_REFRESH_INTERVALS,
+        "queryRefreshIntervals":
+        settings.QUERY_REFRESH_INTERVALS,
+        "googleLoginEnabled":
+        settings.GOOGLE_OAUTH_ENABLED,
+        "pageSize":
+        settings.PAGE_SIZE,
+        "pageSizeOptions":
+        settings.PAGE_SIZE_OPTIONS,
+        "tableCellMaxJSONSize":
+        settings.TABLE_CELL_MAX_JSON_SIZE,
     }
 
     client_config.update(defaults)
@@ -331,9 +342,10 @@ def messages():
 
 @routes.route("/api/config", methods=["GET"])
 def config(org_slug=None):
-    return json_response(
-        {"org_slug": current_org.slug, "client_config": client_config()}
-    )
+    return json_response({
+        "org_slug": current_org.slug,
+        "client_config": client_config()
+    })
 
 
 @routes.route(org_scoped_rule("/api/session"), methods=["GET"])
@@ -351,11 +363,9 @@ def session(org_slug=None):
             "permissions": current_user.permissions,
         }
 
-    return json_response(
-        {
-            "user": user,
-            "messages": messages(),
-            "org_slug": current_org.slug,
-            "client_config": client_config(),
-        }
-    )
+    return json_response({
+        "user": user,
+        "messages": messages(),
+        "org_slug": current_org.slug,
+        "client_config": client_config(),
+    })

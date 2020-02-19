@@ -42,9 +42,12 @@ def _transform_result(results):
                         result_row[column] = value
                 result_rows.append(result_row)
 
-    return json_dumps(
-        {"columns": [{"name": c} for c in result_columns], "rows": result_rows}
-    )
+    return json_dumps({
+        "columns": [{
+            "name": c
+        } for c in result_columns],
+        "rows": result_rows
+    })
 
 
 class InfluxDB(BaseQueryRunner):
@@ -55,7 +58,11 @@ class InfluxDB(BaseQueryRunner):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {"url": {"type": "string"}},
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            },
             "required": ["url"],
         }
 

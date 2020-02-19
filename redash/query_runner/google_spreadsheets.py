@@ -40,9 +40,11 @@ def _get_columns_and_column_names(row):
             duplicate_counter += 1
 
         column_names.append(column_name)
-        columns.append(
-            {"name": column_name, "friendly_name": column_name, "type": TYPE_STRING}
-        )
+        columns.append({
+            "name": column_name,
+            "friendly_name": column_name,
+            "type": TYPE_STRING
+        })
 
     return columns, column_names
 
@@ -77,8 +79,7 @@ HEADER_INDEX = 0
 class WorksheetNotFoundError(Exception):
     def __init__(self, worksheet_num, worksheet_count):
         message = "Worksheet number {} not found. Spreadsheet has {} worksheets. Note that the worksheet count is zero based.".format(
-            worksheet_num, worksheet_count
-        )
+            worksheet_num, worksheet_count)
         super(WorksheetNotFoundError, self).__init__(message)
 
 
@@ -96,7 +97,8 @@ def parse_worksheet(worksheet):
     if not worksheet:
         return {"columns": [], "rows": []}
 
-    columns, column_names = _get_columns_and_column_names(worksheet[HEADER_INDEX])
+    columns, column_names = _get_columns_and_column_names(
+        worksheet[HEADER_INDEX])
 
     if len(worksheet) > 1:
         for j, value in enumerate(worksheet[HEADER_INDEX + 1]):
@@ -105,7 +107,7 @@ def parse_worksheet(worksheet):
     column_types = [c["type"] for c in columns]
     rows = [
         dict(zip(column_names, _value_eval_list(row, column_types)))
-        for row in worksheet[HEADER_INDEX + 1 :]
+        for row in worksheet[HEADER_INDEX + 1:]
     ]
     data = {"columns": columns, "rows": rows}
 
@@ -167,7 +169,12 @@ class GoogleSpreadsheet(BaseQueryRunner):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {"jsonKeyFile": {"type": "string", "title": "JSON Key File"}},
+            "properties": {
+                "jsonKeyFile": {
+                    "type": "string",
+                    "title": "JSON Key File"
+                }
+            },
             "required": ["jsonKeyFile"],
             "secret": ["jsonKeyFile"],
         }
@@ -182,7 +189,8 @@ class GoogleSpreadsheet(BaseQueryRunner):
 
         timeout_session = Session()
         timeout_session.requests_session = TimeoutSession()
-        spreadsheetservice = gspread.Client(auth=creds, session=timeout_session)
+        spreadsheetservice = gspread.Client(auth=creds,
+                                            session=timeout_session)
         spreadsheetservice.login()
         return spreadsheetservice
 
@@ -213,9 +221,8 @@ class GoogleSpreadsheet(BaseQueryRunner):
         except gspread.SpreadsheetNotFound:
             return (
                 None,
-                "Spreadsheet ({}) not found. Make sure you used correct id.".format(
-                    key
-                ),
+                "Spreadsheet ({}) not found. Make sure you used correct id.".
+                format(key),
             )
         except APIError as e:
             return None, parse_api_error(e)

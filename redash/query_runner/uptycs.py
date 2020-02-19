@@ -20,15 +20,23 @@ class Uptycs(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "url": {"type": "string"},
-                "customer_id": {"type": "string"},
-                "key": {"type": "string"},
+                "url": {
+                    "type": "string"
+                },
+                "customer_id": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
                 "verify_ssl": {
                     "type": "boolean",
                     "default": True,
                     "title": "Verify SSL Certificates",
                 },
-                "secret": {"type": "string",},
+                "secret": {
+                    "type": "string",
+                },
             },
             "order": ["url", "customer_id", "key", "secret"],
             "required": ["url", "customer_id", "key", "secret"],
@@ -53,7 +61,11 @@ class Uptycs(BaseSQLQueryRunner):
         if "columns" in data:
             for json_each in data["columns"]:
                 name = json_each["name"]
-                new_json = {"name": name, "type": "string", "friendly_name": name}
+                new_json = {
+                    "name": name,
+                    "type": "string",
+                    "friendly_name": name
+                }
                 transformed_columns.append(new_json)
         # Transfored items into rows.
         if "items" in data:
@@ -64,9 +76,8 @@ class Uptycs(BaseSQLQueryRunner):
 
     def api_call(self, sql):
         # JWT encoded header
-        header = self.generate_header(
-            self.configuration.get("key"), self.configuration.get("secret")
-        )
+        header = self.generate_header(self.configuration.get("key"),
+                                      self.configuration.get("secret"))
 
         # URL form using API key file based on GLOBAL
         url = "%s/public/api/customers/%s/query" % (
@@ -107,16 +118,16 @@ class Uptycs(BaseSQLQueryRunner):
         return json_data, error
 
     def get_schema(self, get_stats=False):
-        header = self.generate_header(
-            self.configuration.get("key"), self.configuration.get("secret")
-        )
+        header = self.generate_header(self.configuration.get("key"),
+                                      self.configuration.get("secret"))
         url = "%s/public/api/customers/%s/schema/global" % (
             self.configuration.get("url"),
             self.configuration.get("customer_id"),
         )
-        response = requests.get(
-            url, headers=header, verify=self.configuration.get("verify_ssl", True)
-        )
+        response = requests.get(url,
+                                headers=header,
+                                verify=self.configuration.get(
+                                    "verify_ssl", True))
         redash_json = []
         schema = json_loads(response.content)
         for each_def in schema["tables"]:

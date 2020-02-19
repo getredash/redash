@@ -9,7 +9,8 @@ def query_to_script_path(path, query):
     if path != "*":
         script = os.path.join(path, query.split(" ")[0])
         if not os.path.exists(script):
-            raise IOError("Script '{}' not found in script directory".format(query))
+            raise IOError(
+                "Script '{}' not found in script directory".format(query))
 
         return os.path.join(path, query).split(" ")
 
@@ -40,7 +41,10 @@ class Script(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "path": {"type": "string", "title": "Scripts path"},
+                "path": {
+                    "type": "string",
+                    "title": "Scripts path"
+                },
                 "shell": {
                     "type": "boolean",
                     "title": "Execute command through the shell",

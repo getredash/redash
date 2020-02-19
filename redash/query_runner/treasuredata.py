@@ -43,10 +43,19 @@ class TreasureData(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "endpoint": {"type": "string"},
-                "apikey": {"type": "string"},
-                "type": {"type": "string"},
-                "db": {"type": "string", "title": "Database Name"},
+                "endpoint": {
+                    "type": "string"
+                },
+                "apikey": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "db": {
+                    "type": "string",
+                    "title": "Database Name"
+                },
                 "get_schema": {
                     "type": "boolean",
                     "title": "Auto Schema Retrieval",
@@ -68,15 +77,16 @@ class TreasureData(BaseQueryRunner):
         schema = {}
         if self.configuration.get("get_schema", False):
             try:
-                with tdclient.Client(self.configuration.get("apikey")) as client:
+                with tdclient.Client(
+                        self.configuration.get("apikey")) as client:
                     for table in client.tables(self.configuration.get("db")):
                         table_name = "{}.{}".format(
-                            self.configuration.get("db"), table.name
-                        )
+                            self.configuration.get("db"), table.name)
                         for table_schema in table.schema:
                             schema[table_name] = {
                                 "name": table_name,
-                                "columns": [column[0] for column in table.schema],
+                                "columns":
+                                [column[0] for column in table.schema],
                             }
             except Exception as ex:
                 raise Exception("Failed getting schema")
@@ -84,7 +94,8 @@ class TreasureData(BaseQueryRunner):
 
     def run_query(self, query, user):
         connection = tdclient.connect(
-            endpoint=self.configuration.get("endpoint", "https://api.treasuredata.com"),
+            endpoint=self.configuration.get("endpoint",
+                                            "https://api.treasuredata.com"),
             apikey=self.configuration.get("apikey"),
             type=self.configuration.get("type", "hive").lower(),
             db=self.configuration.get("db"),
@@ -93,10 +104,8 @@ class TreasureData(BaseQueryRunner):
         cursor = connection.cursor()
         try:
             cursor.execute(query)
-            columns_tuples = [
-                (i[0], TD_TYPES_MAPPING.get(i[1], None))
-                for i in cursor.show_job()["hive_result_schema"]
-            ]
+            columns_tuples = [(i[0], TD_TYPES_MAPPING.get(i[1], None))
+                              for i in cursor.show_job()["hive_result_schema"]]
             columns = self.fetch_columns(columns_tuples)
 
             if cursor.rowcount == 0:
@@ -113,9 +122,8 @@ class TreasureData(BaseQueryRunner):
             json_data = None
             error = "%s: %s" % (
                 e.message,
-                cursor.show_job()
-                .get("debug", {})
-                .get("stderr", "No stderr message in the response"),
+                cursor.show_job().get("debug", {}).get(
+                    "stderr", "No stderr message in the response"),
             )
         return json_data, error
 

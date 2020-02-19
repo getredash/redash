@@ -20,7 +20,6 @@ from redash.permissions import require_permission
 from redash.security import csp_allows_embeding
 from redash.serializers import serialize_dashboard
 
-
 # Ordering map for relationships
 order_map = {
     "name": "lowercase_name",
@@ -30,7 +29,9 @@ order_map = {
 }
 
 order_results = partial(
-    _order_results, default_order="-created_at", allowed_orders=order_map,
+    _order_results,
+    default_order="-created_at",
+    allowed_orders=order_map,
 )
 
 
@@ -59,7 +60,9 @@ class DashboardListResource(BaseResource):
             )
         else:
             results = models.Dashboard.all(
-                self.current_org, self.current_user.group_ids, self.current_user.id,
+                self.current_org,
+                self.current_user.group_ids,
+                self.current_user.id,
             )
 
         results = filter_by_tags(results, models.Dashboard.tags)
@@ -67,7 +70,8 @@ class DashboardListResource(BaseResource):
         # order results according to passed order parameter,
         # special-casing search queries where the database
         # provides an order by search rank
-        ordered_results = order_results(results, fallback=not bool(search_term))
+        ordered_results = order_results(results,
+                                        fallback=not bool(search_term))
 
         page = request.args.get("page", 1, type=int)
         page_size = request.args.get("page_size", 25, type=int)
@@ -80,13 +84,16 @@ class DashboardListResource(BaseResource):
         )
 
         if search_term:
-            self.record_event(
-                {"action": "search", "object_type": "dashboard", "term": search_term,}
-            )
+            self.record_event({
+                "action": "search",
+                "object_type": "dashboard",
+                "term": search_term,
+            })
         else:
-            self.record_event(
-                {"action": "list", "object_type": "dashboard",}
-            )
+            self.record_event({
+                "action": "list",
+                "object_type": "dashboard",
+            })
 
         return response
 
@@ -148,12 +155,11 @@ class DashboardResource(BaseResource):
         :>json string widget.created_at: ISO format timestamp for widget creation
         :>json string widget.updated_at: ISO format timestamp for last widget modification
         """
-        dashboard = get_object_or_404(
-            models.Dashboard.get_by_slug_and_org, dashboard_slug, self.current_org
-        )
-        response = serialize_dashboard(
-            dashboard, with_widgets=True, user=self.current_user
-        )
+        dashboard = get_object_or_404(models.Dashboard.get_by_slug_and_org,
+                                      dashboard_slug, self.current_org)
+        response = serialize_dashboard(dashboard,
+                                       with_widgets=True,
+                                       user=self.current_user)
 
         api_key = models.ApiKey.get_by_object(dashboard)
         if api_key:
@@ -167,9 +173,11 @@ class DashboardResource(BaseResource):
 
         response["can_edit"] = can_modify(dashboard, self.current_user)
 
-        self.record_event(
-            {"action": "view", "object_id": dashboard.id, "object_type": "dashboard",}
-        )
+        self.record_event({
+            "action": "view",
+            "object_id": dashboard.id,
+            "object_type": "dashboard",
+        })
 
         return response
 
@@ -187,7 +195,8 @@ class DashboardResource(BaseResource):
         """
         dashboard_properties = request.get_json(force=True)
         # TODO: either convert all requests to use slugs or ids
-        dashboard = models.Dashboard.get_by_id_and_org(dashboard_slug, self.current_org)
+        dashboard = models.Dashboard.get_by_id_and_org(dashboard_slug,
+                                                       self.current_org)
 
         require_object_modify_permission(dashboard, self.current_user)
 
@@ -218,13 +227,15 @@ class DashboardResource(BaseResource):
         except StaleDataError:
             abort(409)
 
-        result = serialize_dashboard(
-            dashboard, with_widgets=True, user=self.current_user
-        )
+        result = serialize_dashboard(dashboard,
+                                     with_widgets=True,
+                                     user=self.current_user)
 
-        self.record_event(
-            {"action": "edit", "object_id": dashboard.id, "object_type": "dashboard",}
-        )
+        self.record_event({
+            "action": "edit",
+            "object_id": dashboard.id,
+            "object_type": "dashboard",
+        })
 
         return result
 
@@ -238,21 +249,20 @@ class DashboardResource(BaseResource):
         Responds with the archived :ref:`dashboard <dashboard-response-label>`.
         """
         dashboard = models.Dashboard.get_by_slug_and_org(
-            dashboard_slug, self.current_org
-        )
+            dashboard_slug, self.current_org)
         dashboard.is_archived = True
         dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)
-        d = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
+        d = serialize_dashboard(dashboard,
+                                with_widgets=True,
+                                user=self.current_user)
         models.db.session.commit()
 
-        self.record_event(
-            {
-                "action": "archive",
-                "object_id": dashboard.id,
-                "object_type": "dashboard",
-            }
-        )
+        self.record_event({
+            "action": "archive",
+            "object_id": dashboard.id,
+            "object_type": "dashboard",
+        })
 
         return d
 
@@ -285,7 +295,8 @@ class DashboardShareResource(BaseResource):
         :>json string public_url: The URL for anonymous access to the dashboard.
         :>json api_key: The API key to use when accessing it.
         """
-        dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
+        dashboard = models.Dashboard.get_by_id_and_org(dashboard_id,
+                                                       self.current_org)
         require_admin_or_owner(dashboard.user_id)
         is_public_access_allowed()
         api_key = models.ApiKey.create_for_object(dashboard, self.current_user)
@@ -299,13 +310,11 @@ class DashboardShareResource(BaseResource):
             _external=True,
         )
 
-        self.record_event(
-            {
-                "action": "activate_api_key",
-                "object_id": dashboard.id,
-                "object_type": "dashboard",
-            }
-        )
+        self.record_event({
+            "action": "activate_api_key",
+            "object_id": dashboard.id,
+            "object_type": "dashboard",
+        })
 
         return {"public_url": public_url, "api_key": api_key.api_key}
 
@@ -315,7 +324,8 @@ class DashboardShareResource(BaseResource):
 
         :param dashboard_id: The numeric ID of the dashboard to unshare.
         """
-        dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
+        dashboard = models.Dashboard.get_by_id_and_org(dashboard_id,
+                                                       self.current_org)
         require_admin_or_owner(dashboard.user_id)
         api_key = models.ApiKey.get_by_object(dashboard)
 
@@ -324,13 +334,11 @@ class DashboardShareResource(BaseResource):
             models.db.session.add(api_key)
             models.db.session.commit()
 
-        self.record_event(
-            {
-                "action": "deactivate_api_key",
-                "object_id": dashboard.id,
-                "object_type": "dashboard",
-            }
-        )
+        self.record_event({
+            "action": "deactivate_api_key",
+            "object_id": dashboard.id,
+            "object_type": "dashboard",
+        })
 
 
 class DashboardTagsResource(BaseResource):
@@ -340,7 +348,12 @@ class DashboardTagsResource(BaseResource):
         Lists all accessible dashboards.
         """
         tags = models.Dashboard.all_tags(self.current_org, self.current_user)
-        return {"tags": [{"name": name, "count": count,} for name, count in tags]}
+        return {
+            "tags": [{
+                "name": name,
+                "count": count,
+            } for name, count in tags]
+        }
 
 
 class DashboardFavoriteListResource(BaseResource):
@@ -354,9 +367,8 @@ class DashboardFavoriteListResource(BaseResource):
                 self.current_user.id,
                 search_term,
             )
-            favorites = models.Dashboard.favorites(
-                self.current_user, base_query=base_query
-            )
+            favorites = models.Dashboard.favorites(self.current_user,
+                                                   base_query=base_query)
         else:
             favorites = models.Dashboard.favorites(self.current_user)
 
@@ -371,16 +383,14 @@ class DashboardFavoriteListResource(BaseResource):
         page_size = request.args.get("page_size", 25, type=int)
         response = paginate(favorites, page, page_size, serialize_dashboard)
 
-        self.record_event(
-            {
-                "action": "load_favorites",
-                "object_type": "dashboard",
-                "params": {
-                    "q": search_term,
-                    "tags": request.args.getlist("tags"),
-                    "page": page,
-                },
-            }
-        )
+        self.record_event({
+            "action": "load_favorites",
+            "object_type": "dashboard",
+            "params": {
+                "q": search_term,
+                "tags": request.args.getlist("tags"),
+                "page": page,
+            },
+        })
 
         return response

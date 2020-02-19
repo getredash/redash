@@ -42,7 +42,7 @@ for type_, elements in COLUMN_TYPES.items():
     for el in elements:
         if "first" in el:
             el = el.replace("first", "last")
-            COLUMN_TYPES[type_] += (el,)
+            COLUMN_TYPES[type_] += (el, )
 
 
 def parse_ym_response(response):
@@ -57,7 +57,11 @@ def parse_ym_response(response):
             data_type = TYPE_DATETIME
         else:
             data_type = TYPE_STRING
-        columns.append({"name": h, "friendly_name": friendly_name, "type": data_type})
+        columns.append({
+            "name": h,
+            "friendly_name": friendly_name,
+            "type": data_type
+        })
 
     rows = []
     for num, row in enumerate(response["data"]):
@@ -89,7 +93,12 @@ class YandexMetrica(BaseSQLQueryRunner):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {"token": {"type": "string", "title": "OAuth Token"}},
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "title": "OAuth Token"
+                }
+            },
             "required": ["token"],
         }
 
@@ -106,8 +115,8 @@ class YandexMetrica(BaseSQLQueryRunner):
         for row in counters[self.list_path]:
             owner = row.get("owner_login")
             counter = "{0} | {1}".format(
-                row.get("name", "Unknown").encode("utf-8"), row.get("id", "Unknown")
-            )
+                row.get("name", "Unknown").encode("utf-8"),
+                row.get("id", "Unknown"))
             if owner not in schema:
                 schema[owner] = {"name": owner, "columns": []}
 
@@ -145,7 +154,8 @@ class YandexMetrica(BaseSQLQueryRunner):
 
         if isinstance(params, dict):
             if "url" in params:
-                params = parse_qs(urlparse(params["url"]).query, keep_blank_values=True)
+                params = parse_qs(urlparse(params["url"]).query,
+                                  keep_blank_values=True)
         else:
             error = "The query format must be JSON or YAML"
             return data, error

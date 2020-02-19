@@ -22,7 +22,6 @@ try:
 except ImportError as e:
     enabled = False
 
-
 types_conv = dict(
     STRING=TYPE_STRING,
     INTEGER=TYPE_INTEGER,
@@ -39,22 +38,19 @@ def parse_ga_response(response):
             h["dataType"] = "DATE"
         elif h["name"] == "ga:dateHour":
             h["dataType"] = "DATETIME"
-        columns.append(
-            {
-                "name": h["name"],
-                "friendly_name": h["name"].split(":", 1)[1],
-                "type": types_conv.get(h["dataType"], "string"),
-            }
-        )
+        columns.append({
+            "name": h["name"],
+            "friendly_name": h["name"].split(":", 1)[1],
+            "type": types_conv.get(h["dataType"], "string"),
+        })
 
     rows = []
     for r in response.get("rows", []):
         d = {}
         for c, value in enumerate(r):
             column_name = response["columnHeaders"][c]["name"]
-            column_type = filter(lambda col: col["name"] == column_name, columns)[0][
-                "type"
-            ]
+            column_type = filter(lambda col: col["name"] == column_name,
+                                 columns)[0]["type"]
 
             # mcf results come a bit different than ga results:
             if isinstance(value, dict):
@@ -63,9 +59,8 @@ def parse_ga_response(response):
                 elif "conversionPathValue" in value:
                     steps = []
                     for step in value["conversionPathValue"]:
-                        steps.append(
-                            "{}:{}".format(step["interactionType"], step["nodeValue"])
-                        )
+                        steps.append("{}:{}".format(step["interactionType"],
+                                                    step["nodeValue"]))
                     value = ", ".join(steps)
                 else:
                     raise Exception("Results format not supported")
@@ -79,8 +74,8 @@ def parse_ga_response(response):
                     value = datetime.strptime(value, "%Y%m%d%H%M")
                 else:
                     raise Exception(
-                        "Unknown date/time format in results: '{}'".format(value)
-                    )
+                        "Unknown date/time format in results: '{}'".format(
+                            value))
 
             d[column_name] = value
         rows.append(d)
@@ -107,7 +102,12 @@ class GoogleAnalytics(BaseSQLQueryRunner):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {"jsonKeyFile": {"type": "string", "title": "JSON Key File"}},
+            "properties": {
+                "jsonKeyFile": {
+                    "type": "string",
+                    "title": "JSON Key File"
+                }
+            },
             "required": ["jsonKeyFile"],
             "secret": ["jsonKeyFile"],
         }
@@ -123,34 +123,25 @@ class GoogleAnalytics(BaseSQLQueryRunner):
         return build("analytics", "v3", http=creds.authorize(httplib2.Http()))
 
     def _get_tables(self, schema):
-        accounts = (
-            self._get_analytics_service()
-            .management()
-            .accounts()
-            .list()
-            .execute()
-            .get("items")
-        )
+        accounts = (self._get_analytics_service().management().accounts().list(
+        ).execute().get("items"))
         if accounts is None:
             raise Exception("Failed getting accounts.")
         else:
             for account in accounts:
-                schema[account["name"]] = {"name": account["name"], "columns": []}
-                properties = (
-                    self._get_analytics_service()
-                    .management()
-                    .webproperties()
-                    .list(accountId=account["id"])
-                    .execute()
-                    .get("items", [])
-                )
+                schema[account["name"]] = {
+                    "name": account["name"],
+                    "columns": []
+                }
+                properties = (self._get_analytics_service().management(
+                ).webproperties().list(accountId=account["id"]).execute().get(
+                    "items", []))
                 for property_ in properties:
                     if "defaultProfileId" in property_ and "name" in property_:
                         schema[account["name"]]["columns"].append(
                             u"{0} (ga:{1})".format(
-                                property_["name"], property_["defaultProfileId"]
-                            )
-                        )
+                                property_["name"],
+                                property_["defaultProfileId"]))
 
         return schema.values()
 
@@ -177,8 +168,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
             raise Exception("Can't mix mcf: and ga: metrics.")
 
         if "mcf:" in params.get("dimensions", "") and "ga:" in params.get(
-            "dimensions", ""
-        ):
+                "dimensions", ""):
             raise Exception("Can't mix mcf: and ga: dimensions.")
 
         if "mcf:" in params["metrics"]:

@@ -7,7 +7,6 @@ from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from redash import __version__
 from redash import settings
 
-
 NON_REPORTED_EXCEPTIONS = ["QueryExecutionError"]
 
 

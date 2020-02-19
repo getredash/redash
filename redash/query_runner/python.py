@@ -11,7 +11,6 @@ from redash.query_runner import *
 from redash.utils import json_dumps
 from redash.utils import json_loads
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -26,8 +25,7 @@ class CustomPrint(object):
         if self.enabled:
             if text and text.strip():
                 log_line = "[{0}] {1}".format(
-                    datetime.datetime.utcnow().isoformat(), text
-                )
+                    datetime.datetime.utcnow().isoformat(), text)
                 self.lines.append(log_line)
 
     def enable(self):
@@ -83,7 +81,9 @@ class Python(BaseQueryRunner):
                     "type": "string",
                     "title": "Modules to import prior to running the script",
                 },
-                "additionalModulesPaths": {"type": "string"},
+                "additionalModulesPaths": {
+                    "type": "string"
+                },
             },
         }
 
@@ -97,7 +97,13 @@ class Python(BaseQueryRunner):
         self.syntax = "python"
 
         self._allowed_modules = {}
-        self._script_locals = {"result": {"rows": [], "columns": [], "log": []}}
+        self._script_locals = {
+            "result": {
+                "rows": [],
+                "columns": [],
+                "log": []
+            }
+        }
         self._enable_print_log = True
         self._custom_print = CustomPrint()
 
@@ -110,7 +116,12 @@ class Python(BaseQueryRunner):
                 if p not in sys.path:
                     sys.path.append(p)
 
-    def custom_import(self, name, globals=None, locals=None, fromlist=(), level=0):
+    def custom_import(self,
+                      name,
+                      globals=None,
+                      locals=None,
+                      fromlist=(),
+                      level=0):
         if name in self._allowed_modules:
             m = None
             if self._allowed_modules[name] is None:
@@ -122,8 +133,8 @@ class Python(BaseQueryRunner):
             return m
 
         raise Exception(
-            "'{0}' is not configured as a supported import module".format(name)
-        )
+            "'{0}' is not configured as a supported import module".format(
+                name))
 
     @staticmethod
     def custom_write(obj):
@@ -152,14 +163,17 @@ class Python(BaseQueryRunner):
         :column_type string: Type of the column. Check supported data types for details.
         """
         if column_type not in SUPPORTED_COLUMN_TYPES:
-            raise Exception("'{0}' is not a supported column type".format(column_type))
+            raise Exception(
+                "'{0}' is not a supported column type".format(column_type))
 
         if "columns" not in result:
             result["columns"] = []
 
-        result["columns"].append(
-            {"name": column_name, "friendly_name": friendly_name, "type": column_type}
-        )
+        result["columns"].append({
+            "name": column_name,
+            "friendly_name": friendly_name,
+            "type": column_type
+        })
 
     @staticmethod
     def add_result_row(result, values):
@@ -184,11 +198,14 @@ class Python(BaseQueryRunner):
         """
         try:
             if type(data_source_name_or_id) == int:
-                data_source = models.DataSource.get_by_id(data_source_name_or_id)
+                data_source = models.DataSource.get_by_id(
+                    data_source_name_or_id)
             else:
-                data_source = models.DataSource.get_by_name(data_source_name_or_id)
+                data_source = models.DataSource.get_by_name(
+                    data_source_name_or_id)
         except models.NoResultFound:
-            raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
+            raise Exception("Wrong data source name/id: %s." %
+                            data_source_name_or_id)
 
         # TODO: pass the user here...
         data, error = data_source.query_runner.run_query(query, None)
@@ -207,11 +224,14 @@ class Python(BaseQueryRunner):
         """
         try:
             if type(data_source_name_or_id) == int:
-                data_source = models.DataSource.get_by_id(data_source_name_or_id)
+                data_source = models.DataSource.get_by_id(
+                    data_source_name_or_id)
             else:
-                data_source = models.DataSource.get_by_name(data_source_name_or_id)
+                data_source = models.DataSource.get_by_name(
+                    data_source_name_or_id)
         except models.NoResultFound:
-            raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
+            raise Exception("Wrong data source name/id: %s." %
+                            data_source_name_or_id)
         schema = data_source.query_runner.get_schema()
         return schema
 
@@ -272,7 +292,8 @@ class Python(BaseQueryRunner):
             restricted_globals["execute_query"] = self.execute_query
             restricted_globals["add_result_column"] = self.add_result_column
             restricted_globals["add_result_row"] = self.add_result_row
-            restricted_globals["disable_print_log"] = self._custom_print.disable
+            restricted_globals[
+                "disable_print_log"] = self._custom_print.disable
             restricted_globals["enable_print_log"] = self._custom_print.enable
 
             # Supported data types

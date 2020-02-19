@@ -16,7 +16,8 @@ from redash.security import csp_allows_embeding
 
 
 @routes.route(
-    org_scoped_rule("/embed/query/<query_id>/visualization/<visualization_id>"),
+    org_scoped_rule(
+        "/embed/query/<query_id>/visualization/<visualization_id>"),
     methods=["GET"],
 )
 @login_required
