@@ -69,9 +69,7 @@ class Cassandra(BaseQueryRunner):
 
     def _get_certifiacte(self):
         ssl_cert = b64decode(self.configuration.get("sslCertificateFile", None))
-        print(ssl_cert)
         cert_path = None
-        logger.error(f"certificate is found to be {ssl_cert}")
         if ssl_cert is not None:
             cert_dir = f"./tmp/cassandra_certificate/{self.configuration.get('host', '')}"
             cert_path = f"{cert_dir}/cert.pem"
