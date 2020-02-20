@@ -4,7 +4,7 @@ import signal
 import time
 from rq import Worker as BaseWorker, Queue as BaseQueue, get_current_job
 from rq.utils import utcnow
-from rq.timeouts import UnixSignalDeathPenalty, HorseMonitorTimeoutException
+from rq.timeouts import UnixSignalDeathPenalty, HorseMonitorTimeoutException, JobTimeoutException
 from rq.job import Job as BaseJob, JobStatus
 
 
@@ -128,6 +128,13 @@ class HardLimitingWorker(BaseWorker):
                 exc_string="Work-horse process was terminated unexpectedly "
                 "(waitpid returned %s)" % ret_val,
             )
+
+
+def attach_to_timeout_signal():
+    def cancel_job(signum, frame):
+        raise JobTimeoutException()
+
+    signal.signal(signal.SIGALRM, cancel_job)
 
 
 Job = CancellableJob
