@@ -39,9 +39,10 @@ export default class QueryBasedParameterInput extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.queryId !== prevProps.queryId) {
+    if (this.props.queryId !== prevProps.queryId || this.props.parameter !== prevProps.parameter) {
       this._loadOptions(this.props.queryId);
     }
+
     if (this.props.value !== prevProps.value) {
       this.setValue(this.props.value);
     }
