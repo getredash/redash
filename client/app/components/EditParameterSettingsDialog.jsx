@@ -301,7 +301,7 @@ function EditParameterSettingsDialog(props) {
               onChange={q => {
                 if (q) {
                   setParamQuery(q);
-                  setParam({ ...param, queryId: q.id });
+                  setParam({ ...param, queryId: q.id, searchColumn: null, staticParams: {} });
                 }
               }}
               type="select"

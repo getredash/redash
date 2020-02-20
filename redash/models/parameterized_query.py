@@ -5,6 +5,7 @@ from redash.utils import mustache_render, json_loads
 from redash.permissions import require_access, view_only
 from funcy import distinct
 from dateutil.parser import parse
+from redash import models
 
 
 def _pluck_name_and_value(default_column, row):
@@ -152,8 +153,11 @@ class ParameterizedQuery(object):
             return False
 
         enum_options = definition.get("enumOptions")
-        query_id = definition.get("queryId")
         allow_multiple_values = isinstance(definition.get("multiValuesOptions"), dict)
+
+        if definition["type"] == "query":
+            query_id = definition.get("queryId")
+            query = models.Query.get_by_id_and_org(query_id, self.org)
 
         if isinstance(enum_options, str):
             enum_options = enum_options.split("\n")
@@ -164,7 +168,11 @@ class ParameterizedQuery(object):
             "enum": lambda value: _is_value_within_options(
                 value, enum_options, allow_multiple_values
             ),
-            "query": lambda value: True,
+            "query": lambda value: _is_value_within_options(
+                value,
+                [v["value"] for v in dropdown_values(query_id, self.org)],
+                allow_multiple_values,
+            ) if not query.parameters else True,
             "date": _is_date,
             "datetime-local": _is_date,
             "datetime-with-seconds": _is_date,
@@ -179,6 +187,7 @@ class ParameterizedQuery(object):
 
     @property
     def is_safe(self):
+        # TODO: make query_parameters with parameters on its own unsafe
         text_parameters = [param for param in self.schema if param["type"] == "text"]
         return not any(text_parameters)
 
