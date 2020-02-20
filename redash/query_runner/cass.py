@@ -1,4 +1,7 @@
 import logging
+import ssl
+from base64 import b64decode
+from pathlib import Path
 
 from redash.query_runner import BaseQueryRunner, register
 from redash.utils import JSONEncoder, json_dumps, json_loads
@@ -45,13 +48,50 @@ class Cassandra(BaseQueryRunner):
                     "default": 3,
                 },
                 "timeout": {"type": "number", "title": "Timeout", "default": 10},
+                "useSsl": {"type": "boolean", "title": "Use SSL", "default": False},
+                "sslCertificateFile": {
+                    "type": "string",
+                    "title": "SSL Certificate File"
+                },
+                "sslProtocol": {
+                    "type": "string",
+                    "title": "SSL Protocol",
+                    "default": "PROTOCOL_TLSv1_2"
+                },
             },
             "required": ["keyspace", "host"],
+            "secret": ["sslCertificateFile"],
         }
 
     @classmethod
     def type(cls):
         return "Cassandra"
+
+    def _get_certifiacte(self):
+        ssl_cert = b64decode(self.configuration.get("sslCertificateFile", None))
+        print(ssl_cert)
+        cert_path = None
+        logger.error(f"certificate is found to be {ssl_cert}")
+        if ssl_cert is not None:
+            cert_dir = f"./tmp/cassandra_certificate/{self.configuration.get('host', '')}"
+            cert_path = f"{cert_dir}/cert.pem"
+            # Ensure the path exists
+            Path(cert_dir).mkdir(parents=True, exist_ok=True)
+            with open(cert_path, 'w') as objFile:
+                objFile.write(ssl_cert.decode("utf-8"))
+        return cert_path
+
+    def _get_ssl_options(self):
+        ssl_options = None
+        if self.configuration.get("useSsl", False):
+            ssl_version = self.configuration.get("sslProtocol")
+            ssl_options = {
+                'ssl_version': getattr(ssl, ssl_version)
+            }
+            if self.configuration.get("sslCertificateFile", None) is not None:
+                ssl_options['ca_certs'] = self._get_certifiacte()
+                ssl_options['cert_reqs'] = ssl.CERT_REQUIRED
+        return ssl_options
 
     def get_schema(self, get_stats=False):
         query = """
@@ -106,12 +146,14 @@ class Cassandra(BaseQueryRunner):
                     auth_provider=auth_provider,
                     port=self.configuration.get("port", ""),
                     protocol_version=self.configuration.get("protocol", 3),
+                    ssl_options=self._get_ssl_options(),
                 )
             else:
                 connection = Cluster(
                     [self.configuration.get("host", "")],
                     port=self.configuration.get("port", ""),
                     protocol_version=self.configuration.get("protocol", 3),
+                    ssl_options=self._get_ssl_options(),
                 )
             session = connection.connect()
             session.set_keyspace(self.configuration["keyspace"])
