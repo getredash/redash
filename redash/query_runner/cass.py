@@ -25,6 +25,26 @@ class CassandraJSONEncoder(JSONEncoder):
         return super(CassandraJSONEncoder, self).default(o)
 
 
+def generate_cert_file(ssl_cert, host):
+    cert_dir = f"./tmp/cassandra_certificate/{host}"
+    cert_path = f"{cert_dir}/cert.pem"
+    # Ensure the path exists
+    Path(cert_dir).mkdir(parents=True, exist_ok=True)
+    with open(cert_path, 'w') as objFile:
+        objFile.write(ssl_cert.decode("utf-8"))
+    return cert_path
+
+
+def generate_ssl_options_dict(protocol, cert_path=None):
+    ssl_options = {
+        'ssl_version': getattr(ssl, protocol)
+    }
+    if cert_path is not None:
+        ssl_options['ca_certs'] = cert_path
+        ssl_options['cert_reqs'] = ssl.CERT_REQUIRED
+    return ssl_options
+
+
 class Cassandra(BaseQueryRunner):
     noop_query = "SELECT dateof(now()) FROM system.local"
 
@@ -67,28 +87,22 @@ class Cassandra(BaseQueryRunner):
     def type(cls):
         return "Cassandra"
 
-    def _get_certifiacte(self):
-        ssl_cert = b64decode(self.configuration.get("sslCertificateFile", None))
-        cert_path = None
-        if ssl_cert is not None:
-            cert_dir = f"./tmp/cassandra_certificate/{self.configuration.get('host', '')}"
-            cert_path = f"{cert_dir}/cert.pem"
-            # Ensure the path exists
-            Path(cert_dir).mkdir(parents=True, exist_ok=True)
-            with open(cert_path, 'w') as objFile:
-                objFile.write(ssl_cert.decode("utf-8"))
-        return cert_path
+    def _get_certifiacte_path(self):
+        cert_bytes = b64decode(self.configuration.get("sslCertificateFile", None))
+        if cert_bytes is None:
+            return None
+        return generate_cert_file(
+            ssl_cert=cert_bytes,
+            host=self.configuration.get('host', '')
+        )
 
     def _get_ssl_options(self):
         ssl_options = None
         if self.configuration.get("useSsl", False):
-            ssl_version = self.configuration.get("sslProtocol")
-            ssl_options = {
-                'ssl_version': getattr(ssl, ssl_version)
-            }
-            if self.configuration.get("sslCertificateFile", None) is not None:
-                ssl_options['ca_certs'] = self._get_certifiacte()
-                ssl_options['cert_reqs'] = ssl.CERT_REQUIRED
+            ssl_options = generate_ssl_options_dict(
+                protocol=self.configuration.get("sslProtocol"),
+                cert_path=self._get_certifiacte_path()
+            )
         return ssl_options
 
     def get_schema(self, get_stats=False):
