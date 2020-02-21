@@ -1,4 +1,4 @@
-import { includes, words, capitalize, clone, isNull, values, get } from "lodash";
+import { includes, words, capitalize, clone, isNull, values, map, get, findKey } from "lodash";
 import React, { useState, useEffect, useRef, useReducer } from "react";
 import PropTypes from "prop-types";
 import Checkbox from "antd/lib/checkbox";
@@ -79,8 +79,19 @@ function QueryBasedParamMappingEditor({ parameter, mapping, searchAvailable, onC
   const [showPopover, setShowPopover] = useState(false);
   const [newMapping, setNewMapping] = useReducer((prevState, updates) => ({ ...prevState, ...updates }), mapping);
 
+  const newMappingRef = useRef(newMapping);
+  useEffect(() => {
+    if (
+      mapping.mappingType !== newMappingRef.current.mappingType ||
+      mapping.staticValue !== newMappingRef.current.staticValue
+    ) {
+      setNewMapping(mapping);
+    }
+  }, [mapping]);
+
   const parameterRef = useRef(parameter);
   useEffect(() => {
+    console.log(mapping.staticValue);
     parameterRef.current.setValue(mapping.staticValue);
   }, [mapping.staticValue]);
 
@@ -310,44 +321,43 @@ function EditParameterSettingsDialog(props) {
         )}
         {param.type === "query" && paramQuery && paramQuery.hasParameters() && (
           <Form.Item className="m-t-15 m-b-5" label="Parameters" {...formItemProps}>
-            {/* TODO: make sure Table rerenders on updates */}
             <Table
-              dataSource={paramQuery.getParametersDefs()}
+              dataSource={map(paramQuery.getParametersDefs(), mappingParam => ({
+                mappingParam,
+                existingMapping: get(param.parameterMapping, mappingParam.name, {
+                  mappingType: QueryBasedParameterMappingType.UNDEFINED,
+                }),
+              }))}
               size="middle"
               pagination={false}
               rowKey={(record, idx) => `row${idx}`}>
-              <Table.Column title="Title" key="title" render={mappingParam => mappingParam.getTitle()} />
+              <Table.Column title="Title" key="title" render={({ mappingParam }) => mappingParam.getTitle()} />
               <Table.Column
                 title="Keyword"
                 key="keyword"
                 className="keyword"
-                render={mappingParam => <code>{`{{ ${mappingParam.name} }}`}</code>}
+                render={({ mappingParam }) => <code>{`{{ ${mappingParam.name} }}`}</code>}
               />
               <Table.Column
                 title="Value Source"
                 key="source"
-                render={mappingParam => {
-                  const existingMapping = get(param.parameterMapping, mappingParam.name, {
-                    mappingType: QueryBasedParameterMappingType.UNDEFINED,
-                  });
-
-                  return (
-                    <QueryBasedParamMappingEditor
-                      parameter={mappingParam}
-                      mapping={existingMapping}
-                      searchAvailable={
-                        !param.searchColumn ||
-                        existingMapping.mappingType === QueryBasedParameterMappingType.DROPDOWN_SEARCH
-                      }
-                      onChange={mapping =>
-                        setParam({
-                          ...param,
-                          parameterMapping: { ...param.parameterMapping, [mappingParam.name]: mapping },
-                        })
-                      }
-                    />
-                  );
-                }}
+                render={({ mappingParam, existingMapping }) => (
+                  <QueryBasedParamMappingEditor
+                    parameter={mappingParam.setValue(existingMapping.staticValue)}
+                    mapping={existingMapping}
+                    searchAvailable={
+                      !findKey(param.parameterMapping, {
+                        mappingType: QueryBasedParameterMappingType.DROPDOWN_SEARCH,
+                      }) || existingMapping.mappingType === QueryBasedParameterMappingType.DROPDOWN_SEARCH
+                    }
+                    onChange={mapping =>
+                      setParam({
+                        ...param,
+                        parameterMapping: { ...param.parameterMapping, [mappingParam.name]: mapping },
+                      })
+                    }
+                  />
+                )}
               />
             </Table>
           </Form.Item>
