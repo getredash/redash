@@ -187,9 +187,16 @@ class ParameterizedQuery(object):
 
     @property
     def is_safe(self):
-        # TODO: make query_parameters with parameters on its own unsafe
-        text_parameters = [param for param in self.schema if param["type"] == "text"]
-        return not any(text_parameters)
+        for param in self.schema:
+            if param["type"] == "text":
+                return False
+            if param["type"] == "query":
+                query_id = param.get("queryId")
+                query = models.Query.get_by_id_and_org(query_id, self.org)
+
+                if query.parameters:
+                    return False
+        return True
 
     @property
     def missing_params(self):
