@@ -22,9 +22,7 @@ function prepareVisualization(query, type, name, options) {
       cy.get("body").type("{alt}D");
 
       // do some pre-checks here to ensure that visualization was created and is visible
-      cy.getByTestId(`QueryPageVisualizationTab${visualizationId}`)
-        .should("exist")
-        .click();
+      cy.getByTestId(`QueryPageVisualizationTab${visualizationId}`).click();
       cy.getByTestId(`QueryPageVisualization${visualizationId}`)
         .should("exist")
         .find("table")
