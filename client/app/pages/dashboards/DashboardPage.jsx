@@ -120,6 +120,7 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
     archiveDashboard,
     managePermissions,
     gridDisabled,
+    isDashboardOwnerOrAdmin,
   } = dashboardOptions;
 
   const archive = () => {
@@ -143,7 +144,7 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
           <Menu.Item className={cx({ hidden: gridDisabled })}>
             <a onClick={() => setEditingLayout(true)}>Edit</a>
           </Menu.Item>
-          {clientConfig.showPermissionsControl && (
+          {clientConfig.showPermissionsControl && isDashboardOwnerOrAdmin && (
             <Menu.Item>
               <a onClick={managePermissions}>Manage Permissions</a>
             </Menu.Item>

@@ -10,7 +10,7 @@ import TextboxDialog from "@/components/dashboards/TextboxDialog";
 import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
 import { editableMappingsToParameterMappings, synchronizeWidgetTitles } from "@/components/ParameterMappingInput";
 import ShareDashboardDialog from "../components/ShareDashboardDialog";
-import useFullscreenHandler from "./useFullscreenHandler";
+import useFullscreenHandler from "../../../lib/hooks/useFullscreenHandler";
 import useRefreshRateHandler from "./useRefreshRateHandler";
 import useEditModeHandler from "./useEditModeHandler";
 
@@ -37,7 +37,8 @@ function useDashboard(dashboardData) {
   const [refreshing, setRefreshing] = useState(false);
   const [gridDisabled, setGridDisabled] = useState(false);
   const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
-  const canEditDashboard = useMemo(
+  const canEditDashboard = !dashboard.is_archived && dashboard.can_edit;
+  const isDashboardOwnerOrAdmin = useMemo(
     () =>
       !dashboard.is_archived &&
       has(dashboard, "user.id") &&
@@ -210,6 +211,7 @@ function useDashboard(dashboardData) {
     refreshWidget,
     removeWidget,
     canEditDashboard,
+    isDashboardOwnerOrAdmin,
     refreshRate,
     setRefreshRate,
     disableRefreshRate,

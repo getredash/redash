@@ -59,7 +59,16 @@ function createMenu(menu) {
   );
 }
 
-export default function QueryPageHeader({ query, dataSource, sourceMode, selectedVisualization, onChange }) {
+export default function QueryPageHeader({
+  query,
+  dataSource,
+  sourceMode,
+  selectedVisualization,
+  headerExtra,
+  tagsExtra,
+  onChange,
+  onRefresh,
+}) {
   const queryFlags = useQueryFlags(query, dataSource);
   const updateName = useRenameQuery(query, onChange);
   const updateTags = useUpdateQueryTags(query, onChange);
@@ -123,7 +132,7 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
   );
 
   return (
-    <div className="p-b-10 page-header--new page-header--query">
+    <div className="page-header--new page-header--query">
       <div className="page-title">
         <div className="d-flex flex-nowrap align-items-center">
           {!queryFlags.isNew && (
@@ -141,10 +150,12 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
                 canEdit={queryFlags.canEdit}
                 getAvailableTags={getQueryTags}
                 onEdit={updateTags}
+                tagsExtra={tagsExtra}
               />
             </span>
           </h3>
           <span className="flex-fill" />
+          {headerExtra}
           {queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit && (
             <Button className="hidden-xs m-r-5" onClick={publishQuery}>
               <i className="fa fa-paper-plane m-r-5" /> Publish
@@ -155,7 +166,8 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
             <span>
               {!sourceMode && (
                 <Button className="m-r-5" href={query.getUrl(true, selectedVisualization)}>
-                  <i className="fa fa-pencil-square-o m-r-5" aria-hidden="true" /> Edit Source
+                  <i className="fa fa-pencil-square-o" aria-hidden="true" />
+                  <span className="hidden-xs m-l-5">Edit Source</span>
                 </Button>
               )}
               {sourceMode && (
@@ -163,7 +175,8 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
                   className="m-r-5"
                   href={query.getUrl(false, selectedVisualization)}
                   data-test="QueryPageShowDataOnly">
-                  <i className="fa fa-table m-r-5" aria-hidden="true" /> Show Data Only
+                  <i className="fa fa-table" aria-hidden="true" />
+                  <span className="hidden-xs m-l-5">Show Data Only</span>
                 </Button>
               )}
             </span>
@@ -201,6 +214,8 @@ QueryPageHeader.propTypes = {
   dataSource: PropTypes.object,
   sourceMode: PropTypes.bool,
   selectedVisualization: PropTypes.number,
+  headerExtra: PropTypes.node,
+  tagsExtra: PropTypes.node,
   onChange: PropTypes.func,
 };
 
@@ -208,5 +223,7 @@ QueryPageHeader.defaultProps = {
   dataSource: null,
   sourceMode: false,
   selectedVisualization: null,
+  headerExtra: null,
+  tagsExtra: null,
   onChange: () => {},
 };

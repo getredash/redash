@@ -36,17 +36,17 @@ def refresh_queries():
     with statsd_client.timer("manager.outdated_queries_lookup"):
         for query in models.Query.outdated_queries():
             if settings.FEATURE_DISABLE_REFRESH_QUERIES:
-                logging.info("Disabled refresh queries.")
+                logger.info("Disabled refresh queries.")
             elif query.org.is_disabled:
-                logging.debug(
+                logger.debug(
                     "Skipping refresh of %s because org is disabled.", query.id
                 )
             elif query.data_source is None:
-                logging.debug(
+                logger.debug(
                     "Skipping refresh of %s because the datasource is none.", query.id
                 )
             elif query.data_source.paused:
-                logging.debug(
+                logger.debug(
                     "Skipping refresh of %s because datasource - %s is paused (%s).",
                     query.id,
                     query.data_source.name,
@@ -117,7 +117,7 @@ def cleanup_query_results():
     the database in case of many such results.
     """
 
-    logging.info(
+    logger.info(
         "Running query results clean up (removing maximum of %d unused results, that are %d days old or more)",
         settings.QUERY_RESULTS_CLEANUP_COUNT,
         settings.QUERY_RESULTS_CLEANUP_MAX_AGE,

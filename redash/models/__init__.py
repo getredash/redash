@@ -187,15 +187,27 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
         if cache is None:
             query_runner = self.query_runner
-            schema = sorted(
-                query_runner.get_schema(get_stats=refresh), key=lambda t: t["name"]
-            )
+            schema = query_runner.get_schema(get_stats=refresh)
 
-            redis_connection.set(self._schema_key, json_dumps(schema))
+            try:
+                out_schema = self._sort_schema(schema)
+            except Exception:
+                logging.exception(
+                    "Error sorting schema columns for data_source {}".format(self.id)
+                )
+                out_schema = schema
+            finally:
+                redis_connection.set(self._schema_key, json_dumps(out_schema))
         else:
-            schema = json_loads(cache)
+            out_schema = json_loads(cache)
 
-        return schema
+        return out_schema
+
+    def _sort_schema(self, schema):
+        return [
+            {"name": i["name"], "columns": sorted(i["columns"])}
+            for i in sorted(schema, key=lambda x: x["name"])
+        ]
 
     @property
     def _schema_key(self):
