@@ -3,7 +3,6 @@ import { createNumberFormatter, formatSimpleTemplate } from "@/lib/value-format"
 import { normalizeValue } from "./utils";
 
 function shouldUseUnifiedXAxis(options) {
-  console.log("called shouldUseUnifiedXAxis");
   return options.sortX && options.xAxis.type === "category" && options.globalSeriesType !== "box";
 }
 
