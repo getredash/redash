@@ -100,10 +100,9 @@ function prepareSeries(series, options, additionalOptions) {
     const yError = cleanNumber(row.yError); // always number
     const size = cleanNumber(row.size); // always number
 
-    if (x in labelsValuesDict){
+    if (x in labelsValuesDict) {
       labelsValuesDict[x] += y;
-    }
-    else{
+    } else {
       labelsValuesDict[x] = y;
     }
     const aggregatedY = labelsValuesDict[x];
