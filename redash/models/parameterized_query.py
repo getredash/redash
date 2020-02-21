@@ -30,6 +30,13 @@ def _load_result(query_id, org):
         raise QueryDetachedFromDataSourceError(query_id)
 
 
+def query_has_parameters(query_id, org):
+    try:
+        query = models.Query.get_by_id_and_org(query_id, org)
+        return bool(query.parameters)
+    except (models.NoResultFound):
+        return False
+
 def dropdown_values(query_id, org):
     data = _load_result(query_id, org)
     first_column = data["columns"][0]["name"]
@@ -153,11 +160,8 @@ class ParameterizedQuery(object):
             return False
 
         enum_options = definition.get("enumOptions")
+        query_id = definition.get("queryId")
         allow_multiple_values = isinstance(definition.get("multiValuesOptions"), dict)
-
-        if definition["type"] == "query":
-            query_id = definition.get("queryId")
-            query = models.Query.get_by_id_and_org(query_id, self.org)
 
         if isinstance(enum_options, str):
             enum_options = enum_options.split("\n")
@@ -172,7 +176,7 @@ class ParameterizedQuery(object):
                 value,
                 [v["value"] for v in dropdown_values(query_id, self.org)],
                 allow_multiple_values,
-            ) if not query.parameters else True,
+            ) if not query_has_parameters(query_id, self.org) else True,
             "date": _is_date,
             "datetime-local": _is_date,
             "datetime-with-seconds": _is_date,
@@ -190,15 +194,8 @@ class ParameterizedQuery(object):
         for param in self.schema:
             if param["type"] == "text":
                 return False
-            if param["type"] == "query":
-                try:
-                    query_id = param.get("queryId")
-                    query = models.Query.get_by_id_and_org(query_id, self.org)
-
-                    if query.parameters:
-                        return False
-                except (models.NoResultFound):
-                    pass
+            if param["type"] == "query" and query_has_parameters(param.get("queryId"), self.org):
+                return False
         return True
 
     @property

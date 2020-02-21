@@ -166,7 +166,8 @@ class TestParameterizedQuery(TestCase):
         "redash.models.parameterized_query.dropdown_values",
         return_value=[{"value": "1"}],
     )
-    def test_validation_accepts_integer_values_for_dropdowns(self, _):
+    @patch("redash.models.parameterized_query.query_has_parameters", return_value=False)
+    def test_validation_accepts_integer_values_for_dropdowns(self, dpd_values, query_has_parameters):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo {{bar}}", schema)
 
@@ -175,7 +176,8 @@ class TestParameterizedQuery(TestCase):
         self.assertEqual("foo 1", query.text)
 
     @patch("redash.models.parameterized_query.dropdown_values")
-    def test_raises_on_invalid_query_parameters(self, _):
+    @patch("redash.models.parameterized_query.query_has_parameters", return_value=False)
+    def test_raises_on_invalid_query_parameters(self, dpd_values, query_has_parameters):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo", schema)
 
@@ -186,7 +188,8 @@ class TestParameterizedQuery(TestCase):
         "redash.models.parameterized_query.dropdown_values",
         return_value=[{"value": "baz"}],
     )
-    def test_raises_on_unlisted_query_value_parameters(self, _):
+    @patch("redash.models.parameterized_query.query_has_parameters", return_value=False)
+    def test_raises_on_unlisted_query_value_parameters(self, dpd_values, query_has_parameters):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo", schema)
 
@@ -197,7 +200,8 @@ class TestParameterizedQuery(TestCase):
         "redash.models.parameterized_query.dropdown_values",
         return_value=[{"value": "baz"}],
     )
-    def test_validates_query_parameters(self, _):
+    @patch("redash.models.parameterized_query.query_has_parameters", return_value=False)
+    def test_validates_query_parameters(self, dpd_values, query_has_parameters):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo {{bar}}", schema)
 
