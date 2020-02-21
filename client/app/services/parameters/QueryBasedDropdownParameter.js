@@ -1,4 +1,17 @@
-import { isNull, isUndefined, isArray, isEmpty, get, map, join, has, toString } from "lodash";
+import {
+  isNull,
+  isUndefined,
+  isArray,
+  isEmpty,
+  get,
+  map,
+  join,
+  has,
+  toString,
+  findKey,
+  mapValues,
+  pickBy,
+} from "lodash";
 import { Query } from "@/services/query";
 import QueryResult from "@/services/query-result";
 import Parameter from "./Parameter";
@@ -19,10 +32,20 @@ class QueryBasedDropdownParameter extends Parameter {
     this.queryId = parameter.queryId;
     this.multiValuesOptions = parameter.multiValuesOptions;
     this.parameterMapping = parameter.parameterMapping;
-    this.searchColumn = parameter.searchColumn;
     this.searchTerm = parameter.searchTerm;
-    this.staticParams = { ...parameter.staticParams };
     this.setValue(parameter.value);
+  }
+
+  get searchColumn() {
+    return findKey(this.parameterMapping, { mappingType: QueryBasedParameterMappingType.DROPDOWN_SEARCH });
+  }
+
+  get staticParams() {
+    const staticParams = pickBy(
+      this.parameterMapping,
+      mapping => mapping.mappingType === QueryBasedParameterMappingType.STATIC
+    );
+    return mapValues(staticParams, value => value.staticValue);
   }
 
   normalizeValue(value) {
