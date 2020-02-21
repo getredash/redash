@@ -31,8 +31,8 @@
     "series": [
       {
         "visible": true,
-        "values": [10, 60, 100, 30],
-        "labels": ["Slice 0", "Slice 0", "Slice 0", "Slice 0"],
+        "values": [200],
+        "labels": ["Slice 0"],
         "type": "pie",
         "hole": 0.4,
         "marker": {
@@ -40,7 +40,7 @@
         },
         "hoverinfo": "text+label",
         "hover": [],
-        "text": ["15% (30)", "15% (30)", "15% (30)", "15% (30)"],
+        "text": ["100% (200)"],
         "textinfo": "percent",
         "textposition": "inside",
         "textfont": { "color": "#ffffff" },
