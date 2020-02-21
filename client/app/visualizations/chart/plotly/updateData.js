@@ -3,10 +3,12 @@ import { createNumberFormatter, formatSimpleTemplate } from "@/lib/value-format"
 import { normalizeValue } from "./utils";
 
 function shouldUseUnifiedXAxis(options) {
+  console.log("called shouldUseUnifiedXAxis");
   return options.sortX && options.xAxis.type === "category" && options.globalSeriesType !== "box";
 }
 
 function defaultFormatSeriesText(item) {
+  console.log("called defaultFormatSeriesText");
   let result = item["@@y"];
   if (item["@@yError"] !== undefined) {
     result = `${result} \u00B1 ${item["@@yError"]}`;
@@ -21,10 +23,12 @@ function defaultFormatSeriesText(item) {
 }
 
 function defaultFormatSeriesTextForPie(item) {
+  console.log("called defaultFormatSeriesTextForPie");
   return item["@@yPercent"] + " (" + item["@@y"] + ")";
 }
 
 function createTextFormatter(options) {
+  console.log("called createTextFormatter");
   if (options.textFormat === "") {
     return options.globalSeriesType === "pie" ? defaultFormatSeriesTextForPie : defaultFormatSeriesText;
   }
@@ -49,6 +53,7 @@ function formatValue(value, axis, options) {
 }
 
 function updateSeriesText(seriesList, options) {
+  console.log("called updateSeriesText");
   const formatNumber = createNumberFormatter(options.numberFormat);
   const formatPercent = createNumberFormatter(options.percentFormat);
   const formatText = createTextFormatter(options);
@@ -95,6 +100,7 @@ function updateSeriesText(seriesList, options) {
 }
 
 function updatePercentValues(seriesList, options) {
+  console.log("called updatePercentValues");
   if (options.series.percentValues) {
     // Some series may not have corresponding x-values;
     // do calculations for each x only for series that do have that x
@@ -125,6 +131,7 @@ function updatePercentValues(seriesList, options) {
 }
 
 function getUnifiedXAxisValues(seriesList, sorted) {
+  console.log("called getUnifiedXAxisValues");
   const set = new Set();
   each(seriesList, series => {
     // `Map.forEach` will walk items in insertion order
@@ -138,6 +145,7 @@ function getUnifiedXAxisValues(seriesList, sorted) {
 }
 
 function updateUnifiedXAxisValues(seriesList, options) {
+  console.log("called updateUnifiedXAxisValues");
   const unifiedX = getUnifiedXAxisValues(seriesList, options.sortX);
   const defaultY = options.missingValuesAsZero ? 0.0 : null;
   each(seriesList, series => {
@@ -159,10 +167,12 @@ function updateUnifiedXAxisValues(seriesList, options) {
 }
 
 function updatePieData(seriesList, options) {
+  console.log("called updatePieData");
   updateSeriesText(seriesList, options);
 }
 
 function updateLineAreaData(seriesList, options) {
+  console.log("called updateLineAreaData");
   // Apply "percent values" modification
   updatePercentValues(seriesList, options);
   if (options.series.stacking) {
@@ -192,6 +202,7 @@ function updateLineAreaData(seriesList, options) {
 }
 
 function updateDefaultData(seriesList, options) {
+  console.log("called updateDefaultData");
   // Apply "percent values" modification
   updatePercentValues(seriesList, options);
 
@@ -206,6 +217,7 @@ function updateDefaultData(seriesList, options) {
 }
 
 export default function updateData(seriesList, options) {
+  console.log("called updateData");
   // Use only visible series
   const visibleSeriesList = filter(seriesList, s => s.visible === true);
 

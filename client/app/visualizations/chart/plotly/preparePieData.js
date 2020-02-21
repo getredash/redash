@@ -38,8 +38,10 @@ function prepareSeries(series, options, additionalOptions) {
   const xPosition = (index % cellsInRow) * cellWidth;
   const yPosition = Math.floor(index / cellsInRow) * cellHeight;
 
-  const labels = [];
-  const values = [];
+  //we hold the labels and values in a dictionary so that we can aggregate multiple values for a single label
+  //once we reach the end of the data, we'll convert the dictionary to separate arrays for labels and values
+  const labelsValuesDict = {};
+
   const sourceData = new Map();
   const seriesTotal = reduce(
     series.data,
@@ -52,15 +54,24 @@ function prepareSeries(series, options, additionalOptions) {
   each(series.data, row => {
     const x = hasX ? normalizeValue(row.x, options.xAxis.type) : `Slice ${index}`;
     const y = cleanNumber(row.y);
-    labels.push(x);
-    values.push(y);
+    if (x in labelsValuesDict){
+      labelsValuesDict[x] += y;
+    }
+    else{
+      labelsValuesDict[x] = y;
+    }
+    const aggregatedY = labelsValuesDict[x];
+
     sourceData.set(x, {
       x,
-      y,
-      yPercent: (y / seriesTotal) * 100,
+      y: aggregatedY,
+      yPercent: (aggregatedY / seriesTotal) * 100,
       row,
     });
   });
+
+  const labels = Object.keys(labelsValuesDict);
+  const values = Object.values(labelsValuesDict);
 
   return {
     visible: true,
@@ -69,7 +80,7 @@ function prepareSeries(series, options, additionalOptions) {
     type: "pie",
     hole: 0.4,
     marker: {
-      colors: map(series.data, row => getValueColor(row.x)),
+      colors: map(series.data, row => getValueColor(row.y)), //reduces liklihood of adjacent same colors
     },
     hoverinfo: hoverInfoPattern,
     text: [],
