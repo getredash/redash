@@ -91,7 +91,6 @@ function QueryBasedParamMappingEditor({ parameter, mapping, searchAvailable, onC
 
   const parameterRef = useRef(parameter);
   useEffect(() => {
-    console.log(mapping.staticValue);
     parameterRef.current.setValue(mapping.staticValue);
   }, [mapping.staticValue]);
 
@@ -127,10 +126,15 @@ function QueryBasedParamMappingEditor({ parameter, mapping, searchAvailable, onC
                   <Radio
                     className="radio"
                     value={QueryBasedParameterMappingType.DROPDOWN_SEARCH}
-                    disabled={!searchAvailable}>
+                    disabled={!searchAvailable || parameter.type !== "text"}>
                     Dropdown Search{" "}
-                    {!searchAvailable && (
-                      <Tooltip title="There is already a parameter mapped with the Dropdown Search type.">
+                    {(!searchAvailable || parameter.type !== "text") && (
+                      <Tooltip
+                        title={
+                          searchAvailable
+                            ? "Dropdown Search is only available for Text Parameters"
+                            : "There is already a parameter mapped with the Dropdown Search type."
+                        }>
                         <Icon type="question-circle" theme="filled" />
                       </Tooltip>
                     )}
