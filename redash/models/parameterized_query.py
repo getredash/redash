@@ -191,11 +191,14 @@ class ParameterizedQuery(object):
             if param["type"] == "text":
                 return False
             if param["type"] == "query":
-                query_id = param.get("queryId")
-                query = models.Query.get_by_id_and_org(query_id, self.org)
+                try:
+                    query_id = param.get("queryId")
+                    query = models.Query.get_by_id_and_org(query_id, self.org)
 
-                if query.parameters:
-                    return False
+                    if query.parameters:
+                        return False
+                except (models.NoResultFound):
+                    pass
         return True
 
     @property
