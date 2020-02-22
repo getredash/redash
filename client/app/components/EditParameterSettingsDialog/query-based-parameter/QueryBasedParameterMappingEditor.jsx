@@ -75,7 +75,7 @@ export default function QueryBasedParameterMappingEditor({ parameter, mapping, s
                     {(!searchAvailable || parameter.type !== "text") && (
                       <Tooltip
                         title={
-                          searchAvailable
+                          parameter.type !== "text"
                             ? "Dropdown Search is only available for Text Parameters"
                             : "There is already a parameter mapped with the Dropdown Search type."
                         }>
