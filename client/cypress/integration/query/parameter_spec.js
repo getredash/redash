@@ -197,6 +197,9 @@ describe("Parameter", () => {
         SaveParameterSettings
       `);
 
+      // add a little waiting before changing the parameter value
+      cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
+
       cy.getByTestId("ParameterName-test-parameter")
         .find(".ant-select")
         .click();

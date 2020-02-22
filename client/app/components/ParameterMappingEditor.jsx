@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
+import Button from "antd/lib/button";
 
 import "./ParameterMappingEditor.less";
-import Button from "antd/lib/button";
 
 export default function ParameterMappingEditor({ header, children, saveDisabled, onCancel, onSave }) {
   return (

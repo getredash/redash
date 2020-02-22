@@ -82,7 +82,7 @@ class QueryBasedDropdownParameter extends Parameter {
     }
 
     if (this.searchColumn) {
-      urlParam = `${this.searchTerm}|-|${urlParam}`;
+      urlParam = `${this.searchTerm}--${urlParam}`;
     }
 
     return {
@@ -96,7 +96,7 @@ class QueryBasedDropdownParameter extends Parameter {
     if (has(query, key)) {
       let queryKey = query[key];
       if (this.searchColumn) {
-        const searchTermAndValue = queryKey.split("|-|");
+        const searchTermAndValue = queryKey.split("--");
         if (searchTermAndValue.length === 2) {
           this.searchTerm = searchTermAndValue[0];
           queryKey = searchTermAndValue[1];
