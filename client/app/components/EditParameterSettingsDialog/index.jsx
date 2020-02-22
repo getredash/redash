@@ -1,5 +1,5 @@
-import { includes, words, capitalize, clone, isNull, map, get } from "lodash";
-import React, { useState, useEffect, useRef } from "react";
+import { includes, words, capitalize, clone, isNull, map, get, find } from "lodash";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import PropTypes from "prop-types";
 import Checkbox from "antd/lib/checkbox";
 import Modal from "antd/lib/modal";
@@ -72,6 +72,16 @@ function EditParameterSettingsDialog(props) {
   const [param, setParam] = useState(clone(props.parameter));
   const [isNameValid, setIsNameValid] = useState(true);
   const [paramQuery, setParamQuery] = useState();
+  const mappingParameters = useMemo(
+    () =>
+      map(paramQuery && paramQuery.getParametersDefs(), mappingParam => ({
+        mappingParam,
+        existingMapping: get(param.parameterMapping, mappingParam.name, {
+          mappingType: QueryBasedParameterMappingType.UNDEFINED,
+        }),
+      })),
+    [param.parameterMapping, paramQuery]
+  );
 
   const isNew = !props.parameter.name;
 
@@ -95,8 +105,14 @@ function EditParameterSettingsDialog(props) {
     }
 
     // query
-    if (param.type === "query" && !param.queryId) {
-      return false;
+    if (param.type === "query") {
+      if (!param.queryId) {
+        return false;
+      }
+
+      if (find(mappingParameters, { existingMapping: { mappingType: QueryBasedParameterMappingType.UNDEFINED } })) {
+        return false;
+      }
     }
 
     return true;
@@ -191,7 +207,7 @@ function EditParameterSettingsDialog(props) {
           </Form.Item>
         )}
         {param.type === "query" && (
-          <Form.Item label="Query" help="Select query to load dropdown values from" {...formItemProps}>
+          <Form.Item label="Query" help="Select query to load dropdown values from" required {...formItemProps}>
             <QuerySelector
               selectedQuery={paramQuery}
               onChange={q => {
@@ -205,15 +221,10 @@ function EditParameterSettingsDialog(props) {
           </Form.Item>
         )}
         {param.type === "query" && paramQuery && paramQuery.hasParameters() && (
-          <Form.Item className="m-t-15 m-b-5" label="Parameters" {...formItemProps}>
+          <Form.Item className="m-t-15 m-b-5" label="Parameters" required {...formItemProps}>
             <QueryBasedParameterMappingTable
               param={param}
-              mappingParameters={map(paramQuery.getParametersDefs(), mappingParam => ({
-                mappingParam,
-                existingMapping: get(param.parameterMapping, mappingParam.name, {
-                  mappingType: QueryBasedParameterMappingType.UNDEFINED,
-                }),
-              }))}
+              mappingParameters={mappingParameters}
               onChangeParam={setParam}
             />
           </Form.Item>

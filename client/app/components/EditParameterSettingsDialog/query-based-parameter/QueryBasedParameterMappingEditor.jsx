@@ -6,10 +6,13 @@ import Icon from "antd/lib/icon";
 import Tooltip from "antd/lib/tooltip";
 import Popover from "antd/lib/popover";
 import Radio from "antd/lib/radio";
+import Typography from "antd/lib/typography/Typography";
 import ParameterValueInput from "@/components/ParameterValueInput";
 import ParameterMappingEditor from "@/components/ParameterMappingEditor";
 import Form from "antd/lib/form";
 import { QueryBasedParameterMappingType } from "@/services/parameters/QueryBasedDropdownParameter";
+
+const { Text } = Typography;
 
 const formItemProps = { labelCol: { span: 6 }, wrapperCol: { span: 16 } };
 export default function QueryBasedParameterMappingEditor({ parameter, mapping, searchAvailable, onChange }) {
@@ -41,11 +44,11 @@ export default function QueryBasedParameterMappingEditor({ parameter, mapping, s
     setShowPopover(false);
   };
 
-  let currentState = "Undefined";
+  let currentState = <Text type="secondary">Pick a type</Text>;
   if (mapping.mappingType === QueryBasedParameterMappingType.DROPDOWN_SEARCH) {
     currentState = "Dropdown Search";
   } else if (mapping.mappingType === QueryBasedParameterMappingType.STATIC) {
-    currentState = `Static value: ${mapping.staticValue}`;
+    currentState = `Value: ${mapping.staticValue}`;
   }
   return (
     <>
@@ -54,7 +57,11 @@ export default function QueryBasedParameterMappingEditor({ parameter, mapping, s
         placement="left"
         trigger="click"
         content={
-          <ParameterMappingEditor header="Edit Parameter Source" onCancel={onCancel} onSave={onSave}>
+          <ParameterMappingEditor
+            header="Edit Parameter Source"
+            onCancel={onCancel}
+            saveDisabled={newMapping.mappingType === QueryBasedParameterMappingType.STATIC && parameter.isEmpty}
+            onSave={onSave}>
             <Form>
               <Form.Item className="m-b-15" label="Source" {...formItemProps}>
                 <Radio.Group
@@ -82,7 +89,7 @@ export default function QueryBasedParameterMappingEditor({ parameter, mapping, s
                 </Radio.Group>
               </Form.Item>
               {newMapping.mappingType === QueryBasedParameterMappingType.STATIC && (
-                <Form.Item label="Value" {...formItemProps}>
+                <Form.Item label="Value" required {...formItemProps}>
                   <ParameterValueInput
                     type={parameter.type}
                     value={parameter.normalizedValue}
