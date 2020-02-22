@@ -239,6 +239,13 @@ class TestParameterizedQuery(TestCase):
 
         self.assertFalse(query.is_safe)
 
+    @patch("redash.models.parameterized_query.query_has_parameters", return_value=True)
+    def test_is_not_safe_if_expecting_parameterized_query_based_parameter(self, _):
+        schema = [{"name": "bar", "type": "query"}]
+        query = ParameterizedQuery("foo", schema)
+
+        self.assertFalse(query.is_safe)
+
     def test_is_safe_if_not_expecting_text_parameter(self):
         schema = [{"name": "bar", "type": "number"}]
         query = ParameterizedQuery("foo", schema)
