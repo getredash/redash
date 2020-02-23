@@ -2,6 +2,7 @@ import base64
 from .hive_ds import Hive
 from redash.query_runner import register, BaseSQLQueryRunner
 from redash.utils import json_dumps
+from redash import __version__
 
 try:
     import pyodbc
@@ -12,7 +13,7 @@ except ImportError:
 
 
 class Databricks(BaseSQLQueryRunner):
-    noop_query = 'SELECT 1'
+    noop_query = "SELECT 1"
 
     @classmethod
     def type(cls):
@@ -31,17 +32,21 @@ class Databricks(BaseSQLQueryRunner):
                 "http_path": {"type": "string", "title": "HTTP Path"},
                 # We're using `http_password` here for password for legacy reasons
                 "http_password": {"type": "string", "title": "Access Token"},
-                "schemas": {"type": "string", "title": "Schemas to Load Metadata For"}
+                "schemas": {"type": "string", "title": "Schemas to Load Metadata For"},
             },
             "order": ["host", "http_path", "http_password"],
             "secret": ["http_password"],
             "required": ["host", "http_path", "http_password"],
         }
-    
+
     def _get_cursor(self):
-        connection_string = "Driver=Simba;HOST={};UID=token;PORT=443;PWD={};HTTPPath={};SSL=1;THRIFTTRANSPORT=2;SPARKSERVERTYPE=3;AUTHMECH=3"
-        connection_string = connection_string.format(self.configuration['host'], 
-                            self.configuration['http_password'], self.configuration['http_path'])
+        connection_string = "Driver=Simba;HOST={};UID=token;PORT=443;PWD={};HTTPPath={};SSL=1;THRIFTTRANSPORT=2;SPARKSERVERTYPE=3;AUTHMECH=3;UserAgentEntry=Redash/{}"
+        connection_string = connection_string.format(
+            self.configuration["host"],
+            self.configuration["http_password"],
+            self.configuration["http_path"],
+            __version__,
+        )
 
         connection = pyodbc.connect(connection_string, autocommit=True)
         return connection.cursor()
@@ -49,7 +54,7 @@ class Databricks(BaseSQLQueryRunner):
     def run_query(self, query, user):
         try:
             cursor = self._get_cursor()
-        
+
             cursor.execute(query)
             data = cursor.fetchall()
 
@@ -78,27 +83,27 @@ class Databricks(BaseSQLQueryRunner):
             except IndexError:
                 # Connection errors are `args[0][1]`
                 error = e.args[0][1]
-            
+
             json_data = None
-        
+
         return json_data, error
 
     def _get_tables(self, schema):
         cursor = self._get_cursor()
 
-        schemas = self.configuration.get('schemas', '').split(',')
+        schemas = self.configuration.get("schemas", "").split(",")
 
         for schema_name in schemas:
             cursor.columns(schema=schema_name)
 
             for column in cursor:
-                table_name = '{}.{}'.format(column[1], column[2])
+                table_name = "{}.{}".format(column[1], column[2])
 
                 if table_name not in schema:
-                    schema[table_name] = {'name': table_name, 'columns': []}
-                
-                schema[table_name]['columns'].append(column[3])
-        
+                    schema[table_name] = {"name": table_name, "columns": []}
+
+                schema[table_name]["columns"].append(column[3])
+
         return list(schema.values())
 
 
