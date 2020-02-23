@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { RendererPropTypes } from "@/visualizations";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 import ColorPalette from "@/visualizations/ColorPalette";
 
 import prepareData from "./prepareData";

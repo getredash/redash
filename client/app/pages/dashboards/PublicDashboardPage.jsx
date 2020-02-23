@@ -1,16 +1,15 @@
 import { isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import SignedOutPageWrapper from "@/components/ApplicationArea/SignedOutPageWrapper";
+import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
 import BigMessage from "@/components/BigMessage";
 import PageHeader from "@/components/PageHeader";
 import Parameters from "@/components/Parameters";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Filters from "@/components/Filters";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { Dashboard } from "@/services/dashboard";
 import logoUrl from "@/assets/images/redash_icon_small.png";
-import useDashboard from "./useDashboard";
+import useDashboard from "./hooks/useDashboard";
 
 import "./PublicDashboardPage.less";
 
@@ -96,14 +95,8 @@ class PublicDashboardPage extends React.Component {
   }
 }
 
-export default {
+export default routeWithApiKeySession({
   path: "/public/dashboards/:token",
-  authenticated: false,
-  render: currentRoute => (
-    <SignedOutPageWrapper key={currentRoute.key} apiKey={currentRoute.routeParams.token}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => <PublicDashboardPage {...currentRoute.routeParams} onError={handleError} />}
-      </ErrorBoundaryContext.Consumer>
-    </SignedOutPageWrapper>
-  ),
-};
+  render: pageProps => <PublicDashboardPage {...pageProps} />,
+  getApiKey: currentRoute => currentRoute.routeParams.token,
+});

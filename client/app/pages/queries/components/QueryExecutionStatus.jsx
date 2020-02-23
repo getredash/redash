@@ -37,6 +37,7 @@ export default function QueryExecutionStatus({ status, updatedAt, error, isCance
 
   return (
     <Alert
+      data-test="QueryExecutionStatus"
       type={alertType}
       message={
         <div className="d-flex align-items-center">
@@ -45,7 +46,7 @@ export default function QueryExecutionStatus({ status, updatedAt, error, isCance
           </div>
           <div>
             {isCancelButtonAvailable && (
-              <Button type="primary" size="small" disabled={isCancelling} onClick={onCancel}>
+              <Button className="m-l-10" type="primary" size="small" disabled={isCancelling} onClick={onCancel}>
                 Cancel
               </Button>
             )}

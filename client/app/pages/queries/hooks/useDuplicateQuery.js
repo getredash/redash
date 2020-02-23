@@ -1,8 +1,11 @@
-import { useCallback } from "react";
+import { noop } from "lodash";
+import { useCallback, useState } from "react";
 import { Query } from "@/services/query";
 
 export default function useDuplicateQuery(query) {
-  return useCallback(() => {
+  const [isDuplicating, setIsDuplicating] = useState(false);
+
+  const duplicateQuery = useCallback(() => {
     // To prevent opening the same tab, name must be unique for each browser
     const tabName = `duplicatedQueryTab/${Math.random().toString()}`;
 
@@ -10,8 +13,15 @@ export default function useDuplicateQuery(query) {
     // later browser will block such attempts
     const tab = window.open("", tabName);
 
-    Query.fork({ id: query.id }).then(newQuery => {
-      tab.location = newQuery.getUrl(true);
-    });
+    setIsDuplicating(true);
+    Query.fork({ id: query.id })
+      .then(newQuery => {
+        tab.location = newQuery.getUrl(true);
+      })
+      .finally(() => {
+        setIsDuplicating(false);
+      });
   }, [query.id]);
+
+  return [isDuplicating, isDuplicating ? noop : duplicateQuery];
 }

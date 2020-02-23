@@ -1,6 +1,6 @@
 import React from "react";
 import { Section, Input, InputNumber, Switch } from "@/components/visualizations/editor";
-import { EditorPropTypes } from "@/visualizations";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 import { isValueNumber } from "../utils";
 

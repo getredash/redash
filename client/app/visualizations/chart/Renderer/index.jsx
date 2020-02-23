@@ -1,5 +1,5 @@
 import React from "react";
-import { RendererPropTypes } from "@/visualizations";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 
 import PlotlyChart from "./PlotlyChart";
 import CustomPlotlyChart from "./CustomPlotlyChart";

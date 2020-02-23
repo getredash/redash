@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { RendererPropTypes } from "@/visualizations";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 
 import resizeObserver from "@/services/resizeObserver";
 

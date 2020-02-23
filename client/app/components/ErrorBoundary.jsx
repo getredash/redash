@@ -8,7 +8,10 @@ const logger = debug("redash:errors");
 
 export const ErrorBoundaryContext = React.createContext({
   handleError: error => {
-    throw error;
+    // Allow calling chain to roll up, and then throw the error in global context
+    setTimeout(() => {
+      throw error;
+    });
   },
   reset: () => {},
 });

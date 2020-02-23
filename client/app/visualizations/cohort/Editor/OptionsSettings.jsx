@@ -1,7 +1,7 @@
 import { map } from "lodash";
 import React from "react";
 import { Section, Select } from "@/components/visualizations/editor";
-import { EditorPropTypes } from "@/visualizations";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 const CohortTimeIntervals = {
   daily: "Daily",

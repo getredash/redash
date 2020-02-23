@@ -105,7 +105,7 @@ class YandexMetrica(BaseSQLQueryRunner):
         for row in counters[self.list_path]:
             owner = row.get("owner_login")
             counter = "{0} | {1}".format(
-                row.get("name", "Unknown").encode("utf-8"), row.get("id", "Unknown")
+                row.get("name", "Unknown"), row.get("id", "Unknown")
             )
             if owner not in schema:
                 schema[owner] = {"name": owner, "columns": []}
