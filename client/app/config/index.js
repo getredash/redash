@@ -1,6 +1,3 @@
-// This polyfill is needed to support PhantomJS which we use to generate PNGs from embeds.
-import "core-js/fn/typed/array-buffer";
-
 import moment from "moment";
 import * as Pace from "pace-progress";
 import { isFunction } from "lodash";
