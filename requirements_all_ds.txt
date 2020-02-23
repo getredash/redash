@@ -34,3 +34,4 @@ pydgraph==2.0.2
 azure-kusto-data==0.0.35
 pyexasol==0.9.1
 python-rapidjson==0.8.0
+pyodbc==4.0.28
