@@ -1,17 +1,19 @@
 import base64
 from .hive_ds import Hive
-from redash.query_runner import register
+from redash.query_runner import register, BaseSQLQueryRunner
+from redash.utils import json_dumps
 
 try:
-    from pyhive import hive
-    from thrift.transport import THttpClient
+    import pyodbc
 
     enabled = True
 except ImportError:
     enabled = False
 
 
-class Databricks(Hive):
+class Databricks(BaseSQLQueryRunner):
+    noop_query = 'SELECT 1'
+
     @classmethod
     def type(cls):
         return "databricks"
@@ -26,67 +28,77 @@ class Databricks(Hive):
             "type": "object",
             "properties": {
                 "host": {"type": "string"},
-                "database": {"type": "string"},
                 "http_path": {"type": "string", "title": "HTTP Path"},
+                # We're using `http_password` here for password for legacy reasons
                 "http_password": {"type": "string", "title": "Access Token"},
+                "schemas": {"type": "string", "title": "Schemas to Load Metadata For"}
             },
-            "order": ["host", "http_path", "http_password", "database"],
+            "order": ["host", "http_path", "http_password"],
             "secret": ["http_password"],
-            "required": ["host", "database", "http_path", "http_password"],
+            "required": ["host", "http_path", "http_password"],
         }
+    
+    def _get_cursor(self):
+        connection_string = "Driver=Simba;HOST={};UID=token;PORT=443;PWD={};HTTPPath={};SSL=1;THRIFTTRANSPORT=2;SPARKSERVERTYPE=3;AUTHMECH=3"
+        connection_string = connection_string.format(self.configuration['host'], 
+                            self.configuration['http_password'], self.configuration['http_path'])
 
-    def _get_connection(self):
-        host = self.configuration["host"]
+        connection = pyodbc.connect(connection_string, autocommit=True)
+        return connection.cursor()
 
-        # if path is set but is missing initial slash, append it
-        path = self.configuration.get("http_path", "")
-        if path and path[0] != "/":
-            path = "/" + path
+    def run_query(self, query, user):
+        try:
+            cursor = self._get_cursor()
+        
+            cursor.execute(query)
+            data = cursor.fetchall()
 
-        http_uri = "https://{}{}".format(host, path)
+            if cursor.description is not None:
+                columns = self.fetch_columns(
+                    # [(i[0], types_map.get(i[1], None)) for i in cursor.description]
+                    [(i[0], None) for i in cursor.description]
+                )
+                rows = [
+                    dict(zip((column["name"] for column in columns), row))
+                    for row in data
+                ]
 
-        transport = THttpClient.THttpClient(http_uri)
+                data = {"columns": columns, "rows": rows}
+                json_data = json_dumps(data)
+                error = None
+            else:
+                error = "No data was returned."
+                json_data = None
 
-        password = self.configuration.get("http_password", "")
-        auth = base64.b64encode(b"token:" + password.encode("ascii"))
-        transport.setCustomHeaders({"Authorization": "Basic " + auth.decode()})
-
-        connection = hive.connect(thrift_transport=transport)
-        return connection
+            cursor.close()
+        except pyodbc.Error as e:
+            try:
+                # Query errors are at `args[1]`
+                error = e.args[1]
+            except IndexError:
+                # Connection errors are `args[0][1]`
+                error = e.args[0][1]
+            
+            json_data = None
+        
+        return json_data, error
 
     def _get_tables(self, schema):
-        schemas_query = "show schemas"
-        tables_query = "show tables in %s"
-        columns_query = "show columns in %s.%s"
+        cursor = self._get_cursor()
 
-        schemas = self._run_query_internal(schemas_query)
+        schemas = self.configuration.get('schemas', '').split(',')
 
-        for schema_name in [
-            a for a in [str(a["databaseName"]) for a in schemas] if len(a) > 0
-        ]:
-            for table_name in [
-                a
-                for a in [
-                    str(a["tableName"])
-                    for a in self._run_query_internal(tables_query % schema_name)
-                ]
-                if len(a) > 0
-            ]:
-                columns = [
-                    a
-                    for a in [
-                        str(a["col_name"])
-                        for a in self._run_query_internal(
-                            columns_query % (schema_name, table_name)
-                        )
-                    ]
-                    if len(a) > 0
-                ]
+        for schema_name in schemas:
+            cursor.columns(schema=schema_name)
 
-                if schema_name != "default":
-                    table_name = "{}.{}".format(schema_name, table_name)
+            for column in cursor:
+                table_name = '{}.{}'.format(column[1], column[2])
 
-                schema[table_name] = {"name": table_name, "columns": columns}
+                if table_name not in schema:
+                    schema[table_name] = {'name': table_name, 'columns': []}
+                
+                schema[table_name]['columns'].append(column[3])
+        
         return list(schema.values())
 
 
