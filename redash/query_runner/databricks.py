@@ -1,6 +1,14 @@
 import datetime
-from .hive_ds import Hive
-from redash.query_runner import register, BaseSQLQueryRunner, Types
+from redash.query_runner import (
+    register,
+    BaseSQLQueryRunner,
+    TYPE_STRING,
+    TYPE_BOOLEAN,
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_INTEGER,
+    TYPE_FLOAT,
+)
 from redash.utils import json_dumps
 from redash import __version__
 
@@ -13,12 +21,12 @@ except ImportError:
 
 
 TYPES_MAP = {
-    str: Types.STRING,
-    bool: Types.BOOLEAN,
-    datetime.date: Types.DATE,
-    datetime.datetime: Types.DATETIME,
-    int: Types.INTEGER,
-    float: Types.FLOAT,
+    str: TYPE_STRING,
+    bool: TYPE_BOOLEAN,
+    datetime.date: TYPE_DATE,
+    datetime.datetime: TYPE_DATETIME,
+    int: TYPE_INTEGER,
+    float: TYPE_FLOAT,
 }
 
 
@@ -95,7 +103,7 @@ class Databricks(BaseSQLQueryRunner):
             if cursor.description is not None:
                 columns = self.fetch_columns(
                     [
-                        (i[0], TYPES_MAP.get(i[1], Types.STRING))
+                        (i[0], TYPES_MAP.get(i[1], TYPE_STRING))
                         for i in cursor.description
                     ]
                 )
