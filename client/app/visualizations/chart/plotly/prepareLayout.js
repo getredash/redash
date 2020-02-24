@@ -1,5 +1,14 @@
-import { filter, has, isNumber, isObject, isUndefined, map, max, min } from 'lodash';
-import { getPieDimensions } from './preparePieData';
+import {
+  filter,
+  has,
+  isNumber,
+  isObject,
+  isUndefined,
+  map,
+  max,
+  min
+} from 'lodash';
+import {getPieDimensions} from './preparePieData';
 
 function getAxisTitle(axis) {
   return isObject(axis.title) ? axis.title.text : null;
@@ -7,9 +16,12 @@ function getAxisTitle(axis) {
 
 function getAxisScaleType(axis) {
   switch (axis.type) {
-    case 'datetime': return 'date';
-    case 'logarithmic': return 'log';
-    default: return axis.type;
+  case 'datetime':
+    return 'date';
+  case 'logarithmic':
+    return 'log';
+  default:
+    return axis.type;
   }
 }
 
@@ -20,14 +32,14 @@ function calculateAxisRange(seriesList, minValue, maxValue) {
   if (!isNumber(maxValue)) {
     maxValue = max(map(seriesList, series => max(series.y)));
   }
-  return [minValue, maxValue];
+  return [ minValue, maxValue ];
 }
 
 function prepareXAxis(axisOptions, additionalOptions) {
   const axis = {
-    title: getAxisTitle(axisOptions),
-    type: getAxisScaleType(axisOptions),
-    automargin: true,
+    title : getAxisTitle(axisOptions),
+    type : getAxisScaleType(axisOptions),
+    automargin : true,
   };
 
   if (additionalOptions.sortX && axis.type === 'category') {
@@ -47,13 +59,14 @@ function prepareXAxis(axisOptions, additionalOptions) {
 
 function prepareYAxis(axisOptions, additionalOptions, data) {
   const axis = {
-    title: getAxisTitle(axisOptions),
-    type: getAxisScaleType(axisOptions),
-    automargin: true,
+    title : getAxisTitle(axisOptions),
+    type : getAxisScaleType(axisOptions),
+    automargin : true,
   };
 
   if (isNumber(axisOptions.rangeMin) || isNumber(axisOptions.rangeMax)) {
-    axis.range = calculateAxisRange(data, axisOptions.rangeMin, axisOptions.rangeMax);
+    axis.range =
+        calculateAxisRange(data, axisOptions.rangeMin, axisOptions.rangeMax);
   }
 
   return axis;
@@ -62,7 +75,7 @@ function prepareYAxis(axisOptions, additionalOptions, data) {
 function preparePieLayout(layout, options, data) {
   const hasName = /{{\s*@@name\s*}}/.test(options.textFormat);
 
-  const { cellsInRow, cellWidth, cellHeight, xPadding } = getPieDimensions(data);
+  const {cellsInRow, cellWidth, cellHeight, xPadding} = getPieDimensions(data);
 
   if (hasName) {
     layout.annotations = [];
@@ -71,12 +84,12 @@ function preparePieLayout(layout, options, data) {
       const xPosition = (index % cellsInRow) * cellWidth;
       const yPosition = Math.floor(index / cellsInRow) * cellHeight;
       return {
-        x: xPosition + ((cellWidth - xPadding) / 2),
-        y: yPosition + cellHeight - 0.015,
-        xanchor: 'center',
-        yanchor: 'top',
-        text: series.name,
-        showarrow: false,
+        x : xPosition + ((cellWidth - xPadding) / 2),
+        y : yPosition + cellHeight - 0.015,
+        xanchor : 'center',
+        yanchor : 'top',
+        text : series.name,
+        showarrow : false,
       };
     }));
   }
@@ -113,16 +126,19 @@ function prepareBoxLayout(layout, options, data) {
 
 export default function prepareLayout(element, options, data) {
   const layout = {
-    margin: { l: 10, r: 10, b: 10, t: 25, pad: 4 },
-    width: Math.floor(element.offsetWidth),
-    height: Math.floor(element.offsetHeight),
-    autosize: true,
-    showlegend: has(options, 'legend') ? options.legend.enabled : true,
+    margin : {l : 10, r : 10, b : 10, t : 25, pad : 4},
+    width : Math.floor(element.offsetWidth),
+    height : Math.floor(element.offsetHeight),
+    autosize : true,
+    showlegend : has(options, 'legend') ? options.legend.enabled : true,
   };
 
   switch (options.globalSeriesType) {
-    case 'pie': return preparePieLayout(layout, options, data);
-    case 'box': return prepareBoxLayout(layout, options, data);
-    default: return prepareDefaultLayout(layout, options, data);
+  case 'pie':
+    return preparePieLayout(layout, options, data);
+  case 'box':
+    return prepareBoxLayout(layout, options, data);
+  default:
+    return prepareDefaultLayout(layout, options, data);
   }
 }

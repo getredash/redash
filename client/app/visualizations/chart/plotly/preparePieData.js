@@ -1,8 +1,8 @@
-import { each, includes, isString, map, reduce } from 'lodash';
+import {ColorPaletteArray} from '@/visualizations/ColorPalette';
 import d3 from 'd3';
-import { ColorPaletteArray } from '@/visualizations/ColorPalette';
+import {each, includes, isString, map, reduce} from 'lodash';
 
-import { cleanNumber, normalizeValue } from './utils';
+import {cleanNumber, normalizeValue} from './utils';
 
 export function getPieDimensions(series) {
   const rows = series.length > 2 ? 2 : 1;
@@ -12,20 +12,28 @@ export function getPieDimensions(series) {
   const xPadding = 0.02;
   const yPadding = 0.1;
 
-  return { rows, cellsInRow, cellWidth, cellHeight, xPadding, yPadding };
+  return {rows, cellsInRow, cellWidth, cellHeight, xPadding, yPadding};
 }
 
 function getPieHoverInfoPattern(options) {
   const hasX = /{{\s*@@x\s*}}/.test(options.textFormat);
   let result = 'text';
-  if (!hasX) result += '+label';
+  if (!hasX)
+    result += '+label';
   return result;
 }
 
 function prepareSeries(series, options, additionalOptions) {
   const {
-    cellWidth, cellHeight, xPadding, yPadding, cellsInRow, hasX,
-    index, hoverInfoPattern, getValueColor,
+    cellWidth,
+    cellHeight,
+    xPadding,
+    yPadding,
+    cellsInRow,
+    hasX,
+    index,
+    hoverInfoPattern,
+    getValueColor,
   } = additionalOptions;
 
   const xPosition = (index % cellsInRow) * cellWidth;
@@ -39,45 +47,48 @@ function prepareSeries(series, options, additionalOptions) {
     return result + Math.abs(y);
   }, 0);
   each(series.data, (row) => {
-    const x = hasX ? normalizeValue(row.x, options.xAxis.type) : `Slice ${index}`;
+    const x =
+        hasX ? normalizeValue(row.x, options.xAxis.type) : `Slice ${index}`;
     const y = cleanNumber(row.y);
     labels.push(x);
     values.push(y);
     sourceData.set(x, {
       x,
       y,
-      yPercent: y / seriesTotal * 100,
+      yPercent : y / seriesTotal * 100,
       row,
     });
   });
 
   return {
-    visible: true,
+    visible : true,
     values,
     labels,
-    type: 'pie',
-    hole: 0.4,
-    marker: {
-      colors: map(series.data, row => getValueColor(row.x)),
+    type : 'pie',
+    hole : 0.4,
+    marker : {
+      colors : map(series.data, row => getValueColor(row.x)),
     },
-    hoverinfo: hoverInfoPattern,
-    text: [],
-    textinfo: options.showDataLabels ? 'percent' : 'none',
-    textposition: 'inside',
-    textfont: { color: '#ffffff' },
-    name: series.name,
-    direction: options.direction.type,
-    domain: {
-      x: [xPosition, xPosition + cellWidth - xPadding],
-      y: [yPosition, yPosition + cellHeight - yPadding],
+    hoverinfo : hoverInfoPattern,
+    text : [],
+    textinfo : options.showDataLabels ? 'percent' : 'none',
+    textposition : 'inside',
+    textfont : {color : '#ffffff'},
+    name : series.name,
+    direction : options.direction.type,
+    domain : {
+      x : [ xPosition, xPosition + cellWidth - xPadding ],
+      y : [ yPosition, yPosition + cellHeight - yPadding ],
     },
     sourceData,
   };
 }
 
 export default function preparePieData(seriesList, options) {
-  // we will use this to assign colors for values that have no explicitly set color
-  const getDefaultColor = d3.scale.ordinal().domain([]).range(ColorPaletteArray);
+  // we will use this to assign colors for values that have no explicitly set
+  // color
+  const getDefaultColor =
+      d3.scale.ordinal().domain([]).range(ColorPaletteArray);
   const valuesColors = {};
   each(options.valuesOptions, (item, key) => {
     if (isString(item.color) && (item.color !== '')) {
@@ -87,10 +98,11 @@ export default function preparePieData(seriesList, options) {
 
   const additionalOptions = {
     ...getPieDimensions(seriesList),
-    hasX: includes(options.columnMapping, 'x'),
-    hoverInfoPattern: getPieHoverInfoPattern(options),
-    getValueColor: v => valuesColors[v] || getDefaultColor(v),
+    hasX : includes(options.columnMapping, 'x'),
+    hoverInfoPattern : getPieHoverInfoPattern(options),
+    getValueColor : v => valuesColors[v] || getDefaultColor(v),
   };
 
-  return map(seriesList, (series, index) => prepareSeries(series, options, { ...additionalOptions, index }));
+  return map(seriesList, (series, index) => prepareSeries(
+                             series, options, {...additionalOptions, index}));
 }
