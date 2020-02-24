@@ -28,7 +28,7 @@ function getCounterValue(rows, valueOptions, counterOptions) {
   const [value, additionalFields] = invoke(counterTypes[valueOptions.type], "getValue", rows, valueOptions);
 
   if (!valueOptions.show || isNil(value)) {
-    return { value, display: null, tooltip: null };
+    return { value: null, display: null, tooltip: null };
   }
 
   const formatData = extend({}, additionalFields, {
@@ -46,7 +46,7 @@ function getCounterValue(rows, valueOptions, counterOptions) {
   };
 }
 
-export function getCounterData(rows, options, visualizationName) {
+export default function getCounterData(rows, options, visualizationName) {
   const result = {
     counterLabel: null,
     primaryValue: getCounterValue(rows, options.primaryValue, options),

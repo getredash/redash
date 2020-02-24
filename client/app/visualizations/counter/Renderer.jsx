@@ -5,7 +5,7 @@ import Tooltip from "antd/lib/tooltip";
 import resizeObserver from "@/services/resizeObserver";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 
-import { getCounterData } from "./utils";
+import getCounterData from "./getCounterData";
 
 import "./render.less";
 

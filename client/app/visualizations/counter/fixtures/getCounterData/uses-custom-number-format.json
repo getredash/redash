@@ -1,0 +1,50 @@
+{
+  "input": {
+    "visualizationName": "Default Counter Name",
+    "data": [
+      { "city": "New York City", "population": 18604000 },
+      { "city": "Shanghai", "population": 24484000 },
+      { "city": "Tokyo", "population": 38140000 }
+    ],
+    "options": {
+      "counterLabel": "",
+      "stringDecChar": ".",
+      "stringThouSep": "'",
+      "numberFormat": "0,0.00",
+
+      "primaryValue": {
+        "show": true,
+        "type": "rowValue",
+        "column": "population",
+        "rowNumber": 1,
+        "displayFormat": "{{ @@value_formatted }}",
+        "showTooltip": true,
+        "tooltipFormat": "{{ @@value }}"
+      },
+      "secondaryValue": {
+        "show": true,
+        "type": "rowValue",
+        "column": "population",
+        "rowNumber": 2,
+        "displayFormat": "({{ @@value }})",
+        "showTooltip": true,
+        "tooltipFormat": "{{ @@value_formatted }}"
+      }
+    }
+  },
+  "output": {
+    "counterLabel": "Default Counter Name",
+    "primaryValue": {
+      "value": 18604000,
+      "display": "18'604'000.00",
+      "tooltip": "18604000"
+    },
+    "secondaryValue": {
+      "value": 24484000,
+      "display": "(24484000)",
+      "tooltip": "24'484'000.00"
+    },
+    "showTrend": true,
+    "trendPositive": false
+  }
+}
