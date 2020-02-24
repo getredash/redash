@@ -32,8 +32,8 @@ def upgrade():
         print("    Building widgets map:")
         widgets = {}
         widget_result = db.session.execute(
-                "SELECT id, options, width FROM widgets WHERE dashboard_id=:dashboard_id",
-                {"dashboard_id" : dashboard['id']})
+            "SELECT id, options, width FROM widgets WHERE dashboard_id=:dashboard_id",
+            {"dashboard_id": dashboard['id']})
         for w in widget_result:
             print("    Widget: {}".format(w['id']))
             widgets[w['id']] = w
@@ -61,7 +61,7 @@ def upgrade():
 
                 db.session.execute(
                     "UPDATE widgets SET options=:options WHERE id=:id",
-                    {"options" : simplejson.dumps(options), "id" : widget_id})
+                    {"options": simplejson.dumps(options), "id": widget_id})
 
     dashboard_result.close()
     db.session.commit()
