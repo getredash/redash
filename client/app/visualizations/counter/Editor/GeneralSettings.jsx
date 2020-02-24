@@ -1,13 +1,18 @@
-import { map } from 'lodash';
-import React from 'react';
-import * as Grid from 'antd/lib/grid';
-import Select from 'antd/lib/select';
-import Input from 'antd/lib/input';
-import InputNumber from 'antd/lib/input-number';
-import Switch from 'antd/lib/switch';
-import { EditorPropTypes } from '@/visualizations';
+import { map } from "lodash";
+import React from "react";
+import * as Grid from "antd/lib/grid";
+import Select from "antd/lib/select";
+import Input from "antd/lib/input";
+import InputNumber from "antd/lib/input-number";
+import Switch from "antd/lib/switch";
+import { EditorPropTypes } from "@/visualizations";
 
-export default function GeneralSettings({ options, data, visualizationName, onOptionsChange }) {
+export default function GeneralSettings({
+  options,
+  data,
+  visualizationName,
+  onOptionsChange
+}) {
   return (
     <React.Fragment>
       <Grid.Row type="flex" align="middle" className="m-b-10">
@@ -28,7 +33,9 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
 
       <Grid.Row type="flex" align="middle" className="m-b-10">
         <Grid.Col span={12}>
-          <label htmlFor="counter-value-column">Counter Value Column Name</label>
+          <label htmlFor="counter-value-column">
+            Counter Value Column Name
+          </label>
         </Grid.Col>
         <Grid.Col span={12}>
           <Select
@@ -40,7 +47,12 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
             onChange={counterColName => onOptionsChange({ counterColName })}
           >
             {map(data.columns, col => (
-              <Select.Option key={col.name} data-test={'Counter.General.ValueColumn.' + col.name}>{col.name}</Select.Option>
+              <Select.Option
+                key={col.name}
+                data-test={"Counter.General.ValueColumn." + col.name}
+              >
+                {col.name}
+              </Select.Option>
             ))}
           </Select>
         </Grid.Col>
@@ -48,7 +60,9 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
 
       <Grid.Row type="flex" align="middle" className="m-b-10">
         <Grid.Col span={12}>
-          <label htmlFor="counter-value-row-number">Counter Value Row Number</label>
+          <label htmlFor="counter-value-row-number">
+            Counter Value Row Number
+          </label>
         </Grid.Col>
         <Grid.Col span={12}>
           <InputNumber
@@ -64,7 +78,9 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
 
       <Grid.Row type="flex" align="middle" className="m-b-10">
         <Grid.Col span={12}>
-          <label htmlFor="counter-target-value-column">Target Value Column Name</label>
+          <label htmlFor="counter-target-value-column">
+            Target Value Column Name
+          </label>
         </Grid.Col>
         <Grid.Col span={12}>
           <Select
@@ -76,7 +92,12 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           >
             <Select.Option value="">No target value</Select.Option>
             {map(data.columns, col => (
-              <Select.Option key={col.name} data-test={'Counter.General.TargetValueColumn.' + col.name}>{col.name}</Select.Option>
+              <Select.Option
+                key={col.name}
+                data-test={"Counter.General.TargetValueColumn." + col.name}
+              >
+                {col.name}
+              </Select.Option>
             ))}
           </Select>
         </Grid.Col>
@@ -84,7 +105,9 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
 
       <Grid.Row type="flex" align="middle" className="m-b-10">
         <Grid.Col span={12}>
-          <label htmlFor="counter-target-row-number">Target Value Row Number</label>
+          <label htmlFor="counter-target-row-number">
+            Target Value Row Number
+          </label>
         </Grid.Col>
         <Grid.Col span={12}>
           <InputNumber

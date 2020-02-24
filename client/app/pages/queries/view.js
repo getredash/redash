@@ -1,13 +1,16 @@
-import EmbedQueryDialog from '@/components/queries/EmbedQueryDialog';
-import ScheduleDialog from '@/components/queries/ScheduleDialog';
-import {SCHEMA_LOAD_ERROR, SCHEMA_NOT_SUPPORTED} from '@/services/data-source';
-import getTags from '@/services/getTags';
-import notification from '@/services/notification';
-import Notifications from '@/services/notifications';
-import {policy} from '@/services/policy';
-import {Visualization} from '@/services/visualization';
-import {newVisualization} from '@/visualizations';
-import EditVisualizationDialog from '@/visualizations/EditVisualizationDialog';
+import EmbedQueryDialog from "@/components/queries/EmbedQueryDialog";
+import ScheduleDialog from "@/components/queries/ScheduleDialog";
+import {
+  SCHEMA_LOAD_ERROR,
+  SCHEMA_NOT_SUPPORTED
+} from "@/services/data-source";
+import getTags from "@/services/getTags";
+import notification from "@/services/notification";
+import Notifications from "@/services/notifications";
+import { policy } from "@/services/policy";
+import { Visualization } from "@/services/visualization";
+import { newVisualization } from "@/visualizations";
+import EditVisualizationDialog from "@/visualizations/EditVisualizationDialog";
 import {
   find,
   intersection,
@@ -17,31 +20,31 @@ import {
   omit,
   pick,
   some
-} from 'lodash';
+} from "lodash";
 
-import template from './query.html';
+import template from "./query.html";
 
 function QueryViewCtrl(
-    $scope,
-    Events,
-    $route,
-    $routeParams,
-    $location,
-    $window,
-    $q,
-    KeyboardShortcuts,
-    Title,
-    AlertDialog,
-    clientConfig,
-    $uibModal,
-    currentUser,
-    Query,
-    DataSource,
+  $scope,
+  Events,
+  $route,
+  $routeParams,
+  $location,
+  $window,
+  $q,
+  KeyboardShortcuts,
+  Title,
+  AlertDialog,
+  clientConfig,
+  $uibModal,
+  currentUser,
+  Query,
+  DataSource
 ) {
   // Should create it here since visualization registry might not be fulfilled
   // when this file is loaded
-  const DEFAULT_VISUALIZATION = newVisualization('TABLE', {itemsPerPage : 50});
-  DEFAULT_VISUALIZATION.id = 'table';
+  const DEFAULT_VISUALIZATION = newVisualization("TABLE", { itemsPerPage: 50 });
+  DEFAULT_VISUALIZATION.id = "table";
 
   function getQueryResult(maxAge, selectedQueryText) {
     if (maxAge === undefined) {
@@ -54,8 +57,10 @@ function QueryViewCtrl(
 
     $scope.showLog = false;
     if ($scope.isDirty) {
-      $scope.queryResult =
-          $scope.query.getQueryResultByText(maxAge, selectedQueryText);
+      $scope.queryResult = $scope.query.getQueryResultByText(
+        maxAge,
+        selectedQueryText
+      );
     } else {
       $scope.queryResult = $scope.query.getQueryResult(maxAge);
     }
@@ -74,8 +79,8 @@ function QueryViewCtrl(
     // If we had an invalid value in localStorage (e.g. nothing, deleted
     // source), then use the first data source
     const isValidDataSourceId =
-        !isNaN(dataSourceId) &&
-        some($scope.dataSources, ds => ds.id === dataSourceId);
+      !isNaN(dataSourceId) &&
+      some($scope.dataSources, ds => ds.id === dataSourceId);
 
     if (!isValidDataSourceId) {
       dataSourceId = $scope.dataSources[0].id;
@@ -88,16 +93,18 @@ function QueryViewCtrl(
   function getSchema(refresh = undefined) {
     // TODO: is it possible this will be called before dataSource is set?
     $scope.schema = [];
-    $scope.dataSource.getSchema(refresh).then((data) => {
+    $scope.dataSource.getSchema(refresh).then(data => {
       if (data.schema) {
         $scope.schema = data.schema;
-        $scope.schema.forEach((table) => { table.collapsed = true; });
+        $scope.schema.forEach(table => {
+          table.collapsed = true;
+        });
       } else if (data.error.code === SCHEMA_NOT_SUPPORTED) {
         $scope.schema = undefined;
       } else if (data.error.code === SCHEMA_LOAD_ERROR) {
-        notification.error('Schema refresh failed.', 'Please try again later.');
+        notification.error("Schema refresh failed.", "Please try again later.");
       } else {
-        notification.error('Schema refresh failed.', 'Please try again later.');
+        notification.error("Schema refresh failed.", "Please try again later.");
       }
     });
   }
@@ -107,8 +114,9 @@ function QueryViewCtrl(
   function updateDataSources(dataSources) {
     // Filter out data sources the user can't query (or used by current query):
     function canUseDataSource(dataSource) {
-      return !dataSource.view_only ||
-             dataSource.id === $scope.query.data_source_id;
+      return (
+        !dataSource.view_only || dataSource.id === $scope.query.data_source_id
+      );
     }
     $scope.dataSources = dataSources.filter(canUseDataSource);
 
@@ -121,16 +129,19 @@ function QueryViewCtrl(
       $scope.query.data_source_id = getDataSourceId();
     }
 
-    $scope.dataSource =
-        find(dataSources, ds => ds.id === $scope.query.data_source_id);
+    $scope.dataSource = find(
+      dataSources,
+      ds => ds.id === $scope.query.data_source_id
+    );
 
     $scope.canCreateQuery = some(dataSources, ds => !ds.view_only);
 
     getSchema();
   }
 
-  $scope.updateSelectedQuery =
-      (selectedQueryText) => { $scope.selectedQueryText = selectedQueryText; };
+  $scope.updateSelectedQuery = selectedQueryText => {
+    $scope.selectedQueryText = selectedQueryText;
+  };
 
   $scope.executeQuery = () => {
     if (!$scope.canExecuteQuery()) {
@@ -144,7 +155,7 @@ function QueryViewCtrl(
     getQueryResult(0, $scope.selectedQueryText);
     $scope.lockButton(true);
     $scope.cancelling = false;
-    Events.record('execute', 'query', $scope.query.id);
+    Events.record("execute", "query", $scope.query.id);
 
     Notifications.getPermissions();
   };
@@ -155,39 +166,42 @@ function QueryViewCtrl(
   $scope.query = $route.current.locals.query;
   $scope.showPermissionsControl = clientConfig.showPermissionsControl;
 
-  $scope.$watch('selectedVisualization', () => {
-    $scope.selectedTab =
-        $scope.selectedVisualization.id; // Needed for `<rd-tab>` to work
+  $scope.$watch("selectedVisualization", () => {
+    $scope.selectedTab = $scope.selectedVisualization.id; // Needed for `<rd-tab>` to work
   });
 
   const shortcuts = {
-    'mod+enter' : $scope.executeQuery,
-    'alt+enter' : $scope.executeQuery,
+    "mod+enter": $scope.executeQuery,
+    "alt+enter": $scope.executeQuery
   };
 
   KeyboardShortcuts.bind(shortcuts);
 
-  $scope.$on('$destroy', () => { KeyboardShortcuts.unbind(shortcuts); });
+  $scope.$on("$destroy", () => {
+    KeyboardShortcuts.unbind(shortcuts);
+  });
 
   if ($scope.query.hasResult() || $scope.query.paramsRequired()) {
     getQueryResult();
   }
   $scope.queryExecuting = false;
 
-  $scope.isQueryOwner = currentUser.id === $scope.query.user.id ||
-                        currentUser.hasPermission('admin');
+  $scope.isQueryOwner =
+    currentUser.id === $scope.query.user.id ||
+    currentUser.hasPermission("admin");
   $scope.canEdit = currentUser.canEdit($scope.query) || $scope.query.can_edit;
-  $scope.canViewSource = currentUser.hasPermission('view_source');
+  $scope.canViewSource = currentUser.hasPermission("view_source");
 
   $scope.canExecuteQuery = () =>
-      !$scope.query.$parameters.hasPendingValues() &&
-      ($scope.query.is_safe || (currentUser.hasPermission('execute_query') &&
-                                !$scope.dataSource.view_only));
+    !$scope.query.$parameters.hasPendingValues() &&
+    ($scope.query.is_safe ||
+      (currentUser.hasPermission("execute_query") &&
+        !$scope.dataSource.view_only));
 
   $scope.canForkQuery = () =>
-      currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
+    currentUser.hasPermission("edit_query") && !$scope.dataSource.view_only;
 
-  $scope.canScheduleQuery = currentUser.hasPermission('schedule_query');
+  $scope.canScheduleQuery = currentUser.hasPermission("schedule_query");
 
   if ($route.current.locals.dataSources) {
     $scope.dataSources = $route.current.locals.dataSources;
@@ -201,37 +215,41 @@ function QueryViewCtrl(
   $scope.showDataset = true;
   $scope.showLog = false;
 
-  $scope.lockButton = (lock) => { $scope.queryExecuting = lock; };
+  $scope.lockButton = lock => {
+    $scope.queryExecuting = lock;
+  };
 
   $scope.showApiKey = () => {
     $uibModal.open({
-      component : 'apiKeyDialog',
-      resolve : {
-        query : $scope.query,
-      },
+      component: "apiKeyDialog",
+      resolve: {
+        query: $scope.query
+      }
     });
   };
 
   $scope.duplicateQuery = () => {
     // To prevent opening the same tab, name must be unique for each browser
-    const tabName = 'duplicatedQueryTab' + Math.random().toString();
+    const tabName = "duplicatedQueryTab" + Math.random().toString();
 
-    $window.open('', tabName);
-    Query.fork({id : $scope.query.id}, (newQuery) => {
+    $window.open("", tabName);
+    Query.fork({ id: $scope.query.id }, newQuery => {
       const queryUrl = newQuery.getUrl(true);
       $window.open(queryUrl, tabName);
     });
   };
 
-  $scope.saveTags = (tags) => {
+  $scope.saveTags = tags => {
     $scope.query.tags = tags;
-    $scope.saveQuery({}, {tags : $scope.query.tags});
+    $scope.saveQuery({}, { tags: $scope.query.tags });
   };
 
   $scope.loadTags = () =>
-      getTags('api/queries/tags').then(tags => map(tags, t => t.name));
+    getTags("api/queries/tags").then(tags => map(tags, t => t.name));
 
-  $scope.applyParametersChanges = () => { $scope.$apply(); };
+  $scope.applyParametersChanges = () => {
+    $scope.$apply();
+  };
 
   $scope.saveQuery = (customOptions, data) => {
     let request = data;
@@ -245,26 +263,26 @@ function QueryViewCtrl(
       request.version = $scope.query.version;
     } else {
       request = pick($scope.query, [
-        'schedule',
-        'query',
-        'id',
-        'description',
-        'name',
-        'data_source_id',
-        'options',
-        'latest_query_data_id',
-        'version',
-        'is_draft',
+        "schedule",
+        "query",
+        "id",
+        "description",
+        "name",
+        "data_source_id",
+        "options",
+        "latest_query_data_id",
+        "version",
+        "is_draft"
       ]);
     }
 
     const options = Object.assign(
-        {},
-        {
-          successMessage : 'Query saved',
-          errorMessage : 'Query could not be saved',
-        },
-        customOptions,
+      {},
+      {
+        successMessage: "Query saved",
+        errorMessage: "Query could not be saved"
+      },
+      customOptions
     );
 
     if (options.force) {
@@ -275,8 +293,9 @@ function QueryViewCtrl(
     if (request.options && request.options.parameters) {
       request.options = {
         ...request.options,
-        parameters :
-            map(request.options.parameters, p => omit(p, 'pendingValue')),
+        parameters: map(request.options.parameters, p =>
+          omit(p, "pendingValue")
+        )
       };
     }
 
@@ -285,100 +304,104 @@ function QueryViewCtrl(
       $scope.saveQuery(options, data);
     }
 
-    return Query
-        .save(
-            request,
-            (updatedQuery) => {
-              notification.success(options.successMessage);
-              $scope.query.version = updatedQuery.version;
-            },
-            (error) => {
-              if (error.status === 409) {
-                const errorMessage =
-                    'It seems like the query has been modified by another user.';
+    return Query.save(
+      request,
+      updatedQuery => {
+        notification.success(options.successMessage);
+        $scope.query.version = updatedQuery.version;
+      },
+      error => {
+        if (error.status === 409) {
+          const errorMessage =
+            "It seems like the query has been modified by another user.";
 
-                if ($scope.isQueryOwner) {
-                  const title = 'Overwrite Query';
-                  const message =
-                      errorMessage +
-                      '<br>Are you sure you want to overwrite the query with your version?';
-                  const confirm = {class : 'btn-warning', title : 'Overwrite'};
+          if ($scope.isQueryOwner) {
+            const title = "Overwrite Query";
+            const message =
+              errorMessage +
+              "<br>Are you sure you want to overwrite the query with your version?";
+            const confirm = { class: "btn-warning", title: "Overwrite" };
 
-                  AlertDialog.open(title, message, confirm).then(overwrite);
-                } else {
-                  notification.error(
-                      'Changes not saved',
-                      errorMessage +
-                          ' Please copy/backup your changes and reload this page.',
-                      {duration : null},
-                  );
-                }
-              } else {
-                notification.error(options.errorMessage);
-              }
-            },
-            )
-        .$promise;
+            AlertDialog.open(title, message, confirm).then(overwrite);
+          } else {
+            notification.error(
+              "Changes not saved",
+              errorMessage +
+                " Please copy/backup your changes and reload this page.",
+              { duration: null }
+            );
+          }
+        } else {
+          notification.error(options.errorMessage);
+        }
+      }
+    ).$promise;
   };
 
   $scope.togglePublished = () => {
-    Events.record('toggle_published', 'query', $scope.query.id);
+    Events.record("toggle_published", "query", $scope.query.id);
     $scope.query.is_draft = !$scope.query.is_draft;
-    $scope.saveQuery(undefined, {is_draft : $scope.query.is_draft});
+    $scope.saveQuery(undefined, { is_draft: $scope.query.is_draft });
   };
 
-  $scope.saveDescription = (desc) => {
+  $scope.saveDescription = desc => {
     $scope.query.description = desc;
-    Events.record('edit_description', 'query', $scope.query.id);
-    $scope.saveQuery(undefined, {description : $scope.query.description});
+    Events.record("edit_description", "query", $scope.query.id);
+    $scope.saveQuery(undefined, { description: $scope.query.description });
   };
 
-  $scope.saveName = (name) => {
+  $scope.saveName = name => {
     $scope.query.name = name;
-    Events.record('edit_name', 'query', $scope.query.id);
+    Events.record("edit_name", "query", $scope.query.id);
 
     let customOptions;
-    if ($scope.query.is_draft && clientConfig.autoPublishNamedQueries &&
-        $scope.query.name !== 'New Query') {
+    if (
+      $scope.query.is_draft &&
+      clientConfig.autoPublishNamedQueries &&
+      $scope.query.name !== "New Query"
+    ) {
       $scope.query.is_draft = false;
       customOptions = {
-        successMessage : 'Query saved and published',
+        successMessage: "Query saved and published"
       };
     }
 
-    $scope.saveQuery(
-        customOptions,
-        {name : $scope.query.name, is_draft : $scope.query.is_draft});
+    $scope.saveQuery(customOptions, {
+      name: $scope.query.name,
+      is_draft: $scope.query.is_draft
+    });
   };
 
   $scope.cancelExecution = () => {
     $scope.cancelling = true;
     $scope.queryResult.cancelExecution();
-    Events.record('cancel_execute', 'query', $scope.query.id);
+    Events.record("cancel_execute", "query", $scope.query.id);
   };
 
   $scope.archiveQuery = () => {
     function archive() {
       Query.delete(
-          {id : $scope.query.id},
-          () => {
-            $scope.query.is_archived = true;
-            $scope.query.schedule = null;
-          },
-          () => { notification.error('Query could not be archived.'); },
+        { id: $scope.query.id },
+        () => {
+          $scope.query.is_archived = true;
+          $scope.query.schedule = null;
+        },
+        () => {
+          notification.error("Query could not be archived.");
+        }
       );
     }
 
-    const title = 'Archive Query';
+    const title = "Archive Query";
     const message =
-        'Are you sure you want to archive this query?<br/> All alerts and dashboard widgets created with its visualizations will be deleted.';
-    const confirm = {class : 'btn-warning', title : 'Archive'};
+      "Are you sure you want to archive this query?<br/> All alerts and dashboard widgets created with its visualizations will be deleted.";
+    const confirm = { class: "btn-warning", title: "Archive" };
 
     AlertDialog.open(title, message, confirm).then(archive);
   };
 
   $scope.updateDataSource = () => {
-    Events.record('update_data_source', 'query', $scope.query.id);
+    Events.record("update_data_source", "query", $scope.query.id);
     localStorage.lastSelectedDataSourceId = $scope.query.data_source_id;
 
     $scope.query.latest_query_data = null;
@@ -386,22 +409,26 @@ function QueryViewCtrl(
 
     if ($scope.query.id) {
       Query.save(
-          {
-            id : $scope.query.id,
-            data_source_id : $scope.query.data_source_id,
-            latest_query_data_id : null,
-          },
-          (updatedQuery) => { $scope.query.version = updatedQuery.version; },
+        {
+          id: $scope.query.id,
+          data_source_id: $scope.query.data_source_id,
+          latest_query_data_id: null
+        },
+        updatedQuery => {
+          $scope.query.version = updatedQuery.version;
+        }
       );
     }
 
-    $scope.dataSource =
-        find($scope.dataSources, ds => ds.id === $scope.query.data_source_id);
+    $scope.dataSource = find(
+      $scope.dataSources,
+      ds => ds.id === $scope.query.data_source_id
+    );
     getSchema();
     $scope.executeQuery();
   };
 
-  $scope.setVisualizationTab = (visualization) => {
+  $scope.setVisualizationTab = visualization => {
     $scope.selectedVisualization = visualization;
     $location.hash(visualization.id);
   };
@@ -411,50 +438,56 @@ function QueryViewCtrl(
 
     const title = undefined;
     const message = `Are you sure you want to delete ${vis.name} ?`;
-    const confirm = {class : 'btn-danger', title : 'Delete'};
+    const confirm = { class: "btn-danger", title: "Delete" };
 
     AlertDialog.open(title, message, confirm).then(() => {
       Visualization.delete(
-          {id : vis.id},
-          () => {
-            if ($scope.selectedVisualization.id === vis.id) {
-              $scope.selectedVisualization = DEFAULT_VISUALIZATION;
-              $location.hash($scope.selectedVisualization.id);
-            }
-            $scope.query.visualizations =
-                $scope.query.visualizations.filter(v => vis.id !== v.id);
-          },
-          () => {
-            notification.error('Error deleting visualization.',
-                               'Maybe it\'s used in a dashboard?');
-          },
+        { id: vis.id },
+        () => {
+          if ($scope.selectedVisualization.id === vis.id) {
+            $scope.selectedVisualization = DEFAULT_VISUALIZATION;
+            $location.hash($scope.selectedVisualization.id);
+          }
+          $scope.query.visualizations = $scope.query.visualizations.filter(
+            v => vis.id !== v.id
+          );
+        },
+        () => {
+          notification.error(
+            "Error deleting visualization.",
+            "Maybe it's used in a dashboard?"
+          );
+        }
       );
     });
   };
 
-  $scope.$watch('query.name', () => { Title.set($scope.query.name); });
+  $scope.$watch("query.name", () => {
+    Title.set($scope.query.name);
+  });
 
-  $scope.$watch('queryResult && queryResult.getStatus()', (status) => {
+  $scope.$watch("queryResult && queryResult.getStatus()", status => {
     if (!status) {
       return;
     }
 
-    if (status === 'done') {
+    if (status === "done") {
       const ranSelectedQuery =
-          $scope.query.query !== $scope.queryResult.query_result.query;
+        $scope.query.query !== $scope.queryResult.query_result.query;
       if (!ranSelectedQuery) {
         $scope.query.latest_query_data_id = $scope.queryResult.getId();
         $scope.query.queryResult = $scope.queryResult;
       }
 
-      Notifications.showNotification('Redash', `${$scope.query.name} updated.`);
-    } else if (status === 'failed') {
-      Notifications.showNotification('Redash',
-                                     `${$scope.query.name} failed to run: ${
-                                         $scope.queryResult.getError()}`);
+      Notifications.showNotification("Redash", `${$scope.query.name} updated.`);
+    } else if (status === "failed") {
+      Notifications.showNotification(
+        "Redash",
+        `${$scope.query.name} failed to run: ${$scope.queryResult.getError()}`
+      );
     }
 
-    if (status === 'done' || status === 'failed') {
+    if (status === "done" || status === "failed") {
       $scope.lockButton(false);
     }
 
@@ -468,122 +501,120 @@ function QueryViewCtrl(
     return find($scope.query.visualizations, item => item.id == visId);
   }
 
-  $scope.openVisualizationEditor = (visId) => {
+  $scope.openVisualizationEditor = visId => {
     function openModal() {
-      EditVisualizationDialog
-          .showModal({
-            query : $scope.query,
-            visualization : getVisualization(visId),
-            queryResult : $scope.queryResult,
-          })
-          .result.then((visualization) => {
-            $scope.setVisualizationTab(visualization);
-            $scope.$applyAsync();
-          });
+      EditVisualizationDialog.showModal({
+        query: $scope.query,
+        visualization: getVisualization(visId),
+        queryResult: $scope.queryResult
+      }).result.then(visualization => {
+        $scope.setVisualizationTab(visualization);
+        $scope.$applyAsync();
+      });
     }
 
     if ($scope.query.isNew()) {
-      $scope.saveQuery().then((query) => {
+      $scope.saveQuery().then(query => {
         // Because we have a path change, we need to "signal" the next page to
         // open the visualization editor.
         // TODO: we don't really need this. Just need to assign query to
         // $scope.query and maybe a few more small changes. Not worth handling
         // this now, but also we shouldn't copy this bizzare method to the React
         // codebase.
-        $location.path(query.getSourceLink()).hash('add');
+        $location.path(query.getSourceLink()).hash("add");
       });
     } else {
       openModal();
     }
   };
 
-  if ($location.hash() === 'add') {
+  if ($location.hash() === "add") {
     $location.hash(null);
     $scope.openVisualizationEditor();
   }
   const intervals = clientConfig.queryRefreshIntervals;
   const allowedIntervals = policy.getQueryRefreshIntervals();
   $scope.refreshOptions = isArray(allowedIntervals)
-                              ? intersection(intervals, allowedIntervals)
-                              : intervals;
+    ? intersection(intervals, allowedIntervals)
+    : intervals;
 
   $scope.showScheduleForm = false;
   $scope.editSchedule = () => {
     if (!$scope.canEdit || !$scope.canScheduleQuery) {
       return;
     }
-    ScheduleDialog
-        .showModal({
-          schedule : $scope.query.schedule,
-          refreshOptions : $scope.refreshOptions,
-        })
-        .result.then((schedule) => {
-          $scope.query.schedule = schedule;
-          $scope.saveQuery();
-        });
+    ScheduleDialog.showModal({
+      schedule: $scope.query.schedule,
+      refreshOptions: $scope.refreshOptions
+    }).result.then(schedule => {
+      $scope.query.schedule = schedule;
+      $scope.saveQuery();
+    });
   };
-  $scope.closeScheduleForm =
-      () => { $scope.$apply(() => { $scope.showScheduleForm = false; }); };
+  $scope.closeScheduleForm = () => {
+    $scope.$apply(() => {
+      $scope.showScheduleForm = false;
+    });
+  };
 
-  $scope.openAddToDashboardForm = (visId) => {
+  $scope.openAddToDashboardForm = visId => {
     const visualization = getVisualization(visId);
     $uibModal.open({
-      component : 'addToDashboardDialog',
-      size : 'sm',
-      resolve : {
-        query : $scope.query,
-        vis : visualization,
-      },
+      component: "addToDashboardDialog",
+      size: "sm",
+      resolve: {
+        query: $scope.query,
+        vis: visualization
+      }
     });
   };
 
   $scope.showEmbedDialog = (query, visId) => {
     const visualization = getVisualization(visId);
-    EmbedQueryDialog.showModal({query, visualization});
+    EmbedQueryDialog.showModal({ query, visualization });
   };
 
   $scope.$watch(
-      () => $location.hash(),
-      (hash) => {
-        $scope.selectedVisualization =
-            // try to find by hash
-            find($scope.query.visualizations,
-                 item => item.id == hash) || // eslint-disable-line eqeqeq
-            // try first one (with smallest ID)
-            minBy($scope.query.visualizations, viz => viz.id) ||
-            // fallback to default
-            DEFAULT_VISUALIZATION;
-      },
+    () => $location.hash(),
+    hash => {
+      $scope.selectedVisualization =
+        // try to find by hash
+        find($scope.query.visualizations, item => item.id == hash) || // eslint-disable-line eqeqeq
+        // try first one (with smallest ID)
+        minBy($scope.query.visualizations, viz => viz.id) ||
+        // fallback to default
+        DEFAULT_VISUALIZATION;
+    }
   );
 
   $scope.showManagePermissionsModal = () => {
     $uibModal.open({
-      component : 'permissionsEditor',
-      resolve : {
-        aclUrl : {url : `api/queries/${$routeParams.queryId}/acl`},
-        owner : $scope.query.user,
-      },
+      component: "permissionsEditor",
+      resolve: {
+        aclUrl: { url: `api/queries/${$routeParams.queryId}/acl` },
+        owner: $scope.query.user
+      }
     });
   };
 }
 
 export default function init(ngModule) {
-  ngModule.controller('QueryViewCtrl', QueryViewCtrl);
+  ngModule.controller("QueryViewCtrl", QueryViewCtrl);
 
   return {
-    '/queries/:queryId' : {
+    "/queries/:queryId": {
       template,
-      layout : 'fixed',
-      controller : 'QueryViewCtrl',
-      reloadOnSearch : false,
-      resolve : {
-        query : (Query, $route) => {
-          'ngInject';
+      layout: "fixed",
+      controller: "QueryViewCtrl",
+      reloadOnSearch: false,
+      resolve: {
+        query: (Query, $route) => {
+          "ngInject";
 
-          return Query.get({id : $route.current.params.queryId}).$promise;
-        },
-      },
-    },
+          return Query.get({ id: $route.current.params.queryId }).$promise;
+        }
+      }
+    }
   };
 }
 

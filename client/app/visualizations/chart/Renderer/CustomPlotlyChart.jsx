@@ -1,11 +1,15 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { RendererPropTypes } from '@/visualizations';
+import React, { useState, useEffect, useMemo } from "react";
+import { RendererPropTypes } from "@/visualizations";
 
-import { clientConfig } from '@/services/auth';
-import resizeObserver from '@/services/resizeObserver';
+import { clientConfig } from "@/services/auth";
+import resizeObserver from "@/services/resizeObserver";
 
-import getChartData from '../getChartData';
-import { Plotly, prepareCustomChartData, createCustomChartRenderer } from '../plotly';
+import getChartData from "../getChartData";
+import {
+  Plotly,
+  prepareCustomChartData,
+  createCustomChartRenderer
+} from "../plotly";
 
 export default function CustomPlotlyChart({ options, data }) {
   if (!clientConfig.allowCustomJSVisualizations) {
@@ -15,13 +19,14 @@ export default function CustomPlotlyChart({ options, data }) {
   const [container, setContainer] = useState(null);
 
   const renderCustomChart = useMemo(
-    () => createCustomChartRenderer(options.customCode, options.enableConsoleLogs),
-    [options.customCode, options.enableConsoleLogs],
+    () =>
+      createCustomChartRenderer(options.customCode, options.enableConsoleLogs),
+    [options.customCode, options.enableConsoleLogs]
   );
 
   const plotlyData = useMemo(
     () => prepareCustomChartData(getChartData(data.rows, options)),
-    [options, data],
+    [options, data]
   );
 
   useEffect(() => {
