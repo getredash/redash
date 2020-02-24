@@ -11,23 +11,41 @@ class TestPrometheus(TestCase):
     def setUp(self):
         self.instant_query_result = [
             {
-                "metric": {"name": "example_metric_name", "foo_bar": "foo",},
+                "metric": {
+                    "name": "example_metric_name",
+                    "foo_bar": "foo",
+                },
                 "value": [1516937400.781, "7400"],
             },
             {
-                "metric": {"name": "example_metric_name", "foo_bar": "bar",},
+                "metric": {
+                    "name": "example_metric_name",
+                    "foo_bar": "bar",
+                },
                 "value": [1516937400.781, "7400"],
             },
         ]
 
         self.range_query_result = [
             {
-                "metric": {"name": "example_metric_name", "foo_bar": "foo",},
-                "values": [[1516937400.781, "7400"], [1516938000.781, "8000"],],
+                "metric": {
+                    "name": "example_metric_name",
+                    "foo_bar": "foo",
+                },
+                "values": [
+                    [1516937400.781, "7400"],
+                    [1516938000.781, "8000"],
+                ],
             },
             {
-                "metric": {"name": "example_metric_name", "foo_bar": "bar",},
-                "values": [[1516937400.781, "7400"], [1516938000.781, "8000"],],
+                "metric": {
+                    "name": "example_metric_name",
+                    "foo_bar": "bar",
+                },
+                "values": [
+                    [1516937400.781, "7400"],
+                    [1516938000.781, "8000"],
+                ],
             },
         ]
 
@@ -86,16 +104,16 @@ class TestPrometheus(TestCase):
         # test redash fronend datetime string
         self.assertEqual(
             datetime.fromtimestamp(
-                convert_to_timestamp("2019-03-10 00:00:00")
-            ).timetuple(),
-            datetime.strptime("2019-03-10 00:00:00", "%Y-%m-%d %H:%M:%S").timetuple(),
+                convert_to_timestamp("2019-03-10 00:00:00")).timetuple(),
+            datetime.strptime("2019-03-10 00:00:00",
+                              "%Y-%m-%d %H:%M:%S").timetuple(),
         )
 
         self.assertEqual(
             datetime.utcfromtimestamp(
-                convert_to_timestamp("2019-03-10T00:00:00Z")
-            ).timetuple(),
-            datetime.strptime("2019-03-10 00:00:00", "%Y-%m-%d %H:%M:%S").timetuple(),
+                convert_to_timestamp("2019-03-10T00:00:00Z")).timetuple(),
+            datetime.strptime("2019-03-10 00:00:00",
+                              "%Y-%m-%d %H:%M:%S").timetuple(),
         )
         # test unit timestamp
         self.assertEqual(convert_to_timestamp("1552147200"), "1552147200")
@@ -112,98 +130,98 @@ class TestPrometheus(TestCase):
 
         # test year
         self.assertEqual(
-            parse_date_math(dt, "/y", False).timetuple()[:-3], (2019, 1, 1, 0, 0, 0)
-        )
+            parse_date_math(dt, "/y", False).timetuple()[:-3],
+            (2019, 1, 1, 0, 0, 0))
         self.assertEqual(
-            parse_date_math(dt, "/y", True).timetuple()[:-3], (2020, 1, 1, 0, 0, 0)
-        )
+            parse_date_math(dt, "/y", True).timetuple()[:-3],
+            (2020, 1, 1, 0, 0, 0))
         self.assertEqual(
-            parse_date_math(dt, "+1y").timetuple()[:-3], (2020, 3, 10, 12, 34, 56)
-        )
+            parse_date_math(dt, "+1y").timetuple()[:-3],
+            (2020, 3, 10, 12, 34, 56))
         self.assertEqual(
-            parse_date_math(dt, "-1y").timetuple()[:-3], (2018, 3, 10, 12, 34, 56)
-        )
+            parse_date_math(dt, "-1y").timetuple()[:-3],
+            (2018, 3, 10, 12, 34, 56))
 
         # test month
         self.assertEqual(
-            parse_date_math(dt, "/M", False).timetuple()[:-3], (2019, 3, 1, 0, 0, 0)
-        )
+            parse_date_math(dt, "/M", False).timetuple()[:-3],
+            (2019, 3, 1, 0, 0, 0))
         self.assertEqual(
-            parse_date_math(dt, "/M", True).timetuple()[:-3], (2019, 4, 1, 0, 0, 0)
-        )
+            parse_date_math(dt, "/M", True).timetuple()[:-3],
+            (2019, 4, 1, 0, 0, 0))
         self.assertEqual(
-            parse_date_math(dt, "+1M").timetuple()[:-3], (2019, 4, 10, 12, 34, 56)
-        )
+            parse_date_math(dt, "+1M").timetuple()[:-3],
+            (2019, 4, 10, 12, 34, 56))
         self.assertEqual(
-            parse_date_math(dt, "-1M").timetuple()[:-3], (2019, 2, 10, 12, 34, 56)
-        )
+            parse_date_math(dt, "-1M").timetuple()[:-3],
+            (2019, 2, 10, 12, 34, 56))
 
         # test week
         self.assertEqual(
-            parse_date_math(dt, "/w", False).timetuple()[:-3], (2019, 3, 10, 0, 0, 0)
-        )
+            parse_date_math(dt, "/w", False).timetuple()[:-3],
+            (2019, 3, 10, 0, 0, 0))
         self.assertEqual(
-            parse_date_math(dt, "/w", True).timetuple()[:-3], (2019, 3, 17, 0, 0, 0)
-        )
+            parse_date_math(dt, "/w", True).timetuple()[:-3],
+            (2019, 3, 17, 0, 0, 0))
         self.assertEqual(
-            parse_date_math(dt, "+1w").timetuple()[:-3], (2019, 3, 17, 12, 34, 56)
-        )
+            parse_date_math(dt, "+1w").timetuple()[:-3],
+            (2019, 3, 17, 12, 34, 56))
         self.assertEqual(
-            parse_date_math(dt, "-1w").timetuple()[:-3], (2019, 3, 3, 12, 34, 56)
-        )
+            parse_date_math(dt, "-1w").timetuple()[:-3],
+            (2019, 3, 3, 12, 34, 56))
 
         # test day
         self.assertEqual(
-            parse_date_math(dt, "/d", False).timetuple()[:-3], (2019, 3, 10, 0, 0, 0)
-        )
+            parse_date_math(dt, "/d", False).timetuple()[:-3],
+            (2019, 3, 10, 0, 0, 0))
         self.assertEqual(
-            parse_date_math(dt, "/d", True).timetuple()[:-3], (2019, 3, 11, 0, 0, 0)
-        )
+            parse_date_math(dt, "/d", True).timetuple()[:-3],
+            (2019, 3, 11, 0, 0, 0))
         self.assertEqual(
-            parse_date_math(dt, "+1d").timetuple()[:-3], (2019, 3, 11, 12, 34, 56)
-        )
+            parse_date_math(dt, "+1d").timetuple()[:-3],
+            (2019, 3, 11, 12, 34, 56))
         self.assertEqual(
-            parse_date_math(dt, "-1d").timetuple()[:-3], (2019, 3, 9, 12, 34, 56)
-        )
+            parse_date_math(dt, "-1d").timetuple()[:-3],
+            (2019, 3, 9, 12, 34, 56))
 
         # test hour
         self.assertEqual(
-            parse_date_math(dt, "/h", False).timetuple()[:-3], (2019, 3, 10, 12, 0, 0)
-        )
+            parse_date_math(dt, "/h", False).timetuple()[:-3],
+            (2019, 3, 10, 12, 0, 0))
         self.assertEqual(
-            parse_date_math(dt, "/h", True).timetuple()[:-3], (2019, 3, 10, 13, 0, 0)
-        )
+            parse_date_math(dt, "/h", True).timetuple()[:-3],
+            (2019, 3, 10, 13, 0, 0))
         self.assertEqual(
-            parse_date_math(dt, "+1h").timetuple()[:-3], (2019, 3, 10, 13, 34, 56)
-        )
+            parse_date_math(dt, "+1h").timetuple()[:-3],
+            (2019, 3, 10, 13, 34, 56))
         self.assertEqual(
-            parse_date_math(dt, "-1h").timetuple()[:-3], (2019, 3, 10, 11, 34, 56)
-        )
+            parse_date_math(dt, "-1h").timetuple()[:-3],
+            (2019, 3, 10, 11, 34, 56))
 
         # test minute
         self.assertEqual(
-            parse_date_math(dt, "/m", False).timetuple()[:-3], (2019, 3, 10, 12, 34, 0)
-        )
+            parse_date_math(dt, "/m", False).timetuple()[:-3],
+            (2019, 3, 10, 12, 34, 0))
         self.assertEqual(
-            parse_date_math(dt, "/m", True).timetuple()[:-3], (2019, 3, 10, 12, 35, 0)
-        )
+            parse_date_math(dt, "/m", True).timetuple()[:-3],
+            (2019, 3, 10, 12, 35, 0))
         self.assertEqual(
-            parse_date_math(dt, "+1m").timetuple()[:-3], (2019, 3, 10, 12, 35, 56)
-        )
+            parse_date_math(dt, "+1m").timetuple()[:-3],
+            (2019, 3, 10, 12, 35, 56))
         self.assertEqual(
-            parse_date_math(dt, "-1m").timetuple()[:-3], (2019, 3, 10, 12, 33, 56)
-        )
+            parse_date_math(dt, "-1m").timetuple()[:-3],
+            (2019, 3, 10, 12, 33, 56))
 
         # test second
         self.assertEqual(
-            parse_date_math(dt, "/s", False).timetuple()[:-3], (2019, 3, 10, 12, 34, 56)
-        )
+            parse_date_math(dt, "/s", False).timetuple()[:-3],
+            (2019, 3, 10, 12, 34, 56))
         self.assertEqual(
-            parse_date_math(dt, "/s", True).timetuple()[:-3], (2019, 3, 10, 12, 34, 57)
-        )
+            parse_date_math(dt, "/s", True).timetuple()[:-3],
+            (2019, 3, 10, 12, 34, 57))
         self.assertEqual(
-            parse_date_math(dt, "+1s").timetuple()[:-3], (2019, 3, 10, 12, 34, 57)
-        )
+            parse_date_math(dt, "+1s").timetuple()[:-3],
+            (2019, 3, 10, 12, 34, 57))
         self.assertEqual(
-            parse_date_math(dt, "-1s").timetuple()[:-3], (2019, 3, 10, 12, 34, 55)
-        )
+            parse_date_math(dt, "-1s").timetuple()[:-3],
+            (2019, 3, 10, 12, 34, 55))

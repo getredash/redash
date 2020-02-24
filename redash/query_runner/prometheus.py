@@ -177,7 +177,12 @@ class Prometheus(BaseQueryRunner):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {"url": {"type": "string", "title": "Prometheus API URL"}},
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "title": "Prometheus API URL"
+                }
+            },
             "required": ["url"],
         }
 
@@ -230,8 +235,16 @@ class Prometheus(BaseQueryRunner):
 
         base_url = self.configuration["url"]
         columns = [
-            {"friendly_name": "timestamp", "type": TYPE_DATETIME, "name": "timestamp"},
-            {"friendly_name": "value", "type": TYPE_STRING, "name": "value"},
+            {
+                "friendly_name": "timestamp",
+                "type": TYPE_DATETIME,
+                "name": "timestamp"
+            },
+            {
+                "friendly_name": "value",
+                "type": TYPE_STRING,
+                "name": "value"
+            },
         ]
 
         try:
@@ -241,11 +254,8 @@ class Prometheus(BaseQueryRunner):
             except Exception:
                 # for backward compatibility
                 query = query.strip()
-                query = (
-                    "query={}".format(query)
-                    if not query.startswith("query=")
-                    else query
-                )
+                query = ("query={}".format(query)
+                         if not query.startswith("query=") else query)
                 payload = parse_qs(query)
                 for k in payload:
                     payload[k] = payload[k][0]
@@ -262,7 +272,8 @@ class Prometheus(BaseQueryRunner):
                 payload["end"] = convert_to_timestamp(range_end)
 
                 if "start" in payload:
-                    payload["start"] = convert_to_timestamp(payload["start"], False)
+                    payload["start"] = convert_to_timestamp(
+                        payload["start"], False)
 
             elif query_type == "query":
                 if "time" in payload:
@@ -281,13 +292,11 @@ class Prometheus(BaseQueryRunner):
             metric_labels = metrics[0]["metric"].keys()
 
             for label_name in metric_labels:
-                columns.append(
-                    {
-                        "friendly_name": label_name,
-                        "type": TYPE_STRING,
-                        "name": label_name,
-                    }
-                )
+                columns.append({
+                    "friendly_name": label_name,
+                    "type": TYPE_STRING,
+                    "name": label_name,
+                })
 
             if query_type == "query_range":
                 rows = get_range_rows(metrics)
