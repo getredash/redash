@@ -18,7 +18,7 @@ import ParameterValueInput from "@/components/ParameterValueInput";
 import { ParameterMappingType } from "@/services/widget";
 import { Parameter, cloneParameter } from "@/services/parameters";
 import HelpTrigger from "@/components/HelpTrigger";
-import ParameterMappingEditor from "@/components/ParameterMappingEditor";
+import InputPopover from "@/components/InputPopover";
 
 import "./ParameterMappingInput.less";
 
@@ -322,42 +322,34 @@ class MappingEditor extends React.Component {
     this.setState({ visible: false });
   };
 
-  renderContent() {
-    const { mapping, inputError } = this.state;
-
+  render() {
+    const { visible, mapping, inputError } = this.state;
     return (
-      <ParameterMappingEditor
+      <InputPopover
+        placement="left"
+        trigger="click"
         header={
           <>
             Edit Source and Value <HelpTrigger type="VALUE_SOURCE_OPTIONS" />
           </>
         }
-        saveDisabled={!!inputError}
-        onSave={this.save}
-        onCancel={this.hide}>
-        <ParameterMappingInput
-          mapping={mapping}
-          existingParamNames={this.props.existingParamNames}
-          onChange={this.onChange}
-          inputError={inputError}
-        />
-      </ParameterMappingEditor>
-    );
-  }
-
-  render() {
-    const { visible, mapping } = this.state;
-    return (
-      <Popover
-        placement="left"
-        trigger="click"
-        content={this.renderContent()}
+        content={
+          <ParameterMappingInput
+            mapping={mapping}
+            existingParamNames={this.props.existingParamNames}
+            onChange={this.onChange}
+            inputError={inputError}
+          />
+        }
+        onOk={this.save}
+        onCancel={this.hide}
+        okButtonProps={{ disabled: !!inputError }}
         visible={visible}
         onVisibleChange={this.onVisibleChange}>
         <Button size="small" type="dashed" data-test={`EditParamMappingButon-${mapping.param.name}`}>
           <Icon type="edit" />
         </Button>
-      </Popover>
+      </InputPopover>
     );
   }
 }

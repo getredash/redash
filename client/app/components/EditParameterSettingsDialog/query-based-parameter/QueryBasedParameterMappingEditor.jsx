@@ -4,11 +4,10 @@ import { values } from "lodash";
 import Button from "antd/lib/button";
 import Icon from "antd/lib/icon";
 import Tooltip from "antd/lib/tooltip";
-import Popover from "antd/lib/popover";
 import Radio from "antd/lib/radio";
 import Typography from "antd/lib/typography/Typography";
 import ParameterValueInput from "@/components/ParameterValueInput";
-import ParameterMappingEditor from "@/components/ParameterMappingEditor";
+import InputPopover from "@/components/InputPopover";
 import Form from "antd/lib/form";
 import { QueryBasedParameterMappingType } from "@/services/parameters/QueryBasedDropdownParameter";
 
@@ -39,7 +38,7 @@ export default function QueryBasedParameterMappingEditor({ parameter, mapping, s
     setShowPopover(false);
   };
 
-  const onSave = () => {
+  const onOk = () => {
     onChange(newMapping);
     setShowPopover(false);
   };
@@ -53,65 +52,65 @@ export default function QueryBasedParameterMappingEditor({ parameter, mapping, s
   return (
     <>
       {currentState}
-      <Popover
+      <InputPopover
         placement="left"
         trigger="click"
+        header="Edit Parameter Source"
+        okButtonProps={{
+          disabled: newMapping.mappingType === QueryBasedParameterMappingType.STATIC && parameter.isEmpty,
+        }}
+        onOk={onOk}
+        onCancel={onCancel}
         content={
-          <ParameterMappingEditor
-            header="Edit Parameter Source"
-            onCancel={onCancel}
-            saveDisabled={newMapping.mappingType === QueryBasedParameterMappingType.STATIC && parameter.isEmpty}
-            onSave={onSave}>
-            <Form>
-              <Form.Item className="m-b-15" label="Source" {...formItemProps}>
-                <Radio.Group
-                  value={newMapping.mappingType}
-                  onChange={({ target }) => setNewMapping({ mappingType: target.value })}>
-                  <Radio
-                    className="radio"
-                    value={QueryBasedParameterMappingType.DROPDOWN_SEARCH}
-                    disabled={!searchAvailable || parameter.type !== "text"}>
-                    Dropdown Search{" "}
-                    {(!searchAvailable || parameter.type !== "text") && (
-                      <Tooltip
-                        title={
-                          parameter.type !== "text"
-                            ? "Dropdown Search is only available for Text Parameters"
-                            : "There is already a parameter mapped with the Dropdown Search type."
-                        }>
-                        <Icon type="question-circle" theme="filled" />
-                      </Tooltip>
-                    )}
-                  </Radio>
-                  <Radio className="radio" value={QueryBasedParameterMappingType.STATIC}>
-                    Static Value
-                  </Radio>
-                </Radio.Group>
+          <Form>
+            <Form.Item className="m-b-15" label="Source" {...formItemProps}>
+              <Radio.Group
+                value={newMapping.mappingType}
+                onChange={({ target }) => setNewMapping({ mappingType: target.value })}>
+                <Radio
+                  className="radio"
+                  value={QueryBasedParameterMappingType.DROPDOWN_SEARCH}
+                  disabled={!searchAvailable || parameter.type !== "text"}>
+                  Dropdown Search{" "}
+                  {(!searchAvailable || parameter.type !== "text") && (
+                    <Tooltip
+                      title={
+                        parameter.type !== "text"
+                          ? "Dropdown Search is only available for Text Parameters"
+                          : "There is already a parameter mapped with the Dropdown Search type."
+                      }>
+                      <Icon type="question-circle" theme="filled" />
+                    </Tooltip>
+                  )}
+                </Radio>
+                <Radio className="radio" value={QueryBasedParameterMappingType.STATIC}>
+                  Static Value
+                </Radio>
+              </Radio.Group>
+            </Form.Item>
+            {newMapping.mappingType === QueryBasedParameterMappingType.STATIC && (
+              <Form.Item label="Value" required {...formItemProps}>
+                <ParameterValueInput
+                  type={parameter.type}
+                  value={parameter.normalizedValue}
+                  enumOptions={parameter.enumOptions}
+                  queryId={parameter.queryId}
+                  parameter={parameter}
+                  onSelect={value => {
+                    parameter.setValue(value);
+                    setNewMapping({ staticValue: parameter.getExecutionValue({ joinListValues: true }) });
+                  }}
+                />
               </Form.Item>
-              {newMapping.mappingType === QueryBasedParameterMappingType.STATIC && (
-                <Form.Item label="Value" required {...formItemProps}>
-                  <ParameterValueInput
-                    type={parameter.type}
-                    value={parameter.normalizedValue}
-                    enumOptions={parameter.enumOptions}
-                    queryId={parameter.queryId}
-                    parameter={parameter}
-                    onSelect={value => {
-                      parameter.setValue(value);
-                      setNewMapping({ staticValue: parameter.getExecutionValue({ joinListValues: true }) });
-                    }}
-                  />
-                </Form.Item>
-              )}
-            </Form>
-          </ParameterMappingEditor>
+            )}
+          </Form>
         }
         visible={showPopover}
         onVisibleChange={setShowPopover}>
         <Button className="m-l-5" size="small" type="dashed">
           <Icon type="edit" />
         </Button>
-      </Popover>
+      </InputPopover>
     </>
   );
 }
