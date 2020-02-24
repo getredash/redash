@@ -10,7 +10,7 @@ export default function GeneralSettings({ options, visualizationName, onOptionsC
           layout="horizontal"
           label="Counter Label"
           className="w-100"
-          data-test="Counter.General.Label"
+          data-test="Counter.CounterLabel"
           defaultValue={options.counterLabel}
           placeholder={visualizationName}
           onChange={e => onOptionsChange({ counterLabel: e.target.value })}

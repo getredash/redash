@@ -20,6 +20,7 @@ export default function SecondaryValueSettings({ options, data, onOptionsChange 
       />
       <Section>
         <Checkbox
+          data-test="Counter.ShowSecondaryValue"
           disabled={disabled}
           checked={options.secondaryValue.show}
           onChange={e => onChange({ show: e.target.checked })}>

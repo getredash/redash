@@ -1,0 +1,57 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Visualizations -> Counter -> Editor -> Primary Value Settings Changes Counter Type 1`] = `
+Object {
+  "secondaryValue": Object {
+    "type": "rowValue",
+  },
+}
+`;
+
+exports[`Visualizations -> Counter -> Editor -> Primary Value Settings Changes Counter Type Options 1`] = `
+Object {
+  "secondaryValue": Object {
+    "column": "a",
+  },
+}
+`;
+
+exports[`Visualizations -> Counter -> Editor -> Primary Value Settings Changes Counter Type Options 2`] = `
+Object {
+  "secondaryValue": Object {
+    "rowNumber": 3,
+  },
+}
+`;
+
+exports[`Visualizations -> Counter -> Editor -> Primary Value Settings Changes Format Options 1`] = `
+Object {
+  "secondaryValue": Object {
+    "displayFormat": "{{ @@value_formatted }} ({{ @@value }})",
+  },
+}
+`;
+
+exports[`Visualizations -> Counter -> Editor -> Primary Value Settings Changes Format Options 3`] = `
+Object {
+  "secondaryValue": Object {
+    "tooltipFormat": "{{ @@value_formatted }} / {{ @@value }}",
+  },
+}
+`;
+
+exports[`Visualizations -> Counter -> Editor -> Primary Value Settings Hides Secondary Value 1`] = `
+Object {
+  "secondaryValue": Object {
+    "show": false,
+  },
+}
+`;
+
+exports[`Visualizations -> Counter -> Editor -> Primary Value Settings Changes Format Options 2`] = `
+Object {
+  "secondaryValue": Object {
+    "showTooltip": false,
+  },
+}
+`;

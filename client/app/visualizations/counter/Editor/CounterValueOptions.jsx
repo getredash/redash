@@ -30,11 +30,14 @@ export default function CounterValueOptions({ disabled, counterTypes, options, d
         <Select
           layout="horizontal"
           label="Type"
+          data-test="Counter.CounterType"
           className="w-100"
           defaultValue={options.type}
           onChange={type => onChange({ type })}>
           {map(counterTypes, ({ name }, type) => (
-            <Select.Option key={type}>{name}</Select.Option>
+            <Select.Option key={type} data-test={`Counter.CounterType.${type}`}>
+              {name}
+            </Select.Option>
           ))}
         </Select>
       </Section>
@@ -44,6 +47,7 @@ export default function CounterValueOptions({ disabled, counterTypes, options, d
           <Select
             layout="horizontal"
             label="Column Name"
+            data-test="Counter.ColumnName"
             className="w-100"
             disabled={disabled}
             allowClear
@@ -51,7 +55,9 @@ export default function CounterValueOptions({ disabled, counterTypes, options, d
             defaultValue={isNil(options.column) ? undefined : options.column}
             onChange={column => onChange({ column: column || null })}>
             {map(data.columns, col => (
-              <Select.Option key={col.name}>{col.name}</Select.Option>
+              <Select.Option key={col.name} data-test={`Counter.ColumnName.${col.name}`}>
+                {col.name}
+              </Select.Option>
             ))}
           </Select>
         </Section>
@@ -62,6 +68,7 @@ export default function CounterValueOptions({ disabled, counterTypes, options, d
           <InputNumber
             layout="horizontal"
             label="Row Number"
+            data-test="Counter.RowNumber"
             className="w-100"
             disabled={disabled}
             defaultValue={options.rowNumber}
@@ -74,6 +81,7 @@ export default function CounterValueOptions({ disabled, counterTypes, options, d
         <Input
           layout="horizontal"
           label={<React.Fragment>Display Format {formatInfo}</React.Fragment>}
+          data-test="Counter.DisplayFormat"
           className="w-100"
           disabled={disabled}
           defaultValue={options.displayFormat}
@@ -83,6 +91,7 @@ export default function CounterValueOptions({ disabled, counterTypes, options, d
 
       <Section>
         <Checkbox
+          data-test="Counter.ShowTooltip"
           disabled={disabled}
           checked={options.showTooltip}
           onChange={e => onChange({ showTooltip: e.target.checked })}>
@@ -94,6 +103,7 @@ export default function CounterValueOptions({ disabled, counterTypes, options, d
         <Input
           layout="horizontal"
           label={<React.Fragment>Tooltip Format {formatInfo}</React.Fragment>}
+          data-test="Counter.TooltipFormat"
           className="w-100"
           disabled={disabled || !options.showTooltip}
           defaultValue={options.tooltipFormat}
