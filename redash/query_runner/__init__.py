@@ -5,7 +5,7 @@ import requests
 
 from redash import settings
 from redash.utils import json_loads
-from redash.tasks.worker import JobTimeoutException
+from rq.timeouts import JobTimeoutException
 
 logger = logging.getLogger(__name__)
 

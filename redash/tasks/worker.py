@@ -4,7 +4,7 @@ import signal
 import time
 from rq import Worker as BaseWorker, Queue as BaseQueue, get_current_job
 from rq.utils import utcnow
-from rq.timeouts import UnixSignalDeathPenalty, HorseMonitorTimeoutException, JobTimeoutException
+from rq.timeouts import UnixSignalDeathPenalty, HorseMonitorTimeoutException
 from rq.job import Job as BaseJob, JobStatus
 
 
