@@ -1,4 +1,4 @@
-import { isFinite } from "lodash";
+import { isFinite, isString } from "lodash";
 import React, { useState, useEffect } from "react";
 import cx from "classnames";
 import Tooltip from "antd/lib/tooltip";
@@ -22,6 +22,17 @@ function getCounterScale(container) {
   const inner = container.firstChild;
   const scale = Math.min(container.offsetWidth / inner.offsetWidth, container.offsetHeight / inner.offsetHeight);
   return Number(isFinite(scale) ? scale : 1).toFixed(2); // keep only two decimal places
+}
+
+function renderTooltip(tooltip, children) {
+  if (isString(tooltip) && tooltip !== "") {
+    return (
+      <Tooltip title={tooltip} mouseEnterDelay={0} mouseLeaveDelay={0}>
+        {children}
+      </Tooltip>
+    );
+  }
+  return children;
 }
 
 export default function Renderer({ data, options, visualizationName }) {
@@ -58,20 +69,20 @@ export default function Renderer({ data, options, visualizationName }) {
       })}>
       <div className="counter-visualization-content" ref={setContainer}>
         <div style={getCounterStyles(scale)}>
-          {primaryValue.display !== null && (
-            <Tooltip title={primaryValue.tooltip} mouseEnterDelay={0} mouseLeaveDelay={0}>
+          {primaryValue.display !== null &&
+            renderTooltip(
+              primaryValue.tooltip,
               <div className={cx("counter-visualization-value", { "with-tooltip": primaryValue.tooltip !== null })}>
                 {primaryValue.display}
               </div>
-            </Tooltip>
-          )}
-          {secondaryValue.display !== null && (
-            <Tooltip title={secondaryValue.tooltip} mouseEnterDelay={0} mouseLeaveDelay={0}>
+            )}
+          {secondaryValue.display !== null &&
+            renderTooltip(
+              secondaryValue.tooltip,
               <div className={cx("counter-visualization-target", { "with-tooltip": secondaryValue.tooltip !== null })}>
                 {secondaryValue.display}
               </div>
-            </Tooltip>
-          )}
+            )}
           {counterLabel !== null && <div className="counter-visualization-label">{counterLabel}</div>}
         </div>
       </div>
