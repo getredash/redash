@@ -17,6 +17,14 @@ export default class DefaultPolicy {
     return currentUser.isAdmin;
   }
 
+  canCreateDestination() {
+    return currentUser.isAdmin;
+  }
+
+  isCreateDestinationEnabled() {
+    return currentUser.isAdmin;
+  }
+
   canCreateDashboard() {
     return currentUser.hasPermission('create_dashboard');
   }
@@ -35,6 +43,10 @@ export default class DefaultPolicy {
 
   isCreateUserEnabled() {
     return currentUser.isAdmin;
+  }
+
+  isCreateQuerySnippetEnabled() {
+    return true;
   }
 
   getDashboardRefreshIntervals() {

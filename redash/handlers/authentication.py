@@ -7,6 +7,7 @@ from redash import __version__, limiter, models, settings
 from redash.authentication import current_org, get_login_url, get_next_path
 from redash.authentication.account import (BadSignature, SignatureExpired,
                                            send_password_reset_email,
+                                           send_user_disabled_email,
                                            send_verify_email,
                                            validate_token)
 from redash.handlers import routes
@@ -25,7 +26,7 @@ def get_google_auth_url(next_path):
     return google_auth_url
 
 
-def render_token_login_page(template, org_slug, token, invite=True):
+def render_token_login_page(template, org_slug, token, invite):
     try:
         user_id = validate_token(token)
         org = current_org._get_current_object()
@@ -77,12 +78,12 @@ def render_token_login_page(template, org_slug, token, invite=True):
 
 @routes.route(org_scoped_rule('/invite/<token>'), methods=['GET', 'POST'])
 def invite(token, org_slug=None):
-    return render_token_login_page("invite.html", org_slug, token)
+    return render_token_login_page("invite.html", org_slug, token, True)
 
 
 @routes.route(org_scoped_rule('/reset/<token>'), methods=['GET', 'POST'])
 def reset(token, org_slug=None):
-    return render_token_login_page("reset.html", org_slug, token)
+    return render_token_login_page("reset.html", org_slug, token, False)
 
 
 @routes.route(org_scoped_rule('/verify/<token>'), methods=['GET'])
@@ -100,7 +101,7 @@ def verify(token, org_slug=None):
     models.db.session.add(user)
     models.db.session.commit()
 
-    template_context = { "org_slug": org_slug } if settings.MULTI_ORG else {}
+    template_context = {"org_slug": org_slug} if settings.MULTI_ORG else {}
     next_url = url_for('redash.index', **template_context)
 
     return render_template("verify.html", next_url=next_url)
@@ -118,7 +119,10 @@ def forgot_password(org_slug=None):
         try:
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(email, org)
-            send_password_reset_email(user)
+            if user.is_disabled:
+                send_user_disabled_email(user)
+            else:
+                send_password_reset_email(user)
         except NoResultFound:
             logging.error("No user found for forgot password: %s", email)
 
@@ -193,13 +197,16 @@ def base_href():
     return base_href
 
 
-def date_format_config():
+def date_time_format_config():
     date_format = current_org.get_setting('date_format')
     date_format_list = set(["DD/MM/YY", "MM/DD/YY", "YYYY-MM-DD", settings.DATE_FORMAT])
+    time_format = current_org.get_setting('time_format')
+    time_format_list = set(["HH:mm", "HH:mm:ss", "HH:mm:ss.SSS", settings.TIME_FORMAT])
     return {
         'dateFormat': date_format,
         'dateFormatList': list(date_format_list),
-        'dateTimeFormat': "{0} HH:mm".format(date_format),
+        'timeFormatList': list(time_format_list),
+        'dateTimeFormat': "{0} {1}".format(date_format, time_format),
     }
 
 
@@ -218,13 +225,17 @@ def client_config():
         }
     else:
         client_config = {}
+ 
+    if current_user.has_permission('admin') and current_org.get_setting('beacon_consent') is None:
+        client_config['showBeaconConsentMessage'] = True
 
     defaults = {
         'allowScriptsInUserInput': settings.ALLOW_SCRIPTS_IN_USER_INPUT,
         'showPermissionsControl': current_org.get_setting("feature_show_permissions_control"),
         'allowCustomJSVisualizations': settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         'autoPublishNamedQueries': settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
-        'mailSettingsMissing': settings.MAIL_DEFAULT_SENDER is None,
+        'extendedAlertOptions': settings.FEATURE_EXTENDED_ALERT_OPTIONS,
+        'mailSettingsMissing': not settings.email_server_is_configured(),
         'dashboardRefreshIntervals': settings.DASHBOARD_REFRESH_INTERVALS,
         'queryRefreshIntervals': settings.QUERY_REFRESH_INTERVALS,
         'googleLoginEnabled': settings.GOOGLE_OAUTH_ENABLED,
@@ -237,10 +248,22 @@ def client_config():
     client_config.update({
         'basePath': base_href()
     })
-    client_config.update(date_format_config())
+    client_config.update(date_time_format_config())
     client_config.update(number_format_config())
 
     return client_config
+
+
+def messages():
+    messages = []
+
+    if not current_user.is_email_verified:
+        messages.append('email-not-verified')
+
+    if settings.ALLOW_PARAMETERS_IN_EMBEDS:
+        messages.append('using-deprecated-embed-feature')
+
+    return messages
 
 
 @routes.route('/api/config', methods=['GET'])
@@ -266,12 +289,12 @@ def session(org_slug=None):
             'name': current_user.name,
             'email': current_user.email,
             'groups': current_user.group_ids,
-            'permissions': current_user.permissions,
-            'is_email_verified': current_user.is_email_verified
+            'permissions': current_user.permissions
         }
 
     return json_response({
         'user': user,
+        'messages': messages(),
         'org_slug': current_org.slug,
         'client_config': client_config()
     })

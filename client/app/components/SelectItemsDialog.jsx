@@ -9,7 +9,7 @@ import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import { BigMessage } from '@/components/BigMessage';
 
 import LoadingState from '@/components/items-list/components/LoadingState';
-import { toastr } from '@/services/ng';
+import notification from '@/services/notification';
 
 class SelectItemsDialog extends React.Component {
   static propTypes = {
@@ -100,7 +100,7 @@ class SelectItemsDialog extends React.Component {
         })
         .catch(() => {
           this.setState({ saveInProgress: false });
-          toastr.error('Failed to save some of selected items.');
+          notification.error('Failed to save some of selected items.');
         });
     });
   }

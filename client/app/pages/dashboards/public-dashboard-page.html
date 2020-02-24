@@ -1,22 +1,27 @@
-<div class="container p-t-10 p-b-20">
+<div class="container p-t-10 p-b-20" ng-if="$ctrl.dashboard">
   <page-header title="$ctrl.dashboard.name"></page-header>
 
-  <div class="m-b-5">
-    <filters ng-if="$ctrl.dashboard.dashboard_filters_enabled"></filters>
+  <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.globalParameters.length > 0">
+    <parameters parameters="$ctrl.globalParameters" on-values-change="$ctrl.refreshDashboard"></parameters>
   </div>
 
-  <div style="padding-bottom: 5px" ng-if="$ctrl.dashboard.widgets.length > 0">
-    <div gridstack editing="false" class="dashboard-wrapper preview-mode">
-      <div class="dashboard-widget-wrapper"
-        ng-repeat="widget in $ctrl.dashboard.widgets"
-        gridstack-item="widget.options.position" gridstack-item-id="{{ widget.id }}">
-        <div class="grid-stack-item-content">
-          <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" public="true"></dashboard-widget>
-        </div>
-      </div>
-    </div>
+  <div class="m-b-5">
+    <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange"></filters>
+  </div>
+
+  <div id="dashboard-container">
+    <dashboard-grid
+      ng-if="$ctrl.dashboard"
+      dashboard="$ctrl.dashboard"
+      widgets="$ctrl.dashboard.widgets"
+      filters="$ctrl.filters"
+      is-editing="false"
+      is-public="true"
+    />
   </div>
 </div>
+
+<big-message ng-if="!$ctrl.dashboard" icon="'fa-spinner fa-2x fa-pulse'" message="'Loading...'" class-name="'help-message'" class="container" style="display: flex; align-items: center; justify-content: center;"></big-message>
 
 <div id="footer">
   <div class="text-center">

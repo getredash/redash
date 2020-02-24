@@ -1,0 +1,51 @@
+.loading-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin: -50px 0 0 -50px; // center
+  width: 100px;
+  height: 100px;
+  transition-duration: 150ms;
+  transition-timing-function: linear;
+  transition-property: opacity, transform;
+
+  #css-logo {
+    animation: hover 2s infinite;
+  }
+
+  #shadow {
+    width: 33px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: black;
+    opacity: 0.25;
+    display: block;
+    position: absolute;
+    left: 34px;
+    top: 115px;
+    animation: shadow 2s infinite;
+  }
+
+  @keyframes hover {
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+  @keyframes shadow {
+    50% {
+      transform: scaleX(0.9);
+      opacity: 0.2;
+    }
+  }
+}
+
+// hide indicator when app-view has content
+app-view:not(:empty) ~ .loading-indicator {
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+
+  * {
+    animation: none !important;
+  }
+}

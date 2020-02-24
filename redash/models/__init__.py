@@ -1,12 +1,9 @@
-import cStringIO
-import csv
 import datetime
 import calendar
 import logging
 import time
 import pytz
 
-import xlsxwriter
 from six import python_2_unicode_compatible, text_type
 from sqlalchemy import distinct, or_, and_, UniqueConstraint
 from sqlalchemy.dialects import postgresql
@@ -25,10 +22,10 @@ from redash.destinations import (get_configuration_schema_for_destination_type,
                                  get_destination)
 from redash.metrics import database  # noqa: F401
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
-                                 get_query_runner)
-from redash.utils import generate_token, json_dumps, json_loads
+                                 get_query_runner, TYPE_BOOLEAN, TYPE_DATE, TYPE_DATETIME)
+from redash.utils import generate_token, json_dumps, json_loads, mustache_render
 from redash.utils.configuration import ConfigurationContainer
-from redash.utils.parameterized_query import ParameterizedQuery
+from redash.models.parameterized_query import ParameterizedQuery
 
 from .base import db, gfk_type, Column, GFKBase, SearchBaseQuery
 from .changes import ChangeTrackingMixin, Change  # noqa
@@ -74,7 +71,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     name = Column(db.String(255))
     type = Column(db.String(255))
-    options = Column('encrypted_options', ConfigurationContainer.as_mutable(EncryptedConfiguration(db.Text, settings.SECRET_KEY, FernetEngine)))
+    options = Column('encrypted_options', ConfigurationContainer.as_mutable(EncryptedConfiguration(db.Text, settings.DATASOURCE_SECRET_KEY, FernetEngine)))
     queue_name = Column(db.String(255), default="queries")
     scheduled_queue_name = Column(db.String(255), default="scheduled_queries")
     created_at = Column(db.DateTime(True), default=db.func.now())
@@ -143,41 +140,47 @@ class DataSource(BelongsToOrgMixin, db.Model):
         QueryResult.query.filter(QueryResult.data_source == self).delete()
         res = db.session.delete(self)
         db.session.commit()
+
+        redis_connection.delete(self._schema_key)
+
         return res
 
     def get_schema(self, refresh=False):
-        key = "data_source:schema:{}".format(self.id)
-
         cache = None
         if not refresh:
-            cache = redis_connection.get(key)
+            cache = redis_connection.get(self._schema_key)
 
         if cache is None:
             query_runner = self.query_runner
             schema = sorted(query_runner.get_schema(get_stats=refresh), key=lambda t: t['name'])
 
-            redis_connection.set(key, json_dumps(schema))
+            redis_connection.set(self._schema_key, json_dumps(schema))
         else:
             schema = json_loads(cache)
 
         return schema
 
+    @property
+    def _schema_key(self):
+        return "data_source:schema:{}".format(self.id)
+
+    @property
     def _pause_key(self):
         return 'ds:{}:pause'.format(self.id)
 
     @property
     def paused(self):
-        return redis_connection.exists(self._pause_key())
+        return redis_connection.exists(self._pause_key)
 
     @property
     def pause_reason(self):
-        return redis_connection.get(self._pause_key())
+        return redis_connection.get(self._pause_key)
 
     def pause(self, reason=None):
-        redis_connection.set(self._pause_key(), reason or '')
+        redis_connection.set(self._pause_key, reason or '')
 
     def resume(self):
-        redis_connection.delete(self._pause_key())
+        redis_connection.delete(self._pause_key)
 
     def add_group(self, group, view_only=False):
         dsg = DataSourceGroup(group=group, data_source=self, view_only=view_only)
@@ -322,41 +325,6 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     def groups(self):
         return self.data_source.groups
 
-    def make_csv_content(self):
-        s = cStringIO.StringIO()
-
-        query_data = json_loads(self.data)
-        writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=[col['name'] for col in query_data['columns']])
-        writer.writer = utils.UnicodeWriter(s)
-        writer.writeheader()
-        for row in query_data['rows']:
-            writer.writerow(row)
-
-        return s.getvalue()
-
-    def make_excel_content(self):
-        s = cStringIO.StringIO()
-
-        query_data = json_loads(self.data)
-        book = xlsxwriter.Workbook(s, {'constant_memory': True})
-        sheet = book.add_worksheet("result")
-
-        column_names = []
-        for (c, col) in enumerate(query_data['columns']):
-            sheet.write(0, c, col['name'])
-            column_names.append(col['name'])
-
-        for (r, row) in enumerate(query_data['rows']):
-            for (c, name) in enumerate(column_names):
-                v = row.get(name)
-                if isinstance(v, list) or isinstance(v, dict):
-                    v = str(v).encode('utf-8')
-                sheet.write(r + 1, c, v)
-
-        book.close()
-
-        return s.getvalue()
-
 
 def should_schedule_next(previous_iteration, now, interval, time=None, day_of_week=None, failures=0):
     # if time exists then interval > 23 hours (82800s)
@@ -386,7 +354,10 @@ def should_schedule_next(previous_iteration, now, interval, time=None, day_of_we
         next_iteration = (previous_iteration + datetime.timedelta(days=days_delay) +
                           datetime.timedelta(days=days_to_add)).replace(hour=hour, minute=minute)
     if failures:
-        next_iteration += datetime.timedelta(minutes=2**failures)
+        try:
+            next_iteration += datetime.timedelta(minutes=2**failures)
+        except OverflowError:
+            return False
     return now > next_iteration
 
 
@@ -453,6 +424,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         if user:
             self.record_changes(user)
 
+    def regenerate_api_key(self):
+        self.api_key = generate_token(40)
+
     @classmethod
     def create(cls, **kwargs):
         query = cls(**kwargs)
@@ -498,7 +472,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 contains_eager(Query.user),
                 contains_eager(Query.latest_query_data),
             )
-            .order_by(Query.created_at.desc())
         )
 
         if not include_drafts:
@@ -547,6 +520,26 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return cls.all_queries(user.group_ids, user.id).filter(Query.user == user)
 
     @classmethod
+    def by_api_key(cls, api_key):
+        return cls.query.filter(cls.api_key == api_key).one()
+
+    @classmethod
+    def past_scheduled_queries(cls):
+        now = utils.utcnow()
+        queries = (
+            Query.query
+            .filter(Query.schedule.isnot(None))
+            .order_by(Query.id)
+        )
+        return filter(
+                lambda x:
+                x.schedule["until"] is not None and pytz.utc.localize(
+                    datetime.datetime.strptime(x.schedule['until'], '%Y-%m-%d')
+                ) <= now,
+                queries
+                )
+
+    @classmethod
     def outdated_queries(cls):
         queries = (
             Query.query
@@ -585,13 +578,24 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def search(cls, term, group_ids, user_id=None, include_drafts=False,
-               limit=None, include_archived=False):
+               limit=None, include_archived=False, multi_byte_search=False):
         all_queries = cls.all_queries(
             group_ids,
             user_id=user_id,
             include_drafts=include_drafts,
             include_archived=include_archived,
         )
+
+        if multi_byte_search:
+            # Since tsvector doesn't work well with CJK languages, use `ilike` too
+            pattern = u'%{}%'.format(term)
+            return all_queries.filter(
+                or_(
+                    cls.name.ilike(pattern),
+                    cls.description.ilike(pattern)
+                )
+            ).order_by(Query.id).limit(limit)
+
         # sort the result using the weight as defined in the search vector column
         return all_queries.search(term, sort=True).limit(limit)
 
@@ -627,6 +631,15 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def get_by_id(cls, _id):
         return cls.query.filter(cls.id == _id).one()
 
+    @classmethod
+    def all_groups_for_query_ids(cls, query_ids):
+        query = """SELECT group_id, view_only
+                   FROM queries
+                   JOIN data_source_groups ON queries.data_source_id = data_source_groups.data_source_id
+                   WHERE queries.id in :ids"""
+
+        return db.session.execute(query, {'ids': tuple(query_ids)}).fetchall()
+
     def fork(self, user):
         forked_list = ['org', 'data_source', 'latest_query_data', 'description',
                        'query_text', 'query_hash', 'options']
@@ -635,7 +648,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         # Query.create will add default TABLE visualization, so use constructor to create bare copy of query
         forked_query = Query(name=u'Copy of (#{}) {}'.format(self.id, self.name), user=user, **kwargs)
 
-        for v in self.visualizations:
+        for v in sorted(self.visualizations, key=lambda v: v.id):
             forked_v = v.copy()
             forked_v['query_rel'] = forked_query
             fv = Visualization(**forked_v)  # it will magically add it to `forked_query.visualizations`
@@ -670,8 +683,26 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return func.lower(cls.name)
 
     @property
+    def parameters(self):
+        return self.options.get("parameters", [])
+
+    @property
     def parameterized(self):
-        return ParameterizedQuery(self.query_text, self.options.get("parameters", []))
+        return ParameterizedQuery(self.query_text, self.parameters, self.org)
+
+    @property
+    def dashboard_api_keys(self):
+        query = """SELECT api_keys.api_key
+                   FROM api_keys
+                   JOIN dashboards ON object_id = dashboards.id
+                   JOIN widgets ON dashboards.id = widgets.dashboard_id
+                   JOIN visualizations ON widgets.visualization_id = visualizations.id
+                   WHERE object_type='dashboards'
+                     AND active=true
+                     AND visualizations.query_id = :id"""
+
+        api_keys = db.session.execute(query, {'id': self.id}).fetchall()
+        return [api_key[0] for api_key in api_keys]
 
 
 @listens_for(Query.query_text, 'set')
@@ -760,14 +791,25 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         data = json_loads(self.query_rel.latest_query_data.data)
 
         if data['rows'] and self.options['column'] in data['rows'][0]:
-            value = data['rows'][0][self.options['column']]
-            op = self.options['op']
+            operators = {
+                '>': lambda v, t: v > t,
+                '>=': lambda v, t: v >= t,
+                '<': lambda v, t: v < t,
+                '<=': lambda v, t: v <= t,
+                '==': lambda v, t: v == t,
+                '!=': lambda v, t: v != t,
 
-            if op == 'greater than' and value > self.options['value']:
-                new_state = self.TRIGGERED_STATE
-            elif op == 'less than' and value < self.options['value']:
-                new_state = self.TRIGGERED_STATE
-            elif op == 'equals' and value == self.options['value']:
+                # backward compatibility
+                'greater than': lambda v, t: v > t,
+                'less than': lambda v, t: v < t,
+                'equals': lambda v, t: v == t,
+            }
+            should_trigger = operators.get(self.options['op'], lambda v, t: False)
+
+            value = data['rows'][0][self.options['column']]
+            threshold = self.options['value']
+
+            if should_trigger(value, threshold):
                 new_state = self.TRIGGERED_STATE
             else:
                 new_state = self.OK_STATE
@@ -778,6 +820,21 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     def subscribers(self):
         return User.query.join(AlertSubscription).filter(AlertSubscription.alert == self)
+
+    def render_template(self):
+        if not self.template:
+            return ''
+        data = json_loads(self.query_rel.latest_query_data.data)
+        context = {'rows': data['rows'], 'cols': data['columns'], 'state': self.state}
+        return mustache_render(self.template, context)
+
+    @property
+    def template(self):
+        return self.options.get('template', '')
+
+    @property
+    def custom_subject(self):
+        return self.options.get('subject', '')
 
     @property
     def groups(self):

@@ -10,7 +10,7 @@ import {
 } from '@/components/ParameterMappingInput';
 import { QuerySelector } from '@/components/QuerySelector';
 
-import { toastr } from '@/services/ng';
+import notification from '@/services/notification';
 
 import { Query } from '@/services/query';
 
@@ -84,7 +84,7 @@ class AddWidgetDialog extends React.Component {
         this.props.dialog.close();
       })
       .catch(() => {
-        toastr.error('Widget could not be added');
+        notification.error('Widget could not be added');
       })
       .finally(() => {
         this.setState({ saveInProgress: false });
@@ -113,7 +113,6 @@ class AddWidgetDialog extends React.Component {
             className="w-100"
             defaultValue={first(this.state.selectedQuery.visualizations).id}
             onChange={visualizationId => this.selectVisualization(this.state.selectedQuery, visualizationId)}
-            dropdownClassName="ant-dropdown-in-bootstrap-modal"
           >
             {visualizationGroups.map(visualizations => (
               <OptGroup label={visualizations[0].type} key={visualizations[0].type}>
@@ -144,21 +143,23 @@ class AddWidgetDialog extends React.Component {
         okText="Add to Dashboard"
         width={700}
       >
-        <QuerySelector onChange={query => this.selectQuery(query)} />
-        {this.state.selectedQuery && this.renderVisualizationInput()}
+        <div data-test="AddWidgetDialog">
+          <QuerySelector onChange={query => this.selectQuery(query)} />
+          {this.state.selectedQuery && this.renderVisualizationInput()}
 
-        {
-          (this.state.parameterMappings.length > 0) && [
-            <label key="parameters-title" htmlFor="parameter-mappings">Parameters</label>,
-            <ParameterMappingListInput
-              key="parameters-list"
-              id="parameter-mappings"
-              mappings={this.state.parameterMappings}
-              existingParams={existingParams}
-              onChange={mappings => this.updateParamMappings(mappings)}
-            />,
-          ]
-        }
+          {
+            (this.state.parameterMappings.length > 0) && [
+              <label key="parameters-title" htmlFor="parameter-mappings">Parameters</label>,
+              <ParameterMappingListInput
+                key="parameters-list"
+                id="parameter-mappings"
+                mappings={this.state.parameterMappings}
+                existingParams={existingParams}
+                onChange={mappings => this.updateParamMappings(mappings)}
+              />,
+            ]
+          }
+        </div>
       </Modal>
     );
   }

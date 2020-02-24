@@ -34,6 +34,7 @@ TD_TYPES_MAPPING = {
 
 
 class TreasureData(BaseQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1"
 
     @classmethod
@@ -60,16 +61,12 @@ class TreasureData(BaseQueryRunner):
                     'default': False
                 }
             },
-            'required': ['apikey','db']
+            'required': ['apikey', 'db']
         }
 
     @classmethod
     def enabled(cls):
         return enabled
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     @classmethod
     def type(cls):
@@ -115,5 +112,6 @@ class TreasureData(BaseQueryRunner):
             json_data = None
             error = "%s: %s" % (e.message, cursor.show_job().get('debug', {}).get('stderr', 'No stderr message in the response'))
         return json_data, error
+
 
 register(TreasureData)

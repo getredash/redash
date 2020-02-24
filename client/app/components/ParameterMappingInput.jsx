@@ -14,10 +14,9 @@ import Input from 'antd/lib/input';
 import Radio from 'antd/lib/radio';
 import Form from 'antd/lib/form';
 import Tooltip from 'antd/lib/tooltip';
-import { ParameterValueInput } from '@/components/ParameterValueInput';
+import ParameterValueInput from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
-import { clientConfig } from '@/services/auth';
-import { Query, Parameter } from '@/services/query';
+import { Parameter } from '@/services/query';
 import { HelpTrigger } from '@/components/HelpTrigger';
 
 import './ParameterMappingInput.less';
@@ -120,8 +119,6 @@ export class ParameterMappingInput extends React.Component {
     mapping: PropTypes.object, // eslint-disable-line react/forbid-prop-types
     existingParamNames: PropTypes.arrayOf(PropTypes.string),
     onChange: PropTypes.func,
-    clientConfig: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    Query: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     inputError: PropTypes.string,
   };
 
@@ -129,8 +126,6 @@ export class ParameterMappingInput extends React.Component {
     mapping: {},
     existingParamNames: [],
     onChange: () => {},
-    clientConfig: null,
-    Query: null,
     inputError: null,
   };
 
@@ -159,6 +154,10 @@ export class ParameterMappingInput extends React.Component {
   updateParamMapping = (update) => {
     const { onChange, mapping } = this.props;
     const newMapping = extend({}, mapping, update);
+    if (newMapping.value !== mapping.value) {
+      newMapping.param = newMapping.param.clone();
+      newMapping.param.setValue(newMapping.value);
+    }
     onChange(newMapping);
   };
 
@@ -228,9 +227,8 @@ export class ParameterMappingInput extends React.Component {
         value={mapping.param.normalizedValue}
         enumOptions={mapping.param.enumOptions}
         queryId={mapping.param.queryId}
+        parameter={mapping.param}
         onSelect={value => this.updateParamMapping({ value })}
-        clientConfig={this.props.clientConfig}
-        Query={this.props.Query}
       />
     );
   }
@@ -345,8 +343,6 @@ class MappingEditor extends React.Component {
           mapping={mapping}
           existingParamNames={this.props.existingParamNames}
           onChange={this.onChange}
-          clientConfig={clientConfig}
-          Query={Query}
           inputError={inputError}
         />
         <footer>
@@ -540,7 +536,13 @@ export class ParameterMappingListInput extends React.Component {
       param = param.clone().setValue(mapping.value);
     }
 
-    const value = Parameter.getValue(param);
+    let value = Parameter.getValue(param);
+
+    // in case of dynamic value display the name instead of value
+    if (param.hasDynamicValue) {
+      value = param.dynamicValue.name;
+    }
+
     return this.getStringValue(value);
   }
 

@@ -16,7 +16,7 @@ from redash.permissions import (can_modify, not_view_only, require_access,
                                 require_permission, view_only)
 from redash.utils import collect_parameters_from_request
 from redash.serializers import QuerySerializer
-from redash.utils.parameterized_query import ParameterizedQuery
+from redash.models.parameterized_query import ParameterizedQuery
 
 
 # Ordering map for relationships
@@ -112,6 +112,7 @@ class BaseQueryListResource(BaseResource):
                 self.current_user.group_ids,
                 self.current_user.id,
                 include_drafts=True,
+                multi_byte_search=current_org.get_setting('multi_byte_search_enabled'),
             )
         else:
             results = models.Query.all_queries(
@@ -143,7 +144,7 @@ class BaseQueryListResource(BaseResource):
         # order results according to passed order parameter,
         # special-casing search queries where the database
         # provides an order by search rank
-        ordered_results = order_results(results, fallback=bool(search_term))
+        ordered_results = order_results(results, fallback=not bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
@@ -170,6 +171,20 @@ class BaseQueryListResource(BaseResource):
             })
 
         return response
+
+
+def require_access_to_dropdown_queries(user, query_def):
+    parameters = query_def.get('options', {}).get('parameters', [])
+    dropdown_query_ids = set([str(p['queryId']) for p in parameters if p['type'] == 'query'])
+
+    if dropdown_query_ids:
+        groups = models.Query.all_groups_for_query_ids(dropdown_query_ids)
+
+        if len(groups) < len(dropdown_query_ids):
+            abort(400, message="You are trying to associate a dropdown query that does not have a matching group. "
+                               "Please verify the dropdown query id you are trying to associate with this query.")
+
+        require_access(dict(groups), user, view_only)
 
 
 class QueryListResource(BaseQueryListResource):
@@ -209,7 +224,8 @@ class QueryListResource(BaseQueryListResource):
         """
         query_def = request.get_json(force=True)
         data_source = models.DataSource.get_by_id_and_org(query_def.pop('data_source_id'), self.current_org)
-        require_access(data_source.groups, self.current_user, not_view_only)
+        require_access(data_source, self.current_user, not_view_only)
+        require_access_to_dropdown_queries(self.current_user, query_def)
 
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'last_modified_by']:
             query_def.pop(field, None)
@@ -242,6 +258,7 @@ class QueryArchiveResource(BaseQueryListResource):
                 self.current_user.id,
                 include_drafts=False,
                 include_archived=True,
+                multi_byte_search=current_org.get_setting('multi_byte_search_enabled'),
             )
         else:
             return models.Query.all_queries(
@@ -276,7 +293,7 @@ class MyQueriesResource(BaseResource):
         # order results according to passed order parameter,
         # special-casing search queries where the database
         # provides an order by search rank
-        ordered_results = order_results(results, fallback=bool(search_term))
+        ordered_results = order_results(results, fallback=not bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
@@ -310,12 +327,16 @@ class QueryResource(BaseResource):
         query_def = request.get_json(force=True)
 
         require_object_modify_permission(query, self.current_user)
+        require_access_to_dropdown_queries(self.current_user, query_def)
 
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user', 'last_modified_by', 'org']:
             query_def.pop(field, None)
 
         if 'query' in query_def:
             query_def['query_text'] = query_def.pop('query')
+
+        if 'tags' in query_def:
+            query_def['tags'] = filter(None, query_def['tags'])
 
         query_def['last_modified_by'] = self.current_user
         query_def['changed_by'] = self.current_user
@@ -343,7 +364,7 @@ class QueryResource(BaseResource):
         Responds with the :ref:`query <query-response-label>` contents.
         """
         q = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        require_access(q.groups, self.current_user, view_only)
+        require_access(q, self.current_user, view_only)
 
         result = QuerySerializer(q, with_visualizations=True).serialize()
         result['can_edit'] = can_modify(q, self.current_user)
@@ -369,6 +390,24 @@ class QueryResource(BaseResource):
         models.db.session.commit()
 
 
+class QueryRegenerateApiKeyResource(BaseResource):
+    @require_permission('edit_query')
+    def post(self, query_id):
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        require_admin_or_owner(query.user_id)
+        query.regenerate_api_key()
+        models.db.session.commit()
+
+        self.record_event({
+            'action': 'regnerate_api_key',
+            'object_id': query_id,
+            'object_type': 'query',
+        })
+
+        result = QuerySerializer(query).serialize()
+        return result
+
+
 class QueryForkResource(BaseResource):
     @require_permission('edit_query')
     def post(self, query_id):
@@ -380,7 +419,7 @@ class QueryForkResource(BaseResource):
         Responds with created :ref:`query <query-response-label>` object.
         """
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        require_access(query.data_source.groups, self.current_user, not_view_only)
+        require_access(query.data_source, self.current_user, not_view_only)
         forked_query = query.fork(self.current_user)
         models.db.session.commit()
 
@@ -409,10 +448,10 @@ class QueryRefreshResource(BaseResource):
             abort(403, message="Please use a user API key.")
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        require_access(query.groups, self.current_user, not_view_only)
+        require_access(query, self.current_user, not_view_only)
 
         parameter_values = collect_parameters_from_request(request.args)
-        parameterized_query = ParameterizedQuery(query.query_text)
+        parameterized_query = ParameterizedQuery(query.query_text, org=self.current_org)
 
         return run_query(parameterized_query, parameter_values, query.data_source, query.id)
 
@@ -449,7 +488,7 @@ class QueryFavoriteListResource(BaseResource):
         # order results according to passed order parameter,
         # special-casing search queries where the database
         # provides an order by search rank
-        ordered_favorites = order_results(favorites, fallback=bool(search_term))
+        ordered_favorites = order_results(favorites, fallback=not bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)

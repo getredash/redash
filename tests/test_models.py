@@ -131,6 +131,11 @@ class ShouldScheduleNextTest(TestCase):
         self.assertFalse(models.should_schedule_next(two_hours_ago, now,
                                                      "3600", failures=10))
 
+    def test_next_iteration_overflow(self):
+        now = utcnow()
+        two_hours_ago = now - datetime.timedelta(hours=2)
+        self.assertFalse(models.should_schedule_next(two_hours_ago, now, "3600", failures=32))
+
 
 class QueryOutdatedQueriesTest(BaseTestCase):
     # TODO: this test can be refactored to use mock version of should_schedule_next to simplify it.

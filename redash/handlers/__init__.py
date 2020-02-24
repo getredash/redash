@@ -5,9 +5,11 @@ from redash.handlers.api import api
 from redash.handlers.base import routes
 from redash.monitor import get_status
 from redash.permissions import require_super_admin
+from redash.security import talisman
 
 
 @routes.route('/ping', methods=['GET'])
+@talisman(force_https=False)
 def ping():
     return 'PONG.'
 

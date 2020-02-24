@@ -85,9 +85,12 @@
       <div class="editor__left__data-source">
         <ui-select ng-model="query.data_source_id" remove-selected="false" ng-disabled="!isQueryOwner || !sourceMode"
           on-select="updateDataSource()" data-test="SelectDataSource">
-          <ui-select-match placeholder="Select Data Source...">{{$select.selected.name}}</ui-select-match>
+          <ui-select-match placeholder="Select Data Source..." class="align-items-center">
+            <img ng-src="/static/images/db-logos/{{$select.selected.type}}.png" width="20" height="20" style="vertical-align: top">
+            {{$select.selected.name}}
+          </ui-select-match>
           <ui-select-choices repeat="ds.id as ds in dataSources | filter:$select.search">
-            {{ds.name}}
+            <img ng-src="/static/images/db-logos/{{ds.type}}.png" width="20" height="20" class="m-r-5">{{ds.name}}
           </ui-select-choices>
         </ui-select>
       </div>
@@ -158,7 +161,7 @@
               update-data-source="updateDataSource"
               execute-query="executeQuery"
               query-executing="queryExecuting"
-              can-execute-query="canExecuteQuery"
+              can-execute-query="canExecuteQuery()"
               listen-for-resize="listenForResize"
               listen-for-editor-command="listenForEditorCommand"
               save-query="saveQuery"
@@ -190,29 +193,30 @@
 
           <section class="flex-fill p-relative t-body query-visualizations-wrapper">
             <div class="d-flex flex-column p-b-15 p-absolute static-position__mobile" style="left: 0; top: 0; right: 0; bottom: 0;">
-              <div class="p-t-15 p-b-5" ng-if="query.getParametersDefs().length > 0">
-                <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit" on-updated="onParametersUpdated"></parameters>
+              <div class="p-t-15 p-b-5" ng-if="query.hasParameters()">
+                <parameters parameters="query.getParametersDefs()" editable="sourceMode && canEdit" disable-url-update="query.isNew()"
+                  on-values-change="executeQuery" on-pending-values-change="applyParametersChanges" on-parameters-edit="onParametersUpdated"></parameters>
               </div>
               <!-- Query Execution Status -->
 
               <div class="query-alerts">
-                <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'processing'">
+                <div class="alert alert-info m-t-15" ng-if="queryResult.getStatus() == 'processing'">
                   Executing query&hellip;
-                  <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+                  <rd-timer from="queryResult.getUpdatedAt()"></rd-timer>
                   <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel
                   </button>
                 </div>
-                <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'loading-result'">
+                <div class="alert alert-info m-t-15" ng-if="queryResult.getStatus() == 'loading-result'">
                   Loading results&hellip;
-                  <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+                  <rd-timer from="queryResult.getUpdatedAt()"></rd-timer>
                 </div>
-                <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'waiting'">
+                <div class="alert alert-info m-t-15" ng-if="queryResult.getStatus() == 'waiting'">
                   Query in queue&hellip;
-                  <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+                  <rd-timer from="queryResult.getUpdatedAt()"></rd-timer>
                   <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel
                   </button>
                 </div>
-                <div class="alert alert-danger m-t-15" ng-show="queryResult.getError()">
+                <div class="alert alert-danger m-t-15" ng-if="queryResult.getError()">
                   Error running query:
                   <strong>{{queryResult.getError()}}</strong>
                 </div>
@@ -224,27 +228,22 @@
                 <div class="d-flex flex-column p-absolute static-position__mobile" style="left: 0; top: 0; right: 0; bottom: 0;">
                   <div class="p-10" ng-show="showLog">
                     <p>Log Information:</p>
-                    <p ng-repeat="l in queryResult.getLog()">{{l}}</p>
+                    <p class="query-log-line" ng-repeat="l in queryResult.getLog() track by $index">{{l}}</p>
                   </div>
-                  <ul class="tab-nav">
+                  <ul class="tab-nav" data-test="QueryPageVisualizationTabs">
                     <rd-tab ng-if="!query.visualizations.length" tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
-                    <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)" ng-repeat="vis in query.visualizations | orderBy:'id'">
+                    <rd-tab ng-repeat="vis in query.visualizations | orderBy:'id'" tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)">
                       <span class="remove hidden-xs" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))">
                         <i class="zmdi zmdi-close"></i>
                       </span>
                     </rd-tab>
                     <li class="rd-tab tab-new-vis">
-                      <a ng-click="openVisualizationEditor()" class="btn btn-default" ng-if="canEdit">
+                      <a ng-click="openVisualizationEditor()" class="btn btn-default" ng-if="canEdit" data-test="NewVisualization">
                         <i class="zmdi zmdi-plus"></i> New Visualization</a>
                     </li>
                   </ul>
-                  <div ng-if="!query.visualizations.length" class="query__vis m-t-15 p-b-15 scrollbox">
-                    <filters filters="filters"></filters>
-                    <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
-                  </div>
-
-                  <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis m-t-15 scrollbox">
-                    <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
+                  <div ng-if="selectedVisualization && queryResult" class="query__vis m-t-15 p-b-15 scrollbox" data-test="QueryPageVisualization{{ selectedVisualization.id }}">
+                    <visualization-renderer visualization="selectedVisualization" query-result="queryResult" context="'query'"></visualization-renderer>
                   </div>
                 </div>
               </div>
@@ -254,37 +253,22 @@
       </div>
       <div class="bottom-controller-container" ng-if="showDataset">
         <div class="bottom-controller">
+          <edit-visualization-button
+            ng-if="!query.isNew() && canEdit"
+            open-visualization-editor="openVisualizationEditor"
+            selected-tab="selectedTab">
+          </edit-visualization-button>
 
-          <button class="m-r-5 btn btn-default btn-edit-visualisation" ng-click="openVisualizationEditor(selectedTab)" ng-if="!query.isNew() && canEdit"><span class="fa fa-edit"></span><span class="hidden-xs hidden-s hidden-m"> Edit Visualization</span></button>
-
-          <div class="m-r-5 btn-group dropup" uib-dropdown>
-            <button type="button" class="btn btn-default dropup-toggle" aria-haspopup="true"
-              uib-dropdown-toggle aria-expanded="false">
-              <span class="fa fa-ellipsis-v"></span>
-            </button>
-            <ul class="dropdown-menu" uib-dropdown-menu>
-              <li>
-                <a target="_self" ng-click="openAddToDashboardForm(selectedTab)" ng-if="!query.isNew() && (!query.is_draft || !query.is_archived)">
-                  <span class="fa fa-plus-circle"></span> Add to Dashboard
-                </a>
-              </li>
-              <li>
-                <a ng-click="showEmbedDialog(query, selectedTab)" ng-if="!query.isNew()">
-                  <span class="zmdi zmdi-code"></span> Embed elsewhere
-                </a>
-              </li>
-              <li>
-                <a query-result-link target="_self" ng-disabled="queryExecuting || !queryResult.getData()">
-                  <span class="fa fa-file-o"></span> Download as CSV File
-                </a>
-              </li>
-              <li>
-                <a query-result-link file-type="xlsx" target="_self" ng-disabled="queryExecuting || !queryResult.getData()">
-                  <span class="fa fa-file-excel-o"></span> Download as Excel File
-                </a>
-              </li>
-            </ul>
-          </div>
+          <query-control-dropdown
+            query="query"
+            query-result="queryResult"
+            query-executing="queryExecuting"
+            show-embed-dialog="showEmbedDialog"
+            embed="embed"
+            apiKey="apiKey"
+            selected-tab="selectedTab"
+            open-add-to-dashboard-form="openAddToDashboardForm">
+          </query-control-dropdown>
 
           <span class="query-metadata__bottom" ng-if="queryResult.getData()">
             <span class="query-metadata__property">
@@ -307,8 +291,14 @@
               <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
             </span>
 
-            <button class="m-l-5 btn btn-primary" ng-click="executeQuery()" ng-disabled="queryExecuting || !canExecuteQuery()" title="Refresh Dataset"
-              ng-if="!sourceMode">
+            <button
+              ng-if="!sourceMode"
+              ng-disabled="queryExecuting || !canExecuteQuery()"
+              class="m-l-5 btn btn-primary"
+              title="Refresh Dataset"
+              ng-click="executeQuery()"
+              data-test="ExecuteButton"
+            >
               <span class="zmdi zmdi-play"></span>
             </button>
           </div>

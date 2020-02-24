@@ -32,28 +32,31 @@ types_map = {
 }
 
 
+def transform_cell(field_type, cell_value):
+    if cell_value is None:
+        return None
+    if field_type == 'INTEGER':
+        return int(cell_value)
+    elif field_type == 'FLOAT':
+        return float(cell_value)
+    elif field_type == 'BOOLEAN':
+        return cell_value.lower() == "true"
+    elif field_type == 'TIMESTAMP':
+        return datetime.datetime.fromtimestamp(float(cell_value))
+    return cell_value
+
+
 def transform_row(row, fields):
-    column_index = 0
     row_data = {}
 
-    for cell in row["f"]:
+    for column_index, cell in enumerate(row["f"]):
         field = fields[column_index]
-        cell_value = cell['v']
-
-        if cell_value is None:
-            pass
-        # Otherwise just cast the value
-        elif field['type'] == 'INTEGER':
-            cell_value = int(cell_value)
-        elif field['type'] == 'FLOAT':
-            cell_value = float(cell_value)
-        elif field['type'] == 'BOOLEAN':
-            cell_value = cell_value.lower() == "true"
-        elif field['type'] == 'TIMESTAMP':
-            cell_value = datetime.datetime.fromtimestamp(float(cell_value))
+        if field.get('mode') == 'REPEATED':
+            cell_value = [transform_cell(field['type'], item['v']) for item in cell['v']]
+        else:
+            cell_value = transform_cell(field['type'], cell['v'])
 
         row_data[field["name"]] = cell_value
-        column_index += 1
 
     return row_data
 
@@ -80,6 +83,7 @@ def _get_query_results(jobs, project_id, location, job_id, start_index):
 
 
 class BigQuery(BaseQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1"
 
     @classmethod
@@ -130,10 +134,6 @@ class BigQuery(BaseQueryRunner):
             'secret': ['jsonKeyFile']
         }
 
-    @classmethod
-    def annotate_query(cls):
-        return False
-
     def _get_bigquery_service(self):
         scope = [
             "https://www.googleapis.com/auth/bigquery",
@@ -169,8 +169,7 @@ class BigQuery(BaseQueryRunner):
         response = jobs.query(projectId=self._get_project_id(), body=job_data).execute()
         return int(response["totalBytesProcessed"])
 
-    def _get_query_result(self, jobs, query):
-        project_id = self._get_project_id()
+    def _get_job_data(self, query):
         job_data = {
             "configuration": {
                 "query": {
@@ -195,6 +194,11 @@ class BigQuery(BaseQueryRunner):
         if "maximumBillingTier" in self.configuration:
             job_data["configuration"]["query"]["maximumBillingTier"] = self.configuration["maximumBillingTier"]
 
+        return job_data
+
+    def _get_query_result(self, jobs, query):
+        project_id = self._get_project_id()
+        job_data = self._get_job_data(query)
         insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
         current_row = 0
         query_reply = _get_query_results(jobs, project_id=project_id, location=self._get_location(),
@@ -221,9 +225,12 @@ class BigQuery(BaseQueryRunner):
 
             query_reply = jobs.getQueryResults(**query_result_request).execute()
 
-        columns = [{'name': f["name"],
-                    'friendly_name': f["name"],
-                    'type': types_map.get(f['type'], "string")} for f in query_reply["schema"]["fields"]]
+        columns = [{
+            'name': f["name"],
+            'friendly_name': f["name"],
+            'type': "string" if f.get('mode') == "REPEATED"
+            else types_map.get(f['type'], "string")
+        } for f in query_reply["schema"]["fields"]]
 
         data = {
             "columns": columns,
@@ -297,7 +304,7 @@ class BigQuery(BaseQueryRunner):
             data = self._get_query_result(jobs, query)
             error = None
 
-            json_data = json_dumps(data)
+            json_data = json_dumps(data, ignore_nan=True)
         except apiclient.errors.HttpError as e:
             json_data = None
             if e.resp.status == 400:

@@ -3,7 +3,9 @@ from unittest import TestCase
 
 import pytest
 
-from redash.query_runner.query_results import (CreateTableError, PermissionError, _load_query, create_table, extract_cached_query_ids, extract_query_ids, fix_column_name)
+from redash.query_runner.query_results import (
+    CreateTableError, PermissionError, _load_query, create_table,
+    extract_cached_query_ids, extract_query_ids, fix_column_name)
 from tests import BaseTestCase
 
 
@@ -28,32 +30,86 @@ class TestExtractQueryIds(TestCase):
 class TestCreateTable(TestCase):
     def test_creates_table_with_colons_in_column_name(self):
         connection = sqlite3.connect(':memory:')
-        results = {'columns': [{'name': 'ga:newUsers'}, {
-            'name': 'test2'}], 'rows': [{'ga:newUsers': 123, 'test2': 2}]}
+        results = {
+            'columns': [{
+                'name': 'ga:newUsers'
+            }, {
+                'name': 'test2'
+            }],
+            'rows': [{
+                'ga:newUsers': 123,
+                'test2': 2
+            }]
+        }
+        table_name = 'query_123'
+        create_table(connection, table_name, results)
+        connection.execute('SELECT 1 FROM query_123')
+
+    def test_creates_table_with_double_quotes_in_column_name(self):
+        connection = sqlite3.connect(':memory:')
+        results = {
+            'columns': [{
+                'name': 'ga:newUsers'
+            }, {
+                'name': '"test2"'
+            }],
+            'rows': [{
+                'ga:newUsers': 123,
+                '"test2"': 2
+            }]
+        }
         table_name = 'query_123'
         create_table(connection, table_name, results)
         connection.execute('SELECT 1 FROM query_123')
 
     def test_creates_table(self):
         connection = sqlite3.connect(':memory:')
-        results = {'columns': [{'name': 'test1'},
-                               {'name': 'test2'}], 'rows': []}
+        results = {
+            'columns': [{
+                'name': 'test1'
+            }, {
+                'name': 'test2'
+            }],
+            'rows': []
+        }
         table_name = 'query_123'
         create_table(connection, table_name, results)
         connection.execute('SELECT 1 FROM query_123')
 
     def test_creates_table_with_missing_columns(self):
         connection = sqlite3.connect(':memory:')
-        results = {'columns': [{'name': 'test1'}, {'name': 'test2'}], 'rows': [
-            {'test1': 1, 'test2': 2}, {'test1': 3}]}
+        results = {
+            'columns': [{
+                'name': 'test1'
+            }, {
+                'name': 'test2'
+            }],
+            'rows': [{
+                'test1': 1,
+                'test2': 2
+            }, {
+                'test1': 3
+            }]
+        }
         table_name = 'query_123'
         create_table(connection, table_name, results)
         connection.execute('SELECT 1 FROM query_123')
 
     def test_creates_table_with_spaces_in_column_name(self):
         connection = sqlite3.connect(':memory:')
-        results = {'columns': [{'name': 'two words'}, {'name': 'test2'}], 'rows': [
-            {'two words': 1, 'test2': 2}, {'test1': 3}]}
+        results = {
+            'columns': [{
+                'name': 'two words'
+            }, {
+                'name': 'test2'
+            }],
+            'rows': [{
+                'two words': 1,
+                'test2': 2
+            }, {
+                'test1': 3
+            }]
+        }
         table_name = 'query_123'
         create_table(connection, table_name, results)
         connection.execute('SELECT 1 FROM query_123')
@@ -61,8 +117,15 @@ class TestCreateTable(TestCase):
     def test_creates_table_with_dashes_in_column_name(self):
         connection = sqlite3.connect(':memory:')
         results = {
-            'columns': [{'name': 'two-words'}, {'name': 'test2'}],
-            'rows': [{'two-words': 1, 'test2': 2}]
+            'columns': [{
+                'name': 'two-words'
+            }, {
+                'name': 'test2'
+            }],
+            'rows': [{
+                'two-words': 1,
+                'test2': 2
+            }]
         }
         table_name = 'query_123'
         create_table(connection, table_name, results)
@@ -71,8 +134,17 @@ class TestCreateTable(TestCase):
 
     def test_creates_table_with_non_ascii_in_column_name(self):
         connection = sqlite3.connect(':memory:')
-        results = {'columns': [{'name': u'\xe4'}, {'name': 'test2'}], 'rows': [
-            {u'\xe4': 1, 'test2': 2}]}
+        results = {
+            'columns': [{
+                'name': u'\xe4'
+            }, {
+                'name': 'test2'
+            }],
+            'rows': [{
+                u'\xe4': 1,
+                'test2': 2
+            }]
+        }
         table_name = 'query_123'
         create_table(connection, table_name, results)
         connection.execute('SELECT 1 FROM query_123')
@@ -87,8 +159,30 @@ class TestCreateTable(TestCase):
     def test_loads_results(self):
         connection = sqlite3.connect(':memory:')
         rows = [{'test1': 1, 'test2': 'test'}, {'test1': 2, 'test2': 'test2'}]
-        results = {'columns': [{'name': 'test1'},
-                               {'name': 'test2'}], 'rows': rows}
+        results = {
+            'columns': [{
+                'name': 'test1'
+            }, {
+                'name': 'test2'
+            }],
+            'rows': rows
+        }
+        table_name = 'query_123'
+        create_table(connection, table_name, results)
+        self.assertEquals(
+            len(list(connection.execute('SELECT * FROM query_123'))), 2)
+
+    def test_loads_list_and_dict_results(self):
+        connection = sqlite3.connect(':memory:')
+        rows = [{'test1': [1, 2, 3]}, {'test2': {'a': 'b'}}]
+        results = {
+            'columns': [{
+                'name': 'test1'
+            }, {
+                'name': 'test2'
+            }],
+            'rows': rows
+        }
         table_name = 'query_123'
         create_table(connection, table_name, results)
         self.assertEquals(
@@ -112,6 +206,15 @@ class TestGetQuery(BaseTestCase):
 
     def test_returns_query(self):
         query = self.factory.create_query()
+        user = self.factory.create_user()
+
+        loaded = _load_query(user, query.id)
+        self.assertEquals(query, loaded)
+
+    def test_returns_query_when_user_has_view_only_access(self):
+        ds = self.factory.create_data_source(
+            group=self.factory.org.default_group, view_only=True)
+        query = self.factory.create_query(data_source=ds)
         user = self.factory.create_user()
 
         loaded = _load_query(user, query.id)

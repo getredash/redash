@@ -1,5 +1,7 @@
+import PromiseRejectionError from '@/lib/promise-rejection-error';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './public-dashboard-page.html';
+import dashboardGridOptions from '@/config/dashboard-grid-options';
 import './dashboard.less';
 
 function loadDashboard($http, $route) {
@@ -12,8 +14,10 @@ const PublicDashboardPage = {
   bindings: {
     dashboard: '<',
   },
-  controller($timeout, $location, $http, $route, dashboardGridOptions, Dashboard) {
+  controller($scope, $timeout, $location, $http, $route, Dashboard) {
     'ngInject';
+
+    this.filters = [];
 
     this.dashboardGridOptions = Object.assign({}, dashboardGridOptions, {
       resizable: { enabled: false },
@@ -22,33 +26,41 @@ const PublicDashboardPage = {
 
     this.logoUrl = logoUrl;
     this.public = true;
-    this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
+    this.globalParameters = [];
+
+    this.extractGlobalParameters = () => {
+      this.globalParameters = this.dashboard.getParametersDefs();
+    };
 
     const refreshRate = Math.max(30, parseFloat($location.search().refresh));
 
-    if (refreshRate) {
-      const refresh = () => {
-        loadDashboard($http, $route).then((data) => {
-          this.dashboard = data;
-          this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
+    this.refreshDashboard = () => {
+      loadDashboard($http, $route).then((data) => {
+        this.dashboard = new Dashboard(data);
+        this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
+        this.dashboard.widgets.forEach(widget => widget.load(!!refreshRate));
+        this.filters = []; // TODO: implement (@/services/dashboard.js:collectDashboardFilters)
+        this.filtersOnChange = (allFilters) => {
+          this.filters = allFilters;
+          $scope.$applyAsync();
+        };
 
-          $timeout(refresh, refreshRate * 1000.0);
-        });
-      };
+        this.extractGlobalParameters();
+      }).catch((error) => {
+        throw new PromiseRejectionError(error);
+      });
 
-      $timeout(refresh, refreshRate * 1000.0);
-    }
+      if (refreshRate) {
+        $timeout(this.refreshDashboard, refreshRate * 1000.0);
+      }
+    };
+
+    this.refreshDashboard();
   },
 };
 
 export default function init(ngModule) {
   ngModule.component('publicDashboardPage', PublicDashboardPage);
-
-  function loadPublicDashboard($http, $route) {
-    'ngInject';
-
-    return loadDashboard($http, $route);
-  }
 
   function session($http, $route, Auth) {
     const token = $route.current.params.token;
@@ -58,10 +70,9 @@ export default function init(ngModule) {
 
   ngModule.config(($routeProvider) => {
     $routeProvider.when('/public/dashboards/:token', {
-      template: '<public-dashboard-page dashboard="$resolve.dashboard"></public-dashboard-page>',
+      template: '<public-dashboard-page></public-dashboard-page>',
       reloadOnSearch: false,
       resolve: {
-        dashboard: loadPublicDashboard,
         session,
       },
     });

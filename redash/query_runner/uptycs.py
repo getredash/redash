@@ -1,7 +1,6 @@
 from redash.query_runner import *
-from redash.utils import json_dumps
+from redash.utils import json_dumps, json_loads
 
-import json
 import jwt
 import datetime
 import requests
@@ -11,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class Uptycs(BaseSQLQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1"
 
     @classmethod
@@ -40,10 +40,6 @@ class Uptycs(BaseSQLQueryRunner):
             "required": ["url", "customer_id", "key", "secret"],
             "secret": ["secret", "key"]
         }
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def generate_header(self, key, secret):
         header = {}
@@ -93,7 +89,7 @@ class Uptycs(BaseSQLQueryRunner):
                                                                True))
 
         if response.status_code == 200:
-            response_output = json.loads(response.content)
+            response_output = json_loads(response.content)
         else:
             error = 'status_code ' + str(response.status_code) + '\n'
             error = error + "failed to connect"
@@ -124,7 +120,7 @@ class Uptycs(BaseSQLQueryRunner):
                                 verify=self.configuration.get('verify_ssl',
                                                               True))
         redash_json = []
-        schema = json.loads(response.content)
+        schema = json_loads(response.content)
         for each_def in schema['tables']:
             table_name = each_def['name']
             columns = []

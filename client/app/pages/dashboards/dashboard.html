@@ -15,18 +15,29 @@
     </div>
     <div class="col-xs-4 col-sm-5 col-lg-5 text-right dashboard__control p-r-0">
       <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
-          <div class="btn-group">
-            <button type="button" class="btn btn-primary btn-sm"
-              ng-disabled="$ctrl.isGridDisabled"
-              ng-click="$ctrl.editLayout(false, true)" ng-if="$ctrl.layoutEditing">
-              <i class="zmdi zmdi-check"></i> Apply Changes
-            </button>
-
-            <button type="button" class="btn btn-default btn-sm"
-              ng-disabled="$ctrl.isGridDisabled"
-              ng-click="$ctrl.editLayout(false, false)" ng-if="$ctrl.layoutEditing">
-              <i class="zmdi zmdi-close"></i> Cancel
-            </button>
+          <div ng-if="$ctrl.layoutEditing" ng-switch="$ctrl.isLayoutDirty">
+            <span ng-switch-when="true" ng-switch="$ctrl.saveInProgress || $ctrl.saveDelay">
+                <span ng-switch-when="true">
+                  <span class="save-status" data-saving>Saving</span>
+                  <button class="btn btn-primary btn-sm" ng-disabled="$ctrl.editBtnClickedWhileSaving" ng-click="$ctrl.editBtnClickedWhileSaving = true">
+                    <i class="fa fa-check" ng-class="{'fa-spinner fa-pulse': $ctrl.editBtnClickedWhileSaving}"></i> Done Editing
+                  </button>
+                </span>
+                <span ng-switch-default>
+                  <span class="save-status" data-error>Saving Failed</span>
+                  <button class="btn btn-primary btn-sm" ng-click="$ctrl.retrySaveDashboardLayout()">
+                    Retry
+                  </button>
+                </span>
+            </span>
+            <span ng-switch-default>
+              <span class="save-status">Saved</span>
+              <button class="btn btn-primary btn-sm"
+                ng-disabled="$ctrl.isGridDisabled"
+                ng-click="$ctrl.editLayout(false)">
+                <i class="fa fa-check"></i> Done Editing
+              </button>
+            </span>
           </div>
 
           <button type="button" class="btn btn-default btn-sm" ng-click="$ctrl.togglePublished()" tooltip="Publish Dashboard" ng-if="$ctrl.dashboard.is_draft && !$ctrl.layoutEditing">
@@ -37,7 +48,7 @@
             <button id="split-button" type="button"
                     ng-class="{'btn-default btn-sm': $ctrl.refreshRate === null,'btn-primary btn-sm':$ctrl.refreshRate !== null}"
                     class="btn btn-sm" ng-click="$ctrl.refreshDashboard()">
-              <i class="zmdi zmdi-refresh"></i> {{$ctrl.refreshRate === null ? 'Refresh' : $ctrl.refreshRate.name}}
+              <i class="zmdi zmdi-refresh" ng-class="{'zmdi-hc-spin': $ctrl.refreshInProgress}"></i> {{$ctrl.refreshRate === null ? 'Refresh' : $ctrl.refreshRate.name}}
             </button>
             <button type="button" class="btn hidden-xs" uib-dropdown-toggle
                     ng-class="{'btn-default btn-sm': $ctrl.refreshRate === null,'btn-primary btn-sm':$ctrl.refreshRate !== null}">
@@ -46,7 +57,7 @@
             </button>
             <ul class="dropdown-menu pull-right" ng-model="$ctrl.refreshRate" uib-dropdown-menu role="menu" aria-labelledby="split-button">
               <li role="menuitem" ng-repeat="refreshRate in $ctrl.refreshRates" ng-class="{disabled: !refreshRate.enabled}">
-                <a href="javascript:void(0)" ng-click="$ctrl.setRefreshRate(refreshRate)">{{refreshRate.name}}</a>
+                <a ng-click="$ctrl.setRefreshRate(refreshRate)">{{refreshRate.name}}</a>
               </li>
               <li role="menuitem" ng-if="$ctrl.refreshRate !== null">
                 <a href="#" ng-click="$ctrl.setRefreshRate(null)">Stop auto refresh</a>
@@ -56,7 +67,7 @@
           <button type="button" class="btn btn-sm hidden-xs" ng-class="{'btn-default': !$ctrl.isFullscreen, 'btn-primary': $ctrl.isFullscreen}" tooltip="Enable/Disable Fullscreen display" ng-click="$ctrl.toggleFullscreen()" ng-if="!$ctrl.dashboard.is_draft && !$ctrl.layoutEditing">
             <span class="zmdi zmdi-fullscreen"></span>
           </button>
-          <button type="button" class="btn btn-sm hidden-xs" ng-class="{'btn-default': !$ctrl.dashboard.publicAccessEnabled, 'btn-primary': $ctrl.dashboard.publicAccessEnabled}" tooltip="Enable/Disable Share URL" ng-click="$ctrl.openShareForm()" ng-if="($ctrl.dashboard.canEdit() || $ctrl.dashboard.publicAccessEnabled) && !$ctrl.dashboard.is_draft && !$ctrl.layoutEditing">
+          <button type="button" class="btn btn-sm hidden-xs" ng-class="{'btn-default': !$ctrl.dashboard.publicAccessEnabled, 'btn-primary': $ctrl.dashboard.publicAccessEnabled}" tooltip="Enable/Disable Share URL" ng-click="$ctrl.openShareForm()" ng-if="($ctrl.dashboard.canEdit() || $ctrl.dashboard.publicAccessEnabled) && !$ctrl.dashboard.is_draft && !$ctrl.layoutEditing" data-test="OpenShareForm">
             <span class="zmdi zmdi-share"></span>
           </button>
       </span>
@@ -83,25 +94,24 @@
   </div>
 
   <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.globalParameters.length > 0">
-    <parameters parameters="$ctrl.globalParameters"></parameters>
+    <parameters parameters="$ctrl.globalParameters" on-values-change="$ctrl.refreshDashboard"></parameters>
   </div>
 
   <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.filters | notEmpty">
-    <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange(filter, $modal)"></filters>
+    <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange"></filters>
   </div>
 
-  <div style="padding-bottom: 5px;" ng-if="$ctrl.dashboard.widgets.length > 0">
-    <div gridstack editing="$ctrl.layoutEditing && !$ctrl.saveInProgress" batch-update="$ctrl.updateGridItems"
-      is-one-column-mode="$ctrl.isGridDisabled" class="dashboard-wrapper"
-      ng-class="{'preview-mode': !$ctrl.layoutEditing, 'editing-mode': $ctrl.layoutEditing}">
-      <div class="dashboard-widget-wrapper"
-        ng-repeat="widget in $ctrl.dashboard.widgets track by widget.id"
-        gridstack-item="widget.options.position" gridstack-item-id="{{ widget.id }}">
-        <div class="grid-stack-item-content" data-test="WidgetId{{ widget.id }}">
-          <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" on-delete="$ctrl.removeWidget(widget.id)"></dashboard-widget>
-        </div>
-      </div>
-    </div>
+  <div id="dashboard-container">
+    <dashboard-grid
+      ng-if="$ctrl.dashboard"
+      dashboard="$ctrl.dashboard"
+      widgets="$ctrl.dashboard.widgets"
+      filters="$ctrl.filters"
+      is-editing="$ctrl.layoutEditing && !$ctrl.isGridDisabled"
+      on-layout-change="$ctrl.onLayoutChange"
+      on-breakpoint-change="$ctrl.onBreakpointChanged"
+      on-remove-widget="$ctrl.removeWidget"
+    />
   </div>
 
   <div class="add-widget-container" ng-if="$ctrl.layoutEditing">

@@ -1,4 +1,4 @@
-export let Group = null; // eslint-disable-line import/no-mutable-exports
+export let Group = {}; // eslint-disable-line import/no-mutable-exports
 
 function GroupService($resource) {
   const actions = {

@@ -1,10 +1,10 @@
 
-import { includes, startsWith, words, capitalize, clone, isNull } from 'lodash';
+import { includes, words, capitalize, clone, isNull } from 'lodash';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import Checkbox from 'antd/lib/checkbox';
 import Modal from 'antd/lib/modal';
 import Form from 'antd/lib/form';
-import Checkbox from 'antd/lib/checkbox';
 import Button from 'antd/lib/button';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
@@ -20,12 +20,15 @@ function getDefaultTitle(text) {
   return capitalize(words(text).join(' ')); // humanize
 }
 
-function isTypeDate(type) {
-  return startsWith(type, 'date') && !isTypeDateRange(type);
-}
-
 function isTypeDateRange(type) {
   return /-range/.test(type);
+}
+
+function joinExampleList(multiValuesOptions) {
+  const { prefix, suffix } = multiValuesOptions;
+  return ['value1', 'value2', 'value3']
+    .map(value => `${prefix}${value}${suffix}`)
+    .join(',');
 }
 
 function NameInput({ name, type, onChange, existingNames, setValidation }) {
@@ -131,7 +134,7 @@ function EditParameterSettingsDialog(props) {
       footer={[(
         <Button key="cancel" onClick={props.dialog.dismiss}>Cancel</Button>
       ), (
-        <Button key="submit" htmlType="submit" disabled={!isFulfilled()} type="primary" form="paramForm">
+        <Button key="submit" htmlType="submit" disabled={!isFulfilled()} type="primary" form="paramForm" data-test="SaveParameterSettings">
           {isNew ? 'Add Parameter' : 'OK'}
         </Button>
       )]}
@@ -150,40 +153,31 @@ function EditParameterSettingsDialog(props) {
           <Input
             value={isNull(param.title) ? getDefaultTitle(param.name) : param.title}
             onChange={e => setParam({ ...param, title: e.target.value })}
+            data-test="ParameterTitleInput"
           />
         </Form.Item>
         <Form.Item label="Type" {...formItemProps}>
-          <Select value={param.type} onChange={type => setParam({ ...param, type })}>
-            <Option value="text">Text</Option>
-            <Option value="number">Number</Option>
+          <Select value={param.type} onChange={type => setParam({ ...param, type })} data-test="ParameterTypeSelect">
+            <Option value="text" data-test="TextParameterTypeOption">Text</Option>
+            <Option value="number" data-test="NumberParameterTypeOption">Number</Option>
             <Option value="enum">Dropdown List</Option>
             <Option value="query">Query Based Dropdown List</Option>
             <Option disabled key="dv1">
               <Divider className="select-option-divider" />
             </Option>
-            <Option value="date">Date</Option>
-            <Option value="datetime-local">Date and Time</Option>
+            <Option value="date" data-test="DateParameterTypeOption">Date</Option>
+            <Option value="datetime-local" data-test="DateTimeParameterTypeOption">Date and Time</Option>
             <Option value="datetime-with-seconds">Date and Time (with seconds)</Option>
             <Option disabled key="dv2">
               <Divider className="select-option-divider" />
             </Option>
-            <Option value="date-range">Date Range</Option>
+            <Option value="date-range" data-test="DateRangeParameterTypeOption">Date Range</Option>
             <Option value="datetime-range">Date and Time Range</Option>
             <Option value="datetime-range-with-seconds">Date and Time Range (with seconds)</Option>
           </Select>
         </Form.Item>
-        {isTypeDate(param.type) && (
-          <Form.Item label=" " colon={false} {...formItemProps}>
-            <Checkbox
-              defaultChecked={param.useCurrentDateTime}
-              onChange={e => setParam({ ...param, useCurrentDateTime: e.target.checked })}
-            >
-              Default to Today/Now if no other value is set
-            </Checkbox>
-          </Form.Item>
-        )}
         {param.type === 'enum' && (
-          <Form.Item label="Values" help="Dropdown list values (newline delimeted)" {...formItemProps}>
+          <Form.Item label="Values" help="Dropdown list values (newline delimited)" {...formItemProps}>
             <Input.TextArea
               rows={3}
               value={param.enumOptions}
@@ -198,6 +192,48 @@ function EditParameterSettingsDialog(props) {
               onChange={q => setParam({ ...param, queryId: q && q.id })}
               type="select"
             />
+          </Form.Item>
+        )}
+        {(param.type === 'enum' || param.type === 'query') && (
+          <Form.Item className="m-b-0" label=" " colon={false} {...formItemProps}>
+            <Checkbox
+              defaultChecked={!!param.multiValuesOptions}
+              onChange={e => setParam({ ...param,
+                multiValuesOptions: e.target.checked ? {
+                  prefix: '',
+                  suffix: '',
+                  separator: ',',
+                } : null })}
+              data-test="AllowMultipleValuesCheckbox"
+            >
+            Allow multiple values
+            </Checkbox>
+          </Form.Item>
+        )}
+        {(param.type === 'enum' || param.type === 'query') && param.multiValuesOptions && (
+          <Form.Item
+            label="Quotation"
+            help={(
+              <React.Fragment>
+                Placed in query as: <code>{joinExampleList(param.multiValuesOptions)}</code>
+              </React.Fragment>
+            )}
+            {...formItemProps}
+          >
+            <Select
+              value={param.multiValuesOptions.prefix}
+              onChange={quoteOption => setParam({ ...param,
+                multiValuesOptions: {
+                  ...param.multiValuesOptions,
+                  prefix: quoteOption,
+                  suffix: quoteOption,
+                } })}
+              data-test="QuotationSelect"
+            >
+              <Option value="">None (default)</Option>
+              <Option value="'">Single Quotation Mark</Option>
+              <Option value={'"'} data-test="DoubleQuotationMarkOption">Double Quotation Mark</Option>
+            </Select>
           </Form.Item>
         )}
       </Form>

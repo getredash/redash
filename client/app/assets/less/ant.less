@@ -20,7 +20,10 @@
 @import '~antd/lib/tag/style/index';
 @import '~antd/lib/grid/style/index';
 @import '~antd/lib/switch/style/index';
+@import '~antd/lib/empty/style/index';
 @import '~antd/lib/drawer/style/index';
+@import '~antd/lib/card/style/index';
+@import '~antd/lib/steps/style/index';
 @import '~antd/lib/divider/style/index';
 @import '~antd/lib/dropdown/style/index';
 @import '~antd/lib/menu/style/index';
@@ -29,7 +32,27 @@
 @import "~antd/lib/card/style/index";
 @import "~antd/lib/spin/style/index";
 @import "~antd/lib/tabs/style/index";
+@import "~antd/lib/notification/style/index";
+@import "~antd/lib/collapse/style/index";
+@import "~antd/lib/progress/style/index";
+@import "~antd/lib/typography/style/index";
 @import 'inc/ant-variables';
+
+// Increase z-indexes to avoid conflicts with some other libraries (e.g. Plotly)
+@zindex-modal: 2000;
+@zindex-modal-mask: 2000;
+@zindex-message: 2010;
+@zindex-notification: 2010;
+@zindex-popover: 2030;
+@zindex-dropdown: 2050;
+@zindex-picker: 2050;
+@zindex-tooltip: 2060;
+
+.@{drawer-prefix-cls} {
+  &.help-drawer {
+    z-index: @zindex-tooltip; // help drawer should be topmost
+  }
+}
 
 // Remove bold in labels for Ant checkboxes and radio buttons
 .ant-checkbox-wrapper,
@@ -52,11 +75,6 @@
     margin: 0 !important;
     padding: 0 !important;
   }
-}
-
-// Fix for Ant dropdowns when they are used in Boootstrap modals
-.ant-dropdown-in-bootstrap-modal {
-  z-index: 1050;
 }
 
 // Button overrides
@@ -132,6 +150,10 @@
       border-color: transparent;
       color: @pagination-color;
       line-height: @pagination-item-size - 2px;
+
+      .@{pagination-prefix-cls}.mini & {
+        line-height: @pagination-item-size-sm - 2px;
+      }
     }
 
     &:focus .@{pagination-prefix-cls}-item-link,
@@ -217,21 +239,61 @@
   }
 }
 
-// styling for short modals (no lines)
-.@{dialog-prefix-cls}.shortModal {
-  .@{dialog-prefix-cls} {
-    &-header,
-    &-footer {
-      border: none;
-      padding: 16px;
+.@{dialog-prefix-cls} {
+  // styling for short modals (no lines)
+  &.shortModal {
+    .@{dialog-prefix-cls} {
+      &-header,
+      &-footer {
+        border: none;
+        padding: 16px;
+      }
+
+      &-body {
+        padding: 10px 16px;
+      }
+
+      &-close-x {
+        width: 46px;
+        height: 46px;
+        line-height: 46px;
+      }
     }
-    &-body {
-      padding: 10px 16px;
-    }
-    &-close-x {
-      width: 46px;
-      height: 46px;
-      line-height: 46px;
+  }
+
+  // fullscreen modals
+  &-fullscreen {
+    .@{dialog-prefix-cls} {
+      position: absolute;
+      left: 15px;
+      top: 15px;
+      right: 15px;
+      bottom: 15px;
+      width: auto !important;
+      height: auto !important;
+      max-width: none;
+      max-height: none;
+      margin: 0;
+      padding: 0;
+
+      .@{dialog-prefix-cls}-content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: auto;
+        height: auto;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .@{dialog-prefix-cls}-body {
+        flex: 1 1 auto;
+        overflow: auto;
+      }
     }
   }
 }
@@ -244,6 +306,60 @@
   margin-top: 4px;
 }
 
-.ant-popover {
-  z-index: 1000; // make sure it doesn't cover drawer
+// Notification overrides
+.@{notification-prefix-cls} {
+  // vertical centering
+  &-notice-close {
+    top: 20px;
+    right: 20px;
+  }
+
+  &-notice-description {
+    max-width: 484px;
+  }
+}
+
+.@{btn-prefix-cls} .@{iconfont-css-prefix}-ellipsis {
+  margin: 0 -7px;
+}
+
+// Collapse
+
+.@{collapse-prefix-cls} {
+  &&-headerless {
+    border: 0;
+    background: none;
+
+    .@{collapse-prefix-cls}-header {
+      display: none;
+    }
+
+    .@{collapse-prefix-cls}-item,
+    .@{collapse-prefix-cls}-content {
+      border: 0;
+    }
+
+    .@{collapse-prefix-cls}-content-box {
+      padding: 0;
+    }
+  }
+}
+
+// overrides for tall form components such as ace editor
+.@{form-prefix-cls}-item {
+  &-children {
+    display: block; // so feeback icon positions correctly
+  }
+
+  // no change for short components, sticks to body for tall ones
+  &-children-icon {
+    top: auto !important;
+    bottom: 8px;
+
+     // makes the icon white instead of see-through
+    & svg {
+      background: white;
+      border-radius: 50%;
+    }
+  }
 }

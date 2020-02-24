@@ -6,7 +6,7 @@ import Table from 'antd/lib/table';
 import { FavoritesControl } from '@/components/FavoritesControl';
 import { TimeAgo } from '@/components/TimeAgo';
 import { durationHumanize } from '@/filters';
-import { formatDateTime } from '@/filters/datetime';
+import { formatDate, formatDateTime } from '@/filters/datetime';
 
 // `this` refers to previous function in the chain (`Columns.***`).
 // Adds `sorter: true` field to column definition
@@ -35,6 +35,11 @@ export const Columns = {
       ),
     }, overrides);
   },
+  date(overrides) {
+    return extend({
+      render: text => formatDate(text),
+    }, overrides);
+  },
   dateTime(overrides) {
     return extend({
       render: text => formatDateTime(text),
@@ -59,6 +64,7 @@ export const Columns = {
   },
 };
 
+Columns.date.sortable = sortable;
 Columns.dateTime.sortable = sortable;
 Columns.duration.sortable = sortable;
 Columns.timeAgo.sortable = sortable;
@@ -66,6 +72,7 @@ Columns.custom.sortable = sortable;
 
 export default class ItemsTable extends React.Component {
   static propTypes = {
+    loading: PropTypes.bool,
     // eslint-disable-next-line react/forbid-prop-types
     items: PropTypes.arrayOf(PropTypes.object),
     columns: PropTypes.arrayOf(PropTypes.shape({
@@ -83,6 +90,7 @@ export default class ItemsTable extends React.Component {
   };
 
   static defaultProps = {
+    loading: false,
     items: [],
     columns: [],
     showHeader: true,
@@ -144,6 +152,7 @@ export default class ItemsTable extends React.Component {
     return (
       <Table
         className={classNames('table-data', { 'ant-table-headerless': !showHeader })}
+        loading={this.props.loading}
         columns={columns}
         showHeader={showHeader}
         dataSource={rows}

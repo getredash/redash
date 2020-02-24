@@ -1,12 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 // PreviewCard
 
-export function PreviewCard({ imageUrl, title, body, children, className, ...props }) {
+export function PreviewCard({ imageUrl, roundedImage, title, body, children, className, ...props }) {
   return (
     <div {...props} className={className + ' w-100 d-flex align-items-center'}>
-      <img src={imageUrl} width="32" height="32" className="profile__image--settings m-r-5" alt="Logo/Avatar" />
+      <img
+        src={imageUrl}
+        width="32"
+        height="32"
+        className={classNames({ 'profile__image--settings': roundedImage }, 'm-r-5')}
+        alt="Logo/Avatar"
+      />
       <div className="flex-fill">
         <div>{title}</div>
         {body && <div className="text-muted">{body}</div>}
@@ -20,12 +27,14 @@ PreviewCard.propTypes = {
   imageUrl: PropTypes.string.isRequired,
   title: PropTypes.node.isRequired,
   body: PropTypes.node,
+  roundedImage: PropTypes.bool,
   className: PropTypes.string,
   children: PropTypes.node,
 };
 
 PreviewCard.defaultProps = {
   body: null,
+  roundedImage: true,
   className: '',
   children: null,
 };

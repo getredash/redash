@@ -1,7 +1,7 @@
 <div class="widget-wrapper">
   <div class="tile body-container widget-visualization" ng-if="$ctrl.type=='visualization'" ng-class="$ctrl.type"
-    ng-switch="$ctrl.widget.getQueryResult().getStatus()">
-    <div class="body-row">
+    ng-switch="$ctrl.widget.getQueryResult().getStatus()" ng-attr-data-refreshing="{{ $ctrl.widget.loading && !!$ctrl.widget.getQueryResult().getStatus() }}">
+    <div class="body-row widget-header">
       <div class="t-header widget clearfix">
         <div class="dropdown pull-right widget-menu-remove"  ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()">
           <div class="actions">
@@ -12,7 +12,7 @@
           uib-dropdown dropdown-append-to-body="true"
         >
           <div class="actions">
-            <a data-toggle="dropdown" uib-dropdown-toggle><i class="zmdi zmdi-more-vert"></i></a>
+            <a data-toggle="dropdown" uib-dropdown-toggle class="p-l-15 p-r-15"><i class="zmdi zmdi-more-vert"></i></a>
           </div>
 
           <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
@@ -29,6 +29,12 @@
             <li ng-if="$ctrl.dashboard.canEdit()"><a ng-click="$ctrl.deleteWidget()">Remove from Dashboard</a></li>
           </ul>
         </div>
+        <div class="refresh-indicator" ng-if="$ctrl.widget.loading">
+          <div class="refresh-icon">
+            <i class="zmdi zmdi-refresh zmdi-hc-spin"></i>
+          </div>
+          <rd-timer from="$ctrl.widget.refreshStartedAt"></rd-timer>
+        </div>
         <div class="th-title">
           <p>
             <query-link query="$ctrl.widget.getQuery()" visualization="$ctrl.widget.visualization"
@@ -38,7 +44,7 @@
         </div>
       </div>
       <div class="m-b-10" ng-if="$ctrl.localParametersDefs().length > 0">
-        <parameters parameters="$ctrl.localParametersDefs()"></parameters>
+        <parameters parameters="$ctrl.localParametersDefs()" on-values-change="$ctrl.forceRefresh"></parameters>
       </div>
     </div>
 
@@ -46,7 +52,12 @@
       <div class="alert alert-danger m-5" ng-show="$ctrl.widget.getQueryResult().getError()">Error running query: <strong>{{$ctrl.widget.getQueryResult().getError()}}</strong></div>
     </div>
     <div ng-switch-when="done" class="body-row-auto scrollbox">
-      <visualization-renderer visualization="$ctrl.widget.visualization" query-result="$ctrl.widget.getQueryResult()" class="t-body"></visualization-renderer>
+      <visualization-renderer class="t-body"
+        visualization="$ctrl.widget.visualization"
+        query-result="$ctrl.widget.getQueryResult()"
+        filters="$ctrl.filters"
+        context="'widget'"
+      ></visualization-renderer>
     </div>
     <div ng-switch-default class="body-row-auto spinner-container">
       <div class="spinner">
@@ -54,26 +65,31 @@
       </div>
     </div>
 
-    <div class="body-row clearfix tile__bottom-control">
-      <a class="small hidden-print" ng-click="$ctrl.refresh()" ng-if="!$ctrl.public">
-        <i ng-class='{"zmdi-hc-spin": $ctrl.widget.loading}' class="zmdi zmdi-refresh"></i>
-        <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()" ng-if="!$ctrl.widget.loading"></span>
-        <rd-timer timestamp="$ctrl.widget.refreshStartedAt" ng-if="$ctrl.widget.loading"></rd-timer>
-      </a>
-      <span class="small hidden-print" ng-if="$ctrl.public">
-        <i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()"></span>
-      </span>
-      <span class="visible-print">
-        <i class="zmdi zmdi-time-restore"></i> {{$ctrl.widget.getQueryResult().getUpdatedAt() | dateTime}}
+    <div class="body-row tile__bottom-control">
+      <span>
+        <a class="refresh-button hidden-print btn btn-sm btn-default btn-transparent" ng-click="$ctrl.refresh(1)" ng-if="!$ctrl.public && !!$ctrl.widget.getQueryResult()" data-test="RefreshButton">
+          <i class="zmdi zmdi-refresh" ng-class="{ 'zmdi-hc-spin': $ctrl.refreshClickButtonId === 1}"></i>
+          <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()"></span>
+        </a>
+        <span class="small hidden-print" ng-if="$ctrl.public">
+          <i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()"></span>
+        </span>
+        <span class="visible-print">
+          <i class="zmdi zmdi-time-restore"></i> {{$ctrl.widget.getQueryResult().getUpdatedAt() | dateTime}}
+        </span>
       </span>
 
-      <button class="btn btn-sm btn-default pull-right hidden-print btn-transparent btn__refresh" ng-click="$ctrl.refresh()" ng-if="!$ctrl.public"><i class="zmdi zmdi-refresh"></i></button>
-      <button class="btn btn-sm btn-default pull-right hidden-print btn-transparent btn__refresh" ng-click="$ctrl.expandVisualization()"><i class="zmdi zmdi-fullscreen"></i></button>
+      <span>
+        <button class="btn btn-sm btn-default hidden-print btn-transparent btn__refresh" ng-click="$ctrl.expandVisualization()"><i class="zmdi zmdi-fullscreen"></i></button>
+        <button class="btn btn-sm btn-default hidden-print btn-transparent btn__refresh" ng-click="$ctrl.refresh(2)" ng-if="!$ctrl.public">
+          <i class="zmdi zmdi-refresh" ng-class="{ 'zmdi-hc-spin': $ctrl.refreshClickButtonId === 2}"></i>
+        </button>
+      </span>
     </div>
   </div>
 
-  <div class="tile body-container widget-restricted" ng-if="$ctrl.type=='restricted'" ng-class="$ctrl.type">
-    <div class="t-body body-row-auto scrollbox">
+  <div class="tile body-container d-flex justify-content-center align-items-center widget-restricted" ng-if="$ctrl.type=='restricted'" ng-class="$ctrl.type">
+    <div class="t-body scrollbox">
       <div class="text-center">
         <h1><span class="zmdi zmdi-lock"></span></h1>
         <p class="text-muted">
@@ -90,17 +106,18 @@
           <a class="actions" ng-click="$ctrl.deleteWidget()" title="Remove From Dashboard"><i class="zmdi zmdi-close"></i></a>
         </div>
       </div>
-      <div class="dropdown pull-right widget-menu-regular" ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()" uib-dropdown>
+      <div class="dropdown pull-right widget-menu-regular" ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()"
+        uib-dropdown dropdown-append-to-body="true">
         <div class="dropdown-header">
-          <a data-toggle="dropdown" uib-dropdown-toggle class="actions"><i class="zmdi zmdi-more"></i></a>
+          <a data-toggle="dropdown" uib-dropdown-toggle class="actions p-l-15 p-r-15"><i class="zmdi zmdi-more-vert"></i></a>
         </div>
 
-        <ul class="dropdown-menu pull-right" uib-dropdown-menu style="z-index:1000000">
+        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu style="z-index:1000000">
           <li><a ng-show="$ctrl.dashboard.canEdit()" ng-click="$ctrl.editTextBox()">Edit</a></li>
           <li><a ng-show="$ctrl.dashboard.canEdit()" ng-click="$ctrl.deleteWidget()">Remove From Dashboard</a></li>
         </ul>
       </div>
     </div>
-    <div class="body-row-auto scrollbox tiled t-body p-15" ng-bind-html="$ctrl.widget.text | markdown"></div>
+    <div class="body-row-auto scrollbox tiled t-body p-15 markdown" ng-bind-html="$ctrl.widget.text | markdown"></div>
   </div>
 </div>

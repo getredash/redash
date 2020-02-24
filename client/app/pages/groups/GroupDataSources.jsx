@@ -22,7 +22,7 @@ import ListItemAddon from '@/components/groups/ListItemAddon';
 import Sidebar from '@/components/groups/DetailsPageSidebar';
 import Layout from '@/components/layouts/ContentWithSidebar';
 
-import { toastr } from '@/services/ng';
+import notification from '@/services/notification';
 import { currentUser } from '@/services/auth';
 import { Group } from '@/services/group';
 import { DataSource } from '@/services/data-source';
@@ -107,7 +107,7 @@ class GroupDataSources extends React.Component {
         this.props.controller.update();
       })
       .catch(() => {
-        toastr.error('Failed to remove data source from group.');
+        notification.error('Failed to remove data source from group.');
       });
   };
 
@@ -120,7 +120,7 @@ class GroupDataSources extends React.Component {
         this.forceUpdate();
       })
       .catch(() => {
-        toastr.error('Failed change data source permissions.');
+        notification.error('Failed change data source permissions.');
       });
   };
 
@@ -183,12 +183,13 @@ class GroupDataSources extends React.Component {
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && (
               <div className="text-center">
-                There are no data sources in this group yet.
+                <p>
+                  There are no data sources in this group yet.
+                </p>
                 {currentUser.isAdmin && (
-                  <div className="m-t-5">
-                    <a href="javascript:void(0)" onClick={this.addDataSources}>Click here</a>
-                    {' '} to add data sources.
-                  </div>
+                  <Button type="primary" onClick={this.addDataSources}>
+                    <i className="fa fa-plus m-r-5" />Add Data Sources
+                  </Button>
                 )}
               </div>
             )}

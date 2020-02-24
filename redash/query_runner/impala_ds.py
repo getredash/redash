@@ -135,4 +135,5 @@ class Impala(BaseSQLQueryRunner):
 
         return json_data, error
 
+
 register(Impala)

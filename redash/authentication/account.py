@@ -4,12 +4,11 @@ from flask import render_template
 from redash import settings
 from redash.tasks import send_mail
 from redash.utils import base_url
-from redash.models import User
 # noinspection PyUnresolvedReferences
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 
 logger = logging.getLogger(__name__)
-serializer = URLSafeTimedSerializer(settings.COOKIE_SECRET)
+serializer = URLSafeTimedSerializer(settings.SECRET_KEY)
 
 
 def invite_token(user):
@@ -73,4 +72,10 @@ def send_password_reset_email(user):
     send_mail.delay([user.email], subject, html_content, text_content)
     return reset_link
 
+  
+def send_user_disabled_email(user):
+    html_content = render_template('emails/reset_disabled.html', user=user)
+    text_content = render_template('emails/reset_disabled.txt', user=user)
+    subject = u"Your Redash account is disabled"
 
+    send_mail.delay([user.email], subject, html_content, text_content)

@@ -1,28 +1,18 @@
 import _ from 'lodash';
+import { angular2react } from 'angular2react';
 import { getColumnCleanName } from '@/services/query-result';
-import { createFormatter } from '@/lib/value-format';
-import template from './table.html';
+import { clientConfig } from '@/services/auth';
+import { registerVisualization } from '@/visualizations';
 import editorTemplate from './table-editor.html';
 import './table-editor.less';
 
-const ALLOWED_ITEM_PER_PAGE = [5, 10, 15, 20, 25, 50, 100, 150, 200, 250];
+import Renderer from './Renderer';
+import { ColumnTypes } from './utils';
 
-const DISPLAY_AS_OPTIONS = [
-  { name: 'Text', value: 'string' },
-  { name: 'Number', value: 'number' },
-  { name: 'Date/Time', value: 'datetime' },
-  { name: 'Boolean', value: 'boolean' },
-  { name: 'JSON', value: 'json' },
-  { name: 'Image', value: 'image' },
-  { name: 'Link', value: 'link' },
-];
+const ALLOWED_ITEM_PER_PAGE = [5, 10, 15, 20, 25, 50, 100, 150, 200, 250];
 
 const DEFAULT_OPTIONS = {
   itemsPerPage: 25,
-  autoHeight: true,
-  defaultRows: 14,
-  defaultColumns: 3,
-  minColumns: 2,
 };
 
 function getColumnContentAlignment(type) {
@@ -53,7 +43,7 @@ function getDefaultColumnsOptions(columns) {
   }));
 }
 
-function getDefaultFormatOptions(column, clientConfig) {
+function getDefaultFormatOptions(column) {
   const dateTimeFormat = {
     date: clientConfig.dateFormat || 'DD/MM/YYYY',
     datetime: clientConfig.dateTimeFormat || 'DD/MM/YYYY HH:mm',
@@ -120,114 +110,56 @@ function getColumnsOptions(columns, visualizationColumns) {
   return _.sortBy(options, 'order');
 }
 
-function getColumnsToDisplay(columns, options, clientConfig) {
-  columns = _.fromPairs(_.map(columns, col => [col.name, col]));
-  let result = _.map(options, col => _.extend(
-    getDefaultFormatOptions(col, clientConfig),
-    col,
-    columns[col.name],
-  ));
+const GridEditor = {
+  bindings: {
+    data: '<',
+    options: '<',
+    onOptionsChange: '<',
+  },
+  template: editorTemplate,
+  controller($scope) {
+    this.allowedItemsPerPage = ALLOWED_ITEM_PER_PAGE;
+    this.displayAsOptions = _.map(ColumnTypes, ({ friendlyName: name }, value) => ({ name, value }));
 
-  result = _.map(result, col => _.extend(col, {
-    formatFunction: createFormatter(col),
-  }));
+    this.currentTab = 'columns';
+    this.setCurrentTab = (tab) => {
+      this.currentTab = tab;
+    };
 
-  return _.sortBy(_.filter(result, 'visible'), 'order');
-}
+    $scope.$watch('$ctrl.options', (options) => {
+      this.onOptionsChange(options);
+    }, true);
 
-function GridRenderer(clientConfig) {
-  return {
-    restrict: 'E',
-    scope: {
-      queryResult: '=',
-      options: '=',
-    },
-    template,
-    replace: false,
-    controller($scope) {
-      $scope.gridColumns = [];
-      $scope.gridRows = [];
-
-      function update() {
-        if ($scope.queryResult.getData() == null) {
-          $scope.gridColumns = [];
-          $scope.filters = [];
-        } else {
-          $scope.filters = $scope.queryResult.getFilters();
-          $scope.gridRows = $scope.queryResult.getData();
-          const columns = $scope.queryResult.getColumns();
-          const columnsOptions = getColumnsOptions(columns, _.extend({}, $scope.options).columns);
-          $scope.gridColumns = getColumnsToDisplay(columns, columnsOptions, clientConfig);
-        }
-      }
-
-      $scope.$watch('queryResult && queryResult.getData()', (queryResult) => {
-        if (queryResult) {
-          update();
-        }
-      });
-
-      $scope.$watch('options', (newValue, oldValue) => {
-        if (newValue !== oldValue) {
-          update();
-        }
-      }, true);
-    },
-  };
-}
-
-function GridEditor(clientConfig) {
-  return {
-    restrict: 'E',
-    template: editorTemplate,
-    link: ($scope) => {
-      $scope.allowedItemsPerPage = ALLOWED_ITEM_PER_PAGE;
-      $scope.displayAsOptions = DISPLAY_AS_OPTIONS;
-
-      $scope.currentTab = 'columns';
-      $scope.setCurrentTab = (tab) => {
-        $scope.currentTab = tab;
-      };
-
-      $scope.$watch('visualization', () => {
-        if ($scope.visualization) {
-          // For existing visualization - set default options
-          $scope.visualization.options = _.extend({}, DEFAULT_OPTIONS, $scope.visualization.options);
-        }
-      });
-
-      $scope.$watch('queryResult && queryResult.getData()', (queryResult) => {
-        if (queryResult) {
-          const columns = $scope.queryResult.getData() !== null ? $scope.queryResult.getColumns() : [];
-          $scope.visualization.options.columns = _.map(
-            getColumnsOptions(columns, $scope.visualization.options.columns),
-            col => _.extend(getDefaultFormatOptions(col, clientConfig), col),
-          );
-        }
-      });
-
-      $scope.templateHint = `
-        All columns can be referenced using <code>{{ column_name }}</code> syntax.
-        Use <code>{{ @ }}</code> to reference current (this) column.
-        This syntax is applicable to URL, Title and Size options.
-      `;
-    },
-  };
-}
+    this.templateHint = `
+      All columns can be referenced using <code>{{ column_name }}</code> syntax.
+      Use <code>{{ @ }}</code> to reference current (this) column.
+      This syntax is applicable to URL, Title and Size options.
+    `;
+  },
+};
 
 export default function init(ngModule) {
-  ngModule.directive('gridRenderer', GridRenderer);
-  ngModule.directive('gridEditor', GridEditor);
+  ngModule.component('gridEditor', GridEditor);
 
-  ngModule.config((VisualizationProvider) => {
-    const defaultOptions = DEFAULT_OPTIONS;
-
-    VisualizationProvider.registerVisualization({
+  ngModule.run(($injector) => {
+    registerVisualization({
       type: 'TABLE',
       name: 'Table',
-      renderTemplate: '<grid-renderer options="visualization.options" query-result="queryResult"></grid-renderer>',
-      editorTemplate: '<grid-editor></grid-editor>',
-      defaultOptions,
+      getOptions: (options, { columns }) => {
+        options = { ...DEFAULT_OPTIONS, ...options };
+        options.columns = _.map(
+          getColumnsOptions(columns, options.columns),
+          col => ({ ...getDefaultFormatOptions(col), ...col }),
+        );
+        return options;
+      },
+      Renderer,
+      Editor: angular2react('gridEditor', GridEditor, $injector),
+
+      autoHeight: true,
+      defaultRows: 14,
+      defaultColumns: 3,
+      minColumns: 2,
     });
   });
 }

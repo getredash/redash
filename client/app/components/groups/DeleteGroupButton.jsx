@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Button from 'antd/lib/button';
 import Modal from 'antd/lib/modal';
 import Tooltip from 'antd/lib/tooltip';
-import { toastr } from '@/services/ng';
+import notification from '@/services/notification';
 
 function deleteGroup(event, group, onGroupDeleted) {
   Modal.confirm({
@@ -15,7 +15,7 @@ function deleteGroup(event, group, onGroupDeleted) {
     cancelText: 'No',
     onOk: () => {
       group.$delete(() => {
-        toastr.success('Group deleted successfully.');
+        notification.success('Group deleted successfully.');
         onGroupDeleted();
       });
     },

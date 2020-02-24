@@ -3,9 +3,11 @@ import logging
 import re
 
 from dateutil.parser import parse
+from six import string_types, text_type
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
+from redash.utils.compat import long
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +15,7 @@ try:
     import pymongo
     from bson.objectid import ObjectId
     from bson.timestamp import Timestamp
+    from bson.decimal128 import Decimal128
     from bson.son import SON
     from bson.json_util import object_hook as bson_object_hook
     enabled = True
@@ -23,7 +26,7 @@ except ImportError:
 
 TYPES_MAP = {
     str: TYPE_STRING,
-    unicode: TYPE_STRING,
+    text_type: TYPE_STRING,
     int: TYPE_INTEGER,
     long: TYPE_INTEGER,
     float: TYPE_FLOAT,
@@ -38,7 +41,8 @@ class MongoDBJSONEncoder(JSONEncoder):
             return str(o)
         elif isinstance(o, Timestamp):
             return super(MongoDBJSONEncoder, self).default(o.as_datetime())
-
+        elif isinstance(o, Decimal128):
+            return o.to_decimal()
         return super(MongoDBJSONEncoder, self).default(o)
 
 
@@ -54,7 +58,7 @@ def parse_oids(oids):
 
 def datetime_parser(dct):
     for k, v in dct.iteritems():
-        if isinstance(v, basestring):
+        if isinstance(v, string_types):
             m = date_regex.findall(v)
             if len(m) > 0:
                 dct[k] = parse(m[0], yearfirst=True)
@@ -117,6 +121,8 @@ def parse_results(results):
 
 
 class MongoDB(BaseQueryRunner):
+    should_annotate_query = False
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -141,10 +147,6 @@ class MongoDB(BaseQueryRunner):
     @classmethod
     def enabled(cls):
         return enabled
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def __init__(self, configuration):
         super(MongoDB, self).__init__(configuration)
@@ -217,7 +219,6 @@ class MongoDB(BaseQueryRunner):
                 "name": collection_name, "columns": sorted(columns)}
 
         return schema.values()
-
 
     def run_query(self, query, user):
         db = self._get_db()
@@ -299,12 +300,12 @@ class MongoDB(BaseQueryRunner):
 
         if "count" in query_data:
             columns.append({
-                "name" : "count",
-                "friendly_name" : "count",
-                "type" : TYPE_INTEGER
+                "name": "count",
+                "friendly_name": "count",
+                "type": TYPE_INTEGER
             })
 
-            rows.append({ "count" : cursor })
+            rows.append({"count": cursor})
         else:
             rows, columns = parse_results(cursor)
 
@@ -329,5 +330,6 @@ class MongoDB(BaseQueryRunner):
         json_data = json_dumps(data, cls=MongoDBJSONEncoder)
 
         return json_data, error
+
 
 register(MongoDB)

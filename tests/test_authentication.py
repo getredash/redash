@@ -127,6 +127,19 @@ class TestHMACAuthentication(BaseTestCase):
             self.assertEqual(user.id, hmac_load_user_from_request(request).id)
 
 
+class TestSessionAuthentication(BaseTestCase):
+    def test_prefers_api_key_over_session_user_id(self):
+        user = self.factory.create_user()
+        query = self.factory.create_query(user=user)
+
+        other_org = self.factory.create_org()
+        other_user = self.factory.create_user(org=other_org)
+        models.db.session.flush()
+
+        rv = self.make_request('get', '/api/queries/{}?api_key={}'.format(query.id, query.api_key), user=other_user)
+        self.assertEqual(rv.status_code, 200)
+
+
 class TestCreateAndLoginUser(BaseTestCase):
     def test_logins_valid_user(self):
         user = self.factory.create_user(email=u'test@example.com')
@@ -306,3 +319,26 @@ class TestRemoteUserAuth(BaseTestCase):
         })
 
         self.assert_correct_user_attributes(self.get_test_user())
+
+
+class TestUserForgotPassword(BaseTestCase):
+    def test_user_should_receive_password_reset_link(self):
+        user = self.factory.create_user()
+
+        with patch('redash.handlers.authentication.send_password_reset_email') as send_password_reset_email_mock:
+            response = self.post_request('/forgot', org=user.org, data={'email': user.email})
+            self.assertEqual(response.status_code, 200)
+            send_password_reset_email_mock.assert_called_with(user)
+
+    def test_disabled_user_should_not_receive_password_reset_link(self):
+        user = self.factory.create_user()
+        user.disable()
+        self.db.session.add(user)
+        self.db.session.commit()
+
+        with patch('redash.handlers.authentication.send_password_reset_email') as send_password_reset_email_mock,\
+                patch('redash.handlers.authentication.send_user_disabled_email') as send_user_disabled_email_mock:
+            response = self.post_request('/forgot', org=user.org, data={'email': user.email})
+            self.assertEqual(response.status_code, 200)
+            send_password_reset_email_mock.assert_not_called()
+            send_user_disabled_email_mock.assert_called_with(user)

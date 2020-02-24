@@ -6,7 +6,7 @@ WORKDIR $APP
 COPY package.json $APP/package.json
 RUN npm run cypress:install > /dev/null
 
-COPY cypress $APP/cypress
+COPY client/cypress $APP/client/cypress
 COPY cypress.json $APP/cypress.json
 
 RUN ./node_modules/.bin/cypress verify

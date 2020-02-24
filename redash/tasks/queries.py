@@ -1,7 +1,6 @@
 import logging
 import signal
 import time
-
 import redis
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from celery.result import AsyncResult
@@ -9,12 +8,15 @@ from celery.utils.log import get_task_logger
 from six import text_type
 
 from redash import models, redis_connection, settings, statsd_client
+from redash.models.parameterized_query import InvalidParameterError, QueryDetachedFromDataSourceError
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
-from redash.utils import gen_query_hash, json_dumps, json_loads, utcnow, mustache_render
+from redash.tasks.failure_report import notify_of_failure
+from redash.utils import gen_query_hash, json_dumps, utcnow, mustache_render
 from redash.worker import celery
 
 logger = get_task_logger(__name__)
+TIMEOUT_MESSAGE = "Query exceeded Redash query execution time limit."
 
 
 def _job_lock_id(query_hash, data_source_id):
@@ -56,7 +58,7 @@ class QueryTask(object):
         status = self.STATUSES[task_status]
 
         if isinstance(result, (TimeLimitExceeded, SoftTimeLimitExceeded)):
-            error = "Query exceeded Redash query execution time limit."
+            error = TIMEOUT_MESSAGE
             status = 4
         elif isinstance(result, Exception):
             error = result.message
@@ -94,7 +96,7 @@ class QueryTask(object):
         return self._async_result.revoke(terminate=True, signal='SIGINT')
 
 
-def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}):
+def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}):
     query_hash = gen_query_hash(query)
     logging.info("Inserting job for %s with metadata=%s", query_hash, metadata)
     try_count = 0
@@ -120,17 +122,14 @@ def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}
             if not job:
                 pipe.multi()
 
-                time_limit = None
-
                 if scheduled_query:
                     queue_name = data_source.scheduled_queue_name
                     scheduled_query_id = scheduled_query.id
                 else:
                     queue_name = data_source.queue_name
                     scheduled_query_id = None
-                    time_limit = settings.ADHOC_QUERY_TIME_LIMIT
 
-                args = (query, data_source.id, metadata, user_id, scheduled_query_id)
+                args = (query, data_source.id, metadata, user_id, scheduled_query_id, is_api_key)
                 argsrepr = json_dumps({
                     'org_id': data_source.org_id,
                     'data_source_id': data_source.id,
@@ -140,10 +139,12 @@ def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}
                     'user_id': user_id
                 })
 
+                time_limit = settings.dynamic_settings.query_time_limit(scheduled_query, user_id, data_source.org_id)
+
                 result = execute_query.apply_async(args=args,
                                                    argsrepr=argsrepr,
                                                    queue=queue_name,
-                                                   time_limit=time_limit)
+                                                   soft_time_limit=time_limit)
 
                 job = QueryTask(async_result=result)
                 logging.info("[%s] Created new job: %s", query_hash, job.id)
@@ -160,6 +161,18 @@ def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}
     return job
 
 
+@celery.task(name="redash.tasks.empty_schedules")
+def empty_schedules():
+    logger.info("Deleting schedules of past scheduled queries...")
+
+    queries = models.Query.past_scheduled_queries()
+    for query in queries:
+        query.schedule = None
+    models.db.session.commit()
+
+    logger.info("Deleted %d schedules.", len(queries))
+
+
 @celery.task(name="redash.tasks.refresh_queries")
 def refresh_queries():
     logger.info("Refreshing queries...")
@@ -174,16 +187,26 @@ def refresh_queries():
             elif query.org.is_disabled:
                 logging.debug("Skipping refresh of %s because org is disabled.", query.id)
             elif query.data_source is None:
-                logging.info("Skipping refresh of %s because the datasource is none.", query.id)
+                logging.debug("Skipping refresh of %s because the datasource is none.", query.id)
             elif query.data_source.paused:
-                logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
+                logging.debug("Skipping refresh of %s because datasource - %s is paused (%s).",
+                              query.id, query.data_source.name, query.data_source.pause_reason)
             else:
-                if query.options and len(query.options.get('parameters', [])) > 0:
-                    query_params = {p['name']: p.get('value')
-                                    for p in query.options['parameters']}
-                    query_text = mustache_render(query.query_text, query_params)
-                else:
-                    query_text = query.query_text
+                query_text = query.query_text
+
+                parameters = {p['name']: p.get('value') for p in query.parameters}
+                if any(parameters):
+                    try:
+                        query_text = query.parameterized.apply(parameters).query
+                    except InvalidParameterError as e:
+                        error = u"Skipping refresh of {} because of invalid parameters: {}".format(query.id, e.message)
+                        track_failure(query, error)
+                        continue
+                    except QueryDetachedFromDataSourceError as e:
+                        error = ("Skipping refresh of {} because a related dropdown "
+                                 "query ({}) is unattached to any datasource.").format(query.id, e.query_id)
+                        track_failure(query, error)
+                        continue
 
                 enqueue_query(query_text, query.data_source, query.user_id,
                               scheduled_query=query,
@@ -278,20 +301,44 @@ class QueryExecutionError(Exception):
     pass
 
 
+def _resolve_user(user_id, is_api_key, query_id):
+    if user_id is not None:
+        if is_api_key:
+            api_key = user_id
+            if query_id is not None:
+                q = models.Query.get_by_id(query_id)
+            else:
+                q = models.Query.by_api_key(api_key)
+
+            return models.ApiUser(api_key, q.org, q.groups)
+        else:
+            return models.User.get_by_id(user_id)
+    else:
+        return None
+
+
+def track_failure(query, error):
+    logging.debug(error)
+
+    query.schedule_failures += 1
+    models.db.session.add(query)
+    models.db.session.commit()
+
+    notify_of_failure(error, query)
+
+
 # We could have created this as a celery.Task derived class, and act as the task itself. But this might result in weird
 # issues as the task class created once per process, so decided to have a plain object instead.
 class QueryExecutor(object):
-    def __init__(self, task, query, data_source_id, user_id, metadata,
+    def __init__(self, task, query, data_source_id, user_id, is_api_key, metadata,
                  scheduled_query):
         self.task = task
         self.query = query
         self.data_source_id = data_source_id
         self.metadata = metadata
         self.data_source = self._load_data_source()
-        if user_id is not None:
-            self.user = models.User.query.get(user_id)
-        else:
-            self.user = None
+        self.user = _resolve_user(user_id, is_api_key, metadata.get('Query ID'))
+
         # Close DB connection to prevent holding a connection for a long time while the query is executing.
         models.db.session.close()
         self.query_hash = gen_query_hash(self.query)
@@ -313,7 +360,11 @@ class QueryExecutor(object):
         try:
             data, error = query_runner.run_query(annotated_query, self.user)
         except Exception as e:
-            error = text_type(e)
+            if isinstance(e, SoftTimeLimitExceeded):
+                error = TIMEOUT_MESSAGE
+            else:
+                error = text_type(e)
+
             data = None
             logging.warning('Unexpected error while running query:', exc_info=1)
 
@@ -323,13 +374,11 @@ class QueryExecutor(object):
 
         _unlock(self.query_hash, self.data_source.id)
 
-        if error:
+        if error is not None and data is None:
             result = QueryExecutionError(error)
             if self.scheduled_query is not None:
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
-                self.scheduled_query.schedule_failures += 1
-                models.db.session.add(self.scheduled_query)
-            models.db.session.commit()
+                track_failure(self.scheduled_query, error)
             raise result
         else:
             if (self.scheduled_query and self.scheduled_query.schedule_failures > 0):
@@ -351,16 +400,12 @@ class QueryExecutor(object):
             return result
 
     def _annotate_query(self, query_runner):
-        if query_runner.annotate_query():
-            self.metadata['Task ID'] = self.task.request.id
-            self.metadata['Query Hash'] = self.query_hash
-            self.metadata['Queue'] = self.task.request.delivery_info['routing_key']
-
-            annotation = u", ".join([u"{}: {}".format(k, v) for k, v in self.metadata.iteritems()])
-            annotated_query = u"/* {} */ {}".format(annotation, self.query)
-        else:
-            annotated_query = self.query
-        return annotated_query
+        self.metadata['Task ID'] = self.task.request.id
+        self.metadata['Query Hash'] = self.query_hash
+        self.metadata['Queue'] = self.task.request.delivery_info['routing_key']
+        self.metadata['Scheduled'] = self.scheduled_query is not None
+            
+        return query_runner.annotate_query(self.query, self.metadata)
 
     def _log_progress(self, state):
         logger.info(
@@ -381,10 +426,11 @@ class QueryExecutor(object):
 # jobs before the upgrade to this version.
 @celery.task(name="redash.tasks.execute_query", bind=True, track_started=True)
 def execute_query(self, query, data_source_id, metadata, user_id=None,
-                  scheduled_query_id=None):
+                  scheduled_query_id=None, is_api_key=False):
     if scheduled_query_id is not None:
         scheduled_query = models.Query.query.get(scheduled_query_id)
     else:
         scheduled_query = None
-    return QueryExecutor(self, query, data_source_id, user_id, metadata,
+
+    return QueryExecutor(self, query, data_source_id, user_id, is_api_key, metadata,
                          scheduled_query).run()

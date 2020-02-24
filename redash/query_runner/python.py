@@ -36,6 +36,8 @@ class CustomPrint(object):
 
 
 class Python(BaseQueryRunner):
+    should_annotate_query = False
+
     safe_builtins = (
         'sorted', 'reversed', 'map', 'reduce', 'any', 'all',
         'slice', 'filter', 'len', 'next', 'enumerate',
@@ -62,10 +64,6 @@ class Python(BaseQueryRunner):
     @classmethod
     def enabled(cls):
         return True
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def __init__(self, configuration):
         super(Python, self).__init__(configuration)
@@ -258,7 +256,6 @@ class Python(BaseQueryRunner):
             restricted_globals["TYPE_STRING"] = TYPE_STRING
             restricted_globals["TYPE_DATE"] = TYPE_DATE
             restricted_globals["TYPE_FLOAT"] = TYPE_FLOAT
-
 
             # TODO: Figure out the best way to have a timeout on a script
             #       One option is to use ETA with Celery + timeouts on workers

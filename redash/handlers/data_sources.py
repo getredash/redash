@@ -19,7 +19,8 @@ from redash.utils.configuration import ConfigurationContainer, ValidationError
 class DataSourceTypeListResource(BaseResource):
     @require_admin
     def get(self):
-        return [q.to_dict() for q in sorted(query_runners.values(), key=lambda q: q.name())]
+        available_query_runners = filter(lambda q: not q.deprecated, query_runners.values())
+        return [q.to_dict() for q in sorted(available_query_runners, key=lambda q: q.name())]
 
 
 class DataSourceResource(BaseResource):
@@ -59,6 +60,12 @@ class DataSourceResource(BaseResource):
                 abort(400, message="Data source with the name {} already exists.".format(req['name']))
 
             abort(400)
+
+        self.record_event({
+            'action': 'edit',
+            'object_id': data_source.id,
+            'object_type': 'datasource',
+        })
 
         return data_source.to_dict(all=True)
 
@@ -144,7 +151,7 @@ class DataSourceListResource(BaseResource):
 class DataSourceSchemaResource(BaseResource):
     def get(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
-        require_access(data_source.groups, self.current_user, view_only)
+        require_access(data_source, self.current_user, view_only)
         refresh = request.args.get('refresh') is not None
 
         response = {}
@@ -202,15 +209,18 @@ class DataSourceTestResource(BaseResource):
     def post(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
 
+        response = {}
+        try:
+            data_source.query_runner.test_connection()
+        except Exception as e:
+            response = {"message": text_type(e), "ok": False}
+        else:
+            response = {"message": "success", "ok": True}
+
         self.record_event({
             'action': 'test',
             'object_id': data_source_id,
             'object_type': 'datasource',
+            'result': response,
         })
-
-        try:
-            data_source.query_runner.test_connection()
-        except Exception as e:
-            return {"message": text_type(e), "ok": False}
-        else:
-            return {"message": "success", "ok": True}
+        return response

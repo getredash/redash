@@ -10,6 +10,7 @@ import {
   editableMappingsToParameterMappings,
   synchronizeWidgetTitles,
 } from '@/components/ParameterMappingInput';
+import notification from '@/services/notification';
 
 export function getParamValuesSnapshot(mappings, dashboardParameters) {
   return map(
@@ -61,7 +62,6 @@ class EditParameterMappingsDialog extends React.Component {
   }
 
   saveWidget() {
-    const toastr = this.props.toastr; // eslint-disable-line react/prop-types
     const widget = this.props.widget;
 
     this.setState({ saveInProgress: true });
@@ -84,7 +84,7 @@ class EditParameterMappingsDialog extends React.Component {
         this.props.dialog.close(valuesChanged);
       })
       .catch(() => {
-        toastr.error('Widget cannot be updated');
+        notification.error('Widget cannot be updated');
       })
       .finally(() => {
         this.setState({ saveInProgress: false });

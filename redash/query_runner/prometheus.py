@@ -171,6 +171,7 @@ def convert_to_timestamp(value, round_up=True):
 
 
 class Prometheus(BaseQueryRunner):
+    should_annotate_query = False
 
     @classmethod
     def configuration_schema(cls):
@@ -184,10 +185,6 @@ class Prometheus(BaseQueryRunner):
             },
             "required": ["url"]
         }
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def test_connection(self):
         resp = requests.get(self.configuration.get("url", None))

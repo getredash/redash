@@ -19,7 +19,7 @@ import ListItemAddon from '@/components/groups/ListItemAddon';
 import Sidebar from '@/components/groups/DetailsPageSidebar';
 import Layout from '@/components/layouts/ContentWithSidebar';
 
-import { toastr } from '@/services/ng';
+import notification from '@/services/notification';
 import { currentUser } from '@/services/auth';
 import { Group } from '@/services/group';
 import { User } from '@/services/user';
@@ -90,7 +90,7 @@ class GroupMembers extends React.Component {
       this.props.controller.update();
     })
     .catch(() => {
-      toastr.error('Failed to remove member from group.');
+      notification.error('Failed to remove member from group.');
     });
 
   addMembers = () => {
@@ -148,12 +148,13 @@ class GroupMembers extends React.Component {
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && (
               <div className="text-center">
-                There are no members in this group yet.
+                <p>
+                  There are no members in this group yet.
+                </p>
                 {currentUser.isAdmin && (
-                  <div className="m-t-5">
-                    <a href="javascript:void(0)" onClick={this.addMembers}>Click here</a>
-                    {' '} to add members.
-                  </div>
+                  <Button type="primary" onClick={this.addMembers}>
+                    <i className="fa fa-plus m-r-5" />Add Members
+                  </Button>
                 )}
               </div>
             )}

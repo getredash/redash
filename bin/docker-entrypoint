@@ -4,9 +4,10 @@ set -e
 worker() {
   WORKERS_COUNT=${WORKERS_COUNT:-2}
   QUEUES=${QUEUES:-queries,scheduled_queries,celery,schemas}
+  WORKER_EXTRA_OPTIONS=${WORKER_EXTRA_OPTIONS:-}
 
   echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
-  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair $WORKER_EXTRA_OPTIONS
 }
 
 scheduler() {
@@ -16,11 +17,24 @@ scheduler() {
 
   echo "Starting scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
 
-  exec /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+  exec /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
+}
+
+dev_worker() {
+  WORKERS_COUNT=${WORKERS_COUNT:-2}
+  QUEUES=${QUEUES:-queries,scheduled_queries,celery,schemas}
+  SCHEDULE_DB=${SCHEDULE_DB:-celerybeat-schedule}
+
+  echo "Starting dev scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
+
+  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
 }
 
 server() {
-  exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app
+  # Recycle gunicorn workers every n-th request. See http://docs.gunicorn.org/en/stable/settings.html#max-requests for more details.
+  MAX_REQUESTS=${MAX_REQUESTS:-1000}
+  MAX_REQUESTS_JITTER=${MAX_REQUESTS_JITTER:-100}
+  exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app --max-requests $MAX_REQUESTS --max-requests-jitter $MAX_REQUESTS_JITTER
 }
 
 create_db() {
@@ -40,6 +54,7 @@ help() {
   echo "server -- start Redash server (with gunicorn)"
   echo "worker -- start Celery worker"
   echo "scheduler -- start Celery worker with a beat (scheduler) process"
+  echo "dev_worker  -- start Celery worker with a beat (scheduler) process which picks up code changes and reloads"
   echo "celery_healthcheck -- runs a Celery healthcheck. Useful for Docker's HEALTHCHECK mechanism."
   echo ""
   echo "shell -- open shell"
@@ -73,6 +88,10 @@ case "$1" in
   scheduler)
     shift
     scheduler
+    ;;
+  dev_worker)
+    shift
+    dev_worker
     ;;
   dev_server)
     export FLASK_DEBUG=1

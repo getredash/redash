@@ -1,6 +1,6 @@
 import chroma from 'chroma-js';
 import _ from 'lodash';
-import { createFormatter } from '@/lib/value-format';
+import { createNumberFormatter as createFormatter } from '@/lib/value-format';
 
 export const AdditionalColors = {
   White: '#ffffff',
@@ -13,10 +13,7 @@ export function darkenColor(color) {
 }
 
 export function createNumberFormatter(format, placeholder) {
-  const formatter = createFormatter({
-    displayAs: 'number',
-    numberFormat: format,
-  });
+  const formatter = createFormatter(format);
   return (value) => {
     if (_.isNumber(value) && isFinite(value)) {
       return formatter(value);
@@ -112,12 +109,23 @@ export function createScale(features, data, options) {
   return { limits, colors, legend };
 }
 
-export function inferCountryCodeType(data, countryCodeField) {
-  const regex = {
-    iso_a2: /^[a-z]{2}$/i,
-    iso_a3: /^[a-z]{3}$/i,
-    iso_n3: /^[0-9]{3}$/i,
+export function inferCountryCodeType(mapType, data, countryCodeField) {
+  const regexMap = {
+    countries: {
+      iso_a2: /^[a-z]{2}$/i,
+      iso_a3: /^[a-z]{3}$/i,
+      iso_n3: /^[0-9]{3}$/i,
+    },
+    subdiv_japan: {
+      name: /^[a-z]+$/i,
+      name_local: /^[\u3400-\u9FFF\uF900-\uFAFF]|[\uD840-\uD87F][\uDC00-\uDFFF]+$/i,
+      iso_3166_2: /^JP-[0-9]{2}$/i,
+    },
   };
+
+  const regex = regexMap[mapType];
+
+  const initState = _.mapValues(regex, () => 0);
 
   const result = _.chain(data)
     .reduce((memo, item) => {
@@ -128,11 +136,7 @@ export function inferCountryCodeType(data, countryCodeField) {
         });
       }
       return memo;
-    }, {
-      iso_a2: 0,
-      iso_a3: 0,
-      iso_n3: 0,
-    })
+    }, initState)
     .toPairs()
     .reduce((memo, item) => (item[1] > memo[1] ? item : memo))
     .value();

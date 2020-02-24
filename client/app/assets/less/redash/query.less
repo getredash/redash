@@ -92,7 +92,7 @@ edit-in-place p.editable:hover {
 }
 
 .filter-container {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .ace_editor.ace_autocomplete .ace_completion-highlight {
@@ -172,6 +172,12 @@ edit-in-place p.editable:hover {
   }
 }
 
+.query-log-line {
+  font-family: monospace;
+  white-space: pre;
+  margin: 0;
+}
+
 .paginator-container {
   text-align: center;
 }
@@ -202,21 +208,21 @@ edit-in-place p.editable:hover {
   }
 }
 
-.visualization-renderer {
-  .pagination,
-  .ant-pagination {
-    margin-top: 10px;
-  }
-}
-
 .embed__vis {
   display: flex;
   flex-flow: column;
 }
 
+.embed-heading {
+  h3 {
+    line-height: 1.75;
+    margin: 0;
+  }
+}
+
 .widget-wrapper {
   .body-container {
-    filters {
+    .filters-wrapper {
       display: block;
       padding-left: 15px;
     }
@@ -258,6 +264,7 @@ a.label-tag {
 .query-page-wrapper {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
 }
 
 .query-fullscreen {
@@ -336,7 +343,8 @@ a.label-tag {
       border-bottom: 1px solid #efefef;
     }
 
-    pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
+    .pivot-table-renderer > table,
+    visualization-renderer > .visualization-renderer-wrapper {
       overflow: visible;
     }
 
@@ -551,6 +559,10 @@ nav .rg-bottom {
   text-transform: capitalize;
 }
 
+.edit-visualization {
+    margin-right: 5px;
+}
+
 // Smaller screens
 
 @media (max-width: 880px) {
@@ -665,8 +677,17 @@ nav .rg-bottom {
   .filter-container {
     padding-right: 0;
   }
+}
 
-  .btn-edit-visualisation {
+// Responsive fixes
+@media (max-width: 767px) {
+  .query-page-wrapper {
+    h3 {
+      font-size: 18px;
+    }
 
+    favorites-control {
+      margin-top: -3px;
+    }
   }
 }

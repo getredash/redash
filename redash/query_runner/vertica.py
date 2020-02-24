@@ -117,7 +117,7 @@ class Vertica(BaseSQLQueryRunner):
                 'database': self.configuration.get('database', ''),
                 'read_timeout': self.configuration.get('read_timeout', 600)
             }
-            
+
             if self.configuration.get('connection_timeout'):
                 conn_info['connection_timeout'] = self.configuration.get('connection_timeout')
 
@@ -151,5 +151,6 @@ class Vertica(BaseSQLQueryRunner):
                 connection.close()
 
         return json_data, error
+
 
 register(Vertica)
