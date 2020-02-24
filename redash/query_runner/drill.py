@@ -94,20 +94,17 @@ class Drill(BaseHTTPQueryRunner):
     def run_query(self, query, user):
         drill_url = os.path.join(self.configuration["url"], "query.json")
 
-        try:
-            payload = {"queryType": "SQL", "query": query}
+        payload = {"queryType": "SQL", "query": query}
 
-            response, error = self.get_response(
-                drill_url, http_method="post", json=payload
-            )
-            if error is not None:
-                return None, error
+        response, error = self.get_response(
+            drill_url, http_method="post", json=payload
+        )
+        if error is not None:
+            return None, error
 
-            results = parse_response(response.json())
+        results = parse_response(response.json())
 
-            return json_dumps(results), None
-        except KeyboardInterrupt:
-            return None, "Query cancelled by user."
+        return json_dumps(results), None
 
     def get_schema(self, get_stats=False):
 

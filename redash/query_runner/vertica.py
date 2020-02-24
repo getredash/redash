@@ -137,9 +137,6 @@ class Vertica(BaseSQLQueryRunner):
                 error = "No data was returned."
 
             cursor.close()
-        except KeyboardInterrupt:
-            error = "Query cancelled by user."
-            json_data = None
         finally:
             if connection:
                 connection.close()

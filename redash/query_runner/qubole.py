@@ -130,11 +130,10 @@ class Qubole(BaseQueryRunner):
                 ]
 
             json_data = json_dumps({"columns": columns, "rows": rows})
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, JobTimeoutException):
             logging.info("Sending KILL signal to Qubole Command Id: %s", cmd.id)
             cmd.cancel()
-            error = "Query cancelled by user."
-            json_data = None
+            raise
 
         return json_data, error
 

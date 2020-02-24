@@ -134,10 +134,9 @@ class DB2(BaseSQLQueryRunner):
         except ibm_db_dbi.DatabaseError as e:
             error = str(e)
             json_data = None
-        except (KeyboardInterrupt, InterruptException):
+        except (KeyboardInterrupt, InterruptException, JobTimeoutException):
             connection.cancel()
-            error = "Query cancelled by user."
-            json_data = None
+            raise
         finally:
             connection.close()
 

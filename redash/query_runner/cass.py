@@ -129,9 +129,6 @@ class Cassandra(BaseQueryRunner):
             json_data = json_dumps(data, cls=CassandraJSONEncoder)
 
             error = None
-        except KeyboardInterrupt:
-            error = "Query cancelled by user."
-            json_data = None
 
         return json_data, error
 

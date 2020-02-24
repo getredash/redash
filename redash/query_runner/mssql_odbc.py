@@ -149,10 +149,9 @@ class SQLServerODBC(BaseSQLQueryRunner):
                 # Connection errors are `args[0][1]`
                 error = e.args[0][1]
             json_data = None
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
-            error = "Query cancelled by user."
-            json_data = None
+            raise
         finally:
             if connection:
                 connection.close()
