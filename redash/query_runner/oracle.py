@@ -63,17 +63,7 @@ class Oracle(BaseSQLQueryRunner):
         return "oracle"
 
     def __init__(self, configuration):
-        super(Oracle, self).__init__(configuration)
-
-        dsn = cx_Oracle.makedsn(
-            self.configuration["host"],
-            self.configuration["port"],
-            service_name=self.configuration["servicename"],
-        )
-
-        self.connection_string = "{}/{}@{}".format(
-            self.configuration["user"], self.configuration["password"], dsn
-        )
+        super(Oracle, self).__init__(configuration)       
 
     def _get_tables(self, schema):
         query = """
@@ -130,10 +120,12 @@ class Oracle(BaseSQLQueryRunner):
                 )
 
     def run_query(self, query, user):
+        
         dsn_t = cx_Oracle.makedsn(
             self.configuration["host"],
             self.configuration["port"],
             service_name=self.configuration["servicename"])
+        
         connection = cx_Oracle.connect(user=self.configuration["user"],password=self.configuration["password"], dsn=dsn_t)
         connection.outputtypehandler = Oracle.output_handler
 
