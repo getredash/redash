@@ -130,13 +130,6 @@ class HardLimitingWorker(BaseWorker):
             )
 
 
-def attach_to_timeout_signal():
-    def cancel_job(signum, frame):
-        raise JobTimeoutException()
-
-    signal.signal(signal.SIGALRM, cancel_job)
-
-
 Job = CancellableJob
 Queue = CancellableQueue
 Worker = HardLimitingWorker

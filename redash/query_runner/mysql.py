@@ -14,7 +14,7 @@ from redash.query_runner import (
 )
 from redash.settings import parse_boolean
 from redash.utils import json_dumps, json_loads
-from redash.tasks.worker import attach_to_timeout_signal, JobTimeoutException
+from redash.tasks.worker import JobTimeoutException
 
 try:
     import MySQLdb
@@ -157,7 +157,6 @@ class Mysql(BaseSQLQueryRunner):
         thread_id = ""
         r = Result()
         t = None
-        attach_to_timeout_signal()
 
         try:
             connection = self._connection()
