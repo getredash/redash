@@ -15,6 +15,7 @@ __all__ = [
     "InterruptException",
     "JobTimeoutException",
     "BaseSQLQueryRunner",
+    "Types",
     "TYPE_DATETIME",
     "TYPE_BOOLEAN",
     "TYPE_INTEGER",
@@ -35,6 +36,21 @@ TYPE_BOOLEAN = "boolean"
 TYPE_STRING = "string"
 TYPE_DATETIME = "datetime"
 TYPE_DATE = "date"
+
+
+class Types:
+    """
+    Types enum to be used in Query Runners. 
+    (This will eventually replace the separate TYPE_* constants.)
+    """
+
+    INTEGER = TYPE_INTEGER
+    FLOAT = TYPE_FLOAT
+    BOOLEAN = TYPE_BOOLEAN
+    STRING = TYPE_STRING
+    DATETIME = TYPE_DATETIME
+    DATE = TYPE_DATE
+
 
 SUPPORTED_COLUMN_TYPES = set(
     [TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN, TYPE_STRING, TYPE_DATETIME, TYPE_DATE]
