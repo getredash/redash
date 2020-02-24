@@ -87,7 +87,10 @@ describe("Visualizations", () => {
           });
 
           test("Positive Row Number (Wrapped)", () => {
-            const { input, output } = require("./fixtures/getCounterData/counter-types/rowValue/wrapped-positive-row-number");
+            const {
+              input,
+              output,
+            } = require("./fixtures/getCounterData/counter-types/rowValue/wrapped-positive-row-number");
             const data = getCounterData(input.data, input.options, input.visualizationName);
             expect(data).toEqual(output);
           });
@@ -99,7 +102,10 @@ describe("Visualizations", () => {
           });
 
           test("Negative Row Number (Wrapped)", () => {
-            const { input, output } = require("./fixtures/getCounterData/counter-types/rowValue/wrapped-negative-row-number");
+            const {
+              input,
+              output,
+            } = require("./fixtures/getCounterData/counter-types/rowValue/wrapped-negative-row-number");
             const data = getCounterData(input.data, input.options, input.visualizationName);
             expect(data).toEqual(output);
           });
