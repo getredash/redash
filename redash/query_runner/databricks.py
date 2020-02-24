@@ -1,6 +1,6 @@
-import base64
+import datetime
 from .hive_ds import Hive
-from redash.query_runner import register, BaseSQLQueryRunner
+from redash.query_runner import register, BaseSQLQueryRunner, Types
 from redash.utils import json_dumps
 from redash import __version__
 
@@ -12,8 +12,30 @@ except ImportError:
     enabled = False
 
 
+TYPES_MAP = {
+    str: Types.STRING,
+    bool: Types.BOOLEAN,
+    datetime.date: Types.DATE,
+    datetime.datetime: Types.DATETIME,
+    int: Types.INTEGER,
+    float: Types.FLOAT,
+}
+
+
+def _build_odbc_connection_string(**kwargs):
+    connection_string = ""
+    for k, v in kwargs.items():
+        if connection_string:
+            connection_string = "{};{}={}".format(connection_string, k, v)
+        else:
+            connection_string = "{}={}".format(k, v)
+
+    return connection_string
+
+
 class Databricks(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    should_annotate_query = False
 
     @classmethod
     def type(cls):
@@ -40,12 +62,24 @@ class Databricks(BaseSQLQueryRunner):
         }
 
     def _get_cursor(self):
-        connection_string = "Driver=Simba;HOST={};UID=token;PORT=443;PWD={};HTTPPath={};SSL=1;THRIFTTRANSPORT=2;SPARKSERVERTYPE=3;AUTHMECH=3;UserAgentEntry=Redash/{}"
-        connection_string = connection_string.format(
-            self.configuration["host"],
-            self.configuration["http_password"],
-            self.configuration["http_path"],
-            __version__,
+        connection_string = _build_odbc_connection_string(
+            Driver="Simba",
+            UID="token",
+            PORT="443",
+            SSL="1",
+            THRIFTTRANSPORT="2",
+            SPARKSERVERTYPE="3",
+            AUTHMECH=3,
+            # # Use the query as is without rewriting:
+            USENATIVEQUERY="1",
+            # Automatically reconnect to the cluster if an error occurs
+            AutoReconnect="1",
+            # Minimum interval between consecutive polls for query execution status (1ms)
+            AsyncExecPollInterval="1",
+            UserAgentEntry="Redash/{}".format(__version__),
+            HOST=self.configuration["host"],
+            PWD=self.configuration["http_password"],
+            HTTPPath=self.configuration["http_path"],
         )
 
         connection = pyodbc.connect(connection_string, autocommit=True)
@@ -60,9 +94,12 @@ class Databricks(BaseSQLQueryRunner):
 
             if cursor.description is not None:
                 columns = self.fetch_columns(
-                    # [(i[0], types_map.get(i[1], None)) for i in cursor.description]
-                    [(i[0], None) for i in cursor.description]
+                    [
+                        (i[0], TYPES_MAP.get(i[1], Types.STRING))
+                        for i in cursor.description
+                    ]
                 )
+
                 rows = [
                     dict(zip((column["name"] for column in columns), row))
                     for row in data
@@ -77,13 +114,7 @@ class Databricks(BaseSQLQueryRunner):
 
             cursor.close()
         except pyodbc.Error as e:
-            try:
-                # Query errors are at `args[1]`
-                error = e.args[1]
-            except IndexError:
-                # Connection errors are `args[0][1]`
-                error = e.args[0][1]
-
+            error = str(e)
             json_data = None
 
         return json_data, error
