@@ -17,8 +17,6 @@ def _pluck_name_and_value(default_column, row):
 
 
 def _load_result(query_id, org):
-    from redash import models
-
     query = models.Query.get_by_id_and_org(query_id, org)
 
     if query.data_source:
