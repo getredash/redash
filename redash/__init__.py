@@ -2,19 +2,19 @@ import logging
 import os
 import sys
 import urllib
-import urlparse
 
 import redis
-from flask_mail import Mail
+import urlparse
 from flask_limiter import Limiter
 from flask_limiter.util import get_ipaddr
+from flask_mail import Mail
 from flask_migrate import Migrate
 from statsd import StatsClient
 
 from . import settings
 from .app import create_app  # noqa
-from .query_runner import import_query_runners
 from .destinations import import_destinations
+from .query_runner import import_query_runners
 
 __version__ = "8.0.0"
 

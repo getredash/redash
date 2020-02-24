@@ -1,12 +1,10 @@
 from datetime import datetime
 from unittest import TestCase
 
-from redash.query_runner.prometheus import (
-    get_instant_rows,
-    get_range_rows,
-    convert_to_timestamp,
-    parse_date_math,
-)
+from redash.query_runner.prometheus import convert_to_timestamp
+from redash.query_runner.prometheus import get_instant_rows
+from redash.query_runner.prometheus import get_range_rows
+from redash.query_runner.prometheus import parse_date_math
 
 
 class TestPrometheus(TestCase):

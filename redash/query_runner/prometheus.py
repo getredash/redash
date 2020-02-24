@@ -1,12 +1,18 @@
 import time
-import requests
-from urlparse import parse_qs
 from datetime import datetime
-from dateutil.tz import UTC
+
+import requests
 from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta
-from redash.query_runner import BaseQueryRunner, register, TYPE_DATETIME, TYPE_STRING
-from redash.utils import json_dumps, json_loads
+from dateutil.tz import UTC
+from urlparse import parse_qs
+
+from redash.query_runner import BaseQueryRunner
+from redash.query_runner import register
+from redash.query_runner import TYPE_DATETIME
+from redash.query_runner import TYPE_STRING
+from redash.utils import json_dumps
+from redash.utils import json_loads
 
 
 def get_instant_rows(metrics_data):

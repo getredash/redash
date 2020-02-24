@@ -1,5 +1,7 @@
 from __future__ import print_function
+
 import os
+
 from .helpers import parse_boolean
 
 if os.environ.get("REDASH_SAML_LOCAL_METADATA_PATH") is not None:

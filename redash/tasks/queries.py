@@ -1,21 +1,27 @@
 import logging
 import signal
 import time
+
 import redis
-from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
+from celery.exceptions import SoftTimeLimitExceeded
+from celery.exceptions import TimeLimitExceeded
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
 from six import text_type
 
-from redash import models, redis_connection, settings, statsd_client
-from redash.models.parameterized_query import (
-    InvalidParameterError,
-    QueryDetachedFromDataSourceError,
-)
+from redash import models
+from redash import redis_connection
+from redash import settings
+from redash import statsd_client
+from redash.models.parameterized_query import InvalidParameterError
+from redash.models.parameterized_query import QueryDetachedFromDataSourceError
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import notify_of_failure
-from redash.utils import gen_query_hash, json_dumps, utcnow, mustache_render
+from redash.utils import gen_query_hash
+from redash.utils import json_dumps
+from redash.utils import mustache_render
+from redash.utils import utcnow
 from redash.worker import celery
 
 logger = get_task_logger(__name__)

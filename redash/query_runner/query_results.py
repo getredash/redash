@@ -3,9 +3,14 @@ import re
 import sqlite3
 
 from redash import models
-from redash.permissions import has_access, view_only
-from redash.query_runner import BaseQueryRunner, TYPE_STRING, guess_type, register
-from redash.utils import json_dumps, json_loads
+from redash.permissions import has_access
+from redash.permissions import view_only
+from redash.query_runner import BaseQueryRunner
+from redash.query_runner import guess_type
+from redash.query_runner import register
+from redash.query_runner import TYPE_STRING
+from redash.utils import json_dumps
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 
