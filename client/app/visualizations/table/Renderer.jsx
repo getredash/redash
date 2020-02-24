@@ -77,16 +77,15 @@ export default function Renderer({ options, data, context }) {
   const onSearchInputChange = useCallback(event => setSearchTerm(event.target.value), [setSearchTerm]);
 
   const tableColumns = useMemo(() => {
-    return prepareColumns(
-      options.columns,
-      <SearchInput ref={searchInputRef} searchColumns={searchColumns} onChange={onSearchInputChange} />,
-      orderBy,
-      newOrderBy => {
-        setOrderBy(newOrderBy);
-        // Remove text selection - may occur accidentally
-        document.getSelection().removeAllRanges();
-      }
-    );
+    const searchInput =
+      searchColumns.length > 0 ? (
+        <SearchInput ref={searchInputRef} searchColumns={searchColumns} onChange={onSearchInputChange} />
+      ) : null;
+    return prepareColumns(options.columns, searchInput, orderBy, newOrderBy => {
+      setOrderBy(newOrderBy);
+      // Remove text selection - may occur accidentally
+      document.getSelection().removeAllRanges();
+    });
   }, [options.columns, searchColumns, searchInputRef, onSearchInputChange, orderBy, setOrderBy]);
 
   const preparedRows = useMemo(() => sortRows(filterRows(initRows(data.rows), searchTerm, searchColumns), orderBy), [
