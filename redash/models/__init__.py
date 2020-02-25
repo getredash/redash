@@ -631,6 +631,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         for query in queries:
             try:
+                if query.schedule.get("disabled"):
+                    continue
+
                 if query.schedule["until"]:
                     schedule_until = pytz.utc.localize(
                         datetime.datetime.strptime(query.schedule["until"], "%Y-%m-%d")
@@ -654,8 +657,11 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                     key = "{}:{}".format(query.query_hash, query.data_source_id)
                     outdated_queries[key] = query
             except Exception as e:
+                query.schedule["disabled"] = True
+                db.session.commit()
+
                 logging.info(
-                    "Could not determine if query %d is outdated due to %s",
+                    "Could not determine if query %d is outdated due to %s. The schedule for this query has been disabled.",
                     query.id,
                     repr(e),
                 )
