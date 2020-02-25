@@ -25,6 +25,10 @@ export default function applyLayoutFixes(plotlyElement, layout, updatePlot) {
   );
 
   if (layout.width <= 600) {
+    // Save current `layout.height` value because `updatePlot().then(...)` handler may be called multiple
+    // times within single update, and since the handler mutates `layout` object - it may lead to bugs
+    const layoutHeight = layout.height;
+
     // change legend orientation to horizontal; plotly has a bug with this
     // legend alignment - it does not preserve enough space under the plot;
     // so we'll hack this: update plot (it will re-render legend), compute
@@ -71,7 +75,7 @@ export default function applyLayoutFixes(plotlyElement, layout, updatePlot) {
         //    plot; if legend is too large, plotly will reduce it's height and
         //    show a scrollbar; in this case, height of plot === height of legend,
         //    so we can split container's height half by half between them.
-        layout.height = Math.floor(Math.max(layout.height / 2, layout.height - (bounds.bottom - bounds.top)));
+        layout.height = Math.floor(Math.max(layoutHeight / 2, layoutHeight - (bounds.bottom - bounds.top)));
         // offset the legend
         legend.style[transformName] = "translate(0, " + layout.height + "px)";
         updatePlot(plotlyElement, pick(layout, ["height"]));
