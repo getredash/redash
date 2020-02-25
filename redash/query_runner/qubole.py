@@ -3,8 +3,12 @@ import requests
 import logging
 from io import StringIO
 
-from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING
+from redash.query_runner import (
+    BaseQueryRunner,
+    register,
+    JobTimeoutException,
+    TYPE_STRING,
+)
 from redash.utils import json_dumps
 
 try:
