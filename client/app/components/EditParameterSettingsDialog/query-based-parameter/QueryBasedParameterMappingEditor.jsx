@@ -70,7 +70,8 @@ export default function QueryBasedParameterMappingEditor({ parameter, mapping, s
                 <Radio
                   className="radio"
                   value={QueryBasedParameterMappingType.DROPDOWN_SEARCH}
-                  disabled={!searchAvailable || parameter.type !== "text"}>
+                  disabled={!searchAvailable || parameter.type !== "text"}
+                  data-test="DropdownSearchOption">
                   Dropdown Search{" "}
                   {(!searchAvailable || parameter.type !== "text") && (
                     <Tooltip
@@ -83,7 +84,7 @@ export default function QueryBasedParameterMappingEditor({ parameter, mapping, s
                     </Tooltip>
                   )}
                 </Radio>
-                <Radio className="radio" value={QueryBasedParameterMappingType.STATIC}>
+                <Radio className="radio" value={QueryBasedParameterMappingType.STATIC} data-test="StaticValueOption">
                   Static Value
                 </Radio>
               </Radio.Group>
@@ -107,7 +108,7 @@ export default function QueryBasedParameterMappingEditor({ parameter, mapping, s
         }
         visible={showPopover}
         onVisibleChange={setShowPopover}>
-        <Button className="m-l-5" size="small" type="dashed">
+        <Button className="m-l-5" size="small" type="dashed" data-test={`EditParamMappingButton-${parameter.name}`}>
           <Icon type="edit" />
         </Button>
       </InputPopover>

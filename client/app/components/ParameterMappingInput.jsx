@@ -346,7 +346,7 @@ class MappingEditor extends React.Component {
         okButtonProps={{ disabled: !!inputError }}
         visible={visible}
         onVisibleChange={this.onVisibleChange}>
-        <Button size="small" type="dashed" data-test={`EditParamMappingButon-${mapping.param.name}`}>
+        <Button size="small" type="dashed" data-test={`EditParamMappingButton-${mapping.param.name}`}>
           <Icon type="edit" />
         </Button>
       </InputPopover>
