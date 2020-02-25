@@ -8,24 +8,33 @@ page-query-view {
 
   .query-view-content {
     .query-results {
-      position: relative;
       margin: 0px 15px 0px;
 
-      .query-execution-status {
-        position: fixed;
-        min-width: 250px;
-        bottom: 0;
-        right: 0;
-        padding: 15px;
-        z-index: 1000;
+      .query-results-footer {
+        position: relative;
 
-        @media (min-width: 768px) {
-          position: absolute;
-          padding: 5px;
+        .query-execution-status {
+          position: fixed;
+          min-width: 250px;
+          bottom: 0;
+          right: 0;
+          padding: 15px;
+          z-index: 1000;
+
+          @media (min-width: 768px) {
+            display: flex;
+            min-height: 100%;
+            position: absolute;
+            padding: 3px;
+
+            .ant-alert {
+              flex: 1 1;
+            }
+          }
         }
       }
 
-      .query-results-footer {
+      .query-execution-metadata {
         border: 1px solid #d9d9d9;
         border-top-width: 0px;
         box-sizing: border-box;

@@ -245,11 +245,6 @@ a.label-tag {
     align-content: space-around;
     padding: 0;
     overflow-x: hidden;
-
-    .pivot-table-visualization-container > table,
-    .visualization-renderer > .visualization-renderer-wrapper {
-      overflow: visible;
-    }
   }
   .row {
     background: #fff;
@@ -416,12 +411,10 @@ nav .rg-bottom {
 .query-tags {
   display: inline-block;
   vertical-align: middle;
-  margin-top: -3px; // padding-top of tags
 }
 
 .query-tags__mobile {
   display: none;
-  padding: 0 0 0 23px;
 }
 
 .table--permission {
@@ -449,14 +442,6 @@ nav .rg-bottom {
 // Smaller screens
 
 @media (max-width: 880px) {
-  .query-tags:not(.query-tags__empty) {
-    display: none;
-  }
-
-  .query-tags__mobile:not(.query-tags__empty) {
-    display: block;
-  }
-
   .btn--showhide,
   .query-actions-menu .dropdown-toggle {
     margin-bottom: 5px;

@@ -145,17 +145,6 @@ function QueryView(props) {
           </div>
         )}
         <div className="query-results m-t-15">
-          {(executionError || isExecuting) && (
-            <div className="query-execution-status">
-              <QueryExecutionStatus
-                status={executionStatus}
-                error={executionError}
-                isCancelling={isExecutionCancelling}
-                onCancel={cancelExecution}
-                updatedAt={updatedAt}
-              />
-            </div>
-          )}
           {loadedInitialResults && (
             <QueryVisualizationTabs
               queryResult={queryResult}
@@ -178,8 +167,8 @@ function QueryView(props) {
               }
             />
           )}
-          {queryResult && !queryResult.getError() && (
-            <div className="query-results-footer">
+          <div className="query-results-footer">
+            {queryResult && !queryResult.getError() && (
               <QueryExecutionMetadata
                 query={query}
                 queryResult={queryResult}
@@ -198,8 +187,19 @@ function QueryView(props) {
                   </QueryViewButton>
                 }
               />
-            </div>
-          )}
+            )}
+            {(executionError || isExecuting) && (
+              <div className="query-execution-status">
+                <QueryExecutionStatus
+                  status={executionStatus}
+                  error={executionError}
+                  isCancelling={isExecutionCancelling}
+                  onCancel={cancelExecution}
+                  updatedAt={updatedAt}
+                />
+              </div>
+            )}
+          </div>
         </div>
         <div className={cx("p-t-15 p-r-15 p-l-15", { hidden: fullscreen })}>
           <QueryMetadata layout="horizontal" query={query} dataSource={dataSource} onEditSchedule={editSchedule} />
