@@ -332,9 +332,6 @@ class BigQuery(BaseQueryRunner):
                 error = json_loads(e.content)["error"]["message"]
             else:
                 error = e.content
-        except KeyboardInterrupt:
-            error = "Query cancelled by user."
-            json_data = None
 
         return json_data, error
 

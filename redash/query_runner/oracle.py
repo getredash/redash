@@ -161,10 +161,9 @@ class Oracle(BaseSQLQueryRunner):
         except cx_Oracle.DatabaseError as err:
             error = "Query failed. {}.".format(str(err))
             json_data = None
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
-            error = "Query cancelled by user."
-            json_data = None
+            raise
         finally:
             connection.close()
 
