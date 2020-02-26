@@ -2,7 +2,7 @@ FROM node:12 as frontend-builder
 
 WORKDIR /frontend
 COPY package.json package-lock.json /frontend/
-RUN npm install
+RUN npm ci
 
 COPY client /frontend/client
 COPY webpack.config.js /frontend/
@@ -39,7 +39,7 @@ RUN apt-get update && \
     default-libmysqlclient-dev \
     freetds-dev \
     libsasl2-dev && \
-  # MSSQL ODBC Driver:  
+  # MSSQL ODBC Driver:
   curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
   curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
   apt-get update && \
