@@ -1,4 +1,5 @@
 import sentry_sdk
+from funcy import iffy
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
@@ -33,3 +34,6 @@ def init():
                 RqIntegration(),
             ],
         )
+
+
+capture_message = iffy(lambda _: settings.SENTRY_DSN, sentry_sdk.capture_message)

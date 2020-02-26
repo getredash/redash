@@ -36,6 +36,7 @@ from redash.utils import (
     json_loads,
     mustache_render,
     base_url,
+    sentry,
 )
 from redash.utils.configuration import ConfigurationContainer
 from redash.models.parameterized_query import ParameterizedQuery
@@ -660,11 +661,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 query.schedule["disabled"] = True
                 db.session.commit()
 
-                logging.info(
-                    "Could not determine if query %d is outdated due to %s. The schedule for this query has been disabled.",
-                    query.id,
-                    repr(e),
-                )
+                message = "Could not determine if query %d is outdated due to %s. The schedule for this query has been disabled." % (query.id, repr(e))
+                logging.info(message)
+                sentry.capture_message(message)
 
         return list(outdated_queries.values())
 

@@ -8,7 +8,7 @@ from redash.models.parameterized_query import (
     QueryDetachedFromDataSourceError,
 )
 from redash.tasks.failure_report import track_failure
-from redash.utils import json_dumps
+from redash.utils import json_dumps, sentry
 from redash.worker import job, get_job_logger
 
 from .execution import enqueue_query
@@ -88,7 +88,9 @@ def refresh_queries():
             )
             enqueued.append(query)
         except Exception as e:
-            logging.info("Could not enqueue query %d due to %s", query.id, repr(e))
+            message = "Could not enqueue query %d due to %s" % (query.id, repr(e))
+            logging.info(message)
+            sentry.capture_message(message)
 
     status = {
         "outdated_queries_count": len(enqueued),
