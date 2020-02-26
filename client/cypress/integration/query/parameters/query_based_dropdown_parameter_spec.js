@@ -123,8 +123,6 @@ describe("Query Based Dropdown Parameter", () => {
         });
 
         cy.getByTestId("SaveParameterSettings").click();
-        cy.server();
-        cy.route("POST", `api/queries/${dropdownQuery.id}/results`).as("DropdownResults");
       });
     });
 
@@ -137,10 +135,8 @@ describe("Query Based Dropdown Parameter", () => {
         .find("input")
         .type(searchTerm, { force: true });
 
-      cy.wait("@DropdownResults");
-
-      // wait to make sure results were updated in the dropdown
-      cy.wait(300); // eslint-disable-line cypress/no-unnecessary-waiting
+      // make sure results are available in options
+      cy.get(".ant-select-dropdown-menu").contains(searchTerm);
 
       // select all options
       cy.get("li.ant-select-dropdown-menu-item").each($option => {
