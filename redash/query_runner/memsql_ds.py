@@ -135,10 +135,9 @@ class MemSQL(BaseSQLQueryRunner):
             data = {"columns": columns, "rows": rows}
             json_data = json_dumps(data)
             error = None
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, JobTimeoutException):
             cursor.close()
-            error = "Query cancelled by user."
-            json_data = None
+            raise
         finally:
             if cursor:
                 cursor.close()

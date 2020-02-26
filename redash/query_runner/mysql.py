@@ -10,11 +10,11 @@ from redash.query_runner import (
     TYPE_DATE,
     BaseSQLQueryRunner,
     InterruptException,
+    JobTimeoutException,
     register,
 )
 from redash.settings import parse_boolean
 from redash.utils import json_dumps, json_loads
-from redash.tasks.worker import JobTimeoutException
 
 try:
     import MySQLdb
@@ -167,17 +167,10 @@ class Mysql(BaseSQLQueryRunner):
             t.start()
             while not ev.wait(1):
                 pass
-        except JobTimeoutException as e:
+        except (KeyboardInterrupt, InterruptException, JobTimeoutException):
             self._cancel(thread_id)
             t.join()
-            raise e
-        except (KeyboardInterrupt, InterruptException):
-            error = self._cancel(thread_id)
-            t.join()
-            r.json_data = None
-            r.error = "Query cancelled by user."
-            if error is not None:
-                r.error = error
+            raise
 
         return r.json_data, r.error
 
