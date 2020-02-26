@@ -46,7 +46,7 @@ describe("Query Based Dropdown Parameter", () => {
       cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
 
       cy.getByTestId("ParameterName-test-parameter")
-        .find(".ant-select")
+        .find(".ant-select-selection")
         .click();
 
       // make sure all options are unselected and select all
@@ -129,14 +129,20 @@ describe("Query Based Dropdown Parameter", () => {
     });
 
     const selectResultOptionsAndExecute = (searchTerm, expectedResult) => {
+      cy.wait(300); // eslint-disable-line cypress/no-unnecessary-waiting
+
       cy.getByTestId("ParameterName-test-parameter")
+        .find(".ant-select-selection")
         .click()
         .find("input")
-        .type(searchTerm);
+        .type(searchTerm, { force: true });
 
       cy.wait("@DropdownResults");
 
-      // make sure all options are unselected and select all
+      // wait to make sure results were updated in the dropdown
+      cy.wait(300); // eslint-disable-line cypress/no-unnecessary-waiting
+
+      // select all options
       cy.get("li.ant-select-dropdown-menu-item").each($option => {
         cy.wrap($option).click();
       });
