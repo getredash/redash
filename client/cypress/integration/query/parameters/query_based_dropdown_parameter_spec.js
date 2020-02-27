@@ -42,9 +42,6 @@ describe("Query Based Dropdown Parameter", () => {
       SaveParameterSettings
     `);
 
-      // add a little waiting before changing the parameter value
-      cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
-
       cy.getByTestId("ParameterName-test-parameter")
         .find(".ant-select-selection")
         .click();
@@ -127,8 +124,6 @@ describe("Query Based Dropdown Parameter", () => {
     });
 
     const selectResultOptionsAndExecute = (searchTerm, expectedResult) => {
-      cy.wait(300); // eslint-disable-line cypress/no-unnecessary-waiting
-
       cy.getByTestId("ParameterName-test-parameter")
         .find(".ant-select-selection")
         .click()
@@ -161,9 +156,6 @@ describe("Query Based Dropdown Parameter", () => {
       DoubleQuotationMarkOption
       SaveParameterSettings
     `);
-
-      // add a little waiting before changing the parameter value
-      cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
 
       selectResultOptionsAndExecute("value", '["1","2","3"]');
       selectResultOptionsAndExecute("FooBar", '["4"]');
