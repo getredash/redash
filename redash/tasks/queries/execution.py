@@ -5,6 +5,7 @@ import redis
 from rq import get_current_job
 from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
+from rq.exceptions import NoSuchJobError
 
 from redash import models, redis_connection, settings
 from redash.query_runner import InterruptException
@@ -43,24 +44,22 @@ def enqueue_query(
             job_id = pipe.get(_job_lock_id(query_hash, data_source.id))
             if job_id:
                 logger.info("[%s] Found existing job: %s", query_hash, job_id)
-                job_exists = Job.exists(job_id)
                 job_complete = None
 
-                if job_exists:
+                try:
                     job = Job.fetch(job_id)
+                    job_exists = True
                     status = job.get_status()
                     job_complete = status in [JobStatus.FINISHED, JobStatus.FAILED]
 
                     if job_complete:
-                        logger.info(
-                            "[%s] job found is complete (%s), removing lock",
-                            query_hash,
-                            status,
-                        )
-                else:
-                    logger.info("[%s] job found has expired, removing lock", query_hash)
+                        message = "job found is complete (%s)" % status
+                except NoSuchJobError:
+                    message = "job found has expired"
+                    job_exists = False
 
                 if job_complete or not job_exists:
+                    logger.info("[%s] %s, removing lock", query_hash, message)
                     redis_connection.delete(_job_lock_id(query_hash, data_source.id))
                     job = None
 
