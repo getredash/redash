@@ -126,7 +126,11 @@
 
 // react-grid-layout overrides
 .react-grid-item {
-  touch-action: auto !important; // react-draggable disables touch by default
+  touch-action: initial !important; // react-draggable disables touch by default
+
+  &.react-draggable {
+    touch-action: none !important;
+  }
 
   // placeholder color
   &.react-grid-placeholder {
