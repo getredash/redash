@@ -204,7 +204,7 @@ class TestVerifyProfile(BaseTestCase):
     def test_no_domain_allowed_for_org(self):
         profile = dict(email="arik@example.com")
         self.assertFalse(verify_google_profile(self.factory.org, profile))
-        self.assertFalse(verify_github_profile(self.factory.org, profile))
+        self.assertFalse(verify_github_profile(self.factory.org, profile, [profile]))
 
     def test_google_domain_not_in_org_domains_list(self):
         profile = dict(email="arik@example.com")
@@ -234,17 +234,19 @@ class TestVerifyProfile(BaseTestCase):
         self.assertTrue(verify_google_profile(self.factory.org, profile))
 
     def test_github_domain_in_org_domains_list(self):
-        profile = dict(email="arik@example.com")
+        profile = dict(email="arik@test.com")
+        emails = [dict(email="arik@example.com"), dict(email="arik@test.com")]
         self.factory.org.settings[models.Organization.SETTING_GITHUB_APPS_DOMAINS] = [
             "example.com"
         ]
-        self.assertTrue(verify_github_profile(self.factory.org, profile))
+        self.assertTrue(verify_github_profile(self.factory.org, profile, emails))
+        self.assertEqual(profile['email'], emails[0]['email'])
 
         self.factory.org.settings[models.Organization.SETTING_GITHUB_APPS_DOMAINS] = [
             "example.org",
             "example.com",
         ]
-        self.assertTrue(verify_github_profile(self.factory.org, profile))
+        self.assertTrue(verify_github_profile(self.factory.org, profile, emails))
 
     def test_org_in_public_mode_accepts_any_domain(self):
         profile = dict(email="arik@example.com")
@@ -252,7 +254,7 @@ class TestVerifyProfile(BaseTestCase):
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = []
         self.factory.org.settings[models.Organization.SETTING_GITHUB_APPS_DOMAINS] = []
         self.assertTrue(verify_google_profile(self.factory.org, profile))
-        self.assertTrue(verify_github_profile(self.factory.org, profile))
+        self.assertTrue(verify_github_profile(self.factory.org, profile, [profile]))
 
     def test_user_not_in_google_domain_but_account_exists(self):
         profile = dict(email="arik@example.com")
@@ -264,11 +266,12 @@ class TestVerifyProfile(BaseTestCase):
 
     def test_user_not_in_github_domain_but_account_exists(self):
         profile = dict(email="arik@example.com")
+        emails = [profile]
         self.factory.create_user(email="arik@example.com")
         self.factory.org.settings[models.Organization.SETTING_GITHUB_APPS_DOMAINS] = [
             "example.org"
         ]
-        self.assertTrue(verify_github_profile(self.factory.org, profile))
+        self.assertTrue(verify_github_profile(self.factory.org, profile, emails))
 
 
 class TestGetLoginUrl(BaseTestCase):

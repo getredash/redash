@@ -43,18 +43,31 @@ def get_user_profile(access_token):
     return response.json()
 
 
-def verify_profile(org, profile):
+def get_user_emails(access_token):
+    headers = {'Authorization': 'token {}'.format(access_token)}
+    response = requests.get('https://api.github.com/user/emails', headers=headers)
+
+    if response.status_code == 401:
+        logger.warning("Failed getting user profile (response code 401).")
+        return None
+
+    return response.json()
+
+
+def verify_profile(org, profile, profile_emails):
     if org.is_public:
         return True
 
-    email = profile['email']
-    domain = email.split('@')[-1]
+    emails = [obj['email'] for obj in profile_emails]
+    for email in emails:
+        domain = email.split('@')[-1]
+        if domain in org.github_apps_domains:
+            profile['email'] = email
+            return True
 
-    if domain in org.github_apps_domains:
-        return True
-
-    if org.has_user(email) == 1:
-        return True
+        if org.has_user(email) == 1:
+            profile['email'] = email
+            return True
 
     return False
 
@@ -93,12 +106,17 @@ def authorized():
         flash("Validation error. Please retry.")
         return redirect(url_for('redash.login'))
 
+    emails = get_user_emails(access_token)
+    if emails is None:
+        flash("Validation error. Please retry.")
+        return redirect(url_for('redash.login'))
+
     if 'org_slug' in session:
         org = models.Organization.get_by_slug(session.pop('org_slug'))
     else:
         org = current_org
 
-    if not verify_profile(org, profile):
+    if not verify_profile(org, profile, emails):
         logger.warning("User tried to login with unauthorized domain name: %s (org: %s)", profile['email'], org)
         flash("Your Github Apps account ({}) isn't allowed.".format(profile['email']))
         return redirect(url_for('redash.login', org_slug=org.slug))
