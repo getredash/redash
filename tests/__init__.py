@@ -16,6 +16,8 @@ os.environ["RQ_REDIS_URL"] = os.environ.get(
 os.environ["REDASH_GOOGLE_CLIENT_ID"] = "dummy"
 os.environ["REDASH_GOOGLE_CLIENT_SECRET"] = "dummy"
 os.environ["REDASH_MULTI_ORG"] = "true"
+os.environ['REDASH_GITHUB_CLIENT_ID'] = "dummy"
+os.environ['REDASH_GITHUB_CLIENT_SECRET'] = "dummy"
 
 # Make sure rate limit is enabled
 os.environ["REDASH_RATELIMIT_ENABLED"] = "true"
