@@ -70,11 +70,15 @@ class QuerySnippetDialog extends React.Component {
               loading={saving}
               disabled={readOnly}
               type="primary"
-              form="querySnippetForm">
+              form="querySnippetForm"
+              data-test="SaveQuerySnippetButton">
               {isEditing ? "Save" : "Create"}
             </Button>
           ),
-        ]}>
+        ]}
+        wrapProps={{
+          "data-test": "QuerySnippetDialog",
+        }}>
         <DynamicForm
           id="querySnippetForm"
           fields={formFields}
