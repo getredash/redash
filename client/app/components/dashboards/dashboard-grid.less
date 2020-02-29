@@ -126,6 +126,8 @@
 
 // react-grid-layout overrides
 .react-grid-item {
+  touch-action: auto !important; // react-draggable disables touch by default
+
   // placeholder color
   &.react-grid-placeholder {
     border-radius: 3px;
