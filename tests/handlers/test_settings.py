@@ -47,3 +47,23 @@ class TestOrganizationSettings(BaseTestCase):
 
         rv = self.make_request("get", "/api/settings/organization", user=admin)
         self.assertEqual(rv.json["settings"]["auth_google_apps_domains"], domains)
+
+    def test_updates_github_apps_domains(self):
+        admin = self.factory.create_admin()
+        domains = ["example.com"]
+        rv = self.make_request(
+            "post",
+            "/api/settings/organization",
+            data={"auth_github_apps_domains": domains},
+            user=admin,
+        )
+        updated_org = Organization.get_by_slug(self.factory.org.slug)
+        self.assertEqual(updated_org.github_apps_domains, domains)
+
+    def test_get_returns_github_appas_domains(self):
+        admin = self.factory.create_admin()
+        domains = ["example.com"]
+        admin.org.settings[Organization.SETTING_GITHUB_APPS_DOMAINS] = domains
+
+        rv = self.make_request("get", "/api/settings/organization", user=admin)
+        self.assertEqual(rv.json["settings"]["auth_github_apps_domains"], domains)

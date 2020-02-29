@@ -4,7 +4,11 @@ from flask import redirect, url_for, Blueprint, flash, request, session
 from flask_oauthlib.client import OAuth
 
 from redash import models, settings
-from redash.authentication import create_and_login_user, logout_and_redirect_to_index, get_next_path
+from redash.authentication import (
+    create_and_login_user,
+    logout_and_redirect_to_index,
+    get_next_path
+)
 from redash.authentication.org_resolving import current_org
 
 logger = logging.getLogger('github_oauth')
