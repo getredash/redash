@@ -77,6 +77,10 @@ def login():
 @blueprint.route('/oauth/github_callback', endpoint="callback")
 def authorized():
     resp = github_remote_app().authorized_response()
+    if 'error' in resp:
+        logger.warning("Incorrect github client configurations: %s", resp['error'])
+        return redirect(resp['error_uri'])
+
     access_token = resp['access_token']
 
     if access_token is None:
