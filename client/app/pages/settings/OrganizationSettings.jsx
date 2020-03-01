@@ -48,7 +48,12 @@ class OrganizationSettings extends React.Component {
   }
 
   disablePasswordLoginToggle = () =>
-    !(clientConfig.googleLoginEnabled || clientConfig.ldapLoginEnabled  || clientConfig.githubLoginEnabled || this.state.formValues.auth_saml_enabled);
+    !(
+      clientConfig.googleLoginEnabled ||
+      clientConfig.ldapLoginEnabled ||
+      clientConfig.githubLoginEnabled ||
+      this.state.formValues.auth_saml_enabled
+    );
 
   handleSubmit = e => {
     e.preventDefault();
@@ -119,8 +124,8 @@ class OrganizationSettings extends React.Component {
               message={
                 <p>
                   Any user registered with a <strong>{join(formValues.auth_github_apps_domains, ", ")}</strong> GitHub
-                  account will be able to login. If they don{"'"}t have an existing user, a new user will be
-                  created and join the <strong>Default</strong> group.
+                  account will be able to login. If they don{"'"}t have an existing user, a new user will be created and
+                  join the <strong>Default</strong> group.
                 </p>
               }
               className="m-t-15"
