@@ -61,10 +61,20 @@ export default function PlotlyChart({ options, data }) {
     [options, data, container]
   );
 
-  // Cleanup when component destroyed
   useEffect(() => {
     if (container) {
-      return () => Plotly.purge(container);
+      // Disable touch interactions on Plotly
+      const removeTouch = event => {
+        event.stopPropagation();
+      };
+
+      container.addEventListener("touchstart", removeTouch, true);
+      return () => {
+        container.removeEventListener("touchstart", removeTouch, true);
+
+        // Cleanup when component destroyed
+        Plotly.purge(container);
+      };
     }
   }, [container]);
 
