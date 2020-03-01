@@ -36,6 +36,7 @@ from redash.utils import (
     json_loads,
     mustache_render,
     base_url,
+    sentry,
 )
 from redash.utils.configuration import ConfigurationContainer
 from redash.models.parameterized_query import ParameterizedQuery
@@ -630,34 +631,39 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         scheduled_queries_executions.refresh()
 
         for query in queries:
-            if query.schedule["interval"] is None:
-                continue
-
-            if query.schedule["until"] is not None:
-                schedule_until = pytz.utc.localize(
-                    datetime.datetime.strptime(query.schedule["until"], "%Y-%m-%d")
-                )
-
-                if schedule_until <= now:
+            try:
+                if query.schedule.get("disabled"):
                     continue
 
-            if query.latest_query_data:
-                retrieved_at = query.latest_query_data.retrieved_at
-            else:
-                retrieved_at = now
+                if query.schedule["until"]:
+                    schedule_until = pytz.utc.localize(
+                        datetime.datetime.strptime(query.schedule["until"], "%Y-%m-%d")
+                    )
 
-            retrieved_at = scheduled_queries_executions.get(query.id) or retrieved_at
+                    if schedule_until <= now:
+                        continue
 
-            if should_schedule_next(
-                retrieved_at,
-                now,
-                query.schedule["interval"],
-                query.schedule["time"],
-                query.schedule["day_of_week"],
-                query.schedule_failures,
-            ):
-                key = "{}:{}".format(query.query_hash, query.data_source_id)
-                outdated_queries[key] = query
+                retrieved_at = scheduled_queries_executions.get(query.id) or (
+                    query.latest_query_data and query.latest_query_data.retrieved_at
+                )
+
+                if should_schedule_next(
+                    retrieved_at or now,
+                    now,
+                    query.schedule["interval"],
+                    query.schedule["time"],
+                    query.schedule["day_of_week"],
+                    query.schedule_failures,
+                ):
+                    key = "{}:{}".format(query.query_hash, query.data_source_id)
+                    outdated_queries[key] = query
+            except Exception as e:
+                query.schedule["disabled"] = True
+                db.session.commit()
+
+                message = "Could not determine if query %d is outdated due to %s. The schedule for this query has been disabled." % (query.id, repr(e))
+                logging.info(message)
+                sentry.capture_message(message)
 
         return list(outdated_queries.values())
 
