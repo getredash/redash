@@ -188,16 +188,12 @@ function DashboardControl({ dashboardOptions }) {
 
   const unarchiveDashboard = () => {
     recordEvent("unarchive", "dashboard", dashboard.id);
-    updateDashboard({ is_archived: false}, false);
-  }
+    updateDashboard({ is_archived: false }, false);
+  };
 
   return (
     <div className="col-xs-4 col-sm-5 col-lg-5 text-right dashboard-control p-r-0">
-      {dashboard.is_archived &&  (
-        <Button onClick={unarchiveDashboard}>
-          Unarchive 
-        </Button>
-      )}
+      {dashboard.is_archived && <Button onClick={unarchiveDashboard}>Unarchive</Button>}
       {!dashboard.is_archived && (
         <span className="hidden-print">
           {showPublishButton && (
