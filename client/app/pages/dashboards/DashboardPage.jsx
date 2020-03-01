@@ -173,6 +173,7 @@ DashboardMoreOptionsButton.propTypes = {
 function DashboardControl({ dashboardOptions }) {
   const {
     dashboard,
+    updateDashboard,
     togglePublished,
     canEditDashboard,
     fullscreen,
@@ -184,8 +185,19 @@ function DashboardControl({ dashboardOptions }) {
   const showFullscreenButton = !dashboard.is_draft;
   const showShareButton = dashboard.publicAccessEnabled || (canEditDashboard && !dashboard.is_draft);
   const showMoreOptionsButton = canEditDashboard;
+
+  const unarchiveDashboard = () => {
+    recordEvent("unarchive", "dashboard", dashboard.id);
+    updateDashboard({ is_archived: false}, false);
+  }
+
   return (
     <div className="col-xs-4 col-sm-5 col-lg-5 text-right dashboard-control p-r-0">
+      {dashboard.is_archived &&  (
+        <Button onClick={unarchiveDashboard}>
+          Unarchive 
+        </Button>
+      )}
       {!dashboard.is_archived && (
         <span className="hidden-print">
           {showPublishButton && (
