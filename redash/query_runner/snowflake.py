@@ -125,7 +125,7 @@ class Snowflake(BaseQueryRunner):
 
         return data, error    
     
-    def _database_name_with_schema(self):
+    def _database_name_includes_schema(self):
         return '.' in self.configuration.get('database')
 
     def get_schema(self, get_stats=False):
