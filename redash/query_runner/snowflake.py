@@ -129,7 +129,7 @@ class Snowflake(BaseQueryRunner):
         return '.' in self.configuration.get('database')
 
     def get_schema(self, get_stats=False):
-        if self._database_name_with_schema():
+        if self._database_name_includes_schema():
             query = "SHOW COLUMNS"
         else:
             query = "SHOW COLUMNS IN DATABASE"
