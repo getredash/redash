@@ -91,7 +91,7 @@ def login():
 def authorized():
     resp = github_remote_app().authorized_response()
     if 'error' in resp:
-        logger.warning("Incorrect github client configurations: %s", resp['error'])
+        logger.warning("Incorrect GitHub client configurations: %s", resp['error'])
         return redirect(resp['error_uri'])
 
     access_token = resp['access_token']
@@ -118,7 +118,7 @@ def authorized():
 
     if not verify_profile(org, profile, emails):
         logger.warning("User tried to login with unauthorized domain name: %s (org: %s)", profile['email'], org)
-        flash("Your Github Apps account ({}) isn't allowed.".format(profile['email']))
+        flash("Your GitHub Apps account ({}) isn't allowed.".format(profile['email']))
         return redirect(url_for('redash.login', org_slug=org.slug))
 
     picture_url = "%s" % profile['avatar_url']

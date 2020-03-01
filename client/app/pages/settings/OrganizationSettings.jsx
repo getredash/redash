@@ -108,7 +108,7 @@ class OrganizationSettings extends React.Component {
     return (
       <React.Fragment>
         <h4>Github Login</h4>
-        <Form.Item label="Allowed Github Apps Domains">
+        <Form.Item label="Allowed GitHub Apps Domains">
           <Select
             mode="tags"
             value={formValues.auth_github_apps_domains}
@@ -118,8 +118,8 @@ class OrganizationSettings extends React.Component {
             <Alert
               message={
                 <p>
-                  Any user registered with a <strong>{join(formValues.auth_github_apps_domains, ", ")}</strong> Github
-                  Apps account will be able to login. If they don{"'"}t have an existing user, a new user will be
+                  Any user registered with a <strong>{join(formValues.auth_github_apps_domains, ", ")}</strong> GitHub
+                  account will be able to login. If they don{"'"}t have an existing user, a new user will be
                   created and join the <strong>Default</strong> group.
                 </p>
               }
