@@ -909,18 +909,25 @@ OPERATORS = {
 
 
 def next_state(op, value, threshold):
-    if isinstance(value, numbers.Number) and not isinstance(value, bool):
-        try:
-            threshold = float(threshold)
-        except ValueError:
-            return Alert.UNKNOWN_STATE
-    # If it's a boolean cast to string and lower case, because upper cased
-    # boolean value is Python specific and most likely will be confusing to
-    # users.
-    elif isinstance(value, bool):
+    if isinstance(value, bool):
+        # If it's a boolean cast to string and lower case, because upper cased
+        # boolean value is Python specific and most likely will be confusing to
+        # users.
         value = str(value).lower()
     else:
-        value = str(value)
+        try:
+            value = float(value)
+            value_is_number = True
+        except ValueError:
+            value_is_number = isinstance(value, numbers.Number)
+
+        if value_is_number:
+            try:
+                threshold = float(threshold)
+            except ValueError:
+                return Alert.UNKNOWN_STATE
+        else:
+            value = str(value)
 
     if op(value, threshold):
         new_state = Alert.TRIGGERED_STATE
