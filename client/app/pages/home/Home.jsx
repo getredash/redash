@@ -38,7 +38,7 @@ function DeprecatedEmbedFeatureAlert() {
 
 function EmailNotVerifiedAlert() {
   const verifyEmail = () => {
-    axios.post("verification_email").then(data => {
+    axios.post("verification_email/").then(data => {
       notification.success(data.message);
     });
   };

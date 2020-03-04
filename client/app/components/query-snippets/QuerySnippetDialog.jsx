@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { get } from "lodash";
+import { get, isNil } from "lodash";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
@@ -27,6 +27,10 @@ class QuerySnippetDialog extends React.Component {
   handleSubmit = (values, successCallback, errorCallback) => {
     const { querySnippet, dialog, onSubmit } = this.props;
     const querySnippetId = get(querySnippet, "id");
+
+    if (isNil(values.description)) {
+      values.description = "";
+    }
 
     this.setState({ saving: true });
     onSubmit(querySnippetId ? { id: querySnippetId, ...values } : values)
@@ -66,11 +70,15 @@ class QuerySnippetDialog extends React.Component {
               loading={saving}
               disabled={readOnly}
               type="primary"
-              form="querySnippetForm">
+              form="querySnippetForm"
+              data-test="SaveQuerySnippetButton">
               {isEditing ? "Save" : "Create"}
             </Button>
           ),
-        ]}>
+        ]}
+        wrapProps={{
+          "data-test": "QuerySnippetDialog",
+        }}>
         <DynamicForm
           id="querySnippetForm"
           fields={formFields}

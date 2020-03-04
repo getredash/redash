@@ -222,6 +222,14 @@ STATIC_ASSETS_PATH = fix_assets_path(
     os.environ.get("REDASH_STATIC_ASSETS_PATH", "../client/dist/")
 )
 
+# Time limit (in seconds) for scheduled queries. Set this to -1 to execute without a time limit.
+SCHEDULED_QUERY_TIME_LIMIT = int(
+    os.environ.get("REDASH_SCHEDULED_QUERY_TIME_LIMIT", -1)
+)
+
+# Time limit (in seconds) for adhoc queries. Set this to -1 to execute without a time limit.
+ADHOC_QUERY_TIME_LIMIT = int(os.environ.get("REDASH_ADHOC_QUERY_TIME_LIMIT", -1))
+
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 12))
 JOB_DEFAULT_FAILURE_TTL = int(
     os.environ.get("REDASH_JOB_DEFAULT_FAILURE_TTL", 7 * 24 * 60 * 60)
@@ -324,6 +332,7 @@ default_query_runners = [
     "redash.query_runner.sqlite",
     "redash.query_runner.dynamodb_sql",
     "redash.query_runner.mssql",
+    "redash.query_runner.mssql_odbc",
     "redash.query_runner.memsql_ds",
     "redash.query_runner.mapd",
     "redash.query_runner.jql",

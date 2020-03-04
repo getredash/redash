@@ -3,8 +3,12 @@ import requests
 import logging
 from io import StringIO
 
-from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING
+from redash.query_runner import (
+    BaseQueryRunner,
+    register,
+    JobTimeoutException,
+    TYPE_STRING,
+)
 from redash.utils import json_dumps
 
 try:
@@ -130,11 +134,10 @@ class Qubole(BaseQueryRunner):
                 ]
 
             json_data = json_dumps({"columns": columns, "rows": rows})
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, JobTimeoutException):
             logging.info("Sending KILL signal to Qubole Command Id: %s", cmd.id)
             cmd.cancel()
-            error = "Query cancelled by user."
-            json_data = None
+            raise
 
         return json_data, error
 

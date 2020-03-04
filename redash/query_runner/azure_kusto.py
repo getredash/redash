@@ -129,9 +129,6 @@ class AzureKusto(BaseQueryRunner):
                 error = err.args[1][0]["error"]["@message"]
             except (IndexError, KeyError):
                 error = err.args[1]
-        except KeyboardInterrupt:
-            json_data = None
-            error = "Query cancelled by user."
 
         return json_data, error
 

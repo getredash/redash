@@ -57,8 +57,13 @@ class DynamicForm extends React.Component {
     super(props);
 
     const hasFilledExtraField = some(props.fields, field => {
-      const { extra, initialValue } = field;
-      return extra && (!isEmpty(initialValue) || isNumber(initialValue) || (isBoolean(initialValue) && initialValue));
+      const { extra, initialValue, placeholder } = field;
+      return (
+        extra &&
+        (!isEmpty(initialValue) ||
+          isNumber(initialValue) ||
+          (isBoolean(initialValue) && initialValue.toString() !== placeholder))
+      );
     });
 
     const inProgressActions = {};
@@ -95,7 +100,7 @@ class DynamicForm extends React.Component {
     this.props.form.validateFieldsAndScroll((err, values) => {
       Object.entries(values).forEach(([key, value]) => {
         const initialValue = this.props.fields.find(f => f.name === key).initialValue;
-        if ((initialValue === null || initialValue === undefined || initialValue === '') && value === '') {
+        if ((initialValue === null || initialValue === undefined || initialValue === "") && value === "") {
           values[key] = null;
         }
       });

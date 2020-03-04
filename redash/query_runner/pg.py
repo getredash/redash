@@ -224,10 +224,9 @@ class PostgreSQL(BaseSQLQueryRunner):
         except psycopg2.DatabaseError as e:
             error = str(e)
             json_data = None
-        except (KeyboardInterrupt, InterruptException):
+        except (KeyboardInterrupt, InterruptException, JobTimeoutException):
             connection.cancel()
-            error = "Query cancelled by user."
-            json_data = None
+            raise
         finally:
             connection.close()
 

@@ -284,14 +284,17 @@ def serialize_job(job):
         updated_at = 0
 
     status = STATUSES[job_status]
+    query_result_id = None
 
-    if isinstance(job.result, Exception):
+    if job.is_cancelled:
+        error = "Query cancelled by user."
+        status = 4
+    elif isinstance(job.result, Exception):
         error = str(job.result)
         status = 4
-    elif job.is_cancelled:
-        error = "Query execution cancelled."
     else:
         error = ""
+        query_result_id = job.result
 
     return {
         "job": {
@@ -299,6 +302,6 @@ def serialize_job(job):
             "updated_at": updated_at,
             "status": status,
             "error": error,
-            "query_result_id": job.result if job.is_finished and not error else None,
+            "query_result_id": query_result_id,
         }
     }

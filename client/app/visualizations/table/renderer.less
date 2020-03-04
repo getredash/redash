@@ -102,7 +102,8 @@
   }
 
   /* START table x scroll */
-  .dashboard-widget-wrapper:not(.widget-auto-height-enabled) & {
+  .dashboard-widget-wrapper:not(.widget-auto-height-enabled) &,
+  .query-fixed-layout & {
     position: absolute;
     left: 0;
     top: 0;
@@ -123,4 +124,16 @@
     }
   }
   /* END */
+}
+
+.table-visualization-search-info-content {
+  max-width: 400px;
+}
+
+.table-visualization-search-info-icon {
+  margin: 0 5px 0 0;
+
+  &:not(:hover):not(:active) {
+    color: @text-color-secondary;
+  }
 }

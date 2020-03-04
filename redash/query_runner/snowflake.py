@@ -123,14 +123,16 @@ class Snowflake(BaseQueryRunner):
             cursor.close()
             connection.close()
 
-        return data, error
+        return data, error    
+    
+    def _database_name_includes_schema(self):
+        return '.' in self.configuration.get('database')
 
     def get_schema(self, get_stats=False):
-        query = """
-        SHOW COLUMNS IN DATABASE {database}
-        """.format(
-            database=self.configuration["database"]
-        )
+        if self._database_name_includes_schema():
+            query = "SHOW COLUMNS"
+        else:
+            query = "SHOW COLUMNS IN DATABASE"
 
         results, error = self._run_query_without_warehouse(query)
 
