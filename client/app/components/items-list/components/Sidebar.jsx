@@ -19,7 +19,6 @@ export function SearchInput({ placeholder, value, showIcon, onChange }) {
         placeholder={placeholder}
         defaultValue={value}
         onChange={event => onChange(event.target.value)}
-        autoFocus
       />
     </div>
   );
