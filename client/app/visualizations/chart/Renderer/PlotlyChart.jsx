@@ -1,5 +1,6 @@
 import { isArray, isObject } from "lodash";
 import React, { useState, useEffect, useContext } from "react";
+import useMedia from "use-media";
 import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 import resizeObserver from "@/services/resizeObserver";
@@ -20,6 +21,7 @@ function catchErrors(func, errorHandler) {
 export default function PlotlyChart({ options, data }) {
   const [container, setContainer] = useState(null);
   const errorHandler = useContext(ErrorBoundaryContext);
+  const isMobile = useMedia({ maxWidth: 768 });
 
   useEffect(
     catchErrors(() => {
@@ -28,7 +30,7 @@ export default function PlotlyChart({ options, data }) {
 
         const chartData = getChartData(data.rows, options);
         const plotlyData = prepareData(chartData, options);
-        const plotlyLayout = prepareLayout(container, options, plotlyData);
+        const plotlyLayout = { ...prepareLayout(container, options, plotlyData), dragmode: !isMobile ? "zoom" : false };
 
         // It will auto-purge previous graph
         Plotly.newPlot(container, plotlyData, plotlyLayout, plotlyOptions).then(
@@ -58,7 +60,7 @@ export default function PlotlyChart({ options, data }) {
         return unwatch;
       }
     }, errorHandler),
-    [options, data, container]
+    [options, data, container, isMobile]
   );
 
   // Cleanup when component destroyed
