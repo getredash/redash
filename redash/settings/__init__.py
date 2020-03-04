@@ -458,7 +458,7 @@ FEATURE_EXTENDED_ALERT_OPTIONS = parse_boolean(
 )
 # See https://github.com/getredash/redash/issues/3011
 FEATURE_ALLOW_JINJA = parse_boolean(
-    os.environ.get("FEATURE_ALLOW_JINJA", "true")
+    os.environ.get("FEATURE_ALLOW_JINJA", "false")
 )
 
 # BigQuery
