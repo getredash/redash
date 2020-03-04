@@ -126,13 +126,5 @@ describe("Dashboard", () => {
       cy.visit(this.dashboardUrl);
       cy.viewport(767, 800);
     });
-
-    it("hides menu button", () => {
-      cy.get(".dashboard-control").should("exist");
-      cy.getByTestId("DashboardMoreButton").should("not.be.visible");
-
-      cy.viewport(768, 800);
-      cy.getByTestId("DashboardMoreButton").should("be.visible");
-    });
   });
 });
