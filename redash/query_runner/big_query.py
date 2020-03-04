@@ -335,14 +335,11 @@ class BigQuery(BaseQueryRunner):
                 error = e.content
         except (KeyboardInterrupt, InterruptException, JobTimeoutException):
             if self.current_job_id:
-                response_kind = None
-                while response_kind != "bigquery#jobCancelResponse":
-                    response_kind = jobs.cancel(
-                        projectId=self._get_project_id(),
-                        jobId=self.current_job_id,
-                        location=self._get_location(),
-                    ).execute()["kind"]
-                    time.sleep(1)
+                self._get_bigquery_service().jobs().cancel(
+                    projectId=self._get_project_id(),
+                    jobId=self.current_job_id,
+                    location=self._get_location(),
+                ).execute()
 
             raise
 
