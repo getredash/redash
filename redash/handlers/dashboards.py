@@ -197,6 +197,7 @@ class DashboardResource(BaseResource):
                 "version",
                 "tags",
                 "is_draft",
+                "is_archived",
                 "dashboard_filters_enabled",
             ),
         )

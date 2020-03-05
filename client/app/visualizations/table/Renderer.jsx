@@ -1,12 +1,71 @@
-import { filter } from "lodash";
+import { filter, map, initial, last, reduce } from "lodash";
 import React, { useMemo, useState, useRef, useCallback, useEffect } from "react";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
+import Icon from "antd/lib/icon";
+import Popover from "antd/lib/popover";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 
 import { prepareColumns, initRows, filterRows, sortRows } from "./utils";
 
 import "./renderer.less";
+
+function joinColumns(array, separator = ", ") {
+  return reduce(
+    array,
+    (result, item, index) => {
+      if (index > 0) {
+        result.push(separator);
+      }
+      result.push(item);
+      return result;
+    },
+    []
+  );
+}
+
+function getSearchColumns(columns, { limit = Infinity, renderColumn = col => col.title } = {}) {
+  const firstColumns = map(columns.slice(0, limit), col => renderColumn(col));
+  const restColumns = map(columns.slice(limit), col => col.title);
+  if (restColumns.length > 0) {
+    return [...joinColumns(firstColumns), ` and ${restColumns.length} others`];
+  }
+  if (firstColumns.length > 1) {
+    return [...joinColumns(initial(firstColumns)), ` and `, last(firstColumns)];
+  }
+  return firstColumns;
+}
+
+function SearchInputInfoIcon({ searchColumns }) {
+  return (
+    <Popover
+      arrowPointAtCenter
+      placement="topRight"
+      content={
+        <div className="table-visualization-search-info-content">
+          Search {getSearchColumns(searchColumns, { renderColumn: col => <code key={col.name}>{col.title}</code> })}
+        </div>
+      }>
+      <Icon className="table-visualization-search-info-icon" type="info-circle" theme="filled" />
+    </Popover>
+  );
+}
+
+const SearchInput = React.forwardRef(({ searchColumns, ...props }, ref) => {
+  if (searchColumns.length <= 0) {
+    return null;
+  }
+
+  const searchColumnsLimit = 3;
+  return (
+    <Input.Search
+      {...props}
+      ref={ref}
+      placeholder={`Search ${getSearchColumns(searchColumns, { limit: searchColumnsLimit }).join("")}...`}
+      suffix={searchColumns.length > searchColumnsLimit ? <SearchInputInfoIcon searchColumns={searchColumns} /> : null}
+    />
+  );
+});
 
 export default function Renderer({ options, data, context }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,9 +79,8 @@ export default function Renderer({ options, data, context }) {
   const tableColumns = useMemo(() => {
     const searchInput =
       searchColumns.length > 0 ? (
-        <Input.Search ref={searchInputRef} placeholder="Search..." onChange={onSearchInputChange} />
+        <SearchInput ref={searchInputRef} searchColumns={searchColumns} onChange={onSearchInputChange} />
       ) : null;
-
     return prepareColumns(options.columns, searchInput, orderBy, newOrderBy => {
       setOrderBy(newOrderBy);
       // Remove text selection - may occur accidentally

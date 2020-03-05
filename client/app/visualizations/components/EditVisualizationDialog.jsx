@@ -4,16 +4,17 @@ import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 import Select from "antd/lib/select";
 import Input from "antd/lib/input";
-import * as Grid from "antd/lib/grid";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import ErrorBoundary, { ErrorMessage } from "@/components/ErrorBoundary";
 import Filters, { filterData } from "@/components/Filters";
 import notification from "@/services/notification";
 import Visualization from "@/services/visualization";
 import recordEvent from "@/services/recordEvent";
-import useQueryResult from "@/lib/hooks/useQueryResult";
+import getQueryResultData from "@/lib/getQueryResultData";
 import { VisualizationType } from "@/visualizations/prop-types";
 import registeredVisualizations, { getDefaultVisualization, newVisualization } from "@/visualizations";
+
+import "./EditVisualizationDialog.less";
 
 function updateQueryVisualizations(query, visualization) {
   const index = findIndex(query.visualizations, v => v.id === visualization.id);
@@ -66,7 +67,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
 
   const isNew = !visualization;
 
-  const data = useQueryResult(queryResult);
+  const data = getQueryResultData(queryResult);
   const [filters, setFilters] = useState(data.filters);
 
   const filteredData = useMemo(
@@ -157,8 +158,8 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
       onOk={save}
       onCancel={dismiss}
       wrapProps={{ "data-test": "EditVisualizationDialog" }}>
-      <Grid.Row gutter={24}>
-        <Grid.Col span={24} md={10}>
+      <div className="edit-visualization-dialog">
+        <div className="visualization-settings">
           <div className="m-b-15">
             <label htmlFor="visualization-type">Visualization Type</label>
             <Select
@@ -188,8 +189,8 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
           <div data-test="VisualizationEditor">
             <Editor data={data} options={options} visualizationName={name} onOptionsChange={onOptionsChanged} />
           </div>
-        </Grid.Col>
-        <Grid.Col span={24} md={14}>
+        </div>
+        <div className="visualization-preview">
           <label htmlFor="visualization-preview" className="invisible hidden-xs">
             Preview
           </label>
@@ -207,8 +208,8 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
               />
             </ErrorBoundary>
           </div>
-        </Grid.Col>
-      </Grid.Row>
+        </div>
+      </div>
     </Modal>
   );
 }

@@ -81,6 +81,7 @@ class TestNextState(TestCase):
         self.assertEqual(
             Alert.TRIGGERED_STATE, next_state(OPERATORS.get("=="), 1, "1.0")
         )
+        self.assertEqual(Alert.TRIGGERED_STATE, next_state(OPERATORS.get(">"), "5", 1))
 
     def test_numeric_value_and_plain_string(self):
         self.assertEqual(
@@ -88,7 +89,7 @@ class TestNextState(TestCase):
         )
 
     def test_non_numeric_value(self):
-        self.assertEqual(Alert.OK_STATE, next_state(OPERATORS.get("=="), "1", "1.0"))
+        self.assertEqual(Alert.OK_STATE, next_state(OPERATORS.get("=="), "string", "1.0"))
 
     def test_string_value(self):
         self.assertEqual(

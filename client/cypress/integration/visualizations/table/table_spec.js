@@ -16,15 +16,12 @@ function prepareVisualization(query, type, name, options) {
     .then(({ id: visualizationId, query_id: queryId }) => {
       // use data-only view because we don't need editor features, but it will
       // free more space for visualizations. Also, we'll hide schema browser (via shortcut)
-      cy.visit(`queries/${queryId}`);
+      cy.visit(`queries/${queryId}#${visualizationId}`);
 
       cy.getByTestId("ExecuteButton").click();
       cy.get("body").type("{alt}D");
 
       // do some pre-checks here to ensure that visualization was created and is visible
-      cy.getByTestId(`QueryPageVisualizationTab${visualizationId}`)
-        .should("exist")
-        .click();
       cy.getByTestId(`QueryPageVisualization${visualizationId}`)
         .should("exist")
         .find("table")

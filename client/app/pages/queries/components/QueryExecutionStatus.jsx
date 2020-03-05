@@ -46,7 +46,7 @@ export default function QueryExecutionStatus({ status, updatedAt, error, isCance
           </div>
           <div>
             {isCancelButtonAvailable && (
-              <Button type="primary" size="small" disabled={isCancelling} onClick={onCancel}>
+              <Button className="m-l-10" type="primary" size="small" disabled={isCancelling} onClick={onCancel}>
                 Cancel
               </Button>
             )}
