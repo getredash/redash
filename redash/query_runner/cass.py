@@ -167,12 +167,13 @@ class Cassandra(BaseQueryRunner):
         return json_data, None
 
     def _generate_cert_file(self):
-        with NamedTemporaryFile(mode='w', delete=False) as cert_file:
-            cert_bytes = b64decode(self.configuration.get("sslCertificateFile", None))
-            if cert_bytes is None:
-                return None
-            cert_file.write(cert_bytes.decode("utf-8"))
-        return cert_file.name
+        cert_encoded_bytes = self.configuration.get("sslCertificateFile", None)
+        if cert_encoded_bytes:
+            with NamedTemporaryFile(mode='w', delete=False) as cert_file:
+                cert_bytes = b64decode(cert_encoded_bytes)
+                cert_file.write(cert_bytes.decode("utf-8"))
+            return cert_file.name
+        return None
 
     def _cleanup_cert_file(self, cert_path):
         if cert_path:
