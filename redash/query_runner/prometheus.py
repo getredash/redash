@@ -164,9 +164,6 @@ class Prometheus(BaseQueryRunner):
 
         except requests.RequestException as e:
             return None, str(e)
-        except KeyboardInterrupt:
-            error = "Query cancelled by user."
-            json_data = None
 
         return json_data, error
 

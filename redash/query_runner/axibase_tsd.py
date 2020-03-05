@@ -155,10 +155,9 @@ class AxibaseTSD(BaseQueryRunner):
         except SQLException as e:
             json_data = None
             error = e.content
-        except (KeyboardInterrupt, InterruptException):
+        except (KeyboardInterrupt, InterruptException, JobTimeoutException):
             sql.cancel_query(query_id)
-            error = "Query cancelled by user."
-            json_data = None
+            raise
 
         return json_data, error
 

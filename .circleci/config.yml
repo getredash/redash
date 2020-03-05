@@ -61,7 +61,7 @@ jobs:
     steps:
       - checkout
       - run: mkdir -p /tmp/test-results/eslint
-      - run: npm install
+      - run: npm ci
       - run: npm run lint:ci
       - store_test_results:
           path: /tmp/test-results
@@ -72,7 +72,7 @@ jobs:
       - checkout
       - run: sudo apt install python3-pip
       - run: sudo pip3 install -r requirements_bundles.txt
-      - run: npm install
+      - run: npm ci
       - run: npm run bundle
       - run: npm test
       - run: npm run lint
@@ -91,7 +91,7 @@ jobs:
       - run:
           name: Install npm dependencies
           command: |
-            npm install
+            npm ci
       - run:
           name: Setup Redash server
           command: |

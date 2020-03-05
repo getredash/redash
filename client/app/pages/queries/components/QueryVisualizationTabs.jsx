@@ -1,5 +1,6 @@
 import React, { useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
+import cx from "classnames";
 import { find, orderBy } from "lodash";
 import useMedia from "use-media";
 import Tabs from "antd/lib/tabs";
@@ -10,6 +11,31 @@ import Modal from "antd/lib/modal";
 import "./QueryVisualizationTabs.less";
 
 const { TabPane } = Tabs;
+
+function EmptyState({ title, message, refreshButton }) {
+  return (
+    <div className="query-results-empty-state">
+      <div className="empty-state-content">
+        <div>
+          <img src="/static/images/illustrations/no-query-results.svg" alt="No Query Results Illustration" />
+        </div>
+        <h3>{title}</h3>
+        <div className="m-b-20">{message}</div>
+        {refreshButton}
+      </div>
+    </div>
+  );
+}
+
+EmptyState.propTypes = {
+  title: PropTypes.string.isRequired,
+  message: PropTypes.string.isRequired,
+  refreshButton: PropTypes.node,
+};
+
+EmptyState.defaultProps = {
+  refreshButton: null,
+};
 
 function TabWithDeleteButton({ visualizationName, canDelete, onDelete, ...props }) {
   const handleDelete = useCallback(
@@ -64,6 +90,7 @@ export default function QueryVisualizationTabs({
   onChangeTab,
   onAddVisualization,
   onDeleteVisualization,
+  refreshButton,
   ...props
 }) {
   const visualizations = useMemo(
@@ -78,9 +105,13 @@ export default function QueryVisualizationTabs({
 
   if (showNewVisualizationButton) {
     tabsProps.tabBarExtraContent = (
-      <Button data-test="NewVisualization" onClick={() => onAddVisualization()}>
+      <Button
+        className="add-visualization-button"
+        data-test="NewVisualization"
+        type="link"
+        onClick={() => onAddVisualization()}>
         <i className="fa fa-plus" />
-        <span className="m-l-5 hidden-xs">New Visualization</span>
+        <span className="m-l-5 hidden-xs">Add Visualization</span>
       </Button>
     );
   }
@@ -92,7 +123,8 @@ export default function QueryVisualizationTabs({
   return (
     <Tabs
       {...tabsProps}
-      className="query-visualization-tabs"
+      type="card"
+      className={cx("query-visualization-tabs card-style")}
       data-test="QueryPageVisualizationTabs"
       animated={false}
       tabBarGutter={0}
@@ -110,8 +142,14 @@ export default function QueryVisualizationTabs({
               onDelete={() => onDeleteVisualization(visualization.id)}
             />
           }>
-          {queryResult && (
+          {queryResult ? (
             <VisualizationRenderer visualization={visualization} queryResult={queryResult} context="query" />
+          ) : (
+            <EmptyState
+              title="Query Has no Result"
+              message="Execute/Refresh the query to show results."
+              refreshButton={refreshButton}
+            />
           )}
         </TabPane>
       ))}
@@ -128,6 +166,7 @@ QueryVisualizationTabs.propTypes = {
   onChangeTab: PropTypes.func,
   onAddVisualization: PropTypes.func,
   onDeleteVisualization: PropTypes.func,
+  refreshButton: PropTypes.node,
 };
 
 QueryVisualizationTabs.defaultProps = {
@@ -139,4 +178,5 @@ QueryVisualizationTabs.defaultProps = {
   onChangeTab: () => {},
   onAddVisualization: () => {},
   onDeleteVisualization: () => {},
+  refreshButton: null,
 };

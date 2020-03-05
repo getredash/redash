@@ -40,7 +40,7 @@ def get_db_sizes():
             "Query Results Size",
             "select pg_total_relation_size('query_results') as size from (select 1) as a",
         ],
-        ["Redash DB Size", "select pg_database_size('postgres') as size"],
+        ["Redash DB Size", "select pg_database_size(current_database()) as size"],
     ]
     for query_name, query in queries:
         result = db.session.execute(query).first()

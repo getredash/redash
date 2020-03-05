@@ -25,24 +25,31 @@ class SQLServerODBC(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
+                "server": {"type": "string"},
+                "port": {"type": "number", "default": 1433},
                 "user": {"type": "string"},
                 "password": {"type": "string"},
-                "server": {"type": "string", "default": "127.0.0.1"},
-                "port": {"type": "number", "default": 1433},
+                "db": {"type": "string", "title": "Database Name"},
                 "charset": {
                     "type": "string",
                     "default": "UTF-8",
                     "title": "Character Set",
                 },
-                "db": {"type": "string", "title": "Database Name"},
-                "driver": {
-                    "type": "string",
-                    "title": "Driver Identifier",
-                    "default": "{ODBC Driver 13 for SQL Server}",
+                "use_ssl": {
+                    "type": "boolean",
+                    "title": "Use SSL",
+                    "default": False,
+                },
+                "verify_ssl": {
+                    "type": "boolean",
+                    "title": "Verify SSL certificate",
+                    "default": True,
                 },
             },
-            "required": ["db"],
+            "order": ["server", "port", "user", "password", "db", "charset", "use_ssl", "verify_ssl"],
+            "required": ["host", "user", "password", "db"],
             "secret": ["password"],
+            "extra_options": ["verify_ssl", "use_ssl"],
         }
 
     @classmethod
@@ -91,20 +98,26 @@ class SQLServerODBC(BaseSQLQueryRunner):
         connection = None
 
         try:
-            server = self.configuration.get("server", "")
+            server = self.configuration.get("server")
             user = self.configuration.get("user", "")
             password = self.configuration.get("password", "")
             db = self.configuration["db"]
             port = self.configuration.get("port", 1433)
             charset = self.configuration.get("charset", "UTF-8")
-            driver = self.configuration.get("driver", "{ODBC Driver 13 for SQL Server}")
 
             connection_string_fmt = (
-                "DRIVER={};PORT={};SERVER={};DATABASE={};UID={};PWD={}"
+                "DRIVER={{ODBC Driver 17 for SQL Server}};PORT={};SERVER={};DATABASE={};UID={};PWD={}"
             )
             connection_string = connection_string_fmt.format(
-                driver, port, server, db, user, password
+                port, server, db, user, password
             )
+
+            if self.configuration.get('use_ssl', False):
+                connection_string += ";Encrypt=YES"
+
+                if not self.configuration.get('verify_ssl'):
+                    connection_string += ";TrustServerCertificate=YES"
+
             connection = pyodbc.connect(connection_string)
             cursor = connection.cursor()
             logger.debug("SQLServerODBC running query: %s", query)
@@ -136,10 +149,9 @@ class SQLServerODBC(BaseSQLQueryRunner):
                 # Connection errors are `args[0][1]`
                 error = e.args[0][1]
             json_data = None
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
-            error = "Query cancelled by user."
-            json_data = None
+            raise
         finally:
             if connection:
                 connection.close()

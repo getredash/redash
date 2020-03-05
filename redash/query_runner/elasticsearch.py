@@ -437,9 +437,6 @@ class Kibana(BaseElasticSearch):
                 raise Exception("Advanced queries are not supported")
 
             json_data = json_dumps({"columns": result_columns, "rows": result_rows})
-        except KeyboardInterrupt:
-            error = "Query cancelled by user."
-            json_data = None
         except requests.HTTPError as e:
             logger.exception(e)
             error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(
@@ -497,10 +494,9 @@ class ElasticSearch(BaseElasticSearch):
             )
 
             json_data = json_dumps({"columns": result_columns, "rows": result_rows})
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, JobTimeoutException):
             logger.exception(e)
-            error = "Query cancelled by user."
-            json_data = None
+            raise
         except requests.HTTPError as e:
             logger.exception(e)
             error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(

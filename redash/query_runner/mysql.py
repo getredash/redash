@@ -10,6 +10,7 @@ from redash.query_runner import (
     TYPE_DATE,
     BaseSQLQueryRunner,
     InterruptException,
+    JobTimeoutException,
     register,
 )
 from redash.settings import parse_boolean
@@ -150,11 +151,13 @@ class Mysql(BaseSQLQueryRunner):
 
         return list(schema.values())
 
+
     def run_query(self, query, user):
         ev = threading.Event()
         thread_id = ""
         r = Result()
         t = None
+
         try:
             connection = self._connection()
             thread_id = connection.thread_id()
@@ -164,13 +167,10 @@ class Mysql(BaseSQLQueryRunner):
             t.start()
             while not ev.wait(1):
                 pass
-        except (KeyboardInterrupt, InterruptException):
-            error = self._cancel(thread_id)
+        except (KeyboardInterrupt, InterruptException, JobTimeoutException):
+            self._cancel(thread_id)
             t.join()
-            r.json_data = None
-            r.error = "Query cancelled by user."
-            if error is not None:
-                r.error = error
+            raise
 
         return r.json_data, r.error
 

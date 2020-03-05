@@ -14,6 +14,8 @@ import notification from "@/services/notification";
 import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";
 
+import "./Home.less";
+
 function DeprecatedEmbedFeatureAlert() {
   return (
     <Alert
@@ -38,7 +40,7 @@ function DeprecatedEmbedFeatureAlert() {
 
 function EmailNotVerifiedAlert() {
   const verifyEmail = () => {
-    axios.post("verification_email").then(data => {
+    axios.post("verification_email/").then(data => {
       notification.success(data.message);
     });
   };
@@ -109,8 +111,8 @@ function DashboardAndQueryFavoritesList() {
   return (
     <div className="tile">
       <div className="t-body tb-padding">
-        <div className="row">
-          <div className="col-sm-6">
+        <div className="row home-favorites-list">
+          <div className="col-sm-6 m-t-20">
             <FavoriteList
               title="Favorite Dashboards"
               resource={Dashboard}
@@ -125,7 +127,7 @@ function DashboardAndQueryFavoritesList() {
               }
             />
           </div>
-          <div className="col-sm-6">
+          <div className="col-sm-6 m-t-20">
             <FavoriteList
               title="Favorite Queries"
               resource={Query}

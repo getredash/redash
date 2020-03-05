@@ -148,15 +148,12 @@ class Couchbase(BaseQueryRunner):
             raise Exception("Couchbase connection error")
 
     def run_query(self, query, user):
-        try:
-            result = self.call_service(query, user)
+        result = self.call_service(query, user)
 
-            rows, columns = parse_results(result.json()["results"])
-            data = {"columns": columns, "rows": rows}
+        rows, columns = parse_results(result.json()["results"])
+        data = {"columns": columns, "rows": rows}
 
-            return json_dumps(data), None
-        except KeyboardInterrupt:
-            return None, "Query cancelled by user."
+        return json_dumps(data), None
 
     @classmethod
     def name(cls):
