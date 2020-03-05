@@ -1,4 +1,5 @@
 import logging
+import os
 import ssl
 from base64 import b64decode
 from tempfile import NamedTemporaryFile
@@ -66,15 +67,6 @@ class Cassandra(BaseQueryRunner):
                 "sslProtocol": {
                     "type": "string",
                     "title": "SSL Protocol",
-                    # "extendedEnum": [
-                    #     {"value": "PROTOCOL_SSLv23", "name": "SSLv23"},
-                    #     {"value": "PROTOCOL_TLS", "name": "TLS"},
-                    #     {"value": "PROTOCOL_TLS_CLIENT", "name": "TLS_CLIENT"},
-                    #     {"value": "PROTOCOL_TLS_SERVER", "name": "TLS_SERVER"},
-                    #     {"value": "PROTOCOL_TLSv1", "name": "TLSv1"},
-                    #     {"value": "PROTOCOL_TLSv1_1", "name": "TLSv1_1"},
-                    #     {"value": "PROTOCOL_TLSv1_2", "name": "TLSv1_2"},
-                    # ],
                     "enum": [
                         "PROTOCOL_SSLv23",
                         "PROTOCOL_TLS",
@@ -134,30 +126,30 @@ class Cassandra(BaseQueryRunner):
 
     def run_query(self, query, user):
         connection = None
+        cert_path = self._generate_cert_file()
         try:
-            with NamedTemporaryFile(mode='w') as cert_file:
-                if self.configuration.get("username", "") and self.configuration.get(
-                    "password", ""
-                ):
-                    auth_provider = PlainTextAuthProvider(
-                        username="{}".format(self.configuration.get("username", "")),
-                        password="{}".format(self.configuration.get("password", "")),
-                    )
-                    connection = Cluster(
-                        [self.configuration.get("host", "")],
-                        auth_provider=auth_provider,
-                        port=self.configuration.get("port", ""),
-                        protocol_version=self.configuration.get("protocol", 3),
-                        ssl_options=self._get_ssl_options(cert_file),
-                    )
-                else:
-                    connection = Cluster(
-                        [self.configuration.get("host", "")],
-                        port=self.configuration.get("port", ""),
-                        protocol_version=self.configuration.get("protocol", 3),
-                        ssl_options=self._get_ssl_options(cert_file),
-                    )
-                session = connection.connect()
+            if self.configuration.get("username", "") and self.configuration.get(
+                "password", ""
+            ):
+                auth_provider = PlainTextAuthProvider(
+                    username="{}".format(self.configuration.get("username", "")),
+                    password="{}".format(self.configuration.get("password", "")),
+                )
+                connection = Cluster(
+                    [self.configuration.get("host", "")],
+                    auth_provider=auth_provider,
+                    port=self.configuration.get("port", ""),
+                    protocol_version=self.configuration.get("protocol", 3),
+                    ssl_options=self._get_ssl_options(cert_path),
+                )
+            else:
+                connection = Cluster(
+                    [self.configuration.get("host", "")],
+                    port=self.configuration.get("port", ""),
+                    protocol_version=self.configuration.get("protocol", 3),
+                    ssl_options=self._get_ssl_options(cert_path),
+                )
+            session = connection.connect()
             session.set_keyspace(self.configuration["keyspace"])
             session.default_timeout = self.configuration.get("timeout", 10)
             logger.debug("Cassandra running query: %s", query)
@@ -176,22 +168,27 @@ class Cassandra(BaseQueryRunner):
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
+        finally:
+            # Cleanup the cert file
+            if cert_path:
+                os.remove(cert_path)
 
         return json_data, error
 
-    def _generate_cert_file(self, cert_file):
-        cert_bytes = b64decode(self.configuration.get("sslCertificateFile", None))
-        if cert_bytes is None:
-            return None
-        cert_file.write(cert_bytes.decode("utf-8"))
+    def _generate_cert_file(self):
+        with NamedTemporaryFile(mode='w', delete=False) as cert_file:
+            cert_bytes = b64decode(self.configuration.get("sslCertificateFile", None))
+            if cert_bytes is None:
+                return None
+            cert_file.write(cert_bytes.decode("utf-8"))
         return cert_file.name
 
-    def _get_ssl_options(self, cert_file):
+    def _get_ssl_options(self, cert_path):
         ssl_options = None
         if self.configuration.get("useSsl", False):
             ssl_options = generate_ssl_options_dict(
                 protocol=self.configuration["sslProtocol"],
-                cert_path=self._generate_cert_file(cert_file)
+                cert_path=cert_path
             )
         return ssl_options
 
