@@ -1,7 +1,7 @@
 import logging
 import ssl
 from base64 import b64decode
-from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 from redash.query_runner import BaseQueryRunner, register
 from redash.utils import JSONEncoder, json_dumps, json_loads
@@ -18,23 +18,6 @@ except ImportError:
     enabled = False
 
 
-class CassandraJSONEncoder(JSONEncoder):
-    def default(self, o):
-        if isinstance(o, sortedset):
-            return list(o)
-        return super(CassandraJSONEncoder, self).default(o)
-
-
-def generate_cert_file(ssl_cert, host):
-    cert_dir = f"./tmp/cassandra_certificate/{host}"
-    cert_path = f"{cert_dir}/cert.pem"
-    # Ensure the path exists
-    Path(cert_dir).mkdir(parents=True, exist_ok=True)
-    with open(cert_path, 'w') as objFile:
-        objFile.write(ssl_cert.decode("utf-8"))
-    return cert_path
-
-
 def generate_ssl_options_dict(protocol, cert_path=None):
     ssl_options = {
         'ssl_version': getattr(ssl, protocol)
@@ -43,6 +26,13 @@ def generate_ssl_options_dict(protocol, cert_path=None):
         ssl_options['ca_certs'] = cert_path
         ssl_options['cert_reqs'] = ssl.CERT_REQUIRED
     return ssl_options
+
+
+class CassandraJSONEncoder(JSONEncoder):
+    def default(self, o):
+        if isinstance(o, sortedset):
+            return list(o)
+        return super(CassandraJSONEncoder, self).default(o)
 
 
 class Cassandra(BaseQueryRunner):
@@ -76,34 +66,33 @@ class Cassandra(BaseQueryRunner):
                 "sslProtocol": {
                     "type": "string",
                     "title": "SSL Protocol",
-                    "default": "PROTOCOL_TLSv1_2"
+                    # "extendedEnum": [
+                    #     {"value": "PROTOCOL_SSLv23", "name": "SSLv23"},
+                    #     {"value": "PROTOCOL_TLS", "name": "TLS"},
+                    #     {"value": "PROTOCOL_TLS_CLIENT", "name": "TLS_CLIENT"},
+                    #     {"value": "PROTOCOL_TLS_SERVER", "name": "TLS_SERVER"},
+                    #     {"value": "PROTOCOL_TLSv1", "name": "TLSv1"},
+                    #     {"value": "PROTOCOL_TLSv1_1", "name": "TLSv1_1"},
+                    #     {"value": "PROTOCOL_TLSv1_2", "name": "TLSv1_2"},
+                    # ],
+                    "enum": [
+                        "PROTOCOL_SSLv23",
+                        "PROTOCOL_TLS",
+                        "PROTOCOL_TLS_CLIENT",
+                        "PROTOCOL_TLS_SERVER",
+                        "PROTOCOL_TLSv1",
+                        "PROTOCOL_TLSv1_1",
+                        "PROTOCOL_TLSv1_2",
+                    ],
                 },
             },
-            "required": ["keyspace", "host"],
+            "required": ["keyspace", "host", "useSsl"],
             "secret": ["sslCertificateFile"],
         }
 
     @classmethod
     def type(cls):
         return "Cassandra"
-
-    def _get_certifiacte_path(self):
-        cert_bytes = b64decode(self.configuration.get("sslCertificateFile", None))
-        if cert_bytes is None:
-            return None
-        return generate_cert_file(
-            ssl_cert=cert_bytes,
-            host=self.configuration.get('host', '')
-        )
-
-    def _get_ssl_options(self):
-        ssl_options = None
-        if self.configuration.get("useSsl", False):
-            ssl_options = generate_ssl_options_dict(
-                protocol=self.configuration.get("sslProtocol"),
-                cert_path=self._get_certifiacte_path()
-            )
-        return ssl_options
 
     def get_schema(self, get_stats=False):
         query = """
@@ -146,28 +135,29 @@ class Cassandra(BaseQueryRunner):
     def run_query(self, query, user):
         connection = None
         try:
-            if self.configuration.get("username", "") and self.configuration.get(
-                "password", ""
-            ):
-                auth_provider = PlainTextAuthProvider(
-                    username="{}".format(self.configuration.get("username", "")),
-                    password="{}".format(self.configuration.get("password", "")),
-                )
-                connection = Cluster(
-                    [self.configuration.get("host", "")],
-                    auth_provider=auth_provider,
-                    port=self.configuration.get("port", ""),
-                    protocol_version=self.configuration.get("protocol", 3),
-                    ssl_options=self._get_ssl_options(),
-                )
-            else:
-                connection = Cluster(
-                    [self.configuration.get("host", "")],
-                    port=self.configuration.get("port", ""),
-                    protocol_version=self.configuration.get("protocol", 3),
-                    ssl_options=self._get_ssl_options(),
-                )
-            session = connection.connect()
+            with NamedTemporaryFile(mode='w') as cert_file:
+                if self.configuration.get("username", "") and self.configuration.get(
+                    "password", ""
+                ):
+                    auth_provider = PlainTextAuthProvider(
+                        username="{}".format(self.configuration.get("username", "")),
+                        password="{}".format(self.configuration.get("password", "")),
+                    )
+                    connection = Cluster(
+                        [self.configuration.get("host", "")],
+                        auth_provider=auth_provider,
+                        port=self.configuration.get("port", ""),
+                        protocol_version=self.configuration.get("protocol", 3),
+                        ssl_options=self._get_ssl_options(cert_file),
+                    )
+                else:
+                    connection = Cluster(
+                        [self.configuration.get("host", "")],
+                        port=self.configuration.get("port", ""),
+                        protocol_version=self.configuration.get("protocol", 3),
+                        ssl_options=self._get_ssl_options(cert_file),
+                    )
+                session = connection.connect()
             session.set_keyspace(self.configuration["keyspace"])
             session.default_timeout = self.configuration.get("timeout", 10)
             logger.debug("Cassandra running query: %s", query)
@@ -188,6 +178,22 @@ class Cassandra(BaseQueryRunner):
             json_data = None
 
         return json_data, error
+
+    def _generate_cert_file(self, cert_file):
+        cert_bytes = b64decode(self.configuration.get("sslCertificateFile", None))
+        if cert_bytes is None:
+            return None
+        cert_file.write(cert_bytes.decode("utf-8"))
+        return cert_file.name
+
+    def _get_ssl_options(self, cert_file):
+        ssl_options = None
+        if self.configuration.get("useSsl", False):
+            ssl_options = generate_ssl_options_dict(
+                protocol=self.configuration["sslProtocol"],
+                cert_path=self._generate_cert_file(cert_file)
+            )
+        return ssl_options
 
 
 class ScyllaDB(Cassandra):
