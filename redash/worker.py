@@ -25,7 +25,7 @@ class CurrentJobFilter(logging.Filter):
         current_job = get_current_job()
 
         record.job_id = current_job.id if current_job else ''
-        record.job_description = current_job.description if current_job else ''
+        record.job_func_name = current_job.func_name if current_job else ''
 
         return True
 

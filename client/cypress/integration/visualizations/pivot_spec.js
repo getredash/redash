@@ -97,7 +97,7 @@ describe('Pivot', () => {
           .get('.ace_text-input')
           .first()
           .focus()
-          .type(" UNION ALL\nSELECT 'c' AS stage1, 'c5' AS stage2, 55 AS value");
+          .type(" UNION ALL {enter}SELECT 'c' AS stage1, 'c5' AS stage2, 55 AS value");
         cy.getByTestId('SaveButton').click();
         cy.getByTestId('ExecuteButton').click();
 
