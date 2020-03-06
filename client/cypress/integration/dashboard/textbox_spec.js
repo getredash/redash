@@ -142,7 +142,7 @@ describe("Textbox", () => {
       })
       .should($el => {
         const { top, left } = $el.offset();
-        expect(top).to.eq(218);
+        expect(top).to.eq(212);
         expect(left).to.eq(215);
         expect($el.width()).to.eq(585);
         expect($el.height()).to.eq(185);

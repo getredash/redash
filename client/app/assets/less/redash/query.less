@@ -122,23 +122,6 @@ body.fixed-layout {
   }
 }
 
-.page-header--query {
-  .page-title {
-    display: block;
-  }
-
-  .tags-control a {
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
-  }
-
-  &:hover {
-    .tags-control a {
-      opacity: 1;
-    }
-  }
-}
-
 a.label-tag {
   background: fade(@redash-gray, 15%);
   color: darken(@redash-gray, 15%);
@@ -515,14 +498,5 @@ nav .rg-bottom {
 
   .filter-container {
     padding-right: 0;
-  }
-}
-
-// Responsive fixes
-@media (max-width: 767px) {
-  .query-page-wrapper {
-    h3 {
-      font-size: 18px;
-    }
   }
 }

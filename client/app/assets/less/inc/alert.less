@@ -1,53 +1,45 @@
 .alert-page h3 {
-    flex-grow: 1;
-    
-    input {
-        margin: -0.2em 0;
-        width: 100%;
-        min-width: 170px;
-    }
+  flex-grow: 1;
+
+  input {
+    margin: -0.2em 0;
+    width: 100%;
+    min-width: 170px;
+  }
 }
 
 .btn-create-alert[disabled] {
-    display: block;
-    margin-top: -20px;
+  display: block;
+  margin-top: -20px;
 }
 
 .alert-state {
-    border-bottom: 1px solid @input-border;
-    padding-bottom: 30px;
+  border-bottom: 1px solid @input-border;
+  padding-bottom: 30px;
 
-    .alert-state-indicator {
-        text-transform: uppercase;
-        font-size: 14px;
-        padding: 5px 8px;
-    }
+  .alert-state-indicator {
+    text-transform: uppercase;
+    font-size: 14px;
+    padding: 5px 8px;
+  }
 
-    .alert-last-triggered {
-        color: @headings-color;
-    }
+  .alert-last-triggered {
+    color: @headings-color;
+  }
 }
 
 .alert-query-selector {
-    min-width: 250px;
-    width: auto !important;
+  min-width: 250px;
+  width: auto !important;
 }
 
 // allow form item labels to gracefully break line
 .alert-form-item label {
-    white-space: initial;
-    padding-right: 8px;
-    line-height: 21px;
+  white-space: initial;
+  padding-right: 8px;
+  line-height: 21px;
 
-    &::after {
-        margin-right: 0 !important;
-    }
-}
-
-.alert-actions {
-    flex-grow: 1;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-right: -15px;
+  &::after {
+    margin-right: 0 !important;
+  }
 }
