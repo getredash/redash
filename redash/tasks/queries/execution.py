@@ -27,11 +27,7 @@ def _unlock(query_hash, data_source_id):
     redis_connection.delete(_job_lock_id(query_hash, data_source_id))
 
 
-def enqueue_query(
-    query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}
-):
-    query_hash = gen_query_hash(query)
-    logger.info("Inserting job for %s with metadata=%s", query_hash, metadata)
+def _ensure_once(query_hash, data_source_id, create_job):
     try_count = 0
     job = None
 
@@ -39,9 +35,10 @@ def enqueue_query(
         try_count += 1
 
         pipe = redis_connection.pipeline()
+
         try:
-            pipe.watch(_job_lock_id(query_hash, data_source.id))
-            job_id = pipe.get(_job_lock_id(query_hash, data_source.id))
+            pipe.watch(_job_lock_id(query_hash, data_source_id))
+            job_id = pipe.get(_job_lock_id(query_hash, data_source_id))
             if job_id:
                 logger.info("[%s] Found existing job: %s", query_hash, job_id)
                 job_complete = None
@@ -60,53 +57,20 @@ def enqueue_query(
 
                 if job_complete or not job_exists:
                     logger.info("[%s] %s, removing lock", query_hash, message)
-                    redis_connection.delete(_job_lock_id(query_hash, data_source.id))
+                    redis_connection.delete(_job_lock_id(query_hash, data_source_id))
                     job = None
 
             if not job:
                 pipe.multi()
-
-                if scheduled_query:
-                    queue_name = data_source.scheduled_queue_name
-                    scheduled_query_id = scheduled_query.id
-                else:
-                    queue_name = data_source.queue_name
-                    scheduled_query_id = None
-
-                time_limit = settings.dynamic_settings.query_time_limit(
-                    scheduled_query, user_id, data_source.org_id
-                )
-                metadata["Queue"] = queue_name
-
-                queue = Queue(queue_name)
-                enqueue_kwargs = {
-                    "user_id": user_id,
-                    "scheduled_query_id": scheduled_query_id,
-                    "is_api_key": is_api_key,
-                    "job_timeout": time_limit,
-                    "meta": {
-                        "data_source_id": data_source.id,
-                        "org_id": data_source.org_id,
-                        "scheduled": scheduled_query_id is not None,
-                        "query_id": metadata.get("Query ID"),
-                        "user_id": user_id,
-                    },
-                }
-
-                if not scheduled_query:
-                    enqueue_kwargs["result_ttl"] = settings.JOB_EXPIRY_TIME
-
-                job = queue.enqueue(
-                    execute_query, query, data_source.id, metadata, **enqueue_kwargs
-                )
-
+                job = create_job()
                 logger.info("[%s] Created new job: %s", query_hash, job.id)
                 pipe.set(
-                    _job_lock_id(query_hash, data_source.id),
+                    _job_lock_id(query_hash, data_source_id),
                     job.id,
                     settings.JOB_EXPIRY_TIME,
                 )
                 pipe.execute()
+
             break
 
         except redis.WatchError:
@@ -116,6 +80,50 @@ def enqueue_query(
         logger.error("[Manager][%s] Failed adding job for query.", query_hash)
 
     return job
+
+
+def enqueue_query(
+    query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}
+):
+    query_hash = gen_query_hash(query)
+    logger.info("Inserting job for %s with metadata=%s", query_hash, metadata)
+
+    def _create_job():
+        if scheduled_query:
+            queue_name = data_source.scheduled_queue_name
+            scheduled_query_id = scheduled_query.id
+        else:
+            queue_name = data_source.queue_name
+            scheduled_query_id = None
+
+        time_limit = settings.dynamic_settings.query_time_limit(
+            scheduled_query, user_id, data_source.org_id
+        )
+        metadata["Queue"] = queue_name
+
+        queue = Queue(queue_name)
+        enqueue_kwargs = {
+            "user_id": user_id,
+            "scheduled_query_id": scheduled_query_id,
+            "is_api_key": is_api_key,
+            "job_timeout": time_limit,
+            "meta": {
+                "data_source_id": data_source.id,
+                "org_id": data_source.org_id,
+                "scheduled": scheduled_query_id is not None,
+                "query_id": metadata.get("Query ID"),
+                "user_id": user_id,
+            },
+        }
+
+        if not scheduled_query:
+            enqueue_kwargs["result_ttl"] = settings.JOB_EXPIRY_TIME
+
+        return queue.enqueue(
+            execute_query, query, data_source.id, metadata, **enqueue_kwargs
+        )
+
+    return _ensure_once(query_hash, data_source.id, _create_job)
 
 
 def signal_handler(*args):
