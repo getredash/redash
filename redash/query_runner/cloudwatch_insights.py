@@ -49,7 +49,7 @@ def parse_query(query):
 
     for timeKey in ["startTime", "endTime"]:
         if isinstance(query.get(timeKey), str):
-            query[timeKey] = int(parse_human_time(query[timeKey]).timestamp())
+            query[timeKey] = int(parse_human_time(datetime.datetime.fromisoformat(query[timeKey]).strftime('%Y-%m-%d %H:%M:%S')).timestamp())
     if not query.get("endTime"):
         query["endTime"] = int(datetime.datetime.now().timestamp())
 
