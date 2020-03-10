@@ -1,4 +1,4 @@
-import { find, isArray, get, first, map, intersection, isEqual } from "lodash";
+import { find, isArray, get, first, map, intersection, isEqual, isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import Select from "antd/lib/select";
@@ -85,7 +85,7 @@ export default class QueryBasedParameterInput extends React.Component {
       <span>
         <Select
           className={className}
-          disabled={loading || options.length === 0}
+          disabled={loading}
           loading={loading}
           mode={mode}
           value={this.state.value}
@@ -94,7 +94,7 @@ export default class QueryBasedParameterInput extends React.Component {
           optionFilterProp="children"
           showSearch
           showArrow
-          notFoundContent={null}
+          notFoundContent={isEmpty(options) ? "No options available" : null}
           {...otherProps}>
           {options.map(option => (
             <Option value={option.value} key={option.value}>

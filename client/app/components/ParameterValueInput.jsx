@@ -1,4 +1,4 @@
-import { isEqual } from "lodash";
+import { isEqual, isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import Select from "antd/lib/select";
@@ -103,14 +103,13 @@ class ParameterValueInput extends React.Component {
         className={this.props.className}
         mode={parameter.multiValuesOptions ? "multiple" : "default"}
         optionFilterProp="children"
-        disabled={enumOptionsArray.length === 0}
         value={normalize(value)}
         onChange={this.onSelect}
         dropdownMatchSelectWidth={false}
         showSearch
         showArrow
         style={{ minWidth: 60 }}
-        notFoundContent={null}
+        notFoundContent={isEmpty(enumOptionsArray) ? "No options available" : null}
         {...multipleValuesProps}>
         {enumOptionsArray.map(option => (
           <Option key={option} value={option}>
