@@ -1,4 +1,4 @@
-.PHONY: compose_build up test_db create_database clean down bundle tests lint backend-unit-tests frontend-unit-tests test build watch start
+.PHONY: compose_build up test_db create_database clean down bundle tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
 
 compose_build:
 	docker-compose build
@@ -17,7 +17,7 @@ create_database:
 	docker-compose run server create_db
 
 clean:
-	docker ps -a -q | xargs docker kill;docker ps -a -q | xargs docker rm
+	docker-compose down && docker-compose rm
 
 down:
 	docker-compose down
@@ -35,7 +35,7 @@ backend-unit-tests: up test_db
 	docker-compose run --rm --name tests server tests
 
 frontend-unit-tests: bundle
-	npm install
+	npm ci
 	npm run bundle
 	npm test
 
@@ -49,3 +49,9 @@ watch: bundle
 
 start: bundle
 	npm run start
+
+redis-cli:
+	docker-compose run --rm redis redis-cli -h redis
+
+bash:
+	docker-compose run --rm server bash

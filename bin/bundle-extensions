@@ -1,39 +1,117 @@
-#!/usr/bin/env python
-
+#!/usr/bin/env python3
+"""Copy bundle extension files to the client/app/extension directory"""
+import logging
 import os
-from subprocess import call
-from distutils.dir_util import copy_tree
+from pathlib import Path
+from shutil import copy
+from collections import OrderedDict as odict
 
-from pkg_resources import iter_entry_points, resource_filename, resource_isdir
+from importlib_metadata import entry_points
+from importlib_resources import contents, is_resource, path
 
+# Name of the subdirectory
+BUNDLE_DIRECTORY = "bundle"
+
+logger = logging.getLogger(__name__)
 
 
 # Make a directory for extensions and set it as an environment variable
 # to be picked up by webpack.
-EXTENSIONS_RELATIVE_PATH = os.path.join('client', 'app', 'extensions')
-EXTENSIONS_DIRECTORY = os.path.join(
-    os.path.dirname(os.path.dirname(__file__)),
-    EXTENSIONS_RELATIVE_PATH)
+extensions_relative_path = Path('client', 'app', 'extensions')
+extensions_directory = Path(__file__).parent.parent / extensions_relative_path
 
-if not os.path.exists(EXTENSIONS_DIRECTORY):
-    os.makedirs(EXTENSIONS_DIRECTORY)
-os.environ["EXTENSIONS_DIRECTORY"] = EXTENSIONS_RELATIVE_PATH
+if not extensions_directory.exists():
+    extensions_directory.mkdir()
+os.environ["EXTENSIONS_DIRECTORY"] = str(extensions_relative_path)
 
-for entry_point in iter_entry_points('redash.extensions'):
-    # This is where the frontend code for an extension lives
-    # inside of its package.
-    content_folder_relative = os.path.join(
-        entry_point.name, 'bundle')
-    (root_module, _) = os.path.splitext(entry_point.module_name)
 
-    if not resource_isdir(root_module, content_folder_relative):
+def resource_isdir(module, resource):
+    """Whether a given resource is a directory in the given module
+
+    https://importlib-resources.readthedocs.io/en/latest/migration.html#pkg-resources-resource-isdir
+    """
+    try:
+        return resource in contents(module) and not is_resource(module, resource)
+    except (ImportError, TypeError):
+        # module isn't a package, so can't have a subdirectory/-package
+        return False
+
+
+def entry_point_module(entry_point):
+    """Returns the dotted module path for the given entry point"""
+    return entry_point.pattern.match(entry_point.value).group("module")
+
+
+def load_bundles():
+    """"Load bundles as defined in Redash extensions.
+
+    The bundle entry point can be defined as a dotted path to a module
+    or a callable, but it won't be called but just used as a means
+    to find the files under its file system path.
+
+    The name of the directory it looks for files in is "bundle".
+
+    So a Python package with an extension bundle could look like this::
+
+        my_extensions/
+        ├── __init__.py
+        └── wide_footer
+            ├── __init__.py
+            └── bundle
+                ├── extension.js
+                └── styles.css
+
+    and would then need to register the bundle with an entry point
+    under the "redash.bundles" group, e.g. in your setup.py::
+
+        setup(
+            # ...
+            entry_points={
+                "redash.bundles": [
+                    "wide_footer = my_extensions.wide_footer",
+                ]
+                # ...
+            },
+            # ...
+        )
+
+    """
+    bundles = odict()
+    for entry_point in entry_points().get("redash.bundles", []):
+        logger.info('Loading Redash bundle "%s".', entry_point.name)
+        module = entry_point_module(entry_point)
+        # Try to get a list of bundle files
+        if not resource_isdir(module, BUNDLE_DIRECTORY):
+            logger.error(
+                'Redash bundle directory "%s" could not be found.', entry_point.name
+            )
+            continue
+        with path(module, BUNDLE_DIRECTORY) as bundle_dir:
+            bundles[entry_point.name] = list(bundle_dir.rglob("*"))
+
+    return bundles
+
+
+bundles = load_bundles().items()
+if bundles:
+    print('Number of extension bundles found: {}'.format(len(bundles)))
+else:
+    print('No extension bundles found.')
+
+for bundle_name, paths in bundles:
+    # Shortcut in case not paths were found for the bundle
+    if not paths:
+        print('No paths found for bundle "{}".'.format(bundle_name))
         continue
 
-    content_folder = resource_filename(root_module, content_folder_relative)
+    # The destination for the bundle files with the entry point name as the subdirectory
+    destination = Path(extensions_directory, bundle_name)
+    if not destination.exists():
+        destination.mkdir()
 
-    # This is where we place our extensions folder.
-    destination = os.path.join(
-        EXTENSIONS_DIRECTORY,
-        entry_point.name)
-
-    copy_tree(content_folder, destination)
+    # Copy the bundle directory from the module to its destination.
+    print('Copying "{}" bundle to {}:'.format(bundle_name, destination.resolve()))
+    for src_path in paths:
+        dest_path = destination / src_path.name
+        print(" - {} -> {}".format(src_path, dest_path))
+        copy(str(src_path), str(dest_path))

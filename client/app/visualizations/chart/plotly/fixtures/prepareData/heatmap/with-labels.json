@@ -1,0 +1,44 @@
+{
+  "input": {
+    "options": {
+      "globalSeriesType": "heatmap",
+      "colorScheme": "Bluered",
+      "seriesOptions": {},
+      "showDataLabels": true
+    },
+    "data": [
+      {
+        "name": "a",
+        "data": [
+          { "x": 12, "y": 21, "zVal": 3 },
+          { "x": 11, "y": 22, "zVal": 2 },
+          { "x": 11, "y": 21, "zVal": 1 },
+          { "x": 12, "y": 22, "zVal": 4 }
+        ]
+      }
+    ]
+  },
+  "output": {
+    "series": [
+      {
+        "x": [12, 11],
+        "y": [21, 22],
+        "z": [[3, 1], [4, 2]],
+        "type": "heatmap",
+        "name": "",
+        "colorscale": "Bluered"
+      },
+      {
+        "x": [12, 11, 12, 11],
+        "y": [21, 21, 22, 22],
+        "mode": "text",
+        "hoverinfo": "skip",
+        "showlegend": false,
+        "text": ["3", "1", "4", "2"],
+        "textfont": {
+          "color": ["black", "black", "black", "black"]
+        }
+      }
+    ]
+  }
+}

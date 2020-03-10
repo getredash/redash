@@ -1,11 +1,10 @@
 <p align="center">
   <img title="Redash" src='https://redash.io/assets/images/logo.png' width="200px"/>
 </p>
-<p align="center">
-    <img title="Build Status" src='https://circleci.com/gh/getredash/redash.png?circle-token=8a695aa5ec2cbfa89b48c275aea298318016f040'/>
-</p>
 
 [![Documentation](https://img.shields.io/badge/docs-redash.io/help-brightgreen.svg)](https://redash.io/help/)
+[![Datree](https://s3.amazonaws.com/catalog.static.datree.io/datree-badge-20px.svg)](https://datree.io/?src=badge)
+[![Build Status](https://circleci.com/gh/getredash/redash.png?style=shield&circle-token=8a695aa5ec2cbfa89b48c275aea298318016f040)](https://circleci.com/gh/getredash/redash/tree/master)
 
 **_Redash_** is our take on freeing the data within our company in a way that will better fit our culture and usage patterns.
 
@@ -28,13 +27,12 @@ Today **_Redash_** has support for querying multiple databases, including: Redsh
 
 ## Supported Data Sources
 
-Redash supports more than 25 [data sources](https://redash.io/help/data-sources/supported-data-sources). 
+Redash supports more than 35 [data sources](https://redash.io/help/data-sources/supported-data-sources). 
 
 ## Getting Help
 
 * Issues: https://github.com/getredash/redash/issues
 * Discussion Forum: https://discuss.redash.io/
-* Slack: http://slack.redash.io/
 
 ## Reporting Bugs and Contributing Code
 

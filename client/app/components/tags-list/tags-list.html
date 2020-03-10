@@ -1,5 +1,0 @@
-<div class="list-group m-t-10 tags-list tiled" ng-if="$ctrl.allTags.length > 0">
-    <a ng-repeat="tag in $ctrl.allTags" ng-class="{active: $ctrl.selectedTags.has(tag.name)}" class="list-group-item max-character" ng-click="$ctrl.toggleTag($event, tag.name)">
-        <span class="tags-list__name">{{ tag.name }}</span> <span class="badge badge-light">{{ tag.count }}</span>
-    </a>
-</div>
