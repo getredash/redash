@@ -21,6 +21,7 @@ import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import SchemaBrowser from "./components/SchemaBrowser";
 import QuerySourceAlerts from "./components/QuerySourceAlerts";
+import wrapQueryPage from "./components/wrapQueryPage";
 import QueryExecutionMetadata from "./components/QueryExecutionMetadata";
 
 import useQuery from "./hooks/useQuery";
@@ -412,21 +413,17 @@ QuerySource.propTypes = {
   query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
+const QuerySourcePage = wrapQueryPage(QuerySource);
+
 export default [
   routeWithUserSession({
     path: "/queries/new",
-    render: pageProps => <QuerySource {...pageProps} />,
-    resolve: {
-      query: () => Query.newQuery(),
-    },
+    render: pageProps => <QuerySourcePage {...pageProps} />,
     bodyClass: "fixed-layout",
   }),
   routeWithUserSession({
     path: "/queries/:queryId([0-9]+)/source",
-    render: pageProps => <QuerySource {...pageProps} />,
-    resolve: {
-      query: ({ queryId }) => Query.get({ id: queryId }),
-    },
+    render: pageProps => <QuerySourcePage {...pageProps} />,
     bodyClass: "fixed-layout",
   }),
 ];

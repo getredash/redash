@@ -9,7 +9,6 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import EditInPlace from "@/components/EditInPlace";
 import Parameters from "@/components/Parameters";
 
-import { Query } from "@/services/query";
 import DataSource from "@/services/data-source";
 import { ExecutionStatus } from "@/services/query-result";
 import getQueryResultData from "@/lib/getQueryResultData";
@@ -18,6 +17,7 @@ import QueryPageHeader from "./components/QueryPageHeader";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import QueryMetadata from "./components/QueryMetadata";
+import wrapQueryPage from "./components/wrapQueryPage";
 import QueryViewButton from "./components/QueryViewButton";
 import QueryExecutionMetadata from "./components/QueryExecutionMetadata";
 
@@ -211,10 +211,9 @@ function QueryView(props) {
 
 QueryView.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-line react/forbid-prop-types
 
+const QueryViewPage = wrapQueryPage(QueryView);
+
 export default routeWithUserSession({
   path: "/queries/:queryId([0-9]+)",
-  render: pageProps => <QueryView {...pageProps} />,
-  resolve: {
-    query: ({ queryId }) => Query.get({ id: queryId }),
-  },
+  render: pageProps => <QueryViewPage {...pageProps} />,
 });
