@@ -34,7 +34,6 @@ function CreateUserDialog({ dialog }) {
   return (
     <Modal {...dialog.props} title="Create a New User" okText="Create" onOk={createUser}>
       <DynamicForm fields={formFields} ref={formRef} hideSubmitButton />
-      {/* // TODO: Is raw error message correct here? */}
       {error && <Alert message={error.message} type="error" showIcon />}
     </Modal>
   );

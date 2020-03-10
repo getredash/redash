@@ -36,7 +36,7 @@ import ReactDOM from "react-dom";
       .onDismiss(result => { ... }) // pressed Cancel button or used `dismiss` method
 
   If `onClose`/`onDismiss` returns a promise - dialog wrapper will stop handling further close/dismiss
-  requests and will show loader on a corresponding button until that promise is fullfilled (either resolved or
+  requests and will show loader on a corresponding button until that promise is fulfilled (either resolved or
   rejected). If that promise will be rejected - dialog close/dismiss will be abandoned. Use promise returned
   from `close`/`dismiss` methods to handle errors (if needed).
 
