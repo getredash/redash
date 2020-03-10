@@ -121,16 +121,18 @@ class QuerySnippetsList extends React.Component {
   showSnippetDialog = (querySnippet = null) => {
     const canSave = !querySnippet || canEditQuerySnippet(querySnippet);
     navigateTo("query_snippets/" + get(querySnippet, "id", "new"), true);
+    const goToSnippetsList = () => navigateTo("query_snippets", true);
     QuerySnippetDialog.showModal({
       querySnippet,
-      onSubmit: this.saveQuerySnippet,
       readOnly: !canSave,
     })
-      .result.then(() => this.props.controller.update())
-      .catch(() => {}) // ignore dismiss
-      .finally(() => {
-        navigateTo("query_snippets", true);
-      });
+      .onClose(querySnippet =>
+        this.saveQuerySnippet(querySnippet).then(() => {
+          this.props.controller.update();
+          goToSnippetsList();
+        })
+      )
+      .onDismiss(goToSnippetsList);
   };
 
   render() {

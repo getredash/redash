@@ -106,16 +106,14 @@ export default class Parameters extends React.Component {
 
   showParameterSettings = (parameter, index) => {
     const { onParametersEdit } = this.props;
-    EditParameterSettingsDialog.showModal({ parameter })
-      .result.then(updated => {
-        this.setState(({ parameters }) => {
-          const updatedParameter = extend(parameter, updated);
-          parameters[index] = createParameter(updatedParameter, updatedParameter.parentQueryId);
-          onParametersEdit();
-          return { parameters };
-        });
-      })
-      .catch(() => {}); // ignore dismiss
+    EditParameterSettingsDialog.showModal({ parameter }).onClose(updated => {
+      this.setState(({ parameters }) => {
+        const updatedParameter = extend(parameter, updated);
+        parameters[index] = createParameter(updatedParameter, updatedParameter.parentQueryId);
+        onParametersEdit();
+        return { parameters };
+      });
+    });
   };
 
   renderParameter(param, index) {
