@@ -1,10 +1,11 @@
 import { isEqual, map, find } from "lodash";
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import useQueryResult from "@/lib/hooks/useQueryResult";
+import getQueryResultData from "@/lib/getQueryResultData";
 import ErrorBoundary, { ErrorMessage } from "@/components/ErrorBoundary";
 import Filters, { FiltersType, filterData } from "@/components/Filters";
-import { registeredVisualizations, VisualizationType } from "./index";
+import { VisualizationType } from "@/visualizations/prop-types";
+import registeredVisualizations from "@/visualizations";
 
 function combineFilters(localFilters, globalFilters) {
   // tiny optimization - to avoid unnecessary updates
@@ -25,7 +26,7 @@ function combineFilters(localFilters, globalFilters) {
 }
 
 export default function VisualizationRenderer(props) {
-  const data = useQueryResult(props.queryResult);
+  const data = useMemo(() => getQueryResultData(props.queryResult), [props.queryResult]);
   const [filters, setFilters] = useState(data.filters);
   const filtersRef = useRef();
   filtersRef.current = filters;
@@ -36,7 +37,7 @@ export default function VisualizationRenderer(props) {
   // Reset local filters when query results updated
   useEffect(() => {
     setFilters(combineFilters(data.filters, props.filters));
-  }, [data, props.filters]);
+  }, [data.filters, props.filters]);
 
   // Update local filters when global filters changed.
   // For correct behavior need to watch only `props.filters` here,

@@ -5,6 +5,7 @@ import requests
 
 from redash import settings
 from redash.utils import json_loads
+from rq.timeouts import JobTimeoutException
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +13,7 @@ __all__ = [
     "BaseQueryRunner",
     "BaseHTTPQueryRunner",
     "InterruptException",
+    "JobTimeoutException",
     "BaseSQLQueryRunner",
     "TYPE_DATETIME",
     "TYPE_BOOLEAN",

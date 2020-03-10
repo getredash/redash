@@ -192,12 +192,13 @@ class BigQuery(BaseQueryRunner):
         project_id = self._get_project_id()
         job_data = self._get_job_data(query)
         insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
+        self.current_job_id = insert_response["jobReference"]["jobId"]
         current_row = 0
         query_reply = _get_query_results(
             jobs,
             project_id=project_id,
             location=self._get_location(),
-            job_id=insert_response["jobReference"]["jobId"],
+            job_id=self.current_job_id,
             start_index=current_row,
         )
 
@@ -332,9 +333,15 @@ class BigQuery(BaseQueryRunner):
                 error = json_loads(e.content)["error"]["message"]
             else:
                 error = e.content
-        except KeyboardInterrupt:
-            error = "Query cancelled by user."
-            json_data = None
+        except (KeyboardInterrupt, InterruptException, JobTimeoutException):
+            if self.current_job_id:
+                self._get_bigquery_service().jobs().cancel(
+                    projectId=self._get_project_id(),
+                    jobId=self.current_job_id,
+                    location=self._get_location(),
+                ).execute()
+
+            raise
 
         return json_data, error
 

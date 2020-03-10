@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import * as Grid from "antd/lib/grid";
 import { Section, InputNumber, ControlLabel } from "@/components/visualizations/editor";
-import { EditorPropTypes } from "@/visualizations";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function BoundsSettings({ options, onOptionsChange }) {
   // Bounds may be changed in editor or on preview (by drag/zoom map).

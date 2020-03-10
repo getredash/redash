@@ -11,8 +11,10 @@ export default class EditInPlace extends React.Component {
     placeholder: PropTypes.string,
     value: PropTypes.string,
     onDone: PropTypes.func.isRequired,
+    onStopEditing: PropTypes.func,
     multiline: PropTypes.bool,
     editorProps: PropTypes.object,
+    defaultEditing: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -20,21 +22,22 @@ export default class EditInPlace extends React.Component {
     isEditable: true,
     placeholder: "",
     value: "",
+    onStopEditing: () => {},
     multiline: false,
     editorProps: {},
+    defaultEditing: false,
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      editing: false,
+      editing: props.defaultEditing,
     };
-    this.inputRef = React.createRef();
   }
 
   componentDidUpdate(_, prevState) {
-    if (this.state.editing && !prevState.editing) {
-      this.inputRef.current.focus();
+    if (!this.state.editing && prevState.editing) {
+      this.props.onStopEditing();
     }
   }
 
@@ -62,25 +65,30 @@ export default class EditInPlace extends React.Component {
     }
   };
 
-  renderNormal = () => (
-    <span
-      role="presentation"
-      onFocus={this.startEditing}
-      onClick={this.startEditing}
-      className={this.props.isEditable ? "editable" : ""}>
-      {this.props.value || this.props.placeholder}
-    </span>
-  );
+  renderNormal = () =>
+    this.props.value ? (
+      <span
+        role="presentation"
+        onFocus={this.startEditing}
+        onClick={this.startEditing}
+        className={this.props.isEditable ? "editable" : ""}>
+        {this.props.value}
+      </span>
+    ) : (
+      <a className="clickable" onClick={this.startEditing}>
+        {this.props.placeholder}
+      </a>
+    );
 
   renderEdit = () => {
     const { multiline, value, editorProps } = this.props;
     const InputComponent = multiline ? Input.TextArea : Input;
     return (
       <InputComponent
-        ref={this.inputRef}
         defaultValue={value}
         onBlur={e => this.stopEditing(e.target.value)}
         onKeyDown={this.handleKeyDown}
+        autoFocus
         {...editorProps}
       />
     );

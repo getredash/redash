@@ -112,12 +112,6 @@ class Phoenix(BaseQueryRunner):
             error = "code: {}, sql state:{}, message: {}".format(
                 e.code, e.sqlstate, str(e)
             )
-        except (KeyboardInterrupt, InterruptException) as e:
-            error = "Query cancelled by user."
-            json_data = None
-        except Exception as ex:
-            json_data = None
-            error = str(ex)
         finally:
             if connection:
                 connection.close()

@@ -1,4 +1,4 @@
-import { get } from "lodash";
+import { isNil, get } from "lodash";
 import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
@@ -10,6 +10,11 @@ function QuerySnippetDialog({ querySnippet, dialog, readOnly }) {
   const handleSubmit = useCallback(
     (values, successCallback, errorCallback) => {
       const querySnippetId = get(querySnippet, "id");
+
+      if (isNil(values.description)) {
+        values.description = "";
+      }
+
       dialog
         .close(querySnippetId ? { id: querySnippetId, ...values } : values)
         .then(() => successCallback("Saved."))
@@ -41,11 +46,15 @@ function QuerySnippetDialog({ querySnippet, dialog, readOnly }) {
             disabled={readOnly || dialog.props.okButtonProps.disabled}
             htmlType="submit"
             type="primary"
-            form="querySnippetForm">
+            form="querySnippetForm"
+            data-test="SaveQuerySnippetButton">
             {isEditing ? "Save" : "Create"}
           </Button>
         ),
-      ]}>
+      ]}
+      wrapProps={{
+        "data-test": "QuerySnippetDialog",
+      }}>
       <DynamicForm id="querySnippetForm" fields={formFields} onSubmit={handleSubmit} hideSubmitButton feedbackIcons />
     </Modal>
   );

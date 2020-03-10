@@ -6,7 +6,7 @@ import Tooltip from "antd/lib/tooltip";
 import Typography from "antd/lib/typography";
 import { sortableElement } from "react-sortable-hoc";
 import { SortableContainer, DragHandle } from "@/components/sortable";
-import { EditorPropTypes } from "@/visualizations";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 import ColumnEditor from "./ColumnEditor";
 

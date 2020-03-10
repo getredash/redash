@@ -10,7 +10,7 @@ import {
   TextAlignmentSelect,
   ContextHelp,
 } from "@/components/visualizations/editor";
-import { EditorPropTypes } from "@/visualizations";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 function TemplateFormatHint({ mapType }) {
   // eslint-disable-line react/prop-types
