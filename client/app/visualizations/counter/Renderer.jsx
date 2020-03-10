@@ -1,5 +1,5 @@
 import { isFinite, isString } from "lodash";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import cx from "classnames";
 import Tooltip from "antd/lib/tooltip";
 import resizeObserver from "@/services/resizeObserver";
@@ -56,11 +56,11 @@ export default function Renderer({ data, options, visualizationName }) {
     }
   }, [data, options, container]);
 
-  const { counterLabel, showTrend, trendPositive, primaryValue, secondaryValue } = getCounterData(
-    data.rows,
-    options,
-    visualizationName
+  const { counterLabel, showTrend, trendPositive, primaryValue, secondaryValue } = useMemo(
+    () => getCounterData(data.rows, options, visualizationName),
+    [data.rows, options, visualizationName]
   );
+
   return (
     <div
       className={cx("counter-visualization-container", {

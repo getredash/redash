@@ -5,7 +5,7 @@ import { Section, InputNumber, Input, Select, Checkbox, ContextHelp } from "@/co
 
 export default function CounterValueOptions({ disabled, counterTypes, options, data, onChange }) {
   const additionalOptions = get(counterTypes, [options.type, "options"], []);
-  const returnsAdditionalFields = get(counterTypes, [options.type, "returnsAdditionalFields"], false);
+  const canReturnRow = get(counterTypes, [options.type, "canReturnRow"], false);
 
   const formatInfo = (
     <ContextHelp placement="topLeft" arrowPointAtCenter>
@@ -16,7 +16,7 @@ export default function CounterValueOptions({ disabled, counterTypes, options, d
       <div>
         <code>{"{{ @@value_formatted }}"}</code> formatted value;
       </div>
-      {returnsAdditionalFields && (
+      {canReturnRow && (
         <div className="m-t-5">
           Query result columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
         </div>

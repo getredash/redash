@@ -1,11 +1,11 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { Section, Checkbox } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 import CounterValueOptions from "./CounterValueOptions";
 import counterTypes from "../counterTypes";
 
 export default function SecondaryValueSettings({ options, data, onOptionsChange }) {
-  const onChange = useCallback(secondaryValue => onOptionsChange({ secondaryValue }), [onOptionsChange]);
+  const onChange = secondaryValue => onOptionsChange({ secondaryValue });
 
   const disabled = options.secondaryValue.type === "unused";
 

@@ -12,6 +12,18 @@ function getRowNumber(rowNumber, rowsCount) {
   return rowNumber > 0 ? wrappedIndex : rowsCount - wrappedIndex - 1;
 }
 
+// `name`: string
+//   Human-readable name of counter type.
+//
+// `getValue`: (rows, valueOptions) => [value, row?]
+//   Takes all query result rows as a first argument and value options (primary or secondary) as second.
+//   Returns an array with two items: corresponding counter value (primary or secondary) and
+//   optionally a row from query result. If `getValue` may return row in addition to counter
+//   value - `canReturnRow` should be set to `true` (see `rowValue` for the reference).
+//
+// `options`: string[]
+//   List of additional options to show in visualization editor for the particular counter type.
+
 export default {
   unused: {
     name: "Unused",
@@ -25,7 +37,7 @@ export default {
       const value = row ? row[column] : undefined;
       return [value, row];
     },
-    returnsAdditionalFields: true,
+    canReturnRow: true,
     options: ["column", "rowNumber"],
   },
   countRows: {
