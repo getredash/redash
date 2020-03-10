@@ -76,12 +76,12 @@ class DestinationsList extends React.Component {
       imageFolder: IMG_ROOT,
       onCreate: this.createDestination,
     })
-      .result.then((result = {}) => {
+      .onClose((result = {}) => {
         if (result.success) {
           navigateTo(`destinations/${result.data.id}`);
         }
       })
-      .catch(() => {
+      .onDismiss(() => {
         navigateTo("destinations", true);
       });
   };

@@ -11,7 +11,6 @@ import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";
 import EditInPlace from "@/components/EditInPlace";
 import QueryEditor from "@/components/queries/QueryEditor";
-import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
 import { ExecutionStatus } from "@/services/query-result";
 

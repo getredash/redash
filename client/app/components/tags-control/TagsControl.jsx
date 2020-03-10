@@ -26,9 +26,7 @@ export class TagsControl extends React.Component {
   };
 
   editTags = (tags, getAvailableTags) => {
-    EditTagsDialog.showModal({ tags, getAvailableTags })
-      .result.then(this.props.onEdit)
-      .catch(() => {}); // ignore dismiss
+    EditTagsDialog.showModal({ tags, getAvailableTags }).onClose(this.props.onEdit);
   };
 
   renderEditButton() {
