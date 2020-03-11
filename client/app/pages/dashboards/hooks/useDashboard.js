@@ -136,6 +136,7 @@ function useDashboard(dashboardData) {
       return Promise.all(loadWidgetPromises).then(() => {
         const queryResults = compact(map(dashboard.widgets, widget => widget.getQueryResult()));
         const updatedFilters = collectDashboardFilters(dashboard, queryResults, location.search);
+        setDashboard(currentDashboard => extend({}, currentDashboard));
         setFilters(updatedFilters);
       });
     },
