@@ -39,6 +39,7 @@ class DashboardGrid extends React.Component {
     isPublic: PropTypes.bool,
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     widgets: PropTypes.arrayOf(WidgetType).isRequired,
+    loadingWidgets: PropTypes.instanceOf(Set).isRequired,
     filters: FiltersType,
     onBreakpointChange: PropTypes.func,
     onLoadWidget: PropTypes.func,
@@ -184,6 +185,7 @@ class DashboardGrid extends React.Component {
       onParameterMappingsChange,
       filters,
       dashboard,
+      loadingWidgets,
       isPublic,
       widgets,
     } = this.props;
@@ -225,6 +227,7 @@ class DashboardGrid extends React.Component {
                   <VisualizationWidget
                     {...widgetProps}
                     dashboard={dashboard}
+                    isLoading={loadingWidgets.has(widget.id)}
                     onLoad={() => onLoadWidget(widget)}
                     onRefresh={() => onRefreshWidget(widget)}
                     onParameterMappingsChange={onParameterMappingsChange}

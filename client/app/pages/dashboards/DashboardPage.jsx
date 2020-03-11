@@ -62,6 +62,7 @@ function DashboardComponent(props) {
   const dashboardOptions = useDashboard(props.dashboard);
   const {
     dashboard,
+    loadingWidgets,
     filters,
     setFilters,
     loadDashboard,
@@ -93,6 +94,7 @@ function DashboardComponent(props) {
         <DashboardGrid
           dashboard={dashboard}
           widgets={dashboard.widgets}
+          loadingWidgets={loadingWidgets}
           filters={filters}
           isEditing={editingLayout}
           onLayoutChange={editingLayout ? saveDashboardLayout : () => {}}

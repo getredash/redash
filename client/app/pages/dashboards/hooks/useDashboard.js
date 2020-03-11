@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useDebouncedCallback } from "use-debounce";
 import { isEmpty, includes, compact, map, has, pick, keys, extend, every, get } from "lodash";
 import notification from "@/services/notification";
 import location from "@/services/location";
@@ -15,6 +16,8 @@ import useRefreshRateHandler from "./useRefreshRateHandler";
 import useEditModeHandler from "./useEditModeHandler";
 
 export { DashboardStatusEnum } from "./useEditModeHandler";
+
+const LOADING_WIDGETS_DEBOUNCE_TIME = 100;
 
 function getAffectedWidgets(widgets, updatedParameters = []) {
   return !isEmpty(updatedParameters)
@@ -38,6 +41,14 @@ function useDashboard(dashboardData) {
   const [gridDisabled, setGridDisabled] = useState(false);
   const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
   const canEditDashboard = !dashboard.is_archived && dashboard.can_edit;
+
+  const [loadingWidgets, setLoadingWidgets] = useState(new Set());
+  const loadingWidgetValueRef = useRef(loadingWidgets);
+  const [updateLoadingWidgets] = useDebouncedCallback(
+    () => setLoadingWidgets(new Set(loadingWidgetValueRef.current)),
+    LOADING_WIDGETS_DEBOUNCE_TIME
+  );
+
   const isDashboardOwnerOrAdmin = useMemo(
     () =>
       !dashboard.is_archived &&
@@ -92,11 +103,18 @@ function useDashboard(dashboardData) {
     updateDashboard({ is_draft: !dashboard.is_draft }, false);
   }, [dashboard, updateDashboard]);
 
-  const loadWidget = useCallback((widget, forceRefresh = false) => {
-    widget.getParametersDefs(); // Force widget to read parameters values from URL
-    setDashboard(currentDashboard => extend({}, currentDashboard));
-    return widget.load(forceRefresh).finally(() => setDashboard(currentDashboard => extend({}, currentDashboard)));
-  }, []);
+  const loadWidget = useCallback(
+    (widget, forceRefresh = false) => {
+      widget.getParametersDefs(); // Force widget to read parameters values from URL
+      loadingWidgetValueRef.current.add(widget.id);
+      updateLoadingWidgets();
+      return widget.load(forceRefresh).finally(() => {
+        loadingWidgetValueRef.current.delete(widget.id);
+        updateLoadingWidgets();
+      });
+    },
+    [updateLoadingWidgets]
+  );
 
   const refreshWidget = useCallback(widget => loadWidget(widget, true), [loadWidget]);
 
@@ -200,6 +218,7 @@ function useDashboard(dashboardData) {
 
   return {
     dashboard,
+    loadingWidgets,
     globalParameters,
     refreshing,
     filters,
