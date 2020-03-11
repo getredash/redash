@@ -14,9 +14,15 @@ import useDashboard from "./hooks/useDashboard";
 import "./PublicDashboardPage.less";
 
 function PublicDashboard({ dashboard }) {
-  const { globalParameters, filters, setFilters, refreshDashboard, loadWidget, refreshWidget } = useDashboard(
-    dashboard
-  );
+  const {
+    globalParameters,
+    filters,
+    loadingWidgets,
+    setFilters,
+    refreshDashboard,
+    loadWidget,
+    refreshWidget,
+  } = useDashboard(dashboard);
 
   return (
     <div className="container p-t-10 p-b-20">
@@ -35,6 +41,7 @@ function PublicDashboard({ dashboard }) {
         <DashboardGrid
           dashboard={dashboard}
           widgets={dashboard.widgets}
+          loadingWidgets={loadingWidgets}
           filters={filters}
           isEditing={false}
           isPublic
