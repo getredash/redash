@@ -19,10 +19,13 @@ function seedDatabase(seedValues) {
   });
 }
 
+function buildServer() {
+  console.log("Building the server...");
+  execSync("docker-compose -p cypress build --build-arg skip_ds_deps=true", { stdio: "inherit" });
+}
+
 function startServer() {
   console.log("Starting the server...");
-
-  execSync("docker-compose -p cypress build --build-arg skip_ds_deps=true", { stdio: "inherit" });
   execSync("docker-compose -p cypress up -d", { stdio: "inherit" });
   execSync("docker-compose -p cypress run server create_db", { stdio: "inherit" });
 }
@@ -53,7 +56,7 @@ function runCypressCI() {
   }
 
   execSync(
-    "docker-compose run cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run --record",
+    "COMMIT_INFO_MESSAGE=$(git show -s --format=%s) docker-compose run cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run --record",
     { stdio: "inherit" }
   );
 }
@@ -61,8 +64,14 @@ function runCypressCI() {
 const command = process.argv[2] || "all";
 
 switch (command) {
+  case "build":
+    buildServer();
+    break;
   case "start":
     startServer();
+    if (!process.argv.includes("--skip-db-seed")) {
+      seedDatabase(seedData);
+    }
     break;
   case "db-seed":
     seedDatabase(seedData);
@@ -86,6 +95,6 @@ switch (command) {
     stopServer();
     break;
   default:
-    console.log("Usage: npm run cypress [start|db-seed|open|run|stop]");
+    console.log("Usage: npm run cypress [build|start|db-seed|open|run|stop]");
     break;
 }
