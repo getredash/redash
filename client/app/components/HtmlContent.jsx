@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { sanitize } from "dompurify";
+import sanitize from "@/services/sanitize";
 
 export default function HtmlContent({ children, ...props }) {
   return (
