@@ -34,8 +34,11 @@ class CustomPrint(object):
     def disable(self):
         self.enabled = False
 
-    def __call__(self):
+    def __call__(self, *args):
         return self
+
+    def _call_print(self, *object):
+        print(*object, file=self)
 
 
 class Python(BaseQueryRunner):
