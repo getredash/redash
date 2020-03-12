@@ -1,0 +1,38 @@
+{
+  "input": {
+    "visualizationName": "Default Counter Name",
+    "data": [
+      { "city": "New York City", "population": 18604000 },
+      { "city": "Shanghai", "population": 24484000 },
+      { "city": "Tokyo", "population": 38140000 }
+    ],
+    "options": {
+      "counterLabel": "Test Counter",
+      "stringDecChar": ".",
+      "stringThouSep": ",",
+      "numberFormat": "0,0",
+
+      "primaryValue": {
+        "show": true,
+        "type": "rowValue",
+        "column": "population",
+        "rowNumber": 1,
+        "displayFormat": "{{ @@value_formatted }}",
+        "showTooltip": true,
+        "tooltipFormat": "{{ @@value }}"
+      },
+      "secondaryValue": {
+        "show": true,
+        "type": "unused",
+        "column": null,
+        "rowNumber": 1,
+        "displayFormat": "({{ @@value_formatted }})",
+        "showTooltip": true,
+        "tooltipFormat": "{{ @@value }}"
+      }
+    }
+  },
+  "output": {
+    "counterLabel": "Test Counter"
+  }
+}

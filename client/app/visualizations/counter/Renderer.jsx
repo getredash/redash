@@ -1,10 +1,11 @@
-import { isFinite } from "lodash";
-import React, { useState, useEffect } from "react";
+import { isFinite, isString } from "lodash";
+import React, { useState, useEffect, useMemo } from "react";
 import cx from "classnames";
+import Tooltip from "antd/lib/tooltip";
 import resizeObserver from "@/services/resizeObserver";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 
-import { getCounterData } from "./utils";
+import getCounterData from "./getCounterData";
 
 import "./render.less";
 
@@ -21,6 +22,17 @@ function getCounterScale(container) {
   const inner = container.firstChild;
   const scale = Math.min(container.offsetWidth / inner.offsetWidth, container.offsetHeight / inner.offsetHeight);
   return Number(isFinite(scale) ? scale : 1).toFixed(2); // keep only two decimal places
+}
+
+function renderTooltip(tooltip, children) {
+  if (isString(tooltip) && tooltip !== "") {
+    return (
+      <Tooltip title={tooltip} mouseEnterDelay={0} mouseLeaveDelay={0}>
+        {children}
+      </Tooltip>
+    );
+  }
+  return children;
 }
 
 export default function Renderer({ data, options, visualizationName }) {
@@ -44,15 +56,11 @@ export default function Renderer({ data, options, visualizationName }) {
     }
   }, [data, options, container]);
 
-  const {
-    showTrend,
-    trendPositive,
-    counterValue,
-    counterValueTooltip,
-    targetValue,
-    targetValueTooltip,
-    counterLabel,
-  } = getCounterData(data.rows, options, visualizationName);
+  const { counterLabel, showTrend, trendPositive, primaryValue, secondaryValue } = useMemo(
+    () => getCounterData(data.rows, options, visualizationName),
+    [data.rows, options, visualizationName]
+  );
+
   return (
     <div
       className={cx("counter-visualization-container", {
@@ -61,15 +69,21 @@ export default function Renderer({ data, options, visualizationName }) {
       })}>
       <div className="counter-visualization-content" ref={setContainer}>
         <div style={getCounterStyles(scale)}>
-          <div className="counter-visualization-value" title={counterValueTooltip}>
-            {counterValue}
-          </div>
-          {targetValue && (
-            <div className="counter-visualization-target" title={targetValueTooltip}>
-              ({targetValue})
-            </div>
-          )}
-          <div className="counter-visualization-label">{counterLabel}</div>
+          {primaryValue.display !== null &&
+            renderTooltip(
+              primaryValue.tooltip,
+              <div className={cx("counter-visualization-value", { "with-tooltip": primaryValue.tooltip !== null })}>
+                {primaryValue.display}
+              </div>
+            )}
+          {secondaryValue.display !== null &&
+            renderTooltip(
+              secondaryValue.tooltip,
+              <div className={cx("counter-visualization-target", { "with-tooltip": secondaryValue.tooltip !== null })}>
+                {secondaryValue.display}
+              </div>
+            )}
+          {counterLabel !== null && <div className="counter-visualization-label">{counterLabel}</div>}
         </div>
       </div>
     </div>

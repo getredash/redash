@@ -1,221 +1,149 @@
 /* global cy, Cypress */
 
-import { createQuery } from "../../support/redash-api";
+import { createQuery, createVisualization } from "../../support/redash-api";
+
+const { merge } = Cypress._;
 
 const SQL = `
   SELECT 27182.8182846 AS a, 20000 AS b, 'lorem' AS c UNION ALL
   SELECT 31415.9265359 AS a, 40000 AS b, 'ipsum' AS c
 `;
 
+const counterOptions = {
+  schemaVersion: 2,
+
+  primaryValue: {
+    type: "rowValue",
+    column: "counter",
+    rowNumber: 1,
+    displayFormat: "{{ @@value_formatted }}",
+    showTooltip: true,
+    tooltipFormat: "{{ @@value }}",
+  },
+  secondaryValue: {
+    show: true,
+    type: "unused",
+    column: null,
+    rowNumber: 1,
+    displayFormat: "({{ @@value_formatted }})",
+    showTooltip: true,
+    tooltipFormat: "{{ @@value }}",
+  },
+};
+
 describe("Counter", () => {
   const viewportWidth = Cypress.config("viewportWidth");
 
   beforeEach(() => {
     cy.login();
-    createQuery({ query: SQL }).then(({ id }) => {
-      cy.visit(`queries/${id}/source`);
-      cy.getByTestId("ExecuteButton").click();
-    });
   });
 
-  it("creates simple Counter", () => {
-    cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
+  it("creates Counter (custom formatting)", () => {
+    createQuery({ query: SQL })
+      .then(({ id }) =>
+        createVisualization(
+          id,
+          "COUNTER",
+          "Counter",
+          merge({}, counterOptions, {
+            counterLabel: "Test",
+            stringDecChar: ",",
+            stringThouSep: "'",
+            numberFormat: "0,0.000",
 
-      Counter.General.ValueColumn
-      Counter.General.ValueColumn.a
-    `);
+            primaryValue: {
+              type: "rowValue",
+              column: "a",
+              rowNumber: 1,
+              displayFormat: "$$ {{ @@value_formatted }} %%",
+            },
+            secondaryValue: {
+              type: "unused",
+            },
+          })
+        )
+      )
+      .then(({ id: visualizationId, query_id: queryId }) => {
+        cy.visit(`queries/${queryId}/source#${visualizationId}`);
+        cy.getByTestId("ExecuteButton").click();
 
-    cy.getByTestId("VisualizationPreview")
-      .find(".counter-visualization-container")
-      .should("exist");
+        cy.getByTestId(`QueryPageVisualization${visualizationId}`)
+          .find(".counter-visualization-container")
+          .should("exist");
 
-    // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Visualizations - Counter (with defaults)", { widths: [viewportWidth] });
+        // wait a bit before taking snapshot
+        cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+        cy.percySnapshot("Visualizations - Counter (custom formatting)", { widths: [viewportWidth] });
+      });
   });
 
-  it("creates Counter with custom label", () => {
-    cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
+  it("creates Counter (trend positive)", () => {
+    createQuery({ query: SQL })
+      .then(({ id }) =>
+        createVisualization(
+          id,
+          "COUNTER",
+          "Counter",
+          merge({}, counterOptions, {
+            primaryValue: {
+              type: "rowValue",
+              column: "b",
+              rowNumber: 2,
+            },
+            secondaryValue: {
+              type: "rowValue",
+              column: "b",
+              rowNumber: 1,
+            },
+          })
+        )
+      )
+      .then(({ id: visualizationId, query_id: queryId }) => {
+        cy.visit(`queries/${queryId}/source#${visualizationId}`);
+        cy.getByTestId("ExecuteButton").click();
 
-      Counter.General.ValueColumn
-      Counter.General.ValueColumn.a
-    `);
+        cy.getByTestId(`QueryPageVisualization${visualizationId}`)
+          .find(".counter-visualization-container")
+          .should("exist");
 
-    cy.fillInputs({
-      "Counter.General.Label": "Custom Label",
-    });
-
-    cy.getByTestId("VisualizationPreview")
-      .find(".counter-visualization-container")
-      .should("exist");
-
-    // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Visualizations - Counter (custom label)", { widths: [viewportWidth] });
+        // wait a bit before taking snapshot
+        cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+        cy.percySnapshot("Visualizations - Counter (trend positive)", { widths: [viewportWidth] });
+      });
   });
 
-  it("creates Counter with non-numeric value", () => {
-    cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
+  it("creates Counter (trend negative)", () => {
+    createQuery({ query: SQL })
+      .then(({ id }) =>
+        createVisualization(
+          id,
+          "COUNTER",
+          "Counter",
+          merge({}, counterOptions, {
+            primaryValue: {
+              type: "rowValue",
+              column: "b",
+              rowNumber: 1,
+            },
+            secondaryValue: {
+              type: "rowValue",
+              column: "b",
+              rowNumber: 2,
+            },
+          })
+        )
+      )
+      .then(({ id: visualizationId, query_id: queryId }) => {
+        cy.visit(`queries/${queryId}/source#${visualizationId}`);
+        cy.getByTestId("ExecuteButton").click();
 
-      Counter.General.ValueColumn
-      Counter.General.ValueColumn.c
+        cy.getByTestId(`QueryPageVisualization${visualizationId}`)
+          .find(".counter-visualization-container")
+          .should("exist");
 
-      Counter.General.TargetValueColumn
-      Counter.General.TargetValueColumn.c
-    `);
-
-    cy.fillInputs({
-      "Counter.General.TargetValueRowNumber": "2",
-    });
-
-    cy.getByTestId("VisualizationPreview")
-      .find(".counter-visualization-container")
-      .should("exist");
-
-    // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Visualizations - Counter (non-numeric value)", { widths: [viewportWidth] });
-  });
-
-  it("creates Counter with target value (trend positive)", () => {
-    cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
-
-      Counter.General.ValueColumn
-      Counter.General.ValueColumn.a
-
-      Counter.General.TargetValueColumn
-      Counter.General.TargetValueColumn.b
-    `);
-
-    cy.getByTestId("VisualizationPreview")
-      .find(".counter-visualization-container")
-      .should("exist");
-
-    // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Visualizations - Counter (target value + trend positive)", { widths: [viewportWidth] });
-  });
-
-  it("creates Counter with custom row number (trend negative)", () => {
-    cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
-
-      Counter.General.ValueColumn
-      Counter.General.ValueColumn.a
-
-      Counter.General.TargetValueColumn
-      Counter.General.TargetValueColumn.b
-    `);
-
-    cy.fillInputs({
-      "Counter.General.ValueRowNumber": "2",
-      "Counter.General.TargetValueRowNumber": "2",
-    });
-
-    cy.getByTestId("VisualizationPreview")
-      .find(".counter-visualization-container")
-      .should("exist");
-
-    // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Visualizations - Counter (row number + trend negative)", { widths: [viewportWidth] });
-  });
-
-  it("creates Counter with count rows", () => {
-    cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
-
-      Counter.General.Type
-      Counter.General.Type.countRows
-    `);
-
-    cy.getByTestId("VisualizationPreview")
-      .find(".counter-visualization-container")
-      .should("exist");
-
-    // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Visualizations - Counter (count rows)", { widths: [viewportWidth] });
-  });
-
-  it("creates Counter with formatting", () => {
-    cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
-
-      Counter.General.ValueColumn
-      Counter.General.ValueColumn.a
-
-      Counter.General.TargetValueColumn
-      Counter.General.TargetValueColumn.b
-
-      VisualizationEditor.Tabs.Format
-    `);
-
-    cy.fillInputs({
-      "Counter.Formatting.DecimalPlace": "4",
-      "Counter.Formatting.DecimalCharacter": ",",
-      "Counter.Formatting.ThousandsSeparator": "`",
-      "Counter.Formatting.StringPrefix": "$",
-      "Counter.Formatting.StringSuffix": "%",
-    });
-
-    cy.getByTestId("VisualizationPreview")
-      .find(".counter-visualization-container")
-      .should("exist");
-
-    // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Visualizations - Counter (custom formatting)", { widths: [viewportWidth] });
-  });
-
-  it("creates Counter with target value formatting", () => {
-    cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
-
-      Counter.General.ValueColumn
-      Counter.General.ValueColumn.a
-
-      Counter.General.TargetValueColumn
-      Counter.General.TargetValueColumn.b
-
-      VisualizationEditor.Tabs.Format
-      Counter.Formatting.FormatTargetValue
-    `);
-
-    cy.fillInputs({
-      "Counter.Formatting.DecimalPlace": "4",
-      "Counter.Formatting.DecimalCharacter": ",",
-      "Counter.Formatting.ThousandsSeparator": "`",
-      "Counter.Formatting.StringPrefix": "$",
-      "Counter.Formatting.StringSuffix": "%",
-    });
-
-    cy.getByTestId("VisualizationPreview")
-      .find(".counter-visualization-container")
-      .should("exist");
-
-    // wait a bit before taking snapshot
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot("Visualizations - Counter (format target value)", { widths: [viewportWidth] });
+        // wait a bit before taking snapshot
+        cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+        cy.percySnapshot("Visualizations - Counter (trend negative)", { widths: [viewportWidth] });
+      });
   });
 });

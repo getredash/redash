@@ -74,7 +74,7 @@ jobs:
       - run: sudo pip3 install -r requirements_bundles.txt
       - run: npm install
       - run: npm run bundle
-      - run: npm test
+      - run: npm test -- --runInBand
       - run: npm run lint
   frontend-e2e-tests:
     environment:

@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Visualizations -> Counter -> Editor -> General Settings Changes Counter Label 1`] = `
+Object {
+  "counterLabel": "Custom Counter Label",
+}
+`;
+
+exports[`Visualizations -> Counter -> Editor -> General Settings Changes Number Format 1`] = `
+Object {
+  "numberFormat": "0,0.0000",
+}
+`;
+
+exports[`Visualizations -> Counter -> Editor -> General Settings Changes Number Format 2`] = `
+Object {
+  "stringDecChar": "-",
+}
+`;
+
+exports[`Visualizations -> Counter -> Editor -> General Settings Changes Number Format 3`] = `
+Object {
+  "stringThouSep": "/",
+}
+`;

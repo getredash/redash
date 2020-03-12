@@ -43,4 +43,12 @@
   &.trend-negative .counter-visualization-value {
     color: #d9534f;
   }
+
+  .counter-visualization-value.with-tooltip,
+  .counter-visualization-target.with-tooltip {
+    &:hover {
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: 3px;
+    }
+  }
 }
