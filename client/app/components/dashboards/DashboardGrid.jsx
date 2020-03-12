@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
 import { chain, cloneDeep, find } from "lodash";
 import cx from "classnames";
@@ -32,6 +32,58 @@ const WidgetType = PropTypes.shape({
 
 const SINGLE = "single-column";
 const MULTI = "multi-column";
+
+function DashboardWidget({
+  widget,
+  dashboard,
+  isLoading,
+  onLoadWidget,
+  onRefreshWidget,
+  onRemoveWidget,
+  onParameterMappingsChange,
+  canEdit,
+  isPublic,
+  filters,
+}) {
+  const { type } = widget;
+  const onLoad = useCallback(() => onLoadWidget(widget), [onLoadWidget, widget]);
+  const onRefresh = useCallback(() => onRefreshWidget(widget), [onRefreshWidget, widget]);
+  const onDelete = useCallback(() => onRemoveWidget(widget.id), [onRemoveWidget, widget]);
+  return useMemo(() => {
+    if (type === WidgetTypeEnum.VISUALIZATION) {
+      return (
+        <VisualizationWidget
+          widget={widget}
+          dashboard={dashboard}
+          filters={filters}
+          canEdit={canEdit}
+          isPublic={isPublic}
+          isLoading={isLoading}
+          onLoad={onLoad}
+          onRefresh={onRefresh}
+          onDelete={onDelete}
+          onParameterMappingsChange={onParameterMappingsChange}
+        />
+      );
+    }
+    if (type === WidgetTypeEnum.TEXTBOX) {
+      return <TextboxWidget widget={widget} canEdit={canEdit} isPublic={isPublic} onDelete={onDelete} />;
+    }
+    return <RestrictedWidget widget={widget} />;
+  }, [
+    canEdit,
+    dashboard,
+    filters,
+    isLoading,
+    isPublic,
+    onDelete,
+    onLoad,
+    onParameterMappingsChange,
+    onRefresh,
+    type,
+    widget,
+  ]);
+}
 
 class DashboardGrid extends React.Component {
   static propTypes = {
@@ -206,14 +258,6 @@ class DashboardGrid extends React.Component {
           onBreakpointChange={this.onBreakpointChange}
           breakpoints={{ [MULTI]: cfg.mobileBreakPoint, [SINGLE]: 0 }}>
           {widgets.map(widget => {
-            const widgetProps = {
-              widget,
-              filters,
-              isPublic,
-              canEdit: dashboard.canEdit(),
-              onDelete: () => onRemoveWidget(widget.id),
-            };
-            const { type } = widget;
             return (
               <div
                 key={widget.id}
@@ -223,18 +267,18 @@ class DashboardGrid extends React.Component {
                 className={cx("dashboard-widget-wrapper", {
                   "widget-auto-height-enabled": this.autoHeightCtrl.exists(widget.id),
                 })}>
-                {type === WidgetTypeEnum.VISUALIZATION && (
-                  <VisualizationWidget
-                    {...widgetProps}
-                    dashboard={dashboard}
-                    isLoading={loadingWidgets.has(widget.id)}
-                    onLoad={() => onLoadWidget(widget)}
-                    onRefresh={() => onRefreshWidget(widget)}
-                    onParameterMappingsChange={onParameterMappingsChange}
-                  />
-                )}
-                {type === WidgetTypeEnum.TEXTBOX && <TextboxWidget {...widgetProps} />}
-                {type === WidgetTypeEnum.RESTRICTED && <RestrictedWidget widget={widget} />}
+                <DashboardWidget
+                  dashboard={dashboard}
+                  widget={widget}
+                  filters={filters}
+                  isPublic={isPublic}
+                  isLoading={loadingWidgets.has(widget.id)}
+                  canEdit={dashboard.canEdit()}
+                  onLoadWidget={onLoadWidget}
+                  onRefreshWidget={onRefreshWidget}
+                  onRemoveWidget={onRemoveWidget}
+                  onParameterMappingsChange={onParameterMappingsChange}
+                />
               </div>
             );
           })}
