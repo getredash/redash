@@ -41,7 +41,6 @@ class TestPythonQueryRunner(TestCase):
                        '"rows": [{"col1": "foo", "col2": 100},' \
                        '{"col1": "bar", "col2": 200}]}'
         result = self.python.run_query(query_string, 'user')
-        print(result)
         self.assertEqual(result[0], '{"columns": [{"name": "col1", "type": "string"},'
                                     ' {"name": "col2", "type": "integer"}],'
                                     ' "rows": [{"col1": "foo", "col2": 100},'
@@ -58,7 +57,6 @@ class TestPythonQueryRunner(TestCase):
                        '"rows": [{"col1": "foo", "col2": 100},' \
                        '{"col1": "bar", "col2": 200}]}'
         result = self.python.run_query(query_string, 'user')
-        print(result)
         self.assertEqual(result[0], '{"columns": [{"name": "col1", "type": "string"},'
                                     ' {"name": "col2", "type": "integer"}],'
                                     ' "rows": [{"col1": "foo", "col2": 100},'
