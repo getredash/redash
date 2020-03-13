@@ -8,7 +8,7 @@ from redash.query_runner.python import Python
 class TestPythonQueryRunner(TestCase):
 
     def setUp(self):
-        self.python = Python({})
+        self.python = Python({"allowedImportModules": "pandas"})
 
     @mock.patch('datetime.datetime')
     def test_print_in_query_string_success(self, mock_dt):
@@ -62,3 +62,17 @@ class TestPythonQueryRunner(TestCase):
                                     ' "rows": [{"col1": "foo", "col2": 100},'
                                     ' {"col1": "bar", "col2": 200}],'
                                     ' "log": ["[1901-12-21T00:00:00] test"]}')
+
+    def test_dataframe_result_type(self):
+        query_string = 'def get_result():\n' \
+                       '    import pandas as pd\n' \
+                       '    return pd.DataFrame({"col1": [1, 2], "col2": ["foo", "bar"]})\n' \
+                       'df = get_result()\n' \
+                       'result=df_to_redash(df)'
+
+        result = self.python.run_query(query_string, 'user')
+        self.assertEqual(result[0], '{"columns": [{"name": "col1", "friendly_name": "col1", "type": "integer"},'
+                                    ' {"name": "col2", "friendly_name": "col2", "type": "string"}],'
+                                    ' "rows": [{"col1": 1, "col2": "foo"},'
+                                    ' {"col1": 2, "col2": "bar"}],'
+                                    ' "log": []}')

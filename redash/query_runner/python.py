@@ -8,6 +8,8 @@ from redash.utils import json_dumps, json_loads
 from redash import models
 from RestrictedPython import compile_restricted
 from RestrictedPython.Guards import safe_builtins
+from pandas import DataFrame
+import numpy as np
 
 
 logger = logging.getLogger(__name__)
@@ -239,6 +241,33 @@ class Python(BaseQueryRunner):
     def test_connection(self):
         pass
 
+    @staticmethod
+    def df_to_redash(df, index_to_col=False):
+        if index_to_col:
+            df.reset_index(inplace=True)
+
+        result = {'columns': [], 'rows': []}
+        conversions = [
+            {'pandas_type': np.integer, 'redash_type': 'integer'},
+            {'pandas_type': np.inexact, 'redash_type': 'float'},
+            {'pandas_type': np.datetime64, 'redash_type': 'datetime',
+             'to_redash': lambda x: x.strftime('%Y-%m-%d %H:%M:%S')},
+            {'pandas_type': np.bool_, 'redash_type': 'boolean'},
+            {'pandas_type': np.object, 'redash_type': 'string'}
+        ]
+        labels = []
+        for dtype, label in zip(df.dtypes, df.columns):
+            for conversion in conversions:
+                if issubclass(dtype.type, conversion['pandas_type']):
+                    result['columns'].append({'name': label, 'friendly_name': label, 'type': conversion['redash_type']})
+                    labels.append(label)
+                    func = conversion.get('to_redash')
+                    if func:
+                        df[label] = df[label].apply(func)
+                    break
+        result['rows'] = df[labels].replace({np.nan: None}).to_dict(orient='records')
+        return result
+
     def run_query(self, query, user):
         self._current_user = user
 
@@ -270,9 +299,10 @@ class Python(BaseQueryRunner):
             restricted_globals["execute_query"] = self.execute_query
             restricted_globals["add_result_column"] = self.add_result_column
             restricted_globals["add_result_row"] = self.add_result_row
+            restricted_globals["df_to_redash"] = self.df_to_redash
             restricted_globals["disable_print_log"] = self._custom_print.disable
             restricted_globals["enable_print_log"] = self._custom_print.enable
-
+            
             # Supported data types
             restricted_globals["TYPE_DATETIME"] = TYPE_DATETIME
             restricted_globals["TYPE_BOOLEAN"] = TYPE_BOOLEAN
@@ -289,7 +319,12 @@ class Python(BaseQueryRunner):
 
             result = self._script_locals["result"]
             result["log"] = self._custom_print.lines
-            json_data = json_dumps(result)
+
+            if isinstance(result, dict):
+                json_data = json_dumps(result)
+            elif isinstance(result, DataFrame):
+                json_data = self.df_to_redash(result)
+
         except Exception as e:
             error = str(type(e)) + " " + str(e)
             json_data = None
