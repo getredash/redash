@@ -302,7 +302,7 @@ class Python(BaseQueryRunner):
             restricted_globals["df_to_redash"] = self.df_to_redash
             restricted_globals["disable_print_log"] = self._custom_print.disable
             restricted_globals["enable_print_log"] = self._custom_print.enable
-            
+
             # Supported data types
             restricted_globals["TYPE_DATETIME"] = TYPE_DATETIME
             restricted_globals["TYPE_BOOLEAN"] = TYPE_BOOLEAN
@@ -319,11 +319,7 @@ class Python(BaseQueryRunner):
 
             result = self._script_locals["result"]
             result["log"] = self._custom_print.lines
-
-            if isinstance(result, dict):
-                json_data = json_dumps(result)
-            elif isinstance(result, DataFrame):
-                json_data = self.df_to_redash(result)
+            json_data = json_dumps(result)
 
         except Exception as e:
             error = str(type(e)) + " " + str(e)
