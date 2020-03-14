@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { compact, isEmpty, invoke } from "lodash";
+import VisibilitySensor from "react-visibility-sensor";
 import { markdown } from "markdown";
 import cx from "classnames";
 import Menu from "antd/lib/menu";
@@ -255,12 +256,20 @@ class VisualizationWidget extends React.Component {
       case "done":
         return (
           <div className="body-row-auto scrollbox">
-            <VisualizationRenderer
-              visualization={widget.visualization}
-              queryResult={widgetQueryResult}
-              filters={filters}
-              context="widget"
-            />
+            <VisibilitySensor partialVisibility>
+              {({ isVisible }) =>
+                isVisible ? (
+                  <VisualizationRenderer
+                    visualization={widget.visualization}
+                    queryResult={widgetQueryResult}
+                    filters={filters}
+                    context="widget"
+                  />
+                ) : (
+                  <div style={{ height: "100%" }} />
+                )
+              }
+            </VisibilitySensor>
           </div>
         );
       default:

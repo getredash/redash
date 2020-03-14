@@ -76,6 +76,7 @@
     "react-resizable": "^1.10.1",
     "react-sortable-hoc": "^1.10.1",
     "react-virtualized": "^9.21.2",
+    "react-visibility-sensor": "^5.1.1",
     "tinycolor2": "^1.4.1",
     "universal-router": "^8.3.0",
     "use-debounce": "^3.1.0",
