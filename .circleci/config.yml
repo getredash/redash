@@ -70,6 +70,7 @@ jobs:
       - image: circleci/node:8
     steps:
       - checkout
+      - run: sudo apt update
       - run: sudo apt install python3-pip
       - run: sudo pip3 install -r requirements_bundles.txt
       - run: npm ci
