@@ -11,6 +11,7 @@ export class TagsControl extends React.Component {
     getAvailableTags: PropTypes.func,
     onEdit: PropTypes.func,
     className: PropTypes.string,
+    tagsExtra: PropTypes.node,
     children: PropTypes.node,
   };
 
@@ -20,19 +21,21 @@ export class TagsControl extends React.Component {
     getAvailableTags: () => Promise.resolve([]),
     onEdit: () => {},
     className: "",
+    tagsExtra: null,
     children: null,
   };
 
   editTags = (tags, getAvailableTags) => {
-    EditTagsDialog.showModal({ tags, getAvailableTags })
-      .result.then(this.props.onEdit)
-      .catch(() => {}); // ignore dismiss
+    EditTagsDialog.showModal({ tags, getAvailableTags }).onClose(this.props.onEdit);
   };
 
   renderEditButton() {
     const tags = map(this.props.tags, trim);
     return (
-      <a className="label label-tag" role="none" onClick={() => this.editTags(tags, this.props.getAvailableTags)}>
+      <a
+        className="label label-tag hidden-xs"
+        role="none"
+        onClick={() => this.editTags(tags, this.props.getAvailableTags)}>
         {tags.length === 0 && (
           <React.Fragment>
             <i className="zmdi zmdi-plus m-r-5" />
@@ -54,6 +57,7 @@ export class TagsControl extends React.Component {
           </span>
         ))}
         {this.props.canEdit && this.renderEditButton()}
+        {this.props.tagsExtra}
       </div>
     );
   }

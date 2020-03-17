@@ -61,7 +61,7 @@ jobs:
     steps:
       - checkout
       - run: mkdir -p /tmp/test-results/eslint
-      - run: npm install
+      - run: npm ci
       - run: npm run lint:ci
       - store_test_results:
           path: /tmp/test-results
@@ -70,9 +70,10 @@ jobs:
       - image: circleci/node:8
     steps:
       - checkout
+      - run: sudo apt update
       - run: sudo apt install python3-pip
       - run: sudo pip3 install -r requirements_bundles.txt
-      - run: npm install
+      - run: npm ci
       - run: npm run bundle
       - run: npm test -- --runInBand
       - run: npm run lint
@@ -91,11 +92,12 @@ jobs:
       - run:
           name: Install npm dependencies
           command: |
-            npm install
+            npm ci
       - run:
           name: Setup Redash server
           command: |
-            npm run cypress start
+            npm run cypress build
+            npm run cypress start -- --skip-db-seed
             docker-compose run cypress npm run cypress db-seed
       - run:
           name: Execute Cypress tests

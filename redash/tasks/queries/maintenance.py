@@ -8,7 +8,7 @@ from redash.models.parameterized_query import (
     QueryDetachedFromDataSourceError,
 )
 from redash.tasks.failure_report import track_failure
-from redash.utils import json_dumps
+from redash.utils import json_dumps, sentry
 from redash.worker import job, get_job_logger
 
 from .execution import enqueue_query
@@ -27,85 +27,79 @@ def empty_schedules():
     logger.info("Deleted %d schedules.", len(queries))
 
 
+def _should_refresh_query(query):
+    if settings.FEATURE_DISABLE_REFRESH_QUERIES:
+        logger.info("Disabled refresh queries.")
+        return False
+    elif query.org.is_disabled:
+        logger.debug("Skipping refresh of %s because org is disabled.", query.id)
+        return False
+    elif query.data_source is None:
+        logger.debug("Skipping refresh of %s because the datasource is none.", query.id)
+        return False
+    elif query.data_source.paused:
+        logger.debug(
+            "Skipping refresh of %s because datasource - %s is paused (%s).",
+            query.id,
+            query.data_source.name,
+            query.data_source.pause_reason,
+        )
+        return False
+    else:
+        return True
+
+
+def _apply_default_parameters(query):
+    parameters = {p["name"]: p.get("value") for p in query.parameters}
+    if any(parameters):
+        try:
+            return query.parameterized.apply(parameters).query
+        except InvalidParameterError as e:
+            error = u"Skipping refresh of {} because of invalid parameters: {}".format(
+                query.id, str(e)
+            )
+            track_failure(query, error)
+            raise
+        except QueryDetachedFromDataSourceError as e:
+            error = (
+                "Skipping refresh of {} because a related dropdown "
+                "query ({}) is unattached to any datasource."
+            ).format(query.id, e.query_id)
+            track_failure(query, error)
+            raise
+    else:
+        return query.query_text
+
+
 def refresh_queries():
     logger.info("Refreshing queries...")
+    enqueued = []
+    for query in models.Query.outdated_queries():
+        if not _should_refresh_query(query):
+            continue
 
-    outdated_queries_count = 0
-    query_ids = []
+        try:
+            enqueue_query(
+                _apply_default_parameters(query),
+                query.data_source,
+                query.user_id,
+                scheduled_query=query,
+                metadata={"Query ID": query.id, "Username": "Scheduled"},
+            )
+            enqueued.append(query)
+        except Exception as e:
+            message = "Could not enqueue query %d due to %s" % (query.id, repr(e))
+            logging.info(message)
+            sentry.capture_message(message)
 
-    with statsd_client.timer("manager.outdated_queries_lookup"):
-        for query in models.Query.outdated_queries():
-            if settings.FEATURE_DISABLE_REFRESH_QUERIES:
-                logger.info("Disabled refresh queries.")
-            elif query.org.is_disabled:
-                logger.debug(
-                    "Skipping refresh of %s because org is disabled.", query.id
-                )
-            elif query.data_source is None:
-                logger.debug(
-                    "Skipping refresh of %s because the datasource is none.", query.id
-                )
-            elif query.data_source.paused:
-                logger.debug(
-                    "Skipping refresh of %s because datasource - %s is paused (%s).",
-                    query.id,
-                    query.data_source.name,
-                    query.data_source.pause_reason,
-                )
-            else:
-                query_text = query.query_text
+    status = {
+        "outdated_queries_count": len(enqueued),
+        "last_refresh_at": time.time(),
+        "query_ids": json_dumps([q.id for q in enqueued]),
+    }
 
-                parameters = {p["name"]: p.get("value") for p in query.parameters}
-                if any(parameters):
-                    try:
-                        query_text = query.parameterized.apply(parameters).query
-                    except InvalidParameterError as e:
-                        error = u"Skipping refresh of {} because of invalid parameters: {}".format(
-                            query.id, str(e)
-                        )
-                        track_failure(query, error)
-                        continue
-                    except QueryDetachedFromDataSourceError as e:
-                        error = (
-                            "Skipping refresh of {} because a related dropdown "
-                            "query ({}) is unattached to any datasource."
-                        ).format(query.id, e.query_id)
-                        track_failure(query, error)
-                        continue
-
-                enqueue_query(
-                    query_text,
-                    query.data_source,
-                    query.user_id,
-                    scheduled_query=query,
-                    metadata={"Query ID": query.id, "Username": "Scheduled"},
-                )
-
-                query_ids.append(query.id)
-                outdated_queries_count += 1
-
-    statsd_client.gauge("manager.outdated_queries", outdated_queries_count)
-
-    logger.info(
-        "Done refreshing queries. Found %d outdated queries: %s"
-        % (outdated_queries_count, query_ids)
-    )
-
-    status = redis_connection.hgetall("redash:status")
-    now = time.time()
-
-    redis_connection.hmset(
-        "redash:status",
-        {
-            "outdated_queries_count": outdated_queries_count,
-            "last_refresh_at": now,
-            "query_ids": json_dumps(query_ids),
-        },
-    )
-
-    statsd_client.gauge(
-        "manager.seconds_since_refresh", now - float(status.get("last_refresh_at", now))
-    )
+    redis_connection.hmset("redash:status", status)
+    logger.info("Done refreshing queries: %s" % status)
 
 
 def cleanup_query_results():

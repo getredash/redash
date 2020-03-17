@@ -1,34 +1,37 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-import Divider from "antd/lib/divider";
+import cx from "classnames";
+import useMedia from "use-media";
+import Button from "antd/lib/button";
+import Icon from "antd/lib/icon";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EditInPlace from "@/components/EditInPlace";
 import Parameters from "@/components/Parameters";
-import TimeAgo from "@/components/TimeAgo";
-import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
-import EditVisualizationButton from "@/components/EditVisualizationButton";
 
-import { Query } from "@/services/query";
 import DataSource from "@/services/data-source";
-import { pluralize, durationHumanize } from "@/lib/utils";
+import { ExecutionStatus } from "@/services/query-result";
+import getQueryResultData from "@/lib/getQueryResultData";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import QueryMetadata from "./components/QueryMetadata";
-import QueryViewExecuteButton from "./components/QueryViewExecuteButton";
+import wrapQueryPage from "./components/wrapQueryPage";
+import QueryViewButton from "./components/QueryViewButton";
+import QueryExecutionMetadata from "./components/QueryExecutionMetadata";
 
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 import useQueryExecute from "./hooks/useQueryExecute";
 import useUpdateQueryDescription from "./hooks/useUpdateQueryDescription";
 import useQueryFlags from "./hooks/useQueryFlags";
 import useQueryParameters from "./hooks/useQueryParameters";
-import useAddToDashboardDialog from "./hooks/useAddToDashboardDialog";
-import useEmbedDialog from "./hooks/useEmbedDialog";
 import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
+import useFullscreenHandler from "../../lib/hooks/useFullscreenHandler";
+
+import "./QueryView.less";
 
 function QueryView(props) {
   const [query, setQuery] = useState(props.query);
@@ -36,19 +39,25 @@ function QueryView(props) {
   const queryFlags = useQueryFlags(query, dataSource);
   const [parameters, areParametersDirty, updateParametersDirtyFlag] = useQueryParameters(query);
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
+  const isMobile = !useMedia({ minWidth: 768 });
+  const [fullscreen, toggleFullscreen] = useFullscreenHandler(!isMobile);
+  const [addingDescription, setAddingDescription] = useState(false);
 
   const {
     queryResult,
-    queryResultData,
-    isQueryExecuting,
-    isExecutionCancelling,
+    loadedInitialResults,
+    isExecuting,
+    executionStatus,
     executeQuery,
-    cancelExecution,
+    error: executionError,
+    cancelCallback: cancelExecution,
+    isCancelling: isExecutionCancelling,
+    updatedAt,
   } = useQueryExecute(query);
 
+  const queryResultData = getQueryResultData(queryResult);
+
   const updateQueryDescription = useUpdateQueryDescription(query, setQuery);
-  const openAddToDashboardDialog = useAddToDashboardDialog(query);
-  const openEmbedDialog = useEmbedDialog(query);
   const editSchedule = useEditScheduleDialog(query, setQuery);
   const addVisualization = useEditVisualizationDialog(query, queryResult, (newQuery, visualization) => {
     setQuery(newQuery);
@@ -59,12 +68,12 @@ function QueryView(props) {
 
   const doExecuteQuery = useCallback(
     (skipParametersDirtyFlag = false) => {
-      if (!queryFlags.canExecute || (!skipParametersDirtyFlag && (areParametersDirty || isQueryExecuting))) {
+      if (!queryFlags.canExecute || (!skipParametersDirtyFlag && (areParametersDirty || isExecuting))) {
         return;
       }
       executeQuery();
     },
-    [areParametersDirty, executeQuery, isQueryExecuting, queryFlags.canExecute]
+    [areParametersDirty, executeQuery, isExecuting, queryFlags.canExecute]
   );
 
   useEffect(() => {
@@ -76,30 +85,55 @@ function QueryView(props) {
   }, [query.data_source_id]);
 
   return (
-    <div className="query-page-wrapper">
+    <div className={cx("query-page-wrapper", { "query-view-fullscreen": fullscreen, "query-fixed-layout": !isMobile })}>
       <div className="container">
         <QueryPageHeader
           query={query}
           dataSource={dataSource}
           onChange={setQuery}
           selectedVisualization={selectedVisualization}
+          headerExtra={
+            <QueryViewButton
+              className="m-r-5"
+              type="primary"
+              shortcut="mod+enter, alt+enter"
+              disabled={!queryFlags.canExecute || isExecuting || areParametersDirty}
+              onClick={doExecuteQuery}>
+              Refresh
+            </QueryViewButton>
+          }
+          tagsExtra={
+            !query.description &&
+            queryFlags.canEdit &&
+            !addingDescription &&
+            !fullscreen && (
+              <a className="label label-tag hidden-xs" role="none" onClick={() => setAddingDescription(true)}>
+                <i className="zmdi zmdi-plus m-r-5" />
+                Add description
+              </a>
+            )
+          }
         />
-        <div className="tiled bg-white p-15">
-          <EditInPlace
-            className="w-100"
-            value={query.description}
-            isEditable={queryFlags.canEdit}
-            onDone={updateQueryDescription}
-            placeholder="Add description"
-            ignoreBlanks={false}
-            editorProps={{ autosize: { minRows: 2, maxRows: 4 } }}
-            multiline
-          />
-          <Divider />
-          <QueryMetadata layout="horizontal" query={query} dataSource={dataSource} onEditSchedule={editSchedule} />
-        </div>
-        <div className="query-content tiled bg-white p-15 m-t-15">
-          {query.hasParameters() && (
+        {(query.description || addingDescription) && (
+          <div className={cx("m-t-5", { hidden: fullscreen })}>
+            <EditInPlace
+              className="w-100"
+              value={query.description}
+              isEditable={queryFlags.canEdit}
+              onDone={updateQueryDescription}
+              onStopEditing={() => setAddingDescription(false)}
+              placeholder="Add description"
+              ignoreBlanks={false}
+              editorProps={{ autosize: { minRows: 2, maxRows: 4 } }}
+              defaultEditing={addingDescription}
+              multiline
+            />
+          </div>
+        )}
+      </div>
+      <div className="query-view-content">
+        {query.hasParameters() && (
+          <div className={cx("bg-white tiled p-15 m-t-15 m-l-15 m-r-15", { hidden: fullscreen })}>
             <Parameters
               parameters={parameters}
               onValuesChange={() => {
@@ -108,74 +142,67 @@ function QueryView(props) {
               }}
               onPendingValuesChange={() => updateParametersDirtyFlag()}
             />
-          )}
-          {queryResult && queryResultData.status !== "done" && (
-            <div className="query-alerts m-t-15 m-b-15">
-              <QueryExecutionStatus
-                status={queryResultData.status}
-                updatedAt={queryResultData.updatedAt}
-                error={queryResultData.error}
-                isCancelling={isExecutionCancelling}
-                onCancel={cancelExecution}
-              />
-            </div>
-          )}
-          {queryResultData.status === "done" && (
-            <>
-              <QueryVisualizationTabs
-                queryResult={queryResult}
-                visualizations={query.visualizations}
-                showNewVisualizationButton={queryFlags.canEdit}
-                canDeleteVisualizations={queryFlags.canEdit}
-                selectedTab={selectedVisualization}
-                onChangeTab={setSelectedVisualization}
-                onAddVisualization={addVisualization}
-                onDeleteVisualization={deleteVisualization}
-              />
-              <Divider />
-            </>
-          )}
-          <div className="d-flex align-items-center">
-            {queryResultData.status === "done" && (
-              <>
-                {queryFlags.canEdit && (
-                  <EditVisualizationButton
-                    openVisualizationEditor={editVisualization}
-                    selectedTab={selectedVisualization}
-                  />
-                )}
-                <QueryControlDropdown
-                  query={query}
-                  queryResult={queryResult}
-                  queryExecuting={isQueryExecuting}
-                  showEmbedDialog={openEmbedDialog}
-                  embed={false}
-                  apiKey={query.api_key}
-                  selectedTab={selectedVisualization}
-                  openAddToDashboardForm={openAddToDashboardDialog}
-                />
-                <span className="m-l-10">
-                  <strong>{queryResultData.rows.length}</strong> {pluralize("row", queryResultData.rows.length)}
-                </span>
-                <span className="m-l-10">
-                  <strong>{durationHumanize(queryResult.getRuntime())}</strong>
-                  <span className="hidden-xs"> runtime</span>
-                </span>
-              </>
-            )}
-            <span className="flex-fill" />
-            {queryResultData.status === "done" && (
-              <span className="m-r-10 hidden-xs">
-                Updated <TimeAgo date={queryResult.query_result.retrieved_at} />
-              </span>
-            )}
-            <QueryViewExecuteButton
-              shortcut="mod+enter, alt+enter"
-              disabled={!queryFlags.canExecute || isQueryExecuting || areParametersDirty}
-              onClick={doExecuteQuery}>
-              Execute
-            </QueryViewExecuteButton>
           </div>
+        )}
+        <div className="query-results m-t-15">
+          {loadedInitialResults && (
+            <QueryVisualizationTabs
+              queryResult={queryResult}
+              visualizations={query.visualizations}
+              showNewVisualizationButton={queryFlags.canEdit && queryResultData.status === ExecutionStatus.DONE}
+              canDeleteVisualizations={queryFlags.canEdit}
+              selectedTab={selectedVisualization}
+              onChangeTab={setSelectedVisualization}
+              onAddVisualization={addVisualization}
+              onDeleteVisualization={deleteVisualization}
+              refreshButton={
+                <Button
+                  type="primary"
+                  disabled={!queryFlags.canExecute || areParametersDirty}
+                  loading={isExecuting}
+                  onClick={doExecuteQuery}>
+                  {!isExecuting && <i className="zmdi zmdi-refresh m-r-5" aria-hidden="true" />}
+                  Refresh Now
+                </Button>
+              }
+            />
+          )}
+          <div className="query-results-footer">
+            {queryResult && !queryResult.getError() && (
+              <QueryExecutionMetadata
+                query={query}
+                queryResult={queryResult}
+                selectedVisualization={selectedVisualization}
+                isQueryExecuting={isExecuting}
+                showEditVisualizationButton={queryFlags.canEdit}
+                onEditVisualization={editVisualization}
+                extraActions={
+                  <QueryViewButton
+                    className="icon-button m-r-5 hidden-xs"
+                    title="Toggle Fullscreen"
+                    type="default"
+                    shortcut="alt+f"
+                    onClick={toggleFullscreen}>
+                    <Icon type={fullscreen ? "fullscreen-exit" : "fullscreen"} />
+                  </QueryViewButton>
+                }
+              />
+            )}
+            {(executionError || isExecuting) && (
+              <div className="query-execution-status">
+                <QueryExecutionStatus
+                  status={executionStatus}
+                  error={executionError}
+                  isCancelling={isExecutionCancelling}
+                  onCancel={cancelExecution}
+                  updatedAt={updatedAt}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+        <div className={cx("p-t-15 p-r-15 p-l-15", { hidden: fullscreen })}>
+          <QueryMetadata layout="horizontal" query={query} dataSource={dataSource} onEditSchedule={editSchedule} />
         </div>
       </div>
     </div>
@@ -184,10 +211,9 @@ function QueryView(props) {
 
 QueryView.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-line react/forbid-prop-types
 
+const QueryViewPage = wrapQueryPage(QueryView);
+
 export default routeWithUserSession({
   path: "/queries/:queryId([0-9]+)",
-  render: pageProps => <QueryView {...pageProps} />,
-  resolve: {
-    query: ({ queryId }) => Query.get({ id: queryId }),
-  },
+  render: pageProps => <QueryViewPage {...pageProps} />,
 });

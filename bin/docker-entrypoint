@@ -39,10 +39,6 @@ create_db() {
   exec /app/manage.py database create_tables
 }
 
-rq_healthcheck() {
-  exec /app/manage.py rq healthcheck
-}
-
 help() {
   echo "Redash Docker."
   echo ""
@@ -54,7 +50,6 @@ help() {
   echo "dev_worker -- start a single RQ worker with code reloading"
   echo "scheduler -- start an rq-scheduler instance"
   echo "dev_scheduler -- start an rq-scheduler instance with code reloading"
-  echo "rq_healthcheck -- runs a RQ healthcheck that verifies that all local workers are active. Useful for Docker's HEALTHCHECK mechanism."
   echo ""
   echo "shell -- open shell"
   echo "dev_server -- start Flask development server with debugger and auto reload"
@@ -96,9 +91,9 @@ case "$1" in
     shift
     dev_worker
     ;;
-  rq_healthcheck)
+  celery_healthcheck)
     shift
-    rq_healthcheck
+    echo "DEPRECATED: Celery has been replaced with RQ and now performs healthchecks autonomously as part of the 'worker' entrypoint."
     ;;
   dev_server)
     export FLASK_DEBUG=1

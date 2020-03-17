@@ -287,9 +287,6 @@ class Python(BaseQueryRunner):
             result = self._script_locals["result"]
             result["log"] = self._custom_print.lines
             json_data = json_dumps(result)
-        except KeyboardInterrupt:
-            error = "Query cancelled by user."
-            json_data = None
         except Exception as e:
             error = str(type(e)) + " " + str(e)
             json_data = None

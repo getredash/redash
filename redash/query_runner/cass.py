@@ -93,47 +93,42 @@ class Cassandra(BaseQueryRunner):
 
     def run_query(self, query, user):
         connection = None
-        try:
-            if self.configuration.get("username", "") and self.configuration.get(
-                "password", ""
-            ):
-                auth_provider = PlainTextAuthProvider(
-                    username="{}".format(self.configuration.get("username", "")),
-                    password="{}".format(self.configuration.get("password", "")),
-                )
-                connection = Cluster(
-                    [self.configuration.get("host", "")],
-                    auth_provider=auth_provider,
-                    port=self.configuration.get("port", ""),
-                    protocol_version=self.configuration.get("protocol", 3),
-                )
-            else:
-                connection = Cluster(
-                    [self.configuration.get("host", "")],
-                    port=self.configuration.get("port", ""),
-                    protocol_version=self.configuration.get("protocol", 3),
-                )
-            session = connection.connect()
-            session.set_keyspace(self.configuration["keyspace"])
-            session.default_timeout = self.configuration.get("timeout", 10)
-            logger.debug("Cassandra running query: %s", query)
-            result = session.execute(query)
+        
+        if self.configuration.get("username", "") and self.configuration.get(
+            "password", ""
+        ):
+            auth_provider = PlainTextAuthProvider(
+                username="{}".format(self.configuration.get("username", "")),
+                password="{}".format(self.configuration.get("password", "")),
+            )
+            connection = Cluster(
+                [self.configuration.get("host", "")],
+                auth_provider=auth_provider,
+                port=self.configuration.get("port", ""),
+                protocol_version=self.configuration.get("protocol", 3),
+            )
+        else:
+            connection = Cluster(
+                [self.configuration.get("host", "")],
+                port=self.configuration.get("port", ""),
+                protocol_version=self.configuration.get("protocol", 3),
+            )
+        session = connection.connect()
+        session.set_keyspace(self.configuration["keyspace"])
+        session.default_timeout = self.configuration.get("timeout", 10)
+        logger.debug("Cassandra running query: %s", query)
+        result = session.execute(query)
 
-            column_names = result.column_names
+        column_names = result.column_names
 
-            columns = self.fetch_columns([(c, "string") for c in column_names])
+        columns = self.fetch_columns([(c, "string") for c in column_names])
 
-            rows = [dict(zip(column_names, row)) for row in result]
+        rows = [dict(zip(column_names, row)) for row in result]
 
-            data = {"columns": columns, "rows": rows}
-            json_data = json_dumps(data, cls=CassandraJSONEncoder)
+        data = {"columns": columns, "rows": rows}
+        json_data = json_dumps(data, cls=CassandraJSONEncoder)
 
-            error = None
-        except KeyboardInterrupt:
-            error = "Query cancelled by user."
-            json_data = None
-
-        return json_data, error
+        return json_data, None
 
 
 class ScyllaDB(Cassandra):

@@ -1,4 +1,4 @@
-import { isFunction, map, fromPairs, extend, startsWith, trimStart, trimEnd } from "lodash";
+import { isFunction, startsWith, trimStart, trimEnd } from "lodash";
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import UniversalRouter from "universal-router";
@@ -28,18 +28,6 @@ export function stripBase(href) {
   }
 
   return false;
-}
-
-function resolveRouteDependencies(route) {
-  return Promise.all(
-    map(route.resolve, (value, key) => {
-      value = isFunction(value) ? value(route.routeParams, route, location) : value;
-      return Promise.resolve(value).then(result => [key, result]);
-    })
-  ).then(results => {
-    route.routeParams = extend(route.routeParams, fromPairs(results));
-    return route;
-  });
 }
 
 export default function Router({ routes, onRouteChange }) {
@@ -86,10 +74,7 @@ export default function Router({ routes, onRouteChange }) {
         router
           .resolve({ pathname })
           .then(route => {
-            return isAbandoned || currentPathRef.current !== pathname ? null : resolveRouteDependencies(route);
-          })
-          .then(route => {
-            if (route) {
+            if (!isAbandoned && currentPathRef.current === pathname) {
               setCurrentRoute({ ...route, key: generateRouteKey() });
             }
           })

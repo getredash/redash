@@ -142,11 +142,10 @@ class Hive(BaseSQLQueryRunner):
             data = {"columns": columns, "rows": rows}
             json_data = json_dumps(data)
             error = None
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, JobTimeoutException):
             if connection:
                 connection.cancel()
-            error = "Query cancelled by user."
-            json_data = None
+            raise
         except DatabaseError as e:
             try:
                 error = e.args[0].status.errorMessage

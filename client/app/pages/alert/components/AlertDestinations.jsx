@@ -1,6 +1,6 @@
+import { without, find, includes, map, toLower } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import { without, find, isEmpty, includes, map } from "lodash";
 
 import SelectItemsDialog from "@/components/SelectItemsDialog";
 import { Destination as DestinationType, UserProfile as UserType } from "@/components/proptypes";
@@ -98,9 +98,8 @@ export default class AlertDestinations extends React.Component {
       dialogTitle: "Add Existing Alert Destinations",
       inputPlaceholder: "Search destinations...",
       searchItems: searchTerm => {
-        searchTerm = searchTerm.toLowerCase();
-        const filtered = dests.filter(d => isEmpty(searchTerm) || includes(d.name.toLowerCase(), searchTerm));
-        return Promise.resolve(filtered);
+        searchTerm = toLower(searchTerm);
+        return Promise.resolve(dests.filter(d => includes(toLower(d.name), searchTerm)));
       },
       renderItem: (item, { isSelected }) => {
         const alreadyInGroup = !!find(subs, s => s.destination.id === item.id);
@@ -117,17 +116,17 @@ export default class AlertDestinations extends React.Component {
           className: isSelected || alreadyInGroup ? "selected" : "",
         };
       },
-      save: items => {
-        const promises = map(items, item => this.subscribe(item));
-        return Promise.all(promises)
-          .then(() => {
-            notification.success("Subscribed.");
-          })
-          .catch(() => {
-            notification.error("Failed saving subscription.");
-          });
-      },
-    }).result.catch(() => {}); // ignore dismiss
+    }).onClose(items => {
+      const promises = map(items, item => this.subscribe(item));
+      return Promise.all(promises)
+        .then(() => {
+          notification.success("Subscribed.");
+        })
+        .catch(() => {
+          notification.error("Failed saving subscription.");
+          return Promise.reject(null); // keep dialog visible but suppress its default error message
+        });
+    });
   };
 
   onUserEmailToggle = sub => {

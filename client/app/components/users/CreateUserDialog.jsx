@@ -1,63 +1,46 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Modal from "antd/lib/modal";
 import Alert from "antd/lib/alert";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import recordEvent from "@/services/recordEvent";
 
-class CreateUserDialog extends React.Component {
-  static propTypes = {
-    dialog: DialogPropType.isRequired,
-    onCreate: PropTypes.func.isRequired,
-  };
+function CreateUserDialog({ dialog }) {
+  const [error, setError] = useState(null);
+  const formRef = useRef();
 
-  constructor(props) {
-    super(props);
-    this.state = { savingUser: false, errorMessage: null };
-    this.form = React.createRef();
-  }
-
-  componentDidMount() {
+  useEffect(() => {
     recordEvent("view", "page", "users/new");
-  }
+  }, []);
 
-  createUser = () => {
-    this.form.current.validateFieldsAndScroll((err, values) => {
-      if (!err) {
-        this.setState({ savingUser: true });
-        this.props
-          .onCreate(values)
-          .then(() => {
-            this.props.dialog.close();
-          })
-          .catch(error => {
-            // TODO: Is raw error message correct here?
-            this.setState({ savingUser: false, errorMessage: error.message });
-          });
-      }
-    });
-  };
+  const createUser = useCallback(() => {
+    if (formRef.current) {
+      formRef.current.validateFieldsAndScroll((err, values) => {
+        if (!err) {
+          dialog.close(values).catch(setError);
+        }
+      });
+    }
+  }, [dialog]);
 
-  render() {
-    const { savingUser, errorMessage } = this.state;
-    const formFields = [
-      { name: "name", title: "Name", type: "text", autoFocus: true },
-      { name: "email", title: "Email", type: "email" },
-    ].map(field => ({ required: true, props: { onPressEnter: this.createUser }, ...field }));
+  const formFields = useMemo(() => {
+    const common = { required: true, props: { onPressEnter: createUser } };
+    return [
+      { ...common, name: "name", title: "Name", type: "text", autoFocus: true },
+      { ...common, name: "email", title: "Email", type: "email" },
+    ];
+  }, [createUser]);
 
-    return (
-      <Modal
-        {...this.props.dialog.props}
-        title="Create a New User"
-        okText="Create"
-        okButtonProps={{ loading: savingUser }}
-        onOk={() => this.createUser()}>
-        <DynamicForm fields={formFields} ref={this.form} hideSubmitButton />
-        {errorMessage && <Alert message={errorMessage} type="error" showIcon />}
-      </Modal>
-    );
-  }
+  return (
+    <Modal {...dialog.props} title="Create a New User" okText="Create" onOk={createUser}>
+      <DynamicForm fields={formFields} ref={formRef} hideSubmitButton />
+      {error && <Alert message={error.message} type="error" showIcon />}
+    </Modal>
+  );
 }
+
+CreateUserDialog.propTypes = {
+  dialog: DialogPropType.isRequired,
+};
 
 export default wrapDialog(CreateUserDialog);
