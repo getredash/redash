@@ -15,11 +15,11 @@
     "lint": "npm run lint:base  -- --ext .js --ext .jsx ./client",
     "lint:fix": "npm run lint:base  -- --fix --ext .js --ext .jsx ./client",
     "lint:base": "eslint --config ./client/.eslintrc.js --ignore-path ./client/.eslintignore",
-    "lint:ci": "npm run lint -- --format junit --output-file /tmp/test-results/eslint/results.xml",
+    "lint:ci": "npm run lint -- --max-warnings 0 --format junit --output-file /tmp/test-results/eslint/results.xml",
     "prettier": "prettier --write 'client/app/**/*.{js,jsx}' 'client/cypress/**/*.js'",
     "test": "TZ=Africa/Khartoum jest",
     "test:watch": "jest --watch",
-    "cypress:install": "npm install --no-save cypress@~3.6.1 @percy/cypress@^2.2.0 atob@2.1.2",
+    "cypress:install": "npm install --no-save cypress@~4.1.0 @percy/cypress@^2.2.0 atob@2.1.2",
     "cypress": "node client/cypress/cypress.js"
   },
   "repository": {

@@ -8,6 +8,7 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
     <React.Fragment>
       <Section>
         <Select
+          layout="horizontal"
           label="Date (Bucket)"
           data-test="Cohort.DateColumn"
           className="w-100"
@@ -23,6 +24,7 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
 
       <Section>
         <Select
+          layout="horizontal"
           label="Stage"
           data-test="Cohort.StageColumn"
           className="w-100"
@@ -38,6 +40,7 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
 
       <Section>
         <Select
+          layout="horizontal"
           label="Bucket Population Size"
           data-test="Cohort.TotalColumn"
           className="w-100"
@@ -53,6 +56,7 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
 
       <Section>
         <Select
+          layout="horizontal"
           label="Stage Value"
           data-test="Cohort.ValueColumn"
           className="w-100"

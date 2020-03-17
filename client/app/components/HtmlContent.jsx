@@ -1,15 +1,15 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { sanitize } from "dompurify";
+import sanitize from "@/services/sanitize";
 
-export default function HtmlContent({ children, ...props }) {
+const HtmlContent = React.memo(function HtmlContent({ children, ...props }) {
   return (
     <div
       {...props}
       dangerouslySetInnerHTML={{ __html: sanitize(children) }} // eslint-disable-line react/no-danger
     />
   );
-}
+});
 
 HtmlContent.propTypes = {
   children: PropTypes.string,
@@ -18,3 +18,5 @@ HtmlContent.propTypes = {
 HtmlContent.defaultProps = {
   children: "",
 };
+
+export default HtmlContent;

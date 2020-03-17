@@ -70,6 +70,7 @@ jobs:
       - image: circleci/node:8
     steps:
       - checkout
+      - run: sudo apt update
       - run: sudo apt install python3-pip
       - run: sudo pip3 install -r requirements_bundles.txt
       - run: npm ci
@@ -95,7 +96,8 @@ jobs:
       - run:
           name: Setup Redash server
           command: |
-            npm run cypress start
+            npm run cypress build
+            npm run cypress start -- --skip-db-seed
             docker-compose run cypress npm run cypress db-seed
       - run:
           name: Execute Cypress tests

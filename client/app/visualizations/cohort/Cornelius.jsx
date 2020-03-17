@@ -31,7 +31,7 @@ const timeLabelFormats = {
 const defaultOptions = {
   initialDate: null,
   timeInterval: "monthly",
-  drawEmptyCells: true,
+  noValuePlaceholder: "-",
   rawNumberOnHover: true,
   displayAbsoluteValues: false,
   initialIntervalNumber: 1,
@@ -120,10 +120,8 @@ function CorneliusRow({ options, data, index, maxRowLength }) {
     const cellProps = { key: `col${i}` };
 
     if (isNil(percentageValue)) {
-      if (options.drawEmptyCells) {
-        cellProps.className = "cornelius-empty";
-        cellProps.children = "-";
-      }
+      cellProps.className = "cornelius-empty";
+      cellProps.children = options.noValuePlaceholder;
     } else {
       cellProps.className = options.displayAbsoluteValues ? "cornelius-absolute" : "cornelius-percentage";
       cellProps.children = options.displayAbsoluteValues
@@ -199,7 +197,7 @@ Cornelius.propTypes = {
   options: PropTypes.shape({
     initialDate: PropTypes.instanceOf(Date).isRequired,
     timeInterval: PropTypes.oneOf(["daily", "weekly", "monthly", "yearly"]),
-    drawEmptyCells: PropTypes.bool,
+    noValuePlaceholder: PropTypes.string,
     rawNumberOnHover: PropTypes.bool,
     displayAbsoluteValues: PropTypes.bool,
     initialIntervalNumber: PropTypes.number,
