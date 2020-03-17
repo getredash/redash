@@ -1,5 +1,5 @@
 import { isString, get, find } from "lodash";
-import { sanitize } from "dompurify";
+import sanitize from "@/services/sanitize";
 import { axios } from "@/services/axios";
 import notification from "@/services/notification";
 import { clientConfig } from "@/services/auth";
