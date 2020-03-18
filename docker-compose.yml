@@ -62,6 +62,8 @@ services:
       - "15432:5432"
     command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
     restart: unless-stopped
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "trust"
   email:
     image: djfarrelly/maildev
     ports:
