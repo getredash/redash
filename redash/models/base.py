@@ -12,10 +12,12 @@ from redash.utils import json_dumps
 class RedashSQLAlchemy(SQLAlchemy):
     def apply_driver_hacks(self, app, info, options):
         options.update(json_serializer=json_dumps)
+        options.update(pool_pre_ping=True)
         super(RedashSQLAlchemy, self).apply_driver_hacks(app, info, options)
 
     def apply_pool_defaults(self, app, options):
         super(RedashSQLAlchemy, self).apply_pool_defaults(app, options)
+        options["pool_pre_ping"] = True
         if settings.SQLALCHEMY_DISABLE_POOL:
             options["poolclass"] = NullPool
             # Remove options NullPool does not support:
