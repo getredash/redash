@@ -65,7 +65,7 @@ function EmptyState({
   };
 
   const showCreateDashboardDialog = useCallback(() => {
-    CreateDashboardDialog.showModal().result.catch(() => {}); // ignore dismiss
+    CreateDashboardDialog.showModal();
   }, []);
 
   // Show if `onboardingMode=false` or any requested step not completed

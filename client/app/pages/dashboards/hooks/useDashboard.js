@@ -56,7 +56,7 @@ function useDashboard(dashboardData) {
       aclUrl,
       context: "dashboard",
       author: dashboard.user,
-    }).result.catch(() => {}); // ignore dismiss
+    });
   }, [dashboard]);
 
   const updateDashboard = useCallback(
@@ -142,40 +142,42 @@ function useDashboard(dashboardData) {
   }, [dashboard]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showShareDashboardDialog = useCallback(() => {
+    const handleDialogClose = () => setDashboard(currentDashboard => extend({}, currentDashboard));
+
     ShareDashboardDialog.showModal({
       dashboard,
       hasOnlySafeQueries,
     })
-      .result.catch(() => {}) // ignore dismiss
-      .finally(() => setDashboard(currentDashboard => extend({}, currentDashboard)));
+      .onClose(handleDialogClose)
+      .onDismiss(handleDialogClose);
   }, [dashboard, hasOnlySafeQueries]);
 
   const showAddTextboxDialog = useCallback(() => {
     TextboxDialog.showModal({
-      dashboard,
-      onConfirm: text =>
-        dashboard.addWidget(text).then(() => setDashboard(currentDashboard => extend({}, currentDashboard))),
-    }).result.catch(() => {}); // ignore dismiss
+      isNew: true,
+    }).onClose(text =>
+      dashboard.addWidget(text).then(() => setDashboard(currentDashboard => extend({}, currentDashboard)))
+    );
   }, [dashboard]);
 
   const showAddWidgetDialog = useCallback(() => {
     AddWidgetDialog.showModal({
       dashboard,
-      onConfirm: (visualization, parameterMappings) =>
-        dashboard
-          .addWidget(visualization, {
-            parameterMappings: editableMappingsToParameterMappings(parameterMappings),
-          })
-          .then(widget => {
-            const widgetsToSave = [
-              widget,
-              ...synchronizeWidgetTitles(widget.options.parameterMappings, dashboard.widgets),
-            ];
-            return Promise.all(widgetsToSave.map(w => w.save())).then(() =>
-              setDashboard(currentDashboard => extend({}, currentDashboard))
-            );
-          }),
-    }).result.catch(() => {}); // ignore dismiss
+    }).onClose(({ visualization, parameterMappings }) =>
+      dashboard
+        .addWidget(visualization, {
+          parameterMappings: editableMappingsToParameterMappings(parameterMappings),
+        })
+        .then(widget => {
+          const widgetsToSave = [
+            widget,
+            ...synchronizeWidgetTitles(widget.options.parameterMappings, dashboard.widgets),
+          ];
+          return Promise.all(widgetsToSave.map(w => w.save())).then(() =>
+            setDashboard(currentDashboard => extend({}, currentDashboard))
+          );
+        })
+    );
   }, [dashboard]);
 
   const [refreshRate, setRefreshRate, disableRefreshRate] = useRefreshRateHandler(refreshDashboard);

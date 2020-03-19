@@ -28,7 +28,7 @@ function onSearch(q) {
 
 function DesktopNavbar() {
   const showCreateDashboardDialog = useCallback(() => {
-    CreateDashboardDialog.showModal().result.catch(() => {}); // ignore dismiss
+    CreateDashboardDialog.showModal();
   }, []);
 
   return (

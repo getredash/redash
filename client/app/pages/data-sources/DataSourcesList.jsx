@@ -84,16 +84,16 @@ class DataSourcesList extends React.Component {
       onCreate: this.createDataSource,
     });
 
-    this.newDataSourceDialog.result
-      .then((result = {}) => {
+    this.newDataSourceDialog
+      .onClose((result = {}) => {
         this.newDataSourceDialog = null;
         if (result.success) {
           navigateTo(`data_sources/${result.data.id}`);
         }
       })
-      .catch(() => {
-        navigateTo("data_sources", true);
+      .onDismiss(() => {
         this.newDataSourceDialog = null;
+        navigateTo("data_sources", true);
       });
   };
 
