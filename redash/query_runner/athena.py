@@ -132,10 +132,10 @@ class Athena(BaseQueryRunner):
                     'title': 'Athena cost per Tb scanned (USD)',
                     'default': 5
                 }
-                })
+            })
 
         if not OPTIONAL_CREDENTIALS and not ASSUME_ROLE:
-                schema['required'] += ['aws_access_key', 'aws_secret_key']
+            schema['required'] += ['aws_access_key', 'aws_secret_key']
 
         return schema
 
@@ -159,7 +159,7 @@ class Athena(BaseQueryRunner):
                 RoleArn=self.configuration.get('iam_role'),
                 RoleSessionName=role_session_name,
                 ExternalId=self.configuration.get('external_id')
-                )
+            )
             return {
                 'aws_access_key_id': creds['Credentials']['AccessKeyId'],
                 'aws_secret_access_key': creds['Credentials']['SecretAccessKey'],
