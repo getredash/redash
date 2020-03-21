@@ -2,7 +2,7 @@
 """Copy bundle extension files to the client/app/extension directory"""
 import logging
 import os
-from pathlib import Path
+from pathlib import Path, PurePath
 from shutil import copy
 from collections import OrderedDict as odict
 
@@ -59,6 +59,7 @@ def load_bundles():
             ├── __init__.py
             └── bundle
                 ├── extension.js
+                    ├── components/component.js
                 └── styles.css
 
     and would then need to register the bundle with an entry point
@@ -87,7 +88,7 @@ def load_bundles():
             )
             continue
         with path(module, BUNDLE_DIRECTORY) as bundle_dir:
-            bundles[entry_point.name] = list(bundle_dir.rglob("*"))
+            bundles[entry_point.name] = [(path, PurePath.relative_to(path, bundle_dir)) for path in bundle_dir.rglob("*")]
 
     return bundles
 
@@ -106,12 +107,14 @@ for bundle_name, paths in bundles:
 
     # The destination for the bundle files with the entry point name as the subdirectory
     destination = Path(extensions_directory, bundle_name)
-    if not destination.exists():
-        destination.mkdir()
 
     # Copy the bundle directory from the module to its destination.
     print('Copying "{}" bundle to {}:'.format(bundle_name, destination.resolve()))
-    for src_path in paths:
-        dest_path = destination / src_path.name
+    for src_path, rel_path in paths:
+        if not src_path.is_file():
+            continue
+        dest_path = destination / rel_path
+        if not dest_path.parent.exists():
+            dest_path.parent.mkdir(parents=True)
         print(" - {} -> {}".format(src_path, dest_path))
         copy(str(src_path), str(dest_path))
