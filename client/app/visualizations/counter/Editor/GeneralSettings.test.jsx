@@ -10,17 +10,19 @@ function findByTestID(wrapper, testId) {
 }
 
 function mount(options, done) {
-  options = getOptions(options);
+  const data = {
+    columns: [
+      { name: "a", type: "number" },
+      { name: "b", type: "number" },
+    ],
+    rows: [{ a: 123, b: 987 }],
+  };
+
+  options = getOptions(options, data);
   return enzyme.mount(
     <GeneralSettings
       visualizationName="Test"
-      data={{
-        columns: [
-          { name: "a", type: "number" },
-          { name: "b", type: "number" },
-        ],
-        rows: [{ a: 123, b: 987 }],
-      }}
+      data={data}
       options={options}
       onOptionsChange={changedOptions => {
         expect(changedOptions).toMatchSnapshot();
