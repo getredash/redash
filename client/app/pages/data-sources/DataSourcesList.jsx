@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
-import { isEmpty } from "lodash";
+import { isEmpty, reject } from "lodash";
 import DataSource, { IMG_ROOT } from "@/services/data-source";
 import { policy } from "@/services/policy";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
@@ -77,7 +77,7 @@ class DataSourcesList extends React.Component {
   showCreateSourceDialog = () => {
     recordEvent("view", "page", "data_sources/new");
     this.newDataSourceDialog = CreateSourceDialog.showModal({
-      types: this.state.dataSourceTypes,
+      types: reject(this.state.dataSourceTypes, "deprecated"),
       sourceType: "Data Source",
       imageFolder: IMG_ROOT,
       helpTriggerPrefix: "DS_",
