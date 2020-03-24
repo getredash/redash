@@ -6,6 +6,7 @@ build-docker-image-job: &build-docker-image-job
   steps:
     - setup_remote_docker
     - checkout
+    - run: sudo apt update
     - run: sudo apt install python3-pip
     - run: sudo pip3 install -r requirements_bundles.txt
     - run: .circleci/update_version
