@@ -127,6 +127,7 @@ class BaseQueryRunner(object):
             "name": cls.name(),
             "type": cls.type(),
             "configuration_schema": cls.configuration_schema(),
+            **({ "deprecated": True } if cls.deprecated else {})
         }
 
 
