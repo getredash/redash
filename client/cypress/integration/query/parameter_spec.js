@@ -161,57 +161,91 @@ describe("Parameter", () => {
   });
 
   describe("Query Based Dropdown Parameter", () => {
-    beforeEach(() => {
-      const dropdownQueryData = {
-        name: "Dropdown Query",
-        query: `SELECT 'value1' AS name, 1 AS value UNION ALL
-                SELECT 'value2' AS name, 2 AS value UNION ALL
-                SELECT 'value3' AS name, 3 AS value`,
-      };
-      createQuery(dropdownQueryData, true).then(dropdownQuery => {
-        const queryData = {
-          name: "Query Based Dropdown Parameter",
-          query: "SELECT '{{test-parameter}}' AS parameter",
-          options: {
-            parameters: [{ name: "test-parameter", title: "Test Parameter", type: "query", queryId: dropdownQuery.id }],
-          },
+    context("based on a query with no results", () => {
+      beforeEach(() => {
+        const dropdownQueryData = {
+          name: "Dropdown Query",
+          query: "",
         };
+        createQuery(dropdownQueryData, true).then(dropdownQuery => {
+          const queryData = {
+            name: "Query Based Dropdown Parameter",
+            query: "SELECT '{{test-parameter}}' AS parameter",
+            options: {
+              parameters: [
+                { name: "test-parameter", title: "Test Parameter", type: "query", queryId: dropdownQuery.id },
+              ],
+            },
+          };
 
-        cy.visit(`/queries/${dropdownQuery.id}`);
-        cy.getByTestId("ExecuteButton").click();
-        cy.getByTestId("TableVisualization")
-          .should("contain", "value1")
-          .and("contain", "value2")
-          .and("contain", "value3");
+          createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+        });
+      });
 
-        createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+      it("should show a 'No options available' message when you click", () => {
+        cy.getByTestId("ParameterName-test-parameter")
+          .find(".ant-select-selection")
+          .click();
+
+        cy.contains("li.ant-select-dropdown-menu-item", "No options available");
       });
     });
 
-    it("supports multi-selection", () => {
-      cy.clickThrough(`
-        ParameterSettings-test-parameter
-        AllowMultipleValuesCheckbox
-        QuotationSelect
-        DoubleQuotationMarkOption
-        SaveParameterSettings
-      `);
+    context("based on a query with 3 results", () => {
+      beforeEach(() => {
+        const dropdownQueryData = {
+          name: "Dropdown Query",
+          query: `SELECT 'value1' AS name, 1 AS value UNION ALL
+                  SELECT 'value2' AS name, 2 AS value UNION ALL
+                  SELECT 'value3' AS name, 3 AS value`,
+        };
+        createQuery(dropdownQueryData, true).then(dropdownQuery => {
+          const queryData = {
+            name: "Query Based Dropdown Parameter",
+            query: "SELECT '{{test-parameter}}' AS parameter",
+            options: {
+              parameters: [
+                { name: "test-parameter", title: "Test Parameter", type: "query", queryId: dropdownQuery.id },
+              ],
+            },
+          };
 
-      cy.getByTestId("ParameterName-test-parameter")
-        .find(".ant-select")
-        .click();
+          cy.visit(`/queries/${dropdownQuery.id}`);
+          cy.getByTestId("ExecuteButton").click();
+          cy.getByTestId("TableVisualization")
+            .should("contain", "value1")
+            .and("contain", "value2")
+            .and("contain", "value3");
 
-      // make sure all options are unselected and select all
-      cy.get("li.ant-select-dropdown-menu-item").each($option => {
-        expect($option).not.to.have.class("ant-select-dropdown-menu-item-selected");
-        cy.wrap($option).click();
+          createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+        });
       });
 
-      cy.getByTestId("QueryEditor").click(); // just to close the select menu
+      it("supports multi-selection", () => {
+        cy.clickThrough(`
+          ParameterSettings-test-parameter
+          AllowMultipleValuesCheckbox
+          QuotationSelect
+          DoubleQuotationMarkOption
+          SaveParameterSettings
+        `);
 
-      cy.getByTestId("ParameterApplyButton").click();
+        cy.getByTestId("ParameterName-test-parameter")
+          .find(".ant-select")
+          .click();
 
-      cy.getByTestId("TableVisualization").should("contain", '"1","2","3"');
+        // make sure all options are unselected and select all
+        cy.get("li.ant-select-dropdown-menu-item").each($option => {
+          expect($option).not.to.have.class("ant-select-dropdown-menu-item-selected");
+          cy.wrap($option).click();
+        });
+
+        cy.getByTestId("QueryEditor").click(); // just to close the select menu
+
+        cy.getByTestId("ParameterApplyButton").click();
+
+        cy.getByTestId("TableVisualization").should("contain", '"1","2","3"');
+      });
     });
   });
 
