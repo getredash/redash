@@ -1,4 +1,4 @@
-import { isEmpty, isFinite, merge, get, pick, padEnd, toString } from "lodash";
+import { isEmpty, isFinite, merge, get, pick, padEnd, toString, includes, map } from "lodash";
 import getOptionsV1 from "./v1";
 
 const schemaVersion = 2;
@@ -67,10 +67,22 @@ function migrateFromV1(options) {
   return result;
 }
 
-export default function getOptions(options) {
+export default function getOptions(options, { columns }) {
   const currentSchemaVersion = get(options, "schemaVersion", isEmpty(options) ? schemaVersion : 0);
   if (currentSchemaVersion < schemaVersion) {
     options = migrateFromV1(options);
   }
-  return merge({}, defaultOptions, options, { schemaVersion });
+
+  const optionsWithDefaults = merge({}, defaultOptions, options, { schemaVersion });
+  const columnNameUpdates = {};
+
+  const columnNames = map(columns, col => col.name);
+  if (!includes(columnNames, get(optionsWithDefaults, "primaryValue.column"))) {
+    columnNameUpdates.primaryValue = { column: null };
+  }
+  if (!includes(columnNames, get(optionsWithDefaults, "secondaryValue.column"))) {
+    columnNameUpdates.secondaryValue = { column: null };
+  }
+
+  return merge({}, optionsWithDefaults, columnNameUpdates);
 }

@@ -5,25 +5,20 @@ import getOptions from "./getOptions";
 import Renderer from "./Renderer";
 
 function mount(options) {
-  options = getOptions(options);
-  return enzyme.mount(
-    <Renderer
-      visualizationName="Test"
-      data={{
-        columns: [
-          { name: "city", type: "string" },
-          { name: "population", type: "number" },
-        ],
-        rows: [
-          { city: "New York City", population: 18604000 },
-          { city: "Shanghai", population: 24484000 },
-          { city: "Tokyo", population: 38140000 },
-        ],
-      }}
-      options={options}
-      context="query"
-    />
-  );
+  const data = {
+    columns: [
+      { name: "city", type: "string" },
+      { name: "population", type: "number" },
+    ],
+    rows: [
+      { city: "New York City", population: 18604000 },
+      { city: "Shanghai", population: 24484000 },
+      { city: "Tokyo", population: 38140000 },
+    ],
+  };
+
+  options = getOptions(options, data);
+  return enzyme.mount(<Renderer visualizationName="Test" data={data} options={options} context="query" />);
 }
 
 describe("Visualizations -> Counter -> Renderer", () => {
