@@ -20,7 +20,8 @@ function DashboardSettings({ dashboardOptions }) {
     <div className="m-b-10 p-15 bg-white tiled">
       <Checkbox
         checked={!!dashboard.dashboard_filters_enabled}
-        onChange={({ target }) => updateDashboard({ dashboard_filters_enabled: target.checked })}>
+        onChange={({ target }) => updateDashboard({ dashboard_filters_enabled: target.checked })}
+        data-test="DashboardFiltersCheckbox">
         Use Dashboard Level Filters
       </Checkbox>
     </div>
@@ -84,7 +85,7 @@ function DashboardComponent(props) {
         </div>
       )}
       {!isEmpty(filters) && (
-        <div className="m-b-10 p-15 bg-white tiled">
+        <div className="m-b-10 p-15 bg-white tiled" data-test="DashboardFilters">
           <Filters filters={filters} onChange={setFilters} />
         </div>
       )}
