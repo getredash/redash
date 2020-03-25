@@ -66,8 +66,9 @@ class Mysql(BaseSQLQueryRunner):
                 "passwd": {"type": "string", "title": "Password"},
                 "db": {"type": "string", "title": "Database name"},
                 "port": {"type": "number", "default": 3306},
+                "default_client_config": {"type": "string"}
             },
-            "order": ["host", "port", "user", "passwd", "db"],
+            "order": ["host", "port", "user", "passwd", "db", "default_client_config"],
             "required": ["db"],
             "secret": ["passwd"],
         }
@@ -108,6 +109,7 @@ class Mysql(BaseSQLQueryRunner):
             passwd=self.configuration.get("passwd", ""),
             db=self.configuration["db"],
             port=self.configuration.get("port", 3306),
+            read_default_file=self.configuration.get("default_client_config", ""),
             charset="utf8",
             use_unicode=True,
             connect_timeout=60,
