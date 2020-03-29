@@ -158,7 +158,7 @@ export default function QueryPageHeader({
       <div className="header-actions">
         {headerExtra}
         {queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit && (
-          <Button className="hidden-xs m-r-5" onClick={publishQuery}>
+          <Button className="m-r-5" onClick={publishQuery}>
             <i className="fa fa-paper-plane m-r-5" /> Publish
           </Button>
         )}
