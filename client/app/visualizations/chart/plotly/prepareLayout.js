@@ -118,7 +118,7 @@ function prepareBoxLayout(layout, options, data) {
 
 export default function prepareLayout(element, options, data) {
   const layout = {
-    margin: { l: 5, r: 5, b: 5, t: 20, pad: 4 },
+    margin: { l: 10, r: 10, b: 5, t: 20, pad: 4 },
     width: Math.floor(element.offsetWidth),
     height: Math.floor(element.offsetHeight),
     autosize: false,
