@@ -65,7 +65,7 @@
     "mustache": "^2.3.0",
     "numeral": "^2.0.6",
     "pace-progress": "git+https://github.com/getredash/pace.git",
-    "plotly.js": "1.43.2",
+    "plotly.js": "1.52.3",
     "prop-types": "^15.6.1",
     "query-string": "^6.9.0",
     "react": "^16.8.3",
