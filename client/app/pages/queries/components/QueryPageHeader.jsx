@@ -70,7 +70,7 @@ export default function QueryPageHeader({
   tagsExtra,
   onChange,
 }) {
-  const isMobile = !useMedia({ minWidth: 768 });
+  const isDesktop = useMedia({ minWidth: 768 });
   const queryFlags = useQueryFlags(query, dataSource);
   const updateName = useRenameQuery(query, onChange);
   const updateTags = useUpdateQueryTags(query, onChange);
@@ -110,7 +110,7 @@ export default function QueryPageHeader({
           },
           publish: {
             isAvailable:
-              isMobile && queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit,
+              !isDesktop && queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit,
             title: "Publish",
             onClick: publishQuery,
           },
@@ -138,7 +138,7 @@ export default function QueryPageHeader({
       duplicateQuery,
       archiveQuery,
       openPermissionsEditorDialog,
-      isMobile,
+      isDesktop,
       publishQuery,
       unpublishQuery,
       openApiKeyDialog,
@@ -170,7 +170,7 @@ export default function QueryPageHeader({
       </div>
       <div className="header-actions">
         {headerExtra}
-        {!isMobile && queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit && (
+        {isDesktop && queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit && (
           <Button className="m-r-5" onClick={publishQuery}>
             <i className="fa fa-paper-plane m-r-5" /> Publish
           </Button>
