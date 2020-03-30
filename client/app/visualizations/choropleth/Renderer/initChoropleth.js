@@ -1,12 +1,12 @@
 import { isFunction, isObject, isArray, map } from "lodash";
 import React from "react";
 import ReactDOM from "react-dom";
-import { sanitize } from "dompurify";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-fullscreen";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
 import { formatSimpleTemplate } from "@/lib/value-format";
+import sanitize from "@/services/sanitize";
 import resizeObserver from "@/services/resizeObserver";
 import {
   createNumberFormatter,

@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
-import { isEmpty, isString, find, get } from "lodash";
+import { isEmpty, isString, find, get, reject } from "lodash";
 import Destination, { IMG_ROOT } from "@/services/destination";
 import { policy } from "@/services/policy";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
@@ -71,7 +71,7 @@ class DestinationsList extends React.Component {
 
   showCreateSourceDialog = () => {
     CreateSourceDialog.showModal({
-      types: this.state.destinationTypes,
+      types: reject(this.state.destinationTypes, "deprecated"),
       sourceType: "Alert Destination",
       imageFolder: IMG_ROOT,
       onCreate: this.createDestination,

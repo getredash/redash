@@ -35,7 +35,8 @@ export class TagsControl extends React.Component {
       <a
         className="label label-tag hidden-xs"
         role="none"
-        onClick={() => this.editTags(tags, this.props.getAvailableTags)}>
+        onClick={() => this.editTags(tags, this.props.getAvailableTags)}
+        data-test="EditTagsButton">
         {tags.length === 0 && (
           <React.Fragment>
             <i className="zmdi zmdi-plus m-r-5" />
@@ -49,10 +50,10 @@ export class TagsControl extends React.Component {
 
   render() {
     return (
-      <div className={"tags-control " + this.props.className}>
+      <div className={"tags-control " + this.props.className} data-test="TagsControl">
         {this.props.children}
         {map(this.props.tags, tag => (
-          <span className="label label-tag" key={tag} title={tag}>
+          <span className="label label-tag" key={tag} title={tag} data-test="TagLabel">
             {tag}
           </span>
         ))}

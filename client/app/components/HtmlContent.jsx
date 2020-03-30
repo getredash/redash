@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { sanitize } from "dompurify";
+import sanitize from "@/services/sanitize";
 
 const HtmlContent = React.memo(function HtmlContent({ children, ...props }) {
   return (

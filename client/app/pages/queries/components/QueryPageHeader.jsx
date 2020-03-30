@@ -1,4 +1,4 @@
-import { extend, map, filter, reduce, isEmpty } from "lodash";
+import { extend, map, filter, reduce } from "lodash";
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
@@ -143,19 +143,17 @@ export default function QueryPageHeader({
             </h3>
           </div>
         </div>
-        {!isEmpty(query.tags) && (
-          <div className="query-tags">
-            <QueryTagsControl
-              tags={query.tags}
-              isDraft={queryFlags.isDraft}
-              isArchived={queryFlags.isArchived}
-              canEdit={queryFlags.canEdit}
-              getAvailableTags={getQueryTags}
-              onEdit={updateTags}
-              tagsExtra={tagsExtra}
-            />
-          </div>
-        )}
+        <div className="query-tags">
+          <QueryTagsControl
+            tags={query.tags}
+            isDraft={queryFlags.isDraft}
+            isArchived={queryFlags.isArchived}
+            canEdit={queryFlags.canEdit}
+            getAvailableTags={getQueryTags}
+            onEdit={updateTags}
+            tagsExtra={tagsExtra}
+          />
+        </div>
       </div>
       <div className="header-actions">
         {headerExtra}

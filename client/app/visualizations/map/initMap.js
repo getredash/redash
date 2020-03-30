@@ -1,6 +1,5 @@
 import { isFunction, each, map, toString, clone } from "lodash";
 import chroma from "chroma-js";
-import { sanitize } from "dompurify";
 import L from "leaflet";
 import "leaflet.markercluster";
 import "leaflet/dist/leaflet.css";
@@ -14,6 +13,7 @@ import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import "leaflet-fullscreen";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
 import { formatSimpleTemplate } from "@/lib/value-format";
+import sanitize from "@/services/sanitize";
 import resizeObserver from "@/services/resizeObserver";
 import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
 
