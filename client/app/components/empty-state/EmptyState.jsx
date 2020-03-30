@@ -1,21 +1,11 @@
-import { keys, some } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
-import classNames from 'classnames';
-import { $uibModal } from '@/services/ng';
-import { currentUser } from '@/services/auth';
-import organizationStatus from '@/services/organizationStatus';
-import './empty-state.less';
-
-function createDashboard() {
-  $uibModal.open({
-    component: 'editDashboardDialog',
-    resolve: {
-      dashboard: () => ({ name: null, layout: null }),
-    },
-  });
-}
+import { keys, some } from "lodash";
+import React, { useCallback } from "react";
+import PropTypes from "prop-types";
+import classNames from "classnames";
+import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
+import { currentUser } from "@/services/auth";
+import organizationStatus from "@/services/organizationStatus";
+import "./empty-state.less";
 
 function Step({ show, completed, text, url, urlText, onClick }) {
   if (!show) {
@@ -24,9 +14,9 @@ function Step({ show, completed, text, url, urlText, onClick }) {
 
   return (
     <li className={classNames({ done: completed })}>
-      <a href={url || 'javascript:void(0)'} onClick={onClick}>
+      <a href={url} onClick={onClick}>
         {urlText}
-      </a>{' '}
+      </a>{" "}
       {text}
     </li>
   );
@@ -47,9 +37,9 @@ Step.defaultProps = {
   onClick: null,
 };
 
-export function EmptyState({
+function EmptyState({
   icon,
-  title,
+  header,
   description,
   illustration,
   helpLink,
@@ -74,6 +64,10 @@ export function EmptyState({
     inviteUsers: organizationStatus.objectCounters.users > 1,
   };
 
+  const showCreateDashboardDialog = useCallback(() => {
+    CreateDashboardDialog.showModal();
+  }, []);
+
   // Show if `onboardingMode=false` or any requested step not completed
   const shouldShow = !onboardingMode || some(keys(isAvailable), step => isAvailable[step] && !isCompleted[step]);
 
@@ -84,14 +78,14 @@ export function EmptyState({
   return (
     <div className="empty-state bg-white tiled">
       <div className="empty-state__summary">
-        {title && <h4>{title}</h4>}
+        {header && <h4>{header}</h4>}
         <h2>
           <i className={icon} />
         </h2>
         <p>{description}</p>
         <img
-          src={'/static/images/illustrations/' + illustration + '.svg'}
-          alt={illustration + ' Illustration'}
+          src={"/static/images/illustrations/" + illustration + ".svg"}
+          alt={illustration + " Illustration"}
           width="75%"
         />
       </div>
@@ -131,7 +125,7 @@ export function EmptyState({
           <Step
             show={isAvailable.dashboard}
             completed={isCompleted.dashboard}
-            onClick={createDashboard}
+            onClick={showCreateDashboardDialog}
             urlText="Create"
             text="your first Dashboard"
           />
@@ -144,7 +138,7 @@ export function EmptyState({
           />
         </ol>
         <p>
-          Need more support?{' '}
+          Need more support?{" "}
           <a href={helpLink} target="_blank" rel="noopener noreferrer">
             See our Help
             <i className="fa fa-external-link m-l-5" aria-hidden="true" />
@@ -157,7 +151,7 @@ export function EmptyState({
 
 EmptyState.propTypes = {
   icon: PropTypes.string,
-  title: PropTypes.string,
+  header: PropTypes.string,
   description: PropTypes.string.isRequired,
   illustration: PropTypes.string.isRequired,
   helpLink: PropTypes.string.isRequired,
@@ -170,7 +164,7 @@ EmptyState.propTypes = {
 
 EmptyState.defaultProps = {
   icon: null,
-  title: null,
+  header: null,
 
   onboardingMode: false,
   showAlertStep: false,
@@ -178,8 +172,4 @@ EmptyState.defaultProps = {
   showInviteStep: false,
 };
 
-export default function init(ngModule) {
-  ngModule.component('emptyState', react2angular(EmptyState));
-}
-
-init.init = true;
+export default EmptyState;

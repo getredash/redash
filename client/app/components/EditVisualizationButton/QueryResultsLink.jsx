@@ -1,9 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-
+import React from "react";
+import PropTypes from "prop-types";
 
 export default function QueryResultsLink(props) {
-  let href = '';
+  let href = "";
 
   const { query, queryResult, fileType } = props;
   const resultId = queryResult.getId && queryResult.getId();
@@ -11,16 +10,14 @@ export default function QueryResultsLink(props) {
 
   if (resultId && resultData && query.name) {
     if (query.id) {
-      href = `api/queries/${query.id}/results/${resultId}.${fileType}${
-        props.embed ? `?api_key=${props.apiKey}` : ''
-      }`;
+      href = `api/queries/${query.id}/results/${resultId}.${fileType}${props.embed ? `?api_key=${props.apiKey}` : ""}`;
     } else {
       href = `api/query_results/${resultId}.${fileType}`;
     }
   }
 
   return (
-    <a target="_self" disabled={props.disabled} href={href}>
+    <a target="_blank" rel="noopener noreferrer" disabled={props.disabled} href={href} download>
       {props.children}
     </a>
   );
@@ -33,15 +30,12 @@ QueryResultsLink.propTypes = {
   disabled: PropTypes.bool.isRequired,
   embed: PropTypes.bool,
   apiKey: PropTypes.string,
-  children: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.node),
-    PropTypes.node,
-  ]).isRequired,
+  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
 };
 
 QueryResultsLink.defaultProps = {
   queryResult: {},
-  fileType: 'csv',
+  fileType: "csv",
   embed: false,
-  apiKey: '',
+  apiKey: "",
 };

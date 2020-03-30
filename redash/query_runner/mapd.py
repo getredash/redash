@@ -1,13 +1,19 @@
-from __future__ import absolute_import
-
 try:
     import pymapd
+
     enabled = True
 except ImportError:
     enabled = False
 
 from redash.query_runner import BaseSQLQueryRunner, register
-from redash.query_runner import TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN
+from redash.query_runner import (
+    TYPE_STRING,
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_INTEGER,
+    TYPE_FLOAT,
+    TYPE_BOOLEAN,
+)
 from redash.utils import json_dumps
 
 TYPES_MAP = {
@@ -23,42 +29,25 @@ TYPES_MAP = {
     9: TYPE_DATE,
     10: TYPE_BOOLEAN,
     11: TYPE_DATE,
-    12: TYPE_DATE
+    12: TYPE_DATE,
 }
 
 
 class Mapd(BaseSQLQueryRunner):
-
     @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
             "properties": {
-                "host": {
-                    "type": "string",
-                    "default": "localhost"
-                },
-                "port": {
-                    "type": "number",
-                    "default": 9091
-                },
-                "user": {
-                    "type": "string",
-                    "default": "mapd",
-                    "title": "username"
-                },
-                "password": {
-                    "type": "string",
-                    "default": "HyperInteractive"
-                },
-                "database": {
-                    "type": "string",
-                    "default": "mapd"
-                }
+                "host": {"type": "string", "default": "localhost"},
+                "port": {"type": "number", "default": 9091},
+                "user": {"type": "string", "default": "mapd", "title": "username"},
+                "password": {"type": "string", "default": "HyperInteractive"},
+                "database": {"type": "string", "default": "mapd"},
             },
             "order": ["user", "password", "host", "port", "database"],
             "required": ["host", "port", "user", "password", "database"],
-            "secret": ["password"]
+            "secret": ["password"],
         }
 
     @classmethod
@@ -67,12 +56,12 @@ class Mapd(BaseSQLQueryRunner):
 
     def connect_database(self):
         connection = pymapd.connect(
-                        user=self.configuration['user'],
-                        password=self.configuration['password'],
-                        host=self.configuration['host'],
-                        port=self.configuration['port'],
-                        dbname=self.configuration['database']
-                )
+            user=self.configuration["user"],
+            password=self.configuration["password"],
+            host=self.configuration["host"],
+            port=self.configuration["port"],
+            dbname=self.configuration["database"],
+        )
         return connection
 
     def run_query(self, query, user):
@@ -81,9 +70,13 @@ class Mapd(BaseSQLQueryRunner):
 
         try:
             cursor.execute(query)
-            columns = self.fetch_columns([(i[0], TYPES_MAP.get(i[1], None)) for i in cursor.description])
-            rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
-            data = {'columns': columns, 'rows': rows}
+            columns = self.fetch_columns(
+                [(i[0], TYPES_MAP.get(i[1], None)) for i in cursor.description]
+            )
+            rows = [
+                dict(zip((column["name"] for column in columns), row)) for row in cursor
+            ]
+            data = {"columns": columns, "rows": rows}
             error = None
             json_data = json_dumps(data)
         finally:
@@ -96,13 +89,13 @@ class Mapd(BaseSQLQueryRunner):
         connection = self.connect_database()
         try:
             for table_name in connection.get_tables():
-                schema[table_name] = {'name': table_name, 'columns': []}
+                schema[table_name] = {"name": table_name, "columns": []}
                 for row_column in connection.get_table_details(table_name):
-                    schema[table_name]['columns'].append(row_column[0])
+                    schema[table_name]["columns"].append(row_column[0])
         finally:
             connection.close
 
-        return schema.values()
+        return list(schema.values())
 
     def test_connection(self):
         connection = self.connect_database()
@@ -111,5 +104,6 @@ class Mapd(BaseSQLQueryRunner):
             num_tables = tables.count(tables)
         finally:
             connection.close
+
 
 register(Mapd)

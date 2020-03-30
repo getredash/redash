@@ -1,0 +1,77 @@
+
+@import '../../assets/less/inc/variables';
+
+.visual-card-list {
+  width: 100%;
+  margin: -5px 0 0 -5px; // compensate for .visual-card spacing
+}
+
+.visual-card {
+  background: #FFFFFF;
+  border: 1px solid fade(@redash-gray, 15%);
+  border-radius: 3px;
+  margin: 5px;
+  width: 212px;
+  padding: 15px 5px;
+  cursor: pointer;
+  box-shadow: none;
+  transition: transform 0.12s ease-out;
+  transition-duration: 0.3s;
+  transition-property: box-shadow;
+
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    box-shadow: rgba(102, 136, 153, 0.15) 0px 4px 9px -3px;
+  }
+
+  img {
+    width: 64px !important;
+    height: 64px !important;
+    margin-right: 5px;
+  }
+
+  h3 {
+    font-size: 13px;
+    color: #323232;
+    margin: 0 !important;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 1200px) {
+  .visual-card {
+    width: 217px;
+  }
+}
+
+@media (max-width: 755px) {
+  .visual-card {
+    width: 47%;
+  }
+}
+
+@media (max-width: 515px) {
+  .visual-card {
+    width: 47%;
+
+    img {
+      width: 48px;
+      height: 48px;
+    }
+  }
+}
+
+@media (max-width: 408px) {
+  .visual-card {
+    width: 100%;
+    padding: 5px;
+
+    img {
+      width: 48px;
+      height: 48px;
+    }
+  }
+}

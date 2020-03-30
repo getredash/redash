@@ -1,25 +1,41 @@
-import { merge } from 'lodash';
-import React from 'react';
-import Switch from 'antd/lib/switch';
-import { EditorPropTypes } from '@/visualizations';
+import { merge } from "lodash";
+import React from "react";
+import { Section, Switch } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function Editor({ options, onOptionsChange }) {
-  const updateOptions = (updates) => {
+  const updateOptions = updates => {
     onOptionsChange(merge({}, options, updates));
   };
 
   return (
-    <div className="form-group">
-      <label className="d-flex align-items-center" htmlFor="pivot-show-controls">
-        <span className="m-r-10">Hide Pivot Controls</span>
+    <React.Fragment>
+      <Section>
         <Switch
           data-test="PivotEditor.HideControls"
           id="pivot-show-controls"
-          checked={options.controls.enabled}
-          onChange={enabled => updateOptions({ controls: { enabled } })}
-        />
-      </label>
-    </div>
+          defaultChecked={!options.controls.enabled}
+          onChange={enabled => updateOptions({ controls: { enabled: !enabled } })}>
+          Show Pivot Controls
+        </Switch>
+      </Section>
+      <Section>
+        <Switch
+          id="pivot-show-row-totals"
+          defaultChecked={options.rendererOptions.table.rowTotals}
+          onChange={rowTotals => updateOptions({ rendererOptions: { table: { rowTotals } } })}>
+          Show Row Totals
+        </Switch>
+      </Section>
+      <Section>
+        <Switch
+          id="pivot-show-column-totals"
+          defaultChecked={options.rendererOptions.table.colTotals}
+          onChange={colTotals => updateOptions({ rendererOptions: { table: { colTotals } } })}>
+          Show Column Totals
+        </Switch>
+      </Section>
+    </React.Fragment>
   );
 }
 

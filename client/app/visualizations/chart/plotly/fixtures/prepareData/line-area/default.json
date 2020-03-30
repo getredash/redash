@@ -1,0 +1,55 @@
+{
+  "input": {
+    "options": {
+      "globalSeriesType": "line",
+      "numberFormat": "0,0[.]00000",
+      "percentFormat": "0[.]00%",
+      "textFormat": "",
+      "showDataLabels": true,
+      "direction": { "type": "counterclockwise" },
+      "xAxis": { "type": "-", "labels": { "enabled": true } },
+      "yAxis": [
+        { "type": "linear" },
+        { "type": "linear", "opposite": true }
+      ],
+      "series": { "stacking": null, "error_y": { "type": "data", "visible": true } },
+      "seriesOptions": {
+        "a": { "type": "line", "color": "red" }
+      },
+      "columnMapping": {
+        "x": "x",
+        "y1": "y"
+      },
+      "missingValuesAsZero": true
+    },
+    "data": [
+      {
+        "name": "a",
+        "data": [
+          { "x": "x1", "y": 10, "yError": 0 },
+          { "x": "x2", "y": 20, "yError": 0 },
+          { "x": "x3", "y": 30, "yError": 0 },
+          { "x": "x4", "y": 40, "yError": 0 }
+        ]
+      }
+    ]
+  },
+  "output": {
+    "series": [
+      {
+        "visible": true,
+        "name": "a",
+        "mode": "lines+text",
+        "x": ["x1", "x2", "x3", "x4"],
+        "y": [10, 20, 30, 40],
+        "error_y": { "array": [0, 0, 0, 0], "color": "red" },
+        "hoverinfo": "text+x+name",
+        "hover": [],
+        "text": ["10 ± 0", "20 ± 0", "30 ± 0", "40 ± 0"],
+        "marker": { "color": "red" },
+        "insidetextfont": { "color": "#ffffff" },
+        "yaxis": "y"
+      }
+    ]
+  }
+}

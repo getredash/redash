@@ -1,0 +1,37 @@
+{
+  "input": {
+    "options": {
+      "globalSeriesType": "heatmap",
+      "colorScheme": "Bluered",
+      "seriesOptions": {},
+      "showDataLabels": false,
+      "sortX": true,
+      "sortY": true,
+      "reverseX": true,
+      "reverseY": true
+    },
+    "data": [
+      {
+        "name": "a",
+        "data": [
+          { "x": 12, "y": 21, "zVal": 3 },
+          { "x": 11, "y": 22, "zVal": 2 },
+          { "x": 11, "y": 21, "zVal": 1 },
+          { "x": 12, "y": 22, "zVal": 4 }
+        ]
+      }
+    ]
+  },
+  "output": {
+    "series": [
+      {
+        "x": [12, 11],
+        "y": [22, 21],
+        "z": [[4, 2], [3, 1]],
+        "type": "heatmap",
+        "name": "",
+        "colorscale": "Bluered"
+      }
+    ]
+  }
+}

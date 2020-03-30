@@ -1,50 +1,26 @@
 @import '~antd/lib/input-number/style/index'; // for ant @vars
 
+@input-dirty: #fffce1;
+
 .parameter-input {
   display: inline-block;
   position: relative;
-  width: 195px;
+  width: 100%;
 
-  &[data-dirty] {
-    .@{ant-prefix}-input {
-      padding-right: 58px !important;
-    }
-  }
-
-  .parameter-apply-button {
-    position: absolute !important;
-    height: 25px !important;
-    width: 50px;
-    top: 5px;
-    right: 5px;
-  }
-}
-
-.parameter-input-number {
-  display: inline-block;
-  position: relative;
-  width: 195px;
-
+  .@{ant-prefix}-input,
   .@{ant-prefix}-input-number {
-    width: 100% !important;
+    min-width: 100% !important;
+  }
+
+  .@{ant-prefix}-select {
+    width: 100%;
   }
 
   &[data-dirty] {
-    .@{ant-prefix}-input-number {
-      padding-right: 68px !important;
+    .@{ant-prefix}-input, // covers also ant date component
+    .@{ant-prefix}-input-number,
+    .@{ant-prefix}-select-selection {
+      background-color: @input-dirty;
     }
-  }
-
-  // Make Input Number spinners always visible
-  .@{input-number-prefix-cls}-handler-wrap {
-    opacity: 1 !important;
-  }
-
-  .parameter-apply-button {
-    position: absolute !important;
-    height: 25px !important;
-    width: 50px;
-    top: 5px;
-    right: 27px;
   }
 }

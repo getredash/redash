@@ -1,0 +1,8 @@
+# These are the requirements that the extension bundle
+# loading mechanism need on Python 2 and can be removed
+# when moved to Python 3.
+# It's automatically installed when running npm run bundle
+
+# These can be removed when upgrading to Python 3.x
+importlib-metadata>=0.19  # remove when on 3.8
+importlib_resources==1.0.2  # remove when on 3.7

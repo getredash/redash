@@ -1,35 +1,39 @@
-import { isArray, map, includes, every, some } from 'lodash';
-import moment from 'moment';
-import React from 'react';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
-import Select from 'antd/lib/select';
+import { isArray, indexOf, get, map, includes, every, some, toNumber } from "lodash";
+import moment from "moment";
+import React from "react";
+import PropTypes from "prop-types";
+import Select from "antd/lib/select";
+import { formatColumnValue } from "@/lib/utils";
 
-const ALL_VALUES = '###Redash::Filters::SelectAll###';
-const NONE_VALUES = '###Redash::Filters::Clear###';
+const ALL_VALUES = "###Redash::Filters::SelectAll###";
+const NONE_VALUES = "###Redash::Filters::Clear###";
 
 export const FilterType = PropTypes.shape({
   name: PropTypes.string.isRequired,
   friendlyName: PropTypes.string.isRequired,
   multiple: PropTypes.bool,
-  current: PropTypes.oneOfType([
-    PropTypes.any,
-    PropTypes.arrayOf(PropTypes.any),
-  ]).isRequired,
+  current: PropTypes.oneOfType([PropTypes.any, PropTypes.arrayOf(PropTypes.any)]),
   values: PropTypes.arrayOf(PropTypes.any).isRequired,
 });
 
 export const FiltersType = PropTypes.arrayOf(FilterType);
 
 function createFilterChangeHandler(filters, onChange) {
-  return (filter, value) => {
-    if (filter.multiple && includes(value, ALL_VALUES)) {
-      value = [...filter.values];
+  return (filter, values) => {
+    if (isArray(values)) {
+      values = map(values, value => filter.values[toNumber(value.key)] || value.key);
+    } else {
+      const _values = filter.values[toNumber(values.key)];
+      values = _values !== undefined ? _values : values.key;
     }
-    if (filter.multiple && includes(value, NONE_VALUES)) {
-      value = [];
+
+    if (filter.multiple && includes(values, ALL_VALUES)) {
+      values = [...filter.values];
     }
-    filters = map(filters, f => (f.name === filter.name ? { ...filter, current: value } : f));
+    if (filter.multiple && includes(values, NONE_VALUES)) {
+      values = [];
+    }
+    filters = map(filters, f => (f.name === filter.name ? { ...filter, current: values } : f));
     onChange(filters);
   };
 }
@@ -41,29 +45,28 @@ export function filterData(rows, filters = []) {
 
   let result = rows;
 
-  if (isArray(filters) && (filters.length > 0)) {
+  if (isArray(filters) && filters.length > 0) {
     // "every" field's value should match "some" of corresponding filter's values
-    result = result.filter(row => every(
-      filters,
-      (filter) => {
+    result = result.filter(row =>
+      every(filters, filter => {
         const rowValue = row[filter.name];
         const filterValues = isArray(filter.current) ? filter.current : [filter.current];
-        return some(filterValues, (filterValue) => {
+        return some(filterValues, filterValue => {
           if (moment.isMoment(rowValue)) {
             return rowValue.isSame(filterValue);
           }
           // We compare with either the value or the String representation of the value,
           // because Select2 casts true/false to "true"/"false".
-          return (filterValue === rowValue) || (String(rowValue) === filterValue);
+          return filterValue === rowValue || String(rowValue) === filterValue;
         });
-      },
-    ));
+      })
+    );
   }
 
   return result;
 }
 
-export function Filters({ filters, onChange }) {
+function Filters({ filters, onChange }) {
   if (filters.length === 0) {
     return null;
   }
@@ -72,31 +75,50 @@ export function Filters({ filters, onChange }) {
 
   return (
     <div className="filters-wrapper">
-      <div className="parameter-container container bg-white">
+      <div className="container bg-white">
         <div className="row">
-          {map(filters, (filter) => {
-            const options = map(filter.values, value => (
-              <Select.Option key={value}>{value}</Select.Option>
+          {map(filters, filter => {
+            const options = map(filter.values, (value, index) => (
+              <Select.Option key={index}>{formatColumnValue(value, get(filter, "column.type"))}</Select.Option>
             ));
 
             return (
               <div key={filter.name} className="col-sm-6 p-l-0 filter-container">
                 <label>{filter.friendlyName}</label>
-                <Select
-                  className="w-100"
-                  mode={filter.multiple ? 'multiple' : 'default'}
-                  value={filter.current}
-                  allowClear={filter.multiple}
-                  showSearch
-                  onChange={value => onChange(filter, value)}
-                >
-                  {!filter.multiple && options}
-                  {filter.multiple && [
-                    <Select.Option key={NONE_VALUES}><i className="fa fa-square-o m-r-5" />Clear</Select.Option>,
-                    <Select.Option key={ALL_VALUES}><i className="fa fa-check-square-o m-r-5" />Select All</Select.Option>,
-                    <Select.OptGroup key="Values" title="Values">{options}</Select.OptGroup>,
-                  ]}
-                </Select>
+                {options.length === 0 && <Select className="w-100" disabled value="No values" />}
+                {options.length > 0 && (
+                  <Select
+                    labelInValue
+                    className="w-100"
+                    mode={filter.multiple ? "multiple" : "default"}
+                    value={
+                      isArray(filter.current)
+                        ? map(filter.current, value => ({
+                            key: `${indexOf(filter.values, value)}`,
+                            label: formatColumnValue(value),
+                          }))
+                        : { key: `${indexOf(filter.values, filter.current)}`, label: formatColumnValue(filter.current) }
+                    }
+                    allowClear={filter.multiple}
+                    optionFilterProp="children"
+                    showSearch
+                    onChange={values => onChange(filter, values)}>
+                    {!filter.multiple && options}
+                    {filter.multiple && [
+                      <Select.Option key={NONE_VALUES}>
+                        <i className="fa fa-square-o m-r-5" />
+                        Clear
+                      </Select.Option>,
+                      <Select.Option key={ALL_VALUES}>
+                        <i className="fa fa-check-square-o m-r-5" />
+                        Select All
+                      </Select.Option>,
+                      <Select.OptGroup key="Values" title="Values">
+                        {options}
+                      </Select.OptGroup>,
+                    ]}
+                  </Select>
+                )}
               </div>
             );
           })}
@@ -115,8 +137,4 @@ Filters.defaultProps = {
   onChange: () => {},
 };
 
-export default function init(ngModule) {
-  ngModule.component('filters', react2angular(Filters));
-}
-
-init.init = true;
+export default Filters;

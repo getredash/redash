@@ -16,6 +16,7 @@ try:
     from bson.decimal128 import Decimal128
     from bson.son import SON
     from bson.json_util import object_hook as bson_object_hook
+
     enabled = True
 
 except ImportError:
@@ -24,9 +25,8 @@ except ImportError:
 
 TYPES_MAP = {
     str: TYPE_STRING,
-    unicode: TYPE_STRING,
+    bytes: TYPE_STRING,
     int: TYPE_INTEGER,
-    long: TYPE_INTEGER,
     float: TYPE_FLOAT,
     bool: TYPE_BOOLEAN,
     datetime.datetime: TYPE_DATETIME,
@@ -44,28 +44,28 @@ class MongoDBJSONEncoder(JSONEncoder):
         return super(MongoDBJSONEncoder, self).default(o)
 
 
-date_regex = re.compile("ISODate\(\"(.*)\"\)", re.IGNORECASE)
+date_regex = re.compile('ISODate\("(.*)"\)', re.IGNORECASE)
 
 
 def parse_oids(oids):
     if not isinstance(oids, list):
         raise Exception("$oids takes an array as input.")
 
-    return [bson_object_hook({'$oid': oid}) for oid in oids]
+    return [bson_object_hook({"$oid": oid}) for oid in oids]
 
 
 def datetime_parser(dct):
-    for k, v in dct.iteritems():
-        if isinstance(v, basestring):
+    for k, v in dct.items():
+        if isinstance(v, str):
             m = date_regex.findall(v)
             if len(m) > 0:
                 dct[k] = parse(m[0], yearfirst=True)
 
-    if '$humanTime' in dct:
-        return parse_human_time(dct['$humanTime'])
+    if "$humanTime" in dct:
+        return parse_human_time(dct["$humanTime"])
 
-    if '$oids' in dct:
-        return parse_oids(dct['$oids'])
+    if "$oids" in dct:
+        return parse_oids(dct["$oids"])
 
     return bson_object_hook(dct)
 
@@ -93,23 +93,29 @@ def parse_results(results):
         for key in row:
             if isinstance(row[key], dict):
                 for inner_key in row[key]:
-                    column_name = u'{}.{}'.format(key, inner_key)
+                    column_name = "{}.{}".format(key, inner_key)
                     if _get_column_by_name(columns, column_name) is None:
-                        columns.append({
-                            "name": column_name,
-                            "friendly_name": column_name,
-                            "type": TYPES_MAP.get(type(row[key][inner_key]), TYPE_STRING)
-                        })
+                        columns.append(
+                            {
+                                "name": column_name,
+                                "friendly_name": column_name,
+                                "type": TYPES_MAP.get(
+                                    type(row[key][inner_key]), TYPE_STRING
+                                ),
+                            }
+                        )
 
                     parsed_row[column_name] = row[key][inner_key]
 
             else:
                 if _get_column_by_name(columns, key) is None:
-                    columns.append({
-                        "name": key,
-                        "friendly_name": key,
-                        "type": TYPES_MAP.get(type(row[key]), TYPE_STRING)
-                    })
+                    columns.append(
+                        {
+                            "name": key,
+                            "friendly_name": key,
+                            "type": TYPES_MAP.get(type(row[key]), TYPE_STRING),
+                        }
+                    )
 
                 parsed_row[key] = row[key]
 
@@ -119,6 +125,8 @@ def parse_results(results):
 
 
 class MongoDB(BaseQueryRunner):
+    should_annotate_query = False
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -136,31 +144,47 @@ class MongoDB(BaseQueryRunner):
                     'type': 'string',
                     'title': 'Replica Set Name'
                 },
+                "readPreference": {
+                    "type": "string",
+                    "extendedEnum": [
+                        {"value": "primaryPreferred", "name": "Primary Preferred"},
+                        {"value": "primary", "name": "Primary"},                        
+                        {"value": "secondary", "name": "Secondary"},
+                        {"value": "secondaryPreferred", "name": "Secondary Preferred"},
+                        {"value": "nearest", "name": "Nearest"},
+                    ],
+                    "title": "Replica Set Read Preference",
+                }                
             },
-            'required': ['connectionString', 'dbName']
+            "required": ["connectionString", "dbName"],
         }
 
     @classmethod
     def enabled(cls):
         return enabled
 
-    @classmethod
-    def annotate_query(cls):
-        return False
-
     def __init__(self, configuration):
         super(MongoDB, self).__init__(configuration)
 
-        self.syntax = 'json'
+        self.syntax = "json"
 
         self.db_name = self.configuration["dbName"]
 
-        self.is_replica_set = True if "replicaSetName" in self.configuration and self.configuration["replicaSetName"] else False
+        self.is_replica_set = (
+            True
+            if "replicaSetName" in self.configuration
+            and self.configuration["replicaSetName"]
+            else False
+        )
 
     def _get_db(self):
+        kwargs = {}
         if self.is_replica_set:
-            db_connection = pymongo.MongoClient(self.configuration["connectionString"],
-                                                replicaSet=self.configuration["replicaSetName"])
+            db_connection = pymongo.MongoClient(
+                self.configuration["connectionString"],
+                replicaSet=self.configuration["replicaSetName"],
+                readPreference=self.configuration["readPreference"]
+            )
         else:
             db_connection = pymongo.MongoClient(self.configuration["connectionString"])
 
@@ -171,13 +195,16 @@ class MongoDB(BaseQueryRunner):
         if not db.command("connectionStatus")["ok"]:
             raise Exception("MongoDB connection error")
 
+        return db_connection[self.db_name]
+
+
     def _merge_property_names(self, columns, document):
         for property in document:
-              if property not in columns:
-                  columns.append(property)
+            if property not in columns:
+                columns.append(property)
 
     def _is_collection_a_view(self, db, collection_name):
-        if 'viewOn' in db[collection_name].options():
+        if "viewOn" in db[collection_name].options():
             return True
         else:
             return False
@@ -190,7 +217,7 @@ class MongoDB(BaseQueryRunner):
         # For now, the logic is to take the first and last documents (last is determined
         # by the Natural Order (http://www.mongodb.org/display/DOCS/Sorting+and+Natural+Order)
         # as we don't know the correct order. In most single server installations it would be
-        # find. In replicaset when reading from non master it might not return the really last
+        # fine. In replicaset when reading from non master it might not return the really last
         # document written.
         collection_is_a_view = self._is_collection_a_view(db, collection_name)
         documents_sample = []
@@ -212,19 +239,22 @@ class MongoDB(BaseQueryRunner):
         schema = {}
         db = self._get_db()
         for collection_name in db.collection_names():
-            if collection_name.startswith('system.'):
+            if collection_name.startswith("system."):
                 continue
             columns = self._get_collection_fields(db, collection_name)
             schema[collection_name] = {
-                "name": collection_name, "columns": sorted(columns)}
+                "name": collection_name,
+                "columns": sorted(columns),
+            }
 
-        return schema.values()
-
+        return list(schema.values())
 
     def run_query(self, query, user):
         db = self._get_db()
 
-        logger.debug("mongodb connection string: %s", self.configuration['connectionString'])
+        logger.debug(
+            "mongodb connection string: %s", self.configuration["connectionString"]
+        )
         logger.debug("mongodb got query: %s", query)
 
         try:
@@ -249,13 +279,6 @@ class MongoDB(BaseQueryRunner):
                         sort_list.append((sort_item["name"], sort_item["direction"]))
 
                     step["$sort"] = SON(sort_list)
-
-        if not aggregate:
-            s = None
-            if "sort" in query_data and query_data["sort"]:
-                s = []
-                for field in query_data["sort"]:
-                    s.append((field["name"], field["direction"]))
 
         if "fields" in query_data:
             f = query_data["fields"]
@@ -286,7 +309,7 @@ class MongoDB(BaseQueryRunner):
                 cursor = cursor.count()
 
         elif aggregate:
-            allow_disk_use = query_data.get('allowDiskUse', False)
+            allow_disk_use = query_data.get("allowDiskUse", False)
             r = db[collection].aggregate(aggregate, allowDiskUse=allow_disk_use)
 
             # Backwards compatibility with older pymongo versions.
@@ -300,13 +323,11 @@ class MongoDB(BaseQueryRunner):
                 cursor = r
 
         if "count" in query_data:
-            columns.append({
-                "name" : "count",
-                "friendly_name" : "count",
-                "type" : TYPE_INTEGER
-            })
+            columns.append(
+                {"name": "count", "friendly_name": "count", "type": TYPE_INTEGER}
+            )
 
-            rows.append({ "count" : cursor })
+            rows.append({"count": cursor})
         else:
             rows, columns = parse_results(cursor)
 
@@ -319,17 +340,15 @@ class MongoDB(BaseQueryRunner):
 
             columns = ordered_columns
 
-        if query_data.get('sortColumns'):
-            reverse = query_data['sortColumns'] == 'desc'
-            columns = sorted(columns, key=lambda col: col['name'], reverse=reverse)
+        if query_data.get("sortColumns"):
+            reverse = query_data["sortColumns"] == "desc"
+            columns = sorted(columns, key=lambda col: col["name"], reverse=reverse)
 
-        data = {
-            "columns": columns,
-            "rows": rows
-        }
+        data = {"columns": columns, "rows": rows}
         error = None
         json_data = json_dumps(data, cls=MongoDBJSONEncoder)
 
         return json_data, error
+
 
 register(MongoDB)
