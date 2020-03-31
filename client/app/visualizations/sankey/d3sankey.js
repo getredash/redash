@@ -84,6 +84,7 @@ function Sankey() {
 
     //
     moveSinksRight(x);
+    x = d3.max(nodes, n => n.x); // get new maximum x value
     scaleNodeBreadths((size[0] - nodeWidth) / (x - 1));
   }
 
