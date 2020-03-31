@@ -168,11 +168,11 @@ function Sankey() {
 
     function resolveCollisions() {
       nodesByBreadth.forEach(nodes => {
-        let node,
-          dy,
-          y0 = 0,
-          n = nodes.length,
-          i;
+        const n = nodes.length;
+        let node;
+        let dy;
+        let y0 = 0;
+        let i;
 
         // Push any overlapping nodes down.
         nodes.sort(ascendingDepth);
