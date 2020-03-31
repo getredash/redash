@@ -87,14 +87,6 @@ function Sankey() {
     scaleNodeBreadths((size[0] - nodeWidth) / (x - 1));
   }
 
-  function moveSourcesRight() {
-    nodes.forEach(node => {
-      if (!node.targetLinks.length) {
-        node.x = d3.min(node.sourceLinks, d => d.target.x) - 1;
-      }
-    });
-  }
-
   function computeNodeDepths(iterations) {
     const nodesByBreadth = d3
       .nest()
@@ -130,39 +122,6 @@ function Sankey() {
             node.y += (y - center(node)) * alpha;
           }
         });
-      });
-    }
-
-    function resolveCollisions() {
-      nodesByBreadth.forEach(nodes => {
-        const n = nodes.length;
-        let node;
-        let dy;
-        let y0 = 0;
-        let i;
-
-        // Push any overlapping nodes down.
-        nodes.sort(ascendingDepth);
-        for (i = 0; i < n; ++i) {
-          node = nodes[i];
-          dy = y0 - node.y;
-          if (dy > 0) node.y += dy;
-          y0 = node.y + node.dy + nodePadding;
-        }
-
-        // If the bottommost node goes outside the bounds, push it back up.
-        dy = y0 - nodePadding - size[1];
-        if (dy > 0) {
-          y0 = node.y -= dy;
-
-          // Push any overlapping nodes back up.
-          for (i = n - 2; i >= 0; --i) {
-            node = nodes[i];
-            dy = node.y + node.dy + nodePadding - y0;
-            if (dy > 0) node.y -= dy;
-            y0 = node.y;
-          }
-        }
       });
     }
 
