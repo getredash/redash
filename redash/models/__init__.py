@@ -42,7 +42,7 @@ from redash.utils.configuration import ConfigurationContainer
 from redash.models.parameterized_query import ParameterizedQuery
 
 from .base import db, gfk_type, Column, GFKBase, SearchBaseQuery
-from .changes import ChangeTrackingMixin, Change  # noqa
+from .changes import ChangeTrackingMixin, Change, track_changes  # noqa
 from .mixins import BelongsToOrgMixin, TimestampMixin
 from .organizations import Organization
 from .types import (
@@ -451,6 +451,7 @@ def should_schedule_next(
     "schedule",
     "schedule_failures",
 )
+@track_changes("query_text")
 class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer, default=1)
