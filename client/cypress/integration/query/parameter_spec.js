@@ -184,7 +184,7 @@ describe("Parameter", () => {
 
       it("should show a 'No options available' message when you click", () => {
         cy.getByTestId("ParameterName-test-parameter")
-          .find(".ant-select-selection")
+          .find(".ant-select:not(.ant-select-disabled) .ant-select-selection")
           .click();
 
         cy.contains("li.ant-select-dropdown-menu-item", "No options available");
