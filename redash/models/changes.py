@@ -1,11 +1,12 @@
 from sqlalchemy.inspection import inspect
 from sqlalchemy_utils.models import generic_repr
-from sqlalchemy.orm import object_session
 from sqlalchemy.orm.session import Session
 from sqlalchemy import event
 
 from .base import GFKBase, db, Column
 from .types import PseudoJSON
+
+import logging
 
 
 @generic_repr("id", "object_type", "object_id", "created_at")
@@ -49,99 +50,72 @@ class Change(GFKBase, db.Model):
         )
 
 
-class ChangeTrackingMixin(object):
-    def record_changes(self, changed_by):
-        pass
+def get_object_changes(obj, reset=True):
+    result = {}
+    changes = getattr(obj, "__changes__", None)
 
-    # skipped_fields = ("id", "created_at", "updated_at", "version")
-    # _clean_values = None
-    #
-    # def __init__(self, *a, **kw):
-    #     super(ChangeTrackingMixin, self).__init__(*a, **kw)
-    #     self.record_changes(self.user)
-    #
-    # def prep_cleanvalues(self):
-    #     self.__dict__["_clean_values"] = {}
-    #     for attr in inspect(self.__class__).column_attrs:
-    #         col, = attr.columns
-    #         # 'query' is col name but not attr name
-    #         self._clean_values[col.name] = None
-    #
-    # def __setattr__(self, key, value):
-    #     if self._clean_values is None:
-    #         self.prep_cleanvalues()
-    #     for attr in inspect(self.__class__).column_attrs:
-    #         col, = attr.columns
-    #         previous = getattr(self, attr.key, None)
-    #         self._clean_values[col.name] = previous
-    #
-    #     super(ChangeTrackingMixin, self).__setattr__(key, value)
-    #
-    # def record_changes(self, changed_by):
-    #     db.session.add(self)
-    #     db.session.flush()
-    #     changes = {}
-    #     for attr in inspect(self.__class__).column_attrs:
-    #         col, = attr.columns
-    #         if attr.key not in self.skipped_fields:
-    #             changes[col.name] = {
-    #                 "previous": self._clean_values[col.name],
-    #                 "current": getattr(self, attr.key),
-    #             }
-    #
-    #     db.session.add(
-    #         Change(
-    #             object=self,
-    #             object_version=self.version,
-    #             user=changed_by,
-    #             change=changes,
-    #         )
-    #     )
+    if changes:
+        columns = {}
+        for attr in inspect(obj.__class__).column_attrs:
+            col, = attr.columns
+            columns[attr.key] = col.name
+
+        for key, change in changes.items():
+            if change["current"] != change["previous"]:
+                col = columns.get(key, key)
+                result[col] = change
+
+        if reset:
+            changes.clear()
+
+    return result
 
 
-@event.listens_for(Session, 'before_flush')
-def my_before_flush(session, flush_context, instances):
-    changed_objects = session.info.get("__change_tracking__", set())
-    for obj in changed_objects:
-        changes = getattr(obj, "__changes__")
-        # TODO: use inspect(self.__class__).column_attrs to map attributes to fields
+def record_object_changes(session, obj, action):
+    changes = get_object_changes(obj)
+    if changes:
         session.add(
             Change(
                 object=obj,
                 object_version=obj.version,
-                user=obj.user,  # ???
-                change=changes,
+                # user=changed_by,
+                user_id=1,  # TODO: current user - ?
+                change={
+                    "type": action,
+                    "changes": changes,
+                },
             )
         )
-        obj.__changes__ = {}
-    session.info["__change_tracking__"] = set()
 
 
-def track_changes(*attrs):
+@event.listens_for(Session, 'after_flush')
+def handle_before_flush(session, flush_context):
+    # It's safe to insert new records, but do not read anything from DB here!
+    for obj in session.new:
+        record_object_changes(session, obj, "created")
+    for obj in session.dirty:
+        record_object_changes(session, obj, "modified")
+    for obj in session.deleted:
+        record_object_changes(session, obj, "deleted")
+
+
+def track_changes(attributes):
+    attributes = set(attributes) - {"id", "created_at", "updated_at", "version"}
+
     def decorator(cls):
         class ChangeTracking(cls):
+            __changes__ = {}
+
             def __setattr__(self, key, value):
-                previous = None
-                if key in attrs:
-                    previous = getattr(self, key)
-
-                super(ChangeTracking, self).__setattr__(key, value)
-
-                if key in attrs:
-                    if not hasattr(self, "__changes__"):
-                        self.__changes__ = {}
+                if key in attributes:
                     change = self.__changes__.get(key, {
-                        "previous": previous,
+                        "previous": getattr(self, key),
                         "current": None,
                     })
-                    change["current"] = getattr(self, key)
+                    change["current"] = value
                     self.__changes__[key] = change
 
-                    # make object available in `before_flush` hook
-                    session = object_session(self)
-                    changed_objects = session.info.get("__change_tracking__", set())
-                    changed_objects.add(self)
-                    session.info["__change_tracking__"] = changed_objects
+                super(ChangeTracking, self).__setattr__(key, value)
 
         return ChangeTracking
 

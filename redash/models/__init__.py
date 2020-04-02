@@ -42,7 +42,7 @@ from redash.utils.configuration import ConfigurationContainer
 from redash.models.parameterized_query import ParameterizedQuery
 
 from .base import db, gfk_type, Column, GFKBase, SearchBaseQuery
-from .changes import ChangeTrackingMixin, Change, track_changes  # noqa
+from .changes import Change, track_changes  # noqa
 from .mixins import BelongsToOrgMixin, TimestampMixin
 from .organizations import Organization
 from .types import (
@@ -451,8 +451,20 @@ def should_schedule_next(
     "schedule",
     "schedule_failures",
 )
-@track_changes("query_text")
-class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
+@track_changes(
+    attributes=[
+        "name",
+        "description",
+        "query_text",
+        "is_archived",
+        "is_draft",
+        "api_key",
+        "options",
+        "schedule",
+        "tags",
+    ]
+)
+class Query(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer, default=1)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
@@ -501,7 +513,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def __str__(self):
         return str(self.id)
 
-    def archive(self, user=None):
+    def archive(self):
         db.session.add(self)
         self.is_archived = True
         self.schedule = None
@@ -513,8 +525,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         for a in self.alerts:
             db.session.delete(a)
 
-        if user:
-            self.record_changes(user)
 
     def regenerate_api_key(self):
         self.api_key = generate_token(40)
@@ -1056,7 +1066,7 @@ def generate_slug(ctx):
 @generic_repr(
     "id", "name", "slug", "user_id", "org_id", "version", "is_archived", "is_draft"
 )
-class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
+class Dashboard(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))

@@ -416,7 +416,7 @@ class QueryResource(BaseResource):
             models.Query.get_by_id_and_org, query_id, self.current_org
         )
         require_admin_or_owner(query.user_id)
-        query.archive(self.current_user)
+        query.archive()
         models.db.session.commit()
 
 

@@ -240,7 +240,6 @@ class DashboardResource(BaseResource):
             dashboard_slug, self.current_org
         )
         dashboard.is_archived = True
-        dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)
         d = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
         models.db.session.commit()
