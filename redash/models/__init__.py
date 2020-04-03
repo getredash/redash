@@ -1173,7 +1173,10 @@ class Dashboard(TimestampMixin, BelongsToOrgMixin, db.Model):
 
 
 @generic_repr("id", "name", "type", "query_id")
-@track_changes(attributes=["type", "name", "description", "options"])
+@track_changes(
+    parent_attr="query_rel",
+    attributes=["type", "name", "description", "options"]
+)
 class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     type = Column(db.String(100))
@@ -1203,7 +1206,10 @@ class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
 
 
 @generic_repr("id", "visualization_id", "dashboard_id")
-@track_changes(attributes=["text", "visualization_id", "options"])
+@track_changes(
+    parent_attr="dashboard",
+    attributes=["text", "visualization_id", "options"]
+)
 class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     visualization_id = Column(

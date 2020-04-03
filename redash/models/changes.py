@@ -75,7 +75,7 @@ def get_object_changes(obj, reset=True):
     return result
 
 
-def track_changes(attributes):
+def track_changes(attributes, parent_attr=None):
     attributes = set(attributes) - {"id", "created_at", "updated_at", "version"}
 
     def decorator(cls):
@@ -103,17 +103,23 @@ def track_changes(attributes):
                 if not changes and (change_type == Change.Type.Modified):
                     return
 
-                session.add(
-                    Change(
-                        object=self,
-                        object_version=getattr(self, "version", None),
-                        user=changed_by,
-                        change={
-                            "type": change_type,
-                            "changes": changes,
-                        },
-                    )
+                changes = Change(
+                    object=self,
+                    object_version=getattr(self, "version", None),
+                    user=changed_by,
+                    change={
+                        "object_type": self.__table__.name,
+                        "object_id": self.id,
+                        "change_type": change_type,
+                        "changes": changes,
+                    },
                 )
+
+                if parent_attr:
+                    changes.object = getattr(self, parent_attr, self)
+                    changes.object_version = getattr(changes.object, "version", None),
+
+                session.add(changes)
 
         return ChangeTracking
 
