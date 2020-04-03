@@ -1066,6 +1066,7 @@ def generate_slug(ctx):
 @generic_repr(
     "id", "name", "slug", "user_id", "org_id", "version", "is_archived", "is_draft"
 )
+@track_changes(attributes=["name", "is_archived", "is_draft", "tags", "dashboard_filters_enabled"])
 class Dashboard(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer)

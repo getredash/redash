@@ -1,16 +1,20 @@
 from sqlalchemy.inspection import inspect
 from sqlalchemy_utils.models import generic_repr
-from sqlalchemy.orm.session import Session
-from sqlalchemy import event
+from sqlalchemy.orm import object_session
+
+from enum import Enum
 
 from .base import GFKBase, db, Column
 from .types import PseudoJSON
 
-import logging
-
 
 @generic_repr("id", "object_type", "object_id", "created_at")
 class Change(GFKBase, db.Model):
+    class Type(str, Enum):  # `str` to make it json-serializable
+        Created = "created"
+        Modified = "modified"
+        Deleted = "deleted"
+
     id = Column(db.Integer, primary_key=True)
     # 'object' defined in GFKBase
     object_version = Column(db.Integer, default=0)
@@ -71,34 +75,6 @@ def get_object_changes(obj, reset=True):
     return result
 
 
-def record_object_changes(session, obj, action):
-    changes = get_object_changes(obj)
-    if changes:
-        session.add(
-            Change(
-                object=obj,
-                object_version=obj.version,
-                # user=changed_by,
-                user_id=1,  # TODO: current user - ?
-                change={
-                    "type": action,
-                    "changes": changes,
-                },
-            )
-        )
-
-
-@event.listens_for(Session, 'after_flush')
-def handle_before_flush(session, flush_context):
-    # It's safe to insert new records, but do not read anything from DB here!
-    for obj in session.new:
-        record_object_changes(session, obj, "created")
-    for obj in session.dirty:
-        record_object_changes(session, obj, "modified")
-    for obj in session.deleted:
-        record_object_changes(session, obj, "deleted")
-
-
 def track_changes(attributes):
     attributes = set(attributes) - {"id", "created_at", "updated_at", "version"}
 
@@ -116,6 +92,27 @@ def track_changes(attributes):
                     self.__changes__[key] = change
 
                 super(ChangeTracking, self).__setattr__(key, value)
+
+            def record_changes(self, changed_by, change_type=Change.Type.Modified):
+                session = object_session(self)
+                if not session:
+                    return
+
+                changes = get_object_changes(self)
+                if not changes:
+                    return
+
+                session.add(
+                    Change(
+                        object=self,
+                        object_version=self.version,
+                        user=changed_by,
+                        change={
+                            "type": change_type,
+                            "changes": changes,
+                        },
+                    )
+                )
 
         return ChangeTracking
 

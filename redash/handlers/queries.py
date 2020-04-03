@@ -259,6 +259,9 @@ class QueryListResource(BaseQueryListResource):
         models.db.session.add(query)
         models.db.session.commit()
 
+        query.record_changes(self.current_user, models.Change.Type.Created)
+        models.db.session.commit()
+
         self.record_event(
             {"action": "create", "object_id": query.id, "object_type": "query"}
         )
@@ -376,6 +379,7 @@ class QueryResource(BaseResource):
 
         try:
             self.update_model(query, query_def)
+            query.record_changes(self.current_user)
             models.db.session.commit()
         except StaleDataError:
             abort(409)
@@ -417,6 +421,7 @@ class QueryResource(BaseResource):
         )
         require_admin_or_owner(query.user_id)
         query.archive()
+        query.record_changes(self.current_user)
         models.db.session.commit()
 
 
@@ -428,6 +433,7 @@ class QueryRegenerateApiKeyResource(BaseResource):
         )
         require_admin_or_owner(query.user_id)
         query.regenerate_api_key()
+        query.record_changes(self.current_user)
         models.db.session.commit()
 
         self.record_event(
@@ -457,6 +463,9 @@ class QueryForkResource(BaseResource):
         )
         require_access(query.data_source, self.current_user, not_view_only)
         forked_query = query.fork(self.current_user)
+        models.db.session.commit()
+
+        forked_query.record_changes(self.current_user, models.Change.Type.Created)
         models.db.session.commit()
 
         self.record_event(

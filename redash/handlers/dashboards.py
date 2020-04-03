@@ -107,6 +107,10 @@ class DashboardListResource(BaseResource):
         )
         models.db.session.add(dashboard)
         models.db.session.commit()
+
+        dashboard.record_changes(self.current_user, models.Change.Type.Created)
+        models.db.session.commit()
+
         return serialize_dashboard(dashboard)
 
 
@@ -210,9 +214,9 @@ class DashboardResource(BaseResource):
 
         updates["changed_by"] = self.current_user
 
-        self.update_model(dashboard, updates)
-        models.db.session.add(dashboard)
         try:
+            self.update_model(dashboard, updates)
+            dashboard.record_changes(self.current_user)
             models.db.session.commit()
         except StaleDataError:
             abort(409)
@@ -240,15 +244,14 @@ class DashboardResource(BaseResource):
             dashboard_slug, self.current_org
         )
         dashboard.is_archived = True
-        models.db.session.add(dashboard)
-        d = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
+        dashboard.record_changes(self.current_user)
         models.db.session.commit()
 
         self.record_event(
             {"action": "archive", "object_id": dashboard.id, "object_type": "dashboard"}
         )
 
-        return d
+        return serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
 
 
 class PublicDashboardResource(BaseResource):
