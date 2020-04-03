@@ -23,6 +23,10 @@ class VisualizationListResource(BaseResource):
         vis = models.Visualization(**kwargs)
         models.db.session.add(vis)
         models.db.session.commit()
+
+        vis.record_changes(self.current_user, models.Change.Type.Created)
+        models.db.session.commit()
+
         return serialize_visualization(vis, with_query=False)
 
 
@@ -42,9 +46,10 @@ class VisualizationResource(BaseResource):
         kwargs.pop("query_id", None)
 
         self.update_model(vis, kwargs)
-        d = serialize_visualization(vis, with_query=False)
+        vis.record_changes(self.current_user)
         models.db.session.commit()
-        return d
+
+        return serialize_visualization(vis, with_query=False)
 
     @require_permission("edit_query")
     def delete(self, visualization_id):
@@ -59,5 +64,6 @@ class VisualizationResource(BaseResource):
                 "object_type": "Visualization",
             }
         )
+        vis.record_changes(self.current_user, models.Change.Type.Deleted)
         models.db.session.delete(vis)
         models.db.session.commit()

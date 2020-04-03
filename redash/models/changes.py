@@ -99,13 +99,14 @@ def track_changes(attributes):
                     return
 
                 changes = get_object_changes(self)
-                if not changes:
+                # for `created` and `deleted` log even empty changes set
+                if not changes and (change_type == Change.Type.Modified):
                     return
 
                 session.add(
                     Change(
                         object=self,
-                        object_version=self.version,
+                        object_version=getattr(self, "version", None),
                         user=changed_by,
                         change={
                             "type": change_type,

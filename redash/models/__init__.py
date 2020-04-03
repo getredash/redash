@@ -1173,6 +1173,7 @@ class Dashboard(TimestampMixin, BelongsToOrgMixin, db.Model):
 
 
 @generic_repr("id", "name", "type", "query_id")
+@track_changes(attributes=["type", "name", "description", "options"])
 class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     type = Column(db.String(100))
@@ -1190,7 +1191,7 @@ class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def get_by_id_and_org(cls, object_id, org):
-        return super(Visualization, cls).get_by_id_and_org(object_id, org, Query)
+        return super().get_by_id_and_org(object_id, org, Query)
 
     def copy(self):
         return {
@@ -1202,6 +1203,7 @@ class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
 
 
 @generic_repr("id", "visualization_id", "dashboard_id")
+@track_changes(attributes=["text", "visualization_id", "options"])
 class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     visualization_id = Column(
@@ -1222,7 +1224,7 @@ class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def get_by_id_and_org(cls, object_id, org):
-        return super(Widget, cls).get_by_id_and_org(object_id, org, Dashboard)
+        return super().get_by_id_and_org(object_id, org, Dashboard)
 
 
 @generic_repr(

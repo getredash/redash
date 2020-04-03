@@ -50,7 +50,9 @@ class WidgetListResource(BaseResource):
         models.db.session.add(widget)
         models.db.session.commit()
 
+        widget.record_changes(self.current_user, models.Change.Type.Created)
         models.db.session.commit()
+
         return serialize_widget(widget)
 
 
@@ -70,6 +72,7 @@ class WidgetResource(BaseResource):
         widget_properties = request.get_json(force=True)
         widget.text = widget_properties["text"]
         widget.options = json_dumps(widget_properties["options"])
+        widget.record_changes(self.current_user)
         models.db.session.commit()
         return serialize_widget(widget)
 
@@ -85,5 +88,6 @@ class WidgetResource(BaseResource):
         self.record_event(
             {"action": "delete", "object_id": widget_id, "object_type": "widget"}
         )
+        widget.record_changes(self.current_user, models.Change.Type.Deleted)
         models.db.session.delete(widget)
         models.db.session.commit()
