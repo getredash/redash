@@ -84,7 +84,7 @@ def purge_failed_jobs():
                     stale_jobs.append(failed_job)
                 elif (
                     datetime.utcnow() - failed_job.ended_at
-                ).seconds > settings.JOB_DEFAULT_FAILURE_TTL:
+                ).total_seconds() > settings.JOB_DEFAULT_FAILURE_TTL:
                     stale_jobs.append(failed_job)
 
             for stale_job in stale_jobs:
