@@ -36,6 +36,9 @@ SQLALCHEMY_POOL_SIZE = int_or_none(os.environ.get("SQLALCHEMY_POOL_SIZE"))
 SQLALCHEMY_DISABLE_POOL = parse_boolean(
     os.environ.get("SQLALCHEMY_DISABLE_POOL", "false")
 )
+SQLALCHEMY_ENABLE_POOL_PRE_PING = parse_boolean(
+   os.environ.get("SQLALCHEMY_ENABLE_POOL_PRE_PING", "false")
+)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ECHO = False
 
