@@ -1,0 +1,38 @@
+{
+  "name": "redash-visualizations",
+  "version": "1.0.0",
+  "description": "Redash visualizations",
+  "main": "lib/index.js",
+  "scripts": {
+    "clean": "rm -rf lib",
+    "build": "npm run clean && babel src --out-dir lib --source-maps --copy-files",
+    "watch": "babel src --watch --out-dir lib --source-maps --copy-files"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/getredash/redash.git"
+  },
+  "author": "Redash",
+  "license": "BSD-2-Clause",
+  "peerDependencies": {
+    "antd": ">=3.19.0",
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/preset-env": "^7.9.0",
+    "@babel/preset-react": "^7.9.4",
+    "babel-plugin-module-resolver": "^4.0.0",
+    "prop-types": "^15.7.2"
+  },
+  "files": [
+    "lib"
+  ],
+  "dependencies": {
+    "chroma-js": "^2.1.0",
+    "numeral": "^2.0.6"
+  }
+}
