@@ -1,4 +1,4 @@
-import { each, includes, isString, map, reduce } from "lodash";
+import { isString, each, extend, includes, map, reduce } from "lodash";
 import d3 from "d3";
 import { ColorPaletteArray } from "@/visualizations/ColorPalette";
 
@@ -34,6 +34,8 @@ function prepareSeries(series, options, additionalOptions) {
     hoverInfoPattern,
     getValueColor,
   } = additionalOptions;
+
+  const seriesOptions = extend({ type: options.globalSeriesType, yAxis: 0 }, options.seriesOptions[series.name]);
 
   const xPosition = (index % cellsInRow) * cellWidth;
   const yPosition = Math.floor(index / cellsInRow) * cellHeight;
@@ -80,7 +82,7 @@ function prepareSeries(series, options, additionalOptions) {
       // `colors: map(markerColors, c => chooseTextColorForBackground(c))`
       color: "#ffffff",
     },
-    name: series.name,
+    name: seriesOptions.name || series.name,
     direction: options.direction.type,
     domain: {
       x: [xPosition, xPosition + cellWidth - xPadding],
