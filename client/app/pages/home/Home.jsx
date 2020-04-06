@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { TestRenderer } from "redash-visualizations";
 import { axios } from "@/services/axios";
 import PropTypes from "prop-types";
 import { includes, isEmpty } from "lodash";
@@ -15,6 +16,59 @@ import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";
 
 import "./Home.less";
+
+function VisualizationExample() {
+  return (
+    <div>
+      <TestRenderer
+        type="COUNTER"
+        options={{
+          counterLabel: "",
+          counterColName: "a",
+          rowNumber: 3,
+          targetRowNumber: 3,
+          stringDecimal: 0,
+          stringDecChar: ".",
+          stringThouSep: ",",
+          tooltipFormat: "0,0.000",
+          targetColName: "b",
+          defaultColumns: 2,
+          countRow: true,
+          defaultRows: 5,
+        }}
+        data={{
+          columns: [
+            {
+              name: "a",
+              friendly_name: "a",
+              type: "float",
+            },
+            {
+              name: "b",
+              friendly_name: "b",
+              type: "float",
+            },
+          ],
+          rows: [
+            {
+              a: 1000,
+              b: 1000,
+            },
+            {
+              a: 1000,
+              b: 67000,
+            },
+            {
+              a: 45000,
+              b: 1000,
+            },
+          ],
+        }}
+        visualizationName="Test"
+      />
+    </div>
+  );
+}
 
 function DeprecatedEmbedFeatureAlert() {
   return (
@@ -158,6 +212,9 @@ function Home() {
       <div className="container">
         {includes(messages, "using-deprecated-embed-feature") && <DeprecatedEmbedFeatureAlert />}
         {includes(messages, "email-not-verified") && <EmailNotVerifiedAlert />}
+
+        <VisualizationExample />
+
         <EmptyState
           header="Welcome to Redash 👋"
           description="Connect to any data source, easily visualize and share your data"
