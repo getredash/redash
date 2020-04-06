@@ -36,6 +36,7 @@ export default function applyLayoutFixes(plotlyElement, layout, updatePlot) {
     // half of plot container's height - legend will have max height equal to
     // plot height), re-render plot again and offset legend to the space under
     // the plot.
+    // Related issue: https://github.com/plotly/plotly.js/issues/1199
     layout.legend = {
       orientation: "h",
       // locate legend inside of plot area - otherwise plotly will preserve
