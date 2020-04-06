@@ -54,7 +54,7 @@ class Change(GFKBase, db.Model):
         )
 
 
-def get_object_changes(obj, reset=True):
+def _get_object_changes(obj, reset=True):
     result = {}
     changes = getattr(obj, "__changes__", None)
 
@@ -75,52 +75,64 @@ def get_object_changes(obj, reset=True):
     return result
 
 
+def _patch_setattr_method(cls, attributes):
+    original_setattr = cls.__setattr__
+
+    def new_setattr(self, key, value):
+        if key in attributes:
+            if not hasattr(self, "__changes__"):
+                self.__changes__ = {}
+            change = self.__changes__.get(key, {
+                "previous": getattr(self, key),
+                "current": None,
+            })
+            change["current"] = value
+            self.__changes__[key] = change
+
+        original_setattr(self, key, value)
+
+    cls.__setattr__ = new_setattr
+
+
+def _patch_record_changes_method(cls, parent_attr):
+    def record_changes(self, changed_by, change_type=Change.Type.Modified):
+        session = object_session(self)
+        if not session:
+            return
+
+        changes = _get_object_changes(self)
+        # for `created` and `deleted` log even empty changes set
+        if not changes and (change_type == Change.Type.Modified):
+            return
+
+        changes = Change(
+            object=self,
+            object_version=getattr(self, "version", None),
+            user=changed_by,
+            change={
+                "object_type": self.__table__.name,
+                "object_id": self.id,
+                "change_type": change_type,
+                "changes": changes,
+            },
+        )
+
+        if parent_attr:
+            changes.object = getattr(self, parent_attr, self)
+            changes.object_version = getattr(changes.object, "version", None),
+
+        session.add(changes)
+
+    cls.record_changes = record_changes
+
+
 def track_changes(attributes, parent_attr=None):
     attributes = set(attributes) - {"id", "created_at", "updated_at", "version"}
 
+    # monkey-patch class because inheritance will break SQLAlchemy
     def decorator(cls):
-        class ChangeTracking(cls):
-            __changes__ = {}
-
-            def __setattr__(self, key, value):
-                if key in attributes:
-                    change = self.__changes__.get(key, {
-                        "previous": getattr(self, key),
-                        "current": None,
-                    })
-                    change["current"] = value
-                    self.__changes__[key] = change
-
-                super(ChangeTracking, self).__setattr__(key, value)
-
-            def record_changes(self, changed_by, change_type=Change.Type.Modified):
-                session = object_session(self)
-                if not session:
-                    return
-
-                changes = get_object_changes(self)
-                # for `created` and `deleted` log even empty changes set
-                if not changes and (change_type == Change.Type.Modified):
-                    return
-
-                changes = Change(
-                    object=self,
-                    object_version=getattr(self, "version", None),
-                    user=changed_by,
-                    change={
-                        "object_type": self.__table__.name,
-                        "object_id": self.id,
-                        "change_type": change_type,
-                        "changes": changes,
-                    },
-                )
-
-                if parent_attr:
-                    changes.object = getattr(self, parent_attr, self)
-                    changes.object_version = getattr(changes.object, "version", None),
-
-                session.add(changes)
-
-        return ChangeTracking
+        _patch_setattr_method(cls, attributes)
+        _patch_record_changes_method(cls, parent_attr)
+        return cls
 
     return decorator
