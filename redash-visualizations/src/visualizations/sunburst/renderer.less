@@ -1,0 +1,36 @@
+.sunburst-visualization-container {
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+
+  > div {
+    position: relative;
+
+    &:first-child {
+      flex-grow: 0;
+    }
+    &:last-child {
+      flex-grow: 1;
+    }
+  }
+
+  .sunburst-container,
+  .summary-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .summary-container {
+    font-size: 11px;
+    color: #666;
+  }
+}

@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Visualizations -> Table -> Columns -> Text Editor Enables HTML content 1`] = `
+Object {
+  "allowHTML": true,
+}
+`;
+
+exports[`Visualizations -> Table -> Columns -> Text Editor Enables highlight links option 1`] = `
+Object {
+  "highlightLinks": true,
+}
+`;
