@@ -102,6 +102,7 @@ function Filters({ filters, onChange }) {
                     allowClear={filter.multiple}
                     optionFilterProp="children"
                     showSearch
+                    maxTagCount={5}
                     onChange={values => onChange(filter, values)}>
                     {!filter.multiple && options}
                     {filter.multiple && [
