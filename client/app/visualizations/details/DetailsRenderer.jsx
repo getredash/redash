@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { map, mapValues, keyBy } from 'lodash';
-import moment from 'moment';
-import { RendererPropTypes } from '@/visualizations';
-import { clientConfig } from '@/services/auth';
-import Pagination from 'antd/lib/pagination';
+import React, { useState } from "react";
+import { map, mapValues, keyBy } from "lodash";
+import moment from "moment";
+import { RendererPropTypes } from "@/visualizations/prop-types";
+import { clientConfig } from "@/services/auth";
+import Pagination from "antd/lib/pagination";
 
-import './details.less';
+import "./details.less";
 
 function renderValue(value, type) {
   const formats = {
@@ -13,13 +13,13 @@ function renderValue(value, type) {
     datetime: clientConfig.dateTimeFormat,
   };
 
-  if (type === 'date' || type === 'datetime') {
+  if (type === "date" || type === "datetime") {
     if (moment.isMoment(value)) {
       return value.format(formats[type]);
     }
   }
 
-  return '' + value;
+  return "" + value;
 }
 
 export default function DetailsRenderer({ data }) {
@@ -29,7 +29,7 @@ export default function DetailsRenderer({ data }) {
     return null;
   }
 
-  const types = mapValues(keyBy(data.columns, 'name'), 'type');
+  const types = mapValues(keyBy(data.columns, "name"), "type");
 
   // We use columsn to maintain order of columns in the view.
   const columns = data.columns.map(column => column.name);

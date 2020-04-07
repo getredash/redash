@@ -1,28 +1,20 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { RendererPropTypes } from '@/visualizations';
+import React, { useState, useEffect, useMemo } from "react";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 
-import { clientConfig } from '@/services/auth';
-import resizeObserver from '@/services/resizeObserver';
+import resizeObserver from "@/services/resizeObserver";
 
-import getChartData from '../getChartData';
-import { Plotly, prepareCustomChartData, createCustomChartRenderer } from '../plotly';
+import getChartData from "../getChartData";
+import { Plotly, prepareCustomChartData, createCustomChartRenderer } from "../plotly";
 
 export default function CustomPlotlyChart({ options, data }) {
-  if (!clientConfig.allowCustomJSVisualizations) {
-    return null;
-  }
-
   const [container, setContainer] = useState(null);
 
-  const renderCustomChart = useMemo(
-    () => createCustomChartRenderer(options.customCode, options.enableConsoleLogs),
-    [options.customCode, options.enableConsoleLogs],
-  );
+  const renderCustomChart = useMemo(() => createCustomChartRenderer(options.customCode, options.enableConsoleLogs), [
+    options.customCode,
+    options.enableConsoleLogs,
+  ]);
 
-  const plotlyData = useMemo(
-    () => prepareCustomChartData(getChartData(data.rows, options)),
-    [options, data],
-  );
+  const plotlyData = useMemo(() => prepareCustomChartData(getChartData(data.rows, options)), [options, data]);
 
   useEffect(() => {
     if (container) {
@@ -33,7 +25,7 @@ export default function CustomPlotlyChart({ options, data }) {
       });
       return unwatch;
     }
-  }, [container, plotlyData]);
+  }, [container, plotlyData, renderCustomChart]);
 
   // Cleanup when component destroyed
   useEffect(() => {

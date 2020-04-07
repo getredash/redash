@@ -47,6 +47,7 @@
 @zindex-dropdown: 2050;
 @zindex-picker: 2050;
 @zindex-tooltip: 2060;
+@item-hover-bg: #e5f8ff;
 
 .@{drawer-prefix-cls} {
   &.help-drawer {
@@ -58,6 +59,11 @@
 .ant-checkbox-wrapper,
 .ant-radio-wrapper {
   font-weight: normal;
+}
+
+.ant-select-dropdown-menu-item em {
+  color: @input-color-placeholder;
+  font-size: 11px;
 }
 
 // Fix for disabled button styles inside Tooltip component.
@@ -80,6 +86,11 @@
 // Button overrides
 .@{btn-prefix-cls} {
   transition-duration: 150ms;
+
+  &.icon-button {
+    width: 32px;
+    padding: 0 10px;
+  }
 }
 
 // Fix ant input number showing duplicate arrows
@@ -320,7 +331,7 @@
 }
 
 .@{btn-prefix-cls} .@{iconfont-css-prefix}-ellipsis {
-  margin: 0 -7px;
+  margin: 0 -7px 0 -8px;
 }
 
 // Collapse
@@ -362,4 +373,30 @@
       border-radius: 50%;
     }
   }
+
+  // for form items that contain text
+  &.form-item-line-height-normal .@{form-prefix-cls}-item-control {
+    line-height: 20px;
+    margin-top: 9px;
+  }
+}
+
+.@{menu-prefix-cls} {
+  // invert stripe position with class .invert-stripe-position
+  &-inline.invert-stripe-position {
+    .@{menu-prefix-cls}-item {
+      &::after {
+        right: auto;
+        left: 0;
+      }
+    }
+  }
+}
+
+// overrides for checkbox
+@checkbox-prefix-cls: ~'@{ant-prefix}-checkbox';
+
+.@{checkbox-prefix-cls}-wrapper + span,
+.@{checkbox-prefix-cls} + span {
+  padding-right: 0;
 }

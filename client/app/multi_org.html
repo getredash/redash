@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html ng-app="app" ng-strict-di>
-  <head lang="en">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="UTF-8">
-    <base href="{{base_href}}">
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <base href="{{base_href}}" />
     <title>Redash</title>
     <script src="/static/unsupportedRedirect.js" async></script>
 
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="/static/images/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/static/images/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png" />
   </head>
 
-  <body ng-class="bodyClass">
+  <body>
     <section>
-      <app-view></app-view>
+      <div id="application-root"></div>
       <div class="loading-indicator">
         <div id="css-logo">
           <div id="circle">

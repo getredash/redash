@@ -1,16 +1,16 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { chain, cloneDeep, find } from 'lodash';
-import { react2angular } from 'react2angular';
-import cx from 'classnames';
-import { Responsive, WidthProvider } from 'react-grid-layout';
-import { DashboardWidget } from '@/components/dashboards/widget';
-import { FiltersType } from '@/components/Filters';
-import cfg from '@/config/dashboard-grid-options';
-import AutoHeightController from './AutoHeightController';
+import React from "react";
+import PropTypes from "prop-types";
+import { chain, cloneDeep, find } from "lodash";
+import cx from "classnames";
+import { Responsive, WidthProvider } from "react-grid-layout";
+import { VisualizationWidget, TextboxWidget, RestrictedWidget } from "@/components/dashboards/dashboard-widget";
+import { FiltersType } from "@/components/Filters";
+import cfg from "@/config/dashboard-grid-options";
+import AutoHeightController from "./AutoHeightController";
+import { WidgetTypeEnum } from "@/services/widget";
 
-import 'react-grid-layout/css/styles.css';
-import './dashboard-grid.less';
+import "react-grid-layout/css/styles.css";
+import "./dashboard-grid.less";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -30,8 +30,8 @@ const WidgetType = PropTypes.shape({
   }).isRequired,
 });
 
-const SINGLE = 'single-column';
-const MULTI = 'multi-column';
+const SINGLE = "single-column";
+const MULTI = "multi-column";
 
 class DashboardGrid extends React.Component {
   static propTypes = {
@@ -41,20 +41,29 @@ class DashboardGrid extends React.Component {
     widgets: PropTypes.arrayOf(WidgetType).isRequired,
     filters: FiltersType,
     onBreakpointChange: PropTypes.func,
+    onLoadWidget: PropTypes.func,
+    onRefreshWidget: PropTypes.func,
     onRemoveWidget: PropTypes.func,
     onLayoutChange: PropTypes.func,
+    onParameterMappingsChange: PropTypes.func,
   };
 
   static defaultProps = {
     isPublic: false,
     filters: [],
+    onLoadWidget: () => {},
+    onRefreshWidget: () => {},
     onRemoveWidget: () => {},
     onLayoutChange: () => {},
     onBreakpointChange: () => {},
+    onParameterMappingsChange: () => {},
   };
 
   static normalizeFrom(widget) {
-    const { id, options: { position: pos } } = widget;
+    const {
+      id,
+      options: { position: pos },
+    } = widget;
 
     return {
       i: id.toString(),
@@ -123,14 +132,14 @@ class DashboardGrid extends React.Component {
     }
 
     const normalized = chain(layouts[MULTI])
-      .keyBy('i')
+      .keyBy("i")
       .mapValues(this.normalizeTo)
       .value();
 
     this.props.onLayoutChange(normalized);
   };
 
-  onBreakpointChange = (mode) => {
+  onBreakpointChange = mode => {
     this.mode = mode;
     this.props.onBreakpointChange(mode === SINGLE);
   };
@@ -167,13 +176,22 @@ class DashboardGrid extends React.Component {
   });
 
   render() {
-    const className = cx('dashboard-wrapper', this.props.isEditing ? 'editing-mode' : 'preview-mode');
-    const { onRemoveWidget, dashboard, widgets } = this.props;
+    const className = cx("dashboard-wrapper", this.props.isEditing ? "editing-mode" : "preview-mode");
+    const {
+      onLoadWidget,
+      onRefreshWidget,
+      onRemoveWidget,
+      onParameterMappingsChange,
+      filters,
+      dashboard,
+      isPublic,
+      widgets,
+    } = this.props;
 
     return (
       <div className={className}>
         <ResponsiveGridLayout
-          className={cx('layout', { 'disable-animations': this.state.disableAnimations })}
+          className={cx("layout", { "disable-animations": this.state.disableAnimations })}
           cols={{ [MULTI]: cfg.columns, [SINGLE]: 1 }}
           rowHeight={cfg.rowHeight - cfg.margins}
           margin={[cfg.margins, cfg.margins]}
@@ -184,33 +202,43 @@ class DashboardGrid extends React.Component {
           layouts={this.state.layouts}
           onLayoutChange={this.onLayoutChange}
           onBreakpointChange={this.onBreakpointChange}
-          breakpoints={{ [MULTI]: cfg.mobileBreakPoint, [SINGLE]: 0 }}
-        >
-          {widgets.map(widget => (
-            <div
-              key={widget.id}
-              data-grid={DashboardGrid.normalizeFrom(widget)}
-              data-widgetid={widget.id}
-              data-test={`WidgetId${widget.id}`}
-              className={cx('dashboard-widget-wrapper', { 'widget-auto-height-enabled': this.autoHeightCtrl.exists(widget.id) })}
-            >
-              <DashboardWidget
-                widget={widget}
-                dashboard={dashboard}
-                filters={this.props.filters}
-                deleted={() => onRemoveWidget(widget.id)}
-                public={this.props.isPublic}
-              />
-            </div>
-          ))}
+          breakpoints={{ [MULTI]: cfg.mobileBreakPoint, [SINGLE]: 0 }}>
+          {widgets.map(widget => {
+            const widgetProps = {
+              widget,
+              filters,
+              isPublic,
+              canEdit: dashboard.canEdit(),
+              onDelete: () => onRemoveWidget(widget.id),
+            };
+            const { type } = widget;
+            return (
+              <div
+                key={widget.id}
+                data-grid={DashboardGrid.normalizeFrom(widget)}
+                data-widgetid={widget.id}
+                data-test={`WidgetId${widget.id}`}
+                className={cx("dashboard-widget-wrapper", {
+                  "widget-auto-height-enabled": this.autoHeightCtrl.exists(widget.id),
+                })}>
+                {type === WidgetTypeEnum.VISUALIZATION && (
+                  <VisualizationWidget
+                    {...widgetProps}
+                    dashboard={dashboard}
+                    onLoad={() => onLoadWidget(widget)}
+                    onRefresh={() => onRefreshWidget(widget)}
+                    onParameterMappingsChange={onParameterMappingsChange}
+                  />
+                )}
+                {type === WidgetTypeEnum.TEXTBOX && <TextboxWidget {...widgetProps} />}
+                {type === WidgetTypeEnum.RESTRICTED && <RestrictedWidget widget={widget} />}
+              </div>
+            );
+          })}
         </ResponsiveGridLayout>
       </div>
     );
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component('dashboardGrid', react2angular(DashboardGrid));
-}
-
-init.init = true;
+export default DashboardGrid;

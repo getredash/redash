@@ -1,12 +1,12 @@
-import { isFinite } from 'lodash';
-import React, { useState, useEffect } from 'react';
-import cx from 'classnames';
-import resizeObserver from '@/services/resizeObserver';
-import { RendererPropTypes } from '@/visualizations';
+import { isFinite } from "lodash";
+import React, { useState, useEffect } from "react";
+import cx from "classnames";
+import resizeObserver from "@/services/resizeObserver";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 
-import { getCounterData } from './utils';
+import { getCounterData } from "./utils";
 
-import './render.less';
+import "./render.less";
 
 function getCounterStyles(scale) {
   return {
@@ -24,7 +24,7 @@ function getCounterScale(container) {
 }
 
 export default function Renderer({ data, options, visualizationName }) {
-  const [scale, setScale] = useState('1.00');
+  const [scale, setScale] = useState("1.00");
   const [container, setContainer] = useState(null);
 
   useEffect(() => {
@@ -45,23 +45,29 @@ export default function Renderer({ data, options, visualizationName }) {
   }, [data, options, container]);
 
   const {
-    showTrend, trendPositive,
-    counterValue, counterValueTooltip,
-    targetValue, targetValueTooltip,
+    showTrend,
+    trendPositive,
+    counterValue,
+    counterValueTooltip,
+    targetValue,
+    targetValueTooltip,
     counterLabel,
   } = getCounterData(data.rows, options, visualizationName);
   return (
     <div
-      className={cx(
-        'counter-visualization-container',
-        { 'trend-positive': showTrend && trendPositive, 'trend-negative': showTrend && !trendPositive },
-      )}
-    >
+      className={cx("counter-visualization-container", {
+        "trend-positive": showTrend && trendPositive,
+        "trend-negative": showTrend && !trendPositive,
+      })}>
       <div className="counter-visualization-content" ref={setContainer}>
         <div style={getCounterStyles(scale)}>
-          <div className="counter-visualization-value" title={counterValueTooltip}>{counterValue}</div>
+          <div className="counter-visualization-value" title={counterValueTooltip}>
+            {counterValue}
+          </div>
           {targetValue && (
-            <div className="counter-visualization-target" title={targetValueTooltip}>({targetValue})</div>
+            <div className="counter-visualization-target" title={targetValueTooltip}>
+              ({targetValue})
+            </div>
           )}
           <div className="counter-visualization-label">{counterLabel}</div>
         </div>

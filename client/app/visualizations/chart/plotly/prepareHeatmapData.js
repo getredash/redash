@@ -1,15 +1,15 @@
-import { map, max, uniq, sortBy, flatten, find } from 'lodash';
-import { createNumberFormatter } from '@/lib/value-format';
+import { map, max, uniq, sortBy, flatten, find } from "lodash";
+import { createNumberFormatter } from "@/lib/value-format";
 
 const defaultColorScheme = [
-  [0, '#356aff'],
-  [0.14, '#4a7aff'],
-  [0.28, '#5d87ff'],
-  [0.42, '#7398ff'],
-  [0.56, '#fb8c8c'],
-  [0.71, '#ec6463'],
-  [0.86, '#ec4949'],
-  [1, '#e92827'],
+  [0, "#356aff"],
+  [0.14, "#4a7aff"],
+  [0.28, "#5d87ff"],
+  [0.42, "#7398ff"],
+  [0.56, "#fb8c8c"],
+  [0.71, "#ec6463"],
+  [0.86, "#ec4949"],
+  [1, "#e92827"],
 ];
 
 function prepareSeries(series, options, additionalOptions) {
@@ -19,8 +19,8 @@ function prepareSeries(series, options, additionalOptions) {
     x: [],
     y: [],
     z: [],
-    type: 'heatmap',
-    name: '',
+    type: "heatmap",
+    name: "",
     colorscale: colorScheme,
   };
 
@@ -49,8 +49,8 @@ function prepareSeries(series, options, additionalOptions) {
   const dataLabels = {
     x: [],
     y: [],
-    mode: 'text',
-    hoverinfo: 'skip',
+    mode: "text",
+    hoverinfo: "skip",
     showlegend: false,
     text: [],
     textfont: {
@@ -61,22 +61,19 @@ function prepareSeries(series, options, additionalOptions) {
   for (let i = 0; i < plotlySeries.y.length; i += 1) {
     const item = [];
     for (let j = 0; j < plotlySeries.x.length; j += 1) {
-      const datum = find(
-        series.data,
-        { x: plotlySeries.x[j], y: plotlySeries.y[i] },
-      );
+      const datum = find(series.data, { x: plotlySeries.x[j], y: plotlySeries.y[i] });
 
-      const zValue = datum && datum.zVal || 0;
+      const zValue = (datum && datum.zVal) || 0;
       item.push(zValue);
 
       if (isFinite(zMax) && options.showDataLabels) {
         dataLabels.x.push(plotlySeries.x[j]);
         dataLabels.y.push(plotlySeries.y[i]);
         dataLabels.text.push(formatNumber(zValue));
-        if (options.colorScheme && options.colorScheme === 'Custom...') {
-          dataLabels.textfont.color.push('white');
+        if (options.colorScheme && options.colorScheme === "Custom...") {
+          dataLabels.textfont.color.push("white");
         } else {
-          dataLabels.textfont.color.push((zValue / zMax) < 0.25 ? 'white' : 'black');
+          dataLabels.textfont.color.push(zValue / zMax < 0.25 ? "white" : "black");
         }
       }
     }
@@ -94,8 +91,11 @@ export default function prepareHeatmapData(seriesList, options) {
 
   if (!options.colorScheme) {
     colorScheme = defaultColorScheme;
-  } else if (options.colorScheme === 'Custom...') {
-    colorScheme = [[0, options.heatMinColor], [1, options.heatMaxColor]];
+  } else if (options.colorScheme === "Custom...") {
+    colorScheme = [
+      [0, options.heatMinColor],
+      [1, options.heatMaxColor],
+    ];
   } else {
     colorScheme = options.colorScheme;
   }

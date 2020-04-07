@@ -10,25 +10,26 @@ try:
     from dql import Engine, FragmentEngine
     from dynamo3 import DynamoDBError
     from pyparsing import ParseException
+
     enabled = True
 except ImportError as e:
     enabled = False
 
 types_map = {
-    'UNICODE': TYPE_INTEGER,
-    'TINYINT': TYPE_INTEGER,
-    'SMALLINT': TYPE_INTEGER,
-    'INT': TYPE_INTEGER,
-    'DOUBLE': TYPE_FLOAT,
-    'DECIMAL': TYPE_FLOAT,
-    'FLOAT': TYPE_FLOAT,
-    'REAL': TYPE_FLOAT,
-    'BOOLEAN': TYPE_BOOLEAN,
-    'TIMESTAMP': TYPE_DATETIME,
-    'DATE': TYPE_DATETIME,
-    'CHAR': TYPE_STRING,
-    'STRING': TYPE_STRING,
-    'VARCHAR': TYPE_STRING
+    "UNICODE": TYPE_INTEGER,
+    "TINYINT": TYPE_INTEGER,
+    "SMALLINT": TYPE_INTEGER,
+    "INT": TYPE_INTEGER,
+    "DOUBLE": TYPE_FLOAT,
+    "DECIMAL": TYPE_FLOAT,
+    "FLOAT": TYPE_FLOAT,
+    "REAL": TYPE_FLOAT,
+    "BOOLEAN": TYPE_BOOLEAN,
+    "TIMESTAMP": TYPE_DATETIME,
+    "DATE": TYPE_DATETIME,
+    "CHAR": TYPE_STRING,
+    "STRING": TYPE_STRING,
+    "VARCHAR": TYPE_STRING,
 }
 
 
@@ -40,19 +41,12 @@ class DynamoDBSQL(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "region": {
-                    "type": "string",
-                    "default": "us-east-1"
-                },
-                "access_key": {
-                    "type": "string",
-                },
-                "secret_key": {
-                    "type": "string",
-                }
+                "region": {"type": "string", "default": "us-east-1"},
+                "access_key": {"type": "string"},
+                "secret_key": {"type": "string"},
             },
             "required": ["access_key", "secret_key"],
-            "secret": ["secret_key"]
+            "secret": ["secret_key"],
         }
 
     def test_connection(self):
@@ -71,11 +65,11 @@ class DynamoDBSQL(BaseSQLQueryRunner):
         engine = FragmentEngine()
         config = self.configuration.to_dict()
 
-        if not config.get('region'):
-            config['region'] = 'us-east-1'
+        if not config.get("region"):
+            config["region"] = "us-east-1"
 
-        if config.get('host') == '':
-            config['host'] = None
+        if config.get("host") == "":
+            config["host"] = None
 
         engine.connect(**config)
 
@@ -90,8 +84,10 @@ class DynamoDBSQL(BaseSQLQueryRunner):
         for table_name in tables:
             try:
                 table = engine.describe(table_name, True)
-                schema[table.name] = {'name': table.name,
-                                      'columns': table.attrs.keys()}
+                schema[table.name] = {
+                    "name": table.name,
+                    "columns": list(table.attrs.keys()),
+                }
             except DynamoDBError:
                 pass
 
@@ -100,8 +96,8 @@ class DynamoDBSQL(BaseSQLQueryRunner):
         try:
             engine = self._connect()
 
-            if not query.endswith(';'):
-                query = query + ';'
+            if not query.endswith(";"):
+                query = query + ";"
 
             result = engine.execute(query)
 
@@ -110,7 +106,7 @@ class DynamoDBSQL(BaseSQLQueryRunner):
 
             # When running a count query it returns the value as a string, in which case
             # we transform it into a dictionary to be the same as regular queries.
-            if isinstance(result, basestring):
+            if isinstance(result, str):
                 # when count < scanned_count, dql returns a string with number of rows scanned
                 value = result.split(" (")[0]
                 if value:
@@ -119,29 +115,28 @@ class DynamoDBSQL(BaseSQLQueryRunner):
 
             for item in result:
                 if not columns:
-                    for k, v in item.iteritems():
-                        columns.append({
-                            'name': k,
-                            'friendly_name': k,
-                            'type': types_map.get(str(type(v)).upper(), None)
-                        })
+                    for k, v in item.items():
+                        columns.append(
+                            {
+                                "name": k,
+                                "friendly_name": k,
+                                "type": types_map.get(str(type(v)).upper(), None),
+                            }
+                        )
                 rows.append(item)
 
-            data = {'columns': columns, 'rows': rows}
+            data = {"columns": columns, "rows": rows}
             json_data = json_dumps(data)
             error = None
         except ParseException as e:
-            error = u"Error parsing query at line {} (column {}):\n{}".format(
-                e.lineno, e.column, e.line)
+            error = "Error parsing query at line {} (column {}):\n{}".format(
+                e.lineno, e.column, e.line
+            )
             json_data = None
-        except (SyntaxError, RuntimeError) as e:
-            error = e.message
-            json_data = None
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, JobTimeoutException):
             if engine and engine.connection:
                 engine.connection.cancel()
-            error = "Query cancelled by user."
-            json_data = None
+            raise
 
         return json_data, error
 

@@ -1,41 +1,41 @@
-import { merge } from 'lodash';
-import React from 'react';
-import Switch from 'antd/lib/switch';
-import { EditorPropTypes } from '@/visualizations';
+import { merge } from "lodash";
+import React from "react";
+import { Section, Switch } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function Editor({ options, onOptionsChange }) {
-  const updateOptions = (updates) => {
+  const updateOptions = updates => {
     onOptionsChange(merge({}, options, updates));
   };
 
   return (
-    <div className="form-group m-t-30">
-      <label className="d-flex align-items-center" htmlFor="pivot-show-controls">
+    <React.Fragment>
+      <Section>
         <Switch
           data-test="PivotEditor.HideControls"
           id="pivot-show-controls"
-          checked={!options.controls.enabled}
-          onChange={enabled => updateOptions({ controls: { enabled: !enabled } })}
-        />
-        <span className="m-l-10">Show Pivot Controls</span>
-      </label>
-      <label className="d-flex align-items-center" htmlFor="pivot-show-row-totals">
+          defaultChecked={!options.controls.enabled}
+          onChange={enabled => updateOptions({ controls: { enabled: !enabled } })}>
+          Show Pivot Controls
+        </Switch>
+      </Section>
+      <Section>
         <Switch
           id="pivot-show-row-totals"
-          checked={options.rendererOptions.table.rowTotals}
-          onChange={rowTotals => updateOptions({ rendererOptions: { table: { rowTotals } } })}
-        />
-        <span className="m-l-10">Show Row Totals</span>
-      </label>
-      <label className="d-flex align-items-center" htmlFor="pivot-show-col-totals">
+          defaultChecked={options.rendererOptions.table.rowTotals}
+          onChange={rowTotals => updateOptions({ rendererOptions: { table: { rowTotals } } })}>
+          Show Row Totals
+        </Switch>
+      </Section>
+      <Section>
         <Switch
-          id="pivot-show-row-totals"
-          checked={options.rendererOptions.table.colTotals}
-          onChange={colTotals => updateOptions({ rendererOptions: { table: { colTotals } } })}
-        />
-        <span className="m-l-10">Show Column Totals</span>
-      </label>
-    </div>
+          id="pivot-show-column-totals"
+          defaultChecked={options.rendererOptions.table.colTotals}
+          onChange={colTotals => updateOptions({ rendererOptions: { table: { colTotals } } })}>
+          Show Column Totals
+        </Switch>
+      </Section>
+    </React.Fragment>
   );
 }
 

@@ -1,6 +1,6 @@
 /* global cy */
 
-import { createQuery } from '../../support/redash-api';
+import { createQuery } from "../../support/redash-api";
 
 const SQL = `
   SELECT 'a' AS stage1, 'a1' AS stage2, 11 AS value UNION ALL
@@ -16,36 +16,64 @@ const SQL = `
   SELECT 'c' AS stage1, 'c4' AS stage2, 44 AS v
 `;
 
-describe('Sankey and Sunburst', () => {
+describe("Sankey and Sunburst", () => {
+  const viewportWidth = Cypress.config("viewportWidth");
+
   beforeEach(() => {
     cy.login();
     createQuery({ query: SQL }).then(({ id }) => {
       cy.visit(`queries/${id}/source`);
-      cy.getByTestId('ExecuteButton').click();
+      cy.getByTestId("ExecuteButton").click();
     });
   });
 
-  it('creates Sunburst', () => {
-    const visualizationName = 'Sunburst';
+  it("creates Sunburst", () => {
+    const visualizationName = "Sunburst";
 
-    cy.getByTestId('NewVisualization').click();
-    cy.getByTestId('VisualizationType').click();
-    cy.getByTestId('VisualizationType.SUNBURST_SEQUENCE').click();
-    cy.getByTestId('VisualizationName').clear().type(visualizationName);
-    cy.getByTestId('VisualizationPreview').find('svg').should('exist');
-    cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
-    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
+    cy.getByTestId("NewVisualization").click();
+    cy.getByTestId("VisualizationType").click();
+    cy.getByTestId("VisualizationType.SUNBURST_SEQUENCE").click();
+    cy.getByTestId("VisualizationName")
+      .clear()
+      .type(visualizationName);
+    cy.getByTestId("VisualizationPreview")
+      .find("svg")
+      .should("exist");
+
+    // wait a bit before taking snapshot
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.percySnapshot("Visualizations - Sunburst", { widths: [viewportWidth] });
+
+    cy.getByTestId("EditVisualizationDialog")
+      .contains("button", "Save")
+      .click();
+    cy.getByTestId("QueryPageVisualizationTabs")
+      .contains("span", visualizationName)
+      .should("exist");
   });
 
-  it('creates Sankey', () => {
-    const visualizationName = 'Sankey';
+  it("creates Sankey", () => {
+    const visualizationName = "Sankey";
 
-    cy.getByTestId('NewVisualization').click();
-    cy.getByTestId('VisualizationType').click();
-    cy.getByTestId('VisualizationType.SANKEY').click();
-    cy.getByTestId('VisualizationName').clear().type(visualizationName);
-    cy.getByTestId('VisualizationPreview').find('svg').should('exist');
-    cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
-    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
+    cy.getByTestId("NewVisualization").click();
+    cy.getByTestId("VisualizationType").click();
+    cy.getByTestId("VisualizationType.SANKEY").click();
+    cy.getByTestId("VisualizationName")
+      .clear()
+      .type(visualizationName);
+    cy.getByTestId("VisualizationPreview")
+      .find("svg")
+      .should("exist");
+
+    // wait a bit before taking snapshot
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.percySnapshot("Visualizations - Sankey", { widths: [viewportWidth] });
+
+    cy.getByTestId("EditVisualizationDialog")
+      .contains("button", "Save")
+      .click();
+    cy.getByTestId("QueryPageVisualizationTabs")
+      .contains("span", visualizationName)
+      .should("exist");
   });
 });

@@ -1,13 +1,14 @@
-import React from 'react';
-import { RendererPropTypes } from '@/visualizations';
+import React from "react";
+import { RendererPropTypes } from "@/visualizations/prop-types";
 
-import PlotlyChart from './PlotlyChart';
-import CustomPlotlyChart from './CustomPlotlyChart';
+import PlotlyChart from "./PlotlyChart";
+import CustomPlotlyChart from "./CustomPlotlyChart";
+import { clientConfig } from "@/services/auth";
 
-import './renderer.less';
+import "./renderer.less";
 
 export default function Renderer({ options, ...props }) {
-  if (options.globalSeriesType === 'custom') {
+  if (options.globalSeriesType === "custom" && clientConfig.allowCustomJSVisualizations) {
     return <CustomPlotlyChart options={options} {...props} />;
   }
   return <PlotlyChart options={options} {...props} />;

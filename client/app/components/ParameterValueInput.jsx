@@ -1,14 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Select from 'antd/lib/select';
-import Input from 'antd/lib/input';
-import InputNumber from 'antd/lib/input-number';
-import DateParameter from '@/components/dynamic-parameters/DateParameter';
-import DateRangeParameter from '@/components/dynamic-parameters/DateRangeParameter';
-import { toString } from 'lodash';
-import { QueryBasedParameterInput } from './QueryBasedParameterInput';
+import { isEqual, isEmpty } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import Select from "antd/lib/select";
+import Input from "antd/lib/input";
+import InputNumber from "antd/lib/input-number";
+import DateParameter from "@/components/dynamic-parameters/DateParameter";
+import DateRangeParameter from "@/components/dynamic-parameters/DateRangeParameter";
+import QueryBasedParameterInput from "./QueryBasedParameterInput";
 
-import './ParameterValueInput.less';
+import "./ParameterValueInput.less";
 
 const { Option } = Select;
 
@@ -25,20 +25,18 @@ class ParameterValueInput extends React.Component {
     enumOptions: PropTypes.string,
     queryId: PropTypes.number,
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    allowMultipleValues: PropTypes.bool,
     onSelect: PropTypes.func,
     className: PropTypes.string,
   };
 
   static defaultProps = {
-    type: 'text',
+    type: "text",
     value: null,
-    enumOptions: '',
+    enumOptions: "",
     queryId: null,
     parameter: null,
-    allowMultipleValues: false,
     onSelect: () => {},
-    className: '',
+    className: "",
   };
 
   constructor(props) {
@@ -49,7 +47,7 @@ class ParameterValueInput extends React.Component {
     };
   }
 
-  componentDidUpdate = (prevProps) => {
+  componentDidUpdate = prevProps => {
     const { value, parameter } = this.props;
     // if value prop updated, reset dirty state
     if (prevProps.value !== value || prevProps.parameter !== parameter) {
@@ -58,13 +56,13 @@ class ParameterValueInput extends React.Component {
         isDirty: parameter.hasPendingValue,
       });
     }
-  }
+  };
 
-  onSelect = (value) => {
-    const isDirty = toString(value) !== toString(this.props.value);
+  onSelect = value => {
+    const isDirty = !isEqual(value, this.props.value);
     this.setState({ value, isDirty });
     this.props.onSelect(value, isDirty);
-  }
+  };
 
   renderDateParameter() {
     const { type, parameter } = this.props;
@@ -95,36 +93,40 @@ class ParameterValueInput extends React.Component {
   }
 
   renderEnumInput() {
-    const { enumOptions, allowMultipleValues } = this.props;
+    const { enumOptions, parameter } = this.props;
     const { value } = this.state;
-    const enumOptionsArray = enumOptions.split('\n').filter(v => v !== '');
+    const enumOptionsArray = enumOptions.split("\n").filter(v => v !== "");
+    // Antd Select doesn't handle null in multiple mode
+    const normalize = val => (parameter.multiValuesOptions && val === null ? [] : val);
     return (
       <Select
         className={this.props.className}
-        mode={allowMultipleValues ? 'multiple' : 'default'}
+        mode={parameter.multiValuesOptions ? "multiple" : "default"}
         optionFilterProp="children"
-        disabled={enumOptionsArray.length === 0}
-        value={value}
+        value={normalize(value)}
         onChange={this.onSelect}
         dropdownMatchSelectWidth={false}
         showSearch
         showArrow
         style={{ minWidth: 60 }}
-        notFoundContent={null}
-        {...multipleValuesProps}
-      >
-        {enumOptionsArray.map(option => (<Option key={option} value={option}>{ option }</Option>))}
+        notFoundContent={isEmpty(enumOptionsArray) ? "No options available" : null}
+        {...multipleValuesProps}>
+        {enumOptionsArray.map(option => (
+          <Option key={option} value={option}>
+            {option}
+          </Option>
+        ))}
       </Select>
     );
   }
 
   renderQueryBasedInput() {
-    const { queryId, parameter, allowMultipleValues } = this.props;
+    const { queryId, parameter } = this.props;
     const { value } = this.state;
     return (
       <QueryBasedParameterInput
         className={this.props.className}
-        mode={allowMultipleValues ? 'multiple' : 'default'}
+        mode={parameter.multiValuesOptions ? "multiple" : "default"}
         optionFilterProp="children"
         parameter={parameter}
         value={value}
@@ -143,11 +145,7 @@ class ParameterValueInput extends React.Component {
     const normalize = val => (isNaN(val) ? undefined : val);
 
     return (
-      <InputNumber
-        className={className}
-        value={normalize(value)}
-        onChange={val => this.onSelect(normalize(val))}
-      />
+      <InputNumber className={className} value={normalize(value)} onChange={val => this.onSelect(normalize(val))} />
     );
   }
 
@@ -168,16 +166,22 @@ class ParameterValueInput extends React.Component {
   renderInput() {
     const { type } = this.props;
     switch (type) {
-      case 'datetime-with-seconds':
-      case 'datetime-local':
-      case 'date': return this.renderDateParameter();
-      case 'datetime-range-with-seconds':
-      case 'datetime-range':
-      case 'date-range': return this.renderDateRangeParameter();
-      case 'enum': return this.renderEnumInput();
-      case 'query': return this.renderQueryBasedInput();
-      case 'number': return this.renderNumberInput();
-      default: return this.renderTextInput();
+      case "datetime-with-seconds":
+      case "datetime-local":
+      case "date":
+        return this.renderDateParameter();
+      case "datetime-range-with-seconds":
+      case "datetime-range":
+      case "date-range":
+        return this.renderDateRangeParameter();
+      case "enum":
+        return this.renderEnumInput();
+      case "query":
+        return this.renderQueryBasedInput();
+      case "number":
+        return this.renderNumberInput();
+      default:
+        return this.renderTextInput();
     }
   }
 
@@ -185,7 +189,7 @@ class ParameterValueInput extends React.Component {
     const { isDirty } = this.state;
 
     return (
-      <div className="parameter-input" data-dirty={isDirty || null}>
+      <div className="parameter-input" data-dirty={isDirty || null} data-test="ParameterValueInput">
         {this.renderInput()}
       </div>
     );

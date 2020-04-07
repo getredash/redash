@@ -1,14 +1,16 @@
-import _ from 'lodash';
-import dashboardGridOptions from '@/config/dashboard-grid-options';
-import { Widget } from './widget';
-
-export let Dashboard = null; // eslint-disable-line import/no-mutable-exports
+import _ from "lodash";
+import { axios } from "@/services/axios";
+import dashboardGridOptions from "@/config/dashboard-grid-options";
+import Widget from "./widget";
+import { currentUser } from "@/services/auth";
+import location from "@/services/location";
+import { cloneParameter } from "@/services/parameters";
 
 export function collectDashboardFilters(dashboard, queryResults, urlParams) {
   const filters = {};
-  _.each(queryResults, (queryResult) => {
-    const queryFilters = queryResult ? queryResult.getFilters() : [];
-    _.each(queryFilters, (queryFilter) => {
+  _.each(queryResults, queryResult => {
+    const queryFilters = queryResult && queryResult.getFilters ? queryResult.getFilters() : [];
+    _.each(queryFilters, queryFilter => {
       const hasQueryStringValue = _.has(urlParams, queryFilter.name);
 
       if (!(hasQueryStringValue || dashboard.dashboard_filters_enabled)) {
@@ -39,12 +41,11 @@ function prepareWidgetsForDashboard(widgets) {
   // This value should be big enough so auto-height widgets will not overlap other ones.
   const defaultWidgetSizeY =
     Math.max(
-      _
-        .chain(widgets)
+      _.chain(widgets)
         .map(w => w.options.position.sizeY)
         .max()
         .value(),
-      20,
+      20
     ) + 5;
 
   // Fix layout:
@@ -56,10 +57,10 @@ function prepareWidgetsForDashboard(widgets) {
     .groupBy(widget => widget.options.position.row)
     .reduce((row, widgetsAtRow) => {
       let height = 1;
-      _.each(widgetsAtRow, (widget) => {
+      _.each(widgetsAtRow, widget => {
         height = Math.max(
           height,
-          widget.options.position.autoHeight ? defaultWidgetSizeY : widget.options.position.sizeY,
+          widget.options.position.autoHeight ? defaultWidgetSizeY : widget.options.position.sizeY
         );
         widget.options.position.row = row;
         if (widget.options.position.sizeY < 1) {
@@ -81,9 +82,8 @@ function calculateNewWidgetPosition(existingWidgets, newWidget) {
   const width = _.extend({ sizeX: dashboardGridOptions.defaultSizeX }, _.extend({}, newWidget.options).position).sizeX;
 
   // Find first free row for each column
-  const bottomLine = _
-    .chain(existingWidgets)
-    .map((w) => {
+  const bottomLine = _.chain(existingWidgets)
+    .map(w => {
       const options = _.extend({}, w.options);
       const position = _.extend({ row: 0, sizeY: 0 }, options.position);
       return {
@@ -108,156 +108,139 @@ function calculateNewWidgetPosition(existingWidgets, newWidget) {
   // Go through columns, pick them by count necessary to hold new block,
   // and calculate bottom-most free row per group.
   // Choose group with the top-most free row (comparing to other groups)
-  return _
-    .chain(_.range(0, dashboardGridOptions.columns - width + 1))
+  return _.chain(_.range(0, dashboardGridOptions.columns - width + 1))
     .map(col => ({
       col,
-      row: _
-        .chain(bottomLine)
+      row: _.chain(bottomLine)
         .slice(col, col + width)
         .max()
         .value(),
     }))
-    .sortBy('row')
+    .sortBy("row")
     .first()
     .value();
 }
 
-function DashboardService($resource, $http, $location, currentUser) {
-  function prepareDashboardWidgets(widgets) {
-    return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget)));
+export function Dashboard(dashboard) {
+  _.extend(this, dashboard);
+}
+
+function prepareDashboardWidgets(widgets) {
+  return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget)));
+}
+
+function transformSingle(dashboard) {
+  dashboard = new Dashboard(dashboard);
+  if (dashboard.widgets) {
+    dashboard.widgets = prepareDashboardWidgets(dashboard.widgets);
   }
+  dashboard.publicAccessEnabled = dashboard.public_url !== undefined;
+  return dashboard;
+}
 
-  function transformSingle(dashboard) {
-    if (dashboard.widgets) {
-      dashboard.widgets = prepareDashboardWidgets(dashboard.widgets);
-    }
-    dashboard.publicAccessEnabled = dashboard.public_url !== undefined;
+function transformResponse(data) {
+  if (data.results) {
+    data = { ...data, results: _.map(data.results, transformSingle) };
+  } else {
+    data = transformSingle(data);
   }
+  return data;
+}
 
-  const transform = $http.defaults.transformResponse.concat((data) => {
-    if (data.results) {
-      data.results.forEach(transformSingle);
-    } else {
-      transformSingle(data);
-    }
-    return data;
-  });
+const saveOrCreateUrl = data => (data.slug ? `api/dashboards/${data.slug}` : "api/dashboards");
+const DashboardService = {
+  get: ({ slug }) => axios.get(`api/dashboards/${slug}`).then(transformResponse),
+  getByToken: ({ token }) => axios.get(`api/dashboards/public/${token}`).then(transformResponse),
+  save: data => axios.post(saveOrCreateUrl(data), data).then(transformResponse),
+  delete: ({ slug }) => axios.delete(`api/dashboards/${slug}`).then(transformResponse),
+  query: params => axios.get("api/dashboards", { params }).then(transformResponse),
+  recent: params => axios.get("api/dashboards/recent", { params }).then(transformResponse),
+  favorites: params => axios.get("api/dashboards/favorites", { params }).then(transformResponse),
+  favorite: ({ slug }) => axios.post(`api/dashboards/${slug}/favorite`),
+  unfavorite: ({ slug }) => axios.delete(`api/dashboards/${slug}/favorite`),
+};
 
-  const resource = $resource(
-    'api/dashboards/:slug',
-    { slug: '@slug' },
-    {
-      get: { method: 'GET', transformResponse: transform },
-      save: { method: 'POST', transformResponse: transform },
-      query: { method: 'GET', isArray: false, transformResponse: transform },
-      recent: {
-        method: 'get',
-        isArray: true,
-        url: 'api/dashboards/recent',
-        transformResponse: transform,
-      },
-      favorites: {
-        method: 'get',
-        isArray: false,
-        url: 'api/dashboards/favorites',
-      },
-      favorite: {
-        method: 'post',
-        isArray: false,
-        url: 'api/dashboards/:slug/favorite',
-        transformRequest: [() => ''], // body not needed
-      },
-      unfavorite: {
-        method: 'delete',
-        isArray: false,
-        url: 'api/dashboards/:slug/favorite',
-        transformRequest: [() => ''], // body not needed
-      },
-    },
-  );
+_.extend(Dashboard, DashboardService);
 
-  resource.prototype.canEdit = function canEdit() {
-    return currentUser.canEdit(this) || this.can_edit;
-  };
+Dashboard.prepareDashboardWidgets = prepareDashboardWidgets;
+Dashboard.prepareWidgetsForDashboard = prepareWidgetsForDashboard;
 
-  resource.prepareDashboardWidgets = prepareDashboardWidgets;
-  resource.prepareWidgetsForDashboard = prepareWidgetsForDashboard;
-  resource.prototype.getParametersDefs = function getParametersDefs() {
-    const globalParams = {};
-    const queryParams = $location.search();
-    _.each(this.widgets, (widget) => {
-      if (widget.getQuery()) {
-        const mappings = widget.getParameterMappings();
-        widget
-          .getQuery()
-          .getParametersDefs(false)
-          .forEach((param) => {
-            const mapping = mappings[param.name];
-            if (mapping.type === Widget.MappingType.DashboardLevel) {
-              // create global param
-              if (!globalParams[mapping.mapTo]) {
-                globalParams[mapping.mapTo] = param.clone();
-                globalParams[mapping.mapTo].name = mapping.mapTo;
-                globalParams[mapping.mapTo].title = mapping.title || param.title;
-                globalParams[mapping.mapTo].locals = [];
-              }
+Dashboard.prototype.canEdit = function canEdit() {
+  return currentUser.canEdit(this) || this.can_edit;
+};
 
-              // add to locals list
-              globalParams[mapping.mapTo].locals.push(param);
+Dashboard.prototype.getParametersDefs = function getParametersDefs() {
+  const globalParams = {};
+  const queryParams = location.search;
+  _.each(this.widgets, widget => {
+    if (widget.getQuery()) {
+      const mappings = widget.getParameterMappings();
+      widget
+        .getQuery()
+        .getParametersDefs(false)
+        .forEach(param => {
+          const mapping = mappings[param.name];
+          if (mapping.type === Widget.MappingType.DashboardLevel) {
+            // create global param
+            if (!globalParams[mapping.mapTo]) {
+              globalParams[mapping.mapTo] = cloneParameter(param);
+              globalParams[mapping.mapTo].name = mapping.mapTo;
+              globalParams[mapping.mapTo].title = mapping.title || param.title;
+              globalParams[mapping.mapTo].locals = [];
             }
-          });
-      }
-    });
-    return _.values(_.each(globalParams, (param) => {
+
+            // add to locals list
+            globalParams[mapping.mapTo].locals.push(param);
+          }
+        });
+    }
+  });
+  return _.values(
+    _.each(globalParams, param => {
       param.setValue(param.value); // apply global param value to all locals
       param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
-    }));
+    })
+  );
+};
+
+Dashboard.prototype.addWidget = function addWidget(textOrVisualization, options = {}) {
+  const props = {
+    dashboard_id: this.id,
+    options: {
+      ...options,
+      isHidden: false,
+      position: {},
+    },
+    text: "",
+    visualization_id: null,
+    visualization: null,
   };
 
-  resource.prototype.addWidget = function addWidget(textOrVisualization, options = {}) {
-    const props = {
-      dashboard_id: this.id,
-      options: {
-        ...options,
-        isHidden: false,
-        position: {},
-      },
-      text: '',
-      visualization_id: null,
-      visualization: null,
-    };
+  if (_.isString(textOrVisualization)) {
+    props.text = textOrVisualization;
+  } else if (_.isObject(textOrVisualization)) {
+    props.visualization_id = textOrVisualization.id;
+    props.visualization = textOrVisualization;
+  } else {
+    // TODO: Throw an error?
+  }
 
-    if (_.isString(textOrVisualization)) {
-      props.text = textOrVisualization;
-    } else if (_.isObject(textOrVisualization)) {
-      props.visualization_id = textOrVisualization.id;
-      props.visualization = textOrVisualization;
-    } else {
-      // TODO: Throw an error?
-    }
+  const widget = new Widget(props);
 
-    const widget = new Widget(props);
+  const position = calculateNewWidgetPosition(this.widgets, widget);
+  widget.options.position.col = position.col;
+  widget.options.position.row = position.row;
 
-    const position = calculateNewWidgetPosition(this.widgets, widget);
-    widget.options.position.col = position.col;
-    widget.options.position.row = position.row;
-
-    return widget.save().then(() => {
-      this.widgets = [...this.widgets, widget]; // ANGULAR_REMOVE_ME
-      return widget;
-    });
-  };
-
-  return resource;
-}
-
-export default function init(ngModule) {
-  ngModule.factory('Dashboard', DashboardService);
-
-  ngModule.run(($injector) => {
-    Dashboard = $injector.get('Dashboard');
+  return widget.save().then(() => {
+    this.widgets = [...this.widgets, widget];
+    return widget;
   });
-}
+};
 
-init.init = true;
+Dashboard.prototype.favorite = function favorite() {
+  return Dashboard.favorite(this);
+};
+
+Dashboard.prototype.unfavorite = function unfavorite() {
+  return Dashboard.unfavorite(this);
+};

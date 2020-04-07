@@ -1,0 +1,28 @@
+.query-editor-controls {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  justify-content: stretch;
+
+  // Styles for a wrapper that `Tooltip` adds for disabled `Button`s
+  span.query-editor-controls-button {
+    display: flex !important;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .ant-btn {
+    height: auto;
+
+    .fa + span,
+    .zmdi + span {
+      // if button has icon and label - add some space between them
+      margin-left: 5px;
+    }
+  }
+
+  .query-editor-controls-spacer {
+    flex: 1 1 auto;
+    height: 35px; // same as Antd <Select>
+  }
+}

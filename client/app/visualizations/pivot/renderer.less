@@ -1,0 +1,88 @@
+@redash-gray: rgba(102, 136, 153, 1);
+
+.pivot-table-visualization-container {
+  &[data-hide-controls] {
+    .pvtAxisContainer, .pvtRenderers, .pvtVals {
+      display: none;
+    }
+  }
+
+  &[data-hide-row-totals] {
+    td:last-child, th:last-child {
+      &.pvtTotalLabel:not(:empty), &.pvtTotal, &.pvtGrandTotal {
+        display: none;
+      }
+    }
+  }
+
+  &[data-hide-column-totals] {
+    tbody > tr:last-child {
+      & > .pvtTotalLabel, & > .pvtTotal, & > .pvtGrandTotal {
+        display: none;
+      }
+    }
+  }
+}
+
+.pvtAxisContainer, .pvtVals {
+  border: 1px solid fade(@redash-gray, 15%);
+  background: #fff;
+}
+
+.pvtAxisContainer li span.pvtAttr {
+  background: fade(@redash-gray, 10%);
+  border: 1px solid fade(@redash-gray, 15%);
+  border-radius: 3px;
+}
+
+.pvtCheckContainer {
+  border-top: 1px solid fade(@redash-gray, 15%);
+  border-bottom: 1px solid fade(@redash-gray, 15%);
+}
+
+.pvtCheckContainer p {
+  margin: 2px;
+  line-height: 1;
+}
+
+.pvtTriangle {
+  color: fade(@redash-gray, 90%);
+}
+
+table.pvtTable thead tr th, table.pvtTable tbody tr th {
+  background-color: fade(@redash-gray, 10%);
+  border: 1px solid #ced8dc;
+}
+
+table.pvtTable tbody tr td {
+  border: 1px solid #ced8dc;
+}
+
+.pvtFilterBox {
+  border: 1px solid fade(@redash-gray, 15%);
+  border-radius: 3px;
+  box-shadow: fade(@redash-gray, 15%) 0px 4px 9px -3px;
+
+  button {
+    background-color: rgba(102, 136, 153, 0.15);
+    margin-right: 5px;
+    border: 1px solid transparent;
+    padding: 3px 6px;
+    font-size: 13px;
+    line-height: 1.42857143;
+    border-radius: 3px;
+
+    &:hover {
+      background-color: rgba(102, 136, 153, 0.25);
+    }
+  }
+
+  input[type='text'] {
+    width: 90%;
+    margin: 0 auto 10px;
+    height: 35px;
+    padding: 6px 12px;
+    border: 1px solid #e8e8e8;
+    border-radius: 3px;
+  }
+}
