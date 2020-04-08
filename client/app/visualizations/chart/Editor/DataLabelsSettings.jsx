@@ -96,7 +96,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
                   Also, all query result columns can be referenced
                   <br />
                   using
-                  <code className="text-nowrap">{"{{ column_name }}"}</code> syntax.
+                  <code style={{ whiteSpace: "nowrap" }}>{"{{ column_name }}"}</code> syntax.
                 </div>
               </ContextHelp>
             </React.Fragment>

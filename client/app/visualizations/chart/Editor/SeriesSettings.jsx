@@ -18,7 +18,7 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
       title: "Order",
       dataIndex: "zIndex",
       render: (unused, item) => (
-        <span className="series-table-column-order">
+        <span className="series-settings-order">
           <DragHandle />
           {item.zIndex + 1}
         </span>
@@ -27,7 +27,6 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
     {
       title: "Label",
       dataIndex: "name",
-      className: "text-nowrap",
       render: (unused, item) => (
         <Input
           data-test={`Chart.Series.${item.key}.Label`}
@@ -43,10 +42,9 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
     result.push({
       title: "Y Axis",
       dataIndex: "yAxis",
-      className: "text-nowrap",
       render: (unused, item) => (
         <Radio.Group
-          className="text-nowrap"
+          className="series-settings-y-axis"
           value={item.yAxis === 1 ? 1 : 0}
           onChange={event => updateSeriesOption(item.key, "yAxis", event.target.value)}>
           <Radio value={0} data-test={`Chart.Series.${item.key}.UseLeftAxis`}>
@@ -61,7 +59,6 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
     result.push({
       title: "Type",
       dataIndex: "type",
-      className: "text-nowrap",
       render: (unused, item) => (
         <ChartTypeSelect
           data-test={`Chart.Series.${item.key}.Type`}
