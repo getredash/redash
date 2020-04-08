@@ -70,7 +70,7 @@ export default function ColorPicker({
   }, [validatedColor, visible]);
 
   return (
-    <React.Fragment>
+    <span className="color-picker-wrapper">
       {addonBefore}
       <Popover
         arrowPointAtCenter
@@ -110,7 +110,7 @@ export default function ColorPicker({
         )}
       </Popover>
       {addonAfter}
-    </React.Fragment>
+    </span>
   );
 }
 

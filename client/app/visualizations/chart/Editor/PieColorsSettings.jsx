@@ -56,7 +56,6 @@ export default function PieColorsSettings({ options, data, onOptionsChange }) {
       title: "Color",
       dataIndex: "color",
       width: "1%",
-      className: "text-nowrap",
       render: (unused, item) => (
         <ColorPicker
           data-test={`Chart.Series.${item.key}.Color`}
