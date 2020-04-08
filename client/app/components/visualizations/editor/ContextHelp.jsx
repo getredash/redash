@@ -25,7 +25,7 @@ ContextHelp.defaultProps = {
   children: null,
 };
 
-ContextHelp.defaultIcon = <Icon className="m-l-5 m-r-5" type="question-circle" theme="filled" />;
+ContextHelp.defaultIcon = <Icon className="context-help-default-icon" type="question-circle" theme="filled" />;
 
 function NumberFormatSpecs() {
   return (
@@ -41,7 +41,7 @@ function DateTimeFormatSpecs() {
       title={
         <React.Fragment>
           Formatting Dates and Times
-          <i className="fa fa-external-link m-l-5" />
+          <i className="fa fa-external-link" style={{ marginLeft: 5 }} />
         </React.Fragment>
       }>
       <a
