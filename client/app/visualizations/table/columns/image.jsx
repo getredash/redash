@@ -30,14 +30,14 @@ function Editor({ column, onChange }) {
               </ContextHelp>
             </React.Fragment>
           }>
-          <div className="d-flex align-items-center">
+          <div className="image-dimension-selector">
             <Input
               data-test="Table.ColumnEditor.Image.Width"
               placeholder="Width"
               defaultValue={column.imageWidth}
               onChange={event => onChangeDebounced({ imageWidth: event.target.value })}
             />
-            <span style={{ paddingLeft: 5, paddingRight: 5 }}>&times;</span>
+            <span className="image-dimension-selector-spacer">&times;</span>
             <Input
               data-test="Table.ColumnEditor.Image.Height"
               placeholder="Height"

@@ -17,9 +17,8 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
     {
       title: "Order",
       dataIndex: "zIndex",
-      className: "text-nowrap",
       render: (unused, item) => (
-        <span className="d-flex align-items-center">
+        <span className="series-table-column-order">
           <DragHandle />
           {item.zIndex + 1}
         </span>
