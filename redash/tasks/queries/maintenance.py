@@ -90,7 +90,7 @@ def refresh_queries():
         except Exception as e:
             message = "Could not enqueue query %d due to %s" % (query.id, repr(e))
             logging.info(message)
-            sentry.capture_message(message)
+            sentry.capture_exception(type(e)(message).with_traceback(e.__traceback__))
 
     status = {
         "outdated_queries_count": len(enqueued),
