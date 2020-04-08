@@ -1,4 +1,4 @@
-import { filter, map, initial, last, reduce } from "lodash";
+import { filter, map, get, initial, last, reduce } from "lodash";
 import React, { useMemo, useState, useRef, useCallback, useEffect } from "react";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
@@ -120,7 +120,7 @@ export default function Renderer({ options, data, context }) {
         columns={tableColumns}
         dataSource={preparedRows}
         pagination={{
-          size: context === "widget" ? "small" : "",
+          size: get(options, "paginationSize", ""),
           position: "bottom",
           pageSize: options.itemsPerPage,
           hideOnSinglePage: true,
