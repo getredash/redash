@@ -34,7 +34,6 @@ export default function FormatSettings({ options, onOptionsChange }) {
       <Section>
         <Input
           label={<React.Fragment>Tooltip template {templateFormatHint}</React.Fragment>}
-          className="w-100"
           data-test="Map.Editor.TooltipTemplate"
           disabled={!options.tooltip.enabled}
           placeholder="Default template"
@@ -55,7 +54,6 @@ export default function FormatSettings({ options, onOptionsChange }) {
       <Section>
         <TextArea
           label={<React.Fragment>Popup template {templateFormatHint}</React.Fragment>}
-          className="w-100"
           data-test="Map.Editor.PopupTemplate"
           disabled={!options.popup.enabled}
           rows={4}

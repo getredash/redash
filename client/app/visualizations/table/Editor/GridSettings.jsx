@@ -11,7 +11,6 @@ export default function GridSettings({ options, onOptionsChange }) {
       <Select
         label="Items per page"
         data-test="Table.ItemsPerPage"
-        className="w-100"
         defaultValue={options.itemsPerPage}
         onChange={itemsPerPage => onOptionsChange({ itemsPerPage })}>
         {map(ALLOWED_ITEM_PER_PAGE, value => (

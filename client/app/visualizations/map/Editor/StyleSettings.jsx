@@ -89,7 +89,6 @@ export default function StyleSettings({ options, onOptionsChange }) {
         <Select
           label="Map Tiles"
           data-test="Map.Editor.Tiles"
-          className="w-100"
           value={options.mapTileUrl}
           onChange={mapTileUrl => onOptionsChange({ mapTileUrl })}>
           {map(mapTiles, ({ name, url }) => (
@@ -134,7 +133,6 @@ export default function StyleSettings({ options, onOptionsChange }) {
             <Select
               layout="horizontal"
               label="Shape"
-              className="w-100"
               data-test="Map.Editor.MarkerShape"
               value={options.iconShape}
               onChange={iconShape => onOptionsChange({ iconShape })}>
@@ -180,7 +178,6 @@ export default function StyleSettings({ options, onOptionsChange }) {
                     </ContextHelp>
                   </React.Fragment>
                 }
-                className="w-100"
                 data-test="Map.Editor.MarkerIcon"
                 defaultValue={options.iconFont}
                 onChange={event => debouncedOnOptionsChange({ iconFont: event.target.value })}

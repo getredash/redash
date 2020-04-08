@@ -79,7 +79,6 @@ export default function GeneralSettings({ options, onOptionsChange }) {
                   <ContextHelp.NumberFormatSpecs />
                 </React.Fragment>
               }
-              className="w-100"
               data-test="Choropleth.Editor.ValueFormat"
               defaultValue={options.valueFormat}
               onChange={event => onOptionsChangeDebounced({ valueFormat: event.target.value })}
@@ -88,7 +87,6 @@ export default function GeneralSettings({ options, onOptionsChange }) {
           <Grid.Col span={12}>
             <Input
               label="Value placeholder"
-              className="w-100"
               data-test="Choropleth.Editor.ValuePlaceholder"
               defaultValue={options.noValuePlaceholder}
               onChange={event => onOptionsChangeDebounced({ noValuePlaceholder: event.target.value })}
@@ -111,7 +109,6 @@ export default function GeneralSettings({ options, onOptionsChange }) {
           <Grid.Col span={12}>
             <Select
               label="Legend position"
-              className="w-100"
               data-test="Choropleth.Editor.LegendPosition"
               disabled={!options.legend.visible}
               defaultValue={options.legend.position}
@@ -154,7 +151,6 @@ export default function GeneralSettings({ options, onOptionsChange }) {
       <Section>
         <Input
           label={<React.Fragment>Tooltip template {templateFormatHint}</React.Fragment>}
-          className="w-100"
           data-test="Choropleth.Editor.TooltipTemplate"
           disabled={!options.tooltip.enabled}
           defaultValue={options.tooltip.template}
@@ -174,7 +170,6 @@ export default function GeneralSettings({ options, onOptionsChange }) {
       <Section>
         <TextArea
           label={<React.Fragment>Popup template {templateFormatHint}</React.Fragment>}
-          className="w-100"
           data-test="Choropleth.Editor.PopupTemplate"
           disabled={!options.popup.enabled}
           rows={4}

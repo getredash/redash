@@ -103,7 +103,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
       <Section>
         <ChartTypeSelect
           label="Chart Type"
-          className="w-100"
           data-test="Chart.GlobalSeriesType"
           defaultValue={options.globalSeriesType}
           onChange={handleGlobalSeriesTypeChange}
@@ -125,7 +124,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           <Section>
             <InputNumber
               label="Bubble Size Coefficient"
-              className="w-100"
               data-test="Chart.BubbleCoefficient"
               defaultValue={options.coefficient}
               onChange={value => onOptionsChange({ coefficient: toNumber(value) })}
@@ -135,7 +133,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           <Section>
             <Select
               label="Bubble Size Proportional To"
-              className="w-100"
               data-test="Chart.SizeMode"
               defaultValue={options.sizemode}
               onChange={mode => onOptionsChange({ sizemode: mode })}>
@@ -154,7 +151,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Section>
           <Select
             label="Direction"
-            className="w-100"
             data-test="Chart.PieDirection"
             defaultValue={options.direction.type}
             onChange={type => onOptionsChange({ direction: { type } })}>
@@ -194,7 +190,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Section>
           <Select
             label="Stacking"
-            className="w-100"
             data-test="Chart.Stacking"
             defaultValue={options.series.stacking}
             disabled={!includes(["line", "area", "column"], options.globalSeriesType)}
@@ -224,7 +219,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Section>
           <Select
             label="Missing and NULL values"
-            className="w-100"
             data-test="Chart.MissingValues"
             defaultValue={options.missingValuesAsZero ? 1 : 0}
             onChange={value => onOptionsChange({ missingValuesAsZero: !!value })}>

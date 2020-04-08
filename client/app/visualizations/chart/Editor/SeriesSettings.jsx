@@ -65,7 +65,6 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
       className: "text-nowrap",
       render: (unused, item) => (
         <ChartTypeSelect
-          className="w-100"
           data-test={`Chart.Series.${item.key}.Type`}
           dropdownMatchSelectWidth={false}
           value={item.type}
