@@ -7,10 +7,10 @@ function TemplateFormatHint() {
   // eslint-disable-line react/prop-types
   return (
     <ContextHelp placement="topLeft" arrowPointAtCenter>
-      <div className="p-b-5">
+      <div style={{ paddingBottom: 5 }}>
         All query result columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
       </div>
-      <div className="p-b-5">Leave this field empty to use default template.</div>
+      <div style={{ paddingBottom: 5 }}>Leave this field empty to use default template.</div>
     </ContextHelp>
   );
 }

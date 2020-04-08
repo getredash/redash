@@ -165,13 +165,13 @@ export default function StyleSettings({ options, onOptionsChange }) {
                   <React.Fragment>
                     Icon
                     <ContextHelp placement="topLeft" arrowPointAtCenter>
-                      <div className="m-b-5">
+                      <div style={{ marginBottom: 5 }}>
                         Enter an icon name from{" "}
                         <a href="https://fontawesome.com/v4.7.0/icons/" target="_blank" rel="noopener noreferrer">
                           Font-Awesome 4.7
                         </a>
                       </div>
-                      <div className="m-b-5">
+                      <div style={{ marginBottom: 5 }}>
                         Examples: <code>check</code>, <code>times-circle</code>, <code>flag</code>
                       </div>
                       <div>Leave blank to remove.</div>

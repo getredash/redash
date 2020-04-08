@@ -16,10 +16,10 @@ function TemplateFormatHint({ mapType }) {
   // eslint-disable-line react/prop-types
   return (
     <ContextHelp placement="topLeft" arrowPointAtCenter>
-      <div className="p-b-5">
+      <div style={{ paddingBottom: 5 }}>
         All query result columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
       </div>
-      <div className="p-b-5">Use special names to access additional properties:</div>
+      <div style={{ paddingBottom: 5 }}>Use special names to access additional properties:</div>
       <div>
         <code>{"{{ @@value }}"}</code> formatted value;
       </div>

@@ -6,9 +6,13 @@ import Tooltip from "antd/lib/tooltip";
 
 import "./swatch.less";
 
-export default function Swatch({ className, color, title, size, ...props }) {
+export default function Swatch({ className, color, title, size, style, ...props }) {
   const result = (
-    <span className={cx("color-swatch", className)} style={{ backgroundColor: color, width: size }} {...props} />
+    <span
+      className={cx("color-swatch", className)}
+      style={{ backgroundColor: color, width: size, ...style }}
+      {...props}
+    />
   );
 
   if (isString(title) && title !== "") {
@@ -23,6 +27,7 @@ export default function Swatch({ className, color, title, size, ...props }) {
 
 Swatch.propTypes = {
   className: PropTypes.string,
+  style: PropTypes.object,
   title: PropTypes.string,
   color: PropTypes.string,
   size: PropTypes.number,
@@ -30,6 +35,7 @@ Swatch.propTypes = {
 
 Swatch.defaultProps = {
   className: null,
+  style: null,
   title: null,
   color: "transparent",
   size: 12,

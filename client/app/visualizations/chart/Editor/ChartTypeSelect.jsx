@@ -27,7 +27,7 @@ export default function ChartTypeSelect(props) {
     <Select {...props}>
       {map(chartTypes, ({ type, name, icon }) => (
         <Select.Option key={type} value={type} data-test={`Chart.ChartType.${type}`}>
-          <i className={`m-r-5 fa fa-${icon}`} />
+          <i className={`fa fa-${icon}`} style={{ marginRight: 5 }} />
           {name}
         </Select.Option>
       ))}
