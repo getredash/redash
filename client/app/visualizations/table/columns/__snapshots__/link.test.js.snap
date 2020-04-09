@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Visualizations -> Table -> Columns -> Link Editor Changes URL template 1`] = `
+Object {
+  "linkUrlTemplate": "http://{{ @ }}/index.html",
+}
+`;
+
+exports[`Visualizations -> Table -> Columns -> Link Editor Changes text template 1`] = `
+Object {
+  "linkTextTemplate": "Text of {{ @ }}",
+}
+`;
+
+exports[`Visualizations -> Table -> Columns -> Link Editor Changes title template 1`] = `
+Object {
+  "linkTitleTemplate": "Title of {{ @ }}",
+}
+`;
+
+exports[`Visualizations -> Table -> Columns -> Link Editor Makes link open in new tab  1`] = `
+Object {
+  "linkOpenInNewTab": true,
+}
+`;

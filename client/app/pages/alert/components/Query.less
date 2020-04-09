@@ -1,0 +1,26 @@
+.alert-query-link {
+  font-weight: 600;
+  text-decoration: underline;
+  display: inline-block;
+  position: relative;
+  top: -1px;
+
+  .fa-external-link {
+    vertical-align: text-bottom;
+    margin-left: 4px;
+  }
+}
+
+.alert-query-schedule {
+  font-style: italic;
+  text-transform: lowercase;
+}
+
+@media only percy {
+  // hide query selector arrow in Percy to avoid a flaky snapshot
+  .alert-query-selector {
+    .ant-select-arrow-icon {
+      display: none !important;
+    }
+  }
+}

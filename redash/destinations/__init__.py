@@ -1,19 +1,13 @@
 import logging
-import json
-
-from redash import settings
 
 logger = logging.getLogger(__name__)
 
-__all__ = [
-    'BaseDestination',
-    'register',
-    'get_destination',
-    'import_destinations'
-]
+__all__ = ["BaseDestination", "register", "get_destination", "import_destinations"]
 
 
 class BaseDestination(object):
+    deprecated = False
+
     def __init__(self, configuration):
         self.configuration = configuration
 
@@ -27,7 +21,7 @@ class BaseDestination(object):
 
     @classmethod
     def icon(cls):
-        return 'fa-bullseye'
+        return "fa-bullseye"
 
     @classmethod
     def enabled(cls):
@@ -43,10 +37,11 @@ class BaseDestination(object):
     @classmethod
     def to_dict(cls):
         return {
-            'name': cls.name(),
-            'type': cls.type(),
-            'icon': cls.icon(),
-            'configuration_schema': cls.configuration_schema()
+            "name": cls.name(),
+            "type": cls.type(),
+            "icon": cls.icon(),
+            "configuration_schema": cls.configuration_schema(),
+            **({ "deprecated": True } if cls.deprecated else {})
         }
 
 
@@ -56,10 +51,17 @@ destinations = {}
 def register(destination_class):
     global destinations
     if destination_class.enabled():
-        logger.debug("Registering %s (%s) destinations.", destination_class.name(), destination_class.type())
-        destinations[destination_class.type()] = destination_class 
+        logger.debug(
+            "Registering %s (%s) destinations.",
+            destination_class.name(),
+            destination_class.type(),
+        )
+        destinations[destination_class.type()] = destination_class
     else:
-        logger.warning("%s destination enabled but not supported, not registering. Either disable or install missing dependencies.", destination_class.name())
+        logger.warning(
+            "%s destination enabled but not supported, not registering. Either disable or install missing dependencies.",
+            destination_class.name(),
+        )
 
 
 def get_destination(destination_type, configuration):

@@ -1,0 +1,52 @@
+.system-status-page {
+  @gutter: 15px;
+
+  overflow: hidden;
+  padding: @gutter;
+
+  .system-status-page-blocks {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+    margin: -@gutter / 2;
+
+    .system-status-page-block {
+      flex: 0 0 auto;
+      padding: @gutter / 2;
+      width: 100%;
+
+      display: flex;
+      align-items: stretch;
+
+      > div {
+        width: 100%;
+      }
+
+      @media (min-width: 768px) {
+        & {
+          width: 50%;
+        }
+      }
+
+      @media (min-width: 1600px) {
+        & {
+          width: 25%;
+        }
+      }
+    }
+
+    .ant-list-item {
+      &:first-child {
+        padding-top: 0;
+      }
+
+      &:last-child {
+        padding-bottom: 0;
+      }
+
+      &-content {
+        margin: 0;
+      }
+    }
+  }
+}

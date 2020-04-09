@@ -1,0 +1,90 @@
+.query-visualization-tabs {
+  .query-results-empty-state {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 15px;
+
+    .empty-state-content {
+      max-width: 280px;
+      text-align: center;
+    }
+
+    img {
+      max-width: 100%;
+    }
+  }
+
+  .ant-tabs-bar {
+    display: flex;
+
+    .ant-tabs-extra-content {
+      order: 2;
+    }
+  }
+
+  .ant-tabs-tab {
+    background: #f6f8f9 !important;
+    border-color: #d9d9d9 !important;
+    border-bottom: 0px !important;
+    border-radius: 0 !important;
+    // border-width animation makes it flicker on Firefox
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), border-width 0s !important;
+
+    &:first-child {
+      border-radius: 2px 0 0 0 !important;
+    }
+
+    &:last-child {
+      border-radius: 0 2px 0 0 !important;
+    }
+
+    &:not(:first-child) {
+      margin-left: -1px !important;
+    }
+
+    &.ant-tabs-tab-active {
+      background: white !important;
+      z-index: 1;
+      font-weight: normal;
+      border-top: 2px solid #2196f3 !important;
+    }
+  }
+
+  .ant-tabs-content {
+    margin-top: -18px;
+    border: 1px solid #d9d9d9;
+    box-sizing: border-box;
+    border-radius: 0px 4px 0px 0px;
+
+    .ant-tabs-tabpane {
+      padding: 16px;
+      background: white;
+    }
+  }
+
+  .add-visualization-button {
+    span {
+      color: #767676;
+    }
+  }
+
+  .delete-visualization-button {
+    margin-left: 5px;
+    cursor: pointer;
+    color: #a09797;
+    font-size: 11px;
+    padding: 0 4px 1px;
+    &:hover {
+      color: white;
+      background-color: #ff8080;
+      border-radius: 50%;
+    }
+  }
+}
+
+.query-fixed-layout .query-visualization-tabs .visualization-renderer {
+  padding: 15px;
+}

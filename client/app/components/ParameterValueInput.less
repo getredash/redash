@@ -1,0 +1,26 @@
+@import '~antd/lib/input-number/style/index'; // for ant @vars
+
+@input-dirty: #fffce1;
+
+.parameter-input {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+
+  .@{ant-prefix}-input,
+  .@{ant-prefix}-input-number {
+    min-width: 100% !important;
+  }
+
+  .@{ant-prefix}-select {
+    width: 100%;
+  }
+
+  &[data-dirty] {
+    .@{ant-prefix}-input, // covers also ant date component
+    .@{ant-prefix}-input-number,
+    .@{ant-prefix}-select-selection {
+      background-color: @input-dirty;
+    }
+  }
+}

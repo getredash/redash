@@ -1,15 +1,15 @@
-import json
 import logging
 import sys
 import uuid
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
 try:
     import pymssql
+
     enabled = True
 except ImportError:
     enabled = False
@@ -26,14 +26,8 @@ types_map = {
 }
 
 
-class MSSQLJSONEncoder(JSONEncoder):
-    def default(self, o):
-        if isinstance(o, uuid.UUID):
-            return str(o)
-        return super(MSSQLJSONEncoder, self).default(o)
-
-
 class SqlServer(BaseSQLQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1"
 
     @classmethod
@@ -41,37 +35,24 @@ class SqlServer(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "user": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "server": {
-                    "type": "string",
-                    "default": "127.0.0.1"
-                },
-                "port": {
-                    "type": "number",
-                    "default": 1433
-                },
+                "user": {"type": "string"},
+                "password": {"type": "string"},
+                "server": {"type": "string", "default": "127.0.0.1"},
+                "port": {"type": "number", "default": 1433},
                 "tds_version": {
                     "type": "string",
                     "default": "7.0",
-                    "title": "TDS Version"
+                    "title": "TDS Version",
                 },
                 "charset": {
                     "type": "string",
                     "default": "UTF-8",
-                    "title": "Character Set"
+                    "title": "Character Set",
                 },
-                "db": {
-                    "type": "string",
-                    "title": "Database Name"
-                }
+                "db": {"type": "string", "title": "Database Name"},
             },
             "required": ["db"],
-            "secret": ["password"]
+            "secret": ["password"],
         }
 
     @classmethod
@@ -85,10 +66,6 @@ class SqlServer(BaseSQLQueryRunner):
     @classmethod
     def type(cls):
         return "mssql"
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def _get_tables(self, schema):
         query = """
@@ -105,39 +82,46 @@ class SqlServer(BaseSQLQueryRunner):
         if error is not None:
             raise Exception("Failed getting schema.")
 
-        results = json.loads(results)
+        results = json_loads(results)
 
-        for row in results['rows']:
-            if row['table_schema'] != self.configuration['db']:
-                table_name = u'{}.{}'.format(row['table_schema'], row['table_name'])
+        for row in results["rows"]:
+            if row["table_schema"] != self.configuration["db"]:
+                table_name = "{}.{}".format(row["table_schema"], row["table_name"])
             else:
-                table_name = row['table_name']
+                table_name = row["table_name"]
 
             if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': []}
+                schema[table_name] = {"name": table_name, "columns": []}
 
-            schema[table_name]['columns'].append(row['column_name'])
+            schema[table_name]["columns"].append(row["column_name"])
 
-        return schema.values()
+        return list(schema.values())
 
     def run_query(self, query, user):
         connection = None
 
         try:
-            server = self.configuration.get('server', '')
-            user = self.configuration.get('user', '')
-            password = self.configuration.get('password', '')
-            db = self.configuration['db']
-            port = self.configuration.get('port', 1433)
-            tds_version = self.configuration.get('tds_version', '7.0')
-            charset = self.configuration.get('charset', 'UTF-8')
+            server = self.configuration.get("server", "")
+            user = self.configuration.get("user", "")
+            password = self.configuration.get("password", "")
+            db = self.configuration["db"]
+            port = self.configuration.get("port", 1433)
+            tds_version = self.configuration.get("tds_version", "7.0")
+            charset = self.configuration.get("charset", "UTF-8")
 
             if port != 1433:
-                server = server + ':' + str(port)
+                server = server + ":" + str(port)
 
-            connection = pymssql.connect(server=server, user=user, password=password, database=db, tds_version=tds_version, charset=charset)
+            connection = pymssql.connect(
+                server=server,
+                user=user,
+                password=password,
+                database=db,
+                tds_version=tds_version,
+                charset=charset,
+            )
 
-            if isinstance(query, unicode):
+            if isinstance(query, str):
                 query = query.encode(charset)
 
             cursor = connection.cursor()
@@ -147,11 +131,16 @@ class SqlServer(BaseSQLQueryRunner):
             data = cursor.fetchall()
 
             if cursor.description is not None:
-                columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
-                rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
+                columns = self.fetch_columns(
+                    [(i[0], types_map.get(i[1], None)) for i in cursor.description]
+                )
+                rows = [
+                    dict(zip((column["name"] for column in columns), row))
+                    for row in data
+                ]
 
-                data = {'columns': columns, 'rows': rows}
-                json_data = json.dumps(data, cls=MSSQLJSONEncoder)
+                data = {"columns": columns, "rows": rows}
+                json_data = json_dumps(data)
                 error = None
             else:
                 error = "No data was returned."
@@ -166,16 +155,14 @@ class SqlServer(BaseSQLQueryRunner):
                 # Connection errors are `args[0][1]`
                 error = e.args[0][1]
             json_data = None
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
-            error = "Query cancelled by user."
-            json_data = None
-        except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
+            raise
         finally:
             if connection:
                 connection.close()
 
         return json_data, error
+
 
 register(SqlServer)

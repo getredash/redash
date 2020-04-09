@@ -1,146 +1,97 @@
-import moment from 'moment';
-import { isArray, reduce } from 'lodash';
+import { find, flatten, each } from "lodash";
+import PropTypes from "prop-types";
 
-function VisualizationProvider() {
-  this.visualizations = {};
-  // this.visualizationTypes = {};
-  this.visualizationTypes = [];
-  const defaultConfig = {
-    defaultOptions: {},
-    skipTypes: false,
-    editorTemplate: null,
-  };
+import boxPlotVisualization from "./box-plot";
+import chartVisualization from "./chart";
+import choroplethVisualization from "./choropleth";
+import cohortVisualization from "./cohort";
+import counterVisualization from "./counter";
+import detailsVisualization from "./details";
+import funnelVisualization from "./funnel";
+import mapVisualization from "./map";
+import pivotVisualization from "./pivot";
+import sankeyVisualization from "./sankey";
+import sunburstVisualization from "./sunburst";
+import tableVisualization from "./table";
+import wordCloudVisualization from "./word-cloud";
 
-  this.registerVisualization = (config) => {
-    const visualization = Object.assign({}, defaultConfig, config);
+const VisualizationConfig = PropTypes.shape({
+  type: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  getOptions: PropTypes.func.isRequired, // (existingOptions: object, data: { columns[], rows[] }) => object
+  isDefault: PropTypes.bool,
+  isDeprecated: PropTypes.bool,
+  Renderer: PropTypes.func.isRequired,
+  Editor: PropTypes.func,
 
-    // TODO: this is prone to errors; better refactor.
-    if (this.defaultVisualization === undefined && !visualization.name.match(/Deprecated/)) {
-      this.defaultVisualization = visualization;
-    }
+  // other config options
+  autoHeight: PropTypes.bool,
+  defaultRows: PropTypes.number,
+  defaultColumns: PropTypes.number,
+  minRows: PropTypes.number,
+  maxRows: PropTypes.number,
+  minColumns: PropTypes.number,
+  maxColumns: PropTypes.number,
+});
 
-    this.visualizations[config.type] = visualization;
+const registeredVisualizations = {};
 
-    if (!config.skipTypes) {
-      this.visualizationTypes.push({ name: config.name, type: config.type });
-    }
-  };
-
-  this.getSwitchTemplate = (property) => {
-    const pattern = /(<[a-zA-Z0-9-]*?)( |>)/;
-
-    let mergedTemplates = reduce(
-      this.visualizations,
-      (templates, visualization) => {
-        if (visualization[property]) {
-          const ngSwitch = `$1 ng-switch-when="${visualization.type}" $2`;
-          const template = visualization[property].replace(pattern, ngSwitch);
-
-          return `${templates}\n${template}`;
-        }
-
-        return templates;
-      },
-      '',
-    );
-
-    mergedTemplates = `<div ng-switch on="visualization.type">${mergedTemplates}</div>`;
-
-    return mergedTemplates;
-  };
-
-  this.$get = ($resource) => {
-    const Visualization = $resource('api/visualizations/:id', { id: '@id' });
-    Visualization.visualizations = this.visualizations;
-    Visualization.visualizationTypes = this.visualizationTypes;
-    Visualization.renderVisualizationsTemplate = this.getSwitchTemplate('renderTemplate');
-    Visualization.editorTemplate = this.getSwitchTemplate('editorTemplate');
-    Visualization.defaultVisualization = this.defaultVisualization;
-
-    return Visualization;
-  };
+function validateVisualizationConfig(config) {
+  const typeSpecs = { config: VisualizationConfig };
+  const values = { config };
+  PropTypes.checkPropTypes(typeSpecs, values, "prop", "registerVisualization");
 }
 
-function VisualizationName(Visualization) {
+function registerVisualization(config) {
+  validateVisualizationConfig(config);
+  config = {
+    Editor: () => null,
+    ...config,
+    isDefault: config.isDefault && !config.isDeprecated,
+  };
+
+  if (registeredVisualizations[config.type]) {
+    throw new Error(`Visualization ${config.type} already registered.`);
+  }
+
+  registeredVisualizations[config.type] = config;
+}
+
+each(
+  flatten([
+    boxPlotVisualization,
+    chartVisualization,
+    choroplethVisualization,
+    cohortVisualization,
+    counterVisualization,
+    detailsVisualization,
+    funnelVisualization,
+    mapVisualization,
+    pivotVisualization,
+    sankeyVisualization,
+    sunburstVisualization,
+    tableVisualization,
+    wordCloudVisualization,
+  ]),
+  registerVisualization
+);
+
+export default registeredVisualizations;
+
+export function getDefaultVisualization() {
+  // return any visualization explicitly marked as default, or any non-deprecated otherwise
+  return (
+    find(registeredVisualizations, visualization => visualization.isDefault) ||
+    find(registeredVisualizations, visualization => !visualization.isDeprecated)
+  );
+}
+
+export function newVisualization(type = null, options = {}) {
+  const visualization = type ? registeredVisualizations[type] : getDefaultVisualization();
   return {
-    restrict: 'E',
-    scope: {
-      visualization: '=',
-    },
-    template: '{{name}}',
-    replace: false,
-    link(scope) {
-      if (Visualization.visualizations[scope.visualization.type]) {
-        const defaultName = Visualization.visualizations[scope.visualization.type].name;
-        if (defaultName !== scope.visualization.name) {
-          scope.name = scope.visualization.name;
-        }
-      }
-    },
+    type: visualization.type,
+    name: visualization.name,
+    description: "",
+    options,
   };
-}
-
-function VisualizationRenderer(Visualization) {
-  return {
-    restrict: 'E',
-    scope: {
-      visualization: '=',
-      queryResult: '=',
-    },
-    // TODO: using switch here (and in the options editor) might introduce errors and bad
-    // performance wise. It's better to eventually show the correct template based on the
-    // visualization type and not make the browser render all of them.
-    template: `<filters filters="filters"></filters>\n${Visualization.renderVisualizationsTemplate}`,
-    replace: false,
-    link(scope) {
-      scope.$watch('queryResult && queryResult.getFilters()', (filters) => {
-        if (filters) {
-          scope.filters = filters;
-        }
-      });
-    },
-  };
-}
-
-function VisualizationOptionsEditor(Visualization) {
-  return {
-    restrict: 'E',
-    template: Visualization.editorTemplate,
-    replace: false,
-    scope: {
-      visualization: '=',
-      query: '=',
-      queryResult: '=',
-    },
-  };
-}
-
-function FilterValueFilter(clientConfig) {
-  return (value, filter) => {
-    let firstValue = value;
-    if (isArray(value)) {
-      firstValue = value[0];
-    }
-
-    // TODO: deduplicate code with table.js:
-    if (filter.column.type === 'date') {
-      if (firstValue && moment.isMoment(firstValue)) {
-        return firstValue.format(clientConfig.dateFormat);
-      }
-    } else if (filter.column.type === 'datetime') {
-      if (firstValue && moment.isMoment(firstValue)) {
-        return firstValue.format(clientConfig.dateTimeFormat);
-      }
-    }
-
-    return firstValue;
-  };
-}
-
-export default function init(ngModule) {
-  ngModule.provider('Visualization', VisualizationProvider);
-  ngModule.directive('visualizationRenderer', VisualizationRenderer);
-  ngModule.directive('visualizationOptionsEditor', VisualizationOptionsEditor);
-  ngModule.directive('visualizationName', VisualizationName);
-  ngModule.filter('filterValue', FilterValueFilter);
 }

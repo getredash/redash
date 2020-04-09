@@ -7,21 +7,13 @@
 }
 
 .edit-in-place span.editable {
+  display: inline-block;
   cursor: pointer;
 }
 
 .edit-in-place span.editable:hover {
   background: @redash-yellow;
   border-radius: @redash-radius;
-}
-
-.edit-in-place input,
-.edit-in-place textarea {
-  display: none;
-}
-
-.edit-in-place.active span {
-  display: none;
 }
 
 .edit-in-place.active input,
@@ -31,33 +23,4 @@
 
 .edit-in-place {
   display: inline-block;
-}
-
-.edit-in-place {
-  .rd-form-control {
-    padding: 0px 6px;
-    width: 30vw;
-  }
-
-  &.active {
-    textarea.rd-form-control {
-      height: 29px;
-      width: 40vw;
-    }
-  }
-}
-
-
-@media (max-width: 880px) {
-  .edit-in-place {
-    .rd-form-control {
-      width: 50vw;
-    }
-
-    &.active {
-      textarea.rd-form-control {
-        width: 50vw;
-      }
-    }
-  }
 }

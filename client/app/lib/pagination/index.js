@@ -1,2 +1,2 @@
-export { default as Paginator } from './paginator';
-export { default as LivePaginator } from './live-paginator';
+/* eslint-disable import/prefer-default-export */
+export { default as Paginator } from "./paginator";

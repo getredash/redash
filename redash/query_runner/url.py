@@ -1,23 +1,10 @@
-import requests
-from redash.query_runner import BaseQueryRunner, register
+from redash.query_runner import BaseHTTPQueryRunner, register
+from redash.utils import deprecated
 
 
-class Url(BaseQueryRunner):
-    @classmethod
-    def configuration_schema(cls):
-        return {
-            'type': 'object',
-            'properties': {
-                'url': {
-                    'type': 'string',
-                    'title': 'URL base path'
-                }
-            }
-        }
-
-    @classmethod
-    def annotate_query(cls):
-        return False
+@deprecated()
+class Url(BaseHTTPQueryRunner):
+    requires_url = False
 
     def test_connection(self):
         pass
@@ -25,33 +12,27 @@ class Url(BaseQueryRunner):
     def run_query(self, query, user):
         base_url = self.configuration.get("url", None)
 
-        try:
-            error = None
-            query = query.strip()
+        query = query.strip()
 
-            if base_url is not None and base_url != "":
-                if query.find("://") > -1:
-                    return None, "Accepting only relative URLs to '%s'" % base_url
+        if base_url is not None and base_url != "":
+            if query.find("://") > -1:
+                return None, "Accepting only relative URLs to '%s'" % base_url
 
-            if base_url is None:
-                base_url = ""
+        if base_url is None:
+            base_url = ""
 
-            url = base_url + query
+        url = base_url + query
 
-            response = requests.get(url)
-            response.raise_for_status()
-            json_data = response.content.strip()
+        response, error = self.get_response(url)
+        if error is not None:
+            return None, error
 
-            if not json_data:
-                error = "Got empty response from '{}'.".format(url)
+        json_data = response.content.strip()
 
-            return json_data, error
-        except requests.RequestException as e:
-            return None, str(e)
-        except KeyboardInterrupt:
-            error = "Query cancelled by user."
-            json_data = None
+        if json_data:
+            return json_data, None
+        else:
+            return None, "Got empty response from '{}'.".format(url)
 
-        return json_data, error
 
 register(Url)

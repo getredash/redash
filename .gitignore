@@ -24,3 +24,5 @@ node_modules
 .sass-cache
 npm-debug.log
 
+client/cypress/screenshots
+client/cypress/videos
