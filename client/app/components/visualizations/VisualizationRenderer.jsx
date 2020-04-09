@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import getQueryResultData from "@/lib/getQueryResultData";
 import Filters, { FiltersType, filterData } from "@/components/Filters";
 import { VisualizationType } from "@/visualizations/prop-types";
-import { Renderer } from "@/visualizations/components";
+import { Renderer } from "@/components/visualizations/visualizationComponents";
 
 function combineFilters(localFilters, globalFilters) {
   // tiny optimization - to avoid unnecessary updates

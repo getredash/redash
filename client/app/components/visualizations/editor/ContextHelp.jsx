@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Popover from "antd/lib/popover";
 import Tooltip from "antd/lib/tooltip";
 import Icon from "antd/lib/icon";
-import HelpTrigger from "@/components/HelpTrigger";
+import { useVisualizationSettingsContext } from "@/visualizations/components/VisualizationSettingsContext";
 
 import "./context-help.less";
 
@@ -28,11 +28,8 @@ ContextHelp.defaultProps = {
 ContextHelp.defaultIcon = <Icon className="m-l-5 m-r-5" type="question-circle" theme="filled" />;
 
 function NumberFormatSpecs() {
-  return (
-    <HelpTrigger type="NUMBER_FORMAT_SPECS" className="visualization-editor-context-help">
-      {ContextHelp.defaultIcon}
-    </HelpTrigger>
-  );
+  const visualizationSettings = useVisualizationSettingsContext();
+  return visualizationSettings.NumberFormatSpecs;
 }
 
 function DateTimeFormatSpecs() {
