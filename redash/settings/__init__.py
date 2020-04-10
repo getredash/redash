@@ -76,7 +76,7 @@ ENFORCE_HTTPS_PERMANENT = parse_boolean(
 ENFORCE_FILE_SAVE = parse_boolean(os.environ.get("REDASH_ENFORCE_FILE_SAVE", "true"))
 
 # Whether api calls using the json query runner will block private addresses
-ENFORCE_PRIVATE_ADDRESS_BLOCK = parse_boolean(os.envrion.get("REDASH_ENFORE_PRIVATE_IP_BLOCK", "true"))
+ENFORCE_PRIVATE_ADDRESS_BLOCK = parse_boolean(os.environ.get("REDASH_ENFORE_PRIVATE_IP_BLOCK", "true"))
 
 # Whether to use secure cookies by default.
 COOKIES_SECURE = parse_boolean(
