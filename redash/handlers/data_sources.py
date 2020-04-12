@@ -1,4 +1,5 @@
 import logging
+import time
 
 from flask import make_response, request
 from flask_restful import abort
@@ -20,6 +21,7 @@ from redash.query_runner import (
 )
 from redash.utils import filter_none
 from redash.utils.configuration import ConfigurationContainer, ValidationError
+from redash.tasks.general import test_connection
 
 
 class DataSourceTypeListResource(BaseResource):
@@ -245,10 +247,14 @@ class DataSourceTestResource(BaseResource):
         )
 
         response = {}
-        try:
-            data_source.query_runner.test_connection()
-        except Exception as e:
-            response = {"message": str(e), "ok": False}
+
+        job = test_connection.delay(data_source.id)
+        while not (job.is_finished or job.is_failed):
+            time.sleep(1)
+            job.refresh()
+
+        if isinstance(job.result, Exception):
+            response = {"message": str(job.result), "ok": False}
         else:
             response = {"message": "success", "ok": True}
 

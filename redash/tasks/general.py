@@ -63,6 +63,17 @@ def send_mail(to, subject, html, text):
         logger.exception("Failed sending message: %s", message.subject)
 
 
+@job("queries", timeout=30, ttl=90)
+def test_connection(data_source_id):
+    try:
+        data_source = models.DataSource.get_by_id(data_source_id)
+        data_source.query_runner.test_connection()
+    except Exception as e:
+        return e
+    else:
+        return True
+
+
 def sync_user_details():
     users.sync_last_active_at()
 
