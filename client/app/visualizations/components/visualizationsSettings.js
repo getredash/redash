@@ -1,26 +1,39 @@
 import React from "react";
 import { extend } from "lodash";
-import Icon from "antd/lib/icon";
+import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
 
-export const visualizationsSettings = {
-  NumberFormatSpecs: (
+function HelpTrigger({ title, href, className, children }) {
+  return (
     <Tooltip
       title={
         <React.Fragment>
-          Formatting Numbers
-          <i className="fa fa-external-link m-l-5" />
+          {title}
+          <i className="fa fa-external-link" style={{ marginLeft: 5 }} />
         </React.Fragment>
       }>
-      <a
-        className="visualization-editor-context-help"
-        href="https://redash.io/help/user-guide/visualizations/formatting-numbers"
-        target="_blank"
-        rel="noopener noreferrer">
-        <Icon className="m-l-5 m-r-5" type="question-circle" theme="filled" />
+      <a className={className} href={href} target="_blank" rel="noopener noreferrer">
+        {children}
       </a>
     </Tooltip>
-  ),
+  );
+}
+
+HelpTrigger.propTypes = {
+  title: PropTypes.node,
+  href: PropTypes.string.isRequired,
+  className: PropTypes.string,
+  children: PropTypes.node,
+};
+
+HelpTrigger.defaultValues = {
+  title: null,
+  className: null,
+  children: null,
+};
+
+export const visualizationsSettings = {
+  HelpTriggerComponent: HelpTrigger,
 };
 
 export function updateVisualizationsSettings(options) {
