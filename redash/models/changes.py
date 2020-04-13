@@ -7,6 +7,23 @@ from enum import Enum
 from .base import GFKBase, db, Column
 from .types import PseudoJSON
 
+# Structure of Change object
+# user_id
+#   reference to a user that modified object
+# created_at
+#   time when modification was made
+# object_type/object_id
+#   reference to modified object (e.g. query, dashboard)
+# changes.object_type/changes.object_id
+#   reference to a real target. When there are relation between entities, object_type/object_id contains
+#   a reference to "parent", and changes.object_type/changes.object_id contains a reference to "child".
+#   For example, when modifying a visualization, changes.object_type/changes.object_id will be the reference
+#   to that visualization, and object_type/object_id will be the reference to a query for this visualization.
+# changes.changes
+#   a dictionary where keys are names of modified fields and values are tuples with field values.
+#   Tuple may contain one value if field wasn't changes, or two values - previous and new one. In both cases
+#   tuple is used to avoid situations when field contains an JSON array and may be wrongly interpreted.
+
 
 @generic_repr("id", "object_type", "object_id", "created_at")
 class Change(GFKBase, db.Model):
@@ -65,10 +82,30 @@ def _get_object_changes(obj, reset=True):
         for key, change in changes.items():
             if change["current"] != change["previous"]:
                 col = columns.get(key, key)
-                result[col] = change
+                result[col] = (change["previous"], change["current"])
 
         if reset:
             changes.clear()
+
+    return result if result else None
+
+
+def _collect_all_attributes(obj, attributes, reset=True):
+    result = {}
+
+    columns = {}
+    for attr in inspect(obj.__class__).column_attrs:
+        col, = attr.columns
+        columns[attr.key] = col.name
+
+    for key in attributes:
+        col = columns.get(key, key)
+        value = getattr(obj, key, None)
+        result[col] = (value,)
+
+    changes = getattr(obj, "__changes__", None)
+    if changes and reset:
+        changes.clear()
 
     return result
 
@@ -92,15 +129,19 @@ def _patch_setattr_method(cls, attributes):
     cls.__setattr__ = new_setattr
 
 
-def _patch_record_changes_method(cls, parent_attr):
+def _patch_record_changes_method(cls, attributes, parent_attr):
     def record_changes(self, changed_by, change_type=Change.Type.Modified):
         session = object_session(self)
         if not session:
             return
 
-        changes = _get_object_changes(self)
-        # for `created` and `deleted` log even empty changes set
-        if not changes and (change_type == Change.Type.Modified):
+        changes = {}
+        if change_type == Change.Type.Created:
+            changes = _collect_all_attributes(self, attributes)
+        if change_type == Change.Type.Modified:
+            changes = _get_object_changes(self)
+
+        if changes is None:
             return
 
         changes = Change(
@@ -128,7 +169,7 @@ def track_changes(attributes, parent_attr=None):
     # monkey-patch class because inheritance will break SQLAlchemy
     def decorator(cls):
         _patch_setattr_method(cls, attributes)
-        _patch_record_changes_method(cls, parent_attr)
+        _patch_record_changes_method(cls, attributes, parent_attr)
         return cls
 
     return decorator
