@@ -9,6 +9,6 @@ export default function Editor({ type, ...otherProps }) {
 }
 
 Editor.propTypes = {
-  type: PropTypes.oneOf(Object.keys(registeredVisualizations)).isRequired,
+  type: PropTypes.string.isRequired,
   ...EditorPropTypes,
 };

@@ -51,7 +51,7 @@ export default function Renderer({
 }
 
 Renderer.propTypes = {
-  type: PropTypes.oneOf(Object.keys(registeredVisualizations)).isRequired,
+  type: PropTypes.string.isRequired,
   addonBefore: PropTypes.node,
   addonAfter: PropTypes.node,
   ...RendererPropTypes,
