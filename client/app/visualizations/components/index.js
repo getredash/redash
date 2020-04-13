@@ -1,5 +1,5 @@
 import Renderer from "./Renderer";
 import Editor from "./Editor";
-import { visualizationOptions, updateVisualizationOptions } from "./visualizationOptions";
+import { visualizationsSettings, updateVisualizationsSettings } from "./visualizationsSettings";
 
-export { Renderer, Editor, visualizationOptions, updateVisualizationOptions };
+export { Renderer, Editor, visualizationsSettings, updateVisualizationsSettings };

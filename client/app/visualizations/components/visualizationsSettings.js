@@ -3,7 +3,7 @@ import { extend } from "lodash";
 import Icon from "antd/lib/icon";
 import Tooltip from "antd/lib/tooltip";
 
-export const visualizationOptions = {
+export const visualizationsSettings = {
   NumberFormatSpecs: (
     <Tooltip
       title={
@@ -23,6 +23,6 @@ export const visualizationOptions = {
   ),
 };
 
-export function updateVisualizationOptions(options) {
-  extend(visualizationOptions, options);
+export function updateVisualizationsSettings(options) {
+  extend(visualizationsSettings, options);
 }
