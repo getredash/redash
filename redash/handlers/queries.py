@@ -260,6 +260,8 @@ class QueryListResource(BaseQueryListResource):
         models.db.session.commit()
 
         query.record_changes(self.current_user, models.Change.Type.Created)
+        for vis in query.visualizations:
+            vis.record_changes(self.current_user, models.Change.Type.Created)
         models.db.session.commit()
 
         self.record_event(
@@ -466,6 +468,8 @@ class QueryForkResource(BaseResource):
         models.db.session.commit()
 
         forked_query.record_changes(self.current_user, models.Change.Type.Created)
+        for vis in forked_query.visualizations:
+            vis.record_changes(self.current_user, models.Change.Type.Created)
         models.db.session.commit()
 
         self.record_event(
