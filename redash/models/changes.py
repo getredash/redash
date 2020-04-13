@@ -2,6 +2,7 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy_utils.models import generic_repr
 from sqlalchemy.orm import object_session
 
+from inspect import isclass
 from enum import Enum
 
 from .base import GFKBase, db, Column
@@ -129,7 +130,7 @@ def _patch_setattr_method(cls, attributes):
     cls.__setattr__ = new_setattr
 
 
-def _patch_record_changes_method(cls, attributes, parent_attr):
+def _patch_record_changes_method(cls, attributes, parent):
     def record_changes(self, changed_by, change_type=Change.Type.Modified):
         session = object_session(self)
         if not session:
@@ -144,32 +145,41 @@ def _patch_record_changes_method(cls, attributes, parent_attr):
         if changes is None:
             return
 
+        self_type = self.__table__.name
+        self_id = self.id
+
         changes = Change(
-            object=self,
+            object_type=self_type,
+            object_id=self_id,
             user=changed_by,
             change={
-                "object_type": self.__table__.name,
-                "object_id": self.id,
+                "object_type": self_type,
+                "object_id": self_id,
                 "change_type": change_type,
                 "changes": changes,
             },
         )
 
-        if parent_attr:
-            changes.object = getattr(self, parent_attr, self)
+        if parent:
+            parent_type, parent_id = parent
+            if isclass(parent_type):  # SQLAlchemy model
+                changes.object_type = parent_type.__table__.name
+            else:
+                changes.object_type = getattr(self, parent_type, self_type)
+            changes.object_id = getattr(self, parent_id, self_id)
 
         session.add(changes)
 
     cls.record_changes = record_changes
 
 
-def track_changes(attributes, parent_attr=None):
+def track_changes(attributes, parent=None):
     attributes = set(attributes) - {"id", "created_at", "updated_at", "version"}
 
     # monkey-patch class because inheritance will break SQLAlchemy
     def decorator(cls):
         _patch_setattr_method(cls, attributes)
-        _patch_record_changes_method(cls, attributes, parent_attr)
+        _patch_record_changes_method(cls, attributes, parent)
         return cls
 
     return decorator

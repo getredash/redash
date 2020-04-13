@@ -285,7 +285,9 @@ class DashboardShareResource(BaseResource):
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
         require_admin_or_owner(dashboard.user_id)
         api_key = models.ApiKey.create_for_object(dashboard, self.current_user)
-        models.db.session.flush()
+        models.db.session.commit()
+
+        api_key.record_changes(self.current_user, models.Change.Type.Created)
         models.db.session.commit()
 
         public_url = url_for(
@@ -318,6 +320,7 @@ class DashboardShareResource(BaseResource):
         if api_key:
             api_key.active = False
             models.db.session.add(api_key)
+            api_key.record_changes(self.current_user)
             models.db.session.commit()
 
         self.record_event(

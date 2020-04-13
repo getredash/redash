@@ -1174,7 +1174,7 @@ class Dashboard(TimestampMixin, BelongsToOrgMixin, db.Model):
 
 @generic_repr("id", "name", "type", "query_id")
 @track_changes(
-    parent_attr="query_rel",
+    parent=(Query, "query_id"),
     attributes=["type", "name", "description", "options"]
 )
 class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
@@ -1207,7 +1207,7 @@ class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
 
 @generic_repr("id", "visualization_id", "dashboard_id")
 @track_changes(
-    parent_attr="dashboard",
+    parent=(Dashboard, "dashboard_id"),
     attributes=["text", "visualization_id", "options"]
 )
 class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
@@ -1295,6 +1295,10 @@ class Event(db.Model):
 
 
 @generic_repr("id", "created_by_id", "org_id", "active")
+@track_changes(
+    parent=("object_type", "object_id"),
+    attributes=["api_key", "created_by_id", "active"]
+)
 class ApiKey(TimestampMixin, GFKBase, db.Model):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
