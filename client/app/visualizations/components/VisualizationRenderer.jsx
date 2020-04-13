@@ -57,11 +57,17 @@ export default function VisualizationRenderer(props) {
   const { showFilters, visualization } = props;
   const { Renderer, getOptions } = registeredVisualizations[visualization.type];
 
+  let options = getOptions(visualization.options, data);
+
+  // define pagination size based on context for Table visualization
+  if (visualization.type === "TABLE") {
+    options.paginationSize = props.context === "widget" ? "small" : "default";
+  }
+
   // Avoid unnecessary updates (which may be expensive or cause issues with
   // internal state of some visualizations like Table) - compare options deeply
   // and use saved reference if nothing changed
   // More details: https://github.com/getredash/redash/pull/3963#discussion_r306935810
-  let options = getOptions(visualization.options, data);
   if (isEqual(lastOptions.current, options)) {
     options = lastOptions.current;
   }
@@ -85,7 +91,6 @@ export default function VisualizationRenderer(props) {
             options={options}
             data={filteredData}
             visualizationName={visualization.name}
-            context={props.context}
           />
         </div>
       </ErrorBoundary>

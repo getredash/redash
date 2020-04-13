@@ -4,6 +4,7 @@ import { clientConfig } from "@/services/auth";
 
 const DEFAULT_OPTIONS = {
   itemsPerPage: 25,
+  paginationSize: "default", // not editable through Editor
 };
 
 function getColumnContentAlignment(type) {
