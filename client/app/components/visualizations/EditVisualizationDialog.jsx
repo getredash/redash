@@ -1,4 +1,4 @@
-import { isEqual, extend, map, sortBy, findIndex, filter, pick } from "lodash";
+import { isEqual, extend, map, sortBy, findIndex, filter, pick, omit } from "lodash";
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
@@ -125,7 +125,16 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
 
   function save() {
     setSaveInProgress(true);
-    const visualizationData = extend(newVisualization(type), visualization, { name, options, query_id: query.id });
+    let visualizationOptions = options;
+    if (type === "TABLE") {
+      visualizationOptions = omit(visualizationOptions, ["paginationSize"]);
+    }
+
+    const visualizationData = extend(newVisualization(type), visualization, {
+      name,
+      options: visualizationOptions,
+      query_id: query.id,
+    });
     saveVisualization(visualizationData).then(savedVisualization => {
       updateQueryVisualizations(query, savedVisualization);
       dialog.close(savedVisualization);

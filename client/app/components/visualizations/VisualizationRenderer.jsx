@@ -52,14 +52,20 @@ export default function VisualizationRenderer(props) {
 
   const { showFilters, visualization } = props;
 
+  let options = { ...visualization.options };
+
+  // define pagination size based on context for Table visualization
+  if (visualization.type === "TABLE") {
+    options.paginationSize = props.context === "widget" ? "small" : "default";
+  }
+
   return (
     <Renderer
       key={`visualization${visualization.id}`}
       type={visualization.type}
-      options={visualization.options}
+      options={options}
       data={filteredData}
       visualizationName={visualization.name}
-      context={props.context}
       addonBefore={showFilters && <Filters filters={filters} onChange={setFilters} />}
     />
   );

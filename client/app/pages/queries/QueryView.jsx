@@ -39,8 +39,9 @@ function QueryView(props) {
   const queryFlags = useQueryFlags(query, dataSource);
   const [parameters, areParametersDirty, updateParametersDirtyFlag] = useQueryParameters(query);
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
-  const isMobile = !useMedia({ minWidth: 768 });
-  const [fullscreen, toggleFullscreen] = useFullscreenHandler(!isMobile);
+  const isDesktop = useMedia({ minWidth: 768 });
+  const isFixedLayout = useMedia({ minHeight: 500 }) && isDesktop;
+  const [fullscreen, toggleFullscreen] = useFullscreenHandler(isDesktop);
   const [addingDescription, setAddingDescription] = useState(false);
 
   const {
@@ -85,7 +86,11 @@ function QueryView(props) {
   }, [query.data_source_id]);
 
   return (
-    <div className={cx("query-page-wrapper", { "query-view-fullscreen": fullscreen, "query-fixed-layout": !isMobile })}>
+    <div
+      className={cx("query-page-wrapper", {
+        "query-view-fullscreen": fullscreen,
+        "query-fixed-layout": isFixedLayout,
+      })}>
       <div className="container">
         <QueryPageHeader
           query={query}
