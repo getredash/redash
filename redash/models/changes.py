@@ -35,6 +35,8 @@ class Change(GFKBase, db.Model):
 
     id = Column(db.Integer, primary_key=True)
     # 'object' defined in GFKBase
+    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    org = db.relationship("Organization")
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship("User", backref="changes")
     change = Column(PseudoJSON)
@@ -47,7 +49,6 @@ class Change(GFKBase, db.Model):
             "id": self.id,
             "object_id": self.object_id,
             "object_type": self.object_type,
-            "change_type": self.change_type,
             "change": self.change,
             "created_at": self.created_at,
         }
@@ -59,6 +60,7 @@ class Change(GFKBase, db.Model):
 
         return d
 
+    # TODO: remove this method
     @classmethod
     def last_change(cls, obj):
         return (
@@ -68,6 +70,13 @@ class Change(GFKBase, db.Model):
             .order_by(cls.id.desc())
             .first()
         )
+
+    @classmethod
+    def get_by_object(cls, target):
+        return cls.query.filter(
+            cls.object_type == target.__table__.name,
+            cls.object_id == target.id,
+        ).order_by(cls.id.desc())
 
 
 def _get_object_changes(obj, reset=True):
@@ -151,6 +160,7 @@ def _patch_record_changes_method(cls, attributes, parent):
         changes = Change(
             object_type=self_type,
             object_id=self_id,
+            org=changed_by.org,
             user=changed_by,
             change={
                 "object_type": self_type,
