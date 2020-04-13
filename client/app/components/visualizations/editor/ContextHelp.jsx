@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Popover from "antd/lib/popover";
 import Tooltip from "antd/lib/tooltip";
 import Icon from "antd/lib/icon";
-import { visualizationsSettings } from "@/visualizations/components";
+import { visualizationsSettings } from "@/visualizations/components/visualizationsSettings";
 
 import "./context-help.less";
 

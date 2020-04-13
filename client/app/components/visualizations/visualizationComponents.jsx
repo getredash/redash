@@ -1,6 +1,7 @@
 import React from "react";
 import HelpTrigger from "@/components/HelpTrigger";
-import { Renderer, Editor, updateVisualizationsSettings } from "@/visualizations/components";
+import { Renderer, Editor } from "@/visualizations/components";
+import { updateVisualizationsSettings } from "@/visualizations/components/visualizationsSettings";
 import { ContextHelp } from "@/components/visualizations/editor";
 
 const NumberFormatSpecs = (
