@@ -17,7 +17,6 @@ class Change(GFKBase, db.Model):
 
     id = Column(db.Integer, primary_key=True)
     # 'object' defined in GFKBase
-    object_version = Column(db.Integer, default=0)
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship("User", backref="changes")
     change = Column(PseudoJSON)
@@ -31,7 +30,6 @@ class Change(GFKBase, db.Model):
             "object_id": self.object_id,
             "object_type": self.object_type,
             "change_type": self.change_type,
-            "object_version": self.object_version,
             "change": self.change,
             "created_at": self.created_at,
         }
@@ -49,7 +47,7 @@ class Change(GFKBase, db.Model):
             cls.query.filter(
                 cls.object_id == obj.id, cls.object_type == obj.__class__.__tablename__
             )
-            .order_by(cls.object_version.desc())
+            .order_by(cls.id.desc())
             .first()
         )
 
@@ -107,7 +105,6 @@ def _patch_record_changes_method(cls, parent_attr):
 
         changes = Change(
             object=self,
-            object_version=getattr(self, "version", None),
             user=changed_by,
             change={
                 "object_type": self.__table__.name,
@@ -119,7 +116,6 @@ def _patch_record_changes_method(cls, parent_attr):
 
         if parent_attr:
             changes.object = getattr(self, parent_attr, self)
-            changes.object_version = getattr(changes.object, "version", None),
 
         session.add(changes)
 
