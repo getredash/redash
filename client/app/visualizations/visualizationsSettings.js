@@ -34,6 +34,14 @@ HelpTrigger.defaultValues = {
 
 export const visualizationsSettings = {
   HelpTriggerComponent: HelpTrigger,
+  dateFormat: "DD/MM/YYYY",
+  dateTimeFormat: "DD/MM/YYYY HH:mm",
+  integetFormat: "0,0",
+  floatFormat: "0,0.00",
+  booleanValues: ["false", "true"],
+  tableCellMaxJSONSize: 50000,
+  allowCustomJSVisualization: false,
+  hidePlotlyModeBar: false,
 };
 
 export function updateVisualizationsSettings(options) {

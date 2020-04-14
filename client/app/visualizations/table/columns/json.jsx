@@ -1,12 +1,12 @@
 import { isString, isUndefined } from "lodash";
 import React from "react";
 import JsonViewInteractive from "@/components/json-view-interactive/JsonViewInteractive";
-import { clientConfig } from "@/services/auth";
+import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 export default function initJsonColumn(column) {
   function prepareData(row) {
     const text = row[column.name];
-    if (isString(text) && text.length <= clientConfig.tableCellMaxJSONSize) {
+    if (isString(text) && text.length <= visualizationsSettings.tableCellMaxJSONSize) {
       try {
         return { text, value: JSON.parse(text) };
       } catch (e) {
