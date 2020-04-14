@@ -12,7 +12,10 @@ import recordEvent from "@/services/recordEvent";
 import getQueryResultData from "@/lib/getQueryResultData";
 import { VisualizationType } from "@/visualizations/prop-types";
 import { Renderer, Editor } from "@/components/visualizations/visualizationComponents";
-import registeredVisualizations, { getDefaultVisualization, newVisualization } from "@/visualizations";
+import registeredVisualizations, {
+  getDefaultVisualization,
+  newVisualization,
+} from "@/visualizations/registeredVisualizations";
 
 import "./EditVisualizationDialog.less";
 

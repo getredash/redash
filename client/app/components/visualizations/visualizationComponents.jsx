@@ -1,6 +1,6 @@
 import HelpTrigger from "@/components/HelpTrigger";
-import { Renderer, Editor } from "@/visualizations/components";
-import { updateVisualizationsSettings } from "@/visualizations/components/visualizationsSettings";
+import { Renderer, Editor } from "@/visualizations";
+import { updateVisualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 updateVisualizationsSettings({ HelpTriggerComponent: HelpTrigger });
 

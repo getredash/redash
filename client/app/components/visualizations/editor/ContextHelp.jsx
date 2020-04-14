@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Popover from "antd/lib/popover";
 import Icon from "antd/lib/icon";
-import { visualizationsSettings } from "@/visualizations/components/visualizationsSettings";
+import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 import "./context-help.less";
 

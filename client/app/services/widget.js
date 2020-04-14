@@ -4,7 +4,7 @@ import { each, pick, extend, isObject, truncate, keys, difference, filter, map, 
 import location from "@/services/location";
 import { cloneParameter } from "@/services/parameters";
 import dashboardGridOptions from "@/config/dashboard-grid-options";
-import registeredVisualizations from "@/visualizations";
+import registeredVisualizations from "@/visualizations/registeredVisualizations";
 import { Query } from "./query";
 
 export const WidgetTypeEnum = {
