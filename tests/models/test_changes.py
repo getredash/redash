@@ -4,6 +4,7 @@ from redash.models import db, Change
 
 
 class BaseChangeTestCase(BaseTestCase):
+    # updates an object and returns changes in the same form as they're stored in DB
     def _update_object(self, obj, new_values):
         result = {}
         for key, new_value in new_values.items():
@@ -18,7 +19,6 @@ class BaseChangeTestCase(BaseTestCase):
     def _record_changes(self, obj, change_type=Change.Type.Modified):
         obj.record_changes(self.factory.user, change_type)
         db.session.commit()
-        db.session.flush()
 
     def _get_changes_by_object(self, obj, expected_count=None):
         changes = list(Change.get_by_object(obj))
@@ -54,6 +54,7 @@ class BaseChangeTestCase(BaseTestCase):
         change = changes[0]
         self._assert_change_ownership(change, target, parent)
 
+        # this will also check if only modified fields were stored to DB
         self.assertDictEqual(change.change["changes"], updates)
 
     def _test_deletion(self, target, parent):
@@ -65,6 +66,7 @@ class BaseChangeTestCase(BaseTestCase):
         change = changes[0]
         self._assert_change_ownership(change, target, parent)
 
+        # when deleting an object, no changes are logged, just a fact of deletion
         self.assertDictEqual(change.change["changes"], {})
 
 
