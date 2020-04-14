@@ -79,7 +79,7 @@ describe("Choropleth", () => {
       .check({ force: true });
 
     // Wait for proper initialization of visualization
-    cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId("VisualizationPreview")
       .find(".map-visualization-container.leaflet-container")
       .should("exist");
