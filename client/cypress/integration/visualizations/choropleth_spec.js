@@ -85,6 +85,7 @@ describe("Choropleth", () => {
     cy.getByTestId("VisualizationPreview")
       .find(".map-visualization-container.leaflet-container")
       .should("exist");
-    cy.percySnapshot("Visualizations - Choropleth", { widths: [viewportWidth] });
+    // The following has a very high error rate and therefore disabled.
+    // cy.percySnapshot("Visualizations - Choropleth", { widths: [viewportWidth] });
   });
 });
