@@ -1,4 +1,4 @@
-/* global cy, Cypress */
+/* global cy */
 
 import { createQuery } from "../../support/redash-api";
 
