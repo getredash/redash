@@ -187,6 +187,7 @@ class VisualizationWidget extends React.Component {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     filters: FiltersType,
     isPublic: PropTypes.bool,
+    isLoading: PropTypes.bool,
     canEdit: PropTypes.bool,
     onLoad: PropTypes.func,
     onRefresh: PropTypes.func,
@@ -197,6 +198,7 @@ class VisualizationWidget extends React.Component {
   static defaultProps = {
     filters: [],
     isPublic: false,
+    isLoading: false,
     canEdit: false,
     onLoad: () => {},
     onRefresh: () => {},
@@ -236,8 +238,8 @@ class VisualizationWidget extends React.Component {
   };
 
   renderVisualization() {
-    const { widget, filters } = this.props;
-    const widgetQueryResult = widget.getQueryResult();
+    const { isLoading, widget, filters } = this.props;
+    const widgetQueryResult = !isLoading && widget.getQueryResult();
     const widgetStatus = widgetQueryResult && widgetQueryResult.getStatus();
     switch (widgetStatus) {
       case "failed":
@@ -273,10 +275,10 @@ class VisualizationWidget extends React.Component {
   }
 
   render() {
-    const { widget, isPublic, canEdit, onRefresh } = this.props;
+    const { widget, isLoading, isPublic, canEdit, onRefresh } = this.props;
     const { localParameters } = this.state;
     const widgetQueryResult = widget.getQueryResult();
-    const isRefreshing = widget.loading && !!(widgetQueryResult && widgetQueryResult.getStatus());
+    const isRefreshing = isLoading && !!(widgetQueryResult && widgetQueryResult.getStatus());
 
     return (
       <Widget

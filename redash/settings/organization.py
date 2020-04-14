@@ -43,6 +43,9 @@ FEATURE_SHOW_PERMISSIONS_CONTROL = parse_boolean(
 SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = parse_boolean(
     os.environ.get("REDASH_SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES", "false")
 )
+HIDE_PLOTLY_MODE_BAR = parse_boolean(
+    os.environ.get("HIDE_PLOTLY_MODE_BAR", "false")
+)
 
 settings = {
     "beacon_consent": None,
@@ -65,4 +68,5 @@ settings = {
     "auth_jwt_auth_header_name": JWT_AUTH_HEADER_NAME,
     "feature_show_permissions_control": FEATURE_SHOW_PERMISSIONS_CONTROL,
     "send_email_on_failed_scheduled_queries": SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES,
+    "hide_plotly_mode_bar": HIDE_PLOTLY_MODE_BAR,
 }
