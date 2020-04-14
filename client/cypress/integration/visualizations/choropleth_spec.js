@@ -83,7 +83,7 @@ describe("Choropleth", () => {
     cy.getByTestId("VisualizationPreview")
       .find(".map-visualization-container.leaflet-container")
       .should("exist");
-    
+
     // This is unstable and therefore disabled until a better solution is available.
     // const viewportWidth = Cypress.config("viewportWidth");
     // cy.percySnapshot("Visualizations - Choropleth", { widths: [viewportWidth] });
