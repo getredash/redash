@@ -1,5 +1,6 @@
 import { isString, each, extend, includes, map, reduce } from "lodash";
 import d3 from "d3";
+import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
 import { ColorPaletteArray } from "@/visualizations/ColorPalette";
 
 import { cleanNumber, normalizeValue } from "./utils";
@@ -64,6 +65,9 @@ function prepareSeries(series, options, additionalOptions) {
     });
   });
 
+  const markerColors = map(series.data, row => getValueColor(row.x));
+  const textColors = map(markerColors, c => chooseTextColorForBackground(c));
+
   return {
     visible: true,
     values,
@@ -71,16 +75,14 @@ function prepareSeries(series, options, additionalOptions) {
     type: "pie",
     hole: 0.4,
     marker: {
-      colors: map(series.data, row => getValueColor(row.x)),
+      colors: markerColors,
     },
     hoverinfo: hoverInfoPattern,
     text: [],
     textinfo: options.showDataLabels ? "percent" : "none",
     textposition: "inside",
     textfont: {
-      // In Plotly@1.42.0 and upper this options can be set to array of colors (similar to `marker.colors`):
-      // `colors: map(markerColors, c => chooseTextColorForBackground(c))`
-      color: "#ffffff",
+      color: textColors,
     },
     name: seriesOptions.name || series.name,
     direction: options.direction.type,
