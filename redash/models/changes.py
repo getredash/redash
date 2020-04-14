@@ -128,7 +128,7 @@ def _patch_setattr_method(cls, attributes):
             if not hasattr(self, "__changes__"):
                 self.__changes__ = {}
             change = self.__changes__.get(key, {
-                "previous": getattr(self, key),
+                "previous": getattr(self, key, None),
                 "current": None,
             })
             change["current"] = value
@@ -137,6 +137,15 @@ def _patch_setattr_method(cls, attributes):
         original_setattr(self, key, value)
 
     cls.__setattr__ = new_setattr
+
+
+def _patch_clear_detected_changes_method(cls):
+    def clear_detected_changes(self):
+        changes = getattr(self, "__changes__", None)
+        if changes:
+            changes.clear()
+
+    cls.clear_detected_changes = clear_detected_changes
 
 
 def _patch_record_changes_method(cls, attributes, parent):
@@ -190,6 +199,7 @@ def track_changes(attributes, parent=None):
     def decorator(cls):
         _patch_setattr_method(cls, attributes)
         _patch_record_changes_method(cls, attributes, parent)
+        _patch_clear_detected_changes_method(cls)
         return cls
 
     return decorator
