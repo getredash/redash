@@ -9,10 +9,7 @@
       "showDataLabels": true,
       "direction": { "type": "counterclockwise" },
       "xAxis": { "type": "-", "labels": { "enabled": true } },
-      "yAxis": [
-        { "type": "linear" },
-        { "type": "linear", "opposite": true }
-      ],
+      "yAxis": [{ "type": "linear" }, { "type": "linear", "opposite": true }],
       "series": { "stacking": null, "error_y": { "type": "data", "visible": true } }
     },
     "data": [
@@ -43,7 +40,7 @@
         "text": ["15% (30)", "15% (30)", "15% (30)", "15% (30)"],
         "textinfo": "percent",
         "textposition": "inside",
-        "textfont": { "color": "#ffffff" },
+        "textfont": { "color": ["#ffffff", "#ffffff", "#333333", "#ffffff"] },
         "name": "a",
         "direction": "counterclockwise",
         "domain": { "x": [0, 0.98], "y": [0, 0.9] }
