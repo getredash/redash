@@ -215,7 +215,6 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
               options={options}
               visualizationName={name}
               onOptionsChange={onOptionsChanged}
-              context="query"
             />
           </div>
         </div>
