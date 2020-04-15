@@ -21,7 +21,7 @@ class BaseChangeTestCase(BaseTestCase):
         db.session.commit()
 
     def _get_changes_by_object(self, obj, expected_count=None):
-        changes = list(Change.get_by_object(obj))
+        changes = list(Change.get_by_object(obj, self.factory.org))
         if expected_count is not None:
             self.assertEquals(len(changes), expected_count, "Expected %i change(s)" % expected_count)
         return changes
@@ -144,3 +144,44 @@ class TestApiKeyChanges(BaseChangeTestCase):
         dashboard = self.factory.create_dashboard()
         api_key = self.factory.create_api_key(object=dashboard, active=True)
         self._test_deletion(api_key, dashboard)
+
+
+class TestNotificationDestinationChanges(BaseChangeTestCase):
+    def test_creation(self):
+        destination = self.factory.create_destination()
+        self._test_creation(destination, destination)
+
+    def test_modification(self):
+        destination = self.factory.create_destination()
+        self._test_modification(destination, destination, {"name": "New Name"})
+
+    def test_deletion(self):
+        destination = self.factory.create_destination()
+        self._test_deletion(destination, destination)
+
+
+class TestAlertChanges(BaseChangeTestCase):
+    def test_creation(self):
+        alert = self.factory.create_alert()
+        self._test_creation(alert, alert)
+
+    def test_modification(self):
+        alert = self.factory.create_alert()
+        self._test_modification(alert, alert, {"name": "New Name"})
+
+    def test_deletion(self):
+        alert = self.factory.create_alert()
+        self._test_deletion(alert, alert)
+
+
+# Alert subscriptions can only be added and removed, so not testing for modifications
+class TestAlertSubscriptionChanges(BaseChangeTestCase):
+    def test_creation(self):
+        alert = self.factory.create_alert()
+        subscription = self.factory.create_alert_subscription(alert=alert)
+        self._test_creation(subscription, alert)
+
+    def test_deletion(self):
+        alert = self.factory.create_alert()
+        subscription = self.factory.create_alert_subscription(alert=alert)
+        self._test_deletion(subscription, alert)

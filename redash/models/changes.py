@@ -5,6 +5,8 @@ from sqlalchemy.orm import object_session
 from inspect import isclass
 from enum import Enum
 
+from redash.utils.configuration import ConfigurationContainer
+
 from .base import GFKBase, db, Column
 from .types import PseudoJSON
 
@@ -73,6 +75,12 @@ class Change(GFKBase, db.Model):
         ).order_by(cls.id.desc())
 
 
+def _to_json(value):
+    if isinstance(value, ConfigurationContainer):
+        return value.to_json()
+    return value
+
+
 def _get_object_changes(obj, reset=True):
     result = {}
     changes = getattr(obj, "__changes__", None)
@@ -86,7 +94,7 @@ def _get_object_changes(obj, reset=True):
         for key, change in changes.items():
             if change["current"] != change["previous"]:
                 col = columns.get(key, key)
-                result[col] = (change["previous"], change["current"])
+                result[col] = (_to_json(change["previous"]), _to_json(change["current"]))
 
         if reset:
             changes.clear()
@@ -105,7 +113,7 @@ def _collect_all_attributes(obj, attributes, reset=True):
     for key in attributes:
         col = columns.get(key, key)
         value = getattr(obj, key, None)
-        result[col] = (value,)
+        result[col] = (_to_json(value),)
 
     changes = getattr(obj, "__changes__", None)
     if changes and reset:

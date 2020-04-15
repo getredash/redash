@@ -951,6 +951,7 @@ def next_state(op, value, threshold):
 @generic_repr(
     "id", "name", "query_id", "user_id", "state", "last_triggered_at", "rearm"
 )
+@track_changes(attributes=("name", "query_id", "options", "rearm"))
 class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     UNKNOWN_STATE = "unknown"
     OK_STATE = "ok"
@@ -1334,6 +1335,7 @@ class ApiKey(TimestampMixin, GFKBase, db.Model):
 
 
 @generic_repr("id", "name", "type", "user_id", "org_id", "created_at")
+@track_changes(attributes=("name", "type", "options"))
 class NotificationDestination(BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
@@ -1391,6 +1393,10 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
 
 
 @generic_repr("id", "user_id", "destination_id", "alert_id")
+@track_changes(
+    parent=(Alert, "alert_id"),
+    attributes=("destination_id",)
+)
 class AlertSubscription(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
