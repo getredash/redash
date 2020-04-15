@@ -51,6 +51,7 @@ class DestinationResource(BaseResource):
             destination.options.set_schema(schema)
             destination.options.update(req["options"])
             models.db.session.add(destination)
+            destination.record_changes(self.current_user, models.Change.Type.Modified)
             models.db.session.commit()
         except ValidationError:
             abort(400)
@@ -71,6 +72,7 @@ class DestinationResource(BaseResource):
         destination = models.NotificationDestination.get_by_id_and_org(
             destination_id, self.current_org
         )
+        destination.record_changes(self.current_user, models.Change.Type.Deleted)
         models.db.session.delete(destination)
         models.db.session.commit()
 
@@ -130,6 +132,8 @@ class DestinationListResource(BaseResource):
 
         try:
             models.db.session.add(destination)
+            models.db.session.commit()
+            destination.record_changes(self.current_user, models.Change.Type.Created)
             models.db.session.commit()
         except IntegrityError as e:
             if "name" in str(e):

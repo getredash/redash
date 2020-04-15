@@ -1,6 +1,7 @@
 from sqlalchemy.inspection import inspect
 from sqlalchemy_utils.models import generic_repr
 from sqlalchemy.orm import object_session
+from sqlalchemy.ext.mutable import MutableBase
 
 from inspect import isclass
 from enum import Enum
@@ -24,8 +25,9 @@ from .types import PseudoJSON
 #   to that visualization, and object_type/object_id will be the reference to a query for this visualization.
 # changes.changes
 #   a dictionary where keys are names of modified fields and values are tuples with field values.
-#   Tuple may contain one value if field wasn't changes, or two values - previous and new one. In both cases
-#   tuple is used to avoid situations when field contains an JSON array and may be wrongly interpreted.
+#   Tuple may contain one value if field wasn't changes OR if value was mutated (MutableDict/List/Set),
+#   or two values - previous and new one. In both cases tuple is used to avoid situations when field
+#   contains an JSON array and may be wrongly interpreted.
 
 
 @generic_repr("id", "object_type", "object_id", "created_at")
@@ -77,8 +79,26 @@ class Change(GFKBase, db.Model):
 
 def _to_json(value):
     if isinstance(value, ConfigurationContainer):
-        return value.to_json()
+        return value.to_dict()
     return value
+
+
+def _detect_mutations(obj, attributes):
+    if not hasattr(obj, "__changes__"):
+        obj.__changes__ = {}
+
+    state = inspect(obj)
+    for key in attributes:
+        value = getattr(obj, key, None)
+        if isinstance(value, MutableBase):
+            attr = getattr(state.attrs, key, None)
+            if attr:
+                attr.load_history()
+                if attr.history and attr.history.has_changes():
+                    obj.__changes__[key] = {
+                        "previous": value,
+                        "current": value,
+                    }
 
 
 def _get_object_changes(obj, reset=True):
@@ -95,6 +115,9 @@ def _get_object_changes(obj, reset=True):
             if change["current"] != change["previous"]:
                 col = columns.get(key, key)
                 result[col] = (_to_json(change["previous"]), _to_json(change["current"]))
+            elif isinstance(change["current"], MutableBase):
+                col = columns.get(key, key)
+                result[col] = (_to_json(change["current"]),)
 
         if reset:
             changes.clear()
@@ -160,6 +183,7 @@ def _patch_record_changes_method(cls, attributes, parent):
         if change_type == Change.Type.Created:
             changes = _collect_all_attributes(self, attributes)
         if change_type == Change.Type.Modified:
+            _detect_mutations(self, attributes)
             changes = _get_object_changes(self)
 
         if changes is None:

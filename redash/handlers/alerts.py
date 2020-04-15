@@ -1,5 +1,3 @@
-import time
-
 from flask import request
 from funcy import project
 
@@ -12,7 +10,6 @@ from redash.permissions import (
     require_permission,
     view_only,
 )
-from redash.utils import json_dumps
 
 
 class AlertResource(BaseResource):
@@ -35,6 +32,7 @@ class AlertResource(BaseResource):
         require_admin_or_owner(alert.user.id)
 
         self.update_model(alert, params)
+        alert.record_changes(self.current_user, models.Change.Type.Modified)
         models.db.session.commit()
 
         self.record_event(
@@ -48,6 +46,7 @@ class AlertResource(BaseResource):
             models.Alert.get_by_id_and_org, alert_id, self.current_org
         )
         require_admin_or_owner(alert.user_id)
+        alert.record_changes(self.current_user, models.Change.Type.Deleted)
         models.db.session.delete(alert)
         models.db.session.commit()
 
@@ -60,6 +59,7 @@ class AlertMuteResource(BaseResource):
         require_admin_or_owner(alert.user.id)
 
         alert.options["muted"] = True
+        alert.record_changes(self.current_user, models.Change.Type.Modified)
         models.db.session.commit()
 
         self.record_event(
@@ -73,6 +73,7 @@ class AlertMuteResource(BaseResource):
         require_admin_or_owner(alert.user.id)
 
         alert.options["muted"] = False
+        alert.record_changes(self.current_user, models.Change.Type.Modified)
         models.db.session.commit()
 
         self.record_event(
@@ -97,7 +98,9 @@ class AlertListResource(BaseResource):
         )
 
         models.db.session.add(alert)
-        models.db.session.flush()
+        models.db.session.commit()
+
+        alert.record_changes(self.current_user, models.Change.Type.Created)
         models.db.session.commit()
 
         self.record_event(
@@ -133,6 +136,9 @@ class AlertSubscriptionListResource(BaseResource):
         models.db.session.add(subscription)
         models.db.session.commit()
 
+        subscription.record_changes(self.current_user, models.Change.Type.Created)
+        models.db.session.commit()
+
         self.record_event(
             {
                 "action": "subscribe",
@@ -158,6 +164,7 @@ class AlertSubscriptionResource(BaseResource):
     def delete(self, alert_id, subscriber_id):
         subscription = models.AlertSubscription.query.get_or_404(subscriber_id)
         require_admin_or_owner(subscription.user.id)
+        subscription.record_changes(self.current_user, models.Change.Type.Deleted)
         models.db.session.delete(subscription)
         models.db.session.commit()
 
