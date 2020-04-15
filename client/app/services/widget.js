@@ -18,7 +18,7 @@ function calculatePositionOptions(widget) {
 
   const visualizationOptions = {
     autoHeight: false,
-    sizeX: Math.round(dashboardGridOptions.columns / 2) * 2,
+    sizeX: Math.round(dashboardGridOptions.columns / 2),
     sizeY: dashboardGridOptions.defaultSizeY,
     minSizeX: dashboardGridOptions.minSizeX,
     maxSizeX: dashboardGridOptions.maxSizeX,
