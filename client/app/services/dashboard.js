@@ -79,7 +79,7 @@ function prepareWidgetsForDashboard(widgets) {
 }
 
 function calculateNewWidgetPosition(existingWidgets, newWidget, use12Cols) {
-  const [gridOptions, xAxisMultiplier] = use12Cols ? [dashboard12ColGridOptions, 2] : [dashboardGridOptions, 1];
+  const gridOptions = use12Cols ? dashboard12ColGridOptions : dashboardGridOptions;
   const width = _.extend({ sizeX: gridOptions.defaultSizeX }, _.extend({}, newWidget.options).position).sizeX;
 
   // Find first free row for each column
