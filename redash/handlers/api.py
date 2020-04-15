@@ -83,6 +83,12 @@ from redash.handlers.visualizations import (
     VisualizationResource,
 )
 from redash.handlers.widgets import WidgetListResource, WidgetResource
+from redash.handlers.changes import (
+    ChangesListResource,
+    QueryChangesListResource,
+    DashboardChangesListResource,
+    AlertChangesListResource,
+)
 from redash.utils import json_dumps
 
 
@@ -313,3 +319,10 @@ api.add_org_resource(
 api.add_org_resource(
     OrganizationSettings, "/api/settings/organization", endpoint="organization_settings"
 )
+
+api.add_org_resource(ChangesListResource, "/api/changes", endpoint="organization_changes")
+api.add_org_resource(QueryChangesListResource, "/api/queries/<query_id>/changes", endpoint="query_changes")
+api.add_org_resource(
+    DashboardChangesListResource, "/api/dashboards/<dashboard_id>/changes", endpoint="dashboard_changes"
+)
+api.add_org_resource(AlertChangesListResource, "/api/alerts/<alert_id>/changes", endpoint="alert_changes")

@@ -36,7 +36,7 @@ class Change(GFKBase, db.Model):
     id = Column(db.Integer, primary_key=True)
     # 'object' defined in GFKBase
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
-    org = db.relationship("Organization")
+    org = db.relationship("Organization", backref="changes")
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship("User", backref="changes")
     change = Column(PseudoJSON)
@@ -60,22 +60,16 @@ class Change(GFKBase, db.Model):
 
         return d
 
-    # TODO: remove this method
     @classmethod
-    def last_change(cls, obj):
-        return (
-            cls.query.filter(
-                cls.object_id == obj.id, cls.object_type == obj.__class__.__tablename__
-            )
-            .order_by(cls.id.desc())
-            .first()
-        )
+    def all_changes(cls, org):
+        return cls.query.filter(cls.org == org).order_by(cls.id.desc())
 
     @classmethod
-    def get_by_object(cls, target):
+    def get_by_object(cls, target_object, org):
         return cls.query.filter(
-            cls.object_type == target.__table__.name,
-            cls.object_id == target.id,
+            cls.org == org,
+            cls.object_type == target_object.__table__.name,
+            cls.object_id == target_object.id,
         ).order_by(cls.id.desc())
 
 
