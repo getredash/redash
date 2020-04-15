@@ -23,6 +23,11 @@ function DashboardSettings({ dashboardOptions }) {
         onChange={({ target }) => updateDashboard({ dashboard_filters_enabled: target.checked })}>
         Use Dashboard Level Filters
       </Checkbox>
+      <Checkbox
+        checked={!!dashboard.use_12_column_layout}
+        onChange={({ target }) => updateDashboard({ use_12_column_layout: target.checked })}>
+        Use 12-column layout
+      </Checkbox>
     </div>
   );
 }

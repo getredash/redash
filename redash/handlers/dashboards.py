@@ -128,6 +128,7 @@ class DashboardResource(BaseResource):
         :>json string updated_at: ISO format timestamp for last dashboard modification
         :>json number version: Revision number of dashboard
         :>json boolean dashboard_filters_enabled: Whether filters are enabled or not
+        :>json booleann use_12_column_layout: Whether to use 12-column layout or not
         :>json boolean is_archived: Whether this dashboard has been removed from the index or not
         :>json boolean is_draft: Whether this dashboard is a draft or not.
         :>json array layout: Array of arrays containing widget IDs, corresponding to the rows and columns the widgets are displayed in
@@ -199,6 +200,7 @@ class DashboardResource(BaseResource):
                 "is_draft",
                 "is_archived",
                 "dashboard_filters_enabled",
+                "use_12_column_layout"
             ),
         )
 

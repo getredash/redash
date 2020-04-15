@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { axios } from "@/services/axios";
-import dashboardGridOptions from "@/config/dashboard-grid-options";
+import dashboardGridOptions, { dashboard12ColGridOptions } from "@/config/dashboard-grid-options";
 import Widget from "./widget";
 import { currentUser } from "@/services/auth";
 import location from "@/services/location";
@@ -78,8 +78,9 @@ function prepareWidgetsForDashboard(widgets) {
   return widgets;
 }
 
-function calculateNewWidgetPosition(existingWidgets, newWidget) {
-  const width = _.extend({ sizeX: dashboardGridOptions.defaultSizeX }, _.extend({}, newWidget.options).position).sizeX;
+function calculateNewWidgetPosition(existingWidgets, newWidget, use12Cols) {
+  const [gridOptions, xAxisMultiplier] = use12Cols ? [dashboard12ColGridOptions, 2] : [dashboardGridOptions, 1];
+  const width = _.extend({ sizeX: gridOptions.defaultSizeX }, _.extend({}, newWidget.options).position).sizeX;
 
   // Find first free row for each column
   const bottomLine = _.chain(existingWidgets)
@@ -102,13 +103,13 @@ function calculateNewWidgetPosition(existingWidgets, newWidget) {
         result[i] = Math.max(result[i], item.bottom);
       }
       return result;
-    }, _.map(new Array(dashboardGridOptions.columns), _.constant(0)))
+    }, _.map(new Array(gridOptions.columns), _.constant(0)))
     .value();
 
   // Go through columns, pick them by count necessary to hold new block,
   // and calculate bottom-most free row per group.
   // Choose group with the top-most free row (comparing to other groups)
-  return _.chain(_.range(0, dashboardGridOptions.columns - width + 1))
+  return _.chain(_.range(0, gridOptions.columns - width + 1))
     .map(col => ({
       col,
       row: _.chain(bottomLine)
@@ -227,7 +228,7 @@ Dashboard.prototype.addWidget = function addWidget(textOrVisualization, options 
 
   const widget = new Widget(props);
 
-  const position = calculateNewWidgetPosition(this.widgets, widget);
+  const position = calculateNewWidgetPosition(this.widgets, widget, this.use_12_column_layout);
   widget.options.position.col = position.col;
   widget.options.position.row = position.row;
 

@@ -5,7 +5,7 @@ import cx from "classnames";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { VisualizationWidget, TextboxWidget, RestrictedWidget } from "@/components/dashboards/dashboard-widget";
 import { FiltersType } from "@/components/Filters";
-import cfg from "@/config/dashboard-grid-options";
+import cfg, { dashboard12ColGridOptions as cfg12 } from "@/config/dashboard-grid-options";
 import AutoHeightController from "./AutoHeightController";
 import { WidgetTypeEnum } from "@/services/widget";
 
@@ -131,10 +131,12 @@ class DashboardGrid extends React.Component {
 
   constructor(props) {
     super(props);
-
+  
+    const currentCfg = this.props.dashboard.use_12_column_layout ? cfg12 : cfg;
     this.state = {
       layouts: {},
       disableAnimations: true,
+      cfg: currentCfg
     };
 
     // init AutoHeightController
@@ -143,6 +145,7 @@ class DashboardGrid extends React.Component {
   }
 
   componentDidMount() {
+    this.onColumnCountChange(this.props.dashboard.use_12_column_layout);
     this.onBreakpointChange(document.body.offsetWidth <= cfg.mobileBreakPoint ? SINGLE : MULTI);
     // Work-around to disable initial animation on widgets; `measureBeforeMount` doesn't work properly:
     // it disables animation, but it cannot detect scrollbars.
@@ -151,9 +154,26 @@ class DashboardGrid extends React.Component {
     }, 50);
   }
 
-  componentDidUpdate() {
+  onColumnCountChange(use12) {
+    const editGrid = document.getElementsByClassName("dashboard-wrapper")[0]
+      
+    if (editGrid) {
+      // use CSS attribute to change background grid while editing dashboard
+      const columnsCountAttribute = document.createAttribute('columns-count');
+      columnsCountAttribute.value = use12 ? 12 : 6;
+      editGrid.attributes.setNamedItem(columnsCountAttribute);
+      this.setState({ cfg: use12 ? cfg12 : cfg });
+    }
+  }
+
+  componentDidUpdate(prevProps) {
     // update, in case widgets added or removed
     this.autoHeightCtrl.update(this.props.widgets);
+
+    // listen to changes of columns layout
+    if (prevProps.dashboard.use_12_column_layout !== this.props.dashboard.use_12_column_layout) {
+      this.onColumnCountChange(this.props.dashboard.use_12_column_layout);
+    }
   }
 
   componentWillUnmount() {
@@ -239,7 +259,7 @@ class DashboardGrid extends React.Component {
       <div className={className}>
         <ResponsiveGridLayout
           className={cx("layout", { "disable-animations": this.state.disableAnimations })}
-          cols={{ [MULTI]: cfg.columns, [SINGLE]: 1 }}
+          cols={{ [MULTI]: this.state.cfg.columns, [SINGLE]: 1 }}
           rowHeight={cfg.rowHeight - cfg.margins}
           margin={[cfg.margins, cfg.margins]}
           isDraggable={this.props.isEditing}

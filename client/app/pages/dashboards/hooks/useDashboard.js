@@ -199,7 +199,7 @@ function useDashboard(dashboardData) {
   // reload dashboard when filter option changes
   useEffect(() => {
     loadDashboard();
-  }, [dashboard.dashboard_filters_enabled]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dashboard.dashboard_filters_enabled, dashboard.use_12_column_layout]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     dashboard,
