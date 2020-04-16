@@ -4,7 +4,7 @@ impyla==0.16.0
 influxdb==5.2.3
 mysqlclient==1.3.14
 oauth2client==4.1.3
-pyhive==0.6.2
+pyhive==0.6.3 # TODO: This needs to be updated to match the version that this fix is included in. Should not be merged until then.
 pymongo[tls,srv]==3.9.0
 vertica-python==0.9.5
 td-client==1.0.0

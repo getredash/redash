@@ -99,16 +99,16 @@ class Presto(BaseQueryRunner):
 
     def run_query(self, query, user):
         enable_user_impersonation = self.configuration.get("user_impersonation")
-        principle_username = None
+        principal_username = None
         if enable_user_impersonation and user is not None:
-            principle_username = user.email.split('@')[0]
+            principal_username = user.email.split('@')[0]
 
         connection = presto.connect(
             host=self.configuration.get("host", ""),
             port=self.configuration.get("port", 8080),
             protocol=self.configuration.get("protocol", "http"),
             username=self.configuration.get("username", "redash"),
-            principle_username=principle_username,
+            principal_username=principal_username,
             password=(self.configuration.get("password") or None),
             catalog=self.configuration.get("catalog", "hive"),
             schema=self.configuration.get("schema", "default"),
