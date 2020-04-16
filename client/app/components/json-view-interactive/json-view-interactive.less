@@ -1,8 +1,14 @@
-@import (reference, less) "~bootstrap/less/variables.less";
-@import (reference, less) "~@/assets/less/main.less";
-
+@blue: #2196f3;
+@green: #4caf50;
+@orange: #ff9800;
+@text-color: #595959;
+@text-muted: #828282;
+@table-border-color: #f0f0f0;
 @jvi-gutter: 20px;
 @jvi-spacing: 2px;
+@font-family-monospace: Menlo, Monaco, Consolas, "Courier New", monospace;
+@redash-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue",
+  sans-serif;
 
 .jvi-root {
   display: block;
@@ -60,7 +66,7 @@
   color: @text-color;
 
   &.jvi-string {
-    color: @state-success-text;
+    color: @green;
   }
 
   &.jvi-braces {
@@ -82,10 +88,10 @@
 }
 
 .jvi-value {
-  color: @state-success-text;
+  color: @green;
 
   &.jvi-primitive {
-    color: @brand-warning;
+    color: @orange;
   }
 
   &.jvi-string {
@@ -94,8 +100,9 @@
 }
 
 .jvi-object-key {
-  .jvi-value, .jvi-punctuation {
-    color: @brand-primary;
+  .jvi-value,
+  .jvi-punctuation {
+    color: @blue;
   }
 }
 
