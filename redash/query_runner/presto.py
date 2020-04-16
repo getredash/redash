@@ -46,6 +46,7 @@ class Presto(BaseQueryRunner):
                 "catalog": {"type": "string"},
                 "username": {"type": "string"},
                 "password": {"type": "string"},
+                "source": {"type": "string", "default": "redash"},
             },
             "order": [
                 "host",
@@ -53,6 +54,7 @@ class Presto(BaseQueryRunner):
                 "port",
                 "username",
                 "password",
+                "source",
                 "schema",
                 "catalog",
             ],
@@ -99,6 +101,7 @@ class Presto(BaseQueryRunner):
             protocol=self.configuration.get("protocol", "http"),
             username=self.configuration.get("username", "redash"),
             password=(self.configuration.get("password") or None),
+            source=self.configuration.get("source", "redash"),
             catalog=self.configuration.get("catalog", "hive"),
             schema=self.configuration.get("schema", "default"),
         )
