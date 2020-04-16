@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { isEmpty, includes, compact, map, has, pick, keys, extend, every, get } from "lodash";
 import notification from "@/services/notification";
 import location from "@/services/location";
@@ -100,28 +100,31 @@ function useDashboard(dashboardData) {
 
   const refreshWidget = useCallback(widget => loadWidget(widget, true), [loadWidget]);
 
-  const removeWidget = useCallback(
-    widgetId => {
-      dashboard.widgets = dashboard.widgets.filter(widget => widget.id !== undefined && widget.id !== widgetId);
-      setDashboard(currentDashboard => extend({}, currentDashboard));
-    },
-    [dashboard]
-  );
+  const removeWidget = useCallback(widgetId => {
+    setDashboard(currentDashboard =>
+      extend({}, currentDashboard, {
+        widgets: currentDashboard.widgets.filter(widget => widget.id !== undefined && widget.id !== widgetId),
+      })
+    );
+  }, []);
+
+  const dashboardRef = useRef();
+  dashboardRef.current = dashboard;
 
   const loadDashboard = useCallback(
     (forceRefresh = false, updatedParameters = []) => {
-      const affectedWidgets = getAffectedWidgets(dashboard.widgets, updatedParameters);
+      const affectedWidgets = getAffectedWidgets(dashboardRef.current.widgets, updatedParameters);
       const loadWidgetPromises = compact(
         affectedWidgets.map(widget => loadWidget(widget, forceRefresh).catch(error => error))
       );
 
       return Promise.all(loadWidgetPromises).then(() => {
-        const queryResults = compact(map(dashboard.widgets, widget => widget.getQueryResult()));
-        const updatedFilters = collectDashboardFilters(dashboard, queryResults, location.search);
+        const queryResults = compact(map(dashboardRef.current.widgets, widget => widget.getQueryResult()));
+        const updatedFilters = collectDashboardFilters(dashboardRef.current, queryResults, location.search);
         setFilters(updatedFilters);
       });
     },
-    [dashboard, loadWidget]
+    [loadWidget]
   );
 
   const refreshDashboard = useCallback(

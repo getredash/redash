@@ -285,6 +285,9 @@ def client_config():
         "showPermissionsControl": current_org.get_setting(
             "feature_show_permissions_control"
         ),
+        "hidePlotlyModeBar": current_org.get_setting(
+            "hide_plotly_mode_bar"
+        ),
         "allowCustomJSVisualizations": settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         "autoPublishNamedQueries": settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
         "extendedAlertOptions": settings.FEATURE_EXTENDED_ALERT_OPTIONS,

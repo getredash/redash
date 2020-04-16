@@ -35,7 +35,11 @@ class Oracle(BaseSQLQueryRunner):
     @classmethod
     def get_col_type(cls, col_type, scale):
         if col_type == cx_Oracle.NUMBER:
-            return TYPE_FLOAT if scale > 0 else TYPE_INTEGER
+            if scale is None:
+                return TYPE_INTEGER
+            if scale > 0:
+                return TYPE_FLOAT
+            return TYPE_INTEGER
         else:
             return TYPES_MAP.get(col_type, None)
 
