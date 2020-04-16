@@ -45,6 +45,10 @@ class Presto(BaseQueryRunner):
                 "schema": {"type": "string"},
                 "catalog": {"type": "string"},
                 "username": {"type": "string"},
+                "user_impersonation": {
+                    "type": "boolean",
+                    "title": "Enable User Impersonation",
+                },
                 "password": {"type": "string"},
             },
             "order": [
@@ -52,6 +56,7 @@ class Presto(BaseQueryRunner):
                 "protocol",
                 "port",
                 "username",
+                "user_impersonation",
                 "password",
                 "schema",
                 "catalog",
@@ -93,11 +98,17 @@ class Presto(BaseQueryRunner):
         return list(schema.values())
 
     def run_query(self, query, user):
+        enable_user_impersonation = self.configuration.get("user_impersonation")
+        principle_username = None
+        if enable_user_impersonation and user is not None:
+            principle_username = user.email.split('@')[0]
+
         connection = presto.connect(
             host=self.configuration.get("host", ""),
             port=self.configuration.get("port", 8080),
             protocol=self.configuration.get("protocol", "http"),
             username=self.configuration.get("username", "redash"),
+            principle_username=principle_username,
             password=(self.configuration.get("password") or None),
             catalog=self.configuration.get("catalog", "hive"),
             schema=self.configuration.get("schema", "default"),
