@@ -88,6 +88,7 @@ from redash.handlers.changes import (
     QueryChangesListResource,
     DashboardChangesListResource,
     AlertChangesListResource,
+    DestinationChangesListResource,
 )
 from redash.utils import json_dumps
 
@@ -326,3 +327,6 @@ api.add_org_resource(
     DashboardChangesListResource, "/api/dashboards/<dashboard_id>/changes", endpoint="dashboard_changes"
 )
 api.add_org_resource(AlertChangesListResource, "/api/alerts/<alert_id>/changes", endpoint="alert_changes")
+api.add_org_resource(
+    DestinationChangesListResource, "/api/destinations/<destination_id>/changes", endpoint="destination_changes"
+)

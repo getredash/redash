@@ -1,6 +1,6 @@
 from flask import jsonify, request, url_for
 from redash.handlers.base import BaseResource, paginate, get_object_or_404
-from redash.models import Change, Query, Dashboard, Alert
+from redash.models import Change, Query, Dashboard, Alert, NotificationDestination
 from redash.serializers import serialize_change
 
 
@@ -32,6 +32,11 @@ class BaseChangesListResource(BaseResource):
 
         return response
 
+    def _get_by_object(self, fn, *args, **kwargs):
+        obj = get_object_or_404(fn, *args, **kwargs)
+        changes_set = Change.get_by_object(obj, self.current_org)
+        return self._prepare_response(changes_set)
+
 
 class ChangesListResource(BaseChangesListResource):
     def get(self):
@@ -41,20 +46,19 @@ class ChangesListResource(BaseChangesListResource):
 
 class QueryChangesListResource(BaseChangesListResource):
     def get(self, query_id):
-        query = get_object_or_404(Query.get_by_id_and_org, query_id, self.current_org)
-        changes_set = Change.get_by_object(query, self.current_org)
-        return self._prepare_response(changes_set)
+        return self._get_by_object(Query.get_by_id_and_org, query_id, self.current_org)
 
 
 class DashboardChangesListResource(BaseChangesListResource):
     def get(self, dashboard_id):
-        dashboard = get_object_or_404(Dashboard.get_by_id_and_org, dashboard_id, self.current_org)
-        changes_set = Change.get_by_object(dashboard, self.current_org)
-        return self._prepare_response(changes_set)
+        return self._get_by_object(Dashboard.get_by_id_and_org, dashboard_id, self.current_org)
 
 
 class AlertChangesListResource(BaseChangesListResource):
     def get(self, alert_id):
-        alert = get_object_or_404(Alert.get_by_id_and_org, alert_id, self.current_org)
-        changes_set = Change.get_by_object(alert, self.current_org)
-        return self._prepare_response(changes_set)
+        return self._get_by_object(Alert.get_by_id_and_org, alert_id, self.current_org)
+
+
+class DestinationChangesListResource(BaseChangesListResource):
+    def get(self, destination_id):
+        return self._get_by_object(NotificationDestination.get_by_id_and_org, destination_id, self.current_org)
