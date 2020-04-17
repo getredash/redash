@@ -60,7 +60,7 @@ class Databricks(BaseSQLQueryRunner):
             "properties": {
                 "host": {"type": "string"},
                 "http_path": {"type": "string", "title": "HTTP Path"},
-                # We're using `http_password` here for password for legacy reasons
+                # We're using `http_password` here for legacy reasons
                 "http_password": {"type": "string", "title": "Access Token"},
                 "schemas": {"type": "string", "title": "Schemas to Load Metadata For"},
             },
@@ -98,9 +98,9 @@ class Databricks(BaseSQLQueryRunner):
             cursor = self._get_cursor()
 
             cursor.execute(query)
-            data = cursor.fetchall()
 
             if cursor.description is not None:
+                data = cursor.fetchall()
                 columns = self.fetch_columns(
                     [
                         (i[0], TYPES_MAP.get(i[1], TYPE_STRING))
@@ -117,12 +117,20 @@ class Databricks(BaseSQLQueryRunner):
                 json_data = json_dumps(data)
                 error = None
             else:
-                error = "No data was returned."
-                json_data = None
+                error = None
+                json_data = json_dumps(
+                    {
+                        "columns": [{"name": "result", "type": TYPE_STRING}],
+                        "rows": [{"result": "No data was returned."}],
+                    }
+                )
 
             cursor.close()
         except pyodbc.Error as e:
-            error = str(e)
+            if len(e.args) > 1:
+                error = str(e.args[1])
+            else:
+                error = str(e)
             json_data = None
 
         return json_data, error

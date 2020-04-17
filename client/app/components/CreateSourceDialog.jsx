@@ -119,7 +119,7 @@ class CreateSourceDialog extends React.Component {
         {selectedType.type === "databricks" && (
           <small>
             By using the Databricks Data Source you agree to the Databricks JDBC/ODBC{" "}
-            <a href="https://databricks.com/spark/odbc-driver-download" target="_blank" rel="noopener">
+            <a href="https://databricks.com/spark/odbc-driver-download" target="_blank" rel="noopener noreferrer">
               Driver Download Terms and Conditions
             </a>
             .
