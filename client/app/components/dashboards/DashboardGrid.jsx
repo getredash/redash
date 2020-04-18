@@ -131,12 +131,12 @@ class DashboardGrid extends React.Component {
 
   constructor(props) {
     super(props);
-  
+
     const currentCfg = this.props.dashboard.use_12_column_layout ? cfg12 : cfg;
     this.state = {
       layouts: {},
       disableAnimations: true,
-      cfg: currentCfg
+      cfg: currentCfg,
     };
 
     // init AutoHeightController
@@ -155,11 +155,11 @@ class DashboardGrid extends React.Component {
   }
 
   onColumnCountChange(use12) {
-    const editGrid = document.getElementsByClassName("dashboard-wrapper")[0]
-      
+    const editGrid = document.getElementsByClassName("dashboard-wrapper")[0];
+
     if (editGrid) {
       // use CSS attribute to change background grid while editing dashboard
-      const columnsCountAttribute = document.createAttribute('columns-count');
+      const columnsCountAttribute = document.createAttribute("columns-count");
       columnsCountAttribute.value = use12 ? 12 : 6;
       editGrid.attributes.setNamedItem(columnsCountAttribute);
       this.setState({ cfg: use12 ? cfg12 : cfg });
