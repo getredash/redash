@@ -1084,7 +1084,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def all(cls, org, group_ids, user_id):
         query = (
             Dashboard.query.options(
-                subqueryload(Dashboard.user).load_only("_profile_image_url", "name")
+                joinedload(Dashboard.user).load_only("_profile_image_url", "name")
             )
             .outerjoin(Widget)
             .outerjoin(Visualization)
