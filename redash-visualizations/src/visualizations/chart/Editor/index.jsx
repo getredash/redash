@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from "react";
-import createTabbedEditor from "@/components/visualizations/editor/createTabbedEditor";
+import createTabbedEditor from "@/visualizations/components/editor/createTabbedEditor";
 
 import GeneralSettings from "./GeneralSettings";
 import XAxisSettings from "./XAxisSettings";

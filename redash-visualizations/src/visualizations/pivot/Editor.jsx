@@ -1,6 +1,6 @@
 import { merge } from "lodash";
 import React from "react";
-import { Section, Switch } from "@/components/visualizations/editor";
+import { Section, Switch } from "@/visualizations/components/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function Editor({ options, onOptionsChange }) {

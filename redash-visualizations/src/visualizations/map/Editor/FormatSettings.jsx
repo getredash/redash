@@ -1,6 +1,6 @@
 import React from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { Section, Input, Checkbox, TextArea, ContextHelp } from "@/components/visualizations/editor";
+import { Section, Input, Checkbox, TextArea, ContextHelp } from "@/visualizations/components/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 function TemplateFormatHint() {

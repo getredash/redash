@@ -1,6 +1,6 @@
 import React from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { Section, Select, InputNumber, ColorPicker } from "@/components/visualizations/editor";
+import { Section, Select, InputNumber, ColorPicker } from "@/visualizations/components/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 import ColorPalette from "../ColorPalette";
 

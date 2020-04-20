@@ -9,7 +9,7 @@ import {
   TextArea,
   TextAlignmentSelect,
   ContextHelp,
-} from "@/components/visualizations/editor";
+} from "@/visualizations/components/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 function TemplateFormatHint({ mapType }) {

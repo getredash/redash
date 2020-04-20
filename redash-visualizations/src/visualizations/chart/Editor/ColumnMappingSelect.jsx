@@ -1,7 +1,7 @@
 import { isString, map, uniq, flatten, filter, sortBy, keys } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import { Section, Select } from "@/components/visualizations/editor";
+import { Section, Select } from "@/visualizations/components/editor";
 
 const MappingTypes = {
   x: { label: "X Column" },

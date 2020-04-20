@@ -3,7 +3,7 @@ import React from "react";
 import { useDebouncedCallback } from "use-debounce";
 import PropTypes from "prop-types";
 import * as Grid from "antd/lib/grid";
-import { Section, Select, Input, Checkbox, TextAlignmentSelect } from "@/components/visualizations/editor";
+import { Section, Select, Input, Checkbox, TextAlignmentSelect } from "@/visualizations/components/editor";
 
 import ColumnTypes from "../columns";
 

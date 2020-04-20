@@ -1,5 +1,5 @@
 import { merge } from "lodash";
-import { clientConfig } from "@/services/auth";
+import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 const DEFAULT_OPTIONS = {
   globalSeriesType: "column",
@@ -19,7 +19,7 @@ const DEFAULT_OPTIONS = {
   // showDataLabels: false, // depends on chart type
   numberFormat: "0,0[.]00000",
   percentFormat: "0[.]00%",
-  // dateTimeFormat: 'DD/MM/YYYY HH:mm', // will be set from clientConfig
+  // dateTimeFormat: 'DD/MM/YYYY HH:mm', // will be set from visualizationsSettings
   textFormat: "", // default: combination of {{ @@yPercent }} ({{ @@y }} ± {{ @@yError }})
 
   missingValuesAsZero: true,
@@ -31,7 +31,7 @@ export default function getOptions(options) {
     DEFAULT_OPTIONS,
     {
       showDataLabels: options.globalSeriesType === "pie",
-      dateTimeFormat: clientConfig.dateTimeFormat,
+      dateTimeFormat: visualizationsSettings.dateTimeFormat,
     },
     options
   );

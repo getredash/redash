@@ -1,5 +1,5 @@
 import React from "react";
-import { Section, Switch } from "@/components/visualizations/editor";
+import { Section, Switch } from "@/visualizations/components/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 import AxisSettings from "./AxisSettings";

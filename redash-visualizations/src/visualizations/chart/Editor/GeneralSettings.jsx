@@ -1,7 +1,7 @@
 import { isArray, map, mapValues, includes, some, each, difference, toNumber } from "lodash";
 import React, { useMemo } from "react";
-import { Section, Select, Checkbox, InputNumber } from "@/components/visualizations/editor";
-import { UpdateOptionsStrategy } from "@/components/visualizations/editor/createTabbedEditor";
+import { Section, Select, Checkbox, InputNumber } from "@/visualizations/components/editor";
+import { UpdateOptionsStrategy } from "@/visualizations/components/editor/createTabbedEditor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 import ChartTypeSelect from "./ChartTypeSelect";

@@ -4,7 +4,7 @@ import useMedia from "use-media";
 import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 import resizeObserver from "@/services/resizeObserver";
-
+import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 import getChartData from "../getChartData";
 import { Plotly, prepareData, prepareLayout, updateData, applyLayoutFixes } from "../plotly";
 
@@ -26,7 +26,11 @@ export default function PlotlyChart({ options, data }) {
   useEffect(
     catchErrors(() => {
       if (container) {
-        const plotlyOptions = { showLink: false, displaylogo: false };
+        const plotlyOptions = {
+          showLink: false,
+          displaylogo: false,
+          displayModeBar: !visualizationsSettings.hidePlotlyModeBar,
+        };
 
         const chartData = getChartData(data.rows, options);
         const plotlyData = prepareData(chartData, options);

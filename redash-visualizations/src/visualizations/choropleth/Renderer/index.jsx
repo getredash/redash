@@ -1,25 +1,16 @@
-import { omit, merge } from "lodash";
+import { omit, merge, get } from "lodash";
+import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { axios } from "@/services/axios";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 import useMemoWithDeepCompare from "@/lib/hooks/useMemoWithDeepCompare";
+import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 import initChoropleth from "./initChoropleth";
 import { prepareData } from "./utils";
 import "./renderer.less";
 
-import countriesDataUrl from "../maps/countries.geo.json";
-import subdivJapanDataUrl from "../maps/japan.prefectures.geo.json";
-
 function getDataUrl(type) {
-  switch (type) {
-    case "countries":
-      return countriesDataUrl;
-    case "subdiv_japan":
-      return subdivJapanDataUrl;
-    default:
-      return null;
-  }
+  return get(visualizationsSettings, `choroplethAvailableMaps.${type}.url`, undefined);
 }
 
 export default function Renderer({ data, options, onOptionsChange }) {
@@ -33,7 +24,7 @@ export default function Renderer({ data, options, onOptionsChange }) {
   useEffect(() => {
     let cancelled = false;
 
-    axios.get(getDataUrl(options.mapType)).then(data => {
+    axios.get(getDataUrl(options.mapType)).then(({ data }) => {
       if (!cancelled) {
         setGeoJson(data);
       }

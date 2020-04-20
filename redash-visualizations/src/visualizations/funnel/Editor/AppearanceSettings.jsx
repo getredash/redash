@@ -1,6 +1,6 @@
 import React from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { Section, Input, InputNumber, ContextHelp } from "@/components/visualizations/editor";
+import { Section, Input, InputNumber, ContextHelp } from "@/visualizations/components/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function AppearanceSettings({ options, onOptionsChange }) {

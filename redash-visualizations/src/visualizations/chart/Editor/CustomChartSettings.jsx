@@ -1,6 +1,6 @@
 import { isNil, trimStart } from "lodash";
 import React from "react";
-import { Section, Switch, TextArea } from "@/components/visualizations/editor";
+import { Section, Switch, TextArea } from "@/visualizations/components/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 const defaultCustomCode = trimStart(`

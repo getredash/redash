@@ -1,3 +1,1 @@
-import TestRenderer from "./visualizations/components/TestRenderer";
-
-export { TestRenderer };
+export * from "./visualizations";

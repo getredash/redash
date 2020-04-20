@@ -1,6 +1,6 @@
 import { map } from "lodash";
 import React from "react";
-import { Section, Select, ColorPicker } from "@/components/visualizations/editor";
+import { Section, Select, ColorPicker } from "@/visualizations/components/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 import ColorPalette from "@/visualizations/ColorPalette";
 

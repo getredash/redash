@@ -1,6 +1,6 @@
 import { map } from "lodash";
 import React from "react";
-import { Section, Select } from "@/components/visualizations/editor";
+import { Section, Select } from "@/visualizations/components/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 const CohortTimeIntervals = {

@@ -2,7 +2,7 @@ import { extend, trim } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
-import { Section, Input, ControlLabel, ContextHelp } from "@/components/visualizations/editor";
+import { Section, Input, ControlLabel, ContextHelp } from "@/visualizations/components/editor";
 import { formatSimpleTemplate } from "@/lib/value-format";
 
 function Editor({ column, onChange }) {

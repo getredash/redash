@@ -1,6 +1,6 @@
 import { isNil, map, filter, difference } from "lodash";
 import React, { useMemo } from "react";
-import { Section, Select } from "@/components/visualizations/editor";
+import { Section, Select } from "@/visualizations/components/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 function getColumns(column, unusedColumns) {

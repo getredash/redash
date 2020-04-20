@@ -1,6 +1,6 @@
 import { isFinite } from "lodash";
 import React from "react";
-import { Section, ColorPicker, InputNumber } from "@/components/visualizations/editor";
+import { Section, ColorPicker, InputNumber } from "@/visualizations/components/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 import DefaultColorPalette from "@/visualizations/ColorPalette";
 

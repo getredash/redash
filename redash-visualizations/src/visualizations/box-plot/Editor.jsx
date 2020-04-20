@@ -1,5 +1,5 @@
 import React from "react";
-import { Section, Input } from "@/components/visualizations/editor";
+import { Section, Input } from "@/visualizations/components/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function Editor({ options, onOptionsChange }) {

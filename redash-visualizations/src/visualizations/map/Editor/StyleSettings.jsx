@@ -1,7 +1,7 @@
 import { isNil, map } from "lodash";
 import React, { useMemo } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { Section, Select, Checkbox, Input, ColorPicker, ContextHelp } from "@/components/visualizations/editor";
+import { Section, Select, Checkbox, Input, ColorPicker, ContextHelp } from "@/visualizations/components/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 import ColorPalette from "@/visualizations/ColorPalette";
 
