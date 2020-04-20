@@ -1,7 +1,28 @@
 from flask import jsonify, request, url_for
-from redash.handlers.base import BaseResource, paginate, get_object_or_404
+from funcy import partial
+from redash.handlers.base import (
+    BaseResource,
+    paginate,
+    order_results as _order_results,
+    get_object_or_404
+)
 from redash.models import Change, Query, Dashboard, Alert, NotificationDestination
-from redash.serializers import serialize_change
+
+
+order_map = {
+    "created_at": "created_at",
+    "-created_at": "-created_at",
+    "object_type": "object_type",
+    "-object_type": "-object_type",
+    "object_id": "object_id",
+    "-object_id": "-object_id",
+    "user_id": "user_id",
+    "-user_id": "-user_id",
+}
+
+order_results = partial(
+    _order_results, default_order="-created_at", allowed_orders=order_map
+)
 
 
 class BaseChangesListResource(BaseResource):
@@ -9,6 +30,7 @@ class BaseChangesListResource(BaseResource):
         """
         :qparam number page_size: Number of changes to return per page
         :qparam number page: Page number to retrieve
+        :qparam number order: Name of column to order by
 
         Responds with an array of `Change` objects.
         """
@@ -16,14 +38,13 @@ class BaseChangesListResource(BaseResource):
         page = request.args.get("page", 1, type=int)
         page_size = request.args.get("page_size", 25, type=int)
 
-        # TODO: order by - ?
-        # TODO: `serialize_change` may need access to nested objects - need to ensure that all are loaded at once
+        ordered_results = order_results(results_set)
 
         response = paginate(
-            results_set,
+            ordered_results,
             page=page,
             page_size=page_size,
-            serializer=serialize_change,
+            serializer=lambda c: c.to_dict(),
             with_stats=True,
             with_last_modified_by=False,
         )

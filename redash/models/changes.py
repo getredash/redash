@@ -48,21 +48,26 @@ class Change(GFKBase, db.Model):
 
     __tablename__ = "changes"
 
-    def to_dict(self, full=True):
-        d = {
+    def to_dict(self, extended=True):
+        result = {
             "id": self.id,
-            "object_id": self.object_id,
-            "object_type": self.object_type,
-            "change": self.change,
             "created_at": self.created_at,
+            # TODO: return an object (and target?) as a sub-structure, but carefully - they may be removed
+            "object_type": self.object_type,
+            "object_id": self.object_id,
+            "target_type": self.change["object_type"],
+            "target_id": self.change["object_id"],
+            "change_type": self.change["change_type"],
+            "changes": self.change["changes"],
         }
 
-        if full:
-            d["user"] = self.user.to_dict()
+        # TODO: user may be deleted - need to handle this
+        if extended:
+            result["user"] = self.user.to_dict()
         else:
-            d["user_id"] = self.user_id
+            result["user_id"] = self.user_id
 
-        return d
+        return result
 
     @classmethod
     def all_changes(cls, org):

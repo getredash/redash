@@ -305,18 +305,3 @@ def serialize_job(job):
             "query_result_id": query_result_id,
         }
     }
-
-
-def serialize_change(change):
-    return {
-        "created_at": change.created_at,
-        # TODO: return an object (and target?) as a sub-structure, but carefully - they may be removed
-        "object_type": change.object_type,
-        "object_id": change.object_id,
-        "target_type": change.change["object_type"],
-        "target_id": change.change["object_id"],
-        "change_type": change.change["change_type"],
-        "changes": change.change["changes"],
-        # TODO: user may be deleted - need to handle this
-        "user": change.user.to_dict(),
-    }
