@@ -362,15 +362,15 @@ def with_ssh_tunnel(query_runner, details):
                 )
             except Exception as error:
                 raise type(error)("SSH tunnel: {}".format(str(error)))
-            else:
-                with stack:
-                    try:
-                        query_runner.host, query_runner.port = server.local_bind_address
-                        result = f(*args, **kwargs)
-                    finally:
-                        query_runner.host, query_runner.port = remote_host, remote_port
 
-                    return result
+            with stack:
+                try:
+                    query_runner.host, query_runner.port = server.local_bind_address
+                    result = f(*args, **kwargs)
+                finally:
+                    query_runner.host, query_runner.port = remote_host, remote_port
+
+                return result
 
         return wrapper
 
