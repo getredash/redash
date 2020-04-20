@@ -2,7 +2,7 @@ from flask import request, url_for
 from funcy import project, partial
 
 from flask_restful import abort
-from redash import models, serializers
+from redash import models
 from redash.handlers.base import (
     BaseResource,
     get_object_or_404,
@@ -17,7 +17,11 @@ from redash.permissions import (
     require_permission,
 )
 from redash.security import csp_allows_embeding
-from redash.serializers import serialize_dashboard
+from redash.serializers import (
+    serialize_dashboard,
+    DashboardSerializer,
+    public_dashboard,
+)
 from sqlalchemy.orm.exc import StaleDataError
 
 
@@ -76,7 +80,7 @@ class DashboardListResource(BaseResource):
             ordered_results,
             page=page,
             page_size=page_size,
-            serializer=serialize_dashboard,
+            serializer=DashboardSerializer,
         )
 
         if search_term:
@@ -268,7 +272,7 @@ class PublicDashboardResource(BaseResource):
         else:
             dashboard = self.current_user.object
 
-        return serializers.public_dashboard(dashboard)
+        return public_dashboard(dashboard)
 
 
 class DashboardShareResource(BaseResource):
@@ -363,7 +367,8 @@ class DashboardFavoriteListResource(BaseResource):
 
         page = request.args.get("page", 1, type=int)
         page_size = request.args.get("page_size", 25, type=int)
-        response = paginate(favorites, page, page_size, serialize_dashboard)
+        # TODO: we don't need to check for favorite status here
+        response = paginate(favorites, page, page_size, DashboardSerializer)
 
         self.record_event(
             {
