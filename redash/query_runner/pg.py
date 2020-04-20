@@ -328,6 +328,7 @@ class Redshift(PostgreSQL):
                             ordinal_position AS pos
             FROM svv_columns
             WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
+            AND table_schema NOT LIKE 'pg_temp_%'
         )
         SELECT table_name, table_schema, column_name
         FROM tables

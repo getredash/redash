@@ -195,7 +195,7 @@ class MongoDB(BaseQueryRunner):
         if not db.command("connectionStatus")["ok"]:
             raise Exception("MongoDB connection error")
 
-        return db_connection[self.db_name]
+        return db
 
 
     def _merge_property_names(self, columns, document):
