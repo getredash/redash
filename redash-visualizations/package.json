@@ -2,11 +2,15 @@
   "name": "redash-visualizations",
   "version": "1.0.0",
   "description": "Redash visualizations",
-  "main": "lib/index.js",
+  "main": "dist/redash-visualizations.js",
   "scripts": {
-    "clean": "rm -rf lib",
-    "build": "npm run clean && babel src --out-dir lib --source-maps --copy-files",
-    "watch": "babel src --watch --out-dir lib --source-maps --copy-files"
+    "clean": "rm -rf lib dist",
+    "build:babel": "babel src --out-dir lib --source-maps --copy-files",
+    "build:webpack": "webpack",
+    "build": " NODE_ENV=production npm-run-all clean build:babel build:webpack",
+    "watch:babel": "babel src --watch --out-dir lib --source-maps --copy-files",
+    "watch:webpack": "webpack --watch",
+    "watch": "npm-run-all --parallel watch:*"
   },
   "repository": {
     "type": "git",
@@ -25,14 +29,26 @@
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/preset-env": "^7.9.0",
     "@babel/preset-react": "^7.9.4",
+    "antd": "^4.1.4",
+    "babel-loader": "^8.1.0",
     "babel-plugin-module-resolver": "^4.0.0",
+    "css-loader": "^3.5.2",
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.7.1",
     "enzyme-to-json": "^3.3.5",
+    "file-loader": "^6.0.0",
+    "less": "^3.11.1",
+    "less-loader": "^5.0.0",
+    "less-plugin-autoprefix": "^2.0.0",
+    "npm-run-all": "^4.1.5",
     "prettier": "^2.0.4",
-    "prop-types": "^15.7.2"
+    "prop-types": "^15.7.2",
+    "style-loader": "^1.1.4",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
   },
   "files": [
+    "dist",
     "lib"
   ],
   "dependencies": {
