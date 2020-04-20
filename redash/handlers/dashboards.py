@@ -110,7 +110,7 @@ class DashboardListResource(BaseResource):
         )
         models.db.session.add(dashboard)
         models.db.session.commit()
-        return DashboardSerializer(dashboard)
+        return DashboardSerializer(dashboard).serialize()
 
 
 class DashboardResource(BaseResource):
@@ -154,7 +154,7 @@ class DashboardResource(BaseResource):
         )
         response = DashboardSerializer(
             dashboard, with_widgets=True, user=self.current_user
-        )
+        ).serialize()
 
         api_key = models.ApiKey.get_by_object(dashboard)
         if api_key:
@@ -222,7 +222,7 @@ class DashboardResource(BaseResource):
 
         result = DashboardSerializer(
             dashboard, with_widgets=True, user=self.current_user
-        )
+        ).serialize()
 
         self.record_event(
             {"action": "edit", "object_id": dashboard.id, "object_type": "dashboard"}
@@ -245,7 +245,9 @@ class DashboardResource(BaseResource):
         dashboard.is_archived = True
         dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)
-        d = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user)
+        d = DashboardSerializer(
+            dashboard, with_widgets=True, user=self.current_user
+        ).serialize()
         models.db.session.commit()
 
         self.record_event(
