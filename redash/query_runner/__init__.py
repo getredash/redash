@@ -75,6 +75,12 @@ class BaseQueryRunner(object):
 
     @property
     def host(self):
+        """Returns this query runner's configured host.
+        This is used primarily for temporarily swapping endpoints when using SSH tunnels to connect to a data source.
+
+        `BaseQueryRunner`'s naïve implementation supports query runner implementations that store endpoints using `host` and `port` 
+        configuration values. If your query runner uses a different schema (e.g. a web address), you should override this function.
+        """
         if "host" in self.configuration:
             return self.configuration["host"]
         else:
@@ -82,6 +88,12 @@ class BaseQueryRunner(object):
 
     @host.setter
     def host(self, host):
+        """Sets this query runner's configured host.
+        This is used primarily for temporarily swapping endpoints when using SSH tunnels to connect to a data source.
+
+        `BaseQueryRunner`'s naïve implementation supports query runner implementations that store endpoints using `host` and `port` 
+        configuration values. If your query runner uses a different schema (e.g. a web address), you should override this function.
+        """
         if "host" in self.configuration:
             self.configuration["host"] = host
         else:
@@ -89,6 +101,12 @@ class BaseQueryRunner(object):
 
     @property
     def port(self):
+        """Returns this query runner's configured port.
+        This is used primarily for temporarily swapping endpoints when using SSH tunnels to connect to a data source.
+
+        `BaseQueryRunner`'s naïve implementation supports query runner implementations that store endpoints using `host` and `port` 
+        configuration values. If your query runner uses a different schema (e.g. a web address), you should override this function.
+        """
         if "port" in self.configuration:
             return self.configuration["port"]
         else:
@@ -96,6 +114,12 @@ class BaseQueryRunner(object):
 
     @port.setter
     def port(self, port):
+        """Sets this query runner's configured port.
+        This is used primarily for temporarily swapping endpoints when using SSH tunnels to connect to a data source.
+
+        `BaseQueryRunner`'s naïve implementation supports query runner implementations that store endpoints using `host` and `port` 
+        configuration values. If your query runner uses a different schema (e.g. a web address), you should override this function.
+        """
         if "port" in self.configuration:
             self.configuration["port"] = port
         else:
@@ -158,7 +182,7 @@ class BaseQueryRunner(object):
             "name": cls.name(),
             "type": cls.type(),
             "configuration_schema": cls.configuration_schema(),
-            **({ "deprecated": True } if cls.deprecated else {})
+            **({"deprecated": True} if cls.deprecated else {}),
         }
 
 
