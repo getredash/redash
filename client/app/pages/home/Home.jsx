@@ -94,7 +94,7 @@ function DeprecatedEmbedFeatureAlert() {
 
 function EmailNotVerifiedAlert() {
   const verifyEmail = () => {
-    axios.post("verification_email/").then(data => {
+    axios.post("verification_email/").then((data) => {
       notification.success(data.message);
     });
   };
@@ -137,7 +137,7 @@ function FavoriteList({ title, resource, itemUrl, emptyState }) {
       </div>
       {!isEmpty(items) && (
         <div className="list-group">
-          {items.map(item => (
+          {items.map((item) => (
             <a key={itemUrl(item)} className="list-group-item" href={itemUrl(item)}>
               <span className="btn-favourite m-r-5">
                 <i className="fa fa-star" aria-hidden="true" />
@@ -170,7 +170,7 @@ function DashboardAndQueryFavoritesList() {
             <FavoriteList
               title="Favorite Dashboards"
               resource={Dashboard}
-              itemUrl={dashboard => `dashboard/${dashboard.slug}`}
+              itemUrl={(dashboard) => `dashboard/${dashboard.slug}`}
               emptyState={
                 <p>
                   <span className="btn-favourite m-r-5">
@@ -185,7 +185,7 @@ function DashboardAndQueryFavoritesList() {
             <FavoriteList
               title="Favorite Queries"
               resource={Query}
-              itemUrl={query => `queries/${query.id}`}
+              itemUrl={(query) => `queries/${query.id}`}
               emptyState={
                 <p>
                   <span className="btn-favourite m-r-5">
@@ -235,5 +235,5 @@ function Home() {
 export default routeWithUserSession({
   path: "/",
   title: "Redash",
-  render: pageProps => <Home {...pageProps} />,
+  render: (pageProps) => <Home {...pageProps} />,
 });
