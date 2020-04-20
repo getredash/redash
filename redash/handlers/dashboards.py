@@ -18,7 +18,6 @@ from redash.permissions import (
 )
 from redash.security import csp_allows_embeding
 from redash.serializers import (
-    serialize_dashboard,
     DashboardSerializer,
     public_dashboard,
 )
@@ -111,7 +110,7 @@ class DashboardListResource(BaseResource):
         )
         models.db.session.add(dashboard)
         models.db.session.commit()
-        return serialize_dashboard(dashboard)
+        return DashboardSerializer(dashboard)
 
 
 class DashboardResource(BaseResource):
@@ -153,7 +152,7 @@ class DashboardResource(BaseResource):
         dashboard = get_object_or_404(
             models.Dashboard.get_by_slug_and_org, dashboard_slug, self.current_org
         )
-        response = serialize_dashboard(
+        response = DashboardSerializer(
             dashboard, with_widgets=True, user=self.current_user
         )
 
@@ -221,7 +220,7 @@ class DashboardResource(BaseResource):
         except StaleDataError:
             abort(409)
 
-        result = serialize_dashboard(
+        result = DashboardSerializer(
             dashboard, with_widgets=True, user=self.current_user
         )
 
@@ -246,7 +245,7 @@ class DashboardResource(BaseResource):
         dashboard.is_archived = True
         dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)
-        d = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
+        d = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user)
         models.db.session.commit()
 
         self.record_event(
