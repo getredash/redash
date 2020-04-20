@@ -31,14 +31,7 @@ TYPES_MAP = {
 
 
 def _build_odbc_connection_string(**kwargs):
-    connection_string = ""
-    for k, v in kwargs.items():
-        if connection_string:
-            connection_string = "{};{}={}".format(connection_string, k, v)
-        else:
-            connection_string = "{}={}".format(k, v)
-
-    return connection_string
+    return ";".join([f"{k}={v}" for k, v in kwargs.items()])
 
 
 class Databricks(BaseSQLQueryRunner):
