@@ -2,7 +2,7 @@ from flask import request, url_for
 from funcy import project, partial
 
 from flask_restful import abort
-from redash import models, serializers
+from redash import models
 from redash.handlers.base import (
     BaseResource,
     get_object_or_404,
@@ -17,7 +17,10 @@ from redash.permissions import (
     require_permission,
 )
 from redash.security import csp_allows_embeding
-from redash.serializers import serialize_dashboard
+from redash.serializers import (
+    DashboardSerializer,
+    public_dashboard,
+)
 from sqlalchemy.orm.exc import StaleDataError
 
 
@@ -76,7 +79,7 @@ class DashboardListResource(BaseResource):
             ordered_results,
             page=page,
             page_size=page_size,
-            serializer=serialize_dashboard,
+            serializer=DashboardSerializer,
         )
 
         if search_term:
@@ -107,7 +110,7 @@ class DashboardListResource(BaseResource):
         )
         models.db.session.add(dashboard)
         models.db.session.commit()
-        return serialize_dashboard(dashboard)
+        return DashboardSerializer(dashboard).serialize()
 
 
 class DashboardResource(BaseResource):
@@ -149,9 +152,9 @@ class DashboardResource(BaseResource):
         dashboard = get_object_or_404(
             models.Dashboard.get_by_slug_and_org, dashboard_slug, self.current_org
         )
-        response = serialize_dashboard(
+        response = DashboardSerializer(
             dashboard, with_widgets=True, user=self.current_user
-        )
+        ).serialize()
 
         api_key = models.ApiKey.get_by_object(dashboard)
         if api_key:
@@ -217,9 +220,9 @@ class DashboardResource(BaseResource):
         except StaleDataError:
             abort(409)
 
-        result = serialize_dashboard(
+        result = DashboardSerializer(
             dashboard, with_widgets=True, user=self.current_user
-        )
+        ).serialize()
 
         self.record_event(
             {"action": "edit", "object_id": dashboard.id, "object_type": "dashboard"}
@@ -242,7 +245,9 @@ class DashboardResource(BaseResource):
         dashboard.is_archived = True
         dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)
-        d = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
+        d = DashboardSerializer(
+            dashboard, with_widgets=True, user=self.current_user
+        ).serialize()
         models.db.session.commit()
 
         self.record_event(
@@ -268,7 +273,7 @@ class PublicDashboardResource(BaseResource):
         else:
             dashboard = self.current_user.object
 
-        return serializers.public_dashboard(dashboard)
+        return public_dashboard(dashboard)
 
 
 class DashboardShareResource(BaseResource):
@@ -363,7 +368,8 @@ class DashboardFavoriteListResource(BaseResource):
 
         page = request.args.get("page", 1, type=int)
         page_size = request.args.get("page_size", 25, type=int)
-        response = paginate(favorites, page, page_size, serialize_dashboard)
+        # TODO: we don't need to check for favorite status here
+        response = paginate(favorites, page, page_size, DashboardSerializer)
 
         self.record_event(
             {
