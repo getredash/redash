@@ -248,24 +248,53 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
         "slug": obj.slug,
         "name": obj.name,
         "user_id": obj.user_id,
-        # TODO: we should properly load the users
-        "user": obj.user.to_dict(),
+        "user": {
+            "id": obj.user.id,
+            "name": obj.user.name,
+            "email": obj.user.email,
+            "profile_image_url": obj.user.profile_image_url,
+        },
         "layout": layout,
         "dashboard_filters_enabled": obj.dashboard_filters_enabled,
         "widgets": widgets,
         "is_archived": obj.is_archived,
         "is_draft": obj.is_draft,
         "tags": obj.tags or [],
-        # TODO: bulk load favorites
         "updated_at": obj.updated_at,
         "created_at": obj.created_at,
         "version": obj.version,
     }
 
-    if with_favorite_state:
-        d["is_favorite"] = models.Favorite.is_favorite(current_user.id, obj)
-
     return d
+
+
+class DashboardSerializer(Serializer):
+    def __init__(self, object_or_list, **kwargs):
+        self.object_or_list = object_or_list
+        self.options = kwargs
+
+    def serialize(self):
+        if isinstance(self.object_or_list, models.Dashboard):
+            result = serialize_dashboard(self.object_or_list, **self.options)
+            if (
+                self.options.get("with_favorite_state", True)
+                and not current_user.is_api_user()
+            ):
+                result["is_favorite"] = models.Favorite.is_favorite(
+                    current_user.id, self.object_or_list
+                )
+        else:
+            result = [
+                serialize_dashboard(obj, **self.options) for obj in self.object_or_list
+            ]
+            if self.options.get("with_favorite_state", True):
+                favorite_ids = models.Favorite.are_favorites(
+                    current_user.id, self.object_or_list
+                )
+                for obj in result:
+                    obj["is_favorite"] = obj["id"] in favorite_ids
+
+        return result
 
 
 def serialize_job(job):
