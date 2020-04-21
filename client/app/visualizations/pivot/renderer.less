@@ -1,15 +1,20 @@
-@redash-gray: rgba(102, 136, 153, 1);
+@import "../variables.less";
 
 .pivot-table-visualization-container {
   &[data-hide-controls] {
-    .pvtAxisContainer, .pvtRenderers, .pvtVals {
+    .pvtAxisContainer,
+    .pvtRenderers,
+    .pvtVals {
       display: none;
     }
   }
 
   &[data-hide-row-totals] {
-    td:last-child, th:last-child {
-      &.pvtTotalLabel:not(:empty), &.pvtTotal, &.pvtGrandTotal {
+    td:last-child,
+    th:last-child {
+      &.pvtTotalLabel:not(:empty),
+      &.pvtTotal,
+      &.pvtGrandTotal {
         display: none;
       }
     }
@@ -17,14 +22,17 @@
 
   &[data-hide-column-totals] {
     tbody > tr:last-child {
-      & > .pvtTotalLabel, & > .pvtTotal, & > .pvtGrandTotal {
+      & > .pvtTotalLabel,
+      & > .pvtTotal,
+      & > .pvtGrandTotal {
         display: none;
       }
     }
   }
 }
 
-.pvtAxisContainer, .pvtVals {
+.pvtAxisContainer,
+.pvtVals {
   border: 1px solid fade(@redash-gray, 15%);
   background: #fff;
 }
@@ -49,7 +57,8 @@
   color: fade(@redash-gray, 90%);
 }
 
-table.pvtTable thead tr th, table.pvtTable tbody tr th {
+table.pvtTable thead tr th,
+table.pvtTable tbody tr th {
   background-color: fade(@redash-gray, 10%);
   border: 1px solid #ced8dc;
 }
@@ -77,7 +86,7 @@ table.pvtTable tbody tr td {
     }
   }
 
-  input[type='text'] {
+  input[type="text"] {
     width: 90%;
     margin: 0 auto 10px;
     height: 35px;
