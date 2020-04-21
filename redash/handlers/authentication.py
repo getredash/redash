@@ -84,7 +84,7 @@ def render_token_login_page(template, org_slug, token, invite):
             flash("Password length is too short (<6).")
             status_code = 400
         else:
-            if invite:
+            if invite or user.is_invitation_pending:
                 user.is_invitation_pending = False
             user.hash_password(request.form["password"])
             models.db.session.add(user)
