@@ -9,7 +9,6 @@ venv/
 coverage.xml
 client/dist
 .DS_Store
-celerybeat-schedule*
 .#*
 \#*#
 *~

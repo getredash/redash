@@ -41,5 +41,5 @@ class TestExtensions(BaseTestCase):
         # need to load the periodic tasks manually since this isn't
         # done automatically on test suite start but only part of
         # the worker configuration
-        extensions.load_periodic_tasks(logger)
-        self.assertIn("dummy_periodic_task", extensions.periodic_tasks.keys())
+        extensions.load_periodic_jobs(logger)
+        self.assertIn("dummy_periodic_job", extensions.periodic_jobs.keys())

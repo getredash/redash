@@ -11,5 +11,5 @@ def assertive_extension(app):
     assert False
 
 
-def periodic_task(*args, **kwargs):
-    """This periodic task will successfully load"""
+def periodic_job(*args, **kwargs):
+    """This periodic job will successfully load"""
