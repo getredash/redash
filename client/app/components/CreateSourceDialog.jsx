@@ -45,7 +45,7 @@ class CreateSourceDialog extends React.Component {
     currentStep: StepEnum.SELECT_TYPE,
   };
 
-  selectType = selectedType => {
+  selectType = (selectedType) => {
     this.setState({ selectedType, currentStep: StepEnum.CONFIGURE_IT });
   };
 
@@ -61,11 +61,11 @@ class CreateSourceDialog extends React.Component {
       this.setState({ savingSource: true, currentStep: StepEnum.DONE });
       this.props
         .onCreate(selectedType, values)
-        .then(data => {
+        .then((data) => {
           successCallback("Saved.");
           this.props.dialog.close({ success: true, data });
         })
-        .catch(error => {
+        .catch((error) => {
           this.setState({ savingSource: false, currentStep: StepEnum.CONFIGURE_IT });
           errorCallback(getErrorMessage(error.message));
         });
@@ -76,13 +76,13 @@ class CreateSourceDialog extends React.Component {
     const { types } = this.props;
     const { searchText } = this.state;
     const filteredTypes = types.filter(
-      type => isEmpty(searchText) || includes(type.name.toLowerCase(), searchText.toLowerCase())
+      (type) => isEmpty(searchText) || includes(type.name.toLowerCase(), searchText.toLowerCase())
     );
     return (
       <div className="m-t-10">
         <Search
           placeholder="Search..."
-          onChange={e => this.setState({ searchText: e.target.value })}
+          onChange={(e) => this.setState({ searchText: e.target.value })}
           autoFocus
           data-test="SearchSource"
         />
@@ -90,7 +90,7 @@ class CreateSourceDialog extends React.Component {
           {isEmpty(filteredTypes) ? (
             <EmptyState className="" />
           ) : (
-            <List size="small" dataSource={filteredTypes} renderItem={item => this.renderItem(item)} />
+            <List size="small" dataSource={filteredTypes} renderItem={(item) => this.renderItem(item)} />
           )}
         </div>
       </div>
