@@ -4,8 +4,6 @@ import PropTypes from "prop-types";
 import Tabs from "antd/lib/tabs";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
-import "./TabbedEditor.less";
-
 export const UpdateOptionsStrategy = {
   replace: (existingOptions, newOptions) => merge({}, newOptions),
   shallowMerge: (existingOptions, newOptions) => extend({}, existingOptions, newOptions),
@@ -20,7 +18,7 @@ export function TabbedEditor({ tabs, options, data, onOptionsChange, ...restProp
   tabs = filter(tabs, tab => (isFunction(tab.isAvailable) ? tab.isAvailable(options, data) : true));
 
   return (
-    <Tabs className="visualization-editor-tabs" animated={false} tabBarGutter={0}>
+    <Tabs animated={false} tabBarGutter={0}>
       {map(tabs, ({ key, title, component: Component }) => (
         <Tabs.TabPane key={key} tab={<span data-test={`VisualizationEditor.Tabs.${key}`}>{title}</span>}>
           <Component options={options} data={data} onOptionsChange={optionsChanged} {...restProps} />
