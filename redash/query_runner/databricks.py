@@ -63,6 +63,7 @@ class Databricks(BaseSQLQueryRunner):
         }
 
     def _get_cursor(self):
+        user_agent = "Redash/{} (Databricks)".format(__version__.split("-")[0])
         connection_string = _build_odbc_connection_string(
             Driver="Simba",
             UID="token",
@@ -71,13 +72,13 @@ class Databricks(BaseSQLQueryRunner):
             THRIFTTRANSPORT="2",
             SPARKSERVERTYPE="3",
             AUTHMECH=3,
-            # # Use the query as is without rewriting:
-            USENATIVEQUERY="1",
+            # Use the query as is without rewriting:
+            UseNativeQuery="1",
             # Automatically reconnect to the cluster if an error occurs
             AutoReconnect="1",
             # Minimum interval between consecutive polls for query execution status (1ms)
             AsyncExecPollInterval="1",
-            UserAgentEntry="Redash/{}".format(__version__),
+            UserAgentEntry=user_agent,
             HOST=self.configuration["host"],
             PWD=self.configuration["http_password"],
             HTTPPath=self.configuration["http_path"],
@@ -131,7 +132,9 @@ class Databricks(BaseSQLQueryRunner):
     def _get_tables(self, schema):
         cursor = self._get_cursor()
 
-        schemas = self.configuration.get("schemas", "").split(",")
+        schemas = self.configuration.get(
+            "schemas", self.configuration.get("database", "")
+        ).split(",")
 
         for schema_name in schemas:
             cursor.columns(schema=schema_name)
