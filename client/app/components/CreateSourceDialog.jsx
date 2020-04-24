@@ -116,6 +116,15 @@ class CreateSourceDialog extends React.Component {
           )}
         </div>
         <DynamicForm id="sourceForm" fields={fields} onSubmit={this.createSource} feedbackIcons hideSubmitButton />
+        {selectedType.type === "databricks" && (
+          <small>
+            By using the Databricks Data Source you agree to the Databricks JDBC/ODBC{" "}
+            <a href="https://databricks.com/spark/odbc-driver-download" target="_blank" rel="noopener noreferrer">
+              Driver Download Terms and Conditions
+            </a>
+            .
+          </small>
+        )}
       </div>
     );
   }
