@@ -46,6 +46,7 @@ class AlertsList extends React.Component {
         field: "name",
       }
     ),
+    Columns.custom((text, item) => item.user.name, { title: "Created By" }),
     Columns.custom.sortable(
       (text, alert) => (
         <div>
@@ -59,7 +60,6 @@ class AlertsList extends React.Component {
       }
     ),
     Columns.timeAgo.sortable({ title: "Last Updated At", field: "updated_at", className: "text-nowrap", width: "1%" }),
-    Columns.avatar({ field: "user", className: "p-l-0 p-r-0" }, name => `Created by ${name}`),
     Columns.dateTime.sortable({ title: "Created At", field: "created_at", className: "text-nowrap", width: "1%" }),
   ];
 
