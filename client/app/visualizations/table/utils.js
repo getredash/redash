@@ -64,16 +64,18 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
       align: column.alignContent,
       title: (
         <React.Fragment>
-          <div className="table-visualization-heading" data-sort-column-index={sortColumnIndex}>
-            {column.description && (
-              <Tooltip placement="top" title={column.description} className="p-r-5">
+          {column.description && (
+            <Tooltip placement="top" title={column.description} className="p-r-5">
+              <div className="table-visualization-heading">
                 <i className="fa fa-info-circle" aria-hidden="true"></i>
-              </Tooltip>
-            )}
-            <Tooltip placement="top" title={column.title}>
-              {column.title}
+              </div>
             </Tooltip>
-          </div>
+          )}
+          <Tooltip placement="top" title={column.title}>
+            <div className="table-visualization-heading" data-sort-column-index={sortColumnIndex}>
+              {column.title}
+            </div>
+          </Tooltip>
           <span className="ant-table-column-sorter">
             <div className="ant-table-column-sorter-inner ant-table-column-sorter-inner-full">
               <Icon
