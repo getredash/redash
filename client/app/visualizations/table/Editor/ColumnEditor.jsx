@@ -24,14 +24,14 @@ export default function ColumnEditor({ column, onChange }) {
             <Input
               data-test={`Table.Column.${column.name}.Title`}
               defaultValue={column.title}
-              onChange={event => handleChangeDebounced({ title: event.target.value })}
+              onChange={(event) => handleChangeDebounced({ title: event.target.value })}
             />
           </Grid.Col>
           <Grid.Col span={8}>
             <TextAlignmentSelect
               data-test={`Table.Column.${column.name}.TextAlignment`}
               defaultValue={column.alignContent}
-              onChange={event => handleChange({ alignContent: event.target.value })}
+              onChange={(event) => handleChange({ alignContent: event.target.value })}
             />
           </Grid.Col>
         </Grid.Row>
@@ -41,7 +41,7 @@ export default function ColumnEditor({ column, onChange }) {
         <Checkbox
           data-test={`Table.Column.${column.name}.UseForSearch`}
           defaultChecked={column.allowSearch}
-          onChange={event => handleChange({ allowSearch: event.target.checked })}>
+          onChange={(event) => handleChange({ allowSearch: event.target.checked })}>
           Use for search
         </Checkbox>
       </Section>
@@ -50,7 +50,7 @@ export default function ColumnEditor({ column, onChange }) {
         <Input
           label="Description"
           defaultValue={column.description}
-          onChange={event => handleChangeDebounced({ description: event.target.value })}
+          onChange={(event) => handleChangeDebounced({ description: event.target.value })}
         />
       </Section>
 
@@ -60,7 +60,7 @@ export default function ColumnEditor({ column, onChange }) {
           data-test={`Table.Column.${column.name}.DisplayAs`}
           className="w-100"
           defaultValue={column.displayAs}
-          onChange={displayAs => handleChange({ displayAs })}>
+          onChange={(displayAs) => handleChange({ displayAs })}>
           {map(ColumnTypes, ({ friendlyName }, key) => (
             <Select.Option key={key} data-test={`Table.Column.${column.name}.DisplayAs.${key}`}>
               {friendlyName}
