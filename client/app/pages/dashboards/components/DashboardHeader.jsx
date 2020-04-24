@@ -41,7 +41,9 @@ function DashboardPageTitle({ dashboardOptions }) {
             ignoreBlanks
           />
         </h3>
-        <img src={dashboard.user.profile_image_url} className="profile-image" alt={dashboard.user.name} />
+        <Tooltip title={dashboard.user.name} placement="bottom">
+          <img src={dashboard.user.profile_image_url} className="profile-image" alt={dashboard.user.name} />
+        </Tooltip>
       </div>
       <DashboardTagsControl
         tags={dashboard.tags}
