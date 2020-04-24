@@ -20,7 +20,7 @@ import { DashboardStatusEnum } from "../hooks/useDashboard";
 import "./DashboardHeader.less";
 
 function getDashboardTags() {
-  return getTags("api/dashboards/tags").then(tags => map(tags, t => t.name));
+  return getTags("api/dashboards/tags").then((tags) => map(tags, (t) => t.name));
 }
 
 function buttonType(value) {
@@ -36,7 +36,7 @@ function DashboardPageTitle({ dashboardOptions }) {
         <h3>
           <EditInPlace
             isEditable={editingLayout}
-            onDone={name => updateDashboard({ name })}
+            onDone={(name) => updateDashboard({ name })}
             value={dashboard.name}
             ignoreBlanks
           />
@@ -51,7 +51,7 @@ function DashboardPageTitle({ dashboardOptions }) {
         isArchived={dashboard.is_archived}
         canEdit={canEditDashboard}
         getAvailableTags={getDashboardTags}
-        onEdit={tags => updateDashboard({ tags })}
+        onEdit={(tags) => updateDashboard({ tags })}
       />
     </div>
   );
@@ -87,7 +87,7 @@ function RefreshButton({ dashboardOptions }) {
         placement="bottomRight"
         overlay={
           <Menu onClick={onRefreshRateSelected} selectedKeys={[`${refreshRate}`]}>
-            {refreshRateOptions.map(option => (
+            {refreshRateOptions.map((option) => (
               <Menu.Item key={`${option}`} disabled={!includes(allowedIntervals, option)}>
                 {durationHumanize(option)}
               </Menu.Item>

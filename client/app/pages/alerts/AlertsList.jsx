@@ -94,7 +94,7 @@ class AlertsList extends React.Component {
                   totalCount={controller.totalItemsCount}
                   itemsPerPage={controller.itemsPerPage}
                   page={controller.page}
-                  onChange={page => controller.updatePagination({ page })}
+                  onChange={(page) => controller.updatePagination({ page })}
                 />
               </div>
             )}
@@ -123,5 +123,5 @@ const AlertsListPage = itemsList(
 export default routeWithUserSession({
   path: "/alerts",
   title: "Alerts",
-  render: pageProps => <AlertsListPage {...pageProps} currentPage="alerts" />,
+  render: (pageProps) => <AlertsListPage {...pageProps} currentPage="alerts" />,
 });

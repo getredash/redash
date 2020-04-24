@@ -89,7 +89,7 @@ class DashboardList extends React.Component {
                 className="m-b-10"
                 options={controller.pageSizeOptions}
                 value={controller.itemsPerPage}
-                onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                onChange={(itemsPerPage) => controller.updatePagination({ itemsPerPage })}
               />
             </Layout.Sidebar>
             <Layout.Content>
@@ -114,7 +114,7 @@ class DashboardList extends React.Component {
                         totalCount={controller.totalItemsCount}
                         itemsPerPage={controller.itemsPerPage}
                         page={controller.page}
-                        onChange={page => controller.updatePagination({ page })}
+                        onChange={(page) => controller.updatePagination({ page })}
                       />
                     </div>
                   )}
@@ -141,7 +141,7 @@ const DashboardListPage = itemsList(
         }[currentPage];
       },
       getItemProcessor() {
-        return item => new Dashboard(item);
+        return (item) => new Dashboard(item);
       },
     }),
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
@@ -151,11 +151,11 @@ export default [
   routeWithUserSession({
     path: "/dashboards",
     title: "Dashboards",
-    render: pageProps => <DashboardListPage {...pageProps} currentPage="all" />,
+    render: (pageProps) => <DashboardListPage {...pageProps} currentPage="all" />,
   }),
   routeWithUserSession({
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
-    render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
+    render: (pageProps) => <DashboardListPage {...pageProps} currentPage="favorites" />,
   }),
 ];
