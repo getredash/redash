@@ -19,7 +19,7 @@ export default function CustomChartSettings({ options, onOptionsChange }) {
           data-test="Chart.Custom.Code"
           rows="10"
           defaultValue={isNil(options.customCode) ? defaultCustomCode : options.customCode}
-          onChange={event => onOptionsChange({ customCode: event.target.value })}
+          onChange={(event) => onOptionsChange({ customCode: event.target.value })}
         />
       </Section>
 
@@ -27,7 +27,7 @@ export default function CustomChartSettings({ options, onOptionsChange }) {
         <Switch
           data-test="Chart.Custom.EnableConsoleLogs"
           defaultChecked={options.enableConsoleLogs}
-          onChange={enableConsoleLogs => onOptionsChange({ enableConsoleLogs })}>
+          onChange={(enableConsoleLogs) => onOptionsChange({ enableConsoleLogs })}>
           Show errors in the console
         </Switch>
       </Section>
@@ -37,7 +37,7 @@ export default function CustomChartSettings({ options, onOptionsChange }) {
           id="chart-editor-auto-update-custom-chart"
           data-test="Chart.Custom.AutoUpdate"
           defaultChecked={options.autoRedraw}
-          onChange={autoRedraw => onOptionsChange({ autoRedraw })}>
+          onChange={(autoRedraw) => onOptionsChange({ autoRedraw })}>
           Auto update graph
         </Switch>
       </Section>

@@ -50,7 +50,7 @@ export default function GroupsSettings({ options, data, onOptionsChange }) {
           placement="topRight"
           color={item.color}
           triggerProps={{ "data-test": `Map.Editor.Groups.${item.name}.Color` }}
-          onChange={value => updateGroupOption(item.name, "color", value)}
+          onChange={(value) => updateGroupOption(item.name, "color", value)}
           addonAfter={<ColorPicker.Label color={item.color} presetColors={colors} />}
         />
       ),

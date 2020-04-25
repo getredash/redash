@@ -28,7 +28,7 @@ export default function ColorsSettings({ options, onOptionsChange }) {
           presetColors={ColorPalette}
           interactive
           color={options.colors.min}
-          onChange={min => onOptionsChange({ colors: { min } })}
+          onChange={(min) => onOptionsChange({ colors: { min } })}
           addonAfter={<ColorPicker.Label color={options.colors.min} presetColors={ColorPalette} />}
         />
       </Section>
@@ -39,7 +39,7 @@ export default function ColorsSettings({ options, onOptionsChange }) {
           presetColors={ColorPalette}
           interactive
           color={options.colors.max}
-          onChange={max => onOptionsChange({ colors: { max } })}
+          onChange={(max) => onOptionsChange({ colors: { max } })}
           addonAfter={<ColorPicker.Label color={options.colors.max} presetColors={ColorPalette} />}
         />
       </Section>
@@ -50,7 +50,7 @@ export default function ColorsSettings({ options, onOptionsChange }) {
           min={minSteps}
           max={maxSteps}
           value={options.colors.steps}
-          onChange={value => onOptionsChange({ colors: { steps: validateSteps(value) } })}
+          onChange={(value) => onOptionsChange({ colors: { steps: validateSteps(value) } })}
         />
       </Section>
     </React.Fragment>

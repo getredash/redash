@@ -27,7 +27,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
     }
   }, [options.mapType]);
 
-  const handleChangeAndInferType = newOptions => {
+  const handleChangeAndInferType = (newOptions) => {
     newOptions.countryCodeType =
       inferCountryCodeType(
         newOptions.mapType || options.mapType,
@@ -44,7 +44,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           label="Map type"
           data-test="Choropleth.Editor.MapType"
           defaultValue={options.mapType}
-          onChange={mapType => handleChangeAndInferType({ mapType })}>
+          onChange={(mapType) => handleChangeAndInferType({ mapType })}>
           <Select.Option key="countries" data-test="Choropleth.Editor.MapType.Countries">
             Countries
           </Select.Option>
@@ -59,7 +59,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           label="Key column"
           data-test="Choropleth.Editor.KeyColumn"
           defaultValue={options.countryCodeColumn}
-          onChange={countryCodeColumn => handleChangeAndInferType({ countryCodeColumn })}>
+          onChange={(countryCodeColumn) => handleChangeAndInferType({ countryCodeColumn })}>
           {map(data.columns, ({ name }) => (
             <Select.Option key={name} data-test={`Choropleth.Editor.KeyColumn.${name}`}>
               {name}
@@ -73,7 +73,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           label="Key type"
           data-test="Choropleth.Editor.KeyType"
           value={options.countryCodeType}
-          onChange={countryCodeType => onOptionsChange({ countryCodeType })}>
+          onChange={(countryCodeType) => onOptionsChange({ countryCodeType })}>
           {map(countryCodeTypes, (name, type) => (
             <Select.Option key={type} data-test={`Choropleth.Editor.KeyType.${type}`}>
               {name}
@@ -87,7 +87,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           label="Value column"
           data-test="Choropleth.Editor.ValueColumn"
           defaultValue={options.valueColumn}
-          onChange={valueColumn => onOptionsChange({ valueColumn })}>
+          onChange={(valueColumn) => onOptionsChange({ valueColumn })}>
           {map(data.columns, ({ name }) => (
             <Select.Option key={name} data-test={`Choropleth.Editor.ValueColumn.${name}`}>
               {name}

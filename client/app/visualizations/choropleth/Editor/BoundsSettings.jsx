@@ -39,10 +39,10 @@ export default function BoundsSettings({ options, onOptionsChange }) {
         <ControlLabel label="North-East latitude and longitude">
           <Grid.Row gutter={15}>
             <Grid.Col span={12}>
-              <InputNumber value={bounds[1][0]} onChange={value => updateBounds(1, 0, value)} />
+              <InputNumber value={bounds[1][0]} onChange={(value) => updateBounds(1, 0, value)} />
             </Grid.Col>
             <Grid.Col span={12}>
-              <InputNumber value={bounds[1][1]} onChange={value => updateBounds(1, 1, value)} />
+              <InputNumber value={bounds[1][1]} onChange={(value) => updateBounds(1, 1, value)} />
             </Grid.Col>
           </Grid.Row>
         </ControlLabel>
@@ -52,10 +52,10 @@ export default function BoundsSettings({ options, onOptionsChange }) {
         <ControlLabel label="South-West latitude and longitude">
           <Grid.Row gutter={15}>
             <Grid.Col span={12}>
-              <InputNumber value={bounds[0][0]} onChange={value => updateBounds(0, 0, value)} />
+              <InputNumber value={bounds[0][0]} onChange={(value) => updateBounds(0, 0, value)} />
             </Grid.Col>
             <Grid.Col span={12}>
-              <InputNumber value={bounds[0][1]} onChange={value => updateBounds(0, 1, value)} />
+              <InputNumber value={bounds[0][1]} onChange={(value) => updateBounds(0, 1, value)} />
             </Grid.Col>
           </Grid.Row>
         </ControlLabel>

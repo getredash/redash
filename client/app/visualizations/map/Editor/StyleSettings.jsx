@@ -90,7 +90,7 @@ export default function StyleSettings({ options, onOptionsChange }) {
           label="Map Tiles"
           data-test="Map.Editor.Tiles"
           value={options.mapTileUrl}
-          onChange={mapTileUrl => onOptionsChange({ mapTileUrl })}>
+          onChange={(mapTileUrl) => onOptionsChange({ mapTileUrl })}>
           {map(mapTiles, ({ name, url }) => (
             <Select.Option key={url} data-test={"Map.Editor.Tiles." + name}>
               {name}
@@ -105,7 +105,7 @@ export default function StyleSettings({ options, onOptionsChange }) {
         <Checkbox
           data-test="Map.Editor.ClusterMarkers"
           defaultChecked={options.clusterMarkers}
-          onChange={event => onOptionsChange({ clusterMarkers: event.target.checked })}>
+          onChange={(event) => onOptionsChange({ clusterMarkers: event.target.checked })}>
           Cluster Markers
         </Checkbox>
       </Section>
@@ -115,7 +115,7 @@ export default function StyleSettings({ options, onOptionsChange }) {
           data-test="Map.Editor.CustomizeMarkers"
           disabled={!isCustomMarkersStyleAllowed}
           defaultChecked={options.customizeMarkers}
-          onChange={event => onOptionsChange({ customizeMarkers: event.target.checked })}>
+          onChange={(event) => onOptionsChange({ customizeMarkers: event.target.checked })}>
           Override default style
         </Checkbox>
         {!isCustomMarkersStyleAllowed && (
@@ -135,7 +135,7 @@ export default function StyleSettings({ options, onOptionsChange }) {
               label="Shape"
               data-test="Map.Editor.MarkerShape"
               value={options.iconShape}
-              onChange={iconShape => onOptionsChange({ iconShape })}>
+              onChange={(iconShape) => onOptionsChange({ iconShape })}>
               <Select.Option key="marker" data-test="Map.Editor.MarkerShape.marker">
                 Marker + Icon
               </Select.Option>
@@ -180,7 +180,7 @@ export default function StyleSettings({ options, onOptionsChange }) {
                 }
                 data-test="Map.Editor.MarkerIcon"
                 defaultValue={options.iconFont}
-                onChange={event => debouncedOnOptionsChange({ iconFont: event.target.value })}
+                onChange={(event) => debouncedOnOptionsChange({ iconFont: event.target.value })}
               />
             </Section>
           )}
@@ -195,7 +195,7 @@ export default function StyleSettings({ options, onOptionsChange }) {
                 placement="topRight"
                 color={options.foregroundColor}
                 triggerProps={{ "data-test": "Map.Editor.MarkerIconColor" }}
-                onChange={foregroundColor => onOptionsChange({ foregroundColor })}
+                onChange={(foregroundColor) => onOptionsChange({ foregroundColor })}
                 addonAfter={<ColorPicker.Label color={options.foregroundColor} presetColors={CustomColorPalette} />}
               />
             </Section>
@@ -211,7 +211,7 @@ export default function StyleSettings({ options, onOptionsChange }) {
                 placement="topRight"
                 color={options.backgroundColor}
                 triggerProps={{ "data-test": "Map.Editor.MarkerBackgroundColor" }}
-                onChange={backgroundColor => onOptionsChange({ backgroundColor })}
+                onChange={(backgroundColor) => onOptionsChange({ backgroundColor })}
                 addonAfter={<ColorPicker.Label color={options.backgroundColor} presetColors={CustomColorPalette} />}
               />
             </Section>
@@ -227,7 +227,7 @@ export default function StyleSettings({ options, onOptionsChange }) {
                 placement="topRight"
                 color={options.borderColor}
                 triggerProps={{ "data-test": "Map.Editor.MarkerBorderColor" }}
-                onChange={borderColor => onOptionsChange({ borderColor })}
+                onChange={(borderColor) => onOptionsChange({ borderColor })}
                 addonAfter={<ColorPicker.Label color={options.borderColor} presetColors={CustomColorPalette} />}
               />
             </Section>

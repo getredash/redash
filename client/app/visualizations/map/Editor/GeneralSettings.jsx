@@ -4,14 +4,14 @@ import { Section, Select } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 function getColumns(column, unusedColumns) {
-  return filter([column, ...unusedColumns], v => !isNil(v));
+  return filter([column, ...unusedColumns], (v) => !isNil(v));
 }
 
 export default function GeneralSettings({ options, data, onOptionsChange }) {
   const unusedColumns = useMemo(
     () =>
       difference(
-        map(data.columns, c => c.name),
+        map(data.columns, (c) => c.name),
         [options.latColName, options.lonColName, options.classify]
       ),
     [data, options.latColName, options.lonColName, options.classify]
@@ -24,8 +24,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           label="Latitude Column Name"
           data-test="Map.Editor.LatitudeColumnName"
           value={options.latColName}
-          onChange={latColName => onOptionsChange({ latColName })}>
-          {map(getColumns(options.latColName, unusedColumns), col => (
+          onChange={(latColName) => onOptionsChange({ latColName })}>
+          {map(getColumns(options.latColName, unusedColumns), (col) => (
             <Select.Option key={col} data-test={"Map.Editor.LatitudeColumnName." + col}>
               {col}
             </Select.Option>
@@ -38,8 +38,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           label="Longitude Column Name"
           data-test="Map.Editor.LongitudeColumnName"
           value={options.lonColName}
-          onChange={lonColName => onOptionsChange({ lonColName })}>
-          {map(getColumns(options.lonColName, unusedColumns), col => (
+          onChange={(lonColName) => onOptionsChange({ lonColName })}>
+          {map(getColumns(options.lonColName, unusedColumns), (col) => (
             <Select.Option key={col} data-test={"Map.Editor.LongitudeColumnName." + col}>
               {col}
             </Select.Option>
@@ -54,8 +54,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           allowClear
           placeholder="none"
           value={options.classify || undefined}
-          onChange={column => onOptionsChange({ classify: column || null })}>
-          {map(getColumns(options.classify, unusedColumns), col => (
+          onChange={(column) => onOptionsChange({ classify: column || null })}>
+          {map(getColumns(options.classify, unusedColumns), (col) => (
             <Select.Option key={col} data-test={"Map.Editor.GroupBy." + col}>
               {col}
             </Select.Option>

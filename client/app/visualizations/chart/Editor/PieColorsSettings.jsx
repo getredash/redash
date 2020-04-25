@@ -8,8 +8,8 @@ import getChartData from "../getChartData";
 
 function getUniqueValues(chartData) {
   const uniqueValuesNames = new Set();
-  each(chartData, series => {
-    each(series.data, row => {
+  each(chartData, (series) => {
+    each(series.data, (row) => {
       uniqueValuesNames.add(row.x);
     });
   });
@@ -27,7 +27,7 @@ export default function PieColorsSettings({ options, data, onOptionsChange }) {
 
   const series = useMemo(
     () =>
-      map(getUniqueValues(getChartData(data.rows, options)), value => ({
+      map(getUniqueValues(getChartData(data.rows, options)), (value) => ({
         key: value,
         color: (options.valuesOptions[value] || {}).color || null,
       })),
@@ -63,7 +63,7 @@ export default function PieColorsSettings({ options, data, onOptionsChange }) {
           presetColors={colors}
           placement="topRight"
           color={item.color}
-          onChange={value => updateValuesOption(item.key, "color", value)}
+          onChange={(value) => updateValuesOption(item.key, "color", value)}
           addonAfter={<ColorPicker.Label color={item.color} presetColors={colors} />}
         />
       ),

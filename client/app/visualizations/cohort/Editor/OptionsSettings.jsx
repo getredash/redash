@@ -23,7 +23,7 @@ export default function OptionsSettings({ options, onOptionsChange }) {
           label="Time Interval"
           data-test="Cohort.TimeInterval"
           value={options.timeInterval}
-          onChange={timeInterval => onOptionsChange({ timeInterval })}>
+          onChange={(timeInterval) => onOptionsChange({ timeInterval })}>
           {map(CohortTimeIntervals, (name, value) => (
             <Select.Option key={value} data-test={"Cohort.TimeInterval." + value}>
               {name}
@@ -38,7 +38,7 @@ export default function OptionsSettings({ options, onOptionsChange }) {
           label="Mode"
           data-test="Cohort.Mode"
           value={options.mode}
-          onChange={mode => onOptionsChange({ mode })}>
+          onChange={(mode) => onOptionsChange({ mode })}>
           {map(CohortModes, (name, value) => (
             <Select.Option key={value} data-test={"Cohort.Mode." + value}>
               {name}

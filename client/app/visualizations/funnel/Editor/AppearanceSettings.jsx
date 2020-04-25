@@ -19,7 +19,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           }
           data-test="Funnel.NumberFormat"
           defaultValue={options.numberFormat}
-          onChange={event => onOptionsChangeDebounced({ numberFormat: event.target.value })}
+          onChange={(event) => onOptionsChangeDebounced({ numberFormat: event.target.value })}
         />
       </Section>
 
@@ -34,7 +34,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           }
           data-test="Funnel.PercentFormat"
           defaultValue={options.percentFormat}
-          onChange={event => onOptionsChangeDebounced({ percentFormat: event.target.value })}
+          onChange={(event) => onOptionsChangeDebounced({ percentFormat: event.target.value })}
         />
       </Section>
 
@@ -45,7 +45,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           data-test="Funnel.ItemsLimit"
           min={2}
           defaultValue={options.itemsLimit}
-          onChange={itemsLimit => onOptionsChangeDebounced({ itemsLimit })}
+          onChange={(itemsLimit) => onOptionsChangeDebounced({ itemsLimit })}
         />
       </Section>
 
@@ -56,7 +56,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           data-test="Funnel.PercentRangeMin"
           min={0}
           defaultValue={options.percentValuesRange.min}
-          onChange={min => onOptionsChangeDebounced({ percentValuesRange: { min } })}
+          onChange={(min) => onOptionsChangeDebounced({ percentValuesRange: { min } })}
         />
       </Section>
 
@@ -67,7 +67,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           data-test="Funnel.PercentRangeMax"
           min={0}
           defaultValue={options.percentValuesRange.max}
-          onChange={max => onOptionsChangeDebounced({ percentValuesRange: { max } })}
+          onChange={(max) => onOptionsChangeDebounced({ percentValuesRange: { max } })}
         />
       </Section>
     </React.Fragment>

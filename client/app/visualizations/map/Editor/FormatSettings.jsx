@@ -26,7 +26,7 @@ export default function FormatSettings({ options, onOptionsChange }) {
         <Checkbox
           data-test="Map.Editor.TooltipEnabled"
           checked={options.tooltip.enabled}
-          onChange={event => onOptionsChange({ tooltip: { enabled: event.target.checked } })}>
+          onChange={(event) => onOptionsChange({ tooltip: { enabled: event.target.checked } })}>
           Show tooltip
         </Checkbox>
       </Section>
@@ -38,7 +38,7 @@ export default function FormatSettings({ options, onOptionsChange }) {
           disabled={!options.tooltip.enabled}
           placeholder="Default template"
           defaultValue={options.tooltip.template}
-          onChange={event => onOptionsChangeDebounced({ tooltip: { template: event.target.value } })}
+          onChange={(event) => onOptionsChangeDebounced({ tooltip: { template: event.target.value } })}
         />
       </Section>
 
@@ -46,7 +46,7 @@ export default function FormatSettings({ options, onOptionsChange }) {
         <Checkbox
           data-test="Map.Editor.PopupEnabled"
           checked={options.popup.enabled}
-          onChange={event => onOptionsChange({ popup: { enabled: event.target.checked } })}>
+          onChange={(event) => onOptionsChange({ popup: { enabled: event.target.checked } })}>
           Show popup
         </Checkbox>
       </Section>
@@ -59,7 +59,7 @@ export default function FormatSettings({ options, onOptionsChange }) {
           rows={4}
           placeholder="Default template"
           defaultValue={options.popup.template}
-          onChange={event => onOptionsChangeDebounced({ popup: { template: event.target.value } })}
+          onChange={(event) => onOptionsChangeDebounced({ popup: { template: event.target.value } })}
         />
       </Section>
     </div>

@@ -12,8 +12,8 @@ export default function GridSettings({ options, onOptionsChange }) {
         label="Items per page"
         data-test="Table.ItemsPerPage"
         defaultValue={options.itemsPerPage}
-        onChange={itemsPerPage => onOptionsChange({ itemsPerPage })}>
-        {map(ALLOWED_ITEM_PER_PAGE, value => (
+        onChange={(itemsPerPage) => onOptionsChange({ itemsPerPage })}>
+        {map(ALLOWED_ITEM_PER_PAGE, (value) => (
           <Select.Option key={`ipp${value}`} value={value} data-test={`Table.ItemsPerPage.${value}`}>
             {value}
           </Select.Option>

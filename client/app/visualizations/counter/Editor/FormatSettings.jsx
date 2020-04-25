@@ -15,7 +15,7 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
           data-test="Counter.Formatting.DecimalPlace"
           defaultValue={options.stringDecimal}
           disabled={!inputsEnabled}
-          onChange={stringDecimal => onOptionsChange({ stringDecimal })}
+          onChange={(stringDecimal) => onOptionsChange({ stringDecimal })}
         />
       </Section>
 
@@ -26,7 +26,7 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
           data-test="Counter.Formatting.DecimalCharacter"
           defaultValue={options.stringDecChar}
           disabled={!inputsEnabled}
-          onChange={e => onOptionsChange({ stringDecChar: e.target.value })}
+          onChange={(e) => onOptionsChange({ stringDecChar: e.target.value })}
         />
       </Section>
 
@@ -37,7 +37,7 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
           data-test="Counter.Formatting.ThousandsSeparator"
           defaultValue={options.stringThouSep}
           disabled={!inputsEnabled}
-          onChange={e => onOptionsChange({ stringThouSep: e.target.value })}
+          onChange={(e) => onOptionsChange({ stringThouSep: e.target.value })}
         />
       </Section>
 
@@ -48,7 +48,7 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
           data-test="Counter.Formatting.StringPrefix"
           defaultValue={options.stringPrefix}
           disabled={!inputsEnabled}
-          onChange={e => onOptionsChange({ stringPrefix: e.target.value })}
+          onChange={(e) => onOptionsChange({ stringPrefix: e.target.value })}
         />
       </Section>
 
@@ -59,7 +59,7 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
           data-test="Counter.Formatting.StringSuffix"
           defaultValue={options.stringSuffix}
           disabled={!inputsEnabled}
-          onChange={e => onOptionsChange({ stringSuffix: e.target.value })}
+          onChange={(e) => onOptionsChange({ stringSuffix: e.target.value })}
         />
       </Section>
 
@@ -67,7 +67,7 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
         <Switch
           data-test="Counter.Formatting.FormatTargetValue"
           defaultChecked={options.formatTargetValue}
-          onChange={formatTargetValue => onOptionsChange({ formatTargetValue })}>
+          onChange={(formatTargetValue) => onOptionsChange({ formatTargetValue })}>
           Format Target Value
         </Switch>
       </Section>

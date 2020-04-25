@@ -19,7 +19,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
           <Checkbox
             data-test="Chart.DataLabels.ShowDataLabels"
             defaultChecked={options.showDataLabels}
-            onChange={event => onOptionsChange({ showDataLabels: event.target.checked })}>
+            onChange={(event) => onOptionsChange({ showDataLabels: event.target.checked })}>
             Show Data Labels
           </Checkbox>
         </Section>
@@ -35,7 +35,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
           }
           data-test="Chart.DataLabels.NumberFormat"
           defaultValue={options.numberFormat}
-          onChange={e => debouncedOnOptionsChange({ numberFormat: e.target.value })}
+          onChange={(e) => debouncedOnOptionsChange({ numberFormat: e.target.value })}
         />
       </Section>
 
@@ -49,7 +49,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
           }
           data-test="Chart.DataLabels.PercentFormat"
           defaultValue={options.percentFormat}
-          onChange={e => debouncedOnOptionsChange({ percentFormat: e.target.value })}
+          onChange={(e) => debouncedOnOptionsChange({ percentFormat: e.target.value })}
         />
       </Section>
 
@@ -63,7 +63,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
           }
           data-test="Chart.DataLabels.DateTimeFormat"
           defaultValue={options.dateTimeFormat}
-          onChange={e => debouncedOnOptionsChange({ dateTimeFormat: e.target.value })}
+          onChange={(e) => debouncedOnOptionsChange({ dateTimeFormat: e.target.value })}
         />
       </Section>
 
@@ -104,7 +104,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
           data-test="Chart.DataLabels.TextFormat"
           placeholder="(auto)"
           defaultValue={options.textFormat}
-          onChange={e => debouncedOnOptionsChange({ textFormat: e.target.value })}
+          onChange={(e) => debouncedOnOptionsChange({ textFormat: e.target.value })}
         />
       </Section>
     </React.Fragment>

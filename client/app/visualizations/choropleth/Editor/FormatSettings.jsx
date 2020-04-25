@@ -81,7 +81,7 @@ export default function GeneralSettings({ options, onOptionsChange }) {
               }
               data-test="Choropleth.Editor.ValueFormat"
               defaultValue={options.valueFormat}
-              onChange={event => onOptionsChangeDebounced({ valueFormat: event.target.value })}
+              onChange={(event) => onOptionsChangeDebounced({ valueFormat: event.target.value })}
             />
           </Grid.Col>
           <Grid.Col span={12}>
@@ -89,7 +89,7 @@ export default function GeneralSettings({ options, onOptionsChange }) {
               label="Value placeholder"
               data-test="Choropleth.Editor.ValuePlaceholder"
               defaultValue={options.noValuePlaceholder}
-              onChange={event => onOptionsChangeDebounced({ noValuePlaceholder: event.target.value })}
+              onChange={(event) => onOptionsChangeDebounced({ noValuePlaceholder: event.target.value })}
             />
           </Grid.Col>
         </Grid.Row>
@@ -99,7 +99,7 @@ export default function GeneralSettings({ options, onOptionsChange }) {
         <Checkbox
           data-test="Choropleth.Editor.LegendVisibility"
           checked={options.legend.visible}
-          onChange={event => onOptionsChange({ legend: { visible: event.target.checked } })}>
+          onChange={(event) => onOptionsChange({ legend: { visible: event.target.checked } })}>
           Show legend
         </Checkbox>
       </Section>
@@ -112,7 +112,7 @@ export default function GeneralSettings({ options, onOptionsChange }) {
               data-test="Choropleth.Editor.LegendPosition"
               disabled={!options.legend.visible}
               defaultValue={options.legend.position}
-              onChange={position => onOptionsChange({ legend: { position } })}>
+              onChange={(position) => onOptionsChange({ legend: { position } })}>
               <Select.Option value="top-left" data-test="Choropleth.Editor.LegendPosition.TopLeft">
                 top / left
               </Select.Option>
@@ -133,7 +133,7 @@ export default function GeneralSettings({ options, onOptionsChange }) {
               label="Legend text alignment"
               disabled={!options.legend.visible}
               defaultValue={options.legend.alignText}
-              onChange={event => onOptionsChange({ legend: { alignText: event.target.value } })}
+              onChange={(event) => onOptionsChange({ legend: { alignText: event.target.value } })}
             />
           </Grid.Col>
         </Grid.Row>
@@ -143,7 +143,7 @@ export default function GeneralSettings({ options, onOptionsChange }) {
         <Checkbox
           data-test="Choropleth.Editor.TooltipEnabled"
           checked={options.tooltip.enabled}
-          onChange={event => onOptionsChange({ tooltip: { enabled: event.target.checked } })}>
+          onChange={(event) => onOptionsChange({ tooltip: { enabled: event.target.checked } })}>
           Show tooltip
         </Checkbox>
       </Section>
@@ -154,7 +154,7 @@ export default function GeneralSettings({ options, onOptionsChange }) {
           data-test="Choropleth.Editor.TooltipTemplate"
           disabled={!options.tooltip.enabled}
           defaultValue={options.tooltip.template}
-          onChange={event => onOptionsChangeDebounced({ tooltip: { template: event.target.value } })}
+          onChange={(event) => onOptionsChangeDebounced({ tooltip: { template: event.target.value } })}
         />
       </Section>
 
@@ -162,7 +162,7 @@ export default function GeneralSettings({ options, onOptionsChange }) {
         <Checkbox
           data-test="Choropleth.Editor.PopupEnabled"
           checked={options.popup.enabled}
-          onChange={event => onOptionsChange({ popup: { enabled: event.target.checked } })}>
+          onChange={(event) => onOptionsChange({ popup: { enabled: event.target.checked } })}>
           Show popup
         </Checkbox>
       </Section>
@@ -174,7 +174,7 @@ export default function GeneralSettings({ options, onOptionsChange }) {
           disabled={!options.popup.enabled}
           rows={4}
           defaultValue={options.popup.template}
-          onChange={event => onOptionsChangeDebounced({ popup: { template: event.target.value } })}
+          onChange={(event) => onOptionsChangeDebounced({ popup: { template: event.target.value } })}
         />
       </Section>
     </div>

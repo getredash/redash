@@ -13,7 +13,7 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           data-test="Counter.General.Label"
           defaultValue={options.counterLabel}
           placeholder={visualizationName}
-          onChange={e => onOptionsChange({ counterLabel: e.target.value })}
+          onChange={(e) => onOptionsChange({ counterLabel: e.target.value })}
         />
       </Section>
 
@@ -24,8 +24,8 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           data-test="Counter.General.ValueColumn"
           defaultValue={options.counterColName}
           disabled={options.countRow}
-          onChange={counterColName => onOptionsChange({ counterColName })}>
-          {map(data.columns, col => (
+          onChange={(counterColName) => onOptionsChange({ counterColName })}>
+          {map(data.columns, (col) => (
             <Select.Option key={col.name} data-test={"Counter.General.ValueColumn." + col.name}>
               {col.name}
             </Select.Option>
@@ -40,7 +40,7 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           data-test="Counter.General.ValueRowNumber"
           defaultValue={options.rowNumber}
           disabled={options.countRow}
-          onChange={rowNumber => onOptionsChange({ rowNumber })}
+          onChange={(rowNumber) => onOptionsChange({ rowNumber })}
         />
       </Section>
 
@@ -50,9 +50,9 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           label="Target Value Column Name"
           data-test="Counter.General.TargetValueColumn"
           defaultValue={options.targetColName}
-          onChange={targetColName => onOptionsChange({ targetColName })}>
+          onChange={(targetColName) => onOptionsChange({ targetColName })}>
           <Select.Option value="">No target value</Select.Option>
-          {map(data.columns, col => (
+          {map(data.columns, (col) => (
             <Select.Option key={col.name} data-test={"Counter.General.TargetValueColumn." + col.name}>
               {col.name}
             </Select.Option>
@@ -66,7 +66,7 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           label="Target Value Row Number"
           data-test="Counter.General.TargetValueRowNumber"
           defaultValue={options.targetRowNumber}
-          onChange={targetRowNumber => onOptionsChange({ targetRowNumber })}
+          onChange={(targetRowNumber) => onOptionsChange({ targetRowNumber })}
         />
       </Section>
 
@@ -74,7 +74,7 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
         <Switch
           data-test="Counter.General.CountRows"
           defaultChecked={options.countRow}
-          onChange={countRow => onOptionsChange({ countRow })}>
+          onChange={(countRow) => onOptionsChange({ countRow })}>
           Count Rows
         </Switch>
       </Section>

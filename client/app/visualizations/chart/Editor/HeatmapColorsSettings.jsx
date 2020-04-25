@@ -35,8 +35,8 @@ export default function HeatmapColorsSettings({ options, onOptionsChange }) {
           placeholder="Choose Color Scheme..."
           allowClear
           value={options.colorScheme || undefined}
-          onChange={value => onOptionsChange({ colorScheme: value || null })}>
-          {map(ColorSchemes, scheme => (
+          onChange={(value) => onOptionsChange({ colorScheme: value || null })}>
+          {map(ColorSchemes, (scheme) => (
             <Select.Option key={scheme} value={scheme} data-test={`Chart.Colors.Heatmap.ColorScheme.${scheme}`}>
               {scheme}
             </Select.Option>
@@ -55,7 +55,7 @@ export default function HeatmapColorsSettings({ options, onOptionsChange }) {
               placement="topLeft"
               presetColors={ColorPalette}
               color={options.heatMinColor}
-              onChange={heatMinColor => onOptionsChange({ heatMinColor })}
+              onChange={(heatMinColor) => onOptionsChange({ heatMinColor })}
               addonAfter={<ColorPicker.Label color={options.heatMinColor} presetColors={ColorPalette} />}
             />
           </Section>
@@ -68,7 +68,7 @@ export default function HeatmapColorsSettings({ options, onOptionsChange }) {
               placement="topRight"
               presetColors={ColorPalette}
               color={options.heatMaxColor}
-              onChange={heatMaxColor => onOptionsChange({ heatMaxColor })}
+              onChange={(heatMaxColor) => onOptionsChange({ heatMaxColor })}
               addonAfter={<ColorPicker.Label color={options.heatMaxColor} presetColors={ColorPalette} />}
             />
           </Section>

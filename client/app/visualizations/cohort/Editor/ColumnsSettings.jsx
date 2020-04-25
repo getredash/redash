@@ -12,7 +12,7 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
           label="Date (Bucket)"
           data-test="Cohort.DateColumn"
           value={options.dateColumn}
-          onChange={dateColumn => onOptionsChange({ dateColumn })}>
+          onChange={(dateColumn) => onOptionsChange({ dateColumn })}>
           {map(data.columns, ({ name }) => (
             <Select.Option key={name} data-test={"Cohort.DateColumn." + name}>
               {name}
@@ -27,7 +27,7 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
           label="Stage"
           data-test="Cohort.StageColumn"
           value={options.stageColumn}
-          onChange={stageColumn => onOptionsChange({ stageColumn })}>
+          onChange={(stageColumn) => onOptionsChange({ stageColumn })}>
           {map(data.columns, ({ name }) => (
             <Select.Option key={name} data-test={"Cohort.StageColumn." + name}>
               {name}
@@ -42,7 +42,7 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
           label="Bucket Population Size"
           data-test="Cohort.TotalColumn"
           value={options.totalColumn}
-          onChange={totalColumn => onOptionsChange({ totalColumn })}>
+          onChange={(totalColumn) => onOptionsChange({ totalColumn })}>
           {map(data.columns, ({ name }) => (
             <Select.Option key={name} data-test={"Cohort.TotalColumn." + name}>
               {name}
@@ -57,7 +57,7 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
           label="Stage Value"
           data-test="Cohort.ValueColumn"
           value={options.valueColumn}
-          onChange={valueColumn => onOptionsChange({ valueColumn })}>
+          onChange={(valueColumn) => onOptionsChange({ valueColumn })}>
           {map(data.columns, ({ name }) => (
             <Select.Option key={name} data-test={"Cohort.ValueColumn." + name}>
               {name}

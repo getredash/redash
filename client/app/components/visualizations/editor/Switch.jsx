@@ -6,13 +6,7 @@ import Typography from "antd/lib/typography";
 import "./Switch.less";
 
 export default function Switch({ id, children, disabled, ...props }) {
-  const fallbackId = useMemo(
-    () =>
-      `visualization-editor-control-${Math.random()
-        .toString(36)
-        .substr(2, 10)}`,
-    []
-  );
+  const fallbackId = useMemo(() => `visualization-editor-control-${Math.random().toString(36).substr(2, 10)}`, []);
   id = id || fallbackId;
 
   if (children) {

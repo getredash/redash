@@ -53,7 +53,7 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
           presetColors={colors}
           placement="topRight"
           color={item.color}
-          onChange={value => updateSeriesOption(item.key, "color", value)}
+          onChange={(value) => updateSeriesOption(item.key, "color", value)}
           addonAfter={<ColorPicker.Label color={item.color} presetColors={colors} />}
         />
       ),

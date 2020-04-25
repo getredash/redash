@@ -19,7 +19,7 @@ export default function ColumnsSettings({ options, onOptionsChange }) {
     if (event) {
       event.stopPropagation();
     }
-    const columns = map(options.columns, c => (c.name === newColumn.name ? newColumn : c));
+    const columns = map(options.columns, (c) => (c.name === newColumn.name ? newColumn : c));
     onOptionsChange({ columns });
   }
 
@@ -35,7 +35,7 @@ export default function ColumnsSettings({ options, onOptionsChange }) {
       lockAxis="y"
       useDragHandle
       helperClass="table-editor-columns-dragged-item"
-      helperContainer={container => container.firstChild}
+      helperContainer={(container) => container.firstChild}
       onSortEnd={handleColumnsReorder}
       containerProps={{
         className: "table-visualization-editor-columns",
@@ -63,7 +63,7 @@ export default function ColumnsSettings({ options, onOptionsChange }) {
                 <Icon
                   data-test={`Table.Column.${column.name}.Visibility`}
                   type={column.visible ? "eye" : "eye-invisible"}
-                  onClick={event => handleColumnChange({ ...column, visible: !column.visible }, event)}
+                  onClick={(event) => handleColumnChange({ ...column, visible: !column.visible }, event)}
                 />
               </Tooltip>
             }>

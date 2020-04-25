@@ -13,7 +13,7 @@ const MappingTypes = {
 };
 
 export default function ColumnMappingSelect({ value, availableColumns, type, onChange }) {
-  const options = sortBy(filter(uniq(flatten([availableColumns, value])), v => isString(v) && v !== ""));
+  const options = sortBy(filter(uniq(flatten([availableColumns, value])), (v) => isString(v) && v !== ""));
   const { label, multiple } = MappingTypes[type];
 
   return (
@@ -26,8 +26,8 @@ export default function ColumnMappingSelect({ value, availableColumns, type, onC
         showSearch
         placeholder={multiple ? "Choose columns..." : "Choose column..."}
         value={value || undefined}
-        onChange={column => onChange(column || null, type)}>
-        {map(options, c => (
+        onChange={(column) => onChange(column || null, type)}>
+        {map(options, (c) => (
           <Select.Option key={c} value={c} data-test={`Chart.ColumnMapping.${type}.${c}`}>
             {c}
           </Select.Option>

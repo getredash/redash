@@ -32,11 +32,11 @@ function getAvailableColumnMappingTypes(options) {
 function getMappedColumns(options, availableColumns) {
   const mappedColumns = {};
   const availableTypes = getAvailableColumnMappingTypes(options);
-  each(availableTypes, type => {
+  each(availableTypes, (type) => {
     mappedColumns[type] = ColumnMappingSelect.MappingTypes[type].multiple ? [] : null;
   });
 
-  availableColumns = map(availableColumns, c => c.name);
+  availableColumns = map(availableColumns, (c) => c.name);
   const usedColumns = [];
 
   each(options.columnMapping, (type, column) => {
@@ -61,7 +61,7 @@ function mappedColumnsToColumnMappings(mappedColumns) {
   const result = {};
   each(mappedColumns, (value, type) => {
     if (isArray(value)) {
-      each(value, v => {
+      each(value, (v) => {
         result[v] = type;
       });
     } else {
@@ -83,7 +83,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
     onOptionsChange({
       globalSeriesType,
       showDataLabels: globalSeriesType === "pie",
-      seriesOptions: mapValues(options.seriesOptions, series => ({
+      seriesOptions: mapValues(options.seriesOptions, (series) => ({
         ...series,
         type: globalSeriesType,
       })),
@@ -126,7 +126,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
               label="Bubble Size Coefficient"
               data-test="Chart.BubbleCoefficient"
               defaultValue={options.coefficient}
-              onChange={value => onOptionsChange({ coefficient: toNumber(value) })}
+              onChange={(value) => onOptionsChange({ coefficient: toNumber(value) })}
             />
           </Section>
 
@@ -135,7 +135,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
               label="Bubble Size Proportional To"
               data-test="Chart.SizeMode"
               defaultValue={options.sizemode}
-              onChange={mode => onOptionsChange({ sizemode: mode })}>
+              onChange={(mode) => onOptionsChange({ sizemode: mode })}>
               <Select.Option value="area" data-test="Chart.SizeMode.Area">
                 Area
               </Select.Option>
@@ -153,7 +153,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             label="Direction"
             data-test="Chart.PieDirection"
             defaultValue={options.direction.type}
-            onChange={type => onOptionsChange({ direction: { type } })}>
+            onChange={(type) => onOptionsChange({ direction: { type } })}>
             <Select.Option value="counterclockwise" data-test="Chart.PieDirection.Counterclockwise">
               Counterclockwise
             </Select.Option>
@@ -169,7 +169,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           <Checkbox
             data-test="Chart.ShowLegend"
             defaultChecked={options.legend.enabled}
-            onChange={event => onOptionsChange({ legend: { enabled: event.target.checked } })}>
+            onChange={(event) => onOptionsChange({ legend: { enabled: event.target.checked } })}>
             Show Legend
           </Checkbox>
         </Section>
@@ -180,7 +180,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           <Checkbox
             data-test="Chart.ShowPoints"
             defaultChecked={options.showpoints}
-            onChange={event => onOptionsChange({ showpoints: event.target.checked })}>
+            onChange={(event) => onOptionsChange({ showpoints: event.target.checked })}>
             Show All Points
           </Checkbox>
         </Section>
@@ -193,7 +193,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             data-test="Chart.Stacking"
             defaultValue={options.series.stacking}
             disabled={!includes(["line", "area", "column"], options.globalSeriesType)}
-            onChange={stacking => onOptionsChange({ series: { stacking } })}>
+            onChange={(stacking) => onOptionsChange({ series: { stacking } })}>
             <Select.Option value={null} data-test="Chart.Stacking.Disabled">
               Disabled
             </Select.Option>
@@ -209,7 +209,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           <Checkbox
             data-test="Chart.NormalizeValues"
             defaultChecked={options.series.percentValues}
-            onChange={event => onOptionsChange({ series: { percentValues: event.target.checked } })}>
+            onChange={(event) => onOptionsChange({ series: { percentValues: event.target.checked } })}>
             Normalize values to percentage
           </Checkbox>
         </Section>
@@ -221,7 +221,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             label="Missing and NULL values"
             data-test="Chart.MissingValues"
             defaultValue={options.missingValuesAsZero ? 1 : 0}
-            onChange={value => onOptionsChange({ missingValuesAsZero: !!value })}>
+            onChange={(value) => onOptionsChange({ missingValuesAsZero: !!value })}>
             <Select.Option value={0} data-test="Chart.MissingValues.Keep">
               Do not display in chart
             </Select.Option>

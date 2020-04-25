@@ -5,7 +5,7 @@ import { Section, Select, InputNumber, ControlLabel } from "@/components/visuali
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function Editor({ options, data, onOptionsChange }) {
-  const optionsChanged = newOptions => {
+  const optionsChanged = (newOptions) => {
     onOptionsChange(merge({}, options, newOptions));
   };
 
@@ -16,7 +16,7 @@ export default function Editor({ options, data, onOptionsChange }) {
           label="Words Column"
           data-test="WordCloud.WordsColumn"
           value={options.column}
-          onChange={column => optionsChanged({ column })}>
+          onChange={(column) => optionsChanged({ column })}>
           {map(data.columns, ({ name }) => (
             <Select.Option key={name} data-test={"WordCloud.WordsColumn." + name}>
               {name}
@@ -29,7 +29,7 @@ export default function Editor({ options, data, onOptionsChange }) {
           label="Frequencies Column"
           data-test="WordCloud.FrequenciesColumn"
           value={options.frequenciesColumn}
-          onChange={frequenciesColumn => optionsChanged({ frequenciesColumn })}>
+          onChange={(frequenciesColumn) => optionsChanged({ frequenciesColumn })}>
           <Select.Option key="none" value="">
             <i>(count word frequencies automatically)</i>
           </Select.Option>
@@ -49,7 +49,7 @@ export default function Editor({ options, data, onOptionsChange }) {
                 placeholder="Min"
                 min={0}
                 value={options.wordLengthLimit.min}
-                onChange={value => optionsChanged({ wordLengthLimit: { min: value > 0 ? value : null } })}
+                onChange={(value) => optionsChanged({ wordLengthLimit: { min: value > 0 ? value : null } })}
               />
             </Grid.Col>
             <Grid.Col span={12}>
@@ -58,7 +58,7 @@ export default function Editor({ options, data, onOptionsChange }) {
                 placeholder="Max"
                 min={0}
                 value={options.wordLengthLimit.max}
-                onChange={value => optionsChanged({ wordLengthLimit: { max: value > 0 ? value : null } })}
+                onChange={(value) => optionsChanged({ wordLengthLimit: { max: value > 0 ? value : null } })}
               />
             </Grid.Col>
           </Grid.Row>
@@ -73,7 +73,7 @@ export default function Editor({ options, data, onOptionsChange }) {
                 placeholder="Min"
                 min={0}
                 value={options.wordCountLimit.min}
-                onChange={value => optionsChanged({ wordCountLimit: { min: value > 0 ? value : null } })}
+                onChange={(value) => optionsChanged({ wordCountLimit: { min: value > 0 ? value : null } })}
               />
             </Grid.Col>
             <Grid.Col span={12}>
@@ -82,7 +82,7 @@ export default function Editor({ options, data, onOptionsChange }) {
                 placeholder="Max"
                 min={0}
                 value={options.wordCountLimit.max}
-                onChange={value => optionsChanged({ wordCountLimit: { max: value > 0 ? value : null } })}
+                onChange={(value) => optionsChanged({ wordCountLimit: { max: value > 0 ? value : null } })}
               />
             </Grid.Col>
           </Grid.Row>

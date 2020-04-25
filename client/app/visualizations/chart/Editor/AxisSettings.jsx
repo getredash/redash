@@ -15,12 +15,12 @@ export default function AxisSettings({ id, options, features, onChange }) {
     onChange(merge({}, options, newOptions));
   }
 
-  const [handleNameChange] = useDebouncedCallback(text => {
+  const [handleNameChange] = useDebouncedCallback((text) => {
     const title = isString(text) && text !== "" ? { text } : null;
     optionsChanged({ title });
   }, 200);
 
-  const [handleMinMaxChange] = useDebouncedCallback(opts => optionsChanged(opts), 200);
+  const [handleMinMaxChange] = useDebouncedCallback((opts) => optionsChanged(opts), 200);
 
   return (
     <React.Fragment>
@@ -29,7 +29,7 @@ export default function AxisSettings({ id, options, features, onChange }) {
           label="Scale"
           data-test={`Chart.${id}.Type`}
           defaultValue={options.type}
-          onChange={type => optionsChanged({ type })}>
+          onChange={(type) => optionsChanged({ type })}>
           {features.autoDetectType && (
             <Select.Option value="-" data-test={`Chart.${id}.Type.Auto`}>
               Auto Detect
@@ -55,7 +55,7 @@ export default function AxisSettings({ id, options, features, onChange }) {
           label="Name"
           data-test={`Chart.${id}.Name`}
           defaultValue={isObject(options.title) ? options.title.text : null}
-          onChange={event => handleNameChange(event.target.value)}
+          onChange={(event) => handleNameChange(event.target.value)}
         />
       </Section>
 
@@ -68,7 +68,7 @@ export default function AxisSettings({ id, options, features, onChange }) {
                 placeholder="Auto"
                 data-test={`Chart.${id}.RangeMin`}
                 defaultValue={toNumber(options.rangeMin)}
-                onChange={value => handleMinMaxChange({ rangeMin: toNumber(value) })}
+                onChange={(value) => handleMinMaxChange({ rangeMin: toNumber(value) })}
               />
             </Grid.Col>
             <Grid.Col span={12}>
@@ -77,7 +77,7 @@ export default function AxisSettings({ id, options, features, onChange }) {
                 placeholder="Auto"
                 data-test={`Chart.${id}.RangeMax`}
                 defaultValue={toNumber(options.rangeMax)}
-                onChange={value => handleMinMaxChange({ rangeMax: toNumber(value) })}
+                onChange={(value) => handleMinMaxChange({ rangeMax: toNumber(value) })}
               />
             </Grid.Col>
           </Grid.Row>
