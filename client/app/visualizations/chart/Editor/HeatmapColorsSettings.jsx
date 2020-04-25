@@ -31,7 +31,6 @@ export default function HeatmapColorsSettings({ options, onOptionsChange }) {
       <Section>
         <Select
           label="Color Scheme"
-          className="w-100"
           data-test="Chart.Colors.Heatmap.ColorScheme"
           placeholder="Choose Color Scheme..."
           allowClear

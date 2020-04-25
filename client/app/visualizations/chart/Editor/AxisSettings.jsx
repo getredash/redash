@@ -27,7 +27,6 @@ export default function AxisSettings({ id, options, features, onChange }) {
       <Section>
         <Select
           label="Scale"
-          className="w-100"
           data-test={`Chart.${id}.Type`}
           defaultValue={options.type}
           onChange={type => optionsChanged({ type })}>
@@ -66,7 +65,6 @@ export default function AxisSettings({ id, options, features, onChange }) {
             <Grid.Col span={12}>
               <InputNumber
                 label="Min Value"
-                className="w-100"
                 placeholder="Auto"
                 data-test={`Chart.${id}.RangeMin`}
                 defaultValue={toNumber(options.rangeMin)}
@@ -76,7 +74,6 @@ export default function AxisSettings({ id, options, features, onChange }) {
             <Grid.Col span={12}>
               <InputNumber
                 label="Max Value"
-                className="w-100"
                 placeholder="Auto"
                 data-test={`Chart.${id}.RangeMax`}
                 defaultValue={toNumber(options.rangeMax)}

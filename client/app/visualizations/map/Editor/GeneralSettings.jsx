@@ -23,7 +23,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Select
           label="Latitude Column Name"
           data-test="Map.Editor.LatitudeColumnName"
-          className="w-100"
           value={options.latColName}
           onChange={latColName => onOptionsChange({ latColName })}>
           {map(getColumns(options.latColName, unusedColumns), col => (
@@ -38,7 +37,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Select
           label="Longitude Column Name"
           data-test="Map.Editor.LongitudeColumnName"
-          className="w-100"
           value={options.lonColName}
           onChange={lonColName => onOptionsChange({ lonColName })}>
           {map(getColumns(options.lonColName, unusedColumns), col => (
@@ -53,7 +51,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Select
           label="Group By"
           data-test="Map.Editor.GroupBy"
-          className="w-100"
           allowClear
           placeholder="none"
           value={options.classify || undefined}

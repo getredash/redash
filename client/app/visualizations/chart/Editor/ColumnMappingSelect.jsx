@@ -20,7 +20,6 @@ export default function ColumnMappingSelect({ value, availableColumns, type, onC
     <Section>
       <Select
         label={label}
-        className="w-100"
         data-test={`Chart.ColumnMapping.${type}`}
         mode={multiple ? "multiple" : "default"}
         allowClear

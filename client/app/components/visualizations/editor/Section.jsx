@@ -2,13 +2,15 @@ import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 
+import "./Section.less";
+
 function SectionTitle({ className, children, ...props }) {
   if (!children) {
     return null;
   }
 
   return (
-    <h4 className={cx("m-t-0", "m-b-15", className)} {...props}>
+    <h4 className={cx("visualization-editor-section-title", className)} {...props}>
       {children}
     </h4>
   );
@@ -26,7 +28,7 @@ SectionTitle.defaultProps = {
 
 export default function Section({ className, children, ...props }) {
   return (
-    <div className={cx("m-b-15", className)} {...props}>
+    <div className={cx("visualization-editor-section", className)} {...props}>
       {children}
     </div>
   );

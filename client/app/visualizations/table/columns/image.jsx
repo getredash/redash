@@ -25,19 +25,19 @@ function Editor({ column, onChange }) {
             <React.Fragment>
               Size
               <ContextHelp placement="topLeft" arrowPointAtCenter>
-                <div className="m-b-5">Any positive integer value that specifies size in pixels.</div>
+                <div style={{ marginBottom: 5 }}>Any positive integer value that specifies size in pixels.</div>
                 <div>Leave empty to use default value.</div>
               </ContextHelp>
             </React.Fragment>
           }>
-          <div className="d-flex align-items-center">
+          <div className="image-dimension-selector">
             <Input
               data-test="Table.ColumnEditor.Image.Width"
               placeholder="Width"
               defaultValue={column.imageWidth}
               onChange={event => onChangeDebounced({ imageWidth: event.target.value })}
             />
-            <span className="p-l-5 p-r-5">&times;</span>
+            <span className="image-dimension-selector-spacer">&times;</span>
             <Input
               data-test="Table.ColumnEditor.Image.Height"
               placeholder="Height"

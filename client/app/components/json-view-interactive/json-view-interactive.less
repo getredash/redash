@@ -1,5 +1,4 @@
-@import (reference, less) "~bootstrap/less/variables.less";
-@import (reference, less) "~@/assets/less/main.less";
+@import "../../visualizations/variables";
 
 @jvi-gutter: 20px;
 @jvi-spacing: 2px;
@@ -60,7 +59,7 @@
   color: @text-color;
 
   &.jvi-string {
-    color: @state-success-text;
+    color: @green;
   }
 
   &.jvi-braces {
@@ -82,10 +81,10 @@
 }
 
 .jvi-value {
-  color: @state-success-text;
+  color: @green;
 
   &.jvi-primitive {
-    color: @brand-warning;
+    color: @orange;
   }
 
   &.jvi-string {
@@ -94,14 +93,15 @@
 }
 
 .jvi-object-key {
-  .jvi-value, .jvi-punctuation {
-    color: @brand-primary;
+  .jvi-value,
+  .jvi-punctuation {
+    color: @blue;
   }
 }
 
 .jvi-comment {
   color: @text-muted;
-  font-family: @redash-font;
+  font-family: @visualizations-font;
   font-style: italic;
   margin: 0 0 0 2 * @jvi-spacing;
   opacity: 0.5;

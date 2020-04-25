@@ -12,7 +12,6 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
         <InputNumber
           layout="horizontal"
           label="Formatting Decimal Place"
-          className="w-100"
           data-test="Counter.Formatting.DecimalPlace"
           defaultValue={options.stringDecimal}
           disabled={!inputsEnabled}
@@ -24,7 +23,6 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
         <Input
           layout="horizontal"
           label="Formatting Decimal Character"
-          className="w-100"
           data-test="Counter.Formatting.DecimalCharacter"
           defaultValue={options.stringDecChar}
           disabled={!inputsEnabled}
@@ -36,7 +34,6 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
         <Input
           layout="horizontal"
           label="Formatting Thousands Separator"
-          className="w-100"
           data-test="Counter.Formatting.ThousandsSeparator"
           defaultValue={options.stringThouSep}
           disabled={!inputsEnabled}
@@ -48,7 +45,6 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
         <Input
           layout="horizontal"
           label="Formatting String Prefix"
-          className="w-100"
           data-test="Counter.Formatting.StringPrefix"
           defaultValue={options.stringPrefix}
           disabled={!inputsEnabled}
@@ -60,7 +56,6 @@ export default function FormatSettings({ options, data, onOptionsChange }) {
         <Input
           layout="horizontal"
           label="Formatting String Suffix"
-          className="w-100"
           data-test="Counter.Formatting.StringSuffix"
           defaultValue={options.stringSuffix}
           disabled={!inputsEnabled}

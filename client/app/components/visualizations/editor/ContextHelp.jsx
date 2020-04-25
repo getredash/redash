@@ -24,7 +24,7 @@ ContextHelp.defaultProps = {
   children: null,
 };
 
-ContextHelp.defaultIcon = <Icon className="m-l-5 m-r-5" type="question-circle" theme="filled" />;
+ContextHelp.defaultIcon = <Icon className="context-help-default-icon" type="question-circle" theme="filled" />;
 
 function NumberFormatSpecs() {
   const { HelpTriggerComponent } = visualizationsSettings;
