@@ -18,8 +18,8 @@ import { Moment } from "@/components/proptypes";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
 import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
-import VisualizationName from "@/visualizations/components/VisualizationName";
-import VisualizationRenderer from "@/visualizations/components/VisualizationRenderer";
+import VisualizationName from "@/components/visualizations/VisualizationName";
+import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import { VisualizationType } from "@/visualizations/prop-types";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 

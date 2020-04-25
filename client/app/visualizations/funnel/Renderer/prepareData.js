@@ -1,10 +1,10 @@
 import { map, maxBy, sortBy, toString } from "lodash";
 import moment from "moment";
-import { clientConfig } from "@/services/auth";
+import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 function stepValueToString(value) {
   if (moment.isMoment(value)) {
-    const format = clientConfig.dateTimeFormat || "DD/MM/YYYY HH:mm";
+    const format = visualizationsSettings.dateTimeFormat || "DD/MM/YYYY HH:mm";
     return value.format(format);
   }
   return toString(value);

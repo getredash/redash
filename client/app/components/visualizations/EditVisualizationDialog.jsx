@@ -5,14 +5,17 @@ import Modal from "antd/lib/modal";
 import Select from "antd/lib/select";
 import Input from "antd/lib/input";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import ErrorBoundary, { ErrorMessage } from "@/components/ErrorBoundary";
 import Filters, { filterData } from "@/components/Filters";
 import notification from "@/services/notification";
 import Visualization from "@/services/visualization";
 import recordEvent from "@/services/recordEvent";
 import getQueryResultData from "@/lib/getQueryResultData";
 import { VisualizationType } from "@/visualizations/prop-types";
-import registeredVisualizations, { getDefaultVisualization, newVisualization } from "@/visualizations";
+import { Renderer, Editor } from "@/components/visualizations/visualizationComponents";
+import registeredVisualizations, {
+  getDefaultVisualization,
+  newVisualization,
+} from "@/visualizations/registeredVisualizations";
 
 import "./EditVisualizationDialog.less";
 
@@ -146,8 +149,6 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
     confirmDialogClose(nameChanged || optionsChanged).then(dialog.dismiss);
   }
 
-  const { Renderer, Editor } = registeredVisualizations[type];
-
   // When editing existing visualization chart type selector is disabled, so add only existing visualization's
   // descriptor there (to properly render the component). For new visualizations show all types except of deprecated
   const availableVisualizations = isNew
@@ -196,7 +197,13 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
             />
           </div>
           <div data-test="VisualizationEditor">
-            <Editor data={data} options={options} visualizationName={name} onOptionsChange={onOptionsChanged} />
+            <Editor
+              type={type}
+              data={data}
+              options={options}
+              visualizationName={name}
+              onOptionsChange={onOptionsChanged}
+            />
           </div>
         </div>
         <div className="visualization-preview">
@@ -205,17 +212,13 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
           </label>
           <Filters filters={filters} onChange={setFilters} />
           <div className="scrollbox" data-test="VisualizationPreview">
-            <ErrorBoundary
-              ref={errorHandlerRef}
-              renderError={() => <ErrorMessage>Error while rendering visualization.</ErrorMessage>}>
-              <Renderer
-                data={filteredData}
-                options={options}
-                visualizationName={name}
-                onOptionsChange={onOptionsChanged}
-                context="query"
-              />
-            </ErrorBoundary>
+            <Renderer
+              type={type}
+              data={filteredData}
+              options={options}
+              visualizationName={name}
+              onOptionsChange={onOptionsChanged}
+            />
           </div>
         </div>
       </div>
