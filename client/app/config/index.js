@@ -7,7 +7,7 @@ import url from "@/services/url";
 import "@/assets/images/avatar.svg";
 
 // Register visualizations
-import "@/visualizations";
+import "redash-visualizations/lib";
 
 import "./antd-spinner";
 

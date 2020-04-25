@@ -2,7 +2,7 @@ import { isFunction, map, filter, extend, merge } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import Tabs from "antd/lib/tabs";
-import { EditorPropTypes } from "redash-visualizations/lib";
+import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export const UpdateOptionsStrategy = {
   replace: (existingOptions, newOptions) => merge({}, newOptions),
@@ -15,7 +15,7 @@ export function TabbedEditor({ tabs, options, data, onOptionsChange, ...restProp
     onOptionsChange(updateStrategy(options, newOptions));
   };
 
-  tabs = filter(tabs, tab => (isFunction(tab.isAvailable) ? tab.isAvailable(options, data) : true));
+  tabs = filter(tabs, (tab) => (isFunction(tab.isAvailable) ? tab.isAvailable(options, data) : true));
 
   return (
     <Tabs animated={false} tabBarGutter={0}>

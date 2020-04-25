@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import getQueryResultData from "@/lib/getQueryResultData";
 import { getColumnCleanName } from "@/services/query-result";
 import Filters, { FiltersType, filterData } from "@/components/Filters";
-import { VisualizationType } from "@/visualizations/prop-types";
+import { VisualizationType } from "redash-visualizations/lib";
 import { Renderer } from "@/components/visualizations/visualizationComponents";
 
 function combineFilters(localFilters, globalFilters) {
