@@ -1,6 +1,5 @@
 import _ from "lodash";
-import { getColumnCleanName } from "@/services/query-result";
-import { clientConfig } from "@/services/auth";
+import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 const DEFAULT_OPTIONS = {
   itemsPerPage: 25,
@@ -26,7 +25,7 @@ function getDefaultColumnsOptions(columns) {
     displayAs: displayAs[col.type] || "string",
     visible: true,
     order: 100000 + index,
-    title: getColumnCleanName(col.name),
+    title: col.name,
     allowSearch: false,
     alignContent: getColumnContentAlignment(col.type),
     // `string` cell options
@@ -37,17 +36,17 @@ function getDefaultColumnsOptions(columns) {
 
 function getDefaultFormatOptions(column) {
   const dateTimeFormat = {
-    date: clientConfig.dateFormat || "DD/MM/YYYY",
-    datetime: clientConfig.dateTimeFormat || "DD/MM/YYYY HH:mm",
+    date: visualizationsSettings.dateFormat || "DD/MM/YYYY",
+    datetime: visualizationsSettings.dateTimeFormat || "DD/MM/YYYY HH:mm",
   };
   const numberFormat = {
-    integer: clientConfig.integerFormat || "0,0",
-    float: clientConfig.floatFormat || "0,0.00",
+    integer: visualizationsSettings.integerFormat || "0,0",
+    float: visualizationsSettings.floatFormat || "0,0.00",
   };
   return {
     dateTimeFormat: dateTimeFormat[column.type],
     numberFormat: numberFormat[column.type],
-    booleanValues: clientConfig.booleanValues || ["false", "true"],
+    booleanValues: visualizationsSettings.booleanValues || ["false", "true"],
     // `image` cell options
     imageUrlTemplate: "{{ @ }}",
     imageTitleTemplate: "{{ @ }}",

@@ -47,6 +47,14 @@ export default function ColumnEditor({ column, onChange }) {
       </Section>
 
       <Section>
+        <Input
+          label="Description"
+          defaultValue={column.description}
+          onChange={event => handleChangeDebounced({ description: event.target.value })}
+        />
+      </Section>
+
+      <Section>
         <Select
           label="Display as:"
           data-test={`Table.Column.${column.name}.DisplayAs`}

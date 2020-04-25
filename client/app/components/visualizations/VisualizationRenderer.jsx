@@ -1,11 +1,11 @@
-import { isEqual, map, find } from "lodash";
+import { map, find } from "lodash";
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import getQueryResultData from "@/lib/getQueryResultData";
-import ErrorBoundary, { ErrorMessage } from "@/components/ErrorBoundary";
+import { getColumnCleanName } from "@/services/query-result";
 import Filters, { FiltersType, filterData } from "@/components/Filters";
 import { VisualizationType } from "@/visualizations/prop-types";
-import registeredVisualizations from "@/visualizations";
+import { Renderer } from "@/components/visualizations/visualizationComponents";
 
 function combineFilters(localFilters, globalFilters) {
   // tiny optimization - to avoid unnecessary updates
@@ -31,9 +31,6 @@ export default function VisualizationRenderer(props) {
   const filtersRef = useRef();
   filtersRef.current = filters;
 
-  const lastOptions = useRef();
-  const errorHandlerRef = useRef();
-
   // Reset local filters when query results updated
   useEffect(() => {
     setFilters(combineFilters(data.filters, props.filters));
@@ -46,55 +43,37 @@ export default function VisualizationRenderer(props) {
     setFilters(combineFilters(filtersRef.current, props.filters));
   }, [props.filters]);
 
+  const cleanColumnNames = useMemo(
+    () => map(data.columns, col => ({ ...col, name: getColumnCleanName(col.friendly_name) })),
+    [data.columns]
+  );
+
   const filteredData = useMemo(
     () => ({
-      columns: data.columns,
+      columns: cleanColumnNames,
       rows: filterData(data.rows, filters),
     }),
-    [data, filters]
+    [cleanColumnNames, data.rows, filters]
   );
 
   const { showFilters, visualization } = props;
-  const { Renderer, getOptions } = registeredVisualizations[visualization.type];
 
-  let options = getOptions(visualization.options, data);
+  let options = { ...visualization.options };
 
   // define pagination size based on context for Table visualization
   if (visualization.type === "TABLE") {
     options.paginationSize = props.context === "widget" ? "small" : "default";
   }
 
-  // Avoid unnecessary updates (which may be expensive or cause issues with
-  // internal state of some visualizations like Table) - compare options deeply
-  // and use saved reference if nothing changed
-  // More details: https://github.com/getredash/redash/pull/3963#discussion_r306935810
-  if (isEqual(lastOptions.current, options)) {
-    options = lastOptions.current;
-  }
-  lastOptions.current = options;
-
-  useEffect(() => {
-    if (errorHandlerRef.current) {
-      errorHandlerRef.current.reset();
-    }
-  }, [props.visualization.options, data]);
-
   return (
-    <div className="visualization-renderer">
-      <ErrorBoundary
-        ref={errorHandlerRef}
-        renderError={() => <ErrorMessage>Error while rendering visualization.</ErrorMessage>}>
-        {showFilters && <Filters filters={filters} onChange={setFilters} />}
-        <div className="visualization-renderer-wrapper">
-          <Renderer
-            key={`visualization${visualization.id}`}
-            options={options}
-            data={filteredData}
-            visualizationName={visualization.name}
-          />
-        </div>
-      </ErrorBoundary>
-    </div>
+    <Renderer
+      key={`visualization${visualization.id}`}
+      type={visualization.type}
+      options={options}
+      data={filteredData}
+      visualizationName={visualization.name}
+      addonBefore={showFilters && <Filters filters={filters} onChange={setFilters} />}
+    />
   );
 }
 

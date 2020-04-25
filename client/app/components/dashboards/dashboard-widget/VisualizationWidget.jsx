@@ -16,7 +16,7 @@ import QueryLink from "@/components/QueryLink";
 import { FiltersType } from "@/components/Filters";
 import ExpandedWidgetDialog from "@/components/dashboards/ExpandedWidgetDialog";
 import EditParameterMappingsDialog from "@/components/dashboards/EditParameterMappingsDialog";
-import VisualizationRenderer from "@/visualizations/components/VisualizationRenderer";
+import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import Widget from "./Widget";
 
 function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit }) {

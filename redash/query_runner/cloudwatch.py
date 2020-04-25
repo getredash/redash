@@ -1,10 +1,14 @@
-import boto3
 import yaml
 import datetime
 
 from redash.query_runner import BaseQueryRunner, register
 from redash.utils import json_dumps, parse_human_time
 
+try:
+    import boto3
+    enabled = True
+except ImportError:
+    enabled = False
 
 def parse_response(results):
     columns = [
@@ -62,6 +66,10 @@ class CloudWatch(BaseQueryRunner):
             "order": ["region", "aws_access_key", "aws_secret_key"],
             "secret": ["aws_secret_key"],
         }
+
+    @classmethod
+    def enabled(cls):
+        return enabled
 
     def __init__(self, configuration):
         super(CloudWatch, self).__init__(configuration)
