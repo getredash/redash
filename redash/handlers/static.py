@@ -1,8 +1,12 @@
 import logging
 
-from flask import current_app, render_template, safe_join, send_file
+from flask import current_app
+from flask import render_template
+from flask import safe_join
+from flask import send_file
 from flask_login import login_required
 from jinja2.exceptions import TemplateNotFound
+
 from redash import settings
 from redash.handlers import routes
 from redash.handlers.authentication import base_href
