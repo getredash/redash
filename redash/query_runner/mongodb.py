@@ -87,7 +87,7 @@ def _parse_dict(dic):
     res = {} 
     for key, value in dic.items():
         if isinstance(value, dict):
-            for tmp_key, tmp_value in parse_dict(value).items():
+            for tmp_key, tmp_value in _parse_dict(value).items():
                 new_key = "{}.{}".format(key, tmp_key)
                 res[new_key] = tmp_value
         else:
