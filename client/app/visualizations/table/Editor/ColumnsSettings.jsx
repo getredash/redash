@@ -51,7 +51,7 @@ export default function ColumnsSettings({ options, onOptionsChange }) {
                 <span data-test={`Table.Column.${column.name}.Name`}>
                   {column.name}
                   {column.title !== "" && column.title !== column.name && (
-                    <Text type="secondary" className="m-l-5">
+                    <Text type="secondary" style={{ marginLeft: 5 }}>
                       <i>({column.title})</i>
                     </Text>
                   )}

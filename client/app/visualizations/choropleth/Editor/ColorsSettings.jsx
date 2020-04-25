@@ -13,7 +13,6 @@ export default function ColorsSettings({ options, onOptionsChange }) {
         <Select
           layout="horizontal"
           label="Clustering mode"
-          className="w-100"
           data-test="Choropleth.Editor.ClusteringMode"
           defaultValue={options.clusteringMode}
           onChange={clusteringMode => onOptionsChange({ clusteringMode })}>
@@ -33,7 +32,6 @@ export default function ColorsSettings({ options, onOptionsChange }) {
         <InputNumber
           layout="horizontal"
           label="Steps"
-          className="w-100"
           data-test="Choropleth.Editor.ColorSteps"
           min={3}
           max={11}

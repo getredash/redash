@@ -15,7 +15,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Select
           layout="horizontal"
           label="Step Column"
-          className="w-100"
           data-test="Funnel.StepColumn"
           placeholder="Choose column..."
           defaultValue={options.stepCol.colName || undefined}
@@ -32,7 +31,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Input
           layout="horizontal"
           label="Step Column Title"
-          className="w-100"
           data-test="Funnel.StepColumnTitle"
           defaultValue={options.stepCol.displayAs}
           onChange={event => onOptionsChangeDebounced({ stepCol: { displayAs: event.target.value } })}
@@ -43,7 +41,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Select
           layout="horizontal"
           label="Value Column"
-          className="w-100"
           data-test="Funnel.ValueColumn"
           placeholder="Choose column..."
           defaultValue={options.valueCol.colName || undefined}
@@ -60,7 +57,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Input
           layout="horizontal"
           label="Value Column Title"
-          className="w-100"
           data-test="Funnel.ValueColumnTitle"
           defaultValue={options.valueCol.displayAs}
           onChange={event => onOptionsChangeDebounced({ valueCol: { displayAs: event.target.value } })}
@@ -82,7 +78,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             <Select
               layout="horizontal"
               label="Sort Column"
-              className="w-100"
               data-test="Funnel.SortColumn"
               allowClear
               placeholder="Choose column..."
@@ -100,7 +95,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             <Select
               layout="horizontal"
               label="Sort Order"
-              className="w-100"
               data-test="Funnel.SortDirection"
               disabled={!options.sortKeyCol.colName}
               defaultValue={options.sortKeyCol.reverse ? "desc" : "asc"}

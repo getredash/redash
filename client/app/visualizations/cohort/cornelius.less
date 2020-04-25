@@ -1,7 +1,6 @@
-.cornelius-container {
-  // replace with variable from `ant-variables.less` after Bootstrap removed
-  @table-header-color: #333;
+@import "../variables";
 
+.cornelius-container {
   .cornelius-title {
     text-align: center;
     padding-bottom: 10px;
@@ -14,13 +13,14 @@
   .cornelius-table {
     font-size: 9pt;
     border-spacing: 0;
-    border: 1px solid #E4E4E4;
+    border: 1px solid #e4e4e4;
     border-collapse: collapse;
 
-    th, td {
+    th,
+    td {
       text-align: center;
       padding: 10px;
-      border: 1px solid #E4E4E4;
+      border: 1px solid #e4e4e4;
       color: @table-header-color;
       font-weight: bold;
     }

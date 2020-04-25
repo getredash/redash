@@ -58,7 +58,6 @@ export default function ColumnEditor({ column, onChange }) {
         <Select
           label="Display as:"
           data-test={`Table.Column.${column.name}.DisplayAs`}
-          className="w-100"
           defaultValue={column.displayAs}
           onChange={displayAs => handleChange({ displayAs })}>
           {map(ColumnTypes, ({ friendlyName }, key) => (

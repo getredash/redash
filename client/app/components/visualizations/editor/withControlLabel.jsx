@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import cx from "classnames";
 import PropTypes from "prop-types";
 import hoistNonReactStatics from "hoist-non-react-statics";
 import * as Grid from "antd/lib/grid";
@@ -55,7 +56,7 @@ ControlLabel.defaultProps = {
 
 export default function withControlLabel(WrappedControl) {
   // eslint-disable-next-line react/prop-types
-  function ControlWrapper({ id, layout, label, labelProps, disabled, ...props }) {
+  function ControlWrapper({ className, id, layout, label, labelProps, disabled, ...props }) {
     const fallbackId = useMemo(
       () =>
         `visualization-editor-control-${Math.random()
@@ -70,7 +71,12 @@ export default function withControlLabel(WrappedControl) {
 
     return (
       <ControlLabel layout={layout} label={label} labelProps={labelProps} disabled={disabled}>
-        <WrappedControl id={labelProps.htmlFor} disabled={disabled} {...props} />
+        <WrappedControl
+          className={cx("visualization-editor-input", className)}
+          id={labelProps.htmlFor}
+          disabled={disabled}
+          {...props}
+        />
       </ControlLabel>
     );
   }

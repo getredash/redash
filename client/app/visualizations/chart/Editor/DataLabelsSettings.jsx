@@ -73,7 +73,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
             <React.Fragment>
               Data Labels
               <ContextHelp placement="topRight" arrowPointAtCenter>
-                <div className="p-b-5">Use special names to access additional properties:</div>
+                <div style={{ paddingBottom: 5 }}>Use special names to access additional properties:</div>
                 <div>
                   <code>{"{{ @@name }}"}</code> series name;
                 </div>
@@ -92,11 +92,11 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
                 <div>
                   <code>{"{{ @@size }}"}</code> bubble size;
                 </div>
-                <div className="p-t-5">
+                <div style={{ paddingTop: 5 }}>
                   Also, all query result columns can be referenced
                   <br />
                   using
-                  <code className="text-nowrap">{"{{ column_name }}"}</code> syntax.
+                  <code style={{ whiteSpace: "nowrap" }}>{"{{ column_name }}"}</code> syntax.
                 </div>
               </ContextHelp>
             </React.Fragment>

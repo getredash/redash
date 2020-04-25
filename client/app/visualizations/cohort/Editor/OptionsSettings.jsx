@@ -22,7 +22,6 @@ export default function OptionsSettings({ options, onOptionsChange }) {
           layout="horizontal"
           label="Time Interval"
           data-test="Cohort.TimeInterval"
-          className="w-100"
           value={options.timeInterval}
           onChange={timeInterval => onOptionsChange({ timeInterval })}>
           {map(CohortTimeIntervals, (name, value) => (
@@ -38,7 +37,6 @@ export default function OptionsSettings({ options, onOptionsChange }) {
           layout="horizontal"
           label="Mode"
           data-test="Cohort.Mode"
-          className="w-100"
           value={options.mode}
           onChange={mode => onOptionsChange({ mode })}>
           {map(CohortModes, (name, value) => (

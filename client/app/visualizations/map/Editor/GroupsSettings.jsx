@@ -43,7 +43,6 @@ export default function GroupsSettings({ options, data, onOptionsChange }) {
       title: "Color",
       dataIndex: "color",
       width: "1%",
-      className: "text-nowrap",
       render: (unused, item) => (
         <ColorPicker
           interactive

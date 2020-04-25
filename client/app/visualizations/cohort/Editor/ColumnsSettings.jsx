@@ -11,7 +11,6 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
           layout="horizontal"
           label="Date (Bucket)"
           data-test="Cohort.DateColumn"
-          className="w-100"
           value={options.dateColumn}
           onChange={dateColumn => onOptionsChange({ dateColumn })}>
           {map(data.columns, ({ name }) => (
@@ -27,7 +26,6 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
           layout="horizontal"
           label="Stage"
           data-test="Cohort.StageColumn"
-          className="w-100"
           value={options.stageColumn}
           onChange={stageColumn => onOptionsChange({ stageColumn })}>
           {map(data.columns, ({ name }) => (
@@ -43,7 +41,6 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
           layout="horizontal"
           label="Bucket Population Size"
           data-test="Cohort.TotalColumn"
-          className="w-100"
           value={options.totalColumn}
           onChange={totalColumn => onOptionsChange({ totalColumn })}>
           {map(data.columns, ({ name }) => (
@@ -59,7 +56,6 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
           layout="horizontal"
           label="Stage Value"
           data-test="Cohort.ValueColumn"
-          className="w-100"
           value={options.valueColumn}
           onChange={valueColumn => onOptionsChange({ valueColumn })}>
           {map(data.columns, ({ name }) => (

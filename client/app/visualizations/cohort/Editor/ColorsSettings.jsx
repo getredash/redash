@@ -47,7 +47,6 @@ export default function ColorsSettings({ options, onOptionsChange }) {
         <InputNumber
           layout="horizontal"
           label="Steps"
-          className="w-100"
           min={minSteps}
           max={maxSteps}
           value={options.colors.steps}
