@@ -83,41 +83,34 @@ def _get_column_by_name(columns, column_name):
     return None
 
 
+def _parse_dict(dic):
+    res = {} 
+    for key, value in dic.items():
+        if isinstance(value, dict):
+            for tmp_key, tmp_value in parse_dict(value).items():
+                new_key = "{}.{}".format(key, tmp_key)
+                res[new_key] = tmp_value
+        else:
+            res[key] = value
+    return res
+
+
 def parse_results(results):
     rows = []
     columns = []
 
     for row in results:
-        parsed_row = {}
+        parsed_row = _parse_dict(row)
 
-        for key in row:
-            if isinstance(row[key], dict):
-                for inner_key in row[key]:
-                    column_name = "{}.{}".format(key, inner_key)
-                    if _get_column_by_name(columns, column_name) is None:
-                        columns.append(
-                            {
-                                "name": column_name,
-                                "friendly_name": column_name,
-                                "type": TYPES_MAP.get(
-                                    type(row[key][inner_key]), TYPE_STRING
-                                ),
-                            }
-                        )
-
-                    parsed_row[column_name] = row[key][inner_key]
-
-            else:
-                if _get_column_by_name(columns, key) is None:
-                    columns.append(
-                        {
-                            "name": key,
-                            "friendly_name": key,
-                            "type": TYPES_MAP.get(type(row[key]), TYPE_STRING),
-                        }
-                    )
-
-                parsed_row[key] = row[key]
+        for column_name, value in parsed_row.items():
+            columns.append(
+               {
+                   "name": column_name,
+                   "friendly_name": column_name,
+                   "type": TYPES_MAP.get(
+                       type(value), TYPE_STRING
+                   ),
+               })
 
         rows.append(parsed_row)
 
