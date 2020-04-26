@@ -1,6 +1,6 @@
 {
-  "name": "redash-visualizations",
-  "version": "1.0.0",
+  "name": "@redash/viz",
+  "version": "0.1.0",
   "description": "Redash visualizations",
   "main": "dist/redash-visualizations.js",
   "scripts": {
@@ -19,7 +19,7 @@
   "author": "Redash",
   "license": "BSD-2-Clause",
   "peerDependencies": {
-    "antd": ">=3.19.0",
+    "antd": ">=3.19.0 < 4",
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
   },

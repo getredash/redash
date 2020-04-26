@@ -37,6 +37,7 @@
   },
   "homepage": "https://redash.io/",
   "dependencies": {
+    "@redash/viz": "file:viz-lib",
     "@types/prop-types": "^15.5.2",
     "@types/react": "^16.3.13",
     "@types/react-dom": "^16.0.5",
@@ -67,7 +68,6 @@
     "react-grid-layout": "^0.18.2",
     "react-resizable": "^1.10.1",
     "react-virtualized": "^9.21.2",
-    "redash-visualizations": "file:redash-visualizations",
     "universal-router": "^8.3.0",
     "use-debounce": "^3.1.0",
     "use-media": "^1.4.0"
