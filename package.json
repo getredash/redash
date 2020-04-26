@@ -7,7 +7,8 @@
     "start": "webpack-dev-server",
     "bundle": "bin/bundle-extensions",
     "clean": "rm -rf ./client/dist/",
-    "build": "npm run clean && NODE_ENV=production webpack",
+    "build:viz": "(cd viz-lib && npm run build:babel)",
+    "build": "npm run clean && npm run build:viz && NODE_ENV=production webpack",
     "build:old-node-version": "npm run clean && NODE_ENV=production node --max-old-space-size=4096 node_modules/.bin/webpack",
     "watch": "webpack --watch --progress --colors -d",
     "analyze": "npm run clean && BUNDLE_ANALYZER=on webpack",
@@ -20,7 +21,8 @@
     "test": "TZ=Africa/Khartoum jest",
     "test:watch": "jest --watch",
     "cypress:install": "npm install --no-save cypress@~4.1.0 @percy/cypress@^2.2.0 atob@2.1.2",
-    "cypress": "node client/cypress/cypress.js"
+    "cypress": "node client/cypress/cypress.js",
+    "preinstall": "(cd viz-lib && npm ci && npm run build:babel)"
   },
   "repository": {
     "type": "git",
