@@ -2,9 +2,11 @@ FROM node:12 as frontend-builder
 
 WORKDIR /frontend
 COPY package.json package-lock.json /frontend/
+COPY /viz-lib/package.json /viz-lib/package-lock.json /frontend/viz-lib/
 RUN npm ci
 
 COPY client /frontend/client
+COPY viz-lib /frontend/viz-lib
 COPY webpack.config.js /frontend/
 RUN npm run build
 
