@@ -1,3 +1,5 @@
+ARG APP_ENV=prod
+
 FROM node:12 as frontend-builder
 
 WORKDIR /frontend
@@ -8,7 +10,7 @@ COPY client /frontend/client
 COPY webpack.config.js /frontend/
 RUN npm run build
 
-FROM python:3.7-slim
+FROM python:3.7-slim as server
 
 EXPOSE 5000
 
@@ -41,7 +43,7 @@ RUN apt-get update && \
     libsasl2-dev \
     unzip \
     libsasl2-modules-gssapi-mit && \
-  # MSSQL ODBC Driver:  
+  # MSSQL ODBC Driver:
   curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
   curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
   apt-get update && \
@@ -62,14 +64,25 @@ WORKDIR /app
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
 
-# We first copy only the requirements file, to avoid rebuilding on every file
-# change.
+FROM server as dev-server
+
 COPY requirements.txt requirements_bundles.txt requirements_dev.txt requirements_all_ds.txt ./
 RUN pip install -r requirements.txt -r requirements_dev.txt
 RUN if [ "x$skip_ds_deps" = "x" ] ; then pip install -r requirements_all_ds.txt ; else echo "Skipping pip install -r requirements_all_ds.txt" ; fi
 
 COPY . /app
+
+FROM server as prod-server
+
+COPY requirements.txt requirements_bundles.txt requirements_all_ds.txt ./
+RUN pip install -r requirements.txt
+RUN if [ "x$skip_ds_deps" = "x" ] ; then pip install -r requirements_all_ds.txt ; else echo "Skipping pip install -r requirements_all_ds.txt" ; fi
+
+COPY . /app
 COPY --from=frontend-builder /frontend/client/dist /app/client/dist
+
+FROM ${APP_ENV}-server
+
 RUN chown -R redash /app
 USER redash
 
