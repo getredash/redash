@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 module_attribute = "hello!"
 
 
@@ -11,5 +13,14 @@ def assertive_extension(app):
     assert False
 
 
-def periodic_task(*args, **kwargs):
-    """This periodic task will successfully load"""
+def job_callback():
+    return "result"
+
+
+def periodic_job(*args, **kwargs):
+    """This periodic job will successfully load"""
+    return {
+        "func": job_callback,
+        "timeout": 60,
+        "interval": timedelta(minutes=1),
+    }
