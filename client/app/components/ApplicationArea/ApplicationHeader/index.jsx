@@ -17,7 +17,7 @@ import { currentUser, Auth, clientConfig } from "@/services/auth";
 import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";
 import frontendVersion from "@/version.json";
-import logoUrl from "@/assets/images/redash_icon_small.png";
+import logoUrl from "@/assets/images/Utility_360_logo.png";
 
 import FavoritesDropdown from "./FavoritesDropdown";
 import "./index.less";

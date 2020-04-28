@@ -1,7 +1,7 @@
 @mobileBreakpoint: ~"(max-width: 767px)";
 
 nav .app-header {
-  height: 49px;
+  height: 100px;
   padding-bottom: 1px;
   box-sizing: content-box;
   display: flex;
@@ -9,10 +9,11 @@ nav .app-header {
   margin-bottom: 10px;
   background: white;
   box-shadow: 0 4px 9px -3px rgba(102, 136, 153, 0.15);
-
+  @media only screen and (max-width: 767px)  {
+    height: 49px;
+  }
   .darker {
     color: #333 !important;
-
     &:hover {
       color: #2196f3 !important;
     }
@@ -108,8 +109,12 @@ nav .app-header {
   }
 
   .header-logo img {
-    height: 40px;
-    width: 40px;
+    height: 70px;
+    width: 200px;
+    @media only screen and (max-width: 1124px)  {
+      height: 40px;
+      width: 100px;
+    }
   }
 
   .searchbar {
