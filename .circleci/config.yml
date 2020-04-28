@@ -76,7 +76,12 @@ jobs:
       - run: sudo pip3 install -r requirements_bundles.txt
       - run: npm ci
       - run: npm run bundle
-      - run: npm test
+      - run:
+          name: Run App Tests
+          command: npm test
+      - run:
+          name: Run Visualizations Tests
+          command: (cd viz-lib && npm test)
       - run: npm run lint
   frontend-e2e-tests:
     environment:
