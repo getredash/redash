@@ -3,6 +3,7 @@ import os
 import sys
 
 from redash import extensions
+from redash.tasks import periodic_job_definitions
 from tests import BaseTestCase
 
 logger = logging.getLogger(__name__)
@@ -43,3 +44,8 @@ class TestExtensions(BaseTestCase):
         # the worker configuration
         extensions.load_periodic_jobs(logger)
         self.assertIn("dummy_periodic_job", extensions.periodic_jobs.keys())
+
+    def test_dummy_periodic_task_definitions(self):
+        jobs = periodic_job_definitions()
+        from redash_dummy import job_callback
+        self.assertIn(job_callback, [job.get("func", None) for job in jobs])
