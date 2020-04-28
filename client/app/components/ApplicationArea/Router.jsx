@@ -9,9 +9,7 @@ import url from "@/services/url";
 import ErrorMessage from "./ErrorMessage";
 
 function generateRouteKey() {
-  return Math.random()
-    .toString(32)
-    .substr(2);
+  return Math.random().toString(32).substr(2);
 }
 
 export function stripBase(href) {
@@ -73,15 +71,15 @@ export default function Router({ routes, onRouteChange }) {
 
         router
           .resolve({ pathname })
-          .then(route => {
+          .then((route) => {
             if (!isAbandoned && currentPathRef.current === pathname) {
               setCurrentRoute({ ...route, key: generateRouteKey() });
             }
           })
-          .catch(error => {
+          .catch((error) => {
             if (!isAbandoned && currentPathRef.current === pathname) {
               setCurrentRoute({
-                render: currentRoute => <ErrorMessage {...currentRoute.routeParams} />,
+                render: (currentRoute) => <ErrorMessage {...currentRoute.routeParams} />,
                 routeParams: { error },
               });
             }
@@ -108,7 +106,7 @@ export default function Router({ routes, onRouteChange }) {
   }
 
   return (
-    <ErrorBoundary ref={errorHandlerRef} renderError={error => <ErrorMessage error={error} />}>
+    <ErrorBoundary ref={errorHandlerRef} renderError={(error) => <ErrorMessage error={error} />}>
       {currentRoute.render(currentRoute)}
     </ErrorBoundary>
   );

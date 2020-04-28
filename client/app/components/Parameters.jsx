@@ -13,7 +13,7 @@ import "./Parameters.less";
 
 function updateUrl(parameters) {
   const params = extend({}, location.search);
-  parameters.forEach(param => {
+  parameters.forEach((param) => {
     extend(params, param.toUrlParams());
   });
   location.setSearch(params, true);
@@ -47,7 +47,7 @@ export default class Parameters extends React.Component {
     }
   }
 
-  componentDidUpdate = prevProps => {
+  componentDidUpdate = (prevProps) => {
     const { parameters, disableUrlUpdate } = this.props;
     const parametersChanged = prevProps.parameters !== parameters;
     const disableUrlUpdateChanged = prevProps.disableUrlUpdate !== disableUrlUpdate;
@@ -59,7 +59,7 @@ export default class Parameters extends React.Component {
     }
   };
 
-  handleKeyDown = e => {
+  handleKeyDown = (e) => {
     // Cmd/Ctrl/Alt + Enter
     if (e.keyCode === 13 && (e.ctrlKey || e.metaKey || e.altKey)) {
       e.stopPropagation();
@@ -94,8 +94,8 @@ export default class Parameters extends React.Component {
   applyChanges = () => {
     const { onValuesChange, disableUrlUpdate } = this.props;
     this.setState(({ parameters }) => {
-      const parametersWithPendingValues = parameters.filter(p => p.hasPendingValue);
-      forEach(parameters, p => p.applyPendingValue());
+      const parametersWithPendingValues = parameters.filter((p) => p.hasPendingValue);
+      forEach(parameters, (p) => p.applyPendingValue());
       if (!disableUrlUpdate) {
         updateUrl(parameters);
       }
@@ -106,7 +106,7 @@ export default class Parameters extends React.Component {
 
   showParameterSettings = (parameter, index) => {
     const { onParametersEdit } = this.props;
-    EditParameterSettingsDialog.showModal({ parameter }).onClose(updated => {
+    EditParameterSettingsDialog.showModal({ parameter }).onClose((updated) => {
       this.setState(({ parameters }) => {
         const updatedParameter = extend(parameter, updated);
         parameters[index] = createParameter(updatedParameter, updatedParameter.parentQueryId);

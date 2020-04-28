@@ -147,12 +147,12 @@ class Widget {
 
       this.queryResult
         .toPromise()
-        .then(result => {
+        .then((result) => {
           this.loading = false;
           this.data = result;
           return result;
         })
-        .catch(error => {
+        .catch((error) => {
           this.loading = false;
           this.data = error;
           return error;
@@ -173,7 +173,7 @@ class Widget {
       url = `${url}/${this.id}`;
     }
 
-    return axios.post(url, data).then(data => {
+    return axios.post(url, data).then((data) => {
       each(data, (v, k) => {
         this[k] = v;
       });
@@ -202,8 +202,8 @@ class Widget {
 
     const localTypes = [Widget.MappingType.WidgetLevel, Widget.MappingType.StaticValue];
     return map(
-      filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0),
-      param => {
+      filter(params, (param) => localTypes.indexOf(mappings[param.name].type) >= 0),
+      (param) => {
         const mapping = mappings[param.name];
         const result = cloneParameter(param);
         result.title = mapping.title || param.title;
@@ -227,7 +227,7 @@ class Widget {
     const existingParams = {};
     // textboxes does not have query
     const params = this.getQuery() ? this.getQuery().getParametersDefs(false) : [];
-    each(params, param => {
+    each(params, (param) => {
       existingParams[param.name] = true;
       if (!isObject(this.options.parameterMappings[param.name])) {
         // "migration" for old dashboards: parameters with `global` flag
@@ -244,7 +244,7 @@ class Widget {
 
     // Remove mappings for parameters that do not exists anymore
     const removedParams = difference(keys(this.options.parameterMappings), keys(existingParams));
-    each(removedParams, name => {
+    each(removedParams, (name) => {
       delete this.options.parameterMappings[name];
     });
 
@@ -252,7 +252,7 @@ class Widget {
   }
 
   getLocalParameters() {
-    return filter(this.getParametersDefs(), param => !this.isStaticParam(param));
+    return filter(this.getParametersDefs(), (param) => !this.isStaticParam(param));
   }
 }
 

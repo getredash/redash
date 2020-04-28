@@ -25,8 +25,8 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
   const widgetQueryResult = widget.getQueryResult();
   const isQueryResultEmpty = !widgetQueryResult || !widgetQueryResult.isEmpty || widgetQueryResult.isEmpty();
 
-  const downloadLink = fileType => widgetQueryResult.getLink(widget.getQuery().id, fileType);
-  const downloadName = fileType => widgetQueryResult.getName(widget.getQuery().name, fileType);
+  const downloadLink = (fileType) => widgetQueryResult.getLink(widget.getQuery().id, fileType);
+  const downloadName = (fileType) => widgetQueryResult.getName(widget.getQuery().name, fileType);
   return compact([
     <Menu.Item key="download_csv" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
@@ -128,7 +128,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
   const updatedAt = invoke(widgetQueryResult, "getUpdatedAt");
   const [refreshClickButtonId, setRefreshClickButtonId] = useState();
 
-  const refreshWidget = buttonId => {
+  const refreshWidget = (buttonId) => {
     if (!refreshClickButtonId) {
       setRefreshClickButtonId(buttonId);
       onRefresh().finally(() => setRefreshClickButtonId(null));
@@ -227,7 +227,7 @@ class VisualizationWidget extends React.Component {
     EditParameterMappingsDialog.showModal({
       dashboard,
       widget,
-    }).onClose(valuesChanged => {
+    }).onClose((valuesChanged) => {
       // refresh widget if any parameter value has been updated
       if (valuesChanged) {
         onRefresh();

@@ -27,7 +27,7 @@ function TextboxDialog({ dialog, isNew, ...props }) {
   }, 200);
 
   const handleInputChange = useCallback(
-    event => {
+    (event) => {
       setText(event.target.value);
       updatePreview();
     },

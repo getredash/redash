@@ -50,7 +50,7 @@ function UserSessionWrapper({ bodyClass, currentRoute, renderChildren }) {
     <React.Fragment>
       <ApplicationHeader />
       <React.Fragment key={currentRoute.key}>
-        <ErrorBoundary renderError={error => <ErrorMessage error={error} />}>
+        <ErrorBoundary renderError={(error) => <ErrorMessage error={error} />}>
           <ErrorBoundaryContext.Consumer>
             {({ handleError }) =>
               renderChildren({ ...currentRoute.routeParams, pageTitle: currentRoute.title, onError: handleError })
@@ -75,7 +75,7 @@ UserSessionWrapper.defaultProps = {
 export default function routeWithUserSession({ render, bodyClass, ...rest }) {
   return {
     ...rest,
-    render: currentRoute => (
+    render: (currentRoute) => (
       <UserSessionWrapper bodyClass={bodyClass} currentRoute={currentRoute} renderChildren={render} />
     ),
   };

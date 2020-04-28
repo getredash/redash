@@ -13,8 +13,8 @@ function combineFilters(localFilters, globalFilters) {
     return localFilters;
   }
 
-  return map(localFilters, localFilter => {
-    const globalFilter = find(globalFilters, f => f.name === localFilter.name);
+  return map(localFilters, (localFilter) => {
+    const globalFilter = find(globalFilters, (f) => f.name === localFilter.name);
     if (globalFilter) {
       return {
         ...localFilter,
@@ -44,7 +44,7 @@ export default function VisualizationRenderer(props) {
   }, [props.filters]);
 
   const cleanColumnNames = useMemo(
-    () => map(data.columns, col => ({ ...col, name: getColumnCleanName(col.friendly_name) })),
+    () => map(data.columns, (col) => ({ ...col, name: getColumnCleanName(col.friendly_name) })),
     [data.columns]
   );
 
