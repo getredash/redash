@@ -11,6 +11,7 @@
     "watch:babel": "babel src --watch --out-dir lib --source-maps --ignore 'src/**/*.test.js' --copy-files --no-copy-ignored",
     "watch:webpack": "webpack --watch",
     "watch": "npm-run-all --parallel watch:*",
+    "prettier": "prettier --write 'src/**/*.{js,jsx}'",
     "test": "jest",
     "test:watch": "jest --watch"
   },
@@ -43,7 +44,7 @@
     "less-loader": "^5.0.0",
     "less-plugin-autoprefix": "^2.0.0",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.0.4",
+    "prettier": "^1.19.1",
     "prop-types": "^15.7.2",
     "style-loader": "^1.1.4",
     "webpack": "^4.42.1",

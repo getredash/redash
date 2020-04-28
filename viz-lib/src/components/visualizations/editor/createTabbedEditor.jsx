@@ -15,7 +15,7 @@ export function TabbedEditor({ tabs, options, data, onOptionsChange, ...restProp
     onOptionsChange(updateStrategy(options, newOptions));
   };
 
-  tabs = filter(tabs, (tab) => (isFunction(tab.isAvailable) ? tab.isAvailable(options, data) : true));
+  tabs = filter(tabs, tab => (isFunction(tab.isAvailable) ? tab.isAvailable(options, data) : true));
 
   return (
     <Tabs animated={false} tabBarGutter={0}>
