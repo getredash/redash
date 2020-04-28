@@ -130,19 +130,20 @@
     "fsevents": "^1.2.9"
   },
   "jest": {
+    "rootDir": "./client",
     "setupFiles": [
-      "./client/app/__tests__/enzyme_setup.js",
-      "./client/app/__tests__/mocks.js"
+      "./app/__tests__/enzyme_setup.js",
+      "./app/__tests__/mocks.js"
     ],
     "snapshotSerializers": [
       "enzyme-to-json/serializer"
     ],
     "moduleNameMapper": {
-      "^@/(.*)": "<rootDir>/client/app/$1",
+      "^@/(.*)": "<rootDir>/app/$1",
       "\\.(css|less)$": "identity-obj-proxy"
     },
     "testPathIgnorePatterns": [
-      "<rootDir>/client/app/__tests__/"
+      "<rootDir>/app/__tests__/"
     ]
   },
   "//": "browserslist set to 'Async functions' compatibility",

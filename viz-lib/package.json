@@ -5,12 +5,14 @@
   "main": "dist/redash-visualizations.js",
   "scripts": {
     "clean": "rm -rf lib dist",
-    "build:babel": "babel src --out-dir lib --source-maps --copy-files",
+    "build:babel": "babel src --out-dir lib --source-maps --ignore 'src/**/*.test.js' --copy-files --no-copy-ignored",
     "build:webpack": "webpack",
     "build": " NODE_ENV=production npm-run-all clean build:babel build:webpack",
-    "watch:babel": "babel src --watch --out-dir lib --source-maps --copy-files",
+    "watch:babel": "babel src --watch --out-dir lib --source-maps --ignore 'src/**/*.test.js' --copy-files --no-copy-ignored",
     "watch:webpack": "webpack --watch",
-    "watch": "npm-run-all --parallel watch:*"
+    "watch": "npm-run-all --parallel watch:*",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "repository": {
     "type": "git",
@@ -36,6 +38,7 @@
     "enzyme-adapter-react-16": "^1.7.1",
     "enzyme-to-json": "^3.3.5",
     "file-loader": "^6.0.0",
+    "jest": "^24.1.0",
     "less": "^3.11.1",
     "less-loader": "^5.0.0",
     "less-plugin-autoprefix": "^2.0.0",
@@ -73,5 +76,19 @@
     "tinycolor2": "^1.4.1",
     "use-debounce": "^3.4.1",
     "use-media": "^1.4.0"
+  },
+  "jest": {
+    "rootDir": "./src",
+    "setupFiles": [
+      "../__tests__/enzyme_setup.js",
+      "../__tests__/mocks.js"
+    ],
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)": "<rootDir>/$1",
+      "\\.(css|less)$": "identity-obj-proxy"
+    }
   }
 }
