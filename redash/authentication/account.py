@@ -25,7 +25,7 @@ def verify_link_for_user(user):
 
 def invite_link_for_user(user):
     token = invite_token(user)
-    invite_url = "{}/invite/{}".format(base_url(user.org), token)
+    invite_url = "{}invite/{}".format(base_url(user.org), token)
 
     return invite_url
 

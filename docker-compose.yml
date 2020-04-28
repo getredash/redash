@@ -19,7 +19,7 @@ services:
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       REDASH_RATELIMIT_ENABLED: "false"
-      REDASH_MAIL_DEFAULT_SENDER: "Rajesh.Korandla@hexstream.com"
+      REDASH_MAIL_DEFAULT_SENDER: "no-reply@hexstream.com"
       REDASH_MAIL_SERVER: "in-v3.mailjet.com"
       REDASH_MAIL_PORT: 587
       REDASH_MAIL_USERNAME: "e7b48acd596f0f32ec81e0127d95acc0"
@@ -37,7 +37,7 @@ services:
       - server
     environment:
       REDASH_REDIS_URL: "redis://redis:6379/0"
-      REDASH_MAIL_DEFAULT_SENDER: "Rajesh.Korandla@hexstream.com"
+      REDASH_MAIL_DEFAULT_SENDER: "no-reply@hexstream.com"
       REDASH_MAIL_SERVER: "in-v3.mailjet.com"
       REDASH_MAIL_PORT: 587
       REDASH_MAIL_USERNAME: "e7b48acd596f0f32ec81e0127d95acc0"
@@ -57,7 +57,7 @@ services:
       REDASH_LOG_LEVEL: "INFO"
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
-      REDASH_MAIL_DEFAULT_SENDER: "Rajesh.Korandla@hexstream.com"
+      REDASH_MAIL_DEFAULT_SENDER: "no-reply@hexstream.com"
       REDASH_MAIL_SERVER: "in-v3.mailjet.com"
       REDASH_MAIL_PORT: 587
       REDASH_MAIL_USERNAME: "e7b48acd596f0f32ec81e0127d95acc0"

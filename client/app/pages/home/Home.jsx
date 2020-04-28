@@ -159,7 +159,7 @@ function Home() {
         {includes(messages, "using-deprecated-embed-feature") && <DeprecatedEmbedFeatureAlert />}
         {includes(messages, "email-not-verified") && <EmailNotVerifiedAlert />}
         <EmptyState
-          header="Welcome to Redash 👋"
+          header="Welcome to Utility360 👋"
           description="Connect to any data source, easily visualize and share your data"
           illustration="dashboard"
           helpLink="https://redash.io/help/user-guide/getting-started"
@@ -177,6 +177,6 @@ function Home() {
 
 export default routeWithUserSession({
   path: "/",
-  title: "Redash",
+  title: "Utility360 - HEXstream",
   render: pageProps => <Home {...pageProps} />,
 });
