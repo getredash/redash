@@ -19,8 +19,13 @@ services:
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       REDASH_RATELIMIT_ENABLED: "false"
-      REDASH_MAIL_DEFAULT_SENDER: redash@example.com
-      REDASH_MAIL_SERVER: email
+      REDASH_MAIL_DEFAULT_SENDER: "Rajesh.Korandla@hexstream.com"
+      REDASH_MAIL_SERVER: "in-v3.mailjet.com"
+      REDASH_MAIL_PORT: 587
+      REDASH_MAIL_USERNAME: "e7b48acd596f0f32ec81e0127d95acc0"
+      REDASH_MAIL_PASSWORD: "fc701ff3fe133f6ed831133d6449c0a1"
+      REDASH_SERVER: "server"
+
   scheduler:
     build: .
     command: dev_scheduler
@@ -32,8 +37,12 @@ services:
       - server
     environment:
       REDASH_REDIS_URL: "redis://redis:6379/0"
-      REDASH_MAIL_DEFAULT_SENDER: redash@example.com
-      REDASH_MAIL_SERVER: email
+      REDASH_MAIL_DEFAULT_SENDER: "Rajesh.Korandla@hexstream.com"
+      REDASH_MAIL_SERVER: "in-v3.mailjet.com"
+      REDASH_MAIL_PORT: 587
+      REDASH_MAIL_USERNAME: "e7b48acd596f0f32ec81e0127d95acc0"
+      REDASH_MAIL_PASSWORD: "fc701ff3fe133f6ed831133d6449c0a1"
+      REDASH_SERVER: "server"
   worker:
     build: .
     command: dev_worker
@@ -48,8 +57,12 @@ services:
       REDASH_LOG_LEVEL: "INFO"
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
-      REDASH_MAIL_DEFAULT_SENDER: redash@example.com
-      REDASH_MAIL_SERVER: email
+      REDASH_MAIL_DEFAULT_SENDER: "Rajesh.Korandla@hexstream.com"
+      REDASH_MAIL_SERVER: "in-v3.mailjet.com"
+      REDASH_MAIL_PORT: 587
+      REDASH_MAIL_USERNAME: "e7b48acd596f0f32ec81e0127d95acc0"
+      REDASH_MAIL_PASSWORD: "fc701ff3fe133f6ed831133d6449c0a1"
+      REDASH_SERVER: "server"
   redis:
     image: redis:3-alpine
     restart: unless-stopped
