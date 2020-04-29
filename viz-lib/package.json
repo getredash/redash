@@ -5,15 +5,16 @@
   "main": "dist/redash-visualizations.js",
   "scripts": {
     "clean": "rm -rf lib dist",
-    "build:babel": "babel src --out-dir lib --source-maps --ignore 'src/**/*.test.js' --copy-files --no-copy-ignored",
+    "build:babel": "babel src --out-dir lib --source-maps --ignore 'src/**/*.test.js','src/**/*.stories.js' --copy-files --no-copy-ignored",
     "build:webpack": "webpack",
     "build": " NODE_ENV=production npm-run-all clean build:babel build:webpack",
-    "watch:babel": "babel src --watch --out-dir lib --source-maps --ignore 'src/**/*.test.js' --copy-files --no-copy-ignored",
+    "watch:babel": "babel src --watch --out-dir lib --source-maps --ignore 'src/**/*.test.js','src/**/*.stories.js' --copy-files --no-copy-ignored",
     "watch:webpack": "webpack --watch",
     "watch": "npm-run-all --parallel watch:*",
     "prettier": "prettier --write 'src/**/*.{js,jsx}'",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "storybook": "start-storybook"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,8 @@
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/preset-env": "^7.9.0",
     "@babel/preset-react": "^7.9.4",
+    "@storybook/addon-knobs": "^5.3.18",
+    "@storybook/react": "^5.3.18",
     "babel-loader": "^8.1.0",
     "babel-plugin-module-resolver": "^4.0.0",
     "css-loader": "^3.5.2",
