@@ -238,8 +238,8 @@ class VisualizationWidget extends React.Component {
   };
 
   renderVisualization() {
-    const { isLoading, widget, filters } = this.props;
-    const widgetQueryResult = !isLoading && widget.getQueryResult();
+    const { widget, filters } = this.props;
+    const widgetQueryResult = widget.getQueryResult();
     const widgetStatus = widgetQueryResult && widgetQueryResult.getStatus();
     switch (widgetStatus) {
       case "failed":
