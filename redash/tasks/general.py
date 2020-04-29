@@ -9,6 +9,8 @@ from redash import mail, models, settings, rq_redis_connection
 from redash.models import users
 from redash.version_check import run_version_check
 from redash.worker import job, get_job_logger
+from redash.tasks.worker import Queue
+from redash.query_runner import NotSupported
 
 logger = get_job_logger(__name__)
 
@@ -72,6 +74,17 @@ def test_connection(data_source_id):
         return e
     else:
         return True
+
+
+@job("schemas", queue_class=Queue, at_front=True, timeout=30, ttl=90)
+def get_schema(data_source_id, refresh):
+    try:
+        data_source = models.DataSource.get_by_id(data_source_id)
+        return data_source.query_runner.get_schema(refresh)
+    except NotSupported:
+        return []
+    except Exception as e:
+        return e
 
 
 def sync_user_details():
