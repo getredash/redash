@@ -3,13 +3,11 @@ import logging
 import hashlib
 import json
 from datetime import datetime, timedelta
-from functools import partial
-from random import randint
 
 from rq.job import Job
 from rq_scheduler import Scheduler
 
-from redash import settings, rq_redis_connection
+from redash import extensions, settings, rq_redis_connection
 from redash.tasks import (
     sync_user_details,
     refresh_queries,
@@ -78,6 +76,10 @@ def periodic_job_definitions():
 
     # Add your own custom periodic jobs in your dynamic_settings module.
     jobs.extend(settings.dynamic_settings.periodic_jobs() or [])
+
+    # Add periodic jobs that are shipped as part of Redash extensions
+    extensions.load_periodic_jobs(logger)
+    jobs.extend(list(extensions.periodic_jobs.values()))
 
     return jobs
 

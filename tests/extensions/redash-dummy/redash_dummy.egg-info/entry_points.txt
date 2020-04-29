@@ -5,6 +5,6 @@ not_findable_extension = redash_dummy:missing_attribute
 not_importable_extension = missing_extension_module:extension
 working_extension = redash_dummy:extension
 
-[redash.periodic_tasks]
-dummy_periodic_task = redash_dummy:periodic_task
+[redash.periodic_jobs]
+dummy_periodic_job = redash_dummy:periodic_job
 
