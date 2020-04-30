@@ -13,8 +13,7 @@
     "watch": "npm-run-all --parallel watch:*",
     "prettier": "prettier --write 'src/**/*.{js,jsx}'",
     "test": "jest",
-    "test:watch": "jest --watch",
-    "storybook": "start-storybook"
+    "test:watch": "jest --watch"
   },
   "repository": {
     "type": "git",
@@ -33,8 +32,6 @@
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/preset-env": "^7.9.0",
     "@babel/preset-react": "^7.9.4",
-    "@storybook/addon-knobs": "^5.3.18",
-    "@storybook/react": "^5.3.18",
     "babel-loader": "^8.1.0",
     "babel-plugin-module-resolver": "^4.0.0",
     "css-loader": "^3.5.2",

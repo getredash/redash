@@ -25,6 +25,7 @@
     "test:watch": "jest --watch",
     "cypress:install": "npm install --no-save cypress@~4.1.0 @percy/cypress@^2.2.0 atob@2.1.2",
     "cypress": "node client/cypress/cypress.js",
+    "viz-storybook": "start-storybook",
     "preinstall": "(cd viz-lib && npm ci && npm run build:babel)"
   },
   "repository": {
@@ -83,6 +84,8 @@
     "@babel/plugin-transform-object-assign": "^7.2.0",
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-react": "^7.0.0",
+    "@storybook/addon-knobs": "^5.3.18",
+    "@storybook/react": "^5.3.18",
     "@typescript-eslint/eslint-plugin": "^2.10.0",
     "@typescript-eslint/parser": "^2.10.0",
     "babel-eslint": "^10.0.3",
