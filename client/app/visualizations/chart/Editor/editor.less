@@ -1,4 +1,14 @@
 .chart-editor-series {
+  .series-settings-order {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .series-settings-y-axis {
+    white-space: nowrap;
+  }
+
   .drag-handle {
     height: 28px;
     padding: 0 5px;
@@ -13,7 +23,7 @@
     thead th {
       // TODO: replace with @table-header-bg
       // Cannot do it not because of conflict between Antd and Bootstrap variables
-       background: mix(#ffffff, rgb(102, 136, 153), 97%) !important;
+      background: mix(#ffffff, rgb(102, 136, 153), 97%) !important;
     }
 
     &.sortable-container-dragging tbody {

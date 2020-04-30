@@ -661,9 +661,14 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 query.schedule["disabled"] = True
                 db.session.commit()
 
-                message = "Could not determine if query %d is outdated due to %s. The schedule for this query has been disabled." % (query.id, repr(e))
+                message = (
+                    "Could not determine if query %d is outdated due to %s. The schedule for this query has been disabled."
+                    % (query.id, repr(e))
+                )
                 logging.info(message)
-                sentry.capture_message(message)
+                sentry.capture_exception(
+                    type(e)(message).with_traceback(e.__traceback__)
+                )
 
         return list(outdated_queries.values())
 
@@ -1084,7 +1089,9 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def all(cls, org, group_ids, user_id):
         query = (
             Dashboard.query.options(
-                subqueryload(Dashboard.user).load_only("_profile_image_url", "name")
+                joinedload(Dashboard.user).load_only(
+                    "id", "name", "_profile_image_url", "email"
+                )
             )
             .outerjoin(Widget)
             .outerjoin(Visualization)

@@ -10,7 +10,6 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
         <Input
           layout="horizontal"
           label="Counter Label"
-          className="w-100"
           data-test="Counter.General.Label"
           defaultValue={options.counterLabel}
           placeholder={visualizationName}
@@ -22,7 +21,6 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
         <Select
           layout="horizontal"
           label="Counter Value Column Name"
-          className="w-100"
           data-test="Counter.General.ValueColumn"
           defaultValue={options.counterColName}
           disabled={options.countRow}
@@ -39,7 +37,6 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
         <InputNumber
           layout="horizontal"
           label="Counter Value Row Number"
-          className="w-100"
           data-test="Counter.General.ValueRowNumber"
           defaultValue={options.rowNumber}
           disabled={options.countRow}
@@ -51,7 +48,6 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
         <Select
           layout="horizontal"
           label="Target Value Column Name"
-          className="w-100"
           data-test="Counter.General.TargetValueColumn"
           defaultValue={options.targetColName}
           onChange={targetColName => onOptionsChange({ targetColName })}>
@@ -68,7 +64,6 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
         <InputNumber
           layout="horizontal"
           label="Target Value Row Number"
-          className="w-100"
           data-test="Counter.General.TargetValueRowNumber"
           defaultValue={options.targetRowNumber}
           onChange={targetRowNumber => onOptionsChange({ targetRowNumber })}

@@ -61,7 +61,7 @@ class DashboardList extends React.Component {
         width: null,
       }
     ),
-    Columns.avatar({ field: "user", className: "p-l-0 p-r-0" }, name => `Created by ${name}`),
+    Columns.custom((text, item) => item.user.name, { title: "Created By" }),
     Columns.dateTime.sortable({
       title: "Created At",
       field: "created_at",

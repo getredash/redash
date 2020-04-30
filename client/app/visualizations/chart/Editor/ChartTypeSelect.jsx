@@ -1,7 +1,7 @@
 import { map } from "lodash";
 import React, { useMemo } from "react";
 import { Select } from "@/components/visualizations/editor";
-import { clientConfig } from "@/services/auth";
+import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 export default function ChartTypeSelect(props) {
   const chartTypes = useMemo(() => {
@@ -16,7 +16,7 @@ export default function ChartTypeSelect(props) {
       { type: "box", name: "Box", icon: "square-o" },
     ];
 
-    if (clientConfig.allowCustomJSVisualizations) {
+    if (visualizationsSettings.allowCustomJSVisualizations) {
       result.push({ type: "custom", name: "Custom", icon: "code" });
     }
 
@@ -27,7 +27,7 @@ export default function ChartTypeSelect(props) {
     <Select {...props}>
       {map(chartTypes, ({ type, name, icon }) => (
         <Select.Option key={type} value={type} data-test={`Chart.ChartType.${type}`}>
-          <i className={`m-r-5 fa fa-${icon}`} />
+          <i className={`fa fa-${icon}`} style={{ marginRight: 5 }} />
           {name}
         </Select.Option>
       ))}

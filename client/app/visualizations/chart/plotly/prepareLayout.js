@@ -118,10 +118,10 @@ function prepareBoxLayout(layout, options, data) {
 
 export default function prepareLayout(element, options, data) {
   const layout = {
-    margin: { l: 10, r: 10, b: 10, t: 25, pad: 4 },
+    margin: { l: 10, r: 10, b: 5, t: 20, pad: 4 },
     width: Math.floor(element.offsetWidth),
     height: Math.floor(element.offsetHeight),
-    autosize: true,
+    autosize: false,
     showlegend: has(options, "legend") ? options.legend.enabled : true,
   };
 

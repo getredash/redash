@@ -112,6 +112,14 @@ body.fixed-layout {
   }
 }
 
+// Don't let filters take all visualization space on query fixed layout
+.query-fixed-layout {
+  .filters-wrapper {
+    max-height: 40%;
+    overflow: auto;
+  }
+}
+
 .page-header--new {
   .query-tags,
   .query-tags__mobile {

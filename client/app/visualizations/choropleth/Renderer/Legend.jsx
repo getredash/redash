@@ -7,9 +7,9 @@ export default function Legend({ items, alignText }) {
   return (
     <div className="choropleth-visualization-legend">
       {map(items, (item, index) => (
-        <div key={`legend${index}`} className="d-flex align-items-center">
-          <ColorPicker.Swatch color={item.color} className="m-r-5" />
-          <div className={`flex-fill text-${alignText}`}>{item.text}</div>
+        <div key={`legend${index}`} className="legend-item">
+          <ColorPicker.Swatch color={item.color} />
+          <div className={`legend-item-text text-${alignText}`}>{item.text}</div>
         </div>
       ))}
     </div>

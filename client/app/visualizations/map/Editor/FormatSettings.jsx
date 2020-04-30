@@ -7,10 +7,10 @@ function TemplateFormatHint() {
   // eslint-disable-line react/prop-types
   return (
     <ContextHelp placement="topLeft" arrowPointAtCenter>
-      <div className="p-b-5">
+      <div style={{ paddingBottom: 5 }}>
         All query result columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
       </div>
-      <div className="p-b-5">Leave this field empty to use default template.</div>
+      <div style={{ paddingBottom: 5 }}>Leave this field empty to use default template.</div>
     </ContextHelp>
   );
 }
@@ -34,7 +34,6 @@ export default function FormatSettings({ options, onOptionsChange }) {
       <Section>
         <Input
           label={<React.Fragment>Tooltip template {templateFormatHint}</React.Fragment>}
-          className="w-100"
           data-test="Map.Editor.TooltipTemplate"
           disabled={!options.tooltip.enabled}
           placeholder="Default template"
@@ -55,7 +54,6 @@ export default function FormatSettings({ options, onOptionsChange }) {
       <Section>
         <TextArea
           label={<React.Fragment>Popup template {templateFormatHint}</React.Fragment>}
-          className="w-100"
           data-test="Map.Editor.PopupTemplate"
           disabled={!options.popup.enabled}
           rows={4}

@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import AntSwitch from "antd/lib/switch";
 import Typography from "antd/lib/typography";
 
+import "./Switch.less";
+
 export default function Switch({ id, children, disabled, ...props }) {
   const fallbackId = useMemo(
     () =>
@@ -15,9 +17,9 @@ export default function Switch({ id, children, disabled, ...props }) {
 
   if (children) {
     return (
-      <label htmlFor={id} className="d-flex align-items-center">
+      <label htmlFor={id} className="switch-with-label">
         <AntSwitch id={id} disabled={disabled} {...props} />
-        <Typography.Text className="m-l-10" disabled={disabled}>
+        <Typography.Text className="switch-text" disabled={disabled}>
           {children}
         </Typography.Text>
       </label>

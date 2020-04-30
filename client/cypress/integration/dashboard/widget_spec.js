@@ -198,4 +198,24 @@ describe("Widget", () => {
       cy.percySnapshot("Shows fixed mini pagination for overflowing tabular content");
     });
   });
+
+  it("keeps results on screen while refreshing", function() {
+    const queryData = {
+      query: "select pg_sleep({{sleep-time}}), 'sleep time: {{sleep-time}}' as sleeptime",
+      options: { parameters: [{ name: "sleep-time", title: "Sleep time", type: "number", value: 0 }] },
+    };
+
+    createQueryAndAddWidget(this.dashboardId, queryData).then(elTestId => {
+      cy.visit(this.dashboardUrl);
+      cy.getByTestId(elTestId).within(() => {
+        cy.getByTestId("TableVisualization").should("contain", "sleep time: 0");
+        cy.get(".refresh-indicator").should("not.be.visible");
+
+        cy.getByTestId("ParameterName-sleep-time").type("10");
+        cy.getByTestId("ParameterApplyButton").click();
+        cy.get(".refresh-indicator").should("be.visible");
+        cy.getByTestId("TableVisualization").should("contain", "sleep time: 0");
+      });
+    });
+  });
 });

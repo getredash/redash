@@ -17,7 +17,6 @@ export default function CustomChartSettings({ options, onOptionsChange }) {
         <TextArea
           label="Custom code"
           data-test="Chart.Custom.Code"
-          className="form-control v-resizable"
           rows="10"
           defaultValue={isNil(options.customCode) ? defaultCustomCode : options.customCode}
           onChange={event => onOptionsChange({ customCode: event.target.value })}

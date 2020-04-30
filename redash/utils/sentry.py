@@ -36,4 +36,4 @@ def init():
         )
 
 
-capture_message = iffy(lambda _: settings.SENTRY_DSN, sentry_sdk.capture_message)
+capture_exception = iffy(lambda _: settings.SENTRY_DSN, sentry_sdk.capture_exception)

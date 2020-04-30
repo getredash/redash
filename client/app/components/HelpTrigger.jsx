@@ -1,4 +1,4 @@
-import { startsWith } from "lodash";
+import { startsWith, get } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
@@ -42,13 +42,18 @@ export const TYPES = {
 
 export default class HelpTrigger extends React.Component {
   static propTypes = {
-    type: PropTypes.oneOf(Object.keys(TYPES)).isRequired,
+    type: PropTypes.oneOf(Object.keys(TYPES)),
+    href: PropTypes.string,
+    title: PropTypes.node,
     className: PropTypes.string,
     showTooltip: PropTypes.bool,
     children: PropTypes.node,
   };
 
   static defaultProps = {
+    type: null,
+    href: null,
+    title: null,
     className: null,
     showTooltip: true,
     children: <i className="fa fa-question-circle" />,
@@ -102,13 +107,15 @@ export default class HelpTrigger extends React.Component {
     this.setState({ currentUrl });
   };
 
+  getUrl = () => {
+    const [pagePath] = get(TYPES, this.props.type, []);
+    return pagePath ? DOMAIN + HELP_PATH + pagePath : this.props.href;
+  };
+
   openDrawer = () => {
     this.setState({ visible: true });
-    const [pagePath] = TYPES[this.props.type];
-    const url = DOMAIN + HELP_PATH + pagePath;
-
     // wait for drawer animation to complete so there's no animation jank
-    setTimeout(() => this.loadIframe(url), 300);
+    setTimeout(() => this.loadIframe(this.getUrl()), 300);
   };
 
   closeDrawer = event => {
@@ -120,16 +127,32 @@ export default class HelpTrigger extends React.Component {
   };
 
   render() {
-    const [, tooltip] = TYPES[this.props.type];
+    const tooltip = get(TYPES, `${this.props.type}[1]`, this.props.title);
     const className = cx("help-trigger", this.props.className);
     const url = this.state.currentUrl;
 
+    const isAllowedDomain = startsWith(url || this.getUrl(), DOMAIN);
+
     return (
       <React.Fragment>
-        <Tooltip title={this.props.showTooltip ? tooltip : null}>
-          <a onClick={this.openDrawer} className={className}>
-            {this.props.children}
-          </a>
+        <Tooltip
+          title={
+            this.props.showTooltip ? (
+              <>
+                {tooltip}
+                {!isAllowedDomain && <i className="fa fa-external-link" style={{ marginLeft: 5 }} />}
+              </>
+            ) : null
+          }>
+          {isAllowedDomain ? (
+            <a onClick={this.openDrawer} className={className}>
+              {this.props.children}
+            </a>
+          ) : (
+            <a href={url || this.getUrl()} className={className} rel="noopener noreferrer" target="_blank">
+              {this.props.children}
+            </a>
+          )}
         </Tooltip>
         <Drawer
           placement="right"

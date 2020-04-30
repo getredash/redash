@@ -17,7 +17,6 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
               <ContextHelp.NumberFormatSpecs />
             </React.Fragment>
           }
-          className="w-100"
           data-test="Funnel.NumberFormat"
           defaultValue={options.numberFormat}
           onChange={event => onOptionsChangeDebounced({ numberFormat: event.target.value })}
@@ -33,7 +32,6 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
               <ContextHelp.NumberFormatSpecs />
             </React.Fragment>
           }
-          className="w-100"
           data-test="Funnel.PercentFormat"
           defaultValue={options.percentFormat}
           onChange={event => onOptionsChangeDebounced({ percentFormat: event.target.value })}
@@ -44,7 +42,6 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
         <InputNumber
           layout="horizontal"
           label="Items Count Limit"
-          className="w-100"
           data-test="Funnel.ItemsLimit"
           min={2}
           defaultValue={options.itemsLimit}
@@ -56,7 +53,6 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
         <InputNumber
           layout="horizontal"
           label="Min Percent Value"
-          className="w-100"
           data-test="Funnel.PercentRangeMin"
           min={0}
           defaultValue={options.percentValuesRange.min}
@@ -68,7 +64,6 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
         <InputNumber
           layout="horizontal"
           label="Max Percent Value"
-          className="w-100"
           data-test="Funnel.PercentRangeMax"
           min={0}
           defaultValue={options.percentValuesRange.max}

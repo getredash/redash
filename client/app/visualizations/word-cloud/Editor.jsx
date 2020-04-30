@@ -15,7 +15,6 @@ export default function Editor({ options, data, onOptionsChange }) {
         <Select
           label="Words Column"
           data-test="WordCloud.WordsColumn"
-          className="w-100"
           value={options.column}
           onChange={column => optionsChanged({ column })}>
           {map(data.columns, ({ name }) => (
@@ -29,7 +28,6 @@ export default function Editor({ options, data, onOptionsChange }) {
         <Select
           label="Frequencies Column"
           data-test="WordCloud.FrequenciesColumn"
-          className="w-100"
           value={options.frequenciesColumn}
           onChange={frequenciesColumn => optionsChanged({ frequenciesColumn })}>
           <Select.Option key="none" value="">
@@ -48,7 +46,6 @@ export default function Editor({ options, data, onOptionsChange }) {
             <Grid.Col span={12}>
               <InputNumber
                 data-test="WordCloud.WordLengthLimit.Min"
-                className="w-100"
                 placeholder="Min"
                 min={0}
                 value={options.wordLengthLimit.min}
@@ -58,7 +55,6 @@ export default function Editor({ options, data, onOptionsChange }) {
             <Grid.Col span={12}>
               <InputNumber
                 data-test="WordCloud.WordLengthLimit.Max"
-                className="w-100"
                 placeholder="Max"
                 min={0}
                 value={options.wordLengthLimit.max}
@@ -74,7 +70,6 @@ export default function Editor({ options, data, onOptionsChange }) {
             <Grid.Col span={12}>
               <InputNumber
                 data-test="WordCloud.WordCountLimit.Min"
-                className="w-100"
                 placeholder="Min"
                 min={0}
                 value={options.wordCountLimit.min}
@@ -84,7 +79,6 @@ export default function Editor({ options, data, onOptionsChange }) {
             <Grid.Col span={12}>
               <InputNumber
                 data-test="WordCloud.WordCountLimit.Max"
-                className="w-100"
                 placeholder="Max"
                 min={0}
                 value={options.wordCountLimit.max}

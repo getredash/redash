@@ -2,15 +2,15 @@ import React, { useState } from "react";
 import { map, mapValues, keyBy } from "lodash";
 import moment from "moment";
 import { RendererPropTypes } from "@/visualizations/prop-types";
-import { clientConfig } from "@/services/auth";
+import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 import Pagination from "antd/lib/pagination";
 
 import "./details.less";
 
 function renderValue(value, type) {
   const formats = {
-    date: clientConfig.dateFormat,
-    datetime: clientConfig.dateTimeFormat,
+    date: visualizationsSettings.dateFormat,
+    datetime: visualizationsSettings.dateTimeFormat,
   };
 
   if (type === "date" || type === "datetime") {

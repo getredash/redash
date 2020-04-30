@@ -42,7 +42,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
       <Section>
         <Select
           label="Map type"
-          className="w-100"
           data-test="Choropleth.Editor.MapType"
           defaultValue={options.mapType}
           onChange={mapType => handleChangeAndInferType({ mapType })}>
@@ -58,7 +57,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
       <Section>
         <Select
           label="Key column"
-          className="w-100"
           data-test="Choropleth.Editor.KeyColumn"
           defaultValue={options.countryCodeColumn}
           onChange={countryCodeColumn => handleChangeAndInferType({ countryCodeColumn })}>
@@ -73,7 +71,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
       <Section>
         <Select
           label="Key type"
-          className="w-100"
           data-test="Choropleth.Editor.KeyType"
           value={options.countryCodeType}
           onChange={countryCodeType => onOptionsChange({ countryCodeType })}>
@@ -88,7 +85,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
       <Section>
         <Select
           label="Value column"
-          className="w-100"
           data-test="Choropleth.Editor.ValueColumn"
           defaultValue={options.valueColumn}
           onChange={valueColumn => onOptionsChange({ valueColumn })}>

@@ -1,18 +1,21 @@
-import { isEqual, extend, map, sortBy, findIndex, filter, pick } from "lodash";
+import { isEqual, extend, map, sortBy, findIndex, filter, pick, omit } from "lodash";
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 import Select from "antd/lib/select";
 import Input from "antd/lib/input";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import ErrorBoundary, { ErrorMessage } from "@/components/ErrorBoundary";
 import Filters, { filterData } from "@/components/Filters";
 import notification from "@/services/notification";
 import Visualization from "@/services/visualization";
 import recordEvent from "@/services/recordEvent";
 import getQueryResultData from "@/lib/getQueryResultData";
 import { VisualizationType } from "@/visualizations/prop-types";
-import registeredVisualizations, { getDefaultVisualization, newVisualization } from "@/visualizations";
+import { Renderer, Editor } from "@/components/visualizations/visualizationComponents";
+import registeredVisualizations, {
+  getDefaultVisualization,
+  newVisualization,
+} from "@/visualizations/registeredVisualizations";
 
 import "./EditVisualizationDialog.less";
 
@@ -125,7 +128,16 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
 
   function save() {
     setSaveInProgress(true);
-    const visualizationData = extend(newVisualization(type), visualization, { name, options, query_id: query.id });
+    let visualizationOptions = options;
+    if (type === "TABLE") {
+      visualizationOptions = omit(visualizationOptions, ["paginationSize"]);
+    }
+
+    const visualizationData = extend(newVisualization(type), visualization, {
+      name,
+      options: visualizationOptions,
+      query_id: query.id,
+    });
     saveVisualization(visualizationData).then(savedVisualization => {
       updateQueryVisualizations(query, savedVisualization);
       dialog.close(savedVisualization);
@@ -136,8 +148,6 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
     const optionsChanged = !isEqual(options, defaultState.originalOptions);
     confirmDialogClose(nameChanged || optionsChanged).then(dialog.dismiss);
   }
-
-  const { Renderer, Editor } = registeredVisualizations[type];
 
   // When editing existing visualization chart type selector is disabled, so add only existing visualization's
   // descriptor there (to properly render the component). For new visualizations show all types except of deprecated
@@ -187,7 +197,13 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
             />
           </div>
           <div data-test="VisualizationEditor">
-            <Editor data={data} options={options} visualizationName={name} onOptionsChange={onOptionsChanged} />
+            <Editor
+              type={type}
+              data={data}
+              options={options}
+              visualizationName={name}
+              onOptionsChange={onOptionsChanged}
+            />
           </div>
         </div>
         <div className="visualization-preview">
@@ -196,17 +212,13 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
           </label>
           <Filters filters={filters} onChange={setFilters} />
           <div className="scrollbox" data-test="VisualizationPreview">
-            <ErrorBoundary
-              ref={errorHandlerRef}
-              renderError={() => <ErrorMessage>Error while rendering visualization.</ErrorMessage>}>
-              <Renderer
-                data={filteredData}
-                options={options}
-                visualizationName={name}
-                onOptionsChange={onOptionsChanged}
-                context="query"
-              />
-            </ErrorBoundary>
+            <Renderer
+              type={type}
+              data={filteredData}
+              options={options}
+              visualizationName={name}
+              onOptionsChange={onOptionsChanged}
+            />
           </div>
         </div>
       </div>
