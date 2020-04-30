@@ -1,7 +1,7 @@
 import { reduce } from "lodash";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { axios } from "@/services/axios";
-import DataSource from "@/services/data-source";
+import DataSource, { SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
 import notification from "@/services/notification";
 
 function sleep(ms) {
@@ -20,6 +20,8 @@ function getSchema(dataSource, refresh = undefined) {
           return fetchSchemaFromJob(data);
         } else if (data.job.status === 3) {
           return data.job.result;
+        } else if (data.job.status === 4 && data.job.error.code === SCHEMA_NOT_SUPPORTED) {
+          return [];
         } else {
           return Promise.reject(new Error(data.job.error));
         }

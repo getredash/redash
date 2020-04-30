@@ -292,6 +292,9 @@ def serialize_job(job):
     elif isinstance(job.result, Exception):
         error = str(job.result)
         status = 4
+    elif isinstance(job.result, dict) and "error" in job.result:
+        error = job.result["error"]
+        status = 4
     else:
         error = ""
         result = query_result_id = job.result

@@ -82,9 +82,14 @@ def get_schema(data_source_id, refresh):
         data_source = models.DataSource.get_by_id(data_source_id)
         return data_source.query_runner.get_schema(refresh)
     except NotSupported:
-        return []
-    except Exception as e:
-        return e
+        return {
+            "error": {
+                "code": 1,
+                "message": "Data source type does not support retrieving schema",
+            }
+        }
+    except Exception:
+        return {"error": {"code": 2, "message": "Error retrieving schema."}}
 
 
 def sync_user_details():
