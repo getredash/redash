@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 # Make a directory for extensions and set it as an environment variable
 # to be picked up by webpack.
-extensions_relative_path = Path('client', 'app', 'extensions')
+extensions_relative_path = Path("client", "app", "extensions")
 extensions_directory = Path(__file__).parent.parent / extensions_relative_path
 
 if not extensions_directory.exists():
@@ -94,9 +94,9 @@ def load_bundles():
 
 bundles = load_bundles().items()
 if bundles:
-    print('Number of extension bundles found: {}'.format(len(bundles)))
+    print("Number of extension bundles found: {}".format(len(bundles)))
 else:
-    print('No extension bundles found.')
+    print("No extension bundles found.")
 
 for bundle_name, paths in bundles:
     # Shortcut in case not paths were found for the bundle
