@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { getColumnCleanName } from "@/services/query-result";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 const DEFAULT_OPTIONS = {
@@ -25,7 +26,7 @@ function getDefaultColumnsOptions(columns) {
     displayAs: displayAs[col.type] || "string",
     visible: true,
     order: 100000 + index,
-    title: col.name,
+    title: getColumnCleanName(col.name),
     allowSearch: false,
     alignContent: getColumnContentAlignment(col.type),
     // `string` cell options
