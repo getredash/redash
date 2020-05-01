@@ -10,7 +10,7 @@ class SettingsMenuItem {
   }
 
   isActive(path) {
-    return path.includes(this.pathPrefix);
+    return path.startsWith(this.pathPrefix);
   }
 
   isAvailable() {

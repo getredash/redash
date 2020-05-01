@@ -149,7 +149,6 @@ const DataSourcesListPage = wrapSettingsTab(
     permission: "admin",
     title: "Data Sources",
     path: "data_sources",
-    isActive: path => path.includes("/data_sources") && !path.includes("/groups"),
     order: 1,
   },
   DataSourcesList

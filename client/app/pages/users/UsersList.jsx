@@ -251,7 +251,7 @@ const UsersListPage = wrapSettingsTab(
     permission: "list_users",
     title: "Users",
     path: "users",
-    isActive: path => path.includes("/users") && !path.includes("/users/me"),
+    isActive: path => path.startsWith("/users") && path !== "/users/me",
     order: 2,
   },
   itemsList(
