@@ -1,0 +1,59 @@
+body #application-root {
+  @mobileBreakpoint: ~"(min-width: 768px)";
+
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+  padding-bottom: 0 !important;
+
+  .application-layout-menu {
+    display: none;
+    width: 120px;
+    flex: 0 0 auto;
+    background: #ffffff;
+
+    .help-trigger {
+      font: inherit;
+    }
+
+    .ant-menu-item {
+      font-weight: 500;
+      color: #333;
+
+      &:hover {
+        color: #2196f3 !important;
+      }
+
+      .fa {
+        margin-right: 5px;
+      }
+
+      &.header-logo {
+        text-align: center;
+        img {
+          height: 40px;
+        }
+      }
+    }
+
+    @media @mobileBreakpoint {
+      display: block;
+    }
+  }
+
+  .application-layout-content {
+    display: flex;
+    flex-direction: column;
+
+    flex: 1 1 auto;
+    padding-bottom: 15px;
+
+    @media @mobileBreakpoint {
+      padding-top: 15px;
+
+      nav .app-header[data-platform="desktop"] {
+        display: none;
+      }
+    }
+  }
+}
