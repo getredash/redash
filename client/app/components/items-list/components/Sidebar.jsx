@@ -17,21 +17,19 @@ export function SearchInput({ placeholder, value, showIcon, onChange }) {
     setCurrentValue(value);
   }, [value]);
 
-  const onInputChange = useCallback((event) => {
-    const newValue = event.target.value;
-    setCurrentValue(newValue);
-    onChange(newValue)
-  }, [onChange]);
+  const onInputChange = useCallback(
+    event => {
+      const newValue = event.target.value;
+      setCurrentValue(newValue);
+      onChange(newValue);
+    },
+    [onChange]
+  );
 
   const InputControl = showIcon ? Input.Search : Input;
   return (
     <div className="m-b-10">
-      <InputControl
-        className="form-control"
-        placeholder={placeholder}
-        value={currentValue}
-        onChange={onInputChange}
-      />
+      <InputControl className="form-control" placeholder={placeholder} value={currentValue} onChange={onInputChange} />
     </div>
   );
 }
