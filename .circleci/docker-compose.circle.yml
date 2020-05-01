@@ -5,7 +5,6 @@ services:
       context: ../
       args:
         APP_ENV: dev
-    command: manage version
     depends_on:
       - postgres
       - redis
