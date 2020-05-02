@@ -22,7 +22,7 @@ export default function ApplicationLayout({ children }) {
             <img src={logoUrl} alt="Redash" style={{ height: collapsed ? "20px" : "40px" }} />
           </a>
         </div>
-        <Menu mode="inline" selectable={false} inlineCollapsed={collapsed} style={{ flexGrow: "1" }}>
+        <Menu mode="inline" selectable={false} inlineCollapsed={collapsed} style={{ flexGrow: "1" }} theme="dark">
           {/* <Menu.Item key="home" className="header-logo">
             <a href="./">
               <img src={logoUrl} alt="Redash" />
@@ -79,9 +79,8 @@ export default function ApplicationLayout({ children }) {
               </Menu.Item>
             )}
           </Menu.SubMenu>
-
-          <Menu.Divider />
-
+        </Menu>
+        <Menu mode="inline" selectable={false} inlineCollapsed={collapsed} theme="dark">
           <Menu.Item key="help">
             <HelpTrigger showTooltip={false} type="HOME">
               <Icon type="question-circle" />
@@ -96,8 +95,9 @@ export default function ApplicationLayout({ children }) {
               </a>
             </Menu.Item>
           )}
+          <Menu.Divider />
         </Menu>
-        <Menu mode="vertical" selectable={false}>
+        <Menu mode="vertical" theme="dark">
           <Menu.SubMenu
             key="profile"
             title={
@@ -121,7 +121,7 @@ export default function ApplicationLayout({ children }) {
             </Menu.Item>
           </Menu.SubMenu>
         </Menu>
-        <Button onClick={() => setCollapsed(!collapsed)} style={{ marginTop: "auto" }}>
+        <Button onClick={() => setCollapsed(!collapsed)} className="collapse-button">
           <Icon type={collapsed ? "menu-unfold" : "menu-fold"} />
         </Button>
       </div>
