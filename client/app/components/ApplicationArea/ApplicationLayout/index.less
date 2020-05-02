@@ -8,12 +8,19 @@ body #application-root {
 
   .application-layout-menu {
     display: none;
-    width: 120px;
+    // width: 120px;
     flex: 0 0 auto;
     background: #ffffff;
 
     .help-trigger {
       font: inherit;
+    }
+
+    .ant-menu.ant-menu-inline-collapsed > .ant-menu-submenu-title span img + span,
+    .ant-menu-inline-collapsed > .ant-menu-item i + span {
+      display: inline-block;
+      max-width: 0;
+      opacity: 0;
     }
 
     .ant-menu-item {
@@ -24,20 +31,20 @@ body #application-root {
         color: #2196f3 !important;
       }
 
+      .zmdi,
       .fa {
         margin-right: 5px;
       }
-
-      &.header-logo {
-        text-align: center;
-        img {
-          height: 40px;
-        }
-      }
+    }
+    .header-logo {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      text-align: center;
     }
 
     @media @mobileBreakpoint {
-      display: block;
+      display: flex;
+      flex-direction: column;
     }
   }
 
@@ -55,5 +62,11 @@ body #application-root {
         display: none;
       }
     }
+  }
+}
+
+body.fixed-layout #application-root {
+  .application-layout-content {
+    padding-bottom: 0px;
   }
 }
