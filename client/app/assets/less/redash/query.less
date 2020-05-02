@@ -4,14 +4,13 @@ body.fixed-layout {
 
   #application-root {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     padding-bottom: 0;
 
     width: 100vw;
     height: 100vh;
 
     > div {
-      flex-grow: 1;
       display: flex;
     }
   }
@@ -156,7 +155,6 @@ a.label-tag {
   box-shadow: rgba(102, 136, 153, 0.15) 0 4px 9px -3px;
   flex-grow: 1;
   display: flex;
-  width: 100vw;
 
   .resizable-component.react-resizable {
     .react-resizable-handle-horizontal {
@@ -483,13 +481,6 @@ nav .rg-bottom {
 
     .bottom-controller-container {
       z-index: 9;
-    }
-  }
-
-  .query-page-wrapper {
-    .container {
-      margin-left: 0;
-      margin-right: 0;
     }
   }
 
