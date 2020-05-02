@@ -5,8 +5,10 @@ body #application-root {
   flex-direction: row;
   justify-content: stretch;
   padding-bottom: 0 !important;
+  height: 100vh;
 
   .application-layout-menu {
+    height: 100vh;
     display: none;
     // width: 120px;
     flex: 0 0 auto;
@@ -36,6 +38,16 @@ body #application-root {
         margin-right: 5px;
       }
     }
+
+    .menu-inline-icon-only {
+      text-align: center;
+      width: 100%;
+    }
+
+    .create-menu {
+      flex-grow: 1;
+    }
+
     .header-logo {
       padding-top: 20px;
       padding-bottom: 20px;
@@ -58,6 +70,7 @@ body #application-root {
   .application-layout-content {
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
 
     flex: 1 1 auto;
     padding-bottom: 15px;

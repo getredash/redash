@@ -22,7 +22,7 @@ export default function ApplicationLayout({ children }) {
             <img src={logoUrl} alt="Redash" style={{ height: collapsed ? "20px" : "40px" }} />
           </a>
         </div>
-        <Menu mode="inline" selectable={false} inlineCollapsed={collapsed} style={{ flexGrow: "1" }} theme="dark">
+        <Menu mode="inline" selectable={false} inlineCollapsed={collapsed} theme="dark">
           {/* <Menu.Item key="home" className="header-logo">
             <a href="./">
               <img src={logoUrl} alt="Redash" />
@@ -55,7 +55,9 @@ export default function ApplicationLayout({ children }) {
           )}
 
           <Menu.Divider />
+        </Menu>
 
+        <Menu mode="inline" inlineCollapsed={true} theme="dark" className="create-menu menu-inline-icon-only">
           <Menu.SubMenu
             key="create"
             title={
