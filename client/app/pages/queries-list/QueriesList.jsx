@@ -18,6 +18,7 @@ import Layout from "@/components/layouts/ContentWithSidebar";
 
 import { Query } from "@/services/query";
 import { currentUser } from "@/services/auth";
+import location from "@/services/location";
 
 import QueriesListEmptyState from "./QueriesListEmptyState";
 
@@ -85,6 +86,22 @@ class QueriesList extends React.Component {
       field: "schedule",
     }),
   ];
+
+  componentDidMount() {
+    this.unlistenLocationChanges = location.listen((unused, action) => {
+      const searchTerm = location.search.q || "";
+      if (action === "PUSH" && searchTerm !== this.props.controller.searchTerm) {
+        this.props.controller.updateSearch(searchTerm);
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    if (this.unlistenLocationChanges) {
+      this.unlistenLocationChanges();
+      this.unlistenLocationChanges = null;
+    }
+  }
 
   render() {
     const { controller } = this.props;
