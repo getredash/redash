@@ -27,7 +27,7 @@ describe("Query Filters", () => {
         query: `SELECT stage1 AS "stage1::filter", stage2, value FROM (${SQL}) q`,
       };
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
+      createQuery(queryData).then(({ id }) => cy.visit(`/queries/${id}`));
       cy.getByTestId("ExecuteButton").click();
     });
 
@@ -57,7 +57,7 @@ describe("Query Filters", () => {
         query: `SELECT stage1 AS "stage1::multi-filter", stage2, value FROM (${SQL}) q`,
       };
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
+      createQuery(queryData).then(({ id }) => cy.visit(`/queries/${id}`));
       cy.getByTestId("ExecuteButton").click();
     });
 
