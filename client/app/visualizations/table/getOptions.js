@@ -6,6 +6,30 @@ const DEFAULT_OPTIONS = {
   paginationSize: "default", // not editable through Editor
 };
 
+const filterTypes = ["filter", "multi-filter", "multiFilter"];
+
+function getColumnNameWithoutType(column) {
+  let typeSplit;
+  if (column.indexOf("::") !== -1) {
+    typeSplit = "::";
+  } else if (column.indexOf("__") !== -1) {
+    typeSplit = "__";
+  } else {
+    return column;
+  }
+
+  const parts = column.split(typeSplit);
+  if (parts[0] === "" && parts.length === 2) {
+    return parts[1];
+  }
+
+  if (!_.includes(filterTypes, parts[1])) {
+    return column;
+  }
+
+  return parts[0];
+}
+
 function getColumnContentAlignment(type) {
   return ["integer", "float", "boolean", "date", "datetime"].indexOf(type) >= 0 ? "right" : "left";
 }
@@ -25,7 +49,7 @@ function getDefaultColumnsOptions(columns) {
     displayAs: displayAs[col.type] || "string",
     visible: true,
     order: 100000 + index,
-    title: col.name,
+    title: getColumnNameWithoutType(col.name),
     allowSearch: false,
     alignContent: getColumnContentAlignment(col.type),
     // `string` cell options
