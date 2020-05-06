@@ -70,7 +70,7 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
         .simulate("click");
     });
 
-    test("Sets custom color scheme", async done => {
+    test("Sets custom color scheme", done => {
       const el = mount(
         {
           globalSeriesType: "heatmap",

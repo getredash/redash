@@ -10,12 +10,13 @@ import notification from "@/services/notification";
 import Visualization from "@/services/visualization";
 import recordEvent from "@/services/recordEvent";
 import getQueryResultData from "@/lib/getQueryResultData";
-import { VisualizationType } from "@/visualizations/prop-types";
-import { Renderer, Editor } from "@/components/visualizations/visualizationComponents";
-import registeredVisualizations, {
+import {
+  registeredVisualizations,
   getDefaultVisualization,
   newVisualization,
-} from "@/visualizations/registeredVisualizations";
+  VisualizationType,
+} from "@redash/viz/lib";
+import { Renderer, Editor } from "@/components/visualizations/visualizationComponents";
 
 import "./EditVisualizationDialog.less";
 

@@ -8,11 +8,11 @@ import Dropdown from "antd/lib/dropdown";
 import Icon from "antd/lib/icon";
 import Menu from "antd/lib/menu";
 import Tooltip from "antd/lib/tooltip";
+import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
 import { Query } from "@/services/query";
 import location from "@/services/location";
 import { formatDateTime } from "@/lib/utils";
-import HtmlContent from "@/components/HtmlContent";
 import Parameters from "@/components/Parameters";
 import { Moment } from "@/components/proptypes";
 import TimeAgo from "@/components/TimeAgo";
@@ -20,7 +20,7 @@ import Timer from "@/components/Timer";
 import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
 import VisualizationName from "@/components/visualizations/VisualizationName";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
-import { VisualizationType } from "@/visualizations/prop-types";
+import { VisualizationType } from "@redash/viz/lib";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
 function VisualizationEmbedHeader({ queryName, queryDescription, visualization }) {

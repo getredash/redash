@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import PropTypes from "prop-types";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
+import { ErrorBoundaryContext } from "@redash/viz/lib/components/ErrorBoundary";
 import { Auth } from "@/services/auth";
 
 // This wrapper modifies `route.render` function and instead of passing `currentRoute` passes an object

@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import getQueryResultData from "@/lib/getQueryResultData";
 import Filters, { FiltersType, filterData } from "@/components/Filters";
-import { VisualizationType } from "@/visualizations/prop-types";
+import { VisualizationType } from "@redash/viz/lib";
 import { Renderer } from "@/components/visualizations/visualizationComponents";
 
 function combineFilters(localFilters, globalFilters) {

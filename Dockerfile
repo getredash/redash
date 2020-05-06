@@ -2,7 +2,8 @@ FROM node:12 as frontend-builder
 
 WORKDIR /frontend
 COPY package.json package-lock.json /frontend/
-RUN npm ci
+COPY viz-lib /frontend/viz-lib
+RUN npm ci --unsafe-perm
 
 COPY client /frontend/client
 COPY webpack.config.js /frontend/
