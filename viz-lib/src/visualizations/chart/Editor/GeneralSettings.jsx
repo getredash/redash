@@ -165,14 +165,35 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
       )}
 
       {!includes(["custom", "heatmap"], options.globalSeriesType) && (
-        <Section>
-          <Checkbox
-            data-test="Chart.ShowLegend"
-            defaultChecked={options.legend.enabled}
-            onChange={event => onOptionsChange({ legend: { enabled: event.target.checked } })}>
-            Show Legend
-          </Checkbox>
-        </Section>
+        <React.Fragment>
+          <Section>
+            <Checkbox
+              data-test="Chart.ShowLegend"
+              defaultChecked={options.legend.enabled}
+              onChange={event => onOptionsChange({ legend: { enabled: event.target.checked } })}>
+              Show Legend
+            </Checkbox>
+          </Section>
+          {options.legend.enabled && (
+            <Section>
+              <Select
+                label="Legend Placement"
+                data-test="Chart.LegendPlacement"
+                defaultValue={options.legend.placement}
+                onChange={placement => onOptionsChange({ legend: { placement } })}>
+                <Select.Option value="auto" data-test="Chart.LegendPlacement.Auto">
+                  Auto
+                </Select.Option>
+                <Select.Option value="right" data-test="Chart.LegendPlacement.Right">
+                  Next to the Plot
+                </Select.Option>
+                <Select.Option value="below" data-test="Chart.LegendPlacement.Below">
+                  Below the Plot
+                </Select.Option>
+              </Select>
+            </Section>
+          )}
+        </React.Fragment>
       )}
 
       {includes(["box"], options.globalSeriesType) && (

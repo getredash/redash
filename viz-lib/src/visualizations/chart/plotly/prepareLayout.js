@@ -1,4 +1,4 @@
-import { filter, has, isNumber, isObject, isUndefined, map, max, min } from "lodash";
+import { filter, isNumber, isObject, isUndefined, map, max, min } from "lodash";
 import { getPieDimensions } from "./preparePieData";
 
 function getAxisTitle(axis) {
@@ -122,7 +122,7 @@ export default function prepareLayout(element, options, data) {
     width: Math.floor(element.offsetWidth),
     height: Math.floor(element.offsetHeight),
     autosize: false,
-    showlegend: has(options, "legend") ? options.legend.enabled : true,
+    showlegend: options.legend.enabled,
   };
 
   switch (options.globalSeriesType) {
