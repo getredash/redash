@@ -184,9 +184,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
                 <Select.Option value="auto" data-test="Chart.LegendPlacement.Auto">
                   Auto
                 </Select.Option>
-                <Select.Option value="right" data-test="Chart.LegendPlacement.Right">
-                  Next to the Plot
-                </Select.Option>
                 <Select.Option value="below" data-test="Chart.LegendPlacement.Below">
                   Below the Plot
                 </Select.Option>

@@ -121,9 +121,6 @@ export default function applyLayoutFixes(plotlyElement, layout, options, updateP
       case "auto":
         placeLegendAuto(plotlyElement, layout, updatePlot);
         break;
-      case "right":
-        placeLegendNextToPlot(plotlyElement, layout, updatePlot);
-        break;
       case "below":
         placeLegendBelowPlot(plotlyElement, layout, updatePlot);
         break;
