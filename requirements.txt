@@ -41,7 +41,7 @@ RestrictedPython==5.0
 pysaml2==4.8.0
 pycrypto==2.6.1
 funcy==1.13
-sentry-sdk>=0.12.2,<0.13.0
+sentry-sdk>=0.14.3,<0.15.0
 semver==2.8.1
 xlsxwriter==1.2.2
 pystache==0.5.4
