@@ -34,7 +34,7 @@ function DesktopNavbar() {
   return (
     <div className="app-header" data-platform="desktop">
       <div>
-        <Menu mode="horizontal" selectable={false}>
+        <Menu mode="horizontal" theme="dark" selectable={false}>
           {currentUser.hasPermission("list_dashboards") && (
             <Menu.Item key="dashboards" className="dropdown-menu-item">
               <Button href="dashboards">Dashboards</Button>
@@ -57,7 +57,7 @@ function DesktopNavbar() {
           <Dropdown
             trigger={["click"]}
             overlay={
-              <Menu>
+              <Menu theme="dark">
                 {currentUser.hasPermission("create_query") && (
                   <Menu.Item key="new-query">
                     <a href="queries/new">New Query</a>
@@ -93,7 +93,7 @@ function DesktopNavbar() {
           data-test="AppHeaderSearch"
           onSearch={onSearch}
         />
-        <Menu mode="horizontal" selectable={false}>
+        <Menu mode="horizontal" theme="dark" selectable={false}>
           <Menu.Item key="help">
             <HelpTrigger type="HOME" className="menu-item-button" />
           </Menu.Item>
@@ -112,7 +112,7 @@ function DesktopNavbar() {
               placement="bottomRight"
               trigger={["click"]}
               overlay={
-                <Menu>
+                <Menu theme="dark">
                   <Menu.Item key="profile">
                     <a href="users/me">Edit Profile</a>
                   </Menu.Item>
@@ -201,7 +201,7 @@ function MobileNavbar() {
           trigger={["click"]}
           getPopupContainer={() => ref.current} // so the overlay menu stays with the fixed header when page scrolls
           overlay={
-            <Menu mode="vertical" selectable={false}>
+            <Menu mode="vertical" theme="dark" selectable={false}>
               {currentUser.hasPermission("list_dashboards") && (
                 <Menu.Item key="dashboards">
                   <a href="dashboards">Dashboards</a>
@@ -243,7 +243,7 @@ function MobileNavbar() {
               </Menu.Item>
             </Menu>
           }>
-          <Button>
+          <Button ghost>
             <Icon type="menu" />
           </Button>
         </Dropdown>

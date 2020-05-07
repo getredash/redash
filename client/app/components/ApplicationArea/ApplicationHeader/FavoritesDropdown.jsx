@@ -38,7 +38,7 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
   const onVisibleChange = visible => visible && fetchItems();
 
   const menu = (
-    <Menu className="favorites-dropdown">
+    <Menu theme="dark" className="favorites-dropdown">
       {noItems ? (
         <Menu.Item>
           <span className="btn-favourite m-r-5">
