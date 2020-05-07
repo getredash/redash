@@ -304,6 +304,7 @@ def client_config():
         "dashboardRefreshIntervals": settings.DASHBOARD_REFRESH_INTERVALS,
         "queryRefreshIntervals": settings.QUERY_REFRESH_INTERVALS,
         "googleLoginEnabled": settings.GOOGLE_OAUTH_ENABLED,
+        "microsoftLoginEnabled": settings.MICROSOFT_OAUTH_ENABLED,
         "ldapLoginEnabled": settings.LDAP_LOGIN_ENABLED,
         "pageSize": settings.PAGE_SIZE,
         "pageSizeOptions": settings.PAGE_SIZE_OPTIONS,
