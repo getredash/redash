@@ -39,7 +39,7 @@ export default function PlotlyChart({ options, data }) {
         // It will auto-purge previous graph
         Plotly.newPlot(container, plotlyData, plotlyLayout, plotlyOptions).then(
           catchErrors(() => {
-            applyLayoutFixes(container, plotlyLayout, (e, u) => Plotly.relayout(e, u));
+            applyLayoutFixes(container, plotlyLayout, options, (e, u) => Plotly.relayout(e, u));
           }, errorHandler)
         );
 
@@ -58,7 +58,7 @@ export default function PlotlyChart({ options, data }) {
         const unwatch = resizeObserver(
           container,
           catchErrors(() => {
-            applyLayoutFixes(container, plotlyLayout, (e, u) => Plotly.relayout(e, u));
+            applyLayoutFixes(container, plotlyLayout, options, (e, u) => Plotly.relayout(e, u));
           }, errorHandler)
         );
         return unwatch;

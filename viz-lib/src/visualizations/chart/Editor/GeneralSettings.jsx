@@ -98,6 +98,14 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
     onOptionsChange({ columnMapping }, UpdateOptionsStrategy.shallowMerge);
   }
 
+  function handleLegendPlacementChange(value) {
+    if (value === "hidden") {
+      onOptionsChange({ legend: { enabled: false } });
+    } else {
+      onOptionsChange({ legend: { enabled: true, placement: value } });
+    }
+  }
+
   return (
     <React.Fragment>
       <Section>
@@ -166,12 +174,21 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
 
       {!includes(["custom", "heatmap"], options.globalSeriesType) && (
         <Section>
-          <Checkbox
-            data-test="Chart.ShowLegend"
-            defaultChecked={options.legend.enabled}
-            onChange={event => onOptionsChange({ legend: { enabled: event.target.checked } })}>
-            Show Legend
-          </Checkbox>
+          <Select
+            label="Legend Placement"
+            data-test="Chart.LegendPlacement"
+            value={options.legend.enabled ? options.legend.placement : "hidden"}
+            onChange={handleLegendPlacementChange}>
+            <Select.Option value="hidden" data-test="Chart.LegendPlacement.HideLegend">
+              Hide legend
+            </Select.Option>
+            <Select.Option value="auto" data-test="Chart.LegendPlacement.Auto">
+              Right
+            </Select.Option>
+            <Select.Option value="below" data-test="Chart.LegendPlacement.Below">
+              Bottom
+            </Select.Option>
+          </Select>
         </Section>
       )}
 

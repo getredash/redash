@@ -75,10 +75,12 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.ShowLegend")
+    findByTestID(el, "Chart.LegendPlacement")
       .last()
-      .find("input")
-      .simulate("change", { target: { checked: false } });
+      .simulate("click");
+    findByTestID(el, "Chart.LegendPlacement.HideLegend")
+      .last()
+      .simulate("click");
   });
 
   test("Box: toggles show points", done => {
