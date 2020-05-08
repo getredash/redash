@@ -82,15 +82,21 @@ function DashboardComponent(props) {
   const [bottomPanelStyles, setBottomPanelStyles] = useState({});
 
   useEffect(() => {
-    if (pageContainer && editingLayout) {
+    if (pageContainer) {
       const unobserve = resizeObserver(pageContainer, () => {
-        const style = window.getComputedStyle(pageContainer, null);
-        const paddingLeft = parseFloat(style.paddingLeft) || 0;
-        const paddingRight = parseFloat(style.paddingRight) || 0;
-        setBottomPanelStyles({
-          right: paddingRight,
-          width: pageContainer.clientWidth - paddingLeft - paddingRight,
-        });
+        if (editingLayout) {
+          const style = window.getComputedStyle(pageContainer, null);
+          const bounds = pageContainer.getBoundingClientRect();
+          const paddingLeft = parseFloat(style.paddingLeft) || 0;
+          const paddingRight = parseFloat(style.paddingRight) || 0;
+          setBottomPanelStyles({
+            left: Math.round(bounds.left) + paddingRight,
+            width: pageContainer.clientWidth - paddingLeft - paddingRight,
+          });
+        }
+
+        // reflow grid when container changes its size
+        window.dispatchEvent(new Event("resize"));
       });
       return unobserve;
     }
