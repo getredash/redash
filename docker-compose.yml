@@ -1,12 +1,10 @@
 # This configuration file is for the **development** setup.
 # For a production example please refer to getredash/setup repository on GitHub.
-version: '3.4'
+version: '2'
 x-redash-service: &redash-service
   build: .
   volumes:
-    - type: bind
-      source: .
-      target: /app
+    - .:/app
 x-redash-environment: &redash-environment
   REDASH_REDIS_URL: "redis://redis:6379/0"
   REDASH_MAIL_DEFAULT_SENDER: "redash@example.com"
