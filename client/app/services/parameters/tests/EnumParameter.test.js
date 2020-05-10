@@ -1,4 +1,4 @@
-import { Parameter } from "..";
+import { createParameter } from "..";
 
 describe("EnumParameter", () => {
   let param;
@@ -13,7 +13,7 @@ describe("EnumParameter", () => {
       enumOptions,
       multiValuesOptions,
     };
-    param = Parameter.create(paramOptions);
+    param = createParameter(paramOptions);
   });
 
   describe("normalizeValue", () => {

@@ -1,30 +1,22 @@
-// This polyfill is needed to support PhantomJS which we use to generate PNGs from embeds.
-import "core-js/fn/typed/array-buffer";
+import moment from "moment";
+import * as Pace from "pace-progress";
+import { isFunction } from "lodash";
+import url from "@/services/url";
 
 // Ensure that this image will be available in assets folder
 import "@/assets/images/avatar.svg";
 
-import * as Pace from "pace-progress";
-import debug from "debug";
-import angular from "angular";
-import ngRoute from "angular-route";
-import { each, isFunction, extend } from "lodash";
-
-import initAppView from "@/components/app-view";
-import DialogWrapper from "@/components/DialogWrapper";
-import organizationStatus from "@/services/organizationStatus";
+// Register visualizations
+import "@redash/viz/lib";
 
 import "./antd-spinner";
-import moment from "moment";
-
-const logger = debug("redash:config");
 
 Pace.options.shouldHandlePushState = (prevUrl, newUrl) => {
   // Show pace progress bar only if URL path changed; when query params
   // or hash changed - ignore that history event
-  const [prevPrefix] = prevUrl.split("?");
-  const [newPrefix] = newUrl.split("?");
-  return prevPrefix !== newPrefix;
+  prevUrl = url.parse(prevUrl);
+  newUrl = url.parse(newUrl);
+  return prevUrl.pathname !== newUrl.pathname;
 };
 
 moment.updateLocale("en", {
@@ -45,22 +37,6 @@ moment.updateLocale("en", {
   },
 });
 
-const requirements = [ngRoute];
-
-const ngModule = angular.module("app", requirements);
-
-function registerAll(context) {
-  const modules = context
-    .keys()
-    .map(context)
-    .map(module => module.default);
-
-  return modules
-    .filter(isFunction)
-    .filter(f => f.init)
-    .map(f => f(ngModule));
-}
-
 function requireImages() {
   // client/app/assets/images/<path> => /images/<path>
   const ctx = require.context("@/assets/images/", true, /\.(png|jpe?g|gif|svg)$/);
@@ -69,62 +45,16 @@ function requireImages() {
 
 function registerExtensions() {
   const context = require.context("extensions", true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
-  registerAll(context);
-}
+  const modules = context
+    .keys()
+    .map(context)
+    .map(module => module.default);
 
-function registerServices() {
-  const context = require.context("@/services", true, /^((?![\\/.]test[\\./]).)*\.js$/);
-  registerAll(context);
-}
-
-function registerVisualizations() {
-  const context = require.context("@/visualizations", true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
-  registerAll(context);
-}
-
-function registerPages() {
-  const context = require.context("@/pages", true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
-  const routesCollection = registerAll(context);
-  routesCollection.forEach(routes => {
-    ngModule.config($routeProvider => {
-      each(routes, (route, path) => {
-        logger("Registering route: %s", path);
-        route.authenticated = route.authenticated !== false; // could be set to `false` do disable auth
-        if (route.authenticated) {
-          route.resolve = extend(
-            {
-              __organizationStatus: () => organizationStatus.refresh(),
-            },
-            route.resolve
-          );
-        }
-        $routeProvider.when(path, route);
-      });
-    });
-  });
-
-  ngModule.config($routeProvider => {
-    $routeProvider.otherwise({
-      resolve: {
-        // Ugly hack to show 404 when hitting an unknown route.
-        error: () => {
-          const error = { status: 404 };
-          throw error;
-        },
-      },
-    });
-  });
+  return modules
+    .filter(isFunction)
+    .filter(f => f.init)
+    .map(f => f());
 }
 
 requireImages();
-registerServices();
-initAppView(ngModule);
-registerPages();
 registerExtensions();
-registerVisualizations();
-
-ngModule.run($q => {
-  DialogWrapper.Promise = $q;
-});
-
-export default ngModule;

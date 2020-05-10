@@ -1,22 +1,21 @@
-import { flatMap, values } from "lodash";
+import { partition, flatMap, values } from "lodash";
 import React from "react";
 import { axios } from "@/services/axios";
-import { react2angular } from "react2angular";
 
 import Alert from "antd/lib/alert";
 import Tabs from "antd/lib/tabs";
 import * as Grid from "antd/lib/grid";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Layout from "@/components/admin/Layout";
-import { CounterCard, WorkersTable, QueuesTable, OtherJobsTable } from "@/components/admin/RQStatus";
+import { CounterCard, WorkersTable, QueuesTable, QueryJobsTable, OtherJobsTable } from "@/components/admin/RQStatus";
 
-import { $location, $rootScope } from "@/services/ng";
+import location from "@/services/location";
 import recordEvent from "@/services/recordEvent";
-import { routesToAngularRoutes } from "@/lib/utils";
 import moment from "moment";
 
 class Jobs extends React.Component {
   state = {
-    activeTab: $location.hash(),
+    activeTab: location.hash,
     isLoading: true,
     error: null,
 
@@ -80,10 +79,13 @@ class Jobs extends React.Component {
 
   render() {
     const { isLoading, error, queueCounters, startedJobs, overallCounters, workers, activeTab } = this.state;
+    const [startedQueryJobs, otherStartedJobs] = partition(startedJobs, [
+      "name",
+      "redash.tasks.queries.execution.execute_query",
+    ]);
 
     const changeTab = newTab => {
-      $location.hash(newTab);
-      $rootScope.$applyAsync();
+      location.setHash(newTab);
       this.setState({ activeTab: newTab });
     };
 
@@ -110,8 +112,11 @@ class Jobs extends React.Component {
                 <Tabs.TabPane key="workers" tab="Workers">
                   <WorkersTable loading={isLoading} items={workers} />
                 </Tabs.TabPane>
+                <Tabs.TabPane key="queries" tab="Queries">
+                  <QueryJobsTable loading={isLoading} items={startedQueryJobs} />
+                </Tabs.TabPane>
                 <Tabs.TabPane key="other" tab="Other Jobs">
-                  <OtherJobsTable loading={isLoading} items={startedJobs} />
+                  <OtherJobsTable loading={isLoading} items={otherStartedJobs} />
                 </Tabs.TabPane>
               </Tabs>
             </React.Fragment>
@@ -122,21 +127,8 @@ class Jobs extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component("pageJobs", react2angular(Jobs));
-
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/admin/queries/jobs",
-        title: "RQ Status",
-        key: "jobs",
-      },
-    ],
-    {
-      template: "<page-jobs></page-jobs>",
-    }
-  );
-}
-
-init.init = true;
+export default routeWithUserSession({
+  path: "/admin/queries/jobs",
+  title: "RQ Status",
+  render: pageProps => <Jobs {...pageProps} />,
+});

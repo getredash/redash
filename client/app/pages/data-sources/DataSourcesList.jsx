@@ -1,12 +1,11 @@
 import React from "react";
+import PropTypes from "prop-types";
 import Button from "antd/lib/button";
-import { react2angular } from "react2angular";
-import { isEmpty, get } from "lodash";
+import { isEmpty, reject } from "lodash";
 import DataSource, { IMG_ROOT } from "@/services/data-source";
 import { policy } from "@/services/policy";
-import navigateTo from "@/services/navigateTo";
-import { $route } from "@/services/ng";
-import { routesToAngularRoutes } from "@/lib/utils";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import CreateSourceDialog from "@/components/CreateSourceDialog";
@@ -16,6 +15,16 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import recordEvent from "@/services/recordEvent";
 
 class DataSourcesList extends React.Component {
+  static propTypes = {
+    isNewDataSourcePage: PropTypes.bool,
+    onError: PropTypes.func,
+  };
+
+  static defaultProps = {
+    isNewDataSourcePage: false,
+    onError: () => {},
+  };
+
   state = {
     dataSourceTypes: [],
     dataSources: [],
@@ -25,25 +34,27 @@ class DataSourcesList extends React.Component {
   newDataSourceDialog = null;
 
   componentDidMount() {
-    Promise.all([DataSource.query(), DataSource.types()]).then(values =>
-      this.setState(
-        {
-          dataSources: values[0],
-          dataSourceTypes: values[1],
-          loading: false,
-        },
-        () => {
-          // all resources are loaded in state
-          if ($route.current.locals.isNewDataSourcePage) {
-            if (policy.canCreateDataSource()) {
-              this.showCreateSourceDialog();
-            } else {
-              navigateTo("/data_sources");
+    Promise.all([DataSource.query(), DataSource.types()])
+      .then(values =>
+        this.setState(
+          {
+            dataSources: values[0],
+            dataSourceTypes: values[1],
+            loading: false,
+          },
+          () => {
+            // all resources are loaded in state
+            if (this.props.isNewDataSourcePage) {
+              if (policy.canCreateDataSource()) {
+                this.showCreateSourceDialog();
+              } else {
+                navigateTo("data_sources", true);
+              }
             }
           }
-        }
+        )
       )
-    );
+      .catch(error => this.props.onError(error));
   }
 
   componentWillUnmount() {
@@ -56,39 +67,33 @@ class DataSourcesList extends React.Component {
     const target = { options: {}, type: selectedType.type };
     helper.updateTargetWithValues(target, values);
 
-    return DataSource.create(target)
-      .then(dataSource => {
-        this.setState({ loading: true });
-        DataSource.query().then(dataSources => this.setState({ dataSources, loading: false }));
-        return dataSource;
-      })
-      .catch(error => {
-        if (!(error instanceof Error)) {
-          error = new Error(get(error, "data.message", "Failed saving."));
-        }
-        return Promise.reject(error);
-      });
+    return DataSource.create(target).then(dataSource => {
+      this.setState({ loading: true });
+      DataSource.query().then(dataSources => this.setState({ dataSources, loading: false }));
+      return dataSource;
+    });
   };
 
   showCreateSourceDialog = () => {
     recordEvent("view", "page", "data_sources/new");
     this.newDataSourceDialog = CreateSourceDialog.showModal({
-      types: this.state.dataSourceTypes,
+      types: reject(this.state.dataSourceTypes, "deprecated"),
       sourceType: "Data Source",
       imageFolder: IMG_ROOT,
       helpTriggerPrefix: "DS_",
       onCreate: this.createDataSource,
     });
 
-    this.newDataSourceDialog.result
-      .then((result = {}) => {
+    this.newDataSourceDialog
+      .onClose((result = {}) => {
         this.newDataSourceDialog = null;
         if (result.success) {
           navigateTo(`data_sources/${result.data.id}`);
         }
       })
-      .catch(() => {
+      .onDismiss(() => {
         this.newDataSourceDialog = null;
+        navigateTo("data_sources", true);
       });
   };
 
@@ -139,45 +144,25 @@ class DataSourcesList extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageDataSourcesList",
-    react2angular(
-      wrapSettingsTab(
-        {
-          permission: "admin",
-          title: "Data Sources",
-          path: "data_sources",
-          order: 1,
-        },
-        DataSourcesList
-      )
-    )
-  );
+const DataSourcesListPage = wrapSettingsTab(
+  {
+    permission: "admin",
+    title: "Data Sources",
+    path: "data_sources",
+    order: 1,
+  },
+  DataSourcesList
+);
 
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/data_sources",
-        title: "Data Sources",
-        key: "data_sources",
-      },
-      {
-        path: "/data_sources/new",
-        title: "Data Sources",
-        key: "data_sources",
-        isNewDataSourcePage: true,
-      },
-    ],
-    {
-      template: "<page-data-sources-list></page-data-sources-list>",
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+export default [
+  routeWithUserSession({
+    path: "/data_sources",
+    title: "Data Sources",
+    render: pageProps => <DataSourcesListPage {...pageProps} />,
+  }),
+  routeWithUserSession({
+    path: "/data_sources/new",
+    title: "Data Sources",
+    render: pageProps => <DataSourcesListPage {...pageProps} isNewDataSourcePage />,
+  }),
+];

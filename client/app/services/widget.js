@@ -1,9 +1,10 @@
 import moment from "moment";
 import { axios } from "@/services/axios";
 import { each, pick, extend, isObject, truncate, keys, difference, filter, map, merge } from "lodash";
+import location from "@/services/location";
+import { cloneParameter } from "@/services/parameters";
 import dashboardGridOptions from "@/config/dashboard-grid-options";
-import { registeredVisualizations } from "@/visualizations";
-import { $location } from "@/services/ng";
+import { registeredVisualizations } from "@redash/viz/lib";
 import { Query } from "./query";
 
 export const WidgetTypeEnum = {
@@ -197,14 +198,14 @@ class Widget {
     // textboxes does not have query
     const params = this.getQuery() ? this.getQuery().getParametersDefs() : [];
 
-    const queryParams = $location.search();
+    const queryParams = location.search;
 
     const localTypes = [Widget.MappingType.WidgetLevel, Widget.MappingType.StaticValue];
     return map(
       filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0),
       param => {
         const mapping = mappings[param.name];
-        const result = param.clone();
+        const result = cloneParameter(param);
         result.title = mapping.title || param.title;
         result.locals = [param];
         result.urlPrefix = `p_w${this.id}_`;

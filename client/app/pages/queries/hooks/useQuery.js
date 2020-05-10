@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import useUpdateQuery from "./useUpdateQuery";
-import navigateTo from "@/services/navigateTo";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 
 export default function useQuery(originalQuery) {
   const [query, setQuery] = useState(originalQuery);
@@ -10,7 +10,7 @@ export default function useQuery(originalQuery) {
     // It's important to update URL first, and only then update state
     if (updatedQuery.id !== query.id) {
       // Don't reload page when saving new query
-      navigateTo(updatedQuery.getSourceLink(), true, false);
+      navigateTo(updatedQuery.getUrl(true), true);
     }
     setQuery(updatedQuery);
     setOriginalQuerySource(updatedQuery.query);

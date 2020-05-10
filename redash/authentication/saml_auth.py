@@ -1,5 +1,6 @@
 import logging
 from flask import flash, redirect, url_for, Blueprint, request
+from redash import settings
 from redash.authentication import create_and_login_user, logout_and_redirect_to_index
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import org_scoped_rule
@@ -20,7 +21,12 @@ def get_saml_client(org):
     """
     metadata_url = org.get_setting("auth_saml_metadata_url")
     entity_id = org.get_setting("auth_saml_entity_id")
-    acs_url = url_for("saml_auth.idp_initiated", org_slug=org.slug, _external=True)
+
+    if settings.SAML_SCHEME_OVERRIDE:
+        acs_url = url_for("saml_auth.idp_initiated", org_slug=org.slug, _external=True,
+                          _scheme=settings.SAML_SCHEME_OVERRIDE)
+    else:
+        acs_url = url_for("saml_auth.idp_initiated", org_slug=org.slug, _external=True)
 
     saml_settings = {
         "metadata": {"remote": [{"url": metadata_url}]},

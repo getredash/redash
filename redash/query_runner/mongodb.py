@@ -3,7 +3,6 @@ import logging
 import re
 
 from dateutil.parser import parse
-from six import string_types, text_type
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
@@ -26,7 +25,7 @@ except ImportError:
 
 TYPES_MAP = {
     str: TYPE_STRING,
-    text_type: TYPE_STRING,
+    bytes: TYPE_STRING,
     int: TYPE_INTEGER,
     float: TYPE_FLOAT,
     bool: TYPE_BOOLEAN,
@@ -57,7 +56,7 @@ def parse_oids(oids):
 
 def datetime_parser(dct):
     for k, v in dct.items():
-        if isinstance(v, string_types):
+        if isinstance(v, str):
             m = date_regex.findall(v)
             if len(m) > 0:
                 dct[k] = parse(m[0], yearfirst=True)
@@ -131,11 +130,31 @@ class MongoDB(BaseQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
-            "type": "object",
-            "properties": {
-                "connectionString": {"type": "string", "title": "Connection String"},
-                "dbName": {"type": "string", "title": "Database Name"},
-                "replicaSetName": {"type": "string", "title": "Replica Set Name"},
+            'type': 'object',
+            'properties': {
+                'connectionString': {
+                    'type': 'string',
+                    'title': 'Connection String'
+                },
+                'dbName': {
+                    'type': 'string',
+                    'title': "Database Name"
+                },
+                'replicaSetName': {
+                    'type': 'string',
+                    'title': 'Replica Set Name'
+                },
+                "readPreference": {
+                    "type": "string",
+                    "extendedEnum": [
+                        {"value": "primaryPreferred", "name": "Primary Preferred"},
+                        {"value": "primary", "name": "Primary"},                        
+                        {"value": "secondary", "name": "Secondary"},
+                        {"value": "secondaryPreferred", "name": "Secondary Preferred"},
+                        {"value": "nearest", "name": "Nearest"},
+                    ],
+                    "title": "Replica Set Read Preference",
+                }                
             },
             "required": ["connectionString", "dbName"],
         }
@@ -159,10 +178,12 @@ class MongoDB(BaseQueryRunner):
         )
 
     def _get_db(self):
+        kwargs = {}
         if self.is_replica_set:
             db_connection = pymongo.MongoClient(
                 self.configuration["connectionString"],
                 replicaSet=self.configuration["replicaSetName"],
+                readPreference=self.configuration["readPreference"]
             )
         else:
             db_connection = pymongo.MongoClient(self.configuration["connectionString"])
@@ -173,6 +194,9 @@ class MongoDB(BaseQueryRunner):
         db = self._get_db()
         if not db.command("connectionStatus")["ok"]:
             raise Exception("MongoDB connection error")
+
+        return db
+
 
     def _merge_property_names(self, columns, document):
         for property in document:
@@ -193,7 +217,7 @@ class MongoDB(BaseQueryRunner):
         # For now, the logic is to take the first and last documents (last is determined
         # by the Natural Order (http://www.mongodb.org/display/DOCS/Sorting+and+Natural+Order)
         # as we don't know the correct order. In most single server installations it would be
-        # find. In replicaset when reading from non master it might not return the really last
+        # fine. In replicaset when reading from non master it might not return the really last
         # document written.
         collection_is_a_view = self._is_collection_a_view(db, collection_name)
         documents_sample = []
@@ -255,13 +279,6 @@ class MongoDB(BaseQueryRunner):
                         sort_list.append((sort_item["name"], sort_item["direction"]))
 
                     step["$sort"] = SON(sort_list)
-
-        if not aggregate:
-            s = None
-            if "sort" in query_data and query_data["sort"]:
-                s = []
-                for field in query_data["sort"]:
-                    s.append((field["name"], field["direction"]))
 
         if "fields" in query_data:
             f = query_data["fields"]

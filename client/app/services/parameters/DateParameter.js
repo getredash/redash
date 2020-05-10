@@ -1,7 +1,7 @@
 import { findKey, startsWith, has, includes, isNull, values } from "lodash";
 import moment from "moment";
 import PropTypes from "prop-types";
-import { Parameter } from ".";
+import Parameter from "./Parameter";
 
 const DATETIME_FORMATS = {
   // eslint-disable-next-line quote-props

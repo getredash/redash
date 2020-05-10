@@ -1,13 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { get, find, toUpper } from "lodash";
-import { react2angular } from "react2angular";
 import Modal from "antd/lib/modal";
 import DataSource, { IMG_ROOT } from "@/services/data-source";
-import navigateTo from "@/services/navigateTo";
-import { $route } from "@/services/ng";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
@@ -16,6 +14,7 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 
 class EditDataSource extends React.Component {
   static propTypes = {
+    dataSourceId: PropTypes.string.isRequired,
     onError: PropTypes.func,
   };
 
@@ -30,19 +29,13 @@ class EditDataSource extends React.Component {
   };
 
   componentDidMount() {
-    DataSource.get({ id: $route.current.params.dataSourceId })
+    DataSource.get({ id: this.props.dataSourceId })
       .then(dataSource => {
         const { type } = dataSource;
         this.setState({ dataSource });
         DataSource.types().then(types => this.setState({ type: find(types, { type }), loading: false }));
       })
-      .catch(error => {
-        // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
-        if (error.status && error.data) {
-          error = new PromiseRejectionError(error);
-        }
-        this.props.onError(error);
-      });
+      .catch(error => this.props.onError(error));
   }
 
   saveDataSource = (values, successCallback, errorCallback) => {
@@ -51,7 +44,7 @@ class EditDataSource extends React.Component {
     DataSource.save(dataSource)
       .then(() => successCallback("Saved."))
       .catch(error => {
-        const message = get(error, "data.message", "Failed saving.");
+        const message = get(error, "response.data.message", "Failed saving.");
         errorCallback(message);
       });
   };
@@ -63,7 +56,7 @@ class EditDataSource extends React.Component {
       DataSource.delete(dataSource)
         .then(() => {
           notification.success("Data source deleted successfully.");
-          navigateTo("/data_sources", true);
+          navigateTo("data_sources");
         })
         .catch(() => {
           callback();
@@ -143,20 +136,10 @@ class EditDataSource extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component("pageEditDataSource", react2angular(wrapSettingsTab(null, EditDataSource)));
+const EditDataSourcePage = wrapSettingsTab(null, EditDataSource);
 
-  return {
-    "/data_sources/:dataSourceId": {
-      template: '<page-edit-data-source on-error="handleError"></page-edit-data-source>',
-      title: "Data Sources",
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    },
-  };
-}
-
-init.init = true;
+export default routeWithUserSession({
+  path: "/data_sources/:dataSourceId([0-9]+)",
+  title: "Data Sources",
+  render: pageProps => <EditDataSourcePage {...pageProps} />,
+});

@@ -1,5 +1,5 @@
 import React from "react";
-import { react2angular } from "react2angular";
+import PropTypes from "prop-types";
 import { isEmpty, join, get } from "lodash";
 
 import Alert from "antd/lib/alert";
@@ -9,9 +9,9 @@ import Input from "antd/lib/input";
 import Select from "antd/lib/select";
 import Checkbox from "antd/lib/checkbox";
 import Tooltip from "antd/lib/tooltip";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import LoadingState from "@/components/items-list/components/LoadingState";
 
-import { routesToAngularRoutes } from "@/lib/utils";
 import { clientConfig } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
 import OrgSettings from "@/services/organizationSettings";
@@ -22,6 +22,14 @@ import DynamicComponent from "@/components/DynamicComponent";
 const Option = Select.Option;
 
 class OrganizationSettings extends React.Component {
+  static propTypes = {
+    onError: PropTypes.func,
+  };
+
+  static defaultProps = {
+    onError: () => {},
+  };
+
   state = {
     settings: {},
     formValues: {},
@@ -31,13 +39,16 @@ class OrganizationSettings extends React.Component {
 
   componentDidMount() {
     recordEvent("view", "page", "org_settings");
-    OrgSettings.get().then(response => {
-      const settings = get(response, "settings");
-      this.setState({ settings, formValues: { ...settings }, loading: false });
-    });
+    OrgSettings.get()
+      .then(response => {
+        const settings = get(response, "settings");
+        this.setState({ settings, formValues: { ...settings }, loading: false });
+      })
+      .catch(error => this.props.onError(error));
   }
 
-  disablePasswordLoginToggle = () => !(clientConfig.googleLoginEnabled || this.state.formValues.auth_saml_enabled);
+  disablePasswordLoginToggle = () =>
+    !(clientConfig.googleLoginEnabled || clientConfig.ldapLoginEnabled || this.state.formValues.auth_saml_enabled);
 
   handleSubmit = e => {
     e.preventDefault();
@@ -48,6 +59,7 @@ class OrganizationSettings extends React.Component {
           const settings = get(response, "settings");
           this.setState({ settings, formValues: { ...settings } });
         })
+        .catch(error => this.props.onError(error))
         .finally(() => this.setState({ submitting: false }));
     }
   };
@@ -156,6 +168,14 @@ class OrganizationSettings extends React.Component {
             ))}
           </Select>
         </Form.Item>
+        <Form.Item label="Chart Visualization">
+          <Checkbox
+            name="hide_plotly_mode_bar"
+            checked={formValues.hide_plotly_mode_bar}
+            onChange={e => this.handleChange("hide_plotly_mode_bar", e.target.checked)}>
+            Hide Plotly mode bar
+          </Checkbox>
+        </Form.Item>
         <Form.Item label="Feature Flags">
           <Checkbox
             name="feature_show_permissions_control"
@@ -259,40 +279,18 @@ class OrganizationSettings extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageOrganizationSettings",
-    react2angular(
-      wrapSettingsTab(
-        {
-          permission: "admin",
-          title: "Settings",
-          path: "settings/organization",
-          order: 6,
-        },
-        OrganizationSettings
-      )
-    )
-  );
+const OrganizationSettingsPage = wrapSettingsTab(
+  {
+    permission: "admin",
+    title: "Settings",
+    path: "settings/organization",
+    order: 6,
+  },
+  OrganizationSettings
+);
 
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/settings/organization",
-        title: "Organization Settings",
-        key: "organization-settings",
-      },
-    ],
-    {
-      reloadOnSearch: false,
-      template: '<page-organization-settings on-error="handleError"></page-organization-settings>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+export default routeWithUserSession({
+  path: "/settings/organization",
+  title: "Organization Settings",
+  render: pageProps => <OrganizationSettingsPage {...pageProps} />,
+});

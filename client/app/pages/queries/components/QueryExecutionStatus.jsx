@@ -37,15 +37,16 @@ export default function QueryExecutionStatus({ status, updatedAt, error, isCance
 
   return (
     <Alert
+      data-test="QueryExecutionStatus"
       type={alertType}
       message={
         <div className="d-flex align-items-center">
-          <div className="flex-fill">
+          <div className="flex-fill p-t-5 p-b-5">
             {message} {showTimer && <Timer from={updatedAt} />}
           </div>
           <div>
             {isCancelButtonAvailable && (
-              <Button type="primary" size="small" disabled={isCancelling} onClick={onCancel}>
+              <Button className="m-l-10" type="primary" size="small" disabled={isCancelling} onClick={onCancel}>
                 Cancel
               </Button>
             )}

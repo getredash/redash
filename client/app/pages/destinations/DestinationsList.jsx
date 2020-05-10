@@ -1,12 +1,11 @@
 import React from "react";
+import PropTypes from "prop-types";
 import Button from "antd/lib/button";
-import { react2angular } from "react2angular";
-import { isEmpty, get } from "lodash";
+import { isEmpty, isString, find, get, reject } from "lodash";
 import Destination, { IMG_ROOT } from "@/services/destination";
 import { policy } from "@/services/policy";
-import navigateTo from "@/services/navigateTo";
-import { $route } from "@/services/ng";
-import { routesToAngularRoutes } from "@/lib/utils";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import CreateSourceDialog from "@/components/CreateSourceDialog";
@@ -14,6 +13,16 @@ import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 
 class DestinationsList extends React.Component {
+  static propTypes = {
+    isNewDestinationPage: PropTypes.bool,
+    onError: PropTypes.func,
+  };
+
+  static defaultProps = {
+    isNewDestinationPage: false,
+    onError: () => {},
+  };
+
   state = {
     destinationTypes: [],
     destinations: [],
@@ -21,25 +30,27 @@ class DestinationsList extends React.Component {
   };
 
   componentDidMount() {
-    Promise.all([Destination.query(), Destination.types()]).then(values =>
-      this.setState(
-        {
-          destinations: values[0],
-          destinationTypes: values[1],
-          loading: false,
-        },
-        () => {
-          // all resources are loaded in state
-          if ($route.current.locals.isNewDestinationPage) {
-            if (policy.canCreateDestination()) {
-              this.showCreateSourceDialog();
-            } else {
-              navigateTo("/destinations");
+    Promise.all([Destination.query(), Destination.types()])
+      .then(values =>
+        this.setState(
+          {
+            destinations: values[0],
+            destinationTypes: values[1],
+            loading: false,
+          },
+          () => {
+            // all resources are loaded in state
+            if (this.props.isNewDestinationPage) {
+              if (policy.canCreateDestination()) {
+                this.showCreateSourceDialog();
+              } else {
+                navigateTo("destinations", true);
+              }
             }
           }
-        }
+        )
       )
-    );
+      .catch(error => this.props.onError(error));
   }
 
   createDestination = (selectedType, values) => {
@@ -53,24 +64,26 @@ class DestinationsList extends React.Component {
         return destination;
       })
       .catch(error => {
-        if (!(error instanceof Error)) {
-          error = new Error(get(error, "data.message", "Failed saving."));
-        }
-        return Promise.reject(error);
+        const message = find([get(error, "response.data.message"), get(error, "message"), "Failed saving."], isString);
+        return Promise.reject(new Error(message));
       });
   };
 
   showCreateSourceDialog = () => {
     CreateSourceDialog.showModal({
-      types: this.state.destinationTypes,
+      types: reject(this.state.destinationTypes, "deprecated"),
       sourceType: "Alert Destination",
       imageFolder: IMG_ROOT,
       onCreate: this.createDestination,
-    }).result.then((result = {}) => {
-      if (result.success) {
-        navigateTo(`destinations/${result.data.id}`);
-      }
-    });
+    })
+      .onClose((result = {}) => {
+        if (result.success) {
+          navigateTo(`destinations/${result.data.id}`);
+        }
+      })
+      .onDismiss(() => {
+        navigateTo("destinations", true);
+      });
   };
 
   renderDestinations() {
@@ -119,45 +132,25 @@ class DestinationsList extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageDestinationsList",
-    react2angular(
-      wrapSettingsTab(
-        {
-          permission: "admin",
-          title: "Alert Destinations",
-          path: "destinations",
-          order: 4,
-        },
-        DestinationsList
-      )
-    )
-  );
+const DestinationsListPage = wrapSettingsTab(
+  {
+    permission: "admin",
+    title: "Alert Destinations",
+    path: "destinations",
+    order: 4,
+  },
+  DestinationsList
+);
 
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/destinations",
-        title: "Alert Destinations",
-        key: "destinations",
-      },
-      {
-        path: "/destinations/new",
-        title: "Alert Destinations",
-        key: "destinations",
-        isNewDestinationPage: true,
-      },
-    ],
-    {
-      template: "<page-destinations-list></page-destinations-list>",
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+export default [
+  routeWithUserSession({
+    path: "/destinations",
+    title: "Alert Destinations",
+    render: pageProps => <DestinationsListPage {...pageProps} />,
+  }),
+  routeWithUserSession({
+    path: "/destinations/new",
+    title: "Alert Destinations",
+    render: pageProps => <DestinationsListPage {...pageProps} isNewDestinationPage />,
+  }),
+];

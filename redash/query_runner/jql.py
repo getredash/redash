@@ -166,44 +166,41 @@ class JiraJQL(BaseHTTPQueryRunner):
     def run_query(self, query, user):
         jql_url = "{}/rest/api/2/search".format(self.configuration["url"])
 
-        try:
-            query = json_loads(query)
-            query_type = query.pop("queryType", "select")
-            field_mapping = FieldMapping(query.pop("fieldMapping", {}))
+        query = json_loads(query)
+        query_type = query.pop("queryType", "select")
+        field_mapping = FieldMapping(query.pop("fieldMapping", {}))
 
-            if query_type == "count":
-                query["maxResults"] = 1
-                query["fields"] = ""
-            else:
-                query["maxResults"] = query.get("maxResults", 1000)
+        if query_type == "count":
+            query["maxResults"] = 1
+            query["fields"] = ""
+        else:
+            query["maxResults"] = query.get("maxResults", 1000)
 
-            response, error = self.get_response(jql_url, params=query)
-            if error is not None:
-                return None, error
+        response, error = self.get_response(jql_url, params=query)
+        if error is not None:
+            return None, error
 
-            data = response.json()
+        data = response.json()
 
-            if query_type == "count":
-                results = parse_count(data)
-            else:
-                results = parse_issues(data, field_mapping)
+        if query_type == "count":
+            results = parse_count(data)
+        else:
+            results = parse_issues(data, field_mapping)
+            index = data["startAt"] + data["maxResults"]
+
+            while data["total"] > index:
+                query["startAt"] = index
+                response, error = self.get_response(jql_url, params=query)
+                if error is not None:
+                    return None, error
+
+                data = response.json()
                 index = data["startAt"] + data["maxResults"]
 
-                while data["total"] > index:
-                    query["startAt"] = index
-                    response, error = self.get_response(jql_url, params=query)
-                    if error is not None:
-                        return None, error
+                addl_results = parse_issues(data, field_mapping)
+                results.merge(addl_results)
 
-                    data = response.json()
-                    index = data["startAt"] + data["maxResults"]
-
-                    addl_results = parse_issues(data, field_mapping)
-                    results.merge(addl_results)
-
-            return results.to_json(), None
-        except KeyboardInterrupt:
-            return None, "Query cancelled by user."
+        return results.to_json(), None
 
 
 register(JiraJQL)

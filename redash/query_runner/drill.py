@@ -4,8 +4,6 @@ import re
 
 from dateutil import parser
 
-from six import text_type
-
 from redash.query_runner import (
     BaseHTTPQueryRunner,
     register,
@@ -32,12 +30,12 @@ def convert_type(string_value, actual_type):
         return float(string_value)
 
     if actual_type == TYPE_BOOLEAN:
-        return text_type(string_value).lower() == "true"
+        return str(string_value).lower() == "true"
 
     if actual_type == TYPE_DATETIME:
         return parser.parse(string_value)
 
-    return text_type(string_value)
+    return str(string_value)
 
 
 # Parse Drill API response and translate it to accepted format
@@ -96,20 +94,17 @@ class Drill(BaseHTTPQueryRunner):
     def run_query(self, query, user):
         drill_url = os.path.join(self.configuration["url"], "query.json")
 
-        try:
-            payload = {"queryType": "SQL", "query": query}
+        payload = {"queryType": "SQL", "query": query}
 
-            response, error = self.get_response(
-                drill_url, http_method="post", json=payload
-            )
-            if error is not None:
-                return None, error
+        response, error = self.get_response(
+            drill_url, http_method="post", json=payload
+        )
+        if error is not None:
+            return None, error
 
-            results = parse_response(response.json())
+        results = parse_response(response.json())
 
-            return json_dumps(results), None
-        except KeyboardInterrupt:
-            return None, "Query cancelled by user."
+        return json_dumps(results), None
 
     def get_schema(self, get_stats=False):
 

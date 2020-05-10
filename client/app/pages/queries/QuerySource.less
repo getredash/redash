@@ -1,8 +1,3 @@
-page-query-source {
-  display: flex;
-  flex-grow: 1;
-}
-
 .query-fullscreen {
   .query-editor-wrapper {
     padding: 15px;
@@ -30,13 +25,32 @@ page-query-source {
     }
   }
 
+  .query-page-query-description {
+    border-top: 1px solid #efefef;
+    padding: 0 15px 0 0;
+
+    .edit-in-place {
+      display: block;
+      max-height: 150px;
+      overflow: auto;
+      padding: 15px 5px 15px 15px;
+
+      &.active {
+        overflow: visible;
+        .ant-input {
+          resize: vertical;
+          max-height: 150px - 15px * 2;
+        }
+      }
+    }
+  }
+
   .query-results-wrapper {
     display: flex;
     flex-direction: column;
-    margin: 0 0 15px 0;
+    margin: 15px 0 15px 0;
 
     .query-parameters-wrapper {
-      margin: 15px 0 5px 0;
       flex: 0 0 auto;
     }
 

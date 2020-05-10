@@ -5,7 +5,7 @@ import ipaddress
 import datetime
 from urllib.parse import urlparse
 from funcy import compact, project
-from six import text_type
+from redash import settings
 from redash.utils import json_dumps
 from redash.query_runner import (
     BaseHTTPQueryRunner,
@@ -32,19 +32,19 @@ def parse_query(query):
         return params
     except ValueError as e:
         logging.exception(e)
-        error = text_type(e)
+        error = str(e)
         raise QueryParseError(error)
 
 
 def is_private_address(url):
     hostname = urlparse(url).hostname
     ip_address = socket.gethostbyname(hostname)
-    return ipaddress.ip_address(text_type(ip_address)).is_private
+    return ipaddress.ip_address(str(ip_address)).is_private
 
 
 TYPES_MAP = {
     str: TYPE_STRING,
-    text_type: TYPE_STRING,
+    bytes: TYPE_STRING,
     int: TYPE_INTEGER,
     float: TYPE_FLOAT,
     bool: TYPE_BOOLEAN,
@@ -161,59 +161,56 @@ class JSON(BaseHTTPQueryRunner):
         pass
 
     def run_query(self, query, user):
-        try:
-            query = parse_query(query)
+        query = parse_query(query)
 
-            if not isinstance(query, dict):
-                raise QueryParseError(
-                    "Query should be a YAML object describing the URL to query."
-                )
-
-            if "url" not in query:
-                raise QueryParseError("Query must include 'url' option.")
-
-            if is_private_address(query["url"]):
-                raise Exception("Can't query private addresses.")
-
-            method = query.get("method", "get")
-            request_options = project(
-                query, ("params", "headers", "data", "auth", "json")
+        if not isinstance(query, dict):
+            raise QueryParseError(
+                "Query should be a YAML object describing the URL to query."
             )
 
-            fields = query.get("fields")
-            path = query.get("path")
+        if "url" not in query:
+            raise QueryParseError("Query must include 'url' option.")
 
-            if isinstance(request_options.get("auth", None), list):
-                request_options["auth"] = tuple(request_options["auth"])
-            elif self.configuration.get("username") or self.configuration.get(
-                "password"
-            ):
-                request_options["auth"] = (
-                    self.configuration.get("username"),
-                    self.configuration.get("password"),
-                )
+        if is_private_address(query["url"]) and settings.ENFORCE_PRIVATE_ADDRESS_BLOCK:
+            raise Exception("Can't query private addresses.")
 
-            if method not in ("get", "post"):
-                raise QueryParseError("Only GET or POST methods are allowed.")
+        method = query.get("method", "get")
+        request_options = project(
+            query, ("params", "headers", "data", "auth", "json")
+        )
 
-            if fields and not isinstance(fields, list):
-                raise QueryParseError("'fields' needs to be a list.")
+        fields = query.get("fields")
+        path = query.get("path")
 
-            response, error = self.get_response(
-                query["url"], http_method=method, **request_options
+        if isinstance(request_options.get("auth", None), list):
+            request_options["auth"] = tuple(request_options["auth"])
+        elif self.configuration.get("username") or self.configuration.get(
+            "password"
+        ):
+            request_options["auth"] = (
+                self.configuration.get("username"),
+                self.configuration.get("password"),
             )
 
-            if error is not None:
-                return None, error
+        if method not in ("get", "post"):
+            raise QueryParseError("Only GET or POST methods are allowed.")
 
-            data = json_dumps(parse_json(response.json(), path, fields))
+        if fields and not isinstance(fields, list):
+            raise QueryParseError("'fields' needs to be a list.")
 
-            if data:
-                return data, None
-            else:
-                return None, "Got empty response from '{}'.".format(query["url"])
-        except KeyboardInterrupt:
-            return None, "Query cancelled by user."
+        response, error = self.get_response(
+            query["url"], http_method=method, **request_options
+        )
+
+        if error is not None:
+            return None, error
+
+        data = json_dumps(parse_json(response.json(), path, fields))
+
+        if data:
+            return data, None
+        else:
+            return None, "Got empty response from '{}'.".format(query["url"])
 
 
 register(JSON)

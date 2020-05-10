@@ -35,7 +35,11 @@ class Oracle(BaseSQLQueryRunner):
     @classmethod
     def get_col_type(cls, col_type, scale):
         if col_type == cx_Oracle.NUMBER:
-            return TYPE_FLOAT if scale > 0 else TYPE_INTEGER
+            if scale is None:
+                return TYPE_INTEGER
+            if scale > 0:
+                return TYPE_FLOAT
+            return TYPE_INTEGER
         else:
             return TYPES_MAP.get(col_type, None)
 
@@ -61,19 +65,6 @@ class Oracle(BaseSQLQueryRunner):
     @classmethod
     def type(cls):
         return "oracle"
-
-    def __init__(self, configuration):
-        super(Oracle, self).__init__(configuration)
-
-        dsn = cx_Oracle.makedsn(
-            self.configuration["host"],
-            self.configuration["port"],
-            service_name=self.configuration["servicename"],
-        )
-
-        self.connection_string = "{}/{}@{}".format(
-            self.configuration["user"], self.configuration["password"], dsn
-        )
 
     def _get_tables(self, schema):
         query = """
@@ -130,7 +121,12 @@ class Oracle(BaseSQLQueryRunner):
                 )
 
     def run_query(self, query, user):
-        connection = cx_Oracle.connect(self.connection_string)
+        dsn = cx_Oracle.makedsn(
+            self.configuration["host"],
+            self.configuration["port"],
+            service_name=self.configuration["servicename"])
+        
+        connection = cx_Oracle.connect(user=self.configuration["user"],password=self.configuration["password"], dsn=dsn)
         connection.outputtypehandler = Oracle.output_handler
 
         cursor = connection.cursor()
@@ -161,10 +157,9 @@ class Oracle(BaseSQLQueryRunner):
         except cx_Oracle.DatabaseError as err:
             error = "Query failed. {}.".format(str(err))
             json_data = None
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
-            error = "Query cancelled by user."
-            json_data = None
+            raise
         finally:
             connection.close()
 

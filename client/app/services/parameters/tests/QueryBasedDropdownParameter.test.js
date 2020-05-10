@@ -1,4 +1,4 @@
-import { Parameter } from "..";
+import { createParameter } from "..";
 
 describe("QueryBasedDropdownParameter", () => {
   let param;
@@ -12,7 +12,7 @@ describe("QueryBasedDropdownParameter", () => {
       queryId: 1,
       multiValuesOptions,
     };
-    param = Parameter.create(paramOptions);
+    param = createParameter(paramOptions);
   });
 
   describe("normalizeValue", () => {

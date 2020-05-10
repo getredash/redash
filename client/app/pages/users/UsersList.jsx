@@ -1,10 +1,10 @@
-import { map, get } from "lodash";
+import { isString, map, get, find } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Paginator from "@/components/Paginator";
 import DynamicComponent from "@/components/DynamicComponent";
 import { UserPreviewCard } from "@/components/PreviewCard";
@@ -26,7 +26,7 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import { currentUser } from "@/services/auth";
 import { policy } from "@/services/policy";
 import User from "@/services/user";
-import navigateTo from "@/services/navigateTo";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import { absoluteUrl } from "@/services/utils";
 
@@ -158,21 +158,25 @@ class UsersList extends React.Component {
         }
       })
       .catch(error => {
-        if (!(error instanceof Error)) {
-          error = new Error(get(error, "data.message", "Failed saving."));
-        }
-        return Promise.reject(error);
+        const message = find([get(error, "response.data.message"), get(error, "message"), "Failed saving."], isString);
+        return Promise.reject(new Error(message));
       });
 
   showCreateUserDialog = () => {
     if (policy.isCreateUserEnabled()) {
-      CreateUserDialog.showModal({ onCreate: this.createUser })
-        .result.then(() => this.props.controller.update())
-        .finally(() => {
-          if (this.props.controller.params.isNewUserPage) {
-            navigateTo("users");
-          }
-        });
+      const goToUsersList = () => {
+        if (this.props.controller.params.isNewUserPage) {
+          navigateTo("users");
+        }
+      };
+      CreateUserDialog.showModal()
+        .onClose(values =>
+          this.createUser(values).then(() => {
+            this.props.controller.update();
+            goToUsersList();
+          })
+        )
+        .onDismiss(goToUsersList);
     }
   };
 
@@ -242,45 +246,60 @@ class UsersList extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageUsersList",
-    react2angular(
-      wrapSettingsTab(
-        {
-          permission: "list_users",
-          title: "Users",
-          path: "users",
-          isActive: path => path.startsWith("/users") && path !== "/users/me",
-          order: 2,
+const UsersListPage = wrapSettingsTab(
+  {
+    permission: "list_users",
+    title: "Users",
+    path: "users",
+    isActive: path => path.startsWith("/users") && path !== "/users/me",
+    order: 2,
+  },
+  itemsList(
+    UsersList,
+    () =>
+      new ResourceItemsSource({
+        getRequest(request, { params: { currentPage } }) {
+          switch (currentPage) {
+            case "active":
+              request.pending = false;
+              break;
+            case "pending":
+              request.pending = true;
+              break;
+            case "disabled":
+              request.disabled = true;
+              break;
+            // no default
+          }
+          return request;
         },
-        itemsList(
-          UsersList,
-          new ResourceItemsSource({
-            getRequest(request, { params: { currentPage } }) {
-              switch (currentPage) {
-                case "active":
-                  request.pending = false;
-                  break;
-                case "pending":
-                  request.pending = true;
-                  break;
-                case "disabled":
-                  request.disabled = true;
-                  break;
-                // no default
-              }
-              return request;
-            },
-            getResource() {
-              return User.query.bind(User);
-            },
-          }),
-          new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
-        )
-      )
-    )
-  );
-}
+        getResource() {
+          return User.query.bind(User);
+        },
+      }),
+    () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
+  )
+);
 
-init.init = true;
+export default [
+  routeWithUserSession({
+    path: "/users/new",
+    title: "Users",
+    render: pageProps => <UsersListPage {...pageProps} currentPage="active" isNewUserPage />,
+  }),
+  routeWithUserSession({
+    path: "/users",
+    title: "Users",
+    render: pageProps => <UsersListPage {...pageProps} currentPage="active" />,
+  }),
+  routeWithUserSession({
+    path: "/users/pending",
+    title: "Pending Invitations",
+    render: pageProps => <UsersListPage {...pageProps} currentPage="pending" />,
+  }),
+  routeWithUserSession({
+    path: "/users/disabled",
+    title: "Disabled Users",
+    render: pageProps => <UsersListPage {...pageProps} currentPage="disabled" />,
+  }),
+];

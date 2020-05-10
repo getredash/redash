@@ -2,7 +2,6 @@ import datetime
 import logging
 
 from dateutil.parser import parse
-from six import text_type
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
@@ -18,7 +17,7 @@ except ImportError as e:
 
 TYPES_MAP = {
     str: TYPE_STRING,
-    text_type: TYPE_STRING,
+    bytes: TYPE_STRING,
     int: TYPE_INTEGER,
     float: TYPE_FLOAT,
     bool: TYPE_BOOLEAN,
@@ -149,15 +148,12 @@ class Couchbase(BaseQueryRunner):
             raise Exception("Couchbase connection error")
 
     def run_query(self, query, user):
-        try:
-            result = self.call_service(query, user)
+        result = self.call_service(query, user)
 
-            rows, columns = parse_results(result.json()["results"])
-            data = {"columns": columns, "rows": rows}
+        rows, columns = parse_results(result.json()["results"])
+        data = {"columns": columns, "rows": rows}
 
-            return json_dumps(data), None
-        except KeyboardInterrupt:
-            return None, "Query cancelled by user."
+        return json_dumps(data), None
 
     @classmethod
     def name(cls):

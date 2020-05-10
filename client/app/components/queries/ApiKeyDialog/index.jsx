@@ -6,7 +6,7 @@ import Input from "antd/lib/input";
 import Button from "antd/lib/button";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import CodeBlock from "@/components/CodeBlock";
-import { $http } from "@/services/ng";
+import { axios } from "@/services/axios";
 import { clientConfig } from "@/services/auth";
 import notification from "@/services/notification";
 
@@ -18,13 +18,13 @@ function ApiKeyDialog({ dialog, ...props }) {
 
   const regenerateQueryApiKey = useCallback(() => {
     setUpdatingApiKey(true);
-    $http
+    axios
       .post(`api/queries/${query.id}/regenerate_api_key`)
-      .success(data => {
+      .then(data => {
         setUpdatingApiKey(false);
         setQuery(extend(query.clone(), { api_key: data.api_key }));
       })
-      .error(() => {
+      .catch(() => {
         setUpdatingApiKey(false);
         notification.error("Failed to update API key");
       });

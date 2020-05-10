@@ -1,7 +1,6 @@
 import { useRef, useEffect } from "react";
-import { $rootScope } from "@/services/ng";
+import location from "@/services/location";
 
-// TODO: This should be revisited and probably re-implemented when replacing Angular router with sth else
 export default function useUnsavedChangesAlert(shouldShowAlert = false) {
   const shouldShowAlertRef = useRef();
   shouldShowAlertRef.current = shouldShowAlert;
@@ -16,13 +15,9 @@ export default function useUnsavedChangesAlert(shouldShowAlert = false) {
       return shouldShowAlertRef.current ? unloadMessage : undefined;
     };
 
-    const unsubscribe = $rootScope.$on("$locationChangeStart", (event, next, current) => {
-      if (next.split("?")[0] === current.split("?")[0] || next.split("#")[0] === current.split("#")[0]) {
-        return;
-      }
-
-      if (shouldShowAlertRef.current && !window.confirm(confirmMessage)) {
-        event.preventDefault();
+    const unsubscribe = location.confirmChange((nextLocation, currentLocation) => {
+      if (shouldShowAlertRef.current && nextLocation.path !== currentLocation.path) {
+        return confirmMessage;
       }
     });
 

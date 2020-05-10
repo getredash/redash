@@ -1,17 +1,15 @@
-import React from "react";
 import { isEmpty } from "lodash";
+import React from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
+import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
 import BigMessage from "@/components/BigMessage";
 import PageHeader from "@/components/PageHeader";
 import Parameters from "@/components/Parameters";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Filters from "@/components/Filters";
 import { Dashboard } from "@/services/dashboard";
-import { $route as ngRoute } from "@/services/ng";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 import logoUrl from "@/assets/images/redash_icon_small.png";
-import useDashboard from "./useDashboard";
+import useDashboard from "./hooks/useDashboard";
 
 import "./PublicDashboardPage.less";
 
@@ -53,17 +51,24 @@ PublicDashboard.propTypes = {
 };
 
 class PublicDashboardPage extends React.Component {
+  static propTypes = {
+    token: PropTypes.string.isRequired,
+    onError: PropTypes.func,
+  };
+
+  static defaultProps = {
+    onError: () => {},
+  };
+
   state = {
     loading: true,
     dashboard: null,
   };
 
   componentDidMount() {
-    Dashboard.getByToken({ token: ngRoute.current.params.token })
+    Dashboard.getByToken({ token: this.props.token })
       .then(dashboard => this.setState({ dashboard, loading: false }))
-      .catch(error => {
-        throw new PromiseRejectionError(error);
-      });
+      .catch(error => this.props.onError(error));
   }
 
   render() {
@@ -90,24 +95,8 @@ class PublicDashboardPage extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component("publicDashboardPage", react2angular(PublicDashboardPage));
-
-  return {
-    "/public/dashboards/:token": {
-      authenticated: false,
-      template: "<public-dashboard-page></public-dashboard-page>",
-      reloadOnSearch: false,
-      resolve: {
-        session: ($route, Auth) => {
-          "ngInject";
-          const token = $route.current.params.token;
-          Auth.setApiKey(token);
-          return Auth.loadConfig();
-        },
-      },
-    },
-  };
-}
-
-init.init = true;
+export default routeWithApiKeySession({
+  path: "/public/dashboards/:token",
+  render: pageProps => <PublicDashboardPage {...pageProps} />,
+  getApiKey: currentRoute => currentRoute.routeParams.token,
+});

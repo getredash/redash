@@ -1,0 +1,21 @@
+@import "../variables";
+
+.cohort-visualization-container {
+  .cornelius-table {
+    width: 100%;
+
+    &,
+    tr,
+    th,
+    td {
+      border-color: #f0f0f0;
+    }
+
+    .cornelius-time,
+    .cornelius-label,
+    .cornelius-stage,
+    .cornelius-people {
+      background-color: fade(@visualizations-gray, 3%);
+    }
+  }
+}

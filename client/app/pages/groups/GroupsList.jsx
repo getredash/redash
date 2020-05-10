@@ -1,10 +1,11 @@
 import React from "react";
-import { react2angular } from "react2angular";
 
 import Button from "antd/lib/button";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
-import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
+import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
 
@@ -18,8 +19,6 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 
 import Group from "@/services/group";
 import { currentUser } from "@/services/auth";
-import navigateTo from "@/services/navigateTo";
-import { routesToAngularRoutes } from "@/lib/utils";
 
 class GroupsList extends React.Component {
   static propTypes = {
@@ -74,9 +73,9 @@ class GroupsList extends React.Component {
   ];
 
   createGroup = () => {
-    CreateGroupDialog.showModal().result.then(group => {
-      Group.create(group).then(newGroup => navigateTo(`/groups/${newGroup.id}`));
-    });
+    CreateGroupDialog.showModal().onClose(group =>
+      Group.create(group).then(newGroup => navigateTo(`groups/${newGroup.id}`))
+    );
   };
 
   onGroupDeleted = () => {
@@ -124,52 +123,31 @@ class GroupsList extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageGroupsList",
-    react2angular(
-      wrapSettingsTab(
-        {
-          permission: "list_users",
-          title: "Groups",
-          path: "groups",
-          order: 3,
+const GroupsListPage = wrapSettingsTab(
+  {
+    permission: "list_users",
+    title: "Groups",
+    path: "groups",
+    order: 3,
+  },
+  itemsList(
+    GroupsList,
+    () =>
+      new ResourceItemsSource({
+        isPlainList: true,
+        getRequest() {
+          return {};
         },
-        liveItemsList(
-          GroupsList,
-          new ResourceItemsSource({
-            isPlainList: true,
-            getRequest() {
-              return {};
-            },
-            getResource() {
-              return Group.query.bind(Group);
-            },
-          }),
-          new StateStorage({ orderByField: "name", itemsPerPage: 10 })
-        )
-      )
-    )
-  );
+        getResource() {
+          return Group.query.bind(Group);
+        },
+      }),
+    () => new StateStorage({ orderByField: "name", itemsPerPage: 10 })
+  )
+);
 
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/groups",
-        title: "Groups",
-        key: "groups",
-      },
-    ],
-    {
-      reloadOnSearch: false,
-      template: '<page-groups-list on-error="handleError"></page-groups-list>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+export default routeWithUserSession({
+  path: "/groups",
+  title: "Groups",
+  render: pageProps => <GroupsListPage {...pageProps} currentPage="groups" />,
+});

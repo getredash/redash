@@ -9,7 +9,7 @@ import KeyboardShortcuts, { humanReadableShortcut } from "@/services/KeyboardSho
 import AutocompleteToggle from "./AutocompleteToggle";
 import "./QueryEditorControls.less";
 
-function ButtonTooltip({ title, shortcut, ...props }) {
+export function ButtonTooltip({ title, shortcut, ...props }) {
   shortcut = humanReadableShortcut(shortcut, 1); // show only primary shortcut
   title =
     title && shortcut ? (
@@ -103,9 +103,10 @@ export default function EditorControl({
           <Button
             className="query-editor-controls-button m-l-5"
             disabled={saveButtonProps.disabled}
+            loading={saveButtonProps.loading}
             onClick={saveButtonProps.onClick}
             data-test="SaveButton">
-            <span className="fa fa-floppy-o" />
+            {!saveButtonProps.loading && <span className="fa fa-floppy-o" />}
             {saveButtonProps.text}
           </Button>
         </ButtonTooltip>
@@ -132,6 +133,7 @@ const ButtonPropsPropType = PropTypes.oneOfType([
   PropTypes.shape({
     title: PropTypes.node,
     disabled: PropTypes.bool,
+    loading: PropTypes.bool,
     onClick: PropTypes.func,
     text: PropTypes.node,
     shortcut: PropTypes.string,

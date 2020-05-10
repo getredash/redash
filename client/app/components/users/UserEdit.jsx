@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { includes } from "lodash";
+import { includes, get } from "lodash";
 import Alert from "antd/lib/alert";
 import Button from "antd/lib/button";
 import Form from "antd/lib/form";
@@ -121,8 +121,8 @@ export default class UserEdit extends React.Component {
         successCallback("Saved.");
         this.setState({ user: User.convertUserInfo(user) });
       })
-      .catch((error = {}) => {
-        errorCallback((error.data && error.data.message) || "Failed saving.");
+      .catch(error => {
+        errorCallback(get(error, "response.data.message", "Failed saving."));
       });
   };
 

@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
 import { find, has } from "lodash";
-import { react2angular } from "react2angular";
 import moment from "moment";
 import { markdown } from "markdown";
 import Button from "antd/lib/button";
@@ -9,19 +8,19 @@ import Dropdown from "antd/lib/dropdown";
 import Icon from "antd/lib/icon";
 import Menu from "antd/lib/menu";
 import Tooltip from "antd/lib/tooltip";
-import { $location, $routeParams } from "@/services/ng";
+import HtmlContent from "@redash/viz/lib/components/HtmlContent";
+import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
+import { Query } from "@/services/query";
+import location from "@/services/location";
 import { formatDateTime } from "@/lib/utils";
-import HtmlContent from "@/components/HtmlContent";
 import Parameters from "@/components/Parameters";
 import { Moment } from "@/components/proptypes";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
 import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
-import VisualizationName from "@/visualizations/VisualizationName";
-import VisualizationRenderer from "@/visualizations/VisualizationRenderer";
-import { VisualizationType } from "@/visualizations";
-import { Query } from "@/services/query";
-
+import VisualizationName from "@/components/visualizations/VisualizationName";
+import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
+import { VisualizationType } from "@redash/viz/lib";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
 function VisualizationEmbedHeader({ queryName, queryDescription, visualization }) {
@@ -48,7 +47,15 @@ VisualizationEmbedHeader.propTypes = {
 
 VisualizationEmbedHeader.defaultProps = { queryDescription: "" };
 
-function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStartedAt, queryUrl, hideTimestamp }) {
+function VisualizationEmbedFooter({
+  query,
+  queryResults,
+  updatedAt,
+  refreshStartedAt,
+  queryUrl,
+  hideTimestamp,
+  apiKey,
+}) {
   const downloadMenu = (
     <Menu>
       <Menu.Item>
@@ -56,7 +63,7 @@ function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStart
           fileType="csv"
           query={query}
           queryResult={queryResults}
-          apiKey={$routeParams.api_key}
+          apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
           <Icon type="file" /> Download as CSV File
@@ -67,7 +74,7 @@ function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStart
           fileType="tsv"
           query={query}
           queryResult={queryResults}
-          apiKey={$routeParams.api_key}
+          apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
           <Icon type="file" /> Download as TSV File
@@ -78,7 +85,7 @@ function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStart
           fileType="xlsx"
           query={query}
           queryResult={queryResults}
-          apiKey={$routeParams.api_key}
+          apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
           <Icon type="file-excel" /> Download as Excel File
@@ -128,6 +135,7 @@ VisualizationEmbedFooter.propTypes = {
   refreshStartedAt: Moment,
   queryUrl: PropTypes.string,
   hideTimestamp: PropTypes.bool,
+  apiKey: PropTypes.string,
 };
 
 VisualizationEmbedFooter.defaultProps = {
@@ -136,39 +144,74 @@ VisualizationEmbedFooter.defaultProps = {
   refreshStartedAt: null,
   queryUrl: null,
   hideTimestamp: false,
+  apiKey: null,
 };
 
-function VisualizationEmbed({ query }) {
+function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
+  const [query, setQuery] = useState(null);
   const [error, setError] = useState(null);
   const [refreshStartedAt, setRefreshStartedAt] = useState(null);
   const [queryResults, setQueryResults] = useState(null);
-  const hideHeader = has($location.search(), "hide_header");
-  const hideParametersUI = has($location.search(), "hide_parameters");
-  const hideQueryLink = has($location.search(), "hide_link");
-  const hideTimestamp = has($location.search(), "hide_timestamp");
 
-  const showQueryDescription = has($location.search(), "showDescription");
-  const visualizationId = parseInt($routeParams.visualizationId, 10);
-  const visualization = find(query.visualizations, vis => vis.id === visualizationId);
+  const onErrorRef = useRef();
+  onErrorRef.current = onError;
+
+  useEffect(() => {
+    let isCancelled = false;
+    Query.get({ id: queryId })
+      .then(result => {
+        if (!isCancelled) {
+          setQuery(result);
+        }
+      })
+      .catch(error => onErrorRef.current(error));
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [queryId]);
 
   const refreshQueryResults = useCallback(() => {
-    setError(null);
-    setRefreshStartedAt(moment());
-    query
-      .getQueryResultPromise()
-      .then(result => {
-        setQueryResults(result);
-      })
-      .catch(err => {
-        setError(err.getError());
-      })
-      .finally(() => setRefreshStartedAt(null));
+    if (query) {
+      setError(null);
+      setRefreshStartedAt(moment());
+      query
+        .getQueryResultPromise()
+        .then(result => {
+          setQueryResults(result);
+        })
+        .catch(err => {
+          setError(err.getError());
+        })
+        .finally(() => setRefreshStartedAt(null));
+    }
   }, [query]);
 
   useEffect(() => {
     document.querySelector("body").classList.add("headless");
     refreshQueryResults();
   }, [refreshQueryResults]);
+
+  if (!query) {
+    return null;
+  }
+
+  const hideHeader = has(location.search, "hide_header");
+  const hideParametersUI = has(location.search, "hide_parameters");
+  const hideQueryLink = has(location.search, "hide_link");
+  const hideTimestamp = has(location.search, "hide_timestamp");
+
+  const showQueryDescription = has(location.search, "showDescription");
+  visualizationId = parseInt(visualizationId, 10);
+  const visualization = find(query.visualizations, vis => vis.id === visualizationId);
+
+  if (!visualization) {
+    // call error handler async, otherwise it will destroy the component on render phase
+    setTimeout(() => {
+      onError(new Error("Visualization does not exist"));
+    }, 10);
+    return null;
+  }
 
   return (
     <div className="tile m-l-10 m-r-10 p-t-10 embed__vis" data-test="VisualizationEmbed">
@@ -204,38 +247,25 @@ function VisualizationEmbed({ query }) {
         refreshStartedAt={refreshStartedAt}
         queryUrl={!hideQueryLink ? query.getUrl() : null}
         hideTimestamp={hideTimestamp}
+        apiKey={apiKey}
       />
     </div>
   );
 }
 
-VisualizationEmbed.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-line react/forbid-prop-types
+VisualizationEmbed.propTypes = {
+  queryId: PropTypes.string.isRequired,
+  visualizationId: PropTypes.string,
+  apiKey: PropTypes.string.isRequired,
+  onError: PropTypes.func,
+};
 
-export default function init(ngModule) {
-  ngModule.component("visualizationEmbed", react2angular(VisualizationEmbed));
+VisualizationEmbed.defaultProps = {
+  onError: () => {},
+};
 
-  function loadSession($route, Auth) {
-    const apiKey = $route.current.params.api_key;
-    Auth.setApiKey(apiKey);
-    return Auth.loadConfig();
-  }
-
-  function loadQuery($route, Auth) {
-    "ngInject";
-
-    return loadSession($route, Auth).then(() => Query.get({ id: $route.current.params.queryId }));
-  }
-
-  return {
-    "/embed/query/:queryId/visualization/:visualizationId": {
-      authenticated: false,
-      template: '<visualization-embed query="$resolve.query"></visualization-embed>',
-      reloadOnSearch: false,
-      resolve: {
-        query: loadQuery,
-      },
-    },
-  };
-}
-
-init.init = true;
+export default routeWithApiKeySession({
+  path: "/embed/query/:queryId/visualization/:visualizationId",
+  render: pageProps => <VisualizationEmbed {...pageProps} />,
+  getApiKey: () => location.search.api_key,
+});

@@ -1,10 +1,10 @@
 import { map } from "lodash";
 import React from "react";
 import { axios } from "@/services/axios";
-import { react2angular } from "react2angular";
 
 import Switch from "antd/lib/switch";
 import * as Grid from "antd/lib/grid";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Paginator from "@/components/Paginator";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
@@ -21,7 +21,6 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 
 import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
-import { routesToAngularRoutes } from "@/lib/utils";
 
 class OutdatedQueries extends React.Component {
   static propTypes = {
@@ -147,51 +146,31 @@ class OutdatedQueries extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageOutdatedQueries",
-    react2angular(
-      itemsList(
-        OutdatedQueries,
-        new ItemsSource({
-          doRequest(request, context) {
-            return (
-              axios
-                .get("/api/admin/queries/outdated")
-                // eslint-disable-next-line camelcase
-                .then(({ queries, updated_at }) => {
-                  context.setCustomParams({ lastUpdatedAt: parseFloat(updated_at) });
-                  return queries;
-                })
-            );
-          },
-          processResults(items) {
-            return map(items, item => new Query(item));
-          },
-          isPlainList: true,
-        }),
-        new StateStorage({ orderByField: "created_at", orderByReverse: true })
-      )
-    )
-  );
-
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/admin/queries/outdated",
-        title: "Outdated Queries",
-        key: "outdated_queries",
+const OutdatedQueriesPage = itemsList(
+  OutdatedQueries,
+  () =>
+    new ItemsSource({
+      doRequest(request, context) {
+        return (
+          axios
+            .get("/api/admin/queries/outdated")
+            // eslint-disable-next-line camelcase
+            .then(({ queries, updated_at }) => {
+              context.setCustomParams({ lastUpdatedAt: parseFloat(updated_at) });
+              return queries;
+            })
+        );
       },
-    ],
-    {
-      template: '<page-outdated-queries on-error="handleError"></page-outdated-queries>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
+      processResults(items) {
+        return map(items, item => new Query(item));
       },
-    }
-  );
-}
+      isPlainList: true,
+    }),
+  () => new StateStorage({ orderByField: "created_at", orderByReverse: true })
+);
 
-init.init = true;
+export default routeWithUserSession({
+  path: "/admin/queries/outdated",
+  title: "Outdated Queries",
+  render: pageProps => <OutdatedQueriesPage {...pageProps} currentPage="outdated_queries" />,
+});

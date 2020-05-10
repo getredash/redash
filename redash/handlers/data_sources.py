@@ -3,7 +3,6 @@ import logging
 from flask import make_response, request
 from flask_restful import abort
 from funcy import project
-from six import text_type
 from sqlalchemy.exc import IntegrityError
 
 from redash import models
@@ -26,12 +25,7 @@ from redash.utils.configuration import ConfigurationContainer, ValidationError
 class DataSourceTypeListResource(BaseResource):
     @require_admin
     def get(self):
-        available_query_runners = [
-            q for q in query_runners.values() if not q.deprecated
-        ]
-        return [
-            q.to_dict() for q in sorted(available_query_runners, key=lambda q: q.name())
-        ]
+        return [q.to_dict() for q in sorted(query_runners.values(), key=lambda q: q.name())]
 
 
 class DataSourceResource(BaseResource):
@@ -254,7 +248,7 @@ class DataSourceTestResource(BaseResource):
         try:
             data_source.query_runner.test_connection()
         except Exception as e:
-            response = {"message": text_type(e), "ok": False}
+            response = {"message": str(e), "ok": False}
         else:
             response = {"message": "success", "ok": True}
 

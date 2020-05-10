@@ -5,7 +5,6 @@ import time
 import numbers
 import pytz
 
-from six import text_type
 from sqlalchemy import distinct, or_, and_, UniqueConstraint
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
@@ -37,6 +36,7 @@ from redash.utils import (
     json_loads,
     mustache_render,
     base_url,
+    sentry,
 )
 from redash.utils.configuration import ConfigurationContainer
 from redash.models.parameterized_query import ParameterizedQuery
@@ -143,7 +143,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return d
 
     def __str__(self):
-        return text_type(self.name)
+        return str(self.name)
 
     @classmethod
     def create_with_group(cls, *args, **kwargs):
@@ -188,15 +188,27 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
         if cache is None:
             query_runner = self.query_runner
-            schema = sorted(
-                query_runner.get_schema(get_stats=refresh), key=lambda t: t["name"]
-            )
+            schema = query_runner.get_schema(get_stats=refresh)
 
-            redis_connection.set(self._schema_key, json_dumps(schema))
+            try:
+                out_schema = self._sort_schema(schema)
+            except Exception:
+                logging.exception(
+                    "Error sorting schema columns for data_source {}".format(self.id)
+                )
+                out_schema = schema
+            finally:
+                redis_connection.set(self._schema_key, json_dumps(out_schema))
         else:
-            schema = json_loads(cache)
+            out_schema = json_loads(cache)
 
-        return schema
+        return out_schema
+
+    def _sort_schema(self, schema):
+        return [
+            {"name": i["name"], "columns": sorted(i["columns"])}
+            for i in sorted(schema, key=lambda x: x["name"])
+        ]
 
     @property
     def _schema_key(self):
@@ -486,7 +498,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     __mapper_args__ = {"version_id_col": version, "version_id_generator": False}
 
     def __str__(self):
-        return text_type(self.id)
+        return str(self.id)
 
     def archive(self, user=None):
         db.session.add(self)
@@ -619,34 +631,44 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         scheduled_queries_executions.refresh()
 
         for query in queries:
-            if query.schedule["interval"] is None:
-                continue
-
-            if query.schedule["until"] is not None:
-                schedule_until = pytz.utc.localize(
-                    datetime.datetime.strptime(query.schedule["until"], "%Y-%m-%d")
-                )
-
-                if schedule_until <= now:
+            try:
+                if query.schedule.get("disabled"):
                     continue
 
-            if query.latest_query_data:
-                retrieved_at = query.latest_query_data.retrieved_at
-            else:
-                retrieved_at = now
+                if query.schedule["until"]:
+                    schedule_until = pytz.utc.localize(
+                        datetime.datetime.strptime(query.schedule["until"], "%Y-%m-%d")
+                    )
 
-            retrieved_at = scheduled_queries_executions.get(query.id) or retrieved_at
+                    if schedule_until <= now:
+                        continue
 
-            if should_schedule_next(
-                retrieved_at,
-                now,
-                query.schedule["interval"],
-                query.schedule["time"],
-                query.schedule["day_of_week"],
-                query.schedule_failures,
-            ):
-                key = "{}:{}".format(query.query_hash, query.data_source_id)
-                outdated_queries[key] = query
+                retrieved_at = scheduled_queries_executions.get(query.id) or (
+                    query.latest_query_data and query.latest_query_data.retrieved_at
+                )
+
+                if should_schedule_next(
+                    retrieved_at or now,
+                    now,
+                    query.schedule["interval"],
+                    query.schedule["time"],
+                    query.schedule["day_of_week"],
+                    query.schedule_failures,
+                ):
+                    key = "{}:{}".format(query.query_hash, query.data_source_id)
+                    outdated_queries[key] = query
+            except Exception as e:
+                query.schedule["disabled"] = True
+                db.session.commit()
+
+                message = (
+                    "Could not determine if query %d is outdated due to %s. The schedule for this query has been disabled."
+                    % (query.id, repr(e))
+                )
+                logging.info(message)
+                sentry.capture_exception(
+                    type(e)(message).with_traceback(e.__traceback__)
+                )
 
         return list(outdated_queries.values())
 
@@ -866,7 +888,7 @@ class Favorite(TimestampMixin, db.Model):
         if not objects:
             return []
 
-        object_type = text_type(objects[0].__class__.__name__)
+        object_type = str(objects[0].__class__.__name__)
         return [
             fav.object_id
             for fav in cls.query.filter(
@@ -892,18 +914,25 @@ OPERATORS = {
 
 
 def next_state(op, value, threshold):
-    if isinstance(value, numbers.Number) and not isinstance(value, bool):
-        try:
-            threshold = float(threshold)
-        except ValueError:
-            return Alert.UNKNOWN_STATE
-    # If it's a boolean cast to string and lower case, because upper cased
-    # boolean value is Python specific and most likely will be confusing to
-    # users.
-    elif isinstance(value, bool):
+    if isinstance(value, bool):
+        # If it's a boolean cast to string and lower case, because upper cased
+        # boolean value is Python specific and most likely will be confusing to
+        # users.
         value = str(value).lower()
     else:
-        value = str(value)
+        try:
+            value = float(value)
+            value_is_number = True
+        except ValueError:
+            value_is_number = isinstance(value, numbers.Number)
+
+        if value_is_number:
+            try:
+                threshold = float(threshold)
+            except ValueError:
+                return Alert.UNKNOWN_STATE
+        else:
+            value = str(value)
 
     if op(value, threshold):
         new_state = Alert.TRIGGERED_STATE
@@ -1060,7 +1089,9 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def all(cls, org, group_ids, user_id):
         query = (
             Dashboard.query.options(
-                subqueryload(Dashboard.user).load_only("_profile_image_url", "name")
+                joinedload(Dashboard.user).load_only(
+                    "id", "name", "_profile_image_url", "email"
+                )
             )
             .outerjoin(Widget)
             .outerjoin(Visualization)
@@ -1305,7 +1336,7 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
     )
 
     def __str__(self):
-        return text_type(self.name)
+        return str(self.name)
 
     def to_dict(self, all=False):
         d = {

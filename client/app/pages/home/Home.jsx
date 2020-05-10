@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { axios } from "@/services/axios";
 import PropTypes from "prop-types";
 import { includes, isEmpty } from "lodash";
-import { react2angular } from "react2angular";
 import Alert from "antd/lib/alert";
 import Icon from "antd/lib/icon";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmptyState from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
 import BeaconConsent from "@/components/BeaconConsent";
@@ -13,6 +13,8 @@ import { messages } from "@/services/auth";
 import notification from "@/services/notification";
 import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";
+
+import "./Home.less";
 
 function DeprecatedEmbedFeatureAlert() {
   return (
@@ -38,7 +40,7 @@ function DeprecatedEmbedFeatureAlert() {
 
 function EmailNotVerifiedAlert() {
   const verifyEmail = () => {
-    axios.post("verification_email").then(data => {
+    axios.post("verification_email/").then(data => {
       notification.success(data.message);
     });
   };
@@ -109,8 +111,8 @@ function DashboardAndQueryFavoritesList() {
   return (
     <div className="tile">
       <div className="t-body tb-padding">
-        <div className="row">
-          <div className="col-sm-6">
+        <div className="row home-favorites-list">
+          <div className="col-sm-6 m-t-20">
             <FavoriteList
               title="Favorite Dashboards"
               resource={Dashboard}
@@ -125,7 +127,7 @@ function DashboardAndQueryFavoritesList() {
               }
             />
           </div>
-          <div className="col-sm-6">
+          <div className="col-sm-6 m-t-20">
             <FavoriteList
               title="Favorite Queries"
               resource={Query}
@@ -173,15 +175,8 @@ function Home() {
   );
 }
 
-export default function init(ngModule) {
-  ngModule.component("homePage", react2angular(Home));
-
-  return {
-    "/": {
-      template: "<home-page></home-page>",
-      title: "Redash",
-    },
-  };
-}
-
-init.init = true;
+export default routeWithUserSession({
+  path: "/",
+  title: "Redash",
+  render: pageProps => <Home {...pageProps} />,
+});

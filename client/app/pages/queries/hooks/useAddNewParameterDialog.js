@@ -15,7 +15,7 @@ export default function useAddNewParameterDialog(query, onParameterAdded) {
         value: null,
       },
       existingParams: map(query.getParameters().get(), p => p.name),
-    }).result.then(param => {
+    }).onClose(param => {
       const newQuery = query.clone();
       param = newQuery.getParameters().add(param);
       onParameterAddedRef.current(newQuery, param);

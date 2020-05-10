@@ -1,14 +1,15 @@
-import { filter, map, includes } from "lodash";
+import { filter, map, includes, toLower } from "lodash";
 import React from "react";
-import { react2angular } from "react2angular";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Icon from "antd/lib/icon";
 
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
-import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
+import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
 
@@ -27,8 +28,6 @@ import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
 import Group from "@/services/group";
 import DataSource from "@/services/data-source";
-import navigateTo from "@/services/navigateTo";
-import { routesToAngularRoutes } from "@/lib/utils";
 
 class GroupDataSources extends React.Component {
   static propTypes = {
@@ -141,8 +140,8 @@ class GroupDataSources extends React.Component {
       inputPlaceholder: "Search data sources...",
       selectedItemsTitle: "New Data Sources",
       searchItems: searchTerm => {
-        searchTerm = searchTerm.toLowerCase();
-        return allDataSources.then(items => filter(items, ds => ds.name.toLowerCase().includes(searchTerm)));
+        searchTerm = toLower(searchTerm);
+        return allDataSources.then(items => filter(items, ds => includes(toLower(ds.name), searchTerm)));
       },
       renderItem: (item, { isSelected }) => {
         const alreadyInGroup = includes(alreadyAddedDataSources, item.id);
@@ -163,12 +162,9 @@ class GroupDataSources extends React.Component {
           </DataSourcePreviewCard>
         ),
       }),
-      save: items => {
-        const promises = map(items, ds => Group.addDataSource({ id: this.groupId }, { data_source_id: ds.id }));
-        return Promise.all(promises);
-      },
-    }).result.finally(() => {
-      this.props.controller.update();
+    }).onClose(items => {
+      const promises = map(items, ds => Group.addDataSource({ id: this.groupId }, { data_source_id: ds.id }));
+      return Promise.all(promises).then(() => this.props.controller.update());
     });
   };
 
@@ -185,7 +181,7 @@ class GroupDataSources extends React.Component {
               items={this.sidebarMenu}
               canAddDataSources={currentUser.isAdmin}
               onAddDataSourcesClick={this.addDataSources}
-              onGroupDeleted={() => navigateTo("/groups", true)}
+              onGroupDeleted={() => navigateTo("groups")}
             />
           </Layout.Sidebar>
           <Layout.Content>
@@ -227,47 +223,26 @@ class GroupDataSources extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageGroupDataSources",
-    react2angular(
-      wrapSettingsTab(
-        null,
-        liveItemsList(
-          GroupDataSources,
-          new ResourceItemsSource({
-            isPlainList: true,
-            getRequest(unused, { params: { groupId } }) {
-              return { id: groupId };
-            },
-            getResource() {
-              return Group.dataSources.bind(Group);
-            },
-          }),
-          new StateStorage({ orderByField: "name" })
-        )
-      )
-    )
-  );
+const GroupDataSourcesPage = wrapSettingsTab(
+  null,
+  itemsList(
+    GroupDataSources,
+    () =>
+      new ResourceItemsSource({
+        isPlainList: true,
+        getRequest(unused, { params: { groupId } }) {
+          return { id: groupId };
+        },
+        getResource() {
+          return Group.dataSources.bind(Group);
+        },
+      }),
+    () => new StateStorage({ orderByField: "name" })
+  )
+);
 
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/groups/:groupId/data_sources",
-        title: "Group Data Sources",
-        key: "datasources",
-      },
-    ],
-    {
-      reloadOnSearch: false,
-      template: '<page-group-data-sources on-error="handleError"></page-group-data-sources>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+export default routeWithUserSession({
+  path: "/groups/:groupId([0-9]+)/data_sources",
+  title: "Group Data Sources",
+  render: pageProps => <GroupDataSourcesPage {...pageProps} currentPage="datasources" />,
+});

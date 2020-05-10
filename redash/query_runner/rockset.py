@@ -22,9 +22,10 @@ class RocksetAPI(object):
         self.api_key = api_key
         self.api_server = api_server
 
-    def _request(self, endpoint, method="GET", body=None):
-        headers = {"Authorization": "ApiKey {}".format(self.api_key)}
-        url = "{}/v1/orgs/self/{}".format(self.api_server, endpoint)
+    def _request(self, endpoint, method='GET', body=None):
+        headers = {'Authorization': 'ApiKey {}'.format(self.api_key),
+                   'User-Agent': 'rest:redash/1.0'}
+        url = '{}/v1/orgs/self/{}'.format(self.api_server, endpoint)
 
         if method == "GET":
             r = requests.get(url, headers=headers)
@@ -35,9 +36,17 @@ class RocksetAPI(object):
         else:
             raise "Unknown method: {}".format(method)
 
-    def list(self):
-        response = self._request("ws/commons/collections")
-        return response["data"]
+    def list_workspaces(self):
+        response = self._request('ws')
+        return [x['name'] for x in response['data'] if x['collection_count'] > 0]
+
+    def list_collections(self, workspace='commons'):
+        response = self._request('ws/{}/collections'.format(workspace))
+        return [x['name'] for x in response['data']]
+
+    def collection_columns(self, workspace, collection):
+        response = self.query('DESCRIBE "{}"."{}" OPTION(max_field_depth=1)'.format(workspace, collection))
+        return sorted(set([x['field'][0] for x in response['results']]))
 
     def query(self, sql):
         return self._request("queries", "POST", {"sql": {"query": sql}})
@@ -75,12 +84,14 @@ class Rockset(BaseSQLQueryRunner):
         )
 
     def _get_tables(self, schema):
-        for col in self.api.list():
-            table_name = col["name"]
-            describe = self.api.query('DESCRIBE "{}"'.format(table_name))
-            columns = list(set([result["field"][0] for result in describe["results"]]))
-            schema[table_name] = {"name": table_name, "columns": columns}
-        return list(schema.values())
+        for workspace in self.api.list_workspaces():
+            for collection in self.api.list_collections(workspace):
+                table_name = collection if workspace == 'commons' else '{}.{}'.format(workspace, collection)
+                schema[table_name] = {
+                    'name': table_name,
+                    'columns': self.api.collection_columns(workspace, collection)
+                }
+        return sorted(schema.values(), key=lambda x: x['name'])
 
     def run_query(self, query, user):
         results = self.api.query(query)

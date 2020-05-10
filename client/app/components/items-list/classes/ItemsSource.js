@@ -1,7 +1,6 @@
 import { isFunction, identity, map, extend } from "lodash";
 import Paginator from "./Paginator";
 import Sorter from "./Sorter";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 import { PlainListFetcher, PaginatedListFetcher } from "./ItemsFetcher";
 
 export class ItemsSource {
@@ -52,9 +51,7 @@ export class ItemsSource {
           this._params = { ...this._params, ...customParams };
           return this._afterUpdate();
         })
-        .catch(error => {
-          this.handleError(error);
-        })
+        .catch(error => this.handleError(error))
     );
   }
 
@@ -141,10 +138,6 @@ export class ItemsSource {
 
   handleError = error => {
     if (isFunction(this.onError)) {
-      // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
-      if (error.status && error.data) {
-        error = new PromiseRejectionError(error);
-      }
       this.onError(error);
     }
   };

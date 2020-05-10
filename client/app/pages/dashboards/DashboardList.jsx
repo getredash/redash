@@ -1,6 +1,6 @@
 import React from "react";
-import { react2angular } from "react2angular";
 
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
@@ -8,7 +8,6 @@ import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
-
 import LoadingState from "@/components/items-list/components/LoadingState";
 import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
@@ -16,9 +15,8 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 import Layout from "@/components/layouts/ContentWithSidebar";
 
 import { Dashboard } from "@/services/dashboard";
-import { routesToAngularRoutes } from "@/lib/utils";
 
-import DashboardListEmptyState from "./DashboardListEmptyState";
+import DashboardListEmptyState from "./components/DashboardListEmptyState";
 
 import "./dashboard-list.css";
 
@@ -63,7 +61,7 @@ class DashboardList extends React.Component {
         width: null,
       }
     ),
-    Columns.avatar({ field: "user", className: "p-l-0 p-r-0" }, name => `Created by ${name}`),
+    Columns.custom((text, item) => item.user.name, { title: "Created By" }),
     Columns.dateTime.sortable({
       title: "Created At",
       field: "created_at",
@@ -75,106 +73,89 @@ class DashboardList extends React.Component {
   render() {
     const { controller } = this.props;
     return (
-      <div className="container">
-        <PageHeader title={controller.params.title} />
-        <Layout className="m-l-15 m-r-15">
-          <Layout.Sidebar className="m-b-0">
-            <Sidebar.SearchInput
-              placeholder="Search Dashboards..."
-              value={controller.searchTerm}
-              onChange={controller.updateSearch}
-            />
-            <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
-            <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} />
-            <Sidebar.PageSizeSelect
-              className="m-b-10"
-              options={controller.pageSizeOptions}
-              value={controller.itemsPerPage}
-              onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-            />
-          </Layout.Sidebar>
-          <Layout.Content>
-            {controller.isLoaded ? (
-              <div data-test="DashboardLayoutContent">
-                {controller.isEmpty ? (
-                  <DashboardListEmptyState
-                    page={controller.params.currentPage}
-                    searchTerm={controller.searchTerm}
-                    selectedTags={controller.selectedTags}
-                  />
-                ) : (
-                  <div className="bg-white tiled table-responsive">
-                    <ItemsTable
-                      items={controller.pageItems}
-                      columns={this.listColumns}
-                      orderByField={controller.orderByField}
-                      orderByReverse={controller.orderByReverse}
-                      toggleSorting={controller.toggleSorting}
+      <div className="page-dashboard-list">
+        <div className="container">
+          <PageHeader title={controller.params.pageTitle} />
+          <Layout className="m-l-15 m-r-15">
+            <Layout.Sidebar className="m-b-0">
+              <Sidebar.SearchInput
+                placeholder="Search Dashboards..."
+                value={controller.searchTerm}
+                onChange={controller.updateSearch}
+              />
+              <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
+              <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} />
+              <Sidebar.PageSizeSelect
+                className="m-b-10"
+                options={controller.pageSizeOptions}
+                value={controller.itemsPerPage}
+                onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+              />
+            </Layout.Sidebar>
+            <Layout.Content>
+              {controller.isLoaded ? (
+                <div data-test="DashboardLayoutContent">
+                  {controller.isEmpty ? (
+                    <DashboardListEmptyState
+                      page={controller.params.currentPage}
+                      searchTerm={controller.searchTerm}
+                      selectedTags={controller.selectedTags}
                     />
-                    <Paginator
-                      totalCount={controller.totalItemsCount}
-                      itemsPerPage={controller.itemsPerPage}
-                      page={controller.page}
-                      onChange={page => controller.updatePagination({ page })}
-                    />
-                  </div>
-                )}
-              </div>
-            ) : (
-              <LoadingState />
-            )}
-          </Layout.Content>
-        </Layout>
+                  ) : (
+                    <div className="bg-white tiled table-responsive">
+                      <ItemsTable
+                        items={controller.pageItems}
+                        columns={this.listColumns}
+                        orderByField={controller.orderByField}
+                        orderByReverse={controller.orderByReverse}
+                        toggleSorting={controller.toggleSorting}
+                      />
+                      <Paginator
+                        totalCount={controller.totalItemsCount}
+                        itemsPerPage={controller.itemsPerPage}
+                        page={controller.page}
+                        onChange={page => controller.updatePagination({ page })}
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <LoadingState />
+              )}
+            </Layout.Content>
+          </Layout>
+        </div>
       </div>
     );
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageDashboardList",
-    react2angular(
-      itemsList(
-        DashboardList,
-        new ResourceItemsSource({
-          getResource({ params: { currentPage } }) {
-            return {
-              all: Dashboard.query.bind(Dashboard),
-              favorites: Dashboard.favorites.bind(Dashboard),
-            }[currentPage];
-          },
-          getItemProcessor() {
-            return item => new Dashboard(item);
-          },
-        }),
-        new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
-      )
-    )
-  );
-
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/dashboards",
-        title: "Dashboards",
-        key: "all",
+const DashboardListPage = itemsList(
+  DashboardList,
+  () =>
+    new ResourceItemsSource({
+      getResource({ params: { currentPage } }) {
+        return {
+          all: Dashboard.query.bind(Dashboard),
+          favorites: Dashboard.favorites.bind(Dashboard),
+        }[currentPage];
       },
-      {
-        path: "/dashboards/favorites",
-        title: "Favorite Dashboards",
-        key: "favorites",
+      getItemProcessor() {
+        return item => new Dashboard(item);
       },
-    ],
-    {
-      reloadOnSearch: false,
-      template: '<page-dashboard-list on-error="handleError"></page-dashboard-list>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
+    }),
+  () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
+);
 
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+export default [
+  routeWithUserSession({
+    path: "/dashboards",
+    title: "Dashboards",
+    render: pageProps => <DashboardListPage {...pageProps} currentPage="all" />,
+  }),
+  routeWithUserSession({
+    path: "/dashboards/favorites",
+    title: "Favorite Dashboards",
+    render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
+  }),
+];

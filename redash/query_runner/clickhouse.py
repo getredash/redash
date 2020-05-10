@@ -26,9 +26,15 @@ class ClickHouse(BaseSQLQueryRunner):
                     "title": "Request Timeout",
                     "default": 30,
                 },
+                "verify": {
+                    "type": "boolean",
+                    "title": "Verify SSL certificate",
+                    "default": True,
+                },
             },
+            "order": ["url", "user", "password", "dbname"],
             "required": ["dbname"],
-            "extra_options": ["timeout"],
+            "extra_options": ["timeout", "verify"],
             "secret": ["password"],
         }
 
@@ -59,9 +65,10 @@ class ClickHouse(BaseSQLQueryRunner):
     def _send_query(self, data, stream=False):
         url = self.configuration.get("url", "http://127.0.0.1:8123")
         try:
+            verify = self.configuration.get("verify", True)
             r = requests.post(
                 url,
-                data=data.encode("utf-8"),
+                data=data.encode("utf-8","ignore"),
                 stream=stream,
                 timeout=self.configuration.get("timeout", 30),
                 params={
@@ -69,6 +76,7 @@ class ClickHouse(BaseSQLQueryRunner):
                     "password": self.configuration.get("password", ""),
                     "database": self.configuration["dbname"],
                 },
+                verify=verify,
             )
             if r.status_code != 200:
                 raise Exception(r.text)

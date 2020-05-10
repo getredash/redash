@@ -1,11 +1,12 @@
 import { includes, map } from "lodash";
 import React from "react";
-import { react2angular } from "react2angular";
 import Button from "antd/lib/button";
 
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
-import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
+import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
 
@@ -24,8 +25,6 @@ import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
 import Group from "@/services/group";
 import User from "@/services/user";
-import navigateTo from "@/services/navigateTo";
-import { routesToAngularRoutes } from "@/lib/utils";
 
 class GroupMembers extends React.Component {
   static propTypes = {
@@ -126,12 +125,9 @@ class GroupMembers extends React.Component {
           </UserPreviewCard>
         ),
       }),
-      save: items => {
-        const promises = map(items, u => Group.addMember({ id: this.groupId }, { user_id: u.id }));
-        return Promise.all(promises);
-      },
-    }).result.finally(() => {
-      this.props.controller.update();
+    }).onClose(items => {
+      const promises = map(items, u => Group.addMember({ id: this.groupId }, { user_id: u.id }));
+      return Promise.all(promises).then(() => this.props.controller.update());
     });
   };
 
@@ -148,7 +144,7 @@ class GroupMembers extends React.Component {
               items={this.sidebarMenu}
               canAddMembers={currentUser.isAdmin}
               onAddMembersClick={this.addMembers}
-              onGroupDeleted={() => navigateTo("/groups", true)}
+              onGroupDeleted={() => navigateTo("groups")}
             />
           </Layout.Sidebar>
           <Layout.Content>
@@ -190,47 +186,26 @@ class GroupMembers extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageGroupMembers",
-    react2angular(
-      wrapSettingsTab(
-        null,
-        liveItemsList(
-          GroupMembers,
-          new ResourceItemsSource({
-            isPlainList: true,
-            getRequest(unused, { params: { groupId } }) {
-              return { id: groupId };
-            },
-            getResource() {
-              return Group.members.bind(Group);
-            },
-          }),
-          new StateStorage({ orderByField: "name" })
-        )
-      )
-    )
-  );
+const GroupMembersPage = wrapSettingsTab(
+  null,
+  itemsList(
+    GroupMembers,
+    () =>
+      new ResourceItemsSource({
+        isPlainList: true,
+        getRequest(unused, { params: { groupId } }) {
+          return { id: groupId };
+        },
+        getResource() {
+          return Group.members.bind(Group);
+        },
+      }),
+    () => new StateStorage({ orderByField: "name" })
+  )
+);
 
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/groups/:groupId",
-        title: "Group Members",
-        key: "users",
-      },
-    ],
-    {
-      reloadOnSearch: false,
-      template: '<page-group-members on-error="handleError"></page-group-members>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+export default routeWithUserSession({
+  path: "/groups/:groupId([0-9]+)",
+  title: "Group Members",
+  render: pageProps => <GroupMembersPage {...pageProps} currentPage="users" />,
+});

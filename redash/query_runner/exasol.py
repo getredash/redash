@@ -66,9 +66,10 @@ class Exasol(BaseQueryRunner):
                 "password": {"type": "string"},
                 "host": {"type": "string"},
                 "port": {"type": "number", "default": 8563},
+                "encrypted": {"type": "boolean", "title": "Enable SSL Encryption"},
             },
             "required": ["host", "port", "user", "password"],
-            "order": ["host", "port", "user", "password"],
+            "order": ["host", "port", "user", "password", "encrypted"],
             "secret": ["password"],
         }
 
@@ -81,6 +82,7 @@ class Exasol(BaseQueryRunner):
             dsn=exahost,
             user=self.configuration.get("user", None),
             password=self.configuration.get("password", None),
+            encryption=self.configuration.get("encrypted", True),
             compression=True,
             json_lib="rapidjson",
             fetch_mapper=_exasol_type_mapper,
