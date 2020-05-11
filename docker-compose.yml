@@ -2,7 +2,10 @@
 # For a production example please refer to getredash/setup repository on GitHub.
 version: "2"
 x-redash-service: &redash-service
-  build: .
+  build:
+    context: .
+    args:
+      skip_frontend_build: "true"
   volumes:
     - .:/app
 x-redash-environment: &redash-environment
