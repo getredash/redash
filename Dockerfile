@@ -18,6 +18,8 @@ EXPOSE 5000
 
 # Controls whether to install extra dependencies needed for all data sources.
 ARG skip_ds_deps
+# Controls whether to install dev dependencies.
+ARG skip_dev_deps
 
 RUN useradd --create-home redash
 
@@ -70,6 +72,7 @@ ENV PIP_NO_CACHE_DIR=1
 # change.
 COPY requirements.txt requirements_bundles.txt requirements_dev.txt requirements_all_ds.txt ./
 RUN pip install -r requirements.txt -r requirements_dev.txt
+RUN if [ "x$skip_dev_deps" = "x" ] ; then pip install -r requirements.txt; else pip install -r requirements.txt -r requirements_dev.txt; fi
 RUN if [ "x$skip_ds_deps" = "x" ] ; then pip install -r requirements_all_ds.txt ; else echo "Skipping pip install -r requirements_all_ds.txt" ; fi
 
 COPY . /app
