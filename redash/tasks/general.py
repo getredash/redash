@@ -9,6 +9,8 @@ from redash import mail, models, settings, rq_redis_connection
 from redash.models import users
 from redash.version_check import run_version_check
 from redash.worker import job, get_job_logger
+from redash.tasks.worker import Queue
+from redash.query_runner import NotSupported
 
 logger = get_job_logger(__name__)
 
@@ -61,6 +63,33 @@ def send_mail(to, subject, html, text):
         mail.send(message)
     except Exception:
         logger.exception("Failed sending message: %s", message.subject)
+
+
+@job("queries", timeout=30, ttl=90)
+def test_connection(data_source_id):
+    try:
+        data_source = models.DataSource.get_by_id(data_source_id)
+        data_source.query_runner.test_connection()
+    except Exception as e:
+        return e
+    else:
+        return True
+
+
+@job("schemas", queue_class=Queue, at_front=True, timeout=300, ttl=90)
+def get_schema(data_source_id, refresh):
+    try:
+        data_source = models.DataSource.get_by_id(data_source_id)
+        return data_source.get_schema(refresh)
+    except NotSupported:
+        return {
+            "error": {
+                "code": 1,
+                "message": "Data source type does not support retrieving schema",
+            }
+        }
+    except Exception:
+        return {"error": {"code": 2, "message": "Error retrieving schema."}}
 
 
 def sync_user_details():

@@ -24,6 +24,7 @@ from redash.destinations import (
 )
 from redash.metrics import database  # noqa: F401
 from redash.query_runner import (
+    with_ssh_tunnel,
     get_configuration_schema_for_query_runner_type,
     get_query_runner,
     TYPE_BOOLEAN,
@@ -252,8 +253,17 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return dsg
 
     @property
+    def uses_ssh_tunnel(self):
+        return "ssh_tunnel" in self.options
+
+    @property
     def query_runner(self):
-        return get_query_runner(self.type, self.options)
+        query_runner = get_query_runner(self.type, self.options)
+
+        if self.uses_ssh_tunnel:
+            query_runner = with_ssh_tunnel(query_runner, self.options.get("ssh_tunnel"))
+
+        return query_runner
 
     @classmethod
     def get_by_name(cls, name):

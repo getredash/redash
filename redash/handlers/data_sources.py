@@ -1,4 +1,5 @@
 import logging
+import time
 
 from flask import make_response, request
 from flask_restful import abort
@@ -20,12 +21,16 @@ from redash.query_runner import (
 )
 from redash.utils import filter_none
 from redash.utils.configuration import ConfigurationContainer, ValidationError
+from redash.tasks.general import test_connection, get_schema
+from redash.serializers import serialize_job
 
 
 class DataSourceTypeListResource(BaseResource):
     @require_admin
     def get(self):
-        return [q.to_dict() for q in sorted(query_runners.values(), key=lambda q: q.name())]
+        return [
+            q.to_dict() for q in sorted(query_runners.values(), key=lambda q: q.name())
+        ]
 
 
 class DataSourceResource(BaseResource):
@@ -182,19 +187,9 @@ class DataSourceSchemaResource(BaseResource):
         require_access(data_source, self.current_user, view_only)
         refresh = request.args.get("refresh") is not None
 
-        response = {}
+        job = get_schema.delay(data_source.id, refresh)
 
-        try:
-            response["schema"] = data_source.get_schema(refresh)
-        except NotSupported:
-            response["error"] = {
-                "code": 1,
-                "message": "Data source type does not support retrieving schema",
-            }
-        except Exception:
-            response["error"] = {"code": 2, "message": "Error retrieving schema."}
-
-        return response
+        return serialize_job(job)
 
 
 class DataSourcePauseResource(BaseResource):
@@ -245,10 +240,14 @@ class DataSourceTestResource(BaseResource):
         )
 
         response = {}
-        try:
-            data_source.query_runner.test_connection()
-        except Exception as e:
-            response = {"message": str(e), "ok": False}
+
+        job = test_connection.delay(data_source.id)
+        while not (job.is_finished or job.is_failed):
+            time.sleep(1)
+            job.refresh()
+
+        if isinstance(job.result, Exception):
+            response = {"message": str(job.result), "ok": False}
         else:
             response = {"message": "success", "ok": True}
 
