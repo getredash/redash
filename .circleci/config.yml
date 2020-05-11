@@ -33,7 +33,9 @@ jobs:
           name: Build Docker Images
           command: |
             set -x
-            docker-compose build --build-arg skip_ds_deps=true
+            mkdir client/dist
+            touch client/dist/{multi_org.html,index.html}
+            docker-compose build --build-arg skip_ds_deps=true --build-arg skip_frontend_build=true
             docker-compose up -d
             sleep 10
       - run:
