@@ -10,7 +10,7 @@ RUN if [ "x$skip_frontend_build" = "x" ] ; then npm ci --unsafe-perm; fi
 
 COPY client /frontend/client
 COPY webpack.config.js /frontend/
-RUN if [ "x$skip_frontend_build" = "x" ] ; then npm run build; else mkdir /frontend/client/dist && touch /frontend/client/dist/{multi_org.html,index.html}; fi
+RUN if [ "x$skip_frontend_build" = "x" ] ; then npm run build; else mkdir /frontend/client/dist && touch /frontend/client/dist/multi_org.html && touch /frontend/client/dist/index.html; fi
 
 FROM python:3.7-slim
 
@@ -18,8 +18,6 @@ EXPOSE 5000
 
 # Controls whether to install extra dependencies needed for all data sources.
 ARG skip_ds_deps
-# Controls whether to build the frontend assets
-ARG skip_frontend_build
 
 RUN useradd --create-home redash
 
