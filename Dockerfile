@@ -1,13 +1,16 @@
 FROM node:12 as frontend-builder
 
+# Controls whether to build the frontend assets
+ARG skip_frontend_build
+
 WORKDIR /frontend
 COPY package.json package-lock.json /frontend/
 COPY viz-lib /frontend/viz-lib
-RUN npm ci --unsafe-perm
+RUN if [ "x$skip_frontend_build" = "x" ] ; then npm ci --unsafe-perm; fi
 
 COPY client /frontend/client
 COPY webpack.config.js /frontend/
-RUN npm run build
+RUN if [ "x$skip_frontend_build" = "x" ] ; then npm run build; else mkdir /frontend/client/dist; fi
 
 FROM python:3.7-slim
 
@@ -15,6 +18,8 @@ EXPOSE 5000
 
 # Controls whether to install extra dependencies needed for all data sources.
 ARG skip_ds_deps
+# Controls whether to build the frontend assets
+ARG skip_frontend_build
 
 RUN useradd --create-home redash
 
