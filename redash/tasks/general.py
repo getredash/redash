@@ -80,7 +80,7 @@ def test_connection(data_source_id):
 def get_schema(data_source_id, refresh):
     try:
         data_source = models.DataSource.get_by_id(data_source_id)
-        return data_source.query_runner.get_schema(refresh)
+        return data_source.get_schema(refresh)
     except NotSupported:
         return {
             "error": {
