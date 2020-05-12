@@ -3,8 +3,12 @@ import logging
 from contextlib import ExitStack
 from dateutil import parser
 from functools import wraps
+import socket
+import ipaddress
+from urllib.parse import urlparse
 import requests
 
+from six import text_type
 from sshtunnel import open_tunnel
 from redash import settings
 from redash.utils import json_loads
@@ -204,6 +208,12 @@ class BaseSQLQueryRunner(BaseQueryRunner):
                 tables_dict[t]["size"] = res[0]["cnt"]
 
 
+def is_private_address(url):
+    hostname = urlparse(url).hostname
+    ip_address = socket.gethostbyname(hostname)
+    return ipaddress.ip_address(text_type(ip_address)).is_private
+
+
 class BaseHTTPQueryRunner(BaseQueryRunner):
     should_annotate_query = False
     response_error = "Endpoint returned unexpected status code"
@@ -247,6 +257,9 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
             return None
 
     def get_response(self, url, auth=None, http_method="get", **kwargs):
+        if is_private_address(url):
+            raise Exception("Can't query private addresses.")
+
         # Get authentication values if not given
         if auth is None:
             auth = self.get_auth()
