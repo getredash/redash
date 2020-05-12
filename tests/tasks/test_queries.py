@@ -1,7 +1,7 @@
 from unittest import TestCase
 import uuid
 
-from mock import patch, Mock
+from mock import patch, Mock, call
 
 from rq import Connection
 from rq.exceptions import NoSuchJobError
@@ -34,10 +34,11 @@ def create_job(*args, **kwargs):
     return Job(connection=rq_redis_connection)
 
 
+@patch("statsd.StatsClient.incr")
 @patch("redash.tasks.queries.execution.Job.fetch", side_effect=fetch_job)
 @patch("redash.tasks.queries.execution.Queue.enqueue", side_effect=create_job)
 class TestEnqueueTask(BaseTestCase):
-    def test_multiple_enqueue_of_same_query(self, enqueue, _):
+    def test_multiple_enqueue_of_same_query(self, enqueue, _, incr):
         query = self.factory.create_query()
 
         with Connection(rq_redis_connection):
@@ -67,8 +68,9 @@ class TestEnqueueTask(BaseTestCase):
             )
 
         self.assertEqual(1, enqueue.call_count)
+        incr.assert_called_once_with("rq.jobs.created.scheduled_queries")
 
-    def test_multiple_enqueue_of_expired_job(self, enqueue, fetch_job):
+    def test_multiple_enqueue_of_expired_job(self, enqueue, fetch_job, incr):
         query = self.factory.create_query()
 
         with Connection(rq_redis_connection):
@@ -94,9 +96,10 @@ class TestEnqueueTask(BaseTestCase):
             )
 
         self.assertEqual(2, enqueue.call_count)
+        incr.assert_has_calls([call("rq.jobs.created.scheduled_queries")] * 2)
 
     @patch("redash.settings.dynamic_settings.query_time_limit", return_value=60)
-    def test_limits_query_time(self, _, enqueue, __):
+    def test_limits_query_time(self, _, enqueue, __, ___):
         query = self.factory.create_query()
 
         with Connection(rq_redis_connection):
@@ -112,7 +115,7 @@ class TestEnqueueTask(BaseTestCase):
         _, kwargs = enqueue.call_args
         self.assertEqual(60, kwargs.get("job_timeout"))
 
-    def test_multiple_enqueue_of_different_query(self, enqueue, _):
+    def test_multiple_enqueue_of_different_query(self, enqueue, _, incr):
         query = self.factory.create_query()
 
         with Connection(rq_redis_connection):
@@ -142,6 +145,7 @@ class TestEnqueueTask(BaseTestCase):
             )
 
         self.assertEqual(3, enqueue.call_count)
+        incr.assert_has_calls([call("rq.jobs.created.queries")] * 3)
 
 
 @patch("redash.tasks.queries.execution.get_current_job", side_effect=fetch_job)

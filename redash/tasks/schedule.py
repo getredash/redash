@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from rq.job import Job
 from rq_scheduler import Scheduler
 
-from redash import extensions, settings, rq_redis_connection
+from redash import extensions, settings, rq_redis_connection, statsd_client
 from redash.tasks import (
     sync_user_details,
     refresh_queries,
@@ -21,7 +21,18 @@ from redash.tasks import (
 
 logger = logging.getLogger(__name__)
 
-rq_scheduler = Scheduler(
+
+class StatsdRecordingScheduler(Scheduler):
+    """
+    RQ Scheduler Mixin that overrides `enqueue_job` to increment/modify metrics via Statsd
+    """
+
+    def enqueue_job(self, job):
+        super().enqueue_job(job)
+        statsd_client.incr("rq.jobs.created.{}".format(self.queue_name))
+
+
+rq_scheduler = StatsdRecordingScheduler(
     connection=rq_redis_connection, queue_name="periodic", interval=5
 )
 
