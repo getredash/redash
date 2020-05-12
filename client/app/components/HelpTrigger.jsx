@@ -108,8 +108,8 @@ export default class HelpTrigger extends React.Component {
   };
 
   getUrl = () => {
-    const [pagePath] = get(TYPES, this.props.type, []);
-    return pagePath ? DOMAIN + HELP_PATH + pagePath : this.props.href;
+    const helpTriggerType = get(TYPES, this.props.type);
+    return helpTriggerType ? DOMAIN + HELP_PATH + helpTriggerType[0] : this.props.href;
   };
 
   openDrawer = () => {
