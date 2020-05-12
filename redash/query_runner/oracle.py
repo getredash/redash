@@ -1,3 +1,4 @@
+import os
 import logging
 
 from redash.utils import json_dumps, json_loads
@@ -57,8 +58,10 @@ class Oracle(BaseSQLQueryRunner):
                 "host": {"type": "string"},
                 "port": {"type": "number"},
                 "servicename": {"type": "string", "title": "DSN Service Name"},
+                "encoding": {"type": "string"},
             },
             "required": ["servicename", "user", "password", "host", "port"],
+            "extra_options": ["encoding"],
             "secret": ["password"],
         }
 
@@ -121,12 +124,20 @@ class Oracle(BaseSQLQueryRunner):
                 )
 
     def run_query(self, query, user):
+        if self.configuration.get("encoding"):
+            os.environ["NLS_LANG"] = self.configuration["encoding"]
+
         dsn = cx_Oracle.makedsn(
             self.configuration["host"],
             self.configuration["port"],
-            service_name=self.configuration["servicename"])
-        
-        connection = cx_Oracle.connect(user=self.configuration["user"],password=self.configuration["password"], dsn=dsn)
+            service_name=self.configuration["servicename"],
+        )
+
+        connection = cx_Oracle.connect(
+            user=self.configuration["user"],
+            password=self.configuration["password"],
+            dsn=dsn,
+        )
         connection.outputtypehandler = Oracle.output_handler
 
         cursor = connection.cursor()
@@ -141,10 +152,7 @@ class Oracle(BaseSQLQueryRunner):
                         for i in cursor.description
                     ]
                 )
-                rows = [
-                    dict(zip((column["name"] for column in columns), row))
-                    for row in cursor
-                ]
+                rows = [dict(zip((c["name"] for c in columns), row)) for row in cursor]
                 data = {"columns": columns, "rows": rows}
                 error = None
                 json_data = json_dumps(data)
@@ -161,6 +169,7 @@ class Oracle(BaseSQLQueryRunner):
             connection.cancel()
             raise
         finally:
+            os.environ.pop("NLS_LANG", None)
             connection.close()
 
         return json_data, error
