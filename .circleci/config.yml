@@ -23,10 +23,9 @@ jobs:
   backend-unit-tests:
     environment:
       COMPOSE_PROJECT_NAME: redash
-    docker:
-      - image: circleci/buildpack-deps:xenial
+    machine:
+      image: ubuntu-1604:202004-01
     steps:
-      - setup_remote_docker
       - checkout
       - run:
           name: Build Docker Images
@@ -45,7 +44,7 @@ jobs:
           name: Run Tests
           command: |
             mkdir client/dist && touch client/dist/multi_org.html client/dist/index.html
-            docker-compose run --name tests server tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
+            docker-compose run -u root --name tests server tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
       - run:
           name: Copy Test Results
           command: |
