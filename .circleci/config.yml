@@ -44,7 +44,7 @@ jobs:
           name: Run Tests
           command: |
             mkdir client/dist && touch client/dist/multi_org.html client/dist/index.html
-            docker-compose run -u root --name tests server tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
+            docker-compose run -u $(id -u):$(id -g) --name tests server tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
       - run:
           name: Copy Test Results
           command: |
