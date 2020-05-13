@@ -101,7 +101,6 @@ def enqueue_query(
                 )
 
                 logger.info("[%s] Created new job: %s", query_hash, job.id)
-                statsd_client.incr("rq.jobs.created.{}".format(queue_name))
                 pipe.set(
                     _job_lock_id(query_hash, data_source.id),
                     job.id,

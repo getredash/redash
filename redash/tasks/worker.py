@@ -23,8 +23,30 @@ class CancellableJob(BaseJob):
         return self.meta.get("cancelled", False)
 
 
+class StatsdRecordingQueue(BaseQueue):
+    """
+    RQ Queue Mixin that overrides `enqueue_call` to increment metrics via Statsd
+    """
+
+    def enqueue_call(self, func, args=None, kwargs=None, timeout=None,
+                     result_ttl=None, ttl=None, failure_ttl=None,
+                     description=None, depends_on=None, job_id=None,
+                     at_front=False, meta=None):
+        job = super().enqueue_call(
+            func, args, kwargs, timeout,
+            result_ttl, ttl, failure_ttl, description,
+            depends_on, job_id, at_front, meta
+        )
+        statsd_client.incr("rq.jobs.created.{}".format(self.name))
+        return job
+
+
 class CancellableQueue(BaseQueue):
     job_class = CancellableJob
+
+
+class RedashQueue(StatsdRecordingQueue, CancellableQueue):
+    pass
 
 
 class StatsdRecordingWorker(BaseWorker):
@@ -150,9 +172,9 @@ class HardLimitingWorker(BaseWorker):
 
 
 class RedashWorker(StatsdRecordingWorker, HardLimitingWorker):
-    pass
+    queue_class = RedashQueue
 
 
 Job = CancellableJob
-Queue = CancellableQueue
+Queue = RedashQueue
 Worker = RedashWorker
