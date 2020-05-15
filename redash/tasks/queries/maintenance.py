@@ -72,6 +72,7 @@ def _apply_default_parameters(query):
 
 
 def refresh_queries():
+    started_at = time.time()
     logger.info("Refreshing queries...")
     enqueued = []
     for query in models.Query.outdated_queries():
@@ -93,6 +94,7 @@ def refresh_queries():
             sentry.capture_exception(type(e)(message).with_traceback(e.__traceback__))
 
     status = {
+        "started_at": started_at,
         "outdated_queries_count": len(enqueued),
         "last_refresh_at": time.time(),
         "query_ids": json_dumps([q.id for q in enqueued]),
