@@ -1,6 +1,6 @@
-import cStringIO
-import csv
 import codecs
+import io
+import csv
 import datetime
 import decimal
 import hashlib
@@ -8,20 +8,22 @@ import os
 import random
 import re
 import uuid
+import binascii
 
 import pystache
 import pytz
 import simplejson
-from funcy import distinct, select_values
-from six import string_types
+from flask import current_app
+from funcy import select_values
+from redash import settings
 from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time
-from redash import settings
+
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
-WRITER_ENCODING = os.environ.get('REDASH_CSV_WRITER_ENCODING', 'utf-8')
-WRITER_ERRORS = os.environ.get('REDASH_CSV_WRITER_ERRORS', 'strict')
+WRITER_ENCODING = os.environ.get("REDASH_CSV_WRITER_ENCODING", "utf-8")
+WRITER_ERRORS = os.environ.get("REDASH_CSV_WRITER_ERRORS", "strict")
 
 
 def utcnow():
@@ -43,7 +45,7 @@ def dt_from_timestamp(timestamp, tz_aware=True):
 
 
 def slugify(s):
-    return re.sub('[^a-z0-9_\-]+', '-', s.lower())
+    return re.sub("[^a-z0-9_\-]+", "-", s.lower())
 
 
 def gen_query_hash(sql):
@@ -56,16 +58,14 @@ def gen_query_hash(sql):
     """
     sql = COMMENTS_REGEX.sub("", sql)
     sql = "".join(sql.split()).lower()
-    return hashlib.md5(sql.encode('utf-8')).hexdigest()
+    return hashlib.md5(sql.encode("utf-8")).hexdigest()
 
 
 def generate_token(length):
-    chars = ('abcdefghijklmnopqrstuvwxyz'
-             'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-             '0123456789')
+    chars = "abcdefghijklmnopqrstuvwxyz" "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "0123456789"
 
     rand = random.SystemRandom()
-    return ''.join(rand.choice(chars) for x in range(length))
+    return "".join(rand.choice(chars) for x in range(length))
 
 
 class JSONEncoder(simplejson.JSONEncoder):
@@ -74,15 +74,33 @@ class JSONEncoder(simplejson.JSONEncoder):
     def default(self, o):
         # Some SQLAlchemy collections are lazy.
         if isinstance(o, Query):
-            return list(o)
+            result = list(o)
         elif isinstance(o, decimal.Decimal):
-            return float(o)
+            result = float(o)
         elif isinstance(o, (datetime.timedelta, uuid.UUID)):
-            return str(o)
-        elif isinstance(o, (datetime.date, datetime.time)):
-            return o.isoformat()
+            result = str(o)
+        # See "Date Time String Format" in the ECMA-262 specification.
+        elif isinstance(o, datetime.datetime):
+            result = o.isoformat()
+            if o.microsecond:
+                result = result[:23] + result[26:]
+            if result.endswith("+00:00"):
+                result = result[:-6] + "Z"
+        elif isinstance(o, datetime.date):
+            result = o.isoformat()
+        elif isinstance(o, datetime.time):
+            if o.utcoffset() is not None:
+                raise ValueError("JSON can't represent timezone-aware times.")
+            result = o.isoformat()
+            if o.microsecond:
+                result = result[:12]
+        elif isinstance(o, memoryview):
+            result = binascii.hexlify(o).decode()
+        elif isinstance(o, bytes):
+            result = binascii.hexlify(o).decode()
         else:
-            return super(JSONEncoder, self).default(o)
+            result = super(JSONEncoder, self).default(o)
+        return result
 
 
 def json_loads(data, *args, **kwargs):
@@ -94,16 +112,22 @@ def json_loads(data, *args, **kwargs):
 def json_dumps(data, *args, **kwargs):
     """A custom JSON dumping function which passes all parameters to the
     simplejson.dumps function."""
-    kwargs.setdefault('cls', JSONEncoder)
+    kwargs.setdefault("cls", JSONEncoder)
+    kwargs.setdefault("encoding", None)
     return simplejson.dumps(data, *args, **kwargs)
 
 
+def mustache_render(template, context=None, **kwargs):
+    renderer = pystache.Renderer(escape=lambda u: u)
+    return renderer.render(template, context, **kwargs)
+
+
 def build_url(request, host, path):
-    parts = request.host.split(':')
+    parts = request.host.split(":")
     if len(parts) > 1:
         port = parts[1]
-        if (port, request.scheme) not in (('80', 'http'), ('443', 'https')):
-            host = '{}:{}'.format(host, port)
+        if (port, request.scheme) not in (("80", "http"), ("443", "https")):
+            host = "{}:{}".format(host, port)
 
     return "{}://{}{}".format(request.scheme, host, path)
 
@@ -116,13 +140,13 @@ class UnicodeWriter:
 
     def __init__(self, f, dialect=csv.excel, encoding=WRITER_ENCODING, **kwds):
         # Redirect output to a queue
-        self.queue = cStringIO.StringIO()
+        self.queue = io.StringIO()
         self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
 
     def _encode_utf8(self, val):
-        if isinstance(val, string_types):
+        if isinstance(val, str):
             return val.encode(WRITER_ENCODING, WRITER_ERRORS)
 
         return val
@@ -144,29 +168,11 @@ class UnicodeWriter:
             self.writerow(row)
 
 
-def _collect_key_names(nodes):
-    keys = []
-    for node in nodes._parse_tree:
-        if isinstance(node, pystache.parser._EscapeNode):
-            keys.append(node.key)
-        elif isinstance(node, pystache.parser._SectionNode):
-            keys.append(node.key)
-            keys.extend(_collect_key_names(node.parsed))
-
-    return distinct(keys)
-
-
-def collect_query_parameters(query):
-    nodes = pystache.parse(query)
-    keys = _collect_key_names(nodes)
-    return keys
-
-
 def collect_parameters_from_request(args):
     parameters = {}
 
-    for k, v in args.iteritems():
-        if k.startswith('p_'):
+    for k, v in args.items():
+        if k.startswith("p_"):
             parameters[k[2:]] = v
 
     return parameters
@@ -181,3 +187,25 @@ def base_url(org):
 
 def filter_none(d):
     return select_values(lambda v: v is not None, d)
+
+
+def to_filename(s):
+    s = re.sub('[<>:"\\\/|?*]+', " ", s, flags=re.UNICODE)
+    s = re.sub("\s+", "_", s, flags=re.UNICODE)
+    return s.strip("_")
+
+
+def deprecated():
+    def wrapper(K):
+        setattr(K, "deprecated", True)
+        return K
+
+    return wrapper
+
+
+def render_template(path, context):
+    """ Render a template with context, without loading the entire app context.
+    Using Flask's `render_template` function requires the entire app context to load, which in turn triggers any
+    function decorated with the `context_processor` decorator, which is not explicitly required for rendering purposes.
+    """
+    current_app.jinja_env.get_template(path).render(**context)

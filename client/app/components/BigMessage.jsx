@@ -1,12 +1,11 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
+import React from "react";
+import PropTypes from "prop-types";
 
-export function BigMessage({ message, icon, children }) {
+function BigMessage({ message, icon, children, className }) {
   return (
-    <div className="tiled bg-white p-15 text-center">
+    <div className={"p-15 text-center " + className}>
       <h3 className="m-t-0 m-b-0">
-        <i className={'fa ' + icon} />
+        <i className={"fa " + icon} />
       </h3>
       <br />
       {message}
@@ -19,13 +18,13 @@ BigMessage.propTypes = {
   message: PropTypes.string,
   icon: PropTypes.string.isRequired,
   children: PropTypes.node,
+  className: PropTypes.string,
 };
 
 BigMessage.defaultProps = {
-  message: '',
+  message: "",
   children: null,
+  className: "tiled bg-white",
 };
 
-export default function init(ngModule) {
-  ngModule.component('bigMessage', react2angular(BigMessage));
-}
+export default BigMessage;

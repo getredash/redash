@@ -6,7 +6,6 @@ The following is a set of guidelines for contributing to Redash. These are guide
 
 ## Quick Links:
 
-- [Feature Roadmap](https://trello.com/b/b2LUHU7A/redash-roadmap)
 - [Feature Requests](https://discuss.redash.io/c/feature-requests)
 - [Documentation](https://redash.io/help/)
 - [Blog](https://blog.redash.io/)
@@ -47,8 +46,8 @@ When creating a new bug report, please make sure to:
 
 If you would like to suggest an enhancement or ask for a new feature:
 
-- Please check [the roadmap](https://trello.com/b/b2LUHU7A/redash-roadmap) for existing Trello card for what you want to suggest/ask. If there is, feel free to upvote it to signal interest or add your comments.
-- If there is no existing card, open a thread in [the forum](https://discuss.redash.io/c/feature-requests) to start a discussion about what you want to suggest. Try to provide as much details and context as possible and include information about *the problem you want to solve* rather only *your proposed solution*.
+- Please check [the forum](https://discuss.redash.io/c/feature-requests/5) for existing threads about what you want to suggest/ask. If there is, feel free to upvote it to signal interest or add your comments.
+- If there is no open thread, you're welcome to start one to have a discussion about what you want to suggest. Try to provide as much details and context as possible and include information about *the problem you want to solve* rather only *your proposed solution*.
 
 ### Pull Requests
 
@@ -56,20 +55,20 @@ If you would like to suggest an enhancement or ask for a new feature:
 - Include screenshots and animated GIFs in your pull request whenever possible.
 - Please add [documentation](#documentation) for new features or changes in functionality along with the code.
 - Please follow existing code style:
-  - Python: we use PEP8 for Python.
-  - Javascript: we use Airbnb's style guides for [JavaScript](https://github.com/airbnb/javascript#naming-conventions) and [React](https://github.com/airbnb/javascript/blob/master/react) (currently we don't follow Airbnb's convention for naming files, but we're gradually fixing this). To make it automatic and easy, we recommend using [Prettier](https://github.com/prettier/prettier).
-
+  - Python: we use [Black](https://github.com/psf/black) to auto format the code.
+  - Javascript: we use [Prettier](https://github.com/prettier/prettier) to auto-format the code.
+  
 ### Documentation
 
-The project's documentation can be found at [https://redash.io/help/](https://redash.io/help/). The [documentation sources](https://github.com/getredash/website/tree/master/website/_kb) are hosted on GitHub. To contribute edits / new pages, you can use GitHub's interface. Click the "Edit on GitHub" link on the documentation page to quickly open the edit interface.
+The project's documentation can be found at [https://redash.io/help/](https://redash.io/help/). The [documentation sources](https://github.com/getredash/website/tree/master/src/pages/kb) are hosted on GitHub. To contribute edits / new pages, you can use GitHub's interface. Click the "Edit on GitHub" link on the documentation page to quickly open the edit interface.
 
 ## Additional Notes
 
 ### Release Method
 
-We publish a stable release every ~2 months, although the goal is to get to a stable release every month. You can see the change log on [GitHub releases page](https://github.com/getredash/redash/releases).
+We publish a stable release every ~3-4 months, although the goal is to get to a stable release every month. 
 
-Every build of the master branch updates the latest *RC release*. These releases are usually stable, but might contain regressions and therefore recommended for "advanced users" only.
+Every build of the master branch updates the *redash/redash:preview* Docker Image. These releases are usually stable, but might contain regressions and therefore recommended for "advanced users" only.
 
 When we release a new stable release, we also update the *latest* Docker image tag, the EC2 AMIs and GCE images.
 

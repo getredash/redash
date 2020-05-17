@@ -17,17 +17,26 @@
     }
 }
 
- .list-group-item {
-   &.active {
-     button {
-       color: white;
-     }
+.max-character {
+  .text-overflow();
+}
+
+.list-group-item {
+ &.active {
+   button {
+     color: white;
    }
-    .cr-alt {
-        line-height: 100%;
-        margin-top: 2px;
-    }
  }
+  .cr-alt {
+      line-height: 100%;
+      margin-top: 2px;
+  }
+
+  &.active, &.active:hover, &.active:focus {
+    background-color: #fff;
+    box-shadow: inset 3px 0px 0px @brand-primary;
+  }
+}
 
 .list-group-item-heading {
     margin-bottom: 2px;
@@ -57,4 +66,19 @@
     width: 38px;
     height: 38px;
     border-radius: 2px;
+}
+
+.ui-select-choices-row.disabled > span {
+  background-color: inherit !important;
+}
+
+.list-group-item.inactive,
+.ui-select-choices-row.disabled {
+  background-color: #eee !important;
+  border-color: transparent;
+  opacity: 0.5;
+  box-shadow: none;
+  color: #333;
+  pointer-events: none;
+  cursor: not-allowed;
 }

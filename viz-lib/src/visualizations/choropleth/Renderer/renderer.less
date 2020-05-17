@@ -1,0 +1,32 @@
+.choropleth-visualization-legend {
+  padding: 3px;
+  cursor: default;
+
+  > div {
+    line-height: 1;
+    margin: 5px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+
+    .color-swatch {
+      margin-right: 5px;
+    }
+
+    .legend-item-text {
+      flex: 1 1 auto;
+
+      &.text-left {
+        text-align: left;
+      }
+      &.text-center {
+        text-align: center;
+      }
+      &.text-right {
+        text-align: right;
+      }
+    }
+  }
+}
