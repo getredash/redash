@@ -103,7 +103,7 @@ export default function Renderer({ options, data, context }) {
     // so let's use this "hack" for better performance.
     if (searchInputRef.current) {
       // pass value and fake event-like object
-      searchInputRef.current.input.setValue("", { target: { value: "" } });
+      searchInputRef.current.input.setValue("");
     }
     setOrderBy([]);
   }, [options.columns, data.columns, searchInputRef]);
