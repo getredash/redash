@@ -51,23 +51,29 @@ export default function DesktopNavbar() {
         <Menu.SubMenu
           key="create"
           title={
-            <span>
+            <span data-test="CreateButton">
               <Icon type="plus"></Icon>
             </span>
           }>
           {currentUser.hasPermission("create_query") && (
             <Menu.Item key="new-query">
-              <a href="queries/new">New Query</a>
+              <a href="queries/new" data-test="CreateQueryMenuItem">
+                New Query
+              </a>
             </Menu.Item>
           )}
           {currentUser.hasPermission("create_dashboard") && (
             <Menu.Item key="new-dashboard">
-              <a onMouseUp={() => CreateDashboardDialog.showModal()}>New Dashboard</a>
+              <a data-test="CreateDashboardMenuItem" onMouseUp={() => CreateDashboardDialog.showModal()}>
+                New Dashboard
+              </a>
             </Menu.Item>
           )}
           {currentUser.hasPermission("list_alerts") && (
             <Menu.Item key="new-alert">
-              <a href="alerts/new">New Alert</a>
+              <a data-test="CreateAlertMenuItem" href="alerts/new">
+                New Alert
+              </a>
             </Menu.Item>
           )}
         </Menu.SubMenu>
@@ -95,7 +101,7 @@ export default function DesktopNavbar() {
         <Menu.SubMenu
           key="profile"
           title={
-            <span>
+            <span data-test="ProfileDropdown">
               <img className="profile__image_thumb" src={currentUser.profile_image_url} alt={currentUser.name} />
               {/* <span>{currentUser.name}</span> */}
             </span>

@@ -3,10 +3,12 @@
 import { createDashboard, addTextbox } from "../../support/redash-api";
 import { getWidgetTestId, editDashboard, resizeBy } from "../../support/dashboard";
 
+const menuWidth = 80;
+
 describe("Grid compliant widgets", () => {
   beforeEach(function() {
     cy.login();
-    cy.viewport(1215, 800);
+    cy.viewport(1215 + menuWidth, 800);
     createDashboard("Foo Bar")
       .then(({ slug, id }) => {
         this.dashboardUrl = `/dashboard/${slug}`;
@@ -28,21 +30,21 @@ describe("Grid compliant widgets", () => {
         cy.get("@textboxEl")
           .dragBy(90)
           .invoke("offset")
-          .should("have.property", "left", 15); // no change, 15 -> 15
+          .should("have.property", "left", 15 + menuWidth); // no change, 15 -> 15
       });
 
       it("moves one column when dragged over snap threshold", () => {
         cy.get("@textboxEl")
           .dragBy(110)
           .invoke("offset")
-          .should("have.property", "left", 215); //  moved by 200, 15 -> 215
+          .should("have.property", "left", 215 + menuWidth); //  moved by 200, 15 -> 215
       });
 
       it("moves two columns when dragged over snap threshold", () => {
         cy.get("@textboxEl")
           .dragBy(330)
           .invoke("offset")
-          .should("have.property", "left", 415); //  moved by 400, 15 -> 415
+          .should("have.property", "left", 415 + menuWidth); //  moved by 400, 15 -> 415
       });
     });
 
