@@ -1,5 +1,6 @@
 body #application-root {
-  @mobileBreakpoint: ~"(min-width: 768px)";
+  @mobileBreakpoint: ~"(max-width: 767px)";
+  @topMenuHeight: 49px;
 
   display: flex;
   flex-direction: row;
@@ -7,9 +8,10 @@ body #application-root {
   padding-bottom: 0 !important;
   height: 100vh;
 
-  .application-layout-menu {
+  .application-layout-side-menu {
     height: 100vh;
-    display: none;
+    display: flex;
+    flex-direction: column;
     // width: 120px;
     flex: 0 0 auto;
     background: #ffffff;
@@ -55,16 +57,45 @@ body #application-root {
       text-align: center;
     }
 
+    .ant-btn.collapse-button {
+      background-color: #001529;
+      border: 0;
+      border-radius: 0;
+    }
+
     @media @mobileBreakpoint {
-      display: flex;
-      flex-direction: column;
+      display: none;
     }
   }
 
-  button.collapse-button {
-    background-color: #001529;
-    border: 0;
-    border-radius: 0;
+  .application-layout-top-menu {
+    height: @topMenuHeight;
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    background: #001529;
+    box-shadow: 0 4px 9px -3px rgba(102, 136, 153, 0.15);
+
+    padding: 0 15px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 1000;
+
+    @media @mobileBreakpoint {
+      display: flex;
+    }
+
+    .header-logo img {
+      height: 40px;
+      width: 40px;
+    }
+
+    .ant-btn.toggle-button {
+      padding: 0 10px;
+    }
   }
 
   .application-layout-content {
@@ -76,9 +107,7 @@ body #application-root {
     padding-bottom: 15px;
 
     @media @mobileBreakpoint {
-      nav .app-header[data-platform="desktop"] {
-        display: none;
-      }
+      margin-top: @topMenuHeight; // compensate for app header fixed position
     }
   }
 }
