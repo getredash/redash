@@ -1,5 +1,6 @@
 import { filter, map, get, initial, last, reduce } from "lodash";
 import React, { useMemo, useState, useRef, useCallback, useEffect } from "react";
+import PropTypes from "prop-types";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
 import Icon from "antd/lib/icon";
@@ -51,7 +52,33 @@ function SearchInputInfoIcon({ searchColumns }) {
   );
 }
 
-const SearchInput = React.forwardRef(({ searchColumns, ...props }, ref) => {
+// Some explanation why this weird solution with `clearCallbackRef` is used.
+// When visualization options are editing, renderer may re-create table columns quite often.
+// Search input is one of table columns, and it does not depend on options.
+// We could just render it once and then leave it for React, but there is a feature
+// that needs access to Search input's value: when SOME options or data columns change - search
+// input should reset. If we'll use managed input's state in renderer itself - it will create
+// dependency that will update table columns on every character typed in input.
+// Therefore we use this pattern: input manages its state itself, and provides a callback to
+// clear value when needed. It's still weird, but at least will not break with new Ant version.
+
+function SearchInput({ searchColumns, clearCallbackRef, ...props }) {
+  const [currentValue, setCurrentValue] = useState(props.defaultValue);
+
+  useEffect(() => {
+    setCurrentValue(props.value);
+  }, [props.value]);
+
+  const onChange = useCallback(
+    event => {
+      setCurrentValue(event.target.value);
+      props.onChange(event.target.value);
+    },
+    [props.onChange]
+  );
+
+  clearCallbackRef.current = useCallback(() => setCurrentValue(""), []);
+
   if (searchColumns.length <= 0) {
     return null;
   }
@@ -60,33 +87,47 @@ const SearchInput = React.forwardRef(({ searchColumns, ...props }, ref) => {
   return (
     <Input.Search
       {...props}
-      ref={ref}
+      value={currentValue}
+      onChange={onChange}
       placeholder={`Search ${getSearchColumns(searchColumns, { limit: searchColumnsLimit }).join("")}...`}
       suffix={searchColumns.length > searchColumnsLimit ? <SearchInputInfoIcon searchColumns={searchColumns} /> : null}
     />
   );
-});
+}
 
-export default function Renderer({ options, data, context }) {
+SearchInput.propTypes = {
+  clearCallbackRef: PropTypes.object,
+  onChange: PropTypes.func,
+};
+
+SearchInput.defaultProps = {
+  clearCallbackRef: {},
+  onChange: () => {},
+};
+
+export default function Renderer({ options, data }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState([]);
 
   const searchColumns = useMemo(() => filter(options.columns, "allowSearch"), [options.columns]);
 
-  const searchInputRef = useRef();
-  const onSearchInputChange = useCallback(event => setSearchTerm(event.target.value), [setSearchTerm]);
+  const clearSearchInputCallbackRef = useRef();
 
   const tableColumns = useMemo(() => {
     const searchInput =
       searchColumns.length > 0 ? (
-        <SearchInput ref={searchInputRef} searchColumns={searchColumns} onChange={onSearchInputChange} />
+        <SearchInput
+          searchColumns={searchColumns}
+          clearCallbackRef={clearSearchInputCallbackRef}
+          onChange={setSearchTerm}
+        />
       ) : null;
     return prepareColumns(options.columns, searchInput, orderBy, newOrderBy => {
       setOrderBy(newOrderBy);
       // Remove text selection - may occur accidentally
       document.getSelection().removeAllRanges();
     });
-  }, [options.columns, searchColumns, searchInputRef, onSearchInputChange, orderBy, setOrderBy]);
+  }, [options.columns, searchColumns, orderBy]);
 
   const preparedRows = useMemo(() => sortRows(filterRows(initRows(data.rows), searchTerm, searchColumns), orderBy), [
     data.rows,
@@ -98,15 +139,12 @@ export default function Renderer({ options, data, context }) {
   // If data or config columns change - reset sorting and search
   useEffect(() => {
     setSearchTerm("");
-    // Do not use `<Input value={searchTerm}>` because it leads to many renderings and lags on user
-    // input. This is the only place where we need to change search input's value from "outer world",
-    // so let's use this "hack" for better performance.
-    if (searchInputRef.current) {
-      // pass value and fake event-like object
-      searchInputRef.current.input.setValue("");
+    // Clear search input
+    if (clearSearchInputCallbackRef.current) {
+      clearSearchInputCallbackRef.current();
     }
     setOrderBy([]);
-  }, [options.columns, data.columns, searchInputRef]);
+  }, [options.columns, data.columns]);
 
   if (data.rows.length === 0) {
     return null;
