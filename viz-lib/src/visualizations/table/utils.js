@@ -65,11 +65,13 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
       title: (
         <React.Fragment>
           {column.description && (
-            <Tooltip placement="top" title={column.description} className="p-r-5">
-              <div className="table-visualization-heading">
-                <i className="fa fa-info-circle" aria-hidden="true"></i>
-              </div>
-            </Tooltip>
+            <span style={{ paddingRight: 5 }}>
+              <Tooltip placement="top" title={column.description}>
+                <div className="table-visualization-heading">
+                  <i className="fa fa-info-circle" aria-hidden="true"></i>
+                </div>
+              </Tooltip>
+            </span>
           )}
           <Tooltip placement="top" title={column.title}>
             <div className="table-visualization-heading" data-sort-column-index={sortColumnIndex}>

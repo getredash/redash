@@ -1,9 +1,6 @@
 import logging
 import yaml
-import socket
-import ipaddress
 import datetime
-from urllib.parse import urlparse
 from funcy import compact, project
 from redash import settings
 from redash.utils import json_dumps
@@ -15,6 +12,7 @@ from redash.query_runner import (
     TYPE_FLOAT,
     TYPE_INTEGER,
     TYPE_STRING,
+    is_private_address,
 )
 
 
@@ -34,12 +32,6 @@ def parse_query(query):
         logging.exception(e)
         error = str(e)
         raise QueryParseError(error)
-
-
-def is_private_address(url):
-    hostname = urlparse(url).hostname
-    ip_address = socket.gethostbyname(hostname)
-    return ipaddress.ip_address(str(ip_address)).is_private
 
 
 TYPES_MAP = {
@@ -175,18 +167,14 @@ class JSON(BaseHTTPQueryRunner):
             raise Exception("Can't query private addresses.")
 
         method = query.get("method", "get")
-        request_options = project(
-            query, ("params", "headers", "data", "auth", "json")
-        )
+        request_options = project(query, ("params", "headers", "data", "auth", "json"))
 
         fields = query.get("fields")
         path = query.get("path")
 
         if isinstance(request_options.get("auth", None), list):
             request_options["auth"] = tuple(request_options["auth"])
-        elif self.configuration.get("username") or self.configuration.get(
-            "password"
-        ):
+        elif self.configuration.get("username") or self.configuration.get("password"):
             request_options["auth"] = (
                 self.configuration.get("username"),
                 self.configuration.get("password"),

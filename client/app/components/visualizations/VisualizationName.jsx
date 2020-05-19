@@ -1,6 +1,5 @@
 import React from "react";
-import { VisualizationType } from "@/visualizations/prop-types";
-import registeredVisualizations from "@/visualizations/registeredVisualizations";
+import { VisualizationType, registeredVisualizations } from "@redash/viz/lib";
 
 import "./VisualizationName.less";
 

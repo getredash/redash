@@ -7,7 +7,7 @@ import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import Tooltip from "antd/lib/tooltip";
 import Divider from "antd/lib/divider";
-import HtmlContent from "@/components/HtmlContent";
+import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import notification from "@/services/notification";
 

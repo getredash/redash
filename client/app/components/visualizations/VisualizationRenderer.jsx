@@ -2,9 +2,8 @@ import { map, find } from "lodash";
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import getQueryResultData from "@/lib/getQueryResultData";
-import { getColumnCleanName } from "@/services/query-result";
 import Filters, { FiltersType, filterData } from "@/components/Filters";
-import { VisualizationType } from "@/visualizations/prop-types";
+import { VisualizationType } from "@redash/viz/lib";
 import { Renderer } from "@/components/visualizations/visualizationComponents";
 
 function combineFilters(localFilters, globalFilters) {
@@ -43,17 +42,12 @@ export default function VisualizationRenderer(props) {
     setFilters(combineFilters(filtersRef.current, props.filters));
   }, [props.filters]);
 
-  const cleanColumnNames = useMemo(
-    () => map(data.columns, col => ({ ...col, name: getColumnCleanName(col.friendly_name) })),
-    [data.columns]
-  );
-
   const filteredData = useMemo(
     () => ({
-      columns: cleanColumnNames,
+      columns: data.columns,
       rows: filterData(data.rows, filters),
     }),
-    [cleanColumnNames, data.rows, filters]
+    [data, filters]
   );
 
   const { showFilters, visualization } = props;

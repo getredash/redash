@@ -35,19 +35,24 @@ class SQLServerODBC(BaseSQLQueryRunner):
                     "default": "UTF-8",
                     "title": "Character Set",
                 },
-                "use_ssl": {
-                    "type": "boolean",
-                    "title": "Use SSL",
-                    "default": False,
-                },
+                "use_ssl": {"type": "boolean", "title": "Use SSL", "default": False,},
                 "verify_ssl": {
                     "type": "boolean",
                     "title": "Verify SSL certificate",
                     "default": True,
                 },
             },
-            "order": ["server", "port", "user", "password", "db", "charset", "use_ssl", "verify_ssl"],
-            "required": ["host", "user", "password", "db"],
+            "order": [
+                "server",
+                "port",
+                "user",
+                "password",
+                "db",
+                "charset",
+                "use_ssl",
+                "verify_ssl",
+            ],
+            "required": ["server", "user", "password", "db"],
             "secret": ["password"],
             "extra_options": ["verify_ssl", "use_ssl"],
         }
@@ -105,17 +110,15 @@ class SQLServerODBC(BaseSQLQueryRunner):
             port = self.configuration.get("port", 1433)
             charset = self.configuration.get("charset", "UTF-8")
 
-            connection_string_fmt = (
-                "DRIVER={{ODBC Driver 17 for SQL Server}};PORT={};SERVER={};DATABASE={};UID={};PWD={}"
-            )
+            connection_string_fmt = "DRIVER={{ODBC Driver 17 for SQL Server}};PORT={};SERVER={};DATABASE={};UID={};PWD={}"
             connection_string = connection_string_fmt.format(
                 port, server, db, user, password
             )
 
-            if self.configuration.get('use_ssl', False):
+            if self.configuration.get("use_ssl", False):
                 connection_string += ";Encrypt=YES"
 
-                if not self.configuration.get('verify_ssl'):
+                if not self.configuration.get("verify_ssl"):
                     connection_string += ";TrustServerCertificate=YES"
 
             connection = pyodbc.connect(connection_string)

@@ -2,7 +2,7 @@ import { isFunction, startsWith, trimStart, trimEnd } from "lodash";
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import UniversalRouter from "universal-router";
-import ErrorBoundary from "@/components/ErrorBoundary";
+import ErrorBoundary from "@redash/viz/lib/components/ErrorBoundary";
 import location from "@/services/location";
 import url from "@/services/url";
 
