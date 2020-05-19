@@ -7,6 +7,8 @@ import { Auth, currentUser } from "@/services/auth";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
+import VersionInfo from "./VersionInfo";
+
 export default function DesktopNavbar() {
   const [collapsed, setCollapsed] = useState(true);
 
@@ -115,9 +117,12 @@ export default function DesktopNavbar() {
             </Menu.Item>
           )}
           <Menu.Divider />
-
           <Menu.Item key="logout">
             <a onClick={() => Auth.logout()}>Log out</a>
+          </Menu.Item>
+          <Menu.Divider />
+          <Menu.Item key="version" disabled className="version-info">
+            <VersionInfo />
           </Menu.Item>
         </Menu.SubMenu>
       </Menu>
