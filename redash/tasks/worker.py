@@ -28,15 +28,8 @@ class StatsdRecordingQueue(BaseQueue):
     RQ Queue Mixin that overrides `enqueue_call` to increment metrics via Statsd
     """
 
-    def enqueue_call(self, func, args=None, kwargs=None, timeout=None,
-                     result_ttl=None, ttl=None, failure_ttl=None,
-                     description=None, depends_on=None, job_id=None,
-                     at_front=False, meta=None):
-        job = super().enqueue_call(
-            func, args, kwargs, timeout,
-            result_ttl, ttl, failure_ttl, description,
-            depends_on, job_id, at_front, meta
-        )
+    def enqueue_job(self, *args, **kwargs):
+        job = super().enqueue_job(*args, **kwargs)
         statsd_client.incr("rq.jobs.created.{}".format(self.name))
         return job
 

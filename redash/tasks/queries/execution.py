@@ -7,7 +7,7 @@ from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
 from rq.exceptions import NoSuchJobError
 
-from redash import models, redis_connection, settings, statsd_client
+from redash import models, redis_connection, settings
 from redash.query_runner import InterruptException
 from redash.tasks.worker import Queue, Job
 from redash.tasks.alerts import check_alerts_for_query

@@ -17,6 +17,7 @@ from redash.tasks import (
     purge_failed_jobs,
     version_check,
     send_aggregated_errors,
+    Queue
 )
 
 logger = logging.getLogger(__name__)
@@ -24,12 +25,9 @@ logger = logging.getLogger(__name__)
 
 class StatsdRecordingScheduler(Scheduler):
     """
-    RQ Scheduler Mixin that overrides `enqueue_job` to increment/modify metrics via Statsd
+    RQ Scheduler Mixin that uses Redash's custom RQ Queue class to increment/modify metrics via Statsd
     """
-
-    def enqueue_job(self, job):
-        super().enqueue_job(job)
-        statsd_client.incr("rq.jobs.created.{}".format(self.queue_name))
+    queue_class = Queue
 
 
 rq_scheduler = StatsdRecordingScheduler(
