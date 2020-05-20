@@ -3,15 +3,10 @@
     "options": {
       "globalSeriesType": "column",
       "xAxis": { "type": "-", "labels": { "enabled": true } },
-      "yAxis": [
-        { "type": "linear" },
-        { "type": "linear", "opposite": true }
-      ],
+      "yAxis": [{ "type": "linear" }, { "type": "linear", "opposite": true }],
       "series": { "stacking": null, "error_y": { "type": "data", "visible": true } }
     },
-    "series": [
-      { "name": "a" }
-    ]
+    "series": [{ "name": "a" }]
   },
   "output": {
     "layout": {
@@ -29,7 +24,9 @@
       "yaxis": {
         "automargin": true,
         "title": null,
-        "type": "linear"
+        "type": "linear",
+        "autorange": false,
+        "range": [0, 0]
       }
     }
   }
