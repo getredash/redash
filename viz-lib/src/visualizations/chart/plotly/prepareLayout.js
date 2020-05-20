@@ -1,5 +1,6 @@
-import { filter, has, isNumber, isObject, isUndefined, map, max, min } from "lodash";
+import { filter, has, isObject, isUndefined, map } from "lodash";
 import { getPieDimensions } from "./preparePieData";
+import { calculateAxisRange } from "./utils";
 
 function getAxisTitle(axis) {
   return isObject(axis.title) ? axis.title.text : null;
@@ -14,16 +15,6 @@ function getAxisScaleType(axis) {
     default:
       return axis.type;
   }
-}
-
-function calculateAxisRange(seriesList, minValue, maxValue) {
-  if (!isNumber(minValue)) {
-    minValue = Math.min(0, min(map(seriesList, series => min(series.y))));
-  }
-  if (!isNumber(maxValue)) {
-    maxValue = max(map(seriesList, series => max(series.y)));
-  }
-  return [minValue, maxValue];
 }
 
 function prepareXAxis(axisOptions, additionalOptions) {
@@ -49,17 +40,13 @@ function prepareXAxis(axisOptions, additionalOptions) {
 }
 
 function prepareYAxis(axisOptions, additionalOptions, data) {
-  const axis = {
+  return {
     title: getAxisTitle(axisOptions),
     type: getAxisScaleType(axisOptions),
     automargin: true,
+    autorange: false,
+    range: calculateAxisRange(data, axisOptions.rangeMin, axisOptions.rangeMax),
   };
-
-  if (isNumber(axisOptions.rangeMin) || isNumber(axisOptions.rangeMax)) {
-    axis.range = calculateAxisRange(data, axisOptions.rangeMin, axisOptions.rangeMax);
-  }
-
-  return axis;
 }
 
 function preparePieLayout(layout, options, data) {
