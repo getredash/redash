@@ -62,6 +62,9 @@ error_messages = {
 
 
 def run_query(query, parameters, data_source, query_id, max_age=0):
+    if data_source is None:
+        return error_response("The data source for this query no longer exists.")
+        
     if data_source.paused:
         if data_source.pause_reason:
             message = "{} is paused ({}). Please try later.".format(
