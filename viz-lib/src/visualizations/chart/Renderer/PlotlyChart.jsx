@@ -1,4 +1,4 @@
-import { isArray, isObject } from "lodash";
+import { isArray, isString, isObject, startsWith } from "lodash";
 import React, { useState, useEffect, useContext } from "react";
 import useMedia from "use-media";
 import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
@@ -13,6 +13,11 @@ function catchErrors(func, errorHandler) {
     try {
       return func(...args);
     } catch (error) {
+      // This error happens only when chart width is 20px and looks that
+      // it's safe to just ignore it: 1px less or more and chart will get fixed.
+      if (isString(error) && startsWith(error, "ax.dtick error")) {
+        return;
+      }
       errorHandler.handleError(error);
     }
   };
