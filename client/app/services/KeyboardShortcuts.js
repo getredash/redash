@@ -3,10 +3,12 @@ import Mousetrap from "mousetrap";
 import "mousetrap/plugins/global-bind/mousetrap-global-bind";
 
 const modKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? "Cmd" : "Ctrl";
+const altKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? "Option" : "Alt";
 
 export function humanReadableShortcut(shortcut, limit = Infinity) {
   const modifiers = {
     mod: upperFirst(modKey),
+    alt: upperFirst(altKey),
   };
 
   shortcut = toLower(toString(shortcut));
@@ -29,6 +31,7 @@ function onShortcut(event, shortcut) {
 
 const KeyboardShortcuts = {
   modKey,
+  altKey,
 
   bind: keymap => {
     each(keymap, (fn, key) => {
