@@ -6,6 +6,8 @@ import { visualizationsSettings } from "@/visualizations/visualizationsSettings"
 import Descriptions from "antd/lib/descriptions";
 import Pagination from "antd/lib/pagination";
 
+import "./details.less";
+
 function renderValue(value, type) {
   const formats = {
     date: visualizationsSettings.dateFormat,
@@ -36,7 +38,7 @@ export default function DetailsRenderer({ data }) {
 
   return (
     <div>
-      <Descriptions size="small" column={1} bordered>
+      <Descriptions className="details-viz" size="small" column={1} bordered>
         {map(columns, key => (
           <Descriptions.Item key={key} label={key}>
             {renderValue(row[key], types[key])}
