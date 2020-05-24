@@ -37,8 +37,8 @@ export default function DetailsRenderer({ data }) {
   const row = data.rows[page];
 
   return (
-    <div>
-      <Descriptions className="details-viz" size="small" column={1} bordered>
+    <div className="details-viz">
+      <Descriptions size="small" column={1} bordered>
         {map(columns, key => (
           <Descriptions.Item key={key} label={key}>
             {renderValue(row[key], types[key])}
