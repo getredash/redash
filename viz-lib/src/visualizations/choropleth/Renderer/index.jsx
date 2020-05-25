@@ -53,7 +53,7 @@ export default function Renderer({ data, options, onOptionsChange }) {
         options // detect changes for all options except bounds, but pass them all!
       );
     }
-  }, [map, geoJson, data, optionsWithoutBounds]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [map, geoJson, data.rows, optionsWithoutBounds]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (map) {
