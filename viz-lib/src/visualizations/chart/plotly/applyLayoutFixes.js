@@ -113,8 +113,9 @@ function placeLegendAuto(plotlyElement, layout, updatePlot) {
 
 export default function applyLayoutFixes(plotlyElement, layout, options, updatePlot) {
   // update layout size to plot container
-  layout.width = Math.floor(plotlyElement.offsetWidth);
-  layout.height = Math.floor(plotlyElement.offsetHeight);
+  // plot size should be at least 5x5px
+  layout.width = Math.max(5, Math.floor(plotlyElement.offsetWidth));
+  layout.height = Math.max(5, Math.floor(plotlyElement.offsetHeight));
 
   if (options.legend.enabled) {
     switch (options.legend.placement) {

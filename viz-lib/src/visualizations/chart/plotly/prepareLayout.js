@@ -119,8 +119,9 @@ function prepareBoxLayout(layout, options, data) {
 export default function prepareLayout(element, options, data) {
   const layout = {
     margin: { l: 10, r: 10, b: 5, t: 20, pad: 4 },
-    width: Math.floor(element.offsetWidth),
-    height: Math.floor(element.offsetHeight),
+    // plot size should be at least 5x5px
+    width: Math.max(5, Math.floor(element.offsetWidth)),
+    height: Math.max(5, Math.floor(element.offsetHeight)),
     autosize: false,
     showlegend: has(options, "legend") ? options.legend.enabled : true,
   };
