@@ -20,7 +20,7 @@ describe("Map (Markers)", () => {
   beforeEach(() => {
     cy.login();
 
-    const mapTileUrl = '/static/images/fixtures/map-tile.png';
+    const mapTileUrl = "/static/images/fixtures/map-tile.png";
 
     createQuery({ query: SQL })
       .then(({ id }) => createVisualization(id, "MAP", "Map (Markers)", { mapTileUrl }))
