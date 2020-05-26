@@ -1,5 +1,6 @@
 import React, { useRef, useCallback } from "react";
 import PropTypes from "prop-types";
+import DynamicComponent from "@/components/DynamicComponent";
 import DesktopNavbar from "./DesktopNavbar";
 import MobileNavbar from "./MobileNavbar";
 
@@ -13,11 +14,15 @@ export default function ApplicationLayout({ children }) {
   return (
     <React.Fragment>
       <div className="application-layout-side-menu">
-        <DesktopNavbar />
+        <DynamicComponent name="ApplicationDesktopNavbar">
+          <DesktopNavbar />
+        </DynamicComponent>
       </div>
       <div className="application-layout-content">
         <nav className="application-layout-top-menu" ref={mobileNavbarContainerRef}>
-          <MobileNavbar getPopupContainer={getMobileNavbarPopupContainer} />
+          <DynamicComponent name="ApplicationMobileNavbar" getPopupContainer={getMobileNavbarPopupContainer}>
+            <MobileNavbar getPopupContainer={getMobileNavbarPopupContainer} />
+          </DynamicComponent>
         </nav>
         {children}
       </div>
