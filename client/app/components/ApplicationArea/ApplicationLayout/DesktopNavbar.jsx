@@ -16,8 +16,7 @@ function NavbarSection({ inlineCollapsed, children, ...props }) {
       mode={inlineCollapsed ? "inline" : "vertical"}
       inlineCollapsed={inlineCollapsed}
       theme="dark"
-      {...props}
-    >
+      {...props}>
       {children}
     </Menu>
   );
