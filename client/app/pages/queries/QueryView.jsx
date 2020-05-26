@@ -11,7 +11,7 @@ import Parameters from "@/components/Parameters";
 
 import DataSource from "@/services/data-source";
 import { ExecutionStatus } from "@/services/query-result";
-import getQueryResultData from "@/lib/getQueryResultData";
+import useQueryResultData from "@/lib/useQueryResultData";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
@@ -56,7 +56,7 @@ function QueryView(props) {
     updatedAt,
   } = useQueryExecute(query);
 
-  const queryResultData = getQueryResultData(queryResult);
+  const queryResultData = useQueryResultData(queryResult);
 
   const updateQueryDescription = useUpdateQueryDescription(query, setQuery);
   const editSchedule = useEditScheduleDialog(query, setQuery);

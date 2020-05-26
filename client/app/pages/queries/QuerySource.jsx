@@ -27,7 +27,7 @@ import useQuery from "./hooks/useQuery";
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 import useAutocompleteFlags from "./hooks/useAutocompleteFlags";
 import useQueryExecute from "./hooks/useQueryExecute";
-import getQueryResultData from "@/lib/getQueryResultData";
+import useQueryResultData from "@/lib/useQueryResultData";
 import useQueryDataSources from "./hooks/useQueryDataSources";
 import useDataSourceSchema from "./hooks/useDataSourceSchema";
 import useQueryFlags from "./hooks/useQueryFlags";
@@ -73,7 +73,7 @@ function QuerySource(props) {
     loadedInitialResults,
   } = useQueryExecute(query);
 
-  const queryResultData = getQueryResultData(queryResult);
+  const queryResultData = useQueryResultData(queryResult);
 
   const editorRef = useRef(null);
   const [autocompleteAvailable, autocompleteEnabled, toggleAutocomplete] = useAutocompleteFlags(schema);
