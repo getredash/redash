@@ -9,6 +9,19 @@ import logoUrl from "@/assets/images/redash_icon_small.png";
 
 import VersionInfo from "./VersionInfo";
 
+function NavbarSection({ inlineCollapsed, children, ...props }) {
+  return (
+    <Menu
+      selectable={false}
+      mode={inlineCollapsed ? "inline" : "vertical"}
+      inlineCollapsed={inlineCollapsed}
+      theme="dark"
+      {...props}>
+      {children}
+    </Menu>
+  );
+}
+
 export default function DesktopNavbar() {
   const [collapsed, setCollapsed] = useState(true);
 
@@ -20,7 +33,7 @@ export default function DesktopNavbar() {
         </a>
       </div>
 
-      <Menu mode="inline" selectable={false} inlineCollapsed={collapsed} theme="dark">
+      <NavbarSection inlineCollapsed={collapsed}>
         {currentUser.hasPermission("list_dashboards") && (
           <Menu.Item key="dashboards">
             <a href="dashboards">
@@ -47,15 +60,18 @@ export default function DesktopNavbar() {
         )}
 
         <Menu.Divider />
-      </Menu>
+      </NavbarSection>
 
-      <Menu mode="inline" inlineCollapsed={true} theme="dark" className="create-menu menu-inline-icon-only">
+      <NavbarSection inlineCollapsed={collapsed} className="create-menu">
         <Menu.SubMenu
           key="create"
           title={
-            <span data-test="CreateButton">
-              <Icon type="plus"></Icon>
-            </span>
+            <React.Fragment>
+              <span data-test="CreateButton">
+                <Icon type="plus" />
+                <span>Create</span>
+              </span>
+            </React.Fragment>
           }>
           {currentUser.hasPermission("create_query") && (
             <Menu.Item key="new-query">
@@ -79,9 +95,9 @@ export default function DesktopNavbar() {
             </Menu.Item>
           )}
         </Menu.SubMenu>
-      </Menu>
+      </NavbarSection>
 
-      <Menu mode="inline" selectable={false} inlineCollapsed={collapsed} theme="dark">
+      <NavbarSection inlineCollapsed={collapsed}>
         <Menu.Item key="help">
           <HelpTrigger showTooltip={false} type="HOME">
             <Icon type="question-circle" />
@@ -97,9 +113,9 @@ export default function DesktopNavbar() {
           </Menu.Item>
         )}
         <Menu.Divider />
-      </Menu>
+      </NavbarSection>
 
-      <Menu mode="vertical" theme="dark">
+      <NavbarSection inlineCollapsed={collapsed} className="profile-menu">
         <Menu.SubMenu
           key="profile"
           title={
@@ -125,7 +141,7 @@ export default function DesktopNavbar() {
             <VersionInfo />
           </Menu.Item>
         </Menu.SubMenu>
-      </Menu>
+      </NavbarSection>
 
       <Button onClick={() => setCollapsed(!collapsed)} className="collapse-button">
         <Icon type={collapsed ? "menu-unfold" : "menu-fold"} />
