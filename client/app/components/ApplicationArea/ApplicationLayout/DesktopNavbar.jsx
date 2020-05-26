@@ -65,6 +65,7 @@ export default function DesktopNavbar() {
       <NavbarSection inlineCollapsed={collapsed} className="create-menu">
         <Menu.SubMenu
           key="create"
+          popupClassName="application-layout-side-menu"
           title={
             <React.Fragment>
               <span data-test="CreateButton">
@@ -118,6 +119,7 @@ export default function DesktopNavbar() {
       <NavbarSection inlineCollapsed={collapsed} className="profile-menu">
         <Menu.SubMenu
           key="profile"
+          popupClassName="application-layout-side-menu"
           title={
             <span data-test="ProfileDropdown">
               <img className="profile__image_thumb" src={currentUser.profile_image_url} alt={currentUser.name} />

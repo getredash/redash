@@ -21,21 +21,15 @@ body #application-root {
       font: inherit;
     }
 
+    .ant-menu:not(.ant-menu-inline-collapsed) {
+      width: 170px;
+    }
+
     .ant-menu.ant-menu-inline-collapsed > .ant-menu-submenu-title span img + span,
     .ant-menu-inline-collapsed > .ant-menu-item i + span {
       display: inline-block;
       max-width: 0;
       opacity: 0;
-    }
-
-    .ant-menu-item,
-    .ant-menu-submenu {
-      font-weight: 500;
-
-      .zmdi,
-      .fa {
-        margin-right: 5px;
-      }
     }
 
     .create-menu {
@@ -71,6 +65,10 @@ body #application-root {
       background-color: @menuBackground;
       border: 0;
       border-radius: 0;
+
+      &:after {
+        animation: 0s !important;
+      }
     }
 
     @media @mobileBreakpoint {
@@ -122,18 +120,30 @@ body #application-root {
   }
 }
 
-.ant-menu-submenu .ant-menu-item.version-info {
-  height: auto;
-  line-height: normal;
-  padding-top: 12px;
-  padding-bottom: 12px;
+.application-layout-side-menu {
+  .ant-menu-item,
+  .ant-menu-submenu {
+    font-weight: 500;
 
-  a {
-    color: rgba(255, 255, 255, 0.8);
+    .zmdi,
+    .fa {
+      margin-right: 5px;
+    }
 
-    &:hover,
-    &:active {
-      color: rgba(255, 255, 255, 1);
+    &.version-info {
+      height: auto;
+      line-height: normal;
+      padding-top: 12px;
+      padding-bottom: 12px;
+
+      a {
+        color: rgba(255, 255, 255, 0.8);
+
+        &:hover,
+        &:active {
+          color: rgba(255, 255, 255, 1);
+        }
+      }
     }
   }
 }
