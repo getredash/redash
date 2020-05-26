@@ -4,6 +4,7 @@ import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Button from "antd/lib/button";
 import Icon from "antd/lib/icon";
+import DynamicComponent from "@/components/DynamicComponent";
 
 import QueryResultsLink from "./QueryResultsLink";
 
@@ -57,6 +58,12 @@ export default function QueryControlDropdown(props) {
           <Icon type="file-excel" /> Download as Excel File
         </QueryResultsLink>
       </Menu.Item>
+      <DynamicComponent
+        name="QueryControlDropdownExtra"
+        query={props.query}
+        queryResult={props.queryResult}
+        queryExecuting={props.queryExecuting}
+      />
     </Menu>
   );
 
