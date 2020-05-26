@@ -27,7 +27,7 @@ import useQuery from "./hooks/useQuery";
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 import useAutocompleteFlags from "./hooks/useAutocompleteFlags";
 import useQueryExecute from "./hooks/useQueryExecute";
-import { useQueryResultData } from "@/lib/getQueryResultData";
+import useQueryResultData from "@/lib/useQueryResultData";
 import useQueryDataSources from "./hooks/useQueryDataSources";
 import useDataSourceSchema from "./hooks/useDataSourceSchema";
 import useQueryFlags from "./hooks/useQueryFlags";

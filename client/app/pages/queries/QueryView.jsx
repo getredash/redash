@@ -11,7 +11,7 @@ import Parameters from "@/components/Parameters";
 
 import DataSource from "@/services/data-source";
 import { ExecutionStatus } from "@/services/query-result";
-import { useQueryResultData } from "@/lib/getQueryResultData";
+import useQueryResultData from "@/lib/useQueryResultData";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";

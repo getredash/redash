@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { get, invoke } from "lodash";
 
-export function getQueryResultData(queryResult) {
+function getQueryResultData(queryResult, queryResultStatus = null) {
   return {
-    status: invoke(queryResult, "getStatus") || null,
+    status: queryResultStatus || invoke(queryResult, "getStatus") || null,
     columns: invoke(queryResult, "getColumns") || [],
     rows: invoke(queryResult, "getData") || [],
     filters: invoke(queryResult, "getFilters") || [],
@@ -16,6 +16,8 @@ export function getQueryResultData(queryResult) {
   };
 }
 
-export function useQueryResultData(queryResult) {
-  return useMemo(() => getQueryResultData(queryResult), [queryResult]);
+export default function useQueryResultData(queryResult) {
+  // make sure it re-executes when queryResult status changes
+  const queryResultStatus = invoke(queryResult, "getStatus");
+  return useMemo(() => getQueryResultData(queryResult, queryResultStatus), [queryResult, queryResultStatus]);
 }

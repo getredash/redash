@@ -9,7 +9,7 @@ import Filters, { filterData } from "@/components/Filters";
 import notification from "@/services/notification";
 import Visualization from "@/services/visualization";
 import recordEvent from "@/services/recordEvent";
-import { useQueryResultData } from "@/lib/getQueryResultData";
+import useQueryResultData from "@/lib/useQueryResultData";
 import {
   registeredVisualizations,
   getDefaultVisualization,
