@@ -14,8 +14,20 @@ from redash import (
     redis_connection,
     rq_redis_connection,
 )
+from redash.tasks.worker import Queue as RedashQueue
 
-job = partial(rq_job, connection=rq_redis_connection)
+
+default_queues = ["scheduled_queries", "queries", "periodic", "emails", "default", "schemas"]
+
+
+class StatsdRecordingJobDecorator(rq_job):  # noqa
+    """
+    RQ Job Decorator mixin that uses our Queue class to ensure metrics are accurately incremented in Statsd
+    """
+    queue_class = RedashQueue
+
+
+job = partial(StatsdRecordingJobDecorator, connection=rq_redis_connection)
 
 
 class CurrentJobFilter(logging.Filter):

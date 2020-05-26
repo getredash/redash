@@ -1,5 +1,6 @@
 import { filter, map, get, initial, last, reduce } from "lodash";
-import React, { useMemo, useState, useRef, useCallback, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
 import Icon from "antd/lib/icon";
@@ -51,7 +52,7 @@ function SearchInputInfoIcon({ searchColumns }) {
   );
 }
 
-const SearchInput = React.forwardRef(({ searchColumns, ...props }, ref) => {
+function SearchInput({ searchColumns, ...props }) {
   if (searchColumns.length <= 0) {
     return null;
   }
@@ -60,33 +61,37 @@ const SearchInput = React.forwardRef(({ searchColumns, ...props }, ref) => {
   return (
     <Input.Search
       {...props}
-      ref={ref}
       placeholder={`Search ${getSearchColumns(searchColumns, { limit: searchColumnsLimit }).join("")}...`}
       suffix={searchColumns.length > searchColumnsLimit ? <SearchInputInfoIcon searchColumns={searchColumns} /> : null}
     />
   );
-});
+}
 
-export default function Renderer({ options, data, context }) {
+SearchInput.propTypes = {
+  onChange: PropTypes.func,
+};
+
+SearchInput.defaultProps = {
+  onChange: () => {},
+};
+
+export default function Renderer({ options, data }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState([]);
 
   const searchColumns = useMemo(() => filter(options.columns, "allowSearch"), [options.columns]);
 
-  const searchInputRef = useRef();
-  const onSearchInputChange = useCallback(event => setSearchTerm(event.target.value), [setSearchTerm]);
-
   const tableColumns = useMemo(() => {
     const searchInput =
       searchColumns.length > 0 ? (
-        <SearchInput ref={searchInputRef} searchColumns={searchColumns} onChange={onSearchInputChange} />
+        <SearchInput searchColumns={searchColumns} onChange={event => setSearchTerm(event.target.value)} />
       ) : null;
     return prepareColumns(options.columns, searchInput, orderBy, newOrderBy => {
       setOrderBy(newOrderBy);
       // Remove text selection - may occur accidentally
       document.getSelection().removeAllRanges();
     });
-  }, [options.columns, searchColumns, searchInputRef, onSearchInputChange, orderBy, setOrderBy]);
+  }, [options.columns, searchColumns, orderBy]);
 
   const preparedRows = useMemo(() => sortRows(filterRows(initRows(data.rows), searchTerm, searchColumns), orderBy), [
     data.rows,
@@ -95,18 +100,10 @@ export default function Renderer({ options, data, context }) {
     orderBy,
   ]);
 
-  // If data or config columns change - reset sorting and search
+  // If data or config columns change - reset sorting
   useEffect(() => {
-    setSearchTerm("");
-    // Do not use `<Input value={searchTerm}>` because it leads to many renderings and lags on user
-    // input. This is the only place where we need to change search input's value from "outer world",
-    // so let's use this "hack" for better performance.
-    if (searchInputRef.current) {
-      // pass value and fake event-like object
-      searchInputRef.current.input.setValue("", { target: { value: "" } });
-    }
     setOrderBy([]);
-  }, [options.columns, data.columns, searchInputRef]);
+  }, [options.columns, data.columns]);
 
   if (data.rows.length === 0) {
     return null;

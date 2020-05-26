@@ -3,6 +3,7 @@ import { map, mapValues, keyBy } from "lodash";
 import moment from "moment";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
+import Descriptions from "antd/lib/descriptions";
 import Pagination from "antd/lib/pagination";
 
 import "./details.less";
@@ -36,17 +37,14 @@ export default function DetailsRenderer({ data }) {
   const row = data.rows[page];
 
   return (
-    <div>
-      <table className="table table-bordered details-viz">
-        <tbody>
-          {map(columns, key => (
-            <tr key={key}>
-              <th>{key}</th>
-              <td>{renderValue(row[key], types[key])}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="details-viz">
+      <Descriptions size="small" column={1} bordered>
+        {map(columns, key => (
+          <Descriptions.Item key={key} label={key}>
+            {renderValue(row[key], types[key])}
+          </Descriptions.Item>
+        ))}
+      </Descriptions>
       {data.rows.length > 1 && (
         <div className="paginator-container">
           <Pagination current={page + 1} defaultPageSize={1} total={data.rows.length} onChange={p => setPage(p - 1)} />

@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from rq.job import Job
 from rq_scheduler import Scheduler
 
-from redash import extensions, settings, rq_redis_connection
+from redash import extensions, settings, rq_redis_connection, statsd_client
 from redash.tasks import (
     sync_user_details,
     refresh_queries,
@@ -17,11 +17,20 @@ from redash.tasks import (
     purge_failed_jobs,
     version_check,
     send_aggregated_errors,
+    Queue
 )
 
 logger = logging.getLogger(__name__)
 
-rq_scheduler = Scheduler(
+
+class StatsdRecordingScheduler(Scheduler):
+    """
+    RQ Scheduler Mixin that uses Redash's custom RQ Queue class to increment/modify metrics via Statsd
+    """
+    queue_class = Queue
+
+
+rq_scheduler = StatsdRecordingScheduler(
     connection=rq_redis_connection, queue_name="periodic", interval=5
 )
 
