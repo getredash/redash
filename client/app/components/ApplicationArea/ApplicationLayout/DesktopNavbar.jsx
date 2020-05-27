@@ -121,9 +121,9 @@ export default function DesktopNavbar() {
           key="profile"
           popupClassName="application-layout-side-menu"
           title={
-            <span data-test="ProfileDropdown">
+            <span data-test="ProfileDropdown" className="profile-menu-title">
               <img className="profile__image_thumb" src={currentUser.profile_image_url} alt={currentUser.name} />
-              {/* <span>{currentUser.name}</span> */}
+              <span>{currentUser.name}</span>
             </span>
           }>
           <Menu.Item key="profile">

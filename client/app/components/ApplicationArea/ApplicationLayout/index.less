@@ -32,21 +32,56 @@ body #application-root {
       opacity: 0;
     }
 
+    .ant-menu-submenu-arrow {
+      display: none;
+    }
+
     .create-menu {
       flex-grow: 1;
     }
 
     .profile-menu {
+      .profile-menu-title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+
+        .profile__image_thumb {
+          margin: 0;
+          vertical-align: middle;
+        }
+
+        .profile__image_thumb + span {
+          flex: 1 1 auto;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+
+          margin-left: 10px;
+          vertical-align: middle;
+          display: inline-block;
+
+          // styles from Antd
+          opacity: 1;
+          transition: opacity 0.3s cubic-bezier(0.645, 0.045, 0.355, 1),
+            margin-left 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), width 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+      }
+
       &.ant-menu-inline-collapsed {
         .ant-menu-submenu-title {
           padding-left: 16px !important;
           padding-right: 16px !important;
-          text-align: center;
         }
-      }
 
-      .profile__image_thumb {
-        margin: 0;
+        .profile-menu-title {
+          .profile__image_thumb + span {
+            opacity: 0;
+            max-width: 0;
+            margin-left: 0;
+          }
+        }
       }
     }
 
