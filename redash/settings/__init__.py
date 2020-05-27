@@ -37,7 +37,7 @@ SQLALCHEMY_DISABLE_POOL = parse_boolean(
     os.environ.get("SQLALCHEMY_DISABLE_POOL", "false")
 )
 SQLALCHEMY_ENABLE_POOL_PRE_PING = parse_boolean(
-   os.environ.get("SQLALCHEMY_ENABLE_POOL_PRE_PING", "false")
+    os.environ.get("SQLALCHEMY_ENABLE_POOL_PRE_PING", "false")
 )
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ECHO = False
@@ -76,7 +76,9 @@ ENFORCE_HTTPS_PERMANENT = parse_boolean(
 ENFORCE_FILE_SAVE = parse_boolean(os.environ.get("REDASH_ENFORCE_FILE_SAVE", "true"))
 
 # Whether api calls using the json query runner will block private addresses
-ENFORCE_PRIVATE_ADDRESS_BLOCK = parse_boolean(os.environ.get("REDASH_ENFORCE_PRIVATE_IP_BLOCK", "true"))
+ENFORCE_PRIVATE_ADDRESS_BLOCK = parse_boolean(
+    os.environ.get("REDASH_ENFORCE_PRIVATE_IP_BLOCK", "true")
+)
 
 # Whether to use secure cookies by default.
 COOKIES_SECURE = parse_boolean(
@@ -491,3 +493,8 @@ SQLPARSE_FORMAT_OPTIONS = {
     "reindent": parse_boolean(os.environ.get("SQLPARSE_FORMAT_REINDENT", "true")),
     "keyword_case": os.environ.get("SQLPARSE_FORMAT_KEYWORD_CASE", "upper"),
 }
+
+# requests
+REQUESTS_ALLOW_REDIRECTS = parse_boolean(
+    os.environ.get("REDASH_REQUESTS_ALLOW_REDIRECTS", "false")
+)

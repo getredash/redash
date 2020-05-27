@@ -6,13 +6,14 @@ from functools import wraps
 import socket
 import ipaddress
 from urllib.parse import urlparse
-import requests
 
 from six import text_type
 from sshtunnel import open_tunnel
 from redash import settings
 from redash.utils import json_loads
 from rq.timeouts import JobTimeoutException
+
+from redash.utils.requests_session import requests, requests_session
 
 logger = logging.getLogger(__name__)
 
@@ -269,7 +270,7 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
         error = None
         response = None
         try:
-            response = requests.request(http_method, url, auth=auth, **kwargs)
+            response = requests_session.request(http_method, url, auth=auth, **kwargs)
             # Raise a requests HTTP exception with the appropriate reason
             # for 4xx and 5xx response status codes which is later caught
             # and passed back.
