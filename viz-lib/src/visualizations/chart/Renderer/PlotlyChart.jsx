@@ -34,8 +34,11 @@ export default function PlotlyChart({ options, data }) {
         const plotlyOptions = {
           showLink: false,
           displaylogo: false,
-          displayModeBar: !visualizationsSettings.hidePlotlyModeBar,
         };
+        
+        if (visualizationsSettings.hidePlotlyModeBar) {
+          plotlyOptions.displayModeBar = false;
+        }
 
         const chartData = getChartData(data.rows, options);
         const plotlyData = prepareData(chartData, options);
