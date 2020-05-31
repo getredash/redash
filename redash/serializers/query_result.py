@@ -16,7 +16,8 @@ def _convert_format(fmt):
         .replace("YY", "%y")
         .replace("HH", "%H")
         .replace("mm", "%M")
-        .replace("ss", "%s")
+        .replace("ss", "%S")
+        .replace("SSS", "%f")
     )
 
 
