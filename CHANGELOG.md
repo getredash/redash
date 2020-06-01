@@ -14,8 +14,8 @@
   - Fix: it was sometimes impossible to scroll pages with dashboards because the visualizations captured every touch event.
   - Fix: Visualizations on small screens would not always show horizontal scroll bars.
 * Dashboards can now be un-archived from the UI and via the API.
-* Dashboards UI performance was improved.
-* List pages were changed to show user's name instead of avatar.
+* Dashboard UI performance was improved.
+* List pages were changed to show a user's name instead of avatar.
 * Search-enabled tables now show a prompt for which columns will be searched.
 * In the visualization editor, the settings pane now scrolls independent of the visualization preview.
 * Tokens in the schema viewer now sort alphabetically.
@@ -29,7 +29,7 @@
 * Feature: It's now possible to provide a description to each Table column, appearing in UI as a tooltip.
 * Feature: Added tooltip and popover templating to the map with markers visualization.
 * Feature: Added an organization setting to hide the Plotly mode bar on all visualizations.
-* Feature: Cohort now has appearance settings.
+* Feature: Cohort visualization now has appearance settings.
 * Feature: Add option to explicitly set Chart legend position.
 * Change: Deprecated visualizations are now hidden.
 * Change: Table settings editor now extends vertically instead of horizontally.
@@ -39,7 +39,7 @@
 * Fix: Third column was not selectable for Bubble and Heatmap charts.
 * Fix: On the counter visualizations, the “count rows” option showed an empty string instead of 0.
 * Fix: Table visualization with column named "children" rendered +/- buttons.
-* Fix: Sankey now correctly occupies all available area even with fewer stages.
+* Fix: Sankey visualization now correctly occupies all available area even with fewer stages.
 * Fix: Pie chart ignores series labels.
 
 ### Structural Updates
@@ -52,7 +52,7 @@
 
 * New Data Sources: Amazon Cloudwatch, Amazon CloudWatch Logs Insights, Azure Kusto, Exasol.
 * Athena:
-  - Added the option to specify a base cost on the settings, displaying a price for each query when executed.
+  - Added the option to specify a base cost in settings, displaying a price for each query when executed.
 * BigQuery:
   - Fix: large jobs continued running after the user clicked “Cancel” query execution.
 * Cassandra:
@@ -61,7 +61,7 @@
 * Clickhouse:
   - You can now choose whether to verify the SSL certificate.
 * Databricks / Hive:
-  - Databricks now use an ODBC based connector.
+  - Databricks now use an ODBC-based connector.
   - Fix: Date column was coerced to DateTime in the front-end.
 * Druid:
   - Added username and password authentication option.
