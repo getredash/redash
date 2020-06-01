@@ -1,5 +1,115 @@
 # Change Log
 
+## v9.0.0-beta - 2020-06-01
+
+### UX
+
+* Redesigned Query Results page:
+  - Completely new layout is easier to read for non-technical Redash users.
+  - Empty query results are clearly displayed. User is now prompted to edit or execute the query.
+* Mobile Experience Improvements:
+  - UI element spacing has been redesigned for clarity
+  - Admin pages now honor max-width. Tables scroll independent of the top menu.
+  - Large legends no longer shrink the visualization on small screens.
+  - Fix: it was sometimes impossible to scroll pages with dashboards because the visualizations captured every touch event.
+  - Fix: Visualizations on small screens would not always show horizontal scroll bars.
+* Dashboards can now be un-archived from the UI and via the API.
+* Search-enabled tables now show a prompt for which columns will be searched.
+* In the visualization editor, the settings pane now scrolls independent of the visualization preview.
+* Tokens in the schema viewer now sort alphabetically.
+* Links to settings panes that require Admin privileges are now hidden from non-Admins.
+* The Admin page now remembers which tab you were viewing after a page reload.
+
+### Visualizations
+
+* Feature: Allow bubble size control with either coefficient or sizemode.
+* Feature: Table visualization now treats Unix timestamps in query results as timestamps.
+* Feature: Added tooltip and popover templating to the map with markers visualization.
+* Feature: Added an organization setting to hide the Plotly mode bar on all visualizations.
+* Change: Deprecated visualizations are now hidden.
+* Change: Table settings editor now extends vertically instead of horizontally.
+* Change: The maximum table pagination is now 500.
+* Change: Pie chart labels maintain contrast against lighter slices.
+* Fix: Chart series switched places when picking Y axis.
+* Fix: Third column was not selectable for Bubble and Heatmap charts.
+* Fix: On the counter visualizations, the “count rows” option showed an empty string instead of 0.
+* Fix: Table visualization with column named "children" rendered +/- buttons.
+
+### Structural Updates
+
+* Migrated 100% of our code from Python 2 to Python 3.
+* Migrated our front-end from Angular to React.
+* Migrated our scheduler from Celery to RQ.
+
+### Data Sources
+* New Data Sources: Amazon Cloudwatch, Amazon CloudWatch Logs Insights, Azure Kusto, Exasol.
+* BigQuery:
+  - Fix: large jobs continued running after the user clicked “Cancel” query execution.
+* Cassandra:
+  - Updated driver to 3.21.0 which dramatically reduces Docker build times.
+* Clickhouse:
+  - You can now choose whether to verify the SSL certificate.
+* Databricks / Hive:
+  - Fix: Date column was coerced to DateTime in the front-end.
+* Druid:
+  - Added username and password authentication option.
+* Microsoft SQL Server
+  - Added support for ODBC connections via pyodbc. There are now two MSSQL data source types. One using TDS. The other is using ODBC.
+* MongoDB:
+  - Added support for running queries on secondary in replicaset mode.
+  - Fix: Connection test always succeeded.
+* Oracle:
+  - Fix: Connection would fail if username or password contained special characters.
+  - Fix: Comparisons would fail if scale was None.
+* RDS:
+  - Updated rds-combined-ca-bundle.pem to the latest CA.
+* Redshift:
+  - Added the ability to use IAM Roles and Users.
+* Rockset:
+  - Fix: Allow Redash to load collections in all workspaces.
+* Snowflake:
+  - You can now refresh the snowflake schema without waking the cluster.
+  - Added support for all of Snowflake’s datetime types. Otherwise certain timestamps would only appear as strings in the front-end.
+* TreasureData:
+  - Fix: API calls would fail when setting a non-default region.
+
+### Alerts
+* Feature: Added ability to mute alerts without deleting them.
+* Fix: numerical comparisons failed if value from query was a string.
+
+### Parameters
+* Added Last x Days options for date range parameters.
+* Fix: Parameters added in empty queries were always added as text parameters
+
+### Bug Fixes
+* Fix: Alembic migration schema was preventing v4 users from upgrading. In v5 we started encrypting data source credentials in the database.
+* Fix: System admin dashboard would not show correct database size if non-default name was used.
+* Fix: refresh_queries job would break if any query had a bad schedule object.
+* Fix: Orgs with LDAP enabled couldn’t disable password login.
+* Fix: SSL mode was sometimes sent as an empty string to the database instead of omitted entirely.
+* Fix: When creating new Map visualization with clustering disabled, map would crash on save.
+* Fix: It was possible on the New Query page to click “Save” multiple times, causing multiple new query records to be created.
+* Fix: Visualization render errors on a dashboard would crash the entire page.
+* Fix: A scheduled execution failure would modify the query’s “updated_at” timestamp.
+* Fix: Parameter UI would wrap awkwardly during some drag operations.
+* Fix: In dashboard edit mode, users couldn’t modify widgets.
+
+### Other
+* Added TSV as a download format (in addition to CSV and Excel).
+* Added a setting to allow you to override the SAML Auth URL scheme that gets constructed by Flask. This is a useful feature if, for example, you're behind a Proxy Protocol enabled TCP load balancer (AWS ELB that terminates SSL) and your Nginx proxy or similar adds a X-Forwarded-Proto of HTTP even though your Redash URL for SAML auth is HTTPS.
+* Updated repository development environment setup instructions.
+* Added maildev settings (helps with automated settings).
+* Refine permissions usage in Redash to allow for guest users
+* The query results API now explicitly handles 404 errors.
+* Forked queries now retain the tags of the original.
+* Bumped Python pymapd to latest version.
+* We now allow setting custom Sentry environments.
+* Started using Black linter for our Python source code
+* Added CLI command to re-encrypt data source details with new secret key.
+* Favorites list is now loaded on menu click instead of on page load.
+* Administrators can now allow connections to private IP addresses.
+
+
 ## v8.0.0 - 2019-10-27
 
 There were no changes in this release since `v8.0.0-beta.2`. This is just to mark a stable release.
