@@ -14,6 +14,8 @@
   - Fix: it was sometimes impossible to scroll pages with dashboards because the visualizations captured every touch event.
   - Fix: Visualizations on small screens would not always show horizontal scroll bars.
 * Dashboards can now be un-archived from the UI and via the API.
+* Dashboards UI performance was improved.
+* List pages were changed to show user's name instead of avatar.
 * Search-enabled tables now show a prompt for which columns will be searched.
 * In the visualization editor, the settings pane now scrolls independent of the visualization preview.
 * Tokens in the schema viewer now sort alphabetically.
@@ -24,8 +26,11 @@
 
 * Feature: Allow bubble size control with either coefficient or sizemode.
 * Feature: Table visualization now treats Unix timestamps in query results as timestamps.
+* Feature: It's now possible to provide a description to each Table column, appearing in UI as a tooltip.
 * Feature: Added tooltip and popover templating to the map with markers visualization.
 * Feature: Added an organization setting to hide the Plotly mode bar on all visualizations.
+* Feature: Cohort now has appearance settings.
+* Feature: Add option to explicitly set Chart legend position.
 * Change: Deprecated visualizations are now hidden.
 * Change: Table settings editor now extends vertically instead of horizontally.
 * Change: The maximum table pagination is now 500.
@@ -34,6 +39,8 @@
 * Fix: Third column was not selectable for Bubble and Heatmap charts.
 * Fix: On the counter visualizations, the “count rows” option showed an empty string instead of 0.
 * Fix: Table visualization with column named "children" rendered +/- buttons.
+* Fix: Sankey now correctly occupies all available area even with fewer stages.
+* Fix: Pie chart ignores series labels.
 
 ### Structural Updates
 
@@ -43,13 +50,17 @@
 
 ### Data Sources
 * New Data Sources: Amazon Cloudwatch, Amazon CloudWatch Logs Insights, Azure Kusto, Exasol.
+* Athena:
+  - Added the option to specify a base cost on the settings, displaying a price for each query when executed.
 * BigQuery:
   - Fix: large jobs continued running after the user clicked “Cancel” query execution.
 * Cassandra:
   - Updated driver to 3.21.0 which dramatically reduces Docker build times.
+  - SSL options are now available.
 * Clickhouse:
   - You can now choose whether to verify the SSL certificate.
 * Databricks / Hive:
+  - Databricks now use an ODBC based connector.
   - Fix: Date column was coerced to DateTime in the front-end.
 * Druid:
   - Added username and password authentication option.
@@ -65,6 +76,7 @@
   - Updated rds-combined-ca-bundle.pem to the latest CA.
 * Redshift:
   - Added the ability to use IAM Roles and Users.
+  - Fix: Redshift was unable to have its schema refreshed.
 * Rockset:
   - Fix: Allow Redash to load collections in all workspaces.
 * Snowflake:
@@ -93,6 +105,7 @@
 * Fix: A scheduled execution failure would modify the query’s “updated_at” timestamp.
 * Fix: Parameter UI would wrap awkwardly during some drag operations.
 * Fix: In dashboard edit mode, users couldn’t modify widgets.
+* Fix: Frontend error when parsing a NaN float.
 
 ### Other
 * Added TSV as a download format (in addition to CSV and Excel).
@@ -108,6 +121,7 @@
 * Added CLI command to re-encrypt data source details with new secret key.
 * Favorites list is now loaded on menu click instead of on page load.
 * Administrators can now allow connections to private IP addresses.
+* Delete buttons now have a red background.
 
 
 ## v8.0.0 - 2019-10-27
