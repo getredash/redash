@@ -49,6 +49,7 @@
 * Migrated our scheduler from Celery to RQ.
 
 ### Data Sources
+
 * New Data Sources: Amazon Cloudwatch, Amazon CloudWatch Logs Insights, Azure Kusto, Exasol.
 * Athena:
   - Added the option to specify a base cost on the settings, displaying a price for each query when executed.
@@ -86,14 +87,17 @@
   - Fix: API calls would fail when setting a non-default region.
 
 ### Alerts
+
 * Feature: Added ability to mute alerts without deleting them.
 * Fix: numerical comparisons failed if value from query was a string.
 
 ### Parameters
+
 * Added Last x Days options for date range parameters.
 * Fix: Parameters added in empty queries were always added as text parameters
 
 ### Bug Fixes
+
 * Fix: Alembic migration schema was preventing v4 users from upgrading. In v5 we started encrypting data source credentials in the database.
 * Fix: System admin dashboard would not show correct database size if non-default name was used.
 * Fix: refresh_queries job would break if any query had a bad schedule object.
@@ -108,6 +112,7 @@
 * Fix: Frontend error when parsing a NaN float.
 
 ### Other
+
 * Added TSV as a download format (in addition to CSV and Excel).
 * Added a setting to allow you to override the SAML Auth URL scheme that gets constructed by Flask. This is a useful feature if, for example, you're behind a Proxy Protocol enabled TCP load balancer (AWS ELB that terminates SSL) and your Nginx proxy or similar adds a X-Forwarded-Proto of HTTP even though your Redash URL for SAML auth is HTTPS.
 * Updated repository development environment setup instructions.
