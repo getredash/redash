@@ -182,12 +182,16 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
         return res
 
-    def get_schema(self, refresh=False):
-        cache = None
-        if not refresh:
-            cache = redis_connection.get(self._schema_key)
+    def get_cached_schema(self):
+        cache = redis_connection.get(self._schema_key)
+        return json_loads(cache) if cache else None
 
-        if cache is None:
+    def get_schema(self, refresh=False):
+        out_schema = None
+        if not refresh:
+            out_schema = self.get_cached_schema()
+
+        if out_schema is None:
             query_runner = self.query_runner
             schema = query_runner.get_schema(get_stats=refresh)
 
@@ -200,8 +204,6 @@ class DataSource(BelongsToOrgMixin, db.Model):
                 out_schema = schema
             finally:
                 redis_connection.set(self._schema_key, json_dumps(out_schema))
-        else:
-            out_schema = json_loads(cache)
 
         return out_schema
 
