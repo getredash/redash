@@ -62,16 +62,20 @@ error_messages = {
 
 
 def run_query(query, parameters, data_source, query_id, max_age=0):
-    if data_source.paused:
-        if data_source.pause_reason:
-            message = "{} is paused ({}). Please try later.".format(
-                data_source.name, data_source.pause_reason
-            )
-        else:
-            message = "{} is paused. Please try later.".format(data_source.name)
+    
+    try:
+        if data_source.paused:
+            if data_source.pause_reason:
+                message = "{} is paused ({}). Please try later.".format(
+                    data_source.name, data_source.pause_reason
+                )
+            else:
+                message = "{} is paused. Please try later.".format(data_source.name)
 
-        return error_response(message)
-
+            return error_response(message)
+    except QueryDetachedFromDataSourceError:
+        return error_response("Target data source does not exist")
+        
     try:
         query.apply(parameters)
     except (InvalidParameterError, QueryDetachedFromDataSourceError) as e:
