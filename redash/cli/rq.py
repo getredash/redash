@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import socket
 import sys
 import datetime
+from itertools import chain
 
 from click import argument
 from flask.cli import AppGroup
@@ -40,6 +41,8 @@ def worker(queues):
 
     if not queues:
         queues = default_queues
+    else:
+        queues = chain(*[queue.split(",") for queue in queues])
 
     with Connection(rq_redis_connection):
         w = Worker(queues, log_job_description=False, job_monitoring_interval=5)
