@@ -2,6 +2,24 @@
 
 ## v9.0.0-beta - 2020-06-01
 
+### Upgrading
+
+Typically, if you are running your own instance of Redash and wish to upgrade, you would simply modify the Docker tag in your `docker-compose.yml` file. Since RQ has replaced Celery in this version, there are a couple extra modifications that need to be done in your `docker-compose.yml`:
+
+1. Under `services/scheduler/environment`, omit `QUEUES` and `WORKERS_COUNT` (and omit `environment` altogether if it is empty).
+2. Under `services`, add a new service for general RQ jobs:
+
+```
+worker:
+  <<: *redash-service
+  command: worker
+  environment:
+    QUEUES: "periodic emails default"
+    WORKERS_COUNT: 1
+```
+
+Following that, force a recreation of your containers with `docker-compose up --force-recreate --build` and you should be good to go.
+
 ### UX
 
 * Redesigned Query Results page:
