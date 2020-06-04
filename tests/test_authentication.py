@@ -179,6 +179,7 @@ class TestCreateAndLoginUser(BaseTestCase):
             create_and_login_user(self.factory.org, user.name, user.email)
             login_user_mock.assert_called_once_with(user, remember=True)
 
+
     def test_creates_vaild_new_user(self):
         email = "test@example.com"
         name = "Test User"
@@ -196,6 +197,15 @@ class TestCreateAndLoginUser(BaseTestCase):
         with patch("redash.authentication.login_user") as login_user_mock:
             create_and_login_user(self.factory.org, "New Name", user.email)
             login_user_mock.assert_called_once_with(user, remember=True)
+    def test_create_user_long_url(self):
+        email = "test@example.com"
+        name = "Test user"
+        url = '@'*321
+        with patch("redash.authentication.login_user") as login_user_mock:
+            create_and_login_user(self.factory.org, name, email, url)
+            self.assertTrue(login_user_mock.called)
+            user = models.User.query.filter(models.User.email == email).one()
+            self.assertEqual(user.email, email)
 
 
 class TestVerifyProfile(BaseTestCase):
