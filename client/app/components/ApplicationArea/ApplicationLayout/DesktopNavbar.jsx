@@ -137,7 +137,7 @@ export default function DesktopNavbar() {
           )}
           <Menu.Divider />
           <Menu.Item key="logout">
-            <a onClick={() => Auth.logout()}>Log out</a>
+            <a data-text="LogOutButton" onClick={() => Auth.logout()}>Log out</a>
           </Menu.Item>
           <Menu.Divider />
           <Menu.Item key="version" disabled className="version-info">
