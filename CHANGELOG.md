@@ -9,7 +9,7 @@ Typically, if you are running your own instance of Redash and wish to upgrade, y
 1. Under `services/scheduler/environment`, omit `QUEUES` and `WORKERS_COUNT` (and omit `environment` altogether if it is empty).
 2. Under `services`, add a new service for general RQ jobs:
 
-```
+```yaml
 worker:
   <<: *redash-service
   command: worker
