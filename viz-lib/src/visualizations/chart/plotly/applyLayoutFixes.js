@@ -117,5 +117,7 @@ export default function applyLayoutFixes(plotlyElement, layout, options, updateP
         break;
       // no default
     }
+  } else {
+    updatePlot(plotlyElement, pick(layout, ["width", "height"]));
   }
 }
