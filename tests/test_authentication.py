@@ -139,7 +139,7 @@ class TestHMACAuthentication(BaseTestCase):
     def test_user_api_key(self):
         user = self.factory.create_user(api_key="user_key")
         path = "/api/queries/"
-        models.db.session.flush()
+        models.db.session.flush() 
 
         signature = sign(user.api_key, path, self.expires)
         with self.app.test_client() as c:
