@@ -76,7 +76,7 @@ function placeLegendBelowPlot(plotlyElement, layout, updatePlot) {
     if (legend) {
       // compute real height of legend - items may be split into few columnns,
       // also scrollbar may be shown
-      const bounds = legend.querySelector(".bg").getBoundingClientRect();
+      const bounds = legend.getBoundingClientRect();
 
       // here we have two values:
       // 1. height of plot container excluding height of legend items;
