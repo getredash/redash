@@ -12,6 +12,8 @@ from redash.authentication.org_resolving import current_org
 from redash.settings.organization import settings as org_settings
 from redash.tasks import record_event
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import DataError
+#import sqlalchemy.exc.DataError
 from werkzeug.exceptions import Unauthorized
 
 login_manager = LoginManager()
@@ -283,8 +285,14 @@ def create_and_login_user(org, name, email, picture=None):
             group_ids=[org.default_group.id],
         )
         models.db.session.add(user_object)
-        models.db.session.commit()
-
+        try:
+            models.db.session.commit()
+        except DataError as e:
+            user_object._profile_image_url = None
+            models.db.session.rollback()
+            models.db.session.add(user_object)
+            models.db.session.commit()
+            
     login_user(user_object, remember=True)
 
     return user_object
