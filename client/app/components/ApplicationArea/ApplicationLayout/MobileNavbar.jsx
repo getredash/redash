@@ -7,10 +7,12 @@ import { Auth, currentUser } from "@/services/auth";
 import Button from "antd/lib/button";
 import Icon from "antd/lib/icon";
 
+import "./MobileNavbar.less";
+
 export default function MobileNavbar({ getPopupContainer }) {
   return (
-    <React.Fragment>
-      <div className="header-logo">
+    <div className="mobile-navbar">
+      <div className="mobile-navbar-logo">
         <a href="./">
           <img src={logoUrl} alt="Redash" />
         </a>
@@ -21,7 +23,7 @@ export default function MobileNavbar({ getPopupContainer }) {
           trigger={["click"]}
           getPopupContainer={getPopupContainer} // so the overlay menu stays with the fixed header when page scrolls
           overlay={
-            <Menu mode="vertical" theme="dark" selectable={false}>
+            <Menu mode="vertical" theme="dark" selectable={false} className="mobile-navbar-menu">
               {currentUser.hasPermission("list_dashboards") && (
                 <Menu.Item key="dashboards">
                   <a href="dashboards">Dashboards</a>
@@ -63,12 +65,12 @@ export default function MobileNavbar({ getPopupContainer }) {
               </Menu.Item>
             </Menu>
           }>
-          <Button className="toggle-button" ghost>
+          <Button className="mobile-navbar-toggle-button" ghost>
             <Icon type="menu" />
           </Button>
         </Dropdown>
       </div>
-    </React.Fragment>
+    </div>
   );
 }
 

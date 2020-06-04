@@ -8,6 +8,7 @@ import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
 import VersionInfo from "./VersionInfo";
+import "./DesktopNavbar.less";
 
 function NavbarSection({ inlineCollapsed, children, ...props }) {
   return (
@@ -26,12 +27,12 @@ export default function DesktopNavbar() {
   const [collapsed, setCollapsed] = useState(true);
 
   return (
-    <React.Fragment>
-      <div className="header-logo">
+    <div className="desktop-navbar">
+      <NavbarSection inlineCollapsed={collapsed} className="desktop-navbar-logo">
         <a href="./">
-          <img src={logoUrl} alt="Redash" style={{ height: collapsed ? "20px" : "40px" }} />
+          <img src={logoUrl} alt="Redash" />
         </a>
-      </div>
+      </NavbarSection>
 
       <NavbarSection inlineCollapsed={collapsed}>
         {currentUser.hasPermission("list_dashboards") && (
@@ -62,10 +63,10 @@ export default function DesktopNavbar() {
         <Menu.Divider />
       </NavbarSection>
 
-      <NavbarSection inlineCollapsed={collapsed} className="create-menu">
+      <NavbarSection inlineCollapsed={collapsed} className="desktop-navbar-spacer">
         <Menu.SubMenu
           key="create"
-          popupClassName="application-layout-side-menu"
+          popupClassName="desktop-navbar-submenu"
           title={
             <React.Fragment>
               <span data-test="CreateButton">
@@ -116,12 +117,12 @@ export default function DesktopNavbar() {
         <Menu.Divider />
       </NavbarSection>
 
-      <NavbarSection inlineCollapsed={collapsed} className="profile-menu">
+      <NavbarSection inlineCollapsed={collapsed} className="desktop-navbar-profile-menu">
         <Menu.SubMenu
           key="profile"
-          popupClassName="application-layout-side-menu"
+          popupClassName="desktop-navbar-submenu"
           title={
-            <span data-test="ProfileDropdown" className="profile-menu-title">
+            <span data-test="ProfileDropdown" className="desktop-navbar-profile-menu-title">
               <img className="profile__image_thumb" src={currentUser.profile_image_url} alt={currentUser.name} />
               <span>{currentUser.name}</span>
             </span>
@@ -145,13 +146,9 @@ export default function DesktopNavbar() {
         </Menu.SubMenu>
       </NavbarSection>
 
-      <Button onClick={() => setCollapsed(!collapsed)} className="collapse-button">
+      <Button onClick={() => setCollapsed(!collapsed)} className="desktop-navbar-collapse-button">
         <Icon type={collapsed ? "menu-unfold" : "menu-fold"} />
       </Button>
-    </React.Fragment>
+    </div>
   );
 }
-
-DesktopNavbar.propTypes = {};
-
-DesktopNavbar.defaultProps = {};

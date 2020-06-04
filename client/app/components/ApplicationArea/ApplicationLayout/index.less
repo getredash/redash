@@ -2,7 +2,6 @@
 
 body #application-root {
   @topMenuHeight: 49px;
-  @menuBackground: #001529;
 
   display: flex;
   flex-direction: row;
@@ -12,99 +11,7 @@ body #application-root {
 
   .application-layout-side-menu {
     height: 100vh;
-    display: flex;
-    flex-direction: column;
-    flex: 0 0 auto;
-    background: @menuBackground;
-
-    .help-trigger {
-      font: inherit;
-    }
-
-    .ant-menu:not(.ant-menu-inline-collapsed) {
-      width: 170px;
-    }
-
-    .ant-menu.ant-menu-inline-collapsed > .ant-menu-submenu-title span img + span,
-    .ant-menu-inline-collapsed > .ant-menu-item i + span {
-      display: inline-block;
-      max-width: 0;
-      opacity: 0;
-    }
-
-    .ant-menu-submenu-arrow {
-      display: none;
-    }
-
-    .create-menu {
-      flex-grow: 1;
-    }
-
-    .profile-menu {
-      .profile-menu-title {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-
-        .profile__image_thumb {
-          margin: 0;
-          vertical-align: middle;
-        }
-
-        .profile__image_thumb + span {
-          flex: 1 1 auto;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-
-          margin-left: 10px;
-          vertical-align: middle;
-          display: inline-block;
-
-          // styles from Antd
-          opacity: 1;
-          transition: opacity 0.3s cubic-bezier(0.645, 0.045, 0.355, 1),
-            margin-left 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), width 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-        }
-      }
-
-      &.ant-menu-inline-collapsed {
-        .ant-menu-submenu-title {
-          padding-left: 16px !important;
-          padding-right: 16px !important;
-        }
-
-        .profile-menu-title {
-          .profile__image_thumb + span {
-            opacity: 0;
-            max-width: 0;
-            margin-left: 0;
-          }
-        }
-      }
-    }
-
-    .header-logo {
-      padding-top: 20px;
-      padding-bottom: 20px;
-      background-color: @menuBackground;
-      text-align: center;
-
-      img {
-        transition: all 270ms;
-      }
-    }
-
-    .ant-btn.collapse-button {
-      background-color: @menuBackground;
-      border: 0;
-      border-radius: 0;
-
-      &:after {
-        animation: 0s !important;
-      }
-    }
+    position: relative;
 
     @media @mobileBreakpoint {
       display: none;
@@ -114,12 +21,6 @@ body #application-root {
   .application-layout-top-menu {
     height: @topMenuHeight;
     display: none;
-    justify-content: space-between;
-    align-items: center;
-    background: @menuBackground;
-    box-shadow: 0 4px 9px -3px rgba(102, 136, 153, 0.15);
-
-    padding: 0 15px;
     position: fixed;
     top: 0;
     left: 0;
@@ -128,16 +29,7 @@ body #application-root {
     z-index: 1000;
 
     @media @mobileBreakpoint {
-      display: flex;
-    }
-
-    .header-logo img {
-      height: 40px;
-      width: 40px;
-    }
-
-    .ant-btn.toggle-button {
-      padding: 0 10px;
+      display: block;
     }
   }
 
@@ -151,34 +43,6 @@ body #application-root {
 
     @media @mobileBreakpoint {
       margin-top: @topMenuHeight; // compensate for app header fixed position
-    }
-  }
-}
-
-.application-layout-side-menu {
-  .ant-menu-item,
-  .ant-menu-submenu {
-    font-weight: 500;
-
-    .zmdi,
-    .fa {
-      margin-right: 5px;
-    }
-
-    &.version-info {
-      height: auto;
-      line-height: normal;
-      padding-top: 12px;
-      padding-bottom: 12px;
-
-      a {
-        color: rgba(255, 255, 255, 0.8);
-
-        &:hover,
-        &:active {
-          color: rgba(255, 255, 255, 1);
-        }
-      }
     }
   }
 }
