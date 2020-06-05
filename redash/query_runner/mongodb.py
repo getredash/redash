@@ -172,7 +172,7 @@ class MongoDB(BaseQueryRunner):
         kwargs = {}
         if self.is_replica_set:
             kwargs["replicaSet"] = self.configuration["replicaSetName"]
-            readPreference = self.configuration["readPreference"]
+            readPreference = self.configuration.get("readPreference")
             if readPreference:
                 kwargs["readPreference"] = readPreference
 
