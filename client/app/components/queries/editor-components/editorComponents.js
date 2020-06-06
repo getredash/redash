@@ -13,10 +13,12 @@ export function registerEditorComponent(componentName, component, dataSourceType
   }
 
   each(dataSourceTypes, dataSourceType => {
-    componentsRegistry.set(dataSourceType, { ...componentsRegistry.get(dataSourceType), [componentName]: component});
+    componentsRegistry.set(dataSourceType, { ...componentsRegistry.get(dataSourceType), [componentName]: component });
   });
 }
 
 export function useEditorComponents(dataSourceType) {
-  return useMemo(() => ({ ...componentsRegistry.get(null), ...componentsRegistry.get(dataSourceType) }), [dataSourceType]);
+  return useMemo(() => ({ ...componentsRegistry.get(null), ...componentsRegistry.get(dataSourceType) }), [
+    dataSourceType,
+  ]);
 }
