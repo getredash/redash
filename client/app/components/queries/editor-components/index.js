@@ -1,10 +1,10 @@
 import SchemaBrowser from "@/components/queries/SchemaBrowser";
 import QueryEditor from "@/components/queries/QueryEditor";
 
-import { registerEditorComponent, useEditorComponents } from "./editorComponents";
+import { registerEditorComponent, useEditorComponents, QueryEditorComponents } from "./editorComponents";
 
 // default query editor components
-registerEditorComponent("SchemaBrowser", SchemaBrowser);
-registerEditorComponent("QueryEditor", QueryEditor);
+registerEditorComponent(QueryEditorComponents.SCHEMA_BROWSER, SchemaBrowser);
+registerEditorComponent(QueryEditorComponents.QUERY_EDITOR, QueryEditor);
 
 export { useEditorComponents };
