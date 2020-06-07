@@ -2,6 +2,8 @@
 
 ## v9.0.0-beta - 2020-06-01
 
+This release had contributions from 50 people: @ari-e, @ariarijp, @arihantsurana, @arikfr, @atharvai, @cemremengu, @chulucninh09, @citrin, @daniellangnet, @DavidHernandez, @deecay, @dmudro, @erans, @erels, @ezkl, @gabrieldutra, @gstaykov, @ialeinikov, @ikenji, @Jakdaw, @jezdez, @juanvasquezreyes, @koooge, @kravets-levko, @kykrueger, @leibowitz, @leosunmo, @lihan, @loganprice, @mickeey2525, @mnoorenberghe, @monicagangwar, @NicolasLM, @p-yang, @Ralnoc, @ranbena, @randyzwitch, @rauchy, @rxin, @saravananselvamohan, @satyamkrishna, @shinsuke-nara, @stefan-mees, @stevebuckingham, @susodapop, @taminif, @thewarpaint, @tsuyoshizawa, @uncletimmy3, @wengkham.
+
 ### Upgrading
 
 Typically, if you are running your own instance of Redash and wish to upgrade, you would simply modify the Docker tag in your `docker-compose.yml` file. Since RQ has replaced Celery in this version, there are a couple extra modifications that need to be done in your `docker-compose.yml`:
