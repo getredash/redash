@@ -130,11 +130,7 @@ class ParameterizedQuery(object):
             key for (key, value) in parameters.items() if not self._valid(key, value)
         ]
         if invalid_parameter_names:
-            raise InvalidParameterError(
-                "The following parameter values are incompatible with their definitions: {}".format(
-                    ", ".join(invalid_parameter_names)
-                )
-            )
+            raise InvalidParameterError(invalid_parameter_names)
         else:
             self.parameters.update(parameters)
             self.query = mustache_render(
@@ -201,7 +197,12 @@ class ParameterizedQuery(object):
 
 
 class InvalidParameterError(Exception):
-    pass
+    def __init__(self, parameters):
+        parameter_names = ", ".join(parameters)
+        message = "The following parameter values are incompatible with their definitions: {}".format(
+            parameter_names
+        )
+        super(InvalidParameterError, self).__init__(message)
 
 
 class QueryDetachedFromDataSourceError(Exception):
