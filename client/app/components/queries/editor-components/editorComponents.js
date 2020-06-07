@@ -3,6 +3,11 @@ import { useMemo } from "react";
 
 const componentsRegistry = new Map();
 
+export const QueryEditorComponents = {
+  SCHEMA_BROWSER: "SchemaBrowser",
+  QUERY_EDITOR: "QueryEditor",
+}
+
 export function registerEditorComponent(componentName, component, dataSourceTypes) {
   if (isNil(dataSourceTypes)) {
     dataSourceTypes = [null]; // use `null` entry for the default set of components
