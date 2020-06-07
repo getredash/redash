@@ -47,11 +47,11 @@ export class Query {
   constructor(query) {
     extend(this, query);
 
-    if(!has(this, "options")) {
+    if (!has(this, "options")) {
       this.options = {};
     }
 
-    if(!isArray(this.options.parameters)) {
+    if (!isArray(this.options.parameters)) {
       this.options.parameters = [];
     }
   }
