@@ -6,7 +6,7 @@ const componentsRegistry = new Map();
 export const QueryEditorComponents = {
   SCHEMA_BROWSER: "SchemaBrowser",
   QUERY_EDITOR: "QueryEditor",
-}
+};
 
 export function registerEditorComponent(componentName, component, dataSourceTypes) {
   if (isNil(dataSourceTypes)) {
