@@ -136,7 +136,7 @@ class DataSourcesList extends React.Component {
             <i className="fa fa-plus m-r-5" />
             New Data Source
           </Button>
-          <DynamicComponent name="DataSourcesListExtra" />
+          <DynamicComponent.DataSourcesListExtra />
         </div>
         {this.state.loading ? <LoadingState className="" /> : this.renderDataSources()}
       </div>

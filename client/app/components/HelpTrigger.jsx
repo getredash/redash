@@ -210,7 +210,7 @@ export default class HelpTrigger extends React.Component {
           </div>
 
           {/* extra content */}
-          <DynamicComponent name="HelpDrawerExtraContent" onLeave={this.closeDrawer} openPageUrl={this.loadIframe} />
+          <DynamicComponent.HelpDrawerExtraContent onLeave={this.closeDrawer} openPageUrl={this.loadIframe} />
         </Drawer>
       </React.Fragment>
     );

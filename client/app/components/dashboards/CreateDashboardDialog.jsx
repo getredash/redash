@@ -54,7 +54,7 @@ function CreateDashboardDialog({ dialog }) {
       wrapProps={{
         "data-test": "CreateDashboardDialog",
       }}>
-      <DynamicComponent name="CreateDashboardDialogExtra" disabled={!isCreateDashboardEnabled}>
+      <DynamicComponent.CreateDashboardDialogExtra disabled={!isCreateDashboardEnabled}>
         <Input
           defaultValue={name}
           onChange={handleNameChange}
@@ -63,7 +63,7 @@ function CreateDashboardDialog({ dialog }) {
           disabled={saveInProgress}
           autoFocus
         />
-      </DynamicComponent>
+      </DynamicComponent.CreateDashboardDialogExtra>
     </Modal>
   );
 }

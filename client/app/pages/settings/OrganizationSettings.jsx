@@ -200,7 +200,7 @@ class OrganizationSettings extends React.Component {
             Enable multi-byte (Chinese, Japanese, and Korean) search for query names and descriptions (slower)
           </Checkbox>
         </Form.Item>
-        <DynamicComponent name="BeaconConsentSetting">
+        <DynamicComponent.BeaconConsentSetting>
           <Form.Item
             label={
               <>
@@ -214,7 +214,7 @@ class OrganizationSettings extends React.Component {
               Help Redash improve by automatically sending anonymous usage data
             </Checkbox>
           </Form.Item>
-        </DynamicComponent>
+        </DynamicComponent.BeaconConsentSetting>
       </React.Fragment>
     );
   }

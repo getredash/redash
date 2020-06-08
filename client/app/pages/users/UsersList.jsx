@@ -197,7 +197,7 @@ class UsersList extends React.Component {
           <i className="fa fa-plus m-r-5" />
           New User
         </Button>
-        <DynamicComponent name="UsersListExtra" />
+        <DynamicComponent.UsersListExtra />
       </div>
     );
   }

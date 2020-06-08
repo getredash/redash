@@ -167,7 +167,7 @@ function Home() {
           showInviteStep
           onboardingMode
         />
-        <DynamicComponent name="HomeExtra" />
+        <DynamicComponent.HomeExtra />
         <DashboardAndQueryFavoritesList />
         <BeaconConsent />
       </div>
