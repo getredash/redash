@@ -360,6 +360,33 @@ class OrganizationCommandTests(BaseTestCase):
         """
         self.assertMultiLineEqual(result.output, textwrap.dedent(output).lstrip())
 
+    def test_set_microsoft_apps_domains(self):
+        domains = ["example.org", "example.com"]
+        runner = CliRunner()
+        result = runner.invoke(
+            manager, ["org", "set_microsoft_apps_domains", ",".join(domains)]
+        )
+        self.assertFalse(result.exception)
+        self.assertEqual(result.exit_code, 0)
+        db.session.add(self.factory.org)
+        self.assertEqual(self.factory.org.microsoft_apps_domains, domains)
+
+    def test_show_microsoft_apps_domains(self):
+        self.factory.org.settings[Organization.SETTING_MICROSOFT_APPS_DOMAINS] = [
+            "example.org",
+            "example.com",
+        ]
+        db.session.add(self.factory.org)
+        db.session.commit()
+        runner = CliRunner()
+        result = runner.invoke(manager, ["org", "show_microsoft_apps_domains"])
+        self.assertFalse(result.exception)
+        self.assertEqual(result.exit_code, 0)
+        output = """
+        Current list of Microsoft Apps domains: example.org, example.com
+        """
+        self.assertMultiLineEqual(result.output, textwrap.dedent(output).lstrip())
+
     def test_list(self):
         self.factory.create_org(name="test", slug="test_org")
         self.factory.create_org(name="Borg", slug="B_org")

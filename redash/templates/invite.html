@@ -6,7 +6,7 @@
 <div class="fixed-width-page">
   <div class="bg-white tiled">
     <div class="m-b-25">
-      {% if show_google_openid or show_saml_login or show_remote_user_login or show_ldap_login %}
+      {% if show_google_openid or show_microsoft_openid or show_saml_login or show_remote_user_login or show_ldap_login %}
         To create your account, please choose a password or login with your SSO provider.
       {% else %}
         To create your account, please choose a password.
@@ -28,6 +28,13 @@
       </a>
     {% endif %}
 
+    {% if show_microsoft_openid %}
+      <a href="{{ microsoft_auth_url }}" class="login-button btn btn-default btn-block">
+        <img src="/static/images/microsoft_logo.svg">
+        Login with Office365
+      </a>
+    {% endif %}
+
     {% if show_saml_login %}
       <a href="{{ url_for('saml_auth.sp_initiated', org_slug=org_slug) }}" class="login-button btn btn-default btn-block">SAML Login</a>
     {% endif %}
@@ -40,7 +47,7 @@
       <a href="{{ url_for('ldap_auth.login') }}" class="login-button btn btn-default btn-block">LDAP/SSO Login</a>
     {% endif %}
 
-    {% if show_google_openid or show_saml_login or show_remote_user_login or show_ldap_login %}
+    {% if show_google_openid or show_microsoft_openid or show_saml_login or show_remote_user_login or show_ldap_login %}
       <hr>
     {% endif %}
 

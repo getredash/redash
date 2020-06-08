@@ -11,7 +11,9 @@ from redash.authentication import (
     hmac_load_user_from_request,
     sign,
 )
-from redash.authentication.google_oauth import create_and_login_user, verify_profile
+from redash.authentication import create_and_login_user
+from redash.authentication.google_oauth import verify_profile as google_verify_profile
+from redash.authentication.microsoft_oauth import verify_profile as microsoft_verify_profile
 from redash.utils import utcnow
 from sqlalchemy.orm.exc import NoResultFound
 from tests import BaseTestCase
@@ -201,33 +203,54 @@ class TestCreateAndLoginUser(BaseTestCase):
 class TestVerifyProfile(BaseTestCase):
     def test_no_domain_allowed_for_org(self):
         profile = dict(email="arik@example.com")
-        self.assertFalse(verify_profile(self.factory.org, profile))
+        self.assertFalse(google_verify_profile(self.factory.org, profile))
+        self.assertFalse(microsoft_verify_profile(self.factory.org, profile))
 
     def test_domain_not_in_org_domains_list(self):
         profile = dict(email="arik@example.com")
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = [
             "example.org"
         ]
-        self.assertFalse(verify_profile(self.factory.org, profile))
+        self.assertFalse(google_verify_profile(self.factory.org, profile))
+        self.factory.org.settings[models.Organization.SETTING_MICROSOFT_APPS_DOMAINS] = [
+            "example.org"
+        ]
+        self.assertFalse(microsoft_verify_profile(self.factory.org, profile))
+
 
     def test_domain_in_org_domains_list(self):
         profile = dict(email="arik@example.com")
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = [
             "example.com"
         ]
-        self.assertTrue(verify_profile(self.factory.org, profile))
+        self.assertTrue(google_verify_profile(self.factory.org, profile))
 
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = [
             "example.org",
             "example.com",
         ]
-        self.assertTrue(verify_profile(self.factory.org, profile))
+        self.assertTrue(google_verify_profile(self.factory.org, profile))
+
+        self.factory.org.settings[models.Organization.SETTING_MICROSOFT_APPS_DOMAINS] = [
+            "example.com"
+        ]
+        self.assertTrue(microsoft_verify_profile(self.factory.org, profile))
+
+        self.factory.org.settings[models.Organization.SETTING_MICROSOFT_APPS_DOMAINS] = [
+            "example.org",
+            "example.com",
+        ]
+        self.assertTrue(microsoft_verify_profile(self.factory.org, profile))
+
 
     def test_org_in_public_mode_accepts_any_domain(self):
         profile = dict(email="arik@example.com")
         self.factory.org.settings[models.Organization.SETTING_IS_PUBLIC] = True
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = []
-        self.assertTrue(verify_profile(self.factory.org, profile))
+        self.assertTrue(google_verify_profile(self.factory.org, profile))
+        self.factory.org.settings[models.Organization.SETTING_MICROSOFT_APPS_DOMAINS] = []
+        self.assertTrue(microsoft_verify_profile(self.factory.org, profile))
+
 
     def test_user_not_in_domain_but_account_exists(self):
         profile = dict(email="arik@example.com")
@@ -235,7 +258,11 @@ class TestVerifyProfile(BaseTestCase):
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = [
             "example.org"
         ]
-        self.assertTrue(verify_profile(self.factory.org, profile))
+        self.assertTrue(google_verify_profile(self.factory.org, profile))
+        self.factory.org.settings[models.Organization.SETTING_MICROSOFT_APPS_DOMAINS] = [
+            "example.org"
+        ]
+        self.assertTrue(microsoft_verify_profile(self.factory.org, profile))
 
 
 class TestGetLoginUrl(BaseTestCase):
