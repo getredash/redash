@@ -25,6 +25,10 @@ export function getErrorMessage(error) {
     if (error.status) {
       return getErrorMessageByStatus(error.status, message);
     }
+    // Other Error instances
+    if (error.message) {
+      return error.message;
+    }
   }
   return message;
 }
