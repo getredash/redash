@@ -1,5 +1,5 @@
 import logging
-
+import traceback
 from flask import make_response, request
 from flask_restful import abort
 from funcy import project
@@ -193,6 +193,7 @@ class DataSourceSchemaResource(BaseResource):
             }
         except Exception:
             response["error"] = {"code": 2, "message": "Error retrieving schema."}
+            logging.ERROR(traceback.format_exc())
 
         return response
 
