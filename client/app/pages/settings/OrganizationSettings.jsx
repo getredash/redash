@@ -48,7 +48,7 @@ class OrganizationSettings extends React.Component {
   }
 
   disablePasswordLoginToggle = () =>
-    !(clientConfig.googleLoginEnabled || clientConfig.ldapLoginEnabled || this.state.formValues.auth_saml_enabled);
+    !(clientConfig.googleLoginEnabled || clientConfig.microsoftLoginEnabled || clientConfig.ldapLoginEnabled || this.state.formValues.auth_saml_enabled);
 
   handleSubmit = e => {
     e.preventDefault();
@@ -91,6 +91,34 @@ class OrganizationSettings extends React.Component {
               message={
                 <p>
                   Any user registered with a <strong>{join(formValues.auth_google_apps_domains, ", ")}</strong> Google
+                  Apps account will be able to login. If they don{"'"}t have an existing user, a new user will be
+                  created and join the <strong>Default</strong> group.
+                </p>
+              }
+              className="m-t-15"
+            />
+          )}
+        </Form.Item>
+      </React.Fragment>
+    );
+  }
+
+  renderMicrosoftLoginOptions() {
+    const { formValues } = this.state;
+    return (
+      <React.Fragment>
+        <h4>Microsoft Login</h4>
+        <Form.Item label="Allowed Microsoft Apps Domains">
+          <Select
+            mode="tags"
+            value={formValues.auth_microsoft_apps_domains}
+            onChange={value => this.handleChange("auth_microsoft_apps_domains", value)}
+          />
+          {!isEmpty(formValues.auth_microsoft_apps_domains) && (
+            <Alert
+              message={
+                <p>
+                  Any user registered with a <strong>{join(formValues.auth_microsoft_apps_domains, ", ")}</strong> Microsoft
                   Apps account will be able to login. If they don{"'"}t have an existing user, a new user will be
                   created and join the <strong>Default</strong> group.
                 </p>
@@ -252,6 +280,7 @@ class OrganizationSettings extends React.Component {
           </Checkbox>
         </Form.Item>
         {clientConfig.googleLoginEnabled && this.renderGoogleLoginOptions()}
+        {clientConfig.microsoftLoginEnabled && this.renderMicrosoftLoginOptions()}
         {this.renderSAMLOptions()}
       </React.Fragment>
     );
