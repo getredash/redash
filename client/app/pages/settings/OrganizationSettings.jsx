@@ -48,7 +48,12 @@ class OrganizationSettings extends React.Component {
   }
 
   disablePasswordLoginToggle = () =>
-    !(clientConfig.googleLoginEnabled || clientConfig.microsoftLoginEnabled || clientConfig.ldapLoginEnabled || this.state.formValues.auth_saml_enabled);
+    !(
+      clientConfig.googleLoginEnabled ||
+      clientConfig.microsoftLoginEnabled ||
+      clientConfig.ldapLoginEnabled ||
+      this.state.formValues.auth_saml_enabled
+    );
 
   handleSubmit = e => {
     e.preventDefault();
@@ -118,9 +123,9 @@ class OrganizationSettings extends React.Component {
             <Alert
               message={
                 <p>
-                  Any user registered with a <strong>{join(formValues.auth_microsoft_apps_domains, ", ")}</strong> Microsoft
-                  Apps account will be able to login. If they don{"'"}t have an existing user, a new user will be
-                  created and join the <strong>Default</strong> group.
+                  Any user registered with a <strong>{join(formValues.auth_microsoft_apps_domains, ", ")}</strong>{" "}
+                  Microsoft Apps account will be able to login. If they don{"'"}t have an existing user, a new user will
+                  be created and join the <strong>Default</strong> group.
                 </p>
               }
               className="m-t-15"
