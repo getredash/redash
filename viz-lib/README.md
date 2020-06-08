@@ -162,6 +162,25 @@ export const ConfiguredRenderer = wrapComponentWithSettings(Renderer);
 export const ConfiguredEditor = wrapComponentWithSettings(Editor);
 ```
 
+### Specific File Imports
+
+There is a transpiled only build aimed for specific file imports.
+
+**Note:** Currently requires Less.
+
+Usage:
+
+```jsx
+import React from "react";
+import JsonViewInteractive from "@redash/viz/lib/components/json-view-interactive/JsonViewInteractive";
+
+const example = { list: ["value1", "value2", "value3"], obj: { prop: "value" } };
+
+export default function App() {
+  return <JsonViewInteractive value={example} />;
+}
+```
+
 ## License
 
 BSD-2-Clause.
