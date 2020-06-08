@@ -21,7 +21,11 @@ export function getErrorMessage(
   if (isObject(error)) {
     // HTTP errors
     if (error.isAxiosError && isObject(error.response)) {
-      return getErrorMessageByStatus(error.response.status, get(error, "response.data.message", defaultMessage));
+      const errorData = get(error, "response.data", {});
+
+      // handle cases where the message is an object as { "message": msg } or { "error": msg }
+      const errorMessage = errorData.message || errorData.error || defaultMessage;
+      return getErrorMessageByStatus(error.response.status, errorMessage);
     }
     // Router errors
     if (error.status) {
