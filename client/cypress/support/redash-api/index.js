@@ -130,6 +130,15 @@ export function createUser({ name, email, password }) {
     });
 }
 
+export function createDestination(name, type, options = {}) {
+  return cy.request({
+    method: "POST",
+    url: "api/destinations",
+    body: { name, type, options },
+    failOnStatusCode: false,
+  });
+}
+
 export function getDestinations() {
   return cy.request("GET", "api/destinations").then(({ body }) => body);
 }

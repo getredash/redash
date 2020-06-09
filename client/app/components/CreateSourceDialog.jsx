@@ -67,7 +67,7 @@ class CreateSourceDialog extends React.Component {
         })
         .catch(error => {
           this.setState({ savingSource: false, currentStep: StepEnum.CONFIGURE_IT });
-          errorCallback(getErrorMessage(error.message));
+          errorCallback(getErrorMessage(error, "Failed saving."));
         });
     }
   };
