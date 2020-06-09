@@ -39,7 +39,7 @@ DashboardSettings.propTypes = {
 };
 
 function AddWidgetContainer({ dashboardOptions, className, ...props }) {
-  const { showAddTextboxDialog, showAddWidgetDialog } = dashboardOptions;
+  const { showAddTextboxDialog, showAddWidgetDialog, showAddIframeboxDialog } = dashboardOptions;
   return (
     <div className={cx("add-widget-container", className)} {...props}>
       <h2>
@@ -52,6 +52,9 @@ function AddWidgetContainer({ dashboardOptions, className, ...props }) {
       <div>
         <Button className="m-r-15" onClick={showAddTextboxDialog} data-test="AddTextboxButton">
           Add Textbox
+        </Button>
+        <Button className="m-r-15" onClick={showAddIframeboxDialog} data-test="AddIframeboxButton">
+          Add Iframe
         </Button>
         <Button type="primary" onClick={showAddWidgetDialog} data-test="AddWidgetButton">
           Add Widget
