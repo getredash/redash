@@ -22,29 +22,29 @@ jobs:
       - run: ./bin/flake8_tests.sh
   backend-unit-tests:
     environment:
-      COMPOSE_FILE: .circleci/docker-compose.circle.yml
       COMPOSE_PROJECT_NAME: redash
-    docker:
-      - image: circleci/buildpack-deps:xenial
+    machine:
+      image: ubuntu-1604:202004-01
     steps:
-      - setup_remote_docker
       - checkout
       - run:
           name: Build Docker Images
           command: |
             set -x
             docker-compose build --build-arg skip_ds_deps=true --build-arg skip_frontend_build=true
-            docker-compose up -d
+            docker-compose up -d postgres
             sleep 10
       - run:
           name: Create Test Database
-          command: docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
+          command: docker-compose exec postgres psql -U postgres -c "create database tests;"
       - run:
           name: List Enabled Query Runners
-          command: docker-compose run --rm redash manage ds list_types
+          command: docker-compose run --rm server manage ds list_types
       - run:
           name: Run Tests
-          command: docker-compose run --name tests redash tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
+          command: |
+            mkdir client/dist && touch client/dist/multi_org.html client/dist/index.html
+            docker-compose run -u $(id -u):$(id -g) --name tests server tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
       - run:
           name: Copy Test Results
           command: |
