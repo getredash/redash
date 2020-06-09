@@ -84,7 +84,9 @@ class QueriesList extends React.Component {
     Columns.custom((text, item) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
       title: "Refresh Schedule",
       field: "schedule",
-      sorter: (a, b) =>  (a.item.schedule ? a.item.schedule.interval : Number.MAX_VALUE)  -  (b.item.schedule ? b.item.schedule.interval : Number.MAX_VALUE),
+      sorter: (a, b) =>
+        (a.item.schedule ? a.item.schedule.interval : Number.MAX_VALUE)  -
+        (b.item.schedule ? b.item.schedule.interval : Number.MAX_VALUE),
     }),
   ];
 
