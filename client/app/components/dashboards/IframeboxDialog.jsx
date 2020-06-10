@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
-import Tooltip from "antd/lib/tooltip";
 import Divider from "antd/lib/divider";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import notification from "@/services/notification";
@@ -17,6 +16,7 @@ export function toIframe(text) {
 
 function IframeboxDialog({ dialog, isNew, ...props }) {
   const [text, setText] = useState(toString(props.text));
+  const [title, setTitle] = useState(toString(props.title));
   const [preview, setPreview] = useState(null);
 
   useEffect(() => {
@@ -37,10 +37,10 @@ function IframeboxDialog({ dialog, isNew, ...props }) {
   );
 
   const saveWidget = useCallback(() => {
-    dialog.close(text).catch(() => {
+    dialog.close(text, title).catch(() => {
       notification.error(isNew ? "Widget could not be added" : "Widget could not be saved");
     });
-  }, [dialog, isNew, text]);
+  }, [dialog, isNew, text, title]);
 
   return (
     <Modal
@@ -50,7 +50,13 @@ function IframeboxDialog({ dialog, isNew, ...props }) {
       okText={isNew ? "Add to Dashboard" : "Save"}
       width={500}
       wrapProps={{ "data-test": "IframeboxDialog" }}>
-      <div className="textbox-dialog">
+      <div className="iframebox-dialog">
+        <Input
+          value={title}
+          onChange={setTitle}
+          placeholder="Title..."
+        />
+        <Divider dashed />
         <Input.TextArea
           className="resize-vertical"
           rows="5"
@@ -78,11 +84,13 @@ IframeboxDialog.propTypes = {
   dialog: DialogPropType.isRequired,
   isNew: PropTypes.bool,
   text: PropTypes.string,
+  title: PropTypes.string,
 };
 
 IframeboxDialog.defaultProps = {
   isNew: false,
   text: "",
+  title: "",
 };
 
 export default wrapDialog(IframeboxDialog);

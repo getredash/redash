@@ -177,10 +177,11 @@ function useDashboard(dashboardData) {
   const showAddIframeboxDialog = useCallback(() => {
     IframeboxDialog.showModal({
       isNew: true,
-    }).onClose(text =>
+    }).onClose((text, title) =>
       dashboard
         .addWidget(text, {
-          isIframe: true
+          title,
+          isIframe: true,
         })
         .then(() => setDashboard(currentDashboard => extend({}, currentDashboard)))
     );
