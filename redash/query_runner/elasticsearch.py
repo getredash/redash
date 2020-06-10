@@ -3,10 +3,10 @@ import sys
 import urllib.request
 import urllib.parse
 import urllib.error
+from copy import copy
 
 import requests
 from requests.auth import HTTPBasicAuth
-
 from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
 
@@ -39,7 +39,6 @@ PYTHON_TYPES_MAPPING = {
     int: TYPE_INTEGER,
     float: TYPE_FLOAT,
 }
-
 
 class BaseElasticSearch(BaseQueryRunner):
     should_annotate_query = False
@@ -92,102 +91,136 @@ class BaseElasticSearch(BaseQueryRunner):
         if basic_auth_user and basic_auth_password:
             self.auth = HTTPBasicAuth(basic_auth_user, basic_auth_password)
 
-    def _get_mappings(self, url):
-        mappings = {}
+    def get_response(self, url, http_method='get', **kwargs):
+        url = "{}{}".format(self.server_url, url)
+        headers = kwargs.pop('headers', {})
+        headers['Accept'] = 'application/json'
+
+        # Then call requests to get the response from the given endpoint
+        # URL optionally, with the additional requests parameters.
         error = None
+        response = None
         try:
-            r = requests.get(url, auth=self.auth)
-            r.raise_for_status()
+            response = requests.request(http_method, url, auth=self.auth, headers=headers, **kwargs)
+            # Raise a requests HTTP exception with the appropriate reason
+            # for 4xx and 5xx response status codes which is later caught
+            # and passed back.
+            response.raise_for_status()
 
-            mappings = r.json()
-        except requests.HTTPError as e:
-            logger.exception(e)
-            error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(
-                r.status_code, r.text
+            # Any other responses (e.g. 2xx and 3xx):
+            if response.status_code != 200:
+                error = "Endpoint returned unexpected status code ({}).".format(response.status_code)
+
+        except requests.HTTPError as exc:
+            logger.exception(exc)
+            error = "Failed to execute query. " "Return Code: {} Reason: {}".format(
+                response.status_code, response.text
             )
-            mappings = None
-        except requests.exceptions.RequestException as e:
-            logger.exception(e)
-            error = "Connection refused"
-            mappings = None
+        except requests.RequestException as exc:
+            # Catch all other requests exceptions and return the error.
+            logger.exception(exc)
+            error = str(exc)
 
-        return mappings, error
+        # Return response and error.
+        return response, error
+
+    def _get_mappings(self, url):
+        response, error = self.get_response(url)
+        if error is None:
+            return response.json(), None
+        else:
+            return {}, error
 
     def _get_query_mappings(self, url):
         mappings_data, error = self._get_mappings(url)
         if error:
             return mappings_data, error
-
-        mappings = {}
-        for index_name in mappings_data:
-            index_mappings = mappings_data[index_name]
-            for m in index_mappings.get("mappings", {}):
-                if "properties" not in index_mappings["mappings"][m]:
-                    continue
-                for property_name in index_mappings["mappings"][m]["properties"]:
-                    property_data = index_mappings["mappings"][m]["properties"][
-                        property_name
-                    ]
-                    if property_name not in mappings:
-                        property_type = property_data.get("type", None)
-                        if property_type:
-                            if property_type in ELASTICSEARCH_TYPES_MAPPING:
-                                mappings[property_name] = ELASTICSEARCH_TYPES_MAPPING[
-                                    property_type
-                                ]
-                            else:
-                                mappings[property_name] = TYPE_STRING
-                                # raise Exception("Unknown property type: {0}".format(property_type))
-
+        mappings = self._parse_mappings(mappings_data)
         return mappings, error
 
+    def test_connection(self):
+        _, error = self.get_response("/_cluster/health")
+        if error is not None:
+            raise Exception(error)
+
+    def run_query(self, query, user):
+        logger.debug("Input query: %s", query)
+        query = json_loads(query)
+        index, query, url, result_fields = self._build_query(query)
+        return self._get_query(url, query, index, result_fields)
+
+    def _get_query(self, url, query, index=None, result_fields=None):
+        mapping_url = "/{0}/_mapping".format(index) if index else "/_mapping"
+        mappings, error = self._get_query_mappings(mapping_url)
+        if error:
+            return None, error
+
+        logger.debug("Using URL: %s", url)
+        logger.debug("Using query: %s", query)
+        response, error = self.get_response(url, http_method='POST', json=query)
+        if error:
+            return None, error
+        logger.debug("Result: %s", response.json())
+        raw_result = response.json()
+
+        result_columns = []
+        result_rows = []
+        self._parse_results(mappings, result_fields, raw_result, result_columns, result_rows)
+        json_data = json_dumps({"columns": result_columns, "rows": result_rows})
+        error = None
+        return json_data, error
+
+    def _build_query(self, query):
+        index_name = query.pop('index', None)
+        result_fields = query.pop('_source', None)
+        url = "/{}/_search".format(index_name) if index_name else "/_search"
+        return index_name, query, url, result_fields
+
+    @classmethod
+    def _parse_mappings(cls, mappings_data):
+        mappings = {}
+
+        def _parse_properties(prefix, properties):
+            for property_name, property_data in properties.items():
+                if property_name not in mappings:
+                    property_type = property_data.get('type', None)
+                    nested_properties = property_data.get('properties', None)
+                    if property_type:
+                        mappings[index_name][prefix + property_name] = (
+                            ELASTICSEARCH_TYPES_MAPPING.get(property_type, TYPE_STRING)
+                        )
+                    elif nested_properties:
+                        new_prefix = prefix + property_name + '.'
+                        _parse_properties(new_prefix, nested_properties)
+
+        for index_name in mappings_data:
+            mappings[index_name] = {}
+            index_mappings = mappings_data[index_name]
+            _parse_properties('', index_mappings['mappings']['properties'])
+
+        return mappings
+
     def get_schema(self, *args, **kwargs):
-        def parse_doc(doc, path=None):
-            """Recursively parse a doc type dictionary
-            """
-            path = path or []
-            result = []
-            for field, description in doc["properties"].items():
-                if "properties" in description:
-                    result.extend(parse_doc(description, path + [field]))
-                else:
-                    result.append(".".join(path + [field]))
-            return result
-
         schema = {}
-        url = "{0}/_mappings".format(self.server_url)
-        mappings, error = self._get_mappings(url)
-
+        mappings, error = self._get_query_mappings('/_mappings')
         if mappings:
-            # make a schema for each index
-            # the index contains a mappings dict with documents
-            # in a hierarchical format
-            for name, index in mappings.items():
-                columns = []
-                schema[name] = {"name": name}
-                for doc, items in index["mappings"].items():
-                    columns.extend(parse_doc(items))
-
-                # remove duplicates
-                # sort alphabetically
-                schema[name]["columns"] = sorted(set(columns))
+            for name, columns in mappings.items():
+                schema[name] = {
+                    'name': name,
+                    'columns': list(columns.keys())
+                }
         return list(schema.values())
 
-    def _parse_results(
-        self, mappings, result_fields, raw_result, result_columns, result_rows
-    ):
-        def add_column_if_needed(
-            mappings, column_name, friendly_name, result_columns, result_columns_index
-        ):
-            if friendly_name not in result_columns_index:
-                result_columns.append(
-                    {
-                        "name": friendly_name,
-                        "friendly_name": friendly_name,
-                        "type": mappings.get(column_name, "string"),
-                    }
-                )
-                result_columns_index[friendly_name] = result_columns[-1]
+    @classmethod
+    def _parse_results(cls, mappings, result_fields, raw_result, result_columns, result_rows):
+
+        def add_column_if_needed(mappings, column_name, value=None):
+            if column_name not in result_columns_index:
+                result_columns.append({
+                    'name': column_name,
+                    'friendly_name': column_name,
+                    'type': PYTHON_TYPES_MAPPING.get(type(value), TYPE_STRING)})
+                result_columns_index[column_name] = result_columns[-1]
 
         def get_row(rows, row):
             if row is None:
@@ -195,185 +228,125 @@ class BaseElasticSearch(BaseQueryRunner):
                 rows.append(row)
             return row
 
-        def collect_value(mappings, row, key, value, type):
+        def collect_value(mappings, row, key, value):
             if result_fields and key not in result_fields_index:
                 return
 
-            mappings[key] = type
-            add_column_if_needed(
-                mappings, key, key, result_columns, result_columns_index
-            )
+            add_column_if_needed(mappings, key, value)
             row[key] = value
 
-        def collect_aggregations(
-            mappings, rows, parent_key, data, row, result_columns, result_columns_index
-        ):
-            if isinstance(data, dict):
-                for key, value in data.items():
-                    val = collect_aggregations(
-                        mappings,
-                        rows,
-                        parent_key if key == "buckets" else key,
-                        value,
-                        row,
-                        result_columns,
-                        result_columns_index,
-                    )
-                    if val:
-                        row = get_row(rows, row)
-                        collect_value(mappings, row, key, val, "long")
-
-                for data_key in ["value", "doc_count"]:
-                    if data_key not in data:
-                        continue
-                    if "key" in data and len(list(data.keys())) == 2:
-                        key_is_string = "key_as_string" in data
-                        collect_value(
-                            mappings,
-                            row,
-                            data["key"] if not key_is_string else data["key_as_string"],
-                            data[data_key],
-                            "long" if not key_is_string else "string",
-                        )
+        def parse_bucket_to_row(mappings, data, row, agg_key):
+            sub_agg_key = ""
+            for key, item in data.items():
+                if key == 'key_as_string':
+                    continue
+                if key == 'key':
+                    if 'key_as_string' in data:
+                        collect_value(mappings, row, agg_key, data['key_as_string'])
                     else:
-                        return data[data_key]
+                        collect_value(mappings, row, agg_key, data['key'])
+                    continue
 
-            elif isinstance(data, list):
-                for value in data:
-                    result_row = get_row(rows, row)
-                    collect_aggregations(
-                        mappings,
-                        rows,
-                        parent_key,
-                        value,
-                        result_row,
-                        result_columns,
-                        result_columns_index,
-                    )
-                    if "doc_count" in value:
-                        collect_value(
-                            mappings,
-                            result_row,
-                            "doc_count",
-                            value["doc_count"],
-                            "integer",
-                        )
-                    if "key" in value:
-                        if "key_as_string" in value:
-                            collect_value(
-                                mappings,
-                                result_row,
-                                parent_key,
-                                value["key_as_string"],
-                                "string",
-                            )
-                        else:
-                            collect_value(
-                                mappings, result_row, parent_key, value["key"], "string"
-                            )
+                if isinstance(item, (str, int, float)):
+                    collect_value(mappings, row, agg_key + '.' + key, item)
+                elif isinstance(item, dict):
+                    if 'buckets' not in item:
+                        for sub_key, sub_item in item.items():
+                            collect_value(mappings, row, agg_key + '.' + key + '.' + sub_key, sub_item)
+                    else:
+                        sub_agg_key = key
+
+            return sub_agg_key
+
+        def parse_buckets_list(mappings, rows, parent_key, data, row, depth):
+            if len(rows) > 0 and depth == 0:
+                row = rows.pop()
+
+            for value in data:
+                row = row.copy()
+                sub_agg_key = parse_bucket_to_row(mappings, value, row, parent_key)
+
+                if sub_agg_key == "":
+                    rows.append(row)
+                else:
+                    depth += 1
+                    parse_buckets_list(mappings, rows, sub_agg_key, value[sub_agg_key]['buckets'], row, depth)
+
+        def collect_aggregations(mappings, rows, parent_key, data, row, depth):
+            row = get_row(rows, row)
+            parse_bucket_to_row(mappings, data, row, parent_key)
+
+            if 'buckets' in data:
+                parse_buckets_list(mappings, rows, parent_key, data['buckets'], row, depth)
 
             return None
 
-        result_columns_index = {c["name"]: c for c in result_columns}
+        def get_flatten_results(dd, separator='.', prefix=''):
+            if isinstance(dd, dict):
+                return {
+                    prefix + separator + k if prefix else k: v
+                    for kk, vv in dd.items()
+                    for k, v in get_flatten_results(vv, separator, kk).items()
+                }
+            elif isinstance(dd, list) and len(dd) == 1:
+                return {prefix: dd[0]}
+            else:
+                return {prefix: dd}
 
+        # processing
+        result_columns_index = {c["name"]: c for c in result_columns}
         result_fields_index = {}
+
         if result_fields:
             for r in result_fields:
                 result_fields_index[r] = None
 
-        if "error" in raw_result:
-            error = raw_result["error"]
+        if 'error' in raw_result:
+            error = raw_result['error']
             if len(error) > 10240:
-                error = error[:10240] + "... continues"
+                error = error[:10240] + '... continues'
 
             raise Exception(error)
-        elif "aggregations" in raw_result:
+        elif 'aggregations' in raw_result:
             if result_fields:
-                for field in result_fields:
-                    add_column_if_needed(
-                        mappings, field, field, result_columns, result_columns_index
-                    )
+                for column_name in result_fields:
+                    add_column_if_needed(mappings, column_name)
 
             for key, data in raw_result["aggregations"].items():
-                collect_aggregations(
-                    mappings,
-                    result_rows,
-                    key,
-                    data,
-                    None,
-                    result_columns,
-                    result_columns_index,
-                )
+                collect_aggregations(mappings, result_rows, key, data, None, 0)
 
-            logger.debug("result_rows %s", str(result_rows))
-            logger.debug("result_columns %s", str(result_columns))
-        elif "hits" in raw_result and "hits" in raw_result["hits"]:
-            if result_fields:
-                for field in result_fields:
-                    add_column_if_needed(
-                        mappings, field, field, result_columns, result_columns_index
-                    )
-
+        elif 'hits' in raw_result and 'hits' in raw_result['hits']:
             for h in raw_result["hits"]["hits"]:
                 row = {}
 
-                column_name = "_source" if "_source" in h else "fields"
-                for column in h[column_name]:
+                fields_parameter_name = "_source" if "_source" in h else "fields"
+                for column in h[fields_parameter_name]:
                     if result_fields and column not in result_fields_index:
                         continue
 
-                    add_column_if_needed(
-                        mappings, column, column, result_columns, result_columns_index
-                    )
+                    unested_results = get_flatten_results({column: h[fields_parameter_name][column]})
 
-                    value = h[column_name][column]
-                    row[column] = (
-                        value[0]
-                        if isinstance(value, list) and len(value) == 1
-                        else value
-                    )
+                    for column_name, value in unested_results.items():
+                        add_column_if_needed(mappings, column_name, value=value)
+                        row[column_name] = value
 
                 result_rows.append(row)
         else:
-            raise Exception(
-                "Redash failed to parse the results it got from Elasticsearch."
-            )
-
-    def test_connection(self):
-        try:
-            r = requests.get(
-                "{0}/_cluster/health".format(self.server_url), auth=self.auth
-            )
-            r.raise_for_status()
-        except requests.HTTPError as e:
-            logger.exception(e)
-            raise Exception(
-                "Failed to execute query. Return Code: {0}   Reason: {1}".format(
-                    r.status_code, r.text
-                )
-            )
-        except requests.exceptions.RequestException as e:
-            logger.exception(e)
-            raise Exception("Connection refused")
-
+            raise Exception("Redash failed to parse the results it got from Elasticsearch.")
 
 class Kibana(BaseElasticSearch):
     @classmethod
     def enabled(cls):
         return True
 
-    def _execute_simple_query(
-        self, url, auth, _from, mappings, result_fields, result_columns, result_rows
-    ):
+    def _execute_simple_query(self, url, auth, _from, mappings, result_fields, result_columns, result_rows):
         url += "&from={0}".format(_from)
-        r = requests.get(url, auth=self.auth)
-        r.raise_for_status()
+        r, error = self.get_response(url, http_method='POST')
+        if error:
+            r.raise_for_status()
 
         raw_result = r.json()
-
-        self._parse_results(
-            mappings, result_fields, raw_result, result_columns, result_rows
-        )
+        self._parse_results(mappings, result_fields, raw_result, result_columns, result_rows)
 
         total = raw_result["hits"]["total"]
         result_size = len(raw_result["hits"]["hits"])
@@ -382,72 +355,51 @@ class Kibana(BaseElasticSearch):
         return raw_result["hits"]["total"]
 
     def run_query(self, query, user):
-        try:
-            error = None
+        error = None
+        logger.debug(query)
+        query = json_loads(query)
+        index, query, url, result_fields = self._build_query(query)
+        query_data = query.get("query", None)
+        size = int(query.get("size", 500))
+        limit = int(query.get("limit", 500))
+        sort = query.get("sort", None)
 
-            logger.debug(query)
-            query_params = json_loads(query)
+        mapping_url = "/{0}/_mapping".format(index) if index else "/_mapping"
+        mappings, error = self._get_query_mappings(mapping_url)
+        if error:
+            return None, error
 
-            index_name = query_params["index"]
-            query_data = query_params["query"]
-            size = int(query_params.get("size", 500))
-            limit = int(query_params.get("limit", 500))
-            result_fields = query_params.get("fields", None)
-            sort = query_params.get("sort", None)
-
-            if not self.server_url:
-                error = "Missing configuration key 'server'"
-                return None, error
-
-            url = "{0}/{1}/_search?".format(self.server_url, index_name)
-            mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
-
-            mappings, error = self._get_query_mappings(mapping_url)
-            if error:
-                return None, error
-
-            if sort:
-                url += "&sort={0}".format(urllib.parse.quote_plus(sort))
-
+        if sort:
+            url += "sort={0}".format(urllib.parse.quote_plus(sort))
+        if query_data:
             url += "&q={0}".format(urllib.parse.quote_plus(query_data))
 
-            logger.debug("Using URL: {0}".format(url))
-            logger.debug("Using Query: {0}".format(query_data))
+        logger.debug("Using URL: {0}".format(url))
+        logger.debug("Using Query: {0}".format(query_data))
 
-            result_columns = []
-            result_rows = []
-            if isinstance(query_data, str):
-                _from = 0
-                while True:
-                    query_size = size if limit >= (_from + size) else (limit - _from)
-                    total = self._execute_simple_query(
-                        url + "&size={0}".format(query_size),
-                        self.auth,
-                        _from,
-                        mappings,
-                        result_fields,
-                        result_columns,
-                        result_rows,
-                    )
-                    _from += size
-                    if _from >= limit:
-                        break
-            else:
-                # TODO: Handle complete ElasticSearch queries (JSON based sent over HTTP POST)
-                raise Exception("Advanced queries are not supported")
+        result_columns = []
+        result_rows = []
+        if isinstance(query_data, str):
+            _from = 0
+            while True:
+                query_size = size if limit >= (_from + size) else (limit - _from)
+                total = self._execute_simple_query(
+                    url + "&size={0}".format(query_size),
+                    self.auth,
+                    _from,
+                    mappings,
+                    result_fields,
+                    result_columns,
+                    result_rows,
+                )
+                _from += size
+                if _from >= limit:
+                    break
+        else:
+            # TODO: Handle complete ElasticSearch queries (JSON based sent over HTTP POST)
+            raise Exception("Advanced queries are not supported")
 
-            json_data = json_dumps({"columns": result_columns, "rows": result_rows})
-        except requests.HTTPError as e:
-            logger.exception(e)
-            error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(
-                r.status_code, r.text
-            )
-            json_data = None
-        except requests.exceptions.RequestException as e:
-            logger.exception(e)
-            error = "Connection refused"
-            json_data = None
-
+        json_data = json_dumps({"columns": result_columns, "rows": result_rows})
         return json_data, error
 
 
@@ -459,57 +411,6 @@ class ElasticSearch(BaseElasticSearch):
     @classmethod
     def name(cls):
         return "Elasticsearch"
-
-    def run_query(self, query, user):
-        try:
-            error = None
-
-            logger.debug(query)
-            query_dict = json_loads(query)
-
-            index_name = query_dict.pop("index", "")
-            result_fields = query_dict.pop("result_fields", None)
-
-            if not self.server_url:
-                error = "Missing configuration key 'server'"
-                return None, error
-
-            url = "{0}/{1}/_search".format(self.server_url, index_name)
-            mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
-
-            mappings, error = self._get_query_mappings(mapping_url)
-            if error:
-                return None, error
-
-            logger.debug("Using URL: %s", url)
-            logger.debug("Using query: %s", query_dict)
-            r = requests.get(url, json=query_dict, auth=self.auth)
-            r.raise_for_status()
-            logger.debug("Result: %s", r.json())
-
-            result_columns = []
-            result_rows = []
-            self._parse_results(
-                mappings, result_fields, r.json(), result_columns, result_rows
-            )
-
-            json_data = json_dumps({"columns": result_columns, "rows": result_rows})
-        except (KeyboardInterrupt, JobTimeoutException):
-            logger.exception(e)
-            raise
-        except requests.HTTPError as e:
-            logger.exception(e)
-            error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(
-                r.status_code, r.text
-            )
-            json_data = None
-        except requests.exceptions.RequestException as e:
-            logger.exception(e)
-            error = "Connection refused"
-            json_data = None
-
-        return json_data, error
-
 
 register(Kibana)
 register(ElasticSearch)

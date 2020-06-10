@@ -1,5 +1,7 @@
-from .elasticsearch import ElasticSearch
+import logging
+from .elasticsearch import BaseElasticSearch, ElasticSearch
 from . import register
+from redash.utils import json_loads
 
 try:
     from requests_aws_sign import AWSV4Sign
@@ -9,6 +11,7 @@ try:
 except ImportError:
     enabled = False
 
+logger = logging.getLogger(__name__)
 
 class AmazonElasticsearchService(ElasticSearch):
     @classmethod
@@ -63,5 +66,49 @@ class AmazonElasticsearchService(ElasticSearch):
 
         self.auth = AWSV4Sign(cred, region, "es")
 
+    def run_query(self, query, user):
+        logger.debug("Input query: %s", query)
+        query = json_loads(query)
+        mode = query.pop("mode", "json")
+        if mode == "sql":
+            sql = query.pop("query", "")
+            index, query, url, result_fields = self._build_sql_query(sql)
+        else:
+            index, query, url, result_fields = self._build_query(query)
+        return self._get_query(url, query, index, result_fields)
+
+    def _build_sql_query(self, query):
+        sql_query = {
+            'query': query
+        }
+        sql_query_url = '/_opendistro/_sql'
+        return None, sql_query, sql_query_url, None
+
+class AmazonElasticsearchSqlService(AmazonElasticsearchService):
+    @classmethod
+    def name(cls):
+        return "Amazon Elasticsearch Service (with SQL)"
+
+    @classmethod
+    def enabled(cls):
+        return enabled
+
+    @classmethod
+    def type(cls):
+        return "aws_es_sql"
+
+    def __init__(self, configuration):
+        super(AmazonElasticsearchSqlService, self).__init__(configuration)
+        self.syntax = 'sql'
+
+    def run_query(self, query, user):
+        logger.debug("Input query: %s", query)
+        index, query, url, result_fields = self._build_query(query)
+        return self._get_query(url, query, index, result_fields)
+
+    def _build_query(self, query):
+        return self._build_sql_query(query)
+
 
 register(AmazonElasticsearchService)
+register(AmazonElasticsearchSqlService)
