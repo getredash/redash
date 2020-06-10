@@ -13,15 +13,15 @@ function IframeboxWidget(props) {
     IframeboxDialog.showModal({
       text: widget.text,
       title: widget.options.title,
-    }).onClose((newText, newTitle) => {
-      widget.text = newText;
+    }).onClose((o) => {
+      widget.text = o.text;
       widget.options = {
         ...widget.options,
-        title: newTitle,
+        title: o.title,
         isIframe: true,
       };
-      setText(newText);
-      setTitle(newTitle);
+      setText(o.text);
+      setTitle(o.title);
       return widget.save();
     });
   };
