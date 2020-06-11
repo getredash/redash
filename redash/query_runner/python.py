@@ -40,6 +40,7 @@ class CustomPrint(object):
     def _call_print(self, *objects, **kwargs):
         print(*objects, file=self)
 
+
 class Python(BaseQueryRunner):
     should_annotate_query = False
 
@@ -81,6 +82,7 @@ class Python(BaseQueryRunner):
                     "title": "Modules to import prior to running the script",
                 },
                 "additionalModulesPaths": {"type": "string"},
+                "additionalBuiltins": {"type": "string"},
             },
         }
 
@@ -106,6 +108,11 @@ class Python(BaseQueryRunner):
             for p in self.configuration["additionalModulesPaths"].split(","):
                 if p not in sys.path:
                     sys.path.append(p)
+
+        if self.configuration.get("additionalBuiltins", None):
+            for b in self.configuration["additionalBuiltins"].split(","):
+                if b not in self.safe_builtins:
+                    self.safe_builtins += (b, )
 
     def custom_import(self, name, globals=None, locals=None, fromlist=(), level=0):
         if name in self._allowed_modules:
