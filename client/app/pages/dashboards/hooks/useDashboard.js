@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { isEmpty, includes, compact, map, has, pick, keys, extend, every, get } from "lodash";
+import { isEmpty, isEqual, includes, compact, map, has, pick, keys, extend, every, get } from "lodash";
 import notification from "@/services/notification";
 import location from "@/services/location";
 import { Dashboard, collectDashboardFilters } from "@/services/dashboard";
@@ -31,12 +31,27 @@ function getAffectedWidgets(widgets, updatedParameters = []) {
     : widgets;
 }
 
+function useDashboardParameters(dashboard) {
+  const [parameters, setParameters] = useState([]);
+
+  const parametersRef = useRef();
+  parametersRef.current = parameters;
+  useEffect(() => {
+    const updatedParameters = dashboard.getParametersDefs();
+    if (!isEqual(updatedParameters, parametersRef.current)) {
+      setParameters(updatedParameters);
+    }
+  }, [dashboard]);
+
+  return parameters;
+}
+
 function useDashboard(dashboardData) {
   const [dashboard, setDashboard] = useState(dashboardData);
   const [filters, setFilters] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [gridDisabled, setGridDisabled] = useState(false);
-  const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
+  const globalParameters = useDashboardParameters(dashboard);
   const canEditDashboard = !dashboard.is_archived && dashboard.can_edit;
   const isDashboardOwnerOrAdmin = useMemo(
     () =>
