@@ -69,6 +69,7 @@ function graph(data) {
     addLink(row[dataKeys[1]], row[dataKeys[2]], row.value || 0, 2);
     addLink(row[dataKeys[2]], row[dataKeys[3]], row.value || 0, 3);
     addLink(row[dataKeys[3]], row[dataKeys[4]], row.value || 0, 4);
+    addLink(row[dataKeys[4]], null, row.value || 0, 5); // this line ensures that the last stage has a corresponding exit node
   });
 
   const color = d3.scale.category20();
