@@ -1,35 +1,20 @@
-import { isFunction, each } from "lodash";
+import { isFunction } from "lodash";
 import React, { useState, useEffect } from "react";
 
-// Introduce new dynamic components here; use `null` for default representation (display children)
-const dynamicComponents = {
-  HomeExtra: null,
-  BeaconConsent: null,
-  BeaconConsentSetting: null,
-  UsersListExtra: null,
-  DataSourcesListExtra: null,
-  CreateDashboardDialogExtra: null,
-  HelpDrawerExtraContent: null,
-};
-
-// Overriding dynamic components is simple: just assign a value to one of the fields above, e.g.:
-//
-// import DynamicComponent from "@/components/DynamicComponent";
-// DynamicComponent.HomeExtra = CustomHomeExtraComponent;
+const dynamicComponents = {};
 
 const updateListeners = new Set();
 
-// Patch components registry: convert each entry to getter + setter
-each(dynamicComponents, (Component, name, target) => {
-  function DynamicComponent({ children, ...props }) {
+function createDynamicComponent(name) {
+  function Component({ children, ...props }) {
     // use state to force update component when underlying component has changed
-    const [RealComponent, setRealComponent] = useState(() => Component);
+    const [RealComponent, setRealComponent] = useState(() => dynamicComponents[name]);
 
     // listen for changes and re-render when needed
     useEffect(() => {
       function update(changedComponentName) {
         if (changedComponentName === name) {
-          setRealComponent(() => Component);
+          setRealComponent(() => dynamicComponents[name]);
         }
       }
 
@@ -42,24 +27,51 @@ each(dynamicComponents, (Component, name, target) => {
     return RealComponent ? <RealComponent {...props}>{children}</RealComponent> : children;
   }
 
-  DynamicComponent.defaultProps = {
+  Component.defaultProps = {
     children: null,
   };
 
-  DynamicComponent.displayName = `DynamicComponent<${name}>`;
+  Component.displayName = `DynamicComponent<${name}>`;
 
-  Object.defineProperty(target, name, {
-    configurable: false,
-    enumerable: true,
-    get: () => DynamicComponent,
-    set: newComponent => {
-      Component = isFunction(newComponent) ? newComponent : null;
-      updateListeners.forEach(fn => fn(name)); // notify mounted components that underlying component has changed
+  return Component;
+}
+
+/**
+ * @typedef ReactComponent
+ * @type (React.Component|React.PureComponent|function)
+ */
+
+/**
+ * To override dynamic components just assign a value to one of the fields, e.g.:
+ *
+ * ```javascript
+ * import DynamicComponent from "@/components/DynamicComponent";
+ * DynamicComponent.HomeExtra = CustomHomeExtraComponent;
+ * ```
+ *
+ * Some predefined components list. Any arbitrary components may be registered as well
+ *
+ * @property {ReactComponent} HomeExtra
+ * @property {ReactComponent} BeaconConsent
+ * @property {ReactComponent} BeaconConsentSetting
+ * @property {ReactComponent} UsersListExtra
+ * @property {ReactComponent} DataSourcesListExtra
+ * @property {ReactComponent} CreateDashboardDialogExtra
+ * @property {ReactComponent} HelpDrawerExtraContent
+ */
+const DynamicComponent = new Proxy(
+  {},
+  {
+    get(target, name) {
+      target[name] = target[name] || createDynamicComponent(name);
+      return target[name];
     },
-  });
-});
+    set(target, name, value) {
+      dynamicComponents[name] = isFunction(value) ? value : null;
+      updateListeners.forEach(fn => fn(name)); // notify mounted components that underlying component has changed
+      return true;
+    },
+  }
+);
 
-// prevent it from adding components not defined explicitly above ^
-Object.freeze(dynamicComponents);
-
-export default dynamicComponents;
+export default DynamicComponent;
