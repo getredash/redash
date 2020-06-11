@@ -14,29 +14,19 @@ function getErrorMessageByStatus(status, defaultMessage) {
   }
 }
 
-export function getErrorMessage(
-  error,
-  defaultMessage = "It seems like we encountered an error. Try refreshing this page or contact your administrator."
-) {
+function getErrorMessage(error) {
+  const message = "It seems like we encountered an error. Try refreshing this page or contact your administrator.";
   if (isObject(error)) {
     // HTTP errors
     if (error.isAxiosError && isObject(error.response)) {
-      const errorData = get(error, "response.data", {});
-
-      // handle cases where the message is an object as { "message": msg } or { "error": msg }
-      const errorMessage = errorData.message || errorData.error || defaultMessage;
-      return getErrorMessageByStatus(error.response.status, errorMessage);
+      return getErrorMessageByStatus(error.response.status, get(error, "response.data.message", message));
     }
     // Router errors
     if (error.status) {
-      return getErrorMessageByStatus(error.status, defaultMessage);
-    }
-    // Other Error instances
-    if (error.message) {
-      return error.message;
+      return getErrorMessageByStatus(error.status, message);
     }
   }
-  return defaultMessage;
+  return message;
 }
 
 export default function ErrorMessage({ error }) {
