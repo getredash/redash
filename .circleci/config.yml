@@ -84,19 +84,6 @@ jobs:
       - run: .circleci/update_version
       - run: npm run bundle
       - run: .circleci/docker_build
-  build-docker-image-rc:
-    docker:
-      - image: circleci/node:12
-    steps:
-      - setup_remote_docker
-      - checkout
-      - run: echo "export MOZILLA_VERSION=rc" >> $BASH_ENV
-      - run: sudo apt update
-      - run: sudo apt install python3-pip
-      - run: sudo pip3 install -r requirements_bundles.txt
-      - run: .circleci/update_version
-      - run: npm run bundle
-      - run: .circleci/docker_build
   build-docker-image-tag:
     docker:
       - image: circleci/node:12
@@ -146,14 +133,6 @@ workflows:
             branches:
               only:
                 - master
-      - build-docker-image-rc:
-          requires:
-            - backend-unit-tests
-            - frontend-unit-tests
-          filters:
-            branches:
-              only:
-                - release
       - build-docker-image-tag:
           requires:
             - backend-unit-tests
