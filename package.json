@@ -1,6 +1,6 @@
 {
   "name": "redash-client",
-  "version": "9.0.0-alpha",
+  "version": "9.0.0-beta",
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
