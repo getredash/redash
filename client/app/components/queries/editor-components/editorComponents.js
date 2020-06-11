@@ -1,5 +1,4 @@
 import { isArray, isNil, each } from "lodash";
-import { useMemo } from "react";
 
 const componentsRegistry = new Map();
 
@@ -22,8 +21,6 @@ export function registerEditorComponent(componentName, component, dataSourceType
   });
 }
 
-export function useEditorComponents(dataSourceType) {
-  return useMemo(() => ({ ...componentsRegistry.get(null), ...componentsRegistry.get(dataSourceType) }), [
-    dataSourceType,
-  ]);
+export function getEditorComponents(dataSourceType) {
+  return { ...componentsRegistry.get(null), ...componentsRegistry.get(dataSourceType) };
 }
