@@ -35,7 +35,7 @@ export default function PlotlyChart({ options, data }) {
           showLink: false,
           displaylogo: false,
         };
-        
+
         if (visualizationsSettings.hidePlotlyModeBar) {
           plotlyOptions.displayModeBar = false;
         }

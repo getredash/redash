@@ -76,18 +76,8 @@ function placeLegendBelowPlot(plotlyElement, layout, updatePlot) {
     if (legend) {
       // compute real height of legend - items may be split into few columnns,
       // also scrollbar may be shown
-      const bounds = reduce(
-        legend.querySelectorAll(".traces"),
-        (result, node) => {
-          const b = node.getBoundingClientRect();
-          result = result || b;
-          return {
-            top: Math.min(result.top, b.top),
-            bottom: Math.max(result.bottom, b.bottom),
-          };
-        },
-        null
-      );
+      const bounds = legend.getBoundingClientRect();
+
       // here we have two values:
       // 1. height of plot container excluding height of legend items;
       //    it may be any value between 0 and plot container's height;
@@ -127,5 +117,7 @@ export default function applyLayoutFixes(plotlyElement, layout, options, updateP
         break;
       // no default
     }
+  } else {
+    updatePlot(plotlyElement, pick(layout, ["width", "height"]));
   }
 }
