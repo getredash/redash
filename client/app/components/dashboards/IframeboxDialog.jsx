@@ -37,7 +37,7 @@ function IframeboxDialog({ dialog, isNew, ...props }) {
   );
 
   const saveWidget = useCallback(() => {
-    dialog.close({ text, title }).catch(() => {
+    dialog.close(text, title).catch(() => {
       notification.error(isNew ? "Widget could not be added" : "Widget could not be saved");
     });
   }, [dialog, isNew, text, title]);

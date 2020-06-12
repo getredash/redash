@@ -177,7 +177,7 @@ function useDashboard(dashboardData) {
   const showAddIframeboxDialog = useCallback(() => {
     IframeboxDialog.showModal({
       isNew: true,
-    }).onClose(({ text, title }) =>
+    }).onClose((text, title) =>
       dashboard
         .addWidget(text, {
           title,
