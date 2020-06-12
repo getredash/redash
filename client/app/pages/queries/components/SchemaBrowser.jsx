@@ -36,7 +36,7 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
       <div className="table-name" onClick={onToggle}>
         <i className="fa fa-table m-r-5" />
         <strong>
-          <span title="{{table.name}}">{item.name}</span>
+          <span title={item.name}>{item.name}</span>
           {!isNil(item.size) && <span> ({item.size})</span>}
         </strong>
         <i

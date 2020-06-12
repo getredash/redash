@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import ErrorBoundary, { ErrorBoundaryContext } from "@/components/ErrorBoundary";
+import ErrorBoundary, { ErrorBoundaryContext } from "@redash/viz/lib/components/ErrorBoundary";
 import { Auth } from "@/services/auth";
 import organizationStatus from "@/services/organizationStatus";
 import ApplicationHeader from "./ApplicationHeader";

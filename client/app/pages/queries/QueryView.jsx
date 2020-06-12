@@ -9,9 +9,8 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import EditInPlace from "@/components/EditInPlace";
 import Parameters from "@/components/Parameters";
 
-import DataSource from "@/services/data-source";
 import { ExecutionStatus } from "@/services/query-result";
-import getQueryResultData from "@/lib/getQueryResultData";
+import useQueryResultData from "@/lib/useQueryResultData";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
@@ -23,6 +22,7 @@ import QueryExecutionMetadata from "./components/QueryExecutionMetadata";
 
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 import useQueryExecute from "./hooks/useQueryExecute";
+import useQueryDataSources from "./hooks/useQueryDataSources";
 import useUpdateQueryDescription from "./hooks/useUpdateQueryDescription";
 import useQueryFlags from "./hooks/useQueryFlags";
 import useQueryParameters from "./hooks/useQueryParameters";
@@ -35,12 +35,13 @@ import "./QueryView.less";
 
 function QueryView(props) {
   const [query, setQuery] = useState(props.query);
-  const [dataSource, setDataSource] = useState();
+  const { dataSource } = useQueryDataSources(query);
   const queryFlags = useQueryFlags(query, dataSource);
   const [parameters, areParametersDirty, updateParametersDirtyFlag] = useQueryParameters(query);
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
-  const isMobile = !useMedia({ minWidth: 768 });
-  const [fullscreen, toggleFullscreen] = useFullscreenHandler(!isMobile);
+  const isDesktop = useMedia({ minWidth: 768 });
+  const isFixedLayout = useMedia({ minHeight: 500 }) && isDesktop;
+  const [fullscreen, toggleFullscreen] = useFullscreenHandler(isDesktop);
   const [addingDescription, setAddingDescription] = useState(false);
 
   const {
@@ -55,7 +56,7 @@ function QueryView(props) {
     updatedAt,
   } = useQueryExecute(query);
 
-  const queryResultData = getQueryResultData(queryResult);
+  const queryResultData = useQueryResultData(queryResult);
 
   const updateQueryDescription = useUpdateQueryDescription(query, setQuery);
   const editSchedule = useEditScheduleDialog(query, setQuery);
@@ -80,12 +81,12 @@ function QueryView(props) {
     document.title = query.name;
   }, [query.name]);
 
-  useEffect(() => {
-    DataSource.get({ id: query.data_source_id }).then(setDataSource);
-  }, [query.data_source_id]);
-
   return (
-    <div className={cx("query-page-wrapper", { "query-view-fullscreen": fullscreen, "query-fixed-layout": !isMobile })}>
+    <div
+      className={cx("query-page-wrapper", {
+        "query-view-fullscreen": fullscreen,
+        "query-fixed-layout": isFixedLayout,
+      })}>
       <div className="container">
         <QueryPageHeader
           query={query}
@@ -96,7 +97,7 @@ function QueryView(props) {
             <QueryViewButton
               className="m-r-5"
               type="primary"
-              shortcut="mod+enter, alt+enter"
+              shortcut="mod+enter, alt+enter, ctrl+enter"
               disabled={!queryFlags.canExecute || isExecuting || areParametersDirty}
               onClick={doExecuteQuery}>
               Refresh

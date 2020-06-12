@@ -21,7 +21,9 @@ function seedDatabase(seedValues) {
 
 function buildServer() {
   console.log("Building the server...");
-  execSync("docker-compose -p cypress build --build-arg skip_ds_deps=true", { stdio: "inherit" });
+  execSync("docker-compose -p cypress build --build-arg skip_dev_deps=true --build-arg skip_ds_deps=true", {
+    stdio: "inherit",
+  });
 }
 
 function startServer() {

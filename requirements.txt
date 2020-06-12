@@ -41,7 +41,7 @@ RestrictedPython==5.0
 pysaml2==4.8.0
 pycrypto==2.6.1
 funcy==1.13
-sentry-sdk>=0.12.2,<0.13.0
+sentry-sdk>=0.14.3,<0.15.0
 semver==2.8.1
 xlsxwriter==1.2.2
 pystache==0.5.4
@@ -55,6 +55,7 @@ maxminddb-geolite2==2018.703
 pypd==1.1.0
 disposable-email-domains>=0.0.52
 gevent==1.4.0
+sshtunnel==0.1.5
 supervisor==4.1.0
 supervisor_checks==0.8.1
 werkzeug==0.16.1

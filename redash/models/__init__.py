@@ -24,6 +24,7 @@ from redash.destinations import (
 )
 from redash.metrics import database  # noqa: F401
 from redash.query_runner import (
+    with_ssh_tunnel,
     get_configuration_schema_for_query_runner_type,
     get_query_runner,
     TYPE_BOOLEAN,
@@ -181,12 +182,16 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
         return res
 
-    def get_schema(self, refresh=False):
-        cache = None
-        if not refresh:
-            cache = redis_connection.get(self._schema_key)
+    def get_cached_schema(self):
+        cache = redis_connection.get(self._schema_key)
+        return json_loads(cache) if cache else None
 
-        if cache is None:
+    def get_schema(self, refresh=False):
+        out_schema = None
+        if not refresh:
+            out_schema = self.get_cached_schema()
+
+        if out_schema is None:
             query_runner = self.query_runner
             schema = query_runner.get_schema(get_stats=refresh)
 
@@ -199,8 +204,6 @@ class DataSource(BelongsToOrgMixin, db.Model):
                 out_schema = schema
             finally:
                 redis_connection.set(self._schema_key, json_dumps(out_schema))
-        else:
-            out_schema = json_loads(cache)
 
         return out_schema
 
@@ -252,8 +255,17 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return dsg
 
     @property
+    def uses_ssh_tunnel(self):
+        return "ssh_tunnel" in self.options
+
+    @property
     def query_runner(self):
-        return get_query_runner(self.type, self.options)
+        query_runner = get_query_runner(self.type, self.options)
+
+        if self.uses_ssh_tunnel:
+            query_runner = with_ssh_tunnel(query_runner, self.options.get("ssh_tunnel"))
+
+        return query_runner
 
     @classmethod
     def get_by_name(cls, name):
@@ -661,9 +673,14 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 query.schedule["disabled"] = True
                 db.session.commit()
 
-                message = "Could not determine if query %d is outdated due to %s. The schedule for this query has been disabled." % (query.id, repr(e))
+                message = (
+                    "Could not determine if query %d is outdated due to %s. The schedule for this query has been disabled."
+                    % (query.id, repr(e))
+                )
                 logging.info(message)
-                sentry.capture_message(message)
+                sentry.capture_exception(
+                    type(e)(message).with_traceback(e.__traceback__)
+                )
 
         return list(outdated_queries.values())
 
@@ -1084,7 +1101,9 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def all(cls, org, group_ids, user_id):
         query = (
             Dashboard.query.options(
-                subqueryload(Dashboard.user).load_only("_profile_image_url", "name")
+                joinedload(Dashboard.user).load_only(
+                    "id", "name", "_profile_image_url", "email"
+                )
             )
             .outerjoin(Widget)
             .outerjoin(Visualization)

@@ -185,8 +185,9 @@ class QueryExecutor(object):
         run_time = time.time() - started_at
 
         logger.info(
-            "job=execute_query query_hash=%s data_length=%s error=[%s]",
+            "job=execute_query query_hash=%s ds_id=%d data_length=%s error=[%s]",
             self.query_hash,
+            self.data_source_id,
             data and len(data),
             error,
         )

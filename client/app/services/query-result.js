@@ -39,10 +39,6 @@ function getColumnNameWithoutType(column) {
   return parts[0];
 }
 
-export function getColumnCleanName(column) {
-  return getColumnNameWithoutType(column);
-}
-
 function getColumnFriendlyName(column) {
   return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 }
@@ -252,10 +248,6 @@ class QueryResult {
     }
 
     return this.columnNames;
-  }
-
-  getColumnCleanNames() {
-    return this.getColumnNames().map(col => getColumnCleanName(col));
   }
 
   getColumnFriendlyNames() {

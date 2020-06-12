@@ -1,10 +1,11 @@
-import { extend, map, filter, reduce, isEmpty } from "lodash";
+import { extend, map, filter, reduce } from "lodash";
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Icon from "antd/lib/icon";
+import useMedia from "use-media";
 import EditInPlace from "@/components/EditInPlace";
 import FavoritesControl from "@/components/FavoritesControl";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
@@ -68,8 +69,8 @@ export default function QueryPageHeader({
   headerExtra,
   tagsExtra,
   onChange,
-  onRefresh,
 }) {
+  const isDesktop = useMedia({ minWidth: 768 });
   const queryFlags = useQueryFlags(query, dataSource);
   const updateName = useRenameQuery(query, onChange);
   const updateTags = useUpdateQueryTags(query, onChange);
@@ -107,6 +108,12 @@ export default function QueryPageHeader({
             title: "Manage Permissions",
             onClick: openPermissionsEditorDialog,
           },
+          publish: {
+            isAvailable:
+              !isDesktop && queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit,
+            title: "Publish",
+            onClick: publishQuery,
+          },
           unpublish: {
             isAvailable: !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isDraft,
             title: "Unpublish",
@@ -122,13 +129,19 @@ export default function QueryPageHeader({
         },
       ]),
     [
-      queryFlags,
-      archiveQuery,
-      unpublishQuery,
-      openApiKeyDialog,
-      openPermissionsEditorDialog,
+      queryFlags.isNew,
+      queryFlags.canFork,
+      queryFlags.canEdit,
+      queryFlags.isArchived,
+      queryFlags.isDraft,
       isDuplicating,
       duplicateQuery,
+      archiveQuery,
+      openPermissionsEditorDialog,
+      isDesktop,
+      publishQuery,
+      unpublishQuery,
+      openApiKeyDialog,
     ]
   );
 
@@ -143,24 +156,22 @@ export default function QueryPageHeader({
             </h3>
           </div>
         </div>
-        {!isEmpty(query.tags) && (
-          <div className="query-tags">
-            <QueryTagsControl
-              tags={query.tags}
-              isDraft={queryFlags.isDraft}
-              isArchived={queryFlags.isArchived}
-              canEdit={queryFlags.canEdit}
-              getAvailableTags={getQueryTags}
-              onEdit={updateTags}
-              tagsExtra={tagsExtra}
-            />
-          </div>
-        )}
+        <div className="query-tags">
+          <QueryTagsControl
+            tags={query.tags}
+            isDraft={queryFlags.isDraft}
+            isArchived={queryFlags.isArchived}
+            canEdit={queryFlags.canEdit}
+            getAvailableTags={getQueryTags}
+            onEdit={updateTags}
+            tagsExtra={tagsExtra}
+          />
+        </div>
       </div>
       <div className="header-actions">
         {headerExtra}
-        {queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit && (
-          <Button className="hidden-xs m-r-5" onClick={publishQuery}>
+        {isDesktop && queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit && (
+          <Button className="m-r-5" onClick={publishQuery}>
             <i className="fa fa-paper-plane m-r-5" /> Publish
           </Button>
         )}

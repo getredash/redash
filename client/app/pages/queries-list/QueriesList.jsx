@@ -18,6 +18,7 @@ import Layout from "@/components/layouts/ContentWithSidebar";
 
 import { Query } from "@/services/query";
 import { currentUser } from "@/services/auth";
+import location from "@/services/location";
 
 import QueriesListEmptyState from "./QueriesListEmptyState";
 
@@ -77,15 +78,30 @@ class QueriesList extends React.Component {
         width: null,
       }
     ),
-    Columns.avatar({ field: "user", className: "p-l-0 p-r-0" }, name => `Created by ${name}`),
+    Columns.custom((text, item) => item.user.name, { title: "Created By" }),
     Columns.dateTime.sortable({ title: "Created At", field: "created_at" }),
-    Columns.duration.sortable({ title: "Runtime", field: "runtime" }),
     Columns.dateTime.sortable({ title: "Last Executed At", field: "retrieved_at", orderByField: "executed_at" }),
     Columns.custom.sortable((text, item) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
-      title: "Update Schedule",
+      title: "Refresh Schedule",
       field: "schedule",
     }),
   ];
+
+  componentDidMount() {
+    this.unlistenLocationChanges = location.listen((unused, action) => {
+      const searchTerm = location.search.q || "";
+      if (action === "PUSH" && searchTerm !== this.props.controller.searchTerm) {
+        this.props.controller.updateSearch(searchTerm);
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    if (this.unlistenLocationChanges) {
+      this.unlistenLocationChanges();
+      this.unlistenLocationChanges = null;
+    }
+  }
 
   render() {
     const { controller } = this.props;

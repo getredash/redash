@@ -130,31 +130,22 @@ class MongoDB(BaseQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
-            'type': 'object',
-            'properties': {
-                'connectionString': {
-                    'type': 'string',
-                    'title': 'Connection String'
-                },
-                'dbName': {
-                    'type': 'string',
-                    'title': "Database Name"
-                },
-                'replicaSetName': {
-                    'type': 'string',
-                    'title': 'Replica Set Name'
-                },
+            "type": "object",
+            "properties": {
+                "connectionString": {"type": "string", "title": "Connection String"},
+                "dbName": {"type": "string", "title": "Database Name"},
+                "replicaSetName": {"type": "string", "title": "Replica Set Name"},
                 "readPreference": {
                     "type": "string",
                     "extendedEnum": [
                         {"value": "primaryPreferred", "name": "Primary Preferred"},
-                        {"value": "primary", "name": "Primary"},                        
+                        {"value": "primary", "name": "Primary"},
                         {"value": "secondary", "name": "Secondary"},
                         {"value": "secondaryPreferred", "name": "Secondary Preferred"},
                         {"value": "nearest", "name": "Nearest"},
                     ],
                     "title": "Replica Set Read Preference",
-                }                
+                },
             },
             "required": ["connectionString", "dbName"],
         }
@@ -180,13 +171,14 @@ class MongoDB(BaseQueryRunner):
     def _get_db(self):
         kwargs = {}
         if self.is_replica_set:
-            db_connection = pymongo.MongoClient(
-                self.configuration["connectionString"],
-                replicaSet=self.configuration["replicaSetName"],
-                readPreference=self.configuration["readPreference"]
-            )
-        else:
-            db_connection = pymongo.MongoClient(self.configuration["connectionString"])
+            kwargs["replicaSet"] = self.configuration["replicaSetName"]
+            readPreference = self.configuration.get("readPreference")
+            if readPreference:
+                kwargs["readPreference"] = readPreference
+
+        db_connection = pymongo.MongoClient(
+            self.configuration["connectionString"], **kwargs
+        )
 
         return db_connection[self.db_name]
 
@@ -195,8 +187,7 @@ class MongoDB(BaseQueryRunner):
         if not db.command("connectionStatus")["ok"]:
             raise Exception("MongoDB connection error")
 
-        return db_connection[self.db_name]
-
+        return db
 
     def _merge_property_names(self, columns, document):
         for property in document:

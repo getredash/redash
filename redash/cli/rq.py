@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import socket
 import sys
 import datetime
+from itertools import chain
 
 from click import argument
 from flask.cli import AppGroup
@@ -18,6 +19,7 @@ from redash.tasks import (
     schedule_periodic_jobs,
     periodic_job_definitions,
 )
+from redash.worker import default_queues
 
 manager = AppGroup(help="RQ management commands.")
 
@@ -38,7 +40,9 @@ def worker(queues):
     configure_mappers()
 
     if not queues:
-        queues = ["scheduled_queries", "queries", "periodic", "emails", "default", "schemas"]
+        queues = default_queues
+    else:
+        queues = chain(*[queue.split(",") for queue in queues])
 
     with Connection(rq_redis_connection):
         w = Worker(queues, log_job_description=False, job_monitoring_interval=5)

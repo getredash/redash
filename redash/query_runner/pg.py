@@ -1,6 +1,9 @@
 import os
 import logging
 import select
+from contextlib import contextmanager
+from base64 import b64decode
+from tempfile import NamedTemporaryFile
 from uuid import uuid4
 
 import psycopg2
@@ -104,6 +107,32 @@ def build_schema(query_result, schema):
         schema[table_name]["columns"].append(row["column_name"])
 
 
+def _create_cert_file(configuration, key, ssl_config):
+    file_key = key + 'File'
+    if file_key in configuration:
+        with NamedTemporaryFile(mode='w', delete=False) as cert_file:
+            cert_bytes = b64decode(configuration[file_key])
+            cert_file.write(cert_bytes.decode("utf-8"))
+
+        ssl_config[key] = cert_file.name
+
+
+def _cleanup_ssl_certs(ssl_config):
+    for k, v in ssl_config.items():
+        if k != 'sslmode':
+            os.remove(v)
+
+
+def _get_ssl_config(configuration):
+    ssl_config = {'sslmode': configuration.get('sslmode', 'prefer')}
+
+    _create_cert_file(configuration, 'sslrootcert', ssl_config)
+    _create_cert_file(configuration, 'sslcert', ssl_config)
+    _create_cert_file(configuration, 'sslkey', ssl_config)
+
+    return ssl_config
+
+
 class PostgreSQL(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
@@ -117,11 +146,36 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "host": {"type": "string", "default": "127.0.0.1"},
                 "port": {"type": "number", "default": 5432},
                 "dbname": {"type": "string", "title": "Database Name"},
-                "sslmode": {"type": "string", "title": "SSL Mode", "default": "prefer"},
+                "sslmode": {
+                    "type": "string",
+                    "title": "SSL Mode",
+                    "default": "prefer",
+                    "extendedEnum": [
+                        {"value": "disable", "name": "Disable"},
+                        {"value": "allow", "name": "Allow"},
+                        {"value": "prefer", "name": "Prefer"},
+                        {"value": "require", "name": "Require"},
+                        {"value": "verify-ca", "name": "Verify CA"},
+                        {"value": "verify-full", "name": "Verify Full"},
+                    ],
+                },
+                "sslrootcertFile": {
+                    "type": "string",
+                    "title": "SSL Root Certificate"
+                },
+                "sslcertFile": {
+                    "type": "string",
+                    "title": "SSL Client Certificate"
+                },
+                "sslkeyFile": {
+                    "type": "string",
+                    "title": "SSL Client Key"
+                },
             },
             "order": ["host", "port", "user", "password"],
             "required": ["dbname"],
             "secret": ["password"],
+            "extra_options": ["sslmode", "sslrootcertFile", "sslcertFile", "sslkeyFile"],
         }
 
     @classmethod
@@ -181,14 +235,15 @@ class PostgreSQL(BaseSQLQueryRunner):
         return list(schema.values())
 
     def _get_connection(self):
+        self.ssl_config = _get_ssl_config(self.configuration)
         connection = psycopg2.connect(
             user=self.configuration.get("user"),
             password=self.configuration.get("password"),
             host=self.configuration.get("host"),
             port=self.configuration.get("port"),
             dbname=self.configuration.get("dbname"),
-            sslmode=self.configuration.get("sslmode"),
             async_=True,
+            **self.ssl_config
         )
 
         return connection
@@ -229,6 +284,7 @@ class PostgreSQL(BaseSQLQueryRunner):
             raise
         finally:
             connection.close()
+            _cleanup_ssl_certs(self.ssl_config)
 
         return json_data, error
 
@@ -244,6 +300,7 @@ class Redshift(PostgreSQL):
         return "Redshift"
 
     def _get_connection(self):
+        self.ssl_config = {}
 
         sslrootcert_path = os.path.join(
             os.path.dirname(__file__), "./files/redshift-ca-bundle.crt"
@@ -328,6 +385,7 @@ class Redshift(PostgreSQL):
                             ordinal_position AS pos
             FROM svv_columns
             WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
+            AND table_schema NOT LIKE 'pg_temp_%'
         )
         SELECT table_name, table_schema, column_name
         FROM tables

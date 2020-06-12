@@ -3,13 +3,11 @@ import logging
 import hashlib
 import json
 from datetime import datetime, timedelta
-from functools import partial
-from random import randint
 
 from rq.job import Job
 from rq_scheduler import Scheduler
 
-from redash import settings, rq_redis_connection
+from redash import extensions, settings, rq_redis_connection, statsd_client
 from redash.tasks import (
     sync_user_details,
     refresh_queries,
@@ -19,11 +17,20 @@ from redash.tasks import (
     purge_failed_jobs,
     version_check,
     send_aggregated_errors,
+    Queue
 )
 
 logger = logging.getLogger(__name__)
 
-rq_scheduler = Scheduler(
+
+class StatsdRecordingScheduler(Scheduler):
+    """
+    RQ Scheduler Mixin that uses Redash's custom RQ Queue class to increment/modify metrics via Statsd
+    """
+    queue_class = Queue
+
+
+rq_scheduler = StatsdRecordingScheduler(
     connection=rq_redis_connection, queue_name="periodic", interval=5
 )
 
@@ -78,6 +85,10 @@ def periodic_job_definitions():
 
     # Add your own custom periodic jobs in your dynamic_settings module.
     jobs.extend(settings.dynamic_settings.periodic_jobs() or [])
+
+    # Add periodic jobs that are shipped as part of Redash extensions
+    extensions.load_periodic_jobs(logger)
+    jobs.extend(list(extensions.periodic_jobs.values()))
 
     return jobs
 
