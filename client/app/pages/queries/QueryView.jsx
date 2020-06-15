@@ -87,7 +87,7 @@ function QueryView(props) {
         "query-view-fullscreen": fullscreen,
         "query-fixed-layout": isFixedLayout,
       })}>
-      <div className="container">
+      <div className="container w-100">
         <QueryPageHeader
           query={query}
           dataSource={dataSource}

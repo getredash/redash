@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
+import cx from "classnames";
 import { isEmpty } from "lodash";
 import Button from "antd/lib/button";
 import Checkbox from "antd/lib/checkbox";
@@ -9,6 +10,7 @@ import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
 import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
+import resizeObserver from "@/services/resizeObserver";
 import useDashboard from "./hooks/useDashboard";
 import DashboardHeader from "./components/DashboardHeader";
 
@@ -32,10 +34,10 @@ DashboardSettings.propTypes = {
   dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-function AddWidgetContainer({ dashboardOptions }) {
+function AddWidgetContainer({ dashboardOptions, className, ...props }) {
   const { showAddTextboxDialog, showAddWidgetDialog } = dashboardOptions;
   return (
-    <div className="add-widget-container">
+    <div className={cx("add-widget-container", className)} {...props}>
       <h2>
         <i className="zmdi zmdi-widgets" />
         <span className="hidden-xs hidden-sm">
@@ -57,6 +59,7 @@ function AddWidgetContainer({ dashboardOptions }) {
 
 AddWidgetContainer.propTypes = {
   dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  className: PropTypes.string,
 };
 
 function DashboardComponent(props) {
@@ -76,8 +79,32 @@ function DashboardComponent(props) {
     setGridDisabled,
   } = dashboardOptions;
 
+  const [pageContainer, setPageContainer] = useState(null);
+  const [bottomPanelStyles, setBottomPanelStyles] = useState({});
+
+  useEffect(() => {
+    if (pageContainer) {
+      const unobserve = resizeObserver(pageContainer, () => {
+        if (editingLayout) {
+          const style = window.getComputedStyle(pageContainer, null);
+          const bounds = pageContainer.getBoundingClientRect();
+          const paddingLeft = parseFloat(style.paddingLeft) || 0;
+          const paddingRight = parseFloat(style.paddingRight) || 0;
+          setBottomPanelStyles({
+            left: Math.round(bounds.left) + paddingRight,
+            width: pageContainer.clientWidth - paddingLeft - paddingRight,
+          });
+        }
+
+        // reflow grid when container changes its size
+        window.dispatchEvent(new Event("resize"));
+      });
+      return unobserve;
+    }
+  }, [pageContainer, editingLayout]);
+
   return (
-    <>
+    <div className="container" ref={setPageContainer}>
       <DashboardHeader dashboardOptions={dashboardOptions} />
       {!isEmpty(globalParameters) && (
         <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
@@ -104,8 +131,8 @@ function DashboardComponent(props) {
           onParameterMappingsChange={loadDashboard}
         />
       </div>
-      {editingLayout && <AddWidgetContainer dashboardOptions={dashboardOptions} />}
-    </>
+      {editingLayout && <AddWidgetContainer dashboardOptions={dashboardOptions} style={bottomPanelStyles} />}
+    </div>
   );
 }
 
@@ -127,11 +154,7 @@ function DashboardPage({ dashboardSlug, onError }) {
       .catch(error => onErrorRef.current(error));
   }, [dashboardSlug]);
 
-  return (
-    <div className="dashboard-page">
-      <div className="container">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>
-    </div>
-  );
+  return <div className="dashboard-page">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>;
 }
 
 DashboardPage.propTypes = {

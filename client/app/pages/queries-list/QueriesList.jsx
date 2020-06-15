@@ -109,7 +109,7 @@ class QueriesList extends React.Component {
       <div className="page-queries-list">
         <div className="container">
           <PageHeader title={controller.params.pageTitle} />
-          <Layout className="m-l-15 m-r-15">
+          <Layout>
             <Layout.Sidebar className="m-b-0">
               <Sidebar.SearchInput
                 placeholder="Search Queries..."

@@ -70,7 +70,7 @@ class AlertsList extends React.Component {
       <div className="page-alerts-list">
         <div className="container">
           <PageHeader title={controller.params.pageTitle} />
-          <div className="m-l-15 m-r-15">
+          <div>
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && (
               <EmptyState

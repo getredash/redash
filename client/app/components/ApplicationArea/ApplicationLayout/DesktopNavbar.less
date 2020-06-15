@@ -1,0 +1,181 @@
+@backgroundColor: #001529;
+@dividerColor: rgba(255, 255, 255, 0.5);
+@textColor: rgba(255, 255, 255, 0.75);
+
+.desktop-navbar {
+  background: @backgroundColor;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &-spacer {
+    flex: 1 1 auto;
+  }
+
+  &-logo.ant-menu {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    text-align: center;
+
+    img {
+      height: 40px;
+      transition: all 270ms;
+    }
+
+    &.ant-menu-inline-collapsed {
+      img {
+        height: 20px;
+      }
+    }
+  }
+
+  .help-trigger {
+    font: inherit;
+  }
+
+  .ant-menu {
+    &:not(.ant-menu-inline-collapsed) {
+      width: 170px;
+    }
+
+    &.ant-menu-inline-collapsed > .ant-menu-submenu-title span img + span,
+    &.ant-menu-inline-collapsed > .ant-menu-item i + span {
+      display: inline-block;
+      max-width: 0;
+      opacity: 0;
+    }
+
+    .ant-menu-item-divider {
+      background: @dividerColor;
+    }
+
+    .ant-menu-item,
+    .ant-menu-submenu {
+      font-weight: 500;
+      color: @textColor;
+
+      &.ant-menu-submenu-open,
+      &.ant-menu-submenu-active,
+      &:hover,
+      &:active {
+        color: #fff;
+      }
+
+      a,
+      span,
+      .anticon {
+        color: inherit;
+      }
+    }
+
+    .ant-menu-submenu-arrow {
+      display: none;
+    }
+  }
+
+  .ant-btn.desktop-navbar-collapse-button {
+    background-color: @backgroundColor;
+    border: 0;
+    border-radius: 0;
+    color: @textColor;
+
+    &:hover,
+    &:active {
+      color: #fff;
+    }
+
+    &:after {
+      animation: 0s !important;
+    }
+  }
+
+  .desktop-navbar-profile-menu {
+    .desktop-navbar-profile-menu-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+
+      .profile__image_thumb {
+        margin: 0;
+        vertical-align: middle;
+      }
+
+      .profile__image_thumb + span {
+        flex: 1 1 auto;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+
+        margin-left: 10px;
+        vertical-align: middle;
+        display: inline-block;
+
+        // styles from Antd
+        opacity: 1;
+        transition: opacity 0.3s cubic-bezier(0.645, 0.045, 0.355, 1),
+          margin-left 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), width 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+      }
+    }
+
+    &.ant-menu-inline-collapsed {
+      .ant-menu-submenu-title {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+      }
+
+      .desktop-navbar-profile-menu-title {
+        .profile__image_thumb + span {
+          opacity: 0;
+          max-width: 0;
+          margin-left: 0;
+        }
+      }
+    }
+  }
+}
+
+.desktop-navbar-submenu {
+  .ant-menu {
+    .ant-menu-item-divider {
+      background: @dividerColor;
+    }
+
+    .ant-menu-item {
+      font-weight: 500;
+      color: @textColor;
+
+      &:hover,
+      &:active {
+        color: #fff;
+      }
+
+      a,
+      span,
+      .anticon {
+        color: inherit;
+      }
+
+      .zmdi,
+      .fa {
+        margin-right: 5px;
+      }
+
+      &.version-info {
+        height: auto;
+        line-height: normal;
+        padding-top: 12px;
+        padding-bottom: 12px;
+
+        a {
+          color: rgba(255, 255, 255, 0.8);
+
+          &:hover,
+          &:active {
+            color: rgba(255, 255, 255, 1);
+          }
+        }
+      }
+    }
+  }
+}
