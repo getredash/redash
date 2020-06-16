@@ -3,12 +3,11 @@ import importlib
 import logging
 import sys
 
+from redash import models
 from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
-from redash import models
 from RestrictedPython import compile_restricted
 from RestrictedPython.Guards import safe_builtins
-
 
 logger = logging.getLogger(__name__)
 

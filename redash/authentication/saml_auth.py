@@ -1,6 +1,8 @@
 import logging
-from flask import flash, redirect, url_for, Blueprint, request
-from redash.authentication import create_and_login_user, logout_and_redirect_to_index
+
+from flask import Blueprint, flash, redirect, request, url_for
+from redash.authentication import (create_and_login_user,
+                                   logout_and_redirect_to_index)
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import org_scoped_rule
 from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT, entity

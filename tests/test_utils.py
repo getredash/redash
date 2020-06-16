@@ -1,13 +1,8 @@
 from collections import namedtuple
 from unittest import TestCase
 
-from redash.utils import (
-    build_url,
-    collect_parameters_from_request,
-    filter_none,
-    json_dumps,
-    generate_token,
-)
+from redash.utils import (build_url, collect_parameters_from_request,
+                          filter_none, generate_token, json_dumps)
 
 try:
     buffer

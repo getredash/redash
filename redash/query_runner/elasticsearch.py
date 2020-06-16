@@ -3,12 +3,11 @@ import sys
 import urllib
 
 import requests
-from requests.auth import HTTPBasicAuth
-from six import string_types, text_type
-
 from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
 from redash.utils.compat import long
+from requests.auth import HTTPBasicAuth
+from six import string_types, text_type
 
 try:
     import http.client as http_client

@@ -1,22 +1,17 @@
-import logging
-import yaml
-import socket
-import ipaddress
 import datetime
+import ipaddress
+import logging
+import socket
 from urlparse import urlparse
+
+import yaml
 from funcy import compact, project
-from six import text_type
+from redash.query_runner import (TYPE_BOOLEAN, TYPE_DATETIME, TYPE_FLOAT,
+                                 TYPE_INTEGER, TYPE_STRING,
+                                 BaseHTTPQueryRunner, register)
 from redash.utils import json_dumps
 from redash.utils.compat import long
-from redash.query_runner import (
-    BaseHTTPQueryRunner,
-    register,
-    TYPE_BOOLEAN,
-    TYPE_DATETIME,
-    TYPE_FLOAT,
-    TYPE_INTEGER,
-    TYPE_STRING,
-)
+from six import text_type
 
 
 class QueryParseError(Exception):

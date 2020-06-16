@@ -1,11 +1,11 @@
 from __future__ import absolute_import
-import time
-import requests
+
 import logging
+import time
 from cStringIO import StringIO
 
-from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING
+import requests
+from redash.query_runner import TYPE_STRING, BaseQueryRunner, register
 from redash.utils import json_dumps
 
 try:

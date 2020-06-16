@@ -1,5 +1,8 @@
 import json
 
+from redash.query_runner import BaseQueryRunner, register
+from redash.utils import json_dumps
+
 try:
     import pydgraph
 
@@ -7,8 +10,6 @@ try:
 except ImportError:
     enabled = False
 
-from redash.query_runner import BaseQueryRunner, register
-from redash.utils import json_dumps
 
 
 def reduce_item(reduced_item, key, value):

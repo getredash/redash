@@ -1,18 +1,13 @@
 import logging
 
 from flask import abort, flash, redirect, render_template, request, url_for
-
 from flask_login import current_user, login_required, login_user, logout_user
 from redash import __version__, limiter, models, settings
 from redash.authentication import current_org, get_login_url, get_next_path
-from redash.authentication.account import (
-    BadSignature,
-    SignatureExpired,
-    send_password_reset_email,
-    send_user_disabled_email,
-    send_verify_email,
-    validate_token,
-)
+from redash.authentication.account import (BadSignature, SignatureExpired,
+                                           send_password_reset_email,
+                                           send_user_disabled_email,
+                                           send_verify_email, validate_token)
 from redash.handlers import routes
 from redash.handlers.base import json_response, org_scoped_rule
 from redash.version_check import get_latest_version

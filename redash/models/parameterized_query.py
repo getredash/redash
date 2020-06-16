@@ -1,11 +1,11 @@
-import pystache
 from functools import partial
 from numbers import Number
-from redash.utils import mustache_render, json_loads
-from redash.permissions import require_access, view_only
-from funcy import distinct
-from dateutil.parser import parse
 
+import pystache
+from dateutil.parser import parse
+from funcy import distinct
+from redash.permissions import require_access, view_only
+from redash.utils import json_loads, mustache_render
 from six import string_types, text_type
 
 

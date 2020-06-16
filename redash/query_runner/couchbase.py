@@ -1,13 +1,12 @@
 import datetime
+import json
 import logging
 
 from dateutil.parser import parse
-from six import text_type
-
 from redash.query_runner import *
 from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
 from redash.utils.compat import long
-import json
+from six import text_type
 
 logger = logging.getLogger(__name__)
 try:

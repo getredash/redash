@@ -2,7 +2,6 @@ import datetime
 import logging
 
 import requests
-
 from redash.query_runner import *
 from redash.utils import json_dumps
 

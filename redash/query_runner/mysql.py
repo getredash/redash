@@ -2,16 +2,9 @@ import logging
 import os
 import threading
 
-from redash.query_runner import (
-    TYPE_FLOAT,
-    TYPE_INTEGER,
-    TYPE_DATETIME,
-    TYPE_STRING,
-    TYPE_DATE,
-    BaseSQLQueryRunner,
-    InterruptException,
-    register,
-)
+from redash.query_runner import (TYPE_DATE, TYPE_DATETIME, TYPE_FLOAT,
+                                 TYPE_INTEGER, TYPE_STRING, BaseSQLQueryRunner,
+                                 InterruptException, register)
 from redash.settings import parse_boolean
 from redash.utils import json_dumps, json_loads
 

@@ -1,3 +1,4 @@
+import binascii
 import codecs
 import cStringIO
 import csv
@@ -8,15 +9,13 @@ import os
 import random
 import re
 import uuid
-import binascii
-
-from six import string_types
 
 import pystache
 import pytz
 import simplejson
 from funcy import select_values
 from redash import settings
+from six import string_types
 from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time

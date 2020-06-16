@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import re
 import logging
+import re
 from collections import OrderedDict
-from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import (
-    TYPE_STRING,
-    TYPE_DATE,
-    TYPE_DATETIME,
-    TYPE_INTEGER,
-    TYPE_FLOAT,
-    TYPE_BOOLEAN,
-)
+
+from redash.query_runner import (TYPE_BOOLEAN, TYPE_DATE, TYPE_DATETIME,
+                                 TYPE_FLOAT, TYPE_INTEGER, TYPE_STRING,
+                                 BaseQueryRunner, register)
 from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)

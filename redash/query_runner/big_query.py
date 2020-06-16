@@ -6,7 +6,6 @@ from base64 import b64decode
 
 import httplib2
 import requests
-
 from redash import settings
 from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
