@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-
 import logging
 from base64 import b64decode
 from datetime import datetime
-from urlparse import parse_qs, urlparse
+
+from urlparse import parse_qs
+from urlparse import urlparse
 
 from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_dumps
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 

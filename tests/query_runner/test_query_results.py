@@ -2,12 +2,14 @@ import sqlite3
 from unittest import TestCase
 
 import pytest
-from redash.query_runner.query_results import (CreateTableError,
-                                               PermissionError, _load_query,
-                                               create_table,
-                                               extract_cached_query_ids,
-                                               extract_query_ids,
-                                               fix_column_name)
+
+from redash.query_runner.query_results import _load_query
+from redash.query_runner.query_results import create_table
+from redash.query_runner.query_results import CreateTableError
+from redash.query_runner.query_results import extract_cached_query_ids
+from redash.query_runner.query_results import extract_query_ids
+from redash.query_runner.query_results import fix_column_name
+from redash.query_runner.query_results import PermissionError
 from tests import BaseTestCase
 
 

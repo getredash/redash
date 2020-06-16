@@ -4,38 +4,64 @@ import logging
 import time
 
 import pytz
-from redash import redis_connection, settings, utils
-from redash.destinations import (get_configuration_schema_for_destination_type,
-                                 get_destination)
-from redash.metrics import database  # noqa: F401
-from redash.models.parameterized_query import ParameterizedQuery
-from redash.query_runner import (
-    TYPE_BOOLEAN, TYPE_DATE, TYPE_DATETIME,
-    get_configuration_schema_for_query_runner_type, get_query_runner)
-from redash.utils import (generate_token, json_dumps, json_loads,
-                          mustache_render)
-from redash.utils.configuration import ConfigurationContainer
-from six import python_2_unicode_compatible, text_type
-from sqlalchemy import UniqueConstraint, and_, distinct, func, or_
+from six import python_2_unicode_compatible
+from six import text_type
+from sqlalchemy import and_
+from sqlalchemy import distinct
+from sqlalchemy import func
+from sqlalchemy import or_
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import (backref, contains_eager, joinedload, load_only,
-                            subqueryload)
+from sqlalchemy.orm import backref
+from sqlalchemy.orm import contains_eager
+from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import load_only
+from sqlalchemy.orm import subqueryload
 from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
 from sqlalchemy_utils import generic_relationship
 from sqlalchemy_utils.models import generic_repr
 from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
 
-from .base import Column, GFKBase, SearchBaseQuery, db, gfk_type
-from .changes import Change, ChangeTrackingMixin  # noqa
-from .mixins import BelongsToOrgMixin, TimestampMixin
+from .base import Column
+from .base import db
+from .base import gfk_type
+from .base import GFKBase
+from .base import SearchBaseQuery
+from .changes import Change
+from .changes import ChangeTrackingMixin
+from .mixins import BelongsToOrgMixin
+from .mixins import TimestampMixin
 from .organizations import Organization
-from .types import (Configuration, EncryptedConfiguration, MutableDict,
-                    MutableList, PseudoJSON)
-from .users import (AccessPermission, AnonymousUser, ApiUser, Group,  # noqa
-                    User)
+from .types import Configuration
+from .types import EncryptedConfiguration
+from .types import MutableDict
+from .types import MutableList
+from .types import PseudoJSON
+from .users import AccessPermission
+from .users import AnonymousUser
+from .users import ApiUser
+from .users import Group
+from .users import User
+from redash import redis_connection
+from redash import settings
+from redash import utils
+from redash.destinations import get_configuration_schema_for_destination_type
+from redash.destinations import get_destination
+from redash.metrics import database  # noqa: F401
+from redash.models.parameterized_query import ParameterizedQuery
+from redash.query_runner import get_configuration_schema_for_query_runner_type
+from redash.query_runner import get_query_runner
+from redash.query_runner import TYPE_BOOLEAN
+from redash.query_runner import TYPE_DATE
+from redash.query_runner import TYPE_DATETIME
+from redash.utils import generate_token
+from redash.utils import json_dumps
+from redash.utils import json_loads
+from redash.utils import mustache_render
+from redash.utils.configuration import ConfigurationContainer
 
 logger = logging.getLogger(__name__)
 

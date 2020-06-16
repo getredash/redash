@@ -10,7 +10,10 @@ from __future__ import print_function
 import simplejson
 import sqlalchemy as sa
 from alembic import op
-from redash.models import Dashboard, Widget, db
+
+from redash.models import Dashboard
+from redash.models import db
+from redash.models import Widget
 
 # revision identifiers, used by Alembic.
 revision = "969126bd800f"

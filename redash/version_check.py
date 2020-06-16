@@ -2,9 +2,11 @@ import logging
 
 import requests
 import semver
+
 from redash import __version__ as current_version
 from redash import redis_connection
-from redash.models import Organization, db
+from redash.models import db
+from redash.models import Organization
 from redash.utils import json_dumps
 
 REDIS_KEY = "new_version_available"

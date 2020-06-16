@@ -2,9 +2,10 @@ import logging
 
 import requests
 from dateutil import parser
+from six import text_type
+
 from redash import settings
 from redash.utils import json_loads
-from six import text_type
 
 logger = logging.getLogger(__name__)
 

@@ -2,16 +2,22 @@ import datetime
 import ipaddress
 import logging
 import socket
-from urlparse import urlparse
 
 import yaml
-from funcy import compact, project
-from redash.query_runner import (TYPE_BOOLEAN, TYPE_DATETIME, TYPE_FLOAT,
-                                 TYPE_INTEGER, TYPE_STRING,
-                                 BaseHTTPQueryRunner, register)
+from funcy import compact
+from funcy import project
+from six import text_type
+from urlparse import urlparse
+
+from redash.query_runner import BaseHTTPQueryRunner
+from redash.query_runner import register
+from redash.query_runner import TYPE_BOOLEAN
+from redash.query_runner import TYPE_DATETIME
+from redash.query_runner import TYPE_FLOAT
+from redash.query_runner import TYPE_INTEGER
+from redash.query_runner import TYPE_STRING
 from redash.utils import json_dumps
 from redash.utils.compat import long
-from six import text_type
 
 
 class QueryParseError(Exception):

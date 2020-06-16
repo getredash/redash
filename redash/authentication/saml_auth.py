@@ -1,14 +1,21 @@
 import logging
 
-from flask import Blueprint, flash, redirect, request, url_for
-from redash.authentication import (create_and_login_user,
-                                   logout_and_redirect_to_index)
-from redash.authentication.org_resolving import current_org
-from redash.handlers.base import org_scoped_rule
-from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT, entity
+from flask import Blueprint
+from flask import flash
+from flask import redirect
+from flask import request
+from flask import url_for
+from saml2 import BINDING_HTTP_POST
+from saml2 import BINDING_HTTP_REDIRECT
+from saml2 import entity
 from saml2.client import Saml2Client
 from saml2.config import Config as Saml2Config
 from saml2.saml import NAMEID_FORMAT_TRANSIENT
+
+from redash.authentication import create_and_login_user
+from redash.authentication import logout_and_redirect_to_index
+from redash.authentication.org_resolving import current_org
+from redash.handlers.base import org_scoped_rule
 
 logger = logging.getLogger("saml_auth")
 blueprint = Blueprint("saml_auth", __name__)

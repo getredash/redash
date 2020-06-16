@@ -2,9 +2,9 @@ import logging
 import os
 import sys
 import urllib
-import urlparse
 
 import redis
+import urlparse
 from flask_limiter import Limiter
 from flask_limiter.util import get_ipaddr
 from flask_mail import Mail

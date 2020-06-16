@@ -1,12 +1,17 @@
-import cStringIO
 import csv
 
+import cStringIO
 import xlsxwriter
 from dateutil.parser import isoparse as parse_date
-from funcy import project, rpartial
+from funcy import project
+from funcy import rpartial
+
 from redash.authentication.org_resolving import current_org
-from redash.query_runner import TYPE_BOOLEAN, TYPE_DATE, TYPE_DATETIME
-from redash.utils import UnicodeWriter, json_loads
+from redash.query_runner import TYPE_BOOLEAN
+from redash.query_runner import TYPE_DATE
+from redash.query_runner import TYPE_DATETIME
+from redash.utils import json_loads
+from redash.utils import UnicodeWriter
 
 
 def _convert_format(fmt):

@@ -1,6 +1,7 @@
 import json
 
-from redash.query_runner import BaseQueryRunner, register
+from redash.query_runner import BaseQueryRunner
+from redash.query_runner import register
 from redash.utils import json_dumps
 
 try:

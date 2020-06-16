@@ -7,13 +7,17 @@ Create Date: 2019-01-31 09:21:31.517265
 """
 import sqlalchemy as sa
 from alembic import op
-from redash import settings
-from redash.models.types import (Configuration, EncryptedConfiguration,
-                                 MutableDict, MutableList, PseudoJSON)
-from redash.utils.configuration import ConfigurationContainer
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import table
 from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
+
+from redash import settings
+from redash.models.types import Configuration
+from redash.models.types import EncryptedConfiguration
+from redash.models.types import MutableDict
+from redash.models.types import MutableList
+from redash.models.types import PseudoJSON
+from redash.utils.configuration import ConfigurationContainer
 
 # revision identifiers, used by Alembic.
 revision = "98af61feea92"
