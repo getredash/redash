@@ -282,7 +282,7 @@ class Redshift(PostgreSQL):
             "required": ["dbname", "user", "password", "host", "port"],
             "secret": ["password"]
         }
-        
+
     def annotate_query(self, query, metadata):
         annotated = super(Redshift, self).annotate_query(query, metadata)
 
@@ -290,11 +290,11 @@ class Redshift(PostgreSQL):
             query_group = self.configuration.get('scheduled_query_group')
         else:
             query_group = self.configuration.get('adhoc_query_group')
-        
+
         if query_group:
             set_query_group = 'set query_group to {};'.format(query_group)
             annotated = '{}\n{}'.format(set_query_group, annotated)
-        
+
         return annotated
 
     def _get_tables(self, schema):

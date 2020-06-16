@@ -32,7 +32,7 @@ def parse_issue(issue, field_mapping):
     result = OrderedDict()
     result['key'] = issue['key']
 
-    for k, v in issue['fields'].iteritems():#
+    for k, v in issue['fields'].iteritems():
         output_name = field_mapping.get_output_field_name(k)
         member_names = field_mapping.get_dict_members(k)
 
@@ -116,7 +116,7 @@ class FieldMapping:
                 'field_name': field_name,
                 'member_name': member_name,
                 'output_field_name': v
-                })
+            })
 
     def get_output_field_name(cls, field_name):
         for item in cls.mapping:
