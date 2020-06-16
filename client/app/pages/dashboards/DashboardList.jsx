@@ -1,5 +1,6 @@
 import React from "react";
 
+import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
@@ -11,6 +12,7 @@ import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
+import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 
 import Layout from "@/components/layouts/ContentWithSidebar";
 
@@ -75,7 +77,15 @@ class DashboardList extends React.Component {
     return (
       <div className="page-dashboard-list">
         <div className="container">
-          <PageHeader title={controller.params.pageTitle} />
+          <PageHeader
+            title={controller.params.pageTitle}
+            actions={
+              <Button block type="primary" onClick={() => CreateDashboardDialog.showModal()}>
+                <i className="fa fa-plus m-r-5" />
+                New Dashboard
+              </Button>
+            }
+          />
           <Layout>
             <Layout.Sidebar className="m-b-0">
               <Sidebar.SearchInput

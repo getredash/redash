@@ -1,5 +1,6 @@
 import React from "react";
 
+import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
@@ -108,7 +109,15 @@ class QueriesList extends React.Component {
     return (
       <div className="page-queries-list">
         <div className="container">
-          <PageHeader title={controller.params.pageTitle} />
+          <PageHeader
+            title={controller.params.pageTitle}
+            actions={
+              <Button block type="primary" href="queries/new">
+                <i className="fa fa-plus m-r-5" />
+                New Query
+              </Button>
+            }
+          />
           <Layout>
             <Layout.Sidebar className="m-b-0">
               <Sidebar.SearchInput
