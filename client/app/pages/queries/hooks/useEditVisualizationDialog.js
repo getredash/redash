@@ -1,6 +1,6 @@
 import { isFunction, extend, filter, find } from "lodash";
 import { useCallback, useRef } from "react";
-import EditVisualizationDialog from "@/visualizations/components/EditVisualizationDialog";
+import EditVisualizationDialog from "@/components/visualizations/EditVisualizationDialog";
 
 export default function useEditVisualizationDialog(query, queryResult, onChange) {
   const onChangeRef = useRef();
@@ -13,15 +13,13 @@ export default function useEditVisualizationDialog(query, queryResult, onChange)
         query,
         visualization,
         queryResult,
-      })
-        .result.then(updatedVisualization => {
-          const filteredVisualizations = filter(query.visualizations, v => v.id !== updatedVisualization.id);
-          onChangeRef.current(
-            extend(query.clone(), { visualizations: [...filteredVisualizations, updatedVisualization] }),
-            updatedVisualization
-          );
-        })
-        .catch(() => {}); // ignore dismiss
+      }).onClose(updatedVisualization => {
+        const filteredVisualizations = filter(query.visualizations, v => v.id !== updatedVisualization.id);
+        onChangeRef.current(
+          extend(query.clone(), { visualizations: [...filteredVisualizations, updatedVisualization] }),
+          updatedVisualization
+        );
+      });
     },
     [query, queryResult]
   );

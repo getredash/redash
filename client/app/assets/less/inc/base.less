@@ -90,45 +90,18 @@ strong {
 }
 
 // Fixed width layout for specific pages
-@media (min-width: 768px) {
-  .settings-screen,
-  .home-page,
-  .page-dashboard-list,
-  .page-queries-list,
-  .page-alerts-list,
-  .alert-page,
-  .fixed-container {
-    .container {
-      width: 750px;
-    }
-  }
-}
 
-@media (min-width: 992px) {
-  .settings-screen,
-  .home-page,
-  .page-dashboard-list,
-  .page-queries-list,
-  .page-alerts-list,
-  .alert-page,
-  .fixed-container {
-    .container {
-      width: 970px;
-    }
-  }
-}
-
-@media (min-width: 1200px) {
-  .settings-screen,
-  .home-page,
-  .page-dashboard-list,
-  .page-queries-list,
-  .page-alerts-list,
-  .alert-page,
-  .fixed-container {
-    .container {
-      width: 1170px;
-    }
+.settings-screen,
+.home-page,
+.page-dashboard-list,
+.page-queries-list,
+.page-alerts-list,
+.alert-page,
+.admin-page-layout,
+.fixed-container {
+  .container {
+    width: 100%;
+    max-width: 1200px;
   }
 }
 
@@ -244,10 +217,6 @@ text.slicetext {
   display: flex;
   align-items: center;
 
-  h3 {
-    margin-right: 5px !important;
-  }
-
   .label {
     margin-top: 3px;
     display: inline-block;
@@ -255,8 +224,12 @@ text.slicetext {
 
   .favorites-control {
     font-size: 19px;
-    margin-right: 5px;
+    margin-right: 10px;
   }
+}
+
+.page-header-wrapper {
+  margin: 15px 0 10px 0;
 }
 
 .page-header-wrapper,

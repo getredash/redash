@@ -1,4 +1,5 @@
 import { isFunction, extend, omit, sortBy, find } from "lodash";
+import { stripBase } from "@/components/ApplicationArea/Router";
 import { currentUser } from "@/services/auth";
 
 class SettingsMenuItem {
@@ -29,7 +30,8 @@ class SettingsMenu {
   }
 
   getActiveItem(path) {
-    return find(this.items, item => item.isActive(path));
+    const strippedPath = stripBase(path);
+    return find(this.items, item => item.isActive(strippedPath));
   }
 }
 

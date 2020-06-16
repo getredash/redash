@@ -47,7 +47,8 @@ class OrganizationSettings extends React.Component {
       .catch(error => this.props.onError(error));
   }
 
-  disablePasswordLoginToggle = () => !(clientConfig.googleLoginEnabled || this.state.formValues.auth_saml_enabled);
+  disablePasswordLoginToggle = () =>
+    !(clientConfig.googleLoginEnabled || clientConfig.ldapLoginEnabled || this.state.formValues.auth_saml_enabled);
 
   handleSubmit = e => {
     e.preventDefault();
@@ -166,6 +167,14 @@ class OrganizationSettings extends React.Component {
               <Option key={timeFormat}>{timeFormat}</Option>
             ))}
           </Select>
+        </Form.Item>
+        <Form.Item label="Chart Visualization">
+          <Checkbox
+            name="hide_plotly_mode_bar"
+            checked={formValues.hide_plotly_mode_bar}
+            onChange={e => this.handleChange("hide_plotly_mode_bar", e.target.checked)}>
+            Hide Plotly mode bar
+          </Checkbox>
         </Form.Item>
         <Form.Item label="Feature Flags">
           <Checkbox

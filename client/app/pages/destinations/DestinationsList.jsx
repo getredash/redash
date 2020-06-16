@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
-import { isEmpty, isString, find, get } from "lodash";
+import { isEmpty, reject } from "lodash";
 import Destination, { IMG_ROOT } from "@/services/destination";
 import { policy } from "@/services/policy";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
@@ -57,31 +57,26 @@ class DestinationsList extends React.Component {
     const target = { options: {}, type: selectedType.type };
     helper.updateTargetWithValues(target, values);
 
-    return Destination.create(target)
-      .then(destination => {
-        this.setState({ loading: true });
-        Destination.query().then(destinations => this.setState({ destinations, loading: false }));
-        return destination;
-      })
-      .catch(error => {
-        const message = find([get(error, "response.data.message"), get(error, "message"), "Failed saving."], isString);
-        return Promise.reject(new Error(message));
-      });
+    return Destination.create(target).then(destination => {
+      this.setState({ loading: true });
+      Destination.query().then(destinations => this.setState({ destinations, loading: false }));
+      return destination;
+    });
   };
 
   showCreateSourceDialog = () => {
     CreateSourceDialog.showModal({
-      types: this.state.destinationTypes,
+      types: reject(this.state.destinationTypes, "deprecated"),
       sourceType: "Alert Destination",
       imageFolder: IMG_ROOT,
       onCreate: this.createDestination,
     })
-      .result.then((result = {}) => {
+      .onClose((result = {}) => {
         if (result.success) {
           navigateTo(`destinations/${result.data.id}`);
         }
       })
-      .catch(() => {
+      .onDismiss(() => {
         navigateTo("destinations", true);
       });
   };

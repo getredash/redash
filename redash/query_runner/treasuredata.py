@@ -68,7 +68,7 @@ class TreasureData(BaseQueryRunner):
         schema = {}
         if self.configuration.get("get_schema", False):
             try:
-                with tdclient.Client(self.configuration.get("apikey")) as client:
+                with tdclient.Client(self.configuration.get("apikey"),endpoint=self.configuration.get("endpoint")) as client:
                     for table in client.tables(self.configuration.get("db")):
                         table_name = "{}.{}".format(
                             self.configuration.get("db"), table.name

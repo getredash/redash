@@ -7,6 +7,6 @@ export default function usePermissionsEditorDialog(query) {
       aclUrl: `api/queries/${query.id}/acl`,
       context: "query",
       author: query.user,
-    }).result.catch(() => {}); // ignore dismiss
+    });
   }, [query.id, query.user]);
 }

@@ -1,6 +1,3 @@
-// This polyfill is needed to support PhantomJS which we use to generate PNGs from embeds.
-import "core-js/fn/typed/array-buffer";
-
 import moment from "moment";
 import * as Pace from "pace-progress";
 import { isFunction } from "lodash";
@@ -10,7 +7,7 @@ import url from "@/services/url";
 import "@/assets/images/avatar.svg";
 
 // Register visualizations
-import "@/visualizations";
+import "@redash/viz/lib";
 
 import "./antd-spinner";
 

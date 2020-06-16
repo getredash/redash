@@ -42,7 +42,7 @@ export default class UserEdit extends React.Component {
   }
 
   changePassword = () => {
-    ChangePasswordDialog.showModal({ user: this.props.user }).result.catch(() => {}); // ignore dismiss
+    ChangePasswordDialog.showModal({ user: this.props.user });
   };
 
   sendPasswordReset = () => {

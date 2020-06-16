@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import ErrorBoundary, { ErrorBoundaryContext } from "@/components/ErrorBoundary";
+import ErrorBoundary, { ErrorBoundaryContext } from "@redash/viz/lib/components/ErrorBoundary";
 import { Auth } from "@/services/auth";
 import organizationStatus from "@/services/organizationStatus";
-import ApplicationHeader from "./ApplicationHeader";
+import ApplicationLayout from "./ApplicationLayout";
 import ErrorMessage from "./ErrorMessage";
 
 // This wrapper modifies `route.render` function and instead of passing `currentRoute` passes an object
@@ -47,8 +47,7 @@ function UserSessionWrapper({ bodyClass, currentRoute, renderChildren }) {
   }
 
   return (
-    <React.Fragment>
-      <ApplicationHeader />
+    <ApplicationLayout>
       <React.Fragment key={currentRoute.key}>
         <ErrorBoundary renderError={error => <ErrorMessage error={error} />}>
           <ErrorBoundaryContext.Consumer>
@@ -58,7 +57,7 @@ function UserSessionWrapper({ bodyClass, currentRoute, renderChildren }) {
           </ErrorBoundaryContext.Consumer>
         </ErrorBoundary>
       </React.Fragment>
-    </React.Fragment>
+    </ApplicationLayout>
   );
 }
 

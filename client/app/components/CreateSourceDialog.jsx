@@ -1,12 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { isEmpty, toUpper, includes } from "lodash";
+import { isEmpty, toUpper, includes, get } from "lodash";
 import Button from "antd/lib/button";
 import List from "antd/lib/list";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import Steps from "antd/lib/steps";
-import { getErrorMessage } from "@/components/ApplicationArea/ErrorMessage";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { PreviewCard } from "@/components/PreviewCard";
 import EmptyState from "@/components/items-list/components/EmptyState";
@@ -67,7 +66,7 @@ class CreateSourceDialog extends React.Component {
         })
         .catch(error => {
           this.setState({ savingSource: false, currentStep: StepEnum.CONFIGURE_IT });
-          errorCallback(getErrorMessage(error.message));
+          errorCallback(get(error, "response.data.message", "Failed saving."));
         });
     }
   };
@@ -116,6 +115,15 @@ class CreateSourceDialog extends React.Component {
           )}
         </div>
         <DynamicForm id="sourceForm" fields={fields} onSubmit={this.createSource} feedbackIcons hideSubmitButton />
+        {selectedType.type === "databricks" && (
+          <small>
+            By using the Databricks Data Source you agree to the Databricks JDBC/ODBC{" "}
+            <a href="https://databricks.com/spark/odbc-driver-download" target="_blank" rel="noopener noreferrer">
+              Driver Download Terms and Conditions
+            </a>
+            .
+          </small>
+        )}
       </div>
     );
   }
@@ -124,7 +132,12 @@ class CreateSourceDialog extends React.Component {
     const { imageFolder } = this.props;
     return (
       <List.Item className="p-l-10 p-r-10 clickable" onClick={() => this.selectType(item)}>
-        <PreviewCard title={item.name} imageUrl={`${imageFolder}/${item.type}.png`} roundedImage={false}>
+        <PreviewCard
+          title={item.name}
+          imageUrl={`${imageFolder}/${item.type}.png`}
+          roundedImage={false}
+          data-test="PreviewItem"
+          data-test-type={item.type}>
           <i className="fa fa-angle-double-right" />
         </PreviewCard>
       </List.Item>

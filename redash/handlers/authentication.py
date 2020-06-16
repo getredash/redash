@@ -84,7 +84,7 @@ def render_token_login_page(template, org_slug, token, invite):
             flash("Password length is too short (<6).")
             status_code = 400
         else:
-            if invite:
+            if invite or user.is_invitation_pending:
                 user.is_invitation_pending = False
             user.hash_password(request.form["password"])
             models.db.session.add(user)
@@ -285,6 +285,9 @@ def client_config():
         "showPermissionsControl": current_org.get_setting(
             "feature_show_permissions_control"
         ),
+        "hidePlotlyModeBar": current_org.get_setting(
+            "hide_plotly_mode_bar"
+        ),
         "allowCustomJSVisualizations": settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         "autoPublishNamedQueries": settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
         "extendedAlertOptions": settings.FEATURE_EXTENDED_ALERT_OPTIONS,
@@ -292,6 +295,7 @@ def client_config():
         "dashboardRefreshIntervals": settings.DASHBOARD_REFRESH_INTERVALS,
         "queryRefreshIntervals": settings.QUERY_REFRESH_INTERVALS,
         "googleLoginEnabled": settings.GOOGLE_OAUTH_ENABLED,
+        "ldapLoginEnabled": settings.LDAP_LOGIN_ENABLED,
         "pageSize": settings.PAGE_SIZE,
         "pageSizeOptions": settings.PAGE_SIZE_OPTIONS,
         "tableCellMaxJSONSize": settings.TABLE_CELL_MAX_JSON_SIZE,

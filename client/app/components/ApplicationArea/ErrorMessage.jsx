@@ -14,7 +14,7 @@ function getErrorMessageByStatus(status, defaultMessage) {
   }
 }
 
-export function getErrorMessage(error) {
+function getErrorMessage(error) {
   const message = "It seems like we encountered an error. Try refreshing this page or contact your administrator.";
   if (isObject(error)) {
     // HTTP errors

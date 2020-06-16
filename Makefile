@@ -35,7 +35,7 @@ backend-unit-tests: up test_db
 	docker-compose run --rm --name tests server tests
 
 frontend-unit-tests: bundle
-	npm install
+	npm ci
 	npm run bundle
 	npm test
 

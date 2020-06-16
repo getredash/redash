@@ -125,15 +125,10 @@ class GroupMembers extends React.Component {
           </UserPreviewCard>
         ),
       }),
-      save: items => {
-        const promises = map(items, u => Group.addMember({ id: this.groupId }, { user_id: u.id }));
-        return Promise.all(promises);
-      },
-    })
-      .result.catch(() => {}) // ignore dismiss
-      .finally(() => {
-        this.props.controller.update();
-      });
+    }).onClose(items => {
+      const promises = map(items, u => Group.addMember({ id: this.groupId }, { user_id: u.id }));
+      return Promise.all(promises).then(() => this.props.controller.update());
+    });
   };
 
   render() {

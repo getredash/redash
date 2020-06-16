@@ -4,44 +4,15 @@ body.fixed-layout {
 
   #application-root {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     padding-bottom: 0;
 
     width: 100vw;
     height: 100vh;
 
-    > div {
-      flex-grow: 1;
+    .application-layout-content > div {
       display: flex;
     }
-  }
-}
-
-.bottom-controller {
-  padding: 10px 15px;
-  background: #fff;
-  display: flex;
-  align-items: center;
-
-  button,
-  div,
-  span {
-    position: relative;
-  }
-
-  div:last-child {
-    flex-grow: 1;
-    text-align: right;
-  }
-
-  &:before {
-    content: "";
-    height: 50px;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    pointer-events: none;
-    left: 0;
   }
 }
 
@@ -101,9 +72,6 @@ body.fixed-layout {
   }
 }
 
-.embed__vis {
-}
-
 .query__vis {
   table {
     border: 1px solid #f0f0f0;
@@ -122,6 +90,7 @@ body.fixed-layout {
 .embed__vis {
   display: flex;
   flex-flow: column;
+  width: 100%;
 }
 
 .embed-heading {
@@ -140,31 +109,20 @@ body.fixed-layout {
   }
 }
 
+// Don't let filters take all visualization space on query fixed layout
+.query-fixed-layout {
+  .filters-wrapper {
+    max-height: 40%;
+    overflow: auto;
+  }
+}
+
 .page-header--new {
   .query-tags,
   .query-tags__mobile {
     .label-default,
     .label-warning {
       margin-right: 3px;
-    }
-  }
-}
-
-.page-header--query {
-  .page-title {
-    display: block;
-    margin-left: 15px;
-    margin-right: 15px;
-  }
-
-  .tags-control a {
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
-  }
-
-  &:hover {
-    .tags-control a {
-      opacity: 1;
     }
   }
 }
@@ -195,7 +153,6 @@ a.label-tag {
   box-shadow: rgba(102, 136, 153, 0.15) 0 4px 9px -3px;
   flex-grow: 1;
   display: flex;
-  width: 100vw;
 
   .resizable-component.react-resizable {
     .react-resizable-handle-horizontal {
@@ -275,11 +232,6 @@ a.label-tag {
     align-content: space-around;
     padding: 0;
     overflow-x: hidden;
-
-    .pivot-table-visualization-container > table,
-    .visualization-renderer > .visualization-renderer-wrapper {
-      overflow: visible;
-    }
   }
   .row {
     background: #fff;
@@ -446,12 +398,10 @@ nav .rg-bottom {
 .query-tags {
   display: inline-block;
   vertical-align: middle;
-  margin-top: -3px; // padding-top of tags
 }
 
 .query-tags__mobile {
   display: none;
-  padding: 0 0 0 23px;
 }
 
 .table--permission {
@@ -479,21 +429,6 @@ nav .rg-bottom {
 // Smaller screens
 
 @media (max-width: 880px) {
-  .page-header--query {
-    .page-title {
-      margin-left: 0;
-      margin-right: 0;
-    }
-  }
-
-  .query-tags:not(.query-tags__empty) {
-    display: none;
-  }
-
-  .query-tags__mobile:not(.query-tags__empty) {
-    display: block;
-  }
-
   .btn--showhide,
   .query-actions-menu .dropdown-toggle {
     margin-bottom: 5px;
@@ -547,13 +482,6 @@ nav .rg-bottom {
     }
   }
 
-  .query-page-wrapper {
-    .container {
-      margin-left: 0;
-      margin-right: 0;
-    }
-  }
-
   .datasource-small {
     visibility: visible;
   }
@@ -567,14 +495,5 @@ nav .rg-bottom {
 
   .filter-container {
     padding-right: 0;
-  }
-}
-
-// Responsive fixes
-@media (max-width: 767px) {
-  .query-page-wrapper {
-    h3 {
-      font-size: 18px;
-    }
   }
 }

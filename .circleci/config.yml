@@ -2,10 +2,11 @@ version: 2.0
 
 build-docker-image-job: &build-docker-image-job
   docker:
-    - image: circleci/node:8
+    - image: circleci/node:12
   steps:
     - setup_remote_docker
     - checkout
+    - run: sudo apt update
     - run: sudo apt install python3-pip
     - run: sudo pip3 install -r requirements_bundles.txt
     - run: .circleci/update_version
@@ -32,7 +33,7 @@ jobs:
           name: Build Docker Images
           command: |
             set -x
-            docker-compose build --build-arg skip_ds_deps=true
+            docker-compose build --build-arg skip_ds_deps=true --build-arg skip_frontend_build=true
             docker-compose up -d
             sleep 10
       - run:
@@ -57,24 +58,30 @@ jobs:
           path: coverage.xml
   frontend-lint:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     steps:
       - checkout
       - run: mkdir -p /tmp/test-results/eslint
-      - run: npm install
+      - run: npm ci
       - run: npm run lint:ci
       - store_test_results:
           path: /tmp/test-results
   frontend-unit-tests:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     steps:
       - checkout
+      - run: sudo apt update
       - run: sudo apt install python3-pip
       - run: sudo pip3 install -r requirements_bundles.txt
-      - run: npm install
+      - run: npm ci
       - run: npm run bundle
-      - run: npm test
+      - run:
+          name: Run App Tests
+          command: npm test
+      - run:
+          name: Run Visualizations Tests
+          command: (cd viz-lib && npm test)
       - run: npm run lint
   frontend-e2e-tests:
     environment:
@@ -84,18 +91,19 @@ jobs:
       CYPRESS_PROJECT_ID_ENCODED: OTI0Y2th
       CYPRESS_RECORD_KEY_ENCODED: YzA1OTIxMTUtYTA1Yy00NzQ2LWEyMDMtZmZjMDgwZGI2ODgx
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     steps:
       - setup_remote_docker
       - checkout
       - run:
           name: Install npm dependencies
           command: |
-            npm install
+            npm ci
       - run:
           name: Setup Redash server
           command: |
-            npm run cypress start
+            npm run cypress build
+            npm run cypress start -- --skip-db-seed
             docker-compose run cypress npm run cypress db-seed
       - run:
           name: Execute Cypress tests
