@@ -107,25 +107,10 @@
         "visible": true,
         "type": "bar",
         "name": "a",
-        "x": [
-          "x1",
-          "x2",
-          "x3",
-          "x4"
-        ],
-        "y": [
-          20,
-          40,
-          60,
-          80
-        ],
+        "x": ["x1", "x2", "x3", "x4"],
+        "y": [20, 40, 60, 80],
         "error_y": {
-          "array": [
-            0,
-            0,
-            0,
-            0
-          ],
+          "array": [0, 0, 0, 0],
           "color": "red"
         },
         "hoverinfo": "text+x+name",
@@ -149,25 +134,10 @@
         "visible": true,
         "type": "bar",
         "name": "b",
-        "x": [
-          "x1",
-          "x2",
-          "x3",
-          "x4"
-        ],
-        "y": [
-          80,
-          60,
-          40,
-          20
-        ],
+        "x": ["x1", "x2", "x3", "x4"],
+        "y": [80, 60, 40, 20],
         "error_y": {
-          "array": [
-            0,
-            0,
-            0,
-            0
-          ],
+          "array": [0, 0, 0, 0],
           "color": "blue"
         },
         "hoverinfo": "text+x+name",
