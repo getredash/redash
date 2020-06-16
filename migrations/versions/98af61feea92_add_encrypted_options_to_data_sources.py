@@ -39,21 +39,16 @@ def upgrade():
         sa.Column(
             "encrypted_options",
             ConfigurationContainer.as_mutable(
-                EncryptedConfiguration(
-                    sa.Text, settings.DATASOURCE_SECRET_KEY, FernetEngine
-                )
-            ),
+                EncryptedConfiguration(sa.Text, settings.DATASOURCE_SECRET_KEY,
+                                       FernetEngine)),
         ),
         sa.Column("options", ConfigurationContainer.as_mutable(Configuration)),
     )
 
     conn = op.get_bind()
     for ds in conn.execute(data_sources.select()):
-        conn.execute(
-            data_sources.update()
-            .where(data_sources.c.id == ds.id)
-            .values(encrypted_options=ds.options)
-        )
+        conn.execute(data_sources.update().where(
+            data_sources.c.id == ds.id).values(encrypted_options=ds.options))
 
     op.drop_column("data_sources", "options")
     op.alter_column("data_sources", "encrypted_options", nullable=False)

@@ -12,7 +12,6 @@ except ImportError:
     enabled = False
 
 
-
 def reduce_item(reduced_item, key, value):
     """From https://github.com/vinay20045/json-to-csv"""
     # Reduction Condition 1
@@ -24,7 +23,8 @@ def reduce_item(reduced_item, key, value):
     elif type(value) is dict:
         sub_keys = value.keys()
         for sub_key in sub_keys:
-            reduce_item(reduced_item, u"{}.{}".format(key, sub_key), value[sub_key])
+            reduce_item(reduced_item, u"{}.{}".format(key, sub_key),
+                        value[sub_key])
 
     # Base Condition
     else:
@@ -45,9 +45,15 @@ class Dgraph(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "user": {"type": "string"},
-                "password": {"type": "string"},
-                "servers": {"type": "string"},
+                "user": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "servers": {
+                    "type": "string"
+                },
             },
             "order": ["servers", "user", "password"],
             "required": ["servers"],
@@ -108,9 +114,11 @@ class Dgraph(BaseQueryRunner):
 
             header = list(set(header))
 
-            columns = [
-                {"name": c, "friendly_name": c, "type": "string"} for c in header
-            ]
+            columns = [{
+                "name": c,
+                "friendly_name": c,
+                "type": "string"
+            } for c in header]
 
             # finally, assemble both the columns and data
             data = {"columns": columns, "rows": processed_data}

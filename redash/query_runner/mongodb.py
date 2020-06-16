@@ -28,7 +28,6 @@ try:
 except ImportError:
     enabled = False
 
-
 TYPES_MAP = {
     str: TYPE_STRING,
     text_type: TYPE_STRING,
@@ -102,27 +101,28 @@ def parse_results(results):
                 for inner_key in row[key]:
                     column_name = u"{}.{}".format(key, inner_key)
                     if _get_column_by_name(columns, column_name) is None:
-                        columns.append(
-                            {
-                                "name": column_name,
-                                "friendly_name": column_name,
-                                "type": TYPES_MAP.get(
-                                    type(row[key][inner_key]), TYPE_STRING
-                                ),
-                            }
-                        )
+                        columns.append({
+                            "name":
+                            column_name,
+                            "friendly_name":
+                            column_name,
+                            "type":
+                            TYPES_MAP.get(type(row[key][inner_key]),
+                                          TYPE_STRING),
+                        })
 
                     parsed_row[column_name] = row[key][inner_key]
 
             else:
                 if _get_column_by_name(columns, key) is None:
-                    columns.append(
-                        {
-                            "name": key,
-                            "friendly_name": key,
-                            "type": TYPES_MAP.get(type(row[key]), TYPE_STRING),
-                        }
-                    )
+                    columns.append({
+                        "name":
+                        key,
+                        "friendly_name":
+                        key,
+                        "type":
+                        TYPES_MAP.get(type(row[key]), TYPE_STRING),
+                    })
 
                 parsed_row[key] = row[key]
 
@@ -139,9 +139,18 @@ class MongoDB(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "connectionString": {"type": "string", "title": "Connection String"},
-                "dbName": {"type": "string", "title": "Database Name"},
-                "replicaSetName": {"type": "string", "title": "Replica Set Name"},
+                "connectionString": {
+                    "type": "string",
+                    "title": "Connection String"
+                },
+                "dbName": {
+                    "type": "string",
+                    "title": "Database Name"
+                },
+                "replicaSetName": {
+                    "type": "string",
+                    "title": "Replica Set Name"
+                },
             },
             "required": ["connectionString", "dbName"],
         }
@@ -157,12 +166,9 @@ class MongoDB(BaseQueryRunner):
 
         self.db_name = self.configuration["dbName"]
 
-        self.is_replica_set = (
-            True
-            if "replicaSetName" in self.configuration
-            and self.configuration["replicaSetName"]
-            else False
-        )
+        self.is_replica_set = (True if "replicaSetName" in self.configuration
+                               and self.configuration["replicaSetName"] else
+                               False)
 
     def _get_db(self):
         if self.is_replica_set:
@@ -171,7 +177,8 @@ class MongoDB(BaseQueryRunner):
                 replicaSet=self.configuration["replicaSetName"],
             )
         else:
-            db_connection = pymongo.MongoClient(self.configuration["connectionString"])
+            db_connection = pymongo.MongoClient(
+                self.configuration["connectionString"])
 
         return db_connection[self.db_name]
 
@@ -207,10 +214,12 @@ class MongoDB(BaseQueryRunner):
             for d in db[collection_name].find().limit(2):
                 documents_sample.append(d)
         else:
-            for d in db[collection_name].find().sort([("$natural", 1)]).limit(1):
+            for d in db[collection_name].find().sort([("$natural", 1)
+                                                      ]).limit(1):
                 documents_sample.append(d)
 
-            for d in db[collection_name].find().sort([("$natural", -1)]).limit(1):
+            for d in db[collection_name].find().sort([("$natural", -1)
+                                                      ]).limit(1):
                 documents_sample.append(d)
         columns = []
         for d in documents_sample:
@@ -234,9 +243,8 @@ class MongoDB(BaseQueryRunner):
     def run_query(self, query, user):
         db = self._get_db()
 
-        logger.debug(
-            "mongodb connection string: %s", self.configuration["connectionString"]
-        )
+        logger.debug("mongodb connection string: %s",
+                     self.configuration["connectionString"])
         logger.debug("mongodb got query: %s", query)
 
         try:
@@ -258,7 +266,8 @@ class MongoDB(BaseQueryRunner):
                 if "$sort" in step:
                     sort_list = []
                     for sort_item in step["$sort"]:
-                        sort_list.append((sort_item["name"], sort_item["direction"]))
+                        sort_list.append(
+                            (sort_item["name"], sort_item["direction"]))
 
                     step["$sort"] = SON(sort_list)
 
@@ -299,7 +308,8 @@ class MongoDB(BaseQueryRunner):
 
         elif aggregate:
             allow_disk_use = query_data.get("allowDiskUse", False)
-            r = db[collection].aggregate(aggregate, allowDiskUse=allow_disk_use)
+            r = db[collection].aggregate(aggregate,
+                                         allowDiskUse=allow_disk_use)
 
             # Backwards compatibility with older pymongo versions.
             #
@@ -312,9 +322,11 @@ class MongoDB(BaseQueryRunner):
                 cursor = r
 
         if "count" in query_data:
-            columns.append(
-                {"name": "count", "friendly_name": "count", "type": TYPE_INTEGER}
-            )
+            columns.append({
+                "name": "count",
+                "friendly_name": "count",
+                "type": TYPE_INTEGER
+            })
 
             rows.append({"count": cursor})
         else:
@@ -331,7 +343,9 @@ class MongoDB(BaseQueryRunner):
 
         if query_data.get("sortColumns"):
             reverse = query_data["sortColumns"] == "desc"
-            columns = sorted(columns, key=lambda col: col["name"], reverse=reverse)
+            columns = sorted(columns,
+                             key=lambda col: col["name"],
+                             reverse=reverse)
 
         data = {"columns": columns, "rows": rows}
         error = None

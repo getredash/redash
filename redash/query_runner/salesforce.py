@@ -69,10 +69,19 @@ class Salesforce(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "username": {"type": "string"},
-                "password": {"type": "string"},
-                "token": {"type": "string", "title": "Security Token"},
-                "sandbox": {"type": "boolean"},
+                "username": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string",
+                    "title": "Security Token"
+                },
+                "sandbox": {
+                    "type": "boolean"
+                },
                 "api_version": {
                     "type": "string",
                     "title": "Salesforce API Version",
@@ -121,12 +130,15 @@ class Salesforce(BaseQueryRunner):
     def _build_columns(self, sf, child, parents=[]):
         child_type = child["attributes"]["type"]
         child_desc = sf.__getattr__(child_type).describe()
-        child_type_map = dict((f["name"], f["type"]) for f in child_desc["fields"])
+        child_type_map = dict(
+            (f["name"], f["type"]) for f in child_desc["fields"])
         columns = []
         for key in child.keys():
             if key != "attributes":
-                if isinstance(child[key], OrderedDict) and "attributes" in child[key]:
-                    columns.extend(self._build_columns(sf, child[key], parents + [key]))
+                if isinstance(child[key],
+                              OrderedDict) and "attributes" in child[key]:
+                    columns.extend(
+                        self._build_columns(sf, child[key], parents + [key]))
                 else:
                     column_name = self._get_column_name(key, parents)
                     key_type = child_type_map.get(key, "string")

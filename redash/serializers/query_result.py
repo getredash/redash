@@ -15,15 +15,12 @@ from redash.utils import UnicodeWriter
 
 
 def _convert_format(fmt):
-    return (
-        fmt.replace("DD", "%d")
-        .replace("MM", "%m")
-        .replace("YYYY", "%Y")
-        .replace("YY", "%y")
-        .replace("HH", "%H")
-        .replace("mm", "%M")
-        .replace("ss", "%s")
-    )
+    return (fmt.replace("DD", "%d").replace("MM", "%m").replace(
+        "YYYY",
+        "%Y").replace("YY",
+                      "%y").replace("HH",
+                                    "%H").replace("mm",
+                                                  "%M").replace("ss", "%s"))
 
 
 def _convert_bool(value):
@@ -50,12 +47,10 @@ def _convert_datetime(value, fmt):
 
 def _get_column_lists(columns):
     date_format = _convert_format(current_org.get_setting("date_format"))
-    datetime_format = _convert_format(
-        "{} {}".format(
-            current_org.get_setting("date_format"),
-            current_org.get_setting("time_format"),
-        )
-    )
+    datetime_format = _convert_format("{} {}".format(
+        current_org.get_setting("date_format"),
+        current_org.get_setting("time_format"),
+    ))
 
     special_types = {
         TYPE_BOOLEAN: _convert_bool,
@@ -89,7 +84,8 @@ def serialize_query_result_to_csv(query_result):
 
     query_data = json_loads(query_result.data)
 
-    fieldnames, special_columns = _get_column_lists(query_data["columns"] or [])
+    fieldnames, special_columns = _get_column_lists(query_data["columns"]
+                                                    or [])
 
     writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=fieldnames)
     writer.writer = UnicodeWriter(s)

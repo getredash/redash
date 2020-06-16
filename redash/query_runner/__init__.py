@@ -35,9 +35,10 @@ TYPE_STRING = "string"
 TYPE_DATETIME = "datetime"
 TYPE_DATE = "date"
 
-SUPPORTED_COLUMN_TYPES = set(
-    [TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN, TYPE_STRING, TYPE_DATETIME, TYPE_DATE]
-)
+SUPPORTED_COLUMN_TYPES = set([
+    TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN, TYPE_STRING, TYPE_DATETIME,
+    TYPE_DATE
+])
 
 
 class InterruptException(Exception):
@@ -78,8 +79,7 @@ class BaseQueryRunner(object):
             return query
 
         annotation = u", ".join(
-            [u"{}: {}".format(k, v) for k, v in metadata.iteritems()]
-        )
+            [u"{}: {}".format(k, v) for k, v in metadata.iteritems()])
         annotated_query = u"/* {} */ {}".format(annotation, query)
         return annotated_query
 
@@ -106,9 +106,11 @@ class BaseQueryRunner(object):
                 duplicates_counter += 1
 
             column_names.append(column_name)
-            new_columns.append(
-                {"name": column_name, "friendly_name": column_name, "type": col[1]}
-            )
+            new_columns.append({
+                "name": column_name,
+                "friendly_name": column_name,
+                "type": col[1]
+            })
 
         return new_columns
 
@@ -145,7 +147,8 @@ class BaseSQLQueryRunner(BaseQueryRunner):
     def _get_tables_stats(self, tables_dict):
         for t in tables_dict.keys():
             if type(tables_dict[t]) == dict:
-                res = self._run_query_internal("select count(*) as cnt from %s" % t)
+                res = self._run_query_internal(
+                    "select count(*) as cnt from %s" % t)
                 tables_dict[t]["size"] = res[0]["cnt"]
 
 
@@ -163,9 +166,18 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
         schema = {
             "type": "object",
             "properties": {
-                "url": {"type": "string", "title": cls.url_title,},
-                "username": {"type": "string", "title": cls.username_title,},
-                "password": {"type": "string", "title": cls.password_title,},
+                "url": {
+                    "type": "string",
+                    "title": cls.url_title,
+                },
+                "username": {
+                    "type": "string",
+                    "title": cls.username_title,
+                },
+                "password": {
+                    "type": "string",
+                    "title": cls.password_title,
+                },
             },
             "secret": ["password"],
             "order": ["url", "username", "password"],
@@ -209,13 +221,15 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
 
             # Any other responses (e.g. 2xx and 3xx):
             if response.status_code != 200:
-                error = "{} ({}).".format(self.response_error, response.status_code,)
+                error = "{} ({}).".format(
+                    self.response_error,
+                    response.status_code,
+                )
 
         except requests.HTTPError as exc:
             logger.exception(exc)
             error = "Failed to execute query. " "Return Code: {} Reason: {}".format(
-                response.status_code, response.text
-            )
+                response.status_code, response.text)
         except requests.RequestException as exc:
             # Catch all other requests exceptions and return the error.
             logger.exception(exc)
