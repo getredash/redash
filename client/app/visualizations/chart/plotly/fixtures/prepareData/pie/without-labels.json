@@ -7,13 +7,31 @@
       "percentFormat": "0[.]00%",
       "textFormat": "",
       "showDataLabels": false,
-      "direction": { "type": "counterclockwise" },
-      "xAxis": { "type": "-", "labels": { "enabled": true } },
+      "direction": {
+        "type": "counterclockwise"
+      },
+      "xAxis": {
+        "type": "-",
+        "labels": {
+          "enabled": true
+        }
+      },
       "yAxis": [
-        { "type": "linear" },
-        { "type": "linear", "opposite": true }
+        {
+          "type": "linear"
+        },
+        {
+          "type": "linear",
+          "opposite": true
+        }
       ],
-      "series": { "stacking": null, "error_y": { "type": "data", "visible": true } },
+      "series": {
+        "stacking": null,
+        "error_y": {
+          "type": "data",
+          "visible": true
+        }
+      },
       "columnMapping": {
         "x": "x",
         "y": "y"
@@ -23,10 +41,22 @@
       {
         "name": "a",
         "data": [
-          { "x": "a1", "y": 10 },
-          { "x": "a2", "y": 60 },
-          { "x": "a3", "y": 100 },
-          { "x": "a4", "y": 30 }
+          {
+            "x": "a1",
+            "y": 10
+          },
+          {
+            "x": "a2",
+            "y": 60
+          },
+          {
+            "x": "a3",
+            "y": 100
+          },
+          {
+            "x": "a4",
+            "y": 30
+          }
         ]
       }
     ]
@@ -35,22 +65,53 @@
     "series": [
       {
         "visible": true,
-        "values": [10, 60, 100, 30],
-        "labels": ["a1", "a2", "a3", "a4"],
+        "values": [
+          10,
+          60,
+          100,
+          30
+        ],
+        "labels": [
+          "a1",
+          "a2",
+          "a3",
+          "a4"
+        ],
         "type": "pie",
         "hole": 0.4,
         "marker": {
-          "colors": ["#356AFF", "#E92828", "#3BD973", "#604FE9"]
+          "colors": [
+            "#356AFF",
+            "#E92828",
+            "#3BD973",
+            "#604FE9"
+          ]
         },
         "hoverinfo": "text+label",
         "hover": [],
-        "text": ["5% (10)", "30% (60)", "50% (100)", "15% (30)"],
+        "text": [
+          "5% (10)",
+          "30% (60)",
+          "50% (100)",
+          "15% (30)"
+        ],
         "textinfo": "none",
         "textposition": "inside",
-        "textfont": { "color": "#ffffff" },
+        "textfont": {
+          "color": "#ffffff"
+        },
         "name": "a",
         "direction": "counterclockwise",
-        "domain": { "x": [0, 0.98], "y": [0, 0.9] }
+        "domain": {
+          "x": [
+            0,
+            0.98
+          ],
+          "y": [
+            0,
+            0.9
+          ]
+        }
       }
     ]
   }

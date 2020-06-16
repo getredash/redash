@@ -2,21 +2,47 @@
   "input": {
     "options": {
       "globalSeriesType": "column",
-      "legend": { "enabled": false },
-      "xAxis": { "type": "-", "labels": { "enabled": true } },
+      "legend": {
+        "enabled": false
+      },
+      "xAxis": {
+        "type": "-",
+        "labels": {
+          "enabled": true
+        }
+      },
       "yAxis": [
-        { "type": "linear" },
-        { "type": "linear", "opposite": true }
+        {
+          "type": "linear"
+        },
+        {
+          "type": "linear",
+          "opposite": true
+        }
       ],
-      "series": { "stacking": "stack", "error_y": { "type": "data", "visible": true } }
+      "series": {
+        "stacking": "stack",
+        "error_y": {
+          "type": "data",
+          "visible": true
+        }
+      }
     },
     "series": [
-      { "name": "a" }
+      {
+        "name": "a"
+      }
     ]
   },
   "output": {
     "layout": {
-      "margin": { "l": 10, "r": 10, "b": 10, "t": 25, "pad": 4 },
+      "margin": {
+        "l": 10,
+        "r": 10,
+        "b": 10,
+        "t": 25,
+        "pad": 4
+      },
       "width": 400,
       "height": 300,
       "autosize": true,
