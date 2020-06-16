@@ -1,11 +1,12 @@
+import {isArray, isNil, isString, isUndefined, toString} from 'lodash';
 import moment from 'moment/moment';
 import numeral from 'numeral';
-import { isString, isArray, isUndefined, isNil, toString } from 'lodash';
 
 numeral.options.scalePercentBy100 = false;
 
 // eslint-disable-next-line
-const urlPattern = /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019@#\/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#\/%=~()_|])/gi;
+const urlPattern =
+    /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019@#\/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#\/%=~()_|])/gi;
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
@@ -13,7 +14,8 @@ export function createTextFormatter(highlightLinks) {
   if (highlightLinks) {
     return (value) => {
       if (isString(value)) {
-        value = value.replace(urlPattern, '$1<a href="$2" target="_blank">$2</a>');
+        value =
+            value.replace(urlPattern, '$1<a href="$2" target="_blank">$2</a>');
       }
       return toString(value);
     };
@@ -59,7 +61,9 @@ export function createBooleanFormatter(values) {
 export function createNumberFormatter(format) {
   if (isString(format) && (format !== '')) {
     const n = numeral(0); // cache `numeral` instance
-    return value => (value === null || value === '' ? '' : n.set(value).format(format));
+    return value =>
+               (value === null || value === '' ? ''
+                                               : n.set(value).format(format));
   }
   return value => toString(value);
 }
