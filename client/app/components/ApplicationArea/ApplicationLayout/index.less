@@ -53,6 +53,17 @@ body.fixed-layout #application-root {
   }
 }
 
+body.headless #application-root {
+  .application-layout-side-menu,
+  .application-layout-top-menu {
+    display: none !important;
+  }
+
+  .application-layout-content {
+    margin-top: 0;
+  }
+}
+
 // Fixes for proper snapshots in Percy (move vertical scroll to body level
 // to capture entire page, otherwise it wll be cut by viewport)
 @media only percy {
