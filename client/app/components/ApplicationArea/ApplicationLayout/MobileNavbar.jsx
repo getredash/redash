@@ -1,15 +1,19 @@
+import { first } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import logoUrl from "@/assets/images/redash_icon_small.png";
+import Button from "antd/lib/button";
+import Icon from "antd/lib/icon";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import { Auth, currentUser } from "@/services/auth";
-import Button from "antd/lib/button";
-import Icon from "antd/lib/icon";
+import settingsMenu from "@/services/settingsMenu";
+import logoUrl from "@/assets/images/redash_icon_small.png";
 
 import "./MobileNavbar.less";
 
 export default function MobileNavbar({ getPopupContainer }) {
+  const firstSettingsTab = first(settingsMenu.getAvailableItems());
+
   return (
     <div className="mobile-navbar">
       <div className="mobile-navbar-logo">
@@ -43,9 +47,9 @@ export default function MobileNavbar({ getPopupContainer }) {
                 <a href="users/me">Edit Profile</a>
               </Menu.Item>
               <Menu.Divider />
-              {currentUser.isAdmin && (
+              {firstSettingsTab && (
                 <Menu.Item key="settings">
-                  <a href="data_sources">Settings</a>
+                  <a href={firstSettingsTab.path}>Settings</a>
                 </Menu.Item>
               )}
               {currentUser.hasPermission("super_admin") && (
