@@ -103,7 +103,7 @@ export function createUser({ name, email, password }) {
   return cy
     .request({
       method: "POST",
-      url: "api/users",
+      url: "api/users?no_invite=yes",
       body: { name, email },
       failOnStatusCode: false,
     })

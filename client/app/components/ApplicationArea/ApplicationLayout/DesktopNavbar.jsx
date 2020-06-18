@@ -1,10 +1,12 @@
+import { first } from "lodash";
 import React, { useState } from "react";
 import Button from "antd/lib/button";
 import Menu from "antd/lib/menu";
 import Icon from "antd/lib/icon";
 import HelpTrigger from "@/components/HelpTrigger";
-import { Auth, currentUser } from "@/services/auth";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
+import { Auth, currentUser } from "@/services/auth";
+import settingsMenu from "@/services/settingsMenu";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
 import VersionInfo from "./VersionInfo";
@@ -25,6 +27,8 @@ function NavbarSection({ inlineCollapsed, children, ...props }) {
 
 export default function DesktopNavbar() {
   const [collapsed, setCollapsed] = useState(true);
+
+  const firstSettingsTab = first(settingsMenu.getAvailableItems());
 
   return (
     <div className="desktop-navbar">
@@ -106,9 +110,9 @@ export default function DesktopNavbar() {
             <span>Help</span>
           </HelpTrigger>
         </Menu.Item>
-        {currentUser.isAdmin && (
+        {firstSettingsTab && (
           <Menu.Item key="settings">
-            <a href="data_sources">
+            <a href={firstSettingsTab.path} data-test="SettingsLink">
               <Icon type="setting" />
               <span>Settings</span>
             </a>

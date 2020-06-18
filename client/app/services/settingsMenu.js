@@ -1,4 +1,4 @@
-import { isFunction, extend, omit, sortBy, find } from "lodash";
+import { isFunction, extend, omit, sortBy, find, filter } from "lodash";
 import { stripBase } from "@/components/ApplicationArea/Router";
 import { currentUser } from "@/services/auth";
 
@@ -27,6 +27,10 @@ class SettingsMenu {
   add(item) {
     this.items.push(new SettingsMenuItem(item));
     this.items = sortBy(this.items, "order");
+  }
+
+  getAvailableItems() {
+    return filter(this.items, item => item.isAvailable());
   }
 
   getActiveItem(path) {
