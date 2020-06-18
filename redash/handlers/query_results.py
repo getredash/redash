@@ -58,11 +58,12 @@ error_messages = {
     "select_data_source": error_response(
         "Please select data source to run this query.", 401
     ),
+    "no_data_source": error_response("Target data source not available.", 401),
 }
 
 
 def run_query(query, parameters, data_source, query_id, max_age=0):
-    
+
     try:
         if data_source.paused:
             if data_source.pause_reason:
@@ -73,9 +74,9 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
                 message = "{} is paused. Please try later.".format(data_source.name)
 
             return error_response(message)
-    except QueryDetachedFromDataSourceError:
-        return error_response("Target data source does not exist")
-        
+    except AttributeError:
+        return error_messages["no_data_source"]
+
     try:
         query.apply(parameters)
     except (InvalidParameterError, QueryDetachedFromDataSourceError) as e:
@@ -392,10 +393,10 @@ class QueryResultResource(BaseResource):
                 self.record_event(event)
 
             response_builders = {
-                'json': self.make_json_response,
-                'xlsx': self.make_excel_response,
-                'csv': self.make_csv_response,
-                'tsv': self.make_tsv_response
+                "json": self.make_json_response,
+                "xlsx": self.make_excel_response,
+                "csv": self.make_csv_response,
+                "tsv": self.make_tsv_response,
             }
             response = response_builders[filetype](query_result)
 
@@ -426,12 +427,16 @@ class QueryResultResource(BaseResource):
     @staticmethod
     def make_csv_response(query_result):
         headers = {"Content-Type": "text/csv; charset=UTF-8"}
-        return make_response(serialize_query_result_to_dsv(query_result, ","), 200, headers)
+        return make_response(
+            serialize_query_result_to_dsv(query_result, ","), 200, headers
+        )
 
     @staticmethod
     def make_tsv_response(query_result):
         headers = {"Content-Type": "text/tab-separated-values; charset=UTF-8"}
-        return make_response(serialize_query_result_to_dsv(query_result, "\t"), 200, headers)
+        return make_response(
+            serialize_query_result_to_dsv(query_result, "\t"), 200, headers
+        )
 
     @staticmethod
     def make_excel_response(query_result):
