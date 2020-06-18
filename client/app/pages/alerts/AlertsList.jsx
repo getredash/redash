@@ -1,5 +1,6 @@
 import { toUpper } from "lodash";
 import React from "react";
+import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
@@ -69,7 +70,15 @@ class AlertsList extends React.Component {
     return (
       <div className="page-alerts-list">
         <div className="container">
-          <PageHeader title={controller.params.pageTitle} />
+          <PageHeader
+            title={controller.params.pageTitle}
+            actions={
+              <Button block type="primary" href="alerts/new">
+                <i className="fa fa-plus m-r-5" />
+                New Alert
+              </Button>
+            }
+          />
           <div>
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && (
