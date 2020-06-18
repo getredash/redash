@@ -2,7 +2,14 @@ from tests import BaseTestCase
 
 from redash.models import db
 from redash.utils import json_dumps
-from redash.handlers.query_results import error_messages
+from redash.handlers.query_results import error_messages, run_query
+
+
+class TestRunQuery(BaseTestCase):
+    def test_run_query_with_no_data_source(self):
+        response, status = run_query(None, None, None, None)
+        self.assertDictEqual(response, error_messages["no_data_source"][0])
+        self.assertEqual(status, error_messages["no_data_source"][1])
 
 
 class TestQueryResultsCacheHeaders(BaseTestCase):
@@ -37,9 +44,9 @@ class TestQueryResultsContentDispositionHeaders(BaseTestCase):
         rv = self.make_request("get", "/api/queries/{}/results.json".format(query.id))
         # This is what gunicorn will do with it
         try:
-            rv.headers['Content-Disposition'].encode('ascii')
+            rv.headers["Content-Disposition"].encode("ascii")
         except Exception as e:
-            self.fail(repr(e))            
+            self.fail(repr(e))
 
 
 class TestQueryResultListAPI(BaseTestCase):
