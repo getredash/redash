@@ -7,7 +7,7 @@ from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
 from redash import models
 from RestrictedPython import compile_restricted
-from RestrictedPython.Guards import safe_builtins, guarded_iter_unpack_sequence
+from RestrictedPython.Guards import safe_builtins, guarded_iter_unpack_sequence, guarded_unpack_sequence
 
 
 logger = logging.getLogger(__name__)
@@ -263,6 +263,7 @@ class Python(BaseQueryRunner):
             builtins["_getitem_"] = self.custom_get_item
             builtins["_getiter_"] = self.custom_get_iter
             builtins["_print_"] = self._custom_print
+            builtins["_unpack_sequence_"] = guarded_unpack_sequence
             builtins["_iter_unpack_sequence_"] = guarded_iter_unpack_sequence
 
             # Layer in our own additional set of builtins that we have
