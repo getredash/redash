@@ -112,7 +112,7 @@ export default function DesktopNavbar() {
         </Menu.Item>
         {firstSettingsTab && (
           <Menu.Item key="settings">
-            <a href={firstSettingsTab.path}>
+            <a href={firstSettingsTab.path} data-test="SettingsLink">
               <Icon type="setting" />
               <span>Settings</span>
             </a>

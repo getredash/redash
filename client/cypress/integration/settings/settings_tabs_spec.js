@@ -22,22 +22,38 @@ describe("Settings Tabs", () => {
 
   describe("For admin user", () => {
     beforeEach(() => {
-      cy.logout().then(() => cy.login());
+      cy.logout();
+      cy.login();
+      cy.visit("/");
     });
 
-    it("shows available tabs", () => {
-      cy.visit("/users");
+    it("settings link should lead to Data Sources settings", () => {
+      cy.getByTestId("SettingsLink")
+        .should("exist")
+        .should("have.attr", "href", "data_sources");
+    });
+
+    it("all tabs should be available", () => {
+      cy.getByTestId("SettingsLink").click();
       expectSettingsTabsToBe([...userTabs, ...adminTabs]);
     });
   });
 
   describe("For regular user", () => {
     beforeEach(() => {
-      cy.logout().then(() => cy.login(regularUser.email, regularUser.password));
+      cy.logout();
+      cy.login(regularUser.email, regularUser.password);
+      cy.visit("/");
     });
 
-    it("shows available tabs", () => {
-      cy.visit("/users");
+    it("settings link should lead to Users settings", () => {
+      cy.getByTestId("SettingsLink")
+        .should("exist")
+        .should("have.attr", "href", "users");
+    });
+
+    it("limited set of settings tabs should be available", () => {
+      cy.getByTestId("SettingsLink").click();
       expectSettingsTabsToBe(userTabs);
     });
   });
