@@ -1,14 +1,11 @@
 import { createUser } from "../../support/redash-api";
 
 describe("Settings Tabs", () => {
-  before(() => {
-    cy.login();
-    createUser({
-      name: "Example User",
-      email: "user@redash.io",
-      password: "password",
-    });
-  });
+  const regularUser = {
+    name: "Example User",
+    email: "user@redash.io",
+    password: "password",
+  };
 
   const userTabs = ["Users", "Groups", "Query Snippets", "Account"];
   const adminTabs = ["Data Sources", "Alert Destinations", "Settings"];
@@ -19,16 +16,29 @@ describe("Settings Tabs", () => {
       expect(listedPages).to.have.members(expectedTabs);
     });
 
-  it("shows all tabs for admins", () => {
-    cy.visit("/users");
-    expectSettingsTabsToBe([...userTabs, ...adminTabs]);
+  before(() => {
+    cy.login().then(() => createUser(regularUser));
   });
 
-  it("hides unavailable tabs for users", () => {
-    cy.logout()
-      .then(() => cy.login("user@redash.io", "password"))
-      .then(() => cy.visit("/users"));
+  describe("For admin user", () => {
+    beforeEach(() => {
+      cy.logout().then(() => cy.login());
+    });
 
-    expectSettingsTabsToBe(userTabs);
+    it("shows available tabs", () => {
+      cy.visit("/users");
+      expectSettingsTabsToBe([...userTabs, ...adminTabs]);
+    });
+  });
+
+  describe("For regular user", () => {
+    beforeEach(() => {
+      cy.logout().then(() => cy.login(regularUser.email, regularUser.password));
+    });
+
+    it("shows available tabs", () => {
+      cy.visit("/users");
+      expectSettingsTabsToBe(userTabs);
+    });
   });
 });
