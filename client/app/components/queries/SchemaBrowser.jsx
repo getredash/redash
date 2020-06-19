@@ -78,6 +78,49 @@ SchemaItem.defaultProps = {
   onSelect: () => {},
 };
 
+export function SchemaList({ schema, expandedFlags, onTableExpand, onItemSelect }) {
+  const [listRef, setListRef] = useState(null);
+
+  useEffect(() => {
+    if (listRef) {
+      listRef.recomputeRowHeights();
+    }
+  }, [listRef, schema, expandedFlags]);
+
+  return (
+    <div className="schema-browser">
+      <AutoSizer>
+        {({ width, height }) => (
+          <List
+            ref={setListRef}
+            width={width}
+            height={height}
+            rowCount={schema.length}
+            rowHeight={({ index }) => {
+              const item = schema[index];
+              const columnCount = expandedFlags[item.name] ? item.columns.length : 0;
+              return schemaTableHeight + schemaColumnHeight * columnCount;
+            }}
+            rowRenderer={({ key, index, style }) => {
+              const item = schema[index];
+              return (
+                <SchemaItem
+                  key={key}
+                  style={style}
+                  item={item}
+                  expanded={expandedFlags[item.name]}
+                  onToggle={() => onTableExpand(item.name)}
+                  onSelect={onItemSelect}
+                />
+              );
+            }}
+          />
+        )}
+      </AutoSizer>
+    </div>
+  );
+}
+
 function applyFilter(schema, filterString) {
   const filters = filter(filterString.toLowerCase().split(/\s+/), s => s.length > 0);
 
@@ -115,19 +158,12 @@ export default function SchemaBrowser({ dataSource, onSchemaUpdate, onItemSelect
   const [schema, refreshSchema] = useDataSourceSchema(dataSource);
   const [filterString, setFilterString] = useState("");
   const filteredSchema = useMemo(() => applyFilter(schema, filterString), [schema, filterString]);
-  const [expandedFlags, setExpandedFlags] = useState({});
   const [handleFilterChange] = useDebouncedCallback(setFilterString, 500);
-  const [listRef, setListRef] = useState(null);
+  const [expandedFlags, setExpandedFlags] = useState({});
 
   useEffect(() => {
     setExpandedFlags({});
   }, [schema]);
-
-  useEffect(() => {
-    if (listRef) {
-      listRef.recomputeRowHeights();
-    }
-  }, [listRef, filteredSchema, expandedFlags]);
 
   if (schema.length === 0) {
     return null;
@@ -156,36 +192,12 @@ export default function SchemaBrowser({ dataSource, onSchemaUpdate, onItemSelect
           </Button>
         </Tooltip>
       </div>
-      <div className="schema-browser">
-        <AutoSizer>
-          {({ width, height }) => (
-            <List
-              ref={setListRef}
-              width={width}
-              height={height}
-              rowCount={filteredSchema.length}
-              rowHeight={({ index }) => {
-                const item = filteredSchema[index];
-                const columnCount = expandedFlags[item.name] ? item.columns.length : 0;
-                return schemaTableHeight + schemaColumnHeight * columnCount;
-              }}
-              rowRenderer={({ key, index, style }) => {
-                const item = filteredSchema[index];
-                return (
-                  <SchemaItem
-                    key={key}
-                    style={style}
-                    item={item}
-                    expanded={expandedFlags[item.name]}
-                    onToggle={() => toggleTable(item.name)}
-                    onSelect={onItemSelect}
-                  />
-                );
-              }}
-            />
-          )}
-        </AutoSizer>
-      </div>
+      <SchemaList
+        schema={filteredSchema}
+        expandedFlags={expandedFlags}
+        onTableExpand={toggleTable}
+        onItemSelect={onItemSelect}
+      />
     </div>
   );
 }
