@@ -63,19 +63,17 @@ error_messages = {
 
 
 def run_query(query, parameters, data_source, query_id, max_age=0):
-
-    try:
-        if data_source.paused:
-            if data_source.pause_reason:
-                message = "{} is paused ({}). Please try later.".format(
-                    data_source.name, data_source.pause_reason
-                )
-            else:
-                message = "{} is paused. Please try later.".format(data_source.name)
-
-            return error_response(message)
-    except AttributeError:
+    if not data_source:
         return error_messages["no_data_source"]
+    if data_source.paused:
+        if data_source.pause_reason:
+            message = "{} is paused ({}). Please try later.".format(
+                data_source.name, data_source.pause_reason
+            )
+        else:
+            message = "{} is paused. Please try later.".format(data_source.name)
+
+        return error_response(message)
 
     try:
         query.apply(parameters)
