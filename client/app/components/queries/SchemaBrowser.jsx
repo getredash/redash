@@ -7,6 +7,7 @@ import Button from "antd/lib/button";
 import Tooltip from "antd/lib/tooltip";
 import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
 import List from "react-virtualized/dist/commonjs/List";
+import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
 
 const SchemaItemType = PropTypes.shape({
   name: PropTypes.string.isRequired,
@@ -110,7 +111,8 @@ function applyFilter(schema, filterString) {
   );
 }
 
-export default function SchemaBrowser({ schema, onRefresh, onItemSelect, ...props }) {
+export default function SchemaBrowser({ dataSource, onSchemaUpdate, onItemSelect, ...props }) {
+  const [schema, refreshSchema] = useDataSourceSchema(dataSource);
   const [filterString, setFilterString] = useState("");
   const filteredSchema = useMemo(() => applyFilter(schema, filterString), [schema, filterString]);
   const [expandedFlags, setExpandedFlags] = useState({});
@@ -149,7 +151,7 @@ export default function SchemaBrowser({ schema, onRefresh, onItemSelect, ...prop
         />
 
         <Tooltip title="Refresh Schema">
-          <Button onClick={onRefresh}>
+          <Button onClick={() => refreshSchema(true)}>
             <i className="zmdi zmdi-refresh" />
           </Button>
         </Tooltip>
@@ -189,13 +191,13 @@ export default function SchemaBrowser({ schema, onRefresh, onItemSelect, ...prop
 }
 
 SchemaBrowser.propTypes = {
-  schema: PropTypes.arrayOf(SchemaItemType),
-  onRefresh: PropTypes.func,
+  dataSource: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  onSchemaUpdate: PropTypes.func,
   onItemSelect: PropTypes.func,
 };
 
 SchemaBrowser.defaultProps = {
-  schema: [],
-  onRefresh: () => {},
+  dataSource: null,
+  onSchemaUpdate: () => {},
   onItemSelect: () => {},
 };

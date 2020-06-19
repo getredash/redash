@@ -1,4 +1,4 @@
-import { reduce, has } from "lodash";
+import { has } from "lodash";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { axios } from "@/services/axios";
 import DataSource, { SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
@@ -40,13 +40,8 @@ function getSchema(dataSource, refresh = undefined) {
     });
 }
 
-function prepareSchema(schema) {
-  schema.tokensCount = reduce(schema, (totalLength, table) => totalLength + table.columns.length, 0);
-  return schema;
-}
-
 export default function useDataSourceSchema(dataSource) {
-  const [schema, setSchema] = useState(prepareSchema([]));
+  const [schema, setSchema] = useState([]);
   const refreshSchemaTokenRef = useRef(null);
 
   const reloadSchema = useCallback(
@@ -57,7 +52,7 @@ export default function useDataSourceSchema(dataSource) {
       refreshSchemaTokenRef.current = refreshToken;
       getSchema(dataSource, refresh).then(data => {
         if (refreshSchemaTokenRef.current === refreshToken) {
-          setSchema(prepareSchema(data));
+          setSchema(data);
         }
       });
     },
