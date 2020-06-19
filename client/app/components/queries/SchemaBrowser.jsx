@@ -121,7 +121,7 @@ export function SchemaList({ schema, expandedFlags, onTableExpand, onItemSelect 
   );
 }
 
-function applyFilter(schema, filterString) {
+export function applyFilterOnSchema(schema, filterString) {
   const filters = filter(filterString.toLowerCase().split(/\s+/), s => s.length > 0);
 
   // Empty string: return original schema
@@ -157,7 +157,7 @@ function applyFilter(schema, filterString) {
 export default function SchemaBrowser({ dataSource, onSchemaUpdate, onItemSelect, ...props }) {
   const [schema, refreshSchema] = useDataSourceSchema(dataSource);
   const [filterString, setFilterString] = useState("");
-  const filteredSchema = useMemo(() => applyFilter(schema, filterString), [schema, filterString]);
+  const filteredSchema = useMemo(() => applyFilterOnSchema(schema, filterString), [schema, filterString]);
   const [handleFilterChange] = useDebouncedCallback(setFilterString, 500);
   const [expandedFlags, setExpandedFlags] = useState({});
 
