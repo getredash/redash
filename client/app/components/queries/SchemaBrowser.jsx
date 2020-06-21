@@ -8,6 +8,7 @@ import Tooltip from "antd/lib/tooltip";
 import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
 import List from "react-virtualized/dist/commonjs/List";
 import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
+import LoadingState from "../items-list/components/LoadingState";
 
 const SchemaItemType = PropTypes.shape({
   name: PropTypes.string.isRequired,
@@ -78,7 +79,15 @@ SchemaItem.defaultProps = {
   onSelect: () => {},
 };
 
-export function SchemaList({ schema, expandedFlags, onTableExpand, onItemSelect }) {
+function SchemaLoadingState() {
+  return (
+    <div className="schema-loading-state">
+      <LoadingState className="" />
+    </div>
+  );
+}
+
+export function SchemaList({ loading, schema, expandedFlags, onTableExpand, onItemSelect }) {
   const [listRef, setListRef] = useState(null);
 
   useEffect(() => {
@@ -89,34 +98,37 @@ export function SchemaList({ schema, expandedFlags, onTableExpand, onItemSelect 
 
   return (
     <div className="schema-browser">
-      <AutoSizer>
-        {({ width, height }) => (
-          <List
-            ref={setListRef}
-            width={width}
-            height={height}
-            rowCount={schema.length}
-            rowHeight={({ index }) => {
-              const item = schema[index];
-              const columnCount = expandedFlags[item.name] ? item.columns.length : 0;
-              return schemaTableHeight + schemaColumnHeight * columnCount;
-            }}
-            rowRenderer={({ key, index, style }) => {
-              const item = schema[index];
-              return (
-                <SchemaItem
-                  key={key}
-                  style={style}
-                  item={item}
-                  expanded={expandedFlags[item.name]}
-                  onToggle={() => onTableExpand(item.name)}
-                  onSelect={onItemSelect}
-                />
-              );
-            }}
-          />
-        )}
-      </AutoSizer>
+      {loading && <SchemaLoadingState />}
+      {!loading && (
+        <AutoSizer>
+          {({ width, height }) => (
+            <List
+              ref={setListRef}
+              width={width}
+              height={height}
+              rowCount={schema.length}
+              rowHeight={({ index }) => {
+                const item = schema[index];
+                const columnCount = expandedFlags[item.name] ? item.columns.length : 0;
+                return schemaTableHeight + schemaColumnHeight * columnCount;
+              }}
+              rowRenderer={({ key, index, style }) => {
+                const item = schema[index];
+                return (
+                  <SchemaItem
+                    key={key}
+                    style={style}
+                    item={item}
+                    expanded={expandedFlags[item.name]}
+                    onToggle={() => onTableExpand(item.name)}
+                    onSelect={onItemSelect}
+                  />
+                );
+              }}
+            />
+          )}
+        </AutoSizer>
+      )}
     </div>
   );
 }
