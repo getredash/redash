@@ -30,7 +30,7 @@ def get_object_counts():
 
 
 def get_queues_status():
-    return {queue.name: {"size": len(queue)} for queue in Queue.all(connection=redis_connection)}
+    return {queue.name: {"size": len(queue)} for queue in Queue.all()}
 
 
 def get_db_sizes():
