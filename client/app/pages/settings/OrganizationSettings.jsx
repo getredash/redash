@@ -7,7 +7,6 @@ import Form from "antd/lib/form";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import LoadingState from "@/components/items-list/components/LoadingState";
 
-import { clientConfig } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
 import OrgSettings from "@/services/organizationSettings";
 import wrapSettingsTab from "@/components/SettingsWrapper";
@@ -41,9 +40,6 @@ class OrganizationSettings extends React.Component {
       .catch(error => this.props.onError(error));
   }
 
-  disablePasswordLoginToggle = () =>
-    !(clientConfig.googleLoginEnabled || clientConfig.ldapLoginEnabled || this.state.formValues.auth_saml_enabled);
-
   handleSubmit = e => {
     e.preventDefault();
     if (!this.state.submitting) {
@@ -58,15 +54,8 @@ class OrganizationSettings extends React.Component {
     }
   };
 
-  handleChange = (name, value) => {
-    this.setState(
-      prevState => ({ formValues: Object.assign(prevState.formValues, { [name]: value }) }),
-      () => {
-        if (this.disablePasswordLoginToggle() && !this.state.formValues.auth_password_login_enabled) {
-          this.handleChange("auth_password_login_enabled", true);
-        }
-      }
-    );
+  handleChange = changes => {
+    this.setState(prevState => ({ formValues: { ...prevState.formValues, ...changes } }));
   };
 
   render() {

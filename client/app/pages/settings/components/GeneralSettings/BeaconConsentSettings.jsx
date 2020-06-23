@@ -17,7 +17,7 @@ export default function BeaconConsentSettings({ values, onChange }) {
         <Checkbox
           name="beacon_consent"
           checked={values.beacon_consent}
-          onChange={e => onChange("beacon_consent", e.target.checked)}>
+          onChange={e => onChange({ beacon_consent: e.target.checked })}>
           Help Redash improve by automatically sending anonymous usage data
         </Checkbox>
       </Form.Item>

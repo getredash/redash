@@ -12,7 +12,7 @@ export default function SAMLSettings({ values, onChange }) {
         <Checkbox
           name="auth_saml_enabled"
           checked={values.auth_saml_enabled}
-          onChange={e => onChange("auth_saml_enabled", e.target.checked)}>
+          onChange={e => onChange({ auth_saml_enabled: e.target.checked })}>
           SAML Enabled
         </Checkbox>
       </Form.Item>
@@ -21,16 +21,19 @@ export default function SAMLSettings({ values, onChange }) {
           <Form.Item label="SAML Metadata URL">
             <Input
               value={values.auth_saml_metadata_url}
-              onChange={e => onChange("auth_saml_metadata_url", e.target.value)}
+              onChange={e => onChange({ auth_saml_metadata_url: e.target.value })}
             />
           </Form.Item>
           <Form.Item label="SAML Entity ID">
-            <Input value={values.auth_saml_entity_id} onChange={e => onChange("auth_saml_entity_id", e.target.value)} />
+            <Input
+              value={values.auth_saml_entity_id}
+              onChange={e => onChange({ auth_saml_entity_id: e.target.value })}
+            />
           </Form.Item>
           <Form.Item label="SAML NameID Format">
             <Input
               value={values.auth_saml_nameid_format}
-              onChange={e => onChange("auth_saml_nameid_format", e.target.value)}
+              onChange={e => onChange({ auth_saml_nameid_format: e.target.value })}
             />
           </Form.Item>
         </div>

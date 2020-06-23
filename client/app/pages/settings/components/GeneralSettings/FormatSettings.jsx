@@ -10,7 +10,7 @@ export default function FormatSettings({ values, onChange }) {
       <Form.Item label="Date Format">
         <Select
           value={values.date_format}
-          onChange={value => onChange("date_format", value)}
+          onChange={value => onChange({ date_format: value })}
           data-test="DateFormatSelect">
           {clientConfig.dateFormatList.map(dateFormat => (
             <Select.Option key={dateFormat}>{dateFormat}</Select.Option>
@@ -20,7 +20,7 @@ export default function FormatSettings({ values, onChange }) {
       <Form.Item label="Time Format">
         <Select
           value={values.time_format}
-          onChange={value => onChange("time_format", value)}
+          onChange={value => onChange({ time_format: value })}
           data-test="TimeFormatSelect">
           {clientConfig.timeFormatList.map(timeFormat => (
             <Select.Option key={timeFormat}>{timeFormat}</Select.Option>

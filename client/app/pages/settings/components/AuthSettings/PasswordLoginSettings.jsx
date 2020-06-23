@@ -24,7 +24,7 @@ export default function PasswordLoginSettings({ settings, values, onChange }) {
         <Checkbox
           checked={values.auth_password_login_enabled}
           disabled={isTheOnlyAuthMethod}
-          onChange={e => onChange("auth_password_login_enabled", e.target.checked)}>
+          onChange={e => onChange({ auth_password_login_enabled: e.target.checked })}>
           <Tooltip
             title={
               isTheOnlyAuthMethod ? "Password login can be disabled only if another login method is enabled." : null
