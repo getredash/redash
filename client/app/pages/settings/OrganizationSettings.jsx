@@ -1,6 +1,6 @@
-import React from "react";
-import PropTypes from "prop-types";
 import { get } from "lodash";
+import React, { useRef, useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
 
 import Button from "antd/lib/button";
 import Form from "antd/lib/form";
@@ -14,79 +14,91 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import GeneralSettings from "./components/GeneralSettings";
 import AuthSettings from "./components/AuthSettings";
 
-class OrganizationSettings extends React.Component {
-  static propTypes = {
-    onError: PropTypes.func,
-  };
+function OrganizationSettings({ onError }) {
+  const [settings, setSettings] = useState({});
+  const [currentValues, setCurrentValues] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  static defaultProps = {
-    onError: () => {},
-  };
+  const onErrorRef = useRef(onError);
+  onErrorRef.current = onError;
 
-  state = {
-    settings: {},
-    formValues: {},
-    loading: true,
-    submitting: false,
-  };
-
-  componentDidMount() {
+  useEffect(() => {
     recordEvent("view", "page", "org_settings");
+
+    let isCancelled = false;
+
     OrgSettings.get()
       .then(response => {
-        const settings = get(response, "settings");
-        this.setState({ settings, formValues: { ...settings }, loading: false });
-      })
-      .catch(error => this.props.onError(error));
-  }
-
-  handleSubmit = e => {
-    e.preventDefault();
-    if (!this.state.submitting) {
-      this.setState({ submitting: true });
-      OrgSettings.save(this.state.formValues)
-        .then(response => {
+        if (!isCancelled) {
           const settings = get(response, "settings");
-          this.setState({ settings, formValues: { ...settings } });
-        })
-        .catch(error => this.props.onError(error))
-        .finally(() => this.setState({ submitting: false }));
-    }
-  };
+          setSettings(settings);
+          setCurrentValues({ ...settings });
+          setIsLoading(false);
+        }
+      })
+      .catch(error => {
+        if (!isCancelled) {
+          onErrorRef.current(error);
+        }
+      });
 
-  handleChange = changes => {
-    this.setState(prevState => ({ formValues: { ...prevState.formValues, ...changes } }));
-  };
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
 
-  render() {
-    const { loading, submitting } = this.state;
-    return (
-      <div className="row" data-test="OrganizationSettings">
-        <div className="col-md-offset-4 col-md-4">
-          {loading ? (
-            <LoadingState className="" />
-          ) : (
-            <Form layout="vertical" onSubmit={this.handleSubmit}>
-              <GeneralSettings
-                settings={this.state.settings}
-                values={this.state.formValues}
-                onChange={this.handleChange}
-              />
-              <AuthSettings
-                settings={this.state.settings}
-                values={this.state.formValues}
-                onChange={this.handleChange}
-              />
-              <Button className="w-100" type="primary" htmlType="submit" loading={submitting}>
-                Save
-              </Button>
-            </Form>
-          )}
-        </div>
+  const handleChange = useCallback(
+    changes => {
+      setCurrentValues({ ...currentValues, ...changes });
+    },
+    [currentValues]
+  );
+
+  const handleSubmit = useCallback(
+    event => {
+      event.preventDefault();
+      if (!isSaving) {
+        setIsSaving(true);
+        OrgSettings.save(currentValues)
+          .then(response => {
+            const settings = get(response, "settings");
+            setSettings(settings);
+            setCurrentValues({ ...settings });
+          })
+          .catch(error => onErrorRef.current(error))
+          .finally(() => setIsSaving(false));
+      }
+    },
+    [isSaving, currentValues]
+  );
+
+  return (
+    <div className="row" data-test="OrganizationSettings">
+      <div className="col-md-offset-4 col-md-4">
+        {isLoading ? (
+          <LoadingState className="" />
+        ) : (
+          <Form layout="vertical" onSubmit={handleSubmit}>
+            <GeneralSettings settings={settings} values={currentValues} onChange={handleChange} />
+            <AuthSettings settings={settings} values={currentValues} onChange={handleChange} />
+            <Button className="w-100" type="primary" htmlType="submit" loading={isSaving}>
+              Save
+            </Button>
+          </Form>
+        )}
       </div>
-    );
-  }
+    </div>
+  );
 }
+
+OrganizationSettings.propTypes = {
+  onError: PropTypes.func,
+};
+
+OrganizationSettings.defaultProps = {
+  onError: () => {},
+};
 
 const OrganizationSettingsPage = wrapSettingsTab(
   {
