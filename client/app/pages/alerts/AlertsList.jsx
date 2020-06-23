@@ -13,6 +13,7 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
 import Alert from "@/services/alert";
+import { currentUser } from "@/services/auth";
 
 export const STATE_CLASS = {
   unknown: "label-warning",
@@ -73,10 +74,12 @@ class AlertsList extends React.Component {
           <PageHeader
             title={controller.params.pageTitle}
             actions={
-              <Button block type="primary" href="alerts/new">
-                <i className="fa fa-plus m-r-5" />
-                New Alert
-              </Button>
+              currentUser.hasPermission("list_alerts") ? (
+                <Button block type="primary" href="alerts/new">
+                  <i className="fa fa-plus m-r-5" />
+                  New Alert
+                </Button>
+              ) : null
             }
           />
           <div>

@@ -30,6 +30,10 @@ export default function DesktopNavbar() {
 
   const firstSettingsTab = first(settingsMenu.getAvailableItems());
 
+  const canCreateQuery = currentUser.hasPermission("create_query");
+  const canCreateDashboard = currentUser.hasPermission("create_dashboard");
+  const canCreateAlert = currentUser.hasPermission("list_alerts");
+
   return (
     <div className="desktop-navbar">
       <NavbarSection inlineCollapsed={collapsed} className="desktop-navbar-logo">
@@ -63,44 +67,45 @@ export default function DesktopNavbar() {
             </a>
           </Menu.Item>
         )}
-
-        <Menu.Divider />
       </NavbarSection>
 
       <NavbarSection inlineCollapsed={collapsed} className="desktop-navbar-spacer">
-        <Menu.SubMenu
-          key="create"
-          popupClassName="desktop-navbar-submenu"
-          title={
-            <React.Fragment>
-              <span data-test="CreateButton">
-                <Icon type="plus" />
-                <span>Create</span>
-              </span>
-            </React.Fragment>
-          }>
-          {currentUser.hasPermission("create_query") && (
-            <Menu.Item key="new-query">
-              <a href="queries/new" data-test="CreateQueryMenuItem">
-                New Query
-              </a>
-            </Menu.Item>
-          )}
-          {currentUser.hasPermission("create_dashboard") && (
-            <Menu.Item key="new-dashboard">
-              <a data-test="CreateDashboardMenuItem" onMouseUp={() => CreateDashboardDialog.showModal()}>
-                New Dashboard
-              </a>
-            </Menu.Item>
-          )}
-          {currentUser.hasPermission("list_alerts") && (
-            <Menu.Item key="new-alert">
-              <a data-test="CreateAlertMenuItem" href="alerts/new">
-                New Alert
-              </a>
-            </Menu.Item>
-          )}
-        </Menu.SubMenu>
+        {(canCreateQuery || canCreateDashboard || canCreateAlert) && <Menu.Divider />}
+        {(canCreateQuery || canCreateDashboard || canCreateAlert) && (
+          <Menu.SubMenu
+            key="create"
+            popupClassName="desktop-navbar-submenu"
+            title={
+              <React.Fragment>
+                <span data-test="CreateButton">
+                  <Icon type="plus" />
+                  <span>Create</span>
+                </span>
+              </React.Fragment>
+            }>
+            {canCreateQuery && (
+              <Menu.Item key="new-query">
+                <a href="queries/new" data-test="CreateQueryMenuItem">
+                  New Query
+                </a>
+              </Menu.Item>
+            )}
+            {canCreateDashboard && (
+              <Menu.Item key="new-dashboard">
+                <a data-test="CreateDashboardMenuItem" onMouseUp={() => CreateDashboardDialog.showModal()}>
+                  New Dashboard
+                </a>
+              </Menu.Item>
+            )}
+            {canCreateAlert && (
+              <Menu.Item key="new-alert">
+                <a data-test="CreateAlertMenuItem" href="alerts/new">
+                  New Alert
+                </a>
+              </Menu.Item>
+            )}
+          </Menu.SubMenu>
+        )}
       </NavbarSection>
 
       <NavbarSection inlineCollapsed={collapsed}>
