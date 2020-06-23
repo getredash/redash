@@ -103,7 +103,7 @@ function useDashboard(dashboardData) {
         if (error instanceof QueryResultError) {
           return;
         }
-        return error;
+        return Promise.reject(error);
       })
       .finally(() => setDashboard(currentDashboard => extend({}, currentDashboard)));
   }, []);
