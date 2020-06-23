@@ -9,8 +9,8 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import User from "@/services/user";
 import { currentUser } from "@/services/auth";
 
-import UserEdit from "./components/UserEdit";
-import UserShow from "./components/UserShow";
+import EditableUserProfile from "./components/EditableUserProfile";
+import ReadOnlyUserProfile from "./components/ReadOnlyUserProfile";
 
 import "./settings.less";
 
@@ -40,11 +40,14 @@ function UserProfile({ userId, onError }) {
   }, [userId]);
 
   const canEdit = user && (currentUser.isAdmin || currentUser.id === user.id);
-  const UserComponent = canEdit ? UserEdit : UserShow;
+  const UserComponent = canEdit ? EditableUserProfile : ReadOnlyUserProfile;
   return (
     <React.Fragment>
       <EmailSettingsWarning featureName="invite emails" className="m-b-20" adminOnly />
-      <div className="row">{user ? <UserComponent user={user} /> : <LoadingState className="" />}</div>
+      <div className="row">
+        {!user && <LoadingState className="" />}
+        {user && <UserComponent user={user} />}
+      </div>
     </React.Fragment>
   );
 }

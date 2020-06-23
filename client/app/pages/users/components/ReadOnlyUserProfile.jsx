@@ -4,7 +4,7 @@ import { UserProfile } from "@/components/proptypes";
 import UserGroups from "./UserGroups";
 import useUserGroups from "../hooks/useUserGroups";
 
-export default function UserShow({ user }) {
+export default function ReadOnlyUserProfile({ user }) {
   const { groups, isLoading: isLoadingGroups } = useUserGroups(user);
 
   return (
@@ -24,6 +24,6 @@ export default function UserShow({ user }) {
   );
 }
 
-UserShow.propTypes = {
+ReadOnlyUserProfile.propTypes = {
   user: UserProfile.isRequired,
 };

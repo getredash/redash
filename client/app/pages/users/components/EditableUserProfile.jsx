@@ -6,7 +6,7 @@ import ApiKeyForm from "./ApiKeyForm";
 import PasswordForm from "./PasswordForm";
 import ToggleUserForm from "./ToggleUserForm";
 
-export default function UserEdit(props) {
+export default function EditableUserProfile(props) {
   const [user, setUser] = useState(props.user);
 
   useEffect(() => {
@@ -32,6 +32,6 @@ export default function UserEdit(props) {
   );
 }
 
-UserEdit.propTypes = {
+EditableUserProfile.propTypes = {
   user: UserProfile.isRequired,
 };
