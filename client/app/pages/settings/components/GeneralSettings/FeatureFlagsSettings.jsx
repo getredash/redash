@@ -1,11 +1,14 @@
 import React from "react";
 import Checkbox from "antd/lib/checkbox";
 import Form from "antd/lib/form";
+import DynamicComponent from "@/components/DynamicComponent";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
-export default function FeaturesSettings({ values, onChange }) {
+export default function FeatureFlagsSettings(props) {
+  const { values, onChange } = props;
+
   return (
-    <React.Fragment>
+    <DynamicComponent name="OrganizationSettings.FeatureFlagsSettings" {...props}>
       <Form.Item label="Feature Flags">
         <Checkbox
           name="feature_show_permissions_control"
@@ -30,10 +33,10 @@ export default function FeaturesSettings({ values, onChange }) {
           Enable multi-byte (Chinese, Japanese, and Korean) search for query names and descriptions (slower)
         </Checkbox>
       </Form.Item>
-    </React.Fragment>
+    </DynamicComponent>
   );
 }
 
-FeaturesSettings.propTypes = SettingsEditorPropTypes;
+FeatureFlagsSettings.propTypes = SettingsEditorPropTypes;
 
-FeaturesSettings.defaultProps = SettingsEditorDefaultProps;
+FeatureFlagsSettings.defaultProps = SettingsEditorDefaultProps;

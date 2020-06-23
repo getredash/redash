@@ -3,16 +3,19 @@ import React from "react";
 import Form from "antd/lib/form";
 import Select from "antd/lib/select";
 import Alert from "antd/lib/alert";
+import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
-export default function GoogleLoginSettings({ values, onChange }) {
+export default function GoogleLoginSettings(props) {
+  const { values, onChange } = props;
+
   if (!clientConfig.googleLoginEnabled) {
     return null;
   }
 
   return (
-    <React.Fragment>
+    <DynamicComponent name="OrganizationSettings.GoogleLoginSettings" {...props}>
       <h4>Google Login</h4>
       <Form.Item label="Allowed Google Apps Domains">
         <Select
@@ -33,7 +36,7 @@ export default function GoogleLoginSettings({ values, onChange }) {
           />
         )}
       </Form.Item>
-    </React.Fragment>
+    </DynamicComponent>
   );
 }
 

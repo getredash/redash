@@ -1,11 +1,14 @@
 import React from "react";
 import Checkbox from "antd/lib/checkbox";
 import Form from "antd/lib/form";
+import DynamicComponent from "@/components/DynamicComponent";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
-export default function PlotlySettings({ values, onChange }) {
+export default function PlotlySettings(props) {
+  const { values, onChange } = props;
+
   return (
-    <React.Fragment>
+    <DynamicComponent name="OrganizationSettings.PlotlySettings" {...props}>
       <Form.Item label="Chart Visualization">
         <Checkbox
           name="hide_plotly_mode_bar"
@@ -14,7 +17,7 @@ export default function PlotlySettings({ values, onChange }) {
           Hide Plotly mode bar
         </Checkbox>
       </Form.Item>
-    </React.Fragment>
+    </DynamicComponent>
   );
 }
 

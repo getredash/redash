@@ -1,19 +1,20 @@
 import React from "react";
+import DynamicComponent from "@/components/DynamicComponent";
 
 import FormatSettings from "./FormatSettings";
 import PlotlySettings from "./PlotlySettings";
-import FeaturesSettings from "./FeaturesSettings";
+import FeatureFlagsSettings from "./FeatureFlagsSettings";
 import BeaconConsentSettings from "./BeaconConsentSettings";
 
 export default function GeneralSettings(props) {
   return (
-    <React.Fragment>
+    <DynamicComponent name="OrganizationSettings.GeneralSettings" {...props}>
       <h3 className="m-t-0">General</h3>
       <hr />
       <FormatSettings {...props} />
       <PlotlySettings {...props} />
-      <FeaturesSettings {...props} />
+      <FeatureFlagsSettings {...props} />
       <BeaconConsentSettings {...props} />
-    </React.Fragment>
+    </DynamicComponent>
   );
 }

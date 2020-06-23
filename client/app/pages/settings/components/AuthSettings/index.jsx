@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 import HelpTrigger from "@/components/HelpTrigger";
+import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
@@ -23,7 +24,7 @@ export default function AuthSettings(props) {
   );
 
   return (
-    <React.Fragment>
+    <DynamicComponent name="OrganizationSettings.AuthSettings" {...props}>
       <h3 className="m-t-0">
         Authentication <HelpTrigger type="AUTHENTICATION_OPTIONS" />
       </h3>
@@ -31,7 +32,7 @@ export default function AuthSettings(props) {
       <PasswordLoginSettings {...props} onChange={handleChange} />
       <GoogleLoginSettings {...props} onChange={handleChange} />
       <SAMLSettings {...props} onChange={handleChange} />
-    </React.Fragment>
+    </DynamicComponent>
   );
 }
 

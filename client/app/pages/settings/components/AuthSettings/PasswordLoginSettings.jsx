@@ -3,15 +3,18 @@ import Alert from "antd/lib/alert";
 import Form from "antd/lib/form";
 import Checkbox from "antd/lib/checkbox";
 import Tooltip from "antd/lib/tooltip";
+import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
-export default function PasswordLoginSettings({ settings, values, onChange }) {
+export default function PasswordLoginSettings(props) {
+  const { settings, values, onChange } = props;
+
   const isTheOnlyAuthMethod =
     !clientConfig.googleLoginEnabled && !clientConfig.ldapLoginEnabled && !values.auth_saml_enabled;
 
   return (
-    <React.Fragment>
+    <DynamicComponent name="OrganizationSettings.PasswordLoginSettings" {...props}>
       {!settings.auth_password_login_enabled && (
         <Alert
           message="Password based login is currently disabled and users will
@@ -34,7 +37,7 @@ export default function PasswordLoginSettings({ settings, values, onChange }) {
           </Tooltip>
         </Checkbox>
       </Form.Item>
-    </React.Fragment>
+    </DynamicComponent>
   );
 }
 

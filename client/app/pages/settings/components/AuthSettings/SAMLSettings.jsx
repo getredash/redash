@@ -2,11 +2,14 @@ import React from "react";
 import Form from "antd/lib/form";
 import Checkbox from "antd/lib/checkbox";
 import Input from "antd/lib/input";
+import DynamicComponent from "@/components/DynamicComponent";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
-export default function SAMLSettings({ values, onChange }) {
+export default function SAMLSettings(props) {
+  const { values, onChange } = props;
+
   return (
-    <React.Fragment>
+    <DynamicComponent name="OrganizationSettings.SAMLSettings" {...props}>
       <h4>SAML</h4>
       <Form.Item>
         <Checkbox
@@ -38,7 +41,7 @@ export default function SAMLSettings({ values, onChange }) {
           </Form.Item>
         </div>
       )}
-    </React.Fragment>
+    </DynamicComponent>
   );
 }
 

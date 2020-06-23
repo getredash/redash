@@ -5,9 +5,11 @@ import Checkbox from "antd/lib/checkbox";
 import DynamicComponent from "@/components/DynamicComponent";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
-export default function BeaconConsentSettings({ values, onChange }) {
+export default function BeaconConsentSettings(props) {
+  const { values, onChange } = props;
+
   return (
-    <DynamicComponent name="BeaconConsentSetting">
+    <DynamicComponent name="OrganizationSettings.BeaconConsentSettings" {...props}>
       <Form.Item
         label={
           <>
