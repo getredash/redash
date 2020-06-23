@@ -17,6 +17,7 @@ import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog
 import Layout from "@/components/layouts/ContentWithSidebar";
 
 import { Dashboard } from "@/services/dashboard";
+import { currentUser } from "@/services/auth";
 
 import DashboardListEmptyState from "./components/DashboardListEmptyState";
 
@@ -80,10 +81,12 @@ class DashboardList extends React.Component {
           <PageHeader
             title={controller.params.pageTitle}
             actions={
-              <Button block type="primary" onClick={() => CreateDashboardDialog.showModal()}>
-                <i className="fa fa-plus m-r-5" />
-                New Dashboard
-              </Button>
+              currentUser.hasPermission("create_dashboard") ? (
+                <Button block type="primary" onClick={() => CreateDashboardDialog.showModal()}>
+                  <i className="fa fa-plus m-r-5" />
+                  New Dashboard
+                </Button>
+              ) : null
             }
           />
           <Layout>

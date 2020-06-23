@@ -112,10 +112,12 @@ class QueriesList extends React.Component {
           <PageHeader
             title={controller.params.pageTitle}
             actions={
-              <Button block type="primary" href="queries/new">
-                <i className="fa fa-plus m-r-5" />
-                New Query
-              </Button>
+              currentUser.hasPermission("create_query") ? (
+                <Button block type="primary" href="queries/new">
+                  <i className="fa fa-plus m-r-5" />
+                  New Query
+                </Button>
+              ) : null
             }
           />
           <Layout>
