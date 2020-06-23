@@ -31,7 +31,9 @@ exports[`renders correctly 1`] = `
     <dd>
       john@doe.com
     </dd>
-    <dt>
+    <dt
+      className="m-b-5"
+    >
       Groups:
     </dt>
     <dd>

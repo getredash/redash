@@ -7,7 +7,7 @@ export default function UserGroups({ groups, ...props }) {
   return (
     <div {...props}>
       {map(groups, group => (
-        <Tag className="m-t-5 m-r-5" key={group.id}>
+        <Tag className="m-b-5 m-r-5" key={group.id}>
           <a href={`groups/${group.id}`}>{group.name}</a>
         </Tag>
       ))}

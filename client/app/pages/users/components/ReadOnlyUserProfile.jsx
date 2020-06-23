@@ -17,7 +17,7 @@ export default function ReadOnlyUserProfile({ user }) {
         <dd>{user.name}</dd>
         <dt>Email:</dt>
         <dd>{user.email}</dd>
-        <dt>Groups:</dt>
+        <dt className="m-b-5">Groups:</dt>
         <dd>{isLoadingGroups ? "Loading..." : <UserGroups groups={groups} />}</dd>
       </dl>
     </div>
