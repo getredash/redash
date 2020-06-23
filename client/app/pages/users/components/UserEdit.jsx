@@ -1,18 +1,20 @@
-import React, { Fragment } from "react";
 import { includes, get } from "lodash";
+import React, { Fragment } from "react";
 import Alert from "antd/lib/alert";
 import Button from "antd/lib/button";
 import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
 import Tag from "antd/lib/tag";
+import { UserProfile } from "@/components/proptypes";
+import DynamicForm from "@/components/dynamic-form/DynamicForm";
+import InputWithCopy from "@/components/InputWithCopy";
+
 import User from "@/services/user";
 import Group from "@/services/group";
 import { currentUser } from "@/services/auth";
 import { absoluteUrl } from "@/services/utils";
-import { UserProfile } from "../proptypes";
-import DynamicForm from "../dynamic-form/DynamicForm";
+
 import ChangePasswordDialog from "./ChangePasswordDialog";
-import InputWithCopy from "../InputWithCopy";
 
 export default class UserEdit extends React.Component {
   static propTypes = {

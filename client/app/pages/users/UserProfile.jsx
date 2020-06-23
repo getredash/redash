@@ -3,12 +3,14 @@ import PropTypes from "prop-types";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmailSettingsWarning from "@/components/EmailSettingsWarning";
-import UserEdit from "@/components/users/UserEdit";
-import UserShow from "@/components/users/UserShow";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 import User from "@/services/user";
 import { currentUser } from "@/services/auth";
+
+import UserEdit from "./components/UserEdit";
+import UserShow from "./components/UserShow";
+
 import "./settings.less";
 
 class UserProfile extends React.Component {

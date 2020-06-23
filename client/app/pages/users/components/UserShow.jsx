@@ -1,8 +1,8 @@
 import React from "react";
 import { includes } from "lodash";
 import Tag from "antd/lib/tag";
+import { UserProfile } from "@/components/proptypes";
 import Group from "@/services/group";
-import { UserProfile } from "../proptypes";
 
 export default class UserShow extends React.Component {
   static propTypes = {
