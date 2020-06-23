@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmailSettingsWarning from "@/components/EmailSettingsWarning";
+import DynamicComponent from "@/components/DynamicComponent";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 
@@ -40,13 +41,17 @@ function UserProfile({ userId, onError }) {
   }, [userId]);
 
   const canEdit = user && (currentUser.isAdmin || currentUser.id === user.id);
-  const UserComponent = canEdit ? EditableUserProfile : ReadOnlyUserProfile;
   return (
     <React.Fragment>
       <EmailSettingsWarning featureName="invite emails" className="m-b-20" adminOnly />
       <div className="row">
         {!user && <LoadingState className="" />}
-        {user && <UserComponent user={user} />}
+        {user && (
+          <DynamicComponent name="UserProfile" user={user}>
+            {!canEdit && <ReadOnlyUserProfile user={user} />}
+            {canEdit && <EditableUserProfile user={user} />}
+          </DynamicComponent>
+        )}
       </div>
     </React.Fragment>
   );

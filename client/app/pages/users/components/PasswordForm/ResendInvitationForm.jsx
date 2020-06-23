@@ -1,10 +1,13 @@
 import React, { useState, useCallback } from "react";
 import Button from "antd/lib/button";
+import DynamicComponent from "@/components/DynamicComponent";
 import { UserProfile } from "@/components/proptypes";
 import User from "@/services/user";
 import PasswordLinkAlert from "./PasswordLinkAlert";
 
-export default function ResendInvitationForm({ user }) {
+export default function ResendInvitationForm(props) {
+  const { user } = props;
+
   const [loading, setLoading] = useState(false);
   const [passwordLink, setPasswordLink] = useState(null);
 
@@ -21,12 +24,12 @@ export default function ResendInvitationForm({ user }) {
   }, [user]);
 
   return (
-    <React.Fragment>
+    <DynamicComponent name="UserProfile.ResendInvitationForm" {...props}>
       <Button className="w-100 m-t-10" onClick={resendInvitation} loading={loading}>
         Resend Invitation
       </Button>
       <PasswordLinkAlert user={user} passwordLink={passwordLink} afterClose={() => setPasswordLink(null)} />
-    </React.Fragment>
+    </DynamicComponent>
   );
 }
 

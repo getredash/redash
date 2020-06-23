@@ -2,31 +2,36 @@ import { isString } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import Alert from "antd/lib/alert";
+import DynamicComponent from "@/components/DynamicComponent";
 import InputWithCopy from "@/components/InputWithCopy";
 import { UserProfile } from "@/components/proptypes";
 import { absoluteUrl } from "@/services/utils";
 
-export default function PasswordLinkAlert({ user, passwordLink, ...props }) {
+export default function PasswordLinkAlert(props) {
+  const { user, passwordLink, ...restProps } = props;
+
   if (!isString(passwordLink)) {
     return null;
   }
 
   return (
-    <Alert
-      message="Email not sent!"
-      description={
-        <React.Fragment>
-          <p>
-            The mail server is not configured, please send the following link to <b>{user.name}</b>:
-          </p>
-          <InputWithCopy value={absoluteUrl(passwordLink)} readOnly />
-        </React.Fragment>
-      }
-      type="warning"
-      className="m-t-20"
-      closable
-      {...props}
-    />
+    <DynamicComponent name="UserProfile.PasswordLinkAlert" {...props}>
+      <Alert
+        message="Email not sent!"
+        description={
+          <React.Fragment>
+            <p>
+              The mail server is not configured, please send the following link to <b>{user.name}</b>:
+            </p>
+            <InputWithCopy value={absoluteUrl(passwordLink)} readOnly />
+          </React.Fragment>
+        }
+        type="warning"
+        className="m-t-20"
+        closable
+        {...restProps}
+      />
+    </DynamicComponent>
   );
 }
 

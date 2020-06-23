@@ -1,11 +1,14 @@
 import React, { useState, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
+import DynamicComponent from "@/components/DynamicComponent";
 import { UserProfile } from "@/components/proptypes";
 import { currentUser } from "@/services/auth";
 import User from "@/services/user";
 
-export default function ToggleUserForm({ user, onChange }) {
+export default function ToggleUserForm(props) {
+  const { user, onChange } = props;
+
   const [loading, setLoading] = useState(false);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
@@ -28,14 +31,15 @@ export default function ToggleUserForm({ user, onChange }) {
     return null;
   }
 
-  return user.isDisabled ? (
-    <Button className="w-100 m-t-10" type="primary" onClick={toggleUser} loading={loading}>
-      Enable User
-    </Button>
-  ) : (
-    <Button className="w-100 m-t-10" type="danger" onClick={toggleUser} loading={loading}>
-      Disable User
-    </Button>
+  const buttonProps = {
+    type: user.isDisabled ? "primary" : "danger",
+    children: user.isDisabled ? "Enable User" : "Disable User",
+  };
+
+  return (
+    <DynamicComponent name="UserProfile.ToggleUserForm">
+      <Button className="w-100 m-t-10" onClick={toggleUser} loading={loading} {...buttonProps} />
+    </DynamicComponent>
   );
 }
 
