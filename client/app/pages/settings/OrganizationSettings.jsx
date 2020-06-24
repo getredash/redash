@@ -48,12 +48,9 @@ function OrganizationSettings({ onError }) {
     };
   }, []);
 
-  const handleChange = useCallback(
-    changes => {
-      setCurrentValues({ ...currentValues, ...changes });
-    },
-    [currentValues]
-  );
+  const handleChange = useCallback(changes => {
+    setCurrentValues(currentValues => ({ ...currentValues, ...changes }));
+  }, []);
 
   const handleSubmit = useCallback(
     event => {
