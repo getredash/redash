@@ -136,7 +136,7 @@ class EditDataSource extends React.Component {
   }
 }
 
-const EditDataSourcePage = wrapSettingsTab(null, EditDataSource);
+const EditDataSourcePage = wrapSettingsTab("DataSources.Edit", null, EditDataSource);
 
 export default routeWithUserSession({
   path: "/data_sources/:dataSourceId([0-9]+)",

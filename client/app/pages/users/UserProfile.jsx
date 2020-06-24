@@ -48,6 +48,7 @@ class UserProfile extends React.Component {
 }
 
 const UserProfilePage = wrapSettingsTab(
+  "Users.Account",
   {
     title: "Account",
     path: "users/me",
