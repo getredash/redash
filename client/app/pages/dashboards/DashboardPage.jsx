@@ -1,16 +1,20 @@
+import { isEmpty } from "lodash";
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
-import { isEmpty } from "lodash";
+
 import Button from "antd/lib/button";
 import Checkbox from "antd/lib/checkbox";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
+
 import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
 import resizeObserver from "@/services/resizeObserver";
+import routes from "@/services/routes";
+
 import useDashboard from "./hooks/useDashboard";
 import DashboardHeader from "./components/DashboardHeader";
 
@@ -166,7 +170,10 @@ DashboardPage.defaultProps = {
   onError: PropTypes.func,
 };
 
-export default routeWithUserSession({
-  path: "/dashboard/:dashboardSlug",
-  render: pageProps => <DashboardPage {...pageProps} />,
-});
+routes.register(
+  "Dashboards.ViewOrEdit",
+  routeWithUserSession({
+    path: "/dashboard/:dashboardSlug",
+    render: pageProps => <DashboardPage {...pageProps} />,
+  })
+);

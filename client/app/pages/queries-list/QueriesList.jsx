@@ -20,6 +20,7 @@ import Layout from "@/components/layouts/ContentWithSidebar";
 import { Query } from "@/services/query";
 import { currentUser } from "@/services/auth";
 import location from "@/services/location";
+import routes from "@/services/routes";
 
 import QueriesListEmptyState from "./QueriesListEmptyState";
 
@@ -189,25 +190,35 @@ const QueriesListPage = itemsList(
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
-export default [
+routes.register(
+  "Queries.List",
   routeWithUserSession({
     path: "/queries",
     title: "Queries",
     render: pageProps => <QueriesListPage {...pageProps} currentPage="all" />,
-  }),
+  })
+);
+routes.register(
+  "Queries.Favorites",
   routeWithUserSession({
     path: "/queries/favorites",
     title: "Favorite Queries",
     render: pageProps => <QueriesListPage {...pageProps} currentPage="favorites" />,
-  }),
+  })
+);
+routes.register(
+  "Queries.Archived",
   routeWithUserSession({
     path: "/queries/archive",
     title: "Archived Queries",
     render: pageProps => <QueriesListPage {...pageProps} currentPage="archive" />,
-  }),
+  })
+);
+routes.register(
+  "Queries.My",
   routeWithUserSession({
     path: "/queries/my",
     title: "My Queries",
     render: pageProps => <QueriesListPage {...pageProps} currentPage="my" />,
-  }),
-];
+  })
+);

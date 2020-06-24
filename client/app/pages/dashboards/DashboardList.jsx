@@ -5,7 +5,6 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
-
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
@@ -13,11 +12,11 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
-
 import Layout from "@/components/layouts/ContentWithSidebar";
 
 import { Dashboard } from "@/services/dashboard";
 import { currentUser } from "@/services/auth";
+import routes from "@/services/routes";
 
 import DashboardListEmptyState from "./components/DashboardListEmptyState";
 
@@ -160,15 +159,19 @@ const DashboardListPage = itemsList(
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
-export default [
+routes.register(
+  "Dashboards.List",
   routeWithUserSession({
     path: "/dashboards",
     title: "Dashboards",
     render: pageProps => <DashboardListPage {...pageProps} currentPage="all" />,
-  }),
+  })
+);
+routes.register(
+  "Dashboards.Favorites",
   routeWithUserSession({
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
     render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
-  }),
-];
+  })
+);

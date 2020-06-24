@@ -7,8 +7,11 @@ import UserEdit from "@/components/users/UserEdit";
 import UserShow from "@/components/users/UserShow";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+
 import User from "@/services/user";
 import { currentUser } from "@/services/auth";
+import routes from "@/services/routes";
+
 import "./settings.less";
 
 class UserProfile extends React.Component {
@@ -56,15 +59,19 @@ const UserProfilePage = wrapSettingsTab(
   UserProfile
 );
 
-export default [
+routes.register(
+  "Users.Account",
   routeWithUserSession({
     path: "/users/me",
     title: "Account",
     render: pageProps => <UserProfilePage {...pageProps} />,
-  }),
+  })
+);
+routes.register(
+  "Users.ViewOrEdit",
   routeWithUserSession({
     path: "/users/:userId([0-9]+)",
     title: "Users",
     render: pageProps => <UserProfilePage {...pageProps} />,
-  }),
-];
+  })
+);

@@ -10,6 +10,8 @@ import EditInPlace from "@/components/EditInPlace";
 import Parameters from "@/components/Parameters";
 
 import { ExecutionStatus } from "@/services/query-result";
+import routes from "@/services/routes";
+
 import useQueryResultData from "@/lib/useQueryResultData";
 
 import QueryPageHeader from "./components/QueryPageHeader";
@@ -214,7 +216,10 @@ QueryView.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-
 
 const QueryViewPage = wrapQueryPage(QueryView);
 
-export default routeWithUserSession({
-  path: "/queries/:queryId([0-9]+)",
-  render: pageProps => <QueryViewPage {...pageProps} />,
-});
+routes.register(
+  "Queries.View",
+  routeWithUserSession({
+    path: "/queries/:queryId([0-9]+)",
+    render: pageProps => <QueryViewPage {...pageProps} />,
+  })
+);

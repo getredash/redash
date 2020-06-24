@@ -14,6 +14,7 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 
 import Alert from "@/services/alert";
 import { currentUser } from "@/services/auth";
+import routes from "@/services/routes";
 
 export const STATE_CLASS = {
   unknown: "label-warning",
@@ -132,8 +133,11 @@ const AlertsListPage = itemsList(
   () => new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 20 })
 );
 
-export default routeWithUserSession({
-  path: "/alerts",
-  title: "Alerts",
-  render: pageProps => <AlertsListPage {...pageProps} currentPage="alerts" />,
-});
+routes.register(
+  "Alerts.List",
+  routeWithUserSession({
+    path: "/alerts",
+    title: "Alerts",
+    render: pageProps => <AlertsListPage {...pageProps} currentPage="alerts" />,
+  })
+);

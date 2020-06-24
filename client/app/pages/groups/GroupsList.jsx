@@ -19,6 +19,7 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 
 import Group from "@/services/group";
 import { currentUser } from "@/services/auth";
+import routes from "@/services/routes";
 
 class GroupsList extends React.Component {
   static propTypes = {
@@ -146,8 +147,11 @@ const GroupsListPage = wrapSettingsTab(
   )
 );
 
-export default routeWithUserSession({
-  path: "/groups",
-  title: "Groups",
-  render: pageProps => <GroupsListPage {...pageProps} currentPage="groups" />,
-});
+routes.register(
+  "Groups.List",
+  routeWithUserSession({
+    path: "/groups",
+    title: "Groups",
+    render: pageProps => <GroupsListPage {...pageProps} currentPage="groups" />,
+  })
+);
