@@ -105,7 +105,7 @@ class GroupMemberListResource(BaseResource):
     def get(self, group_id):
         if not (
             self.current_user.has_permission("admin")
-            or int(group_id) in self.current_user.group_ids
+            and int(group_id) in self.current_user.group_ids
         ):
             abort(403)
 

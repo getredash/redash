@@ -138,3 +138,29 @@ class TestGroupResourceGet(BaseTestCase):
             "get", "/api/groups/{}".format(self.factory.admin_group.id)
         )
         self.assertEqual(rv.status_code, 403)
+
+
+class TestGroupMemberListResourceGet(BaseTestCase):
+    def test_returns_group_members(self):
+        group = self.factory.create_group()
+        user = self.factory.create_admin()
+        user.group_ids.append(group.id)
+        db.session.flush()
+
+        rv = self.make_request(
+            "get", "/api/groups/{}/members".format(group.id), user=user,
+        )
+        self.assertEqual(rv.status_code, 200)
+
+    def test_doesnt_return_group_members_if_user_not_admin_of_group(self):
+        group = self.factory.create_group()
+        user = self.factory.create_admin()
+        user.group_ids.append(group.id)
+
+        other_group = self.factory.create_group()
+        db.session.flush()
+
+        rv = self.make_request(
+            "get", "/api/groups/{}/members".format(other_group.id), user=user
+        )
+        self.assertEqual(rv.status_code, 403)
