@@ -224,6 +224,7 @@ class GroupDataSources extends React.Component {
 }
 
 const GroupDataSourcesPage = wrapSettingsTab(
+  "Groups.DataSources",
   null,
   itemsList(
     GroupDataSources,

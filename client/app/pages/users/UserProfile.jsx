@@ -68,6 +68,7 @@ UserProfile.defaultProps = {
 };
 
 const UserProfilePage = wrapSettingsTab(
+  "Users.Account",
   {
     title: "Account",
     path: "users/me",

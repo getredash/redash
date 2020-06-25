@@ -248,6 +248,7 @@ class UsersList extends React.Component {
 }
 
 const UsersListPage = wrapSettingsTab(
+  "Users.List",
   {
     permission: "list_users",
     title: "Users",

@@ -124,6 +124,7 @@ class GroupsList extends React.Component {
 }
 
 const GroupsListPage = wrapSettingsTab(
+  "Groups.List",
   {
     permission: "list_users",
     title: "Groups",

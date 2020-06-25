@@ -103,7 +103,7 @@ class EditDestination extends React.Component {
   }
 }
 
-const EditDestinationPage = wrapSettingsTab(null, EditDestination);
+const EditDestinationPage = wrapSettingsTab("AlertDestinations.Edit", null, EditDestination);
 
 export default routeWithUserSession({
   path: "/destinations/:destinationId([0-9]+)",
