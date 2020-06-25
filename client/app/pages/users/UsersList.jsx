@@ -20,7 +20,6 @@ import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
 import Layout from "@/components/layouts/ContentWithSidebar";
-import CreateUserDialog from "@/components/users/CreateUserDialog";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 
 import { currentUser } from "@/services/auth";
@@ -29,6 +28,8 @@ import User from "@/services/user";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import { absoluteUrl } from "@/services/utils";
+
+import CreateUserDialog from "./components/CreateUserDialog";
 
 function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
   if (user.id === currentUser.id) {
