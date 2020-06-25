@@ -139,7 +139,7 @@ class EditDataSource extends React.Component {
   }
 }
 
-const EditDataSourcePage = wrapSettingsTab(null, EditDataSource);
+const EditDataSourcePage = wrapSettingsTab("DataSources.Edit", null, EditDataSource);
 
 routes.register(
   "DataSources.Edit",

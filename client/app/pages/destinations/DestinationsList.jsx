@@ -131,6 +131,7 @@ class DestinationsList extends React.Component {
 }
 
 const DestinationsListPage = wrapSettingsTab(
+  "AlertDestinations.List",
   {
     permission: "admin",
     title: "Alert Destinations",

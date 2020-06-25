@@ -188,6 +188,7 @@ class GroupMembers extends React.Component {
 }
 
 const GroupMembersPage = wrapSettingsTab(
+  "Groups.Members",
   null,
   itemsList(
     GroupMembers,

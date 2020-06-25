@@ -190,6 +190,7 @@ class QuerySnippetsList extends React.Component {
 }
 
 const QuerySnippetsListPage = wrapSettingsTab(
+  "QuerySnippets.List",
   {
     permission: "create_query",
     title: "Query Snippets",

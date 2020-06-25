@@ -4,10 +4,8 @@ import PageHeader from "@/components/PageHeader";
 import location from "@/services/location";
 import settingsMenu from "@/services/settingsMenu";
 
-function wrapSettingsTab(options, WrappedComponent) {
-  if (options) {
-    settingsMenu.add(options);
-  }
+function wrapSettingsTab(id, options, WrappedComponent) {
+  settingsMenu.add(id, options);
 
   return function SettingsTab(props) {
     const activeItem = settingsMenu.getActiveItem(location.path);

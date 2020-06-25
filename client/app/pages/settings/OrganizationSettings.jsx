@@ -99,6 +99,7 @@ OrganizationSettings.defaultProps = {
 };
 
 const OrganizationSettingsPage = wrapSettingsTab(
+  "Settings.Organization",
   {
     permission: "admin",
     title: "Settings",

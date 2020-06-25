@@ -106,7 +106,7 @@ class EditDestination extends React.Component {
   }
 }
 
-const EditDestinationPage = wrapSettingsTab(null, EditDestination);
+const EditDestinationPage = wrapSettingsTab("AlertDestinations.Edit", null, EditDestination);
 
 routes.register(
   "AlertDestinations.Edit",

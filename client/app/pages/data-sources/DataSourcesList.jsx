@@ -148,6 +148,7 @@ class DataSourcesList extends React.Component {
 }
 
 const DataSourcesListPage = wrapSettingsTab(
+  "DataSources.List",
   {
     permission: "admin",
     title: "Data Sources",
