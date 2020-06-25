@@ -6,10 +6,11 @@ import Button from "antd/lib/button";
 import Form from "antd/lib/form";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import LoadingState from "@/components/items-list/components/LoadingState";
+import wrapSettingsTab from "@/components/SettingsWrapper";
 
 import recordEvent from "@/services/recordEvent";
 import OrgSettings from "@/services/organizationSettings";
-import wrapSettingsTab from "@/components/SettingsWrapper";
+import routes from "@/services/routes";
 
 import GeneralSettings from "./components/GeneralSettings";
 import AuthSettings from "./components/AuthSettings";
@@ -108,8 +109,11 @@ const OrganizationSettingsPage = wrapSettingsTab(
   OrganizationSettings
 );
 
-export default routeWithUserSession({
-  path: "/settings/organization",
-  title: "Organization Settings",
-  render: pageProps => <OrganizationSettingsPage {...pageProps} />,
-});
+routes.register(
+  "Settings.Organization",
+  routeWithUserSession({
+    path: "/settings/organization",
+    title: "Organization Settings",
+    render: pageProps => <OrganizationSettingsPage {...pageProps} />,
+  })
+);

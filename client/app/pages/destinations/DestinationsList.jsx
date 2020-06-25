@@ -1,9 +1,8 @@
+import { isEmpty, reject } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
+
 import Button from "antd/lib/button";
-import { isEmpty, reject } from "lodash";
-import Destination, { IMG_ROOT } from "@/services/destination";
-import { policy } from "@/services/policy";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
@@ -11,6 +10,10 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import CreateSourceDialog from "@/components/CreateSourceDialog";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+
+import Destination, { IMG_ROOT } from "@/services/destination";
+import { policy } from "@/services/policy";
+import routes from "@/services/routes";
 
 class DestinationsList extends React.Component {
   static propTypes = {
@@ -138,15 +141,19 @@ const DestinationsListPage = wrapSettingsTab(
   DestinationsList
 );
 
-export default [
+routes.register(
+  "AlertDestinations.List",
   routeWithUserSession({
     path: "/destinations",
     title: "Alert Destinations",
     render: pageProps => <DestinationsListPage {...pageProps} />,
-  }),
+  })
+);
+routes.register(
+  "AlertDestinations.New",
   routeWithUserSession({
     path: "/destinations/new",
     title: "Alert Destinations",
     render: pageProps => <DestinationsListPage {...pageProps} isNewDestinationPage />,
-  }),
-];
+  })
+);

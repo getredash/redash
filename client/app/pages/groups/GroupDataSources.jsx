@@ -28,6 +28,7 @@ import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
 import Group from "@/services/group";
 import DataSource from "@/services/data-source";
+import routes from "@/services/routes";
 
 class GroupDataSources extends React.Component {
   static propTypes = {
@@ -242,8 +243,11 @@ const GroupDataSourcesPage = wrapSettingsTab(
   )
 );
 
-export default routeWithUserSession({
-  path: "/groups/:groupId([0-9]+)/data_sources",
-  title: "Group Data Sources",
-  render: pageProps => <GroupDataSourcesPage {...pageProps} currentPage="datasources" />,
-});
+routes.register(
+  "Groups.DataSources",
+  routeWithUserSession({
+    path: "/groups/:groupId([0-9]+)/data_sources",
+    title: "Group Data Sources",
+    render: pageProps => <GroupDataSourcesPage {...pageProps} currentPage="datasources" />,
+  })
+);
