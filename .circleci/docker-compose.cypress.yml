@@ -2,7 +2,7 @@ version: '3'
 services:
   server:
     build: ../
-    command: dev_server
+    command: server
     depends_on:
       - postgres
       - redis
@@ -14,9 +14,16 @@ services:
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       REDASH_RATELIMIT_ENABLED: "false"
-  worker:
+  scheduler:
     build: ../
     command: scheduler
+    depends_on:
+      - server
+    environment:
+      REDASH_REDIS_URL: "redis://redis:6379/0"
+  worker:
+    build: ../
+    command: worker
     depends_on:
       - server
     environment:
@@ -24,8 +31,6 @@ services:
       REDASH_LOG_LEVEL: "INFO"
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
-      QUEUES: "queries,scheduled_queries,celery,schemas"
-      WORKERS_COUNT: 2
   cypress:
     build:
       context: ../
@@ -33,6 +38,7 @@ services:
     depends_on:
       - server
       - worker
+      - scheduler
     environment:
       CYPRESS_baseUrl: "http://server:5000"
       PERCY_TOKEN: ${PERCY_TOKEN}
@@ -40,6 +46,7 @@ services:
       PERCY_COMMIT: ${CIRCLE_SHA1}
       PERCY_PULL_REQUEST: ${CIRCLE_PR_NUMBER}
       COMMIT_INFO_BRANCH: ${CIRCLE_BRANCH}
+      COMMIT_INFO_MESSAGE: ${COMMIT_INFO_MESSAGE}
       COMMIT_INFO_AUTHOR: ${CIRCLE_USERNAME}
       COMMIT_INFO_SHA: ${CIRCLE_SHA1}
       COMMIT_INFO_REMOTE: ${CIRCLE_REPOSITORY_URL}

@@ -1,5 +1,265 @@
 # Change Log
 
+## v9.0.0-beta - 2020-06-11
+
+This release was long time in the making and has several major changes:
+
+- Our backend code was updated to support Python 3 and we no longer support Python 2. If you're using our Docker images, this should be a transparent change for you.
+- We replaced Celery with RQ for background jobs processing. This will require some setup updates -- see instructions below.
+- The frontend code is now 100% React and we removed all the Angular dependencies.
+
+This release was made possible by contributions from over 50 people: @ari-e, @ariarijp, @arihantsurana, @arikfr, @atharvai, @cemremengu, @chulucninh09, @citrin, @daniellangnet, @DavidHernandez, @deecay, @dmudro, @erans, @erels, @ezkl, @gabrieldutra, @gstaykov, @ialeinikov, @ikenji, @Jakdaw, @jezdez, @juanvasquezreyes, @koooge, @kravets-levko, @kykrueger, @leibowitz, @leosunmo, @lihan, @loganprice, @mickeey2525, @mnoorenberghe, @monicagangwar, @NicolasLM, @p-yang, @Ralnoc, @ranbena, @randyzwitch, @rauchy, @rxin, @saravananselvamohan, @satyamkrishna, @shinsuke-nara, @stefan-mees, @stevebuckingham, @susodapop, @taminif, @thewarpaint, @tsuyoshizawa, @uncletimmy3, @wengkham.
+
+### Upgrading
+
+Typically, if you are running your own instance of Redash and wish to upgrade, you would simply modify the Docker tag in your `docker-compose.yml` file. Since RQ has replaced Celery in this version, there are a couple extra modifications that need to be done in your `docker-compose.yml`:
+
+1. Under `services/scheduler/environment`, omit `QUEUES` and `WORKERS_COUNT` (and omit `environment` altogether if it is empty).
+2. Under `services`, add a new service for general RQ jobs:
+
+```yaml
+worker:
+  <<: *redash-service
+  command: worker
+  environment:
+    QUEUES: "periodic emails default"
+    WORKERS_COUNT: 1
+```
+
+Following that, force a recreation of your containers with `docker-compose up --force-recreate --build` and you should be good to go.
+
+### UX
+
+- Redesigned Query Results page:
+  - Completely new layout is easier to read for non-technical Redash users.
+  - Empty query results are clearly displayed. User is now prompted to edit or execute the query.
+- Mobile Experience Improvements:
+  - UI element spacing has been redesigned for clarity
+  - Admin pages now honor max-width. Tables scroll independent of the top menu.
+  - Large legends no longer shrink the visualization on small screens.
+  - Fix: it was sometimes impossible to scroll pages with dashboards because the visualizations captured every touch event.
+  - Fix: Visualizations on small screens would not always show horizontal scroll bars.
+- Dashboards can now be un-archived using the API.
+- Dashboard UI performance was improved.
+- List pages were changed to show a user's name instead of avatar.
+- Search-enabled tables now show a prompt for which columns will be searched.
+- In the visualization editor, the settings pane now scrolls independent of the visualization preview.
+- Tokens in the schema viewer now sort alphabetically.
+- Links to settings panes that require Admin privileges are now hidden from non-Admins.
+- The Admin page now remembers which tab you were viewing after a page reload.
+
+### Visualizations
+
+- Feature: Allow bubble size control with either coefficient or sizemode.
+- Feature: Table visualization now treats Unix timestamps in query results as timestamps.
+- Feature: It's now possible to provide a description to each Table column, appearing in UI as a tooltip.
+- Feature: Added tooltip and popover templating to the map with markers visualization.
+- Feature: Added an organization setting to hide the Plotly mode bar on all visualizations.
+- Feature: Cohort visualization now has appearance settings.
+- Feature: Add option to explicitly set Chart legend position.
+- Change: Deprecated visualizations are now hidden.
+- Change: Table settings editor now extends vertically instead of horizontally.
+- Change: The maximum table pagination is now 500.
+- Change: Pie chart labels maintain contrast against lighter slices.
+- Fix: Chart series switched places when picking Y axis.
+- Fix: Third column was not selectable for Bubble and Heatmap charts.
+- Fix: On the counter visualizations, the “count rows” option showed an empty string instead of 0.
+- Fix: Table visualization with column named "children" rendered +/- buttons.
+- Fix: Sankey visualization now correctly occupies all available area even with fewer stages.
+- Fix: Pie chart ignores series labels.
+
+### Data Sources
+
+- New Data Sources: Amazon Cloudwatch, Amazon CloudWatch Logs Insights, Azure Kusto, Exasol.
+- Athena:
+  - Added the option to specify a base cost in settings, displaying a price for each query when executed.
+- BigQuery:
+  - Fix: large jobs continued running after the user clicked “Cancel” query execution.
+- Cassandra:
+  - Updated driver to 3.21.0 which dramatically reduces Docker build times.
+  - SSL options are now available.
+- Clickhouse:
+  - You can now choose whether to verify the SSL certificate.
+- Databricks:
+  - Databricks now use an ODBC-based connector.
+  - Fix: Date column was coerced to DateTime in the front-end.
+- Druid:
+  - Added username and password authentication option.
+- Microsoft SQL Server
+  - Added support for ODBC connections via pyodbc. There are now two MSSQL data source types. One using TDS. The other is using ODBC.
+- MongoDB:
+  - Added support for running queries on secondary in replicaset mode.
+  - Fix: Connection test always succeeded.
+- Oracle:
+  - Fix: Connection would fail if username or password contained special characters.
+  - Fix: Comparisons would fail if scale was None.
+- RDS:
+  - Updated rds-combined-ca-bundle.pem to the latest CA.
+- Redshift:
+  - Added the ability to use IAM Roles and Users.
+  - Fix: Redshift was unable to have its schema refreshed.
+- Rockset:
+  - Fix: Allow Redash to load collections in all workspaces.
+- Snowflake:
+  - You can now refresh the snowflake schema without waking the cluster.
+  - Added support for all of Snowflake’s datetime types. Otherwise certain timestamps would only appear as strings in the front-end.
+- TreasureData:
+  - Fix: API calls would fail when setting a non-default region.
+
+### Alerts
+
+- Feature: Added ability to mute alerts without deleting them.
+- Fix: numerical comparisons failed if value from query was a string.
+
+### Parameters
+
+- Added Last x Days options for date range parameters.
+- Fix: Parameters added in empty queries were always added as text parameters
+
+### Bug Fixes
+
+- Fix: Alembic migration schema was preventing v4 users from upgrading. In v5 we started encrypting data source credentials in the database.
+- Fix: System admin dashboard would not show correct database size if non-default name was used.
+- Fix: refresh_queries job would break if any query had a bad schedule object.
+- Fix: Orgs with LDAP enabled couldn’t disable password login.
+- Fix: SSL mode was sometimes sent as an empty string to the database instead of omitted entirely.
+- Fix: When creating new Map visualization with clustering disabled, map would crash on save.
+- Fix: It was possible on the New Query page to click “Save” multiple times, causing multiple new query records to be created.
+- Fix: Visualization render errors on a dashboard would crash the entire page.
+- Fix: A scheduled execution failure would modify the query’s “updated_at” timestamp.
+- Fix: Parameter UI would wrap awkwardly during some drag operations.
+- Fix: In dashboard edit mode, users couldn’t modify widgets.
+- Fix: Frontend error when parsing a NaN float.
+
+### Other
+
+- Added TSV as a download format (in addition to CSV and Excel).
+- Added maildev settings (helps with automated settings).
+- Refine permissions usage in Redash to allow for guest users
+- The query results API now explicitly handles 404 errors.
+- Forked queries now retain the tags of the original query.
+- We now allow setting custom Sentry environments.
+- Started using Black linter for our Python source code
+- Added CLI command to re-encrypt data source details with new secret key.
+- Favorites list is now loaded on menu click instead of on page load.
+- Administrators can now allow connections to private IP addresses.
+
+## v8.0.0 - 2019-10-27
+
+There were no changes in this release since `v8.0.0-beta.2`. This is just to mark a stable release.
+
+## v8.0.0-beta.2 - 2019-09-16
+
+This is an update to the previous beta release, which includes:
+
+- Add options for users to share anonymous usage information with us (see [docs](https://redash.io/help/open-source/admin-guide/usage-data) for details).
+- Visualizations:
+  - Allow the user to decide how to handle null values in charts.
+- Upgrade Sentry-SDK to latest version.
+- Make horizontal table scroll visible in dashboard widgets without scrolling.
+- Data Sources:
+  - Add support for Azure Data Explorer (Kusto).
+  - MySQL: fix connections without SSL configuration failing.
+  - Amazon Redshift: option to set query group for adhoc/scheduled queries.
+  - Hive: make error message more friendly.
+  - Qubole: add support to run Quantum queries.
+- Display data source icon in query editor.
+- Fix: allow users with view only acces to use the queries in Query Results
+- Dashboard: when updating parameters refersh only widgets that use those parameters.
+
+This release had contributions from 12 people: @arikfr, @cclauss, @gabrieldutra, @justinclift, @kravets-levko, @ranbena, @rauchy, @sandeepV2, @shinsuke-nara, @spacentropy, @sphenlee, @swfz.
+
+## v8.0.0-beta - 2019-08-18
+
+After months of being heads down with hard work, it's finally time to wrap up the V8 release 🤩 This release includes many long awaited improvements to parameters, UX improvements, further React migration and other changes, fixes and improvements.
+
+While this version is already running on the hosted platform to make sure it's stable, we're excited to put this in the hands of our Open Source users.
+
+Starting from this release we will no longer build a tarball distribution of the codebase and recommend everyone to switch over to using our Docker images. We're planning on dropping Python 2 support towards its EOL this year and switching over to the Docker image will make this transition much simpler.
+
+This release was made possible by contributions from over 40 people: @aidarbek, @AntonZarutsky, @ariarijp, @arikfr, @combineads, @deecay, @fmy, @gabrieldutra, @guwenqing, @guyco33, @ialeinikov, @Jakdaw, @jezdez, @justinclift, @k-tomoyasu, @katty0324, @koooge, @kravets-levko, @ktmud, @KumanoTanaka, @kyoshidajp, @nason, @oldPadavan, @openjck, @osule, @otsaloma, @ranbena, @rauchy, @rueian, @sekiyama58, @shinsuke-nara, @taminif, @The-Alchemist, @vv-p, @washort, @wudi-ayuan, @ygrishaev, @yoavbls, @yoshiken, @yusukegoto and the support of over 500 organizations who subscribed to our hosted version and by that sponsor the team's work.
+
+### Parameters
+
+- Parameter UI improvements:
+  - Support for multi-select in dropdown (and query dropdown) parameters.
+  - Support for dynamic values in date and date-range parameters.
+  - Search dropdown parameter values.
+  - New UX for applying parameter changes in queries and dashboards.
+- Allow using Safe Parameters in visualization embeds and public dashboards. Safe Parameters are any parameter type except for the a text parameter (dropdowns are safe).
+
+### Data Sources
+
+- New Data Sources: Couchbase, Phoenix and Dgraph.
+- New JSON data source (and deprecated old URL data source).
+- Snowflake: update connector to latest version.
+- PostgreSQL: show only accessible tables in schema.
+- BigQuery:
+  - Correctly handle NaN values.
+  - Treat repeated fields as rrays.
+  - [BigQuery] Fix: in some queries there is no mode field
+- DynamoDB:
+  - Support for Unicode in queries.
+  - Safe loading of schema.
+- Rockset: better handling of query errors.
+- Google Sheets:
+  - Support for Team Drive.
+  - Friendlier error message in case of an API error and more reliable test connection.
+- MySQL:
+  - Support for calling Stored Procedures and better handling of query cancellation.
+  - Switch to using `mysqlclient` (a maintained fork of `Python-MySQL`).
+- MongoDB: Support serializing Decimal128 values.
+- Presto: support for passwords in connection settings.
+- Amazon Athena: allow to specify custom work group.
+- Query Results: querying a column with a dictionary or array fails
+- Clickhouse: make sure we don't show password in error messages.
+- Enable Cassandra support by default.
+
+### Visualizations
+
+- Charts:
+  - Fix: legend overlapping chart on small screens.
+  - Fix: Pie chart not rendering when series doesn't exist in options.
+  - Pie Chart: add option to set direction of slices.
+- WordCloud: rewritten to support new options (provide frequency in query, limits), scale when resizing, handle long words and more.
+- Pivot Table: support hiding totals.
+- Counters: apply formatting to target value.
+- Maps:
+  - Ability to customize marker icon and color.
+  - Customization options for Choropleth maps.
+- New Visualization: Details View.
+
+### **UX**
+
+- Replace blank screen with a loading indicator when the application is doing its first load.
+- Multiple improvements to dashboards editing: auto-save, grid markings and better refresh indicator.
+- Admin can now edit user's groups from the user page.
+- Add keyboard shortcut (Ctrl/Cmd+Shift+F) to trigger query formatting.
+
+### API
+
+- Query Result API response minimized to only required fields when called with a non user API key.
+- Prefer API key over cookies in authentication.
+- User can now regenerate Query API Key.
+
+### Other Changes
+
+- Sends CSP headers to prevent various kinds of security attacks via the browser. Might break unusual usages and embeds of Redash.
+- New Failed Scheduled Queries email report (can be enabled from organization settings screen).
+- Deprecated HipChat Alert Destination.
+- Add options to hide different parts of a Visualization embed UI (parameters, title, link to query).
+- Support multi-byte search for query names and descriptions (needs to be enabled in Organization settings screen).
+- CSV query results download: correctly serialize booleans and date values.
+- Dashboard filters now collect values from all widgets with the same filter.
+- Support for custom message and description in alert notifications (currently disabled behind a feature flag until we improve the alert UX).
+
+### Bug Fixes
+
+- Fix: adding widget to dashboard from a query page is broken.
+- Fix: default time format option was wrong.
+- Fix: when too many errors of a scheduled queries occur it causes an OverflowError.
+- Fix: when forking a query maintain the same visualizations order.
+
 ## v7.0.0 - 2019-03-17
 
 We're trying a new format for the CHANGELOG in this release. Focusing on the bigger changes, but for whoever interested, you can see all the changes [here](https://github.com/getredash/redash/compare/v6.0.0...master).

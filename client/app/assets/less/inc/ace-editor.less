@@ -1,7 +1,25 @@
 .ace_editor {
-  border: 1px solid #eee;
+  border: 1px solid fade(@redash-gray, 15%);
   height: 100%;
   margin-bottom: 10px;
+
+  &.ace_autocomplete .ace_completion-highlight {
+    text-shadow: none !important;
+    background: #ffff005e;
+    font-weight: 600;
+  }
+
+  &.ace-tm {
+    .ace_gutter {
+      background: #fff !important;
+    }
+
+    .ace_gutter-active-line {
+      background-color: fade(@redash-gray, 20%) !important;
+    }
+
+    .ace_marker-layer .ace_active-line {
+      background: fade(@redash-gray, 9%) !important;
+    }
+  }
 }
-
-

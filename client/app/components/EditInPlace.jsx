@@ -1,37 +1,44 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
-import { trim } from 'lodash';
+import { trim } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import cx from "classnames";
+import Input from "antd/lib/input";
 
-export class EditInPlace extends React.Component {
+export default class EditInPlace extends React.Component {
   static propTypes = {
     ignoreBlanks: PropTypes.bool,
     isEditable: PropTypes.bool,
-    editor: PropTypes.string.isRequired,
     placeholder: PropTypes.string,
     value: PropTypes.string,
     onDone: PropTypes.func.isRequired,
+    onStopEditing: PropTypes.func,
+    multiline: PropTypes.bool,
+    editorProps: PropTypes.object,
+    defaultEditing: PropTypes.bool,
   };
 
   static defaultProps = {
     ignoreBlanks: false,
     isEditable: true,
-    placeholder: '',
-    value: '',
+    placeholder: "",
+    value: "",
+    onStopEditing: () => {},
+    multiline: false,
+    editorProps: {},
+    defaultEditing: false,
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      editing: false,
+      editing: props.defaultEditing,
     };
-    this.inputRef = React.createRef();
-    const self = this;
-    this.componentDidUpdate = (prevProps, prevState) => {
-      if (self.state.editing && !prevState.editing) {
-        self.inputRef.current.focus();
-      }
-    };
+  }
+
+  componentDidUpdate(_, prevState) {
+    if (!this.state.editing && prevState.editing) {
+      this.props.onStopEditing();
+    }
   }
 
   startEditing = () => {
@@ -40,54 +47,58 @@ export class EditInPlace extends React.Component {
     }
   };
 
-  stopEditing = () => {
-    const newValue = trim(this.inputRef.current.value);
-    const ignorableBlank = this.props.ignoreBlanks && newValue === '';
+  stopEditing = currentValue => {
+    const newValue = trim(currentValue);
+    const ignorableBlank = this.props.ignoreBlanks && newValue === "";
     if (!ignorableBlank && newValue !== this.props.value) {
       this.props.onDone(newValue);
     }
     this.setState({ editing: false });
   };
 
-  keyDown = (event) => {
+  handleKeyDown = event => {
     if (event.keyCode === 13 && !event.shiftKey) {
       event.preventDefault();
-      this.stopEditing();
+      this.stopEditing(event.target.value);
     } else if (event.keyCode === 27) {
       this.setState({ editing: false });
     }
   };
 
-  renderNormal = () => (
-    <span
-      role="presentation"
-      onFocus={this.startEditing}
-      onClick={this.startEditing}
-      className={this.props.isEditable ? 'editable' : ''}
-    >
-      {this.props.value || this.props.placeholder}
-    </span>
-  );
+  renderNormal = () =>
+    this.props.value ? (
+      <span
+        role="presentation"
+        onFocus={this.startEditing}
+        onClick={this.startEditing}
+        className={this.props.isEditable ? "editable" : ""}>
+        {this.props.value}
+      </span>
+    ) : (
+      <a className="clickable" onClick={this.startEditing}>
+        {this.props.placeholder}
+      </a>
+    );
 
-  renderEdit = () => React.createElement(this.props.editor, {
-    ref: this.inputRef,
-    className: 'rd-form-control',
-    defaultValue: this.props.value,
-    onBlur: this.stopEditing,
-    onKeyDown: this.keyDown,
-  });
+  renderEdit = () => {
+    const { multiline, value, editorProps } = this.props;
+    const InputComponent = multiline ? Input.TextArea : Input;
+    return (
+      <InputComponent
+        defaultValue={value}
+        onBlur={e => this.stopEditing(e.target.value)}
+        onKeyDown={this.handleKeyDown}
+        autoFocus
+        {...editorProps}
+      />
+    );
+  };
 
   render() {
     return (
-      <span className={'edit-in-place' + (this.state.editing ? ' active' : '')}>
+      <span className={cx("edit-in-place", { active: this.state.editing }, this.props.className)}>
         {this.state.editing ? this.renderEdit() : this.renderNormal()}
       </span>
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component('editInPlace', react2angular(EditInPlace));
-}
-
-init.init = true;

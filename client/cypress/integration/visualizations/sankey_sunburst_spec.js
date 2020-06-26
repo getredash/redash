@@ -1,51 +1,147 @@
 /* global cy */
 
-import { createQuery } from '../../support/redash-api';
+import { createQuery, createDashboard, createVisualization, addWidget } from "../../support/redash-api";
+import { getWidgetTestId } from "../../support/dashboard";
 
 const SQL = `
-  SELECT 'a' AS stage1, 'a1' AS stage2, 11 AS value UNION ALL
-  SELECT 'a' AS stage1, 'a2' AS stage2, 12 AS value UNION ALL
-  SELECT 'a' AS stage1, 'a3' AS stage2, 45 AS value UNION ALL
-  SELECT 'a' AS stage1, 'a4' AS stage2, 54 AS value UNION ALL
-  SELECT 'b' AS stage1, 'b1' AS stage2, 33 AS value UNION ALL
-  SELECT 'b' AS stage1, 'b2' AS stage2, 73 AS value UNION ALL
-  SELECT 'b' AS stage1, 'b3' AS stage2, 90 AS value UNION ALL
-  SELECT 'c' AS stage1, 'c1' AS stage2, 19 AS value UNION ALL
-  SELECT 'c' AS stage1, 'c2' AS stage2, 92 AS value UNION ALL
-  SELECT 'c' AS stage1, 'c3' AS stage2, 63 AS value UNION ALL
-  SELECT 'c' AS stage1, 'c4' AS stage2, 44 AS v
+  SELECT 'a' AS s1, 'a1' AS s2, 'a2' AS s3, null AS s4, null AS s5, 11 AS value UNION ALL
+  SELECT 'a' AS s1, 'a2' AS s2, null AS s3, null AS s4, null AS s5, 12 AS value UNION ALL
+  SELECT 'a' AS s1, 'a3' AS s2, null AS s3, null AS s4, null AS s5, 45 AS value UNION ALL
+  SELECT 'a' AS s1, 'a4' AS s2, null AS s3, null AS s4, null AS s5, 54 AS value UNION ALL
+  SELECT 'b' AS s1, 'b1' AS s2, 'a2' AS s3, 'c1' AS s4, null AS s5, 33 AS value UNION ALL
+  SELECT 'b' AS s1, 'b2' AS s2, 'a4' AS s3, 'c3' AS s4, null AS s5, 73 AS value UNION ALL
+  SELECT 'b' AS s1, 'b3' AS s2, null AS s3, null AS s4, null AS s5, 90 AS value UNION ALL
+  SELECT 'c' AS s1, 'c1' AS s2, null AS s3, null AS s4, null AS s5, 19 AS value UNION ALL
+  SELECT 'c' AS s1, 'c2' AS s2, 'b2' AS s3, 'a2' AS s4, 'a3' AS s5, 92 AS value UNION ALL
+  SELECT 'c' AS s1, 'c3' AS s2, 'c4' AS s3, null AS s4, null AS s5, 63 AS value UNION ALL
+  SELECT 'c' AS s1, 'c4' AS s2, null AS s3, null AS s4, null AS s5, 44 AS value
 `;
 
-describe('Sankey and Sunburst', () => {
+describe("Sankey and Sunburst", () => {
   beforeEach(() => {
     cy.login();
-    createQuery({ query: SQL }).then(({ id }) => {
-      cy.visit(`queries/${id}/source`);
-      cy.getByTestId('ExecuteButton').click();
+  });
+
+  describe("Creation through UI", () => {
+    beforeEach(() => {
+      createQuery({ query: SQL }).then(({ id }) => {
+        cy.visit(`queries/${id}/source`);
+        cy.getByTestId("ExecuteButton").click();
+      });
+    });
+
+    it("creates Sunburst", () => {
+      const visualizationName = "Sunburst";
+
+      cy.getByTestId("NewVisualization").click();
+      cy.getByTestId("VisualizationType").click();
+      cy.getByTestId("VisualizationType.SUNBURST_SEQUENCE").click();
+      cy.getByTestId("VisualizationName")
+        .clear()
+        .type(visualizationName);
+      cy.getByTestId("VisualizationPreview")
+        .find("svg")
+        .should("exist");
+
+      cy.getByTestId("EditVisualizationDialog")
+        .contains("button", "Save")
+        .click();
+      cy.getByTestId("QueryPageVisualizationTabs")
+        .contains("span", visualizationName)
+        .should("exist");
+    });
+
+    it("creates Sankey", () => {
+      const visualizationName = "Sankey";
+
+      cy.getByTestId("NewVisualization").click();
+      cy.getByTestId("VisualizationType").click();
+      cy.getByTestId("VisualizationType.SANKEY").click();
+      cy.getByTestId("VisualizationName")
+        .clear()
+        .type(visualizationName);
+      cy.getByTestId("VisualizationPreview")
+        .find("svg")
+        .should("exist");
+
+      cy.getByTestId("EditVisualizationDialog")
+        .contains("button", "Save")
+        .click();
+      cy.getByTestId("QueryPageVisualizationTabs")
+        .contains("span", visualizationName)
+        .should("exist");
     });
   });
 
-  it('creates Sunburst', () => {
-    const visualizationName = 'Sunburst';
+  const STAGES_WIDGETS = [
+    { name: "1 stage", query: `SELECT s1,value FROM (${SQL}) q`, position: { autoHeight: false, sizeY: 10, sizeX: 2 } },
+    {
+      name: "2 stages",
+      query: `SELECT s1,s2,value FROM (${SQL}) q`,
+      position: { autoHeight: false, col: 2, sizeY: 10, sizeX: 2 },
+    },
+    {
+      name: "3 stages",
+      query: `SELECT s1,s2,s3,value FROM (${SQL}) q`,
+      position: { autoHeight: false, col: 4, sizeY: 10, sizeX: 2 },
+    },
+    {
+      name: "4 stages",
+      query: `SELECT s1,s2,s3,s4,value FROM (${SQL}) q`,
+      position: { autoHeight: false, row: 9, sizeY: 10, sizeX: 2 },
+    },
+    {
+      name: "5 stages",
+      query: `SELECT s1,s2,s3,s4,s5,value FROM (${SQL}) q`,
+      position: { autoHeight: false, row: 9, col: 2, sizeY: 10, sizeX: 2 },
+    },
+  ];
 
-    cy.getByTestId('NewVisualization').click();
-    cy.getByTestId('VisualizationType').click();
-    cy.getByTestId('VisualizationType.SUNBURST_SEQUENCE').click();
-    cy.getByTestId('VisualizationName').clear().type(visualizationName);
-    cy.getByTestId('VisualizationPreview').find('svg').should('exist');
-    cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
-    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
+  it("takes a snapshot with Sunburst (1 - 5 stages)", function() {
+    createDashboard("Sunburst Visualization").then(dashboard => {
+      this.dashboardUrl = `/dashboard/${dashboard.slug}`;
+      return cy
+        .all(
+          STAGES_WIDGETS.map(sunburst => () =>
+            createQuery({ name: `Sunburst with ${sunburst.name}`, query: sunburst.query })
+              .then(queryData => createVisualization(queryData.id, "SUNBURST_SEQUENCE", "Sunburst", {}))
+              .then(visualization => addWidget(dashboard.id, visualization.id, { position: sunburst.position }))
+          )
+        )
+        .then(widgets => {
+          cy.visit(this.dashboardUrl);
+          widgets.forEach(widget => {
+            cy.getByTestId(getWidgetTestId(widget)).within(() => cy.get("svg").should("exist"));
+          });
+
+          // wait a bit before taking snapshot
+          cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+          cy.percySnapshot("Visualizations - Sunburst");
+        });
+    });
   });
 
-  it('creates Sankey', () => {
-    const visualizationName = 'Sankey';
+  it("takes a snapshot with Sankey (1 - 5 stages)", function() {
+    createDashboard("Sankey Visualization").then(dashboard => {
+      this.dashboardUrl = `/dashboard/${dashboard.slug}`;
+      return cy
+        .all(
+          STAGES_WIDGETS.map(sankey => () =>
+            createQuery({ name: `Sankey with ${sankey.name}`, query: sankey.query })
+              .then(queryData => createVisualization(queryData.id, "SANKEY", "Sankey", {}))
+              .then(visualization => addWidget(dashboard.id, visualization.id, { position: sankey.position }))
+          )
+        )
+        .then(widgets => {
+          cy.visit(this.dashboardUrl);
+          widgets.forEach(widget => {
+            cy.getByTestId(getWidgetTestId(widget)).within(() => cy.get("svg").should("exist"));
+          });
 
-    cy.getByTestId('NewVisualization').click();
-    cy.getByTestId('VisualizationType').click();
-    cy.getByTestId('VisualizationType.SANKEY').click();
-    cy.getByTestId('VisualizationName').clear().type(visualizationName);
-    cy.getByTestId('VisualizationPreview').find('svg').should('exist');
-    cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
-    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
+          // wait a bit before taking snapshot
+          cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+          cy.percySnapshot("Visualizations - Sankey");
+        });
+    });
   });
 });

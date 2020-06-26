@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Visualizations -> Chart -> Editor -> X-Axis Settings Changes axis name 1`] = `
+Object {
+  "xAxis": Object {
+    "labels": Object {
+      "enabled": true,
+    },
+    "title": Object {
+      "text": "test",
+    },
+    "type": "-",
+  },
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> X-Axis Settings Changes axis type 1`] = `
+Object {
+  "xAxis": Object {
+    "labels": Object {
+      "enabled": true,
+    },
+    "type": "linear",
+  },
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> X-Axis Settings Sets Reverse X Values option 1`] = `
+Object {
+  "reverseX": true,
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> X-Axis Settings Sets Show Labels option 1`] = `
+Object {
+  "xAxis": Object {
+    "labels": Object {
+      "enabled": true,
+    },
+  },
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> X-Axis Settings Sets Sort X Values option 1`] = `
+Object {
+  "sortX": true,
+}
+`;

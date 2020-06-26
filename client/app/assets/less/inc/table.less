@@ -1,26 +1,26 @@
 .table {
     margin-bottom: 0;
-
+    
     th.sortable-column {
-      cursor: pointer;
+        cursor: pointer;
     }
-
+    
     &:not(.table-striped) > thead > tr > th {
         background-color: #FAFAFA;
     }
-
+    
     [class*="bg-"] {
         & > tr > th {
             color: #fff;
             border-bottom: 0;
             background: transparent !important;
         }
-
+        
         & + tbody > tr:first-child > td {
             border-top: 0;
         }
     }
-
+    
     & > thead > tr > th {
         vertical-align: middle;
         font-weight: 500;
@@ -29,24 +29,24 @@
         text-transform: uppercase;
         padding: 15px 10px;
     }
-
+    
     & > thead > tr,
     & > tbody > tr,
     & > tfoot > tr {
-
+        
         & > th, & > td {
-
+            
             &:first-child {
                 padding-left: 30px;
             }
-
+            
             &:last-child {
                 padding-right: 30px;
             }
-
+            
         }
     }
-
+    
     tbody > tr:last-child > td {
         padding-bottom: 20px;
     }
@@ -54,21 +54,21 @@
 
 .table-bordered {
     border: 0;
-
+    
     & > tbody > tr {
         & > td, & > th {
             border-bottom: 0;
             border-left: 0;
-
+            
             &:last-child {
                 border-right: 0;
             }
         }
     }
-
+    
     & > thead > tr > th {
         border-left: 0;
-
+        
         &:last-child {
             border-right: 0;
         }
@@ -86,14 +86,64 @@
 }
 
 .tile .table  {
-
+    
     & > thead:not([class*="bg-"]) > tr > th {
         border-top: 1px solid @table-border-color;
-
+        
     }
 }
 
 .table-hover > tbody > tr:hover {
-  background-color: #f4f4f4;
+    background-color: #f4f4f4;
 }
 
+.table-data {
+    tbody > tr > td {
+        padding-top: 5px !important;
+    }
+    
+    .btn-favourite, .btn-archive {
+        font-size: 15px;
+    }
+}
+
+.table-main-title {
+    font-weight: 500;
+    line-height: 1.7 !important;
+}
+
+.btn-favourite {
+    color: #d4d4d4;
+    transition: all .25s ease-in-out;
+    
+    &:hover, &:focus {
+        color: @yellow-darker;
+        cursor: pointer;
+    }
+    
+    .fa-star {
+        color: @yellow-darker;
+    }
+}
+
+.btn-archive {
+    color: #d4d4d4;
+    transition: all .25s ease-in-out;
+    
+    &:hover, &:focus {
+        color: @gray-light;
+    }
+    
+    .fa-archive {
+        color: @gray-light;
+    }
+}
+
+.table > thead > tr > th {
+    text-transform: none;
+}
+
+.table-data .label-tag {
+    display: inline-block;
+    max-width: 135px;
+  }

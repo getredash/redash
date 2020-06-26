@@ -1,18 +1,25 @@
 version: 2.0
 
-flake8-steps: &steps
-  - checkout
-  - run: sudo pip install flake8
-  - run: ./bin/flake8_tests.sh
+build-docker-image-job: &build-docker-image-job
+  docker:
+    - image: circleci/node:12
+  steps:
+    - setup_remote_docker
+    - checkout
+    - run: sudo apt update
+    - run: sudo apt install python3-pip
+    - run: sudo pip3 install -r requirements_bundles.txt
+    - run: .circleci/update_version
+    - run: npm run bundle
+    - run: .circleci/docker_build
 jobs:
-  python-flake8-tests:
+  backend-lint:
     docker:
       - image: circleci/python:3.7.0
-    steps: *steps
-  legacy-python-flake8-tests:
-    docker:
-      - image: circleci/python:2.7.15
-    steps: *steps
+    steps:
+      - checkout
+      - run: sudo pip install flake8
+      - run: ./bin/flake8_tests.sh
   backend-unit-tests:
     environment:
       COMPOSE_FILE: .circleci/docker-compose.circle.yml
@@ -26,12 +33,15 @@ jobs:
           name: Build Docker Images
           command: |
             set -x
-            docker-compose build --build-arg skip_ds_deps=true
+            docker-compose build --build-arg skip_ds_deps=true --build-arg skip_frontend_build=true
             docker-compose up -d
             sleep 10
       - run:
           name: Create Test Database
           command: docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
+      - run:
+          name: List Enabled Query Runners
+          command: docker-compose run --rm redash manage ds list_types
       - run:
           name: Run Tests
           command: docker-compose run --name tests redash tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
@@ -41,30 +51,37 @@ jobs:
             mkdir -p /tmp/test-results/unit-tests
             docker cp tests:/app/coverage.xml ./coverage.xml
             docker cp tests:/app/junit.xml /tmp/test-results/unit-tests/results.xml
+          when: always
       - store_test_results:
           path: /tmp/test-results
       - store_artifacts:
           path: coverage.xml
   frontend-lint:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     steps:
       - checkout
       - run: mkdir -p /tmp/test-results/eslint
-      - run: npm install
+      - run: npm ci
       - run: npm run lint:ci
       - store_test_results:
           path: /tmp/test-results
   frontend-unit-tests:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     steps:
       - checkout
-      - run: sudo apt install python-pip
-      - run: sudo pip install -r requirements_bundles.txt
-      - run: npm install
+      - run: sudo apt update
+      - run: sudo apt install python3-pip
+      - run: sudo pip3 install -r requirements_bundles.txt
+      - run: npm ci
       - run: npm run bundle
-      - run: npm test
+      - run:
+          name: Run App Tests
+          command: npm test
+      - run:
+          name: Run Visualizations Tests
+          command: (cd viz-lib && npm test)
       - run: npm run lint
   frontend-e2e-tests:
     environment:
@@ -74,63 +91,42 @@ jobs:
       CYPRESS_PROJECT_ID_ENCODED: OTI0Y2th
       CYPRESS_RECORD_KEY_ENCODED: YzA1OTIxMTUtYTA1Yy00NzQ2LWEyMDMtZmZjMDgwZGI2ODgx
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     steps:
       - setup_remote_docker
       - checkout
       - run:
           name: Install npm dependencies
           command: |
-            npm install
+            npm ci
       - run:
           name: Setup Redash server
           command: |
-            npm run cypress start
+            npm run cypress build
+            npm run cypress start -- --skip-db-seed
             docker-compose run cypress npm run cypress db-seed
       - run:
           name: Execute Cypress tests
           command: npm run cypress run-ci
-  build-tarball:
-    docker:
-      - image: circleci/node:8
-    steps:
-      - checkout
-      - run: sudo apt install python-pip
-      - run: sudo pip install -r requirements_bundles.txt
-      - run: npm install
-      - run: .circleci/update_version
-      - run: npm run bundle
-      - run: npm run build
-      - run: rm -rf ./node_modules/
-      - run: .circleci/pack
-      - store_artifacts:
-          path: /tmp/artifacts/
-  build-docker-image:
-    docker:
-      - image: circleci/node:8
-    steps:
-      - setup_remote_docker
-      - checkout
-      - run: sudo apt install python-pip
-      - run: sudo pip install -r requirements_bundles.txt
-      - run: .circleci/update_version
-      - run: npm run bundle
-      - run: .circleci/docker_build
+  build-docker-image: *build-docker-image-job
+  build-preview-docker-image: *build-docker-image-job
 workflows:
   version: 2
   build:
     jobs:
-      - python-flake8-tests
-      - legacy-python-flake8-tests
-      - backend-unit-tests
+      - backend-lint
+      - backend-unit-tests:
+          requires:
+            - backend-lint
       - frontend-lint
       - frontend-unit-tests:
           requires:
+            - backend-lint
             - frontend-lint
       - frontend-e2e-tests:
           requires:
             - frontend-lint
-      - build-tarball:
+      - build-preview-docker-image:
           requires:
             - backend-unit-tests
             - frontend-unit-tests
@@ -139,15 +135,16 @@ workflows:
             branches:
               only:
                 - master
+      - hold:
+          type: approval
+          requires:
+            - backend-unit-tests
+            - frontend-unit-tests
+            - frontend-e2e-tests
+          filters:
+            branches:
+              only:
                 - /release\/.*/
       - build-docker-image:
           requires:
-            - backend-unit-tests
-            - frontend-unit-tests
-            - frontend-e2e-tests
-          filters:
-            branches:
-              only:
-                - master
-                - preview-image
-                - /release\/.*/
+            - hold

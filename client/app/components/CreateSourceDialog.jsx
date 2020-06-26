@@ -1,17 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { isEmpty, toUpper, includes } from 'lodash';
-import Button from 'antd/lib/button';
-import List from 'antd/lib/list';
-import Modal from 'antd/lib/modal';
-import Input from 'antd/lib/input';
-import Steps from 'antd/lib/steps';
-import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import { PreviewCard } from '@/components/PreviewCard';
-import EmptyState from '@/components/items-list/components/EmptyState';
-import DynamicForm from '@/components/dynamic-form/DynamicForm';
-import helper from '@/components/dynamic-form/dynamicFormHelper';
-import { HelpTrigger, TYPES as HELP_TRIGGER_TYPES } from '@/components/HelpTrigger';
+import React from "react";
+import PropTypes from "prop-types";
+import { isEmpty, toUpper, includes, get } from "lodash";
+import Button from "antd/lib/button";
+import List from "antd/lib/list";
+import Modal from "antd/lib/modal";
+import Input from "antd/lib/input";
+import Steps from "antd/lib/steps";
+import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import { PreviewCard } from "@/components/PreviewCard";
+import EmptyState from "@/components/items-list/components/EmptyState";
+import DynamicForm from "@/components/dynamic-form/DynamicForm";
+import helper from "@/components/dynamic-form/dynamicFormHelper";
+import HelpTrigger, { TYPES as HELP_TRIGGER_TYPES } from "@/components/HelpTrigger";
 
 const { Step } = Steps;
 const { Search } = Input;
@@ -38,19 +38,19 @@ class CreateSourceDialog extends React.Component {
   };
 
   state = {
-    searchText: '',
+    searchText: "",
     selectedType: null,
     savingSource: false,
     currentStep: StepEnum.SELECT_TYPE,
   };
 
-  selectType = (selectedType) => {
+  selectType = selectedType => {
     this.setState({ selectedType, currentStep: StepEnum.CONFIGURE_IT });
   };
 
   resetType = () => {
     if (this.state.currentStep === StepEnum.CONFIGURE_IT) {
-      this.setState({ searchText: '', selectedType: null, currentStep: StepEnum.SELECT_TYPE });
+      this.setState({ searchText: "", selectedType: null, currentStep: StepEnum.SELECT_TYPE });
     }
   };
 
@@ -58,21 +58,25 @@ class CreateSourceDialog extends React.Component {
     const { selectedType, savingSource } = this.state;
     if (!savingSource) {
       this.setState({ savingSource: true, currentStep: StepEnum.DONE });
-      this.props.onCreate(selectedType, values).then((data) => {
-        successCallback('Saved.');
-        this.props.dialog.close({ success: true, data });
-      }).catch((error) => {
-        this.setState({ savingSource: false, currentStep: StepEnum.CONFIGURE_IT });
-        errorCallback(error.message);
-      });
+      this.props
+        .onCreate(selectedType, values)
+        .then(data => {
+          successCallback("Saved.");
+          this.props.dialog.close({ success: true, data });
+        })
+        .catch(error => {
+          this.setState({ savingSource: false, currentStep: StepEnum.CONFIGURE_IT });
+          errorCallback(get(error, "response.data.message", "Failed saving."));
+        });
     }
   };
 
   renderTypeSelector() {
     const { types } = this.props;
     const { searchText } = this.state;
-    const filteredTypes = types.filter(type => isEmpty(searchText) ||
-      includes(type.name.toLowerCase(), searchText.toLowerCase()));
+    const filteredTypes = types.filter(
+      type => isEmpty(searchText) || includes(type.name.toLowerCase(), searchText.toLowerCase())
+    );
     return (
       <div className="m-t-10">
         <Search
@@ -81,13 +85,11 @@ class CreateSourceDialog extends React.Component {
           autoFocus
           data-test="SearchSource"
         />
-        <div className="scrollbox p-5 m-t-10" style={{ minHeight: '30vh', maxHeight: '40vh' }}>
-          {isEmpty(filteredTypes) ? (<EmptyState className="" />) : (
-            <List
-              size="small"
-              dataSource={filteredTypes}
-              renderItem={item => this.renderItem(item)}
-            />
+        <div className="scrollbox p-5 m-t-10" style={{ minHeight: "30vh", maxHeight: "40vh" }}>
+          {isEmpty(filteredTypes) ? (
+            <EmptyState className="" />
+          ) : (
+            <List size="small" dataSource={filteredTypes} renderItem={item => this.renderItem(item)} />
           )}
         </div>
       </div>
@@ -100,14 +102,9 @@ class CreateSourceDialog extends React.Component {
     const fields = helper.getFields(selectedType);
     const helpTriggerType = `${helpTriggerPrefix}${toUpper(selectedType.type)}`;
     return (
-      <div className="p-5">
+      <div>
         <div className="d-flex justify-content-center align-items-center">
-          <img
-            className="p-5"
-            src={`${imageFolder}/${selectedType.type}.png`}
-            alt={selectedType.name}
-            width="48"
-          />
+          <img className="p-5" src={`${imageFolder}/${selectedType.type}.png`} alt={selectedType.name} width="48" />
           <h4 className="m-0">{selectedType.name}</h4>
         </div>
         <div className="text-right">
@@ -117,13 +114,16 @@ class CreateSourceDialog extends React.Component {
             </HelpTrigger>
           )}
         </div>
-        <DynamicForm
-          id="sourceForm"
-          fields={fields}
-          onSubmit={this.createSource}
-          feedbackIcons
-          hideSubmitButton
-        />
+        <DynamicForm id="sourceForm" fields={fields} onSubmit={this.createSource} feedbackIcons hideSubmitButton />
+        {selectedType.type === "databricks" && (
+          <small>
+            By using the Databricks Data Source you agree to the Databricks JDBC/ODBC{" "}
+            <a href="https://databricks.com/spark/odbc-driver-download" target="_blank" rel="noopener noreferrer">
+              Driver Download Terms and Conditions
+            </a>
+            .
+          </small>
+        )}
       </div>
     );
   }
@@ -131,11 +131,13 @@ class CreateSourceDialog extends React.Component {
   renderItem(item) {
     const { imageFolder } = this.props;
     return (
-      <List.Item
-        className="p-l-10 p-r-10 clickable"
-        onClick={() => this.selectType(item)}
-      >
-        <PreviewCard title={item.name} imageUrl={`${imageFolder}/${item.type}.png`} roundedImage={false}>
+      <List.Item className="p-l-10 p-r-10 clickable" onClick={() => this.selectType(item)}>
+        <PreviewCard
+          title={item.name}
+          imageUrl={`${imageFolder}/${item.type}.png`}
+          roundedImage={false}
+          data-test="PreviewItem"
+          data-test-type={item.type}>
           <i className="fa fa-angle-double-right" />
         </PreviewCard>
       </List.Item>
@@ -149,34 +151,38 @@ class CreateSourceDialog extends React.Component {
       <Modal
         {...dialog.props}
         title={`Create a New ${sourceType}`}
-        footer={(currentStep === StepEnum.SELECT_TYPE) ? [
-          (<Button key="cancel" onClick={() => dialog.dismiss()}>Cancel</Button>),
-          (<Button key="submit" type="primary" disabled>Create</Button>),
-        ] : [
-          (<Button key="previous" onClick={this.resetType}>Previous</Button>),
-          (
-            <Button
-              key="submit"
-              htmlType="submit"
-              form="sourceForm"
-              type="primary"
-              loading={savingSource}
-              data-test="CreateSourceButton"
-            >
-              Create
-            </Button>
-          ),
-        ]}
-      >
+        footer={
+          currentStep === StepEnum.SELECT_TYPE
+            ? [
+                <Button key="cancel" onClick={() => dialog.dismiss()}>
+                  Cancel
+                </Button>,
+                <Button key="submit" type="primary" disabled>
+                  Create
+                </Button>,
+              ]
+            : [
+                <Button key="previous" onClick={this.resetType}>
+                  Previous
+                </Button>,
+                <Button
+                  key="submit"
+                  htmlType="submit"
+                  form="sourceForm"
+                  type="primary"
+                  loading={savingSource}
+                  data-test="CreateSourceButton">
+                  Create
+                </Button>,
+              ]
+        }>
         <div data-test="CreateSourceDialog">
           <Steps className="hidden-xs m-b-10" size="small" current={currentStep} progressDot>
             {currentStep === StepEnum.CONFIGURE_IT ? (
-              <Step
-                title={<a>Type Selection</a>}
-                className="clickable"
-                onClick={this.resetType}
-              />
-            ) : (<Step title="Type Selection" />)}
+              <Step title={<a>Type Selection</a>} className="clickable" onClick={this.resetType} />
+            ) : (
+              <Step title="Type Selection" />
+            )}
             <Step title="Configuration" />
             <Step title="Done" />
           </Steps>

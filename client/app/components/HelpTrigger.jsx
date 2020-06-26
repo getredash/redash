@@ -1,91 +1,67 @@
-import { react2angular } from 'react2angular';
-import React from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import Tooltip from 'antd/lib/tooltip';
-import Drawer from 'antd/lib/drawer';
-import Icon from 'antd/lib/icon';
-import { BigMessage } from '@/components/BigMessage';
-import DynamicComponent from '@/components/DynamicComponent';
+import { startsWith, get } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import cx from "classnames";
+import Tooltip from "antd/lib/tooltip";
+import Drawer from "antd/lib/drawer";
+import Icon from "antd/lib/icon";
+import BigMessage from "@/components/BigMessage";
+import DynamicComponent from "@/components/DynamicComponent";
 
-import './HelpTrigger.less';
+import "./HelpTrigger.less";
 
-const DOMAIN = 'https://redash.io';
-const HELP_PATH = '/help';
+const DOMAIN = "https://redash.io";
+const HELP_PATH = "/help";
 const IFRAME_TIMEOUT = 20000;
-const IFRAME_URL_UPDATE_MESSAGE = 'iframe_url';
+const IFRAME_URL_UPDATE_MESSAGE = "iframe_url";
 
 export const TYPES = {
-  HOME: [
-    '',
-    'Help',
+  HOME: ["", "Help"],
+  VALUE_SOURCE_OPTIONS: ["/user-guide/querying/query-parameters#Value-Source-Options", "Guide: Value Source Options"],
+  SHARE_DASHBOARD: ["/user-guide/dashboards/sharing-dashboards", "Guide: Sharing and Embedding Dashboards"],
+  AUTHENTICATION_OPTIONS: ["/user-guide/users/authentication-options", "Guide: Authentication Options"],
+  USAGE_DATA_SHARING: ["/open-source/admin-guide/usage-data", "Help: Anonymous Usage Data Sharing"],
+  DS_ATHENA: ["/data-sources/amazon-athena-setup", "Guide: Help Setting up Amazon Athena"],
+  DS_BIGQUERY: ["/data-sources/bigquery-setup", "Guide: Help Setting up BigQuery"],
+  DS_URL: ["/data-sources/querying-urls", "Guide: Help Setting up URL"],
+  DS_MONGODB: ["/data-sources/mongodb-setup", "Guide: Help Setting up MongoDB"],
+  DS_GOOGLE_SPREADSHEETS: ["/data-sources/querying-a-google-spreadsheet", "Guide: Help Setting up Google Spreadsheets"],
+  DS_GOOGLE_ANALYTICS: ["/data-sources/google-analytics-setup", "Guide: Help Setting up Google Analytics"],
+  DS_AXIBASETSD: ["/data-sources/axibase-time-series-database", "Guide: Help Setting up Axibase Time Series"],
+  DS_RESULTS: ["/user-guide/querying/query-results-data-source", "Guide: Help Setting up Query Results"],
+  ALERT_SETUP: ["/user-guide/alerts/setting-up-an-alert", "Guide: Setting Up a New Alert"],
+  MAIL_CONFIG: ["/open-source/setup/#Mail-Configuration", "Guide: Mail Configuration"],
+  ALERT_NOTIF_TEMPLATE_GUIDE: ["/user-guide/alerts/custom-alert-notifications", "Guide: Custom Alerts Notifications"],
+  FAVORITES: ["/user-guide/querying/favorites-tagging/#Favorites", "Guide: Favorites"],
+  MANAGE_PERMISSIONS: [
+    "/user-guide/querying/writing-queries#Managing-Query-Permissions",
+    "Guide: Managing Query Permissions",
   ],
-  VALUE_SOURCE_OPTIONS: [
-    '/user-guide/querying/query-parameters#Value-Source-Options',
-    'Guide: Value Source Options',
-  ],
-  SHARE_DASHBOARD: [
-    '/user-guide/dashboards/sharing-dashboards',
-    'Guide: Sharing and Embedding Dashboards',
-  ],
-  AUTHENTICATION_OPTIONS: [
-    '/user-guide/users/authentication-options',
-    'Guide: Authentication Options',
-  ],
-  DS_ATHENA: [
-    '/data-sources/amazon-athena-setup',
-    'Guide: Help Setting up Amazon Athena',
-  ],
-  DS_BIGQUERY: [
-    '/data-sources/bigquery-setup',
-    'Guide: Help Setting up BigQuery',
-  ],
-  DS_URL: [
-    '/data-sources/querying-urls',
-    'Guide: Help Setting up URL',
-  ],
-  DS_MONGODB: [
-    '/data-sources/mongodb-setup',
-    'Guide: Help Setting up MongoDB',
-  ],
-  DS_GOOGLE_SPREADSHEETS: [
-    '/data-sources/querying-a-google-spreadsheet',
-    'Guide: Help Setting up Google Spreadsheets',
-  ],
-  DS_GOOGLE_ANALYTICS: [
-    '/data-sources/google-analytics-setup',
-    'Guide: Help Setting up Google Analytics',
-  ],
-  DS_AXIBASETSD: [
-    '/data-sources/axibase-time-series-database',
-    'Guide: Help Setting up Axibase Time Series',
-  ],
-  DS_RESULTS: [
-    '/user-guide/querying/query-results-data-source',
-    'Guide: Help Setting up Query Results',
-  ],
+  NUMBER_FORMAT_SPECS: ["/user-guide/visualizations/formatting-numbers", "Formatting Numbers"],
 };
 
-export class HelpTrigger extends React.Component {
+export default class HelpTrigger extends React.Component {
   static propTypes = {
-    type: PropTypes.oneOf(Object.keys(TYPES)).isRequired,
+    type: PropTypes.oneOf(Object.keys(TYPES)),
+    href: PropTypes.string,
+    title: PropTypes.node,
     className: PropTypes.string,
+    showTooltip: PropTypes.bool,
     children: PropTypes.node,
   };
 
   static defaultProps = {
+    type: null,
+    href: null,
+    title: null,
     className: null,
+    showTooltip: true,
     children: <i className="fa fa-question-circle" />,
   };
 
-  iframeRef = null;
+  iframeRef = React.createRef();
 
   iframeLoadingTimeout = null;
-
-  constructor(props) {
-    super(props);
-    this.iframeRef = React.createRef();
-  }
 
   state = {
     visible: false,
@@ -95,15 +71,15 @@ export class HelpTrigger extends React.Component {
   };
 
   componentDidMount() {
-    window.addEventListener('message', this.onPostMessageReceived, DOMAIN);
+    window.addEventListener("message", this.onPostMessageReceived, false);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('message', this.onPostMessageReceived);
+    window.removeEventListener("message", this.onPostMessageReceived);
     clearTimeout(this.iframeLoadingTimeout);
   }
 
-  loadIframe = (url) => {
+  loadIframe = url => {
     clearTimeout(this.iframeLoadingTimeout);
     this.setState({ loading: true, error: false });
 
@@ -118,25 +94,31 @@ export class HelpTrigger extends React.Component {
     clearTimeout(this.iframeLoadingTimeout);
   };
 
-  onPostMessageReceived = (event) => {
+  onPostMessageReceived = event => {
+    if (!startsWith(event.origin, DOMAIN)) {
+      return;
+    }
+
     const { type, message: currentUrl } = event.data || {};
     if (type !== IFRAME_URL_UPDATE_MESSAGE) {
       return;
     }
 
     this.setState({ currentUrl });
-  }
+  };
+
+  getUrl = () => {
+    const helpTriggerType = get(TYPES, this.props.type);
+    return helpTriggerType ? DOMAIN + HELP_PATH + helpTriggerType[0] : this.props.href;
+  };
 
   openDrawer = () => {
     this.setState({ visible: true });
-    const [pagePath] = TYPES[this.props.type];
-    const url = DOMAIN + HELP_PATH + pagePath;
-
     // wait for drawer animation to complete so there's no animation jank
-    setTimeout(() => this.loadIframe(url), 300);
+    setTimeout(() => this.loadIframe(this.getUrl()), 300);
   };
 
-  closeDrawer = (event) => {
+  closeDrawer = event => {
     if (event) {
       event.preventDefault();
     }
@@ -145,16 +127,32 @@ export class HelpTrigger extends React.Component {
   };
 
   render() {
-    const [, tooltip] = TYPES[this.props.type];
-    const className = cx('help-trigger', this.props.className);
+    const tooltip = get(TYPES, `${this.props.type}[1]`, this.props.title);
+    const className = cx("help-trigger", this.props.className);
     const url = this.state.currentUrl;
+
+    const isAllowedDomain = startsWith(url || this.getUrl(), DOMAIN);
 
     return (
       <React.Fragment>
-        <Tooltip title={tooltip}>
-          <a onClick={this.openDrawer} className={className}>
-            {this.props.children}
-          </a>
+        <Tooltip
+          title={
+            this.props.showTooltip ? (
+              <>
+                {tooltip}
+                {!isAllowedDomain && <i className="fa fa-external-link" style={{ marginLeft: 5 }} />}
+              </>
+            ) : null
+          }>
+          {isAllowedDomain ? (
+            <a onClick={this.openDrawer} className={className}>
+              {this.props.children}
+            </a>
+          ) : (
+            <a href={url || this.getUrl()} className={className} rel="noopener noreferrer" target="_blank">
+              {this.props.children}
+            </a>
+          )}
         </Tooltip>
         <Drawer
           placement="right"
@@ -163,8 +161,7 @@ export class HelpTrigger extends React.Component {
           visible={this.state.visible}
           className="help-drawer"
           destroyOnClose
-          width={400}
-        >
+          width={400}>
           <div className="drawer-wrapper">
             <div className="drawer-menu">
               {url && (
@@ -176,7 +173,7 @@ export class HelpTrigger extends React.Component {
                 </Tooltip>
               )}
               <Tooltip title="Close" placement="bottom">
-                <a href="#" onClick={this.closeDrawer}>
+                <a onClick={this.closeDrawer}>
                   <Icon type="close" />
                 </a>
               </Tooltip>
@@ -201,28 +198,21 @@ export class HelpTrigger extends React.Component {
             {/* error message */}
             {this.state.error && (
               <BigMessage icon="fa-exclamation-circle" className="help-message">
-                Something went wrong.<br />
+                Something went wrong.
+                <br />
                 {/* eslint-disable-next-line react/jsx-no-target-blank */}
-                <a href={this.state.error} target="_blank" rel="noopener">Click here</a>{' '}
+                <a href={this.state.error} target="_blank" rel="noopener">
+                  Click here
+                </a>{" "}
                 to open the page in a new window.
               </BigMessage>
             )}
           </div>
 
           {/* extra content */}
-          <DynamicComponent
-            name="HelpDrawerExtraContent"
-            onLeave={this.closeDrawer}
-            openPageUrl={this.loadIframe}
-          />
+          <DynamicComponent name="HelpDrawerExtraContent" onLeave={this.closeDrawer} openPageUrl={this.loadIframe} />
         </Drawer>
       </React.Fragment>
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component('helpTrigger', react2angular(HelpTrigger));
-}
-
-init.init = true;
