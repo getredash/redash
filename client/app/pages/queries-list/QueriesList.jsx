@@ -81,12 +81,9 @@ class QueriesList extends React.Component {
     Columns.custom((text, item) => item.user.name, { title: "Created By" }),
     Columns.dateTime.sortable({ title: "Created At", field: "created_at" }),
     Columns.dateTime.sortable({ title: "Last Executed At", field: "retrieved_at", orderByField: "executed_at" }),
-    Columns.custom((text, item) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
+    Columns.custom.sortable((text, item) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
       title: "Refresh Schedule",
       field: "schedule",
-      sorter: (a, b) =>
-        (a.item.schedule ? a.item.schedule.interval : Number.MAX_VALUE) -
-        (b.item.schedule ? b.item.schedule.interval : Number.MAX_VALUE),
     }),
   ];
 
