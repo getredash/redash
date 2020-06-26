@@ -5,7 +5,7 @@ import time
 import numbers
 import pytz
 
-from sqlalchemy import distinct, or_, and_, UniqueConstraint
+from sqlalchemy import distinct, or_, and_, UniqueConstraint, cast
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -1171,6 +1171,15 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
         return cls.query.filter(cls.slug == slug, cls.org == org).one()
+
+    @classmethod
+    def get_by_id_or_slug_and_org(cls, id_or_slug, org):
+        return (
+            cls.query.filter(
+                cast(cls.id, db.String) == id_or_slug, cls.org == org
+            ).one_or_none()
+            or cls.query.filter(cls.slug == id_or_slug, cls.org == org).one()
+        )
 
     @hybrid_property
     def lowercase_name(self):
