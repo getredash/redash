@@ -7,7 +7,7 @@ import List from "antd/lib/list";
 import Icon from "antd/lib/icon";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
-import { Dashboard } from "@/services/dashboard";
+import { Dashboard, urlForDashboard } from "@/services/dashboard";
 import notification from "@/services/notification";
 import useSearchResults from "@/lib/hooks/useSearchResults";
 
@@ -51,7 +51,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
         notification.success(
           "Widget added to dashboard",
           <React.Fragment>
-            <a href={`dashboard/${dashboard.slug}`} onClick={() => notification.close(key)}>
+            <a href={`${urlForDashboard(dashboard)}`} onClick={() => notification.close(key)}>
               {dashboard.name}
             </a>
             <QueryTagsControl isDraft={dashboard.is_draft} tags={dashboard.tags} />

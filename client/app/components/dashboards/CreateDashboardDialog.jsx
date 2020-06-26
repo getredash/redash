@@ -8,6 +8,7 @@ import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import recordEvent from "@/services/recordEvent";
 import { policy } from "@/services/policy";
+import { urlForDashboard } from "@/services/dashboard";
 
 function CreateDashboardDialog({ dialog }) {
   const [name, setName] = useState("");
@@ -27,7 +28,7 @@ function CreateDashboardDialog({ dialog }) {
 
       axios.post("api/dashboards", { name }).then(data => {
         dialog.close();
-        navigateTo(`dashboard/${data.slug}?edit`);
+        navigateTo(`${urlForDashboard(data)}?edit`);
       });
       recordEvent("create", "dashboard");
     }
