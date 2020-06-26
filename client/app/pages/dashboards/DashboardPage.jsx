@@ -173,6 +173,7 @@ DashboardPage.defaultProps = {
   onError: PropTypes.func,
 };
 
+// route kept for backward compatibility
 routes.register(
   "Dashboards.ViewOrEdit",
   routeWithUserSession({
@@ -184,7 +185,7 @@ routes.register(
 routes.register(
   "Dashboards.ViewOrEditWithId",
   routeWithUserSession({
-    path: "/dashboards/:dashboardId",
+    path: "/dashboards/:dashboardId/(.*)?",
     render: pageProps => <DashboardPage {...pageProps} />,
   })
 );
