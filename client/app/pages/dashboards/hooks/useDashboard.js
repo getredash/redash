@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { isEmpty, includes, compact, map, has, pick, keys, extend, every, get } from "lodash";
 import notification from "@/services/notification";
 import location from "@/services/location";
-import { Dashboard, collectDashboardFilters } from "@/services/dashboard";
+import { Dashboard, collectDashboardFilters, urlForDashboard } from "@/services/dashboard";
 import { currentUser } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
 import { QueryResultError } from "@/services/query";
@@ -14,6 +14,7 @@ import ShareDashboardDialog from "../components/ShareDashboardDialog";
 import useFullscreenHandler from "../../../lib/hooks/useFullscreenHandler";
 import useRefreshRateHandler from "./useRefreshRateHandler";
 import useEditModeHandler from "./useEditModeHandler";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 
 export { DashboardStatusEnum } from "./useEditModeHandler";
 
@@ -69,9 +70,12 @@ function useDashboard(dashboardData) {
         data = { ...data, version: dashboard.version };
       }
       return Dashboard.save(data)
-        .then(updatedDashboard =>
-          setDashboard(currentDashboard => extend({}, currentDashboard, pick(updatedDashboard, keys(data))))
-        )
+        .then(updatedDashboard => {
+          setDashboard(currentDashboard => extend({}, currentDashboard, pick(updatedDashboard, keys(data))));
+          if (has(data, "name")) {
+            navigateTo(urlForDashboard(updatedDashboard), true);
+          }
+        })
         .catch(error => {
           const status = get(error, "response.status");
           if (status === 403) {
