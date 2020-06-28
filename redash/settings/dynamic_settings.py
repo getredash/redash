@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 # Replace this method with your own implementation in case you want to limit the time limit on certain queries or users.
 def query_time_limit(is_scheduled, user_id, org_id):
     from redash import settings
@@ -37,3 +39,16 @@ def ssh_tunnel_auth():
         # 'ssh_pkey': 'path_to_private_key', # or instance of `paramiko.pkey.PKey`
         # 'ssh_private_key_password': 'optional_passphrase_of_private_key',
     }
+
+
+def db_key_types(default):
+    key_types = defaultdict(lambda: default)
+    key_types.update(
+        {
+            # "DataSource": (db.String(255), {
+            #    "default": generate_key
+            # })
+        }
+    )
+
+    return key_types
