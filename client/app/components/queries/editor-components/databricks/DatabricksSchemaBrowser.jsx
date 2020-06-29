@@ -36,16 +36,19 @@ export default function DatabricksSchemaBrowser({
   const [databaseFilterString, setDatabaseFilterString] = useState("");
   const filteredSchema = useMemo(() => applyFilterOnSchema(schema, filterString), [schema, filterString]);
   const [expandedFlags, setExpandedFlags] = useState({});
-  const [handleFilterChange, cancelHandleFilterChange] = useDebouncedCallback(setFilterString, 500);
-  const [handleDatabaseFilterChange] = useDebouncedCallback(setDatabaseFilterString, 500);
+  const [handleFilterChange] = useDebouncedCallback(setFilterString, 500);
+  const [handleDatabaseFilterChange, cancelHandleDatabaseFilterChange] = useDebouncedCallback(
+    setDatabaseFilterString,
+    500
+  );
 
   const handleDatabaseSelection = useCallback(
     databaseName => {
       setCurrentDatabase(databaseName);
-      cancelHandleFilterChange();
-      setFilterString("");
+      cancelHandleDatabaseFilterChange();
+      setDatabaseFilterString("");
     },
-    [cancelHandleFilterChange, setCurrentDatabase]
+    [cancelHandleDatabaseFilterChange, setCurrentDatabase]
   );
 
   const filteredDatabases = useMemo(
