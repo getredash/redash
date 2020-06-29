@@ -1,5 +1,5 @@
-import { isNil, map, filter, some, includes } from "lodash";
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import { isNil, map, filter, some, includes, isFunction } from "lodash";
+import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import Input from "antd/lib/input";
@@ -166,15 +166,27 @@ export function applyFilterOnSchema(schema, filterString) {
   );
 }
 
-export default function SchemaBrowser({ dataSource, onSchemaUpdate, onItemSelect, ...props }) {
+export default function SchemaBrowser({
+  dataSource,
+  onSchemaUpdate,
+  onItemSelect,
+  options,
+  onOptionsUpdate,
+  ...props
+}) {
   const [schema, refreshSchema] = useDataSourceSchema(dataSource);
   const [filterString, setFilterString] = useState("");
   const filteredSchema = useMemo(() => applyFilterOnSchema(schema, filterString), [schema, filterString]);
   const [handleFilterChange] = useDebouncedCallback(setFilterString, 500);
   const [expandedFlags, setExpandedFlags] = useState({});
 
+  const onSchemaUpdateRef = useRef();
+  onSchemaUpdateRef.current = onSchemaUpdate;
   useEffect(() => {
     setExpandedFlags({});
+    if (isFunction(onSchemaUpdateRef.current)) {
+      onSchemaUpdateRef.current(schema);
+    }
   }, [schema]);
 
   if (schema.length === 0) {
