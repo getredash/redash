@@ -1,4 +1,5 @@
 import { isNil, map, filter, some, includes, isFunction } from "lodash";
+import cx from "classnames";
 import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
@@ -174,7 +175,7 @@ export default function SchemaBrowser({
   onOptionsUpdate,
   ...props
 }) {
-  const [schema, refreshSchema] = useDataSourceSchema(dataSource);
+  const [schema, isLoading, refreshSchema] = useDataSourceSchema(dataSource);
   const [filterString, setFilterString] = useState("");
   const filteredSchema = useMemo(() => applyFilterOnSchema(schema, filterString), [schema, filterString]);
   const [handleFilterChange] = useDebouncedCallback(setFilterString, 500);
@@ -189,7 +190,7 @@ export default function SchemaBrowser({
     }
   }, [schema]);
 
-  if (schema.length === 0) {
+  if (schema.length === 0 && !isLoading) {
     return null;
   }
 
@@ -212,11 +213,12 @@ export default function SchemaBrowser({
 
         <Tooltip title="Refresh Schema">
           <Button onClick={() => refreshSchema(true)}>
-            <i className="zmdi zmdi-refresh" />
+            <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": isLoading })} />
           </Button>
         </Tooltip>
       </div>
       <SchemaList
+        loading={isLoading && schema.length === 0}
         schema={filteredSchema}
         expandedFlags={expandedFlags}
         onTableExpand={toggleTable}
