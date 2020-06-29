@@ -40,11 +40,31 @@ function TextboxDialog({ dialog, isNew, ...props }) {
     });
   }, [dialog, isNew, text]);
 
+  const confirmDialogDismiss = useCallback(() => {
+    const originalText = props.text;
+    if (text !== originalText) {
+      Modal.confirm({
+        title: "Confirm action",
+        content: "Closing this dialog will discard all changes you've made. Are you sure?",
+        okText: "Yes, discard changes",
+        okType: "danger",
+        cancelText: "No, get me back",
+        onOk: () => dialog.dismiss(),
+        maskClosable: true,
+        autoFocusButton: null,
+        style: { top: 170 },
+      });
+    } else {
+      dialog.dismiss();
+    }
+  }, [dialog, text, props.text]);
+
   return (
     <Modal
       {...dialog.props}
       title={isNew ? "Add Textbox" : "Edit Textbox"}
       onOk={saveWidget}
+      onCancel={confirmDialogDismiss}
       okText={isNew ? "Add to Dashboard" : "Save"}
       width={500}
       wrapProps={{ "data-test": "TextboxDialog" }}>
