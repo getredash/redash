@@ -44,11 +44,10 @@ function TextboxDialog({ dialog, isNew, ...props }) {
     const originalText = props.text;
     if (text !== originalText) {
       Modal.confirm({
-        title: "Confirm action",
-        content: "Closing this dialog will discard all changes you've made. Are you sure?",
+        title: "Quit editing?",
+        content: "Changes you made so far will not be saved. Are you sure?",
         okText: "Yes, discard changes",
         okType: "danger",
-        cancelText: "No, get me back",
         onOk: () => dialog.dismiss(),
         maskClosable: true,
         autoFocusButton: null,
