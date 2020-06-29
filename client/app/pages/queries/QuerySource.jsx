@@ -221,7 +221,15 @@ function QuerySource(props) {
               </div>
             )}
             <div className="editor__left__schema">
-              <SchemaBrowser dataSource={dataSource} onSchemaUpdate={setSchema} onItemSelect={handleSchemaItemSelect} />
+              <SchemaBrowser
+                dataSource={dataSource}
+                options={query.options.schemaOptions}
+                onOptionsUpdate={schemaOptions =>
+                  setQuery(extend(query.clone(), { options: { ...query.options, schemaOptions } }))
+                }
+                onSchemaUpdate={setSchema}
+                onItemSelect={handleSchemaItemSelect}
+              />
             </div>
 
             {!query.isNew() && (
