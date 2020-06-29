@@ -12,6 +12,7 @@ import Parameters from "@/components/Parameters";
 import EditInPlace from "@/components/EditInPlace";
 import recordEvent from "@/services/recordEvent";
 import { ExecutionStatus } from "@/services/query-result";
+import routes from "@/services/routes";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryMetadata from "./components/QueryMetadata";
@@ -414,15 +415,19 @@ QuerySource.propTypes = {
 
 const QuerySourcePage = wrapQueryPage(QuerySource);
 
-export default [
+routes.register(
+  "Queries.New",
   routeWithUserSession({
     path: "/queries/new",
     render: pageProps => <QuerySourcePage {...pageProps} />,
     bodyClass: "fixed-layout",
-  }),
+  })
+);
+routes.register(
+  "Queries.Edit",
   routeWithUserSession({
     path: "/queries/:queryId([0-9]+)/source",
     render: pageProps => <QuerySourcePage {...pageProps} />,
     bodyClass: "fixed-layout",
-  }),
-];
+  })
+);

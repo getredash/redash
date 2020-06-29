@@ -20,6 +20,8 @@ import QuerySnippet from "@/services/query-snippet";
 import { currentUser } from "@/services/auth";
 import { policy } from "@/services/policy";
 import notification from "@/services/notification";
+import routes from "@/services/routes";
+
 import "./QuerySnippetsList.less";
 
 const canEditQuerySnippet = querySnippet => currentUser.isAdmin || currentUser.id === get(querySnippet, "user.id");
@@ -188,6 +190,7 @@ class QuerySnippetsList extends React.Component {
 }
 
 const QuerySnippetsListPage = wrapSettingsTab(
+  "QuerySnippets.List",
   {
     permission: "create_query",
     title: "Query Snippets",
@@ -210,15 +213,19 @@ const QuerySnippetsListPage = wrapSettingsTab(
   )
 );
 
-export default [
+routes.register(
+  "QuerySnippets.List",
   routeWithUserSession({
     path: "/query_snippets",
     title: "Query Snippets",
     render: pageProps => <QuerySnippetsListPage {...pageProps} currentPage="query_snippets" />,
-  }),
+  })
+);
+routes.register(
+  "QuerySnippets.NewOrEdit",
   routeWithUserSession({
     path: "/query_snippets/:querySnippetId(new|[0-9]+)",
     title: "Query Snippets",
     render: pageProps => <QuerySnippetsListPage {...pageProps} currentPage="query_snippets" isNewOrEditPage />,
-  }),
-];
+  })
+);

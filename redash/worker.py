@@ -17,13 +17,16 @@ from redash import (
 from redash.tasks.worker import Queue as RedashQueue
 
 
-default_queues = ["scheduled_queries", "queries", "periodic", "emails", "default", "schemas"]
+default_operational_queues = ["periodic", "emails", "default"]
+default_query_queues = ["scheduled_queries", "queries", "schemas"]
+default_queues = default_operational_queues + default_query_queues
 
 
 class StatsdRecordingJobDecorator(rq_job):  # noqa
     """
     RQ Job Decorator mixin that uses our Queue class to ensure metrics are accurately incremented in Statsd
     """
+
     queue_class = RedashQueue
 
 

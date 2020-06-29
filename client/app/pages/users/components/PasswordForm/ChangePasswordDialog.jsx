@@ -3,10 +3,10 @@ import React from "react";
 import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
+import { UserProfile } from "@/components/proptypes";
+import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import User from "@/services/user";
 import notification from "@/services/notification";
-import { UserProfile } from "../proptypes";
-import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 
 class ChangePasswordDialog extends React.Component {
   static propTypes = {
