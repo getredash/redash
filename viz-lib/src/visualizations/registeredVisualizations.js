@@ -14,6 +14,7 @@ import sankeyVisualization from "./sankey";
 import sunburstVisualization from "./sunburst";
 import tableVisualization from "./table";
 import wordCloudVisualization from "./word-cloud";
+import kpiVisualization from "./kpi";
 
 const VisualizationConfig = PropTypes.shape({
   type: PropTypes.string.isRequired,
@@ -72,6 +73,7 @@ each(
     sunburstVisualization,
     tableVisualization,
     wordCloudVisualization,
+    kpiVisualization,
   ]),
   registerVisualization
 );
