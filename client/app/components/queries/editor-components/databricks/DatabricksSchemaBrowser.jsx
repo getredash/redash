@@ -24,11 +24,14 @@ export default function DatabricksSchemaBrowser({
   onItemSelect,
   ...props
 }) {
-  const { databases, schema, loadingSchema, currentDatabaseName, setCurrentDatabase } = useDatabricksSchema(
-    dataSource,
-    options,
-    onOptionsUpdate
-  );
+  const {
+    databases,
+    loadingDatabases,
+    schema,
+    loadingSchema,
+    currentDatabaseName,
+    setCurrentDatabase,
+  } = useDatabricksSchema(dataSource, options, onOptionsUpdate);
   const [filterString, setFilterString] = useState("");
   const [databaseFilterString, setDatabaseFilterString] = useState("");
   const filteredSchema = useMemo(() => applyFilterOnSchema(schema, filterString), [schema, filterString]);
@@ -63,7 +66,7 @@ export default function DatabricksSchemaBrowser({
     }
   }, [schema]);
 
-  if (schema.length === 0 && databases.length === 0) {
+  if (schema.length === 0 && databases.length === 0 && !(loadingDatabases || loadingSchema)) {
     return null;
   }
 
@@ -79,15 +82,22 @@ export default function DatabricksSchemaBrowser({
       <div className="schema-control">
         <Input
           placeholder="Filter tables & columns..."
+          disabled={loadingDatabases || loadingSchema}
           onChange={event => handleFilterChange(event.target.value)}
           addonBefore={
             <Select
               dropdownClassName="databricks-schema-browser-db-dropdown"
+              loading={loadingDatabases}
+              disabled={loadingDatabases}
               onChange={handleDatabaseSelection}
               value={currentDatabaseName}
               showSearch
               onSearch={handleDatabaseFilterChange}
-              placeholder="Database">
+              placeholder={
+                <>
+                  <i className="fa fa-database m-r-5" /> Database
+                </>
+              }>
               {limitedDatabases.map(database => (
                 <Select.Option key={database}>
                   <i className="fa fa-database m-r-5" />
@@ -104,7 +114,7 @@ export default function DatabricksSchemaBrowser({
         />
       </div>
       <SchemaList
-        loading={loadingSchema}
+        loading={loadingDatabases || loadingSchema}
         schema={filteredSchema}
         expandedFlags={expandedFlags}
         onTableExpand={toggleTable}

@@ -27,6 +27,7 @@ function getSchema(dataSource, databaseName) {
 
 export default function useDatabricksSchema(dataSource, options = null, onOptionsUpdate = null) {
   const [databases, setDatabases] = useState([]);
+  const [loadingDatabases, setLoadingDatabases] = useState(true);
   const [currentDatabaseName, setCurrentDatabaseName] = useState();
   const [schemas, setSchemas] = useState({});
   const [loadingSchema, setLoadingSchema] = useState(false);
@@ -39,15 +40,20 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
     let isCancelled = false;
     if (currentDatabaseName && !has(schemasRef.current, currentDatabaseName)) {
       setLoadingSchema(true);
-      getSchema(dataSource, currentDatabaseName).then(data => {
-        if (!isCancelled) {
-          setLoadingSchema(false);
-          setSchemas(currentSchemas => ({
-            ...currentSchemas,
-            [currentDatabaseName]: data,
-          }));
-        }
-      });
+      getSchema(dataSource, currentDatabaseName)
+        .then(data => {
+          if (!isCancelled) {
+            setSchemas(currentSchemas => ({
+              ...currentSchemas,
+              [currentDatabaseName]: data,
+            }));
+          }
+        })
+        .finally(() => {
+          if (!isCancelled) {
+            setLoadingSchema(false);
+          }
+        });
     }
     return () => {
       isCancelled = true;
@@ -58,17 +64,24 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
   defaultDatabaseNameRef.current = get(options, "selectedDatabase", null);
   useEffect(() => {
     let isCancelled = false;
-    getDatabases(dataSource).then(data => {
-      if (!isCancelled) {
-        setDatabases(data);
-        setCurrentDatabaseName(
-          defaultDatabaseNameRef.current ||
-            localStorage.getItem(`lastSelectedDatabricksDatabase_${dataSource.id}`) ||
-            first(data) ||
-            null
-        );
-      }
-    });
+    setLoadingDatabases(true);
+    getDatabases(dataSource)
+      .then(data => {
+        if (!isCancelled) {
+          setDatabases(data);
+          setCurrentDatabaseName(
+            defaultDatabaseNameRef.current ||
+              localStorage.getItem(`lastSelectedDatabricksDatabase_${dataSource.id}`) ||
+              first(data) ||
+              null
+          );
+        }
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setLoadingDatabases(false);
+        }
+      });
     return () => {
       isCancelled = true;
     };
@@ -96,6 +109,7 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
 
   return {
     databases,
+    loadingDatabases,
     schema,
     loadingSchema,
     currentDatabaseName,
