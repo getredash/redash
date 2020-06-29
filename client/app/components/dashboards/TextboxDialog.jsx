@@ -46,7 +46,7 @@ function TextboxDialog({ dialog, isNew, ...props }) {
       Modal.confirm({
         title: "Quit editing?",
         content: "Changes you made so far will not be saved. Are you sure?",
-        okText: "Yes, discard changes",
+        okText: "Yes, quit",
         okType: "danger",
         onOk: () => dialog.dismiss(),
         maskClosable: true,
