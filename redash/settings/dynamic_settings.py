@@ -42,6 +42,11 @@ def ssh_tunnel_auth():
 
 
 def database_key_definitions(default):
+    """
+    All primary/foreign keys in Redash are of type `db.Integer` by default.
+    You may choose to use different column types for primary/foreign keys. To do so, add an entry below for each model you'd like to modify.
+    For each model, add a tuple with the database type as the first item, and a dict including any kwargs for the column definition as the second item.
+    """
     definitions = defaultdict(lambda: default)
     definitions.update(
         {
