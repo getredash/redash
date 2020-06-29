@@ -17,7 +17,7 @@ from sqlalchemy_utils.models import generic_repr
 from redash import redis_connection
 from redash.utils import generate_token, utcnow, dt_from_timestamp
 
-from .base import db, Column, GFKBase, key_types, primary_key
+from .base import db, Column, GFKBase, key_type, primary_key
 from .mixins import TimestampMixin, BelongsToOrgMixin
 from .types import json_cast_property, MutableDict, MutableList
 
@@ -81,14 +81,14 @@ class User(
     TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin
 ):
     id = primary_key("User")
-    org_id = Column(key_types("Organization"), db.ForeignKey("organizations.id"))
+    org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
     org = db.relationship("Organization", backref=db.backref("users", lazy="dynamic"))
     name = Column(db.String(320))
     email = Column(EmailType)
     _profile_image_url = Column("profile_image_url", db.String(320), nullable=True)
     password_hash = Column(db.String(128), nullable=True)
     group_ids = Column(
-        "groups", MutableList.as_mutable(postgresql.ARRAY(key_types("Group"))), nullable=True
+        "groups", MutableList.as_mutable(postgresql.ARRAY(key_type("Group"))), nullable=True
     )
     api_key = Column(db.String(40), default=lambda: generate_token(40), unique=True)
 
@@ -279,7 +279,7 @@ class Group(db.Model, BelongsToOrgMixin):
     data_sources = db.relationship(
         "DataSourceGroup", back_populates="group", cascade="all"
     )
-    org_id = Column(key_types("Organization"), db.ForeignKey("organizations.id"))
+    org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
     org = db.relationship("Organization", back_populates="groups")
     type = Column(db.String(255), default=REGULAR_GROUP)
     name = Column(db.String(100))
@@ -321,9 +321,9 @@ class AccessPermission(GFKBase, db.Model):
     id = primary_key("AccessPermission")
     # 'object' defined in GFKBase
     access_type = Column(db.String(255))
-    grantor_id = Column(key_types("User"), db.ForeignKey("users.id"))
+    grantor_id = Column(key_type("User"), db.ForeignKey("users.id"))
     grantor = db.relationship(User, backref="grantor", foreign_keys=[grantor_id])
-    grantee_id = Column(key_types("User"), db.ForeignKey("users.id"))
+    grantee_id = Column(key_type("User"), db.ForeignKey("users.id"))
     grantee = db.relationship(User, backref="grantee", foreign_keys=[grantee_id])
 
     __tablename__ = "access_permissions"

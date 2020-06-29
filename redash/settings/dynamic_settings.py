@@ -41,9 +41,9 @@ def ssh_tunnel_auth():
     }
 
 
-def db_key_types(default):
-    key_types = defaultdict(lambda: default)
-    key_types.update(
+def database_key_definitions(default):
+    definitions = defaultdict(lambda: default)
+    definitions.update(
         {
             # "DataSource": (db.String(255), {
             #    "default": generate_key
@@ -51,4 +51,4 @@ def db_key_types(default):
         }
     )
 
-    return key_types
+    return definitions

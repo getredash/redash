@@ -92,10 +92,10 @@ class GFKBase(object):
         self.object_id = value.id
 
 
-key_definitions = settings.dynamic_settings.db_key_types((db.Integer, {}))
+key_definitions = settings.dynamic_settings.database_key_definitions((db.Integer, {}))
 
 
-def key_types(name):
+def key_type(name):
     return key_definitions[name][0]
 
 
