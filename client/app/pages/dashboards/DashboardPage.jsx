@@ -150,7 +150,7 @@ function DashboardPage({ dashboardSlug, dashboardId, onError }) {
   onErrorRef.current = onError;
 
   useEffect(() => {
-    Dashboard.get({ slug: dashboardSlug || parseInt(dashboardId, 10) })
+    Dashboard.get({ id: dashboardId, slug: dashboardSlug })
       .then(dashboardData => {
         recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
@@ -185,7 +185,7 @@ routes.register(
 routes.register(
   "Dashboards.ViewOrEditWithId",
   routeWithUserSession({
-    path: "/dashboards/:dashboardId/(.*)?",
+    path: "/dashboards/:dashboardId-(.*)?",
     render: pageProps => <DashboardPage {...pageProps} />,
   })
 );

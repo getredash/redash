@@ -6,7 +6,7 @@ import { currentUser } from "@/services/auth";
 import location from "@/services/location";
 import { cloneParameter } from "@/services/parameters";
 
-export const urlForDashboard = ({ id, slug }) => `dashboards/${id}/${slug}`;
+export const urlForDashboard = ({ id, slug }) => `dashboards/${id}-${slug}`;
 
 export function collectDashboardFilters(dashboard, queryResults, urlParams) {
   const filters = {};
@@ -151,7 +151,7 @@ function transformResponse(data) {
 
 const saveOrCreateUrl = data => (data.slug ? `api/dashboards/${data.slug}` : "api/dashboards");
 const DashboardService = {
-  get: ({ slug }) => axios.get(`api/dashboards/${slug}`).then(transformResponse),
+  get: ({ id, slug }) => axios.get(`api/dashboards/${id || slug}`).then(transformResponse),
   getByToken: ({ token }) => axios.get(`api/dashboards/public/${token}`).then(transformResponse),
   save: data => axios.post(saveOrCreateUrl(data), data).then(transformResponse),
   delete: ({ slug }) => axios.delete(`api/dashboards/${slug}`).then(transformResponse),

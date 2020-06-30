@@ -38,7 +38,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
 
   function addWidgetToDashboard() {
     // Load dashboard with all widgets
-    Dashboard.get({ slug: selectedDashboard.slug })
+    Dashboard.get(selectedDashboard)
       .then(dashboard => {
         dashboard.addWidget(visualization);
         return dashboard;
