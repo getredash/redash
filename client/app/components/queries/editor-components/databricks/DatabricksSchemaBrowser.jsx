@@ -35,6 +35,7 @@ export default function DatabricksSchemaBrowser({
   const [filterString, setFilterString] = useState("");
   const [databaseFilterString, setDatabaseFilterString] = useState("");
   const filteredSchema = useMemo(() => applyFilterOnSchema(schema, filterString), [schema, filterString]);
+  const [isDatabaseSelectOpen, setIsDatabaseSelectOpen] = useState(false);
   const [expandedFlags, setExpandedFlags] = useState({});
   const [handleFilterChange] = useDebouncedCallback(setFilterString, 500);
   const [handleDatabaseFilterChange, cancelHandleDatabaseFilterChange] = useDebouncedCallback(
@@ -84,6 +85,7 @@ export default function DatabricksSchemaBrowser({
     <div className="databricks-schema-browser schema-container" {...props}>
       <div className="schema-control">
         <Input
+          className={isDatabaseSelectOpen ? "database-select-open" : ""}
           placeholder="Filter tables & columns..."
           disabled={loadingDatabases || loadingSchema}
           onChange={event => handleFilterChange(event.target.value)}
@@ -96,6 +98,7 @@ export default function DatabricksSchemaBrowser({
               value={currentDatabaseName}
               showSearch
               onSearch={handleDatabaseFilterChange}
+              onDropdownVisibleChange={setIsDatabaseSelectOpen}
               placeholder={
                 <>
                   <i className="fa fa-database m-r-5" /> Database
