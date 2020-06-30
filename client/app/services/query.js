@@ -5,6 +5,7 @@ import { axios } from "@/services/axios";
 import {
   zipObject,
   isEmpty,
+  isArray,
   map,
   filter,
   includes,
@@ -45,6 +46,14 @@ function collectParams(parts) {
 export class Query {
   constructor(query) {
     extend(this, query);
+
+    if (!has(this, "options")) {
+      this.options = {};
+    }
+
+    if (!isArray(this.options.parameters)) {
+      this.options.parameters = [];
+    }
   }
 
   isNew() {

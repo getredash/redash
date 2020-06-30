@@ -1,5 +1,6 @@
 import React from "react";
 
+import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
@@ -19,6 +20,7 @@ import Layout from "@/components/layouts/ContentWithSidebar";
 import { Query } from "@/services/query";
 import { currentUser } from "@/services/auth";
 import location from "@/services/location";
+import routes from "@/services/routes";
 
 import QueriesListEmptyState from "./QueriesListEmptyState";
 
@@ -108,8 +110,18 @@ class QueriesList extends React.Component {
     return (
       <div className="page-queries-list">
         <div className="container">
-          <PageHeader title={controller.params.pageTitle} />
-          <Layout className="m-l-15 m-r-15">
+          <PageHeader
+            title={controller.params.pageTitle}
+            actions={
+              currentUser.hasPermission("create_query") ? (
+                <Button block type="primary" href="queries/new">
+                  <i className="fa fa-plus m-r-5" />
+                  New Query
+                </Button>
+              ) : null
+            }
+          />
+          <Layout>
             <Layout.Sidebar className="m-b-0">
               <Sidebar.SearchInput
                 placeholder="Search Queries..."
@@ -178,25 +190,35 @@ const QueriesListPage = itemsList(
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
-export default [
+routes.register(
+  "Queries.List",
   routeWithUserSession({
     path: "/queries",
     title: "Queries",
     render: pageProps => <QueriesListPage {...pageProps} currentPage="all" />,
-  }),
+  })
+);
+routes.register(
+  "Queries.Favorites",
   routeWithUserSession({
     path: "/queries/favorites",
     title: "Favorite Queries",
     render: pageProps => <QueriesListPage {...pageProps} currentPage="favorites" />,
-  }),
+  })
+);
+routes.register(
+  "Queries.Archived",
   routeWithUserSession({
     path: "/queries/archive",
     title: "Archived Queries",
     render: pageProps => <QueriesListPage {...pageProps} currentPage="archive" />,
-  }),
+  })
+);
+routes.register(
+  "Queries.My",
   routeWithUserSession({
     path: "/queries/my",
     title: "My Queries",
     render: pageProps => <QueriesListPage {...pageProps} currentPage="my" />,
-  }),
-];
+  })
+);

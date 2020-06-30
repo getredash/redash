@@ -95,6 +95,7 @@ export default function Router({ routes, onRouteChange }) {
 
     return () => {
       isAbandoned = true;
+      currentPathRef.current = null;
       unlisten();
     };
   }, [routes]);

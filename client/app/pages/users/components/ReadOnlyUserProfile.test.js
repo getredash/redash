@@ -1,7 +1,7 @@
 import React from "react";
 import renderer from "react-test-renderer";
 import Group from "@/services/group";
-import UserShow from "./UserShow";
+import ReadOnlyUserProfile from "./ReadOnlyUserProfile";
 
 beforeEach(() => {
   Group.query = jest.fn().mockResolvedValue([]);
@@ -16,7 +16,7 @@ test("renders correctly", () => {
     profileImageUrl: "http://www.images.com/llama.jpg",
   };
 
-  const component = renderer.create(<UserShow user={user} />);
+  const component = renderer.create(<ReadOnlyUserProfile user={user} />);
   const tree = component.toJSON();
   expect(tree).toMatchSnapshot();
 });

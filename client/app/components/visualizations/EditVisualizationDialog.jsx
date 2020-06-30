@@ -9,7 +9,7 @@ import Filters, { filterData } from "@/components/Filters";
 import notification from "@/services/notification";
 import Visualization from "@/services/visualization";
 import recordEvent from "@/services/recordEvent";
-import getQueryResultData from "@/lib/getQueryResultData";
+import useQueryResultData from "@/lib/useQueryResultData";
 import {
   registeredVisualizations,
   getDefaultVisualization,
@@ -71,7 +71,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
 
   const isNew = !visualization;
 
-  const data = getQueryResultData(queryResult);
+  const data = useQueryResultData(queryResult);
   const [filters, setFilters] = useState(data.filters);
 
   const filteredData = useMemo(

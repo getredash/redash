@@ -6,13 +6,13 @@
 [![Datree](https://s3.amazonaws.com/catalog.static.datree.io/datree-badge-20px.svg)](https://datree.io/?src=badge)
 [![Build Status](https://circleci.com/gh/getredash/redash.png?style=shield&circle-token=8a695aa5ec2cbfa89b48c275aea298318016f040)](https://circleci.com/gh/getredash/redash/tree/master)
 
-Redash is designed to enable anyone, regardless of level of technical sophistication, to harness the power of data big and small. SQL users leverage Redash to explore, query, visualize, and share data from any data sources. Their work in turn enables anybody in their organization to use the data. Every day, millions of users at thousands of organizations around the world use Redash to develop insights and make data-driven decisions.
+Redash is designed to enable anyone, regardless of the level of technical sophistication, to harness the power of data big and small. SQL users leverage Redash to explore, query, visualize, and share data from any data sources. Their work in turn enables anybody in their organization to use the data. Every day, millions of users at thousands of organizations around the world use Redash to develop insights and make data-driven decisions.
 
 Redash features:
 
 1. **Browser-based**: Everything in your browser, with a shareable URL.
 2. **Ease-of-use**: Become immediately productive with data without the need to master complex software.
-3. **Query editor**: Quickly compose SQL and NoSQL queries with schema browser and auto-complete.
+3. **Query editor**: Quickly compose SQL and NoSQL queries with a schema browser and auto-complete.
 4. **Visualization and dashboards**: Create [beautiful visualizations](https://redash.io/help/user-guide/visualizations/visualization-types) with drag and drop, and combine them into a single dashboard.
 5. **Sharing**: Collaborate easily by sharing visualizations and their associated queries, enabling peer review of reports and queries.
 6. **Schedule refreshes**: Automatically update your charts and dashboards at regular intervals you define.
@@ -24,7 +24,7 @@ Redash features:
 
 ## Getting Started
 
-* [Setting up Redash instance](https://redash.io/help/open-source/setup) (includes links to ready made AWS/GCE images).
+* [Setting up Redash instance](https://redash.io/help/open-source/setup) (includes links to ready-made AWS/GCE images).
 * [Documentation](https://redash.io/help/).
 
 ## Supported Data Sources
@@ -86,7 +86,7 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 ## Reporting Bugs and Contributing Code
 
 * Want to report a bug or request a feature? Please open [an issue](https://github.com/getredash/redash/issues/new).
-* Want to help us build **_Redash_**? Fork the project, edit in a [dev environment](https://redash.io/help-onpremise/dev/guide.html), and make a pull request. We need all the help we can get!
+* Want to help us build **_Redash_**? Fork the project, edit in a [dev environment](https://redash.io/help-onpremise/dev/guide.html) and make a pull request. We need all the help we can get!
 
 ## Security
 

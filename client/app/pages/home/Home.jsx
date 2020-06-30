@@ -1,18 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { axios } from "@/services/axios";
-import PropTypes from "prop-types";
 import { includes, isEmpty } from "lodash";
+import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
+
 import Alert from "antd/lib/alert";
 import Icon from "antd/lib/icon";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmptyState from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
 import BeaconConsent from "@/components/BeaconConsent";
+
+import { axios } from "@/services/axios";
 import recordEvent from "@/services/recordEvent";
 import { messages } from "@/services/auth";
 import notification from "@/services/notification";
 import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";
+import routes from "@/services/routes";
 
 import "./Home.less";
 
@@ -175,8 +178,11 @@ function Home() {
   );
 }
 
-export default routeWithUserSession({
-  path: "/",
-  title: "Redash",
-  render: pageProps => <Home {...pageProps} />,
-});
+routes.register(
+  "Home",
+  routeWithUserSession({
+    path: "/",
+    title: "Redash",
+    render: pageProps => <Home {...pageProps} />,
+  })
+);

@@ -30,6 +30,8 @@ const SQL = `
 `;
 
 describe("Choropleth", () => {
+  const viewportWidth = Cypress.config("viewportWidth");
+
   beforeEach(() => {
     cy.login();
     createQuery({ query: SQL }).then(({ id }) => {
@@ -84,8 +86,6 @@ describe("Choropleth", () => {
       .find(".map-visualization-container.leaflet-container")
       .should("exist");
 
-    // This is unstable and therefore disabled until a better solution is available.
-    // const viewportWidth = Cypress.config("viewportWidth");
-    // cy.percySnapshot("Visualizations - Choropleth", { widths: [viewportWidth] });
+    cy.percySnapshot("Visualizations - Choropleth", { widths: [viewportWidth] });
   });
 });

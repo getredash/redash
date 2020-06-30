@@ -1,7 +1,7 @@
 import { map, find } from "lodash";
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import getQueryResultData from "@/lib/getQueryResultData";
+import useQueryResultData from "@/lib/useQueryResultData";
 import Filters, { FiltersType, filterData } from "@/components/Filters";
 import { VisualizationType } from "@redash/viz/lib";
 import { Renderer } from "@/components/visualizations/visualizationComponents";
@@ -25,7 +25,7 @@ function combineFilters(localFilters, globalFilters) {
 }
 
 export default function VisualizationRenderer(props) {
-  const data = useMemo(() => getQueryResultData(props.queryResult), [props.queryResult]);
+  const data = useQueryResultData(props.queryResult);
   const [filters, setFilters] = useState(data.filters);
   const filtersRef = useRef();
   filtersRef.current = filters;

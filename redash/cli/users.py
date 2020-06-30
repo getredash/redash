@@ -154,31 +154,31 @@ def create_root(email, name, google_auth=False, password=None, organization="def
         print("User [%s] is already exists." % email)
         exit(1)
 
-    slug = "default"
-    default_org = models.Organization.query.filter(
-        models.Organization.slug == slug
+    org_slug = organization
+    org = models.Organization.query.filter(
+        models.Organization.slug == org_slug
     ).first()
-    if default_org is None:
-        default_org = models.Organization(name=organization, slug=slug, settings={})
+    if org is None:
+        org = models.Organization(name=org_slug, slug=org_slug, settings={})
 
     admin_group = models.Group(
         name="admin",
         permissions=["admin", "super_admin"],
-        org=default_org,
+        org=org,
         type=models.Group.BUILTIN_GROUP,
     )
     default_group = models.Group(
         name="default",
         permissions=models.Group.DEFAULT_PERMISSIONS,
-        org=default_org,
+        org=org,
         type=models.Group.BUILTIN_GROUP,
     )
 
-    models.db.session.add_all([default_org, admin_group, default_group])
+    models.db.session.add_all([org, admin_group, default_group])
     models.db.session.commit()
 
     user = models.User(
-        org=default_org,
+        org=org,
         email=email,
         name=name,
         group_ids=[admin_group.id, default_group.id],

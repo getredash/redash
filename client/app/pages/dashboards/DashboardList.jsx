@@ -1,20 +1,22 @@
 import React from "react";
 
+import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
-
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
-
+import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import Layout from "@/components/layouts/ContentWithSidebar";
 
 import { Dashboard } from "@/services/dashboard";
+import { currentUser } from "@/services/auth";
+import routes from "@/services/routes";
 
 import DashboardListEmptyState from "./components/DashboardListEmptyState";
 
@@ -75,8 +77,18 @@ class DashboardList extends React.Component {
     return (
       <div className="page-dashboard-list">
         <div className="container">
-          <PageHeader title={controller.params.pageTitle} />
-          <Layout className="m-l-15 m-r-15">
+          <PageHeader
+            title={controller.params.pageTitle}
+            actions={
+              currentUser.hasPermission("create_dashboard") ? (
+                <Button block type="primary" onClick={() => CreateDashboardDialog.showModal()}>
+                  <i className="fa fa-plus m-r-5" />
+                  New Dashboard
+                </Button>
+              ) : null
+            }
+          />
+          <Layout>
             <Layout.Sidebar className="m-b-0">
               <Sidebar.SearchInput
                 placeholder="Search Dashboards..."
@@ -147,15 +159,19 @@ const DashboardListPage = itemsList(
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
-export default [
+routes.register(
+  "Dashboards.List",
   routeWithUserSession({
     path: "/dashboards",
     title: "Dashboards",
     render: pageProps => <DashboardListPage {...pageProps} currentPage="all" />,
-  }),
+  })
+);
+routes.register(
+  "Dashboards.Favorites",
   routeWithUserSession({
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
     render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
-  }),
-];
+  })
+);

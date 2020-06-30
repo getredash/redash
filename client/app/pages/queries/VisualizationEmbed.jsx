@@ -1,18 +1,15 @@
+import { find, has } from "lodash";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
-import { find, has } from "lodash";
 import moment from "moment";
 import { markdown } from "markdown";
+
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Icon from "antd/lib/icon";
 import Menu from "antd/lib/menu";
 import Tooltip from "antd/lib/tooltip";
-import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
-import { Query } from "@/services/query";
-import location from "@/services/location";
-import { formatDateTime } from "@/lib/utils";
 import Parameters from "@/components/Parameters";
 import { Moment } from "@/components/proptypes";
 import TimeAgo from "@/components/TimeAgo";
@@ -20,7 +17,15 @@ import Timer from "@/components/Timer";
 import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
 import VisualizationName from "@/components/visualizations/VisualizationName";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
+
 import { VisualizationType } from "@redash/viz/lib";
+import HtmlContent from "@redash/viz/lib/components/HtmlContent";
+
+import { formatDateTime } from "@/lib/utils";
+import { Query } from "@/services/query";
+import location from "@/services/location";
+import routes from "@/services/routes";
+
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
 function VisualizationEmbedHeader({ queryName, queryDescription, visualization }) {
@@ -214,7 +219,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
   }
 
   return (
-    <div className="tile m-l-10 m-r-10 p-t-10 embed__vis" data-test="VisualizationEmbed">
+    <div className="tile m-t-10 m-l-10 m-r-10 p-t-10 embed__vis" data-test="VisualizationEmbed">
       {!hideHeader && (
         <VisualizationEmbedHeader
           queryName={query.name}
@@ -264,8 +269,11 @@ VisualizationEmbed.defaultProps = {
   onError: () => {},
 };
 
-export default routeWithApiKeySession({
-  path: "/embed/query/:queryId/visualization/:visualizationId",
-  render: pageProps => <VisualizationEmbed {...pageProps} />,
-  getApiKey: () => location.search.api_key,
-});
+routes.register(
+  "Visualizations.ViewShared",
+  routeWithApiKeySession({
+    path: "/embed/query/:queryId/visualization/:visualizationId",
+    render: pageProps => <VisualizationEmbed {...pageProps} />,
+    getApiKey: () => location.search.api_key,
+  })
+);

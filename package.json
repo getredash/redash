@@ -1,6 +1,6 @@
 {
   "name": "redash-client",
-  "version": "9.0.0-alpha",
+  "version": "9.0.0-beta",
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
@@ -25,7 +25,7 @@
     "test:watch": "jest --watch",
     "cypress:install": "npm install --no-save cypress@~4.5.0 @percy/agent@0.26.2 @percy/cypress@^2.2.0 atob@2.1.2",
     "cypress": "node client/cypress/cypress.js",
-    "preinstall": "(cd viz-lib && npm ci && npm run build:babel)"
+    "postinstall": "(cd viz-lib && npm ci && npm run build:babel)"
   },
   "repository": {
     "type": "git",
@@ -46,7 +46,7 @@
     "@types/prop-types": "^15.5.2",
     "@types/react": "^16.3.13",
     "@types/react-dom": "^16.0.5",
-    "antd": "^3.19.7",
+    "antd": "^3.26.17",
     "axios": "^0.19.0",
     "bootstrap": "^3.3.7",
     "brace": "^0.11.0",
@@ -64,7 +64,6 @@
     "mousetrap": "^1.6.1",
     "mustache": "^2.3.0",
     "numeral": "^2.0.6",
-    "pace-progress": "git+https://github.com/getredash/pace.git",
     "prop-types": "^15.6.1",
     "query-string": "^6.9.0",
     "react": "^16.8.3",
