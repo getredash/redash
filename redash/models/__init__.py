@@ -882,7 +882,7 @@ class Favorite(TimestampMixin, db.Model):
     object_id = Column(key_type("Favorite"))
     object = generic_relationship(object_type, object_id)
 
-    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship(User, backref="favorites")
 
     __tablename__ = "favorites"
