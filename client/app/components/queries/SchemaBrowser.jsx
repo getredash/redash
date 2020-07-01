@@ -1,5 +1,6 @@
-import { isNil, map, filter, some, includes } from "lodash";
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import { isNil, map, filter, some, includes, isFunction } from "lodash";
+import cx from "classnames";
+import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import Input from "antd/lib/input";
@@ -7,6 +8,8 @@ import Button from "antd/lib/button";
 import Tooltip from "antd/lib/tooltip";
 import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
 import List from "react-virtualized/dist/commonjs/List";
+import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
+import LoadingState from "../items-list/components/LoadingState";
 
 const SchemaItemType = PropTypes.shape({
   name: PropTypes.string.isRequired,
@@ -77,7 +80,61 @@ SchemaItem.defaultProps = {
   onSelect: () => {},
 };
 
-function applyFilter(schema, filterString) {
+function SchemaLoadingState() {
+  return (
+    <div className="schema-loading-state">
+      <LoadingState className="" />
+    </div>
+  );
+}
+
+export function SchemaList({ loading, schema, expandedFlags, onTableExpand, onItemSelect }) {
+  const [listRef, setListRef] = useState(null);
+
+  useEffect(() => {
+    if (listRef) {
+      listRef.recomputeRowHeights();
+    }
+  }, [listRef, schema, expandedFlags]);
+
+  return (
+    <div className="schema-browser">
+      {loading && <SchemaLoadingState />}
+      {!loading && (
+        <AutoSizer>
+          {({ width, height }) => (
+            <List
+              ref={setListRef}
+              width={width}
+              height={height}
+              rowCount={schema.length}
+              rowHeight={({ index }) => {
+                const item = schema[index];
+                const columnCount = expandedFlags[item.name] ? item.columns.length : 0;
+                return schemaTableHeight + schemaColumnHeight * columnCount;
+              }}
+              rowRenderer={({ key, index, style }) => {
+                const item = schema[index];
+                return (
+                  <SchemaItem
+                    key={key}
+                    style={style}
+                    item={item}
+                    expanded={expandedFlags[item.name]}
+                    onToggle={() => onTableExpand(item.name)}
+                    onSelect={onItemSelect}
+                  />
+                );
+              }}
+            />
+          )}
+        </AutoSizer>
+      )}
+    </div>
+  );
+}
+
+export function applyFilterOnSchema(schema, filterString) {
   const filters = filter(filterString.toLowerCase().split(/\s+/), s => s.length > 0);
 
   // Empty string: return original schema
@@ -110,24 +167,30 @@ function applyFilter(schema, filterString) {
   );
 }
 
-export default function SchemaBrowser({ schema, onRefresh, onItemSelect, ...props }) {
+export default function SchemaBrowser({
+  dataSource,
+  onSchemaUpdate,
+  onItemSelect,
+  options,
+  onOptionsUpdate,
+  ...props
+}) {
+  const [schema, isLoading, refreshSchema] = useDataSourceSchema(dataSource);
   const [filterString, setFilterString] = useState("");
-  const filteredSchema = useMemo(() => applyFilter(schema, filterString), [schema, filterString]);
-  const [expandedFlags, setExpandedFlags] = useState({});
+  const filteredSchema = useMemo(() => applyFilterOnSchema(schema, filterString), [schema, filterString]);
   const [handleFilterChange] = useDebouncedCallback(setFilterString, 500);
-  const [listRef, setListRef] = useState(null);
+  const [expandedFlags, setExpandedFlags] = useState({});
 
+  const onSchemaUpdateRef = useRef();
+  onSchemaUpdateRef.current = onSchemaUpdate;
   useEffect(() => {
     setExpandedFlags({});
+    if (isFunction(onSchemaUpdateRef.current)) {
+      onSchemaUpdateRef.current(schema);
+    }
   }, [schema]);
 
-  useEffect(() => {
-    if (listRef) {
-      listRef.recomputeRowHeights();
-    }
-  }, [listRef, filteredSchema, expandedFlags]);
-
-  if (schema.length === 0) {
+  if (schema.length === 0 && !isLoading) {
     return null;
   }
 
@@ -149,53 +212,30 @@ export default function SchemaBrowser({ schema, onRefresh, onItemSelect, ...prop
         />
 
         <Tooltip title="Refresh Schema">
-          <Button onClick={onRefresh}>
-            <i className="zmdi zmdi-refresh" />
+          <Button onClick={() => refreshSchema(true)}>
+            <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": isLoading })} />
           </Button>
         </Tooltip>
       </div>
-      <div className="schema-browser">
-        <AutoSizer>
-          {({ width, height }) => (
-            <List
-              ref={setListRef}
-              width={width}
-              height={height}
-              rowCount={filteredSchema.length}
-              rowHeight={({ index }) => {
-                const item = filteredSchema[index];
-                const columnCount = expandedFlags[item.name] ? item.columns.length : 0;
-                return schemaTableHeight + schemaColumnHeight * columnCount;
-              }}
-              rowRenderer={({ key, index, style }) => {
-                const item = filteredSchema[index];
-                return (
-                  <SchemaItem
-                    key={key}
-                    style={style}
-                    item={item}
-                    expanded={expandedFlags[item.name]}
-                    onToggle={() => toggleTable(item.name)}
-                    onSelect={onItemSelect}
-                  />
-                );
-              }}
-            />
-          )}
-        </AutoSizer>
-      </div>
+      <SchemaList
+        loading={isLoading && schema.length === 0}
+        schema={filteredSchema}
+        expandedFlags={expandedFlags}
+        onTableExpand={toggleTable}
+        onItemSelect={onItemSelect}
+      />
     </div>
   );
 }
 
 SchemaBrowser.propTypes = {
-  schema: PropTypes.arrayOf(SchemaItemType),
-  onRefresh: PropTypes.func,
+  dataSource: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  onSchemaUpdate: PropTypes.func,
   onItemSelect: PropTypes.func,
 };
 
 SchemaBrowser.defaultProps = {
-  schema: [],
-  onRefresh: () => {},
+  dataSource: null,
+  onSchemaUpdate: () => {},
   onItemSelect: () => {},
 };
