@@ -28,7 +28,7 @@ function wrapComponentWithSettings(WrappedComponent) {
         "floatFormat",
         "booleanValues",
         "tableCellMaxJSONSize",
-        "allowCustomJSVisualization",
+        "allowCustomJSVisualizations",
         "hidePlotlyModeBar",
       ]),
     });
