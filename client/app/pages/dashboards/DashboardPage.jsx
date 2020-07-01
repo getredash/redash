@@ -185,7 +185,7 @@ routes.register(
 routes.register(
   "Dashboards.ViewOrEditWithId",
   routeWithUserSession({
-    path: "/dashboards/:dashboardId-(.*)?",
+    path: "/dashboards/:dashboardId([^-]+)(-.*)?",
     render: pageProps => <DashboardPage {...pageProps} />,
   })
 );
