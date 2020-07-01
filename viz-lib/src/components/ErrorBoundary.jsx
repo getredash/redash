@@ -44,6 +44,9 @@ export default class ErrorBoundary extends React.Component {
   handleError = error => {
     this.setState(this.constructor.getDerivedStateFromError(error));
     this.componentDidCatch(error, null);
+    if (isFunction(window.handleException)) {
+      window.handleException(error);
+    }
   };
 
   reset = () => {
