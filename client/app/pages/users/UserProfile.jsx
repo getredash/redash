@@ -89,7 +89,7 @@ routes.register(
 routes.register(
   "Users.ViewOrEdit",
   routeWithUserSession({
-    path: "/users/:userId([0-9]+)",
+    path: "/users/:userId",
     title: "Users",
     render: pageProps => <UserProfilePage {...pageProps} />,
   })
