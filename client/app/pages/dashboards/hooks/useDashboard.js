@@ -64,8 +64,7 @@ function useDashboard(dashboardData) {
   const updateDashboard = useCallback(
     (data, includeVersion = true) => {
       setDashboard(currentDashboard => extend({}, currentDashboard, data));
-      // for some reason the request uses the id as slug
-      data = { ...data, slug: dashboard.id };
+      data = { ...data, id: dashboard.id };
       if (includeVersion) {
         data = { ...data, version: dashboard.version };
       }
