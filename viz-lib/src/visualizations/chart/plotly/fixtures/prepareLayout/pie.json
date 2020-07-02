@@ -2,11 +2,12 @@
   "input": {
     "options": {
       "globalSeriesType": "pie",
-      "textFormat": ""
+      "textFormat": "",
+      "legend": {
+        "traceorder": "normal"
+      }
     },
-    "series": [
-      { "name": "a" }
-    ]
+    "series": [{ "name": "a" }]
   },
   "output": {
     "layout": {
@@ -15,6 +16,9 @@
       "height": 300,
       "autosize": false,
       "showlegend": true,
+      "legend": {
+        "traceorder": "normal"
+      },
       "annotations": [
         {
           "x": 0.49,

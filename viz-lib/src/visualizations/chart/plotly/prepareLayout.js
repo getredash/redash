@@ -1,4 +1,4 @@
-import { filter, has, isNumber, isObject, isUndefined, map, max, min } from "lodash";
+import { filter, isNumber, isObject, isUndefined, map, max, min } from "lodash";
 import { getPieDimensions } from "./preparePieData";
 
 function getAxisTitle(axis) {
@@ -123,9 +123,9 @@ export default function prepareLayout(element, options, data) {
     width: Math.max(5, Math.floor(element.offsetWidth)),
     height: Math.max(5, Math.floor(element.offsetHeight)),
     autosize: false,
-    showlegend: has(options, "legend") ? options.legend.enabled : true,
+    showlegend: options.legend.enabled,
     legend: {
-      traceorder: has(options, "legend") ? options.legend.traceorder : "normal",
+      traceorder: options.legend.traceorder,
     },
   };
 
