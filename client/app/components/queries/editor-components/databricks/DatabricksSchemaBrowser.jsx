@@ -119,13 +119,15 @@ export default function DatabricksSchemaBrowser({
           }
         />
       </div>
-      <SchemaList
-        loading={loadingDatabases || loadingSchema}
-        schema={filteredSchema}
-        expandedFlags={expandedFlags}
-        onTableExpand={toggleTable}
-        onItemSelect={onItemSelect}
-      />
+      <div className="schema-list-wrapper">
+        <SchemaList
+          loading={loadingDatabases || loadingSchema}
+          schema={filteredSchema}
+          expandedFlags={expandedFlags}
+          onTableExpand={toggleTable}
+          onItemSelect={onItemSelect}
+        />
+      </div>
     </div>
   );
 }
