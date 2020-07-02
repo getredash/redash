@@ -26,6 +26,10 @@ from redash.handlers.data_sources import (
     DataSourceTestResource,
     DataSourceTypeListResource,
 )
+from redash.handlers.databricks import (
+    DatabricksDatabaseListResource,
+    DatabricksSchemaResource,
+)
 from redash.handlers.destinations import (
     DestinationListResource,
     DestinationResource,
@@ -144,6 +148,13 @@ api.add_org_resource(
 )
 api.add_org_resource(
     DataSourceSchemaResource, "/api/data_sources/<data_source_id>/schema"
+)
+api.add_org_resource(
+    DatabricksDatabaseListResource, "/api/databricks/databases/<data_source_id>"
+)
+api.add_org_resource(
+    DatabricksSchemaResource,
+    "/api/databricks/databases/<data_source_id>/<database_name>/tables",
 )
 api.add_org_resource(
     DataSourcePauseResource, "/api/data_sources/<data_source_id>/pause"

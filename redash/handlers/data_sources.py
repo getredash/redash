@@ -34,12 +34,21 @@ class DataSourceTypeListResource(BaseResource):
 
 
 class DataSourceResource(BaseResource):
-    @require_admin
     def get(self, data_source_id):
-        data_source = models.DataSource.get_by_id_and_org(
-            data_source_id, self.current_org
+        data_source = get_object_or_404(
+            models.DataSource.get_by_id_and_org, data_source_id, self.current_org
         )
-        ds = data_source.to_dict(all=True)
+        require_access(data_source, self.current_user, view_only)
+
+        ds = {}
+        if self.current_user.has_permission("list_data_sources"):
+            # if it's a non-admin, limit the information
+            ds = data_source.to_dict(all=self.current_user.has_permission("admin"))
+
+        # add view_only info, required for frontend permissions
+        ds["view_only"] = all(
+            project(data_source.groups, self.current_user.group_ids).values()
+        )
         self.record_event(
             {"action": "view", "object_id": data_source_id, "object_type": "datasource"}
         )
