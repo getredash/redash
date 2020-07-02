@@ -124,6 +124,9 @@ export default function prepareLayout(element, options, data) {
     height: Math.max(5, Math.floor(element.offsetHeight)),
     autosize: false,
     showlegend: has(options, "legend") ? options.legend.enabled : true,
+    legend: {
+      traceorder: has(options, "legend") ? options.legend.traceorder : "normal",
+    },
   };
 
   switch (options.globalSeriesType) {

@@ -1,4 +1,4 @@
-import { find, pick, reduce } from "lodash";
+import { find, pick, extend } from "lodash";
 
 function fixLegendContainer(plotlyElement) {
   const legend = plotlyElement.querySelector(".legend");
@@ -20,7 +20,7 @@ function placeLegendNextToPlot(plotlyElement, layout, updatePlot) {
     prop => prop in plotlyElement.style
   );
 
-  layout.legend = {
+  layout.legend = extend({}, layout.legend, {
     orientation: "v",
     // vertical legend will be rendered properly, so just place it to the right
     // side of plot
@@ -28,7 +28,7 @@ function placeLegendNextToPlot(plotlyElement, layout, updatePlot) {
     x: 1,
     xanchor: "left",
     yanchor: "top",
-  };
+  });
 
   const legend = plotlyElement.querySelector(".legend");
   if (legend) {
@@ -56,7 +56,7 @@ function placeLegendBelowPlot(plotlyElement, layout, updatePlot) {
   // plot height), re-render plot again and offset legend to the space under
   // the plot.
   // Related issue: https://github.com/plotly/plotly.js/issues/1199
-  layout.legend = {
+  layout.legend = extend({}, layout.legend, {
     orientation: "h",
     // locate legend inside of plot area - otherwise plotly will preserve
     // some amount of space under the plot; also this will limit legend height
@@ -65,7 +65,7 @@ function placeLegendBelowPlot(plotlyElement, layout, updatePlot) {
     x: 0,
     xanchor: "left",
     yanchor: "bottom",
-  };
+  });
 
   // set `overflow: visible` to svg containing legend because later we will
   // position legend outside of it
