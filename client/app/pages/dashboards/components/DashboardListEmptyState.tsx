@@ -1,10 +1,15 @@
-import React from "react";
-import PropTypes from "prop-types";
-import BigMessage from "@/components/BigMessage";
-import NoTaggedObjectsFound from "@/components/NoTaggedObjectsFound";
-import EmptyState from "@/components/empty-state/EmptyState";
+import * as React from "react";
+import BigMessage from "../../../components/BigMessage";
+import NoTaggedObjectsFound from "../../../components/NoTaggedObjectsFound";
+import EmptyState from "../../../components/empty-state/EmptyState";
 
-export default function DashboardListEmptyState({ page, searchTerm, selectedTags }) {
+export interface DashboardListEmptyStateProps {
+  page: string;
+  searchTerm: string;
+  selectedTags: string[];
+}
+
+export function DashboardListEmptyState({ page, searchTerm, selectedTags }: DashboardListEmptyStateProps) {
   if (searchTerm !== "") {
     return <BigMessage message="Sorry, we couldn't find anything." icon="fa-search" />;
   }
@@ -26,9 +31,3 @@ export default function DashboardListEmptyState({ page, searchTerm, selectedTags
       );
   }
 }
-
-DashboardListEmptyState.propTypes = {
-  page: PropTypes.string.isRequired,
-  searchTerm: PropTypes.string.isRequired,
-  selectedTags: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
-};
