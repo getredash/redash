@@ -73,12 +73,7 @@ function useDashboard(dashboardData) {
         .then(updatedDashboard => {
           setDashboard(currentDashboard => extend({}, currentDashboard, pick(updatedDashboard, keys(data))));
           if (has(data, "name")) {
-            location.update(
-              {
-                path: url.parse(updatedDashboard.url).pathname,
-              },
-              true
-            );
+            location.setPath(url.parse(updatedDashboard.url).pathname, true);
           }
         })
         .catch(error => {

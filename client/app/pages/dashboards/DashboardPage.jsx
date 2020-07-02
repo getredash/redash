@@ -14,6 +14,8 @@ import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
 import resizeObserver from "@/services/resizeObserver";
 import routes from "@/services/routes";
+import location from "@/services/location";
+import url from "@/services/url";
 
 import useDashboard from "./hooks/useDashboard";
 import DashboardHeader from "./components/DashboardHeader";
@@ -154,6 +156,11 @@ function DashboardPage({ dashboardSlug, dashboardId, onError }) {
       .then(dashboardData => {
         recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
+
+        // if loaded by slug, update location url to use the id
+        if (!dashboardId) {
+          location.setPath(url.parse(dashboardData.url).pathname, true);
+        }
       })
       .catch(error => onErrorRef.current(error));
   }, [dashboardSlug, dashboardId]);
