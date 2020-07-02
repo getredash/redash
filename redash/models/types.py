@@ -116,7 +116,7 @@ class pseudo_json_cast_property(index_property):
     """
     A SQLAlchemy index property that is able to cast the
     entity attribute as the specified cast type. Useful
-    for JSON and JSONB colums for easier querying/filtering.
+    for PseudoJSON colums for easier querying/filtering.
     """
     def __init__(self, cast_type, *args, **kwargs):
         super().__init__(*args, **kwargs)
