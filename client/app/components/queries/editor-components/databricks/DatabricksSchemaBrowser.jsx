@@ -1,10 +1,11 @@
-import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
-import { slice, without, filter, includes, isFunction } from "lodash";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
+import { slice, without, filter, includes } from "lodash";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";
 import { SchemaList, applyFilterOnSchema } from "@/components/queries/SchemaBrowser";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import useDatabricksSchema from "./useDatabricksSchema";
 
 import "./DatabricksSchemaBrowser.less";
@@ -61,14 +62,12 @@ export default function DatabricksSchemaBrowser({
     currentDatabaseName,
   ]);
 
-  const onSchemaUpdateRef = useRef();
-  onSchemaUpdateRef.current = onSchemaUpdate;
+  const handleSchemaUpdate = useImmutableCallback(onSchemaUpdate);
+
   useEffect(() => {
     setExpandedFlags({});
-    if (isFunction(onSchemaUpdateRef.current)) {
-      onSchemaUpdateRef.current(schema);
-    }
-  }, [schema]);
+    handleSchemaUpdate(schema);
+  }, [schema, handleSchemaUpdate]);
 
   if (schema.length === 0 && databases.length === 0 && !(loadingDatabases || loadingSchema)) {
     return null;

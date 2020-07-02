@@ -1,17 +1,17 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import DynamicComponent from "@/components/DynamicComponent";
 import { UserProfile } from "@/components/proptypes";
 import { currentUser } from "@/services/auth";
 import User from "@/services/user";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 export default function ToggleUserForm(props) {
   const { user, onChange } = props;
 
   const [loading, setLoading] = useState(false);
-  const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
+  const handleChange = useImmutableCallback(onChange);
 
   const toggleUser = useCallback(() => {
     const action = user.isDisabled ? User.enableUser : User.disableUser;
@@ -19,13 +19,13 @@ export default function ToggleUserForm(props) {
     action(user)
       .then(data => {
         if (data) {
-          onChangeRef.current(User.convertUserInfo(data));
+          handleChange(User.convertUserInfo(data));
         }
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [user]);
+  }, [user, handleChange]);
 
   if (!currentUser.isAdmin || user.id === currentUser.id) {
     return null;

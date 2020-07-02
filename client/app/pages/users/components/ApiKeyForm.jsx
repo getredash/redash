@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Form from "antd/lib/form";
@@ -7,13 +7,13 @@ import DynamicComponent from "@/components/DynamicComponent";
 import InputWithCopy from "@/components/InputWithCopy";
 import { UserProfile } from "@/components/proptypes";
 import User from "@/services/user";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 export default function ApiKeyForm(props) {
   const { user, onChange } = props;
 
   const [loading, setLoading] = useState(false);
-  const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
+  const handleChange = useImmutableCallback(onChange);
 
   const regenerateApiKey = useCallback(() => {
     const doRegenerate = () => {
@@ -21,7 +21,7 @@ export default function ApiKeyForm(props) {
       User.regenerateApiKey(user)
         .then(apiKey => {
           if (apiKey) {
-            onChangeRef.current({ ...user, apiKey });
+            handleChange({ ...user, apiKey });
           }
         })
         .finally(() => {
@@ -37,7 +37,7 @@ export default function ApiKeyForm(props) {
       maskClosable: true,
       autoFocusButton: null,
     });
-  }, [user]);
+  }, [user, handleChange]);
 
   return (
     <DynamicComponent name="UserProfile.ApiKeyForm" {...props}>
