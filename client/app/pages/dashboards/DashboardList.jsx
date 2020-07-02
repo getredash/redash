@@ -14,7 +14,7 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import Layout from "@/components/layouts/ContentWithSidebar";
 
-import { Dashboard, urlForDashboard } from "@/services/dashboard";
+import { Dashboard } from "@/services/dashboard";
 import { currentUser } from "@/services/auth";
 import routes from "@/services/routes";
 
@@ -46,7 +46,7 @@ class DashboardList extends React.Component {
     Columns.custom.sortable(
       (text, item) => (
         <React.Fragment>
-          <a className="table-main-title" href={urlForDashboard(item)} data-test={item.slug}>
+          <a className="table-main-title" href={item.url} data-test={item.slug}>
             {item.name}
           </a>
           <DashboardTagsControl

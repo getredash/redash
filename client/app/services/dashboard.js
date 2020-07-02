@@ -125,6 +125,11 @@ function calculateNewWidgetPosition(existingWidgets, newWidget) {
 
 export function Dashboard(dashboard) {
   _.extend(this, dashboard);
+  Object.defineProperty(this, "url", {
+    get: function() {
+      return urlForDashboard(this);
+    },
+  });
 }
 
 function prepareDashboardWidgets(widgets) {

@@ -13,7 +13,7 @@ import { axios } from "@/services/axios";
 import recordEvent from "@/services/recordEvent";
 import { messages } from "@/services/auth";
 import notification from "@/services/notification";
-import { Dashboard, urlForDashboard } from "@/services/dashboard";
+import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";
 import routes from "@/services/routes";
 
@@ -119,7 +119,7 @@ function DashboardAndQueryFavoritesList() {
             <FavoriteList
               title="Favorite Dashboards"
               resource={Dashboard}
-              itemUrl={dashboard => urlForDashboard(dashboard)}
+              itemUrl={dashboard => dashboard.url}
               emptyState={
                 <p>
                   <span className="btn-favourite m-r-5">
