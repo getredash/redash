@@ -49,6 +49,23 @@ function QueryViewCtrl(
     }
   }
 
+  function getCostQueryResult(selectedQueryText) {
+    $scope.showLog = false;
+    $scope.query.getCostOnBigQuery(selectedQueryText).success((response) => {
+      let processedData = '';
+      if (response.processedMBs > 1024) {
+        processedData = (response.processedMBs / 1024).toFixed(2) + ' GB';
+      } else {
+        processedData = response.processedMBs + ' MB';
+      }
+      notification.success(`This query will process ${processedData} when run.`);
+      $scope.lockButton(false);
+    }).error((error) => {
+      notification.error(error);
+      $scope.lockButton(false);
+    });
+  }
+
   function getDataSourceId() {
     // Try to get the query's data source id
     let dataSourceId = $scope.query.data_source_id;
@@ -74,6 +91,7 @@ function QueryViewCtrl(
   function getSchema(refresh = undefined) {
     // TODO: is it possible this will be called before dataSource is set?
     $scope.schema = [];
+    $scope.isNotBigQuery = $scope.dataSource.type !== 'bigquery';
     $scope.dataSource.getSchema(refresh).then((data) => {
       if (data.schema) {
         $scope.schema = data.schema;
@@ -117,6 +135,21 @@ function QueryViewCtrl(
 
   $scope.updateSelectedQuery = (selectedQueryText) => {
     $scope.selectedQueryText = selectedQueryText;
+  };
+
+  $scope.isNotBigQuery = true;
+
+  $scope.getCostQuery = () => {
+    if (!$scope.canExecuteQuery()) {
+      return;
+    }
+
+    if (!$scope.query.query) {
+      return;
+    }
+
+    getCostQueryResult($scope.selectedQueryText);
+    $scope.lockButton(true);
   };
 
   $scope.executeQuery = () => {

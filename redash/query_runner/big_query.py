@@ -259,6 +259,20 @@ class BigQuery(BaseQueryRunner):
 
         return columns
 
+    def get_mbs_processed(self, query):
+        bigquery_service = self._get_bigquery_service()
+        jobs = bigquery_service.jobs()
+
+        try:
+            processed_mb = self._get_total_bytes_processed(jobs, query) / 1000.0 / 1000.0
+            error = None
+            json_data = {'processedMBs': round(processed_mb, 1)}
+        except apiclient.errors.HttpError as e:
+            json_data = None
+            error = json_loads(e.content)
+
+        return json_data, error
+
     def get_schema(self, get_stats=False):
         if not self.configuration.get('loadSchema', False):
             return []

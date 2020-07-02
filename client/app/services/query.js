@@ -739,6 +739,13 @@ function QueryResource(
     return this.queryResult;
   };
 
+  QueryService.prototype.getCostOnBigQuery = function getCostOnBigQuery(selectedQueryText) {
+    const queryText = selectedQueryText || this.query;
+    const parameters = this.getParameters().getValues();
+    return $http.post('api/bigquery_result_price',
+      { data_source_id: this.data_source_id, parameters, query: queryText });
+  };
+
   QueryService.prototype.getQueryResult = function getQueryResult(maxAge) {
     const execute = () => QueryResult.getByQueryId(this.id, this.getParameters().getValues(), maxAge);
     return this.prepareQueryResultExecution(execute, maxAge);

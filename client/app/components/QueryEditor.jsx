@@ -54,6 +54,8 @@ class QueryEditor extends React.Component {
     isDirty: PropTypes.bool.isRequired,
     isQueryOwner: PropTypes.bool.isRequired,
     updateDataSource: PropTypes.func.isRequired,
+    isNotBigQuery: PropTypes.bool.isRequired,
+    getCostQuery: PropTypes.func.isRequired,
     canExecuteQuery: PropTypes.bool.isRequired,
     executeQuery: PropTypes.func.isRequired,
     queryExecuting: PropTypes.bool.isRequired,
@@ -228,6 +230,7 @@ class QueryEditor extends React.Component {
     const modKey = KeyboardShortcuts.modKey;
 
     const isExecuteDisabled = this.props.queryExecuting || !this.props.canExecuteQuery;
+    const isNotBigQuery = this.props.isNotBigQuery;
 
     return (
       <section style={{ height: '100%' }} data-test="QueryEditor">
@@ -288,6 +291,18 @@ class QueryEditor extends React.Component {
                   </option>
                 ))}
               </select>
+              <button
+                type="button"
+                className={'btn btn-success m-l-5' + (isExecuteDisabled ? ' disabled' : '')
+                          + (isNotBigQuery ? ' hidden' : '')}
+                disabled={isExecuteDisabled}
+                onClick={this.props.getCostQuery}
+                data-test="CostButton"
+                title="Cost on Bigquery"
+              >
+                <span className="zmdi zmdi-play" />
+                <span className="hidden-xs m-l-5">{ (this.state.selectedQueryText == null) ? 'Cost' : 'Cost of Selected' }</span>
+              </button>
               {this.props.canEdit ? (
                 <Tooltip placement="top" title={modKey + ' + S'}>
                   <button

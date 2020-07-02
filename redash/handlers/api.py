@@ -41,7 +41,7 @@ from redash.handlers.query_results import (JobResource,
                                            QueryResultDropdownResource,
                                            QueryDropdownsResource,
                                            QueryResultListResource,
-                                           QueryResultResource)
+                                           QueryResultResource, QueryBigQueryResultPrice)
 from redash.handlers.query_snippets import (QuerySnippetListResource,
                                             QuerySnippetResource)
 from redash.handlers.settings import OrganizationSettings
@@ -124,6 +124,7 @@ api.add_org_resource(ObjectPermissionsListResource, '/api/<object_type>/<object_
 api.add_org_resource(CheckPermissionResource, '/api/<object_type>/<object_id>/acl/<access_type>', endpoint='check_permissions')
 
 api.add_org_resource(QueryResultListResource, '/api/query_results', endpoint='query_results')
+api.add_org_resource(QueryBigQueryResultPrice, '/api/bigquery_result_price', endpoint='bigquery_price')
 api.add_org_resource(QueryResultDropdownResource, '/api/queries/<query_id>/dropdown', endpoint='query_result_dropdown')
 api.add_org_resource(QueryDropdownsResource, '/api/queries/<query_id>/dropdowns/<dropdown_query_id>', endpoint='query_result_dropdowns')
 api.add_org_resource(QueryResultResource,
