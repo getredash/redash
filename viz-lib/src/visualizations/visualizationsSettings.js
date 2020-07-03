@@ -40,7 +40,7 @@ export const visualizationsSettings = {
   floatFormat: "0,0.00",
   booleanValues: ["false", "true"],
   tableCellMaxJSONSize: 50000,
-  allowCustomJSVisualization: false,
+  allowCustomJSVisualizations: false,
   hidePlotlyModeBar: false,
   choroplethAvailableMaps: {},
 };

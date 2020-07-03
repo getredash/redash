@@ -90,3 +90,15 @@ class GFKBase(object):
         self._object = value
         self.object_type = value.__class__.__tablename__
         self.object_id = value.id
+
+
+key_definitions = settings.dynamic_settings.database_key_definitions((db.Integer, {}))
+
+
+def key_type(name):
+    return key_definitions[name][0]
+
+
+def primary_key(name):
+    key_type, kwargs = key_definitions[name]
+    return Column(key_type, primary_key=True, **kwargs)

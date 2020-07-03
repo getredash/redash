@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 # Replace this method with your own implementation in case you want to limit the time limit on certain queries or users.
 def query_time_limit(is_scheduled, user_id, org_id):
     from redash import settings
@@ -37,3 +39,21 @@ def ssh_tunnel_auth():
         # 'ssh_pkey': 'path_to_private_key', # or instance of `paramiko.pkey.PKey`
         # 'ssh_private_key_password': 'optional_passphrase_of_private_key',
     }
+
+
+def database_key_definitions(default):
+    """
+    All primary/foreign keys in Redash are of type `db.Integer` by default.
+    You may choose to use different column types for primary/foreign keys. To do so, add an entry below for each model you'd like to modify.
+    For each model, add a tuple with the database type as the first item, and a dict including any kwargs for the column definition as the second item.
+    """
+    definitions = defaultdict(lambda: default)
+    definitions.update(
+        {
+            # "DataSource": (db.String(255), {
+            #    "default": generate_key
+            # })
+        }
+    )
+
+    return definitions

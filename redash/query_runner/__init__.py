@@ -258,7 +258,7 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
             return None
 
     def get_response(self, url, auth=None, http_method="get", **kwargs):
-        if is_private_address(url):
+        if is_private_address(url) and settings.ENFORCE_PRIVATE_ADDRESS_BLOCK:
             raise Exception("Can't query private addresses.")
 
         # Get authentication values if not given

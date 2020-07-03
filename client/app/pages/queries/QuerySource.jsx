@@ -29,7 +29,6 @@ import useAutocompleteFlags from "./hooks/useAutocompleteFlags";
 import useQueryExecute from "./hooks/useQueryExecute";
 import useQueryResultData from "@/lib/useQueryResultData";
 import useQueryDataSources from "./hooks/useQueryDataSources";
-import useDataSourceSchema from "./hooks/useDataSourceSchema";
 import useQueryFlags from "./hooks/useQueryFlags";
 import useQueryParameters from "./hooks/useQueryParameters";
 import useAddNewParameterDialog from "./hooks/useAddNewParameterDialog";
@@ -53,7 +52,7 @@ function chooseDataSourceId(dataSourceIds, availableDataSources) {
 function QuerySource(props) {
   const { query, setQuery, isDirty, saveQuery } = useQuery(props.query);
   const { dataSourcesLoaded, dataSources, dataSource } = useQueryDataSources(query);
-  const [schema, refreshSchema] = useDataSourceSchema(dataSource);
+  const [schema, setSchema] = useState([]);
   const queryFlags = useQueryFlags(query, dataSource);
   const [parameters, areParametersDirty, updateParametersDirtyFlag] = useQueryParameters(query);
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
@@ -223,8 +222,12 @@ function QuerySource(props) {
             )}
             <div className="editor__left__schema">
               <SchemaBrowser
-                schema={schema}
-                onRefresh={() => refreshSchema(true)}
+                dataSource={dataSource}
+                options={query.options.schemaOptions}
+                onOptionsUpdate={schemaOptions =>
+                  setQuery(extend(query.clone(), { options: { ...query.options, schemaOptions } }))
+                }
+                onSchemaUpdate={setSchema}
                 onItemSelect={handleSchemaItemSelect}
               />
             </div>

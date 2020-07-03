@@ -107,6 +107,11 @@ const DYNAMIC_DATE_OPTIONS = [
         .value()[0]
         .format("MMM D") + " - Today",
   },
+  {
+    name: "Last 12 months",
+    value: getDynamicDateRangeFromString("d_last_12_months"),
+    label: null,
+  },
 ];
 
 const DYNAMIC_DATETIME_OPTIONS = [

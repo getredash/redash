@@ -64,7 +64,6 @@
     "mousetrap": "^1.6.1",
     "mustache": "^2.3.0",
     "numeral": "^2.0.6",
-    "pace-progress": "git+https://github.com/getredash/pace.git",
     "prop-types": "^15.6.1",
     "query-string": "^6.9.0",
     "react": "^16.8.3",

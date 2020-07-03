@@ -1,5 +1,5 @@
 import { find, has } from "lodash";
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import moment from "moment";
 import { markdown } from "markdown";
@@ -22,6 +22,7 @@ import { VisualizationType } from "@redash/viz/lib";
 import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 
 import { formatDateTime } from "@/lib/utils";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import { Query } from "@/services/query";
 import location from "@/services/location";
 import routes from "@/services/routes";
@@ -158,8 +159,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
   const [refreshStartedAt, setRefreshStartedAt] = useState(null);
   const [queryResults, setQueryResults] = useState(null);
 
-  const onErrorRef = useRef();
-  onErrorRef.current = onError;
+  const handleError = useImmutableCallback(onError);
 
   useEffect(() => {
     let isCancelled = false;
@@ -169,12 +169,12 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
           setQuery(result);
         }
       })
-      .catch(error => onErrorRef.current(error));
+      .catch(handleError);
 
     return () => {
       isCancelled = true;
     };
-  }, [queryId]);
+  }, [queryId, handleError]);
 
   const refreshQueryResults = useCallback(() => {
     if (query) {

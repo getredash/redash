@@ -9,6 +9,7 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import EditInPlace from "@/components/EditInPlace";
 import Parameters from "@/components/Parameters";
 
+import DataSource from "@/services/data-source";
 import { ExecutionStatus } from "@/services/query-result";
 import routes from "@/services/routes";
 
@@ -24,7 +25,6 @@ import QueryExecutionMetadata from "./components/QueryExecutionMetadata";
 
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 import useQueryExecute from "./hooks/useQueryExecute";
-import useQueryDataSources from "./hooks/useQueryDataSources";
 import useUpdateQueryDescription from "./hooks/useUpdateQueryDescription";
 import useQueryFlags from "./hooks/useQueryFlags";
 import useQueryParameters from "./hooks/useQueryParameters";
@@ -37,7 +37,7 @@ import "./QueryView.less";
 
 function QueryView(props) {
   const [query, setQuery] = useState(props.query);
-  const { dataSource } = useQueryDataSources(query);
+  const [dataSource, setDataSource] = useState();
   const queryFlags = useQueryFlags(query, dataSource);
   const [parameters, areParametersDirty, updateParametersDirtyFlag] = useQueryParameters(query);
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
@@ -82,6 +82,10 @@ function QueryView(props) {
   useEffect(() => {
     document.title = query.name;
   }, [query.name]);
+
+  useEffect(() => {
+    DataSource.get({ id: query.data_source_id }).then(setDataSource);
+  }, [query.data_source_id]);
 
   return (
     <div

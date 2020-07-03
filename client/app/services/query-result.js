@@ -96,6 +96,23 @@ function handleErrorResponse(queryResult, error) {
   });
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function fetchDataFromJob(jobId, interval = 1000) {
+  return axios.get(`api/jobs/${jobId}`).then(data => {
+    const status = statuses[data.job.status];
+    if (status === ExecutionStatus.WAITING || status === ExecutionStatus.PROCESSING) {
+      return sleep(interval).then(() => fetchDataFromJob(data.job.id));
+    } else if (status === ExecutionStatus.DONE) {
+      return data.job.result;
+    } else if (status === ExecutionStatus.FAILED) {
+      return Promise.reject(data.job.error);
+    }
+  });
+}
+
 class QueryResult {
   constructor(props) {
     this.deferred = defer();
