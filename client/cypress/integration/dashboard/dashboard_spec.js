@@ -25,12 +25,12 @@ describe("Dashboard", () => {
     });
 
     cy.wait("@NewDashboard").then(xhr => {
-      const slug = Cypress._.get(xhr, "response.body.slug");
-      assert.isDefined(slug, "Dashboard api call returns slug");
+      const id = Cypress._.get(xhr, "response.body.id");
+      assert.isDefined(id, "Dashboard api call returns id");
 
       cy.visit("/dashboards");
       cy.getByTestId("DashboardLayoutContent").within(() => {
-        cy.getByTestId(slug).should("exist");
+        cy.getByTestId(`DashboardId${id}`).should("exist");
       });
     });
   });
