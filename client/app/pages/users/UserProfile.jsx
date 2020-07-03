@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
@@ -10,6 +10,7 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import User from "@/services/user";
 import { currentUser } from "@/services/auth";
 import routes from "@/services/routes";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 import EditableUserProfile from "./components/EditableUserProfile";
 import ReadOnlyUserProfile from "./components/ReadOnlyUserProfile";
@@ -19,8 +20,7 @@ import "./settings.less";
 function UserProfile({ userId, onError }) {
   const [user, setUser] = useState(null);
 
-  const onErrorRef = useRef(onError);
-  onErrorRef.current = onError;
+  const handleError = useImmutableCallback(onError);
 
   useEffect(() => {
     let isCancelled = false;
@@ -32,14 +32,14 @@ function UserProfile({ userId, onError }) {
       })
       .catch(error => {
         if (!isCancelled) {
-          onErrorRef.current(error);
+          handleError(error);
         }
       });
 
     return () => {
       isCancelled = true;
     };
-  }, [userId]);
+  }, [userId, handleError]);
 
   const canEdit = user && (currentUser.isAdmin || currentUser.id === user.id);
   return (

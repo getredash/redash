@@ -1,8 +1,9 @@
-import { isNil, isObject, isFunction, extend, keys, map, omit, pick, uniq, get } from "lodash";
-import React, { useRef, useCallback } from "react";
+import { isNil, isObject, extend, keys, map, omit, pick, uniq, get } from "lodash";
+import React, { useCallback } from "react";
 import Modal from "antd/lib/modal";
 import { Query } from "@/services/query";
 import notification from "@/services/notification";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 class SaveQueryError extends Error {
   constructor(message, detailedMessage = null) {
@@ -70,15 +71,14 @@ function doSaveQuery(data, { canOverwrite = false } = {}) {
 }
 
 export default function useUpdateQuery(query, onChange) {
-  const onChangeRef = useRef();
-  onChangeRef.current = isFunction(onChange) ? onChange : () => {};
+  const handleChange = useImmutableCallback(onChange);
 
   return useCallback(
     (data = null, { successMessage = "Query saved" } = {}) => {
       if (isObject(data)) {
         // Don't save new query with partial data
         if (query.isNew()) {
-          onChangeRef.current(extend(query.clone(), data));
+          handleChange(extend(query.clone(), data));
           return;
         }
         data = { ...data, id: query.id, version: query.version };
@@ -102,7 +102,7 @@ export default function useUpdateQuery(query, onChange) {
           if (!isNil(successMessage)) {
             notification.success(successMessage);
           }
-          onChangeRef.current(
+          handleChange(
             extend(
               query.clone(),
               // if server returned completely new object (currently possible only when saving new query) -
@@ -119,6 +119,6 @@ export default function useUpdateQuery(query, onChange) {
           notification.error(error.message, error.detailedMessage, notificationOptions);
         });
     },
-    [query]
+    [query, handleChange]
   );
 }
