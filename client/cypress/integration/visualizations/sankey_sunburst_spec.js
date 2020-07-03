@@ -99,7 +99,7 @@ describe("Sankey and Sunburst", () => {
 
   it("takes a snapshot with Sunburst (1 - 5 stages)", function() {
     createDashboard("Sunburst Visualization").then(dashboard => {
-      this.dashboardUrl = `/dashboard/${dashboard.slug}`;
+      this.dashboardUrl = `/dashboards/${dashboard.id}`;
       return cy
         .all(
           STAGES_WIDGETS.map(sunburst => () =>
@@ -123,7 +123,7 @@ describe("Sankey and Sunburst", () => {
 
   it("takes a snapshot with Sankey (1 - 5 stages)", function() {
     createDashboard("Sankey Visualization").then(dashboard => {
-      this.dashboardUrl = `/dashboard/${dashboard.slug}`;
+      this.dashboardUrl = `/dashboards/${dashboard.id}`;
       return cy
         .all(
           STAGES_WIDGETS.map(sankey => () =>

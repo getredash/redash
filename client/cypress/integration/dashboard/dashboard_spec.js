@@ -36,8 +36,8 @@ describe("Dashboard", () => {
   });
 
   it("archives dashboard", () => {
-    createDashboard("Foo Bar").then(({ slug }) => {
-      cy.visit(`/dashboard/${slug}`);
+    createDashboard("Foo Bar").then(({ id }) => {
+      cy.visit(`/dashboards/${id}`);
 
       cy.getByTestId("DashboardMoreButton").click();
 
@@ -52,7 +52,22 @@ describe("Dashboard", () => {
 
       cy.visit("/dashboards");
       cy.getByTestId("DashboardLayoutContent").within(() => {
-        cy.getByTestId(slug).should("not.exist");
+        cy.getByTestId(`DashboardId${id}`).should("not.exist");
+      });
+    });
+  });
+
+  it("is accessible through multiple urls", () => {
+    cy.server();
+    cy.route("GET", "api/dashboards/*").as("LoadDashboard");
+    createDashboard("Foo Bar").then(({ id, slug }) => {
+      [`/dashboards/${id}`, `/dashboards/${id}-anything-here`, `/dashboard/${slug}`].forEach(url => {
+        cy.visit(url);
+        cy.wait("@LoadDashboard");
+        cy.getByTestId(`DashboardId${id}Container`).should("exist");
+
+        // assert it always use the "/dashboards/{id}" path
+        cy.location("pathname").should("contain", `/dashboards/${id}`);
       });
     });
   });
@@ -61,9 +76,9 @@ describe("Dashboard", () => {
     before(function() {
       cy.login();
       createDashboard("Foo Bar")
-        .then(({ slug, id }) => {
-          this.dashboardUrl = `/dashboard/${slug}`;
-          this.dashboardEditUrl = `/dashboard/${slug}?edit`;
+        .then(({ id }) => {
+          this.dashboardUrl = `/dashboards/${id}`;
+          this.dashboardEditUrl = `/dashboards/${id}?edit`;
           return addTextbox(id, "Hello World!").then(getWidgetTestId);
         })
         .then(elTestId => {
@@ -117,8 +132,8 @@ describe("Dashboard", () => {
   context("viewport width is at 767px", () => {
     before(function() {
       cy.login();
-      createDashboard("Foo Bar").then(({ slug }) => {
-        this.dashboardUrl = `/dashboard/${slug}`;
+      createDashboard("Foo Bar").then(({ id }) => {
+        this.dashboardUrl = `/dashboards/${id}`;
       });
     });
 

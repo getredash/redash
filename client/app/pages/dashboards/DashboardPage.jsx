@@ -110,7 +110,7 @@ function DashboardComponent(props) {
   }, [pageContainer, editingLayout]);
 
   return (
-    <div className="container" ref={setPageContainer}>
+    <div className="container" ref={setPageContainer} data-test={`DashboardId${dashboard.id}Container`}>
       <DashboardHeader dashboardOptions={dashboardOptions} />
       {!isEmpty(globalParameters) && (
         <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">

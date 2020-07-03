@@ -5,9 +5,9 @@ describe("Parameter Mapping", () => {
   beforeEach(function() {
     cy.login();
     createDashboard("Foo Bar")
-      .then(({ slug, id }) => {
+      .then(({ id }) => {
         this.dashboardId = id;
-        this.dashboardUrl = `/dashboard/${slug}`;
+        this.dashboardUrl = `/dashboards/${id}`;
       })
       .then(() => {
         const queryData = {
