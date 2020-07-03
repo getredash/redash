@@ -40,7 +40,7 @@ const config = {
   },
   resolve: {
     symlinks: false,
-    extensions: [".js", ".jsx"],
+    extensions: [".js", ".jsx", ".ts", ".tsx"],
     alias: {
       "@": appPath,
       extensions: extensionPath
@@ -98,6 +98,11 @@ const config = {
             loader: "raw-loader"
           }
         ]
+      },
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
       },
       {
         test: /\.css$/,

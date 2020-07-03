@@ -1,7 +1,8 @@
 import * as React from "react";
-import BigMessage from "../../../components/BigMessage";
-import NoTaggedObjectsFound from "../../../components/NoTaggedObjectsFound";
-import EmptyState from "../../../components/empty-state/EmptyState";
+import * as PropTypes from "prop-types";
+import BigMessage from "@/components/BigMessage";
+import NoTaggedObjectsFound from "@/components/NoTaggedObjectsFound";
+import EmptyState from "@/components/empty-state/EmptyState";
 
 export interface DashboardListEmptyStateProps {
   page: string;
@@ -31,3 +32,9 @@ export function DashboardListEmptyState({ page, searchTerm, selectedTags }: Dash
       );
   }
 }
+
+DashboardListEmptyState.propTypes = {
+  page: PropTypes.string.isRequired,
+  searchTerm: PropTypes.string.isRequired,
+  selectedTags: PropTypes.array.isRequired,
+};

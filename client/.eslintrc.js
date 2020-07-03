@@ -5,7 +5,8 @@ module.exports = {
     "react-app",
     "plugin:compat/recommended",
     "prettier",
-    "prettier/@typescript-eslint" // Remove any typescript-eslint rules that would conflict with prettier
+    // Remove any typescript-eslint rules that would conflict with prettier
+    "prettier/@typescript-eslint"
   ],
   plugins: [
     "jest",
@@ -27,8 +28,9 @@ module.exports = {
   },
   overrides: [
     {
+      // Only run typescript-eslint on TS files
       files: ["*.ts", "*.tsx", ".*.ts", ".*.tsx"],
-      extends: [ // Only run typescript-eslint on TS files
+      extends: [
         "plugin:@typescript-eslint/recommended",
       ],
       rules: {
