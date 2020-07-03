@@ -18,8 +18,9 @@ import { Dashboard } from "@/services/dashboard";
 import { currentUser } from "@/services/auth";
 import routes from "@/services/routes";
 
+import { DashboardListEmptyState } from "./components/DashboardListEmptyState";
+
 import "./dashboard-list.css";
-import { DashboardListEmptyState } from "@/pages/dashboards/components/DashboardListEmptyState.tsx";
 
 class DashboardList extends React.Component {
   static propTypes = {
