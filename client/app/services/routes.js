@@ -1,9 +1,9 @@
-import { isString, isObject, filter, sortBy, some } from "lodash";
+import { isString, isObject, filter, sortBy } from "lodash";
 import pathToRegexp from "path-to-regexp";
 
-function isSimplePath(path) {
+function getRouteParamsCount(path) {
   const tokens = pathToRegexp.parse(path);
-  return some(tokens, isObject);
+  return filter(tokens, isObject).length;
 }
 
 class Routes {
@@ -13,7 +13,7 @@ class Routes {
   get items() {
     if (!this._sorted) {
       this._items = sortBy(this._items, [
-        item => isSimplePath(item.path), // simple definitions first, with params - last
+        item => getRouteParamsCount(item.path), // simple definitions first, with more params - last
         item => -item.path.length, // longer first
         item => item.path, // if same type and length - sort alphabetically
       ]);

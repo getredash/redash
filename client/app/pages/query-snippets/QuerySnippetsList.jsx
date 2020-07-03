@@ -224,7 +224,7 @@ routes.register(
 routes.register(
   "QuerySnippets.NewOrEdit",
   routeWithUserSession({
-    path: "/query_snippets/:querySnippetId(new|[0-9]+)",
+    path: "/query_snippets/:querySnippetId",
     title: "Query Snippets",
     render: pageProps => <QuerySnippetsListPage {...pageProps} currentPage="query_snippets" isNewOrEditPage />,
   })
