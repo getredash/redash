@@ -32,7 +32,9 @@
       "yaxis": {
         "automargin": true,
         "title": null,
-        "type": "linear"
+        "type": "linear",
+        "autorange": false,
+        "range": [0, 0]
       }
     }
   }

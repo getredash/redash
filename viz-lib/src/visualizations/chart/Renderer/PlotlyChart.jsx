@@ -6,7 +6,7 @@ import { RendererPropTypes } from "@/visualizations/prop-types";
 import resizeObserver from "@/services/resizeObserver";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 import getChartData from "../getChartData";
-import { Plotly, prepareData, prepareLayout, updateData, applyLayoutFixes } from "../plotly";
+import { Plotly, prepareData, prepareLayout, updateData, updateLayout, applyLayoutFixes } from "../plotly";
 
 function catchErrors(func, errorHandler) {
   return (...args) => {
@@ -58,6 +58,7 @@ export default function PlotlyChart({ options, data }) {
             // We need to catch only changes of traces visibility to update stacking
             if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {
               updateData(plotlyData, options);
+              updateLayout(plotlyLayout, options, plotlyData);
               Plotly.relayout(container, plotlyLayout);
             }
           }, errorHandler)
