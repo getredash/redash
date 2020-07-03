@@ -9,6 +9,7 @@ import { newVisualization } from '@/visualizations';
 import EditVisualizationDialog from '@/visualizations/EditVisualizationDialog';
 import EmbedQueryDialog from '@/components/queries/EmbedQueryDialog';
 import notification from '@/services/notification';
+import Modal from 'antd/lib/modal';
 import template from './query.html';
 
 function QueryViewCtrl(
@@ -156,17 +157,34 @@ function QueryViewCtrl(
     if (!$scope.canExecuteQuery()) {
       return;
     }
-
     if (!$scope.query.query) {
       return;
     }
-
-    getQueryResult(0, $scope.selectedQueryText);
-    $scope.lockButton(true);
-    $scope.cancelling = false;
-    Events.record('execute', 'query', $scope.query.id);
-
-    Notifications.getPermissions();
+    const str = $scope.query.query.replace(/\s/g, '').toUpperCase();
+    if ($scope.isDirty && str.includes('SELECT*') && $scope.dataSource.type === 'bigquery') {
+      Modal.confirm({
+        title: 'Please avoid select *',
+        content: 'Do you still want to execute it?',
+        okText: 'Execute',
+        okType: 'danger',
+        centered: true,
+        onOk: () => {
+          getQueryResult(0, $scope.selectedQueryText);
+          $scope.lockButton(true);
+          $scope.cancelling = false;
+          Events.record('execute', 'query', $scope.query.id);
+          Notifications.getPermissions();
+        },
+        maskClosable: true,
+        autoFocusButton: null,
+      });
+    } else {
+      getQueryResult(0, $scope.selectedQueryText);
+      $scope.lockButton(true);
+      $scope.cancelling = false;
+      Events.record('execute', 'query', $scope.query.id);
+      Notifications.getPermissions();
+    }
   };
 
   $scope.selectedVisualization = DEFAULT_VISUALIZATION;
