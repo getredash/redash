@@ -30,7 +30,7 @@ def get_object_counts():
 
 
 def get_queues_status():
-    return {queue.name: {"size": len(queue)} for queue in Queue.all()}
+    return {queue.name: {"size": len(queue)} for queue in Queue.all(connection=redis_connection)}
 
 
 def get_db_sizes():
@@ -92,7 +92,7 @@ def rq_queues():
             "started": fetch_jobs(StartedJobRegistry(queue=q).get_job_ids()),
             "queued": len(q.job_ids),
         }
-        for q in sorted(Queue.all(), key=lambda q: q.name)
+        for q in sorted(Queue.all(connection=redis_connection), key=lambda q: q.name)
     }
 
 
