@@ -1,5 +1,6 @@
 import { filter, has, isObject, isUndefined, map } from "lodash";
 import { getPieDimensions } from "./preparePieData";
+import updateLayout from "./updateLayout";
 import { calculateAxisRange } from "./utils";
 
 function getAxisTitle(axis) {
@@ -115,10 +116,10 @@ export default function prepareLayout(element, options, data) {
 
   switch (options.globalSeriesType) {
     case "pie":
-      return preparePieLayout(layout, options, data);
+      return updateLayout(preparePieLayout(layout, options, data), options, data);
     case "box":
-      return prepareBoxLayout(layout, options, data);
+      return updateLayout(prepareBoxLayout(layout, options, data), options, data);
     default:
-      return prepareDefaultLayout(layout, options, data);
+      return updateLayout(prepareDefaultLayout(layout, options, data), options, data);
   }
 }

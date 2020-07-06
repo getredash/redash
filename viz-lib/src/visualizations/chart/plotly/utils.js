@@ -1,4 +1,4 @@
-import { isNumber, isUndefined, map, max, min } from "lodash";
+import { isNil, isNumber, isUndefined, map, max, min } from "lodash";
 import moment from "moment";
 import plotlyCleanNumber from "plotly.js/src/lib/clean_number";
 
@@ -24,12 +24,28 @@ export function normalizeValue(value, axisType, dateTimeFormat = "YYYY-MM-DD HH:
   return value;
 }
 
+export function initStacking(options) {
+  // Calculate cumulative value for each x tick
+  const cumulativeValues = {};
+
+  return (xValues, yValues) =>
+    map(yValues, (y, i) => {
+      if (isNil(y) && !options.missingValuesAsZero) {
+        return null;
+      }
+      const x = xValues[i];
+      const stackedY = y + (cumulativeValues[x] || 0.0);
+      cumulativeValues[x] = stackedY;
+      return stackedY;
+    });
+}
+
 export function calculateAxisRange(seriesList, minValue, maxValue) {
   if (!isNumber(minValue)) {
-    minValue = Math.min(0, min(map(seriesList, series => min(series.y))) || 0);
+    minValue = Math.min(0, min(map(seriesList, series => series.yRange.min)) || 0);
   }
   if (!isNumber(maxValue)) {
-    maxValue = max(map(seriesList, series => max(series.y))) || 0;
+    maxValue = max(map(seriesList, series => series.yRange.max)) || 0;
   }
 
   // Expand range a little bit to ensure tha plot is fully visible and not cut on edges.

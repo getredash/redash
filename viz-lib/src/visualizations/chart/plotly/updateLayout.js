@@ -15,4 +15,6 @@ export default function updateLayout(layout, options, seriesList) {
     const axisOptions = options.yAxis[1];
     layout.yaxis2.range = calculateAxisRange(series, axisOptions.rangeMin, axisOptions.rangeMax);
   }
+
+  return layout;
 }
