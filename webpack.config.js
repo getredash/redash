@@ -103,6 +103,9 @@ const config = {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/,
+        options: {
+          configFile: "./tsconfig.json"
+        }
       },
       {
         test: /\.css$/,
