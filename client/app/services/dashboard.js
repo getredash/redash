@@ -156,7 +156,13 @@ function transformResponse(data) {
 
 const saveOrCreateUrl = data => (data.id ? `api/dashboards/${data.id}` : "api/dashboards");
 const DashboardService = {
-  get: ({ id, slug }) => axios.get(`api/dashboards/${id || slug}` + (id ? "" : "?legacy")).then(transformResponse),
+  get: ({ id, slug }) => {
+    const params = {};
+    if (!id) {
+      params.legacy = null;
+    }
+    return axios.get(`api/dashboards/${id || slug}`, { params }).then(transformResponse);
+  },
   getByToken: ({ token }) => axios.get(`api/dashboards/public/${token}`).then(transformResponse),
   save: data => axios.post(saveOrCreateUrl(data), data).then(transformResponse),
   delete: ({ id }) => axios.delete(`api/dashboards/${id}`).then(transformResponse),
