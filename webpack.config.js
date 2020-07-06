@@ -9,6 +9,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
+const fs = require("fs");
 
 const path = require("path");
 
@@ -18,6 +19,12 @@ const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
 
 const basePath = path.join(__dirname, "client");
 const appPath = path.join(__dirname, "client", "app");
+
+const tsConfigPath = path.join(basePath, "tsconfig.json");
+
+if (!fs.existsSync(tsConfigPath)) {
+  throw new Error(`Can not find tsconfig: ${tsConfigPath}`);
+}
 
 const extensionsRelativePath =
   process.env.EXTENSIONS_DIRECTORY || path.join("client", "app", "extensions");
@@ -101,10 +108,10 @@ const config = {
       },
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        loader: 'ts-loader',
         exclude: /node_modules/,
         options: {
-          configFile: "./tsconfig.json"
+          configFile: tsConfigPath,
         }
       },
       {
