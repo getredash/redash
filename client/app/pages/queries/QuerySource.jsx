@@ -429,7 +429,7 @@ routes.register(
 routes.register(
   "Queries.Edit",
   routeWithUserSession({
-    path: "/queries/:queryId([0-9]+)/source",
+    path: "/queries/:queryId/source",
     render: pageProps => <QuerySourcePage {...pageProps} />,
     bodyClass: "fixed-layout",
   })
