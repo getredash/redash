@@ -8,10 +8,7 @@
       "showDataLabels": true,
       "direction": { "type": "counterclockwise" },
       "xAxis": { "type": "-", "labels": { "enabled": true } },
-      "yAxis": [
-        { "type": "linear" },
-        { "type": "linear", "opposite": true }
-      ],
+      "yAxis": [{ "type": "linear" }, { "type": "linear", "opposite": true }],
       "series": { "stacking": null, "error_y": { "type": "data", "visible": true } },
       "seriesOptions": {
         "a": { "type": "column", "color": "red" }
@@ -49,7 +46,11 @@
         "textposition": "inside",
         "marker": { "color": "red" },
         "insidetextfont": { "color": "#ffffff" },
-        "yaxis": "y"
+        "yaxis": "y",
+        "yRange": {
+          "max": 40,
+          "min": 10
+        }
       }
     ]
   }

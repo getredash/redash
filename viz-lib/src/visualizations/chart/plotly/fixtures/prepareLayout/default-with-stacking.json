@@ -7,7 +7,7 @@
       "yAxis": [{ "type": "linear" }, { "type": "linear", "opposite": true }],
       "series": { "stacking": "stack", "error_y": { "type": "data", "visible": true } }
     },
-    "series": [{ "name": "a" }]
+    "series": [{ "name": "a", "yRange": {} }]
   },
   "output": {
     "layout": {

@@ -47,7 +47,8 @@
         "textfont": { "color": ["#ffffff", "#ffffff", "#333333", "#ffffff"] },
         "name": "a",
         "direction": "counterclockwise",
-        "domain": { "x": [0, 0.98], "y": [0, 0.9] }
+        "domain": { "x": [0, 0.98], "y": [0, 0.9] },
+        "yRange": {}
       }
     ]
   }
