@@ -21,8 +21,10 @@ class DatabricksDatabaseListResource(BaseResource):
                 400, message="Resource only available for the Databricks query runner."
             )
 
-        job = get_databricks_databases.delay(data_source.id)
-        return serialize_job(job)
+        try:
+            return data_source.query_runner.get_databases()
+        except Exception:
+            return {"error": {"code": 2, "message": "Error retrieving schema."}}
 
 
 class DatabricksSchemaResource(BaseResource):
@@ -37,5 +39,7 @@ class DatabricksSchemaResource(BaseResource):
                 400, message="Resource only available for the Databricks query runner."
             )
 
-        job = get_databricks_schema.delay(data_source.id, database_name)
-        return serialize_job(job)
+        try:
+            return data_source.query_runner.get_database_schema(database_name)
+        except Exception:
+            return {"error": {"code": 2, "message": "Error retrieving schema."}}
