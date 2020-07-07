@@ -50,8 +50,29 @@ class Hive(BaseSQLQueryRunner):
                 "port": {"type": "number"},
                 "database": {"type": "string"},
                 "username": {"type": "string"},
+                "auth": {
+                    "type": "string",
+                    "extendedEnum": [{"value": value, "name": value} for value in ("NONE", "NOSASL", "CUSTOM", "LDAP", "KERBEROS")],
+                },
+                "password": {
+                    "type": "string",
+                    "title": "Password (LDAP or CUSTOM mode)"
+                },
+                "kerberos_service_name": {
+                    "type": "string",
+                    "title": "Kerberos Service Name (KERBEROS mode)",
+                },
             },
-            "order": ["host", "port", "database", "username"],
+            "order": [
+                "host",
+                "port",
+                "database",
+                "username",
+                "auth",
+                "password",
+                "kerberos_service_name",
+            ],
+            "secret": ["password"],
             "required": ["host"],
         }
 
@@ -110,6 +131,9 @@ class Hive(BaseSQLQueryRunner):
             port=self.configuration.get("port", None),
             database=self.configuration.get("database", "default"),
             username=self.configuration.get("username", None),
+            auth=self.configuration.get("auth", None),
+            kerberos_service_name=self.configuration.get("kerberos_service_name", None),
+            password=self.configuration.get("password", None),
         )
 
         return connection
