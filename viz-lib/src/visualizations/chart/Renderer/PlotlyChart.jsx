@@ -47,7 +47,9 @@ export default function PlotlyChart({ options, data }) {
         // It will auto-purge previous graph
         Plotly.newPlot(container, plotlyData, plotlyLayout, plotlyOptions).then(
           catchErrors(() => {
-            applyLayoutFixes(container, plotlyLayout, options, (e, u) => Plotly.relayout(e, u));
+            updateLayout(plotlyLayout, options, u => Plotly.relayout(container, u)).then(() => {
+              applyLayoutFixes(container, plotlyLayout, options, (e, u) => Plotly.relayout(e, u));
+            });
           }, errorHandler)
         );
 
@@ -58,8 +60,7 @@ export default function PlotlyChart({ options, data }) {
             // We need to catch only changes of traces visibility to update stacking
             if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {
               updateData(plotlyData, options);
-              updateLayout(plotlyLayout, options, plotlyData);
-              Plotly.relayout(container, plotlyLayout);
+              updateLayout(plotlyLayout, options, u => Plotly.relayout(container, u));
             }
           }, errorHandler)
         );
