@@ -31,12 +31,10 @@ function buildTableColumnKeywords(table) {
   const keywords = [];
   table.columns.forEach(column => {
     keywords.push({
-      caption: column,
       name: `${table.name}.${column}`,
       value: `${table.name}.${column}`,
       score: 100,
       meta: "Column",
-      className: "completion",
     });
   });
   return keywords;
