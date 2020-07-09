@@ -5,7 +5,6 @@ from redash.permissions import (
     require_access,
     view_only,
 )
-from redash.tasks.databricks import get_databricks_databases, get_databricks_schema
 from redash.serializers import serialize_job
 
 
