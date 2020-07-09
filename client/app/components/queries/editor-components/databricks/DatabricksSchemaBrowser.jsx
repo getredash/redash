@@ -2,8 +2,6 @@ import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { slice, without, filter, includes } from "lodash";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
-import Button from "antd/lib/button";
-import Icon from "antd/lib/icon";
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";
 import { SchemaList, applyFilterOnSchema } from "@/components/queries/SchemaBrowser";
@@ -34,8 +32,6 @@ export default function DatabricksSchemaBrowser({
     loadingSchema,
     currentDatabaseName,
     setCurrentDatabase,
-    refreshSchema,
-    refreshingSchema,
   } = useDatabricksSchema(dataSource, options, onOptionsUpdate);
   const [filterString, setFilterString] = useState("");
   const [databaseFilterString, setDatabaseFilterString] = useState("");
@@ -122,7 +118,7 @@ export default function DatabricksSchemaBrowser({
           }
         />
       </div>
-      <div className="schema-list-wrapper" data-refreshing={refreshingSchema || null}>
+      <div className="schema-list-wrapper">
         <SchemaList
           loading={loadingDatabases || loadingSchema}
           schema={filteredSchema}
@@ -130,13 +126,6 @@ export default function DatabricksSchemaBrowser({
           onTableExpand={toggleTable}
           onItemSelect={onItemSelect}
         />
-        {!(loadingSchema || loadingDatabases) && (
-          <div className="load-button">
-            <Button type="link" onClick={refreshSchema}>
-              <Icon type="sync" spin={refreshingSchema} />
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
