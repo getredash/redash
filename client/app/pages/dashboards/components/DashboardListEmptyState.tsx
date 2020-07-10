@@ -10,7 +10,7 @@ export interface DashboardListEmptyStateProps {
   selectedTags: string[];
 }
 
-export function DashboardListEmptyState({ page, searchTerm, selectedTags }: DashboardListEmptyStateProps) {
+export default function DashboardListEmptyState({ page, searchTerm, selectedTags }: DashboardListEmptyStateProps) {
   if (searchTerm !== "") {
     return <BigMessage message="Sorry, we couldn't find anything." icon="fa-search" />;
   }

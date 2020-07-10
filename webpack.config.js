@@ -20,12 +20,6 @@ const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
 const basePath = path.join(__dirname, "client");
 const appPath = path.join(__dirname, "client", "app");
 
-const tsConfigPath = path.join(basePath, "tsconfig.json");
-
-if (!fs.existsSync(tsConfigPath)) {
-  throw new Error(`Can not find tsconfig: ${tsConfigPath}`);
-}
-
 const extensionsRelativePath =
   process.env.EXTENSIONS_DIRECTORY || path.join("client", "app", "extensions");
 const extensionPath = path.join(__dirname, extensionsRelativePath);
@@ -93,7 +87,7 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        test: /\.(t|j)sx?$/,
         exclude: /node_modules/,
         use: ["babel-loader", "eslint-loader"]
       },
@@ -105,14 +99,6 @@ const config = {
             loader: "raw-loader"
           }
         ]
-      },
-      {
-        test: /\.tsx?$/,
-        loader: 'ts-loader',
-        exclude: /node_modules/,
-        options: {
-          configFile: tsConfigPath,
-        }
       },
       {
         test: /\.css$/,
