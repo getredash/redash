@@ -40,7 +40,7 @@ const config = {
   },
   resolve: {
     symlinks: false,
-    extensions: [".js", ".jsx"],
+    extensions: [".ts", ".tsx",".js", ".jsx"],
     alias: {
       "@": appPath,
       extensions: extensionPath
@@ -86,7 +86,8 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        // Include ts, tsx, js, and jsx files.
+        test: /\.(ts|js)x?$/,
         exclude: /node_modules/,
         use: ["babel-loader", "eslint-loader"]
       },
