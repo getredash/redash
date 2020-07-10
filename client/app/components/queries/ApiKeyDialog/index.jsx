@@ -12,6 +12,18 @@ import notification from "@/services/notification";
 
 import "./index.less";
 
+const curlCommand = ({ url, parameters }) =>
+  `curl ${url}` + (Object.keys(parameters).length === 0 ? "" : ` --data '${JSON.stringify({ parameters })}'`);
+
+const parameterJson = parameters =>
+  parameters.reduce(
+    (paramJson, param) => ({
+      ...paramJson,
+      [param.name]: param.value,
+    }),
+    {}
+  );
+
 function ApiKeyDialog({ dialog, ...props }) {
   const [query, setQuery] = useState(props.query);
   const [updatingApiKey, setUpdatingApiKey] = useState(false);
@@ -30,12 +42,15 @@ function ApiKeyDialog({ dialog, ...props }) {
       });
   }, [query]);
 
+  const { parameters } = query.options;
   const { csvUrl, jsonUrl } = useMemo(
     () => ({
       csvUrl: `${clientConfig.basePath}api/queries/${query.id}/results.csv?api_key=${query.api_key}`,
-      jsonUrl: `${clientConfig.basePath}api/queries/${query.id}/results.json?api_key=${query.api_key}`,
+      jsonUrl: `${clientConfig.basePath}api/queries/${query.id}/results${
+        parameters.length > 0 ? "" : ".json"
+      }?api_key=${query.api_key}`,
     }),
-    [query.id, query.api_key]
+    [query.id, query.api_key, parameters.length]
   );
 
   return (
@@ -54,13 +69,17 @@ function ApiKeyDialog({ dialog, ...props }) {
         </div>
 
         <h5>Example API Calls:</h5>
-        <div className="m-b-10">
-          <label>Results in CSV format:</label>
-          <CodeBlock copyable>{csvUrl}</CodeBlock>
-        </div>
+        {parameters.length === 0 && (
+          <div className="m-b-10">
+            <label>Results in CSV format:</label>
+            <CodeBlock copyable>{csvUrl}</CodeBlock>
+          </div>
+        )}
         <div>
           <label>Results in JSON format:</label>
-          <CodeBlock copyable>{jsonUrl}</CodeBlock>
+          <CodeBlock copyable>
+            {parameters.length === 0 ? jsonUrl : curlCommand({ url: jsonUrl, parameters: parameterJson(parameters) })}
+          </CodeBlock>
         </div>
       </div>
     </Modal>
