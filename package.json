@@ -21,11 +21,14 @@
     "lint:base": "eslint --config ./client/.eslintrc.js --ignore-path ./client/.eslintignore",
     "lint:ci": "npm run lint -- --max-warnings 0 --format junit --output-file /tmp/test-results/eslint/results.xml",
     "prettier": "prettier --write 'client/app/**/*.{js,jsx}' 'client/cypress/**/*.js'",
-    "test": "TZ=Africa/Khartoum jest",
+    "jest": "TZ=Africa/Khartoum jest",
+    "test": "run-s type-check jest",
     "test:watch": "jest --watch",
     "cypress:install": "npm install --no-save cypress@~4.5.0 @percy/agent@0.26.2 @percy/cypress@^2.2.0 atob@2.1.2",
     "cypress": "node client/cypress/cypress.js",
-    "postinstall": "(cd viz-lib && npm ci && npm run build:babel)"
+    "postinstall": "(cd viz-lib && npm ci && npm run build:babel)",
+    "type-check": "tsc --noEmit --project client/tsconfig.json",
+    "type-check:watch": "npm run type-check -- --watch"
   },
   "repository": {
     "type": "git",
@@ -44,8 +47,6 @@
   "dependencies": {
     "@redash/viz": "file:viz-lib",
     "@types/prop-types": "^15.5.2",
-    "@types/react": "^16.3.13",
-    "@types/react-dom": "^16.0.5",
     "antd": "^3.26.17",
     "axios": "^0.19.0",
     "bootstrap": "^3.3.7",
@@ -78,11 +79,15 @@
     "use-media": "^1.4.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.2.2",
-    "@babel/plugin-proposal-class-properties": "^7.3.0",
+    "@babel/cli": "^7.10.4",
+    "@babel/core": "^7.10.4",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/plugin-transform-object-assign": "^7.2.0",
-    "@babel/preset-env": "^7.3.1",
+    "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.0.0",
+    "@babel/preset-typescript": "^7.10.4",
+    "@types/react": "^16.9.41",
+    "@types/react-dom": "^16.9.8",
     "@typescript-eslint/eslint-plugin": "^2.10.0",
     "@typescript-eslint/parser": "^2.10.0",
     "babel-eslint": "^10.0.3",
@@ -122,6 +127,7 @@
     "raw-loader": "^0.5.1",
     "react-test-renderer": "^16.5.2",
     "request": "^2.88.0",
+    "typescript": "^3.9.6",
     "url-loader": "^1.1.2",
     "webpack": "^4.20.2",
     "webpack-build-notifier": "^0.1.30",
