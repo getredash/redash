@@ -17,7 +17,7 @@ from redash.tasks import (
     purge_failed_jobs,
     version_check,
     send_aggregated_errors,
-    Queue
+    Queue,
 )
 
 logger = logging.getLogger(__name__)
@@ -27,6 +27,7 @@ class StatsdRecordingScheduler(Scheduler):
     """
     RQ Scheduler Mixin that uses Redash's custom RQ Queue class to increment/modify metrics via Statsd
     """
+
     queue_class = Queue
 
 
@@ -65,12 +66,8 @@ def periodic_job_definitions():
             "func": refresh_schemas,
             "interval": timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE),
         },
-        {
-            "func": sync_user_details,
-            "timeout": 60,
-            "interval": timedelta(minutes=1),
-        },
-        {"func": purge_failed_jobs, "interval": timedelta(days=1)},
+        {"func": sync_user_details, "timeout": 60, "interval": timedelta(minutes=1),},
+        {"func": purge_failed_jobs, "timeout": 3600, "interval": timedelta(days=1)},
         {
             "func": send_aggregated_errors,
             "interval": timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL),
