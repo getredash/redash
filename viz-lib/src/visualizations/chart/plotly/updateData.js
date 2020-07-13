@@ -1,6 +1,6 @@
-import { isNil, each, extend, filter, identity, includes, sortBy, min, max } from "lodash";
+import { isNil, each, extend, filter, identity, includes, map, sortBy } from "lodash";
 import { createNumberFormatter, formatSimpleTemplate } from "@/lib/value-format";
-import { normalizeValue, initStacking } from "./utils";
+import { normalizeValue } from "./utils";
 
 function shouldUseUnifiedXAxis(options) {
   return options.sortX && options.xAxis.type === "category" && options.globalSeriesType !== "box";
@@ -168,9 +168,18 @@ function updateLineAreaData(seriesList, options) {
   if (options.series.stacking) {
     updateUnifiedXAxisValues(seriesList, options);
 
-    const getStackedValues = initStacking(options);
+    // Calculate cumulative value for each x tick
+    const cumulativeValues = {};
     each(seriesList, series => {
-      series.y = getStackedValues(series.x, series.y);
+      series.y = map(series.y, (y, i) => {
+        if (isNil(y) && !options.missingValuesAsZero) {
+          return null;
+        }
+        const x = series.x[i];
+        const stackedY = y + (cumulativeValues[x] || 0.0);
+        cumulativeValues[x] = stackedY;
+        return stackedY;
+      });
     });
   } else {
     if (shouldUseUnifiedXAxis(options)) {

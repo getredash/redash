@@ -1,4 +1,4 @@
-import { isNil, isUndefined, map } from "lodash";
+import { isUndefined } from "lodash";
 import moment from "moment";
 import plotlyCleanNumber from "plotly.js/src/lib/clean_number";
 
@@ -22,20 +22,4 @@ export function normalizeValue(value, axisType, dateTimeFormat = "YYYY-MM-DD HH:
     return value.format(dateTimeFormat);
   }
   return value;
-}
-
-export function initStacking(options) {
-  // Calculate cumulative value for each x tick
-  const cumulativeValues = {};
-
-  return (xValues, yValues) =>
-    map(yValues, (y, i) => {
-      if (isNil(y) && !options.missingValuesAsZero) {
-        return null;
-      }
-      const x = xValues[i];
-      const stackedY = y + (cumulativeValues[x] || 0.0);
-      cumulativeValues[x] = stackedY;
-      return stackedY;
-    });
 }
