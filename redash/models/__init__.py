@@ -52,6 +52,7 @@ from .types import (
     MutableDict,
     MutableList,
     PseudoJSON,
+    pseudo_json_cast_property
 )
 from .users import AccessPermission, AnonymousUser, ApiUser, Group, User  # noqa
 
@@ -488,6 +489,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
     schedule = Column(MutableDict.as_mutable(PseudoJSON), nullable=True)
+    interval = pseudo_json_cast_property(db.Integer, "schedule", "interval", default=0)
     schedule_failures = Column(db.Integer, default=0)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
     options = Column(MutableDict.as_mutable(PseudoJSON), default={})

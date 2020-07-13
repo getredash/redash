@@ -112,6 +112,7 @@ class EditDataSource extends React.Component {
       ],
       onSubmit: this.saveDataSource,
       feedbackIcons: true,
+      defaultShowExtraFields: helper.hasFilledExtraField(type, dataSource),
     };
 
     return (

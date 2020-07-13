@@ -295,7 +295,7 @@ function QuerySource(props) {
                       }
                       executeButtonProps={{
                         disabled: !queryFlags.canExecute || isQueryExecuting || areParametersDirty,
-                        shortcut: "mod+enter, alt+enter, ctrl+enter",
+                        shortcut: "mod+enter, alt+enter, ctrl+enter, shift+enter",
                         onClick: doExecuteQuery,
                         text: (
                           <span className="hidden-xs">{selectedText === null ? "Execute" : "Execute Selected"}</span>
