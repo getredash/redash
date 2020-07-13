@@ -43,7 +43,9 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
         setSchemas(currentSchemas => ({ ...currentSchemas, [currentDatabaseName]: schema }));
       });
 
-      Promise.allSettled([getSchemasPromise, getDatabasesPromise]).then(() => setRefreshing(false));
+      Promise.all([getSchemasPromise.catch(() => {}), getDatabasesPromise.catch(() => {})]).then(() =>
+        setRefreshing(false)
+      );
     }
   }, [dataSource, currentDatabaseName, refreshing]);
 
