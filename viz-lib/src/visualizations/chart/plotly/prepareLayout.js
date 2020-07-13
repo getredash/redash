@@ -1,4 +1,4 @@
-import { filter, has, isObject, isUndefined, map } from "lodash";
+import { isObject, isUndefined, filter, map } from "lodash";
 import { getPieDimensions } from "./preparePieData";
 import { calculateAxisRange } from "./utils";
 
@@ -110,7 +110,10 @@ export default function prepareLayout(element, options, data) {
     width: Math.max(5, Math.floor(element.offsetWidth)),
     height: Math.max(5, Math.floor(element.offsetHeight)),
     autosize: false,
-    showlegend: has(options, "legend") ? options.legend.enabled : true,
+    showlegend: options.legend.enabled,
+    legend: {
+      traceorder: options.legend.traceorder,
+    },
   };
 
   switch (options.globalSeriesType) {
