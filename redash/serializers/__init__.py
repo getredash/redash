@@ -245,8 +245,7 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
 
     d = {
         "id": obj.id,
-        "slug": obj.slug,
-        "name_as_slug": obj.name_as_slug,
+        "slug": obj.name_as_slug,
         "name": obj.name,
         "user_id": obj.user_id,
         "user": {

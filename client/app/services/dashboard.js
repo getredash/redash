@@ -6,7 +6,7 @@ import { currentUser } from "@/services/auth";
 import location from "@/services/location";
 import { cloneParameter } from "@/services/parameters";
 
-export const urlForDashboard = ({ id, name_as_slug }) => `dashboards/${id}-${name_as_slug}`;
+export const urlForDashboard = ({ id, slug }) => `dashboards/${id}-${slug}`;
 
 export function collectDashboardFilters(dashboard, queryResults, urlParams) {
   const filters = {};
