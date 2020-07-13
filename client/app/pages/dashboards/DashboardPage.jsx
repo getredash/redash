@@ -182,7 +182,7 @@ DashboardPage.defaultProps = {
 
 // route kept for backward compatibility
 routes.register(
-  "Dashboards.ViewOrEdit",
+  "Dashboards.LegacyViewOrEdit",
   routeWithUserSession({
     path: "/dashboard/:dashboardSlug",
     render: pageProps => <DashboardPage {...pageProps} />,
@@ -190,7 +190,7 @@ routes.register(
 );
 
 routes.register(
-  "Dashboards.ViewOrEditWithId",
+  "Dashboards.ViewOrEdit",
   routeWithUserSession({
     path: "/dashboards/:dashboardId([^-]+)(-.*)?",
     render: pageProps => <DashboardPage {...pageProps} />,
