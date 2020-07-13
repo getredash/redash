@@ -2,13 +2,6 @@ import { isNil, each, extend, filter, identity, includes, sortBy, min, max } fro
 import { createNumberFormatter, formatSimpleTemplate } from "@/lib/value-format";
 import { normalizeValue, initStacking } from "./utils";
 
-export function getValuesRange(values) {
-  return {
-    min: min(values),
-    max: max(values),
-  };
-}
-
 function shouldUseUnifiedXAxis(options) {
   return options.sortX && options.xAxis.type === "category" && options.globalSeriesType !== "box";
 }
@@ -166,10 +159,6 @@ function updateUnifiedXAxisValues(seriesList, options) {
 }
 
 function updatePieData(seriesList, options) {
-  each(seriesList, series => {
-    series.yRange = {}; // there is no Y-axis, but we add this object to simplify further calculations
-  });
-
   updateSeriesText(seriesList, options);
 }
 
@@ -189,10 +178,6 @@ function updateLineAreaData(seriesList, options) {
     }
   }
 
-  each(seriesList, series => {
-    series.yRange = getValuesRange(series.y);
-  });
-
   // Finally - update text labels
   updateSeriesText(seriesList, options);
 }
@@ -207,25 +192,8 @@ function updateDefaultData(seriesList, options) {
     }
   }
 
-  each(seriesList, series => {
-    series.yRange = getValuesRange(series.y);
-  });
-
   // Finally - update text labels
   updateSeriesText(seriesList, options);
-}
-
-function updateBarData(seriesList, options) {
-  updateDefaultData(seriesList, options);
-
-  // Plotly stacks bars on its own, but we need stacked values to compute Y axis range
-  if (options.series.stacking) {
-    const getStackedValues = initStacking(options);
-    each(seriesList, series => {
-      const stackedY = getStackedValues(series.x, series.y);
-      series.yRange = getValuesRange(stackedY);
-    });
-  }
 }
 
 export default function updateData(seriesList, options) {
@@ -242,9 +210,6 @@ export default function updateData(seriesList, options) {
         updateLineAreaData(visibleSeriesList, options);
         break;
       case "heatmap":
-        break;
-      case "column":
-        updateBarData(visibleSeriesList, options);
         break;
       default:
         updateDefaultData(visibleSeriesList, options);

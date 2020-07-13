@@ -7,8 +7,8 @@
       "series": { "stacking": null, "error_y": { "type": "data", "visible": true } }
     },
     "series": [
-      { "name": "a", "yRange": {} },
-      { "name": "b", "yaxis": "y2", "yRange": {} }
+      { "name": "a" },
+      { "name": "b", "yaxis": "y2" }
     ]
   },
   "output": {

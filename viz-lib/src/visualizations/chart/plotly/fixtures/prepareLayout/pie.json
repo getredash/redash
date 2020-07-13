@@ -4,7 +4,7 @@
       "globalSeriesType": "pie",
       "textFormat": ""
     },
-    "series": [{ "name": "a", "yRange": {} }]
+    "series": [{ "name": "a" }]
   },
   "output": {
     "layout": {

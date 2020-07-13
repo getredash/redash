@@ -55,11 +55,7 @@
         "text": ["10 ± 0", "20 ± 0", "30 ± 0", "40 ± 0"],
         "marker": { "color": "red" },
         "insidetextfont": { "color": "#ffffff" },
-        "yaxis": "y",
-        "yRange": {
-          "max": 40,
-          "min": 10
-        }
+        "yaxis": "y"
       },
       {
         "visible": true,
@@ -73,11 +69,7 @@
         "text": ["1 ± 0", "2 ± 0", "3 ± 0", "4 ± 0"],
         "marker": { "color": "blue" },
         "insidetextfont": { "color": "#ffffff" },
-        "yaxis": "y",
-        "yRange": {
-          "max": 44,
-          "min": 11
-        }
+        "yaxis": "y"
       }
     ]
   }

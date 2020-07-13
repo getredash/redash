@@ -56,11 +56,7 @@
         "textposition": "inside",
         "marker": { "color": "red" },
         "insidetextfont": { "color": "#ffffff" },
-        "yaxis": "y",
-        "yRange": {
-          "max": 80,
-          "min": 20
-        }
+        "yaxis": "y"
       },
       {
         "visible": true,
@@ -75,11 +71,7 @@
         "textposition": "inside",
         "marker": { "color": "blue" },
         "insidetextfont": { "color": "#ffffff" },
-        "yaxis": "y",
-        "yRange": {
-          "max": 100,
-          "min": 100
-        }
+        "yaxis": "y"
       }
     ]
   }

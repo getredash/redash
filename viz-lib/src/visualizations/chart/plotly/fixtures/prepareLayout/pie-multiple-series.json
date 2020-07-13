@@ -5,9 +5,9 @@
       "textFormat": ""
     },
     "series": [
-      { "name": "a", "yRange": {} },
-      { "name": "b", "yRange": {} },
-      { "name": "c", "yRange": {} }
+      { "name": "a" },
+      { "name": "b" },
+      { "name": "c" }
     ]
   },
   "output": {

@@ -55,11 +55,7 @@
         "text": ["20% (10 ± 0)", "40% (20 ± 0)", "60% (30 ± 0)", "80% (40 ± 0)"],
         "marker": { "color": "red" },
         "insidetextfont": { "color": "#ffffff" },
-        "yaxis": "y",
-        "yRange": {
-          "max": 80,
-          "min": 20
-        }
+        "yaxis": "y"
       },
       {
         "visible": true,
@@ -73,11 +69,7 @@
         "text": ["80% (40 ± 0)", "60% (30 ± 0)", "40% (20 ± 0)", "20% (10 ± 0)"],
         "marker": { "color": "blue" },
         "insidetextfont": { "color": "#ffffff" },
-        "yaxis": "y",
-        "yRange": {
-          "max": 100,
-          "min": 100
-        }
+        "yaxis": "y"
       }
     ]
   }
