@@ -141,7 +141,8 @@ class Databricks(BaseSQLQueryRunner):
 
         results = json_loads(results)
 
-        return [row["namespace"] for row in results["rows"]]
+        first_column_name = results["columns"][0]["name"]
+        return [row[first_column_name] for row in results["rows"]]
 
     def get_database_schema(self, database_name):
         schema = {}
