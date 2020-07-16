@@ -1,14 +1,14 @@
 import { isNil, map } from "lodash";
 import AceEditor from "react-ace";
-import ace from "brace";
+import ace from "ace-builds";
 
-import "brace/ext/language_tools";
-import "brace/mode/json";
-import "brace/mode/python";
-import "brace/mode/sql";
-import "brace/mode/yaml";
-import "brace/theme/textmate";
-import "brace/ext/searchbox";
+import "ace-builds/src-noconflict/ext-language_tools";
+import "ace-builds/src-noconflict/mode-json";
+import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/mode-sql";
+import "ace-builds/src-noconflict/mode-yaml";
+import "ace-builds/src-noconflict/theme-textmate";
+import "ace-builds/src-noconflict/ext-searchbox";
 
 const langTools = ace.acequire("ace/ext/language_tools");
 const snippetsModule = ace.acequire("ace/snippets");
@@ -31,12 +31,10 @@ function buildTableColumnKeywords(table) {
   const keywords = [];
   table.columns.forEach(column => {
     keywords.push({
-      caption: column,
       name: `${table.name}.${column}`,
       value: `${table.name}.${column}`,
       score: 100,
       meta: "Column",
-      className: "completion",
     });
   });
   return keywords;

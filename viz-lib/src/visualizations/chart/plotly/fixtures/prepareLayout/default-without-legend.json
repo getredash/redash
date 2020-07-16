@@ -2,7 +2,7 @@
   "input": {
     "options": {
       "globalSeriesType": "column",
-      "legend": { "enabled": false },
+      "legend": { "enabled": false, "traceorder": "normal" },
       "xAxis": { "type": "-", "labels": { "enabled": true } },
       "yAxis": [{ "type": "linear" }, { "type": "linear", "opposite": true }],
       "series": { "stacking": null, "error_y": { "type": "data", "visible": true } }
@@ -16,6 +16,9 @@
       "height": 300,
       "autosize": false,
       "showlegend": false,
+      "legend": {
+        "traceorder": "normal"
+      },
       "xaxis": {
         "automargin": true,
         "showticklabels": true,

@@ -108,6 +108,11 @@ jobs:
       - run:
           name: Execute Cypress tests
           command: npm run cypress run-ci
+      - run:
+          name: "Failure: output container logs to console"
+          command: |
+            docker-compose logs
+          when: on_fail
   build-docker-image: *build-docker-image-job
   build-preview-docker-image: *build-docker-image-job
 workflows:

@@ -2,7 +2,10 @@
   "input": {
     "options": {
       "globalSeriesType": "pie",
-      "textFormat": "{{ @@name }}"
+      "textFormat": "{{ @@name }}",
+      "legend": {
+        "traceorder": "normal"
+      }
     },
     "series": [{ "name": "a" }]
   },
@@ -13,6 +16,9 @@
       "height": 300,
       "autosize": false,
       "showlegend": true,
+      "legend": {
+        "traceorder": "normal"
+      },
       "annotations": []
     }
   }
