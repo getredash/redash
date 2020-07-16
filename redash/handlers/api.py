@@ -127,7 +127,7 @@ api.add_org_resource(AlertListResource, "/api/alerts", endpoint="alerts")
 
 api.add_org_resource(DashboardListResource, "/api/dashboards", endpoint="dashboards")
 api.add_org_resource(
-    DashboardResource, "/api/dashboards/<dashboard_slug>", endpoint="dashboard"
+    DashboardResource, "/api/dashboards/<dashboard_id>", endpoint="dashboard"
 )
 api.add_org_resource(
     PublicDashboardResource,

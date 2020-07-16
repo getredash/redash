@@ -14,6 +14,8 @@ import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
 import resizeObserver from "@/services/resizeObserver";
 import routes from "@/services/routes";
+import location from "@/services/location";
+import url from "@/services/url";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 import useDashboard from "./hooks/useDashboard";
@@ -109,7 +111,7 @@ function DashboardComponent(props) {
   }, [pageContainer, editingLayout]);
 
   return (
-    <div className="container" ref={setPageContainer}>
+    <div className="container" ref={setPageContainer} data-test={`DashboardId${dashboard.id}Container`}>
       <DashboardHeader dashboardOptions={dashboardOptions} />
       {!isEmpty(globalParameters) && (
         <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
@@ -145,35 +147,52 @@ DashboardComponent.propTypes = {
   dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-function DashboardPage({ dashboardSlug, onError }) {
+function DashboardPage({ dashboardSlug, dashboardId, onError }) {
   const [dashboard, setDashboard] = useState(null);
   const handleError = useImmutableCallback(onError);
 
   useEffect(() => {
-    Dashboard.get({ slug: dashboardSlug })
+    Dashboard.get({ id: dashboardId, slug: dashboardSlug })
       .then(dashboardData => {
         recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
+
+        // if loaded by slug, update location url to use the id
+        if (!dashboardId) {
+          location.setPath(url.parse(dashboardData.url).pathname, true);
+        }
       })
       .catch(handleError);
-  }, [dashboardSlug, handleError]);
+  }, [dashboardId, dashboardSlug, handleError]);
 
   return <div className="dashboard-page">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>;
 }
 
 DashboardPage.propTypes = {
-  dashboardSlug: PropTypes.string.isRequired,
+  dashboardSlug: PropTypes.string,
+  dashboardId: PropTypes.string,
   onError: PropTypes.func,
 };
 
 DashboardPage.defaultProps = {
+  dashboardSlug: null,
+  dashboardId: null,
   onError: PropTypes.func,
 };
+
+// route kept for backward compatibility
+routes.register(
+  "Dashboards.LegacyViewOrEdit",
+  routeWithUserSession({
+    path: "/dashboard/:dashboardSlug",
+    render: pageProps => <DashboardPage {...pageProps} />,
+  })
+);
 
 routes.register(
   "Dashboards.ViewOrEdit",
   routeWithUserSession({
-    path: "/dashboard/:dashboardSlug",
+    path: "/dashboards/:dashboardId([^-]+)(-.*)?",
     render: pageProps => <DashboardPage {...pageProps} />,
   })
 );

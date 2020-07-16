@@ -46,7 +46,7 @@ class DashboardList extends React.Component {
     Columns.custom.sortable(
       (text, item) => (
         <React.Fragment>
-          <a className="table-main-title" href={"dashboard/" + item.slug} data-test={item.slug}>
+          <a className="table-main-title" href={item.url} data-test={`DashboardId${item.id}`}>
             {item.name}
           </a>
           <DashboardTagsControl
