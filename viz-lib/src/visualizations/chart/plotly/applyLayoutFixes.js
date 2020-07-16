@@ -35,7 +35,7 @@ function placeLegendNextToPlot(plotlyElement, layout, updatePlot) {
     legend.style[transformName] = null;
   }
 
-  updatePlot(plotlyElement, pick(layout, ["width", "height", "legend"]));
+  return updatePlot(plotlyElement, pick(layout, ["width", "height", "legend"]));
 }
 
 function placeLegendBelowPlot(plotlyElement, layout, updatePlot) {
@@ -71,7 +71,7 @@ function placeLegendBelowPlot(plotlyElement, layout, updatePlot) {
   // position legend outside of it
   fixLegendContainer(plotlyElement);
 
-  updatePlot(plotlyElement, pick(layout, ["width", "height", "legend"])).then(() => {
+  return updatePlot(plotlyElement, pick(layout, ["width", "height", "legend"])).then(() => {
     const legend = plotlyElement.querySelector(".legend"); // eslint-disable-line no-shadow
     if (legend) {
       // compute real height of legend - items may be split into few columnns,
@@ -88,7 +88,7 @@ function placeLegendBelowPlot(plotlyElement, layout, updatePlot) {
       layout.height = Math.floor(Math.max(layoutHeight / 2, layoutHeight - (bounds.bottom - bounds.top)));
       // offset the legend
       legend.style[transformName] = "translate(0, " + layout.height + "px)";
-      updatePlot(plotlyElement, pick(layout, ["height"]));
+      return updatePlot(plotlyElement, pick(layout, ["height"]));
     }
   });
 }
@@ -110,14 +110,14 @@ export default function applyLayoutFixes(plotlyElement, layout, options, updateP
   if (options.legend.enabled) {
     switch (options.legend.placement) {
       case "auto":
-        placeLegendAuto(plotlyElement, layout, updatePlot);
+        return placeLegendAuto(plotlyElement, layout, updatePlot);
         break;
       case "below":
-        placeLegendBelowPlot(plotlyElement, layout, updatePlot);
+        return placeLegendBelowPlot(plotlyElement, layout, updatePlot);
         break;
       // no default
     }
   } else {
-    updatePlot(plotlyElement, pick(layout, ["width", "height"]));
+    return updatePlot(plotlyElement, pick(layout, ["width", "height"]));
   }
 }
