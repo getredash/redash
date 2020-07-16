@@ -632,12 +632,13 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def outdated_queries(cls):
-        queries = list(
+        queries = (
             Query.query.options(
                 joinedload(Query.latest_query_data).load_only("retrieved_at")
             )
             .filter(Query.schedule.isnot(None))
             .order_by(Query.id)
+            .all()
         )
 
         now = utils.utcnow()
