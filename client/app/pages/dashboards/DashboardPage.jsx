@@ -1,5 +1,5 @@
 import { isEmpty } from "lodash";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 
@@ -14,6 +14,7 @@ import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
 import resizeObserver from "@/services/resizeObserver";
 import routes from "@/services/routes";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 import useDashboard from "./hooks/useDashboard";
 import DashboardHeader from "./components/DashboardHeader";
@@ -146,8 +147,7 @@ DashboardComponent.propTypes = {
 
 function DashboardPage({ dashboardSlug, onError }) {
   const [dashboard, setDashboard] = useState(null);
-  const onErrorRef = useRef();
-  onErrorRef.current = onError;
+  const handleError = useImmutableCallback(onError);
 
   useEffect(() => {
     Dashboard.get({ slug: dashboardSlug })
@@ -155,8 +155,8 @@ function DashboardPage({ dashboardSlug, onError }) {
         recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
       })
-      .catch(error => onErrorRef.current(error));
-  }, [dashboardSlug]);
+      .catch(handleError);
+  }, [dashboardSlug, handleError]);
 
   return <div className="dashboard-page">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>;
 }

@@ -1,6 +1,6 @@
-import { isNil, map, filter, some, includes, isFunction } from "lodash";
+import { isNil, map, filter, some, includes } from "lodash";
 import cx from "classnames";
-import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import Input from "antd/lib/input";
@@ -9,6 +9,7 @@ import Tooltip from "antd/lib/tooltip";
 import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
 import List from "react-virtualized/dist/commonjs/List";
 import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import LoadingState from "../items-list/components/LoadingState";
 
 const SchemaItemType = PropTypes.shape({
@@ -181,14 +182,12 @@ export default function SchemaBrowser({
   const [handleFilterChange] = useDebouncedCallback(setFilterString, 500);
   const [expandedFlags, setExpandedFlags] = useState({});
 
-  const onSchemaUpdateRef = useRef();
-  onSchemaUpdateRef.current = onSchemaUpdate;
+  const handleSchemaUpdate = useImmutableCallback(onSchemaUpdate);
+
   useEffect(() => {
     setExpandedFlags({});
-    if (isFunction(onSchemaUpdateRef.current)) {
-      onSchemaUpdateRef.current(schema);
-    }
-  }, [schema]);
+    handleSchemaUpdate(schema);
+  }, [schema, handleSchemaUpdate]);
 
   if (schema.length === 0 && !isLoading) {
     return null;
