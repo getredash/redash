@@ -638,6 +638,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             )
             .filter(Query.schedule.isnot(None))
             .order_by(Query.id)
+            .all()
         )
 
         now = utils.utcnow()
