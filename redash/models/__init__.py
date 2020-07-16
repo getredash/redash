@@ -632,7 +632,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def outdated_queries(cls):
-        queries = (
+        queries = list(
             Query.query.options(
                 joinedload(Query.latest_query_data).load_only("retrieved_at")
             )
