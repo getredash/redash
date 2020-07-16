@@ -4,7 +4,7 @@ function calculateAxisRange(range, min, max) {
   return [isNumber(min) ? min : range[0], isNumber(max) ? max : range[1]];
 }
 
-export default function updateLayout(plotlyElement, layout, options) {
+export default function updateYRanges(plotlyElement, layout, options) {
   const updates = {};
   if (isObject(layout.yaxis)) {
     updates.yaxis = {

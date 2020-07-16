@@ -1,6 +1,6 @@
 import { isArray, isObject, isString, isFunction, startsWith, reduce, merge, map, each } from "lodash";
 import resizeObserver from "@/services/resizeObserver";
-import { Plotly, prepareData, prepareLayout, updateData, updateLayout, applyLayoutFixes } from "../plotly";
+import { Plotly, prepareData, prepareLayout, updateData, updateYRanges, updateChartSize } from "../plotly";
 
 function createErrorHandler(errorHandler) {
   return error => {
@@ -86,8 +86,8 @@ export default function initChart(container, options, data, additionalOptions, o
     .then(
       createSafeFunction(() =>
         updater
-          .append(updateLayout(container, plotlyLayout, options))
-          .append(applyLayoutFixes(container, plotlyLayout, options))
+          .append(updateYRanges(container, plotlyLayout, options))
+          .append(updateChartSize(container, plotlyLayout, options))
           .process(container)
       )
     )
@@ -100,7 +100,7 @@ export default function initChart(container, options, data, additionalOptions, o
             // We need to catch only changes of traces visibility to update stacking
             if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {
               updateData(plotlyData, options);
-              updater.append(updateLayout(container, plotlyLayout, options)).process(container);
+              updater.append(updateYRanges(container, plotlyLayout, options)).process(container);
             }
           })
         );
@@ -108,7 +108,7 @@ export default function initChart(container, options, data, additionalOptions, o
         unwatchResize = resizeObserver(
           container,
           createSafeFunction(() => {
-            updater.append(applyLayoutFixes(container, plotlyLayout, options)).process(container);
+            updater.append(updateChartSize(container, plotlyLayout, options)).process(container);
           })
         );
       })
@@ -125,7 +125,7 @@ export default function initChart(container, options, data, additionalOptions, o
       isDestroyed = true;
       container.removeAllListeners("plotly_restyle");
       unwatchResize();
-      delete container.__previousSize; // added by `applyLayoutFixes`
+      delete container.__previousSize; // added by `updateChartSize`
       Plotly.purge(container);
     }),
   };
