@@ -1,4 +1,4 @@
-import { isArray, isObject, isString, startsWith } from "lodash";
+import { isArray, isObject, isString, isFunction, startsWith, reduce, merge, map, each } from "lodash";
 import resizeObserver from "@/services/resizeObserver";
 import { Plotly, prepareData, prepareLayout, updateData, updateLayout, applyLayoutFixes } from "../plotly";
 
@@ -11,6 +11,41 @@ function createErrorHandler(errorHandler) {
     }
     errorHandler(error);
   };
+}
+
+// This utility is intended to reduce amount of plot updates when multiple Plotly.relayout
+// calls needed in order to compute/update the plot.
+// `.append()` method takes an array of two element: first one is a object with updates for layout,
+// and second is an optional function that will be called when plot is updated. That function may
+// return an array with same structure if further updates needed.
+// `.process()` merges all updates into a single object and calls `Plotly.relayout()`. After that
+// it calls all callbacks, collects their return values and does another loop if needed.
+function initPlotUpdater() {
+  let actions = [];
+
+  const updater = {
+    append(action) {
+      if (isArray(action) && isObject(action[0])) {
+        actions.push(action);
+      }
+      return updater;
+    },
+    process(plotlyElement) {
+      if (actions.length > 0) {
+        const updates = reduce(actions, (updates, action) => merge(updates, action[0]), {});
+        const handlers = map(actions, action => (isFunction(action[1]) ? action[1] : () => null));
+        actions = [];
+        return Plotly.relayout(plotlyElement, updates).then(() => {
+          each(handlers, handler => updater.append(handler()));
+          return updater.process(plotlyElement);
+        });
+      } else {
+        return Promise.resolve();
+      }
+    },
+  };
+
+  return updater;
 }
 
 export default function initChart(container, options, data, additionalOptions, onError) {
@@ -30,6 +65,8 @@ export default function initChart(container, options, data, additionalOptions, o
 
   let isDestroyed = false;
 
+  let updater = initPlotUpdater();
+
   function createSafeFunction(fn) {
     return (...args) => {
       if (!isDestroyed) {
@@ -46,8 +83,14 @@ export default function initChart(container, options, data, additionalOptions, o
 
   const promise = Promise.resolve()
     .then(() => Plotly.newPlot(container, plotlyData, plotlyLayout, plotlyOptions))
-    .then(createSafeFunction(() => updateLayout(plotlyLayout, options, u => Plotly.relayout(container, u))))
-    .then(createSafeFunction(() => applyLayoutFixes(container, plotlyLayout, options, (e, u) => Plotly.relayout(e, u))))
+    .then(
+      createSafeFunction(() =>
+        updater
+          .append(updateLayout(container, plotlyLayout, options))
+          .append(applyLayoutFixes(container, plotlyLayout, options))
+          .process(container)
+      )
+    )
     .then(
       createSafeFunction(() => {
         container.on(
@@ -57,7 +100,7 @@ export default function initChart(container, options, data, additionalOptions, o
             // We need to catch only changes of traces visibility to update stacking
             if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {
               updateData(plotlyData, options);
-              updateLayout(plotlyLayout, options, u => Plotly.relayout(container, u));
+              updater.append(updateLayout(container, plotlyLayout, options)).process(container);
             }
           })
         );
@@ -65,7 +108,7 @@ export default function initChart(container, options, data, additionalOptions, o
         unwatchResize = resizeObserver(
           container,
           createSafeFunction(() => {
-            applyLayoutFixes(container, plotlyLayout, options, (e, u) => Plotly.relayout(e, u));
+            updater.append(applyLayoutFixes(container, plotlyLayout, options)).process(container);
           })
         );
       })
@@ -80,8 +123,9 @@ export default function initChart(container, options, data, additionalOptions, o
     }),
     destroy: createSafeFunction(() => {
       isDestroyed = true;
-      container.off("plotly_restyle");
+      container.removeAllListeners("plotly_restyle");
       unwatchResize();
+      delete container.__previousSize; // added by `applyLayoutFixes`
       Plotly.purge(container);
     }),
   };
