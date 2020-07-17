@@ -38,6 +38,15 @@ export default function updateYRanges(plotlyElement, layout, options) {
         updates.yaxis2.range = calculateAxisRange(defaultRange, axisOptions.rangeMin, axisOptions.rangeMax);
       }
 
+      if (options.alignYAxesAtZero && isObject(layout.yaxis) && isObject(layout.yaxis2)) {
+        const commonRange = [
+          Math.min(updates.yaxis.range[0], updates.yaxis2.range[0]),
+          Math.max(updates.yaxis.range[1], updates.yaxis2.range[1]),
+        ];
+        updates.yaxis.range = [...commonRange];
+        updates.yaxis2.range = [...commonRange];
+      }
+
       return [updates, null]; // no further updates
     },
   ];
