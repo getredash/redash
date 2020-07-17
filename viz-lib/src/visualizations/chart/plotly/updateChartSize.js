@@ -14,7 +14,7 @@ function fixLegendContainer(plotlyElement) {
   }
 }
 
-function placeLegendNextToPlot(plotlyElement, layout, updatePlot) {
+function placeLegendNextToPlot(plotlyElement, layout) {
   const transformName = find(
     ["transform", "WebkitTransform", "MozTransform", "MsTransform", "OTransform"],
     prop => prop in plotlyElement.style
@@ -35,16 +35,16 @@ function placeLegendNextToPlot(plotlyElement, layout, updatePlot) {
     legend.style[transformName] = null;
   }
 
-  updatePlot(plotlyElement, pick(layout, ["width", "height", "legend"]));
+  return [pick(layout, ["width", "height", "legend"]), null]; // no further updates
 }
 
-function placeLegendBelowPlot(plotlyElement, layout, updatePlot) {
+function placeLegendBelowPlot(plotlyElement, layout) {
   const transformName = find(
     ["transform", "WebkitTransform", "MozTransform", "MsTransform", "OTransform"],
     prop => prop in plotlyElement.style
   );
 
-  // Save current `layout.height` value because `updatePlot().then(...)` handler may be called multiple
+  // Save current `layout.height` value because `Plotly.relayout().then(...)` handler may be called multiple
   // times within single update, and since the handler mutates `layout` object - it may lead to bugs
   const layoutHeight = layout.height;
 
@@ -71,53 +71,64 @@ function placeLegendBelowPlot(plotlyElement, layout, updatePlot) {
   // position legend outside of it
   fixLegendContainer(plotlyElement);
 
-  updatePlot(plotlyElement, pick(layout, ["width", "height", "legend"])).then(() => {
-    const legend = plotlyElement.querySelector(".legend"); // eslint-disable-line no-shadow
-    if (legend) {
-      // compute real height of legend - items may be split into few columnns,
-      // also scrollbar may be shown
-      const bounds = legend.getBoundingClientRect();
+  return [
+    pick(layout, ["width", "height", "legend"]),
+    () => {
+      const legend = plotlyElement.querySelector(".legend"); // eslint-disable-line no-shadow
+      if (legend) {
+        // compute real height of legend - items may be split into few columnns,
+        // also scrollbar may be shown
+        const bounds = legend.getBoundingClientRect();
 
-      // here we have two values:
-      // 1. height of plot container excluding height of legend items;
-      //    it may be any value between 0 and plot container's height;
-      // 2. half of plot containers height. Legend cannot be larger than
-      //    plot; if legend is too large, plotly will reduce it's height and
-      //    show a scrollbar; in this case, height of plot === height of legend,
-      //    so we can split container's height half by half between them.
-      layout.height = Math.floor(Math.max(layoutHeight / 2, layoutHeight - (bounds.bottom - bounds.top)));
-      // offset the legend
-      legend.style[transformName] = "translate(0, " + layout.height + "px)";
-      updatePlot(plotlyElement, pick(layout, ["height"]));
-    }
-  });
+        // here we have two values:
+        // 1. height of plot container excluding height of legend items;
+        //    it may be any value between 0 and plot container's height;
+        // 2. half of plot containers height. Legend cannot be larger than
+        //    plot; if legend is too large, plotly will reduce it's height and
+        //    show a scrollbar; in this case, height of plot === height of legend,
+        //    so we can split container's height half by half between them.
+        layout.height = Math.floor(Math.max(layoutHeight / 2, layoutHeight - (bounds.bottom - bounds.top)));
+        // offset the legend
+        legend.style[transformName] = "translate(0, " + layout.height + "px)";
+        return [pick(layout, ["height"]), null]; // no further updates
+      }
+    },
+  ];
 }
 
-function placeLegendAuto(plotlyElement, layout, updatePlot) {
+function placeLegendAuto(plotlyElement, layout) {
   if (layout.width <= 600) {
-    placeLegendBelowPlot(plotlyElement, layout, updatePlot);
+    return placeLegendBelowPlot(plotlyElement, layout);
   } else {
-    placeLegendNextToPlot(plotlyElement, layout, updatePlot);
+    return placeLegendNextToPlot(plotlyElement, layout);
   }
 }
 
-export default function applyLayoutFixes(plotlyElement, layout, options, updatePlot) {
+export default function updateChartSize(plotlyElement, layout, options) {
   // update layout size to plot container
   // plot size should be at least 5x5px
   layout.width = Math.max(5, Math.floor(plotlyElement.offsetWidth));
   layout.height = Math.max(5, Math.floor(plotlyElement.offsetHeight));
 
+  const [previousWidth, previousHeight] = plotlyElement.__previousSize || [];
+
+  if (layout.width === previousWidth && layout.height === previousHeight) {
+    return;
+  }
+
+  plotlyElement.__previousSize = [layout.width, layout.height];
+
   if (options.legend.enabled) {
     switch (options.legend.placement) {
       case "auto":
-        placeLegendAuto(plotlyElement, layout, updatePlot);
+        return placeLegendAuto(plotlyElement, layout);
         break;
       case "below":
-        placeLegendBelowPlot(plotlyElement, layout, updatePlot);
+        return placeLegendBelowPlot(plotlyElement, layout);
         break;
       // no default
     }
   } else {
-    updatePlot(plotlyElement, pick(layout, ["width", "height"]));
+    return [pick(layout, ["width", "height"]), null]; // no further updates
   }
 }

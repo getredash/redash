@@ -30,8 +30,8 @@
         "automargin": true,
         "title": null,
         "type": "linear",
-        "autorange": false,
-        "range": [0, 0]
+        "autorange": true,
+        "range": null
       }
     }
   }
