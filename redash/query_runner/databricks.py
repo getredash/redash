@@ -156,7 +156,7 @@ class Databricks(BaseSQLQueryRunner):
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
 
-            schema[table_name]["columns"].append(column[3])
+            schema[table_name]["columns"].append({"name": column[3], "type": column[5]})
 
         return list(schema.values())
 
