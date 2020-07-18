@@ -1,10 +1,13 @@
 import functools
 from flask_talisman import talisman
+from flask_wtf.csrf import CSRFProtect, generate_csrf
+
 
 from redash import settings
 
 
 talisman = talisman.Talisman()
+csrf = CSRFProtect()
 
 
 def csp_allows_embeding(fn):
@@ -19,6 +22,8 @@ def csp_allows_embeding(fn):
 
 
 def init_app(app):
+    csrf.init_app(app)
+
     talisman.init_app(
         app,
         feature_policy=settings.FEATURE_POLICY,
