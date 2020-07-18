@@ -24,6 +24,11 @@ def csp_allows_embeding(fn):
 def init_app(app):
     csrf.init_app(app)
 
+    @app.after_request
+    def inject_csrf_token(response):
+        response.set_cookie("csrf_token", generate_csrf())
+        return response
+
     talisman.init_app(
         app,
         feature_policy=settings.FEATURE_POLICY,
