@@ -51,6 +51,7 @@ class BaseTestCase(TestCase):
         self.app = create_app()
         self.db = db
         self.app.config["TESTING"] = True
+        self.app.config["WTF_CSRF_ENABLED"] = False
         limiter.enabled = False
         self.app_ctx = self.app.app_context()
         self.app_ctx.push()
