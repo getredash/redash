@@ -6,6 +6,7 @@ import Button from "antd/lib/button";
 import Icon from "antd/lib/icon";
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";
+import Tooltip from "antd/lib/tooltip";
 import { SchemaList, applyFilterOnSchema } from "@/components/queries/SchemaBrowser";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import useDatabricksSchema from "./useDatabricksSchema";
@@ -132,9 +133,11 @@ export default function DatabricksSchemaBrowser({
         />
         {!(loadingSchema || loadingDatabases) && (
           <div className="load-button">
-            <Button type="link" onClick={refreshAll}>
-              <Icon type="sync" spin={refreshing} /> Refresh
-            </Button>
+            <Tooltip title={!refreshing ? "Refresh Databases and Current Schema" : null}>
+              <Button type="link" onClick={refreshAll} disabled={refreshing}>
+                <Icon type="sync" spin={refreshing} />
+              </Button>
+            </Tooltip>
           </div>
         )}
       </div>
