@@ -4,16 +4,27 @@ const atob = require("atob");
 const { execSync } = require("child_process");
 const { get, post } = require("request").defaults({ jar: true });
 const { seedData } = require("./seed-data");
-var Cookie = require('request-cookies').Cookie;
+var Cookie = require("request-cookies").Cookie;
 
 const baseUrl = process.env.CYPRESS_baseUrl || "http://localhost:5000";
 
 function seedDatabase(seedValues) {
   get(baseUrl + "/login", (_, { headers }) => {
     const request = seedValues.shift();
-    const cookies = headers['set-cookie'].map(cookie => new Cookie(cookie));
-    const csrf_token = find(cookies, { key: 'csrf_token' }).value;
-    const data = request.type === "form" ? { formData: { ...request.data, csrf_token } } : { json: request.data, headers: { "X-CSRFToken": csrf_token } };
+    const data = request.type === "form" ? { formData: { ...request.data } } : { json: request.data };
+
+    if (headers["set-cookie"]) {
+      const cookies = headers["set-cookie"].map(cookie => new Cookie(cookie));
+      const csrf_cookie = find(cookies, { key: "csrf_token" });
+      if (csrf_cookie) {
+        const csrf_token = csrf_cookie.value;
+        if (request.type === "form") {
+          data["formData"] = { ...data["formData"], csrf_token };
+        } else {
+          data["headers"] = { "X-CSRFToken": csrf_token };
+        }
+      }
+    }
 
     post(baseUrl + request.route, data, (err, response) => {
       const result = response ? response.statusCode : err;
