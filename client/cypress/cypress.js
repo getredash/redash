@@ -11,7 +11,7 @@ const baseUrl = process.env.CYPRESS_baseUrl || "http://localhost:5000";
 function seedDatabase(seedValues) {
   get(baseUrl + "/login", (_, { headers }) => {
     const request = seedValues.shift();
-    const data = request.type === "form" ? { formData: { ...request.data } } : { json: request.data };
+    const data = request.type === "form" ? { formData: request.data } : { json: request.data };
 
     if (headers["set-cookie"]) {
       const cookies = headers["set-cookie"].map(cookie => new Cookie(cookie));
