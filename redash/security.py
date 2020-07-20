@@ -27,16 +27,16 @@ def init_app(app):
     csrf.init_app(app)
     app.config["WTF_CSRF_CHECK_DEFAULT"] = False
 
+    @app.after_request
+    def inject_csrf_token(response):
+        response.set_cookie("csrf_token", generate_csrf())
+        return response
+
     if settings.ENFORCE_CSRF:
         @app.before_request
         def check_csrf():
             if not current_user.is_authenticated or 'user_id' in session:
                 csrf.protect()
-
-        @app.after_request
-        def inject_csrf_token(response):
-            response.set_cookie("csrf_token", generate_csrf())
-            return response
 
     talisman.init_app(
         app,
