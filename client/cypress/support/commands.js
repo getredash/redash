@@ -4,21 +4,22 @@ import "@percy/cypress"; // eslint-disable-line import/no-extraneous-dependencie
 
 const { each } = Cypress._;
 
-
 Cypress.Commands.add("login", (email = "admin@redash.io", password = "password") => {
-  cy.visit('/login');
-  cy.get('input[name="csrf_token"]').invoke('val').then((csrf_token) => {
-    cy.request({
-      url: "/login",
-      method: "POST",
-      form: true,
-      body: {
-        email,
-        password,
-        csrf_token
-      },
-    })
-  })
+  cy.visit("/login");
+  cy.get('input[name="csrf_token"]')
+    .invoke("val")
+    .then(csrf_token => {
+      cy.request({
+        url: "/login",
+        method: "POST",
+        form: true,
+        body: {
+          email,
+          password,
+          csrf_token,
+        },
+      });
+    });
 });
 
 Cypress.Commands.add("logout", () => cy.visit("/logout"));

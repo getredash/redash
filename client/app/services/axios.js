@@ -1,7 +1,7 @@
 import axiosLib from "axios";
 import { Auth } from "@/services/auth";
 import qs from "query-string";
-import Cookies from 'js-cookie'
+import Cookies from "js-cookie";
 
 export const axios = axiosLib.create({
   paramsSerializer: params => qs.stringify(params),
@@ -16,7 +16,7 @@ axios.interceptors.request.use(config => {
   if (apiKey) {
     config.headers.Authorization = `Key ${apiKey}`;
   } else {
-    config.headers.common['X-CSRF-TOKEN'] = Cookies.get('csrf_token');
+    config.headers.common["X-CSRF-TOKEN"] = Cookies.get("csrf_token");
   }
 
   return config;
