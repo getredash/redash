@@ -30,7 +30,7 @@ defineDummySnippets("yaml");
 function buildTableColumnKeywords(table) {
   const keywords = [];
   table.columns.forEach(column => {
-    const columnName = get(column, "name", column);
+    const columnName = get(column, "name");
     keywords.push({
       name: `${table.name}.${columnName}`,
       value: `${table.name}.${columnName}`,

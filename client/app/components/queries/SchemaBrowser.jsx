@@ -12,13 +12,10 @@ import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import LoadingState from "../items-list/components/LoadingState";
 
-const SchemaItemColumnType = PropTypes.oneOfType([
-  PropTypes.string,
-  PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    type: PropTypes.string,
-  }),
-]);
+const SchemaItemColumnType = PropTypes.shape({
+  name: PropTypes.string.isRequired,
+  type: PropTypes.string,
+});
 
 export const SchemaItemType = PropTypes.shape({
   name: PropTypes.string.isRequired,
@@ -60,7 +57,7 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
       {expanded && (
         <div>
           {map(item.columns, column => {
-            const columnName = get(column, "name", column);
+            const columnName = get(column, "name");
             const columnType = get(column, "type");
             return (
               <div key={columnName} className="table-open">
@@ -163,7 +160,7 @@ export function applyFilterOnSchema(schema, filterString) {
       schema,
       item =>
         includes(item.name.toLowerCase(), nameFilter) ||
-        some(item.columns, column => includes(get(column, "name", column).toLowerCase(), columnFilter))
+        some(item.columns, column => includes(get(column, "name").toLowerCase(), columnFilter))
     );
   }
 
@@ -175,7 +172,7 @@ export function applyFilterOnSchema(schema, filterString) {
       if (includes(item.name.toLowerCase(), nameFilter)) {
         item = {
           ...item,
-          columns: filter(item.columns, column => includes(get(column, "name", column).toLowerCase(), columnFilter)),
+          columns: filter(item.columns, column => includes(get(column, "name").toLowerCase(), columnFilter)),
         };
         return item.columns.length > 0 ? item : null;
       }
