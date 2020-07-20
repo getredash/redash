@@ -196,7 +196,7 @@ class BaseElasticSearch(BaseQueryRunner):
         for index_name in mappings_data:
             mappings[index_name] = {}
             index_mappings = mappings_data[index_name]
-            _parse_properties('', index_mappings['mappings']['properties'])
+            _parse_properties('', index_mappings['mappings'].get('properties', {}))
 
         return mappings
 
@@ -331,6 +331,19 @@ class BaseElasticSearch(BaseQueryRunner):
                         row[column_name] = value
 
                 result_rows.append(row)
+
+        elif 'schema' in  raw_result and 'datarows' in raw_result:
+            for s in raw_result['schema']:
+                result_columns.append({
+                    'name': s['name'],
+                    'friendly_name': s['name'],
+                    'type': s['type'],})
+            for datarow in raw_result['datarows']:
+                row = {}
+                for i, v in enumerate(datarow):
+                    row[result_columns[i]['name']] = v
+                result_rows.append(row)
+
         else:
             raise Exception("Redash failed to parse the results it got from Elasticsearch.")
 
