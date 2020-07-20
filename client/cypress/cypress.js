@@ -15,13 +15,12 @@ function seedDatabase(seedValues) {
 
     if (headers["set-cookie"]) {
       const cookies = headers["set-cookie"].map(cookie => new Cookie(cookie));
-      const csrf_cookie = find(cookies, { key: "csrf_token" });
-      if (csrf_cookie) {
-        const csrf_token = csrf_cookie.value;
+      const csrfCookie = find(cookies, { key: "csrf_token" });
+      if (csrfCookie) {
         if (request.type === "form") {
-          data["formData"] = { ...data["formData"], csrf_token };
+          data["formData"] = { ...data["formData"], csrf_token: csrfCookie.value };
         } else {
-          data["headers"] = { "X-CSRFToken": csrf_token };
+          data["headers"] = { "X-CSRFToken": csrfCookie.value };
         }
       }
     }
