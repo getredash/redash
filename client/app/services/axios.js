@@ -7,8 +7,6 @@ export const axios = axiosLib.create({
   paramsSerializer: params => qs.stringify(params),
 });
 
-axios.defaults.headers.common['X-CSRF-TOKEN'] = Cookies.get('csrf_token');
-
 const getData = ({ data }) => data;
 
 axios.interceptors.response.use(getData);
@@ -17,6 +15,8 @@ axios.interceptors.request.use(config => {
   const apiKey = Auth.getApiKey();
   if (apiKey) {
     config.headers.Authorization = `Key ${apiKey}`;
+  } else {
+    config.headers.common['X-CSRF-TOKEN'] = Cookies.get('csrf_token');
   }
 
   return config;
