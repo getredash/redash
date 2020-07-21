@@ -1,4 +1,4 @@
-import { has, get, map, first, find, isFunction, isEmpty } from "lodash";
+import { has, get, map, first, isFunction, isEmpty } from "lodash";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import notification from "@/services/notification";
 import DatabricksDataSource from "@/services/databricks-data-source";
@@ -55,12 +55,15 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
         if (currentDatabaseNameRef.current === currentDatabaseName) {
           setSchemas(currentSchemas => {
             const schema = get(currentSchemas, currentDatabaseName, []);
-            const table = find(schema, { name: tableName });
-            table.columns = columns;
-            table.loading = false;
+            const updatedSchema = map(schema, table => {
+              if (table.name === tableName) {
+                return { ...table, columns, loading: false };
+              }
+              return table;
+            });
             return {
               ...currentSchemas,
-              [currentDatabaseName]: schema,
+              [currentDatabaseName]: updatedSchema,
             };
           });
         }
