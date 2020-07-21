@@ -215,6 +215,8 @@ export default function updateData(seriesList, options) {
         updatePieData(visibleSeriesList, options);
         break;
       case "line":
+      case "dashdotted-line":
+      case "dotted-line":
       case "area":
         updateLineAreaData(visibleSeriesList, options);
         break;

@@ -29,6 +29,19 @@ function prepareLineSeries(series, options) {
   return series;
 }
 
+function prepareDashDottedLineSeries(series, options) {
+  series.mode = "lines" + (options.showDataLabels ? "+text" : "");
+  series.line = {dash: 'dashdot'};
+  return series;
+}
+
+function prepareDottedLineSeries(series, options) {
+  series.mode = "lines" + (options.showDataLabels ? "+text" : "");
+  series.line = {dash: 'dot'};
+  return series;
+}
+
+
 function prepareAreaSeries(series, options) {
   series.mode = "lines" + (options.showDataLabels ? "+text" : "");
   series.fill = options.series.stacking ? "tonexty" : "tozeroy";
@@ -136,6 +149,10 @@ function prepareSeries(series, options, additionalOptions) {
       return prepareBarSeries(plotlySeries, options, additionalOptions);
     case "line":
       return prepareLineSeries(plotlySeries, options, additionalOptions);
+    case "dashdotted-line":
+      return prepareDashDottedLineSeries(plotlySeries, options, additionalOptions);
+    case "dotted-line":
+      return prepareDottedLineSeries(plotlySeries, options, additionalOptions);
     case "area":
       return prepareAreaSeries(plotlySeries, options, additionalOptions);
     case "scatter":

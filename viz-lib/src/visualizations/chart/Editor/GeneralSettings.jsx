@@ -228,7 +228,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             label="Stacking"
             data-test="Chart.Stacking"
             defaultValue={options.series.stacking}
-            disabled={!includes(["line", "area", "column"], options.globalSeriesType)}
+            disabled={!includes(["line", "dashdotted-line", "dotted-line", "area", "column"], options.globalSeriesType)}
             onChange={stacking => onOptionsChange({ series: { stacking } })}>
             <Select.Option value={null} data-test="Chart.Stacking.Disabled">
               Disabled
@@ -240,7 +240,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         </Section>
       )}
 
-      {includes(["line", "area", "column"], options.globalSeriesType) && (
+      {includes(["line", "dashdotted-line", "dotted-line", "area", "column"], options.globalSeriesType) && (
         <Section>
           <Checkbox
             data-test="Chart.NormalizeValues"
