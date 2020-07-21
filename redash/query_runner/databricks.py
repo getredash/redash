@@ -1,4 +1,5 @@
 import datetime
+import sqlparse
 from redash.query_runner import (
     NotSupported,
     register,
@@ -91,7 +92,12 @@ class Databricks(BaseSQLQueryRunner):
         try:
             cursor = self._get_cursor()
 
-            cursor.execute(query)
+            # TODO: don't run empty queries
+            # TODO: don't run queries only with comments
+            # TODO: handle case when no queries were executed
+            queries = sqlparse.split(query)
+            for q in queries:
+                cursor.execute(q)
 
             if cursor.description is not None:
                 data = cursor.fetchall()
