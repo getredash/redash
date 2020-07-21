@@ -52,7 +52,7 @@ class DatabricksDatabaseListResource(BaseResource):
             redis_connection.set(_databases_key(data_source_id), json_dumps(databases))
             return databases
         except Exception:
-            return {"error": {"code": 2, "message": "Error retrieving database list."}}
+            abort(500, message="Error retrieving database list.")
 
 
 class DatabricksSchemaResource(BaseResource):
@@ -86,4 +86,4 @@ class DatabricksSchemaResource(BaseResource):
                 )
             return tables
         except Exception:
-            return {"error": {"code": 2, "message": "Error retrieving schema."}}
+            abort(500, message="Error retrieving schema.")
