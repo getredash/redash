@@ -7,6 +7,8 @@ export default function ChartTypeSelect(props) {
   const chartTypes = useMemo(() => {
     const result = [
       { type: "line", name: "Line", icon: "line-chart" },
+      { type: "dashdotted-line", name: "Dash & Dot Line", icon: "line-chart"},
+      { type: "dotted-line", name: "Dotted Line", icon: "line-chart"},
       { type: "column", name: "Bar", icon: "bar-chart" },
       { type: "area", name: "Area", icon: "area-chart" },
       { type: "pie", name: "Pie", icon: "pie-chart" },

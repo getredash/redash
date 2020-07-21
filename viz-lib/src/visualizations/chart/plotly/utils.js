@@ -8,7 +8,7 @@ export function cleanNumber(value) {
 
 export function getSeriesAxis(series, options) {
   const seriesOptions = options.seriesOptions[series.name] || { type: options.globalSeriesType };
-  if (seriesOptions.yAxis === 1 && (!options.series.stacking || seriesOptions.type === "line")) {
+  if (seriesOptions.yAxis === 1 && (!options.series.stacking || seriesOptions.type in ["line", "dashdotted-line", "dotted-line"])) {
     return "y2";
   }
   return "y";
