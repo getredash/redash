@@ -82,6 +82,10 @@ def _get_query_results(jobs, project_id, location, job_id, start_index):
 
     return query_reply
 
+class BigQueryError(Exception):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
 
 class BigQuery(BaseQueryRunner):
     should_annotate_query = False
@@ -203,6 +207,12 @@ class BigQuery(BaseQueryRunner):
         )
 
         logger.debug("bigquery replied: %s", query_reply)
+
+        if 'schema' not in query_reply:
+            logger.debug("No 'schema' node in query results. Could be a scripting query that failed.")
+            jobDetails = jobs.get(projectId = project_id, jobId = self.current_job_id).execute()
+            if 'status' in jobDetails and 'errorResult' in jobDetails['status']:
+                raise BigQueryError(jobDetails['status']['errorResult']['message'])
 
         rows = []
 
@@ -333,6 +343,9 @@ class BigQuery(BaseQueryRunner):
                 error = json_loads(e.content)["error"]["message"]
             else:
                 error = e.content
+        except BigQueryError as e:
+            json_data = None
+            error = e.message
         except (KeyboardInterrupt, InterruptException, JobTimeoutException):
             if self.current_job_id:
                 self._get_bigquery_service().jobs().cancel(
