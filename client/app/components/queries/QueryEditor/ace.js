@@ -1,4 +1,4 @@
-import { isNil, map, get } from "lodash";
+import { capitalize, isNil, map, get } from "lodash";
 import AceEditor from "react-ace";
 import ace from "ace-builds";
 
@@ -35,7 +35,7 @@ function buildTableColumnKeywords(table) {
       name: `${table.name}.${columnName}`,
       value: `${table.name}.${columnName}`,
       score: 100,
-      meta: get(column, "type", "Column"),
+      meta: capitalize(get(column, "type", "Column")),
     });
   });
   return keywords;
@@ -56,7 +56,7 @@ function buildKeywordsFromSchema(schema) {
     tableColumnKeywords[table.name] = buildTableColumnKeywords(table);
     table.columns.forEach(c => {
       const columnName = get(c, "name", c);
-      columnKeywords[columnName] = get(c, "type", "Column");
+      columnKeywords[columnName] = capitalize(get(c, "type", "Column"));
     });
   });
 

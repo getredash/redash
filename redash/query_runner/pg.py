@@ -104,7 +104,11 @@ def build_schema(query_result, schema):
         if table_name not in schema:
             schema[table_name] = {"name": table_name, "columns": []}
 
-        schema[table_name]["columns"].append(row["column_name"])
+        column = row["column_name"]
+        if row.get("data_type") is not None:
+            column = {"name": row["column_name"], "type": row["data_type"]}
+
+        schema[table_name]["columns"].append(column)
 
 
 def _create_cert_file(configuration, key, ssl_config):
@@ -206,7 +210,8 @@ class PostgreSQL(BaseSQLQueryRunner):
         query = """
         SELECT s.nspname as table_schema,
                c.relname as table_name,
-               a.attname as column_name
+               a.attname as column_name,
+               null as data_type
         FROM pg_class c
         JOIN pg_namespace s
         ON c.relnamespace = s.oid
@@ -221,7 +226,8 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         SELECT table_schema,
                table_name,
-               column_name
+               column_name,
+               data_type
         FROM information_schema.columns
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
         """
