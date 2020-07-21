@@ -1,4 +1,4 @@
-import { has, get, first, isFunction } from "lodash";
+import { has, get, map, first, find, isFunction, isEmpty } from "lodash";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import notification from "@/services/notification";
 import DatabricksDataSource from "@/services/databricks-data-source";
@@ -33,21 +33,57 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
   const [loadingSchema, setLoadingSchema] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
+  const setCurrentSchema = useCallback(
+    schema =>
+      setSchemas(currentSchemas => ({
+        ...currentSchemas,
+        [currentDatabaseName]: schema,
+      })),
+    [currentDatabaseName]
+  );
+
+  const currentDatabaseNameRef = useRef();
+  currentDatabaseNameRef.current = currentDatabaseName;
+  const loadTableColumns = useCallback(
+    tableName => {
+      // remove [databaseName.] from the tableName
+      DatabricksDataSource.getTableColumns(
+        dataSource,
+        currentDatabaseName,
+        tableName.substring(currentDatabaseName.length + 1)
+      ).then(columns => {
+        if (currentDatabaseNameRef.current === currentDatabaseName) {
+          setSchemas(currentSchemas => {
+            const schema = get(currentSchemas, currentDatabaseName, []);
+            const table = find(schema, { name: tableName });
+            table.columns = columns;
+            table.loading = false;
+            return {
+              ...currentSchemas,
+              [currentDatabaseName]: schema,
+            };
+          });
+        }
+      });
+    },
+    [dataSource, currentDatabaseName]
+  );
+
   const schema = useMemo(() => get(schemas, currentDatabaseName, []), [schemas, currentDatabaseName]);
 
   const refreshAll = useCallback(() => {
     if (!refreshing) {
       setRefreshing(true);
       const getDatabasesPromise = getDatabases(dataSource, true).then(setDatabases);
-      const getSchemasPromise = getSchema(dataSource, currentDatabaseName, true).then(schema => {
-        setSchemas(currentSchemas => ({ ...currentSchemas, [currentDatabaseName]: schema }));
-      });
+      const getSchemasPromise = getSchema(dataSource, currentDatabaseName, true).then(({ schema }) =>
+        setCurrentSchema(schema)
+      );
 
       Promise.all([getSchemasPromise.catch(() => {}), getDatabasesPromise.catch(() => {})]).then(() =>
         setRefreshing(false)
       );
     }
-  }, [dataSource, currentDatabaseName, refreshing]);
+  }, [dataSource, currentDatabaseName, setCurrentSchema, refreshing]);
 
   const schemasRef = useRef();
   schemasRef.current = schemas;
@@ -57,12 +93,17 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
       setLoadingSchema(true);
       getSchema(dataSource, currentDatabaseName)
         .catch(() => Promise.resolve([]))
-        .then(data => {
+        .then(({ schema, has_columns }) => {
           if (!isCancelled) {
-            setSchemas(currentSchemas => ({
-              ...currentSchemas,
-              [currentDatabaseName]: data,
-            }));
+            if (!has_columns && !isEmpty(schema)) {
+              schema = map(schema, table => ({ ...table, loading: true }));
+              getSchema(dataSource, currentDatabaseName, true).then(({ schema }) => {
+                if (!isCancelled) {
+                  setCurrentSchema(schema);
+                }
+              });
+            }
+            setCurrentSchema(schema);
           }
         })
         .finally(() => {
@@ -74,7 +115,7 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
     return () => {
       isCancelled = true;
     };
-  }, [dataSource, currentDatabaseName]);
+  }, [dataSource, currentDatabaseName, setCurrentSchema]);
 
   const defaultDatabaseNameRef = useRef();
   defaultDatabaseNameRef.current = get(options, "selectedDatabase", null);
@@ -131,6 +172,7 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
     loadingSchema,
     currentDatabaseName,
     setCurrentDatabase,
+    loadTableColumns,
     refreshAll,
     refreshing,
   };

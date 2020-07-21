@@ -10,6 +10,18 @@ from redash.serializers import serialize_job
 from redash.utils import json_loads, json_dumps
 
 
+def _get_databricks_data_source(data_source_id, user, org):
+    data_source = get_object_or_404(
+        models.DataSource.get_by_id_and_org, data_source_id, org
+    )
+    require_access(data_source, user, view_only)
+
+    if not data_source.type == "databricks":
+        abort(400, message="Resource only available for the Databricks query runner.")
+
+    return data_source
+
+
 def _databases_key(data_source_id):
     return "databricks:databases:{}".format(data_source_id)
 
@@ -30,15 +42,9 @@ def _get_tables_from_cache(data_source_id, database_name):
 
 class DatabricksDatabaseListResource(BaseResource):
     def get(self, data_source_id):
-        data_source = get_object_or_404(
-            models.DataSource.get_by_id_and_org, data_source_id, self.current_org
+        data_source = _get_databricks_data_source(
+            data_source_id, user=self.current_user, org=self.current_org
         )
-        require_access(data_source, self.current_user, view_only)
-
-        if not data_source.type == "databricks":
-            abort(
-                400, message="Resource only available for the Databricks query runner."
-            )
 
         refresh = request.args.get("refresh") is not None
         if not refresh:
@@ -57,26 +63,26 @@ class DatabricksDatabaseListResource(BaseResource):
 
 class DatabricksSchemaResource(BaseResource):
     def get(self, data_source_id, database_name):
-        data_source = get_object_or_404(
-            models.DataSource.get_by_id_and_org, data_source_id, self.current_org
+        data_source = _get_databricks_data_source(
+            data_source_id, user=self.current_user, org=self.current_org
         )
-        require_access(data_source, self.current_user, view_only)
-
-        if not data_source.type == "databricks":
-            abort(
-                400, message="Resource only available for the Databricks query runner."
-            )
 
         refresh = request.args.get("refresh") is not None
         if not refresh:
             cached_tables = _get_tables_from_cache(data_source_id, database_name)
 
             if cached_tables is not None:
-                return cached_tables
+                return {"schema": cached_tables, "has_columns": True}
+
+            return {
+                "schema": data_source.query_runner.get_database_tables(database_name),
+                "has_columns": False,
+            }
 
         try:
-            tables = data_source.query_runner.get_database_schema(database_name)
-
+            tables = data_source.query_runner.get_database_tables_with_columns(
+                database_name
+            )
             # check for tables since it doesn't return an error when the requested database doesn't exist
             if tables or redis_connection.exists(
                 _tables_key(data_source_id, database_name)
@@ -84,6 +90,18 @@ class DatabricksSchemaResource(BaseResource):
                 redis_connection.set(
                     _tables_key(data_source_id, database_name), json_dumps(tables)
                 )
-            return tables
+            return {"schema": tables, "has_columns": True}
         except Exception:
             abort(500, message="Error retrieving schema.")
+
+
+class DatabricksTableColumnListResource(BaseResource):
+    def get(self, data_source_id, database_name, table_name):
+        data_source = _get_databricks_data_source(
+            data_source_id, user=self.current_user, org=self.current_org
+        )
+
+        try:
+            return data_source.query_runner.get_table_columns(database_name, table_name)
+        except Exception:
+            abort(500, message="Error retrieving table columns.")

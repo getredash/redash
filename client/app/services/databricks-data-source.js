@@ -19,4 +19,6 @@ export default {
     }
     return axios.get(`api/databricks/databases/${data.id}/${databaseName}/tables`, { params });
   },
+  getTableColumns: (data, databaseName, tableName) =>
+    axios.get(`api/databricks/databases/${data.id}/${databaseName}/columns/${tableName}`),
 };
