@@ -125,6 +125,8 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
   useEffect(() => {
     let isCancelled = false;
     setLoadingDatabases(true);
+    setCurrentDatabaseName(undefined);
+    setSchemas({});
     getDatabases(dataSource)
       .catch(() => Promise.resolve([]))
       .then(data => {
