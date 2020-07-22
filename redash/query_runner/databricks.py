@@ -150,8 +150,8 @@ class Databricks(BaseSQLQueryRunner):
 
         cursor.tables(schema=database_name)
 
-        for column in cursor:
-            table_name = "{}.{}".format(column[1], column[2])
+        for table in cursor:
+            table_name = "{}.{}".format(table[1], table[2])
 
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
@@ -161,6 +161,15 @@ class Databricks(BaseSQLQueryRunner):
     def get_database_tables_with_columns(self, database_name):
         schema = {}
         cursor = self._get_cursor()
+
+        # load tables first, otherwise tables without columns are not showed
+        cursor.tables(schema=database_name)
+
+        for table in cursor:
+            table_name = "{}.{}".format(table[1], table[2])
+
+            if table_name not in schema:
+                schema[table_name] = {"name": table_name, "columns": []}
 
         cursor.columns(schema=database_name)
 
