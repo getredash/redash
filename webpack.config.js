@@ -9,6 +9,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
+const fs = require("fs");
 
 const path = require("path");
 
@@ -40,7 +41,7 @@ const config = {
   },
   resolve: {
     symlinks: false,
-    extensions: [".js", ".jsx"],
+    extensions: [".js", ".jsx", ".ts", ".tsx"],
     alias: {
       "@": appPath,
       extensions: extensionPath
@@ -86,7 +87,7 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        test: /\.(t|j)sx?$/,
         exclude: /node_modules/,
         use: ["babel-loader", "eslint-loader"]
       },

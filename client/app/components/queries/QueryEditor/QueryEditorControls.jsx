@@ -1,4 +1,4 @@
-import { isFunction, map, filter, fromPairs } from "lodash";
+import { isFunction, map, filter, fromPairs, noop } from "lodash";
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
@@ -43,10 +43,10 @@ export default function EditorControl({
   useEffect(() => {
     const buttons = filter(
       [addParameterButtonProps, formatButtonProps, saveButtonProps, executeButtonProps],
-      b => b.shortcut && !b.disabled && isFunction(b.onClick)
+      b => b.shortcut && isFunction(b.onClick)
     );
     if (buttons.length > 0) {
-      const shortcuts = fromPairs(map(buttons, b => [b.shortcut, b.onClick]));
+      const shortcuts = fromPairs(map(buttons, b => [b.shortcut, b.disabled ? noop : b.onClick]));
       KeyboardShortcuts.bind(shortcuts);
       return () => {
         KeyboardShortcuts.unbind(shortcuts);

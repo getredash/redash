@@ -51,7 +51,7 @@ class QueryFavoriteResource(BaseResource):
 class DashboardFavoriteResource(BaseResource):
     def post(self, object_id):
         dashboard = get_object_or_404(
-            models.Dashboard.get_by_slug_and_org, object_id, self.current_org
+            models.Dashboard.get_by_id_and_org, object_id, self.current_org
         )
         fav = models.Favorite(
             org_id=self.current_org.id, object=dashboard, user=self.current_user
@@ -76,7 +76,7 @@ class DashboardFavoriteResource(BaseResource):
 
     def delete(self, object_id):
         dashboard = get_object_or_404(
-            models.Dashboard.get_by_slug_and_org, object_id, self.current_org
+            models.Dashboard.get_by_id_and_org, object_id, self.current_org
         )
         models.Favorite.query.filter(
             models.Favorite.object == dashboard,

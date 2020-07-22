@@ -1,4 +1,4 @@
-import { filter, has, isNumber, isObject, isUndefined, map, max, min } from "lodash";
+import { isObject, isUndefined, filter, map } from "lodash";
 import { getPieDimensions } from "./preparePieData";
 
 function getAxisTitle(axis) {
@@ -14,16 +14,6 @@ function getAxisScaleType(axis) {
     default:
       return axis.type;
   }
-}
-
-function calculateAxisRange(seriesList, minValue, maxValue) {
-  if (!isNumber(minValue)) {
-    minValue = Math.min(0, min(map(seriesList, series => min(series.y))));
-  }
-  if (!isNumber(maxValue)) {
-    maxValue = max(map(seriesList, series => max(series.y)));
-  }
-  return [minValue, maxValue];
 }
 
 function prepareXAxis(axisOptions, additionalOptions) {
@@ -48,18 +38,14 @@ function prepareXAxis(axisOptions, additionalOptions) {
   return axis;
 }
 
-function prepareYAxis(axisOptions, additionalOptions, data) {
-  const axis = {
+function prepareYAxis(axisOptions) {
+  return {
     title: getAxisTitle(axisOptions),
     type: getAxisScaleType(axisOptions),
     automargin: true,
+    autorange: true,
+    range: null,
   };
-
-  if (isNumber(axisOptions.rangeMin) || isNumber(axisOptions.rangeMax)) {
-    axis.range = calculateAxisRange(data, axisOptions.rangeMin, axisOptions.rangeMax);
-  }
-
-  return axis;
 }
 
 function preparePieLayout(layout, options, data) {
@@ -90,14 +76,13 @@ function preparePieLayout(layout, options, data) {
 }
 
 function prepareDefaultLayout(layout, options, data) {
-  const ySeries = data.filter(s => s.yaxis !== "y2");
   const y2Series = data.filter(s => s.yaxis === "y2");
 
   layout.xaxis = prepareXAxis(options.xAxis, options);
 
-  layout.yaxis = prepareYAxis(options.yAxis[0], options, ySeries);
+  layout.yaxis = prepareYAxis(options.yAxis[0]);
   if (y2Series.length > 0) {
-    layout.yaxis2 = prepareYAxis(options.yAxis[1], options, y2Series);
+    layout.yaxis2 = prepareYAxis(options.yAxis[1]);
     layout.yaxis2.overlaying = "y";
     layout.yaxis2.side = "right";
   }
@@ -123,7 +108,10 @@ export default function prepareLayout(element, options, data) {
     width: Math.max(5, Math.floor(element.offsetWidth)),
     height: Math.max(5, Math.floor(element.offsetHeight)),
     autosize: false,
-    showlegend: has(options, "legend") ? options.legend.enabled : true,
+    showlegend: options.legend.enabled,
+    legend: {
+      traceorder: options.legend.traceorder,
+    },
   };
 
   switch (options.globalSeriesType) {
