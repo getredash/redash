@@ -1,4 +1,4 @@
-import { isNil, map } from "lodash";
+import { capitalize, isNil, map, get } from "lodash";
 import AceEditor from "react-ace";
 import ace from "ace-builds";
 
@@ -30,11 +30,12 @@ defineDummySnippets("yaml");
 function buildTableColumnKeywords(table) {
   const keywords = [];
   table.columns.forEach(column => {
+    const columnName = get(column, "name");
     keywords.push({
-      name: `${table.name}.${column}`,
-      value: `${table.name}.${column}`,
+      name: `${table.name}.${columnName}`,
+      value: `${table.name}.${columnName}`,
       score: 100,
-      meta: "Column",
+      meta: capitalize(get(column, "type", "Column")),
     });
   });
   return keywords;
@@ -54,7 +55,8 @@ function buildKeywordsFromSchema(schema) {
     });
     tableColumnKeywords[table.name] = buildTableColumnKeywords(table);
     table.columns.forEach(c => {
-      columnKeywords[c] = "Column";
+      const columnName = get(c, "name", c);
+      columnKeywords[columnName] = capitalize(get(c, "type", "Column"));
     });
   });
 

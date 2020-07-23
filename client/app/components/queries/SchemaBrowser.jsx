@@ -1,4 +1,4 @@
-import { isNil, map, filter, some, includes } from "lodash";
+import { isNil, map, filter, some, includes, get } from "lodash";
 import cx from "classnames";
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 import PropTypes from "prop-types";
@@ -12,10 +12,15 @@ import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import LoadingState from "../items-list/components/LoadingState";
 
-const SchemaItemType = PropTypes.shape({
+const SchemaItemColumnType = PropTypes.shape({
+  name: PropTypes.string.isRequired,
+  type: PropTypes.string,
+});
+
+export const SchemaItemType = PropTypes.shape({
   name: PropTypes.string.isRequired,
   size: PropTypes.number,
-  columns: PropTypes.arrayOf(PropTypes.string).isRequired,
+  columns: PropTypes.arrayOf(SchemaItemColumnType).isRequired,
 });
 
 const schemaTableHeight = 22;
@@ -51,16 +56,20 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
       </div>
       {expanded && (
         <div>
-          {map(item.columns, column => (
-            <div key={column} className="table-open">
-              {column}
-              <i
-                className="fa fa-angle-double-right copy-to-editor"
-                aria-hidden="true"
-                onClick={e => handleSelect(e, column)}
-              />
-            </div>
-          ))}
+          {map(item.columns, column => {
+            const columnName = get(column, "name");
+            const columnType = get(column, "type");
+            return (
+              <div key={columnName} className="table-open">
+                {columnName} {columnType && <span className="column-type">{columnType}</span>}
+                <i
+                  className="fa fa-angle-double-right copy-to-editor"
+                  aria-hidden="true"
+                  onClick={e => handleSelect(e, columnName)}
+                />
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -151,7 +160,7 @@ export function applyFilterOnSchema(schema, filterString) {
       schema,
       item =>
         includes(item.name.toLowerCase(), nameFilter) ||
-        some(item.columns, column => includes(column.toLowerCase(), columnFilter))
+        some(item.columns, column => includes(get(column, "name").toLowerCase(), columnFilter))
     );
   }
 
@@ -161,7 +170,10 @@ export function applyFilterOnSchema(schema, filterString) {
   return filter(
     map(schema, item => {
       if (includes(item.name.toLowerCase(), nameFilter)) {
-        item = { ...item, columns: filter(item.columns, column => includes(column.toLowerCase(), columnFilter)) };
+        item = {
+          ...item,
+          columns: filter(item.columns, column => includes(get(column, "name").toLowerCase(), columnFilter)),
+        };
         return item.columns.length > 0 ? item : null;
       }
     })
