@@ -1,5 +1,5 @@
 import { isFunction, isString, filter, map } from "lodash";
-import React from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import Input from "antd/lib/input";
 import AntdMenu from "antd/lib/menu";
@@ -11,15 +11,25 @@ import TagsList from "@/components/TagsList";
  */
 
 export function SearchInput({ placeholder, value, showIcon, onChange }) {
+  const [currentValue, setCurrentValue] = useState(value);
+
+  useEffect(() => {
+    setCurrentValue(value);
+  }, [value]);
+
+  const onInputChange = useCallback(
+    event => {
+      const newValue = event.target.value;
+      setCurrentValue(newValue);
+      onChange(newValue);
+    },
+    [onChange]
+  );
+
   const InputControl = showIcon ? Input.Search : Input;
   return (
     <div className="m-b-10">
-      <InputControl
-        className="form-control"
-        placeholder={placeholder}
-        defaultValue={value}
-        onChange={event => onChange(event.target.value)}
-      />
+      <InputControl className="form-control" placeholder={placeholder} value={currentValue} onChange={onInputChange} />
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import { map } from "lodash";
 import React from "react";
-import { axios } from "@/services/axios";
 
 import Switch from "antd/lib/switch";
 import * as Grid from "antd/lib/grid";
@@ -19,8 +18,10 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import { PageSizeSelect } from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
+import { axios } from "@/services/axios";
 import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
+import routes from "@/services/routes";
 
 class OutdatedQueries extends React.Component {
   static propTypes = {
@@ -169,8 +170,11 @@ const OutdatedQueriesPage = itemsList(
   () => new StateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
-export default routeWithUserSession({
-  path: "/admin/queries/outdated",
-  title: "Outdated Queries",
-  render: pageProps => <OutdatedQueriesPage {...pageProps} currentPage="outdated_queries" />,
-});
+routes.register(
+  "Admin.OutdatedQueries",
+  routeWithUserSession({
+    path: "/admin/queries/outdated",
+    title: "Outdated Queries",
+    render: pageProps => <OutdatedQueriesPage {...pageProps} currentPage="outdated_queries" />,
+  })
+);

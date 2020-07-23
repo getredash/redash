@@ -11,7 +11,9 @@ import Parameters from "@/components/Parameters";
 
 import DataSource from "@/services/data-source";
 import { ExecutionStatus } from "@/services/query-result";
-import getQueryResultData from "@/lib/getQueryResultData";
+import routes from "@/services/routes";
+
+import useQueryResultData from "@/lib/useQueryResultData";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
@@ -56,7 +58,7 @@ function QueryView(props) {
     updatedAt,
   } = useQueryExecute(query);
 
-  const queryResultData = getQueryResultData(queryResult);
+  const queryResultData = useQueryResultData(queryResult);
 
   const updateQueryDescription = useUpdateQueryDescription(query, setQuery);
   const editSchedule = useEditScheduleDialog(query, setQuery);
@@ -91,7 +93,7 @@ function QueryView(props) {
         "query-view-fullscreen": fullscreen,
         "query-fixed-layout": isFixedLayout,
       })}>
-      <div className="container">
+      <div className="container w-100">
         <QueryPageHeader
           query={query}
           dataSource={dataSource}
@@ -101,7 +103,7 @@ function QueryView(props) {
             <QueryViewButton
               className="m-r-5"
               type="primary"
-              shortcut="mod+enter, alt+enter"
+              shortcut="mod+enter, alt+enter, ctrl+enter"
               disabled={!queryFlags.canExecute || isExecuting || areParametersDirty}
               onClick={doExecuteQuery}>
               Refresh
@@ -218,7 +220,10 @@ QueryView.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-
 
 const QueryViewPage = wrapQueryPage(QueryView);
 
-export default routeWithUserSession({
-  path: "/queries/:queryId([0-9]+)",
-  render: pageProps => <QueryViewPage {...pageProps} />,
-});
+routes.register(
+  "Queries.View",
+  routeWithUserSession({
+    path: "/queries/:queryId",
+    render: pageProps => <QueryViewPage {...pageProps} />,
+  })
+);

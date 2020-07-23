@@ -53,7 +53,17 @@ class TestDashboardListGetResource(BaseTestCase):
 class TestDashboardResourceGet(BaseTestCase):
     def test_get_dashboard(self):
         d1 = self.factory.create_dashboard()
-        rv = self.make_request("get", "/api/dashboards/{0}".format(d1.slug))
+        rv = self.make_request("get", "/api/dashboards/{0}".format(d1.id))
+        self.assertEqual(rv.status_code, 200)
+
+        expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
+        actual = json_loads(rv.data)
+
+        self.assertResponseEqual(expected, actual)
+
+    def test_get_dashboard_with_slug(self):
+        d1 = self.factory.create_dashboard()
+        rv = self.make_request("get", "/api/dashboards/{0}?legacy".format(d1.slug))
         self.assertEqual(rv.status_code, 200)
 
         expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
@@ -76,13 +86,13 @@ class TestDashboardResourceGet(BaseTestCase):
         dashboard.layout = "[[{}, {}]]".format(widget.id, restricted_widget.id)
         db.session.commit()
 
-        rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.slug))
+        rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.id))
         self.assertEqual(rv.status_code, 200)
         self.assertTrue(rv.json["widgets"][0]["restricted"])
         self.assertNotIn("restricted", rv.json["widgets"][1])
 
     def test_get_non_existing_dashboard(self):
-        rv = self.make_request("get", "/api/dashboards/not_existing")
+        rv = self.make_request("get", "/api/dashboards/-1")
         self.assertEqual(rv.status_code, 404)
 
 
@@ -156,10 +166,10 @@ class TestDashboardResourceDelete(BaseTestCase):
     def test_delete_dashboard(self):
         d = self.factory.create_dashboard()
 
-        rv = self.make_request("delete", "/api/dashboards/{0}".format(d.slug))
+        rv = self.make_request("delete", "/api/dashboards/{0}".format(d.id))
         self.assertEqual(rv.status_code, 200)
 
-        d = Dashboard.get_by_slug_and_org(d.slug, d.org)
+        d = Dashboard.get_by_id_and_org(d.id, d.org)
         self.assertTrue(d.is_archived)
 
 

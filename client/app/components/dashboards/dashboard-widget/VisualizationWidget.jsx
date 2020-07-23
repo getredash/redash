@@ -4,10 +4,10 @@ import { compact, isEmpty, invoke } from "lodash";
 import { markdown } from "markdown";
 import cx from "classnames";
 import Menu from "antd/lib/menu";
+import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import { currentUser } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
 import { formatDateTime } from "@/lib/utils";
-import HtmlContent from "@/components/HtmlContent";
 import Parameters from "@/components/Parameters";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
@@ -16,7 +16,7 @@ import QueryLink from "@/components/QueryLink";
 import { FiltersType } from "@/components/Filters";
 import ExpandedWidgetDialog from "@/components/dashboards/ExpandedWidgetDialog";
 import EditParameterMappingsDialog from "@/components/dashboards/EditParameterMappingsDialog";
-import VisualizationRenderer from "@/visualizations/components/VisualizationRenderer";
+import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import Widget from "./Widget";
 
 function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit }) {
@@ -238,8 +238,8 @@ class VisualizationWidget extends React.Component {
   };
 
   renderVisualization() {
-    const { isLoading, widget, filters } = this.props;
-    const widgetQueryResult = !isLoading && widget.getQueryResult();
+    const { widget, filters } = this.props;
+    const widgetQueryResult = widget.getQueryResult();
     const widgetStatus = widgetQueryResult && widgetQueryResult.getStatus();
     switch (widgetStatus) {
       case "failed":

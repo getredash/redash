@@ -1,6 +1,5 @@
-import { reduce } from "lodash";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
-import DataSource, { SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
+import DataSource from "@/services/data-source";
 import notification from "@/services/notification";
 
 function getSchema(dataSource, refresh = undefined) {
@@ -8,41 +7,35 @@ function getSchema(dataSource, refresh = undefined) {
     return Promise.resolve([]);
   }
 
-  return DataSource.fetchSchema(dataSource, refresh)
-    .then(data => {
-      if (data.schema) {
-        return data.schema;
-      } else if (data.error.code === SCHEMA_NOT_SUPPORTED) {
-        return [];
-      }
-      return Promise.reject(new Error("Schema refresh failed."));
-    })
-    .catch(() => {
-      notification.error("Schema refresh failed.", "Please try again later.");
-      return Promise.resolve([]);
-    });
-}
-
-function prepareSchema(schema) {
-  schema.tokensCount = reduce(schema, (totalLength, table) => totalLength + table.columns.length, 0);
-  return schema;
+  return DataSource.fetchSchema(dataSource, refresh).catch(() => {
+    notification.error("Schema refresh failed.", "Please try again later.");
+    return Promise.resolve([]);
+  });
 }
 
 export default function useDataSourceSchema(dataSource) {
-  const [schema, setSchema] = useState(prepareSchema([]));
+  const [schema, setSchema] = useState([]);
+  const [loadingSchema, setLoadingSchema] = useState(true);
   const refreshSchemaTokenRef = useRef(null);
 
   const reloadSchema = useCallback(
     (refresh = undefined) => {
+      setLoadingSchema(true);
       const refreshToken = Math.random()
         .toString(36)
         .substr(2);
       refreshSchemaTokenRef.current = refreshToken;
-      getSchema(dataSource, refresh).then(data => {
-        if (refreshSchemaTokenRef.current === refreshToken) {
-          setSchema(prepareSchema(data));
-        }
-      });
+      getSchema(dataSource, refresh)
+        .then(data => {
+          if (refreshSchemaTokenRef.current === refreshToken) {
+            setSchema(data);
+          }
+        })
+        .finally(() => {
+          if (refreshSchemaTokenRef.current === refreshToken) {
+            setLoadingSchema(false);
+          }
+        });
     },
     [dataSource]
   );
@@ -58,5 +51,5 @@ export default function useDataSourceSchema(dataSource) {
     };
   }, []);
 
-  return useMemo(() => [schema, reloadSchema], [schema, reloadSchema]);
+  return useMemo(() => [schema, loadingSchema, reloadSchema], [schema, loadingSchema, reloadSchema]);
 }

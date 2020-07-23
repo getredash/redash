@@ -5,7 +5,7 @@ import useAddToDashboardDialog from "../hooks/useAddToDashboardDialog";
 import useEmbedDialog from "../hooks/useEmbedDialog";
 import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
 import EditVisualizationButton from "@/components/EditVisualizationButton";
-import getQueryResultData from "@/lib/getQueryResultData";
+import useQueryResultData from "@/lib/useQueryResultData";
 import { durationHumanize, pluralize, prettySize } from "@/lib/utils";
 
 import "./QueryExecutionMetadata.less";
@@ -19,7 +19,7 @@ export default function QueryExecutionMetadata({
   onEditVisualization,
   extraActions,
 }) {
-  const queryResultData = getQueryResultData(queryResult);
+  const queryResultData = useQueryResultData(queryResult);
   const openAddToDashboardDialog = useAddToDashboardDialog(query);
   const openEmbedDialog = useEmbedDialog(query);
   return (

@@ -245,7 +245,7 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
 
     d = {
         "id": obj.id,
-        "slug": obj.slug,
+        "slug": obj.name_as_slug,
         "name": obj.name,
         "user_id": obj.user_id,
         "user": {
@@ -313,7 +313,7 @@ def serialize_job(job):
         updated_at = 0
 
     status = STATUSES[job_status]
-    query_result_id = None
+    result = query_result_id = None
 
     if job.is_cancelled:
         error = "Query cancelled by user."
@@ -321,9 +321,12 @@ def serialize_job(job):
     elif isinstance(job.result, Exception):
         error = str(job.result)
         status = 4
+    elif isinstance(job.result, dict) and "error" in job.result:
+        error = job.result["error"]
+        status = 4
     else:
         error = ""
-        query_result_id = job.result
+        result = query_result_id = job.result
 
     return {
         "job": {
@@ -331,6 +334,7 @@ def serialize_job(job):
             "updated_at": updated_at,
             "status": status,
             "error": error,
+            "result": result,
             "query_result_id": query_result_id,
         }
     }

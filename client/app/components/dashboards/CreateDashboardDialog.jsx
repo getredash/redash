@@ -1,6 +1,5 @@
 import { trim } from "lodash";
 import React, { useState } from "react";
-import { axios } from "@/services/axios";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import DynamicComponent from "@/components/DynamicComponent";
@@ -8,6 +7,7 @@ import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import recordEvent from "@/services/recordEvent";
 import { policy } from "@/services/policy";
+import { Dashboard } from "@/services/dashboard";
 
 function CreateDashboardDialog({ dialog }) {
   const [name, setName] = useState("");
@@ -25,9 +25,9 @@ function CreateDashboardDialog({ dialog }) {
     if (name !== "") {
       setSaveInProgress(true);
 
-      axios.post("api/dashboards", { name }).then(data => {
+      Dashboard.save({ name }).then(data => {
         dialog.close();
-        navigateTo(`dashboard/${data.slug}?edit`);
+        navigateTo(`${data.url}?edit`);
       });
       recordEvent("create", "dashboard");
     }

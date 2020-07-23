@@ -1,4 +1,4 @@
-@import "~@/components/ApplicationArea/ApplicationHeader/index.less";
+@import "~@/components/ApplicationArea/ApplicationLayout/index.less";
 
 .dashboard-header {
   display: flex;
@@ -10,6 +10,7 @@
   z-index: 99;
   width: 100%;
   top: 0;
+  padding-top: 10px;
   margin-bottom: 10px;
 
   & > div {
@@ -38,7 +39,6 @@
 
   @media @mobileBreakpoint {
     & {
-      padding: 0 !important;
       position: static;
     }
   }

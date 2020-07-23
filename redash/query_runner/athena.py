@@ -77,10 +77,21 @@ class Athena(BaseQueryRunner):
                     "title": "Athena Work Group",
                     "default": "primary",
                 },
+                "cost_per_tb": {
+                    "type": "number",
+                    "title": "Athena cost per Tb scanned (USD)",
+                    "default": 5,
+                },
             },
             "required": ["region", "s3_staging_dir"],
-            "extra_options": ["glue"],
-            "order": ["region", "s3_staging_dir", "schema", "work_group"],
+            "extra_options": ["glue", "cost_per_tb"],
+            "order": [
+                "region",
+                "s3_staging_dir",
+                "schema",
+                "work_group",
+                "cost_per_tb",
+            ],
             "secret": ["aws_secret_key"],
         }
 
@@ -234,14 +245,18 @@ class Athena(BaseQueryRunner):
                 athena_query_id = cursor.query_id
             except AttributeError as e:
                 logger.debug("Athena Upstream can't get query_id: %s", e)
+
+            price = self.configuration.get("cost_per_tb", 5)
             data = {
                 "columns": columns,
                 "rows": rows,
                 "metadata": {
                     "data_scanned": qbytes,
                     "athena_query_id": athena_query_id,
+                    "query_cost": price * qbytes * 10e-12,
                 },
             }
+
             json_data = json_dumps(data, ignore_nan=True)
             error = None
         except Exception:

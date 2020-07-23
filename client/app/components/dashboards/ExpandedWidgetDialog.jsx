@@ -3,8 +3,8 @@ import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import VisualizationRenderer from "@/visualizations/components/VisualizationRenderer";
-import VisualizationName from "@/visualizations/components/VisualizationName";
+import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
+import VisualizationName from "@/components/visualizations/VisualizationName";
 
 function ExpandedWidgetDialog({ dialog, widget }) {
   return (
