@@ -58,7 +58,7 @@ class DatabricksDatabaseListResource(BaseResource):
             redis_connection.set(_databases_key(data_source_id), json_dumps(databases))
             return databases
         except Exception:
-            abort(500, message="Error retrieving database list.")
+            return {"error": {"code": 2, "message": "Error retrieving database list."}}
 
 
 class DatabricksSchemaResource(BaseResource):
@@ -92,7 +92,7 @@ class DatabricksSchemaResource(BaseResource):
                 )
             return {"schema": tables, "has_columns": True}
         except Exception:
-            abort(500, message="Error retrieving schema.")
+            return {"error": {"code": 2, "message": "Error retrieving schema."}}
 
 
 class DatabricksTableColumnListResource(BaseResource):
@@ -104,4 +104,4 @@ class DatabricksTableColumnListResource(BaseResource):
         try:
             return data_source.query_runner.get_table_columns(database_name, table_name)
         except Exception:
-            abort(500, message="Error retrieving table columns.")
+            return {"error": {"code": 2, "message": "Error retrieving table columns."}}
