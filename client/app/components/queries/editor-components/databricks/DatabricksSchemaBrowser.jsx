@@ -84,7 +84,9 @@ export default function DatabricksSchemaBrowser({
 
   function toggleTable(tableName) {
     const table = find(schema, { name: tableName });
-    if (!expandedFlags[tableName] && get(table, "loading", false)) loadTableColumns(tableName);
+    if (!expandedFlags[tableName] && get(table, "loading", false)) {
+      loadTableColumns(tableName);
+    }
     setExpandedFlags({
       ...expandedFlags,
       [tableName]: !expandedFlags[tableName],

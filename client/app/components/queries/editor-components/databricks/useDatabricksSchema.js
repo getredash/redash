@@ -95,7 +95,7 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
     if (currentDatabaseName && !has(schemasRef.current, currentDatabaseName)) {
       setLoadingSchema(true);
       getSchema(dataSource, currentDatabaseName)
-        .catch(() => Promise.resolve([]))
+        .catch(() => Promise.resolve({ schema: [], has_columns: true }))
         .then(({ schema, has_columns }) => {
           if (!isCancelled) {
             if (!has_columns && !isEmpty(schema)) {
