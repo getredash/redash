@@ -10,6 +10,9 @@ from redash.serializers import serialize_job
 from redash.utils import json_loads, json_dumps
 
 
+DATABRICKS_REDIS_EXPIRATION_TIME = 3600
+
+
 def _get_databricks_data_source(data_source_id, user, org):
     data_source = get_object_or_404(
         models.DataSource.get_by_id_and_org, data_source_id, org
@@ -56,6 +59,9 @@ class DatabricksDatabaseListResource(BaseResource):
         try:
             databases = data_source.query_runner.get_databases()
             redis_connection.set(_databases_key(data_source_id), json_dumps(databases))
+            redis_connection.expire(
+                _databases_key(data_source_id), DATABRICKS_REDIS_EXPIRATION_TIME
+            )
             return databases
         except Exception:
             return {"error": {"code": 2, "message": "Error retrieving database list."}}
@@ -89,6 +95,10 @@ class DatabricksSchemaResource(BaseResource):
             ):
                 redis_connection.set(
                     _tables_key(data_source_id, database_name), json_dumps(tables)
+                )
+                redis_connection.expire(
+                    _tables_key(data_source_id, database_name),
+                    DATABRICKS_REDIS_EXPIRATION_TIME,
                 )
             return {"schema": tables, "has_columns": True}
         except Exception:
