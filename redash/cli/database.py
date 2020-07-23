@@ -8,6 +8,7 @@ from sqlalchemy.exc import DatabaseError
 from sqlalchemy.sql import select
 from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
 
+from redash import settings
 from redash.models.base import Column
 from redash.models.types import EncryptedConfiguration
 from redash.utils.configuration import ConfigurationContainer
@@ -26,6 +27,19 @@ def _wait_for_db_connection(db):
 
         retried = True
 
+ 
+def is_db_empty():
+    from redash.models import db
+
+    table_names = sqlalchemy.inspect(db.get_engine()).get_table_names()
+    return len(table_names) == 0
+
+
+def load_extensions(db):
+    with db.engine.connect() as connection:
+        for extension in settings.dynamic_settings.database_extensions:
+            connection.execute(f'CREATE EXTENSION IF NOT EXISTS "{extension}";')
+
 
 @manager.command()
 def create_tables():
@@ -33,12 +47,18 @@ def create_tables():
     from redash.models import db
 
     _wait_for_db_connection(db)
-    # To create triggers for searchable models, we need to call configure_mappers().
-    sqlalchemy.orm.configure_mappers()
-    db.create_all()
 
-    # Need to mark current DB as up to date
-    stamp()
+    # We need to make sure we run this only if the DB is empty, because otherwise calling
+    # stamp() will stamp it with the latest migration value and migrations won't run.
+    if is_db_empty():
+        load_extensions(db)
+
+        # To create triggers for searchable models, we need to call configure_mappers().
+        sqlalchemy.orm.configure_mappers()
+        db.create_all()
+
+        # Need to mark current DB as up to date
+        stamp()
 
 
 @manager.command()
