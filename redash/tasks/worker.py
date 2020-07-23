@@ -2,6 +2,7 @@ import errno
 import os
 import signal
 import time
+from redash import statsd_client
 from rq import Worker as BaseWorker, Queue as BaseQueue, get_current_job
 from rq.utils import utcnow
 from rq.timeouts import UnixSignalDeathPenalty, HorseMonitorTimeoutException
@@ -22,8 +23,41 @@ class CancellableJob(BaseJob):
         return self.meta.get("cancelled", False)
 
 
+class StatsdRecordingQueue(BaseQueue):
+    """
+    RQ Queue Mixin that overrides `enqueue_call` to increment metrics via Statsd
+    """
+
+    def enqueue_job(self, *args, **kwargs):
+        job = super().enqueue_job(*args, **kwargs)
+        statsd_client.incr("rq.jobs.created.{}".format(self.name))
+        return job
+
+
 class CancellableQueue(BaseQueue):
     job_class = CancellableJob
+
+
+class RedashQueue(StatsdRecordingQueue, CancellableQueue):
+    pass
+
+
+class StatsdRecordingWorker(BaseWorker):
+    """
+    RQ Worker Mixin that overrides `execute_job` to increment/modify metrics via Statsd
+    """
+
+    def execute_job(self, job, queue):
+        statsd_client.incr("rq.jobs.running.{}".format(queue.name))
+        statsd_client.incr("rq.jobs.started.{}".format(queue.name))
+        try:
+            super().execute_job(job, queue)
+        finally:
+            statsd_client.decr("rq.jobs.running.{}".format(queue.name))
+            if job.get_status() == JobStatus.FINISHED:
+                statsd_client.incr("rq.jobs.finished.{}".format(queue.name))
+            else:
+                statsd_client.incr("rq.jobs.failed.{}".format(queue.name))
 
 
 class HardLimitingWorker(BaseWorker):
@@ -130,6 +164,10 @@ class HardLimitingWorker(BaseWorker):
             )
 
 
+class RedashWorker(StatsdRecordingWorker, HardLimitingWorker):
+    queue_class = RedashQueue
+
+
 Job = CancellableJob
-Queue = CancellableQueue
-Worker = HardLimitingWorker
+Queue = RedashQueue
+Worker = RedashWorker

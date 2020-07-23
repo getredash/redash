@@ -92,6 +92,10 @@ const DYNAMIC_DATE_RANGES = {
     name: "Last 90 days",
     value: () => [moment().subtract(90, "days"), moment()],
   },
+  last_12_months: {
+    name: "Last 12 months",
+    value: () => [moment().subtract(12, "months"), moment()],
+  },
 };
 
 export const DynamicDateRangeType = PropTypes.oneOf(values(DYNAMIC_DATE_RANGES));

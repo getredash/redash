@@ -38,7 +38,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
 
   function addWidgetToDashboard() {
     // Load dashboard with all widgets
-    Dashboard.get({ slug: selectedDashboard.slug })
+    Dashboard.get(selectedDashboard)
       .then(dashboard => {
         dashboard.addWidget(visualization);
         return dashboard;
@@ -51,7 +51,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
         notification.success(
           "Widget added to dashboard",
           <React.Fragment>
-            <a href={`dashboard/${dashboard.slug}`} onClick={() => notification.close(key)}>
+            <a href={`${dashboard.url}`} onClick={() => notification.close(key)}>
               {dashboard.name}
             </a>
             <QueryTagsControl isDraft={dashboard.is_draft} tags={dashboard.tags} />

@@ -115,11 +115,11 @@ class DashboardListResource(BaseResource):
 
 class DashboardResource(BaseResource):
     @require_permission("list_dashboards")
-    def get(self, dashboard_slug=None):
+    def get(self, dashboard_id=None):
         """
         Retrieves a dashboard.
 
-        :qparam string slug: Slug of dashboard to retrieve.
+        :qparam number id: Id of dashboard to retrieve.
 
         .. _dashboard-response-label:
 
@@ -149,9 +149,12 @@ class DashboardResource(BaseResource):
         :>json string widget.created_at: ISO format timestamp for widget creation
         :>json string widget.updated_at: ISO format timestamp for last widget modification
         """
-        dashboard = get_object_or_404(
-            models.Dashboard.get_by_slug_and_org, dashboard_slug, self.current_org
-        )
+        if request.args.get("legacy") is not None:
+            fn = models.Dashboard.get_by_slug_and_org
+        else:
+            fn = models.Dashboard.get_by_id_and_org
+
+        dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
         response = DashboardSerializer(
             dashboard, with_widgets=True, user=self.current_user
         ).serialize()
@@ -175,11 +178,11 @@ class DashboardResource(BaseResource):
         return response
 
     @require_permission("edit_dashboard")
-    def post(self, dashboard_slug):
+    def post(self, dashboard_id):
         """
         Modifies a dashboard.
 
-        :qparam string slug: Slug of dashboard to retrieve.
+        :qparam number id: Id of dashboard to retrieve.
 
         Responds with the updated :ref:`dashboard <dashboard-response-label>`.
 
@@ -188,7 +191,7 @@ class DashboardResource(BaseResource):
         """
         dashboard_properties = request.get_json(force=True)
         # TODO: either convert all requests to use slugs or ids
-        dashboard = models.Dashboard.get_by_id_and_org(dashboard_slug, self.current_org)
+        dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
 
         require_object_modify_permission(dashboard, self.current_user)
 
@@ -231,17 +234,15 @@ class DashboardResource(BaseResource):
         return result
 
     @require_permission("edit_dashboard")
-    def delete(self, dashboard_slug):
+    def delete(self, dashboard_id):
         """
         Archives a dashboard.
 
-        :qparam string slug: Slug of dashboard to retrieve.
+        :qparam number id: Id of dashboard to retrieve.
 
         Responds with the archived :ref:`dashboard <dashboard-response-label>`.
         """
-        dashboard = models.Dashboard.get_by_slug_and_org(
-            dashboard_slug, self.current_org
-        )
+        dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
         dashboard.is_archived = True
         dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)

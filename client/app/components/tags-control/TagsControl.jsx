@@ -12,6 +12,7 @@ export class TagsControl extends React.Component {
     onEdit: PropTypes.func,
     className: PropTypes.string,
     tagsExtra: PropTypes.node,
+    tagSeparator: PropTypes.node,
     children: PropTypes.node,
   };
 
@@ -22,6 +23,7 @@ export class TagsControl extends React.Component {
     onEdit: () => {},
     className: "",
     tagsExtra: null,
+    tagSeparator: null,
     children: null,
   };
 
@@ -49,13 +51,17 @@ export class TagsControl extends React.Component {
   }
 
   render() {
+    const { tags, tagSeparator } = this.props;
     return (
       <div className={"tags-control " + this.props.className} data-test="TagsControl">
         {this.props.children}
-        {map(this.props.tags, tag => (
-          <span className="label label-tag" key={tag} title={tag} data-test="TagLabel">
-            {tag}
-          </span>
+        {map(tags, (tag, i) => (
+          <React.Fragment key={tag}>
+            {tagSeparator && i > 0 && <span className="tag-separator">{tagSeparator}</span>}
+            <span className="label label-tag" key={tag} title={tag} data-test="TagLabel">
+              {tag}
+            </span>
+          </React.Fragment>
         ))}
         {this.props.canEdit && this.renderEditButton()}
         {this.props.tagsExtra}

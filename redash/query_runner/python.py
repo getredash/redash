@@ -7,7 +7,7 @@ from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
 from redash import models
 from RestrictedPython import compile_restricted
-from RestrictedPython.Guards import safe_builtins
+from RestrictedPython.Guards import safe_builtins, guarded_iter_unpack_sequence, guarded_unpack_sequence
 
 
 logger = logging.getLogger(__name__)
@@ -34,8 +34,11 @@ class CustomPrint(object):
     def disable(self):
         self.enabled = False
 
-    def __call__(self):
+    def __call__(self, *args):
         return self
+
+    def _call_print(self, *objects, **kwargs):
+        print(*objects, file=self)
 
 
 class Python(BaseQueryRunner):
@@ -79,6 +82,7 @@ class Python(BaseQueryRunner):
                     "title": "Modules to import prior to running the script",
                 },
                 "additionalModulesPaths": {"type": "string"},
+                "additionalBuiltins": {"type": "string"},
             },
         }
 
@@ -104,6 +108,11 @@ class Python(BaseQueryRunner):
             for p in self.configuration["additionalModulesPaths"].split(","):
                 if p not in sys.path:
                     sys.path.append(p)
+
+        if self.configuration.get("additionalBuiltins", None):
+            for b in self.configuration["additionalBuiltins"].split(","):
+                if b not in self.safe_builtins:
+                    self.safe_builtins += (b, )
 
     def custom_import(self, name, globals=None, locals=None, fromlist=(), level=0):
         if name in self._allowed_modules:
@@ -254,6 +263,8 @@ class Python(BaseQueryRunner):
             builtins["_getitem_"] = self.custom_get_item
             builtins["_getiter_"] = self.custom_get_iter
             builtins["_print_"] = self._custom_print
+            builtins["_unpack_sequence_"] = guarded_unpack_sequence
+            builtins["_iter_unpack_sequence_"] = guarded_iter_unpack_sequence
 
             # Layer in our own additional set of builtins that we have
             # considered safe.

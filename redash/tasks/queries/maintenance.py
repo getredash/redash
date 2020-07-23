@@ -71,6 +71,10 @@ def _apply_default_parameters(query):
         return query.query_text
 
 
+class RefreshQueriesError(Exception):
+    pass
+
+
 def refresh_queries():
     logger.info("Refreshing queries...")
     enqueued = []
@@ -90,7 +94,8 @@ def refresh_queries():
         except Exception as e:
             message = "Could not enqueue query %d due to %s" % (query.id, repr(e))
             logging.info(message)
-            sentry.capture_exception(type(e)(message).with_traceback(e.__traceback__))
+            error = RefreshQueriesError(message).with_traceback(e.__traceback__)
+            sentry.capture_exception(error)
 
     status = {
         "outdated_queries_count": len(enqueued),
@@ -196,4 +201,3 @@ def refresh_schemas():
         u"task=refresh_schemas state=finish total_runtime=%.2f",
         time.time() - global_start_time,
     )
-

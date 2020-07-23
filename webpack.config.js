@@ -9,6 +9,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
+const fs = require("fs");
 
 const path = require("path");
 
@@ -40,7 +41,7 @@ const config = {
   },
   resolve: {
     symlinks: false,
-    extensions: [".js", ".jsx"],
+    extensions: [".js", ".jsx", ".ts", ".tsx"],
     alias: {
       "@": appPath,
       extensions: extensionPath
@@ -53,7 +54,8 @@ const config = {
     new HtmlWebpackPlugin({
       template: "./client/app/index.html",
       filename: "index.html",
-      excludeChunks: ["server"]
+      excludeChunks: ["server"],
+      release: process.env.BUILD_VERSION || "dev"
     }),
     new HtmlWebpackPlugin({
       template: "./client/app/multi_org.html",
@@ -85,13 +87,13 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        test: /\.(t|j)sx?$/,
         exclude: /node_modules/,
         use: ["babel-loader", "eslint-loader"]
       },
       {
         test: /\.html$/,
-        exclude: [/node_modules/, /index\.html/],
+        exclude: [/node_modules/, /index\.html/, /multi_org\.html/],
         use: [
           {
             loader: "raw-loader"

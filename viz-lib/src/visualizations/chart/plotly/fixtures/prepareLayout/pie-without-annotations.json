@@ -1,0 +1,25 @@
+{
+  "input": {
+    "options": {
+      "globalSeriesType": "pie",
+      "textFormat": "{{ @@name }}",
+      "legend": {
+        "traceorder": "normal"
+      }
+    },
+    "series": [{ "name": "a" }]
+  },
+  "output": {
+    "layout": {
+      "margin": { "l": 10, "r": 10, "b": 5, "t": 20, "pad": 4 },
+      "width": 400,
+      "height": 300,
+      "autosize": false,
+      "showlegend": true,
+      "legend": {
+        "traceorder": "normal"
+      },
+      "annotations": []
+    }
+  }
+}

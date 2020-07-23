@@ -103,7 +103,7 @@ export function createUser({ name, email, password }) {
   return cy
     .request({
       method: "POST",
-      url: "api/users",
+      url: "api/users?no_invite=yes",
       body: { name, email },
       failOnStatusCode: false,
     })
@@ -128,6 +128,15 @@ export function createUser({ name, email, password }) {
         body: { password },
       });
     });
+}
+
+export function createDestination(name, type, options = {}) {
+  return cy.request({
+    method: "POST",
+    url: "api/destinations",
+    body: { name, type, options },
+    failOnStatusCode: false,
+  });
 }
 
 export function getDestinations() {

@@ -6,6 +6,8 @@ import { currentUser } from "@/services/auth";
 import location from "@/services/location";
 import { cloneParameter } from "@/services/parameters";
 
+export const urlForDashboard = ({ id, slug }) => `dashboards/${id}-${slug}`;
+
 export function collectDashboardFilters(dashboard, queryResults, urlParams) {
   const filters = {};
   _.each(queryResults, queryResult => {
@@ -123,6 +125,11 @@ function calculateNewWidgetPosition(existingWidgets, newWidget) {
 
 export function Dashboard(dashboard) {
   _.extend(this, dashboard);
+  Object.defineProperty(this, "url", {
+    get: function() {
+      return urlForDashboard(this);
+    },
+  });
 }
 
 function prepareDashboardWidgets(widgets) {
@@ -147,17 +154,23 @@ function transformResponse(data) {
   return data;
 }
 
-const saveOrCreateUrl = data => (data.slug ? `api/dashboards/${data.slug}` : "api/dashboards");
+const saveOrCreateUrl = data => (data.id ? `api/dashboards/${data.id}` : "api/dashboards");
 const DashboardService = {
-  get: ({ slug }) => axios.get(`api/dashboards/${slug}`).then(transformResponse),
+  get: ({ id, slug }) => {
+    const params = {};
+    if (!id) {
+      params.legacy = null;
+    }
+    return axios.get(`api/dashboards/${id || slug}`, { params }).then(transformResponse);
+  },
   getByToken: ({ token }) => axios.get(`api/dashboards/public/${token}`).then(transformResponse),
   save: data => axios.post(saveOrCreateUrl(data), data).then(transformResponse),
-  delete: ({ slug }) => axios.delete(`api/dashboards/${slug}`).then(transformResponse),
+  delete: ({ id }) => axios.delete(`api/dashboards/${id}`).then(transformResponse),
   query: params => axios.get("api/dashboards", { params }).then(transformResponse),
   recent: params => axios.get("api/dashboards/recent", { params }).then(transformResponse),
   favorites: params => axios.get("api/dashboards/favorites", { params }).then(transformResponse),
-  favorite: ({ slug }) => axios.post(`api/dashboards/${slug}/favorite`),
-  unfavorite: ({ slug }) => axios.delete(`api/dashboards/${slug}/favorite`),
+  favorite: ({ id }) => axios.post(`api/dashboards/${id}/favorite`),
+  unfavorite: ({ id }) => axios.delete(`api/dashboards/${id}/favorite`),
 };
 
 _.extend(Dashboard, DashboardService);

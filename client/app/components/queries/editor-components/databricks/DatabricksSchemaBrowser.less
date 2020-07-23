@@ -1,0 +1,46 @@
+.databricks-schema-browser {
+  .schema-control {
+    .database-select-open .ant-input-group-addon {
+      background-color: #fff;
+
+      .ant-select-selection-selected-value {
+        visibility: hidden;
+      }
+    }
+
+    .ant-input-wrapper {
+      table-layout: fixed; // antd uses display: table, so this is needed for % units
+
+      .ant-input-group-addon {
+        width: 40%;
+        padding: 0;
+        border-bottom-left-radius: 0;
+
+        .ant-select {
+          width: 100%;
+
+          &.ant-select-focused .ant-select-selection {
+            color: inherit;
+          }
+        }
+      }
+
+      .ant-input {
+        border-bottom-right-radius: 0;
+      }
+    }
+  }
+
+  .schema-list-wrapper {
+    height: 100%;
+    border: 1px solid #eaeaea;
+    border-top: 0;
+    border-radius: 0 0 4px 4px;
+    margin-bottom: 20px;
+  }
+}
+
+.databricks-schema-browser-db-dropdown {
+  width: auto !important;
+  max-width: 50vw;
+}

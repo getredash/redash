@@ -1,5 +1,6 @@
 import { toUpper } from "lodash";
 import React from "react";
+import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
@@ -12,6 +13,8 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
 import Alert from "@/services/alert";
+import { currentUser } from "@/services/auth";
+import routes from "@/services/routes";
 
 export const STATE_CLASS = {
   unknown: "label-warning",
@@ -69,8 +72,18 @@ class AlertsList extends React.Component {
     return (
       <div className="page-alerts-list">
         <div className="container">
-          <PageHeader title={controller.params.pageTitle} />
-          <div className="m-l-15 m-r-15">
+          <PageHeader
+            title={controller.params.pageTitle}
+            actions={
+              currentUser.hasPermission("list_alerts") ? (
+                <Button block type="primary" href="alerts/new">
+                  <i className="fa fa-plus m-r-5" />
+                  New Alert
+                </Button>
+              ) : null
+            }
+          />
+          <div>
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && (
               <EmptyState
@@ -120,8 +133,11 @@ const AlertsListPage = itemsList(
   () => new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 20 })
 );
 
-export default routeWithUserSession({
-  path: "/alerts",
-  title: "Alerts",
-  render: pageProps => <AlertsListPage {...pageProps} currentPage="alerts" />,
-});
+routes.register(
+  "Alerts.List",
+  routeWithUserSession({
+    path: "/alerts",
+    title: "Alerts",
+    render: pageProps => <AlertsListPage {...pageProps} currentPage="alerts" />,
+  })
+);
