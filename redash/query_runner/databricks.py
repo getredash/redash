@@ -179,14 +179,14 @@ class Databricks(BaseSQLQueryRunner):
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
 
-            schema[table_name]["columns"].append(column[3])
+            schema[table_name]["columns"].append({"name": column[3], "type": column[5]})
 
         return list(schema.values())
 
     def get_table_columns(self, database_name, table_name):
         cursor = self._get_cursor()
         cursor.columns(schema=database_name, table=table_name)
-        return [column[3] for column in cursor]
+        return [{"name": column[3], "type": column[5]} for column in cursor]
 
 
 register(Databricks)
