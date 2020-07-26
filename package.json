@@ -47,7 +47,7 @@
   "dependencies": {
     "@redash/viz": "file:viz-lib",
     "ace-builds": "^1.4.12",
-    "antd": "^3.26.17",
+    "antd": "^4.4.3",
     "axios": "^0.19.0",
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.6",
