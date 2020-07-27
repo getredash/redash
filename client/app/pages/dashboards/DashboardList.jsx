@@ -97,12 +97,6 @@ class DashboardList extends React.Component {
               />
               <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
               <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} />
-              <Sidebar.PageSizeSelect
-                className="m-b-10"
-                options={controller.pageSizeOptions}
-                value={controller.itemsPerPage}
-                onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-              />
             </Layout.Sidebar>
             <Layout.Content>
               {controller.isLoaded ? (
@@ -123,8 +117,10 @@ class DashboardList extends React.Component {
                         toggleSorting={controller.toggleSorting}
                       />
                       <Paginator
+                        showPageSizeSelect
                         totalCount={controller.totalItemsCount}
-                        itemsPerPage={controller.itemsPerPage}
+                        pageSize={controller.itemsPerPage}
+                        onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
                         page={controller.page}
                         onChange={page => controller.updatePagination({ page })}
                       />

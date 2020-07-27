@@ -173,8 +173,10 @@ class GroupMembers extends React.Component {
                   toggleSorting={controller.toggleSorting}
                 />
                 <Paginator
+                  showPageSizeSelect
                   totalCount={controller.totalItemsCount}
-                  itemsPerPage={controller.itemsPerPage}
+                  pageSize={controller.itemsPerPage}
+                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
                   page={controller.page}
                   onChange={page => controller.updatePagination({ page })}
                 />
