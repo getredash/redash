@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
-import Form from "antd/lib/form";
+import { Form } from "@ant-design/compatible";
 import Input from "antd/lib/input";
 import InputNumber from "antd/lib/input-number";
 import Checkbox from "antd/lib/checkbox";
