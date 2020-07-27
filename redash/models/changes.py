@@ -9,6 +9,7 @@ from .types import PseudoJSON
 class Change(GFKBase, db.Model):
     id = primary_key("Change")
     # 'object' defined in GFKBase
+    object_id = Column(key_type("Change"))
     object_version = Column(db.Integer, default=0)
     user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship("User", backref="changes")
