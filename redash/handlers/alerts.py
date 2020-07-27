@@ -146,7 +146,6 @@ class AlertSubscriptionListResource(BaseResource):
         return d
 
     def get(self, alert_id):
-        alert_id = int(alert_id)
         alert = models.Alert.get_by_id_and_org(alert_id, self.current_org)
         require_access(alert, self.current_user, view_only)
 
