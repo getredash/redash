@@ -2,6 +2,7 @@ import logging
 import yaml
 import datetime
 from funcy import compact, project
+from urllib.parse import urljoin
 from redash import settings
 from redash.utils import json_dumps
 from redash.query_runner import (
@@ -96,9 +97,7 @@ def _sort_columns_with_fields(columns, fields):
 
 
 # TODO: merge the logic here with the one in MongoDB's queyr runner
-def parse_json(data, path, fields):
-    data = _normalize_json(data, path)
-
+def parse_json(data, fields):
     rows = []
     columns = []
 
@@ -132,17 +131,19 @@ def parse_json(data, path, fields):
 
 class JSON(BaseHTTPQueryRunner):
     requires_url = False
+    base_url_title = "Base URL"
 
     @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
             "properties": {
+                "base_url": {"type": "string", "title": cls.base_url_title},
                 "username": {"type": "string", "title": cls.username_title},
                 "password": {"type": "string", "title": cls.password_title},
             },
             "secret": ["password"],
-            "order": ["username", "password"],
+            "order": ["base_url", "username", "password"],
         }
 
     def __init__(self, configuration):
@@ -162,8 +163,9 @@ class JSON(BaseHTTPQueryRunner):
 
         if "url" not in query:
             raise QueryParseError("Query must include 'url' option.")
+        url = urljoin(self.configuration.get("base_url"), query["url"])
 
-        if is_private_address(query["url"]) and settings.ENFORCE_PRIVATE_ADDRESS_BLOCK:
+        if is_private_address(url) and settings.ENFORCE_PRIVATE_ADDRESS_BLOCK:
             raise Exception("Can't query private addresses.")
 
         method = query.get("method", "get")
@@ -171,6 +173,7 @@ class JSON(BaseHTTPQueryRunner):
 
         fields = query.get("fields")
         path = query.get("path")
+        pagination = query.get("pagination")
 
         if isinstance(request_options.get("auth", None), list):
             request_options["auth"] = tuple(request_options["auth"])
@@ -186,19 +189,41 @@ class JSON(BaseHTTPQueryRunner):
         if fields and not isinstance(fields, list):
             raise QueryParseError("'fields' needs to be a list.")
 
-        response, error = self.get_response(
-            query["url"], http_method=method, **request_options
-        )
+        if pagination and (not isinstance(pagination, list) or len(pagination) != 2):
+            raise QueryParseError("'pagination' needs to be a list of 2 field names.")
 
+        results, error = self._get_all_results(
+            url, method, path, pagination, **request_options
+        )
         if error is not None:
             return None, error
 
-        data = json_dumps(parse_json(response.json(), path, fields))
-
+        data = json_dumps(parse_json(results, fields))
         if data:
             return data, None
-        else:
-            return None, "Got empty response from '{}'.".format(query["url"])
+        return None, "Got empty response from '{}'.".format(url)
+
+    def _get_all_results(
+        self, url, method, result_path, pagination_fields, **request_options
+    ):
+        """Get all results from a paginated endpoint."""
+        result, error = self._get_json_response(url, method, **request_options)
+        data = _normalize_json(result, result_path) or []
+
+        if pagination_fields and result_path:
+            (paginate_from, paginate_to) = pagination_fields
+            while error is None and paginate_from in result and result.get(result_path):
+                # has additional pages, fetch the next one and merge the results
+                request_options["params"][paginate_to] = result[paginate_from]
+                result, error = self._get_json_response(url, method, **request_options)
+                data.extend(_normalize_json(result, result_path) or [])
+
+        return data, error
+
+    def _get_json_response(self, url, method, **request_options):
+        response, error = self.get_response(url, http_method=method, **request_options)
+        result = response.json() if error is None else {}
+        return result, error
 
 
 register(JSON)
