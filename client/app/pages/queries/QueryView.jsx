@@ -131,7 +131,7 @@ function QueryView(props) {
               onStopEditing={() => setAddingDescription(false)}
               placeholder="Add description"
               ignoreBlanks={false}
-              editorProps={{ autosize: { minRows: 2, maxRows: 4 } }}
+              editorProps={{ autoSize: { minRows: 2, maxRows: 4 } }}
               defaultEditing={addingDescription}
               multiline
             />
