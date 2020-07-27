@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { head, includes, toString, isEmpty } from "lodash";
 
 import Input from "antd/lib/input";
-import Icon from "antd/lib/icon";
+import WarningFilled from "@ant-design/icons/WarningFilled";
 import Select from "antd/lib/select";
 import Divider from "antd/lib/divider";
 
@@ -129,7 +129,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         <br />
         {invalidMessage && (
           <small>
-            <Icon type="warning" theme="filled" className="warning-icon-danger" /> {invalidMessage}
+            <WarningFilled className="warning-icon-danger" /> {invalidMessage}
           </small>
         )}
       </div>

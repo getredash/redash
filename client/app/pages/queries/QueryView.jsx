@@ -3,7 +3,9 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import useMedia from "use-media";
 import Button from "antd/lib/button";
-import Icon from "antd/lib/icon";
+
+import FullscreenOutlined from "@ant-design/icons/FullscreenOutlined";
+import FullscreenExitOutlined from "@ant-design/icons/FullscreenExitOutlined";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EditInPlace from "@/components/EditInPlace";
@@ -190,7 +192,7 @@ function QueryView(props) {
                     type="default"
                     shortcut="alt+f"
                     onClick={toggleFullscreen}>
-                    <Icon type={fullscreen ? "fullscreen-exit" : "fullscreen"} />
+                    {fullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
                   </QueryViewButton>
                 }
               />
