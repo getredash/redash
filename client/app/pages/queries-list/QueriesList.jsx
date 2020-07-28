@@ -44,17 +44,17 @@ class QueriesList extends React.Component {
       icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
     },
     {
-      key: "archive",
-      href: "queries/archive",
-      title: "Archived",
-      icon: () => <Sidebar.MenuIcon icon="fa fa-archive" />,
-    },
-    {
       key: "my",
       href: "queries/my",
       title: "My Queries",
       icon: () => <Sidebar.ProfileImage user={currentUser} />,
       isAvailable: () => currentUser.hasPermission("create_query"),
+    },
+    {
+      key: "archive",
+      href: "queries/archive",
+      title: "Archived",
+      icon: () => <Sidebar.MenuIcon icon="fa fa-archive" />,
     },
   ];
 
