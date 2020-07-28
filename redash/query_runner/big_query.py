@@ -343,9 +343,9 @@ class BigQuery(BaseQueryRunner):
                 error = json_loads(e.content)["error"]["message"]
             else:
                 error = e.content
-        except BigQueryError as e:
+        except BigQueryError as exc:
             json_data = None
-            error = e.message
+            error = exc.message
         except (KeyboardInterrupt, InterruptException, JobTimeoutException):
             if self.current_job_id:
                 self._get_bigquery_service().jobs().cancel(
