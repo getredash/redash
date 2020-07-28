@@ -55,7 +55,9 @@ maxminddb-geolite2==2018.703
 pypd==1.1.0
 disposable-email-domains>=0.0.52
 gevent==1.4.0
-eventlet==0.25.2
+# eventlet==0.25.2
+# Use latest master to fix https://github.com/eventlet/eventlet/issues/526
+git+git://github.com/eventlet/eventlet.git@c74e867cf99bb7b9708b33a294656c4abbc0edec#egg=eventlet
 sshtunnel==0.1.5
 supervisor==4.1.0
 supervisor_checks==0.8.1
