@@ -2,7 +2,6 @@ import { map } from "lodash";
 import React from "react";
 
 import Switch from "antd/lib/switch";
-import * as Grid from "antd/lib/grid";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Paginator from "@/components/Paginator";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
@@ -15,7 +14,6 @@ import { ItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
 
 import LoadingState from "@/components/items-list/components/LoadingState";
-import { PageSizeSelect } from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
 import { axios } from "@/services/axios";
@@ -92,35 +90,24 @@ class OutdatedQueries extends React.Component {
     const { controller } = this.props;
     return (
       <Layout activeTab={controller.params.currentPage}>
-        <Grid.Row className="m-15">
-          <Grid.Col span={16}>
-            <div>
-              <label htmlFor="auto-update-switch" className="m-0">
-                Auto update
-              </label>
-              <Switch
-                id="auto-update-switch"
-                className="m-l-10"
-                checked={this.state.autoUpdate}
-                onChange={autoUpdate => this.setState({ autoUpdate })}
-              />
+        <div className="m-15">
+          <div>
+            <label htmlFor="auto-update-switch" className="m-0">
+              Auto update
+            </label>
+            <Switch
+              id="auto-update-switch"
+              className="m-l-10"
+              checked={this.state.autoUpdate}
+              onChange={autoUpdate => this.setState({ autoUpdate })}
+            />
+          </div>
+          {controller.params.lastUpdatedAt && (
+            <div className="m-t-5">
+              Last updated: <TimeAgo date={controller.params.lastUpdatedAt * 1000} />
             </div>
-            {controller.params.lastUpdatedAt && (
-              <div className="m-t-5">
-                Last updated: <TimeAgo date={controller.params.lastUpdatedAt * 1000} />
-              </div>
-            )}
-          </Grid.Col>
-          <Grid.Col span={8}>
-            {controller.isLoaded && !controller.isEmpty && (
-              <PageSizeSelect
-                options={controller.pageSizeOptions}
-                value={controller.itemsPerPage}
-                onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-              />
-            )}
-          </Grid.Col>
-        </Grid.Row>
+          )}
+        </div>
         {!controller.isLoaded && <LoadingState />}
         {controller.isLoaded && controller.isEmpty && (
           <div className="text-center p-15">There are no outdated queries.</div>
@@ -135,8 +122,10 @@ class OutdatedQueries extends React.Component {
               toggleSorting={controller.toggleSorting}
             />
             <Paginator
+              showPageSizeSelect
               totalCount={controller.totalItemsCount}
-              itemsPerPage={controller.itemsPerPage}
+              pageSize={controller.itemsPerPage}
+              onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
               page={controller.page}
               onChange={page => controller.updatePagination({ page })}
             />
