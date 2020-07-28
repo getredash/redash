@@ -210,9 +210,9 @@ class BigQuery(BaseQueryRunner):
 
         if 'schema' not in query_reply:
             logger.debug("No 'schema' node in query results. Could be a scripting query that failed.")
-            jobDetails = jobs.get(projectId = project_id, jobId = self.current_job_id).execute()
-            if 'status' in jobDetails and 'errorResult' in jobDetails['status']:
-                raise BigQueryError(jobDetails['status']['errorResult']['message'])
+            job_details = jobs.get(projectId=project_id, jobId=self.current_job_id).execute()
+            if "status" in job_details and "errorResult" in job_details['status']:
+                raise BigQueryError(job_details["status"]["errorResult"]["message"])
 
         rows = []
 
