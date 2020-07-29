@@ -5,7 +5,7 @@ import { map, includes } from "lodash";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
-import EllipsisOutlined from "@ant-design/icons/EllipsisOutlined";
+import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import Modal from "antd/lib/modal";
 import Tooltip from "antd/lib/tooltip";
 import FavoritesControl from "@/components/FavoritesControl";
@@ -156,7 +156,7 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
         </Menu>
       }>
       <Button className="icon-button m-l-5" data-test="DashboardMoreButton">
-        <EllipsisOutlined rotate={90} />
+        <EllipsisOutlinedIcon rotate={90} />
       </Button>
     </Dropdown>
   );

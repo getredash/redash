@@ -7,8 +7,8 @@ import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Button from "antd/lib/button";
 
-import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
-import EllipsisOutlined from "@ant-design/icons/EllipsisOutlined";
+import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
+import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 
 export default function MenuButton({ doDelete, canEdit, mute, unmute, muted }) {
   const [loading, setLoading] = useState(false);
@@ -56,7 +56,7 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, muted }) {
           </Menu.Item>
         </Menu>
       }>
-      <Button>{loading ? <LoadingOutlined /> : <EllipsisOutlined rotate={90} />}</Button>
+      <Button>{loading ? <LoadingOutlinedIcon /> : <EllipsisOutlinedIcon rotate={90} />}</Button>
     </Dropdown>
   );
 }

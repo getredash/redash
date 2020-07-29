@@ -18,10 +18,10 @@ import { ParameterMappingType } from "@/services/widget";
 import { Parameter, cloneParameter } from "@/services/parameters";
 import HelpTrigger from "@/components/HelpTrigger";
 
-import QuestionCircleFilled from "@ant-design/icons/QuestionCircleFilled";
-import EditOutlined from "@ant-design/icons/EditOutlined";
-import CloseOutlined from "@ant-design/icons/CloseOutlined";
-import CheckOutlined from "@ant-design/icons/CheckOutlined";
+import QuestionCircleFilledIcon from "@ant-design/icons/QuestionCircleFilled";
+import EditOutlinedIcon from "@ant-design/icons/EditOutlined";
+import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
+import CheckOutlinedIcon from "@ant-design/icons/CheckOutlined";
 
 import "./ParameterMappingInput.less";
 
@@ -185,7 +185,7 @@ export class ParameterMappingInput extends React.Component {
           Existing dashboard parameter{" "}
           {noExisting ? (
             <Tooltip title="There are no dashboard parameters corresponding to this data type">
-              <QuestionCircleFilled />
+              <QuestionCircleFilledIcon />
             </Tooltip>
           ) : null}
         </Radio>
@@ -359,7 +359,7 @@ class MappingEditor extends React.Component {
         visible={visible}
         onVisibleChange={this.onVisibleChange}>
         <Button size="small" type="dashed" data-test={`EditParamMappingButon-${mapping.param.name}`}>
-          <EditOutlined />
+          <EditOutlinedIcon />
         </Button>
       </Popover>
     );
@@ -438,10 +438,10 @@ class TitleEditor extends React.Component {
           autoFocus
         />
         <Button size="small" type="dashed" onClick={this.hide}>
-          <CloseOutlined />
+          <CloseOutlinedIcon />
         </Button>
         <Button size="small" type="dashed" onClick={this.save}>
-          <CheckOutlined />
+          <CheckOutlinedIcon />
         </Button>
       </div>
     );
@@ -464,7 +464,7 @@ class TitleEditor extends React.Component {
         visible={this.state.showPopup}
         onVisibleChange={this.onPopupVisibleChange}>
         <Button size="small" type="dashed">
-          <EditOutlined />
+          <EditOutlinedIcon />
         </Button>
       </Popover>
     );

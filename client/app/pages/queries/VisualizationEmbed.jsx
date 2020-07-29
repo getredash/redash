@@ -17,8 +17,8 @@ import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsL
 import VisualizationName from "@/components/visualizations/VisualizationName";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 
-import FileOutlined from "@ant-design/icons/FileOutlined";
-import FileExcelOutlined from "@ant-design/icons/FileExcelOutlined";
+import FileOutlinedIcon from "@ant-design/icons/FileOutlined";
+import FileExcelOutlinedIcon from "@ant-design/icons/FileExcelOutlined";
 
 import { VisualizationType } from "@redash/viz/lib";
 import HtmlContent from "@redash/viz/lib/components/HtmlContent";
@@ -74,7 +74,7 @@ function VisualizationEmbedFooter({
           apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
-          <FileOutlined /> Download as CSV File
+          <FileOutlinedIcon /> Download as CSV File
         </QueryResultsLink>
       </Menu.Item>
       <Menu.Item>
@@ -85,7 +85,7 @@ function VisualizationEmbedFooter({
           apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
-          <FileOutlined /> Download as TSV File
+          <FileOutlinedIcon /> Download as TSV File
         </QueryResultsLink>
       </Menu.Item>
       <Menu.Item>
@@ -96,7 +96,7 @@ function VisualizationEmbedFooter({
           apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
-          <FileExcelOutlined /> Download as Excel File
+          <FileExcelOutlinedIcon /> Download as Excel File
         </QueryResultsLink>
       </Menu.Item>
     </Menu>

@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import List from "antd/lib/list";
-import CloseOutlined from "@ant-design/icons/CloseOutlined";
+import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import { Dashboard } from "@/services/dashboard";
@@ -87,7 +87,9 @@ function AddToDashboardDialog({ dialog, visualization }) {
           placeholder="Search a dashboard by name"
           value={searchTerm}
           onChange={event => setSearchTerm(event.target.value)}
-          suffix={<CloseOutlined className={searchTerm === "" ? "hidden" : null} onClick={() => setSearchTerm("")} />}
+          suffix={
+            <CloseOutlinedIcon className={searchTerm === "" ? "hidden" : null} onClick={() => setSearchTerm("")} />
+          }
         />
       )}
 
@@ -101,7 +103,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
           renderItem={d => (
             <List.Item
               key={`dashboard-${d.id}`}
-              actions={selectedDashboard ? [<CloseOutlined onClick={() => setSelectedDashboard(null)} />] : []}
+              actions={selectedDashboard ? [<CloseOutlinedIcon onClick={() => setSelectedDashboard(null)} />] : []}
               onClick={selectedDashboard ? null : () => setSelectedDashboard(d)}>
               <div className="add-to-dashboard-dialog-item-content">
                 {d.name}

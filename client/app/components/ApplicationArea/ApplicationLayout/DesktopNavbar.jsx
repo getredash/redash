@@ -8,14 +8,14 @@ import { Auth, currentUser } from "@/services/auth";
 import settingsMenu from "@/services/settingsMenu";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
-import DesktopOutlined from "@ant-design/icons/DesktopOutlined";
-import CodeOutlined from "@ant-design/icons/CodeOutlined";
-import AlertOutlined from "@ant-design/icons/AlertOutlined";
-import PlusOutlined from "@ant-design/icons/PlusOutlined";
-import QuestionCircleOutlined from "@ant-design/icons/QuestionCircleOutlined";
-import SettingOutlined from "@ant-design/icons/SettingOutlined";
-import MenuUnfoldOutlined from "@ant-design/icons/MenuUnfoldOutlined";
-import MenuFoldOutlined from "@ant-design/icons/MenuFoldOutlined";
+import DesktopOutlinedIcon from "@ant-design/icons/DesktopOutlined";
+import CodeOutlinedIcon from "@ant-design/icons/CodeOutlined";
+import AlertOutlinedIcon from "@ant-design/icons/AlertOutlined";
+import PlusOutlinedIcon from "@ant-design/icons/PlusOutlined";
+import QuestionCircleOutlinedIcon from "@ant-design/icons/QuestionCircleOutlined";
+import SettingOutlinedIcon from "@ant-design/icons/SettingOutlined";
+import MenuUnfoldOutlinedIcon from "@ant-design/icons/MenuUnfoldOutlined";
+import MenuFoldOutlinedIcon from "@ant-design/icons/MenuFoldOutlined";
 
 import VersionInfo from "./VersionInfo";
 import "./DesktopNavbar.less";
@@ -54,7 +54,7 @@ export default function DesktopNavbar() {
         {currentUser.hasPermission("list_dashboards") && (
           <Menu.Item key="dashboards">
             <a href="dashboards">
-              <DesktopOutlined />
+              <DesktopOutlinedIcon />
               <span>Dashboards</span>
             </a>
           </Menu.Item>
@@ -62,7 +62,7 @@ export default function DesktopNavbar() {
         {currentUser.hasPermission("view_query") && (
           <Menu.Item key="queries">
             <a href="queries">
-              <CodeOutlined />
+              <CodeOutlinedIcon />
               <span>Queries</span>
             </a>
           </Menu.Item>
@@ -70,7 +70,7 @@ export default function DesktopNavbar() {
         {currentUser.hasPermission("list_alerts") && (
           <Menu.Item key="alerts">
             <a href="alerts">
-              <AlertOutlined />
+              <AlertOutlinedIcon />
               <span>Alerts</span>
             </a>
           </Menu.Item>
@@ -86,7 +86,7 @@ export default function DesktopNavbar() {
             title={
               <React.Fragment>
                 <span data-test="CreateButton">
-                  <PlusOutlined />
+                  <PlusOutlinedIcon />
                   <span>Create</span>
                 </span>
               </React.Fragment>
@@ -119,14 +119,14 @@ export default function DesktopNavbar() {
       <NavbarSection inlineCollapsed={collapsed}>
         <Menu.Item key="help">
           <HelpTrigger showTooltip={false} type="HOME">
-            <QuestionCircleOutlined />
+            <QuestionCircleOutlinedIcon />
             <span>Help</span>
           </HelpTrigger>
         </Menu.Item>
         {firstSettingsTab && (
           <Menu.Item key="settings">
             <a href={firstSettingsTab.path} data-test="SettingsLink">
-              <SettingOutlined />
+              <SettingOutlinedIcon />
               <span>Settings</span>
             </a>
           </Menu.Item>
@@ -166,7 +166,7 @@ export default function DesktopNavbar() {
       </NavbarSection>
 
       <Button onClick={() => setCollapsed(!collapsed)} className="desktop-navbar-collapse-button">
-        {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+        {collapsed ? <MenuUnfoldOutlinedIcon /> : <MenuFoldOutlinedIcon />}
       </Button>
     </div>
   );

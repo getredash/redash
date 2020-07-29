@@ -7,9 +7,9 @@ import Typography from "antd/lib/typography";
 import { DynamicDateType } from "@/services/parameters/DateParameter";
 import { DynamicDateRangeType } from "@/services/parameters/DateRangeParameter";
 
-import ArrowLeftOutlined from "@ant-design/icons/ArrowLeftOutlined";
-import ThunderboltTwoTone from "@ant-design/icons/ThunderboltTwoTone";
-import ThunderboltOutlined from "@ant-design/icons/ThunderboltOutlined";
+import ArrowLeftOutlinedIcon from "@ant-design/icons/ArrowLeftOutlined";
+import ThunderboltTwoToneIcon from "@ant-design/icons/ThunderboltTwoTone";
+import ThunderboltOutlinedIcon from "@ant-design/icons/ThunderboltOutlined";
 
 import "./DynamicButton.less";
 
@@ -31,7 +31,7 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled }) {
       {enabled && <Menu.Divider />}
       {enabled && (
         <Menu.Item>
-          <ArrowLeftOutlined />
+          <ArrowLeftOutlinedIcon />
           <Text type="secondary">Back to Static Value</Text>
         </Menu.Item>
       )}
@@ -49,7 +49,11 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled }) {
           placement="bottomRight"
           trigger={["click"]}
           icon={
-            enabled ? <ThunderboltTwoTone className="dynamic-icon" /> : <ThunderboltOutlined className="dynamic-icon" />
+            enabled ? (
+              <ThunderboltTwoToneIcon className="dynamic-icon" />
+            ) : (
+              <ThunderboltOutlinedIcon className="dynamic-icon" />
+            )
           }
           getPopupContainer={() => containerRef.current}
           data-test="DynamicButton"

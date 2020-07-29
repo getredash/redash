@@ -7,7 +7,7 @@ import InputNumber from "antd/lib/input-number";
 import Checkbox from "antd/lib/checkbox";
 import Button from "antd/lib/button";
 import Upload from "antd/lib/upload";
-import UploadOutlined from "@ant-design/icons/UploadOutlined";
+import UploadOutlinedIcon from "@ant-design/icons/UploadOutlined";
 import { includes, isFunction, filter, difference, isEmpty } from "lodash";
 import Select from "antd/lib/select";
 import notification from "@/services/notification";
@@ -147,7 +147,7 @@ class DynamicForm extends React.Component {
     const upload = (
       <Upload {...props} beforeUpload={() => false}>
         <Button disabled={disabled}>
-          <UploadOutlined /> Click to upload
+          <UploadOutlinedIcon /> Click to upload
         </Button>
       </Upload>
     );
