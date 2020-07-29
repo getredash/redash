@@ -3,7 +3,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
-import Icon from "antd/lib/icon";
+import InfoCircleFilledIcon from "@ant-design/icons/InfoCircleFilled";
 import Popover from "antd/lib/popover";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 
@@ -47,7 +47,7 @@ function SearchInputInfoIcon({ searchColumns }) {
           Search {getSearchColumns(searchColumns, { renderColumn: col => <code key={col.name}>{col.title}</code> })}
         </div>
       }>
-      <Icon className="table-visualization-search-info-icon" type="info-circle" theme="filled" />
+      <InfoCircleFilledIcon className="table-visualization-search-info-icon" />
     </Popover>
   );
 }

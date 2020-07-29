@@ -1,7 +1,6 @@
 import { isNil, map, get, filter, each, sortBy, some, findIndex, toString } from "lodash";
 import React from "react";
 import cx from "classnames";
-import Icon from "antd/lib/icon";
 import Tooltip from "antd/lib/tooltip";
 import ColumnTypes from "./columns";
 
