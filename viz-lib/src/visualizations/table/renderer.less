@@ -38,13 +38,18 @@
     }
 
     thead {
-      .anticon.off {
+      .ant-table-column-sorter-up,
+      .ant-table-column-sorter-down {
         opacity: 0;
+        transition: opacity 0.3s;
       }
 
-      &:hover .anticon.off,
-      .table-visualization-column-is-sorted .anticon.off {
-        opacity: 1;
+      &:hover,
+      .table-visualization-column-is-sorted {
+        .ant-table-column-sorter-up,
+        .ant-table-column-sorter-down {
+          opacity: 1;
+        }
       }
 
       th {

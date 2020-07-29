@@ -122,6 +122,7 @@ export default function Renderer({ options, data }) {
           pageSize: options.itemsPerPage,
           hideOnSinglePage: true,
         }}
+        showSorterTooltip={false}
       />
     </div>
   );
