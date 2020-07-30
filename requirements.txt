@@ -55,7 +55,6 @@ maxminddb-geolite2==2018.703
 pypd==1.1.0
 disposable-email-domains>=0.0.52
 gevent==1.4.0
-eventlet==0.25.2
 sshtunnel==0.1.5
 supervisor==4.1.0
 supervisor_checks==0.8.1
