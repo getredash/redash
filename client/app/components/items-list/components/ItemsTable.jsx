@@ -176,7 +176,7 @@ export default class ItemsTable extends React.Component {
         }));
         tableDataProps.dataSource = range(10).map(key => ({ key: `${key}` }));
       } else {
-        tableDataProps.loading = true;
+        tableDataProps.loading = { indicator: null };
       }
     }
 
