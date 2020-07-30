@@ -1,4 +1,4 @@
-import { isFunction, map, filter, extend, omit, identity, range } from "lodash";
+import { isFunction, map, filter, extend, omit, identity, range, isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
@@ -152,7 +152,7 @@ export default class ItemsTable extends React.Component {
   }
 
   render() {
-    const data = {
+    const tableDataProps = {
       columns: this.prepareColumns(),
       dataSource: map(this.props.items, (item, index) => ({ key: "row" + index, item })),
     };
@@ -168,12 +168,16 @@ export default class ItemsTable extends React.Component {
 
     const { showHeader } = this.props;
     if (this.props.loading) {
-      data.columns = data.columns.map(column => ({
-        ...column,
-        sorter: false,
-        render: () => <Skeleton active paragraph={false} />,
-      }));
-      data.dataSource = range(10).map(key => ({ key: `${key}` }));
+      if (isEmpty(tableDataProps.dataSource)) {
+        tableDataProps.columns = tableDataProps.columns.map(column => ({
+          ...column,
+          sorter: false,
+          render: () => <Skeleton active paragraph={false} />,
+        }));
+        tableDataProps.dataSource = range(10).map(key => ({ key: `${key}` }));
+      } else {
+        tableDataProps.loading = true;
+      }
     }
 
     return (
@@ -183,7 +187,7 @@ export default class ItemsTable extends React.Component {
         rowKey={row => row.key}
         pagination={false}
         onRow={onTableRow}
-        {...data}
+        {...tableDataProps}
       />
     );
   }
