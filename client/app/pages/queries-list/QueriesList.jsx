@@ -79,20 +79,17 @@ class QueriesList extends React.Component {
         width: null,
       }
     ),
-    Columns.custom((text, item) => item.user.name, { title: "Created By", className: "text-nowrap", width: "1%" }),
-    Columns.dateTime.sortable({ title: "Created At", field: "created_at", className: "text-nowrap", width: "1%" }),
+    Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
+    Columns.dateTime.sortable({ title: "Created At", field: "created_at", width: "1%" }),
     Columns.dateTime.sortable({
       title: "Last Executed At",
       field: "retrieved_at",
       orderByField: "executed_at",
-      className: "text-nowrap",
       width: "1%",
     }),
     Columns.custom.sortable((text, item) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
       title: "Refresh Schedule",
       field: "schedule",
-
-      className: "text-nowrap",
       width: "1%",
     }),
   ];

@@ -48,7 +48,7 @@ class AlertsList extends React.Component {
         field: "name",
       }
     ),
-    Columns.custom((text, item) => item.user.name, { title: "Created By", className: "text-nowrap", width: "1%" }),
+    Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
     Columns.custom.sortable(
       (text, alert) => (
         <div>
@@ -62,8 +62,8 @@ class AlertsList extends React.Component {
         className: "text-nowrap",
       }
     ),
-    Columns.timeAgo.sortable({ title: "Last Updated At", field: "updated_at", className: "text-nowrap", width: "1%" }),
-    Columns.dateTime.sortable({ title: "Created At", field: "created_at", className: "text-nowrap", width: "1%" }),
+    Columns.timeAgo.sortable({ title: "Last Updated At", field: "updated_at", width: "1%" }),
+    Columns.dateTime.sortable({ title: "Created At", field: "created_at", width: "1%" }),
   ];
 
   render() {

@@ -62,11 +62,10 @@ class DashboardList extends React.Component {
         width: null,
       }
     ),
-    Columns.custom((text, item) => item.user.name, { title: "Created By", className: "text-nowrap", width: "1%" }),
+    Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
     Columns.dateTime.sortable({
       title: "Created At",
       field: "created_at",
-      className: "text-nowrap",
       width: "1%",
     }),
   ];
