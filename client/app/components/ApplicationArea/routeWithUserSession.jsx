@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import ErrorBoundary, { ErrorBoundaryContext } from "@redash/viz/lib/components/ErrorBoundary";
 import { Auth } from "@/services/auth";
+import { policy } from "@/services/policy";
 import organizationStatus from "@/services/organizationStatus";
 import ApplicationLayout from "./ApplicationLayout";
 import ErrorMessage from "./ErrorMessage";
@@ -17,7 +18,7 @@ function UserSessionWrapper({ bodyClass, currentRoute, renderChildren }) {
 
   useEffect(() => {
     let isCancelled = false;
-    Promise.all([Auth.requireSession(), organizationStatus.refresh()])
+    Promise.all([Auth.requireSession(), organizationStatus.refresh(), policy.refresh()])
       .then(() => {
         if (!isCancelled) {
           setIsAuthenticated(!!Auth.isAuthenticated());
