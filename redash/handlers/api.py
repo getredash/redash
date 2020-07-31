@@ -17,6 +17,7 @@ from redash.handlers.dashboards import (
     DashboardShareResource,
     DashboardTagsResource,
     PublicDashboardResource,
+    DashboardCopyResource,
 )
 from redash.handlers.data_sources import (
     DataSourceListResource,
@@ -125,6 +126,7 @@ api.add_org_resource(DashboardListResource, "/api/dashboards", endpoint="dashboa
 api.add_org_resource(
     DashboardResource, "/api/dashboards/<dashboard_slug>", endpoint="dashboard"
 )
+api.add_org_resource(DashboardCopyResource, '/api/dashboard/duplicate', endpoint='duplicate_dashboard')
 api.add_org_resource(
     PublicDashboardResource,
     "/api/dashboards/public/<token>",
