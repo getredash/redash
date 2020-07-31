@@ -126,15 +126,10 @@ class DataAPIRDSMySQL(BaseSQLQueryRunner):
             resourceArn=self.configuration.get('cluster_arn'),
             sql=query
         )
-        logger.info('raw response')
-        logger.info(response)
 
         parsed = parse_response(response)
         error = None
         json_data = json.dumps(parsed)
-
-        logger.info('parsed response')
-        logger.info(json_data)
 
         return json_data, error
 
