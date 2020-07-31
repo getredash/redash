@@ -75,6 +75,7 @@ def parse_response(response):
 
 
 class DataAPIRDSMySQL(BaseSQLQueryRunner):
+    _client = None
     noop_query = "SELECT 1 as test"
 
     @classmethod
@@ -106,15 +107,18 @@ class DataAPIRDSMySQL(BaseSQLQueryRunner):
     def enabled(cls):
         return enabled
 
-    def run_query(self, query, user):
-        logger.info('running query')
-        client = boto3.client(
-            'rds-data',
-            aws_access_key_id=self.configuration.get("aws_access_key", None),
-            aws_secret_access_key=self.configuration.get("aws_secret_key", None),
-            region_name=self.configuration.get("region", None)
-        )
+    def _get_client(self):
+        if self._client is None:
+            self._client = boto3.client(
+                'rds-data',
+                aws_access_key_id=self.configuration.get("aws_access_key", None),
+                aws_secret_access_key=self.configuration.get("aws_secret_key", None),
+                region_name=self.configuration.get("region", None)
+            )
+        return self._client
 
+    def run_query(self, query, user):
+        client = self._get_client()
         response = client.execute_statement(
             includeResultMetadata=True,
             secretArn=self.configuration.get('secret_arn'),
