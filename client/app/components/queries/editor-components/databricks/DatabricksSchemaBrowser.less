@@ -1,3 +1,5 @@
+@import "~@/assets/less/ant";
+
 .databricks-schema-browser {
   .schema-control {
     .database-select-open .ant-input-group-addon {
@@ -32,11 +34,26 @@
   }
 
   .schema-list-wrapper {
+    position: relative;
     height: 100%;
     border: 1px solid #eaeaea;
     border-top: 0;
     border-radius: 0 0 4px 4px;
     margin-bottom: 20px;
+    padding-bottom: 32px;
+
+    .load-button {
+      display: flex;
+      justify-content: center;
+      position: absolute;
+      width: 100%;
+      bottom: 0;
+
+      .ant-btn {
+        color: @text-color;
+        padding: 0 10px;
+      }
+    }
   }
 }
 

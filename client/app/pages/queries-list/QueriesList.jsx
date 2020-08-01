@@ -44,17 +44,17 @@ class QueriesList extends React.Component {
       icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
     },
     {
-      key: "archive",
-      href: "queries/archive",
-      title: "Archived",
-      icon: () => <Sidebar.MenuIcon icon="fa fa-archive" />,
-    },
-    {
       key: "my",
       href: "queries/my",
       title: "My Queries",
       icon: () => <Sidebar.ProfileImage user={currentUser} />,
       isAvailable: () => currentUser.hasPermission("create_query"),
+    },
+    {
+      key: "archive",
+      href: "queries/archive",
+      title: "Archived",
+      icon: () => <Sidebar.MenuIcon icon="fa fa-archive" />,
     },
   ];
 
@@ -130,12 +130,6 @@ class QueriesList extends React.Component {
               />
               <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
               <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} />
-              <Sidebar.PageSizeSelect
-                className="m-b-10"
-                options={controller.pageSizeOptions}
-                value={controller.itemsPerPage}
-                onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-              />
             </Layout.Sidebar>
             <Layout.Content>
               {!controller.isLoaded && <LoadingState />}
@@ -156,8 +150,10 @@ class QueriesList extends React.Component {
                     toggleSorting={controller.toggleSorting}
                   />
                   <Paginator
+                    showPageSizeSelect
                     totalCount={controller.totalItemsCount}
-                    itemsPerPage={controller.itemsPerPage}
+                    pageSize={controller.itemsPerPage}
+                    onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
                     page={controller.page}
                     onChange={page => controller.updatePagination({ page })}
                   />

@@ -60,7 +60,7 @@ ListItem.propTypes = {
 
 export default class AlertDestinations extends React.Component {
   static propTypes = {
-    alertId: PropTypes.number.isRequired,
+    alertId: PropTypes.any.isRequired,
   };
 
   state = {

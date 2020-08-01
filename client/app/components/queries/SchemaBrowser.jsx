@@ -20,6 +20,7 @@ const SchemaItemColumnType = PropTypes.shape({
 export const SchemaItemType = PropTypes.shape({
   name: PropTypes.string.isRequired,
   size: PropTypes.number,
+  loading: PropTypes.bool,
   columns: PropTypes.arrayOf(SchemaItemColumnType).isRequired,
 });
 
@@ -56,20 +57,24 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
       </div>
       {expanded && (
         <div>
-          {map(item.columns, column => {
-            const columnName = get(column, "name");
-            const columnType = get(column, "type");
-            return (
-              <div key={columnName} className="table-open">
-                {columnName} {columnType && <span className="column-type">{columnType}</span>}
-                <i
-                  className="fa fa-angle-double-right copy-to-editor"
-                  aria-hidden="true"
-                  onClick={e => handleSelect(e, columnName)}
-                />
-              </div>
-            );
-          })}
+          {item.loading ? (
+            <div className="table-open">Loading...</div>
+          ) : (
+            map(item.columns, column => {
+              const columnName = get(column, "name");
+              const columnType = get(column, "type");
+              return (
+                <div key={columnName} className="table-open">
+                  {columnName} {columnType && <span className="column-type">{columnType}</span>}
+                  <i
+                    className="fa fa-angle-double-right copy-to-editor"
+                    aria-hidden="true"
+                    onClick={e => handleSelect(e, columnName)}
+                  />
+                </div>
+              );
+            })
+          )}
         </div>
       )}
     </div>
@@ -120,7 +125,8 @@ export function SchemaList({ loading, schema, expandedFlags, onTableExpand, onIt
               rowCount={schema.length}
               rowHeight={({ index }) => {
                 const item = schema[index];
-                const columnCount = expandedFlags[item.name] ? item.columns.length : 0;
+                const columnsLength = !item.loading ? item.columns.length : 1;
+                let columnCount = expandedFlags[item.name] ? columnsLength : 0;
                 return schemaTableHeight + schemaColumnHeight * columnCount;
               }}
               rowRenderer={({ key, index, style }) => {
