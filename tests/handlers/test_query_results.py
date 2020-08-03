@@ -1,3 +1,4 @@
+from redash.query_runner import BaseSQLQueryRunner, BaseQueryRunner
 from tests import BaseTestCase
 
 from redash.models import db
@@ -39,19 +40,22 @@ class TestQueryResultsContentDispositionHeaders(BaseTestCase):
         try:
             rv.headers['Content-Disposition'].encode('ascii')
         except Exception as e:
-            self.fail(repr(e))            
+            self.fail(repr(e))
 
 
 class TestQueryResultListAPI(BaseTestCase):
     def test_get_existing_result(self):
-        query_result = self.factory.create_query_result()
-        query = self.factory.create_query()
+        ds = self.factory.create_data_source(
+            group=self.factory.org.default_group, type="phoenix"
+        )
+        query_result = self.factory.create_query_result(data_source=ds)
+        query = self.factory.create_query(data_source=ds)
 
         rv = self.make_request(
             "post",
             "/api/query_results",
             data={
-                "data_source_id": self.factory.data_source.id,
+                "data_source_id": ds.id,
                 "query": query.query_text,
             },
         )
@@ -75,6 +79,45 @@ class TestQueryResultListAPI(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertNotIn("query_result", rv.json)
         self.assertIn("job", rv.json)
+
+    def test_add_limit_change_query_sql(self):
+        ds = self.factory.create_data_source(
+            group=self.factory.org.default_group, type="databricks"
+        )
+        query = self.factory.create_query(query_text="SELECT 2", data_source=ds)
+        query_result = self.factory.create_query_result(data_source=ds, query_hash=query.query_hash)
+
+        rv = self.make_request(
+            "post",
+            "/api/query_results",
+            data={
+                "data_source_id": ds.id,
+                "query": query.query_text,
+            },
+        )
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertNotIn("query_result", rv.json)
+        self.assertIn("job", rv.json)
+
+    def test_add_limit_no_change_for_nonsql(self):
+        ds = self.factory.create_data_source(
+            group=self.factory.org.default_group, type="druid"
+        )
+        query = self.factory.create_query(query_text="SELECT 5", data_source=ds)
+        query_result = self.factory.create_query_result(data_source=ds, query_hash=query.query_hash)
+
+        rv = self.make_request(
+            "post",
+            "/api/query_results",
+            data={
+                "data_source_id": ds.id,
+                "query": query.query_text,
+            },
+        )
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(query_result.id, rv.json["query_result"]["id"])
 
     def test_execute_query_without_access(self):
         group = self.factory.create_group()

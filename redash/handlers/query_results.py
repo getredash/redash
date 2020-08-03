@@ -77,6 +77,11 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
     except (InvalidParameterError, QueryDetachedFromDataSourceError) as e:
         abort(400, message=str(e))
 
+    apply_auto_limit = True # TODO: get this from the API instead of hardcode
+    query_text = query.text
+    if apply_auto_limit and data_source.query_runner.supports_auto_limit:
+        query_text = data_source.query_runner.apply_auto_limit(query.text)
+
     if query.missing_params:
         return error_response(
             "Missing parameter value for: {}".format(", ".join(query.missing_params))
@@ -85,7 +90,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
     if max_age == 0:
         query_result = None
     else:
-        query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
+        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
 
     record_event(
         current_user.org,
@@ -95,7 +100,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
             "cache": "hit" if query_result else "miss",
             "object_id": data_source.id,
             "object_type": "data_source",
-            "query": query.text,
+            "query": query_text,
             "query_id": query_id,
             "parameters": parameters,
         },
@@ -109,7 +114,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
         }
     else:
         job = enqueue_query(
-            query.text,
+            query_text,
             data_source,
             current_user.id,
             current_user.is_api_user(),

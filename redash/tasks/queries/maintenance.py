@@ -52,9 +52,11 @@ def _should_refresh_query(query):
 
 def _apply_default_parameters(query):
     parameters = {p["name"]: p.get("value") for p in query.parameters}
+    apply_auto_limit = True #TODO: get this from the API instead of hardcode
+    origin_query = query.query_text
     if any(parameters):
         try:
-            return query.parameterized.apply(parameters).query
+            origin_query = query.parameterized.apply(parameters).query
         except InvalidParameterError as e:
             error = u"Skipping refresh of {} because of invalid parameters: {}".format(
                 query.id, str(e)
@@ -68,8 +70,11 @@ def _apply_default_parameters(query):
             ).format(query.id, e.query_id)
             track_failure(query, error)
             raise
-    else:
-        return query.query_text
+
+    query_text = origin_query
+    if apply_auto_limit and query.data_source.query_runner.supports_auto_limit:
+        query_text = query.data_source.query_runner.apply_auto_limit(origin_query)
+    return query_text
 
 
 class RefreshQueriesError(Exception):
