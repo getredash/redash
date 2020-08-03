@@ -1,6 +1,8 @@
 import logging
 
 from contextlib import ExitStack
+
+import sqlparse
 from dateutil import parser
 from functools import wraps
 import socket
@@ -10,7 +12,7 @@ from urllib.parse import urlparse
 from six import text_type
 from sshtunnel import open_tunnel
 from redash import settings
-from redash.utils import json_loads
+from redash.utils import json_loads, query_is_select_no_limit, add_limit_to_query
 from rq.timeouts import JobTimeoutException
 
 from redash.utils.requests_session import requests, requests_session
@@ -83,7 +85,7 @@ class BaseQueryRunner(object):
         """Returns this query runner's configured host.
         This is used primarily for temporarily swapping endpoints when using SSH tunnels to connect to a data source.
 
-        `BaseQueryRunner`'s naïve implementation supports query runner implementations that store endpoints using `host` and `port` 
+        `BaseQueryRunner`'s naïve implementation supports query runner implementations that store endpoints using `host` and `port`
         configuration values. If your query runner uses a different schema (e.g. a web address), you should override this function.
         """
         if "host" in self.configuration:
@@ -96,7 +98,7 @@ class BaseQueryRunner(object):
         """Sets this query runner's configured host.
         This is used primarily for temporarily swapping endpoints when using SSH tunnels to connect to a data source.
 
-        `BaseQueryRunner`'s naïve implementation supports query runner implementations that store endpoints using `host` and `port` 
+        `BaseQueryRunner`'s naïve implementation supports query runner implementations that store endpoints using `host` and `port`
         configuration values. If your query runner uses a different schema (e.g. a web address), you should override this function.
         """
         if "host" in self.configuration:
@@ -109,7 +111,7 @@ class BaseQueryRunner(object):
         """Returns this query runner's configured port.
         This is used primarily for temporarily swapping endpoints when using SSH tunnels to connect to a data source.
 
-        `BaseQueryRunner`'s naïve implementation supports query runner implementations that store endpoints using `host` and `port` 
+        `BaseQueryRunner`'s naïve implementation supports query runner implementations that store endpoints using `host` and `port`
         configuration values. If your query runner uses a different schema (e.g. a web address), you should override this function.
         """
         if "port" in self.configuration:
@@ -122,7 +124,7 @@ class BaseQueryRunner(object):
         """Sets this query runner's configured port.
         This is used primarily for temporarily swapping endpoints when using SSH tunnels to connect to a data source.
 
-        `BaseQueryRunner`'s naïve implementation supports query runner implementations that store endpoints using `host` and `port` 
+        `BaseQueryRunner`'s naïve implementation supports query runner implementations that store endpoints using `host` and `port`
         configuration values. If your query runner uses a different schema (e.g. a web address), you should override this function.
         """
         if "port" in self.configuration:
@@ -190,6 +192,13 @@ class BaseQueryRunner(object):
             **({"deprecated": True} if cls.deprecated else {}),
         }
 
+    @property
+    def supports_auto_limit(self):
+        return False
+
+    def apply_auto_limit(self, query_text):
+        return query_text
+
 
 class BaseSQLQueryRunner(BaseQueryRunner):
     def get_schema(self, get_stats=False):
@@ -208,6 +217,17 @@ class BaseSQLQueryRunner(BaseQueryRunner):
                 res = self._run_query_internal("select count(*) as cnt from %s" % t)
                 tables_dict[t]["size"] = res[0]["cnt"]
 
+    @property
+    def supports_auto_limit(self):
+        return True
+
+    def apply_auto_limit(self, query_text):
+        query_list = sqlparse.split(query_text)
+        # we only check for last one in the list because it is the one that we show result
+        last_query = query_list[-1]
+        if query_is_select_no_limit(last_query):
+            query_list[-1] = add_limit_to_query(last_query)
+        return "\n".join(query_list)
 
 def is_private_address(url):
     hostname = urlparse(url).hostname
