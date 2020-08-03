@@ -2,7 +2,10 @@
 
 const { extend, get, merge, find } = Cypress._;
 
-const post = (options) => cy.getCookie("csrf_token").then(csrf => cy.request({ ...options, method: "POST", headers: { "X-CSRF-TOKEN": csrf.value } }))
+const post = options =>
+  cy
+    .getCookie("csrf_token")
+    .then(csrf => cy.request({ ...options, method: "POST", headers: { "X-CSRF-TOKEN": csrf.value } }));
 
 export function createDashboard(name) {
   return post({ url: "api/dashboards", body: { name } }).then(({ body }) => body);
@@ -106,27 +109,26 @@ export function createUser({ name, email, password }) {
     url: "api/users?no_invite=yes",
     body: { name, email },
     failOnStatusCode: false,
-  })
-    .then(xhr => {
-      const { status, body } = xhr;
-      if (status < 200 || status > 400) {
-        throw new Error(xhr);
-      }
+  }).then(xhr => {
+    const { status, body } = xhr;
+    if (status < 200 || status > 400) {
+      throw new Error(xhr);
+    }
 
-      if (status === 400 && body.message === "Email already taken.") {
-        // all is good, do nothing
-        return;
-      }
+    if (status === 400 && body.message === "Email already taken.") {
+      // all is good, do nothing
+      return;
+    }
 
-      const id = get(body, "id");
-      assert.isDefined(id, "User api call returns user id");
+    const id = get(body, "id");
+    assert.isDefined(id, "User api call returns user id");
 
-      return post({
-        url: body.invite_link,
-        form: true,
-        body: { password },
-      });
+    return post({
+      url: body.invite_link,
+      form: true,
+      body: { password },
     });
+  });
 }
 
 export function createDestination(name, type, options = {}) {
@@ -149,10 +151,11 @@ export function addDestinationSubscription(alertId, destinationName) {
         throw new Error("Destination not found");
       }
       return post({
-        url: `api/alerts/${alertId}/subscriptions`, body: {
+        url: `api/alerts/${alertId}/subscriptions`,
+        body: {
           alert_id: alertId,
           destination_id: destination.id,
-        }
+        },
       });
     })
     .then(({ body }) => {
