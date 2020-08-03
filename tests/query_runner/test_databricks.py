@@ -4,7 +4,6 @@ from redash.query_runner.databricks import split_sql_statements
 
 class TestSplitMultipleSQLStatements(TestCase):
     def _assertSplitSql(self, sql, expected_stmt):
-        print(sql)
         stmt = split_sql_statements(sql)
         # ignore leading and trailing whitespaces when comparing
         self.assertListEqual([s.strip() for s in stmt], [s.strip() for s in expected_stmt])
@@ -56,6 +55,21 @@ selECT   #TesT#
 INSERT LoReM
     IPSUM %^&*()
                 """
+            ]
+        )
+
+        self._assertSplitSql(
+            """
+set test_var = 'hello';
+select ${test_var}, 123 from table;
+select 'qwerty' from ${test_var};
+select now()
+            """,
+            [
+                "set test_var = 'hello'",
+                "select ${test_var}, 123 from table",
+                "select 'qwerty' from ${test_var}",
+                "select now()"
             ]
         )
 
