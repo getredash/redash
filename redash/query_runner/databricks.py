@@ -139,12 +139,9 @@ class Databricks(BaseSQLQueryRunner):
         try:
             cursor = self._get_cursor()
 
-            # TODO: don't run empty queries
-            # TODO: don't run queries only with comments
-            # TODO: handle case when no queries were executed
-            queries = sqlparse.split(query)
-            for q in queries:
-                cursor.execute(q)
+            statements = split_sql_statements(query)
+            for stmt in statements:
+                cursor.execute(stmt)
 
             if cursor.description is not None:
                 data = cursor.fetchall()
