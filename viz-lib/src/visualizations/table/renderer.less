@@ -1,6 +1,18 @@
 @import "../variables";
 
 .table-visualization-container {
+  &.table-visualization-with-search {
+    .ant-table {
+      display: flex;
+      flex-direction: column;
+
+      .ant-table-footer {
+        flex: 0;
+        order: -1;
+      }
+    }
+  }
+
   .ant-pagination.ant-table-pagination {
     float: none;
     display: block;

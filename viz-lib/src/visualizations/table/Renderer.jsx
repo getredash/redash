@@ -1,5 +1,6 @@
 import { filter, map, get, initial, last, reduce } from "lodash";
 import React, { useMemo, useState, useEffect } from "react";
+import cx from "classnames";
 import PropTypes from "prop-types";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
@@ -81,17 +82,15 @@ export default function Renderer({ options, data }) {
 
   const searchColumns = useMemo(() => filter(options.columns, "allowSearch"), [options.columns]);
 
-  const tableColumns = useMemo(() => {
-    const searchInput =
-      searchColumns.length > 0 ? (
-        <SearchInput searchColumns={searchColumns} onChange={event => setSearchTerm(event.target.value)} />
-      ) : null;
-    return prepareColumns(options.columns, searchInput, orderBy, newOrderBy => {
-      setOrderBy(newOrderBy);
-      // Remove text selection - may occur accidentally
-      document.getSelection().removeAllRanges();
-    });
-  }, [options.columns, searchColumns, orderBy]);
+  const tableColumns = useMemo(
+    () =>
+      prepareColumns(options.columns, orderBy, newOrderBy => {
+        setOrderBy(newOrderBy);
+        // Remove text selection - may occur accidentally
+        document.getSelection().removeAllRanges();
+      }),
+    [options.columns, orderBy]
+  );
 
   const preparedRows = useMemo(() => sortRows(filterRows(initRows(data.rows), searchTerm, searchColumns), orderBy), [
     data.rows,
@@ -110,7 +109,8 @@ export default function Renderer({ options, data }) {
   }
 
   return (
-    <div className="table-visualization-container">
+    <div
+      className={cx("table-visualization-container", { "table-visualization-with-search": searchColumns.length > 0 })}>
       <Table
         data-percy="show-scrollbars"
         data-test="TableVisualization"
@@ -124,6 +124,11 @@ export default function Renderer({ options, data }) {
           showSizeChanger: false,
         }}
         showSorterTooltip={false}
+        footer={
+          searchColumns.length > 0
+            ? () => <SearchInput searchColumns={searchColumns} onChange={event => setSearchTerm(event.target.value)} />
+            : null
+        }
       />
     </div>
   );
