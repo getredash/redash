@@ -7,7 +7,7 @@ function calculateTokensCount(schema) {
 }
 
 export default function useAutocompleteFlags(schema) {
-  const isAvailable = useMemo(() => calculateTokensCount(schema) <= 5000, [schema]);
+  const isAvailable = useMemo(() => calculateTokensCount(schema) <= 15000, [schema]);
   const [isEnabled, setIsEnabled] = useState(localOptions.get("liveAutocomplete", true));
 
   const toggleAutocomplete = useCallback(state => {
