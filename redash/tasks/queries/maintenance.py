@@ -11,6 +11,7 @@ from redash.tasks.failure_report import track_failure
 from redash.tasks.queries.samples import refresh_samples
 from redash.utils import json_dumps, sentry
 from redash.worker import get_job_logger, job
+from redash.monitor import rq_job_ids
 
 from .execution import enqueue_query
 from .samples import truncate_long_string
@@ -134,6 +135,24 @@ def cleanup_query_results():
     ).delete(synchronize_session=False)
     models.db.session.commit()
     logger.info("Deleted %d unused query results.", deleted_count)
+
+
+def remove_ghost_locks():
+    """
+    Removes query locks that reference a non existing RQ job.
+    """
+    keys = redis_connection.keys("query_hash_job:*")
+    locks = {k: redis_connection.get(k) for k in keys}
+    jobs = list(rq_job_ids())
+
+    count = 0
+
+    for lock, job_id in locks.items():
+        if job_id not in jobs:
+            redis_connection.delete(lock)
+            count += 1
+
+    logger.info("Locks found: {}, Locks removed: {}".format(len(locks), count))
 
 
 @job(settings.SCHEMAS_REFRESH_QUEUE, timeout=settings.SCHEMA_REFRESH_TIME_LIMIT)
