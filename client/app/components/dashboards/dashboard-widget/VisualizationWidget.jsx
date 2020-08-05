@@ -4,10 +4,10 @@ import { compact, isEmpty, invoke } from "lodash";
 import { markdown } from "markdown";
 import cx from "classnames";
 import Menu from "antd/lib/menu";
+import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import { currentUser } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
 import { formatDateTime } from "@/lib/utils";
-import HtmlContent from "@/components/HtmlContent";
 import Parameters from "@/components/Parameters";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
@@ -16,7 +16,7 @@ import QueryLink from "@/components/QueryLink";
 import { FiltersType } from "@/components/Filters";
 import ExpandedWidgetDialog from "@/components/dashboards/ExpandedWidgetDialog";
 import EditParameterMappingsDialog from "@/components/dashboards/EditParameterMappingsDialog";
-import VisualizationRenderer from "@/visualizations/components/VisualizationRenderer";
+import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import Widget from "./Widget";
 
 function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit }) {
@@ -187,6 +187,7 @@ class VisualizationWidget extends React.Component {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     filters: FiltersType,
     isPublic: PropTypes.bool,
+    isLoading: PropTypes.bool,
     canEdit: PropTypes.bool,
     onLoad: PropTypes.func,
     onRefresh: PropTypes.func,
@@ -197,6 +198,7 @@ class VisualizationWidget extends React.Component {
   static defaultProps = {
     filters: [],
     isPublic: false,
+    isLoading: false,
     canEdit: false,
     onLoad: () => {},
     onRefresh: () => {},
@@ -273,10 +275,10 @@ class VisualizationWidget extends React.Component {
   }
 
   render() {
-    const { widget, isPublic, canEdit, onRefresh } = this.props;
+    const { widget, isLoading, isPublic, canEdit, onRefresh } = this.props;
     const { localParameters } = this.state;
     const widgetQueryResult = widget.getQueryResult();
-    const isRefreshing = widget.loading && !!(widgetQueryResult && widgetQueryResult.getStatus());
+    const isRefreshing = isLoading && !!(widgetQueryResult && widgetQueryResult.getStatus());
 
     return (
       <Widget

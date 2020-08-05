@@ -8,7 +8,7 @@ import Checkbox from "antd/lib/checkbox";
 import Button from "antd/lib/button";
 import Upload from "antd/lib/upload";
 import Icon from "antd/lib/icon";
-import { includes, isFunction, filter, difference, isEmpty, some, isNumber, isBoolean } from "lodash";
+import { includes, isFunction, filter, difference, isEmpty } from "lodash";
 import Select from "antd/lib/select";
 import notification from "@/services/notification";
 import Collapse from "@/components/Collapse";
@@ -38,6 +38,7 @@ class DynamicForm extends React.Component {
     actions: PropTypes.arrayOf(Action),
     feedbackIcons: PropTypes.bool,
     hideSubmitButton: PropTypes.bool,
+    defaultShowExtraFields: PropTypes.bool,
     saveText: PropTypes.string,
     onSubmit: PropTypes.func,
     form: AntdForm.isRequired,
@@ -49,6 +50,7 @@ class DynamicForm extends React.Component {
     actions: [],
     feedbackIcons: false,
     hideSubmitButton: false,
+    defaultShowExtraFields: false,
     saveText: "Save",
     onSubmit: () => {},
   };
@@ -56,22 +58,12 @@ class DynamicForm extends React.Component {
   constructor(props) {
     super(props);
 
-    const hasFilledExtraField = some(props.fields, field => {
-      const { extra, initialValue, placeholder } = field;
-      return (
-        extra &&
-        (!isEmpty(initialValue) ||
-          isNumber(initialValue) ||
-          (isBoolean(initialValue) && initialValue.toString() !== placeholder))
-      );
-    });
-
     const inProgressActions = {};
     props.actions.forEach(action => (inProgressActions[action.name] = false));
 
     this.state = {
       isSubmitting: false,
-      showExtraFields: hasFilledExtraField,
+      showExtraFields: props.defaultShowExtraFields,
       inProgressActions,
     };
 

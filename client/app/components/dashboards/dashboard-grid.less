@@ -93,6 +93,7 @@
 
     > .filters-wrapper {
       flex-grow: 0;
+      flex-shrink: 0;
     }
   }
 
@@ -112,15 +113,36 @@
     overflow: hidden;
   }
 
-  .counter-visualization-content {
-    position: absolute;
-    left: 10px;
-    top: 15px;
-    right: 10px;
-    bottom: 15px;
-    height: auto;
-    overflow: hidden;
-    padding: 0;
+  .counter-visualization-container {
+    height: 100%;
+
+    .counter-visualization-content {
+      position: absolute;
+      left: 10px;
+      top: 15px;
+      right: 10px;
+      bottom: 15px;
+      height: auto;
+      overflow: hidden;
+      padding: 0;
+    }
+  }
+}
+
+.query-fixed-layout {
+  .visualization-renderer > .visualization-renderer-wrapper {
+    .counter-visualization-container {
+      // counter is too large on Query pages, so let's add some constraints
+      max-width: 600px;
+      max-height: 400px;
+      // center it
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      margin: auto;
+    }
   }
 }
 

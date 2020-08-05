@@ -1,4 +1,4 @@
-/* global cy, Cypress */
+/* global cy */
 
 import { createQuery } from "../../support/redash-api";
 
@@ -85,6 +85,7 @@ describe("Choropleth", () => {
     cy.getByTestId("VisualizationPreview")
       .find(".map-visualization-container.leaflet-container")
       .should("exist");
+
     cy.percySnapshot("Visualizations - Choropleth", { widths: [viewportWidth] });
   });
 });

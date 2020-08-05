@@ -39,10 +39,6 @@ function getColumnNameWithoutType(column) {
   return parts[0];
 }
 
-export function getColumnCleanName(column) {
-  return getColumnNameWithoutType(column);
-}
-
 function getColumnFriendlyName(column) {
   return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 }
@@ -97,6 +93,23 @@ function handleErrorResponse(queryResult, error) {
       error: get(error, "response.data.message", "Unknown error occurred. Please try again later."),
       status: 4,
     },
+  });
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function fetchDataFromJob(jobId, interval = 1000) {
+  return axios.get(`api/jobs/${jobId}`).then(data => {
+    const status = statuses[data.job.status];
+    if (status === ExecutionStatus.WAITING || status === ExecutionStatus.PROCESSING) {
+      return sleep(interval).then(() => fetchDataFromJob(data.job.id));
+    } else if (status === ExecutionStatus.DONE) {
+      return data.job.result;
+    } else if (status === ExecutionStatus.FAILED) {
+      return Promise.reject(data.job.error);
+    }
   });
 }
 
@@ -252,10 +265,6 @@ class QueryResult {
     }
 
     return this.columnNames;
-  }
-
-  getColumnCleanNames() {
-    return this.getColumnNames().map(col => getColumnCleanName(col));
   }
 
   getColumnFriendlyNames() {

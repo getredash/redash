@@ -10,26 +10,25 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";
 import EditInPlace from "@/components/EditInPlace";
-import QueryEditor from "@/components/queries/QueryEditor";
 import recordEvent from "@/services/recordEvent";
 import { ExecutionStatus } from "@/services/query-result";
+import routes from "@/services/routes";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryMetadata from "./components/QueryMetadata";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
-import SchemaBrowser from "./components/SchemaBrowser";
 import QuerySourceAlerts from "./components/QuerySourceAlerts";
 import wrapQueryPage from "./components/wrapQueryPage";
 import QueryExecutionMetadata from "./components/QueryExecutionMetadata";
 
+import { getEditorComponents } from "@/components/queries/editor-components";
 import useQuery from "./hooks/useQuery";
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 import useAutocompleteFlags from "./hooks/useAutocompleteFlags";
 import useQueryExecute from "./hooks/useQueryExecute";
-import getQueryResultData from "@/lib/getQueryResultData";
+import useQueryResultData from "@/lib/useQueryResultData";
 import useQueryDataSources from "./hooks/useQueryDataSources";
-import useDataSourceSchema from "./hooks/useDataSourceSchema";
 import useQueryFlags from "./hooks/useQueryFlags";
 import useQueryParameters from "./hooks/useQueryParameters";
 import useAddNewParameterDialog from "./hooks/useAddNewParameterDialog";
@@ -53,10 +52,11 @@ function chooseDataSourceId(dataSourceIds, availableDataSources) {
 function QuerySource(props) {
   const { query, setQuery, isDirty, saveQuery } = useQuery(props.query);
   const { dataSourcesLoaded, dataSources, dataSource } = useQueryDataSources(query);
-  const [schema, refreshSchema] = useDataSourceSchema(dataSource);
+  const [schema, setSchema] = useState([]);
   const queryFlags = useQueryFlags(query, dataSource);
   const [parameters, areParametersDirty, updateParametersDirtyFlag] = useQueryParameters(query);
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
+  const { QueryEditor, SchemaBrowser } = getEditorComponents(dataSource && dataSource.type);
   const isMobile = !useMedia({ minWidth: 768 });
 
   useUnsavedChangesAlert(isDirty);
@@ -73,7 +73,7 @@ function QuerySource(props) {
     loadedInitialResults,
   } = useQueryExecute(query);
 
-  const queryResultData = getQueryResultData(queryResult);
+  const queryResultData = useQueryResultData(queryResult);
 
   const editorRef = useRef(null);
   const [autocompleteAvailable, autocompleteEnabled, toggleAutocomplete] = useAutocompleteFlags(schema);
@@ -183,7 +183,7 @@ function QuerySource(props) {
   return (
     <div className={cx("query-page-wrapper", { "query-fixed-layout": !isMobile })}>
       <QuerySourceAlerts query={query} dataSourcesAvailable={!dataSourcesLoaded || dataSources.length > 0} />
-      <div className="container p-b-10">
+      <div className="container w-100 p-b-10">
         <QueryPageHeader
           query={query}
           dataSource={dataSource}
@@ -222,8 +222,12 @@ function QuerySource(props) {
             )}
             <div className="editor__left__schema">
               <SchemaBrowser
-                schema={schema}
-                onRefresh={() => refreshSchema(true)}
+                dataSource={dataSource}
+                options={query.options.schemaOptions}
+                onOptionsUpdate={schemaOptions =>
+                  setQuery(extend(query.clone(), { options: { ...query.options, schemaOptions } }))
+                }
+                onSchemaUpdate={setSchema}
                 onItemSelect={handleSchemaItemSelect}
               />
             </div>
@@ -291,7 +295,7 @@ function QuerySource(props) {
                       }
                       executeButtonProps={{
                         disabled: !queryFlags.canExecute || isQueryExecuting || areParametersDirty,
-                        shortcut: "mod+enter, alt+enter",
+                        shortcut: "mod+enter, alt+enter, ctrl+enter, shift+enter",
                         onClick: doExecuteQuery,
                         text: (
                           <span className="hidden-xs">{selectedText === null ? "Execute" : "Execute Selected"}</span>
@@ -414,15 +418,19 @@ QuerySource.propTypes = {
 
 const QuerySourcePage = wrapQueryPage(QuerySource);
 
-export default [
+routes.register(
+  "Queries.New",
   routeWithUserSession({
     path: "/queries/new",
     render: pageProps => <QuerySourcePage {...pageProps} />,
     bodyClass: "fixed-layout",
-  }),
+  })
+);
+routes.register(
+  "Queries.Edit",
   routeWithUserSession({
-    path: "/queries/:queryId([0-9]+)/source",
+    path: "/queries/:queryId/source",
     render: pageProps => <QuerySourcePage {...pageProps} />,
     bodyClass: "fixed-layout",
-  }),
-];
+  })
+);

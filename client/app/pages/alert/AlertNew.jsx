@@ -35,7 +35,7 @@ export default class AlertNew extends React.Component {
     return (
       <>
         <Title alert={alert} name={name} onChange={onNameChange} editMode />
-        <div className="row bg-white tiled p-20">
+        <div className="bg-white tiled p-20">
           <div className="d-flex">
             <Form className="flex-fill">
               <div className="m-b-30">

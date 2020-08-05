@@ -2,8 +2,9 @@ import click
 import simplejson
 from flask import current_app
 from flask.cli import FlaskGroup, run_command
+from rq import Connection
 
-from redash import __version__, create_app, settings
+from redash import __version__, create_app, settings, rq_redis_connection
 from redash.cli import data_sources, database, groups, organization, queries, users, rq
 from redash.monitor import get_status
 
@@ -44,7 +45,8 @@ def version():
 
 @manager.command()
 def status():
-    print(simplejson.dumps(get_status(), indent=2))
+    with Connection(rq_redis_connection):
+        print(simplejson.dumps(get_status(), indent=2))
 
 
 @manager.command()
