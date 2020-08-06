@@ -26,6 +26,7 @@ import { getEditorComponents } from "@/components/queries/editor-components";
 import useQuery from "./hooks/useQuery";
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 import useAutocompleteFlags from "./hooks/useAutocompleteFlags";
+import useAutoLimitFlags from "./hooks/useAutoLimitFlags";
 import useQueryExecute from "./hooks/useQueryExecute";
 import useQueryResultData from "@/lib/useQueryResultData";
 import useQueryDataSources from "./hooks/useQueryDataSources";
@@ -77,6 +78,7 @@ function QuerySource(props) {
 
   const editorRef = useRef(null);
   const [autocompleteAvailable, autocompleteEnabled, toggleAutocomplete] = useAutocompleteFlags(schema);
+  const [autoLimitAvailable, autoLimitChecked, checkboxAutoLimit] = useAutoLimitFlags(dataSource);
 
   const [handleQueryEditorChange] = useDebouncedCallback(queryText => {
     setQuery(extend(query.clone(), { query: queryText }));
@@ -150,6 +152,7 @@ function QuerySource(props) {
 
   const doExecuteQuery = useCallback(
     (skipParametersDirtyFlag = false) => {
+      query.options.applyAutoLimit = autoLimitAvailable && autoLimitChecked;
       if (!queryFlags.canExecute || (!skipParametersDirtyFlag && (areParametersDirty || isQueryExecuting))) {
         return;
       }
@@ -161,17 +164,28 @@ function QuerySource(props) {
         executeQuery();
       }
     },
-    [query, queryFlags.canExecute, areParametersDirty, isQueryExecuting, isDirty, selectedText, executeQuery]
+    [
+      query,
+      queryFlags.canExecute,
+      areParametersDirty,
+      isQueryExecuting,
+      isDirty,
+      selectedText,
+      executeQuery,
+      autoLimitAvailable,
+      autoLimitChecked,
+    ]
   );
 
   const [isQuerySaving, setIsQuerySaving] = useState(false);
 
   const doSaveQuery = useCallback(() => {
+    query.options.applyAutoLimit = autoLimitAvailable && autoLimitChecked;
     if (!isQuerySaving) {
       setIsQuerySaving(true);
       saveQuery().finally(() => setIsQuerySaving(false));
     }
-  }, [isQuerySaving, saveQuery]);
+  }, [isQuerySaving, saveQuery, autoLimitAvailable, autoLimitChecked, query]);
 
   const addVisualization = useAddVisualizationDialog(query, queryResult, doSaveQuery, (newQuery, visualization) => {
     setQuery(newQuery);
@@ -265,6 +279,7 @@ function QuerySource(props) {
                       value={query.query}
                       schema={schema}
                       autocompleteEnabled={autocompleteAvailable && autocompleteEnabled}
+                      autoLimitChecked={autoLimitAvailable && autoLimitChecked}
                       onChange={handleQueryEditorChange}
                       onSelectionChange={setSelectedText}
                     />
@@ -305,6 +320,11 @@ function QuerySource(props) {
                         available: autocompleteAvailable,
                         enabled: autocompleteEnabled,
                         onToggle: toggleAutocomplete,
+                      }}
+                      autoLimitCheckboxProps={{
+                        available: autoLimitAvailable,
+                        checked: autoLimitChecked,
+                        onChange: checkboxAutoLimit,
                       }}
                       dataSourceSelectorProps={
                         dataSource

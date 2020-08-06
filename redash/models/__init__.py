@@ -30,7 +30,7 @@ from redash.query_runner import (
     TYPE_BOOLEAN,
     TYPE_DATE,
     TYPE_DATETIME,
-)
+    BaseSQLQueryRunner)
 from redash.utils import (
     generate_token,
     json_dumps,
@@ -122,6 +122,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
             "syntax": self.query_runner.syntax,
             "paused": self.paused,
             "pause_reason": self.pause_reason,
+            "apply_auto_limit": isinstance(self.query_runner, BaseSQLQueryRunner)
         }
 
         if all:

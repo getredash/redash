@@ -8,6 +8,7 @@ import KeyboardShortcuts, { humanReadableShortcut } from "@/services/KeyboardSho
 
 import AutocompleteToggle from "./AutocompleteToggle";
 import "./QueryEditorControls.less";
+import AutoLimitCheckbox from "@/components/queries/QueryEditor/AutoLimitCheckbox";
 
 export function ButtonTooltip({ title, shortcut, ...props }) {
   shortcut = humanReadableShortcut(shortcut, 1); // show only primary shortcut
@@ -38,6 +39,7 @@ export default function EditorControl({
   saveButtonProps,
   executeButtonProps,
   autocompleteToggleProps,
+  autoLimitCheckboxProps,
   dataSourceSelectorProps,
 }) {
   useEffect(() => {
@@ -82,6 +84,13 @@ export default function EditorControl({
           available={autocompleteToggleProps.available}
           enabled={autocompleteToggleProps.enabled}
           onToggle={autocompleteToggleProps.onToggle}
+        />
+      )}
+      {autoLimitCheckboxProps !== false && (
+        <AutoLimitCheckbox
+          available={autoLimitCheckboxProps.available}
+          checked={autoLimitCheckboxProps.checked}
+          onChange={autoLimitCheckboxProps.onChange}
         />
       )}
       {dataSourceSelectorProps === false && <span className="query-editor-controls-spacer" />}
@@ -153,6 +162,14 @@ EditorControl.propTypes = {
       onToggle: PropTypes.func,
     }),
   ]),
+  autoLimitCheckboxProps: PropTypes.oneOfType([
+    PropTypes.bool, // `false` to hide
+    PropTypes.shape({
+      available: PropTypes.bool,
+      checked: PropTypes.bool,
+      onChange: PropTypes.func,
+    }),
+  ]),
   dataSourceSelectorProps: PropTypes.oneOfType([
     PropTypes.bool, // `false` to hide
     PropTypes.shape({
@@ -175,5 +192,6 @@ EditorControl.defaultProps = {
   saveButtonProps: false,
   executeButtonProps: false,
   autocompleteToggleProps: false,
+  autoLimitCheckboxProps: false,
   dataSourceSelectorProps: false,
 };
