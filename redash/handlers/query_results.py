@@ -61,7 +61,7 @@ error_messages = {
 }
 
 
-def run_query(query, parameters, data_source, query_id, max_age=0):
+def run_query(query, parameters, data_source, query_id, apply_auto_limit, max_age=0):
     if data_source.paused:
         if data_source.pause_reason:
             message = "{} is paused ({}). Please try later.".format(
@@ -77,7 +77,6 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
     except (InvalidParameterError, QueryDetachedFromDataSourceError) as e:
         abort(400, message=str(e))
 
-    apply_auto_limit = True # TODO: get this from the API instead of hardcode
     query_text = query.text
     if apply_auto_limit and data_source.query_runner.supports_auto_limit:
         query_text = data_source.query_runner.apply_auto_limit(query.text)
@@ -185,6 +184,7 @@ class QueryResultListResource(BaseResource):
         )
 
         parameterized_query = ParameterizedQuery(query, org=self.current_org)
+        apply_auto_limit = "apply_auto_limit" in params and params["apply_auto_limit"]
 
         data_source_id = params.get("data_source_id")
         if data_source_id:
@@ -198,7 +198,7 @@ class QueryResultListResource(BaseResource):
             return error_messages["no_permission"]
 
         return run_query(
-            parameterized_query, parameters, data_source, query_id, max_age
+            parameterized_query, parameters, data_source, query_id, apply_auto_limit, max_age
         )
 
 
@@ -291,6 +291,7 @@ class QueryResultResource(BaseResource):
         )
 
         allow_executing_with_view_only_permissions = query.parameterized.is_safe
+        apply_auto_limit = "apply_auto_limit" in params and params["apply_auto_limit"]
 
         if has_access(
             query, self.current_user, allow_executing_with_view_only_permissions
@@ -300,6 +301,7 @@ class QueryResultResource(BaseResource):
                 parameter_values,
                 query.data_source,
                 query_id,
+                apply_auto_limit,
                 max_age,
             )
         else:

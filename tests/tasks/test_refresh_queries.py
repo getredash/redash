@@ -12,9 +12,10 @@ class TestRefreshQuery(BaseTestCase):
         refresh_queries() launches an execution task for each query returned
         from Query.outdated_queries().
         """
-        query1 = self.factory.create_query()
+        query1 = self.factory.create_query(options={"apply_auto_limit": True})
         query2 = self.factory.create_query(
-            query_text="select 42;", data_source=self.factory.create_data_source()
+            query_text="select 42;", data_source=self.factory.create_data_source(),
+            options={"apply_auto_limit": True}
         )
         oq = staticmethod(lambda: [query1, query2])
         with patch(ENQUEUE_QUERY) as add_job_mock, patch.object(
@@ -50,9 +51,9 @@ class TestRefreshQuery(BaseTestCase):
         ds = self.factory.create_data_source(
             group=self.factory.org.default_group, type="phoenix"
         )
-        query1 = self.factory.create_query(data_source=ds)
+        query1 = self.factory.create_query(data_source=ds, options={"apply_auto_limit": True})
         query2 = self.factory.create_query(
-            query_text="select 42;", data_source=ds
+            query_text="select 42;", data_source=ds, options={"apply_auto_limit": True}
         )
         oq = staticmethod(lambda: [query1, query2])
         with patch(ENQUEUE_QUERY) as add_job_mock, patch.object(
@@ -85,7 +86,7 @@ class TestRefreshQuery(BaseTestCase):
         refresh_queries() does not launch execution tasks for queries whose
         data source is paused.
         """
-        query = self.factory.create_query()
+        query = self.factory.create_query(options={"apply_auto_limit": True})
         oq = staticmethod(lambda: [query])
         query.data_source.pause()
         with patch.object(Query, "outdated_queries", oq):
@@ -113,7 +114,7 @@ class TestRefreshQuery(BaseTestCase):
         ds = self.factory.create_data_source(
             group=self.factory.org.default_group, type="phoenix"
         )
-        query = self.factory.create_query(data_source=ds)
+        query = self.factory.create_query(data_source=ds, options={"apply_auto_limit": True})
         oq = staticmethod(lambda: [query])
         query.data_source.pause()
         with patch.object(Query, "outdated_queries", oq):
@@ -148,7 +149,8 @@ class TestRefreshQuery(BaseTestCase):
                         "value": "42",
                         "title": "n",
                     }
-                ]
+                ],
+                "apply_auto_limit": True
             },
         )
         oq = staticmethod(lambda: [query])
@@ -182,7 +184,9 @@ class TestRefreshQuery(BaseTestCase):
                         "value": "42",
                         "title": "n",
                     }
-                ]
+                ],
+                "apply_auto_limit": True
+
             },
             data_source=ds,
         )
@@ -214,7 +218,8 @@ class TestRefreshQuery(BaseTestCase):
                         "value": 42,  # <-- should be text!
                         "title": "n",
                     }
-                ]
+                ],
+                "apply_auto_limit": True
             },
         )
         oq = staticmethod(lambda: [query])
@@ -241,7 +246,8 @@ class TestRefreshQuery(BaseTestCase):
                         "queryId": 100,
                         "title": "n",
                     }
-                ]
+                ],
+                "apply_auto_limit": True
             },
         )
 
