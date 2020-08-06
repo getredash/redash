@@ -45,17 +45,14 @@ class TestQueryResultsContentDispositionHeaders(BaseTestCase):
 
 class TestQueryResultListAPI(BaseTestCase):
     def test_get_existing_result(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, type="phoenix"
-        )
-        query_result = self.factory.create_query_result(data_source=ds)
-        query = self.factory.create_query(data_source=ds)
+        query_result = self.factory.create_query_result()
+        query = self.factory.create_query()
 
         rv = self.make_request(
             "post",
             "/api/query_results",
             data={
-                "data_source_id": ds.id,
+                "data_source_id": self.factory.data_source.id,
                 "query": query.query_text,
             },
         )
@@ -93,6 +90,7 @@ class TestQueryResultListAPI(BaseTestCase):
             data={
                 "data_source_id": ds.id,
                 "query": query.query_text,
+                "apply_auto_limit": True
             },
         )
 
@@ -113,6 +111,7 @@ class TestQueryResultListAPI(BaseTestCase):
             data={
                 "data_source_id": ds.id,
                 "query": query.query_text,
+                "apply_auto_limit": True
             },
         )
 

@@ -77,7 +77,7 @@ class RefreshQueriesError(Exception):
 
 
 def _apply_auto_limit(query_text, query):
-    set_auto_limit = True
+    set_auto_limit = query.options.get("apply_auto_limit", False)
     return query.data_source.query_runner.apply_auto_limit(query_text, set_auto_limit)
 
 

@@ -1,8 +1,6 @@
 import logging
 
 from contextlib import ExitStack
-
-import sqlparse
 from dateutil import parser
 from functools import wraps
 import socket
