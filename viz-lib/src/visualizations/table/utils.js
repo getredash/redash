@@ -109,25 +109,15 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
   });
 
   if (searchInput) {
-    // We need a merged head cell through entire row. With Ant's Table the only way to do it
-    // is to add a single child to every column move `dataIndex` property to it and set
-    // `colSpan` to 0 for every child cell except of the 1st one - which should be expanded.
-    tableColumns = map(tableColumns, ({ title, align, key, onHeaderCell, ...rest }, index) => ({
-      key: key + "(parent)",
-      title,
-      align,
-      onHeaderCell,
-      children: [
-        {
-          ...rest,
-          key: key + "(child)",
-          align,
-          colSpan: index === 0 ? tableColumns.length : 0,
-          title: index === 0 ? searchInput : null,
-          onHeaderCell: () => ({ className: "table-visualization-search" }),
-        },
-      ],
-    }));
+    // Add searchInput as the ColumnGroup for all table columns
+    tableColumns = [
+      {
+        key: "table-search",
+        title: searchInput,
+        onHeaderCell: () => ({ className: "table-visualization-search" }),
+        children: tableColumns,
+      },
+    ];
   }
 
   return tableColumns;
