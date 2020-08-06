@@ -12,7 +12,7 @@ import "./index.less";
 const editorProps = { $blockScrolling: Infinity };
 
 const QueryEditor = React.forwardRef(function(
-  { className, syntax, value, autocompleteEnabled, schema, onChange, onSelectionChange, ...props },
+  { className, syntax, value, autocompleteEnabled, autoLimitChecked, schema, onChange, onSelectionChange, ...props },
   ref
 ) {
   const [container, setContainer] = useState(null);
@@ -158,6 +158,7 @@ QueryEditor.propTypes = {
   syntax: PropTypes.string,
   value: PropTypes.string,
   autocompleteEnabled: PropTypes.bool,
+  autoLimitChecked: PropTypes.bool,
   schema: PropTypes.arrayOf(SchemaItemType),
   onChange: PropTypes.func,
   onSelectionChange: PropTypes.func,
@@ -168,6 +169,7 @@ QueryEditor.defaultProps = {
   syntax: null,
   value: null,
   autocompleteEnabled: true,
+  autoLimitChecked: true,
   schema: [],
   onChange: () => {},
   onSelectionChange: () => {},
