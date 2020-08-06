@@ -44,7 +44,7 @@ function getOrderByInfo(orderBy) {
   return result;
 }
 
-export function prepareColumns(columns, orderBy, onOrderByChange) {
+export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
   columns = filter(columns, "visible");
   columns = sortBy(columns, "order");
 
@@ -107,6 +107,28 @@ export function prepareColumns(columns, orderBy, onOrderByChange) {
     render: () => "",
     onHeaderCell: () => ({ className: "table-visualization-spacer" }),
   });
+
+  if (searchInput) {
+    // We need a merged head cell through entire row. With Ant's Table the only way to do it
+    // is to add a single child to every column move `dataIndex` property to it and set
+    // `colSpan` to 0 for every child cell except of the 1st one - which should be expanded.
+    tableColumns = map(tableColumns, ({ title, align, key, onHeaderCell, ...rest }, index) => ({
+      key: key + "(parent)",
+      title,
+      align,
+      onHeaderCell,
+      children: [
+        {
+          ...rest,
+          key: key + "(child)",
+          align,
+          colSpan: index === 0 ? tableColumns.length : 0,
+          title: index === 0 ? searchInput : null,
+          onHeaderCell: () => ({ className: "table-visualization-search" }),
+        },
+      ],
+    }));
+  }
 
   return tableColumns;
 }
