@@ -29,9 +29,9 @@ class TestBaseSQLQueryRunner(unittest.TestCase):
         self.assertEqual(origin_query_text + " LIMIT 1000", query_text)
 
     def test_apply_auto_limit_non_select_query(self):
-        origin_query_text = "create table execution_times as " \
-                            "(select id, retrieved_at, data_source_id, query, runtime, query_hash " \
-                            "from query_results order by 1 desc)"
+        origin_query_text = ("create table execution_times as "
+                             "(select id, retrieved_at, data_source_id, query, runtime, query_hash "
+                             "from query_results order by 1 desc)")
         query_text = self.query_runner.apply_auto_limit(origin_query_text)
         self.assertEqual(origin_query_text, query_text)
 
@@ -41,12 +41,12 @@ class TestBaseSQLQueryRunner(unittest.TestCase):
         self.assertEqual(origin_query_text, query_text)
 
     def test_apply_auto_limit_multi_query_add_limit_1(self):
-        origin_query_text = "insert into execution_times (id, retrieved_at, data_source_id, query, runtime, query_hash) " \
-                            "select id, retrieved_at, data_source_id, query, runtime, query_hash from query_results " \
-                            "where id > (select max(id) from execution_times);\n" \
-                            "select max(id), 'execution_times' as table_name from execution_times " \
-                            "union all " \
-                            "select max(id), 'query_results' as table_name from query_results"
+        origin_query_text = ("insert into execution_times (id, retrieved_at, data_source_id, query, runtime, query_hash) "
+                            "select id, retrieved_at, data_source_id, query, runtime, query_hash from query_results "
+                            "where id > (select max(id) from execution_times);\n"
+                            "select max(id), 'execution_times' as table_name from execution_times "
+                            "union all "
+                            "select max(id), 'query_results' as table_name from query_results")
         query_text = self.query_runner.apply_auto_limit(origin_query_text)
         self.assertEqual(origin_query_text + " LIMIT 1000", query_text)
 
@@ -57,15 +57,14 @@ class TestBaseSQLQueryRunner(unittest.TestCase):
         self.assertEqual(origin_query_text + " LIMIT 1000", query_text)
 
     def test_apply_auto_limit_multi_query_end_with_punc(self):
-        origin_query_text = "select * from table1;\n" \
-                            "select * from table2"
+        origin_query_text = ("select * from table1;\n"
+                             "select * from table2")
         query_text = self.query_runner.apply_auto_limit(origin_query_text)
-        self.assertEqual("select * from table1;\n" \
-                         "select * from table2 LIMIT 1000", query_text)
+        self.assertEqual("select * from table1;\nselect * from table2 LIMIT 1000", query_text)
 
     def test_apply_auto_limit_multi_query_last_not_select(self):
-        origin_query_text = "select * from table1;\n" \
-                            "CREATE TABLE Persons (PersonID int)"
+        origin_query_text = ("select * from table1;\n"
+                             "CREATE TABLE Persons (PersonID int)")
         query_text = self.query_runner.apply_auto_limit(origin_query_text)
         self.assertEqual(origin_query_text, query_text)
 
