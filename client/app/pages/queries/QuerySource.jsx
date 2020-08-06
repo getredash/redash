@@ -173,7 +173,7 @@ function QuerySource(props) {
       selectedText,
       executeQuery,
       autoLimitEnabled,
-      autoLimitAvailable
+      autoLimitAvailable,
     ]
   );
 
