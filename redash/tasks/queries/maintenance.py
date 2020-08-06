@@ -52,7 +52,7 @@ def _should_refresh_query(query):
 
 def _apply_default_parameters(query):
     parameters = {p["name"]: p.get("value") for p in query.parameters}
-    apply_auto_limit = True #TODO: get this from the API instead of hardcode
+    apply_auto_limit = query.options.get("apply_auto_limit", False)
     origin_query = query.query_text
     if any(parameters):
         try:
