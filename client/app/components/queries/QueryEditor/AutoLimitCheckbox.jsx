@@ -5,7 +5,6 @@ import recordEvent from "@/services/recordEvent";
 import { Checkbox } from "antd";
 
 export default function AutoLimitCheckbox({ available, checked, onChange }) {
-
   const handleClick = useCallback(() => {
     recordEvent("toggle_autocomplete", "screen", "query_editor", { state: !checked });
     onChange(!checked);
