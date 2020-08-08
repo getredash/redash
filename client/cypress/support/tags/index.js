@@ -12,6 +12,7 @@ export function typeInTagsSelectAndSave(text) {
       .find("input")
       .type(text);
 
+    cy.get(".ant-modal-header").click(); // hide dropdown options
     cy.contains("OK").click();
   });
 }
