@@ -1,10 +1,15 @@
 import functools
+from flask import session
+from flask_login import current_user
 from flask_talisman import talisman
+from flask_wtf.csrf import CSRFProtect, generate_csrf
+
 
 from redash import settings
 
 
 talisman = talisman.Talisman()
+csrf = CSRFProtect()
 
 
 def csp_allows_embeding(fn):
@@ -19,6 +24,20 @@ def csp_allows_embeding(fn):
 
 
 def init_app(app):
+    csrf.init_app(app)
+    app.config["WTF_CSRF_CHECK_DEFAULT"] = False
+
+    @app.after_request
+    def inject_csrf_token(response):
+        response.set_cookie("csrf_token", generate_csrf())
+        return response
+
+    if settings.ENFORCE_CSRF:
+        @app.before_request
+        def check_csrf():
+            if not current_user.is_authenticated or 'user_id' in session:
+                csrf.protect()
+
     talisman.init_app(
         app,
         feature_policy=settings.FEATURE_POLICY,
