@@ -1,21 +1,37 @@
 /* eslint-disable import/no-extraneous-dependencies, no-console */
+const { find } = require("lodash");
 const atob = require("atob");
 const { execSync } = require("child_process");
-const { post } = require("request").defaults({ jar: true });
+const { get, post } = require("request").defaults({ jar: true });
 const { seedData } = require("./seed-data");
+var Cookie = require("request-cookies").Cookie;
 
 const baseUrl = process.env.CYPRESS_baseUrl || "http://localhost:5000";
 
 function seedDatabase(seedValues) {
-  const request = seedValues.shift();
-  const data = request.type === "form" ? { formData: request.data } : { json: request.data };
+  get(baseUrl + "/login", (_, { headers }) => {
+    const request = seedValues.shift();
+    const data = request.type === "form" ? { formData: request.data } : { json: request.data };
 
-  post(baseUrl + request.route, data, (err, response) => {
-    const result = response ? response.statusCode : err;
-    console.log("POST " + request.route + " - " + result);
-    if (seedValues.length) {
-      seedDatabase(seedValues);
+    if (headers["set-cookie"]) {
+      const cookies = headers["set-cookie"].map(cookie => new Cookie(cookie));
+      const csrfCookie = find(cookies, { key: "csrf_token" });
+      if (csrfCookie) {
+        if (request.type === "form") {
+          data["formData"] = { ...data["formData"], csrf_token: csrfCookie.value };
+        } else {
+          data["headers"] = { "X-CSRFToken": csrfCookie.value };
+        }
+      }
     }
+
+    post(baseUrl + request.route, data, (err, response) => {
+      const result = response ? response.statusCode : err;
+      console.log("POST " + request.route + " - " + result);
+      if (seedValues.length) {
+        seedDatabase(seedValues);
+      }
+    });
   });
 }
 

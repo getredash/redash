@@ -24,12 +24,6 @@ export default function DetailsPageSidebar({
   return (
     <React.Fragment>
       <Sidebar.Menu items={items} selected={controller.params.currentPage} />
-      <Sidebar.PageSizeSelect
-        className="m-b-10"
-        options={controller.pageSizeOptions}
-        value={controller.itemsPerPage}
-        onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-      />
       {canAddMembers && (
         <Button className="w-100 m-t-5" type="primary" onClick={onAddMembersClick}>
           <i className="fa fa-plus m-r-5" />

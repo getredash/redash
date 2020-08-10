@@ -4,6 +4,7 @@ from flask_sqlalchemy import BaseQuery, SQLAlchemy
 from sqlalchemy.orm import object_session
 from sqlalchemy.pool import NullPool
 from sqlalchemy_searchable import make_searchable, vectorizer, SearchQueryMixin
+from sqlalchemy.dialects import postgresql
 
 from redash import settings
 from redash.utils import json_dumps
@@ -45,6 +46,11 @@ class SearchBaseQuery(BaseQuery, SearchQueryMixin):
 
 @vectorizer(db.Integer)
 def integer_vectorizer(column):
+    return db.func.cast(column, db.Text)
+
+
+@vectorizer(postgresql.UUID)
+def uuid_vectorizer(column):
     return db.func.cast(column, db.Text)
 
 
