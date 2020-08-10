@@ -59,6 +59,12 @@ export default function QueryExecutionMetadata({
             <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>
           </span>
         )}
+        {queryResultData.metadata.query_cost && (
+          <span className="m-l-5">
+            Cost (USD)
+            <strong>{prettySize(queryResultData.metadata.query_cost)}</strong>
+          </span>
+        )}
       </span>
       <div>
         <span className="m-r-10">
