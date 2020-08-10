@@ -16,7 +16,7 @@ export default function AutoLimitCheckbox({ available, checked, onChange }) {
       disabled={!available}
       onClick={handleClick}
       checked={available && checked}>
-      <label style={{fontSize: 9 }}>Limit 1000</label>
+      <label style={{ fontSize: 9 }}>Limit 1000</label>
     </Checkbox>
   );
 }
