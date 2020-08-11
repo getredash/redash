@@ -249,17 +249,17 @@ describe("Parameter", () => {
     });
   });
 
+  const selectCalendarDate = date => {
+    cy.getByTestId("ParameterName-test-parameter")
+      .find("input")
+      .click();
+
+    cy.get(".ant-picker-panel")
+      .contains(".ant-picker-cell-inner", date)
+      .click();
+  };
+
   describe("Date Parameter", () => {
-    const selectCalendarDate = date => {
-      cy.getByTestId("ParameterName-test-parameter")
-        .find("input")
-        .click();
-
-      cy.get(".ant-calendar-date-panel")
-        .contains(".ant-calendar-date", date)
-        .click();
-    };
-
     beforeEach(() => {
       const queryData = {
         name: "Date Parameter",
@@ -334,11 +334,9 @@ describe("Parameter", () => {
         .as("Input")
         .click();
 
-      cy.get(".ant-calendar-date-panel")
-        .contains(".ant-calendar-date", "15")
-        .click();
+      selectCalendarDate("15");
 
-      cy.get(".ant-calendar-ok-btn").click();
+      cy.get(".ant-picker-ok button").click();
 
       cy.getByTestId("ParameterApplyButton").click();
 
@@ -351,7 +349,7 @@ describe("Parameter", () => {
         .as("Input")
         .click();
 
-      cy.get(".ant-calendar-date-panel")
+      cy.get(".ant-picker-panel")
         .contains("Now")
         .click();
 
@@ -378,7 +376,7 @@ describe("Parameter", () => {
           .find("input")
           .click();
 
-        cy.get(".ant-calendar-date-panel")
+        cy.get(".ant-picker-panel")
           .contains("Now")
           .click();
       });
@@ -392,12 +390,12 @@ describe("Parameter", () => {
         .first()
         .click();
 
-      cy.get(".ant-calendar-date-panel")
-        .contains(".ant-calendar-date", startDate)
+      cy.get(".ant-picker-panel")
+        .contains(".ant-picker-cell-inner", startDate)
         .click();
 
-      cy.get(".ant-calendar-date-panel")
-        .contains(".ant-calendar-date", endDate)
+      cy.get(".ant-picker-panel")
+        .contains(".ant-picker-cell-inner", endDate)
         .click();
     };
 
