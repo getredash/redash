@@ -62,6 +62,7 @@ export default function DynamicFormField({ form, field, ...otherProps }) {
     readOnly,
     autoFocus,
     placeholder: field.placeholder,
+    "data-test": fieldLabel,
     ...otherProps,
   };
 
