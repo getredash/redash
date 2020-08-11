@@ -22,7 +22,7 @@ function prepareVisualization(query, type, name, options) {
       cy.get("body").type("{alt}D");
 
       // do some pre-checks here to ensure that visualization was created and is visible
-      cy.getByTestId(`QueryPageVisualization${visualizationId}`)
+      cy.getByTestId("TableVisualization")
         .should("exist")
         .find("table")
         .should("exist");
@@ -63,9 +63,7 @@ describe("Table", () => {
     });
 
     it("sorts data by a single column", function() {
-      const { visualizationId } = this;
-
-      cy.getByTestId(`QueryPageVisualization${visualizationId}`)
+      cy.getByTestId("TableVisualization")
         .find("table th")
         .contains("c")
         .should("exist")
@@ -74,16 +72,14 @@ describe("Table", () => {
     });
 
     it("sorts data by a multiple columns", function() {
-      const { visualizationId } = this;
-
-      cy.getByTestId(`QueryPageVisualization${visualizationId}`)
+      cy.getByTestId("TableVisualization")
         .find("table th")
         .contains("a")
         .should("exist")
         .click();
 
       cy.get("body").type("{shift}", { release: false });
-      cy.getByTestId(`QueryPageVisualization${visualizationId}`)
+      cy.getByTestId("TableVisualization")
         .find("table th")
         .contains("b")
         .should("exist")
@@ -93,9 +89,7 @@ describe("Table", () => {
     });
 
     it("sorts data in reverse order", function() {
-      const { visualizationId } = this;
-
-      cy.getByTestId(`QueryPageVisualization${visualizationId}`)
+      cy.getByTestId("TableVisualization")
         .find("table th")
         .contains("c")
         .should("exist")
@@ -108,7 +102,7 @@ describe("Table", () => {
   it("searches in multiple columns", () => {
     const { query, config } = SearchInData;
     prepareVisualization(query, "TABLE", "Search", config).then(({ visualizationId }) => {
-      cy.getByTestId(`QueryPageVisualization${visualizationId}`)
+      cy.getByTestId("TableVisualization")
         .find("table input")
         .should("exist")
         .type("test");
@@ -119,7 +113,7 @@ describe("Table", () => {
   it("shows pagination and navigates to third page", () => {
     const { query, config } = LargeDataset;
     prepareVisualization(query, "TABLE", "With pagination", config).then(({ visualizationId }) => {
-      cy.getByTestId(`QueryPageVisualization${visualizationId}`)
+      cy.get(".visualization-renderer")
         .find(".ant-table-pagination")
         .should("exist")
         .find("li")

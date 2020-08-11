@@ -72,14 +72,12 @@ describe("Pivot", () => {
 
     createPivotThroughUI(visualizationName, { hideControls: true });
 
-    cy.wait("@SaveVisualization").then(xhr => {
-      const visualizationId = get(xhr, "response.body.id");
-      // Added visualization should also have hidden controls
-      cy.getByTestId(`QueryPageVisualization${visualizationId}`)
-        .find("table")
-        .find(".pvtAxisContainer, .pvtRenderer, .pvtVals")
-        .should("be.not.visible");
-    });
+    cy.wait("@SaveVisualization");
+    // Added visualization should also have hidden controls
+    cy.getByTestId("PivotTableVisualization")
+      .find("table")
+      .find(".pvtAxisContainer, .pvtRenderer, .pvtVals")
+      .should("be.not.visible");
   });
 
   it("updates the visualization when results change", function() {
@@ -97,7 +95,7 @@ describe("Pivot", () => {
       cy.getByTestId("ExecuteButton").click();
 
       // assert number of rows is 11
-      cy.getByTestId(`QueryPageVisualization${visualization.id}`).contains(".pvtGrandTotal", "11");
+      cy.getByTestId("PivotTableVisualization").contains(".pvtGrandTotal", "11");
 
       cy.getByTestId("QueryEditor")
         .get(".ace_text-input")
@@ -109,7 +107,7 @@ describe("Pivot", () => {
       cy.getByTestId("ExecuteButton").click();
 
       // assert number of rows is 12
-      cy.getByTestId(`QueryPageVisualization${visualization.id}`).contains(".pvtGrandTotal", "12");
+      cy.getByTestId("PivotTableVisualization").contains(".pvtGrandTotal", "12");
     });
   });
 
