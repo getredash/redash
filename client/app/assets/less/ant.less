@@ -400,3 +400,14 @@
 .@{checkbox-prefix-cls} + span {
   padding-right: 0;
 }
+
+// make sure Multiple select has room for icons
+.@{select-prefix-cls}-multiple {
+  &.@{select-prefix-cls}-show-arrow,
+  &.@{select-prefix-cls}-show-search,
+  &.@{select-prefix-cls}-loading {
+    .@{select-prefix-cls}-selector {
+      padding-right: 30px;
+    }
+  }
+}
