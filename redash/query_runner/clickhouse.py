@@ -1,6 +1,7 @@
 import logging
 import re
 from urllib.parse import urlparse
+from uuid import uuid4
 
 import requests
 
@@ -8,6 +9,12 @@ from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
+
+
+def split_multi_query(query):
+    queries = re.split(r";[\s;]*$", query, flags=re.MULTILINE)
+
+    return [q.strip() for q in queries if q and not q.isspace()]
 
 
 class ClickHouse(BaseSQLQueryRunner):
@@ -87,26 +94,36 @@ class ClickHouse(BaseSQLQueryRunner):
 
         return list(schema.values())
 
-    def _send_query(self, data, stream=False):
+    def _send_query(self, data, session_id=None, session_check=None):
         url = self.configuration.get("url", "http://127.0.0.1:8123")
+        timeout = self.configuration.get("timeout", 30)
+
+        params = {
+            "user": self.configuration.get("user", "default"),
+            "password": self.configuration.get("password", ""),
+            "database": self.configuration["dbname"],
+        }
+
+        if session_id:
+            params["session_id"] = session_id
+            params["session_check"] = "1" if session_check else "0"
+            params["session_timeout"] = timeout
+
         try:
             verify = self.configuration.get("verify", True)
             r = requests.post(
                 url,
-                data=data.encode("utf-8","ignore"),
-                stream=stream,
-                timeout=self.configuration.get("timeout", 30),
-                params={
-                    "user": self.configuration.get("user", "default"),
-                    "password": self.configuration.get("password", ""),
-                    "database": self.configuration["dbname"],
-                },
+                data=data.encode("utf-8", "ignore"),
+                stream=False,
+                timeout=timeout,
+                params=params,
                 verify=verify,
             )
             if r.status_code != 200:
                 raise Exception(r.text)
             # logging.warning(r.json())
-            return r.json()
+
+            return r.json() if r.text else None
         except requests.RequestException as e:
             if e.response:
                 details = "({}, Status Code: {})".format(
@@ -133,9 +150,16 @@ class ClickHouse(BaseSQLQueryRunner):
         else:
             return TYPE_STRING
 
-    def _clickhouse_query(self, query):
+    def _clickhouse_query(self, query, session_id=None, session_check=None):
+        logger.debug("Clickhouse is about to execute query: %s", query)
+
         query += "\nFORMAT JSON"
-        result = self._send_query(query)
+
+        result = self._send_query(query, session_id, session_check)
+
+        if not result:
+            return None
+
         columns = []
         columns_int64 = []  # db converts value to string if its type equals UInt64
         columns_totals = {}
@@ -172,13 +196,24 @@ class ClickHouse(BaseSQLQueryRunner):
         return {"columns": columns, "rows": rows}
 
     def run_query(self, query, user):
-        logger.debug("Clickhouse is about to execute query: %s", query)
-        if query == "":
+        queries = split_multi_query(query)
+
+        if not queries:
             json_data = None
             error = "Query is empty"
             return json_data, error
+
         try:
-            q = self._clickhouse_query(query)
+            if len(queries) == 1:
+                q = self._clickhouse_query(queries[0])
+            else:
+                session_id = "redash_{}".format(uuid4().hex)
+
+                self._clickhouse_query(queries[0], session_id, session_check=False)
+
+                for query in queries[1:]:
+                    q = self._clickhouse_query(query, session_id, session_check=True)
+
             data = json_dumps(q)
             error = None
         except Exception as e:
