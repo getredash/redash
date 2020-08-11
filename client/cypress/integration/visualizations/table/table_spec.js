@@ -42,12 +42,8 @@ describe("Table", () => {
     const { query, config } = AllCellTypes;
     prepareVisualization(query, "TABLE", "All cell types", config).then(() => {
       // expand JSON cell
-      cy.get(".jvi-item.jvi-root .jvi-toggle")
-        .should("exist")
-        .click();
-      cy.get(".jvi-item.jvi-root .jvi-item .jvi-toggle")
-        .should("exist")
-        .click({ multiple: true });
+      cy.get(".jvi-item.jvi-root .jvi-toggle").click();
+      cy.get(".jvi-item.jvi-root .jvi-item .jvi-toggle").click({ multiple: true });
 
       cy.percySnapshot("Visualizations - Table (All cell types)", { widths: [viewportWidth] });
     });
