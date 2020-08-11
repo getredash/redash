@@ -1,9 +1,7 @@
-/* global cy, Cypress */
+/* global cy */
 
 import { createQuery, createVisualization, createDashboard, addWidget } from "../../support/redash-api";
 import { getWidgetTestId } from "../../support/dashboard";
-
-const { get } = Cypress._;
 
 const SQL = `
   SELECT 'a' AS stage1, 'a1' AS stage2, 11 AS value UNION ALL
