@@ -13,7 +13,8 @@ export default function BeaconConsentSettings(props) {
       <Form.Item
         label={
           <>
-            Anonymous Usage Data Sharing <HelpTrigger type="USAGE_DATA_SHARING" />
+            Anonymous Usage Data Sharing
+            <HelpTrigger className="m-l-5" type="USAGE_DATA_SHARING" />
           </>
         }>
         <Checkbox
