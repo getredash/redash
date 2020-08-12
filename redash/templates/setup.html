@@ -36,6 +36,7 @@
     {% endwith %}
 
     <form role="form" method="post" name="create_account">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <h4 class="m-t-25">Admin User</h4>
       {{ render_field(form.name) }}
       {{ render_field(form.email) }}

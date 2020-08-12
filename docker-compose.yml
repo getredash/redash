@@ -15,6 +15,7 @@ x-redash-environment: &redash-environment
   REDASH_RATELIMIT_ENABLED: "false"
   REDASH_MAIL_DEFAULT_SENDER: "redash@example.com"
   REDASH_MAIL_SERVER: "email"
+  REDASH_ENFORCE_CSRF: "true"
 services:
   server:
     <<: *redash-service

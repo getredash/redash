@@ -500,3 +500,9 @@ SQLPARSE_FORMAT_OPTIONS = {
 REQUESTS_ALLOW_REDIRECTS = parse_boolean(
     os.environ.get("REDASH_REQUESTS_ALLOW_REDIRECTS", "false")
 )
+
+# Enforces CSRF token validation on API requests.
+# This is turned off by default to avoid breaking any existing deployments but it is highly recommended to turn this toggle on to prevent CSRF attacks.
+ENFORCE_CSRF = parse_boolean(
+    os.environ.get("REDASH_ENFORCE_CSRF", "false")
+)
