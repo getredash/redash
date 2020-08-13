@@ -15,11 +15,11 @@ axios.interceptors.request.use(config => {
   const apiKey = Auth.getApiKey();
   if (apiKey) {
     config.headers.Authorization = `Key ${apiKey}`;
-  } else {
-    const csrfToken = Cookies.get("csrf_token");
-    if (csrfToken) {
-      config.headers.common["X-CSRF-TOKEN"] = csrfToken;
-    }
+  }
+
+  const csrfToken = Cookies.get("csrf_token");
+  if (csrfToken) {
+    config.headers.common["X-CSRF-TOKEN"] = csrfToken;
   }
 
   return config;
