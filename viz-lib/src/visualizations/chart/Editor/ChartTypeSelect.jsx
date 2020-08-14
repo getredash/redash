@@ -1,7 +1,7 @@
 import { map } from "lodash";
 import React, { useMemo } from "react";
-import { Select } from "@/components/visualizations/editor";
-import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
+import { Select } from "@@/components/visualizations/editor";
+import { visualizationsSettings } from "@@/visualizations/visualizationsSettings";
 
 export default function ChartTypeSelect(props) {
   const chartTypes = useMemo(() => {

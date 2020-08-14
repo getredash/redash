@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import * as Grid from "antd/lib/grid";
-import { Section, Select, Input, InputNumber } from "@/components/visualizations/editor";
+import { Section, Select, Input, InputNumber } from "@@/components/visualizations/editor";
 
 function toNumber(value) {
   value = isNumber(value) ? value : parseFloat(value);

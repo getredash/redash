@@ -1,9 +1,9 @@
 import { each, map } from "lodash";
 import React, { useMemo, useCallback } from "react";
 import Table from "antd/lib/table";
-import ColorPicker from "@/components/ColorPicker";
-import { EditorPropTypes } from "@/visualizations/prop-types";
-import ColorPalette from "@/visualizations/ColorPalette";
+import ColorPicker from "@@/components/ColorPicker";
+import { EditorPropTypes } from "@@/visualizations/prop-types";
+import ColorPalette from "@@/visualizations/ColorPalette";
 import getChartData from "../getChartData";
 
 function getUniqueValues(chartData) {

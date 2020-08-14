@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { map, mapValues, keyBy } from "lodash";
 import moment from "moment";
-import { RendererPropTypes } from "@/visualizations/prop-types";
-import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
+import { RendererPropTypes } from "@@/visualizations/prop-types";
+import { visualizationsSettings } from "@@/visualizations/visualizationsSettings";
 import Descriptions from "antd/lib/descriptions";
 import Pagination from "antd/lib/pagination";
 

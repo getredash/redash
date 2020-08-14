@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import useMedia from "use-media";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
-import { RendererPropTypes } from "@/visualizations/prop-types";
-import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
+import { ErrorBoundaryContext } from "@@/components/ErrorBoundary";
+import { RendererPropTypes } from "@@/visualizations/prop-types";
+import { visualizationsSettings } from "@@/visualizations/visualizationsSettings";
 import getChartData from "../getChartData";
 import initChart from "./initChart";
 

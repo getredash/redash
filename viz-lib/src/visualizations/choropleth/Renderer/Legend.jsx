@@ -1,7 +1,7 @@
 import { map } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import ColorPicker from "@/components/ColorPicker";
+import ColorPicker from "@@/components/ColorPicker";
 
 export default function Legend({ items, alignText }) {
   return (

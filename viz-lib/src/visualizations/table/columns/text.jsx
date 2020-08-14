@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import HtmlContent from "@/components/HtmlContent";
-import { Section, Checkbox } from "@/components/visualizations/editor";
-import { createTextFormatter } from "@/lib/value-format";
+import HtmlContent from "@@/components/HtmlContent";
+import { Section, Checkbox } from "@@/components/visualizations/editor";
+import { createTextFormatter } from "@@/lib/value-format";
 
 function Editor({ column, onChange }) {
   return (

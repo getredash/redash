@@ -5,7 +5,7 @@ import Table from "antd/lib/table";
 import Input from "antd/lib/input";
 import Icon from "antd/lib/icon";
 import Popover from "antd/lib/popover";
-import { RendererPropTypes } from "@/visualizations/prop-types";
+import { RendererPropTypes } from "@@/visualizations/prop-types";
 
 import { prepareColumns, initRows, filterRows, sortRows } from "./utils";
 

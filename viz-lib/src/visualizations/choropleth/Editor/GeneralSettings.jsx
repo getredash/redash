@@ -1,7 +1,7 @@
 import { map } from "lodash";
 import React, { useMemo } from "react";
-import { EditorPropTypes } from "@/visualizations/prop-types";
-import { Section, Select } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@@/visualizations/prop-types";
+import { Section, Select } from "@@/components/visualizations/editor";
 import { inferCountryCodeType } from "./utils";
 
 export default function GeneralSettings({ options, data, onOptionsChange }) {

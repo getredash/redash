@@ -1,9 +1,9 @@
 import { isEqual } from "lodash";
 import React, { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import ErrorBoundary, { ErrorMessage } from "@/components/ErrorBoundary";
-import { RendererPropTypes } from "@/visualizations/prop-types";
-import registeredVisualizations from "@/visualizations/registeredVisualizations";
+import ErrorBoundary, { ErrorMessage } from "@@/components/ErrorBoundary";
+import { RendererPropTypes } from "@@/visualizations/prop-types";
+import registeredVisualizations from "@@/visualizations/registeredVisualizations";
 
 export default function Renderer({
   type,

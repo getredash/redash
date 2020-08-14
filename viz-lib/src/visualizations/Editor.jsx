@@ -1,11 +1,11 @@
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
-import { EditorPropTypes } from "@/visualizations/prop-types";
-import registeredVisualizations from "@/visualizations/registeredVisualizations";
+import { EditorPropTypes } from "@@/visualizations/prop-types";
+import registeredVisualizations from "@@/visualizations/registeredVisualizations";
 
 export default function Editor({ type, options: optionsProp, data, ...otherProps }) {
   const { Editor, getOptions } = registeredVisualizations[type];
-  const options = useMemo(() => getOptions(optionsProp, data), [optionsProp, data]);
+  const options = useMemo(() => getOptions(optionsProp, data), [getOptions, optionsProp, data]);
 
   return <Editor options={options} data={data} {...otherProps} />;
 }

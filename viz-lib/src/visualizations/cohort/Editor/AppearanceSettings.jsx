@@ -1,7 +1,7 @@
 import React from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { Section, Input, Checkbox, ContextHelp } from "@/components/visualizations/editor";
-import { EditorPropTypes } from "@/visualizations/prop-types";
+import { Section, Input, Checkbox, ContextHelp } from "@@/components/visualizations/editor";
+import { EditorPropTypes } from "@@/visualizations/prop-types";
 
 export default function AppearanceSettings({ options, onOptionsChange }) {
   const [debouncedOnOptionsChange] = useDebouncedCallback(onOptionsChange, 200);
