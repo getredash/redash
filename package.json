@@ -18,7 +18,7 @@
     "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
     "lint": "npm run lint:base -- --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
     "lint:fix": "npm run lint:base  -- --fix --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
-    "lint:base": "eslint --config ./client/.eslintrc.js --ignore-path ./client/.eslintignore",
+    "lint:base": "eslint",
     "lint:ci": "npm run lint -- --max-warnings 0 --format junit --output-file /tmp/test-results/eslint/results.xml",
     "prettier": "prettier --write 'client/app/**/*.{js,jsx,ts,tsx}' 'client/cypress/**/*.{js,jsx,ts,tsx}'",
     "type-check": "tsc --noEmit --project client/tsconfig.json",
