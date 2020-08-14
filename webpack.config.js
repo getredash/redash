@@ -101,13 +101,15 @@ const config = {
       fileName: "asset-manifest.json",
       publicPath: ""
     }),
-    new CopyWebpackPlugin([
-      { from: "client/app/assets/robots.txt" },
-      { from: "client/app/unsupported.html" },
-      { from: "client/app/unsupportedRedirect.js" },
-      { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
-      { from: "client/app/assets/fonts", to: "fonts/" }
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: "client/app/assets/robots.txt" },
+        { from: "client/app/unsupported.html" },
+        { from: "client/app/unsupportedRedirect.js" },
+        { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
+        { from: "client/app/assets/fonts", to: "fonts/" }
+      ]
+    }),
     !isProduction && new ReactRefreshWebpackPlugin()
   ],
   optimization: {
