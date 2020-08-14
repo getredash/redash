@@ -117,3 +117,5 @@ routes.register(
     render: pageProps => <OrganizationSettingsPage {...pageProps} />,
   })
 );
+
+export default OrganizationSettingsPage;

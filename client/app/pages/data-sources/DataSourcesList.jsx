@@ -174,3 +174,5 @@ routes.register(
     render: pageProps => <DataSourcesListPage {...pageProps} isNewDataSourcePage />,
   })
 );
+
+export default DataSourcesListPage;

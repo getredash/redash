@@ -218,3 +218,5 @@ routes.register(
     render: pageProps => <QueriesListPage {...pageProps} currentPage="my" />,
   })
 );
+
+export default QueriesListPage;

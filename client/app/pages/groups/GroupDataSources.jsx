@@ -253,3 +253,5 @@ routes.register(
     render: pageProps => <GroupDataSourcesPage {...pageProps} currentPage="datasources" />,
   })
 );
+
+export default GroupDataSourcesPage;

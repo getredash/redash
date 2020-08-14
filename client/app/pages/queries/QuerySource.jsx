@@ -434,3 +434,5 @@ routes.register(
     bodyClass: "fixed-layout",
   })
 );
+
+export default QuerySourcePage;

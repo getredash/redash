@@ -150,3 +150,5 @@ routes.register(
     render: pageProps => <EditDataSourcePage {...pageProps} />,
   })
 );
+
+export default EditDataSourcePage;
