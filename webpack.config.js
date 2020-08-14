@@ -111,7 +111,7 @@ const config = {
       ]
     }),
     !isProduction && new ReactRefreshWebpackPlugin()
-  ],
+  ].filter(Boolean),
   optimization: {
     splitChunks: {
       chunks: chunk => {

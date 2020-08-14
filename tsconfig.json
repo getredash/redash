@@ -21,15 +21,20 @@
       "esnext"
     ],
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": "./",
+    "baseUrl": ".",
+    "rootDir": ".",
+    // limit @types libs to locally installed ones
+    "typeRoots": ["./node_modules/@types"],
     "paths": {
-      "@/*": ["./app/*"]
+      "@/*": ["./client/app/*"],
+      "@@/*": ["./client/viz-lib/*"]
     }
   },
   "include": [
-    "app/**/*"
+    "client",
+    "viz-lib"
   ],
   "exclude": [
-    "dist"
+    "dist",
   ]
 }

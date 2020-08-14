@@ -5,7 +5,7 @@ import registeredVisualizations from "@@/visualizations/registeredVisualizations
 
 export default function Editor({ type, options: optionsProp, data, ...otherProps }) {
   const { Editor, getOptions } = registeredVisualizations[type];
-  const options = useMemo(() => getOptions(optionsProp, data), [optionsProp, data]);
+  const options = useMemo(() => getOptions(optionsProp, data), [getOptions, optionsProp, data]);
 
   return <Editor options={options} data={data} {...otherProps} />;
 }

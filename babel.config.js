@@ -3,7 +3,7 @@ module.exports = api => {
   api.cache.using(() => process.env.NODE_ENV);
   return {
     sourceMaps: true,
-    sourceType: 'module',
+    sourceType: "module",
     retainLines: true,
     presets: [
       [
@@ -29,7 +29,7 @@ module.exports = api => {
           globals: ["Error"]
         }
       ],
-      !api.env("production") && "react-refresh/babel"
+      api.env("development") && "react-refresh/babel"
     ].filter(Boolean)
   };
 };
