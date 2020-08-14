@@ -1,4 +1,4 @@
-build/*.js
+node_modules
+build
 dist
-config/*.js
-client/dist
+viz-lib/lib
