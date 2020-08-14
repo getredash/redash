@@ -1,4 +1,4 @@
-import qs from 'qs';
+import qs from "qs";
 import moment from "moment";
 import debug from "debug";
 import Mustache from "mustache";
@@ -173,7 +173,7 @@ export class Query {
     return url;
   }
 
-  getDataUrl(format = 'json', download = true) {
+  getDataUrl(format = "json", download = true) {
     const params = {};
     if (this.api_key) {
       params.api_key = this.api_key;
