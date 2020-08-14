@@ -16,7 +16,7 @@
     "webpack-dev-server": "webpack-dev-server",
     "analyze": "npm run clean && BUNDLE_ANALYZER=on webpack",
     "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
-    "lint": "npm run lint:client && npm run lint:viz",
+    "lint": "npm run lint:base -- ./client ./viz-lib",
     "lint:client": "npm run lint:base -- ./client",
     "lint:viz": "npm run lint:base -- ./viz-lib",
     "lint:base": "eslint --ext .js,.jsx,.ts,.tsx",

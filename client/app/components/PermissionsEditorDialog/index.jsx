@@ -80,15 +80,15 @@ function UserSelect({ onSelect, shouldShowUser }) {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const debouncedSearchUsers = useCallback(
-    debounce(
+  const debouncedSearchUsers = debounce(
+    useCallback(
       search =>
         searchUsers(search)
           .then(setUsers)
           .finally(() => setLoadingUsers(false)),
-      DEBOUNCE_SEARCH_DURATION
+      []
     ),
-    []
+    DEBOUNCE_SEARCH_DURATION
   );
 
   useEffect(() => {
