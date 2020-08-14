@@ -26,6 +26,7 @@ function optionalRequire(module, defaultReturn = undefined) {
 const CONFIG = optionalRequire("./scripts/config", {});
 
 const isProduction = process.env.NODE_ENV === "production";
+const isCI = Boolean(process.env.CI);
 
 const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
 const staticPath = CONFIG.staticPath || "/static/";
@@ -78,6 +79,7 @@ const config = {
     }
   },
   plugins: [
+    !isCI && new webpack.ProgressPlugin(),
     // bundle only default `moment` locale (`en`)
     new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /en/),
     new HtmlWebpackPlugin({
