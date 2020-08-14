@@ -1,5 +1,5 @@
 import React from "react";
-import { Section } from "@/components/visualizations/editor";
+import { Section } from "@@/components/visualizations/editor";
 
 export default function Editor() {
   return (

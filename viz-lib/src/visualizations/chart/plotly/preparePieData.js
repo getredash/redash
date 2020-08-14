@@ -1,7 +1,7 @@
 import { isString, each, extend, includes, map, reduce } from "lodash";
 import d3 from "d3";
-import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
-import { ColorPaletteArray } from "@/visualizations/ColorPalette";
+import chooseTextColorForBackground from "@@/lib/chooseTextColorForBackground";
+import { ColorPaletteArray } from "@@/visualizations/ColorPalette";
 
 import { cleanNumber, normalizeValue } from "./utils";
 

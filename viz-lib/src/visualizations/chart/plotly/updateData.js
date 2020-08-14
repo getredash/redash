@@ -1,5 +1,5 @@
 import { isNil, each, extend, filter, identity, includes, map, sortBy } from "lodash";
-import { createNumberFormatter, formatSimpleTemplate } from "@/lib/value-format";
+import { createNumberFormatter, formatSimpleTemplate } from "@@/lib/value-format";
 import { normalizeValue } from "./utils";
 
 function shouldUseUnifiedXAxis(options) {

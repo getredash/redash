@@ -1,4 +1,4 @@
-import createTabbedEditor from "@/components/visualizations/editor/createTabbedEditor";
+import createTabbedEditor from "@@/components/visualizations/editor/createTabbedEditor";
 
 import GeneralSettings from "./GeneralSettings";
 import AppearanceSettings from "./AppearanceSettings";

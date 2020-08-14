@@ -2,8 +2,8 @@ import d3 from "d3";
 import cloud from "d3-cloud";
 import { each, filter, map, min, max, sortBy, toString } from "lodash";
 import React, { useMemo, useState, useEffect } from "react";
-import resizeObserver from "@/services/resizeObserver";
-import { RendererPropTypes } from "@/visualizations/prop-types";
+import resizeObserver from "@@/services/resizeObserver";
+import { RendererPropTypes } from "@@/visualizations/prop-types";
 
 import "./renderer.less";
 

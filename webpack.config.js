@@ -1,15 +1,11 @@
-/* eslint-disable */
-
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
 const ManifestPlugin = require("webpack-manifest-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
-  .BundleAnalyzerPlugin;
-const fs = require("fs");
+const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 
 const path = require("path");
 
@@ -30,12 +26,14 @@ function optionalRequire(module, defaultReturn = undefined) {
 const CONFIG = optionalRequire("./scripts/config", {});
 
 const isProduction = process.env.NODE_ENV === "production";
+const isCI = Boolean(process.env.CI);
 
 const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
 const staticPath = CONFIG.staticPath || "/static/";
 
 const basePath = path.join(__dirname, "client");
 const appPath = path.join(__dirname, "client", "app");
+const vizLibPath = path.join(__dirname, "viz-lib", "src");
 
 const extensionsRelativePath =
   process.env.EXTENSIONS_DIRECTORY || path.join("client", "app", "extensions");
@@ -43,7 +41,8 @@ const extensionPath = path.join(__dirname, extensionsRelativePath);
 
 // Function to apply configuration overrides (see scripts/README)
 function maybeApplyOverrides(config) {
-  const overridesLocation = process.env.REDASH_WEBPACK_OVERRIDES || "./scripts/webpack/overrides";
+  const overridesLocation =
+    process.env.REDASH_WEBPACK_OVERRIDES || "./scripts/webpack/overrides";
   const applyOverrides = optionalRequire(overridesLocation);
   if (!applyOverrides) {
     return config;
@@ -61,7 +60,7 @@ const config = {
       "./client/app/index.js",
       "./client/app/assets/less/main.less",
       "./client/app/assets/less/ant.less"
-    ],
+    ].filter(Boolean),
     server: ["./client/app/assets/less/server.less"]
   },
   output: {
@@ -74,13 +73,15 @@ const config = {
     extensions: [".js", ".jsx", ".ts", ".tsx"],
     alias: {
       "@": appPath,
+      "@@": vizLibPath,
+      "@redash/viz/lib": vizLibPath,
       extensions: extensionPath
     }
   },
   plugins: [
-    new WebpackBuildNotifierPlugin({ title: "Redash" }),
+    !isCI && new webpack.ProgressPlugin(),
     // bundle only default `moment` locale (`en`)
-    new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
+    new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /en/),
     new HtmlWebpackPlugin({
       template: "./client/app/index.html",
       filename: "index.html",
@@ -106,12 +107,13 @@ const config = {
       { from: "client/app/unsupportedRedirect.js" },
       { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
       { from: "client/app/assets/fonts", to: "fonts/" }
-    ])
+    ]),
+    !isProduction && new ReactRefreshWebpackPlugin()
   ],
   optimization: {
     splitChunks: {
       chunks: chunk => {
-        return chunk.name != "server";
+        return chunk.name !== "server";
       }
     }
   },
@@ -120,7 +122,7 @@ const config = {
       {
         test: /\.(t|j)sx?$/,
         exclude: /node_modules/,
-        use: ["babel-loader", "eslint-loader"]
+        use: ["babel-loader"]
       },
       {
         test: /\.html$/,
@@ -208,7 +210,6 @@ const config = {
       }
     ]
   },
-  devtool: isProduction ? "source-map" : "cheap-eval-module-source-map",
   stats: {
     children: false,
     modules: false,
@@ -217,8 +218,10 @@ const config = {
   watchOptions: {
     ignored: /\.sw.$/
   },
+  devtool: isProduction ? "source-map" : "cheap-module-source-map",
   devServer: {
-    inline: true,
+    hot: true,
+    compress: true,
     index: "/static/index.html",
     historyApiFallback: {
       index: "/static/index.html",
@@ -244,17 +247,16 @@ const config = {
       {
         context: path => {
           // CSS/JS for server-rendered pages should be served from backend
-          return /^\/static\/[a-z]+\.[0-9a-fA-F]+\.(css|js)$/.test(path);
+          return /^\/static\/[a-z]+\.[0-9a-fA-F]+(?!hot-update)\.(css|js)$/.test(
+            path
+          );
         },
         target: redashBackend + "/",
         changeOrigin: true,
         secure: false
       }
     ],
-    stats: {
-      modules: false,
-      chunkModules: false
-    }
+    stats: "minimal"
   },
   performance: {
     hints: false

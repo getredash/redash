@@ -1,6 +1,6 @@
 import { isNil, extend, each, includes, map, sortBy, toString } from "lodash";
-import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
-import { ColorPaletteArray } from "@/visualizations/ColorPalette";
+import chooseTextColorForBackground from "@@/lib/chooseTextColorForBackground";
+import { ColorPaletteArray } from "@@/visualizations/ColorPalette";
 import { cleanNumber, normalizeValue, getSeriesAxis } from "./utils";
 
 function getSeriesColor(seriesOptions, seriesIndex) {

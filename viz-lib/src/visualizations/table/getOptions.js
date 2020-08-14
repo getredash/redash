@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
+import { visualizationsSettings } from "@@/visualizations/visualizationsSettings";
 
 const DEFAULT_OPTIONS = {
   itemsPerPage: 25,
