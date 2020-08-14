@@ -216,7 +216,7 @@ function openDialog(DialogComponent, props) {
 
 export function wrap(DialogComponent) {
   function WrappedComponent(props) {
-    return <DialogComponent {...props} />
+    return <DialogComponent {...props} />;
   }
   WrappedComponent.Component = DialogComponent;
   WrappedComponent.showModal = props => openDialog(DialogComponent, props);
