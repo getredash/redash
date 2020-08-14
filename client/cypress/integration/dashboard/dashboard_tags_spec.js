@@ -4,7 +4,7 @@ import { expectTagsToContain, typeInTagsSelectAndSave } from "../../support/tags
 describe("Dashboard Tags", () => {
   beforeEach(function() {
     cy.login();
-    createDashboard("Foo Bar").then(({ slug }) => cy.visit(`/dashboard/${slug}`));
+    createDashboard("Foo Bar").then(({ id }) => cy.visit(`/dashboards/${id}`));
   });
 
   it("is possible to add and edit tags", () => {

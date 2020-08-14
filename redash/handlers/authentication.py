@@ -84,7 +84,7 @@ def render_token_login_page(template, org_slug, token, invite):
             flash("Password length is too short (<6).")
             status_code = 400
         else:
-            if invite:
+            if invite or user.is_invitation_pending:
                 user.is_invitation_pending = False
             user.hash_password(request.form["password"])
             models.db.session.add(user)
@@ -284,6 +284,9 @@ def client_config():
         "allowScriptsInUserInput": settings.ALLOW_SCRIPTS_IN_USER_INPUT,
         "showPermissionsControl": current_org.get_setting(
             "feature_show_permissions_control"
+        ),
+        "hidePlotlyModeBar": current_org.get_setting(
+            "hide_plotly_mode_bar"
         ),
         "allowCustomJSVisualizations": settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         "autoPublishNamedQueries": settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,

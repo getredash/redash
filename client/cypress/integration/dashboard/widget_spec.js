@@ -6,9 +6,9 @@ import { createQueryAndAddWidget, editDashboard, resizeBy } from "../../support/
 describe("Widget", () => {
   beforeEach(function() {
     cy.login();
-    createDashboard("Foo Bar").then(({ slug, id }) => {
+    createDashboard("Foo Bar").then(({ id }) => {
       this.dashboardId = id;
-      this.dashboardUrl = `/dashboard/${slug}`;
+      this.dashboardUrl = `/dashboards/${id}`;
     });
   });
 
@@ -196,6 +196,26 @@ describe("Widget", () => {
         .next(".ant-pagination.mini")
         .should("be.visible");
       cy.percySnapshot("Shows fixed mini pagination for overflowing tabular content");
+    });
+  });
+
+  it("keeps results on screen while refreshing", function() {
+    const queryData = {
+      query: "select pg_sleep({{sleep-time}}), 'sleep time: {{sleep-time}}' as sleeptime",
+      options: { parameters: [{ name: "sleep-time", title: "Sleep time", type: "number", value: 0 }] },
+    };
+
+    createQueryAndAddWidget(this.dashboardId, queryData).then(elTestId => {
+      cy.visit(this.dashboardUrl);
+      cy.getByTestId(elTestId).within(() => {
+        cy.getByTestId("TableVisualization").should("contain", "sleep time: 0");
+        cy.get(".refresh-indicator").should("not.be.visible");
+
+        cy.getByTestId("ParameterName-sleep-time").type("10");
+        cy.getByTestId("ParameterApplyButton").click();
+        cy.get(".refresh-indicator").should("be.visible");
+        cy.getByTestId("TableVisualization").should("contain", "sleep time: 0");
+      });
     });
   });
 });

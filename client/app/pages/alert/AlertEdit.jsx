@@ -62,7 +62,7 @@ export default class AlertEdit extends React.Component {
           </Button>
           {menuButton}
         </Title>
-        <div className="row bg-white tiled p-20">
+        <div className="bg-white tiled p-20">
           <div className="d-flex">
             <Form className="flex-fill">
               <HorizontalFormItem label="Query">

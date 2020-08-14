@@ -29,7 +29,7 @@ class ConfigurationContainer(Mutable):
         if isinstance(configuration_schema, dict):
             for prop in configuration_schema.get("properties", {}).values():
                 if "extendedEnum" in prop:
-                    prop["enum"] = map(lambda v: v["value"], prop["extendedEnum"])
+                    prop["enum"] = [option["value"] for option in prop["extendedEnum"]]
                     del prop["extendedEnum"]
         self._schema = configuration_schema
 

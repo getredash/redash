@@ -5,7 +5,7 @@ import time
 import numbers
 import pytz
 
-from sqlalchemy import distinct, or_, and_, UniqueConstraint
+from sqlalchemy import distinct, or_, and_, UniqueConstraint, cast
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -24,6 +24,7 @@ from redash.destinations import (
 )
 from redash.metrics import database  # noqa: F401
 from redash.query_runner import (
+    with_ssh_tunnel,
     get_configuration_schema_for_query_runner_type,
     get_query_runner,
     TYPE_BOOLEAN,
@@ -41,7 +42,7 @@ from redash.utils import (
 from redash.utils.configuration import ConfigurationContainer
 from redash.models.parameterized_query import ParameterizedQuery
 
-from .base import db, gfk_type, Column, GFKBase, SearchBaseQuery
+from .base import db, gfk_type, Column, GFKBase, SearchBaseQuery, key_type, primary_key
 from .changes import ChangeTrackingMixin, Change  # noqa
 from .mixins import BelongsToOrgMixin, TimestampMixin
 from .organizations import Organization
@@ -51,6 +52,7 @@ from .types import (
     MutableDict,
     MutableList,
     PseudoJSON,
+    pseudo_json_cast_property
 )
 from .users import AccessPermission, AnonymousUser, ApiUser, Group, User  # noqa
 
@@ -82,8 +84,8 @@ scheduled_queries_executions = ScheduledQueriesExecutions()
 
 @generic_repr("id", "name", "type", "org_id", "created_at")
 class DataSource(BelongsToOrgMixin, db.Model):
-    id = Column(db.Integer, primary_key=True)
-    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    id = primary_key("DataSource")
+    org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
     org = db.relationship(Organization, backref="data_sources")
 
     name = Column(db.String(255))
@@ -181,12 +183,16 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
         return res
 
-    def get_schema(self, refresh=False):
-        cache = None
-        if not refresh:
-            cache = redis_connection.get(self._schema_key)
+    def get_cached_schema(self):
+        cache = redis_connection.get(self._schema_key)
+        return json_loads(cache) if cache else None
 
-        if cache is None:
+    def get_schema(self, refresh=False):
+        out_schema = None
+        if not refresh:
+            out_schema = self.get_cached_schema()
+
+        if out_schema is None:
             query_runner = self.query_runner
             schema = query_runner.get_schema(get_stats=refresh)
 
@@ -199,14 +205,12 @@ class DataSource(BelongsToOrgMixin, db.Model):
                 out_schema = schema
             finally:
                 redis_connection.set(self._schema_key, json_dumps(out_schema))
-        else:
-            out_schema = json_loads(cache)
 
         return out_schema
 
     def _sort_schema(self, schema):
         return [
-            {"name": i["name"], "columns": sorted(i["columns"])}
+            {"name": i["name"], "columns": sorted(i["columns"], key=lambda x: x["name"] if isinstance(x, dict) else x)}
             for i in sorted(schema, key=lambda x: x["name"])
         ]
 
@@ -252,8 +256,17 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return dsg
 
     @property
+    def uses_ssh_tunnel(self):
+        return "ssh_tunnel" in self.options
+
+    @property
     def query_runner(self):
-        return get_query_runner(self.type, self.options)
+        query_runner = get_query_runner(self.type, self.options)
+
+        if self.uses_ssh_tunnel:
+            query_runner = with_ssh_tunnel(query_runner, self.options.get("ssh_tunnel"))
+
+        return query_runner
 
     @classmethod
     def get_by_name(cls, name):
@@ -269,10 +282,10 @@ class DataSource(BelongsToOrgMixin, db.Model):
 @generic_repr("id", "data_source_id", "group_id", "view_only")
 class DataSourceGroup(db.Model):
     # XXX drop id, use datasource/group as PK
-    id = Column(db.Integer, primary_key=True)
-    data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
+    id = primary_key("DataSourceGroup")
+    data_source_id = Column(key_type("DataSource"), db.ForeignKey("data_sources.id"))
     data_source = db.relationship(DataSource, back_populates="data_source_groups")
-    group_id = Column(db.Integer, db.ForeignKey("groups.id"))
+    group_id = Column(key_type("Group"), db.ForeignKey("groups.id"))
     group = db.relationship(Group, back_populates="data_sources")
     view_only = Column(db.Boolean, default=False)
 
@@ -307,10 +320,10 @@ QueryResultPersistence = (
 
 @generic_repr("id", "org_id", "data_source_id", "query_hash", "runtime", "retrieved_at")
 class QueryResult(db.Model, QueryResultPersistence, BelongsToOrgMixin):
-    id = Column(db.Integer, primary_key=True)
-    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    id = primary_key("QueryResult")
+    org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
     org = db.relationship(Organization)
-    data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
+    data_source_id = Column(key_type("DataSource"), db.ForeignKey("data_sources.id"))
     data_source = db.relationship(DataSource, backref=backref("query_results"))
     query_hash = Column(db.String(32), index=True)
     query_text = Column("query", db.Text)
@@ -452,14 +465,14 @@ def should_schedule_next(
     "schedule_failures",
 )
 class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
-    id = Column(db.Integer, primary_key=True)
+    id = primary_key("Query")
     version = Column(db.Integer, default=1)
-    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
     org = db.relationship(Organization, backref="queries")
-    data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"), nullable=True)
+    data_source_id = Column(key_type("DataSource"), db.ForeignKey("data_sources.id"), nullable=True)
     data_source = db.relationship(DataSource, backref="queries")
     latest_query_data_id = Column(
-        db.Integer, db.ForeignKey("query_results.id"), nullable=True
+        key_type("QueryResult"), db.ForeignKey("query_results.id"), nullable=True
     )
     latest_query_data = db.relationship(QueryResult)
     name = Column(db.String(255))
@@ -467,15 +480,16 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     query_text = Column("query", db.Text)
     query_hash = Column(db.String(32))
     api_key = Column(db.String(40), default=lambda: generate_token(40))
-    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship(User, foreign_keys=[user_id])
-    last_modified_by_id = Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    last_modified_by_id = Column(key_type("User"), db.ForeignKey("users.id"), nullable=True)
     last_modified_by = db.relationship(
         User, backref="modified_queries", foreign_keys=[last_modified_by_id]
     )
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
     schedule = Column(MutableDict.as_mutable(PseudoJSON), nullable=True)
+    interval = pseudo_json_cast_property(db.Integer, "schedule", "interval", default=0)
     schedule_failures = Column(db.Integer, default=0)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
     options = Column(MutableDict.as_mutable(PseudoJSON), default={})
@@ -624,6 +638,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             )
             .filter(Query.schedule.isnot(None))
             .order_by(Query.id)
+            .all()
         )
 
         now = utils.utcnow()
@@ -661,9 +676,14 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 query.schedule["disabled"] = True
                 db.session.commit()
 
-                message = "Could not determine if query %d is outdated due to %s. The schedule for this query has been disabled." % (query.id, repr(e))
+                message = (
+                    "Could not determine if query %d is outdated due to %s. The schedule for this query has been disabled."
+                    % (query.id, repr(e))
+                )
                 logging.info(message)
-                sentry.capture_message(message)
+                sentry.capture_exception(
+                    type(e)(message).with_traceback(e.__traceback__)
+                )
 
         return list(outdated_queries.values())
 
@@ -858,14 +878,14 @@ def query_last_modified_by(target, val, oldval, initiator):
 
 @generic_repr("id", "object_type", "object_id", "user_id", "org_id")
 class Favorite(TimestampMixin, db.Model):
-    id = Column(db.Integer, primary_key=True)
-    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    id = primary_key("Favorite")
+    org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
 
     object_type = Column(db.Unicode(255))
-    object_id = Column(db.Integer)
+    object_id = Column(key_type("Favorite"))
     object = generic_relationship(object_type, object_id)
 
-    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship(User, backref="favorites")
 
     __tablename__ = "favorites"
@@ -945,11 +965,11 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     OK_STATE = "ok"
     TRIGGERED_STATE = "triggered"
 
-    id = Column(db.Integer, primary_key=True)
+    id = primary_key("Alert")
     name = Column(db.String(255))
-    query_id = Column(db.Integer, db.ForeignKey("queries.id"))
+    query_id = Column(key_type("Query"), db.ForeignKey("queries.id"))
     query_rel = db.relationship(Query, backref=backref("alerts", cascade="all"))
-    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship(User, backref="alerts")
     options = Column(MutableDict.as_mutable(PseudoJSON))
     state = Column(db.String(255), default=UNKNOWN_STATE)
@@ -1056,13 +1076,13 @@ def generate_slug(ctx):
     "id", "name", "slug", "user_id", "org_id", "version", "is_archived", "is_draft"
 )
 class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
-    id = Column(db.Integer, primary_key=True)
+    id = primary_key("Dashboard")
     version = Column(db.Integer)
-    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
     org = db.relationship(Organization, backref="dashboards")
     slug = Column(db.String(140), index=True, default=generate_slug)
     name = Column(db.String(100))
-    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship(User)
     # layout is no longer used, but kept so we know how to render old dashboards.
     layout = Column(db.Text)
@@ -1080,11 +1100,17 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def __str__(self):
         return "%s=%s" % (self.id, self.name)
 
+    @property
+    def name_as_slug(self):
+        return utils.slugify(self.name)
+
     @classmethod
     def all(cls, org, group_ids, user_id):
         query = (
             Dashboard.query.options(
-                subqueryload(Dashboard.user).load_only("_profile_image_url", "name")
+                joinedload(Dashboard.user).load_only(
+                    "id", "name", "_profile_image_url", "email"
+                )
             )
             .outerjoin(Widget)
             .outerjoin(Visualization)
@@ -1162,9 +1188,9 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
 @generic_repr("id", "name", "type", "query_id")
 class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
-    id = Column(db.Integer, primary_key=True)
+    id = primary_key("Visualization")
     type = Column(db.String(100))
-    query_id = Column(db.Integer, db.ForeignKey("queries.id"))
+    query_id = Column(key_type("Query"), db.ForeignKey("queries.id"))
     # query_rel and not query, because db.Model already has query defined.
     query_rel = db.relationship(Query, back_populates="visualizations")
     name = Column(db.String(255))
@@ -1191,9 +1217,9 @@ class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
 
 @generic_repr("id", "visualization_id", "dashboard_id")
 class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
-    id = Column(db.Integer, primary_key=True)
+    id = primary_key("Widget")
     visualization_id = Column(
-        db.Integer, db.ForeignKey("visualizations.id"), nullable=True
+        key_type("Visualization"), db.ForeignKey("visualizations.id"), nullable=True
     )
     visualization = db.relationship(
         Visualization, backref=backref("widgets", cascade="delete")
@@ -1201,7 +1227,7 @@ class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
     text = Column(db.Text, nullable=True)
     width = Column(db.Integer)
     options = Column(db.Text)
-    dashboard_id = Column(db.Integer, db.ForeignKey("dashboards.id"), index=True)
+    dashboard_id = Column(key_type("Dashboard"), db.ForeignKey("dashboards.id"), index=True)
 
     __tablename__ = "widgets"
 
@@ -1217,10 +1243,10 @@ class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
     "id", "object_type", "object_id", "action", "user_id", "org_id", "created_at"
 )
 class Event(db.Model):
-    id = Column(db.Integer, primary_key=True)
-    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    id = primary_key("Event")
+    org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
     org = db.relationship(Organization, back_populates="events")
-    user_id = Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    user_id = Column(key_type("User"), db.ForeignKey("users.id"), nullable=True)
     user = db.relationship(User, backref="events")
     action = Column(db.String(255))
     object_type = Column(db.String(255))
@@ -1276,13 +1302,14 @@ class Event(db.Model):
 
 @generic_repr("id", "created_by_id", "org_id", "active")
 class ApiKey(TimestampMixin, GFKBase, db.Model):
-    id = Column(db.Integer, primary_key=True)
-    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    id = primary_key("ApiKey")
+    org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
     org = db.relationship(Organization)
     api_key = Column(db.String(255), index=True, default=lambda: generate_token(40))
     active = Column(db.Boolean, default=True)
     # 'object' provided by GFKBase
-    created_by_id = Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    object_id = Column(key_type("ApiKey"))
+    created_by_id = Column(key_type("User"), db.ForeignKey("users.id"), nullable=True)
     created_by = db.relationship(User)
 
     __tablename__ = "api_keys"
@@ -1311,10 +1338,10 @@ class ApiKey(TimestampMixin, GFKBase, db.Model):
 
 @generic_repr("id", "name", "type", "user_id", "org_id", "created_at")
 class NotificationDestination(BelongsToOrgMixin, db.Model):
-    id = Column(db.Integer, primary_key=True)
-    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    id = primary_key("NotificationDestination")
+    org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
     org = db.relationship(Organization, backref="notification_destinations")
-    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship(User, backref="notification_destinations")
     name = Column(db.String(255))
     type = Column(db.String(255))
@@ -1368,14 +1395,14 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
 
 @generic_repr("id", "user_id", "destination_id", "alert_id")
 class AlertSubscription(TimestampMixin, db.Model):
-    id = Column(db.Integer, primary_key=True)
-    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    id = primary_key("AlertSubscription")
+    user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship(User)
     destination_id = Column(
-        db.Integer, db.ForeignKey("notification_destinations.id"), nullable=True
+        key_type("NotificationDestination"), db.ForeignKey("notification_destinations.id"), nullable=True
     )
     destination = db.relationship(NotificationDestination)
-    alert_id = Column(db.Integer, db.ForeignKey("alerts.id"))
+    alert_id = Column(key_type("Alert"), db.ForeignKey("alerts.id"))
     alert = db.relationship(Alert, back_populates="subscriptions")
 
     __tablename__ = "alert_subscriptions"
@@ -1416,12 +1443,12 @@ class AlertSubscription(TimestampMixin, db.Model):
 
 @generic_repr("id", "trigger", "user_id", "org_id")
 class QuerySnippet(TimestampMixin, db.Model, BelongsToOrgMixin):
-    id = Column(db.Integer, primary_key=True)
-    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    id = primary_key("QuerySnippet")
+    org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
     org = db.relationship(Organization, backref="query_snippets")
     trigger = Column(db.String(255), unique=True)
     description = Column(db.Text)
-    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship(User, backref="query_snippets")
     snippet = Column(db.Text)
 

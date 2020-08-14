@@ -3,7 +3,7 @@ from sqlalchemy_utils.models import generic_repr
 
 from redash.settings.organization import settings as org_settings
 
-from .base import db, Column
+from .base import db, Column, primary_key
 from .mixins import TimestampMixin
 from .types import MutableDict, PseudoJSON
 from .users import User, Group
@@ -14,7 +14,7 @@ class Organization(TimestampMixin, db.Model):
     SETTING_GOOGLE_APPS_DOMAINS = "google_apps_domains"
     SETTING_IS_PUBLIC = "is_public"
 
-    id = Column(db.Integer, primary_key=True)
+    id = primary_key("Organization")
     name = Column(db.String(255))
     slug = Column(db.String(255), unique=True)
     settings = Column(MutableDict.as_mutable(PseudoJSON))

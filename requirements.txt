@@ -16,6 +16,7 @@ Flask-Migrate==2.5.2
 flask-mail==0.9.1
 flask-talisman==0.7.0
 Flask-Limiter==0.9.3
+Flask-WTF==0.14.3
 passlib==1.7.1
 aniso8601==8.0.0
 blinker==1.4
@@ -33,7 +34,7 @@ pyparsing==2.3.0
 SQLAlchemy-Utils==0.34.2
 sqlparse==0.3.0
 statsd==3.3.0
-gunicorn==19.9.0
+gunicorn==20.0.4
 rq==1.1.0
 rq-scheduler==0.9.1
 jsonschema==3.1.1
@@ -41,7 +42,7 @@ RestrictedPython==5.0
 pysaml2==4.8.0
 pycrypto==2.6.1
 funcy==1.13
-sentry-sdk>=0.12.2,<0.13.0
+sentry-sdk>=0.14.3,<0.15.0
 semver==2.8.1
 xlsxwriter==1.2.2
 pystache==0.5.4
@@ -55,6 +56,7 @@ maxminddb-geolite2==2018.703
 pypd==1.1.0
 disposable-email-domains>=0.0.52
 gevent==1.4.0
+sshtunnel==0.1.5
 supervisor==4.1.0
 supervisor_checks==0.8.1
 werkzeug==0.16.1

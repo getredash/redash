@@ -20,7 +20,6 @@ import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
 import Layout from "@/components/layouts/ContentWithSidebar";
-import CreateUserDialog from "@/components/users/CreateUserDialog";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 
 import { currentUser } from "@/services/auth";
@@ -29,6 +28,9 @@ import User from "@/services/user";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import { absoluteUrl } from "@/services/utils";
+import routes from "@/services/routes";
+
+import CreateUserDialog from "./components/CreateUserDialog";
 
 function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
   if (user.id === currentUser.id) {
@@ -211,12 +213,6 @@ class UsersList extends React.Component {
           <Layout.Sidebar className="m-b-0">
             <Sidebar.SearchInput value={controller.searchTerm} onChange={controller.updateSearch} />
             <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
-            <Sidebar.PageSizeSelect
-              className="m-b-10"
-              options={controller.pageSizeOptions}
-              value={controller.itemsPerPage}
-              onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-            />
           </Layout.Sidebar>
           <Layout.Content>
             {!controller.isLoaded && <LoadingState className="" />}
@@ -232,8 +228,10 @@ class UsersList extends React.Component {
                   toggleSorting={controller.toggleSorting}
                 />
                 <Paginator
+                  showPageSizeSelect
                   totalCount={controller.totalItemsCount}
-                  itemsPerPage={controller.itemsPerPage}
+                  pageSize={controller.itemsPerPage}
+                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
                   page={controller.page}
                   onChange={page => controller.updatePagination({ page })}
                 />
@@ -247,6 +245,7 @@ class UsersList extends React.Component {
 }
 
 const UsersListPage = wrapSettingsTab(
+  "Users.List",
   {
     permission: "list_users",
     title: "Users",
@@ -281,25 +280,35 @@ const UsersListPage = wrapSettingsTab(
   )
 );
 
-export default [
+routes.register(
+  "Users.New",
   routeWithUserSession({
     path: "/users/new",
     title: "Users",
     render: pageProps => <UsersListPage {...pageProps} currentPage="active" isNewUserPage />,
-  }),
+  })
+);
+routes.register(
+  "Users.List",
   routeWithUserSession({
     path: "/users",
     title: "Users",
     render: pageProps => <UsersListPage {...pageProps} currentPage="active" />,
-  }),
+  })
+);
+routes.register(
+  "Users.Pending",
   routeWithUserSession({
     path: "/users/pending",
     title: "Pending Invitations",
     render: pageProps => <UsersListPage {...pageProps} currentPage="pending" />,
-  }),
+  })
+);
+routes.register(
+  "Users.Disabled",
   routeWithUserSession({
     path: "/users/disabled",
     title: "Disabled Users",
     render: pageProps => <UsersListPage {...pageProps} currentPage="disabled" />,
-  }),
-];
+  })
+);

@@ -1,26 +1,32 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import PropTypes from "prop-types";
 import { find, has } from "lodash";
+import React, { useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
 import moment from "moment";
 import { markdown } from "markdown";
+
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Icon from "antd/lib/icon";
 import Menu from "antd/lib/menu";
 import Tooltip from "antd/lib/tooltip";
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
-import { Query } from "@/services/query";
-import location from "@/services/location";
-import { formatDateTime } from "@/lib/utils";
-import HtmlContent from "@/components/HtmlContent";
 import Parameters from "@/components/Parameters";
 import { Moment } from "@/components/proptypes";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
 import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
-import VisualizationName from "@/visualizations/components/VisualizationName";
-import VisualizationRenderer from "@/visualizations/components/VisualizationRenderer";
-import { VisualizationType } from "@/visualizations/prop-types";
+import VisualizationName from "@/components/visualizations/VisualizationName";
+import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
+
+import { VisualizationType } from "@redash/viz/lib";
+import HtmlContent from "@redash/viz/lib/components/HtmlContent";
+
+import { formatDateTime } from "@/lib/utils";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
+import { Query } from "@/services/query";
+import location from "@/services/location";
+import routes from "@/services/routes";
+
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
 function VisualizationEmbedHeader({ queryName, queryDescription, visualization }) {
@@ -153,8 +159,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
   const [refreshStartedAt, setRefreshStartedAt] = useState(null);
   const [queryResults, setQueryResults] = useState(null);
 
-  const onErrorRef = useRef();
-  onErrorRef.current = onError;
+  const handleError = useImmutableCallback(onError);
 
   useEffect(() => {
     let isCancelled = false;
@@ -164,12 +169,12 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
           setQuery(result);
         }
       })
-      .catch(error => onErrorRef.current(error));
+      .catch(handleError);
 
     return () => {
       isCancelled = true;
     };
-  }, [queryId]);
+  }, [queryId, handleError]);
 
   const refreshQueryResults = useCallback(() => {
     if (query) {
@@ -214,7 +219,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
   }
 
   return (
-    <div className="tile m-l-10 m-r-10 p-t-10 embed__vis" data-test="VisualizationEmbed">
+    <div className="tile m-t-10 m-l-10 m-r-10 p-t-10 embed__vis" data-test="VisualizationEmbed">
       {!hideHeader && (
         <VisualizationEmbedHeader
           queryName={query.name}
@@ -264,8 +269,11 @@ VisualizationEmbed.defaultProps = {
   onError: () => {},
 };
 
-export default routeWithApiKeySession({
-  path: "/embed/query/:queryId/visualization/:visualizationId",
-  render: pageProps => <VisualizationEmbed {...pageProps} />,
-  getApiKey: () => location.search.api_key,
-});
+routes.register(
+  "Visualizations.ViewShared",
+  routeWithApiKeySession({
+    path: "/embed/query/:queryId/visualization/:visualizationId",
+    render: pageProps => <VisualizationEmbed {...pageProps} />,
+    getApiKey: () => location.search.api_key,
+  })
+);

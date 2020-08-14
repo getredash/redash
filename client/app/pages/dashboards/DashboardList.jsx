@@ -1,20 +1,22 @@
 import React from "react";
 
+import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
-
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
-
+import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import Layout from "@/components/layouts/ContentWithSidebar";
 
 import { Dashboard } from "@/services/dashboard";
+import { currentUser } from "@/services/auth";
+import routes from "@/services/routes";
 
 import DashboardListEmptyState from "./components/DashboardListEmptyState";
 
@@ -44,7 +46,7 @@ class DashboardList extends React.Component {
     Columns.custom.sortable(
       (text, item) => (
         <React.Fragment>
-          <a className="table-main-title" href={"dashboard/" + item.slug} data-test={item.slug}>
+          <a className="table-main-title" href={item.url} data-test={`DashboardId${item.id}`}>
             {item.name}
           </a>
           <DashboardTagsControl
@@ -61,7 +63,7 @@ class DashboardList extends React.Component {
         width: null,
       }
     ),
-    Columns.avatar({ field: "user", className: "p-l-0 p-r-0" }, name => `Created by ${name}`),
+    Columns.custom((text, item) => item.user.name, { title: "Created By" }),
     Columns.dateTime.sortable({
       title: "Created At",
       field: "created_at",
@@ -75,8 +77,18 @@ class DashboardList extends React.Component {
     return (
       <div className="page-dashboard-list">
         <div className="container">
-          <PageHeader title={controller.params.pageTitle} />
-          <Layout className="m-l-15 m-r-15">
+          <PageHeader
+            title={controller.params.pageTitle}
+            actions={
+              currentUser.hasPermission("create_dashboard") ? (
+                <Button block type="primary" onClick={() => CreateDashboardDialog.showModal()}>
+                  <i className="fa fa-plus m-r-5" />
+                  New Dashboard
+                </Button>
+              ) : null
+            }
+          />
+          <Layout>
             <Layout.Sidebar className="m-b-0">
               <Sidebar.SearchInput
                 placeholder="Search Dashboards..."
@@ -85,12 +97,6 @@ class DashboardList extends React.Component {
               />
               <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
               <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} />
-              <Sidebar.PageSizeSelect
-                className="m-b-10"
-                options={controller.pageSizeOptions}
-                value={controller.itemsPerPage}
-                onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-              />
             </Layout.Sidebar>
             <Layout.Content>
               {controller.isLoaded ? (
@@ -111,8 +117,10 @@ class DashboardList extends React.Component {
                         toggleSorting={controller.toggleSorting}
                       />
                       <Paginator
+                        showPageSizeSelect
                         totalCount={controller.totalItemsCount}
-                        itemsPerPage={controller.itemsPerPage}
+                        pageSize={controller.itemsPerPage}
+                        onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
                         page={controller.page}
                         onChange={page => controller.updatePagination({ page })}
                       />
@@ -147,15 +155,19 @@ const DashboardListPage = itemsList(
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
-export default [
+routes.register(
+  "Dashboards.List",
   routeWithUserSession({
     path: "/dashboards",
     title: "Dashboards",
     render: pageProps => <DashboardListPage {...pageProps} currentPage="all" />,
-  }),
+  })
+);
+routes.register(
+  "Dashboards.Favorites",
   routeWithUserSession({
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
     render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
-  }),
-];
+  })
+);

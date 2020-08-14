@@ -1,5 +1,6 @@
 import React from "react";
 
+import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
@@ -18,6 +19,8 @@ import Layout from "@/components/layouts/ContentWithSidebar";
 
 import { Query } from "@/services/query";
 import { currentUser } from "@/services/auth";
+import location from "@/services/location";
+import routes from "@/services/routes";
 
 import QueriesListEmptyState from "./QueriesListEmptyState";
 
@@ -41,17 +44,17 @@ class QueriesList extends React.Component {
       icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
     },
     {
-      key: "archive",
-      href: "queries/archive",
-      title: "Archived",
-      icon: () => <Sidebar.MenuIcon icon="fa fa-archive" />,
-    },
-    {
       key: "my",
       href: "queries/my",
       title: "My Queries",
       icon: () => <Sidebar.ProfileImage user={currentUser} />,
       isAvailable: () => currentUser.hasPermission("create_query"),
+    },
+    {
+      key: "archive",
+      href: "queries/archive",
+      title: "Archived",
+      icon: () => <Sidebar.MenuIcon icon="fa fa-archive" />,
     },
   ];
 
@@ -77,23 +80,48 @@ class QueriesList extends React.Component {
         width: null,
       }
     ),
-    Columns.avatar({ field: "user", className: "p-l-0 p-r-0" }, name => `Created by ${name}`),
+    Columns.custom((text, item) => item.user.name, { title: "Created By" }),
     Columns.dateTime.sortable({ title: "Created At", field: "created_at" }),
-    Columns.duration.sortable({ title: "Runtime", field: "runtime" }),
     Columns.dateTime.sortable({ title: "Last Executed At", field: "retrieved_at", orderByField: "executed_at" }),
     Columns.custom.sortable((text, item) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
-      title: "Update Schedule",
+      title: "Refresh Schedule",
       field: "schedule",
     }),
   ];
+
+  componentDidMount() {
+    this.unlistenLocationChanges = location.listen((unused, action) => {
+      const searchTerm = location.search.q || "";
+      if (action === "PUSH" && searchTerm !== this.props.controller.searchTerm) {
+        this.props.controller.updateSearch(searchTerm);
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    if (this.unlistenLocationChanges) {
+      this.unlistenLocationChanges();
+      this.unlistenLocationChanges = null;
+    }
+  }
 
   render() {
     const { controller } = this.props;
     return (
       <div className="page-queries-list">
         <div className="container">
-          <PageHeader title={controller.params.pageTitle} />
-          <Layout className="m-l-15 m-r-15">
+          <PageHeader
+            title={controller.params.pageTitle}
+            actions={
+              currentUser.hasPermission("create_query") ? (
+                <Button block type="primary" href="queries/new">
+                  <i className="fa fa-plus m-r-5" />
+                  New Query
+                </Button>
+              ) : null
+            }
+          />
+          <Layout>
             <Layout.Sidebar className="m-b-0">
               <Sidebar.SearchInput
                 placeholder="Search Queries..."
@@ -102,12 +130,6 @@ class QueriesList extends React.Component {
               />
               <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
               <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} />
-              <Sidebar.PageSizeSelect
-                className="m-b-10"
-                options={controller.pageSizeOptions}
-                value={controller.itemsPerPage}
-                onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-              />
             </Layout.Sidebar>
             <Layout.Content>
               {!controller.isLoaded && <LoadingState />}
@@ -128,8 +150,10 @@ class QueriesList extends React.Component {
                     toggleSorting={controller.toggleSorting}
                   />
                   <Paginator
+                    showPageSizeSelect
                     totalCount={controller.totalItemsCount}
-                    itemsPerPage={controller.itemsPerPage}
+                    pageSize={controller.itemsPerPage}
+                    onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
                     page={controller.page}
                     onChange={page => controller.updatePagination({ page })}
                   />
@@ -162,25 +186,35 @@ const QueriesListPage = itemsList(
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
-export default [
+routes.register(
+  "Queries.List",
   routeWithUserSession({
     path: "/queries",
     title: "Queries",
     render: pageProps => <QueriesListPage {...pageProps} currentPage="all" />,
-  }),
+  })
+);
+routes.register(
+  "Queries.Favorites",
   routeWithUserSession({
     path: "/queries/favorites",
     title: "Favorite Queries",
     render: pageProps => <QueriesListPage {...pageProps} currentPage="favorites" />,
-  }),
+  })
+);
+routes.register(
+  "Queries.Archived",
   routeWithUserSession({
     path: "/queries/archive",
     title: "Archived Queries",
     render: pageProps => <QueriesListPage {...pageProps} currentPage="archive" />,
-  }),
+  })
+);
+routes.register(
+  "Queries.My",
   routeWithUserSession({
     path: "/queries/my",
     title: "My Queries",
     render: pageProps => <QueriesListPage {...pageProps} currentPage="my" />,
-  }),
-];
+  })
+);

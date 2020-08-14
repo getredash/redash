@@ -38,6 +38,7 @@
     {% endif %}
 
     <form role="form" method="post" name="login">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <input type="hidden" name="remember" value="on">
       <div class="form-group">
         <label for="inputEmail">{{ username_prompt or 'Email' }}</label>

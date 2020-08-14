@@ -9,6 +9,7 @@ import Form from "antd/lib/form";
 import Button from "antd/lib/button";
 import Tooltip from "antd/lib/tooltip";
 import AntAlert from "antd/lib/alert";
+import * as Grid from "antd/lib/grid";
 
 import Title from "./components/Title";
 import Criteria from "./components/Criteria";
@@ -72,74 +73,77 @@ export default class AlertView extends React.Component {
             {menuButton}
           </Tooltip>
         </Title>
-        <div className="row bg-white tiled p-20">
-          <div className="d-flex col-md-8">
-            <Form className="flex-fill">
-              <HorizontalFormItem>
-                <AlertState state={alert.state} lastTriggered={alert.last_triggered_at} />
-              </HorizontalFormItem>
-              <HorizontalFormItem label="Query">
-                <Query query={query} queryResult={queryResult} />
-              </HorizontalFormItem>
-              {queryResult && options && (
-                <>
-                  <HorizontalFormItem label="Trigger when" className="alert-criteria">
-                    <Criteria
-                      columnNames={queryResult.getColumnNames()}
-                      resultValues={queryResult.getData()}
-                      alertOptions={options}
-                    />
-                  </HorizontalFormItem>
-                  <HorizontalFormItem label="Notifications" className="form-item-line-height-normal">
-                    <Rearm value={rearm || 0} />
-                    <br />
-                    Set to {options.custom_subject || options.custom_body ? "custom" : "default"} notification template.
-                  </HorizontalFormItem>
-                </>
+        <div className="bg-white tiled p-20">
+          <Grid.Row type="flex" gutter={16}>
+            <Grid.Col xs={24} md={16} className="d-flex">
+              <Form className="flex-fill">
+                <HorizontalFormItem>
+                  <AlertState state={alert.state} lastTriggered={alert.last_triggered_at} />
+                </HorizontalFormItem>
+                <HorizontalFormItem label="Query">
+                  <Query query={query} queryResult={queryResult} />
+                </HorizontalFormItem>
+                {queryResult && options && (
+                  <>
+                    <HorizontalFormItem label="Trigger when" className="alert-criteria">
+                      <Criteria
+                        columnNames={queryResult.getColumnNames()}
+                        resultValues={queryResult.getData()}
+                        alertOptions={options}
+                      />
+                    </HorizontalFormItem>
+                    <HorizontalFormItem label="Notifications" className="form-item-line-height-normal">
+                      <Rearm value={rearm || 0} />
+                      <br />
+                      Set to {options.custom_subject || options.custom_body ? "custom" : "default"} notification
+                      template.
+                    </HorizontalFormItem>
+                  </>
+                )}
+              </Form>
+            </Grid.Col>
+            <Grid.Col xs={24} md={8}>
+              {options.muted && (
+                <AntAlert
+                  className="m-b-20"
+                  message={
+                    <>
+                      <i className="fa fa-bell-slash-o" /> Notifications are muted
+                    </>
+                  }
+                  description={
+                    <>
+                      Notifications for this alert will not be sent.
+                      <br />
+                      {canEdit && (
+                        <>
+                          To restore notifications click
+                          <Button
+                            size="small"
+                            type="primary"
+                            onClick={this.unmute}
+                            loading={this.state.unmuting}
+                            className="m-t-5 m-l-5">
+                            Unmute
+                          </Button>
+                        </>
+                      )}
+                    </>
+                  }
+                  type="warning"
+                />
               )}
-            </Form>
-          </div>
-          <div className="col-md-4">
-            {options.muted && (
-              <AntAlert
-                className="m-b-20"
-                message={
-                  <>
-                    <i className="fa fa-bell-slash-o" /> Notifications are muted
-                  </>
-                }
-                description={
-                  <>
-                    Notifications for this alert will not be sent.
-                    <br />
-                    {canEdit && (
-                      <>
-                        To restore notifications click
-                        <Button
-                          size="small"
-                          type="primary"
-                          onClick={this.unmute}
-                          loading={this.state.unmuting}
-                          className="m-t-5 m-l-5">
-                          Unmute
-                        </Button>
-                      </>
-                    )}
-                  </>
-                }
-                type="warning"
-              />
-            )}
-            <h4>
-              Destinations{" "}
-              <Tooltip title="Open Alert Destinations page in a new tab.">
-                <a href="destinations" target="_blank">
-                  <i className="fa fa-external-link f-13" />
-                </a>
-              </Tooltip>
-            </h4>
-            <AlertDestinations alertId={alert.id} />
-          </div>
+              <h4>
+                Destinations{" "}
+                <Tooltip title="Open Alert Destinations page in a new tab.">
+                  <a href="destinations" target="_blank">
+                    <i className="fa fa-external-link f-13" />
+                  </a>
+                </Tooltip>
+              </h4>
+              <AlertDestinations alertId={alert.id} />
+            </Grid.Col>
+          </Grid.Row>
         </div>
       </>
     );

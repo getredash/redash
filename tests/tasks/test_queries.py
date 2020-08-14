@@ -26,6 +26,7 @@ def fetch_job(*args, **kwargs):
 
     result = Mock()
     result.id = job_id
+    result.is_cancelled = False
 
     return result
 
@@ -83,6 +84,38 @@ class TestEnqueueTask(BaseTestCase):
 
             # "expire" the previous job
             fetch_job.side_effect = NoSuchJobError
+
+            enqueue_query(
+                query.query_text,
+                query.data_source,
+                query.user_id,
+                False,
+                query,
+                {"Username": "Arik", "Query ID": query.id},
+            )
+
+        self.assertEqual(2, enqueue.call_count)
+
+    def test_reenqueue_during_job_cancellation(self, enqueue, my_fetch_job):
+        query = self.factory.create_query()
+
+        with Connection(rq_redis_connection):
+            enqueue_query(
+                query.query_text,
+                query.data_source,
+                query.user_id,
+                False,
+                query,
+                {"Username": "Arik", "Query ID": query.id},
+            )
+
+            # "cancel" the previous job
+            def cancel_job(*args, **kwargs):
+                job = fetch_job(*args, **kwargs)
+                job.is_cancelled = True
+                return job
+
+            my_fetch_job.side_effect = cancel_job
 
             enqueue_query(
                 query.query_text,

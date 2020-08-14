@@ -7,7 +7,7 @@ export default function NoTaggedObjectsFound({ objectType, tags }) {
   return (
     <BigMessage icon="fa-tags">
       No {objectType} found tagged with&nbsp;
-      <TagsControl className="inline-tags-control" tags={Array.from(tags)} />.
+      <TagsControl className="inline-tags-control" tags={Array.from(tags)} tagSeparator={"+"} />.
     </BigMessage>
   );
 }

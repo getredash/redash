@@ -2,6 +2,8 @@ import { isObject, get } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
+import "./ErrorMessage.less";
+
 function getErrorMessageByStatus(status, defaultMessage) {
   switch (status) {
     case 404:
@@ -14,7 +16,7 @@ function getErrorMessageByStatus(status, defaultMessage) {
   }
 }
 
-export function getErrorMessage(error) {
+function getErrorMessage(error) {
   const message = "It seems like we encountered an error. Try refreshing this page or contact your administrator.";
   if (isObject(error)) {
     // HTTP errors
@@ -37,17 +39,13 @@ export default function ErrorMessage({ error }) {
   console.error(error);
 
   return (
-    <div className="fixed-container" data-test="ErrorMessage">
-      <div className="container">
-        <div className="col-md-8 col-md-push-2">
-          <div className="error-state bg-white tiled">
-            <div className="error-state__icon">
-              <i className="zmdi zmdi-alert-circle-o" />
-            </div>
-            <div className="error-state__details">
-              <h4>{getErrorMessage(error)}</h4>
-            </div>
-          </div>
+    <div className="error-message-container" data-test="ErrorMessage">
+      <div className="error-state bg-white tiled">
+        <div className="error-state__icon">
+          <i className="zmdi zmdi-alert-circle-o" />
+        </div>
+        <div className="error-state__details">
+          <h4>{getErrorMessage(error)}</h4>
         </div>
       </div>
     </div>

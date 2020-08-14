@@ -10,6 +10,7 @@ from redash.models.parameterized_query import (
 from redash.tasks.failure_report import track_failure
 from redash.utils import json_dumps, sentry
 from redash.worker import job, get_job_logger
+from redash.monitor import rq_job_ids
 
 from .execution import enqueue_query
 
@@ -71,6 +72,10 @@ def _apply_default_parameters(query):
         return query.query_text
 
 
+class RefreshQueriesError(Exception):
+    pass
+
+
 def refresh_queries():
     logger.info("Refreshing queries...")
     enqueued = []
@@ -90,7 +95,8 @@ def refresh_queries():
         except Exception as e:
             message = "Could not enqueue query %d due to %s" % (query.id, repr(e))
             logging.info(message)
-            sentry.capture_message(message)
+            error = RefreshQueriesError(message).with_traceback(e.__traceback__)
+            sentry.capture_exception(error)
 
     status = {
         "outdated_queries_count": len(enqueued),
@@ -127,6 +133,24 @@ def cleanup_query_results():
     ).delete(synchronize_session=False)
     models.db.session.commit()
     logger.info("Deleted %d unused query results.", deleted_count)
+
+
+def remove_ghost_locks():
+    """
+    Removes query locks that reference a non existing RQ job.
+    """
+    keys = redis_connection.keys("query_hash_job:*")
+    locks = {k: redis_connection.get(k) for k in keys}
+    jobs = list(rq_job_ids())
+
+    count = 0
+
+    for lock, job_id in locks.items():
+        if job_id not in jobs:
+            redis_connection.delete(lock)
+            count += 1
+
+    logger.info("Locks found: {}, Locks removed: {}".format(len(locks), count))
 
 
 @job("schemas")
@@ -196,4 +220,3 @@ def refresh_schemas():
         u"task=refresh_schemas state=finish total_runtime=%.2f",
         time.time() - global_start_time,
     )
-

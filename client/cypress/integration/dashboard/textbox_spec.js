@@ -6,9 +6,9 @@ import { getWidgetTestId, editDashboard } from "../../support/dashboard";
 describe("Textbox", () => {
   beforeEach(function() {
     cy.login();
-    createDashboard("Foo Bar").then(({ slug, id }) => {
+    createDashboard("Foo Bar").then(({ id }) => {
       this.dashboardId = id;
-      this.dashboardUrl = `/dashboard/${slug}`;
+      this.dashboardUrl = `/dashboards/${id}`;
     });
   });
 
@@ -142,9 +142,9 @@ describe("Textbox", () => {
       })
       .should($el => {
         const { top, left } = $el.offset();
-        expect(top).to.eq(212);
-        expect(left).to.eq(215);
-        expect($el.width()).to.eq(585);
+        expect(top).to.eq(162);
+        expect(left).to.eq(282);
+        expect($el.width()).to.eq(545);
         expect($el.height()).to.eq(185);
       });
   });
