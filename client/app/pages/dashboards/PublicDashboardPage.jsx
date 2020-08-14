@@ -55,7 +55,7 @@ PublicDashboard.propTypes = {
   dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-class PublicDashboardPage extends React.Component {
+export default class PublicDashboardPage extends React.Component {
   static propTypes = {
     token: PropTypes.string.isRequired,
     onError: PropTypes.func,

@@ -17,7 +17,7 @@ import Rearm from "./components/Rearm";
 import Query from "./components/Query";
 import AlertDestinations from "./components/AlertDestinations";
 import HorizontalFormItem from "./components/HorizontalFormItem";
-import { STATE_CLASS } from "../alerts/AlertsList";
+import { STATE_CLASS } from "../alerts/constants";
 
 function AlertState({ state, lastTriggered }) {
   return (

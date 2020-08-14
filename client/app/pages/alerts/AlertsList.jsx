@@ -15,12 +15,7 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 import Alert from "@/services/alert";
 import { currentUser } from "@/services/auth";
 import routes from "@/services/routes";
-
-export const STATE_CLASS = {
-  unknown: "label-warning",
-  ok: "label-success",
-  triggered: "label-danger",
-};
+import { STATE_CLASS } from './constants';
 
 class AlertsList extends React.Component {
   static propTypes = {
@@ -143,3 +138,5 @@ routes.register(
     render: pageProps => <AlertsListPage {...pageProps} currentPage="alerts" />,
   })
 );
+
+export default AlertsListPage;

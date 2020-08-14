@@ -227,3 +227,5 @@ routes.register(
     render: pageProps => <QueryViewPage {...pageProps} />,
   })
 );
+
+export default QueryViewPage;

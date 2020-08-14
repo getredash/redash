@@ -171,3 +171,5 @@ routes.register(
     render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
   })
 );
+
+export default DashboardListPage;
