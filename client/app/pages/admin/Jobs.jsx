@@ -14,7 +14,7 @@ import location from "@/services/location";
 import recordEvent from "@/services/recordEvent";
 import routes from "@/services/routes";
 
-class Jobs extends React.Component {
+export default class Jobs extends React.Component {
   state = {
     activeTab: location.hash,
     isLoading: true,

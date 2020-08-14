@@ -21,7 +21,7 @@ import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
 import routes from "@/services/routes";
 
-class OutdatedQueries extends React.Component {
+export default class OutdatedQueries extends React.Component {
   static propTypes = {
     controller: ControllerType.isRequired,
   };

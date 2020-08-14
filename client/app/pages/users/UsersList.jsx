@@ -312,3 +312,5 @@ routes.register(
     render: pageProps => <UsersListPage {...pageProps} currentPage="disabled" />,
   })
 );
+
+export default UsersListPage;

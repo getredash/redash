@@ -231,3 +231,5 @@ routes.register(
     render: pageProps => <QuerySnippetsListPage {...pageProps} currentPage="query_snippets" isNewOrEditPage />,
   })
 );
+
+export default QuerySnippetsListPage;

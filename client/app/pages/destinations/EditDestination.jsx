@@ -117,3 +117,5 @@ routes.register(
     render: pageProps => <EditDestinationPage {...pageProps} />,
   })
 );
+
+export default EditDestinationPage;

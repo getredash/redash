@@ -158,3 +158,5 @@ routes.register(
     render: pageProps => <GroupsListPage {...pageProps} currentPage="groups" />,
   })
 );
+
+export default GroupsListPage;

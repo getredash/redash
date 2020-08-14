@@ -216,3 +216,5 @@ routes.register(
     render: pageProps => <GroupMembersPage {...pageProps} currentPage="users" />,
   })
 );
+
+export default GroupMembersPage;

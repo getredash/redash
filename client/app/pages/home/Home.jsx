@@ -151,7 +151,7 @@ function DashboardAndQueryFavoritesList() {
   );
 }
 
-function Home() {
+export default function Home() {
   useEffect(() => {
     recordEvent("view", "page", "personal_homepage");
   }, []);
