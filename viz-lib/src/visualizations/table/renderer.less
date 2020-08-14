@@ -66,14 +66,16 @@
           }
         }
 
-        // optimize room for th content
-        &.ant-table-column-has-actions.ant-table-column-has-sorters {
+        &.table-fixed-header {
           position: sticky;
           left: 0;
           top: 0;
-          z-index: 10;
           border-top: hidden;
           background: #fafafa;
+        }
+
+        // optimize room for th content
+        &.ant-table-column-has-actions.ant-table-column-has-sorters {
           padding-right: 3px;
         }
 
