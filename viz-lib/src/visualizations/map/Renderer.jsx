@@ -7,7 +7,7 @@ import initMap from "./initMap";
 
 function useMemoWithDeepCompare(create, inputs) {
   const valueRef = useRef();
-  const value = useMemo(create, inputs);
+  const value = useMemo(create, [create, ...inputs]);
   if (!isEqual(value, valueRef.current)) {
     valueRef.current = value;
   }
