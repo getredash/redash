@@ -1,5 +1,5 @@
 import { isArray, isObject, isString, isFunction, startsWith, reduce, merge, map, each } from "lodash";
-import resizeObserver from "@/services/resizeObserver";
+import resizeObserver from "@@/services/resizeObserver";
 import { Plotly, prepareData, prepareLayout, updateData, updateYRanges, updateChartSize } from "../plotly";
 
 function createErrorHandler(errorHandler) {

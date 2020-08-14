@@ -215,10 +215,15 @@ function openDialog(DialogComponent, props) {
 }
 
 export function wrap(DialogComponent) {
-  return {
-    Component: DialogComponent,
-    showModal: props => openDialog(DialogComponent, props),
-  };
+  function WrappedComponent(props) {
+    return <DialogComponent {...props} />
+  }
+  WrappedComponent.Component = DialogComponent;
+  WrappedComponent.showModal = props => openDialog(DialogComponent, props);
+  // Must return a React component, too, otherwise it will fail `isReactRefreshBoundary`
+  // test, breaking hot refresh for modules that export the wrapped component.
+  // Ref: https://github.com/facebook/react/issues/16604#issuecomment-528663101
+  return WrappedComponent;
 }
 
 export default {

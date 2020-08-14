@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { RendererPropTypes } from "@/visualizations/prop-types";
+import { RendererPropTypes } from "@@/visualizations/prop-types";
 
 import prepareData from "./prepareData";
 import "./renderer.less";
