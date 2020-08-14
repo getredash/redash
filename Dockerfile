@@ -5,11 +5,10 @@ ARG skip_frontend_build
 
 WORKDIR /frontend
 COPY package.json package-lock.json /frontend/
-COPY viz-lib /frontend/viz-lib
+COPY viz-lib/package.json viz-lib/package-lock.json /frontend/viz-lib/
 RUN if [ "x$skip_frontend_build" = "x" ] ; then npm ci --unsafe-perm; fi
 
-COPY client /frontend/client
-COPY webpack.config.js /frontend/
+COPY client webpack.config.js babel.config.js /frontend/
 RUN if [ "x$skip_frontend_build" = "x" ] ; then npm run build; else mkdir -p /frontend/client/dist && touch /frontend/client/dist/multi_org.html && touch /frontend/client/dist/index.html; fi
 FROM python:3.7-slim
 
@@ -46,7 +45,7 @@ RUN apt-get update && \
     libsasl2-dev \
     unzip \
     libsasl2-modules-gssapi-mit && \
-  # MSSQL ODBC Driver:  
+  # MSSQL ODBC Driver:
   curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
   curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
   apt-get update && \
