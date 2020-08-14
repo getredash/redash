@@ -15,7 +15,7 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 import Alert from "@/services/alert";
 import { currentUser } from "@/services/auth";
 import routes from "@/services/routes";
-import { STATE_CLASS } from './constants';
+import { STATE_CLASS } from "./constants";
 
 class AlertsList extends React.Component {
   static propTypes = {
