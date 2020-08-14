@@ -153,7 +153,7 @@ VisualizationEmbedFooter.defaultProps = {
   apiKey: null,
 };
 
-function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
+export default function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
   const [query, setQuery] = useState(null);
   const [error, setError] = useState(null);
   const [refreshStartedAt, setRefreshStartedAt] = useState(null);

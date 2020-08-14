@@ -12,7 +12,7 @@ import routes from "@/services/routes";
 
 import "./system-status.less";
 
-class SystemStatus extends React.Component {
+export default class SystemStatus extends React.Component {
   static propTypes = {
     onError: PropTypes.func,
   };

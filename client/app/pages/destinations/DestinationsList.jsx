@@ -157,3 +157,5 @@ routes.register(
     render: pageProps => <DestinationsListPage {...pageProps} isNewDestinationPage />,
   })
 );
+
+export default DestinationsListPage;

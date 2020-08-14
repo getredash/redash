@@ -94,3 +94,5 @@ routes.register(
     render: pageProps => <UserProfilePage {...pageProps} />,
   })
 );
+
+export default UserProfilePage;
