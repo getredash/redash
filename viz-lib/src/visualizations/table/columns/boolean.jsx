@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
-import { Section, Input } from "@/components/visualizations/editor";
-import { createBooleanFormatter } from "@/lib/value-format";
+import { Section, Input } from "@@/components/visualizations/editor";
+import { createBooleanFormatter } from "@@/lib/value-format";
 
 function Editor({ column, onChange }) {
   function handleChange(index, value) {

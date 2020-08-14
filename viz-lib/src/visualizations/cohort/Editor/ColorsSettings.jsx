@@ -1,8 +1,8 @@
 import { isFinite } from "lodash";
 import React from "react";
-import { Section, ColorPicker, InputNumber } from "@/components/visualizations/editor";
-import { EditorPropTypes } from "@/visualizations/prop-types";
-import DefaultColorPalette from "@/visualizations/ColorPalette";
+import { Section, ColorPicker, InputNumber } from "@@/components/visualizations/editor";
+import { EditorPropTypes } from "@@/visualizations/prop-types";
+import DefaultColorPalette from "@@/visualizations/ColorPalette";
 
 const ColorPalette = {
   White: "#FFFFFF",

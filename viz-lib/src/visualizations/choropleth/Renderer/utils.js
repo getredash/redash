@@ -1,6 +1,6 @@
 import { isString, isObject, isFinite, each, map, extend, uniq, filter, first } from "lodash";
 import chroma from "chroma-js";
-import { createNumberFormatter as createFormatter } from "@/lib/value-format";
+import { createNumberFormatter as createFormatter } from "@@/lib/value-format";
 
 export function darkenColor(color) {
   return chroma(color)

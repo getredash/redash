@@ -1,5 +1,5 @@
 import moment from "moment";
-import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
+import { visualizationsSettings } from "@@/visualizations/visualizationsSettings";
 
 function formatDateTime(value) {
   if (!value) {

@@ -1,7 +1,7 @@
 import { isString, isUndefined } from "lodash";
 import React from "react";
-import JsonViewInteractive from "@/components/json-view-interactive/JsonViewInteractive";
-import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
+import JsonViewInteractive from "@@/components/json-view-interactive/JsonViewInteractive";
+import { visualizationsSettings } from "@@/visualizations/visualizationsSettings";
 
 export default function initJsonColumn(column) {
   function prepareData(row) {

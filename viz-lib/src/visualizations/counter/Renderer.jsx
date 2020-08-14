@@ -1,8 +1,8 @@
 import { isFinite } from "lodash";
 import React, { useState, useEffect } from "react";
 import cx from "classnames";
-import resizeObserver from "@/services/resizeObserver";
-import { RendererPropTypes } from "@/visualizations/prop-types";
+import resizeObserver from "@@/services/resizeObserver";
+import { RendererPropTypes } from "@@/visualizations/prop-types";
 
 import { getCounterData } from "./utils";
 

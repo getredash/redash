@@ -9,8 +9,8 @@ import chroma from "chroma-js";
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
-import { createNumberFormatter, formatSimpleTemplate } from "@/lib/value-format";
-import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
+import { createNumberFormatter, formatSimpleTemplate } from "@@/lib/value-format";
+import chooseTextColorForBackground from "@@/lib/chooseTextColorForBackground";
 
 import "./cornelius.less";
 

@@ -12,10 +12,10 @@ import markerIconRetina from "leaflet/dist/images/marker-icon-2x.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import "leaflet-fullscreen";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
-import { formatSimpleTemplate } from "@/lib/value-format";
-import sanitize from "@/services/sanitize";
-import resizeObserver from "@/services/resizeObserver";
-import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
+import { formatSimpleTemplate } from "@@/lib/value-format";
+import sanitize from "@@/services/sanitize";
+import resizeObserver from "@@/services/resizeObserver";
+import chooseTextColorForBackground from "@@/lib/chooseTextColorForBackground";
 
 // This is a workaround for an issue with giving Leaflet load the icon on its own.
 L.Icon.Default.mergeOptions({

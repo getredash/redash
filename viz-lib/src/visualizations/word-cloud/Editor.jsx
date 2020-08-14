@@ -1,8 +1,8 @@
 import { map, merge } from "lodash";
 import React from "react";
 import * as Grid from "antd/lib/grid";
-import { Section, Select, InputNumber, ControlLabel } from "@/components/visualizations/editor";
-import { EditorPropTypes } from "@/visualizations/prop-types";
+import { Section, Select, InputNumber, ControlLabel } from "@@/components/visualizations/editor";
+import { EditorPropTypes } from "@@/visualizations/prop-types";
 
 export default function Editor({ options, data, onOptionsChange }) {
   const optionsChanged = newOptions => {

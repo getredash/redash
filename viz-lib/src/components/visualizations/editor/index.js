@@ -3,8 +3,8 @@ import AntInput from "antd/lib/input";
 import AntInputNumber from "antd/lib/input-number";
 import Checkbox from "antd/lib/checkbox";
 
-import RedashColorPicker from "@/components/ColorPicker";
-import RedashTextAlignmentSelect from "@/components/TextAlignmentSelect";
+import RedashColorPicker from "@@/components/ColorPicker";
+import RedashTextAlignmentSelect from "@@/components/TextAlignmentSelect";
 
 import withControlLabel, { ControlLabel } from "./withControlLabel";
 import createTabbedEditor from "./createTabbedEditor";

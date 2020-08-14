@@ -122,10 +122,8 @@ export default function updateChartSize(plotlyElement, layout, options) {
     switch (options.legend.placement) {
       case "auto":
         return placeLegendAuto(plotlyElement, layout);
-        break;
       case "below":
         return placeLegendBelowPlot(plotlyElement, layout);
-        break;
       // no default
     }
   } else {

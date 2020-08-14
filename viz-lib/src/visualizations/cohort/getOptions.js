@@ -1,5 +1,5 @@
 import { merge } from "lodash";
-import ColorPalette from "@/visualizations/ColorPalette";
+import ColorPalette from "@@/visualizations/ColorPalette";
 
 const DEFAULT_OPTIONS = {
   timeInterval: "daily",

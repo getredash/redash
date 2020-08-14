@@ -1,6 +1,6 @@
 import { map, maxBy, sortBy, toString } from "lodash";
 import moment from "moment";
-import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
+import { visualizationsSettings } from "@@/visualizations/visualizationsSettings";
 
 function stepValueToString(value) {
   if (moment.isMoment(value)) {

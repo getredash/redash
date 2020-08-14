@@ -1,5 +1,5 @@
 import { merge } from "lodash";
-import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
+import { visualizationsSettings } from "@@/visualizations/visualizationsSettings";
 
 const DEFAULT_OPTIONS = {
   globalSeriesType: "column",

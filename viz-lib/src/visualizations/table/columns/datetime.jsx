@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
-import { Section, Input, ContextHelp } from "@/components/visualizations/editor";
-import { createDateTimeFormatter } from "@/lib/value-format";
+import { Section, Input, ContextHelp } from "@@/components/visualizations/editor";
+import { createDateTimeFormatter } from "@@/lib/value-format";
 
 function Editor({ column, onChange }) {
   const [onChangeDebounced] = useDebouncedCallback(onChange, 200);

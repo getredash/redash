@@ -1,9 +1,9 @@
 import { isNil, map } from "lodash";
 import React, { useMemo } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { Section, Select, Checkbox, Input, ColorPicker, ContextHelp } from "@/components/visualizations/editor";
-import { EditorPropTypes } from "@/visualizations/prop-types";
-import ColorPalette from "@/visualizations/ColorPalette";
+import { Section, Select, Checkbox, Input, ColorPicker, ContextHelp } from "@@/components/visualizations/editor";
+import { EditorPropTypes } from "@@/visualizations/prop-types";
+import ColorPalette from "@@/visualizations/ColorPalette";
 
 const mapTiles = [
   {
