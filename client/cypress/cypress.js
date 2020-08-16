@@ -4,9 +4,16 @@ const atob = require("atob");
 const { execSync } = require("child_process");
 const { get, post } = require("request").defaults({ jar: true });
 const { seedData } = require("./seed-data");
+const fs = require("fs");
 var Cookie = require("request-cookies").Cookie;
 
-const baseUrl = process.env.CYPRESS_baseUrl || "http://localhost:5000";
+let cypressConfigBaseUrl;
+try {
+  const cypressConfig = JSON.parse(fs.readFileSync("cypress.json"));
+  cypressConfigBaseUrl = cypressConfig.baseUrl;
+} catch (e) {}
+
+const baseUrl = process.env.CYPRESS_baseUrl || cypressConfigBaseUrl || "http://localhost:5000";
 
 function seedDatabase(seedValues) {
   get(baseUrl + "/login", (_, { headers }) => {
