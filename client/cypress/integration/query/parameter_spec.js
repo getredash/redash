@@ -490,7 +490,9 @@ describe("Parameter", () => {
       cy.server();
       cy.route("GET", "**/api/data_sources/*/schema").as("Schema");
 
-      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`)).then(() => cy.wait("@Schema"));
+      cy.createQuery(queryData, false)
+        .then(({ id }) => cy.visit(`/queries/${id}/source`))
+        .then(() => cy.wait("@Schema"));
     });
 
     it("shows and hides according to parameter dirty state", () => {

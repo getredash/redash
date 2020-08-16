@@ -102,7 +102,8 @@ describe("Sankey and Sunburst", () => {
       return cy
         .all(
           STAGES_WIDGETS.map(sunburst => () =>
-            cy.createQuery({ name: `Sunburst with ${sunburst.name}`, query: sunburst.query })
+            cy
+              .createQuery({ name: `Sunburst with ${sunburst.name}`, query: sunburst.query })
               .then(queryData => cy.createVisualization(queryData.id, "SUNBURST_SEQUENCE", "Sunburst", {}))
               .then(visualization => cy.addWidget(dashboard.id, visualization.id, { position: sunburst.position }))
           )
@@ -126,7 +127,8 @@ describe("Sankey and Sunburst", () => {
       return cy
         .all(
           STAGES_WIDGETS.map(sankey => () =>
-            cy.createQuery({ name: `Sankey with ${sankey.name}`, query: sankey.query })
+            cy
+              .createQuery({ name: `Sankey with ${sankey.name}`, query: sankey.query })
               .then(queryData => cy.createVisualization(queryData.id, "SANKEY", "Sankey", {}))
               .then(visualization => cy.addWidget(dashboard.id, visualization.id, { position: sankey.position }))
           )
