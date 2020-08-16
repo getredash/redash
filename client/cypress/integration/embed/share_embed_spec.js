@@ -1,12 +1,10 @@
-import { createQuery } from "../../support/redash-api";
-
 describe("Embedded Queries", () => {
   beforeEach(() => {
     cy.login();
   });
 
   it("can be shared without parameters", () => {
-    createQuery({ query: "select name from users order by name" }).then(query => {
+    cy.createQuery({ query: "select name from users order by name" }).then(query => {
       cy.visit(`/queries/${query.id}/source`);
       cy.getByTestId("ExecuteButton").click();
       cy.getByTestId("QueryPageVisualizationTabs", { timeout: 10000 }).should("exist");

@@ -1,12 +1,11 @@
 /* global cy */
 
-import { createDashboard, createQuery } from "../../support/redash-api";
 import { createQueryAndAddWidget, editDashboard, resizeBy } from "../../support/dashboard";
 
 describe("Widget", () => {
   beforeEach(function() {
     cy.login();
-    createDashboard("Foo Bar").then(({ id }) => {
+    cy.createDashboard("Foo Bar").then(({ id }) => {
       this.dashboardId = id;
       this.dashboardUrl = `/dashboards/${id}`;
     });
@@ -19,7 +18,7 @@ describe("Widget", () => {
   };
 
   it("adds widget", function() {
-    createQuery().then(({ id: queryId }) => {
+    cy.createQuery().then(({ id: queryId }) => {
       cy.visit(this.dashboardUrl);
       editDashboard();
       cy.getByTestId("AddWidgetButton").click();

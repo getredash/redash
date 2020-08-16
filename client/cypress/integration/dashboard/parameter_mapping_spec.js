@@ -1,10 +1,9 @@
-import { createDashboard } from "../../support/redash-api";
 import { createQueryAndAddWidget } from "../../support/dashboard";
 
 describe("Parameter Mapping", () => {
   beforeEach(function() {
     cy.login();
-    createDashboard("Foo Bar")
+    cy.createDashboard("Foo Bar")
       .then(({ id }) => {
         this.dashboardId = id;
         this.dashboardUrl = `/dashboards/${id}`;

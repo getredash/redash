@@ -1,3 +1,6 @@
-import "./commands";
+/* global Cypress */
 
-process.env.CYPRESS_dataSourceId = 1;
+import "./commands";
+import "./redash-api/index.js";
+
+Cypress.env("dataSourceId", 1);

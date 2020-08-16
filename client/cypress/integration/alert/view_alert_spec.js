@@ -1,14 +1,13 @@
-import { createAlert, createQuery, createUser, addDestinationSubscription } from "../../support/redash-api";
-
 describe("View Alert", () => {
   beforeEach(function() {
-    cy.login();
-    createQuery({ query: "select 1 as col_name" })
-      .then(({ id: queryId }) => createAlert(queryId, { column: "col_name" }))
-      .then(({ id: alertId }) => {
-        this.alertId = alertId;
-        this.alertUrl = `/alerts/${alertId}`;
-      });
+    cy.login().then(() => {
+      cy.createQuery({ query: "select 1 as col_name" })
+        .then(({ id: queryId }) => cy.createAlert(queryId, { column: "col_name" }))
+        .then(({ id: alertId }) => {
+          this.alertId = alertId;
+          this.alertUrl = `/alerts/${alertId}`;
+        });
+    });
   });
 
   it("renders the page and takes a screenshot", function() {
@@ -42,7 +41,7 @@ describe("View Alert", () => {
   describe("Alert Destination permissions", () => {
     before(() => {
       cy.login();
-      createUser({
+      cy.createUser({
         name: "Example User",
         email: "user@redash.io",
         password: "password",
@@ -55,7 +54,7 @@ describe("View Alert", () => {
 
       cy.logout()
         .then(() => cy.login()) // as admin
-        .then(() => addDestinationSubscription(this.alertId, "Test Email Destination"))
+        .then(() => cy.addDestinationSubscription(this.alertId, "Test Email Destination"))
         .then(() => {
           cy.visit(this.alertUrl);
 
@@ -87,7 +86,7 @@ describe("View Alert", () => {
 
       cy.logout()
         .then(() => cy.login("user@redash.io", "password"))
-        .then(() => addDestinationSubscription(this.alertId, "Test Email Destination"))
+        .then(() => cy.addDestinationSubscription(this.alertId, "Test Email Destination"))
         .then(() => {
           cy.visit(this.alertUrl);
 

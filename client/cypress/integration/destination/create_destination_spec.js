@@ -1,5 +1,3 @@
-import { createDestination } from "../../support/redash-api";
-
 describe("Create Destination", () => {
   beforeEach(() => {
     cy.login();
@@ -25,7 +23,7 @@ describe("Create Destination", () => {
   });
 
   it("shows a custom error message when destination name is already taken", () => {
-    createDestination("Slack Destination", "slack").then(() => {
+    cy.createDestination("Slack Destination", "slack").then(() => {
       cy.visit("/destinations/new");
 
       cy.getByTestId("SearchSource").type("Slack");
