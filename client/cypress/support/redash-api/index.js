@@ -16,7 +16,7 @@ export function createQuery(data, shouldPublish = true) {
     {
       name: "Test Query",
       query: "select 1",
-      data_source_id: 1,
+      data_source_id: Cypress.env("dataSourceId"),
       options: {
         parameters: [],
       },
