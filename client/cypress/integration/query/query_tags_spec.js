@@ -14,7 +14,7 @@ describe("Query Tags", () => {
 
   it("is possible to add and edit tags", () => {
     cy.server();
-    cy.route("POST", "api/queries/*").as("QuerySave");
+    cy.route("POST", "**/api/queries/*").as("QuerySave");
 
     cy.getByTestId("TagsControl").contains(".label", "Unpublished");
 

@@ -467,7 +467,7 @@ describe("Parameter", () => {
       cy.location("search").should("not.contain", "Redash");
 
       cy.server();
-      cy.route("POST", "api/queries/*/results").as("Results");
+      cy.route("POST", "**/api/queries/*/results").as("Results");
 
       apply(cy.get("@Input"));
 
@@ -584,7 +584,7 @@ describe("Parameter", () => {
 
     it("is possible to rearrange parameters", function() {
       cy.server();
-      cy.route("POST", "api/queries/*").as("QuerySave");
+      cy.route("POST", "**/api/queries/*").as("QuerySave");
 
       dragParam("param1", this.paramWidth, 1);
       cy.wait("@QuerySave");

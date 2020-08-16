@@ -49,7 +49,7 @@ describe("Grid compliant widgets", () => {
 
     it("auto saves after drag", () => {
       cy.server();
-      cy.route("POST", "api/widgets/*").as("WidgetSave");
+      cy.route("POST", "**/api/widgets/*").as("WidgetSave");
 
       editDashboard();
       cy.get("@textboxEl").dragBy(330);
@@ -117,7 +117,7 @@ describe("Grid compliant widgets", () => {
 
     it("auto saves after resize", () => {
       cy.server();
-      cy.route("POST", "api/widgets/*").as("WidgetSave");
+      cy.route("POST", "**/api/widgets/*").as("WidgetSave");
 
       editDashboard();
       resizeBy(cy.get("@textboxEl"), 200);
