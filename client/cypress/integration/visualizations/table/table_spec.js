@@ -10,7 +10,8 @@ import * as SearchInData from "./.mocks/search-in-data";
 import * as LargeDataset from "./.mocks/large-dataset";
 
 function prepareVisualization(query, type, name, options) {
-  return cy.createQuery({ query })
+  return cy
+    .createQuery({ query })
     .then(({ id }) => cy.createVisualization(id, type, name, options))
     .then(({ id: visualizationId, query_id: queryId }) => {
       // use data-only view because we don't need editor features, but it will

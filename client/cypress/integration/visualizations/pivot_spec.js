@@ -145,9 +145,9 @@ describe("Pivot", () => {
         this.dashboardUrl = `/dashboards/${dashboard.id}`;
         return cy.all(
           pivotTables.map(pivot => () =>
-            cy.createVisualization(this.queryId, "PIVOT", pivot.name, pivot.options).then(visualization =>
-              cy.addWidget(dashboard.id, visualization.id, { position: pivot.position })
-            )
+            cy
+              .createVisualization(this.queryId, "PIVOT", pivot.name, pivot.options)
+              .then(visualization => cy.addWidget(dashboard.id, visualization.id, { position: pivot.position }))
           )
         );
       })
