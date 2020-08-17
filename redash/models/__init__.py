@@ -204,7 +204,11 @@ class DataSource(BelongsToOrgMixin, db.Model):
                 )
                 out_schema = schema
             finally:
-                ttl = int(datetime.timedelta(days=7).total_seconds())
+                ttl = int(
+                    datetime.timedelta(
+                        minutes=settings.SCHEMAS_REFRESH_SCHEDULE, days=7
+                    ).total_seconds()
+                )
                 redis_connection.set(self._schema_key, json_dumps(out_schema), ex=ttl)
 
         return out_schema
