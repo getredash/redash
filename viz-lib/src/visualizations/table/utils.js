@@ -61,7 +61,7 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
       key: column.name,
       dataIndex: `record[${JSON.stringify(column.name)}]`,
       align: column.alignContent,
-      sorter: true,
+      sorter: { multiple: 1 }, // using { multiple: 1 } to allow built-in multi-column sort arrows
       sortOrder: get(orderByInfo, [column.name, "direction"], null),
       title: (
         <React.Fragment>
