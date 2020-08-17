@@ -12,6 +12,20 @@
     overflow-x: auto;
   }
 
+  .table-fixed-header {
+    table {
+      border-top: 0;
+
+      th {
+        position: sticky !important;
+        left: 0;
+        top: 0;
+        border-top: 0;
+        background: #fafafa !important;
+      }
+    }
+  }
+
   table {
     border-top: @border-width-base @border-style-base @border-color-split;
     border-bottom: 0;
