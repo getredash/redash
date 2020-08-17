@@ -95,7 +95,7 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
         </React.Fragment>
       ),
       onHeaderCell: () => ({
-        className: cx("table-fixed-header ant-table-column-has-actions ant-table-column-has-sorters", {
+        className: cx("ant-table-column-has-actions ant-table-column-has-sorters", {
           "table-visualization-column-is-sorted": isAscend || isDescend,
         }),
         onClick: event => onOrderByChange(toggleOrderBy(column.name, orderBy, event.shiftKey)),
