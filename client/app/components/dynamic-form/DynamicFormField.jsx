@@ -1,19 +1,17 @@
 import React from "react";
+import { get } from "lodash";
 import PropTypes from "prop-types";
-import Button from "antd/lib/button";
-import Input from "antd/lib/input";
-import InputNumber from "antd/lib/input-number";
-import Checkbox from "antd/lib/checkbox";
-import Select from "antd/lib/select";
-import Upload from "antd/lib/upload";
-import UploadOutlinedIcon from "@ant-design/icons/UploadOutlined";
-import AceEditorInput from "@/components/AceEditorInput";
-import { toHuman } from "@/lib/utils";
+import getFieldLabel from "./getFieldLabel";
 
-export function getFieldLabel(field) {
-  const { title, name } = field;
-  return title || toHuman(name);
-}
+import {
+  AceEditorField,
+  CheckboxField,
+  FileField,
+  InputField,
+  NumberField,
+  SelectField,
+  TextAreaField,
+} from "./fields";
 
 export const FieldType = PropTypes.shape({
   name: PropTypes.string.isRequired,
@@ -50,9 +48,22 @@ export const FieldType = PropTypes.shape({
   props: PropTypes.object, // eslint-disable-line react/forbid-prop-types
 });
 
+const FieldTypeComponent = {
+  checkbox: CheckboxField,
+  file: FileField,
+  select: SelectField,
+  number: NumberField,
+  textarea: TextAreaField,
+  ace: AceEditorField,
+};
+
 export default function DynamicFormField({ form, field, ...otherProps }) {
-  const { name, type, readOnly, autoFocus, initialValue } = field;
+  const { name, type, readOnly, autoFocus } = field;
   const fieldLabel = getFieldLabel(field);
+
+  if (type === "content") {
+    return field.content;
+  }
 
   const fieldProps = {
     ...field.props,
@@ -66,46 +77,8 @@ export default function DynamicFormField({ form, field, ...otherProps }) {
     ...otherProps,
   };
 
-  switch (type) {
-    case "checkbox":
-      return <Checkbox {...fieldProps}>{fieldLabel}</Checkbox>;
-    case "file":
-      const { getFieldValue } = form;
-      const disabled = getFieldValue(name) !== undefined && getFieldValue(name) !== initialValue;
-      return (
-        <Upload {...fieldProps} beforeUpload={() => false}>
-          <Button disabled={disabled}>
-            <UploadOutlinedIcon /> Click to upload
-          </Button>
-        </Upload>
-      );
-    case "select":
-      return (
-        <Select
-          {...fieldProps}
-          optionFilterProp="children"
-          loading={field.loading || false}
-          mode={field.mode}
-          getPopupContainer={trigger => trigger.parentNode}>
-          {field.options &&
-            field.options.map(option => (
-              <Select.Option key={`${option.value}`} value={option.value} disabled={readOnly}>
-                {option.name || option.value}
-              </Select.Option>
-            ))}
-        </Select>
-      );
-    case "content":
-      return field.content;
-    case "number":
-      return <InputNumber {...fieldProps} />;
-    case "textarea":
-      return <Input.TextArea {...fieldProps} />;
-    case "ace":
-      return <AceEditorInput {...fieldProps} />;
-    default:
-      return <Input {...fieldProps} />;
-  }
+  const FieldComponent = get(FieldTypeComponent, type, InputField);
+  return <FieldComponent {...fieldProps} form={form} field={field} />;
 }
 
 DynamicFormField.propTypes = { field: FieldType.isRequired };

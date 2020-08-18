@@ -6,7 +6,8 @@ import Button from "antd/lib/button";
 import { includes, isFunction, filter, find, difference, isEmpty, mapValues } from "lodash";
 import notification from "@/services/notification";
 import Collapse from "@/components/Collapse";
-import DynamicFormField, { FieldType, getFieldLabel } from "./DynamicFormField";
+import DynamicFormField, { FieldType } from "./DynamicFormField";
+import getFieldLabel from "./getFieldLabel";
 import helper from "./dynamicFormHelper";
 
 import "./DynamicForm.less";
