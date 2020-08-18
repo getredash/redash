@@ -6,6 +6,7 @@ import getFieldLabel from "./getFieldLabel";
 import {
   AceEditorField,
   CheckboxField,
+  ContentField,
   FileField,
   InputField,
   NumberField,
@@ -55,15 +56,12 @@ const FieldTypeComponent = {
   number: NumberField,
   textarea: TextAreaField,
   ace: AceEditorField,
+  content: ContentField,
 };
 
 export default function DynamicFormField({ form, field, ...otherProps }) {
   const { name, type, readOnly, autoFocus } = field;
   const fieldLabel = getFieldLabel(field);
-
-  if (type === "content") {
-    return field.content;
-  }
 
   const fieldProps = {
     ...field.props,
