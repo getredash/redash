@@ -9,7 +9,6 @@ import { wrap as itemsList, ControllerType } from "@/components/items-list/Items
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
 
-import LoadingState from "@/components/items-list/components/LoadingState";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
 import Alert from "@/services/alert";
@@ -49,7 +48,7 @@ class AlertsList extends React.Component {
         field: "name",
       }
     ),
-    Columns.custom((text, item) => item.user.name, { title: "Created By" }),
+    Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
     Columns.custom.sortable(
       (text, alert) => (
         <div>
@@ -60,10 +59,11 @@ class AlertsList extends React.Component {
         title: "State",
         field: "state",
         width: "1%",
+        className: "text-nowrap",
       }
     ),
-    Columns.timeAgo.sortable({ title: "Last Updated At", field: "updated_at", className: "text-nowrap", width: "1%" }),
-    Columns.dateTime.sortable({ title: "Created At", field: "created_at", className: "text-nowrap", width: "1%" }),
+    Columns.timeAgo.sortable({ title: "Last Updated At", field: "updated_at", width: "1%" }),
+    Columns.dateTime.sortable({ title: "Created At", field: "created_at", width: "1%" }),
   ];
 
   render() {
@@ -84,8 +84,7 @@ class AlertsList extends React.Component {
             }
           />
           <div>
-            {!controller.isLoaded && <LoadingState className="" />}
-            {controller.isLoaded && controller.isEmpty && (
+            {controller.isLoaded && controller.isEmpty ? (
               <EmptyState
                 icon="fa fa-bell-o"
                 illustration="alert"
@@ -93,10 +92,10 @@ class AlertsList extends React.Component {
                 helpLink="https://redash.io/help/user-guide/alerts/"
                 showAlertStep
               />
-            )}
-            {controller.isLoaded && !controller.isEmpty && (
+            ) : (
               <div className="table-responsive bg-white tiled">
                 <ItemsTable
+                  loading={!controller.isLoaded}
                   items={controller.pageItems}
                   columns={this.listColumns}
                   orderByField={controller.orderByField}

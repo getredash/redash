@@ -8,7 +8,7 @@ describe("Settings Tabs", () => {
   };
 
   const userTabs = ["Users", "Groups", "Query Snippets", "Account"];
-  const adminTabs = ["Data Sources", "Alert Destinations", "Settings"];
+  const adminTabs = ["Data Sources", "Alert Destinations", "General"];
 
   const expectSettingsTabsToBe = expectedTabs =>
     cy.getByTestId("SettingsScreenItem").then($list => {

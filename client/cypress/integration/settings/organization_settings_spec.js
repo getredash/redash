@@ -1,7 +1,7 @@
 describe("Settings", () => {
   beforeEach(() => {
     cy.login();
-    cy.visit("/settings/organization");
+    cy.visit("/settings/general");
   });
 
   it("renders the page and takes a screenshot", () => {

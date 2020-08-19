@@ -4,6 +4,8 @@ import Form from "antd/lib/form";
 import DynamicComponent from "@/components/DynamicComponent";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
+import { getHorizontalFormItemWithoutLabelProps } from "@/styles/formStyle";
+
 export default function FeatureFlagsSettings(props) {
   const { values, onChange } = props;
 
@@ -17,7 +19,7 @@ export default function FeatureFlagsSettings(props) {
           Enable experimental multiple owners support
         </Checkbox>
       </Form.Item>
-      <Form.Item>
+      <Form.Item {...getHorizontalFormItemWithoutLabelProps()}>
         <Checkbox
           name="send_email_on_failed_scheduled_queries"
           checked={values.send_email_on_failed_scheduled_queries}
@@ -25,7 +27,7 @@ export default function FeatureFlagsSettings(props) {
           Email query owners when scheduled queries fail
         </Checkbox>
       </Form.Item>
-      <Form.Item>
+      <Form.Item {...getHorizontalFormItemWithoutLabelProps()}>
         <Checkbox
           name="multi_byte_search_enabled"
           checked={values.multi_byte_search_enabled}

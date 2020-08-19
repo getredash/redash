@@ -41,18 +41,24 @@ export class ItemsSource {
         extend(customParams, params);
       },
     };
-    return this._beforeUpdate().then(() =>
-      this._fetcher
+    return this._beforeUpdate().then(() => {
+      const fetchToken = Math.random()
+        .toString(36)
+        .substr(2);
+      this._currentFetchToken = fetchToken;
+      return this._fetcher
         .fetch(changes, state, context)
         .then(({ results, count, allResults }) => {
-          this._pageItems = results;
-          this._allItems = allResults || null;
-          this._paginator.setTotalCount(count);
-          this._params = { ...this._params, ...customParams };
-          return this._afterUpdate();
+          if (this._currentFetchToken === fetchToken) {
+            this._pageItems = results;
+            this._allItems = allResults || null;
+            this._paginator.setTotalCount(count);
+            this._params = { ...this._params, ...customParams };
+            return this._afterUpdate();
+          }
         })
-        .catch(error => this.handleError(error))
-    );
+        .catch(error => this.handleError(error));
+    });
   }
 
   constructor({ getRequest, doRequest, processResults, isPlainList = false, ...defaultState }) {

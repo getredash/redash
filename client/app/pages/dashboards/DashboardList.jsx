@@ -8,7 +8,6 @@ import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
-import LoadingState from "@/components/items-list/components/LoadingState";
 import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
@@ -63,11 +62,10 @@ class DashboardList extends React.Component {
         width: null,
       }
     ),
-    Columns.custom((text, item) => item.user.name, { title: "Created By" }),
+    Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
     Columns.dateTime.sortable({
       title: "Created At",
       field: "created_at",
-      className: "text-nowrap",
       width: "1%",
     }),
   ];
@@ -99,37 +97,34 @@ class DashboardList extends React.Component {
               <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} />
             </Layout.Sidebar>
             <Layout.Content>
-              {controller.isLoaded ? (
-                <div data-test="DashboardLayoutContent">
-                  {controller.isEmpty ? (
-                    <DashboardListEmptyState
-                      page={controller.params.currentPage}
-                      searchTerm={controller.searchTerm}
-                      selectedTags={controller.selectedTags}
+              <div data-test="DashboardLayoutContent">
+                {controller.isLoaded && controller.isEmpty ? (
+                  <DashboardListEmptyState
+                    page={controller.params.currentPage}
+                    searchTerm={controller.searchTerm}
+                    selectedTags={controller.selectedTags}
+                  />
+                ) : (
+                  <div className="bg-white tiled table-responsive">
+                    <ItemsTable
+                      items={controller.pageItems}
+                      loading={!controller.isLoaded}
+                      columns={this.listColumns}
+                      orderByField={controller.orderByField}
+                      orderByReverse={controller.orderByReverse}
+                      toggleSorting={controller.toggleSorting}
                     />
-                  ) : (
-                    <div className="bg-white tiled table-responsive">
-                      <ItemsTable
-                        items={controller.pageItems}
-                        columns={this.listColumns}
-                        orderByField={controller.orderByField}
-                        orderByReverse={controller.orderByReverse}
-                        toggleSorting={controller.toggleSorting}
-                      />
-                      <Paginator
-                        showPageSizeSelect
-                        totalCount={controller.totalItemsCount}
-                        pageSize={controller.itemsPerPage}
-                        onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-                        page={controller.page}
-                        onChange={page => controller.updatePagination({ page })}
-                      />
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <LoadingState />
-              )}
+                    <Paginator
+                      showPageSizeSelect
+                      totalCount={controller.totalItemsCount}
+                      pageSize={controller.itemsPerPage}
+                      onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                      page={controller.page}
+                      onChange={page => controller.updatePagination({ page })}
+                    />
+                  </div>
+                )}
+              </div>
             </Layout.Content>
           </Layout>
         </div>
