@@ -110,9 +110,9 @@ export function wrap(WrappedComponent, createItemsSource, createStateStorage) {
 
         isLoaded,
         isEmpty: !isLoaded || totalCount === 0,
-        totalItemsCount: isLoaded ? totalCount : 0,
+        totalItemsCount: totalCount,
         pageSizeOptions: clientConfig.pageSizeOptions,
-        pageItems: isLoaded ? pageItems : [],
+        pageItems: pageItems || [],
       };
     }
 

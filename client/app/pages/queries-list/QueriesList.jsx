@@ -11,7 +11,6 @@ import { wrap as itemsList, ControllerType } from "@/components/items-list/Items
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
 
-import LoadingState from "@/components/items-list/components/LoadingState";
 import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
@@ -80,12 +79,18 @@ class QueriesList extends React.Component {
         width: null,
       }
     ),
-    Columns.custom((text, item) => item.user.name, { title: "Created By" }),
-    Columns.dateTime.sortable({ title: "Created At", field: "created_at" }),
-    Columns.dateTime.sortable({ title: "Last Executed At", field: "retrieved_at", orderByField: "executed_at" }),
+    Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
+    Columns.dateTime.sortable({ title: "Created At", field: "created_at", width: "1%" }),
+    Columns.dateTime.sortable({
+      title: "Last Executed At",
+      field: "retrieved_at",
+      orderByField: "executed_at",
+      width: "1%",
+    }),
     Columns.custom.sortable((text, item) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
       title: "Refresh Schedule",
       field: "schedule",
+      width: "1%",
     }),
   ];
 
@@ -132,18 +137,17 @@ class QueriesList extends React.Component {
               <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} />
             </Layout.Sidebar>
             <Layout.Content>
-              {!controller.isLoaded && <LoadingState />}
-              {controller.isLoaded && controller.isEmpty && (
+              {controller.isLoaded && controller.isEmpty ? (
                 <QueriesListEmptyState
                   page={controller.params.currentPage}
                   searchTerm={controller.searchTerm}
                   selectedTags={controller.selectedTags}
                 />
-              )}
-              {controller.isLoaded && !controller.isEmpty && (
+              ) : (
                 <div className="bg-white tiled table-responsive">
                   <ItemsTable
                     items={controller.pageItems}
+                    loading={!controller.isLoaded}
                     columns={this.listColumns}
                     orderByField={controller.orderByField}
                     orderByReverse={controller.orderByReverse}
