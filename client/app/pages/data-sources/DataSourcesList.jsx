@@ -8,7 +8,7 @@ import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import CreateSourceDialog from "@/components/CreateSourceDialog";
-import DynamicComponent from "@/components/DynamicComponent";
+import DynamicComponent, { registerComponent } from "@/components/DynamicComponent";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 
@@ -16,6 +16,32 @@ import DataSource, { IMG_ROOT } from "@/services/data-source";
 import { policy } from "@/services/policy";
 import recordEvent from "@/services/recordEvent";
 import routes from "@/services/routes";
+
+export function DataSourcesListComponent({ dataSources }) {
+  const items = dataSources.map(dataSource => ({
+    title: dataSource.name,
+    imgSrc: `${IMG_ROOT}/${dataSource.type}.png`,
+    href: `data_sources/${dataSource.id}`,
+  }));
+
+  return isEmpty(dataSources) ? (
+    <div className="text-center">
+      There are no data sources yet.
+      {policy.isCreateDataSourceEnabled() && (
+        <div className="m-t-5">
+          <a className="clickable" onClick={this.showCreateSourceDialog}>
+            Click here
+          </a>{" "}
+          to add one.
+        </div>
+      )}
+    </div>
+  ) : (
+    <CardsList items={items} />
+  );
+}
+
+registerComponent("DataSourcesListComponent", DataSourcesListComponent);
 
 class DataSourcesList extends React.Component {
   static propTypes = {
@@ -141,7 +167,11 @@ class DataSourcesList extends React.Component {
           </Button>
           <DynamicComponent name="DataSourcesListExtra" />
         </div>
-        {this.state.loading ? <LoadingState className="" /> : this.renderDataSources()}
+        {this.state.loading ? (
+          <LoadingState className="" />
+        ) : (
+          <DynamicComponent name="DataSourcesListComponent" dataSources={this.state.dataSources} />
+        )}
       </div>
     );
   }
