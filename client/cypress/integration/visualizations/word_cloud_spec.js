@@ -1,7 +1,5 @@
 /* global cy, Cypress */
 
-import { createQuery } from "../../support/redash-api";
-
 const { map } = Cypress._;
 
 const SQL = `
@@ -64,7 +62,7 @@ describe("Word Cloud", () => {
 
   beforeEach(() => {
     cy.login();
-    createQuery({ query: SQL }).then(({ id }) => {
+    cy.createQuery({ query: SQL }).then(({ id }) => {
       cy.visit(`queries/${id}/source`);
       cy.getByTestId("ExecuteButton").click();
     });

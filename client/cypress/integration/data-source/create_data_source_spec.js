@@ -6,7 +6,7 @@ describe("Create Data Source", () => {
 
   it("renders the page and takes a screenshot", function() {
     cy.server();
-    cy.route("api/data_sources/types").as("DataSourceTypesRequest");
+    cy.route("**/api/data_sources/types").as("DataSourceTypesRequest");
 
     cy.wait("@DataSourceTypesRequest")
       .then(({ response }) => response.body.filter(type => type.deprecated))

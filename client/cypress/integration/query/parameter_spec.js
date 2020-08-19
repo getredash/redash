@@ -1,5 +1,3 @@
-import { createQuery } from "../../support/redash-api";
-
 describe("Parameter", () => {
   const expectDirtyStateChange = edit => {
     cy.getByTestId("ParameterName-test-parameter")
@@ -31,7 +29,7 @@ describe("Parameter", () => {
         },
       };
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
     });
 
     it("updates the results after clicking Apply", () => {
@@ -63,7 +61,7 @@ describe("Parameter", () => {
         },
       };
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
     });
 
     it("updates the results after clicking Apply", () => {
@@ -105,7 +103,7 @@ describe("Parameter", () => {
         },
       };
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
     });
 
     it("updates the results after selecting a value", () => {
@@ -167,7 +165,7 @@ describe("Parameter", () => {
           name: "Dropdown Query",
           query: "",
         };
-        createQuery(dropdownQueryData, true).then(dropdownQuery => {
+        cy.createQuery(dropdownQueryData, true).then(dropdownQuery => {
           const queryData = {
             name: "Query Based Dropdown Parameter",
             query: "SELECT '{{test-parameter}}' AS parameter",
@@ -178,7 +176,7 @@ describe("Parameter", () => {
             },
           };
 
-          createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+          cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
         });
       });
 
@@ -199,7 +197,7 @@ describe("Parameter", () => {
                   SELECT 'value2' AS name, 2 AS value UNION ALL
                   SELECT 'value3' AS name, 3 AS value`,
         };
-        createQuery(dropdownQueryData, true).then(dropdownQuery => {
+        cy.createQuery(dropdownQueryData, true).then(dropdownQuery => {
           const queryData = {
             name: "Query Based Dropdown Parameter",
             query: "SELECT '{{test-parameter}}' AS parameter",
@@ -217,7 +215,7 @@ describe("Parameter", () => {
             .and("contain", "value2")
             .and("contain", "value3");
 
-          createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+          cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
         });
       });
 
@@ -274,7 +272,7 @@ describe("Parameter", () => {
       cy.wrap(now.getTime()).as("now");
       cy.clock(now.getTime(), ["Date"]);
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
     });
 
     afterEach(() => {
@@ -321,7 +319,7 @@ describe("Parameter", () => {
       cy.wrap(now.getTime()).as("now");
       cy.clock(now.getTime(), ["Date"]);
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
     });
 
     afterEach(() => {
@@ -415,7 +413,7 @@ describe("Parameter", () => {
       cy.wrap(now.getTime()).as("now");
       cy.clock(now.getTime(), ["Date"]);
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
     });
 
     afterEach(() => {
@@ -469,7 +467,7 @@ describe("Parameter", () => {
       cy.location("search").should("not.contain", "Redash");
 
       cy.server();
-      cy.route("POST", "api/queries/*/results").as("Results");
+      cy.route("POST", "**/api/queries/*/results").as("Results");
 
       apply(cy.get("@Input"));
 
@@ -489,7 +487,12 @@ describe("Parameter", () => {
         },
       };
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+      cy.server();
+      cy.route("GET", "**/api/data_sources/*/schema").as("Schema");
+
+      cy.createQuery(queryData, false)
+        .then(({ id }) => cy.visit(`/queries/${id}/source`))
+        .then(() => cy.wait("@Schema"));
     });
 
     it("shows and hides according to parameter dirty state", () => {
@@ -564,7 +567,7 @@ describe("Parameter", () => {
         },
       };
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
 
       cy.get(".parameter-block")
         .first()
@@ -586,7 +589,7 @@ describe("Parameter", () => {
 
     it("is possible to rearrange parameters", function() {
       cy.server();
-      cy.route("POST", "api/queries/*").as("QuerySave");
+      cy.route("POST", "**/api/queries/*").as("QuerySave");
 
       dragParam("param1", this.paramWidth, 1);
       cy.wait("@QuerySave");
@@ -610,7 +613,7 @@ describe("Parameter", () => {
         },
       };
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
 
       cy.getByTestId("ParameterSettings-parameter").click();
     });
