@@ -10,7 +10,7 @@ class Redash(Flask):
     def __init__(self, *args, **kwargs):
         kwargs.update(
             {
-                "template_folder": settings.STATIC_ASSETS_PATH,
+                "template_folder": settings.FLASK_TEMPLATE_PATH,
                 "static_folder": settings.STATIC_ASSETS_PATH,
                 "static_url_path": "/static",
             }

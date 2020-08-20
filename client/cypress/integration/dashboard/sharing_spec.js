@@ -1,12 +1,11 @@
 /* global cy */
 
-import { createDashboard, createQuery } from "../../support/redash-api";
 import { editDashboard, shareDashboard, createQueryAndAddWidget } from "../../support/dashboard";
 
 describe("Dashboard Sharing", () => {
   beforeEach(function() {
     cy.login();
-    createDashboard("Foo Bar").then(({ id }) => {
+    cy.createDashboard("Foo Bar").then(({ id }) => {
       this.dashboardId = id;
       this.dashboardUrl = `/dashboards/${id}`;
     });
@@ -23,7 +22,7 @@ describe("Dashboard Sharing", () => {
     };
 
     const dashboardUrl = this.dashboardUrl;
-    createQuery({ options }).then(({ id: queryId }) => {
+    cy.createQuery({ options }).then(({ id: queryId }) => {
       cy.visit(dashboardUrl);
       editDashboard();
       cy.getByTestId("AddWidgetButton").click();
@@ -148,7 +147,7 @@ describe("Dashboard Sharing", () => {
     };
 
     const dashboardUrl = this.dashboardUrl;
-    createQuery({ options }).then(({ id: queryId }) => {
+    cy.createQuery({ options }).then(({ id: queryId }) => {
       cy.visit(dashboardUrl);
       editDashboard();
       cy.getByTestId("AddWidgetButton").click();

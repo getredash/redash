@@ -16,6 +16,7 @@ Flask-Migrate==2.5.2
 flask-mail==0.9.1
 flask-talisman==0.7.0
 Flask-Limiter==0.9.3
+Flask-WTF==0.14.3
 passlib==1.7.1
 aniso8601==8.0.0
 blinker==1.4
@@ -55,7 +56,6 @@ maxminddb-geolite2==2018.703
 pypd==1.1.0
 disposable-email-domains>=0.0.52
 gevent==1.4.0
-eventlet==0.25.2
 sshtunnel==0.1.5
 supervisor==4.1.0
 supervisor_checks==0.8.1

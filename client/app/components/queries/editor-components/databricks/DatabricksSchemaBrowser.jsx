@@ -1,9 +1,12 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import { slice, without, filter, includes } from "lodash";
+import { slice, without, filter, includes, get, find } from "lodash";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
+import Button from "antd/lib/button";
+import Icon from "antd/lib/icon";
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";
+import Tooltip from "antd/lib/tooltip";
 import { SchemaList, applyFilterOnSchema } from "@/components/queries/SchemaBrowser";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import useDatabricksSchema from "./useDatabricksSchema";
@@ -30,8 +33,11 @@ export default function DatabricksSchemaBrowser({
     loadingDatabases,
     schema,
     loadingSchema,
+    loadTableColumns,
     currentDatabaseName,
     setCurrentDatabase,
+    refreshAll,
+    refreshing,
   } = useDatabricksSchema(dataSource, options, onOptionsUpdate);
   const [filterString, setFilterString] = useState("");
   const [databaseFilterString, setDatabaseFilterString] = useState("");
@@ -65,15 +71,22 @@ export default function DatabricksSchemaBrowser({
   const handleSchemaUpdate = useImmutableCallback(onSchemaUpdate);
 
   useEffect(() => {
-    setExpandedFlags({});
     handleSchemaUpdate(schema);
   }, [schema, handleSchemaUpdate]);
+
+  useEffect(() => {
+    setExpandedFlags({});
+  }, [currentDatabaseName]);
 
   if (schema.length === 0 && databases.length === 0 && !(loadingDatabases || loadingSchema)) {
     return null;
   }
 
   function toggleTable(tableName) {
+    const table = find(schema, { name: tableName });
+    if (!expandedFlags[tableName] && get(table, "loading", false)) {
+      loadTableColumns(tableName);
+    }
     setExpandedFlags({
       ...expandedFlags,
       [tableName]: !expandedFlags[tableName],
@@ -126,6 +139,15 @@ export default function DatabricksSchemaBrowser({
           onTableExpand={toggleTable}
           onItemSelect={onItemSelect}
         />
+        {!(loadingSchema || loadingDatabases) && (
+          <div className="load-button">
+            <Tooltip title={!refreshing ? "Refresh Databases and Current Schema" : null}>
+              <Button type="link" onClick={refreshAll} disabled={refreshing}>
+                <Icon type="sync" spin={refreshing} />
+              </Button>
+            </Tooltip>
+          </div>
+        )}
       </div>
     </div>
   );

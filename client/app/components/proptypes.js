@@ -95,10 +95,10 @@ export const Destination = PropTypes.shape({
 });
 
 export const Query = PropTypes.shape({
-  id: PropTypes.number.isRequired,
+  id: PropTypes.any.isRequired,
   name: PropTypes.string.isRequired,
   description: PropTypes.string,
-  data_source_id: PropTypes.number.isRequired,
+  data_source_id: PropTypes.any.isRequired,
   created_at: PropTypes.string.isRequired,
   updated_at: PropTypes.string,
   user: UserProfile,
@@ -119,7 +119,7 @@ export const AlertOptions = PropTypes.shape({
 });
 
 export const Alert = PropTypes.shape({
-  id: PropTypes.number,
+  id: PropTypes.any,
   name: PropTypes.string,
   created_at: PropTypes.string,
   last_triggered_at: PropTypes.string,

@@ -20,6 +20,8 @@ os.environ["REDASH_MULTI_ORG"] = "true"
 # Make sure rate limit is enabled
 os.environ["REDASH_RATELIMIT_ENABLED"] = "true"
 
+os.environ["REDASH_ENFORCE_CSRF"] = "false"
+
 from redash import limiter, redis_connection
 from redash.app import create_app
 from redash.models import db

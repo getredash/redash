@@ -3,7 +3,6 @@ import React, { useState, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import Input from "antd/lib/input";
 import AntdMenu from "antd/lib/menu";
-import Select from "antd/lib/select";
 import TagsList from "@/components/TagsList";
 
 /*
@@ -145,29 +144,5 @@ export function Tags({ url, onChange }) {
 
 Tags.propTypes = {
   url: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-};
-
-/*
-    PageSizeSelect
- */
-
-export function PageSizeSelect({ options, value, onChange, ...props }) {
-  return (
-    <div {...props}>
-      <Select className="w-100" defaultValue={value} onChange={onChange}>
-        {map(options, option => (
-          <Select.Option key={option} value={option}>
-            {option} results
-          </Select.Option>
-        ))}
-      </Select>
-    </div>
-  );
-}
-
-PageSizeSelect.propTypes = {
-  options: PropTypes.arrayOf(PropTypes.number).isRequired,
-  value: PropTypes.number.isRequired,
   onChange: PropTypes.func.isRequired,
 };

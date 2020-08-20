@@ -210,7 +210,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     def _sort_schema(self, schema):
         return [
-            {"name": i["name"], "columns": sorted(i["columns"])}
+            {"name": i["name"], "columns": sorted(i["columns"], key=lambda x: x["name"] if isinstance(x, dict) else x)}
             for i in sorted(schema, key=lambda x: x["name"])
         ]
 
@@ -1308,6 +1308,7 @@ class ApiKey(TimestampMixin, GFKBase, db.Model):
     api_key = Column(db.String(255), index=True, default=lambda: generate_token(40))
     active = Column(db.Boolean, default=True)
     # 'object' provided by GFKBase
+    object_id = Column(key_type("ApiKey"))
     created_by_id = Column(key_type("User"), db.ForeignKey("users.id"), nullable=True)
     created_by = db.relationship(User)
 

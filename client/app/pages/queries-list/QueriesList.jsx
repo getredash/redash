@@ -11,7 +11,6 @@ import { wrap as itemsList, ControllerType } from "@/components/items-list/Items
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
 
-import LoadingState from "@/components/items-list/components/LoadingState";
 import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
@@ -44,17 +43,17 @@ class QueriesList extends React.Component {
       icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
     },
     {
-      key: "archive",
-      href: "queries/archive",
-      title: "Archived",
-      icon: () => <Sidebar.MenuIcon icon="fa fa-archive" />,
-    },
-    {
       key: "my",
       href: "queries/my",
       title: "My Queries",
       icon: () => <Sidebar.ProfileImage user={currentUser} />,
       isAvailable: () => currentUser.hasPermission("create_query"),
+    },
+    {
+      key: "archive",
+      href: "queries/archive",
+      title: "Archived",
+      icon: () => <Sidebar.MenuIcon icon="fa fa-archive" />,
     },
   ];
 
@@ -80,12 +79,18 @@ class QueriesList extends React.Component {
         width: null,
       }
     ),
-    Columns.custom((text, item) => item.user.name, { title: "Created By" }),
-    Columns.dateTime.sortable({ title: "Created At", field: "created_at" }),
-    Columns.dateTime.sortable({ title: "Last Executed At", field: "retrieved_at", orderByField: "executed_at" }),
+    Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
+    Columns.dateTime.sortable({ title: "Created At", field: "created_at", width: "1%" }),
+    Columns.dateTime.sortable({
+      title: "Last Executed At",
+      field: "retrieved_at",
+      orderByField: "executed_at",
+      width: "1%",
+    }),
     Columns.custom.sortable((text, item) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
       title: "Refresh Schedule",
       field: "schedule",
+      width: "1%",
     }),
   ];
 
@@ -130,34 +135,29 @@ class QueriesList extends React.Component {
               />
               <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
               <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} />
-              <Sidebar.PageSizeSelect
-                className="m-b-10"
-                options={controller.pageSizeOptions}
-                value={controller.itemsPerPage}
-                onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-              />
             </Layout.Sidebar>
             <Layout.Content>
-              {!controller.isLoaded && <LoadingState />}
-              {controller.isLoaded && controller.isEmpty && (
+              {controller.isLoaded && controller.isEmpty ? (
                 <QueriesListEmptyState
                   page={controller.params.currentPage}
                   searchTerm={controller.searchTerm}
                   selectedTags={controller.selectedTags}
                 />
-              )}
-              {controller.isLoaded && !controller.isEmpty && (
+              ) : (
                 <div className="bg-white tiled table-responsive">
                   <ItemsTable
                     items={controller.pageItems}
+                    loading={!controller.isLoaded}
                     columns={this.listColumns}
                     orderByField={controller.orderByField}
                     orderByReverse={controller.orderByReverse}
                     toggleSorting={controller.toggleSorting}
                   />
                   <Paginator
+                    showPageSizeSelect
                     totalCount={controller.totalItemsCount}
-                    itemsPerPage={controller.itemsPerPage}
+                    pageSize={controller.itemsPerPage}
+                    onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
                     page={controller.page}
                     onChange={page => controller.updatePagination({ page })}
                   />

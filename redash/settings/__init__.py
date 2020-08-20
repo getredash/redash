@@ -229,7 +229,9 @@ LDAP_SEARCH_DN = os.environ.get(
 STATIC_ASSETS_PATH = fix_assets_path(
     os.environ.get("REDASH_STATIC_ASSETS_PATH", "../client/dist/")
 )
-
+FLASK_TEMPLATE_PATH = fix_assets_path(
+    os.environ.get("REDASH_FLASK_TEMPLATE_PATH", STATIC_ASSETS_PATH)
+)
 # Time limit (in seconds) for scheduled queries. Set this to -1 to execute without a time limit.
 SCHEDULED_QUERY_TIME_LIMIT = int(
     os.environ.get("REDASH_SCHEDULED_QUERY_TIME_LIMIT", -1)
@@ -497,4 +499,10 @@ SQLPARSE_FORMAT_OPTIONS = {
 # requests
 REQUESTS_ALLOW_REDIRECTS = parse_boolean(
     os.environ.get("REDASH_REQUESTS_ALLOW_REDIRECTS", "false")
+)
+
+# Enforces CSRF token validation on API requests.
+# This is turned off by default to avoid breaking any existing deployments but it is highly recommended to turn this toggle on to prevent CSRF attacks.
+ENFORCE_CSRF = parse_boolean(
+    os.environ.get("REDASH_ENFORCE_CSRF", "false")
 )

@@ -1,6 +1,5 @@
 /* global cy */
 
-import { createQuery, createDashboard, createVisualization, addWidget } from "../../support/redash-api";
 import { getWidgetTestId } from "../../support/dashboard";
 
 const SQL = `
@@ -24,7 +23,7 @@ describe("Sankey and Sunburst", () => {
 
   describe("Creation through UI", () => {
     beforeEach(() => {
-      createQuery({ query: SQL }).then(({ id }) => {
+      cy.createQuery({ query: SQL }).then(({ id }) => {
         cy.visit(`queries/${id}/source`);
         cy.getByTestId("ExecuteButton").click();
       });
@@ -98,14 +97,15 @@ describe("Sankey and Sunburst", () => {
   ];
 
   it("takes a snapshot with Sunburst (1 - 5 stages)", function() {
-    createDashboard("Sunburst Visualization").then(dashboard => {
+    cy.createDashboard("Sunburst Visualization").then(dashboard => {
       this.dashboardUrl = `/dashboards/${dashboard.id}`;
       return cy
         .all(
           STAGES_WIDGETS.map(sunburst => () =>
-            createQuery({ name: `Sunburst with ${sunburst.name}`, query: sunburst.query })
-              .then(queryData => createVisualization(queryData.id, "SUNBURST_SEQUENCE", "Sunburst", {}))
-              .then(visualization => addWidget(dashboard.id, visualization.id, { position: sunburst.position }))
+            cy
+              .createQuery({ name: `Sunburst with ${sunburst.name}`, query: sunburst.query })
+              .then(queryData => cy.createVisualization(queryData.id, "SUNBURST_SEQUENCE", "Sunburst", {}))
+              .then(visualization => cy.addWidget(dashboard.id, visualization.id, { position: sunburst.position }))
           )
         )
         .then(widgets => {
@@ -122,14 +122,15 @@ describe("Sankey and Sunburst", () => {
   });
 
   it("takes a snapshot with Sankey (1 - 5 stages)", function() {
-    createDashboard("Sankey Visualization").then(dashboard => {
+    cy.createDashboard("Sankey Visualization").then(dashboard => {
       this.dashboardUrl = `/dashboards/${dashboard.id}`;
       return cy
         .all(
           STAGES_WIDGETS.map(sankey => () =>
-            createQuery({ name: `Sankey with ${sankey.name}`, query: sankey.query })
-              .then(queryData => createVisualization(queryData.id, "SANKEY", "Sankey", {}))
-              .then(visualization => addWidget(dashboard.id, visualization.id, { position: sankey.position }))
+            cy
+              .createQuery({ name: `Sankey with ${sankey.name}`, query: sankey.query })
+              .then(queryData => cy.createVisualization(queryData.id, "SANKEY", "Sankey", {}))
+              .then(visualization => cy.addWidget(dashboard.id, visualization.id, { position: sankey.position }))
           )
         )
         .then(widgets => {
