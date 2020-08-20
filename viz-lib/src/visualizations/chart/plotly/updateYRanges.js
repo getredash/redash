@@ -4,6 +4,36 @@ function calculateAxisRange(range, min, max) {
   return [isNumber(min) ? min : range[0], isNumber(max) ? max : range[1]];
 }
 
+function calculateAbsoluteDiff(value, totalRange, percentageDiff) {
+  return (percentageDiff * totalRange) / (1 - Math.abs(value) / totalRange - percentageDiff);
+}
+
+function alignYAxesAtZero(axisA, axisB) {
+  // Make sure the origin is included in both axes
+  axisA.range[1] = Math.max(0, axisA.range[1]);
+  axisB.range[1] = Math.max(0, axisB.range[1]);
+  axisA.range[0] = Math.min(0, axisA.range[0]);
+  axisB.range[0] = Math.min(0, axisB.range[0]);
+
+  const totalRangeA = axisA.range[1] - axisA.range[0];
+  const proportionA = axisA.range[1] / totalRangeA;
+  const totalRangeB = axisB.range[1] - axisB.range[0];
+  const proportionB = axisB.range[1] / totalRangeB;
+
+  // Calculate the difference between the proportions and distribute them within the two axes
+  // Select the two that will correct the proportion by always augmenting, so the chart is not cut
+  const diff = Math.abs(proportionB - proportionA) / 2;
+  if (proportionA < proportionB) {
+    // increase axisA max and axisB min
+    axisA.range[1] += calculateAbsoluteDiff(axisA.range[1], totalRangeA, diff);
+    axisB.range[0] -= calculateAbsoluteDiff(axisA.range[0], totalRangeB, diff);
+  } else {
+    // increase axisB max and axisA min
+    axisB.range[1] += calculateAbsoluteDiff(axisB.range[1], totalRangeB, diff);
+    axisA.range[0] -= calculateAbsoluteDiff(axisA.range[0], totalRangeA, diff);
+  }
+}
+
 export default function updateYRanges(plotlyElement, layout, options) {
   const updates = {};
   if (isObject(layout.yaxis)) {
@@ -39,12 +69,7 @@ export default function updateYRanges(plotlyElement, layout, options) {
       }
 
       if (options.alignYAxesAtZero && isObject(layout.yaxis) && isObject(layout.yaxis2)) {
-        const commonRange = [
-          Math.min(updates.yaxis.range[0], updates.yaxis2.range[0]),
-          Math.max(updates.yaxis.range[1], updates.yaxis2.range[1]),
-        ];
-        updates.yaxis.range = [...commonRange];
-        updates.yaxis2.range = [...commonRange];
+        alignYAxesAtZero(updates.yaxis, updates.yaxis2);
       }
 
       return [updates, null]; // no further updates
