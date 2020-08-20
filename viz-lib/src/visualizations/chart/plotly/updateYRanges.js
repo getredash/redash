@@ -21,8 +21,14 @@ function alignYAxesAtZero(axisA, axisB) {
   const proportionB = axisB.range[1] / totalRangeB;
 
   // Calculate the difference between the proportions and distribute them within the two axes
-  // Select the two that will correct the proportion by always augmenting, so the chart is not cut
   const diff = Math.abs(proportionB - proportionA) / 2;
+
+  // Don't do anything if the difference is too low
+  if (diff < 0.01) {
+    return;
+  }
+
+  // Select the two that will correct the proportion by always augmenting, so the chart is not cut
   if (proportionA < proportionB) {
     // increase axisA max and axisB min
     axisA.range[1] += calculateAbsoluteDiff(axisA.range[1], totalRangeA, diff);
