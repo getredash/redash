@@ -29,7 +29,7 @@ export function DataSourcesListComponent({ dataSources, onClickCreate }) {
       There are no data sources yet.
       {policy.isCreateDataSourceEnabled() && (
         <div className="m-t-5">
-          <a className="clickable" onClick={onClickCreate}>
+          <a className="clickable" onClick={onClickCreate} data-test="CreateDataSourceLink">
             Click here
           </a>{" "}
           to add one.
@@ -131,6 +131,7 @@ class DataSourcesList extends React.Component {
       type: "primary",
       onClick: policy.isCreateDataSourceEnabled() ? this.showCreateSourceDialog : null,
       disabled: !policy.isCreateDataSourceEnabled(),
+      "data-test": "CreateDataSourceButton",
     };
 
     return (
