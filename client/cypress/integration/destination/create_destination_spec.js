@@ -32,7 +32,7 @@ describe("Create Destination", () => {
         .click();
 
       cy.getByTestId("Name").type("Slack Destination");
-      cy.getByTestId("CreateSourceButton").click();
+      cy.getByTestId("CreateSourceSaveButton").click();
 
       cy.contains("Alert Destination with the name Slack Destination already exists.");
     });
