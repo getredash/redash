@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 
 import Alert from "antd/lib/alert";
 import Icon from "antd/lib/icon";
+import Link from "@/components/Link";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmptyState from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
@@ -87,13 +88,13 @@ function FavoriteList({ title, resource, itemUrl, emptyState }) {
       {!isEmpty(items) && (
         <div className="list-group">
           {items.map(item => (
-            <a key={itemUrl(item)} className="list-group-item" href={itemUrl(item)}>
+            <Link key={itemUrl(item)} className="list-group-item" href={itemUrl(item)}>
               <span className="btn-favourite m-r-5">
                 <i className="fa fa-star" aria-hidden="true" />
               </span>
               {item.name}
               {item.is_draft && <span className="label label-default m-l-5">Unpublished</span>}
-            </a>
+            </Link>
           ))}
         </div>
       )}
@@ -125,7 +126,7 @@ function DashboardAndQueryFavoritesList() {
                   <span className="btn-favourite m-r-5">
                     <i className="fa fa-star" aria-hidden="true" />
                   </span>
-                  Favorite <a href="dashboards">Dashboards</a> will appear here
+                  Favorite <Link href="dashboards">Dashboards</Link> will appear here
                 </p>
               }
             />
@@ -140,7 +141,7 @@ function DashboardAndQueryFavoritesList() {
                   <span className="btn-favourite m-r-5">
                     <i className="fa fa-star" aria-hidden="true" />
                   </span>
-                  Favorite <a href="queries">Queries</a> will appear here
+                  Favorite <Link href="queries">Queries</Link> will appear here
                 </p>
               }
             />

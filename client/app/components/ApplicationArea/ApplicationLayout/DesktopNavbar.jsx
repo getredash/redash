@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Button from "antd/lib/button";
 import Menu from "antd/lib/menu";
 import Icon from "antd/lib/icon";
+import Link from "@/components/Link";
 import HelpTrigger from "@/components/HelpTrigger";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import { Auth, currentUser } from "@/services/auth";
@@ -37,34 +38,36 @@ export default function DesktopNavbar() {
   return (
     <div className="desktop-navbar">
       <NavbarSection inlineCollapsed={collapsed} className="desktop-navbar-logo">
-        <a href="./">
-          <img src={logoUrl} alt="Redash" />
-        </a>
+        <div>
+          <Link href="./">
+            <img src={logoUrl} alt="Redash" />
+          </Link>
+        </div>
       </NavbarSection>
 
       <NavbarSection inlineCollapsed={collapsed}>
         {currentUser.hasPermission("list_dashboards") && (
           <Menu.Item key="dashboards">
-            <a href="dashboards">
+            <Link href="dashboards">
               <Icon type="desktop" />
               <span>Dashboards</span>
-            </a>
+            </Link>
           </Menu.Item>
         )}
         {currentUser.hasPermission("view_query") && (
           <Menu.Item key="queries">
-            <a href="queries">
+            <Link href="queries">
               <Icon type="code" />
               <span>Queries</span>
-            </a>
+            </Link>
           </Menu.Item>
         )}
         {currentUser.hasPermission("list_alerts") && (
           <Menu.Item key="alerts">
-            <a href="alerts">
+            <Link href="alerts">
               <Icon type="alert" />
               <span>Alerts</span>
-            </a>
+            </Link>
           </Menu.Item>
         )}
       </NavbarSection>
@@ -85,9 +88,9 @@ export default function DesktopNavbar() {
             }>
             {canCreateQuery && (
               <Menu.Item key="new-query">
-                <a href="queries/new" data-test="CreateQueryMenuItem">
+                <Link href="queries/new" data-test="CreateQueryMenuItem">
                   New Query
-                </a>
+                </Link>
               </Menu.Item>
             )}
             {canCreateDashboard && (
@@ -99,9 +102,9 @@ export default function DesktopNavbar() {
             )}
             {canCreateAlert && (
               <Menu.Item key="new-alert">
-                <a data-test="CreateAlertMenuItem" href="alerts/new">
+                <Link data-test="CreateAlertMenuItem" href="alerts/new">
                   New Alert
-                </a>
+                </Link>
               </Menu.Item>
             )}
           </Menu.SubMenu>
@@ -117,10 +120,10 @@ export default function DesktopNavbar() {
         </Menu.Item>
         {firstSettingsTab && (
           <Menu.Item key="settings">
-            <a href={firstSettingsTab.path} data-test="SettingsLink">
+            <Link href={firstSettingsTab.path} data-test="SettingsLink">
               <Icon type="setting" />
               <span>Settings</span>
-            </a>
+            </Link>
           </Menu.Item>
         )}
         <Menu.Divider />
@@ -137,11 +140,11 @@ export default function DesktopNavbar() {
             </span>
           }>
           <Menu.Item key="profile">
-            <a href="users/me">Profile</a>
+            <Link href="users/me">Profile</Link>
           </Menu.Item>
           {currentUser.hasPermission("super_admin") && (
             <Menu.Item key="status">
-              <a href="admin/status">System Status</a>
+              <Link href="admin/status">System Status</Link>
             </Menu.Item>
           )}
           <Menu.Divider />

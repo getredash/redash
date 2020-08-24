@@ -2,6 +2,7 @@ import { keys, some } from "lodash";
 import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
+import Link from "@/components/Link";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import { currentUser } from "@/services/auth";
 import organizationStatus from "@/services/organizationStatus";
@@ -14,9 +15,9 @@ function Step({ show, completed, text, url, urlText, onClick }) {
 
   return (
     <li className={classNames({ done: completed })}>
-      <a href={url} onClick={onClick}>
+      <Link href={url} onClick={onClick}>
         {urlText}
-      </a>{" "}
+      </Link>{" "}
       {text}
     </li>
   );

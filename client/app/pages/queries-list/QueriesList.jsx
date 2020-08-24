@@ -1,7 +1,7 @@
 import React from "react";
 
-import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import Link from "@/components/Link";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
@@ -62,9 +62,9 @@ class QueriesList extends React.Component {
     Columns.custom.sortable(
       (text, item) => (
         <React.Fragment>
-          <a className="table-main-title" href={"queries/" + item.id}>
+          <Link className="table-main-title" href={"queries/" + item.id}>
             {item.name}
-          </a>
+          </Link>
           <QueryTagsControl
             className="d-block"
             tags={item.tags}
@@ -119,10 +119,10 @@ class QueriesList extends React.Component {
             title={controller.params.pageTitle}
             actions={
               currentUser.hasPermission("create_query") ? (
-                <Button block type="primary" href="queries/new">
+                <Link.Button block type="primary" href="queries/new">
                   <i className="fa fa-plus m-r-5" />
                   New Query
-                </Button>
+                </Link.Button>
               ) : null
             }
           />

@@ -9,6 +9,7 @@ import Dropdown from "antd/lib/dropdown";
 import Icon from "antd/lib/icon";
 import Menu from "antd/lib/menu";
 import Tooltip from "antd/lib/tooltip";
+import Link from "@/components/Link";
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
 import Parameters from "@/components/Parameters";
 import { Moment } from "@/components/proptypes";
@@ -116,9 +117,9 @@ function VisualizationEmbedFooter({
       {queryUrl && (
         <span className="hidden-print">
           <Tooltip title="Open in Redash">
-            <Button className="icon-button" href={queryUrl} target="_blank">
+            <Link.Button className="icon-button" href={queryUrl} target="_blank">
               <i className="fa fa-external-link" />
-            </Button>
+            </Link.Button>
           </Tooltip>
           {!query.hasParameters() && (
             <Dropdown overlay={downloadMenu} disabled={!queryResults} trigger={["click"]} placement="topLeft">
