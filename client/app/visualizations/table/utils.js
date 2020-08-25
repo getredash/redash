@@ -170,6 +170,14 @@ export function filterRows(rows, searchTerm, searchColumns) {
   return rows;
 }
 
+function chechNumber(num) {
+  const re = /^[0-9]+.?[0-9]*/;
+  if (!re.test(num)) {
+    return false;
+  }
+  return true;
+}
+
 export function sortRows(rows, orderBy) {
   if ((orderBy.length === 0) || (rows.length === 0)) {
     return rows;
@@ -184,7 +192,8 @@ export function sortRows(rows, orderBy) {
     for (let i = 0; i < orderBy.length; i += 1) {
       va = a[orderBy[i].name];
       vb = b[orderBy[i].name];
-      if (isNil(va) || va < vb) {
+
+      if (chechNumber(va) && chechNumber(vb)) {
         // if a < b - we should return -1, but take in account direction
         return -1 * directions[orderBy[i].direction];
       }
