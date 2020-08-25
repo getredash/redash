@@ -3,6 +3,42 @@ import React from "react";
 import PropTypes from "prop-types";
 import hoistNonReactStatics from "hoist-non-react-statics";
 import { clientConfig } from "@/services/auth";
+import { AxiosError } from "axios";
+
+export interface PaginationOptions {
+  page?: number;
+  itemsPerPage?: number;
+}
+
+export interface Controller<I, P = any> {
+  params: P; // TODO: Find out what params is (except merging with props)
+
+  isLoaded: boolean;
+  isEmpty: boolean;
+
+  // search
+  searchTerm?: string;
+  updateSearch: (searchTerm: string) => void;
+
+  // tags
+  selectedTags: string[];
+  updateSelectedTags: (selectedTags: string[]) => void;
+
+  // sorting
+  orderByField?: string;
+  orderByReverse: boolean;
+  toggleSorting: (orderByField: string) => void;
+
+  // pagination
+  page: number;
+  itemsPerPage: number;
+  totalItemsCount: number;
+  pageSizeOptions: number[];
+  pageItems: I[];
+  updatePagination: (options: PaginationOptions) => void; // ({ page: number, itemsPerPage: number }) => void
+
+  handleError: (error: any) => void; // TODO: Find out if error is string or object or Exception.
+}
 
 export const ControllerType = PropTypes.shape({
   // values of props declared by wrapped component and some additional props from items list
@@ -35,15 +71,40 @@ export const ControllerType = PropTypes.shape({
   handleError: PropTypes.func.isRequired, // (error) => void
 });
 
-export function wrap(WrappedComponent, createItemsSource, createStateStorage) {
-  class ItemsListWrapper extends React.Component {
+export type GenericItemSourceError = AxiosError | Error;
+
+export interface ItemsListWrapperProps {
+  onError?: (error: AxiosError | Error) => void;
+  children: React.ReactNode;
+}
+
+interface ItemsListWrapperState<I, P = any> extends Controller<I, P> {
+  totalCount?: number;
+  update: () => void;
+}
+
+type ItemsSource = any; // TODO: Type ItemsSource
+type StateStorage = any; // TODO: Type StateStore
+
+export interface ItemsListWrappedComponentProps<I, P = any> {
+  controller: Controller<I, P>;
+}
+
+export function wrap<I, P = any>(
+  WrappedComponent: React.ComponentType<ItemsListWrappedComponentProps<I>>,
+  createItemsSource: () => ItemsSource,
+  createStateStorage: () => StateStorage
+) {
+  class ItemsListWrapper extends React.Component<ItemsListWrapperProps, ItemsListWrapperState<I, P>> {
+    private _itemsSource: ItemsSource;
+
     static propTypes = {
       onError: PropTypes.func,
       children: PropTypes.node,
     };
 
     static defaultProps = {
-      onError: error => {
+      onError: (error: GenericItemSourceError) => {
         // Allow calling chain to roll up, and then throw the error in global context
         setTimeout(() => {
           throw error;
@@ -52,7 +113,7 @@ export function wrap(WrappedComponent, createItemsSource, createStateStorage) {
       children: null,
     };
 
-    constructor(props) {
+    constructor(props: ItemsListWrapperProps) {
       super(props);
 
       const stateStorage = createStateStorage();
@@ -73,7 +134,9 @@ export function wrap(WrappedComponent, createItemsSource, createStateStorage) {
         this.setState(this.getState({ ...state, isLoaded: true }));
       };
 
-      itemsSource.onError = error => this.props.onError(error);
+      itemsSource.onError = (error: GenericItemSourceError) =>
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.props.onError!(error);
 
       const initialState = this.getState({ ...itemsSource.getState(), isLoaded: false });
       const { updatePagination, toggleSorting, updateSearch, updateSelectedTags, update, handleError } = itemsSource;
@@ -93,13 +156,22 @@ export function wrap(WrappedComponent, createItemsSource, createStateStorage) {
     }
 
     componentWillUnmount() {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       this._itemsSource.onBeforeUpdate = () => {};
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       this._itemsSource.onAfterUpdate = () => {};
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       this._itemsSource.onError = () => {};
     }
 
     // eslint-disable-next-line class-methods-use-this
-    getState({ isLoaded, totalCount, pageItems, params, ...rest }) {
+    getState({
+      isLoaded,
+      totalCount,
+      pageItems,
+      params,
+      ...rest
+    }: ItemsListWrapperState<I, P>): ItemsListWrapperState<I, P> {
       return {
         ...rest,
 
@@ -110,8 +182,8 @@ export function wrap(WrappedComponent, createItemsSource, createStateStorage) {
 
         isLoaded,
         isEmpty: !isLoaded || totalCount === 0,
-        totalItemsCount: totalCount,
-        pageSizeOptions: clientConfig.pageSizeOptions,
+        totalItemsCount: totalCount || 0,
+        pageSizeOptions: (clientConfig as any).pageSizeOptions, // TODO: Type auth.js
         pageItems: pageItems || [],
       };
     }
