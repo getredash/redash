@@ -1,39 +1,51 @@
-import { isNil, map, filter, each, sortBy, some, findIndex, toString } from 'lodash';
-import React from 'react';
-import cx from 'classnames';
 import Icon from 'antd/lib/icon';
 import Tooltip from 'antd/lib/tooltip';
+import cx from 'classnames';
+import {
+  each,
+  filter,
+  findIndex,
+  isNil,
+  map,
+  some,
+  sortBy,
+  toString
+} from 'lodash';
+import React from 'react';
 
-import initTextColumn from './columns/text';
-import initNumberColumn from './columns/number';
-import initDateTimeColumn from './columns/datetime';
 import initBooleanColumn from './columns/boolean';
-import initLinkColumn from './columns/link';
+import initDateTimeColumn from './columns/datetime';
 import initImageColumn from './columns/image';
 import initJsonColumn from './columns/json';
+import initLinkColumn from './columns/link';
+import initNumberColumn from './columns/number';
+import initTextColumn from './columns/text';
 
 // this map should contain all possible values for `column.displayAs` property
 export const ColumnTypes = {
-  string: initTextColumn,
-  number: initNumberColumn,
-  datetime: initDateTimeColumn,
-  boolean: initBooleanColumn,
-  link: initLinkColumn,
-  image: initImageColumn,
-  json: initJsonColumn,
+  string : initTextColumn,
+  number : initNumberColumn,
+  datetime : initDateTimeColumn,
+  boolean : initBooleanColumn,
+  link : initLinkColumn,
+  image : initImageColumn,
+  json : initJsonColumn,
 };
 
 function nextOrderByDirection(direction) {
   switch (direction) {
-    case 'ascend': return 'descend';
-    case 'descend': return null;
-    default: return 'ascend';
+  case 'ascend':
+    return 'descend';
+  case 'descend':
+    return null;
+  default:
+    return 'ascend';
   }
 }
 
 function toggleOrderBy(columnName, orderBy = [], multiColumnSort = false) {
   const index = findIndex(orderBy, i => i.name === columnName);
-  const item = { name: columnName, direction: 'ascend' };
+  const item = {name : columnName, direction : 'ascend'};
   if (index >= 0) {
     item.direction = nextOrderByDirection(orderBy[index].direction);
   }
@@ -47,16 +59,15 @@ function toggleOrderBy(columnName, orderBy = [], multiColumnSort = false) {
     } else {
       orderBy.push(item);
     }
-    return [...orderBy];
+    return [...orderBy ];
   }
-  return item.direction ? [item] : [];
+  return item.direction ? [ item ] : [];
 }
 
 function getOrderByInfo(orderBy) {
   const result = {};
-  each(orderBy, ({ name, direction }, index) => {
-    result[name] = { direction, index: index + 1 };
-  });
+  each(orderBy, ({name, direction},
+                 index) => { result[name] = {direction, index : index + 1}; });
   return result;
 }
 
@@ -68,10 +79,14 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
   const orderByInfo = getOrderByInfo(orderBy);
 
   let tableColumns = map(columns, (column) => {
-    const isAscend = orderByInfo[column.name] && (orderByInfo[column.name].direction === 'ascend');
-    const isDescend = orderByInfo[column.name] && (orderByInfo[column.name].direction === 'descend');
+    const isAscend = orderByInfo[column.name] &&
+                     (orderByInfo[column.name].direction === 'ascend');
+    const isDescend = orderByInfo[column.name] &&
+                      (orderByInfo[column.name].direction === 'descend');
 
-    const sortColumnIndex = isMultiColumnSort && orderByInfo[column.name] ? orderByInfo[column.name].index : null;
+    const sortColumnIndex = isMultiColumnSort && orderByInfo[column.name]
+                                ? orderByInfo[column.name].index
+                                : null;
 
     const result = {
       key: column.name, // set this because we don't use `dataIndex`
@@ -89,13 +104,11 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
           <span className="ant-table-column-sorter">
             <div className="ant-table-column-sorter-inner ant-table-column-sorter-inner-full">
               <Icon
-                className={`ant-table-column-sorter-up ${isAscend ? 'on' : 'off'}`}
-                type="caret-up"
-                theme="filled"
-              />
-              <Icon
-                className={`ant-table-column-sorter-down ${isDescend ? 'on' : 'off'}`}
-                type="caret-down"
+    className = {`ant-table-column-sorter-up ${isAscend ? 'on' : 'off'}`} type =
+        "caret-up"
+    theme = "filled" / > < Icon
+    className = {`ant-table-column-sorter-down ${
+        isDescend ? 'on' : 'off'}`} type = "caret-down"
                 theme="filled"
               />
             </div>
@@ -118,36 +131,39 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
       props: { className: `display-as-${column.displayAs}` },
     });
 
-    return result;
+                return result;
   });
 
   tableColumns.push({
-    key: '###Redash::Visualizations::Table::Spacer###',
-    dataIndex: null,
-    title: '',
-    className: 'table-visualization-spacer',
-    render: () => '',
-    onHeaderCell: () => ({ className: 'table-visualization-spacer' }),
+    key : '###Redash::Visualizations::Table::Spacer###',
+    dataIndex : null,
+    title : '',
+    className : 'table-visualization-spacer',
+    render : () => '',
+    onHeaderCell : () => ({className : 'table-visualization-spacer'}),
   });
 
   if (searchInput) {
-    // We need a merged head cell through entire row. With Ant's Table the only way to do it
-    // is to add a single child to every column move `dataIndex` property to it and set
-    // `colSpan` to 0 for every child cell except of the 1st one - which should be expanded.
-    tableColumns = map(tableColumns, ({ title, align, key, onHeaderCell, ...rest }, index) => ({
-      key: key + '(parent)',
-      title,
-      align,
-      onHeaderCell,
-      children: [{
-        ...rest,
-        key: key + '(child)',
-        align,
-        colSpan: index === 0 ? tableColumns.length : 0,
-        title: index === 0 ? searchInput : null,
-        onHeaderCell: () => ({ className: 'table-visualization-search' }),
-      }],
-    }));
+    // We need a merged head cell through entire row. With Ant's Table the only
+    // way to do it is to add a single child to every column move `dataIndex`
+    // property to it and set `colSpan` to 0 for every child cell except of the
+    // 1st one - which should be expanded.
+    tableColumns = map(
+        tableColumns,
+        ({title, align, key, onHeaderCell, ...rest}, index) => ({
+          key : key + '(parent)',
+          title,
+          align,
+          onHeaderCell,
+          children : [ {
+            ...rest,
+            key : key + '(child)',
+            align,
+            colSpan : index === 0 ? tableColumns.length : 0,
+            title : index === 0 ? searchInput : null,
+            onHeaderCell : () => ({className : 'table-visualization-search'}),
+          } ],
+        }));
   }
 
   return tableColumns;
@@ -158,9 +174,9 @@ export function filterRows(rows, searchTerm, searchColumns) {
     searchTerm = searchTerm.toUpperCase();
     const matchFields = map(searchColumns, (column) => {
       const initColumn = ColumnTypes[column.displayAs];
-      const { prepareData } = initColumn(column);
+      const {prepareData} = initColumn(column);
       return (row) => {
-        const { text } = prepareData(row);
+        const {text} = prepareData(row);
         return toString(text).toUpperCase().indexOf(searchTerm) >= 0;
       };
     });
@@ -178,16 +194,16 @@ function chechNumber(num) {
   return true;
 }
 
-
 export function sortRows(rows, orderBy) {
   if ((orderBy.length === 0) || (rows.length === 0)) {
     return rows;
   }
 
-  const directions = { ascend: 1, descend: -1 };
+  const directions = {ascend : 1, descend : -1};
 
-  // Create a copy of array before sorting, because .sort() will modify original array
-  return [...rows].sort((a, b) => {
+  // Create a copy of array before sorting, because .sort() will modify original
+  // array
+  return [...rows ].sort((a, b) => {
     let va;
     let vb;
     for (let i = 0; i < orderBy.length; i += 1) {
