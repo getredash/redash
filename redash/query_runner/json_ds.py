@@ -4,13 +4,18 @@ import logging
 import socket
 
 import yaml
-from funcy import compact, project
+from funcy import compact
+from funcy import project
 from six import text_type
 from urlparse import urlparse
 
-from redash.query_runner import (TYPE_BOOLEAN, TYPE_DATETIME, TYPE_FLOAT,
-                                 TYPE_INTEGER, TYPE_STRING,
-                                 BaseHTTPQueryRunner, register)
+from redash.query_runner import BaseHTTPQueryRunner
+from redash.query_runner import register
+from redash.query_runner import TYPE_BOOLEAN
+from redash.query_runner import TYPE_DATETIME
+from redash.query_runner import TYPE_FLOAT
+from redash.query_runner import TYPE_INTEGER
+from redash.query_runner import TYPE_STRING
 from redash.utils import json_dumps
 from redash.utils.compat import long
 

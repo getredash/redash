@@ -4,7 +4,8 @@ import uuid
 
 from redash.query_runner import *
 from redash.query_runner.mssql import types_map
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_dumps
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 

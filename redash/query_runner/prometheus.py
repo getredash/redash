@@ -5,8 +5,10 @@ import requests
 from dateutil import parser
 from urlparse import parse_qs
 
-from redash.query_runner import (TYPE_DATETIME, TYPE_STRING, BaseQueryRunner,
-                                 register)
+from redash.query_runner import BaseQueryRunner
+from redash.query_runner import register
+from redash.query_runner import TYPE_DATETIME
+from redash.query_runner import TYPE_STRING
 from redash.utils import json_dumps
 
 

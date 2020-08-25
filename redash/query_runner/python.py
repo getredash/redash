@@ -8,7 +8,8 @@ from RestrictedPython.Guards import safe_builtins
 
 from redash import models
 from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_dumps
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 

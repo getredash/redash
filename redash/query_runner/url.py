@@ -1,4 +1,5 @@
-from redash.query_runner import BaseHTTPQueryRunner, register
+from redash.query_runner import BaseHTTPQueryRunner
+from redash.query_runner import register
 from redash.utils import deprecated
 
 

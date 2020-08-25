@@ -2,7 +2,8 @@ import logging
 
 import requests
 import yaml
-from urlparse import parse_qs, urlparse
+from urlparse import parse_qs
+from urlparse import urlparse
 
 from redash.query_runner import *
 from redash.utils import json_dumps
