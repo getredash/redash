@@ -47,7 +47,13 @@ export default function DetailsRenderer({ data }) {
       </Descriptions>
       {data.rows.length > 1 && (
         <div className="paginator-container">
-          <Pagination current={page + 1} defaultPageSize={1} total={data.rows.length} onChange={p => setPage(p - 1)} />
+          <Pagination
+            showSizeChanger={false}
+            current={page + 1}
+            defaultPageSize={1}
+            total={data.rows.length}
+            onChange={p => setPage(p - 1)}
+          />
         </div>
       )}
     </div>

@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
-import Icon from "antd/lib/icon";
+import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import useMedia from "use-media";
 import EditInPlace from "@/components/EditInPlace";
 import FavoritesControl from "@/components/FavoritesControl";
@@ -199,7 +199,7 @@ export default function QueryPageHeader({
         {!queryFlags.isNew && (
           <Dropdown overlay={moreActionsMenu} trigger={["click"]}>
             <Button>
-              <Icon type="ellipsis" rotate={90} />
+              <EllipsisOutlinedIcon rotate={90} />
             </Button>
           </Dropdown>
         )}

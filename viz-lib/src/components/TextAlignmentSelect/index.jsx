@@ -3,8 +3,11 @@ import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import Radio from "antd/lib/radio";
-import Icon from "antd/lib/icon";
 import Tooltip from "antd/lib/tooltip";
+
+import AlignLeftOutlinedIcon from "@ant-design/icons/AlignLeftOutlined";
+import AlignCenterOutlinedIcon from "@ant-design/icons/AlignCenterOutlined";
+import AlignRightOutlinedIcon from "@ant-design/icons/AlignRightOutlined";
 
 import "./index.less";
 
@@ -15,17 +18,17 @@ export default function TextAlignmentSelect({ className, ...props }) {
       <Radio.Group className={cx("text-alignment-select", className)} {...props}>
         <Tooltip title="Align left" mouseEnterDelay={0} mouseLeaveDelay={0}>
           <Radio.Button value="left" data-test="TextAlignmentSelect.Left">
-            <Icon type="align-left" />
+            <AlignLeftOutlinedIcon />
           </Radio.Button>
         </Tooltip>
         <Tooltip title="Align center" mouseEnterDelay={0} mouseLeaveDelay={0}>
           <Radio.Button value="center" data-test="TextAlignmentSelect.Center">
-            <Icon type="align-center" />
+            <AlignCenterOutlinedIcon />
           </Radio.Button>
         </Tooltip>
         <Tooltip title="Align right" mouseEnterDelay={0} mouseLeaveDelay={0}>
           <Radio.Button value="right" data-test="TextAlignmentSelect.Right">
-            <Icon type="align-right" />
+            <AlignRightOutlinedIcon />
           </Radio.Button>
         </Tooltip>
       </Radio.Group>

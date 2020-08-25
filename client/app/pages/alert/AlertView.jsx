@@ -23,9 +23,9 @@ function AlertState({ state, lastTriggered }) {
   return (
     <div className="alert-state">
       <span className={`alert-state-indicator label ${STATE_CLASS[state]}`}>Status: {state}</span>
-      {state === "unknown" && <div className="ant-form-explain">Alert condition has not been evaluated.</div>}
+      {state === "unknown" && <div className="ant-form-item-explain">Alert condition has not been evaluated.</div>}
       {lastTriggered && (
-        <div className="ant-form-explain">
+        <div className="ant-form-item-explain">
           Last triggered{" "}
           <span className="alert-last-triggered">
             <TimeAgo date={lastTriggered} />

@@ -1,7 +1,6 @@
-import { isNil, map, filter, each, sortBy, some, findIndex, toString } from "lodash";
+import { isNil, map, get, filter, each, sortBy, some, findIndex, toString } from "lodash";
 import React from "react";
 import cx from "classnames";
-import Icon from "antd/lib/icon";
 import Tooltip from "antd/lib/tooltip";
 import ColumnTypes from "./columns";
 
@@ -62,6 +61,8 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
       key: column.name,
       dataIndex: `record[${JSON.stringify(column.name)}]`,
       align: column.alignContent,
+      sorter: { multiple: 1 }, // using { multiple: 1 } to allow built-in multi-column sort arrows
+      sortOrder: get(orderByInfo, [column.name, "direction"], null),
       title: (
         <React.Fragment>
           {column.description && (
@@ -78,24 +79,10 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
               {column.title}
             </div>
           </Tooltip>
-          <span className="ant-table-column-sorter">
-            <div className="ant-table-column-sorter-inner ant-table-column-sorter-inner-full">
-              <Icon
-                className={`ant-table-column-sorter-up ${isAscend ? "on" : "off"}`}
-                type="caret-up"
-                theme="filled"
-              />
-              <Icon
-                className={`ant-table-column-sorter-down ${isDescend ? "on" : "off"}`}
-                type="caret-down"
-                theme="filled"
-              />
-            </div>
-          </span>
         </React.Fragment>
       ),
       onHeaderCell: () => ({
-        className: cx("ant-table-column-has-actions ant-table-column-has-sorters", {
+        className: cx({
           "table-visualization-column-is-sorted": isAscend || isDescend,
         }),
         onClick: event => onOrderByChange(toggleOrderBy(column.name, orderBy, event.shiftKey)),
@@ -122,25 +109,15 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
   });
 
   if (searchInput) {
-    // We need a merged head cell through entire row. With Ant's Table the only way to do it
-    // is to add a single child to every column move `dataIndex` property to it and set
-    // `colSpan` to 0 for every child cell except of the 1st one - which should be expanded.
-    tableColumns = map(tableColumns, ({ title, align, key, onHeaderCell, ...rest }, index) => ({
-      key: key + "(parent)",
-      title,
-      align,
-      onHeaderCell,
-      children: [
-        {
-          ...rest,
-          key: key + "(child)",
-          align,
-          colSpan: index === 0 ? tableColumns.length : 0,
-          title: index === 0 ? searchInput : null,
-          onHeaderCell: () => ({ className: "table-visualization-search" }),
-        },
-      ],
-    }));
+    // Add searchInput as the ColumnGroup for all table columns
+    tableColumns = [
+      {
+        key: "table-search",
+        title: searchInput,
+        onHeaderCell: () => ({ className: "table-visualization-search" }),
+        children: tableColumns,
+      },
+    ];
   }
 
   return tableColumns;

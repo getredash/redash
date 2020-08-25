@@ -16,7 +16,6 @@
 @import "~antd/lib/pagination/style/index";
 @import "~antd/lib/table/style/index";
 @import "~antd/lib/popover/style/index";
-@import "~antd/lib/icon/style/index";
 @import "~antd/lib/tag/style/index";
 @import "~antd/lib/grid/style/index";
 @import "~antd/lib/switch/style/index";
@@ -401,4 +400,15 @@
 .@{checkbox-prefix-cls}-wrapper + span,
 .@{checkbox-prefix-cls} + span {
   padding-right: 0;
+}
+
+// make sure Multiple select has room for icons
+.@{select-prefix-cls}-multiple {
+  &.@{select-prefix-cls}-show-arrow,
+  &.@{select-prefix-cls}-show-search,
+  &.@{select-prefix-cls}-loading {
+    .@{select-prefix-cls}-selector {
+      padding-right: 30px;
+    }
+  }
 }

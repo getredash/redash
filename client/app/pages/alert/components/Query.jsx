@@ -6,7 +6,10 @@ import SchedulePhrase from "@/components/queries/SchedulePhrase";
 import { Query as QueryType } from "@/components/proptypes";
 
 import Tooltip from "antd/lib/tooltip";
-import Icon from "antd/lib/icon";
+
+import WarningFilledIcon from "@ant-design/icons/WarningFilled";
+import QuestionCircleTwoToneIcon from "@ant-design/icons/QuestionCircleTwoTone";
+import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 
 import "./Query.less";
 
@@ -21,11 +24,10 @@ export default function QueryFormItem({ query, queryResult, onChange, editMode }
       </small>
     ) : (
       <small>
-        <Icon type="warning" theme="filled" className="warning-icon-danger" /> This query has no <i>refresh schedule</i>
-        .{" "}
+        <WarningFilledIcon className="warning-icon-danger" /> This query has no <i>refresh schedule</i>.{" "}
         <Tooltip title="A query schedule is not necessary but is highly recommended for alerts. An Alert without a query schedule will only send notifications if a user in your organization manually executes this query.">
           <a>
-            Why it&apos;s recommended <Icon type="question-circle" theme="twoTone" />
+            Why it&apos;s recommended <QuestionCircleTwoToneIcon />
           </a>
         </Tooltip>
       </small>
@@ -43,10 +45,10 @@ export default function QueryFormItem({ query, queryResult, onChange, editMode }
           </a>
         </Tooltip>
       )}
-      <div className="ant-form-explain">{query && queryHint}</div>
+      <div className="ant-form-item-explain">{query && queryHint}</div>
       {query && !queryResult && (
         <div className="m-t-30">
-          <Icon type="loading" className="m-r-5" /> Loading query data
+          <LoadingOutlinedIcon className="m-r-5" /> Loading query data
         </div>
       )}
     </>

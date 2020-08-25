@@ -12,7 +12,7 @@ Object {
 
 exports[`Visualizations -> Chart -> Editor -> Colors Settings for heatmap Changes color scheme 1`] = `
 Object {
-  "colorScheme": "RdBu",
+  "colorScheme": "Blues",
 }
 `;
 

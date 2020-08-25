@@ -35,7 +35,7 @@ describe("Visualizations -> Table -> Editor -> Grid Settings", () => {
 
     findByTestID(el, "Table.ItemsPerPage")
       .last()
-      .simulate("click");
+      .simulate("mouseDown");
     findByTestID(el, "Table.ItemsPerPage.100")
       .last()
       .simulate("click");
