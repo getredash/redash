@@ -170,6 +170,14 @@ export function filterRows(rows, searchTerm, searchColumns) {
   return rows;
 }
 
+function chechNumber(num) {
+  const re = /^[0-9]+.?[0-9]*/;
+  if (!re.test(num)) {
+    return false;
+  }
+  return true;
+}
+
 export function sortRows(rows, orderBy) {
   if ((orderBy.length === 0) || (rows.length === 0)) {
     return rows;
@@ -185,7 +193,7 @@ export function sortRows(rows, orderBy) {
       va = a[orderBy[i].name];
       vb = b[orderBy[i].name];
 
-      if (!isNaN(va) && !isNaN(vb)) {
+      if (chechNumber(va) && chechNumber(vb)) {
         va = parseFloat(a[orderBy[i].name]);
         vb = parseFloat(b[orderBy[i].name]);
       }
