@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 class CustomPrint(object):
     """CustomPrint redirect "print" calls to be sent as "log" on the result object."""
+
     def __init__(self):
         self.enabled = True
         self.lines = []

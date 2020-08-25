@@ -90,10 +90,10 @@ class TreasureData(BaseQueryRunner):
 
     def run_query(self, query, user):
         connection = tdclient.connect(
-                endpoint=self.configuration.get('endpoint', 'https://api.treasuredata.com'),
-                apikey=self.configuration.get('apikey'),
-                type=self.configuration.get('type', 'hive').lower(),
-                db=self.configuration.get('db'))
+            endpoint=self.configuration.get('endpoint', 'https://api.treasuredata.com'),
+            apikey=self.configuration.get('apikey'),
+            type=self.configuration.get('type', 'hive').lower(),
+            db=self.configuration.get('db'))
 
         cursor = connection.cursor()
         try:

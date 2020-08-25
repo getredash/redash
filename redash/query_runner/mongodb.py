@@ -173,8 +173,8 @@ class MongoDB(BaseQueryRunner):
 
     def _merge_property_names(self, columns, document):
         for property in document:
-              if property not in columns:
-                  columns.append(property)
+            if property not in columns:
+                columns.append(property)
 
     def _is_collection_a_view(self, db, collection_name):
         if 'viewOn' in db[collection_name].options():
