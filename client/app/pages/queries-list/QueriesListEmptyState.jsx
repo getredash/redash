@@ -24,7 +24,7 @@ export default function QueriesListEmptyState({ page, searchTerm, selectedTags }
             Create your first query
           </Link.Button>{" "}
           to populate My Queries list. Need help? Check out our{" "}
-          <a href="https://redash.io/help/user-guide/querying/writing-queries">query writing documentation</a>.
+          <Link href="https://redash.io/help/user-guide/querying/writing-queries">query writing documentation</Link>.
         </div>
       );
     default:

@@ -7,6 +7,7 @@ import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import Tooltip from "antd/lib/tooltip";
 import Divider from "antd/lib/divider";
+import Link from "@/components/Link";
 import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import notification from "@/services/notification";
@@ -78,9 +79,12 @@ function TextboxDialog({ dialog, isNew, ...props }) {
         />
         <small>
           Supports basic{" "}
-          <a target="_blank" rel="noopener noreferrer" href="https://www.markdownguide.org/cheat-sheet/#basic-syntax">
+          <Link
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://www.markdownguide.org/cheat-sheet/#basic-syntax">
             <Tooltip title="Markdown guide opens in new window">Markdown</Tooltip>
-          </a>
+          </Link>
           .
         </small>
         {text && (

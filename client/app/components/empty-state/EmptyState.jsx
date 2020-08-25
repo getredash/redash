@@ -140,10 +140,10 @@ function EmptyState({
         </ol>
         <p>
           Need more support?{" "}
-          <a href={helpLink} target="_blank" rel="noopener noreferrer">
+          <Link href={helpLink} target="_blank" rel="noopener noreferrer">
             See our Help
             <i className="fa fa-external-link m-l-5" aria-hidden="true" />
-          </a>
+          </Link>
         </p>
       </div>
     </div>
