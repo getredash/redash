@@ -1,27 +1,34 @@
-import { toString } from 'lodash';
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import tinycolor from 'tinycolor2';
-import Popover from 'antd/lib/popover';
-import Card from 'antd/lib/card';
-import Tooltip from 'antd/lib/tooltip';
-import Icon from 'antd/lib/icon';
+import { toString } from "lodash";
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import tinycolor from "tinycolor2";
+import Popover from "antd/lib/popover";
+import Card from "antd/lib/card";
+import Tooltip from "antd/lib/tooltip";
+import Icon from "antd/lib/icon";
 
-import ColorInput from './Input';
-import Swatch from './Swatch';
+import ColorInput from "./Input";
+import Swatch from "./Swatch";
 
-import './index.less';
+import "./index.less";
 
 function validateColor(value, fallback = null) {
   value = tinycolor(value);
-  return value.isValid() ? '#' + value.toHex().toUpperCase() : fallback;
+  return value.isValid() ? "#" + value.toHex().toUpperCase() : fallback;
 }
 
 export default function ColorPicker({
-  color, placement, presetColors, presetColumns, triggerSize, interactive, children, onChange,
+  color,
+  placement,
+  presetColors,
+  presetColumns,
+  triggerSize,
+  interactive,
+  children,
+  onChange,
 }) {
   const [visible, setVisible] = useState(false);
-  const [currentColor, setCurrentColor] = useState('');
+  const [currentColor, setCurrentColor] = useState("");
 
   function handleApply() {
     setVisible(false);
@@ -36,16 +43,16 @@ export default function ColorPicker({
 
   const actions = [];
   if (!interactive) {
-    actions.push((
+    actions.push(
       <Tooltip key="cancel" title="Cancel">
         <Icon type="close" onClick={handleCancel} />
       </Tooltip>
-    ));
-    actions.push((
+    );
+    actions.push(
       <Tooltip key="apply" title="Apply">
         <Icon type="check" onClick={handleApply} />
       </Tooltip>
-    ));
+    );
   }
 
   function handleInputChange(newColor) {
@@ -63,16 +70,18 @@ export default function ColorPicker({
 
   return (
     <Popover
-      overlayClassName={`color-picker ${interactive ? 'color-picker-interactive' : 'color-picker-with-actions'}`}
-      overlayStyle={{ '--color-picker-selected-color': currentColor }}
-      content={(
+      overlayClassName={`color-picker ${
+        interactive ? "color-picker-interactive" : "color-picker-with-actions"
+      }`}
+      overlayStyle={{ "--color-picker-selected-color": currentColor }}
+      content={
         <Card
           className="color-picker-panel"
           bordered={false}
           title={toString(currentColor).toUpperCase()}
           headStyle={{
             backgroundColor: currentColor,
-            color: tinycolor(currentColor).isLight() ? '#000000' : '#ffffff',
+            color: tinycolor(currentColor).isLight() ? "#000000" : "#ffffff",
           }}
           actions={actions}
         >
@@ -84,13 +93,19 @@ export default function ColorPicker({
             onPressEnter={handleApply}
           />
         </Card>
-      )}
+      }
       trigger="click"
       placement={placement}
       visible={visible}
       onVisibleChange={setVisible}
     >
-      {children || (<Swatch className="color-picker-trigger" color={validateColor(color)} size={triggerSize} />)}
+      {children || (
+        <Swatch
+          className="color-picker-trigger"
+          color={validateColor(color)}
+          size={triggerSize}
+        />
+      )}
     </Popover>
   );
 }
@@ -98,9 +113,18 @@ export default function ColorPicker({
 ColorPicker.propTypes = {
   color: PropTypes.string,
   placement: PropTypes.oneOf([
-    'top', 'left', 'right', 'bottom',
-    'topLeft', 'topRight', 'bottomLeft', 'bottomRight',
-    'leftTop', 'leftBottom', 'rightTop', 'rightBottom',
+    "top",
+    "left",
+    "right",
+    "bottom",
+    "topLeft",
+    "topRight",
+    "bottomLeft",
+    "bottomRight",
+    "leftTop",
+    "leftBottom",
+    "rightTop",
+    "rightBottom",
   ]),
   presetColors: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.string), // array of colors (no tooltips)
@@ -114,8 +138,8 @@ ColorPicker.propTypes = {
 };
 
 ColorPicker.defaultProps = {
-  color: '#FFFFFF',
-  placement: 'top',
+  color: "#FFFFFF",
+  placement: "top",
   presetColors: null,
   presetColumns: 8,
   triggerSize: 30,
