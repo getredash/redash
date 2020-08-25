@@ -3,6 +3,7 @@
 import logging
 from base64 import b64decode
 from datetime import datetime
+
 from urlparse import parse_qs, urlparse
 
 from redash.query_runner import *
@@ -11,10 +12,10 @@ from redash.utils import json_dumps, json_loads
 logger = logging.getLogger(__name__)
 
 try:
-    from oauth2client.service_account import ServiceAccountCredentials
+    import httplib2
     from apiclient.discovery import build
     from apiclient.errors import HttpError
-    import httplib2
+    from oauth2client.service_account import ServiceAccountCredentials
 
     enabled = True
 except ImportError as e:

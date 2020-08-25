@@ -1,18 +1,19 @@
 from __future__ import absolute_import
-import time
-import requests
+
 import logging
+import time
+
+import requests
 from cStringIO import StringIO
 
-from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING
+from redash.query_runner import TYPE_STRING, BaseQueryRunner, register
 from redash.utils import json_dumps
 
 try:
     import qds_sdk
+    from qds_sdk.commands import (Command, HiveCommand, PrestoCommand,
+                                  SqlCommand)
     from qds_sdk.qubole import Qubole as qbol
-    from qds_sdk.commands import Command, HiveCommand
-    from qds_sdk.commands import SqlCommand, PrestoCommand
 
     enabled = True
 except ImportError:

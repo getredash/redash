@@ -1,51 +1,42 @@
-import datetime
 import calendar
+import datetime
 import logging
 import time
-import pytz
 
+import pytz
 from six import python_2_unicode_compatible, text_type
-from sqlalchemy import distinct, or_, and_, UniqueConstraint
+from sqlalchemy import UniqueConstraint, and_, distinct, func, or_
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, contains_eager, joinedload, subqueryload, load_only
+from sqlalchemy.orm import (backref, contains_eager, joinedload, load_only,
+                            subqueryload)
 from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
-from sqlalchemy import func
 from sqlalchemy_utils import generic_relationship
-from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_utils.models import generic_repr
+from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
 
-from redash import redis_connection, utils, settings
-from redash.destinations import (
-    get_configuration_schema_for_destination_type,
-    get_destination,
-)
+from redash import redis_connection, settings, utils
+from redash.destinations import (get_configuration_schema_for_destination_type,
+                                 get_destination)
 from redash.metrics import database  # noqa: F401
-from redash.query_runner import (
-    get_configuration_schema_for_query_runner_type,
-    get_query_runner,
-    TYPE_BOOLEAN,
-    TYPE_DATE,
-    TYPE_DATETIME,
-)
-from redash.utils import generate_token, json_dumps, json_loads, mustache_render
-from redash.utils.configuration import ConfigurationContainer
 from redash.models.parameterized_query import ParameterizedQuery
+from redash.query_runner import (
+    TYPE_BOOLEAN, TYPE_DATE, TYPE_DATETIME,
+    get_configuration_schema_for_query_runner_type, get_query_runner)
+from redash.utils import (generate_token, json_dumps, json_loads,
+                          mustache_render)
+from redash.utils.configuration import ConfigurationContainer
 
-from .base import db, gfk_type, Column, GFKBase, SearchBaseQuery
-from .changes import ChangeTrackingMixin, Change  # noqa
+from .base import Column, GFKBase, SearchBaseQuery, db, gfk_type
+from .changes import Change, ChangeTrackingMixin  # noqa
 from .mixins import BelongsToOrgMixin, TimestampMixin
 from .organizations import Organization
-from .types import (
-    EncryptedConfiguration,
-    Configuration,
-    MutableDict,
-    MutableList,
-    PseudoJSON,
-)
-from .users import AccessPermission, AnonymousUser, ApiUser, Group, User  # noqa
+from .types import (Configuration, EncryptedConfiguration, MutableDict,
+                    MutableList, PseudoJSON)
+from .users import (AccessPermission, AnonymousUser, ApiUser, Group,  # noqa
+                    User)
 
 logger = logging.getLogger(__name__)
 

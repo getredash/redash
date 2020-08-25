@@ -16,8 +16,8 @@ OPTIONAL_CREDENTIALS = parse_boolean(
 )
 
 try:
-    import pyathena
     import boto3
+    import pyathena
 
     enabled = True
 except ImportError:

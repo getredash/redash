@@ -3,15 +3,12 @@ from unittest import TestCase
 
 import pytest
 
-from redash.query_runner.query_results import (
-    CreateTableError,
-    PermissionError,
-    _load_query,
-    create_table,
-    extract_cached_query_ids,
-    extract_query_ids,
-    fix_column_name,
-)
+from redash.query_runner.query_results import (CreateTableError,
+                                               PermissionError, _load_query,
+                                               create_table,
+                                               extract_cached_query_ids,
+                                               extract_query_ids,
+                                               fix_column_name)
 from tests import BaseTestCase
 
 

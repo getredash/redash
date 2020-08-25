@@ -6,12 +6,12 @@ Create Date: 2018-01-31 15:20:30.396533
 
 """
 from __future__ import print_function
+
 import simplejson
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 from redash.models import Dashboard, Widget, db
-
 
 # revision identifiers, used by Alembic.
 revision = "969126bd800f"
