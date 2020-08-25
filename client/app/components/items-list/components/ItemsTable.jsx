@@ -142,7 +142,7 @@ export default class ItemsTable extends React.Component {
 
         return extend(omit(column, ["field", "orderByField", "render"]), {
           key: "column" + index,
-          dataIndex: "item[" + JSON.stringify(column.field) + "]",
+          dataIndex: ["item", column.field],
           defaultSortOrder: column.orderByField === orderByField ? orderByDirection : null,
           onHeaderCell,
           render,

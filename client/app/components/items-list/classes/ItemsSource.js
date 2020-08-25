@@ -10,6 +10,8 @@ export class ItemsSource {
 
   onError = null;
 
+  sortByIteratees = undefined;
+
   getCallbackContext = () => null;
 
   _beforeUpdate() {
@@ -61,7 +63,14 @@ export class ItemsSource {
     });
   }
 
-  constructor({ getRequest, doRequest, processResults, isPlainList = false, ...defaultState }) {
+  constructor({
+    getRequest,
+    doRequest,
+    processResults,
+    isPlainList = false,
+    sortByIteratees = undefined,
+    ...defaultState
+  }) {
     if (!isFunction(getRequest)) {
       getRequest = identity;
     }
@@ -69,6 +78,8 @@ export class ItemsSource {
     this._fetcher = isPlainList
       ? new PlainListFetcher({ getRequest, doRequest, processResults })
       : new PaginatedListFetcher({ getRequest, doRequest, processResults });
+
+    this.sortByIteratees = sortByIteratees;
 
     this.setState(defaultState);
     this._pageItems = [];
@@ -93,7 +104,7 @@ export class ItemsSource {
 
   setState(state) {
     this._paginator = new Paginator(state);
-    this._sorter = new Sorter(state);
+    this._sorter = new Sorter(state, this.sortByIteratees);
 
     this._searchTerm = state.searchTerm || "";
     this._selectedTags = state.selectedTags || [];

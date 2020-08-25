@@ -17,12 +17,13 @@
     }
   }
 
-  .ant-tabs-bar {
-    display: flex;
+  .ant-tabs-nav-wrap,
+  .ant-tabs-extra-content {
+    flex: initial !important;
+  }
 
-    .ant-tabs-extra-content {
-      order: 2;
-    }
+  .ant-tabs-nav-wrap {
+    z-index: 1;
   }
 
   .ant-tabs-tab {
@@ -47,14 +48,22 @@
 
     &.ant-tabs-tab-active {
       background: white !important;
-      z-index: 1;
       font-weight: normal;
       border-top: 2px solid #2196f3 !important;
+
+      .ant-tabs-tab-btn {
+        font-weight: normal;
+      }
+    }
+
+    // add internal bottom border to non-active tabs
+    &:not(.ant-tabs-tab-active) {
+      box-shadow: 0px -1px 0px #d9d9d9 inset;
     }
   }
 
-  .ant-tabs-content {
-    margin-top: -18px;
+  .ant-tabs-content-holder {
+    margin-top: -17px;
     border: 1px solid #d9d9d9;
     box-sizing: border-box;
     border-radius: 0px 4px 0px 0px;
@@ -83,6 +92,11 @@
       border-radius: 50%;
     }
   }
+}
+
+// hide delete button when it in the dropdown
+.ant-tabs-dropdown-menu-item .delete-visualization-button {
+  display: none;
 }
 
 .query-fixed-layout .query-visualization-tabs .visualization-renderer {

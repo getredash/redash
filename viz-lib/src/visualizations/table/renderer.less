@@ -16,11 +16,12 @@
     table {
       border-top: 0;
 
-      th {
+      th:not(.table-visualization-search) {
         position: sticky !important;
         left: 0;
         top: 0;
         border-top: 0;
+        z-index: 1;
         background: #fafafa !important;
       }
     }
@@ -52,20 +53,25 @@
     }
 
     thead {
-      .anticon.off {
+      .ant-table-column-sorter-up,
+      .ant-table-column-sorter-down {
         opacity: 0;
+        transition: opacity 0.3s;
       }
 
-      &:hover .anticon.off,
-      .table-visualization-column-is-sorted .anticon.off {
-        opacity: 1;
+      &:hover,
+      .table-visualization-column-is-sorted {
+        .ant-table-column-sorter-up,
+        .ant-table-column-sorter-down {
+          opacity: 1;
+        }
       }
 
       th {
         white-space: nowrap;
 
         &.table-visualization-search {
-          padding-top: 0;
+          padding-bottom: 0;
 
           .ant-table-header-column {
             display: block;

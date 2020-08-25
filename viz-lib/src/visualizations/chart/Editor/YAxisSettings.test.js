@@ -39,7 +39,7 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
 
     findByTestID(el, "Chart.LeftYAxis.Type")
       .last()
-      .simulate("click");
+      .simulate("mouseDown");
     findByTestID(el, "Chart.LeftYAxis.Type.Category")
       .last()
       .simulate("click");

@@ -79,7 +79,7 @@ describe("Visualizations -> Table -> Editor -> Columns Settings", () => {
 
     findByTestID(el, "Table.Column.a.DisplayAs")
       .last()
-      .simulate("click");
+      .simulate("mouseDown");
     findByTestID(el, "Table.Column.a.DisplayAs.number")
       .last()
       .simulate("click");

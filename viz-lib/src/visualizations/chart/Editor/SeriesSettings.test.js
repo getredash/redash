@@ -38,7 +38,7 @@ describe("Visualizations -> Chart -> Editor -> Series Settings", () => {
 
     findByTestID(el, "Chart.Series.a.Type")
       .last()
-      .simulate("click");
+      .simulate("mouseDown");
     findByTestID(el, "Chart.ChartType.area")
       .last()
       .simulate("click");

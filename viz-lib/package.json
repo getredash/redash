@@ -23,7 +23,8 @@
   "author": "Redash",
   "license": "BSD-2-Clause",
   "peerDependencies": {
-    "antd": ">=3.19.0 < 4",
+    "antd": ">=4.0.0",
+    "@ant-design/icons": ">=4.0.0",
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
   },

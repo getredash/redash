@@ -3,7 +3,7 @@ import React from "react";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
-import Icon from "antd/lib/icon";
+import DownOutlinedIcon from "@ant-design/icons/DownOutlined";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -74,7 +74,7 @@ class GroupDataSources extends React.Component {
           <Dropdown trigger={["click"]} overlay={menu}>
             <Button className="w-100">
               {datasource.view_only ? "View Only" : "Full Access"}
-              <Icon type="down" />
+              <DownOutlinedIcon />
             </Button>
           </Dropdown>
         );

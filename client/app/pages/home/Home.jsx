@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
 import Alert from "antd/lib/alert";
-import Icon from "antd/lib/icon";
 import Link from "@/components/Link";
+import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmptyState from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
@@ -83,7 +83,7 @@ function FavoriteList({ title, resource, itemUrl, emptyState }) {
     <>
       <div className="d-flex align-items-center m-b-20">
         <p className="flex-fill f-500 c-black m-0">{title}</p>
-        {loading && <Icon type="loading" />}
+        {loading && <LoadingOutlinedIcon />}
       </div>
       {!isEmpty(items) && (
         <div className="list-group">
