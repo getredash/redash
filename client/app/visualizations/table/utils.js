@@ -178,6 +178,7 @@ function chechNumber(num) {
   return true;
 }
 
+
 export function sortRows(rows, orderBy) {
   if ((orderBy.length === 0) || (rows.length === 0)) {
     return rows;
