@@ -32,8 +32,13 @@ HelpTrigger.defaultValues = {
   children: null,
 };
 
+function Link(props) {
+  return <a {...props} />;
+}
+
 export const visualizationsSettings = {
   HelpTriggerComponent: HelpTrigger,
+  LinkComponent: Link,
   dateFormat: "DD/MM/YYYY",
   dateTimeFormat: "DD/MM/YYYY HH:mm",
   integetFormat: "0,0",
