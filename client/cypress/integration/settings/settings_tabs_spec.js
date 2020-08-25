@@ -1,5 +1,3 @@
-import { createUser } from "../../support/redash-api";
-
 describe("Settings Tabs", () => {
   const regularUser = {
     name: "Example User",
@@ -17,7 +15,7 @@ describe("Settings Tabs", () => {
     });
 
   before(() => {
-    cy.login().then(() => createUser(regularUser));
+    cy.login().then(() => cy.createUser(regularUser));
   });
 
   describe("For admin user", () => {

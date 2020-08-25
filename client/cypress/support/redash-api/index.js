@@ -7,16 +7,16 @@ const post = options =>
     .getCookie("csrf_token")
     .then(csrf => cy.request({ ...options, method: "POST", headers: { "X-CSRF-TOKEN": csrf.value } }));
 
-export function createDashboard(name) {
+Cypress.Commands.add("createDashboard", name => {
   return post({ url: "api/dashboards", body: { name } }).then(({ body }) => body);
-}
+});
 
-export function createQuery(data, shouldPublish = true) {
+Cypress.Commands.add("createQuery", (data, shouldPublish = true) => {
   const merged = extend(
     {
       name: "Test Query",
       query: "select 1",
-      data_source_id: 1,
+      data_source_id: Cypress.env("dataSourceId"),
       options: {
         parameters: [],
       },
@@ -34,17 +34,17 @@ export function createQuery(data, shouldPublish = true) {
   }
 
   return request;
-}
+});
 
-export function createVisualization(queryId, type, name, options) {
+Cypress.Commands.add("createVisualization", (queryId, type, name, options) => {
   const data = { query_id: queryId, type, name, options };
   return post({ url: "/api/visualizations", body: data }).then(({ body }) => ({
     query_id: queryId,
     ...body,
   }));
-}
+});
 
-export function addTextbox(dashboardId, text = "text", options = {}) {
+Cypress.Commands.add("addTextbox", (dashboardId, text = "text", options = {}) => {
   const defaultOptions = {
     position: { col: 0, row: 0, sizeX: 3, sizeY: 3 },
   };
@@ -62,9 +62,9 @@ export function addTextbox(dashboardId, text = "text", options = {}) {
     assert.isDefined(id, "Widget api call returns widget id");
     return body;
   });
-}
+});
 
-export function addWidget(dashboardId, visualizationId, options = {}) {
+Cypress.Commands.add("addWidget", (dashboardId, visualizationId, options = {}) => {
   const defaultOptions = {
     position: { col: 0, row: 0, sizeX: 3, sizeY: 3 },
   };
@@ -81,9 +81,9 @@ export function addWidget(dashboardId, visualizationId, options = {}) {
     assert.isDefined(id, "Widget api call returns widget id");
     return body;
   });
-}
+});
 
-export function createAlert(queryId, options = {}, name) {
+Cypress.Commands.add("createAlert", (queryId, options = {}, name) => {
   const defaultOptions = {
     column: "?column?",
     op: "greater than",
@@ -102,9 +102,9 @@ export function createAlert(queryId, options = {}, name) {
     assert.isDefined(id, "Alert api call retu ns alert id");
     return body;
   });
-}
+});
 
-export function createUser({ name, email, password }) {
+Cypress.Commands.add("createUser", ({ name, email, password }) => {
   return post({
     url: "api/users?no_invite=yes",
     body: { name, email },
@@ -129,22 +129,23 @@ export function createUser({ name, email, password }) {
       body: { password },
     });
   });
-}
+});
 
-export function createDestination(name, type, options = {}) {
+Cypress.Commands.add("createDestination", (name, type, options = {}) => {
   return post({
     url: "api/destinations",
     body: { name, type, options },
     failOnStatusCode: false,
   });
-}
+});
 
-export function getDestinations() {
+Cypress.Commands.add("getDestinations", () => {
   return cy.request("GET", "api/destinations").then(({ body }) => body);
-}
+});
 
-export function addDestinationSubscription(alertId, destinationName) {
-  return getDestinations()
+Cypress.Commands.add("addDestinationSubscription", (alertId, destinationName) => {
+  return cy
+    .getDestinations()
     .then(destinations => {
       const destination = find(destinations, { name: destinationName });
       if (!destination) {
@@ -163,4 +164,4 @@ export function addDestinationSubscription(alertId, destinationName) {
       assert.isDefined(id, "Subscription api call returns subscription id");
       return body;
     });
-}
+});

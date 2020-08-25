@@ -1,6 +1,5 @@
 /* global cy, Cypress */
 
-import { createDashboard, addTextbox } from "../../support/redash-api";
 import { getWidgetTestId } from "../../support/dashboard";
 
 const menuWidth = 80;
@@ -16,7 +15,7 @@ describe("Dashboard", () => {
     cy.getByTestId("CreateDashboardMenuItem").click();
 
     cy.server();
-    cy.route("POST", "api/dashboards").as("NewDashboard");
+    cy.route("POST", "**/api/dashboards").as("NewDashboard");
 
     cy.getByTestId("CreateDashboardDialog").within(() => {
       cy.getByTestId("DashboardSaveButton").should("be.disabled");
@@ -36,7 +35,7 @@ describe("Dashboard", () => {
   });
 
   it("archives dashboard", () => {
-    createDashboard("Foo Bar").then(({ id }) => {
+    cy.createDashboard("Foo Bar").then(({ id }) => {
       cy.visit(`/dashboards/${id}`);
 
       cy.getByTestId("DashboardMoreButton").click();
@@ -59,8 +58,8 @@ describe("Dashboard", () => {
 
   it("is accessible through multiple urls", () => {
     cy.server();
-    cy.route("GET", "api/dashboards/*").as("LoadDashboard");
-    createDashboard("Dashboard multiple urls").then(({ id, slug }) => {
+    cy.route("GET", "**/api/dashboards/*").as("LoadDashboard");
+    cy.createDashboard("Dashboard multiple urls").then(({ id, slug }) => {
       [`/dashboards/${id}`, `/dashboards/${id}-anything-here`, `/dashboard/${slug}`].forEach(url => {
         cy.visit(url);
         cy.wait("@LoadDashboard");
@@ -75,11 +74,11 @@ describe("Dashboard", () => {
   context("viewport width is at 800px", () => {
     before(function() {
       cy.login();
-      createDashboard("Foo Bar")
+      cy.createDashboard("Foo Bar")
         .then(({ id }) => {
           this.dashboardUrl = `/dashboards/${id}`;
           this.dashboardEditUrl = `/dashboards/${id}?edit`;
-          return addTextbox(id, "Hello World!").then(getWidgetTestId);
+          return cy.addTextbox(id, "Hello World!").then(getWidgetTestId);
         })
         .then(elTestId => {
           cy.visit(this.dashboardUrl);
@@ -132,7 +131,7 @@ describe("Dashboard", () => {
   context("viewport width is at 767px", () => {
     before(function() {
       cy.login();
-      createDashboard("Foo Bar").then(({ id }) => {
+      cy.createDashboard("Foo Bar").then(({ id }) => {
         this.dashboardUrl = `/dashboards/${id}`;
       });
     });

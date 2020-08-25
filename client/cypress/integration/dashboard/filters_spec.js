@@ -1,4 +1,3 @@
-import { createDashboard } from "../../support/redash-api";
 import { createQueryAndAddWidget, editDashboard } from "../../support/dashboard";
 import { expectTableToHaveLength, expectFirstColumnToHaveMembers } from "../../support/visualizations/table";
 
@@ -24,7 +23,7 @@ describe("Dashboard Filters", () => {
       name: "Query Filters",
       query: `SELECT stage1 AS "stage1::filter", stage2, value FROM (${SQL}) q`,
     };
-    createDashboard("Dashboard Filters").then(dashboard => {
+    cy.createDashboard("Dashboard Filters").then(dashboard => {
       createQueryAndAddWidget(dashboard.id, queryData)
         .as("widget1TestId")
         .then(() => createQueryAndAddWidget(dashboard.id, queryData, { position: { col: 4 } }))

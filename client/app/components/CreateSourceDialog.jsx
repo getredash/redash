@@ -154,7 +154,7 @@ class CreateSourceDialog extends React.Component {
         footer={
           currentStep === StepEnum.SELECT_TYPE
             ? [
-                <Button key="cancel" onClick={() => dialog.dismiss()}>
+                <Button key="cancel" onClick={() => dialog.dismiss()} data-test="CreateSourceCancelButton">
                   Cancel
                 </Button>,
                 <Button key="submit" type="primary" disabled>
@@ -171,7 +171,7 @@ class CreateSourceDialog extends React.Component {
                   form="sourceForm"
                   type="primary"
                   loading={savingSource}
-                  data-test="CreateSourceButton">
+                  data-test="CreateSourceSaveButton">
                   Create
                 </Button>,
               ]

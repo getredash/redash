@@ -7,5 +7,13 @@ div.tags-list {
 }
 
 .page-dashboard-list .page-header-actions {
-  min-width: 25%; /* same as sidebar */
+  width: 25%; /* same as sidebar */
+  max-width: 350px; /* same as sidebar */
+}
+
+/* same rule as for sidebar */
+@media (max-width: 990px) {
+  .page-dashboard-list .page-header-actions {
+    width: auto;
+  }
 }

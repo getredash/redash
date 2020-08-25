@@ -1,6 +1,5 @@
 /* global cy */
 
-import { createQuery, createVisualization, createDashboard, addWidget } from "../../support/redash-api";
 import { getWidgetTestId } from "../../support/dashboard";
 
 const SQL = `
@@ -42,7 +41,7 @@ function createPivotThroughUI(visualizationName, options = {}) {
 describe("Pivot", () => {
   beforeEach(() => {
     cy.login();
-    createQuery({ name: "Pivot Visualization", query: SQL })
+    cy.createQuery({ name: "Pivot Visualization", query: SQL })
       .its("id")
       .as("queryId");
   });
@@ -66,7 +65,7 @@ describe("Pivot", () => {
     const visualizationName = "Pivot";
 
     cy.server();
-    cy.route("POST", "api/visualizations").as("SaveVisualization");
+    cy.route("POST", "**/api/visualizations").as("SaveVisualization");
 
     createPivotThroughUI(visualizationName, { hideControls: true });
 
@@ -88,7 +87,7 @@ describe("Pivot", () => {
       vals: ["value"],
     };
 
-    createVisualization(this.queryId, "PIVOT", "Pivot", options).then(visualization => {
+    cy.createVisualization(this.queryId, "PIVOT", "Pivot", options).then(visualization => {
       cy.visit(`queries/${this.queryId}/source#${visualization.id}`);
       cy.getByTestId("ExecuteButton").click();
 
@@ -137,14 +136,14 @@ describe("Pivot", () => {
       },
     ];
 
-    createDashboard("Pivot Visualization")
+    cy.createDashboard("Pivot Visualization")
       .then(dashboard => {
         this.dashboardUrl = `/dashboards/${dashboard.id}`;
         return cy.all(
           pivotTables.map(pivot => () =>
-            createVisualization(this.queryId, "PIVOT", pivot.name, pivot.options).then(visualization =>
-              addWidget(dashboard.id, visualization.id, { position: pivot.position })
-            )
+            cy
+              .createVisualization(this.queryId, "PIVOT", pivot.name, pivot.options)
+              .then(visualization => cy.addWidget(dashboard.id, visualization.id, { position: pivot.position }))
           )
         );
       })

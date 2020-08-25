@@ -1,7 +1,5 @@
 /* global cy, Cypress */
 
-import { createQuery } from "../../support/redash-api";
-
 const SQL = `
   SELECT 27182.8182846 AS a, 20000 AS b, 'lorem' AS c UNION ALL
   SELECT 31415.9265359 AS a, 40000 AS b, 'ipsum' AS c
@@ -12,7 +10,7 @@ describe("Counter", () => {
 
   beforeEach(() => {
     cy.login();
-    createQuery({ query: SQL }).then(({ id }) => {
+    cy.createQuery({ query: SQL }).then(({ id }) => {
       cy.visit(`queries/${id}/source`);
       cy.getByTestId("ExecuteButton").click();
     });

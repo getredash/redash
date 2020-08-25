@@ -1,4 +1,9 @@
+/* global Cypress */
+
 import "./commands";
+import "./redash-api/index.js";
+
+Cypress.env("dataSourceId", 1);
 
 Cypress.on("uncaught:exception", err => {
   // Prevent ResizeObserver error from failing tests
