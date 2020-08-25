@@ -213,7 +213,7 @@ function QuerySource(props) {
                       value={ds.id}
                       data-name={ds.name}
                       data-test={`SelectDataSource${ds.id}`}>
-                      <img src={`/static/images/db-logos/${ds.type}.png`} width="20" alt={ds.name} />
+                      <img src={`static/images/db-logos/${ds.type}.png`} width="20" alt={ds.name} />
                       <span>{ds.name}</span>
                     </Select.Option>
                   ))}

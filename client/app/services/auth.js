@@ -30,6 +30,10 @@ export const messages = [];
 const logger = debug("redash:auth");
 const session = { loaded: false };
 
+const AuthUrls = {
+  Login: "login",
+};
+
 function updateSession(sessionData) {
   logger("Updating session to be:", sessionData);
   extend(session, sessionData, { loaded: true });
@@ -42,10 +46,13 @@ export const Auth = {
   isAuthenticated() {
     return session.loaded && session.user.id;
   },
+  setLoginUrl(loginUrl) {
+    AuthUrls.Login = loginUrl;
+  },
   login() {
     const next = encodeURI(location.url);
     logger("Calling login with next = %s", next);
-    window.location.href = `login?next=${next}`;
+    window.location.href = `${AuthUrls.Login}?next=${next}`;
   },
   logout() {
     logger("Logout.");
