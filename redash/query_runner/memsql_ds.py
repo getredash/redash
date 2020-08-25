@@ -46,10 +46,18 @@ class MemSQL(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "host": {"type": "string"},
-                "port": {"type": "number"},
-                "user": {"type": "string"},
-                "password": {"type": "string"},
+                "host": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "number"
+                },
+                "user": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
             },
             "required": ["host", "port"],
             "secret": ["password"],
@@ -71,15 +79,16 @@ class MemSQL(BaseSQLQueryRunner):
         columns_query = "show columns in %s"
 
         for schema_name in filter(
-            lambda a: len(a) > 0,
-            map(lambda a: str(a["Database"]), self._run_query_internal(schemas_query)),
+                lambda a: len(a) > 0,
+                map(lambda a: str(a["Database"]),
+                    self._run_query_internal(schemas_query)),
         ):
             for table_name in filter(
-                lambda a: len(a) > 0,
-                map(
-                    lambda a: str(a["Tables_in_%s" % schema_name]),
-                    self._run_query_internal(tables_query % schema_name),
-                ),
+                    lambda a: len(a) > 0,
+                    map(
+                        lambda a: str(a["Tables_in_%s" % schema_name]),
+                        self._run_query_internal(tables_query % schema_name),
+                    ),
             ):
                 table_name = ".".join((schema_name, table_name))
                 columns = filter(
@@ -113,7 +122,9 @@ class MemSQL(BaseSQLQueryRunner):
             #         'type': types_map.get(column[COLUMN_TYPE], None)
             #     })
 
-            rows = [dict(zip(list(row.keys()), list(row.values()))) for row in res]
+            rows = [
+                dict(zip(list(row.keys()), list(row.values()))) for row in res
+            ]
 
             # ====================================================================================================
             # temporary - until https://github.com/memsql/memsql-python/pull/8 gets merged
@@ -123,9 +134,11 @@ class MemSQL(BaseSQLQueryRunner):
 
             if column_names:
                 for column in column_names:
-                    columns.append(
-                        {"name": column, "friendly_name": column, "type": TYPE_STRING}
-                    )
+                    columns.append({
+                        "name": column,
+                        "friendly_name": column,
+                        "type": TYPE_STRING
+                    })
 
             data = {"columns": columns, "rows": rows}
             json_data = json_dumps(data)

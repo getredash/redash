@@ -27,7 +27,10 @@ class ResultSet(object):
             }
 
     def to_json(self):
-        return json_dumps({"rows": self.rows, "columns": self.columns.values()})
+        return json_dumps({
+            "rows": self.rows,
+            "columns": self.columns.values()
+        })
 
     def merge(self, set):
         self.rows = self.rows + set.rows
@@ -46,9 +49,8 @@ def parse_issue(issue, field_mapping):
                 # if field mapping with dict member mappings defined get value of each member
                 for member_name in member_names:
                     if member_name in v:
-                        result[
-                            field_mapping.get_dict_output_field_name(k, member_name)
-                        ] = v[member_name]
+                        result[field_mapping.get_dict_output_field_name(
+                            k, member_name)] = v[member_name]
 
             else:
                 # these special mapping rules are kept for backwards compatibility
@@ -73,9 +75,8 @@ def parse_issue(issue, field_mapping):
                             if member_name in listItem:
                                 listValues.append(listItem[member_name])
                     if len(listValues) > 0:
-                        result[
-                            field_mapping.get_dict_output_field_name(k, member_name)
-                        ] = ",".join(listValues)
+                        result[field_mapping.get_dict_output_field_name(
+                            k, member_name)] = ",".join(listValues)
 
             else:
                 # otherwise support list values only for non-dict items
@@ -120,13 +121,11 @@ class FieldMapping:
                 field_name = member_parser.group(1)
                 member_name = member_parser.group(2)
 
-            cls.mapping.append(
-                {
-                    "field_name": field_name,
-                    "member_name": member_name,
-                    "output_field_name": v,
-                }
-            )
+            cls.mapping.append({
+                "field_name": field_name,
+                "member_name": member_name,
+                "output_field_name": v,
+            })
 
     def get_output_field_name(cls, field_name):
         for item in cls.mapping:
@@ -143,7 +142,8 @@ class FieldMapping:
 
     def get_dict_output_field_name(cls, field_name, member_name):
         for item in cls.mapping:
-            if item["field_name"] == field_name and item["member_name"] == member_name:
+            if item["field_name"] == field_name and item[
+                    "member_name"] == member_name:
                 return item["output_field_name"]
         return None
 

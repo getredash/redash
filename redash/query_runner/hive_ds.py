@@ -46,10 +46,18 @@ class Hive(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "host": {"type": "string"},
-                "port": {"type": "number"},
-                "database": {"type": "string"},
-                "username": {"type": "string"},
+                "host": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "number"
+                },
+                "database": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
             },
             "order": ["host", "port", "database", "username"],
             "required": ["host"],
@@ -71,26 +79,25 @@ class Hive(BaseSQLQueryRunner):
         columns_query = "show columns in %s.%s"
 
         for schema_name in filter(
-            lambda a: len(a) > 0,
-            map(
-                lambda a: str(a["database_name"]),
-                self._run_query_internal(schemas_query),
-            ),
-        ):
-            for table_name in filter(
                 lambda a: len(a) > 0,
                 map(
-                    lambda a: str(a["tab_name"]),
-                    self._run_query_internal(tables_query % schema_name),
+                    lambda a: str(a["database_name"]),
+                    self._run_query_internal(schemas_query),
                 ),
+        ):
+            for table_name in filter(
+                    lambda a: len(a) > 0,
+                    map(
+                        lambda a: str(a["tab_name"]),
+                        self._run_query_internal(tables_query % schema_name),
+                    ),
             ):
                 columns = filter(
                     lambda a: len(a) > 0,
                     map(
                         lambda a: str(a["field"]),
-                        self._run_query_internal(
-                            columns_query % (schema_name, table_name)
-                        ),
+                        self._run_query_internal(columns_query %
+                                                 (schema_name, table_name)),
                     ),
                 )
 
@@ -127,13 +134,14 @@ class Hive(BaseSQLQueryRunner):
                 column_name = column[COLUMN_NAME]
                 column_names.append(column_name)
 
-                columns.append(
-                    {
-                        "name": column_name,
-                        "friendly_name": column_name,
-                        "type": types_map.get(column[COLUMN_TYPE], None),
-                    }
-                )
+                columns.append({
+                    "name":
+                    column_name,
+                    "friendly_name":
+                    column_name,
+                    "type":
+                    types_map.get(column[COLUMN_TYPE], None),
+                })
 
             rows = [dict(zip(column_names, row)) for row in cursor]
 
@@ -170,19 +178,34 @@ class HiveHttp(Hive):
     @classmethod
     def configuration_schema(cls):
         return {
-            "type": "object",
+            "type":
+            "object",
             "properties": {
-                "host": {"type": "string"},
-                "port": {"type": "number"},
-                "database": {"type": "string"},
-                "username": {"type": "string"},
+                "host": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "number"
+                },
+                "database": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
                 "http_scheme": {
                     "type": "string",
                     "title": "HTTP Scheme (http or https)",
                     "default": "https",
                 },
-                "http_path": {"type": "string", "title": "HTTP Path"},
-                "http_password": {"type": "string", "title": "Password"},
+                "http_path": {
+                    "type": "string",
+                    "title": "HTTP Path"
+                },
+                "http_password": {
+                    "type": "string",
+                    "title": "Password"
+                },
             },
             "order": [
                 "host",

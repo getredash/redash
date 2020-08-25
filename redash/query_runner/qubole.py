@@ -40,7 +40,10 @@ class Qubole(BaseQueryRunner):
                     "title": "API Endpoint",
                     "default": "https://api.qubole.com",
                 },
-                "token": {"type": "string", "title": "Auth Token"},
+                "token": {
+                    "type": "string",
+                    "title": "Auth Token"
+                },
                 "cluster": {
                     "type": "string",
                     "title": "Cluster Label",
@@ -66,9 +69,9 @@ class Qubole(BaseQueryRunner):
 
     def test_connection(self):
         headers = self._get_header()
-        r = requests.head(
-            "%s/api/latest/users" % self.configuration.get("endpoint"), headers=headers
-        )
+        r = requests.head("%s/api/latest/users" %
+                          self.configuration.get("endpoint"),
+                          headers=headers)
         r.status_code == 200
 
     def run_query(self, query, user):
@@ -84,27 +87,23 @@ class Qubole(BaseQueryRunner):
                 cmd = SqlCommand.create(query=query)
             elif query_type == "hive":
                 cmd = HiveCommand.create(
-                    query=query, label=self.configuration.get("cluster")
-                )
+                    query=query, label=self.configuration.get("cluster"))
             elif query_type == "presto":
                 cmd = PrestoCommand.create(
-                    query=query, label=self.configuration.get("cluster")
-                )
+                    query=query, label=self.configuration.get("cluster"))
             else:
-                raise Exception(
-                    "Invalid Query Type:%s.\
-                        It must be : hive / presto / quantum."
-                    % self.configuration.get("query_type")
-                )
+                raise Exception("Invalid Query Type:%s.\
+                        It must be : hive / presto / quantum." %
+                                self.configuration.get("query_type"))
 
-            logging.info(
-                "Qubole command created with Id: %s and Status: %s", cmd.id, cmd.status
-            )
+            logging.info("Qubole command created with Id: %s and Status: %s",
+                         cmd.id, cmd.status)
 
             while not Command.is_done(cmd.status):
                 time.sleep(qbol.poll_interval)
                 cmd = Command.find(cmd.id)
-                logging.info("Qubole command Id: %s and Status: %s", cmd.id, cmd.status)
+                logging.info("Qubole command Id: %s and Status: %s", cmd.id,
+                             cmd.status)
 
             rows = []
             columns = []
@@ -125,9 +124,9 @@ class Qubole(BaseQueryRunner):
                 fp.close()
 
                 data = results.split("\r\n")
-                columns = self.fetch_columns(
-                    [(i, TYPE_STRING) for i in data.pop(0).split("\t")]
-                )
+                columns = self.fetch_columns([
+                    (i, TYPE_STRING) for i in data.pop(0).split("\t")
+                ])
                 rows = [
                     dict(zip((c["name"] for c in columns), row.split("\t")))
                     for row in data
@@ -135,7 +134,8 @@ class Qubole(BaseQueryRunner):
 
             json_data = json_dumps({"columns": columns, "rows": rows})
         except KeyboardInterrupt:
-            logging.info("Sending KILL signal to Qubole Command Id: %s", cmd.id)
+            logging.info("Sending KILL signal to Qubole Command Id: %s",
+                         cmd.id)
             cmd.cancel()
             error = "Query cancelled by user."
             json_data = None
@@ -147,8 +147,8 @@ class Qubole(BaseQueryRunner):
         try:
             headers = self._get_header()
             content = requests.get(
-                "%s/api/latest/hive?describe=true&per_page=10000"
-                % self.configuration.get("endpoint"),
+                "%s/api/latest/hive?describe=true&per_page=10000" %
+                self.configuration.get("endpoint"),
                 headers=headers,
             )
             data = content.json()
@@ -162,12 +162,15 @@ class Qubole(BaseQueryRunner):
                     if schema != "default":
                         table_name = "{}.{}".format(schema, table_name)
 
-                    schemas[table_name] = {"name": table_name, "columns": columns}
+                    schemas[table_name] = {
+                        "name": table_name,
+                        "columns": columns
+                    }
 
         except Exception as e:
             logging.error(
-                "Failed to get schema information from Qubole. Error {}".format(str(e))
-            )
+                "Failed to get schema information from Qubole. Error {}".
+                format(str(e)))
 
         return schemas.values()
 

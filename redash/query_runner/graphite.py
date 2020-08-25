@@ -11,9 +11,18 @@ logger = logging.getLogger(__name__)
 
 def _transform_result(response):
     columns = (
-        {"name": "Time::x", "type": TYPE_DATETIME},
-        {"name": "value::y", "type": TYPE_FLOAT},
-        {"name": "name::series", "type": TYPE_STRING},
+        {
+            "name": "Time::x",
+            "type": TYPE_DATETIME
+        },
+        {
+            "name": "value::y",
+            "type": TYPE_FLOAT
+        },
+        {
+            "name": "name::series",
+            "type": TYPE_STRING
+        },
     )
 
     rows = []
@@ -21,13 +30,11 @@ def _transform_result(response):
     for series in response.json():
         for values in series["datapoints"]:
             timestamp = datetime.datetime.fromtimestamp(int(values[1]))
-            rows.append(
-                {
-                    "Time::x": timestamp,
-                    "name::series": series["target"],
-                    "value::y": values[0],
-                }
-            )
+            rows.append({
+                "Time::x": timestamp,
+                "name::series": series["target"],
+                "value::y": values[0],
+            })
 
     data = {"columns": columns, "rows": rows}
     return json_dumps(data)
@@ -41,10 +48,19 @@ class Graphite(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "url": {"type": "string"},
-                "username": {"type": "string"},
-                "password": {"type": "string"},
-                "verify": {"type": "boolean", "title": "Verify SSL certificate"},
+                "url": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "verify": {
+                    "type": "boolean",
+                    "title": "Verify SSL certificate"
+                },
             },
             "required": ["url"],
             "secret": ["password"],
@@ -55,7 +71,8 @@ class Graphite(BaseQueryRunner):
         self.syntax = "custom"
 
         if "username" in self.configuration and self.configuration["username"]:
-            self.auth = (self.configuration["username"], self.configuration["password"])
+            self.auth = (self.configuration["username"],
+                         self.configuration["password"])
         else:
             self.auth = None
 
@@ -70,10 +87,8 @@ class Graphite(BaseQueryRunner):
         )
         if r.status_code != 200:
             raise Exception(
-                "Got invalid response from Graphite (http status code: {0}).".format(
-                    r.status_code
-                )
-            )
+                "Got invalid response from Graphite (http status code: {0}).".
+                format(r.status_code))
 
     def run_query(self, query, user):
         url = "%s%s" % (self.base_url, "&".join(query.split("\n")))

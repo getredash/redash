@@ -28,8 +28,7 @@ def _load_result(query_id, org):
 
     if query.data_source:
         query_result = models.QueryResult.get_by_id_and_org(
-            query.latest_query_data_id, org
-        )
+            query.latest_query_data_id, org)
         return json_loads(query_result.data)
     else:
         raise QueryDetachedFromDataSourceError(query_id)
@@ -47,15 +46,14 @@ def join_parameter_list_values(parameters, schema):
     for (key, value) in parameters.iteritems():
         if isinstance(value, list):
             definition = next(
-                (definition for definition in schema if definition["name"] == key), {}
-            )
+                (definition
+                 for definition in schema if definition["name"] == key), {})
             multi_values_options = definition.get("multiValuesOptions", {})
             separator = str(multi_values_options.get("separator", ","))
             prefix = str(multi_values_options.get("prefix", ""))
             suffix = str(multi_values_options.get("suffix", ""))
             updated_parameters[key] = separator.join(
-                map(lambda v: prefix + v + suffix, value)
-            )
+                map(lambda v: prefix + v + suffix, value))
         else:
             updated_parameters[key] = value
     return updated_parameters
@@ -119,7 +117,8 @@ def _is_date_range(obj):
 
 def _is_value_within_options(value, dropdown_options, allow_list=False):
     if isinstance(value, list):
-        return allow_list and set(map(text_type, value)).issubset(set(dropdown_options))
+        return allow_list and set(map(text_type, value)).issubset(
+            set(dropdown_options))
     return text_type(value) in dropdown_options
 
 
@@ -133,8 +132,7 @@ class ParameterizedQuery(object):
 
     def apply(self, parameters):
         invalid_parameter_names = [
-            key
-            for (key, value) in parameters.iteritems()
+            key for (key, value) in parameters.iteritems()
             if not self._valid(key, value)
         ]
         if invalid_parameter_names:
@@ -142,8 +140,8 @@ class ParameterizedQuery(object):
         else:
             self.parameters.update(parameters)
             self.query = mustache_render(
-                self.template, join_parameter_list_values(parameters, self.schema)
-            )
+                self.template,
+                join_parameter_list_values(parameters, self.schema))
 
         return self
 
@@ -152,7 +150,8 @@ class ParameterizedQuery(object):
             return True
 
         definition = next(
-            (definition for definition in self.schema if definition["name"] == name),
+            (definition
+             for definition in self.schema if definition["name"] == name),
             None,
         )
 
@@ -161,28 +160,38 @@ class ParameterizedQuery(object):
 
         enum_options = definition.get("enumOptions")
         query_id = definition.get("queryId")
-        allow_multiple_values = isinstance(definition.get("multiValuesOptions"), dict)
+        allow_multiple_values = isinstance(
+            definition.get("multiValuesOptions"), dict)
 
         if isinstance(enum_options, string_types):
             enum_options = enum_options.split("\n")
 
         validators = {
-            "text": lambda value: isinstance(value, string_types),
-            "number": _is_number,
-            "enum": lambda value: _is_value_within_options(
-                value, enum_options, allow_multiple_values
-            ),
-            "query": lambda value: _is_value_within_options(
+            "text":
+            lambda value: isinstance(value, string_types),
+            "number":
+            _is_number,
+            "enum":
+            lambda value: _is_value_within_options(value, enum_options,
+                                                   allow_multiple_values),
+            "query":
+            lambda value: _is_value_within_options(
                 value,
                 [v["value"] for v in dropdown_values(query_id, self.org)],
                 allow_multiple_values,
             ),
-            "date": _is_date,
-            "datetime-local": _is_date,
-            "datetime-with-seconds": _is_date,
-            "date-range": _is_date_range,
-            "datetime-range": _is_date_range,
-            "datetime-range-with-seconds": _is_date_range,
+            "date":
+            _is_date,
+            "datetime-local":
+            _is_date,
+            "datetime-with-seconds":
+            _is_date,
+            "date-range":
+            _is_date_range,
+            "datetime-range":
+            _is_date_range,
+            "datetime-range-with-seconds":
+            _is_date_range,
         }
 
         validate = validators.get(definition["type"], lambda x: False)
@@ -208,8 +217,7 @@ class InvalidParameterError(Exception):
     def __init__(self, parameters):
         parameter_names = u", ".join(parameters)
         message = u"The following parameter values are incompatible with their definitions: {}".format(
-            parameter_names
-        )
+            parameter_names)
         super(InvalidParameterError, self).__init__(message)
 
 

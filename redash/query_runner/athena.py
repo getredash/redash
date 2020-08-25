@@ -9,12 +9,10 @@ from redash.utils import json_loads
 logger = logging.getLogger(__name__)
 ANNOTATE_QUERY = parse_boolean(os.environ.get("ATHENA_ANNOTATE_QUERY", "true"))
 SHOW_EXTRA_SETTINGS = parse_boolean(
-    os.environ.get("ATHENA_SHOW_EXTRA_SETTINGS", "true")
-)
+    os.environ.get("ATHENA_SHOW_EXTRA_SETTINGS", "true"))
 ASSUME_ROLE = parse_boolean(os.environ.get("ATHENA_ASSUME_ROLE", "false"))
 OPTIONAL_CREDENTIALS = parse_boolean(
-    os.environ.get("ATHENA_OPTIONAL_CREDENTIALS", "true")
-)
+    os.environ.get("ATHENA_OPTIONAL_CREDENTIALS", "true"))
 
 try:
     import boto3
@@ -23,7 +21,6 @@ try:
     enabled = True
 except ImportError:
     enabled = False
-
 
 _TYPE_MAPPINGS = {
     "boolean": TYPE_BOOLEAN,
@@ -60,9 +57,18 @@ class Athena(BaseQueryRunner):
         schema = {
             "type": "object",
             "properties": {
-                "region": {"type": "string", "title": "AWS Region"},
-                "aws_access_key": {"type": "string", "title": "AWS Access Key"},
-                "aws_secret_key": {"type": "string", "title": "AWS Secret Key"},
+                "region": {
+                    "type": "string",
+                    "title": "AWS Region"
+                },
+                "aws_access_key": {
+                    "type": "string",
+                    "title": "AWS Access Key"
+                },
+                "aws_secret_key": {
+                    "type": "string",
+                    "title": "AWS Secret Key"
+                },
                 "s3_staging_dir": {
                     "type": "string",
                     "title": "S3 Staging (Query Results) Bucket Path",
@@ -72,7 +78,10 @@ class Athena(BaseQueryRunner):
                     "title": "Schema Name",
                     "default": "default",
                 },
-                "glue": {"type": "boolean", "title": "Use Glue Data Catalog",},
+                "glue": {
+                    "type": "boolean",
+                    "title": "Use Glue Data Catalog",
+                },
                 "work_group": {
                     "type": "string",
                     "title": "Athena Work Group",
@@ -85,15 +94,16 @@ class Athena(BaseQueryRunner):
         }
 
         if SHOW_EXTRA_SETTINGS:
-            schema["properties"].update(
-                {
-                    "encryption_option": {
-                        "type": "string",
-                        "title": "Encryption Option",
-                    },
-                    "kms_key": {"type": "string", "title": "KMS Key",},
-                }
-            )
+            schema["properties"].update({
+                "encryption_option": {
+                    "type": "string",
+                    "title": "Encryption Option",
+                },
+                "kms_key": {
+                    "type": "string",
+                    "title": "KMS Key",
+                },
+            })
 
         if ASSUME_ROLE:
             del schema["properties"]["aws_access_key"]
@@ -102,15 +112,16 @@ class Athena(BaseQueryRunner):
 
             schema["order"].insert(1, "iam_role")
             schema["order"].insert(2, "external_id")
-            schema["properties"].update(
-                {
-                    "iam_role": {"type": "string", "title": "IAM role to assume",},
-                    "external_id": {
-                        "type": "string",
-                        "title": "External ID to be used while STS assume role",
-                    },
-                }
-            )
+            schema["properties"].update({
+                "iam_role": {
+                    "type": "string",
+                    "title": "IAM role to assume",
+                },
+                "external_id": {
+                    "type": "string",
+                    "title": "External ID to be used while STS assume role",
+                },
+            })
         else:
             schema["order"].insert(1, "aws_access_key")
             schema["order"].insert(2, "aws_secret_key")
@@ -144,15 +155,19 @@ class Athena(BaseQueryRunner):
             )
             return {
                 "aws_access_key_id": creds["Credentials"]["AccessKeyId"],
-                "aws_secret_access_key": creds["Credentials"]["SecretAccessKey"],
+                "aws_secret_access_key":
+                creds["Credentials"]["SecretAccessKey"],
                 "aws_session_token": creds["Credentials"]["SessionToken"],
                 "region_name": self.configuration["region"],
             }
         else:
             return {
-                "aws_access_key_id": self.configuration.get("aws_access_key", None),
-                "aws_secret_access_key": self.configuration.get("aws_secret_key", None),
-                "region_name": self.configuration["region"],
+                "aws_access_key_id":
+                self.configuration.get("aws_access_key", None),
+                "aws_secret_access_key":
+                self.configuration.get("aws_secret_key", None),
+                "region_name":
+                self.configuration["region"],
             }
 
     def __get_schema_from_glue(self):
@@ -164,17 +179,22 @@ class Athena(BaseQueryRunner):
 
         for databases in database_paginator.paginate():
             for database in databases["DatabaseList"]:
-                iterator = table_paginator.paginate(DatabaseName=database["Name"])
+                iterator = table_paginator.paginate(
+                    DatabaseName=database["Name"])
                 for table in iterator.search("TableList[]"):
                     table_name = "%s.%s" % (database["Name"], table["Name"])
                     if table_name not in schema:
                         column = [
-                            columns["Name"]
-                            for columns in table["StorageDescriptor"]["Columns"]
+                            columns["Name"] for columns in
+                            table["StorageDescriptor"]["Columns"]
                         ]
-                        schema[table_name] = {"name": table_name, "columns": column}
+                        schema[table_name] = {
+                            "name": table_name,
+                            "columns": column
+                        }
                         for partition in table.get("PartitionKeys", []):
-                            schema[table_name]["columns"].append(partition["Name"])
+                            schema[table_name]["columns"].append(
+                                partition["Name"])
         return schema.values()
 
     def get_schema(self, get_stats=False):
@@ -194,7 +214,8 @@ class Athena(BaseQueryRunner):
 
         results = json_loads(results)
         for row in results["rows"]:
-            table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
+            table_name = "{0}.{1}".format(row["table_schema"],
+                                          row["table_name"])
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
             schema[table_name]["columns"].append(row["column_name"])
@@ -205,18 +226,17 @@ class Athena(BaseQueryRunner):
         cursor = pyathena.connect(
             s3_staging_dir=self.configuration["s3_staging_dir"],
             schema_name=self.configuration.get("schema", "default"),
-            encryption_option=self.configuration.get("encryption_option", None),
+            encryption_option=self.configuration.get("encryption_option",
+                                                     None),
             kms_key=self.configuration.get("kms_key", None),
             work_group=self.configuration.get("work_group", "primary"),
             formatter=SimpleFormatter(),
-            **self._get_iam_credentials(user=user)
-        ).cursor()
+            **self._get_iam_credentials(user=user)).cursor()
 
         try:
             cursor.execute(query)
-            column_tuples = [
-                (i[0], _TYPE_MAPPINGS.get(i[1], None)) for i in cursor.description
-            ]
+            column_tuples = [(i[0], _TYPE_MAPPINGS.get(i[1], None))
+                             for i in cursor.description]
             columns = self.fetch_columns(column_tuples)
             rows = [
                 dict(zip(([c["name"] for c in columns]), r))
@@ -227,7 +247,8 @@ class Athena(BaseQueryRunner):
             try:
                 qbytes = cursor.data_scanned_in_bytes
             except AttributeError as e:
-                logger.debug("Athena Upstream can't get data_scanned_in_bytes: %s", e)
+                logger.debug(
+                    "Athena Upstream can't get data_scanned_in_bytes: %s", e)
             try:
                 athena_query_id = cursor.query_id
             except AttributeError as e:

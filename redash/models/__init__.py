@@ -101,20 +101,18 @@ class DataSource(BelongsToOrgMixin, db.Model):
     options = Column(
         "encrypted_options",
         ConfigurationContainer.as_mutable(
-            EncryptedConfiguration(
-                db.Text, settings.DATASOURCE_SECRET_KEY, FernetEngine
-            )
-        ),
+            EncryptedConfiguration(db.Text, settings.DATASOURCE_SECRET_KEY,
+                                   FernetEngine)),
     )
     queue_name = Column(db.String(255), default="queries")
     scheduled_queue_name = Column(db.String(255), default="scheduled_queries")
     created_at = Column(db.DateTime(True), default=db.func.now())
 
-    data_source_groups = db.relationship(
-        "DataSourceGroup", back_populates="data_source", cascade="all"
-    )
+    data_source_groups = db.relationship("DataSourceGroup",
+                                         back_populates="data_source",
+                                         cascade="all")
     __tablename__ = "data_sources"
-    __table_args__ = (db.Index("data_sources_org_id_name", "org_id", "name"),)
+    __table_args__ = (db.Index("data_sources_org_id_name", "org_id", "name"), )
 
     def __eq__(self, other):
         return self.id == other.id
@@ -138,14 +136,11 @@ class DataSource(BelongsToOrgMixin, db.Model):
             d["groups"] = self.groups
 
         if with_permissions_for is not None:
-            d["view_only"] = (
-                db.session.query(DataSourceGroup.view_only)
-                .filter(
+            d["view_only"] = (db.session.query(
+                DataSourceGroup.view_only).filter(
                     DataSourceGroup.group == with_permissions_for,
                     DataSourceGroup.data_source == self,
-                )
-                .one()[0]
-            )
+                ).one()[0])
 
         return d
 
@@ -156,8 +151,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
     def create_with_group(cls, *args, **kwargs):
         data_source = cls(*args, **kwargs)
         data_source_group = DataSourceGroup(
-            data_source=data_source, group=data_source.org.default_group
-        )
+            data_source=data_source, group=data_source.org.default_group)
         db.session.add_all([data_source, data_source_group])
         return data_source
 
@@ -167,8 +161,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
         if group_ids:
             data_sources = data_sources.join(DataSourceGroup).filter(
-                DataSourceGroup.group_id.in_(group_ids)
-            )
+                DataSourceGroup.group_id.in_(group_ids))
 
         return data_sources.distinct()
 
@@ -178,8 +171,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     def delete(self):
         Query.query.filter(Query.data_source == self).update(
-            dict(data_source_id=None, latest_query_data_id=None)
-        )
+            dict(data_source_id=None, latest_query_data_id=None))
         QueryResult.query.filter(QueryResult.data_source == self).delete()
         res = db.session.delete(self)
         db.session.commit()
@@ -195,9 +187,8 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
         if cache is None:
             query_runner = self.query_runner
-            schema = sorted(
-                query_runner.get_schema(get_stats=refresh), key=lambda t: t["name"]
-            )
+            schema = sorted(query_runner.get_schema(get_stats=refresh),
+                            key=lambda t: t["name"])
 
             redis_connection.set(self._schema_key, json_dumps(schema))
         else:
@@ -228,20 +219,22 @@ class DataSource(BelongsToOrgMixin, db.Model):
         redis_connection.delete(self._pause_key)
 
     def add_group(self, group, view_only=False):
-        dsg = DataSourceGroup(group=group, data_source=self, view_only=view_only)
+        dsg = DataSourceGroup(group=group,
+                              data_source=self,
+                              view_only=view_only)
         db.session.add(dsg)
         return dsg
 
     def remove_group(self, group):
         DataSourceGroup.query.filter(
-            DataSourceGroup.group == group, DataSourceGroup.data_source == self
-        ).delete()
+            DataSourceGroup.group == group,
+            DataSourceGroup.data_source == self).delete()
         db.session.commit()
 
     def update_group_permission(self, group, view_only):
         dsg = DataSourceGroup.query.filter(
-            DataSourceGroup.group == group, DataSourceGroup.data_source == self
-        ).one()
+            DataSourceGroup.group == group,
+            DataSourceGroup.data_source == self).one()
         dsg.view_only = view_only
         db.session.add(dsg)
         return dsg
@@ -257,7 +250,8 @@ class DataSource(BelongsToOrgMixin, db.Model):
     # XXX examine call sites to see if a regular SQLA collection would work better
     @property
     def groups(self):
-        groups = DataSourceGroup.query.filter(DataSourceGroup.data_source == self)
+        groups = DataSourceGroup.query.filter(
+            DataSourceGroup.data_source == self)
         return dict(map(lambda g: (g.group_id, g.view_only), groups))
 
 
@@ -266,7 +260,8 @@ class DataSourceGroup(db.Model):
     # XXX drop id, use datasource/group as PK
     id = Column(db.Integer, primary_key=True)
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
-    data_source = db.relationship(DataSource, back_populates="data_source_groups")
+    data_source = db.relationship(DataSource,
+                                  back_populates="data_source_groups")
     group_id = Column(db.Integer, db.ForeignKey("groups.id"))
     group = db.relationship(Group, back_populates="data_sources")
     view_only = Column(db.Boolean, default=False)
@@ -275,7 +270,8 @@ class DataSourceGroup(db.Model):
 
 
 @python_2_unicode_compatible
-@generic_repr("id", "org_id", "data_source_id", "query_hash", "runtime", "retrieved_at")
+@generic_repr("id", "org_id", "data_source_id", "query_hash", "runtime",
+              "retrieved_at")
 class QueryResult(db.Model, BelongsToOrgMixin):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
@@ -307,37 +303,32 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     @classmethod
     def unused(cls, days=7):
         age_threshold = datetime.datetime.now() - datetime.timedelta(days=days)
-        return (
-            cls.query.filter(
-                Query.id.is_(None), cls.retrieved_at < age_threshold
-            ).outerjoin(Query)
-        ).options(load_only("id"))
+        return (cls.query.filter(
+            Query.id.is_(None),
+            cls.retrieved_at < age_threshold).outerjoin(Query)).options(
+                load_only("id"))
 
     @classmethod
     def get_latest(cls, data_source, query, max_age=0):
         query_hash = utils.gen_query_hash(query)
 
         if max_age == -1:
-            query = cls.query.filter(
-                cls.query_hash == query_hash, cls.data_source == data_source
-            )
+            query = cls.query.filter(cls.query_hash == query_hash,
+                                     cls.data_source == data_source)
         else:
             query = cls.query.filter(
                 cls.query_hash == query_hash,
                 cls.data_source == data_source,
-                (
-                    db.func.timezone("utc", cls.retrieved_at)
-                    + datetime.timedelta(seconds=max_age)
-                    >= db.func.timezone("utc", db.func.now())
-                ),
+                (db.func.timezone("utc", cls.retrieved_at) +
+                 datetime.timedelta(seconds=max_age) >= db.func.timezone(
+                     "utc", db.func.now())),
             )
 
         return query.order_by(cls.retrieved_at.desc()).first()
 
     @classmethod
-    def store_result(
-        cls, org, data_source, query_hash, query, data, run_time, retrieved_at
-    ):
+    def store_result(cls, org, data_source, query_hash, query, data, run_time,
+                     retrieved_at):
         query_result = cls(
             org_id=org,
             query_hash=query_hash,
@@ -348,18 +339,19 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             data=data,
         )
         db.session.add(query_result)
-        logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
+        logging.info("Inserted query (%s) data; id=%s", query_hash,
+                     query_result.id)
         # TODO: Investigate how big an impact this select-before-update makes.
-        queries = Query.query.filter(
-            Query.query_hash == query_hash, Query.data_source == data_source
-        )
+        queries = Query.query.filter(Query.query_hash == query_hash,
+                                     Query.data_source == data_source)
         for q in queries:
             q.latest_query_data = query_result
             # don't auto-update the updated_at timestamp
             q.skip_updated_at = True
             db.session.add(q)
         query_ids = [q.id for q in queries]
-        logging.info("Updated %s queries with result (%s).", len(query_ids), query_hash)
+        logging.info("Updated %s queries with result (%s).", len(query_ids),
+                     query_hash)
 
         return query_result, query_ids
 
@@ -368,9 +360,12 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         return self.data_source.groups
 
 
-def should_schedule_next(
-    previous_iteration, now, interval, time=None, day_of_week=None, failures=0
-):
+def should_schedule_next(previous_iteration,
+                         now,
+                         interval,
+                         time=None,
+                         day_of_week=None,
+                         failures=0):
     # if time exists then interval > 23 hours (82800s)
     # if day_of_week exists then interval > 6 days (518400s)
     if time is None:
@@ -385,31 +380,26 @@ def should_schedule_next(
         # - The scheduler wakes up at 00:01.
         # - Using naive implementation of comparing timestamps, it will skip the execution.
         normalized_previous_iteration = previous_iteration.replace(
-            hour=hour, minute=minute
-        )
+            hour=hour, minute=minute)
 
         if normalized_previous_iteration > previous_iteration:
             previous_iteration = normalized_previous_iteration - datetime.timedelta(
-                days=1
-            )
+                days=1)
 
         days_delay = int(interval) / 60 / 60 / 24
 
         days_to_add = 0
         if day_of_week is not None:
-            days_to_add = (
-                list(calendar.day_name).index(day_of_week)
-                - normalized_previous_iteration.weekday()
-            )
+            days_to_add = (list(calendar.day_name).index(day_of_week) -
+                           normalized_previous_iteration.weekday())
 
-        next_iteration = (
-            previous_iteration
-            + datetime.timedelta(days=days_delay)
-            + datetime.timedelta(days=days_to_add)
-        ).replace(hour=hour, minute=minute)
+        next_iteration = (previous_iteration +
+                          datetime.timedelta(days=days_delay) +
+                          datetime.timedelta(days=days_to_add)).replace(
+                              hour=hour, minute=minute)
     if failures:
         try:
-            next_iteration += datetime.timedelta(minutes=2 ** failures)
+            next_iteration += datetime.timedelta(minutes=2**failures)
         except OverflowError:
             return False
     return now > next_iteration
@@ -437,11 +427,13 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     version = Column(db.Integer, default=1)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
     org = db.relationship(Organization, backref="queries")
-    data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"), nullable=True)
+    data_source_id = Column(db.Integer,
+                            db.ForeignKey("data_sources.id"),
+                            nullable=True)
     data_source = db.relationship(DataSource, backref="queries")
-    latest_query_data_id = Column(
-        db.Integer, db.ForeignKey("query_results.id"), nullable=True
-    )
+    latest_query_data_id = Column(db.Integer,
+                                  db.ForeignKey("query_results.id"),
+                                  nullable=True)
     latest_query_data = db.relationship(QueryResult)
     name = Column(db.String(255))
     description = Column(db.String(4096), nullable=True)
@@ -450,15 +442,18 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     api_key = Column(db.String(40), default=lambda: generate_token(40))
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User, foreign_keys=[user_id])
-    last_modified_by_id = Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
-    last_modified_by = db.relationship(
-        User, backref="modified_queries", foreign_keys=[last_modified_by_id]
-    )
+    last_modified_by_id = Column(db.Integer,
+                                 db.ForeignKey("users.id"),
+                                 nullable=True)
+    last_modified_by = db.relationship(User,
+                                       backref="modified_queries",
+                                       foreign_keys=[last_modified_by_id])
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
     schedule = Column(MutableDict.as_mutable(PseudoJSON), nullable=True)
     schedule_failures = Column(db.Integer, default=0)
-    visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
+    visualizations = db.relationship("Visualization",
+                                     cascade="all, delete-orphan")
     options = Column(MutableDict.as_mutable(PseudoJSON), default={})
     search_vector = Column(
         TSVectorType(
@@ -466,17 +461,25 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             "name",
             "description",
             "query",
-            weights={"name": "A", "id": "B", "description": "C", "query": "D"},
+            weights={
+                "name": "A",
+                "id": "B",
+                "description": "C",
+                "query": "D"
+            },
         ),
         nullable=True,
     )
-    tags = Column(
-        "tags", MutableList.as_mutable(postgresql.ARRAY(db.Unicode)), nullable=True
-    )
+    tags = Column("tags",
+                  MutableList.as_mutable(postgresql.ARRAY(db.Unicode)),
+                  nullable=True)
 
     query_class = SearchBaseQuery
     __tablename__ = "queries"
-    __mapper_args__ = {"version_id_col": version, "version_id_generator": False}
+    __mapper_args__ = {
+        "version_id_col": version,
+        "version_id_generator": False
+    }
 
     def __str__(self):
         return text_type(self.id)
@@ -509,75 +512,74 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 description="",
                 type="TABLE",
                 options="{}",
-            )
-        )
+            ))
         return query
 
     @classmethod
-    def all_queries(
-        cls, group_ids, user_id=None, include_drafts=False, include_archived=False
-    ):
-        query_ids = (
-            db.session.query(distinct(cls.id))
-            .join(
-                DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
-            )
-            .filter(Query.is_archived.is_(include_archived))
-            .filter(DataSourceGroup.group_id.in_(group_ids))
-        )
+    def all_queries(cls,
+                    group_ids,
+                    user_id=None,
+                    include_drafts=False,
+                    include_archived=False):
+        query_ids = (db.session.query(distinct(cls.id)).join(
+            DataSourceGroup,
+            Query.data_source_id == DataSourceGroup.data_source_id).filter(
+                Query.is_archived.is_(include_archived)).filter(
+                    DataSourceGroup.group_id.in_(group_ids)))
         queries = (
             cls.query.options(
                 joinedload(Query.user),
                 joinedload(Query.latest_query_data).load_only(
-                    "runtime", "retrieved_at",
+                    "runtime",
+                    "retrieved_at",
                 ),
-            )
-            .filter(cls.id.in_(query_ids))
+            ).filter(cls.id.in_(query_ids))
             # Adding outer joins to be able to order by relationship
-            .outerjoin(User, User.id == Query.user_id)
-            .outerjoin(QueryResult, QueryResult.id == Query.latest_query_data_id)
-            .options(
-                contains_eager(Query.user), contains_eager(Query.latest_query_data),
-            )
-        )
+            .outerjoin(User, User.id == Query.user_id).outerjoin(
+                QueryResult,
+                QueryResult.id == Query.latest_query_data_id).options(
+                    contains_eager(Query.user),
+                    contains_eager(Query.latest_query_data),
+                ))
 
         if not include_drafts:
             queries = queries.filter(
-                or_(Query.is_draft.is_(False), Query.user_id == user_id)
-            )
+                or_(Query.is_draft.is_(False), Query.user_id == user_id))
         return queries
 
     @classmethod
     def favorites(cls, user, base_query=None):
         if base_query is None:
-            base_query = cls.all_queries(user.group_ids, user.id, include_drafts=True)
-        return base_query.join(
-            (
-                Favorite,
-                and_(Favorite.object_type == u"Query", Favorite.object_id == Query.id),
-            )
-        ).filter(Favorite.user_id == user.id)
+            base_query = cls.all_queries(user.group_ids,
+                                         user.id,
+                                         include_drafts=True)
+        return base_query.join((
+            Favorite,
+            and_(Favorite.object_type == u"Query",
+                 Favorite.object_id == Query.id),
+        )).filter(Favorite.user_id == user.id)
 
     @classmethod
     def all_tags(cls, user, include_drafts=False):
         queries = cls.all_queries(
-            group_ids=user.group_ids, user_id=user.id, include_drafts=include_drafts,
+            group_ids=user.group_ids,
+            user_id=user.id,
+            include_drafts=include_drafts,
         )
 
         tag_column = func.unnest(cls.tags).label("tag")
         usage_count = func.count(1).label("usage_count")
 
-        query = (
-            db.session.query(tag_column, usage_count)
-            .group_by(tag_column)
-            .filter(Query.id.in_(queries.options(load_only("id"))))
-            .order_by(usage_count.desc())
-        )
+        query = (db.session.query(
+            tag_column, usage_count).group_by(tag_column).filter(
+                Query.id.in_(queries.options(load_only("id")))).order_by(
+                    usage_count.desc()))
         return query
 
     @classmethod
     def by_user(cls, user):
-        return cls.all_queries(user.group_ids, user.id).filter(Query.user == user)
+        return cls.all_queries(user.group_ids,
+                               user.id).filter(Query.user == user)
 
     @classmethod
     def by_api_key(cls, api_key):
@@ -586,25 +588,21 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     @classmethod
     def past_scheduled_queries(cls):
         now = utils.utcnow()
-        queries = Query.query.filter(Query.schedule.isnot(None)).order_by(Query.id)
+        queries = Query.query.filter(Query.schedule.isnot(None)).order_by(
+            Query.id)
         return filter(
-            lambda x: x.schedule["until"] is not None
-            and pytz.utc.localize(
-                datetime.datetime.strptime(x.schedule["until"], "%Y-%m-%d")
-            )
-            <= now,
+            lambda x: x.schedule["until"] is not None and pytz.utc.localize(
+                datetime.datetime.strptime(x.schedule["until"], "%Y-%m-%d")) <=
+            now,
             queries,
         )
 
     @classmethod
     def outdated_queries(cls):
-        queries = (
-            Query.query.options(
-                joinedload(Query.latest_query_data).load_only("retrieved_at")
-            )
-            .filter(Query.schedule.isnot(None))
-            .order_by(Query.id)
-        )
+        queries = (Query.query.options(
+            joinedload(
+                Query.latest_query_data).load_only("retrieved_at")).filter(
+                    Query.schedule.isnot(None)).order_by(Query.id))
 
         now = utils.utcnow()
         outdated_queries = {}
@@ -616,8 +614,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
             if query.schedule["until"] is not None:
                 schedule_until = pytz.utc.localize(
-                    datetime.datetime.strptime(query.schedule["until"], "%Y-%m-%d")
-                )
+                    datetime.datetime.strptime(query.schedule["until"],
+                                               "%Y-%m-%d"))
 
                 if schedule_until <= now:
                     continue
@@ -627,15 +625,16 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             else:
                 retrieved_at = now
 
-            retrieved_at = scheduled_queries_executions.get(query.id) or retrieved_at
+            retrieved_at = scheduled_queries_executions.get(
+                query.id) or retrieved_at
 
             if should_schedule_next(
-                retrieved_at,
-                now,
-                query.schedule["interval"],
-                query.schedule["time"],
-                query.schedule["day_of_week"],
-                query.schedule_failures,
+                    retrieved_at,
+                    now,
+                    query.schedule["interval"],
+                    query.schedule["time"],
+                    query.schedule["day_of_week"],
+                    query.schedule_failures,
             ):
                 key = "{}:{}".format(query.query_hash, query.data_source_id)
                 outdated_queries[key] = query
@@ -644,14 +643,14 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def search(
-        cls,
-        term,
-        group_ids,
-        user_id=None,
-        include_drafts=False,
-        limit=None,
-        include_archived=False,
-        multi_byte_search=False,
+            cls,
+            term,
+            group_ids,
+            user_id=None,
+            include_drafts=False,
+            limit=None,
+            include_archived=False,
+            multi_byte_search=False,
     ):
         all_queries = cls.all_queries(
             group_ids,
@@ -663,13 +662,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         if multi_byte_search:
             # Since tsvector doesn't work well with CJK languages, use `ilike` too
             pattern = u"%{}%".format(term)
-            return (
-                all_queries.filter(
-                    or_(cls.name.ilike(pattern), cls.description.ilike(pattern))
-                )
-                .order_by(Query.id)
-                .limit(limit)
-            )
+            return (all_queries.filter(
+                or_(cls.name.ilike(pattern),
+                    cls.description.ilike(pattern))).order_by(
+                        Query.id).limit(limit))
 
         # sort the result using the weight as defined in the search vector column
         return all_queries.search(term, sort=True).limit(limit)
@@ -680,25 +676,22 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def recent(cls, group_ids, user_id=None, limit=20):
-        query = (
-            cls.query.filter(Event.created_at > (db.func.current_date() - 7))
-            .join(Event, Query.id == Event.object_id.cast(db.Integer))
-            .join(
-                DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
-            )
-            .filter(
-                Event.action.in_(
-                    ["edit", "execute", "edit_name", "edit_description", "view_source"]
-                ),
-                Event.object_id != None,
-                Event.object_type == "query",
-                DataSourceGroup.group_id.in_(group_ids),
-                or_(Query.is_draft == False, Query.user_id == user_id),
-                Query.is_archived == False,
-            )
-            .group_by(Event.object_id, Query.id)
-            .order_by(db.desc(db.func.count(0)))
-        )
+        query = (cls.query.filter(
+            Event.created_at > (db.func.current_date() - 7)).join(
+                Event, Query.id == Event.object_id.cast(db.Integer)).join(
+                    DataSourceGroup, Query.data_source_id ==
+                    DataSourceGroup.data_source_id).filter(
+                        Event.action.in_([
+                            "edit", "execute", "edit_name", "edit_description",
+                            "view_source"
+                        ]),
+                        Event.object_id != None,
+                        Event.object_type == "query",
+                        DataSourceGroup.group_id.in_(group_ids),
+                        or_(Query.is_draft == False, Query.user_id == user_id),
+                        Query.is_archived == False,
+                    ).group_by(Event.object_id,
+                               Query.id).order_by(db.desc(db.func.count(0))))
 
         if user_id:
             query = query.filter(Event.user_id == user_id)
@@ -733,9 +726,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         kwargs = {a: getattr(self, a) for a in forked_list}
 
         # Query.create will add default TABLE visualization, so use constructor to create bare copy of query
-        forked_query = Query(
-            name=u"Copy of (#{}) {}".format(self.id, self.name), user=user, **kwargs
-        )
+        forked_query = Query(name=u"Copy of (#{}) {}".format(
+            self.id, self.name),
+                             user=user,
+                             **kwargs)
 
         for v in sorted(self.visualizations, key=lambda v: v.id):
             forked_v = v.copy()
@@ -820,13 +814,15 @@ class Favorite(TimestampMixin, db.Model):
     user = db.relationship(User, backref="favorites")
 
     __tablename__ = "favorites"
-    __table_args__ = (
-        UniqueConstraint("object_type", "object_id", "user_id", name="unique_favorite"),
-    )
+    __table_args__ = (UniqueConstraint("object_type",
+                                       "object_id",
+                                       "user_id",
+                                       name="unique_favorite"), )
 
     @classmethod
     def is_favorite(cls, user, object):
-        return cls.query.filter(cls.object == object, cls.user_id == user).count() > 0
+        return cls.query.filter(cls.object == object,
+                                cls.user_id == user).count() > 0
 
     @classmethod
     def are_favorites(cls, user, objects):
@@ -845,9 +841,8 @@ class Favorite(TimestampMixin, db.Model):
         )
 
 
-@generic_repr(
-    "id", "name", "query_id", "user_id", "state", "last_triggered_at", "rearm"
-)
+@generic_repr("id", "name", "query_id", "user_id", "state",
+              "last_triggered_at", "rearm")
 class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     UNKNOWN_STATE = "unknown"
     OK_STATE = "ok"
@@ -856,12 +851,14 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     name = Column(db.String(255))
     query_id = Column(db.Integer, db.ForeignKey("queries.id"))
-    query_rel = db.relationship(Query, backref=backref("alerts", cascade="all"))
+    query_rel = db.relationship(Query,
+                                backref=backref("alerts", cascade="all"))
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User, backref="alerts")
     options = Column(MutableDict.as_mutable(PseudoJSON))
     state = Column(db.String(255), default=UNKNOWN_STATE)
-    subscriptions = db.relationship("AlertSubscription", cascade="all, delete-orphan")
+    subscriptions = db.relationship("AlertSubscription",
+                                    cascade="all, delete-orphan")
     last_triggered_at = Column(db.DateTime(True), nullable=True)
     rearm = Column(db.Integer, nullable=True)
 
@@ -869,14 +866,13 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def all(cls, group_ids):
-        return (
-            cls.query.options(joinedload(Alert.user), joinedload(Alert.query_rel),)
-            .join(Query)
-            .join(
-                DataSourceGroup, DataSourceGroup.data_source_id == Query.data_source_id
-            )
-            .filter(DataSourceGroup.group_id.in_(group_ids))
-        )
+        return (cls.query.options(
+            joinedload(Alert.user),
+            joinedload(Alert.query_rel),
+        ).join(Query).join(
+            DataSourceGroup,
+            DataSourceGroup.data_source_id == Query.data_source_id).filter(
+                DataSourceGroup.group_id.in_(group_ids)))
 
     @classmethod
     def get_by_id_and_org(cls, object_id, org):
@@ -898,7 +894,8 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
                 "less than": lambda v, t: v < t,
                 "equals": lambda v, t: v == t,
             }
-            should_trigger = operators.get(self.options["op"], lambda v, t: False)
+            should_trigger = operators.get(
+                self.options["op"], lambda v, t: False)
 
             value = data["rows"][0][self.options["column"]]
             threshold = self.options["value"]
@@ -914,14 +911,17 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     def subscribers(self):
         return User.query.join(AlertSubscription).filter(
-            AlertSubscription.alert == self
-        )
+            AlertSubscription.alert == self)
 
     def render_template(self):
         if not self.template:
             return ""
         data = json_loads(self.query_rel.latest_query_data.data)
-        context = {"rows": data["rows"], "cols": data["columns"], "state": self.state}
+        context = {
+            "rows": data["rows"],
+            "cols": data["columns"],
+            "state": self.state
+        }
         return mustache_render(self.template, context)
 
     @property
@@ -948,10 +948,10 @@ def generate_slug(ctx):
 
 @python_2_unicode_compatible
 @gfk_type
-@generic_repr(
-    "id", "name", "slug", "user_id", "org_id", "version", "is_archived", "is_draft"
-)
-class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
+@generic_repr("id", "name", "slug", "user_id", "org_id", "version",
+              "is_archived", "is_draft")
+class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin,
+                db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
@@ -966,9 +966,9 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
     widgets = db.relationship("Widget", backref="dashboard", lazy="dynamic")
-    tags = Column(
-        "tags", MutableList.as_mutable(postgresql.ARRAY(db.Unicode)), nullable=True
-    )
+    tags = Column("tags",
+                  MutableList.as_mutable(postgresql.ARRAY(db.Unicode)),
+                  nullable=True)
 
     __tablename__ = "dashboards"
     __mapper_args__ = {"version_id_col": version}
@@ -980,29 +980,21 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def all(cls, org, group_ids, user_id):
         query = (
             Dashboard.query.options(
-                subqueryload(Dashboard.user).load_only("_profile_image_url", "name"),
-            )
-            .outerjoin(Widget)
-            .outerjoin(Visualization)
-            .outerjoin(Query)
-            .outerjoin(
-                DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
-            )
-            .filter(
-                Dashboard.is_archived == False,
-                (
-                    DataSourceGroup.group_id.in_(group_ids)
-                    | (Dashboard.user_id == user_id)
-                    | ((Widget.dashboard != None) & (Widget.visualization == None))
-                ),
-                Dashboard.org == org,
-            )
-            .distinct()
-        )
+                subqueryload(Dashboard.user).load_only(
+                    "_profile_image_url", "name"), ).outerjoin(Widget).
+            outerjoin(Visualization).outerjoin(Query).outerjoin(
+                DataSourceGroup,
+                Query.data_source_id == DataSourceGroup.data_source_id).filter(
+                    Dashboard.is_archived == False,
+                    (DataSourceGroup.group_id.in_(group_ids)
+                     | (Dashboard.user_id == user_id)
+                     | ((Widget.dashboard != None) &
+                        (Widget.visualization == None))),
+                    Dashboard.org == org,
+                ).distinct())
 
         query = query.filter(
-            or_(Dashboard.user_id == user_id, Dashboard.is_draft == False)
-        )
+            or_(Dashboard.user_id == user_id, Dashboard.is_draft == False))
 
         return query
 
@@ -1010,8 +1002,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def search(cls, org, groups_ids, user_id, search_term):
         # TODO: switch to FTS
         return cls.all(org, groups_ids, user_id).filter(
-            cls.name.ilike(u"%{}%".format(search_term))
-        )
+            cls.name.ilike(u"%{}%".format(search_term)))
 
     @classmethod
     def all_tags(cls, org, user):
@@ -1020,27 +1011,23 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         tag_column = func.unnest(cls.tags).label("tag")
         usage_count = func.count(1).label("usage_count")
 
-        query = (
-            db.session.query(tag_column, usage_count)
-            .group_by(tag_column)
-            .filter(Dashboard.id.in_(dashboards.options(load_only("id"))))
-            .order_by(usage_count.desc())
-        )
+        query = (db.session.query(
+            tag_column, usage_count).group_by(tag_column).filter(
+                Dashboard.id.in_(dashboards.options(
+                    load_only("id")))).order_by(usage_count.desc()))
         return query
 
     @classmethod
     def favorites(cls, user, base_query=None):
         if base_query is None:
             base_query = cls.all(user.org, user.group_ids, user.id)
-        return base_query.join(
-            (
-                Favorite,
-                and_(
-                    Favorite.object_type == u"Dashboard",
-                    Favorite.object_id == Dashboard.id,
-                ),
-            )
-        ).filter(Favorite.user_id == user.id)
+        return base_query.join((
+            Favorite,
+            and_(
+                Favorite.object_type == u"Dashboard",
+                Favorite.object_id == Dashboard.id,
+            ),
+        )).filter(Favorite.user_id == user.id)
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
@@ -1076,7 +1063,8 @@ class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def get_by_id_and_org(cls, object_id, org):
-        return super(Visualization, cls).get_by_id_and_org(object_id, org, Query)
+        return super(Visualization,
+                     cls).get_by_id_and_org(object_id, org, Query)
 
     def copy(self):
         return {
@@ -1091,16 +1079,18 @@ class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
 @generic_repr("id", "visualization_id", "dashboard_id")
 class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
-    visualization_id = Column(
-        db.Integer, db.ForeignKey("visualizations.id"), nullable=True
-    )
-    visualization = db.relationship(
-        Visualization, backref=backref("widgets", cascade="delete")
-    )
+    visualization_id = Column(db.Integer,
+                              db.ForeignKey("visualizations.id"),
+                              nullable=True)
+    visualization = db.relationship(Visualization,
+                                    backref=backref("widgets",
+                                                    cascade="delete"))
     text = Column(db.Text, nullable=True)
     width = Column(db.Integer)
     options = Column(db.Text)
-    dashboard_id = Column(db.Integer, db.ForeignKey("dashboards.id"), index=True)
+    dashboard_id = Column(db.Integer,
+                          db.ForeignKey("dashboards.id"),
+                          index=True)
 
     __tablename__ = "widgets"
 
@@ -1113,9 +1103,8 @@ class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
 
 
 @python_2_unicode_compatible
-@generic_repr(
-    "id", "object_type", "object_id", "action", "user_id", "org_id", "created_at"
-)
+@generic_repr("id", "object_type", "object_id", "action", "user_id", "org_id",
+              "created_at")
 class Event(db.Model):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
@@ -1125,9 +1114,9 @@ class Event(db.Model):
     action = Column(db.String(255))
     object_type = Column(db.String(255))
     object_id = Column(db.String(255), nullable=True)
-    additional_properties = Column(
-        MutableDict.as_mutable(PseudoJSON), nullable=True, default={}
-    )
+    additional_properties = Column(MutableDict.as_mutable(PseudoJSON),
+                                   nullable=True,
+                                   default={})
     created_at = Column(db.DateTime(True), default=db.func.now())
 
     __tablename__ = "events"
@@ -1179,20 +1168,24 @@ class ApiKey(TimestampMixin, GFKBase, db.Model):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
     org = db.relationship(Organization)
-    api_key = Column(db.String(255), index=True, default=lambda: generate_token(40))
+    api_key = Column(db.String(255),
+                     index=True,
+                     default=lambda: generate_token(40))
     active = Column(db.Boolean, default=True)
     # 'object' provided by GFKBase
-    created_by_id = Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    created_by_id = Column(db.Integer,
+                           db.ForeignKey("users.id"),
+                           nullable=True)
     created_by = db.relationship(User)
 
     __tablename__ = "api_keys"
-    __table_args__ = (
-        db.Index("api_keys_object_type_object_id", "object_type", "object_id"),
-    )
+    __table_args__ = (db.Index("api_keys_object_type_object_id", "object_type",
+                               "object_id"), )
 
     @classmethod
     def get_by_api_key(cls, api_key):
-        return cls.query.filter(cls.api_key == api_key, cls.active == True).one()
+        return cls.query.filter(cls.api_key == api_key,
+                                cls.active == True).one()
 
     @classmethod
     def get_by_object(cls, object):
@@ -1223,11 +1216,10 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
     created_at = Column(db.DateTime(True), default=db.func.now())
 
     __tablename__ = "notification_destinations"
-    __table_args__ = (
-        db.Index(
-            "notification_destinations_org_id_name", "org_id", "name", unique=True
-        ),
-    )
+    __table_args__ = (db.Index("notification_destinations_org_id_name",
+                               "org_id",
+                               "name",
+                               unique=True), )
 
     def __str__(self):
         return text_type(self.name)
@@ -1254,17 +1246,15 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
     @classmethod
     def all(cls, org):
         notification_destinations = cls.query.filter(cls.org == org).order_by(
-            cls.id.asc()
-        )
+            cls.id.asc())
 
         return notification_destinations
 
     def notify(self, alert, query, user, new_state, app, host):
         schema = get_configuration_schema_for_destination_type(self.type)
         self.options.set_schema(schema)
-        return self.destination.notify(
-            alert, query, user, new_state, app, host, self.options
-        )
+        return self.destination.notify(alert, query, user, new_state, app,
+                                       host, self.options)
 
 
 @generic_repr("id", "user_id", "destination_id", "alert_id")
@@ -1272,25 +1262,27 @@ class AlertSubscription(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User)
-    destination_id = Column(
-        db.Integer, db.ForeignKey("notification_destinations.id"), nullable=True
-    )
+    destination_id = Column(db.Integer,
+                            db.ForeignKey("notification_destinations.id"),
+                            nullable=True)
     destination = db.relationship(NotificationDestination)
     alert_id = Column(db.Integer, db.ForeignKey("alerts.id"))
     alert = db.relationship(Alert, back_populates="subscriptions")
 
     __tablename__ = "alert_subscriptions"
-    __table_args__ = (
-        db.Index(
-            "alert_subscriptions_destination_id_alert_id",
-            "destination_id",
-            "alert_id",
-            unique=True,
-        ),
-    )
+    __table_args__ = (db.Index(
+        "alert_subscriptions_destination_id_alert_id",
+        "destination_id",
+        "alert_id",
+        unique=True,
+    ), )
 
     def to_dict(self):
-        d = {"id": self.id, "user": self.user.to_dict(), "alert_id": self.alert_id}
+        d = {
+            "id": self.id,
+            "user": self.user.to_dict(),
+            "alert_id": self.alert_id
+        }
 
         if self.destination:
             d["destination"] = self.destination.to_dict()
@@ -1300,19 +1292,20 @@ class AlertSubscription(TimestampMixin, db.Model):
     @classmethod
     def all(cls, alert_id):
         return AlertSubscription.query.join(User).filter(
-            AlertSubscription.alert_id == alert_id
-        )
+            AlertSubscription.alert_id == alert_id)
 
     def notify(self, alert, query, user, new_state, app, host):
         if self.destination:
-            return self.destination.notify(alert, query, user, new_state, app, host)
+            return self.destination.notify(alert, query, user, new_state, app,
+                                           host)
         else:
             # User email subscription, so create an email destination object
             config = {"addresses": self.user.email}
             schema = get_configuration_schema_for_destination_type("email")
             options = ConfigurationContainer(config, schema)
             destination = get_destination("email", options)
-            return destination.notify(alert, query, user, new_state, app, host, options)
+            return destination.notify(alert, query, user, new_state, app, host,
+                                      options)
 
 
 @generic_repr("id", "trigger", "user_id", "org_id")

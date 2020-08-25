@@ -36,10 +36,20 @@ class SqlServer(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "user": {"type": "string"},
-                "password": {"type": "string"},
-                "server": {"type": "string", "default": "127.0.0.1"},
-                "port": {"type": "number", "default": 1433},
+                "user": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "server": {
+                    "type": "string",
+                    "default": "127.0.0.1"
+                },
+                "port": {
+                    "type": "number",
+                    "default": 1433
+                },
                 "tds_version": {
                     "type": "string",
                     "default": "7.0",
@@ -50,7 +60,10 @@ class SqlServer(BaseSQLQueryRunner):
                     "default": "UTF-8",
                     "title": "Character Set",
                 },
-                "db": {"type": "string", "title": "Database Name"},
+                "db": {
+                    "type": "string",
+                    "title": "Database Name"
+                },
             },
             "required": ["db"],
             "secret": ["password"],
@@ -87,7 +100,8 @@ class SqlServer(BaseSQLQueryRunner):
 
         for row in results["rows"]:
             if row["table_schema"] != self.configuration["db"]:
-                table_name = u"{}.{}".format(row["table_schema"], row["table_name"])
+                table_name = u"{}.{}".format(row["table_schema"],
+                                             row["table_name"])
             else:
                 table_name = row["table_name"]
 
@@ -132,10 +146,12 @@ class SqlServer(BaseSQLQueryRunner):
             data = cursor.fetchall()
 
             if cursor.description is not None:
-                columns = self.fetch_columns(
-                    [(i[0], types_map.get(i[1], None)) for i in cursor.description]
-                )
-                rows = [dict(zip((c["name"] for c in columns), row)) for row in data]
+                columns = self.fetch_columns([(i[0], types_map.get(i[1], None))
+                                              for i in cursor.description])
+                rows = [
+                    dict(zip((c["name"] for c in columns), row))
+                    for row in data
+                ]
 
                 data = {"columns": columns, "rows": rows}
                 json_data = json_dumps(data)
