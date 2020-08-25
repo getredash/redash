@@ -45,7 +45,7 @@ export default function QueryFormItem({ query, queryResult, onChange, editMode }
           </a>
         </Tooltip>
       )}
-      <div className="ant-form-explain">{query && queryHint}</div>
+      <div className="ant-form-item-explain">{query && queryHint}</div>
       {query && !queryResult && (
         <div className="m-t-30">
           <LoadingOutlinedIcon className="m-r-5" /> Loading query data

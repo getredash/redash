@@ -124,7 +124,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
           <DisabledInput minWidth={50}>{alertOptions.value}</DisabledInput>
         )}
       </div>
-      <div className="ant-form-explain">
+      <div className="ant-form-item-explain">
         {columnHint}
         <br />
         {invalidMessage && (
