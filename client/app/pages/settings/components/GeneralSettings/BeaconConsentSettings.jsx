@@ -12,10 +12,10 @@ export default function BeaconConsentSettings(props) {
     <DynamicComponent name="OrganizationSettings.BeaconConsentSettings" {...props}>
       <Form.Item
         label={
-          <>
+          <span>
             Anonymous Usage Data Sharing
-            <HelpTrigger className="m-l-5" type="USAGE_DATA_SHARING" />
-          </>
+            <HelpTrigger className="m-l-5 m-r-5" type="USAGE_DATA_SHARING" />
+          </span>
         }>
         <Checkbox
           name="beacon_consent"
