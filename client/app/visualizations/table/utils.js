@@ -184,6 +184,12 @@ export function sortRows(rows, orderBy) {
     for (let i = 0; i < orderBy.length; i += 1) {
       va = a[orderBy[i].name];
       vb = b[orderBy[i].name];
+
+      if (!isNaN(va) && !isNaN(vb)) {
+        va = parseFloat(a[orderBy[i].name]);
+        vb = parseFloat(b[orderBy[i].name]);
+      }
+
       if (isNil(va) || va < vb) {
         // if a < b - we should return -1, but take in account direction
         return -1 * directions[orderBy[i].direction];
