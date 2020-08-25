@@ -37,57 +37,25 @@
   "output": {
     "series": [
       {
-        "x": [
-          12,
-          11
-        ],
-        "y": [
-          21,
-          22
-        ],
+        "x": [12, 11],
+        "y": [21, 22],
         "z": [
-          [
-            3,
-            1
-          ],
-          [
-            4,
-            2
-          ]
+          [3, 1],
+          [4, 2]
         ],
         "type": "heatmap",
         "name": "",
         "colorscale": "Bluered"
       },
       {
-        "x": [
-          12,
-          11,
-          12,
-          11
-        ],
-        "y": [
-          21,
-          21,
-          22,
-          22
-        ],
+        "x": [12, 11, 12, 11],
+        "y": [21, 21, 22, 22],
         "mode": "text",
         "hoverinfo": "skip",
         "showlegend": false,
-        "text": [
-          "3",
-          "1",
-          "4",
-          "2"
-        ],
+        "text": ["3", "1", "4", "2"],
         "textfont": {
-          "color": [
-            "black",
-            "black",
-            "black",
-            "black"
-          ]
+          "color": ["black", "black", "black", "black"]
         }
       }
     ]
