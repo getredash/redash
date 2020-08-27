@@ -194,11 +194,6 @@ export function sortRows(rows, orderBy) {
       vb = b[orderBy[i].name];
 
       if (checkIsFloat(va) && checkIsFloat(vb)) {
-        va = parseFloat(a[orderBy[i].name]);
-        vb = parseFloat(b[orderBy[i].name]);
-      }
-
-      if (isNil(va) && va < vb) {
         // if a < b - we should return -1, but take in account direction
         return -1 * directions[orderBy[i].direction];
       }
