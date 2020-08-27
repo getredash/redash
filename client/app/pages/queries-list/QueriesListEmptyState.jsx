@@ -20,7 +20,7 @@ export default function QueriesListEmptyState({ page, searchTerm, selectedTags }
     case "my":
       return (
         <div className="tiled bg-white p-15">
-          <Link.Button href="queries/new" type="primary">
+          <Link.Button href="queries/new" type="primary" size="small">
             Create your first query
           </Link.Button>{" "}
           to populate My Queries list. Need help? Check out our{" "}
