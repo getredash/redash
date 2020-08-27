@@ -170,8 +170,8 @@ export function filterRows(rows, searchTerm, searchColumns) {
   return rows;
 }
 
-function chechNumber(num) {
-  const re = /^[0-9]+.?[0-9]*/;
+function checkIsFloat(num) {
+  const re = /^-?\d*\.?\d+$/;
   if (!re.test(num)) {
     return false;
   }
@@ -193,7 +193,12 @@ export function sortRows(rows, orderBy) {
       va = a[orderBy[i].name];
       vb = b[orderBy[i].name];
 
-      if (chechNumber(va) && chechNumber(vb)) {
+      if (checkIsFloat(va) && checkIsFloat(vb)) {
+        va = parseFloat(a[orderBy[i].name]);
+        vb = parseFloat(b[orderBy[i].name]);
+      }
+
+      if (isNil(va) && va < vb) {
         // if a < b - we should return -1, but take in account direction
         return -1 * directions[orderBy[i].direction];
       }
