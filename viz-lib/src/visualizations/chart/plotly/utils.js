@@ -1,4 +1,4 @@
-import { isNumber, isUndefined, map, max, min } from "lodash";
+import { isUndefined } from "lodash";
 import moment from "moment";
 import plotlyCleanNumber from "plotly.js/src/lib/clean_number";
 
@@ -22,20 +22,4 @@ export function normalizeValue(value, axisType, dateTimeFormat = "YYYY-MM-DD HH:
     return value.format(dateTimeFormat);
   }
   return value;
-}
-
-export function calculateAxisRange(seriesList, minValue, maxValue) {
-  if (!isNumber(minValue)) {
-    minValue = Math.min(0, min(map(seriesList, series => min(series.y))) || 0);
-  }
-  if (!isNumber(maxValue)) {
-    maxValue = max(map(seriesList, series => max(series.y))) || 0;
-  }
-
-  // Expand range a little bit to ensure tha plot is fully visible and not cut on edges.
-  // Plotly does similar thing when autorange enabled
-  const range = maxValue - minValue;
-  const threshold = Math.min(0.25, range * 0.01);
-
-  return [minValue - threshold, maxValue + threshold];
 }

@@ -9,7 +9,10 @@
         "traceorder": "normal"
       }
     },
-    "series": [{ "name": "a" }, { "name": "b", "yaxis": "y2" }]
+    "series": [
+      { "name": "a" },
+      { "name": "b", "yaxis": "y2" }
+    ]
   },
   "output": {
     "layout": {
@@ -31,15 +34,15 @@
         "automargin": true,
         "title": null,
         "type": "linear",
-        "autorange": false,
-        "range": [0, 0]
+        "autorange": true,
+        "range": null
       },
       "yaxis2": {
         "automargin": true,
         "title": null,
         "type": "linear",
-        "autorange": false,
-        "range": [0, 0],
+        "autorange": true,
+        "range": null,
         "overlaying": "y",
         "side": "right"
       }

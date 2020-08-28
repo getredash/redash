@@ -1,6 +1,5 @@
 import { isObject, isUndefined, filter, map } from "lodash";
 import { getPieDimensions } from "./preparePieData";
-import { calculateAxisRange } from "./utils";
 
 function getAxisTitle(axis) {
   return isObject(axis.title) ? axis.title.text : null;
@@ -39,13 +38,13 @@ function prepareXAxis(axisOptions, additionalOptions) {
   return axis;
 }
 
-function prepareYAxis(axisOptions, additionalOptions, data) {
+function prepareYAxis(axisOptions) {
   return {
     title: getAxisTitle(axisOptions),
     type: getAxisScaleType(axisOptions),
     automargin: true,
-    autorange: false,
-    range: calculateAxisRange(data, axisOptions.rangeMin, axisOptions.rangeMax),
+    autorange: true,
+    range: null,
   };
 }
 
@@ -77,14 +76,13 @@ function preparePieLayout(layout, options, data) {
 }
 
 function prepareDefaultLayout(layout, options, data) {
-  const ySeries = data.filter(s => s.yaxis !== "y2");
   const y2Series = data.filter(s => s.yaxis === "y2");
 
   layout.xaxis = prepareXAxis(options.xAxis, options);
 
-  layout.yaxis = prepareYAxis(options.yAxis[0], options, ySeries);
+  layout.yaxis = prepareYAxis(options.yAxis[0]);
   if (y2Series.length > 0) {
-    layout.yaxis2 = prepareYAxis(options.yAxis[1], options, y2Series);
+    layout.yaxis2 = prepareYAxis(options.yAxis[1]);
     layout.yaxis2.overlaying = "y";
     layout.yaxis2.side = "right";
   }
