@@ -31,21 +31,10 @@ export default class CardsList extends React.Component {
     searchText: "",
   };
 
-  constructor(props) {
-    super(props);
-    this.items = [];
-
-    let itemId = 1;
-    props.items.forEach(item => {
-      this.items.push({ id: itemId, ...item });
-      itemId += 1;
-    });
-  }
-
   // eslint-disable-next-line class-methods-use-this
-  renderListItem(item) {
+  renderListItem(item, keySuffix) {
     return (
-      <Link key={`card${item.id}`} className="visual-card" onClick={item.onClick} href={item.href}>
+      <Link key={`card${keySuffix}`} className="visual-card" onClick={item.onClick} href={item.href}>
         <img alt={item.title} src={item.imgSrc} />
         <h3>{item.title}</h3>
       </Link>
@@ -53,10 +42,10 @@ export default class CardsList extends React.Component {
   }
 
   render() {
-    const { showSearch } = this.props;
+    const { items, showSearch } = this.props;
     const { searchText } = this.state;
 
-    const filteredItems = this.items.filter(
+    const filteredItems = items.filter(
       item => isEmpty(searchText) || includes(item.title.toLowerCase(), searchText.toLowerCase())
     );
 
@@ -74,7 +63,7 @@ export default class CardsList extends React.Component {
         ) : (
           <div className="row">
             <div className="col-lg-12 d-inline-flex flex-wrap visual-card-list">
-              {filteredItems.map(item => this.renderListItem(item))}
+              {filteredItems.map((item, index) => this.renderListItem(item, index.toString()))}
             </div>
           </div>
         )}
