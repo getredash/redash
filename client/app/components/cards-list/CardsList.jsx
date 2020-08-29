@@ -1,13 +1,23 @@
-import Input from "antd/lib/input";
 import { includes, isEmpty } from "lodash";
 import PropTypes from "prop-types";
 import React from "react";
+import Search from "antd/lib/input";
 import Link from "@/components/Link";
 import EmptyState from "@/components/items-list/components/EmptyState";
 
 import "./CardsList.less";
 
-const { Search } = Input;
+export interface CardsListItem {
+  title: string;
+  imgSrc: string;
+  onClick?: () => void;
+  href?: string;
+}
+
+export interface CardsListProps {
+  items?: CardsListItem[];
+  showSearch?: boolean;
+}
 
 export default class CardsList extends React.Component {
   static propTypes = {
@@ -22,17 +32,20 @@ export default class CardsList extends React.Component {
     showSearch: PropTypes.bool,
   };
 
-  static defaultProps = {
-    items: [],
-    showSearch: false,
-  };
-
   state = {
     searchText: "",
   };
 
-  // eslint-disable-next-line class-methods-use-this
-  renderListItem(item, keySuffix) {
+  items: CardsListItem[];
+  showSearch: boolean;
+
+  constructor(props: CardsListProps) {
+    super(props);
+    this.items = props.items ?? [];
+    this.showSearch = props.showSearch ?? false;
+  }
+
+  renderListItem(item: CardsListItem, keySuffix: string) {
     return (
       <Link key={`card${keySuffix}`} className="visual-card" onClick={item.onClick} href={item.href}>
         <img alt={item.title} src={item.imgSrc} />
@@ -42,19 +55,18 @@ export default class CardsList extends React.Component {
   }
 
   render() {
-    const { items, showSearch } = this.props;
     const { searchText } = this.state;
 
-    const filteredItems = items.filter(
+    const filteredItems = this.items.filter(
       item => isEmpty(searchText) || includes(item.title.toLowerCase(), searchText.toLowerCase())
     );
 
     return (
       <div data-test="CardsList">
-        {showSearch && (
+        {this.showSearch && (
           <div className="row p-10">
             <div className="col-md-4 col-md-offset-4">
-              <Search placeholder="Search..." onChange={e => this.setState({ searchText: e.target.value })} autoFocus />
+              <Search placeholder="Search..." onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.setState({ searchText: e.target.value })} autoFocus />
             </div>
           </div>
         )}
