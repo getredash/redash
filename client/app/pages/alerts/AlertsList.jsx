@@ -1,7 +1,7 @@
 import { toUpper } from "lodash";
 import React from "react";
-import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import Link from "@/components/Link";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import EmptyState from "@/components/empty-state/EmptyState";
@@ -38,9 +38,9 @@ class AlertsList extends React.Component {
     Columns.custom.sortable(
       (text, alert) => (
         <div>
-          <a className="table-main-title" href={"alerts/" + alert.id}>
+          <Link className="table-main-title" href={"alerts/" + alert.id}>
             {alert.name}
-          </a>
+          </Link>
         </div>
       ),
       {
@@ -76,10 +76,10 @@ class AlertsList extends React.Component {
             title={controller.params.pageTitle}
             actions={
               currentUser.hasPermission("list_alerts") ? (
-                <Button block type="primary" href="alerts/new">
+                <Link.Button block type="primary" href="alerts/new">
                   <i className="fa fa-plus m-r-5" />
                   New Alert
-                </Button>
+                </Link.Button>
               ) : null
             }
           />

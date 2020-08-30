@@ -2,6 +2,7 @@ import React from "react";
 
 import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import Link from "@/components/Link";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
@@ -45,9 +46,9 @@ class DashboardList extends React.Component {
     Columns.custom.sortable(
       (text, item) => (
         <React.Fragment>
-          <a className="table-main-title" href={item.url} data-test={`DashboardId${item.id}`}>
+          <Link className="table-main-title" href={item.url} data-test={`DashboardId${item.id}`}>
             {item.name}
-          </a>
+          </Link>
           <DashboardTagsControl
             className="d-block"
             tags={item.tags}

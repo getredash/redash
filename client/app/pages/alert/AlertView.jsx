@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 
+import Link from "@/components/Link";
 import TimeAgo from "@/components/TimeAgo";
 import { Alert as AlertType } from "@/components/proptypes";
 
@@ -136,9 +137,9 @@ export default class AlertView extends React.Component {
               <h4>
                 Destinations{" "}
                 <Tooltip title="Open Alert Destinations page in a new tab.">
-                  <a href="destinations" target="_blank">
+                  <Link href="destinations" target="_blank">
                     <i className="fa fa-external-link f-13" />
-                  </a>
+                  </Link>
                 </Tooltip>
               </h4>
               <AlertDestinations alertId={alert.id} />

@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import Link from "@/components/Link";
 import QuerySelector from "@/components/QuerySelector";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
 import { Query as QueryType } from "@/components/proptypes";
@@ -39,10 +40,10 @@ export default function QueryFormItem({ query, queryResult, onChange, editMode }
         <QuerySelector onChange={onChange} selectedQuery={query} className="alert-query-selector" type="select" />
       ) : (
         <Tooltip title="Open query in a new tab.">
-          <a href={`queries/${query.id}`} target="_blank" rel="noopener noreferrer" className="alert-query-link">
+          <Link href={`queries/${query.id}`} target="_blank" rel="noopener noreferrer" className="alert-query-link">
             {query.name}
             <i className="fa fa-external-link" />
-          </a>
+          </Link>
         </Tooltip>
       )}
       <div className="ant-form-item-explain">{query && queryHint}</div>

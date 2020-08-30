@@ -2,6 +2,7 @@ import { keys, some } from "lodash";
 import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
+import Link from "@/components/Link";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import { currentUser } from "@/services/auth";
 import organizationStatus from "@/services/organizationStatus";
@@ -14,9 +15,9 @@ export function Step({ show, completed, text, url, urlText, onClick }) {
 
   return (
     <li className={classNames({ done: completed })}>
-      <a href={url} onClick={onClick}>
+      <Link href={url} onClick={onClick}>
         {urlText}
-      </a>{" "}
+      </Link>{" "}
       {text}
     </li>
   );
@@ -179,10 +180,10 @@ function EmptyState({
         <ol>{stepsItems.map(item => item.node)}</ol>
         <p>
           Need more support?{" "}
-          <a href={helpLink} target="_blank" rel="noopener noreferrer">
+          <Link href={helpLink} target="_blank" rel="noopener noreferrer">
             See our Help
             <i className="fa fa-external-link m-l-5" aria-hidden="true" />
-          </a>
+          </Link>
         </p>
       </div>
     </div>

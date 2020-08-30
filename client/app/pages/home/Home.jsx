@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
 import Alert from "antd/lib/alert";
+import Link from "@/components/Link";
 import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmptyState from "@/components/empty-state/EmptyState";
@@ -28,12 +29,12 @@ function DeprecatedEmbedFeatureAlert() {
         <>
           You have enabled <code>ALLOW_PARAMETERS_IN_EMBEDS</code>. This setting is now deprecated and should be turned
           off. Parameters in embeds are supported by default.{" "}
-          <a
+          <Link
             href="https://discuss.redash.io/t/support-for-parameters-in-embedded-visualizations/3337"
             target="_blank"
             rel="noopener noreferrer">
             Read more
-          </a>
+          </Link>
           .
         </>
       }
@@ -87,13 +88,13 @@ function FavoriteList({ title, resource, itemUrl, emptyState }) {
       {!isEmpty(items) && (
         <div className="list-group">
           {items.map(item => (
-            <a key={itemUrl(item)} className="list-group-item" href={itemUrl(item)}>
+            <Link key={itemUrl(item)} className="list-group-item" href={itemUrl(item)}>
               <span className="btn-favourite m-r-5">
                 <i className="fa fa-star" aria-hidden="true" />
               </span>
               {item.name}
               {item.is_draft && <span className="label label-default m-l-5">Unpublished</span>}
-            </a>
+            </Link>
           ))}
         </div>
       )}
@@ -125,7 +126,7 @@ function DashboardAndQueryFavoritesList() {
                   <span className="btn-favourite m-r-5">
                     <i className="fa fa-star" aria-hidden="true" />
                   </span>
-                  Favorite <a href="dashboards">Dashboards</a> will appear here
+                  Favorite <Link href="dashboards">Dashboards</Link> will appear here
                 </p>
               }
             />
@@ -140,7 +141,7 @@ function DashboardAndQueryFavoritesList() {
                   <span className="btn-favourite m-r-5">
                     <i className="fa fa-star" aria-hidden="true" />
                   </span>
-                  Favorite <a href="queries">Queries</a> will appear here
+                  Favorite <Link href="queries">Queries</Link> will appear here
                 </p>
               }
             />

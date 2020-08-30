@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import Tooltip from "antd/lib/tooltip";
 import Drawer from "antd/lib/drawer";
+import Link from "@/components/Link";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import BigMessage from "@/components/BigMessage";
 import DynamicComponent from "@/components/DynamicComponent";
@@ -149,9 +150,9 @@ export default class HelpTrigger extends React.Component {
               {this.props.children}
             </a>
           ) : (
-            <a href={url || this.getUrl()} className={className} rel="noopener noreferrer" target="_blank">
+            <Link href={url || this.getUrl()} className={className} rel="noopener noreferrer" target="_blank">
               {this.props.children}
-            </a>
+            </Link>
           )}
         </Tooltip>
         <Drawer
@@ -167,9 +168,9 @@ export default class HelpTrigger extends React.Component {
               {url && (
                 <Tooltip title="Open page in a new window" placement="left">
                   {/* eslint-disable-next-line react/jsx-no-target-blank */}
-                  <a href={url} target="_blank">
+                  <Link href={url} target="_blank">
                     <i className="fa fa-external-link" />
-                  </a>
+                  </Link>
                 </Tooltip>
               )}
               <Tooltip title="Close" placement="bottom">
@@ -201,9 +202,9 @@ export default class HelpTrigger extends React.Component {
                 Something went wrong.
                 <br />
                 {/* eslint-disable-next-line react/jsx-no-target-blank */}
-                <a href={this.state.error} target="_blank" rel="noopener">
+                <Link href={this.state.error} target="_blank" rel="noopener">
                   Click here
-                </a>{" "}
+                </Link>{" "}
                 to open the page in a new window.
               </BigMessage>
             )}

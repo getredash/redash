@@ -2,6 +2,7 @@ import Input from "antd/lib/input";
 import { includes, isEmpty } from "lodash";
 import PropTypes from "prop-types";
 import React from "react";
+import Link from "@/components/Link";
 import EmptyState from "@/components/items-list/components/EmptyState";
 
 import "./CardsList.less";
@@ -44,10 +45,10 @@ export default class CardsList extends React.Component {
   // eslint-disable-next-line class-methods-use-this
   renderListItem(item) {
     return (
-      <a key={`card${item.id}`} className="visual-card" onClick={item.onClick} href={item.href}>
+      <Link key={`card${item.id}`} className="visual-card" onClick={item.onClick} href={item.href}>
         <img alt={item.title} src={item.imgSrc} />
         <h3>{item.title}</h3>
-      </a>
+      </Link>
     );
   }
 

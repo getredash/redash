@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import Link from "@/components/Link";
 import BigMessage from "@/components/BigMessage";
 import NoTaggedObjectsFound from "@/components/NoTaggedObjectsFound";
 import EmptyState from "@/components/empty-state/EmptyState";
@@ -19,11 +20,11 @@ export default function QueriesListEmptyState({ page, searchTerm, selectedTags }
     case "my":
       return (
         <div className="tiled bg-white p-15">
-          <a href="queries/new" className="btn btn-primary btn-sm">
+          <Link.Button href="queries/new" type="primary" size="small">
             Create your first query
-          </a>{" "}
+          </Link.Button>{" "}
           to populate My Queries list. Need help? Check out our{" "}
-          <a href="https://redash.io/help/user-guide/querying/writing-queries">query writing documentation</a>.
+          <Link href="https://redash.io/help/user-guide/querying/writing-queries">query writing documentation</Link>.
         </div>
       );
     default:

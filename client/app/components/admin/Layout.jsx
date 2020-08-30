@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Menu from "antd/lib/menu";
 import PageHeader from "@/components/PageHeader";
+import Link from "@/components/Link";
 
 import "./layout.less";
 
@@ -13,13 +14,13 @@ export default function Layout({ activeTab, children }) {
         <div className="bg-white tiled">
           <Menu selectedKeys={[activeTab]} selectable={false} mode="horizontal">
             <Menu.Item key="system_status">
-              <a href="admin/status">System Status</a>
+              <Link href="admin/status">System Status</Link>
             </Menu.Item>
             <Menu.Item key="jobs">
-              <a href="admin/queries/jobs">RQ Status</a>
+              <Link href="admin/queries/jobs">RQ Status</Link>
             </Menu.Item>
             <Menu.Item key="outdated_queries">
-              <a href="admin/queries/outdated">Outdated Queries</a>
+              <Link href="admin/queries/outdated">Outdated Queries</Link>
             </Menu.Item>
           </Menu>
           {children}
