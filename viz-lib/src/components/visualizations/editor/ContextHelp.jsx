@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Popover from "antd/lib/popover";
-import QuestionCircleFilledIcon from "@ant-design/icons/QuestionCircleFilled";
+import Icon from "antd/lib/icon";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 import "./context-help.less";
@@ -24,7 +24,7 @@ ContextHelp.defaultProps = {
   children: null,
 };
 
-ContextHelp.defaultIcon = <QuestionCircleFilledIcon className="context-help-default-icon" />;
+ContextHelp.defaultIcon = <Icon className="context-help-default-icon" type="question-circle" theme="filled" />;
 
 function NumberFormatSpecs() {
   const { HelpTriggerComponent } = visualizationsSettings;

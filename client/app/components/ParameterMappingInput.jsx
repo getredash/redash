@@ -8,6 +8,7 @@ import Select from "antd/lib/select";
 import Table from "antd/lib/table";
 import Popover from "antd/lib/popover";
 import Button from "antd/lib/button";
+import Icon from "antd/lib/icon";
 import Tag from "antd/lib/tag";
 import Input from "antd/lib/input";
 import Radio from "antd/lib/radio";
@@ -17,11 +18,6 @@ import ParameterValueInput from "@/components/ParameterValueInput";
 import { ParameterMappingType } from "@/services/widget";
 import { Parameter, cloneParameter } from "@/services/parameters";
 import HelpTrigger from "@/components/HelpTrigger";
-
-import QuestionCircleFilledIcon from "@ant-design/icons/QuestionCircleFilled";
-import EditOutlinedIcon from "@ant-design/icons/EditOutlined";
-import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
-import CheckOutlinedIcon from "@ant-design/icons/CheckOutlined";
 
 import "./ParameterMappingInput.less";
 
@@ -185,7 +181,7 @@ export class ParameterMappingInput extends React.Component {
           Existing dashboard parameter{" "}
           {noExisting ? (
             <Tooltip title="There are no dashboard parameters corresponding to this data type">
-              <QuestionCircleFilledIcon />
+              <Icon type="question-circle" theme="filled" />
             </Tooltip>
           ) : null}
         </Radio>
@@ -359,7 +355,7 @@ class MappingEditor extends React.Component {
         visible={visible}
         onVisibleChange={this.onVisibleChange}>
         <Button size="small" type="dashed" data-test={`EditParamMappingButon-${mapping.param.name}`}>
-          <EditOutlinedIcon />
+          <Icon type="edit" />
         </Button>
       </Popover>
     );
@@ -438,10 +434,10 @@ class TitleEditor extends React.Component {
           autoFocus
         />
         <Button size="small" type="dashed" onClick={this.hide}>
-          <CloseOutlinedIcon />
+          <Icon type="close" />
         </Button>
         <Button size="small" type="dashed" onClick={this.save}>
-          <CheckOutlinedIcon />
+          <Icon type="check" />
         </Button>
       </div>
     );
@@ -464,7 +460,7 @@ class TitleEditor extends React.Component {
         visible={this.state.showPopup}
         onVisibleChange={this.onPopupVisibleChange}>
         <Button size="small" type="dashed">
-          <EditOutlinedIcon />
+          <Icon type="edit" />
         </Button>
       </Popover>
     );

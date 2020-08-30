@@ -3,9 +3,7 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import useMedia from "use-media";
 import Button from "antd/lib/button";
-
-import FullscreenOutlinedIcon from "@ant-design/icons/FullscreenOutlined";
-import FullscreenExitOutlinedIcon from "@ant-design/icons/FullscreenExitOutlined";
+import Icon from "antd/lib/icon";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EditInPlace from "@/components/EditInPlace";
@@ -133,7 +131,7 @@ function QueryView(props) {
               onStopEditing={() => setAddingDescription(false)}
               placeholder="Add description"
               ignoreBlanks={false}
-              editorProps={{ autoSize: { minRows: 2, maxRows: 4 } }}
+              editorProps={{ autosize: { minRows: 2, maxRows: 4 } }}
               defaultEditing={addingDescription}
               multiline
             />
@@ -192,7 +190,7 @@ function QueryView(props) {
                     type="default"
                     shortcut="alt+f"
                     onClick={toggleFullscreen}>
-                    {fullscreen ? <FullscreenExitOutlinedIcon /> : <FullscreenOutlinedIcon />}
+                    <Icon type={fullscreen ? "fullscreen-exit" : "fullscreen"} />
                   </QueryViewButton>
                 }
               />

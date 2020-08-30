@@ -100,7 +100,7 @@ function EditParameterSettingsDialog(props) {
     return true;
   }
 
-  function onConfirm() {
+  function onConfirm(e) {
     // update title to default
     if (!param.title) {
       // forced to do this cause param won't update in time for save
@@ -109,6 +109,8 @@ function EditParameterSettingsDialog(props) {
     }
 
     props.dialog.close(param);
+
+    e.preventDefault(); // stops form redirect
   }
 
   return (
@@ -130,7 +132,7 @@ function EditParameterSettingsDialog(props) {
           {isNew ? "Add Parameter" : "OK"}
         </Button>,
       ]}>
-      <Form layout="horizontal" onFinish={onConfirm} id="paramForm">
+      <Form layout="horizontal" onSubmit={onConfirm} id="paramForm">
         {isNew && (
           <NameInput
             name={param.name}

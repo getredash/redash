@@ -54,19 +54,23 @@ function OrganizationSettings({ onError }) {
     setCurrentValues(currentValues => ({ ...currentValues, ...changes }));
   }, []);
 
-  const handleSubmit = useCallback(() => {
-    if (!isSaving) {
-      setIsSaving(true);
-      OrgSettings.save(currentValues)
-        .then(response => {
-          const settings = get(response, "settings");
-          setSettings(settings);
-          setCurrentValues({ ...settings });
-        })
-        .catch(handleError)
-        .finally(() => setIsSaving(false));
-    }
-  }, [isSaving, currentValues, handleError]);
+  const handleSubmit = useCallback(
+    event => {
+      event.preventDefault();
+      if (!isSaving) {
+        setIsSaving(true);
+        OrgSettings.save(currentValues)
+          .then(response => {
+            const settings = get(response, "settings");
+            setSettings(settings);
+            setCurrentValues({ ...settings });
+          })
+          .catch(handleError)
+          .finally(() => setIsSaving(false));
+      }
+    },
+    [isSaving, currentValues, handleError]
+  );
 
   return (
     <div className="row" data-test="OrganizationSettings">
@@ -74,7 +78,7 @@ function OrganizationSettings({ onError }) {
         {isLoading ? (
           <LoadingState className="" />
         ) : (
-          <Form {...getHorizontalFormProps()} onFinish={handleSubmit}>
+          <Form {...getHorizontalFormProps()} onSubmit={handleSubmit}>
             <GeneralSettings settings={settings} values={currentValues} onChange={handleChange} />
             <AuthSettings settings={settings} values={currentValues} onChange={handleChange} />
             <Form.Item {...getHorizontalFormItemWithoutLabelProps()}>

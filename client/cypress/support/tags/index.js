@@ -10,9 +10,8 @@ export function typeInTagsSelectAndSave(text) {
   cy.getByTestId("EditTagsDialog").within(() => {
     cy.get(".ant-select")
       .find("input")
-      .type(text, { force: true });
+      .type(text);
 
-    cy.get(".ant-modal-header").click(); // hide dropdown options
     cy.contains("OK").click();
   });
 }

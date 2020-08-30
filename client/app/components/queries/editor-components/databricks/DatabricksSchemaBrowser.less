@@ -5,7 +5,7 @@
     .database-select-open .ant-input-group-addon {
       background-color: #fff;
 
-      .ant-select-selection-item {
+      .ant-select-selection-selected-value {
         visibility: hidden;
       }
     }
@@ -21,11 +21,7 @@
         .ant-select {
           width: 100%;
 
-          .ant-select-selection-item {
-            text-align: left;
-          }
-
-          &.ant-select-focused .ant-select-selector {
+          &.ant-select-focused .ant-select-selection {
             color: inherit;
           }
         }
@@ -62,5 +58,6 @@
 }
 
 .databricks-schema-browser-db-dropdown {
-  width: 50vw !important;
+  width: auto !important;
+  max-width: 50vw;
 }

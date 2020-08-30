@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Card from "antd/lib/card";
-import WarningFilledIcon from "@ant-design/icons/WarningFilled";
+import Icon from "antd/lib/icon";
 import Typography from "antd/lib/typography";
 import Link from "@/components/Link";
 import { currentUser } from "@/services/auth";
@@ -70,7 +70,7 @@ export default function QuerySourceAlerts({ query, dataSourcesAvailable }) {
     <div className="query-source-alerts">
       <Card>
         <div className="query-source-alerts-icon">
-          <WarningFilledIcon />
+          <Icon type="warning" theme="filled" />
         </div>
         {message}
       </Card>

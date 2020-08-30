@@ -5,7 +5,7 @@ import cx from "classnames";
 import Tooltip from "antd/lib/tooltip";
 import Drawer from "antd/lib/drawer";
 import Link from "@/components/Link";
-import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
+import Icon from "antd/lib/icon";
 import BigMessage from "@/components/BigMessage";
 import DynamicComponent from "@/components/DynamicComponent";
 
@@ -175,7 +175,7 @@ export default class HelpTrigger extends React.Component {
               )}
               <Tooltip title="Close" placement="bottom">
                 <a onClick={this.closeDrawer}>
-                  <CloseOutlinedIcon />
+                  <Icon type="close" />
                 </a>
               </Tooltip>
             </div>

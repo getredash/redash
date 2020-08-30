@@ -64,8 +64,8 @@ describe("Visualizations -> Chart -> Editor -> Colors Settings", () => {
 
       findByTestID(el, "Chart.Colors.Heatmap.ColorScheme")
         .last()
-        .simulate("mouseDown");
-      findByTestID(el, "Chart.Colors.Heatmap.ColorScheme.Blues")
+        .simulate("click");
+      findByTestID(el, "Chart.Colors.Heatmap.ColorScheme.RdBu")
         .last()
         .simulate("click");
     });

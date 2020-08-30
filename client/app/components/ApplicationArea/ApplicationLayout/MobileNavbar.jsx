@@ -2,7 +2,7 @@ import { first } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
-import MenuOutlinedIcon from "@ant-design/icons/MenuOutlined";
+import Icon from "antd/lib/icon";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Link from "@/components/Link";
@@ -71,7 +71,7 @@ export default function MobileNavbar({ getPopupContainer }) {
             </Menu>
           }>
           <Button className="mobile-navbar-toggle-button" ghost>
-            <MenuOutlinedIcon />
+            <Icon type="menu" />
           </Button>
         </Dropdown>
       </div>
