@@ -36,9 +36,12 @@ function CreateUserDialog({ dialog }) {
           data-test="SaveUserButton">
           Create
         </Button>,
-      ]}>
+      ]}
+      wrapProps={{
+        "data-test": "CreateUserDialog",
+      }}>
       <DynamicForm id="userForm" fields={formFields} onSubmit={handleSubmit} hideSubmitButton />
-      {error && <Alert message={error.message} type="error" showIcon />}
+      {error && <Alert message={error.message} type="error" showIcon data-test="CreateUserErrorAlert" />}
     </Modal>
   );
 }
