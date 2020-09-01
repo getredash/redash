@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Button from "antd/lib/button";
+import { clientConfig } from "@/services/auth";
 
 import PlusCircleFilledIcon from "@ant-design/icons/PlusCircleFilled";
 import ShareAltOutlinedIcon from "@ant-design/icons/ShareAltOutlined";
@@ -22,7 +23,7 @@ export default function QueryControlDropdown(props) {
           </a>
         </Menu.Item>
       )}
-      {!props.query.isNew() && (
+      {!clientConfig.disablePublicUrls && !props.query.isNew() && (
         <Menu.Item>
           <a onClick={() => props.showEmbedDialog(props.query, props.selectedTab)} data-test="ShowEmbedDialogButton">
             <ShareAltOutlinedIcon /> Embed Elsewhere
