@@ -9,6 +9,37 @@ describe("Dashboard Sharing", () => {
       this.dashboardId = id;
       this.dashboardUrl = `/dashboards/${id}`;
     });
+    cy.updateOrgSettings({ disable_public_urls: false });
+  });
+
+  it("is unavailable when public urls feature is disabled", function() {
+    const queryData = {
+      query: "select 1",
+    };
+
+    const position = { autoHeight: false, sizeY: 6 };
+    createQueryAndAddWidget(this.dashboardId, queryData, { position })
+      .then(() => {
+        cy.visit(this.dashboardUrl);
+        return shareDashboard();
+      })
+      .then(secretAddress => {
+        // disable the feature
+        cy.updateOrgSettings({ disable_public_urls: true });
+
+        // check the feature is disabled
+        cy.visit(this.dashboardUrl);
+        cy.getByTestId("DashboardMoreButton").should("exist");
+        cy.getByTestId("OpenShareForm").should("not.exist");
+
+        cy.logout();
+        cy.visit(secretAddress);
+        cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
+        cy.getByTestId("TableVisualization").should("not.exist");
+
+        cy.login();
+        cy.updateOrgSettings({ disable_public_urls: false });
+      });
   });
 
   it("is possible if all queries are safe", function() {

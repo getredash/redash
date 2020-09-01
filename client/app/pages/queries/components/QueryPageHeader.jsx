@@ -199,7 +199,7 @@ export default function QueryPageHeader({
 
         {!queryFlags.isNew && (
           <Dropdown overlay={moreActionsMenu} trigger={["click"]}>
-            <Button>
+            <Button data-test="QueryPageHeaderMoreButton">
               <EllipsisOutlinedIcon rotate={90} />
             </Button>
           </Dropdown>
