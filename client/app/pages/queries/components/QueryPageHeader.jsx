@@ -123,7 +123,7 @@ export default function QueryPageHeader({
         },
         {
           showAPIKey: {
-            isAvailable: !queryFlags.isNew,
+            isAvailable: !clientConfig.disablePublicUrls && !queryFlags.isNew,
             title: "Show API Key",
             onClick: openApiKeyDialog,
           },
