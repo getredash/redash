@@ -134,7 +134,12 @@ class QueriesList extends React.Component {
                 onChange={controller.updateSearch}
               />
               <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
-              <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} />
+              <Sidebar.Tags
+                url="api/queries/tags"
+                onChange={controller.updateSelectedTags}
+                showUnselectAll
+                unselectAllButtonTitle="View All Queries"
+              />
             </Layout.Sidebar>
             <Layout.Content>
               {controller.isLoaded && controller.isEmpty ? (

@@ -1,11 +1,12 @@
-import { map, includes, difference, noop } from "lodash";
+import { map, includes, difference } from "lodash";
 import React, { useState, useCallback, useEffect } from "react";
-import PropTypes from "prop-types";
 import Badge from "antd/lib/badge";
 import Menu from "antd/lib/menu";
 import getTags from "@/services/getTags";
 
 import "./TagsList.less";
+
+const UNSELECT_ALL_KEY = "###Redash::TagsList::UnselectAll###";
 
 type Tag = {
   name: string;
@@ -14,10 +15,17 @@ type Tag = {
 
 type TagsListProps = {
   tagsUrl: string;
+  showUnselectAll: boolean;
+  unselectAllButtonTitle: string;
   onUpdate?: (selectedTags: string[]) => void;
 };
 
-export default function TagsList({ tagsUrl, onUpdate }: TagsListProps): JSX.Element | null {
+function TagsList({
+  tagsUrl,
+  showUnselectAll = false,
+  unselectAllButtonTitle = "Unselect All",
+  onUpdate,
+}: TagsListProps): JSX.Element | null {
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
@@ -62,13 +70,29 @@ export default function TagsList({ tagsUrl, onUpdate }: TagsListProps): JSX.Elem
     [selectedTags, onUpdate]
   );
 
+  const unselectAll = useCallback(() => {
+    setSelectedTags([]);
+    if (onUpdate) {
+      onUpdate([]);
+    }
+  }, [onUpdate]);
+
   if (allTags.length === 0) {
     return null;
   }
 
+  const selectedMenuItems = selectedTags.length > 0 ? selectedTags : [UNSELECT_ALL_KEY];
+
   return (
     <div className="m-t-10 tags-list tiled">
-      <Menu className="invert-stripe-position" mode="inline" selectedKeys={[...selectedTags]}>
+      <Menu className="invert-stripe-position" mode="inline" selectedKeys={selectedMenuItems}>
+        {showUnselectAll && (
+          <Menu.Item key={UNSELECT_ALL_KEY} className="m-0">
+            <a className="d-flex align-items-center justify-content-between" onClick={unselectAll}>
+              <span className="max-character col-xs-11">{unselectAllButtonTitle}</span>
+            </a>
+          </Menu.Item>
+        )}
         {map(allTags, tag => (
           <Menu.Item key={tag.name} className="m-0">
             <a
@@ -84,11 +108,4 @@ export default function TagsList({ tagsUrl, onUpdate }: TagsListProps): JSX.Elem
   );
 }
 
-TagsList.propTypes = {
-  tagsUrl: PropTypes.string.isRequired,
-  onUpdate: PropTypes.func,
-};
-
-TagsList.defaultProps = {
-  onUpdate: noop,
-};
+export default TagsList;
