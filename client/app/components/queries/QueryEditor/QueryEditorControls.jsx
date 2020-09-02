@@ -86,9 +86,7 @@ export default function EditorControl({
           onToggle={autocompleteToggleProps.onToggle}
         />
       )}
-      {autoLimitCheckboxProps !== false && (
-        <AutoLimitCheckbox {...autoLimitCheckboxProps} />
-      )}
+      {autoLimitCheckboxProps !== false && <AutoLimitCheckbox {...autoLimitCheckboxProps} />}
       {dataSourceSelectorProps === false && <span className="query-editor-controls-spacer" />}
       {dataSourceSelectorProps !== false && (
         <Select

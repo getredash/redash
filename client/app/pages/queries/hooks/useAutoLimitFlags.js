@@ -3,7 +3,7 @@ import localOptions from "@/lib/localOptions";
 import { get, extend } from "lodash";
 
 function isAutoLimitAvailable(dataSource) {
-  return get(dataSource, "apply_auto_limit", false)
+  return get(dataSource, "apply_auto_limit", false);
 }
 
 export default function useAutoLimitFlags(dataSource, query, setQuery) {
