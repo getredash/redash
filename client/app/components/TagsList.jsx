@@ -1,5 +1,5 @@
-import { map } from "lodash";
-import React from "react";
+import { map, includes, difference } from "lodash";
+import React, { useState, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import Badge from "antd/lib/badge";
 import Menu from "antd/lib/menu";
@@ -7,76 +7,76 @@ import getTags from "@/services/getTags";
 
 import "./TagsList.less";
 
-export default class TagsList extends React.Component {
-  static propTypes = {
-    tagsUrl: PropTypes.string.isRequired,
-    onUpdate: PropTypes.func,
-  };
+export default function TagsList({ tagsUrl, onUpdate }) {
+  const [allTags, setAllTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
 
-  static defaultProps = {
-    onUpdate: () => {},
-  };
+  useEffect(() => {
+    let isCancelled = false;
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      // An array of objects that with the name and count of the tagged items
-      allTags: [],
-      // A set of tag names
-      selectedTags: new Set(),
-    };
-  }
-
-  componentDidMount() {
-    getTags(this.props.tagsUrl).then(allTags => {
-      this.setState({ allTags });
+    getTags(tagsUrl).then(tags => {
+      if (!isCancelled) {
+        setAllTags(tags);
+      }
     });
-  }
 
-  toggleTag(event, tag) {
-    const { selectedTags } = this.state;
-    if (event.shiftKey) {
-      // toggle tag
-      if (selectedTags.has(tag)) {
-        selectedTags.delete(tag);
+    return () => {
+      isCancelled = true;
+    };
+  }, [tagsUrl]);
+
+  const toggleTag = useCallback(
+    (event, tag) => {
+      let newSelectedTags;
+      if (event.shiftKey) {
+        // toggle tag
+        if (includes(selectedTags, tag)) {
+          newSelectedTags = difference(selectedTags, [tag]);
+        } else {
+          newSelectedTags = [...selectedTags, tag];
+        }
       } else {
-        selectedTags.add(tag);
+        // if the tag is the only selected, deselect it, otherwise select only it
+        if (includes(selectedTags, tag) && selectedTags.length === 1) {
+          newSelectedTags = [];
+        } else {
+          newSelectedTags = [tag];
+        }
       }
-    } else {
-      // if the tag is the only selected, deselect it, otherwise select only it
-      if (selectedTags.has(tag) && selectedTags.size === 1) {
-        selectedTags.clear();
-      } else {
-        selectedTags.clear();
-        selectedTags.add(tag);
-      }
-    }
-    this.forceUpdate();
 
-    this.props.onUpdate([...this.state.selectedTags]);
-  }
+      setSelectedTags(newSelectedTags);
+      onUpdate([...newSelectedTags]);
+    },
+    [selectedTags, onUpdate]
+  );
 
-  render() {
-    const { allTags, selectedTags } = this.state;
-    if (allTags.length > 0) {
-      return (
-        <div className="m-t-10 tags-list tiled">
-          <Menu className="invert-stripe-position" mode="inline" selectedKeys={[...selectedTags]}>
-            {map(allTags, tag => (
-              <Menu.Item key={tag.name} className="m-0">
-                <a
-                  className="d-flex align-items-center justify-content-between"
-                  onClick={event => this.toggleTag(event, tag.name)}>
-                  <span className="max-character col-xs-11">{tag.name}</span>
-                  <Badge count={tag.count} />
-                </a>
-              </Menu.Item>
-            ))}
-          </Menu>
-        </div>
-      );
-    }
+  if (allTags.length === 0) {
     return null;
   }
+
+  return (
+    <div className="m-t-10 tags-list tiled">
+      <Menu className="invert-stripe-position" mode="inline" selectedKeys={[...selectedTags]}>
+        {map(allTags, tag => (
+          <Menu.Item key={tag.name} className="m-0">
+            <a
+              className="d-flex align-items-center justify-content-between"
+              onClick={event => toggleTag(event, tag.name)}>
+              <span className="max-character col-xs-11">{tag.name}</span>
+              <Badge count={tag.count} />
+            </a>
+          </Menu.Item>
+        ))}
+      </Menu>
+    </div>
+  );
 }
+
+TagsList.propTypes = {
+  tagsUrl: PropTypes.string.isRequired,
+  onUpdate: PropTypes.func,
+};
+
+TagsList.defaultProps = {
+  onUpdate: () => {},
+};
