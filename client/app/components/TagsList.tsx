@@ -1,4 +1,4 @@
-import { map, includes, difference } from "lodash";
+import { map, includes, difference, noop } from "lodash";
 import React, { useState, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import Badge from "antd/lib/badge";
@@ -7,9 +7,19 @@ import getTags from "@/services/getTags";
 
 import "./TagsList.less";
 
-export default function TagsList({ tagsUrl, onUpdate }) {
-  const [allTags, setAllTags] = useState([]);
-  const [selectedTags, setSelectedTags] = useState([]);
+type Tag = {
+  name: string;
+  count?: number;
+};
+
+type TagsListProps = {
+  tagsUrl: string;
+  onUpdate?: (selectedTags: string[]) => void;
+};
+
+export default function TagsList({ tagsUrl, onUpdate }: TagsListProps): JSX.Element | null {
+  const [allTags, setAllTags] = useState<Tag[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -45,7 +55,9 @@ export default function TagsList({ tagsUrl, onUpdate }) {
       }
 
       setSelectedTags(newSelectedTags);
-      onUpdate([...newSelectedTags]);
+      if (onUpdate) {
+        onUpdate([...newSelectedTags]);
+      }
     },
     [selectedTags, onUpdate]
   );
@@ -78,5 +90,5 @@ TagsList.propTypes = {
 };
 
 TagsList.defaultProps = {
-  onUpdate: () => {},
+  onUpdate: noop,
 };
