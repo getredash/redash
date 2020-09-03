@@ -156,9 +156,7 @@ EditorControl.propTypes = {
       onToggle: PropTypes.func,
     }),
   ]),
-  autoLimitCheckboxProps: PropTypes.oneOfType([
-    PropTypes.shape(AutoLimitCheckbox.propTypes),
-  ]),
+  autoLimitCheckboxProps: PropTypes.oneOfType([PropTypes.shape(AutoLimitCheckbox.propTypes)]),
   dataSourceSelectorProps: PropTypes.oneOfType([
     PropTypes.bool, // `false` to hide
     PropTypes.shape({

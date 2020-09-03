@@ -14,8 +14,8 @@ export default function AutoLimitCheckbox({ available, checked, onChange }) {
   if (!available) {
     tooltipMessage = "Auto limiting is not available for this Data Source type.";
   } else {
-  tooltipMessage = "Auto limit results to first 1000 rows."
-}
+    tooltipMessage = "Auto limit results to first 1000 rows.";
+  }
 
   return (
     <Tooltip placement="top" title={tooltipMessage}>
