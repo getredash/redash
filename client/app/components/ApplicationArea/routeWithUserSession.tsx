@@ -1,11 +1,24 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
+// @ts-expect-error (Must be removed after adding @redash/viz typing)
 import ErrorBoundary, { ErrorBoundaryContext } from "@redash/viz/lib/components/ErrorBoundary";
 import { Auth } from "@/services/auth";
 import { policy } from "@/services/policy";
+import { CurrentRoute } from "@/services/routes";
 import organizationStatus from "@/services/organizationStatus";
+import DynamicComponent from "@/components/DynamicComponent";
 import ApplicationLayout from "./ApplicationLayout";
 import ErrorMessage from "./ErrorMessage";
+
+export type UserSessionWrapperRenderChildrenProps<P> = {
+  pageTitle?: string;
+  onError: (error: Error) => void;
+} & P;
+
+export interface UserSessionWrapperProps<P> {
+  render: (props: UserSessionWrapperRenderChildrenProps<P>) => React.ReactNode;
+  currentRoute: CurrentRoute<P>;
+  bodyClass?: string;
+}
 
 // This wrapper modifies `route.render` function and instead of passing `currentRoute` passes an object
 // that contains:
@@ -13,9 +26,8 @@ import ErrorMessage from "./ErrorMessage";
 // - `pageTitle` field which is equal to `currentRoute.title`
 // - `onError` field which is a `handleError` method of nearest error boundary
 
-function UserSessionWrapper({ bodyClass, currentRoute, renderChildren }) {
+export function UserSessionWrapper<P>({ bodyClass, currentRoute, render }: UserSessionWrapperProps<P>) {
   const [isAuthenticated, setIsAuthenticated] = useState(!!Auth.isAuthenticated());
-
   useEffect(() => {
     let isCancelled = false;
     Promise.all([Auth.requireSession(), organizationStatus.refresh(), policy.refresh()])
@@ -50,10 +62,10 @@ function UserSessionWrapper({ bodyClass, currentRoute, renderChildren }) {
   return (
     <ApplicationLayout>
       <React.Fragment key={currentRoute.key}>
-        <ErrorBoundary renderError={error => <ErrorMessage error={error} />}>
+        <ErrorBoundary renderError={(error: Error) => <ErrorMessage error={error} />}>
           <ErrorBoundaryContext.Consumer>
-            {({ handleError }) =>
-              renderChildren({ ...currentRoute.routeParams, pageTitle: currentRoute.title, onError: handleError })
+            {({ handleError }: { handleError: UserSessionWrapperRenderChildrenProps<P>["onError"] }) =>
+              render({ ...currentRoute.routeParams, pageTitle: currentRoute.title, onError: handleError })
             }
           </ErrorBoundaryContext.Consumer>
         </ErrorBoundary>
@@ -62,21 +74,35 @@ function UserSessionWrapper({ bodyClass, currentRoute, renderChildren }) {
   );
 }
 
-UserSessionWrapper.propTypes = {
-  bodyClass: PropTypes.string,
-  renderChildren: PropTypes.func,
+export type RouteWithUserSessionOptions<P> = {
+  render: (props: UserSessionWrapperRenderChildrenProps<P>) => React.ReactNode;
+  bodyClass?: string;
+  title: string;
+  path: string;
 };
 
-UserSessionWrapper.defaultProps = {
-  bodyClass: null,
-  renderChildren: () => null,
-};
+export const UserSessionWrapperDynamicComponentName = "UserSessionWrapper";
 
-export default function routeWithUserSession({ render, bodyClass, ...rest }) {
+export default function routeWithUserSession<P extends {} = {}>({
+  render: originalRender,
+  bodyClass,
+  ...rest
+}: RouteWithUserSessionOptions<P>) {
   return {
     ...rest,
-    render: currentRoute => (
-      <UserSessionWrapper bodyClass={bodyClass} currentRoute={currentRoute} renderChildren={render} />
-    ),
+    render: (currentRoute: CurrentRoute<P>) => {
+      const props = {
+        render: originalRender,
+        bodyClass,
+        currentRoute,
+      };
+      return (
+        <DynamicComponent
+          {...props}
+          name={UserSessionWrapperDynamicComponentName}
+          fallback={<UserSessionWrapper {...props} />}
+        />
+      );
+    },
   };
 }
