@@ -34,6 +34,8 @@ module.exports = {
         // Do not complain about useless contructors in declaration files
         "no-useless-constructor": "off",
         "@typescript-eslint/no-useless-constructor": "error",
+        // Many API fields and generated types use camelcase
+        "@typescript-eslint/camelcase": "off",
       },
     },
   ],
