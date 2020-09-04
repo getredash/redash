@@ -39,9 +39,11 @@ export default function CardsList({ items = [], showSearch = false }: CardsListP
       {showSearch && (
         <div className="row p-10">
           <div className="col-md-4 col-md-offset-4">
-            <Search placeholder="Search..." onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setSearchText(e.target.value)
-            } autoFocus />
+            <Search
+              placeholder="Search..."
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value)}
+              autoFocus
+            />
           </div>
         </div>
       )}
