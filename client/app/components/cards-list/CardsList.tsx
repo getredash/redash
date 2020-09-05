@@ -19,7 +19,12 @@ export interface CardsListProps {
   showSearch?: boolean;
 }
 
-function ListItem(item: CardsListItem, keySuffix: string) {
+interface ListItemProps {
+  item: CardsListItem;
+  keySuffix: string;
+}
+
+function ListItem({ item, keySuffix }: ListItemProps) {
   return (
     <Link key={`card${keySuffix}`} className="visual-card" onClick={item.onClick} href={item.href}>
       <img alt={item.title} src={item.imgSrc} />
@@ -52,7 +57,9 @@ export default function CardsList({ items = [], showSearch = false }: CardsListP
       ) : (
         <div className="row">
           <div className="col-lg-12 d-inline-flex flex-wrap visual-card-list">
-            {filteredItems.map((item: CardsListItem, index: number) => ListItem(item, index.toString()))}
+            {filteredItems.map((item: CardsListItem, index: number) => (
+              <ListItem key={index} item={item} keySuffix={index.toString()} />
+            ))}
           </div>
         </div>
       )}
