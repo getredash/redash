@@ -371,7 +371,17 @@ const saveOrCreateUrl = data => (data.id ? `api/queries/${data.id}` : "api/queri
 const mapResults = data => ({ ...data, results: map(data.results, getQuery) });
 const mapRecentQueriesResults = data => {
   const recentQueries = JSON.parse(localStorage.getItem('recent'));
-  return { ...data, results: filter(map(data.results, getQuery), (query) => recentQueries.includes(query.id))}
+  const recentQueriesIds = map(recentQueries, (query) => query.id);
+  const allUserQueries = map(data.results, getQuery);
+  const userRecentQueries = filter(allUserQueries, (query) => recentQueriesIds.includes(query.id))
+  const sortedUserRecentQueries = userRecentQueries.sort((queryA, queryB) => {
+    const priorityOfQueryA = find(recentQueries, (query) => query.id === queryA.id).value
+    const priorityOfQueryB = find(recentQueries, (query) => query.id === queryB.id).value
+    if (priorityOfQueryA < priorityOfQueryB) return 1;
+    if (priorityOfQueryA > priorityOfQueryB) return -1;
+    return 0;
+  })
+  return { ...data, results: sortedUserRecentQueries}
 }
 
 const QueryService = {
