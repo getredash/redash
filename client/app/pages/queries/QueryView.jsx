@@ -34,6 +34,7 @@ import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
 import useFullscreenHandler from "../../lib/hooks/useFullscreenHandler";
+import useAddQueryToRecentQueries from "./hooks/useAddQueryToRecentQueries";
 
 import "./QueryView.less";
 
@@ -59,6 +60,8 @@ function QueryView(props) {
     isCancelling: isExecutionCancelling,
     updatedAt,
   } = useQueryExecute(query);
+
+  useAddQueryToRecentQueries(query);
 
   const queryResultData = useQueryResultData(queryResult);
 
