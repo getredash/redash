@@ -375,8 +375,8 @@ const mapRecentQueriesResults = data => {
   const allUserQueries = map(data.results, getQuery);
   const userRecentQueries = filter(allUserQueries, (query) => recentQueriesIds.includes(query.id))
   const sortedUserRecentQueries = userRecentQueries.sort((queryA, queryB) => {
-    const priorityOfQueryA = find(recentQueries, (query) => query.id === queryA.id).value
-    const priorityOfQueryB = find(recentQueries, (query) => query.id === queryB.id).value
+    const priorityOfQueryA = find(recentQueries, (query) => query.id === queryA.id).priority
+    const priorityOfQueryB = find(recentQueries, (query) => query.id === queryB.id).priority
     if (priorityOfQueryA < priorityOfQueryB) return 1;
     if (priorityOfQueryA > priorityOfQueryB) return -1;
     return 0;
