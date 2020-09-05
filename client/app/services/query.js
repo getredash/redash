@@ -370,9 +370,9 @@ const getQuery = query => new Query(query);
 const saveOrCreateUrl = data => (data.id ? `api/queries/${data.id}` : "api/queries");
 const mapResults = data => ({ ...data, results: map(data.results, getQuery) });
 const mapRecentQueriesResults = data => {
-  const recentQueries = JSON.parse(localStorage.getItem('recent'));
-  return { ...data, results: filter(map(data.results, getQuery), (query) => recentQueries.includes(query.id))}
-}
+  const recentQueries = JSON.parse(localStorage.getItem("recent"));
+  return { ...data, results: filter(map(data.results, getQuery), query => recentQueries.includes(query.id)) };
+};
 
 const QueryService = {
   query: params => axios.get("api/queries", { params }).then(mapResults),
@@ -390,7 +390,7 @@ const QueryService = {
   favorites: params => axios.get("api/queries/favorites", { params }).then(mapResults),
   favorite: data => axios.post(`api/queries/${data.id}/favorite`),
   unfavorite: data => axios.delete(`api/queries/${data.id}/favorite`),
-  recentQueries: params => axios.get("api/queries/my", { params }).then(mapRecentQueriesResults) 
+  recentQueries: params => axios.get("api/queries/my", { params }).then(mapRecentQueriesResults),
 };
 
 QueryService.newQuery = function newQuery() {
