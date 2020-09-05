@@ -50,6 +50,12 @@ class QueriesList extends React.Component {
       isAvailable: () => currentUser.hasPermission("create_query"),
     },
     {
+      key: "recent",
+      href: "queries/recent",
+      title: "Recent Queries",
+      icon: () => <Sidebar.ProfileImage user={currentUser} />,
+    },
+    {
       key: "archive",
       href: "queries/archive",
       title: "Archived",
@@ -173,20 +179,22 @@ class QueriesList extends React.Component {
 
 const QueriesListPage = itemsList(
   QueriesList,
-  () =>
-    new ResourceItemsSource({
+  () => {
+    return new ResourceItemsSource({
       getResource({ params: { currentPage } }) {
         return {
           all: Query.query.bind(Query),
           my: Query.myQueries.bind(Query),
           favorites: Query.favorites.bind(Query),
+          recent: Query.recentQueries.bind(Query),
           archive: Query.archive.bind(Query),
         }[currentPage];
       },
       getItemProcessor() {
         return item => new Query(item);
       },
-    }),
+    });
+  },
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
@@ -220,5 +228,13 @@ routes.register(
     path: "/queries/my",
     title: "My Queries",
     render: pageProps => <QueriesListPage {...pageProps} currentPage="my" />,
+  })
+);
+routes.register(
+  "Queries.Recent",
+  routeWithUserSession({
+    path: "/queries/recent",
+    title: "Recent Queries",
+    render: pageProps => <QueriesListPage {...pageProps} currentPage="recent" />,
   })
 );
