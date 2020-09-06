@@ -107,18 +107,16 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
   }
 
   function handleAxisInversion(event) {
-    const { x, y } = mappedColumns;
-    console.log(mappedColumns)
-    const columnMapping = mappedColumnsToColumnMappings({
-      ...mappedColumns,
-      x: y,
-      y: x,
-    });
+    // const { x, y } = mappedColumns;
+    // const columnMapping = mappedColumnsToColumnMappings({
+    //   ...mappedColumns,
+    //   x: y,
+    //   y: x,
+    // });
     onOptionsChange({
       series: { percentValues: false }, // turns off percent as it won't work with horizontal chart
-      columnMapping,
       invertedAxes: event.target.checked
-    }, UpdateOptionsStrategy.shallowMerge);
+    });
   }
 
   return (
@@ -266,7 +264,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         </Section>
       )}
 
-      {includes(["line", "area", "column"], options.globalSeriesType) && options.invertedAxes &&  (
+      {includes(["line", "area", "column"], options.globalSeriesType) && !options.invertedAxes &&  (
         <Section>
           <Checkbox
             data-test="Chart.NormalizeValues"
