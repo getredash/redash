@@ -13,13 +13,15 @@ export default function useAddQueryToRecentQueries(query) {
     const recentQueriesIncludesCurrentQuery =
       find(parsedCurrentRecentQueries, recentQuery => recentQuery.id === query.id) !== undefined;
     const biggestPriorityValue = reduce(currentRecentQueriesPrioritys, (a, b) => Math.max(a, b));
-    const queriesToSave = recentQueriesIncludesCurrentQuery ? map(parsedCurrentRecentQueries, recentQuery =>
-      recentQuery.id === query.id ? { id: query.id, priority: biggestPriorityValue + 1 } : recentQuery
-    ) :
-    function() {
+    let queriesToSave;
+    if(recentQueriesIncludesCurrentQuery) {
+      queriesToSave = map(parsedCurrentRecentQueries, recentQuery =>
+        recentQuery.id === query.id ? { id: query.id, priority: biggestPriorityValue + 1 } : recentQuery
+      )
+    } else {
       parsedCurrentRecentQueries.push({ id: query.id, priority: biggestPriorityValue + 1 });
-      return parsedCurrentRecentQueries;
-    }()
+      queriesToSave = parsedCurrentRecentQueries;
+    }
     localStorage.setItem("recentQueries", JSON.stringify(queriesToSave));
   }, [query.id]);
 }
