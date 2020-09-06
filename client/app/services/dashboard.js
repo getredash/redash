@@ -154,6 +154,28 @@ function transformResponse(data) {
   return data;
 }
 
+function transformRecentResponse(data) {
+  if (data.results) {
+    const recentDashboards = localStorage.getItem("recentDashboards");
+    if (!recentDashboards) return { ...data, results: [] };
+    const parsedRecentDashboards = JSON.parse(recentDashboards);
+    const recentDashboardsIds = _.map(parsedRecentDashboards, dashboard => dashboard.id);
+    const allUserDashboards = _.map(data.results, transformSingle);
+    const userRecentDashboards = _.filter(allUserDashboards, dashboard => recentDashboardsIds.includes(dashboard.id.toString()));
+    const sortedUserRecentDashboards = userRecentDashboards.sort((dashboardA, dashboardB) => {
+      const priorityOfDashboardA = _.find(parsedRecentDashboards, dashboard => dashboard.id === dashboardA.id.toString()).priority;
+      const priorityOfDashboardB = _.find(parsedRecentDashboards, dashboard => dashboard.id === dashboardB.id.toString()).priority;
+      if (priorityOfDashboardA < priorityOfDashboardB) return 1;
+      if (priorityOfDashboardA > priorityOfDashboardB) return -1;
+      return 0;
+    });
+    return { ...data, results: sortedUserRecentDashboards };
+  } else {
+    data = transformSingle(data);
+  }
+  return data;
+}
+
 const saveOrCreateUrl = data => (data.id ? `api/dashboards/${data.id}` : "api/dashboards");
 const DashboardService = {
   get: ({ id, slug }) => {
@@ -171,6 +193,7 @@ const DashboardService = {
   favorites: params => axios.get("api/dashboards/favorites", { params }).then(transformResponse),
   favorite: ({ id }) => axios.post(`api/dashboards/${id}/favorite`),
   unfavorite: ({ id }) => axios.delete(`api/dashboards/${id}/favorite`),
+  recentDashboards: params => axios.get("api/dashboards", { params }).then(transformRecentResponse)
 };
 
 _.extend(Dashboard, DashboardService);

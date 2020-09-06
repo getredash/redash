@@ -39,6 +39,12 @@ class DashboardList extends React.Component {
       title: "Favorites",
       icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
     },
+    {
+      key: "recent",
+      href: "dashboards/recent",
+      title: "Recent Dashboards",
+      icon: () => <Sidebar.MenuIcon icon="fa fa-clock-o" />,
+    },
   ];
 
   listColumns = [
@@ -142,6 +148,7 @@ const DashboardListPage = itemsList(
         return {
           all: Dashboard.query.bind(Dashboard),
           favorites: Dashboard.favorites.bind(Dashboard),
+          recent: Dashboard.recentDashboards.bind(Dashboard),
         }[currentPage];
       },
       getItemProcessor() {
@@ -165,5 +172,13 @@ routes.register(
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
     render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
+  })
+);
+routes.register(
+  "Dashboards.Recent",
+  routeWithUserSession({
+    path: "/dashboards/recent",
+    title: "Recent Dashboards",
+    render: pageProps => <DashboardListPage {...pageProps} currentPage="recent" />,
   })
 );
