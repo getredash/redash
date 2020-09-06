@@ -179,7 +179,7 @@ class QueriesList extends React.Component {
 
 const QueriesListPage = itemsList(
   QueriesList,
-  () => {
+  () =>
     new ResourceItemsSource({
       getResource({ params: { currentPage } }) {
         return {
@@ -193,8 +193,7 @@ const QueriesListPage = itemsList(
       getItemProcessor() {
         return item => new Query(item);
       },
-    });
-  },
+    }),
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
