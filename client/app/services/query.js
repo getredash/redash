@@ -370,7 +370,7 @@ const getQuery = query => new Query(query);
 const saveOrCreateUrl = data => (data.id ? `api/queries/${data.id}` : "api/queries");
 const mapResults = data => ({ ...data, results: map(data.results, getQuery) });
 const mapRecentQueriesResults = data => {
-  const recentQueries = localStorage.getItem("recent");
+  const recentQueries = localStorage.getItem("recentQueries");
   if (!recentQueries) return { ...data, results: [] };
   const parsedRecentQueries = JSON.parse(recentQueries);
   const recentQueriesIds = map(parsedRecentQueries, query => query.id);

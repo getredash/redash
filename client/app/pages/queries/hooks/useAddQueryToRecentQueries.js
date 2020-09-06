@@ -3,9 +3,9 @@ import { useCallback } from "react";
 
 export default function useAddQueryToRecentQueries(query) {
   return useCallback(() => {
-    const currentRecentQueries = localStorage.getItem("recent");
+    const currentRecentQueries = localStorage.getItem("recentQueries");
     if (!currentRecentQueries) {
-      localStorage.setItem("recent", JSON.stringify([{ id: query.id, priority: 1 }]));
+      localStorage.setItem("recentQueries", JSON.stringify([{ id: query.id, priority: 1 }]));
     } else {
       const parsedCurrentRecentQueries = JSON.parse(currentRecentQueries);
       const currentRecentQueriesPrioritys = map(parsedCurrentRecentQueries, recentQuery => recentQuery.priority);
@@ -16,10 +16,10 @@ export default function useAddQueryToRecentQueries(query) {
         const newRecentQueries = map(parsedCurrentRecentQueries, recentQuery =>
           recentQuery.id === query.id ? { id: query.id, priority: biggestPriorityValue + 1 } : recentQuery
         );
-        localStorage.setItem("recent", JSON.stringify(newRecentQueries));
+        localStorage.setItem("recentQueries", JSON.stringify(newRecentQueries));
       } else {
         parsedCurrentRecentQueries.push({ id: query.id, priority: biggestPriorityValue + 1 });
-        localStorage.setItem("recent", JSON.stringify(parsedCurrentRecentQueries));
+        localStorage.setItem("recentQueries", JSON.stringify(parsedCurrentRecentQueries));
       }
     }
   }, [query.id]);
