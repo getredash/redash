@@ -106,6 +106,10 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
     }
   }
 
+  function handleAxisInversion(event) {
+    onOptionsChange({ invertedAxes: event.target.checked });
+  }
+
   return (
     <React.Fragment>
       <Section>
@@ -116,6 +120,17 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           onChange={handleGlobalSeriesTypeChange}
         />
       </Section>
+
+      {includes(["column"], options.globalSeriesType) && (
+        <Section>
+          <Checkbox
+            data-test="Chart.InvertedAxes"
+            defaultChecked={options.invertedAxes}
+            onChange={handleAxisInversion}>
+            Horizontal bar chart
+          </Checkbox>
+        </Section>
+      )}
 
       {map(mappedColumns, (value, type) => (
         <ColumnMappingSelect

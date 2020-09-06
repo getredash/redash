@@ -22,6 +22,12 @@ function prepareBarSeries(series, options, additionalOptions) {
   if (options.showDataLabels) {
     series.textposition = "inside";
   }
+  if (options.invertedAxes) {
+    series.orientation = "h";
+    // const { x, y } = series;
+    // series.x = y;
+    // series.y = x;
+  }
   return series;
 }
 
