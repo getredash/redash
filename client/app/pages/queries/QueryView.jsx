@@ -61,7 +61,7 @@ function QueryView(props) {
     updatedAt,
   } = useQueryExecute(query);
 
-  useAddQueryToRecentQueries(query);
+  const addQueryToRecentQueriesCallback = useAddQueryToRecentQueries(query);
 
   const queryResultData = useQueryResultData(queryResult);
 
@@ -80,9 +80,14 @@ function QueryView(props) {
         return;
       }
       executeQuery();
+      addQueryToRecentQueriesCallback();
     },
-    [areParametersDirty, executeQuery, isExecuting, queryFlags.canExecute]
+    [addQueryToRecentQueriesCallback, areParametersDirty, executeQuery, isExecuting, queryFlags.canExecute]
   );
+
+  useEffect(() => {
+    addQueryToRecentQueriesCallback();
+  }, [addQueryToRecentQueriesCallback]);
 
   useEffect(() => {
     document.title = query.name;
