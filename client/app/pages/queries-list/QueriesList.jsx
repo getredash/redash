@@ -53,7 +53,7 @@ class QueriesList extends React.Component {
       key: "recent",
       href: "queries/recent",
       title: "Recent Queries",
-      icon: () => <Sidebar.ProfileImage user={currentUser} />,
+      icon: () => <Sidebar.MenuIcon icon="fa fa-clock-o" />,
     },
     {
       key: "archive",
