@@ -366,6 +366,12 @@ class QueryResource(BaseResource):
         if "tags" in query_def:
             query_def["tags"] = [tag for tag in query_def["tags"] if tag]
 
+        if "data_source_id" in query_def:
+            data_source = models.DataSource.get_by_id_and_org(
+                query_def["data_source_id"], self.current_org
+            )
+            require_access(data_source, self.current_user, not_view_only)
+
         query_def["last_modified_by"] = self.current_user
         query_def["changed_by"] = self.current_user
         # SQLAlchemy handles the case where a concurrent transaction beats us
