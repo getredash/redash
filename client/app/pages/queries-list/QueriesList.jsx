@@ -180,7 +180,7 @@ class QueriesList extends React.Component {
 const QueriesListPage = itemsList(
   QueriesList,
   () => {
-    return new ResourceItemsSource({
+    new ResourceItemsSource({
       getResource({ params: { currentPage } }) {
         return {
           all: Query.query.bind(Query),
