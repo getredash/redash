@@ -36,7 +36,7 @@ CELERY_INIT_TIMEOUT = int(os.environ.get(
     "REDASH_CELERY_INIT_TIMEOUT", 10))
 CELERY_BROKER_USE_SSL = CELERY_BROKER.startswith('rediss')
 CELERY_SSL_CONFIG = {
-    'ssl_cert_reqs': int(os.environ.get("REDASH_CELERY_BROKER_SSL_CERT_REQS",  ssl.CERT_OPTIONAL)),
+    'ssl_cert_reqs': int(os.environ.get("REDASH_CELERY_BROKER_SSL_CERT_REQS", ssl.CERT_OPTIONAL)),
     'ssl_ca_certs': os.environ.get("REDASH_CELERY_BROKER_SSL_CA_CERTS"),
     'ssl_certfile': os.environ.get("REDASH_CELERY_BROKER_SSL_CERTFILE"),
     'ssl_keyfile': os.environ.get("REDASH_CELERY_BROKER_SSL_KEYFILE"),
