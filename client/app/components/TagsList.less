@@ -1,15 +1,46 @@
-@import '~@/assets/less/ant';
+@import "~@/assets/less/ant";
 
 .tags-list {
+  .tags-list-title {
+    margin: 10px 0 4px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    label {
+      display: block;
+      white-space: nowrap;
+      margin: 0;
+    }
+
+    a {
+      display: block;
+      white-space: nowrap;
+      cursor: pointer;
+
+      .anticon {
+        vertical-align: middle;
+      }
+    }
+  }
+
   .ant-badge-count {
     background-color: fade(@redash-gray, 10%);
     color: fade(@redash-gray, 75%);
   }
 
-  .ant-menu-item-selected {
-    .ant-badge-count {
-      background-color: @primary-color;
-      color: white;
+  .ant-menu.ant-menu-inline {
+    border: none;
+
+    .ant-menu-item {
+      width: 100%;
+    }
+
+    .ant-menu-item-selected {
+      .ant-badge-count {
+        background-color: @primary-color;
+        color: white;
+      }
     }
   }
 }

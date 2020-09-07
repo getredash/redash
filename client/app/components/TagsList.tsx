@@ -2,11 +2,10 @@ import { map, includes, difference } from "lodash";
 import React, { useState, useCallback, useEffect } from "react";
 import Badge from "antd/lib/badge";
 import Menu from "antd/lib/menu";
+import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import getTags from "@/services/getTags";
 
 import "./TagsList.less";
-
-const UNSELECT_ALL_KEY = "###Redash::TagsList::UnselectAll###";
 
 type Tag = {
   name: string;
@@ -16,16 +15,10 @@ type Tag = {
 type TagsListProps = {
   tagsUrl: string;
   showUnselectAll: boolean;
-  unselectAllButtonTitle: string;
   onUpdate?: (selectedTags: string[]) => void;
 };
 
-function TagsList({
-  tagsUrl,
-  showUnselectAll = false,
-  unselectAllButtonTitle = "Unselect All",
-  onUpdate,
-}: TagsListProps): JSX.Element | null {
+function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps): JSX.Element | null {
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
@@ -81,29 +74,31 @@ function TagsList({
     return null;
   }
 
-  const selectedMenuItems = selectedTags.length > 0 ? selectedTags : [UNSELECT_ALL_KEY];
-
   return (
-    <div className="m-t-10 tags-list tiled">
-      <Menu className="invert-stripe-position" mode="inline" selectedKeys={selectedMenuItems}>
-        {showUnselectAll && (
-          <Menu.Item key={UNSELECT_ALL_KEY} className="m-0">
-            <a className="d-flex align-items-center justify-content-between" onClick={unselectAll}>
-              <span className="max-character col-xs-11">{unselectAllButtonTitle}</span>
-            </a>
-          </Menu.Item>
+    <div className="tags-list">
+      <div className="tags-list-title">
+        <label>Tags</label>
+        {showUnselectAll && selectedTags.length > 0 && (
+          <a onClick={unselectAll}>
+            <CloseOutlinedIcon /> clear filter
+          </a>
         )}
-        {map(allTags, tag => (
-          <Menu.Item key={tag.name} className="m-0">
-            <a
-              className="d-flex align-items-center justify-content-between"
-              onClick={event => toggleTag(event, tag.name)}>
-              <span className="max-character col-xs-11">{tag.name}</span>
-              <Badge count={tag.count} />
-            </a>
-          </Menu.Item>
-        ))}
-      </Menu>
+      </div>
+
+      <div className="tiled">
+        <Menu className="invert-stripe-position" mode="inline" selectedKeys={selectedTags}>
+          {map(allTags, tag => (
+            <Menu.Item key={tag.name} className="m-0">
+              <a
+                className="d-flex align-items-center justify-content-between"
+                onClick={event => toggleTag(event, tag.name)}>
+                <span className="max-character col-xs-11">{tag.name}</span>
+                <Badge count={tag.count} />
+              </a>
+            </Menu.Item>
+          ))}
+        </Menu>
+      </div>
     </div>
   );
 }
