@@ -124,13 +124,13 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         />
       </Section>
 
-      {includes(["column"], options.globalSeriesType) && (
+      {includes(["line", "area", "column"], options.globalSeriesType) && (
         <Section>
           <Checkbox
             data-test="Chart.InvertedAxes"
             defaultChecked={options.invertedAxes}
             onChange={handleAxisInversion}>
-            Horizontal bar chart
+            Horizontal chart
           </Checkbox>
         </Section>
       )}

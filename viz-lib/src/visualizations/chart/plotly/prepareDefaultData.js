@@ -22,12 +22,6 @@ function prepareBarSeries(series, options, additionalOptions) {
   if (options.showDataLabels) {
     series.textposition = "inside";
   }
-  if (options.invertedAxes) {
-    series.orientation = "h";
-    const { x, y } = series;
-    series.x = y;
-    series.y = x;
-  }
   return series;
 }
 
@@ -135,6 +129,13 @@ function prepareSeries(series, options, additionalOptions) {
     yaxis: seriesYAxis,
     sourceData,
   };
+
+  if (options.invertedAxes) {
+    plotlySeries.orientation = "h";
+    const { x, y } = plotlySeries;
+    plotlySeries.x = y;
+    plotlySeries.y = x;
+  }
 
   additionalOptions = { ...additionalOptions, seriesColor, data };
 
