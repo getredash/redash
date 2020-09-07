@@ -106,13 +106,6 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
     }
   }
 
-  function handleAxisInversion(event) {
-    onOptionsChange({
-      series: { percentValues: false }, // turns off percent as it won't work with horizontal chart
-      invertedAxes: event.target.checked
-    });
-  }
-
   return (
     <React.Fragment>
       <Section>
@@ -129,7 +122,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           <Checkbox
             data-test="Chart.InvertedAxes"
             defaultChecked={options.invertedAxes}
-            onChange={handleAxisInversion}>
+            onChange={event => onOptionsChange({ invertedAxes: event.target.checked })}>
             Horizontal chart
           </Checkbox>
         </Section>
@@ -259,7 +252,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         </Section>
       )}
 
-      {includes(["line", "area", "column"], options.globalSeriesType) && !options.invertedAxes &&  (
+      {includes(["line", "area", "column"], options.globalSeriesType) &&  (
         <Section>
           <Checkbox
             data-test="Chart.NormalizeValues"
