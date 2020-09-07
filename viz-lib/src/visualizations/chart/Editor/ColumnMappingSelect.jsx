@@ -12,8 +12,11 @@ const MappingTypes = {
   zVal: { label: "Color Column" },
 };
 
-export default function ColumnMappingSelect({ value, availableColumns, type, onChange }) {
+export default function ColumnMappingSelect({ value, availableColumns, type, onChange, isAxesInverted }) {
   const options = sortBy(filter(uniq(flatten([availableColumns, value])), v => isString(v) && v !== ""));
+
+  // effectively inverts the ui 
+  // const displayType = isAxesInverted ? type === "x" ? "y" : "x" : type;
   const { label, multiple } = MappingTypes[type];
 
   return (
