@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 from six import text_type
 from sshtunnel import open_tunnel
-from redash import settings
+from redash import settings, utils
 from redash.utils import json_loads, query_is_select_no_limit, add_limit_to_query
 from rq.timeouts import JobTimeoutException
 
@@ -196,6 +196,10 @@ class BaseQueryRunner(object):
 
     def apply_auto_limit(self, query_text, set_auto_limit):
         return query_text
+
+    def gen_query_hash(self, query_text, set_auto_limit=False):
+        query_text = self.apply_auto_limit(query_text, set_auto_limit)
+        return utils.gen_query_hash(query_text)
 
 
 class BaseSQLQueryRunner(BaseQueryRunner):

@@ -21,7 +21,6 @@ from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time
 
-
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 WRITER_ENCODING = os.environ.get("REDASH_CSV_WRITER_ENCODING", "utf-8")
 WRITER_ERRORS = os.environ.get("REDASH_CSV_WRITER_ERRORS", "strict")
@@ -71,7 +70,6 @@ def generate_token(length):
 
 class JSONEncoder(simplejson.JSONEncoder):
     """Adapter for `simplejson.dumps`."""
-
 
     def default(self, o):
         # Some SQLAlchemy collections are lazy.
@@ -215,6 +213,7 @@ def render_template(path, context):
     """
     current_app.jinja_env.get_template(path).render(**context)
 
+
 def query_is_select_no_limit(query):
     parsed_query = sqlparse.parse(query)[0]
     last_keyword_idx = find_last_keyword_idx(parsed_query)
@@ -226,11 +225,13 @@ def query_is_select_no_limit(query):
                and parsed_query.tokens[last_keyword_idx].value.upper() != "OFFSET"
     return no_limit
 
+
 def find_last_keyword_idx(parsed_query):
     for i in reversed(range(len(parsed_query.tokens))):
         if parsed_query.tokens[i].ttype in sqlparse.tokens.Keyword:
             return i
     return -1
+
 
 def add_limit_to_query(query):
     # this function will only be called if query_is_select_no_limit returns True
@@ -242,4 +243,3 @@ def add_limit_to_query(query):
     else:
         parsed_query.tokens += limit_tokens
     return str(parsed_query)
-

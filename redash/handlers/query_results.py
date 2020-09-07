@@ -20,7 +20,6 @@ from redash.tasks import Job
 from redash.tasks.queries import enqueue_query
 from redash.utils import (
     collect_parameters_from_request,
-    gen_query_hash,
     json_dumps,
     utcnow,
     to_filename,
@@ -77,7 +76,7 @@ def run_query(query, parameters, data_source, query_id, apply_auto_limit, max_ag
     except (InvalidParameterError, QueryDetachedFromDataSourceError) as e:
         abort(400, message=str(e))
 
-    query_text = data_source.query_runner.apply_auto_limit(query.text, apply_auto_limit)
+    query_text = _apply_auto_limit(data_source, query, apply_auto_limit)
 
     if query.missing_params:
         return error_response(
@@ -123,6 +122,10 @@ def run_query(query, parameters, data_source, query_id, apply_auto_limit, max_ag
             },
         )
         return serialize_job(job)
+
+
+def _apply_auto_limit(data_source, query, apply_auto_limit):
+    return data_source.query_runner.apply_auto_limit(query.text, apply_auto_limit)
 
 
 def get_download_filename(query_result, query, filetype):
