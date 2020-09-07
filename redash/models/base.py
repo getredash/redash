@@ -1,9 +1,12 @@
 import functools
 
-from flask_sqlalchemy import BaseQuery, SQLAlchemy
+from flask_sqlalchemy import BaseQuery
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import object_session
 from sqlalchemy.pool import NullPool
-from sqlalchemy_searchable import SearchQueryMixin, make_searchable, vectorizer
+from sqlalchemy_searchable import make_searchable
+from sqlalchemy_searchable import SearchQueryMixin
+from sqlalchemy_searchable import vectorizer
 
 from redash import settings
 from redash.utils import json_dumps
