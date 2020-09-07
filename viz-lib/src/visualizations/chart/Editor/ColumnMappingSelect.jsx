@@ -15,9 +15,18 @@ const MappingTypes = {
 export default function ColumnMappingSelect({ value, availableColumns, type, onChange, isAxesInverted }) {
   const options = sortBy(filter(uniq(flatten([availableColumns, value])), v => isString(v) && v !== ""));
 
-  // effectively inverts the ui 
-  // const displayType = isAxesInverted ? type === "x" ? "y" : "x" : type;
-  const { label, multiple } = MappingTypes[type];
+  // this is a simple workaround to invert the ui, as the data will be inverted before rendering
+  if (isAxesInverted) {
+    // eslint-disable-next-line no-param-reassign
+    if (type === "x") {
+      type = "y";
+      value = [value];
+    } else if (type === "y") {
+      type = "x";
+      value = value[0];
+    }
+  }
+  const { label, multiple } = MappingTypes[type]
 
   return (
     <Section>

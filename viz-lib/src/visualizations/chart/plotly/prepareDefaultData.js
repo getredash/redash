@@ -130,13 +130,6 @@ function prepareSeries(series, options, additionalOptions) {
     sourceData,
   };
 
-  if (options.invertedAxes) {
-    plotlySeries.orientation = "h";
-    const { x, y } = plotlySeries;
-    plotlySeries.x = y;
-    plotlySeries.y = x;
-  }
-
   additionalOptions = { ...additionalOptions, seriesColor, data };
 
   switch (seriesOptions.type) {
