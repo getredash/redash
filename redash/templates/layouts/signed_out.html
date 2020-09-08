@@ -1,34 +1,105 @@
 <!DOCTYPE html>
 <html class="no-js">
-<head>
-  <title>{% block title %}{% endblock %}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <head>
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-  <link rel="stylesheet" href="{{ asset_url('server.css') }}">
+    <link rel="stylesheet" href="{{ asset_url('server.css') }}" />
 
-  <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="96x96" href="/static/images/favicon-96x96.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png">
-  {% block head %}{% endblock %}
-</head>
-<body class="d-flex flex-column justify-content-center align-items-center signed-out">
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/static/images/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="/static/images/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/static/images/favicon-16x16.png"
+    />
+    {% block head %}{% endblock %}
+    <style>
+      body {
+        background: #121212;
+      }
+      .bg-white.tiled {
+        background: #1e1e1e !important;
+      }
+      h3.text-center {
+        color: #fff;
+      }
 
-  <div>
-    <div class="header">
-      <div class="text-center m-b-15">
-        <a href="/"><img src="/static/images/redash_icon_small.png"></a>
-      </div>
-      {% if not hide_page_header %}
+      button[type="submit"] {
+        text-transform: uppercase;
+        letter-spacing: 0.0892857143em;
+        border-radius: 4px;
+        background-color: #26387b;
+        height: 36px;
+        font-size: 14px;
+        box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+          0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+      }
+      button[type="submit"]:hover,
+      button[type="submit"]:focus,
+      button[type="submit"]:active {
+        background-color: #405187 !important;
+      }
+      form[name="login"] label {
+        color: #fff;
+        margin-bottom: 10px;
+      }
+      form[name="login"] input {
+        height: 36px;
+        background: #121212;
+        border-color: rgba(255, 255, 255, 0.12);
+        border-radius: 4px;
+        color: #fff !important;
+      }
+      .form-control:hover {
+        border-color: #415fcc;
+      }
+      a {
+        color: #fff;
+        background-color: transparent !important;
+        padding: 0;
+      }
+      a:hover {
+        color: #415fcc !important;
+        background-color: transparent !important;
+      }
+      .footer {
+        display: flex;
+        justify-content: space-between;
+      }
+      .header img {
+        height: 80px;
+      }
+    </style>
+  </head>
+  <body
+    class="d-flex flex-column justify-content-center align-items-center signed-out"
+  >
+    <div>
+      <div class="header">
+        <div class="text-center m-b-15">
+          <a href="/"><img src="/static/images/ttek_logo.png"/></a>
+        </div>
+        {% if not hide_page_header %}
         <h3 class="text-center m-t-0 m-b-25">{{ self.title() }}</h3>
-      {% endif %}
+        {% endif %}
+      </div>
+      {% block content %}{% endblock %}
     </div>
-    {% block content %}{% endblock %}
-  </div>
 
-{% block scripts %}{% endblock %}
-
-{% include '_includes/signed_out_tail.html' %}
-
-</body>
+    {% block scripts %}{% endblock %} {% include
+    '_includes/signed_out_tail.html' %}
+  </body>
 </html>

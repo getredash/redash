@@ -1,4 +1,5 @@
 /* eslint-disable */
+const { getThemeVariables } = require("antd/dist/theme");
 
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -43,7 +44,8 @@ const extensionPath = path.join(__dirname, extensionsRelativePath);
 
 // Function to apply configuration overrides (see scripts/README)
 function maybeApplyOverrides(config) {
-  const overridesLocation = process.env.REDASH_WEBPACK_OVERRIDES || "./scripts/webpack/overrides";
+  const overridesLocation =
+    process.env.REDASH_WEBPACK_OVERRIDES || "./scripts/webpack/overrides";
   const applyOverrides = optionalRequire(overridesLocation);
   if (!applyOverrides) {
     return config;
@@ -78,6 +80,10 @@ const config = {
     }
   },
   plugins: [
+    // new webpack.NormalModuleReplacementPlugin(
+    //   /node_modules\/antd\/lib\/style\/index\.less/,
+    //   path.resolve(appPath, "assets/less/dark-variables.less")
+    // ),
     new WebpackBuildNotifierPlugin({ title: "Redash" }),
     // bundle only default `moment` locale (`en`)
     new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
@@ -160,6 +166,10 @@ const config = {
           {
             loader: "less-loader",
             options: {
+              modifyVars: getThemeVariables({
+                dark: true,
+                compact: true
+              }),
               plugins: [
                 new LessPluginAutoPrefix({ browsers: ["last 3 versions"] })
               ],

@@ -136,7 +136,7 @@ const QueryEditor = React.forwardRef(function(
     <div className={cx("query-editor-container", className)} {...props} ref={setContainer}>
       <AceEditor
         ref={setEditorRef}
-        theme="textmate"
+        theme="terminal"
         mode={syntax || "sql"}
         value={currentValue}
         editorProps={editorProps}
