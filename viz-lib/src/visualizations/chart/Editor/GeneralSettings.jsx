@@ -83,6 +83,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
     onOptionsChange({
       globalSeriesType,
       showDataLabels: globalSeriesType === "pie",
+      invertedAxes: false,
       seriesOptions: mapValues(options.seriesOptions, series => ({
         ...series,
         type: globalSeriesType,
@@ -117,13 +118,14 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         />
       </Section>
 
-      {includes(["column"], options.globalSeriesType) && (
+      {includes(["column", "line"], options.globalSeriesType) && (
         <Section>
           <Checkbox
             data-test="Chart.InvertedAxes"
             defaultChecked={options.invertedAxes}
-            onChange={event => onOptionsChange({ invertedAxes: event.target.checked })}>
-            Horizontal bar chart
+            checked={options.invertedAxes}
+            onChange={() => onOptionsChange({ invertedAxes: !options.invertedAxes })}>
+            Horizontal chart
           </Checkbox>
         </Section>
       )}
@@ -283,4 +285,4 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
   );
 }
 
-GeneralSettings.propTypes = EditorPropTypes;
+

@@ -11,6 +11,7 @@ const DEFAULT_OPTIONS = {
 
   showTooltips: true,
   percentValues: true,
+  invertedAxes: false,
 
   timeColumnTitle: "Time",
   peopleColumnTitle: "Users",
