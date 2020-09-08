@@ -123,7 +123,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             data-test="Chart.InvertedAxes"
             defaultChecked={options.invertedAxes}
             onChange={event => onOptionsChange({ invertedAxes: event.target.checked })}>
-            Horizontal chart
+            Horizontal bar chart
           </Checkbox>
         </Section>
       )}
