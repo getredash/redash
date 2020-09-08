@@ -21,10 +21,10 @@ export default function SAMLSettings(props) {
       </Form.Item>
       {values.auth_saml_enabled && (
         <div>
-          <Form.Item label="SAML Metadata URL">
+          <Form.Item label="SAML Single Sign-on URL">
             <Input
-              value={values.auth_saml_metadata_url}
-              onChange={e => onChange({ auth_saml_metadata_url: e.target.value })}
+              value={values.auth_saml_sso_url}
+              onChange={e => onChange({ auth_saml_sso_url: e.target.value })}
             />
           </Form.Item>
           <Form.Item label="SAML Entity ID">
@@ -33,10 +33,10 @@ export default function SAMLSettings(props) {
               onChange={e => onChange({ auth_saml_entity_id: e.target.value })}
             />
           </Form.Item>
-          <Form.Item label="SAML NameID Format">
+          <Form.Item label="SAML x509 cert">
             <Input
-              value={values.auth_saml_nameid_format}
-              onChange={e => onChange({ auth_saml_nameid_format: e.target.value })}
+              value={values.auth_saml_x509_cert}
+              onChange={e => onChange({ auth_saml_x509_cert: e.target.value })}
             />
           </Form.Item>
         </div>
