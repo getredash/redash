@@ -10,13 +10,10 @@ export default function updateAxesInversion(seriesList, layout, options) {
       series.y = x;
     });
 
-    const { xaxis, yaxis, yaxis2 } = layout;
+    const { xaxis, yaxis } = layout;
     if (isObject(xaxis) && isObject(yaxis)) {
       layout.xaxis = yaxis;
       layout.yaxis = xaxis;
-      // if (isObject(yaxis2)) {
-      //   layout.xaxis2 = yaxis2;
-      // }
     }
   }
 
