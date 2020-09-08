@@ -82,7 +82,39 @@ export default function initChart(container, options, data, additionalOptions, o
   let unwatchResize = () => {};
 
   const promise = Promise.resolve()
-    .then(() => Plotly.newPlot(container, plotlyData, plotlyLayout, plotlyOptions))
+    .then(() => {
+      plotlyLayout.paper_bgcolor = "#1e1e1e";
+      plotlyLayout.plot_bgcolor = "#1e1e1e";
+
+      if (options.globalSeriesType !== "pie") {
+        plotlyLayout.xaxis.color = "#ffffffbf";
+        plotlyLayout.xaxis.zerolinecolor = "rgba(255, 255, 255, 0.12)";
+        // plotlyLayout.xaxis.linecolor = "rgba(255, 255, 255, 0.12)";
+        // plotlyLayout.xaxis.gridcolor = "rgba(255, 255, 255, 0.12)";
+        plotlyLayout.yaxis.color = "#ffffffbf";
+        plotlyLayout.yaxis.zerolinecolor = "rgba(255, 255, 255, 0.12)";
+        // plotlyLayout.yaxis.linecolor = "rgba(255, 255, 255, 0.12)";
+        // plotlyLayout.yaxis.gridcolor = "rgba(255, 255, 255, 0.12)";
+
+        // if (options.globalSeriesType !== "bar") {
+        //   plotlyLayout.yaxis.showgrid = true;
+        //   plotlyLayout.xaxis.showgrid = false;
+        // } else {
+        //   plotlyLayout.xaxis.showgrid = true;
+        //   plotlyLayout.yaxis.showgrid = false;
+        // }
+      }
+      // console.log(plotlyLayout);
+
+      plotlyLayout.legend = {
+        bgcolor: "transparent",
+        font: {
+          color: "#ffffffbf",
+        },
+      };
+
+      Plotly.newPlot(container, plotlyData, plotlyLayout, plotlyOptions);
+    })
     .then(
       createSafeFunction(() =>
         updater

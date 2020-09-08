@@ -80,6 +80,10 @@ const config = {
     }
   },
   plugins: [
+    // new webpack.NormalModuleReplacementPlugin(
+    //   /node_modules\/antd\/lib\/style\/index\.less/,
+    //   path.resolve(appPath, "assets/less/dark-variables.less")
+    // ),
     new WebpackBuildNotifierPlugin({ title: "Redash" }),
     // bundle only default `moment` locale (`en`)
     new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),

@@ -676,12 +676,14 @@ div[data-test="AddWidgetDialog"] {
 
 .home-favorites-list {
   .list-group-item {
+    padding: 6px 15px;
     border: 1px solid @border-color;
     background: @second-bg;
     color: @white;
 
     &:hover {
-      background: @primary-bg;
+      background: @primaryColor;
+      color: @white;
     }
   }
 }
@@ -943,6 +945,7 @@ div[data-test="QueryPageVisualizationTabs"] {
 /* Track */
 ::-webkit-scrollbar-track {
   background: #161616;
+  border-radius: 5px;
 }
 
 /* Handle */

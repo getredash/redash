@@ -8,6 +8,7 @@ import "ace-builds/src-noconflict/mode-python";
 import "ace-builds/src-noconflict/mode-sql";
 import "ace-builds/src-noconflict/mode-yaml";
 import "ace-builds/src-noconflict/theme-textmate";
+import "ace-builds/src-noconflict/theme-terminal";
 import "ace-builds/src-noconflict/ext-searchbox";
 
 const langTools = ace.acequire("ace/ext/language_tools");

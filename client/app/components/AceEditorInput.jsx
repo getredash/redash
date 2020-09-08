@@ -9,7 +9,7 @@ function AceEditorInput(props, ref) {
       <AceEditor
         ref={ref}
         mode="sql"
-        theme="textmate"
+        theme="terminal"
         height="100px"
         editorProps={{ $blockScrolling: Infinity }}
         showPrintMargin={false}
