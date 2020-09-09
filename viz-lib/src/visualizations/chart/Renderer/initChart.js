@@ -86,8 +86,8 @@ export default function initChart(container, options, data, additionalOptions, o
     .then(
       createSafeFunction(() =>
         updater
-          .append(updateAxesInversion(plotlyData, plotlyLayout, options))
           .append(updateYRanges(container, plotlyLayout, options))
+          .append(updateAxesInversion(plotlyData, plotlyLayout, options))
           .append(updateChartSize(container, plotlyLayout, options))
           .process(container)
       )
@@ -102,8 +102,8 @@ export default function initChart(container, options, data, additionalOptions, o
             if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {
               updateData(plotlyData, options);
               updater
-                .append(updateAxesInversion(plotlyData, plotlyLayout, options))
                 .append(updateYRanges(container, plotlyLayout, options))
+                .append(updateAxesInversion(plotlyData, plotlyLayout, options))
                 .process(container);
             }
           })

@@ -1,4 +1,5 @@
 import { each, isObject } from "lodash";
+import { merge } from "lodash";
 export default function updateAxesInversion(seriesList, layout, options) {
   const updates = {};
 
@@ -10,12 +11,23 @@ export default function updateAxesInversion(seriesList, layout, options) {
       series.y = x;
     });
 
-    const { xaxis, yaxis } = layout;
-    if (isObject(xaxis) && isObject(yaxis)) {
-      layout.xaxis = yaxis;
-      layout.yaxis = xaxis;
-    }
+    // const { xaxis, yaxis } = layout;
+    // if (isObject(xaxis) && isObject(yaxis)) {
+    //   updates.xaxis = merge({}, yaxis);
+    //   updates.yaxis = merge({}, xaxis);
+    // }
   }
 
-  return [updates, null];
+  return [updates, () => {
+    if (options.invertedAxes) {
+      const { xaxis, yaxis } = layout;
+      
+      if (isObject(xaxis) && isObject(yaxis)) {
+        updates.xaxis = yaxis;
+        updates.yaxis = xaxis;
+      }
+    }
+  
+    return [updates, null]
+  }];
 }
