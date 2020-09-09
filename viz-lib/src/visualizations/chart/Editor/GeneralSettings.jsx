@@ -112,8 +112,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
     const seriesOptions = mapValues(options.seriesOptions, series => ({
       ...series,
       yAxis: 0,
-    }))
-    onOptionsChange({ invertedAxes: !options.invertedAxes, seriesOptions })
+    }));
+    onOptionsChange({ invertedAxes: !options.invertedAxes, seriesOptions });
   }
 
   return (
