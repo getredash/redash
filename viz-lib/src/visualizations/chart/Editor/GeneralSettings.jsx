@@ -107,6 +107,15 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
     }
   }
 
+  function handleAxesInversion() {
+    // moves any item in the right Y axis to the left one
+    const seriesOptions = mapValues(options.seriesOptions, series => ({
+      ...series,
+      yAxis: 0,
+    }))
+    onOptionsChange({ invertedAxes: !options.invertedAxes, seriesOptions })
+  }
+
   return (
     <React.Fragment>
       <Section>
@@ -124,7 +133,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             data-test="Chart.InvertedAxes"
             defaultChecked={options.invertedAxes}
             checked={options.invertedAxes}
-            onChange={() => onOptionsChange({ invertedAxes: !options.invertedAxes })}>
+            onChange={handleAxesInversion}>
             Horizontal Chart
           </Checkbox>
         </Section>

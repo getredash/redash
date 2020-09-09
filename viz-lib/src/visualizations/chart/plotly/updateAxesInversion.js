@@ -1,5 +1,4 @@
 import { each, isObject } from "lodash";
-import { merge } from "lodash";
 export default function updateAxesInversion(seriesList, layout, options) {
   const updates = {};
 
@@ -23,7 +22,7 @@ export default function updateAxesInversion(seriesList, layout, options) {
         }
         if (isObject(yaxis2)) {
           // TODO add xaxis2
-          updates.yaxis2 = undefined;
+          updates.yaxis2 = null;
         }
       }
 
