@@ -34,8 +34,7 @@ import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
 import useFullscreenHandler from "../../lib/hooks/useFullscreenHandler";
-import useAddQueryToRecentQueries from "./hooks/useAddQueryToRecentQueries";
-
+import useAddToRecentsAtLocalStorage from "../../lib/hooks/useAddToRecentsAtLocalStorage";
 import "./QueryView.less";
 
 function QueryView(props) {
@@ -61,7 +60,7 @@ function QueryView(props) {
     updatedAt,
   } = useQueryExecute(query);
 
-  const addQueryToRecentQueriesCallback = useAddQueryToRecentQueries(query);
+  const addQueryToRecentQueriesCallback = useAddToRecentsAtLocalStorage(query.id, "recentQueries");
 
   const queryResultData = useQueryResultData(queryResult);
 

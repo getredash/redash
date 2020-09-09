@@ -19,7 +19,7 @@ import url from "@/services/url";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 import useDashboard from "./hooks/useDashboard";
-import useAddDashboardToRecentDashboards from './hooks/useAddDashboardToRecentDashboards';
+import useAddToRecentsAtLocalStorage from "../../lib/hooks/useAddToRecentsAtLocalStorage";
 import DashboardHeader from "./components/DashboardHeader";
 
 import "./DashboardPage.less";
@@ -151,7 +151,7 @@ DashboardComponent.propTypes = {
 function DashboardPage({ dashboardSlug, dashboardId, onError }) {
   const [dashboard, setDashboard] = useState(null);
   const handleError = useImmutableCallback(onError);
-  const addDashboardToRecentDashboards = useAddDashboardToRecentDashboards(dashboardId);
+  const addDashboardToRecentDashboards = useAddToRecentsAtLocalStorage(dashboardId, "recentDashboards");
   useEffect(() => {
     Dashboard.get({ id: dashboardId, slug: dashboardSlug })
       .then(dashboardData => {
@@ -165,7 +165,7 @@ function DashboardPage({ dashboardSlug, dashboardId, onError }) {
       })
       .catch(handleError);
   }, [dashboardId, dashboardSlug, handleError]);
-  
+
   useEffect(() => {
     addDashboardToRecentDashboards();
   }, [addDashboardToRecentDashboards]);
