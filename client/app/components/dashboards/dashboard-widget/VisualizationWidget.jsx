@@ -20,6 +20,8 @@ import EditParameterMappingsDialog from "@/components/dashboards/EditParameterMa
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import Widget from "./Widget";
 
+let isOpenWidget = false;
+
 function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit }) {
   const canViewQuery = currentUser.hasPermission("view_query");
   const canEditParameters = canEditDashboard && !isEmpty(invoke(widget, "query.getParametersDefs"));
@@ -219,6 +221,23 @@ class VisualizationWidget extends React.Component {
     onLoad();
   }
 
+  onSuccess = state => {
+    // console.log(state, queryString.parse(window.location.search));
+    if (state) {
+      let p_widget = localStorage.getItem("p_widget");
+      p_widget = p_widget ? JSON.parse(p_widget) : {};
+
+      if (p_widget.id && !isOpenWidget) {
+        if (p_widget.id === this.props.widget.id) {
+          this.expandWidget();
+          isOpenWidget = true;
+          localStorage.removeItem("p_widget");
+          localStorage.removeItem("b_dashboard");
+        }
+      }
+    }
+  };
+
   expandWidget = () => {
     ExpandedWidgetDialog.showModal({ widget: this.props.widget });
   };
@@ -242,6 +261,10 @@ class VisualizationWidget extends React.Component {
     const { widget, filters } = this.props;
     const widgetQueryResult = widget.getQueryResult();
     const widgetStatus = widgetQueryResult && widgetQueryResult.getStatus();
+    const visualization = widget.visualization;
+    visualization.subDashboard = widget.options.subDashboardSlug;
+    visualization.widgetId = widget.id;
+
     switch (widgetStatus) {
       case "failed":
         return (
@@ -261,6 +284,7 @@ class VisualizationWidget extends React.Component {
               queryResult={widgetQueryResult}
               filters={filters}
               context="widget"
+              onSuccess={this.onSuccess}
             />
           </div>
         );

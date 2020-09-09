@@ -48,7 +48,9 @@ function initPlotUpdater() {
   return updater;
 }
 
-export default function initChart(container, options, data, additionalOptions, onError) {
+export default function initChart(container, options, data, additionalOptions, visualization, onSuccess, onError) {
+  // console.log(visualization, onSuccess);
+
   const handleError = createErrorHandler(onError);
 
   const plotlyOptions = {
@@ -122,6 +124,51 @@ export default function initChart(container, options, data, additionalOptions, o
           .append(updateChartSize(container, plotlyLayout, options))
           .process(container)
       )
+    )
+    .then(
+      createSafeFunction(() => {
+        container.on("plotly_afterplot", function() {
+          if (onSuccess) {
+            onSuccess(true);
+          }
+        });
+      })
+    )
+    .then(
+      createSafeFunction(() => {
+        container.on("plotly_click", function(data) {
+          // console.log(visualization);
+
+          if (visualization.subDashboard) {
+            const keys = Object.keys(options.columnMapping);
+            const axisMapping = {};
+            for (let i = 0, len = keys.length; i < len; i++) {
+              axisMapping[options.columnMapping[keys[i]]] = keys[i];
+            }
+            // console.log(axisMapping);
+            localStorage.removeItem("b_dashboard");
+            localStorage.removeItem("p_widget");
+            localStorage.setItem(
+              "b_dashboard",
+              JSON.stringify({
+                link: location.href,
+                pathname: `/dashboards/${visualization.subDashboard}`,
+                parentName: visualization.query.name,
+              })
+            );
+            localStorage.setItem(
+              "p_widget",
+              JSON.stringify({
+                id: visualization.widgetId,
+                name: visualization.query.name,
+              })
+            );
+            const link = `${window.location.origin}/dashboards/${visualization.subDashboard}?p_${axisMapping.x}=${data.points[0].x}`;
+            window.location.href = link;
+            // window.open(link, "_blank").focus();
+          }
+        });
+      })
     )
     .then(
       createSafeFunction(() => {

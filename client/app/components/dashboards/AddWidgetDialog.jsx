@@ -1,13 +1,64 @@
 import { map, includes, groupBy, first, find } from "lodash";
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import Select from "antd/lib/select";
 import Modal from "antd/lib/modal";
+import Checkbox from "antd/lib/checkbox";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { MappingType, ParameterMappingListInput } from "@/components/ParameterMappingInput";
 import QuerySelector from "@/components/QuerySelector";
 import notification from "@/services/notification";
 import { Query } from "@/services/query";
+import { Dashboard } from "@/services/dashboard";
+import useSearchResults from "@/lib/hooks/useSearchResults";
+
+function queryDashboard() {
+  return Dashboard.query({ page_size: 100 })
+    .then(({ results }) => results)
+    .catch(() => []);
+}
+
+function SubDashboardSelect(props) {
+  // const [searchTerm, setSearchTerm] = useState("");
+  const [doSearch, searchResults] = useSearchResults(queryDashboard, { initialResults: [] });
+  useEffect(() => {
+    doSearch();
+  }, [doSearch]);
+
+  const placeholder = "Select sub-dashboard";
+
+  const handleSelectSubDashboard = slug => {
+    props.onChange(slug);
+  };
+
+  return (
+    <div>
+      <div className="form-group">
+        {/* <label htmlFor="choose-visualization">Choose sub dashboard</label> */}
+        <Select
+          onChange={handleSelectSubDashboard}
+          placeholder={placeholder}
+          id="choose-sub-dashboard"
+          className="w-100"
+          allowClear={true}>
+          {searchResults &&
+            searchResults.map(q => {
+              const disabled = q.slug === props.currentDashboard;
+              return (
+                <Select.Option
+                  disabled={disabled}
+                  value={q.id + "-" + q.slug}
+                  key={q.id}
+                  className="sub-dashboard-result">
+                  {q.name}
+                </Select.Option>
+              );
+            })}
+        </Select>
+      </div>
+    </div>
+  );
+}
 
 function VisualizationSelect({ query, visualization, onChange }) {
   const visualizationGroups = useMemo(() => {
@@ -66,6 +117,8 @@ function AddWidgetDialog({ dialog, dashboard }) {
   const [selectedQuery, setSelectedQuery] = useState(null);
   const [selectedVisualization, setSelectedVisualization] = useState(null);
   const [parameterMappings, setParameterMappings] = useState([]);
+  const [selectedSubDashboard, setSelectedSubDashboard] = useState("");
+  const [subDashboardSlug, setSubDashboardSlug] = useState("");
 
   const selectQuery = useCallback(
     queryId => {
@@ -102,12 +155,31 @@ function AddWidgetDialog({ dialog, dashboard }) {
   );
 
   const saveWidget = useCallback(() => {
-    dialog.close({ visualization: selectedVisualization, parameterMappings }).catch(() => {
+    dialog.close({ visualization: selectedVisualization, parameterMappings, subDashboardSlug }).catch(() => {
       notification.error("Widget could not be added");
     });
-  }, [dialog, selectedVisualization, parameterMappings]);
+  }, [dialog, selectedVisualization, parameterMappings, subDashboardSlug]);
 
   const existingParams = dashboard.getParametersDefs();
+
+  // console.log(dashboard);
+  const handleCheckBoxChange = e => {
+    // console.log(e.target.checked);
+    setSelectedSubDashboard(e.target.checked);
+    if (!e.target.checked) {
+      setSubDashboardSlug("");
+    }
+  };
+
+  const selectSubDashboard = slug => {
+    setSubDashboardSlug(slug ? slug : "");
+  };
+
+  const handleVizChange = item => {
+    setSelectedVisualization(item);
+    setSelectedSubDashboard(false);
+    setSubDashboardSlug("");
+  };
 
   return (
     <Modal
@@ -124,11 +196,7 @@ function AddWidgetDialog({ dialog, dashboard }) {
         <QuerySelector onChange={query => selectQuery(query ? query.id : null)} />
 
         {selectedQuery && (
-          <VisualizationSelect
-            query={selectedQuery}
-            visualization={selectedVisualization}
-            onChange={setSelectedVisualization}
-          />
+          <VisualizationSelect query={selectedQuery} visualization={selectedVisualization} onChange={handleVizChange} />
         )}
 
         {parameterMappings.length > 0 && [
@@ -143,6 +211,14 @@ function AddWidgetDialog({ dialog, dashboard }) {
             onChange={setParameterMappings}
           />,
         ]}
+
+        {selectedQuery && selectedVisualization && selectedVisualization.type === "CHART" && (
+          <Checkbox style={{ marginBottom: "10px" }} onChange={handleCheckBoxChange}>
+            Select sub dashboard
+          </Checkbox>
+        )}
+
+        {selectedSubDashboard && <SubDashboardSelect currentDashboard={dashboard.slug} onChange={selectSubDashboard} />}
       </div>
     </Modal>
   );

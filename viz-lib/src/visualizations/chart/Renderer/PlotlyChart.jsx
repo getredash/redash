@@ -6,7 +6,7 @@ import { visualizationsSettings } from "@/visualizations/visualizationsSettings"
 import getChartData from "../getChartData";
 import initChart from "./initChart";
 
-export default function PlotlyChart({ options, data }) {
+export default function PlotlyChart({ options, data, visualization, onSuccess }) {
   const [container, setContainer] = useState(null);
   const [chart, setChart] = useState(null);
 
@@ -23,9 +23,17 @@ export default function PlotlyChart({ options, data }) {
       let isDestroyed = false;
 
       const chartData = getChartData(data.rows, options);
-      const _chart = initChart(container, options, chartData, visualizationsSettings, error => {
-        errorHandlerRef.current.handleError(error);
-      });
+      const _chart = initChart(
+        container,
+        options,
+        chartData,
+        visualizationsSettings,
+        visualization,
+        onSuccess,
+        error => {
+          errorHandlerRef.current.handleError(error);
+        }
+      );
       _chart.initialized.then(() => {
         if (!isDestroyed) {
           setChart(_chart);

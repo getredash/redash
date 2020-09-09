@@ -179,10 +179,11 @@ function useDashboard(dashboardData) {
   const showAddWidgetDialog = useCallback(() => {
     AddWidgetDialog.showModal({
       dashboard,
-    }).onClose(({ visualization, parameterMappings }) =>
+    }).onClose(({ visualization, parameterMappings, subDashboardSlug }) =>
       dashboard
         .addWidget(visualization, {
           parameterMappings: editableMappingsToParameterMappings(parameterMappings),
+          subDashboardSlug,
         })
         .then(widget => {
           const widgetsToSave = [
