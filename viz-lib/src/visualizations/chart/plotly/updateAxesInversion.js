@@ -10,21 +10,18 @@ export default function updateAxesInversion(seriesList, layout, options) {
       series.x = y;
       series.y = x;
     });
-
-    // const { xaxis, yaxis } = layout;
-    // if (isObject(xaxis) && isObject(yaxis)) {
-    //   updates.xaxis = merge({}, yaxis);
-    //   updates.yaxis = merge({}, xaxis);
-    // }
   }
 
   return [updates, () => {
     if (options.invertedAxes) {
-      const { xaxis, yaxis } = layout;
-      
+      const { xaxis, yaxis, yaxis2 } = layout;  
       if (isObject(xaxis) && isObject(yaxis)) {
         updates.xaxis = yaxis;
         updates.yaxis = xaxis;
+      }
+      if (isObject(yaxis2)) {
+        // TODO add xaxis2
+        updates.yaxis2 = undefined;
       }
     }
   
