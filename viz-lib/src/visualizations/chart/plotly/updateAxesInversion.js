@@ -12,19 +12,22 @@ export default function updateAxesInversion(seriesList, layout, options) {
     });
   }
 
-  return [updates, () => {
-    if (options.invertedAxes) {
-      const { xaxis, yaxis, yaxis2 } = layout;  
-      if (isObject(xaxis) && isObject(yaxis)) {
-        updates.xaxis = yaxis;
-        updates.yaxis = xaxis;
+  return [
+    updates,
+    () => {
+      if (options.invertedAxes) {
+        const { xaxis, yaxis, yaxis2 } = layout;
+        if (isObject(xaxis) && isObject(yaxis)) {
+          updates.xaxis = yaxis;
+          updates.yaxis = xaxis;
+        }
+        if (isObject(yaxis2)) {
+          // TODO add xaxis2
+          updates.yaxis2 = undefined;
+        }
       }
-      if (isObject(yaxis2)) {
-        // TODO add xaxis2
-        updates.yaxis2 = undefined;
-      }
-    }
-  
-    return [updates, null]
-  }];
+
+      return [updates, null];
+    },
+  ];
 }

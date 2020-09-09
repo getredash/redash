@@ -10,7 +10,7 @@ import prepareLayout from "./prepareLayout";
 import updateData from "./updateData";
 import updateYRanges from "./updateYRanges";
 import updateChartSize from "./updateChartSize";
-import updateAxesInversion from './updateAxesInversion';
+import updateAxesInversion from "./updateAxesInversion";
 import { prepareCustomChartData, createCustomChartRenderer } from "./customChartUtils";
 
 Plotly.register([bar, pie, histogram, box, heatmap]);

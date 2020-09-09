@@ -125,7 +125,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             defaultChecked={options.invertedAxes}
             checked={options.invertedAxes}
             onChange={() => onOptionsChange({ invertedAxes: !options.invertedAxes })}>
-            Horizontal chart
+            Horizontal Chart
           </Checkbox>
         </Section>
       )}
@@ -285,4 +285,4 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
   );
 }
 
-
+GeneralSettings.propTypes = EditorPropTypes;
