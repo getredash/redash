@@ -1,31 +1,24 @@
-import { reduce, map, find } from "lodash";
 import { useCallback } from "react";
 
 export default function useAddDashboardToRecentDashboards(dashboardId) {
+  function updateList (list, id) {
+    const itemArrayIndex = list.indexOf(id);
+    const itemIsAlreadyOnTheList = itemArrayIndex !== -1;
+    if(itemIsAlreadyOnTheList)
+      list.splice(itemArrayIndex, 1);
+    list.unshift(id);
+    return list;
+  }
+
   return useCallback(() => {
-    const currentRecentDashboards = localStorage.getItem("recentDashboards");
-    if (!currentRecentDashboards) {
-      localStorage.setItem("recentDashboards", JSON.stringify([{ id: dashboardId, priority: 1 }]));
+    const id = Number(dashboardId)
+    const currentList = localStorage.getItem("recentDashboards");
+    if(!currentList){
+      localStorage.setItem("recentDashboards", JSON.stringify([id]));
       return;
     }
-
-    const parsedCurrentRecentDashboards = JSON.parse(currentRecentDashboards);
-    const currentRecentDashboardsPrioritys = map(
-      parsedCurrentRecentDashboards,
-      recentDashboard => recentDashboard.priority
-    );
-    const recentDashboardsIncludesCurrentDashboard =
-      find(parsedCurrentRecentDashboards, recentDashboard => recentDashboard.id === dashboardId) !== undefined;
-    const biggestPriorityValue = reduce(currentRecentDashboardsPrioritys, (a, b) => Math.max(a, b));
-    let dashboardsToSave;
-    if(recentDashboardsIncludesCurrentDashboard) {
-      dashboardsToSave = map(parsedCurrentRecentDashboards, recentDashboard =>
-        recentDashboard.id === dashboardId ? { id: dashboardId, priority: biggestPriorityValue + 1 } : recentDashboard
-      )
-    } else {
-      parsedCurrentRecentDashboards.push({ id: dashboardId, priority: biggestPriorityValue + 1 });
-      dashboardsToSave = parsedCurrentRecentDashboards;
-    }
-    localStorage.setItem("recentDashboards", JSON.stringify(dashboardsToSave));
+    const parsedCurrentList = JSON.parse(currentList);
+    const updatedList = updateList(parsedCurrentList, id);
+    localStorage.setItem("recentDashboards", JSON.stringify(updatedList));
   }, [dashboardId]);
 }
