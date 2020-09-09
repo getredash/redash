@@ -5,6 +5,7 @@ import Widget from "./widget";
 import { currentUser } from "@/services/auth";
 import location from "@/services/location";
 import { cloneParameter } from "@/services/parameters";
+import { filterRecent } from './utils';
 
 export const urlForDashboard = ({ id, slug }) => `dashboards/${id}-${slug}`;
 
@@ -154,21 +155,6 @@ function transformResponse(data) {
   return data;
 }
 
-const filterRecent = data => {
-  const recentDashboards = localStorage.getItem("recentDashboards");
-  if (!recentDashboards) return { ...data, results: [] };
-  const parsedRecentDashboards = JSON.parse(recentDashboards);
-  const userRecentDashboards = _.filter(data.results, dashboard => parsedRecentDashboards.includes(dashboard.id));
-  const sortedUserRecentDashboards = userRecentDashboards.sort((dashboardA, dashboardB) => {
-    const indexOfAInRecentDashboards = parsedRecentDashboards.indexOf(dashboardA.id);
-    const indexOfBInRecentDashboards = parsedRecentDashboards.indexOf(dashboardB.id);
-    if(indexOfAInRecentDashboards > indexOfBInRecentDashboards) return 1;
-    if(indexOfAInRecentDashboards < indexOfBInRecentDashboards) return -1;
-    return 0;
-  })
-  return { ...data, results: sortedUserRecentDashboards };
-};
-
 const saveOrCreateUrl = data => (data.id ? `api/dashboards/${data.id}` : "api/dashboards");
 const DashboardService = {
   get: ({ id, slug }) => {
@@ -186,7 +172,7 @@ const DashboardService = {
   favorites: params => axios.get("api/dashboards/favorites", { params }).then(transformResponse),
   favorite: ({ id }) => axios.post(`api/dashboards/${id}/favorite`),
   unfavorite: ({ id }) => axios.delete(`api/dashboards/${id}/favorite`),
-  recentDashboards: params => axios.get("api/dashboards", { params }).then(transformResponse).then(filterRecent)
+  recentDashboards: params => axios.get("api/dashboards", { params }).then(transformResponse).then((data) => filterRecent(data, "recentDashboards"))
 };
 
 _.extend(Dashboard, DashboardService);
