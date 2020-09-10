@@ -50,7 +50,7 @@ export default function VisualizationRenderer(props) {
     [data, filters]
   );
 
-  const { showFilters, visualization } = props;
+  const { showFilters, visualization, onSuccess } = props;
 
   let options = { ...visualization.options };
 
@@ -66,6 +66,8 @@ export default function VisualizationRenderer(props) {
       options={options}
       data={filteredData}
       visualizationName={visualization.name}
+      visualization={visualization}
+      onSuccess={onSuccess}
       addonBefore={showFilters && <Filters filters={filters} onChange={setFilters} />}
     />
   );

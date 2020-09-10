@@ -28,13 +28,13 @@ export default createTabbedEditor([
   },
   {
     key: "XAxis",
-    title: "X Axis",
+    title: ({ invertedAxes }) => (!invertedAxes ? "X Axis" : "Y Axis"),
     component: XAxisSettings,
     isAvailable: options => !isCustomChart(options) && !isPieChart(options),
   },
   {
     key: "YAxis",
-    title: "Y Axis",
+    title: ({ invertedAxes }) => (!invertedAxes ? "Y Axis" : "X Axis"),
     component: YAxisSettings,
     isAvailable: options => !isCustomChart(options) && !isPieChart(options),
   },

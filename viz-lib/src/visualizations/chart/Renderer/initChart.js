@@ -1,6 +1,14 @@
 import { isArray, isObject, isString, isFunction, startsWith, reduce, merge, map, each } from "lodash";
 import resizeObserver from "@/services/resizeObserver";
-import { Plotly, prepareData, prepareLayout, updateData, updateYRanges, updateChartSize } from "../plotly";
+import {
+  Plotly,
+  prepareData,
+  prepareLayout,
+  updateData,
+  updateYRanges,
+  updateChartSize,
+  updateAxesInversion,
+} from "../plotly";
 
 function createErrorHandler(errorHandler) {
   return error => {
@@ -48,7 +56,9 @@ function initPlotUpdater() {
   return updater;
 }
 
-export default function initChart(container, options, data, additionalOptions, onError) {
+export default function initChart(container, options, data, additionalOptions, visualization, onSuccess, onError) {
+  // console.log(visualization, onSuccess);
+
   const handleError = createErrorHandler(onError);
 
   const plotlyOptions = {
@@ -119,9 +129,57 @@ export default function initChart(container, options, data, additionalOptions, o
       createSafeFunction(() =>
         updater
           .append(updateYRanges(container, plotlyLayout, options))
+          .append(updateAxesInversion(plotlyData, plotlyLayout, options))
           .append(updateChartSize(container, plotlyLayout, options))
           .process(container)
       )
+    )
+    .then(
+      createSafeFunction(() => {
+        container.on("plotly_afterplot", function() {
+          if (onSuccess) {
+            onSuccess(true);
+          }
+        });
+      })
+    )
+    .then(
+      createSafeFunction(() => {
+        container.on("plotly_click", function(data) {
+          // console.log(visualization);
+
+          if (visualization.subDashboard) {
+            const keys = Object.keys(options.columnMapping);
+            const axisMapping = {};
+            for (let i = 0, len = keys.length; i < len; i++) {
+              axisMapping[options.columnMapping[keys[i]]] = keys[i];
+            }
+            // console.log(axisMapping);
+            localStorage.removeItem("b_dashboard");
+            localStorage.removeItem("p_widget");
+            localStorage.setItem(
+              "b_dashboard",
+              JSON.stringify({
+                link: location.href,
+                pathname: `/dashboards/${visualization.subDashboard}`,
+                parentName: visualization.query.name,
+              })
+            );
+            localStorage.setItem(
+              "p_widget",
+              JSON.stringify({
+                id: visualization.widgetId,
+                name: visualization.query.name,
+              })
+            );
+            const link = `${window.location.origin}/dashboards/${visualization.subDashboard}?p_${axisMapping.x}=${
+              options.invertedAxes ? data.points[0].y : data.points[0].x
+            }`;
+            window.location.href = link;
+            // window.open(link, "_blank").focus();
+          }
+        });
+      })
     )
     .then(
       createSafeFunction(() => {
@@ -132,7 +190,10 @@ export default function initChart(container, options, data, additionalOptions, o
             // We need to catch only changes of traces visibility to update stacking
             if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {
               updateData(plotlyData, options);
-              updater.append(updateYRanges(container, plotlyLayout, options)).process(container);
+              updater
+                .append(updateYRanges(container, plotlyLayout, options))
+                .append(updateAxesInversion(plotlyData, plotlyLayout, options))
+                .process(container);
             }
           })
         );

@@ -83,6 +83,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
     onOptionsChange({
       globalSeriesType,
       showDataLabels: globalSeriesType === "pie",
+      invertedAxes: false,
       seriesOptions: mapValues(options.seriesOptions, series => ({
         ...series,
         type: globalSeriesType,
@@ -106,6 +107,15 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
     }
   }
 
+  function handleAxesInversion() {
+    // moves any item in the right Y axis to the left one
+    const seriesOptions = mapValues(options.seriesOptions, series => ({
+      ...series,
+      yAxis: 0,
+    }));
+    onOptionsChange({ invertedAxes: !options.invertedAxes, seriesOptions });
+  }
+
   return (
     <React.Fragment>
       <Section>
@@ -117,11 +127,24 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         />
       </Section>
 
+      {includes(["column", "line"], options.globalSeriesType) && (
+        <Section>
+          <Checkbox
+            data-test="Chart.InvertedAxes"
+            defaultChecked={options.invertedAxes}
+            checked={options.invertedAxes}
+            onChange={handleAxesInversion}>
+            Horizontal Chart
+          </Checkbox>
+        </Section>
+      )}
+
       {map(mappedColumns, (value, type) => (
         <ColumnMappingSelect
           key={type}
           type={type}
           value={value}
+          isAxesInverted={options.invertedAxes}
           availableColumns={unusedColumns}
           onChange={handleColumnMappingChange}
         />
