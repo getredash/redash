@@ -49,7 +49,7 @@ class TestRefreshQuery(BaseTestCase):
         from Query.outdated_queries().
         """
         ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, type="phoenix"
+            group=self.factory.org.default_group, type="prometheus"
         )
         query1 = self.factory.create_query(data_source=ds, options={"apply_auto_limit": True})
         query2 = self.factory.create_query(
@@ -112,7 +112,7 @@ class TestRefreshQuery(BaseTestCase):
         data source is paused.
         """
         ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, type="phoenix"
+            group=self.factory.org.default_group, type="prometheus"
         )
         query = self.factory.create_query(data_source=ds, options={"apply_auto_limit": True})
         oq = staticmethod(lambda: [query])
@@ -171,7 +171,7 @@ class TestRefreshQuery(BaseTestCase):
         Scheduled queries with parameters use saved values.
         """
         ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, type="phoenix"
+            group=self.factory.org.default_group, type="prometheus"
         )
         query = self.factory.create_query(
             query_text="select {{n}}",

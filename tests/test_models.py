@@ -474,7 +474,7 @@ class TestQueryAll(BaseTestCase):
 
     def test_update_query_hash_basesql_with_options(self):
         ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, type="databricks"
+            group=self.factory.org.default_group, type="pg"
         )
         query = self.factory.create_query(query_text="SELECT 2", data_source=ds)
         query.options = {"apply_auto_limit": True}
@@ -484,7 +484,7 @@ class TestQueryAll(BaseTestCase):
 
     def test_update_query_hash_basesql_no_options(self):
         ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, type="databricks"
+            group=self.factory.org.default_group, type="pg"
         )
         query = self.factory.create_query(query_text="SELECT 2", data_source=ds)
         query.options = {}
@@ -494,7 +494,7 @@ class TestQueryAll(BaseTestCase):
 
     def test_update_query_hash_non_basesql(self):
         ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, type="druid"
+            group=self.factory.org.default_group, type="prometheus"
         )
         query = self.factory.create_query(query_text="SELECT 2", data_source=ds)
         query.options = {"apply_auto_limit": True}
