@@ -121,6 +121,22 @@ class TestQueryResourcePost(BaseTestCase):
         )
         self.assertEqual(rv.status_code, 409)
 
+    def test_prevents_association_with_view_only_data_sources(self):
+        view_only_data_source = self.factory.create_data_source(view_only=True)
+        my_data_source = self.factory.create_data_source()
+
+        my_query = self.factory.create_query(data_source=my_data_source)
+        db.session.add(my_query)
+
+        rv = self.make_request(
+            "post",
+            "/api/queries/{0}".format(my_query.id),
+            data={"data_source_id": view_only_data_source.id},
+            user=self.factory.user,
+        )
+
+        self.assertEqual(rv.status_code, 403)
+
     def test_allows_association_with_authorized_dropdown_queries(self):
         data_source = self.factory.create_data_source(group=self.factory.default_group)
 
