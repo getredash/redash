@@ -1,10 +1,10 @@
-import { merge } from 'lodash';
-import React from 'react';
-import Tabs from 'antd/lib/tabs';
-import { EditorPropTypes } from '@/visualizations';
+import { merge } from "lodash";
+import React from "react";
+import Tabs from "antd/lib/tabs";
+import { EditorPropTypes } from "@/visualizations";
 
-import GeneralSettings from './GeneralSettings';
-import MapViewSettings from './MapViewSettings';
+import GeneralSettings from "./GeneralSettings";
+import MapViewSettings from "./MapViewSettings";
 
 export default function Editor(props) {
   const { options, onOptionsChange } = props;
@@ -15,10 +15,16 @@ export default function Editor(props) {
 
   return (
     <Tabs animated={false} tabBarGutter={0}>
-      <Tabs.TabPane key="general" tab={<span data-test="Hexmap.EditorTabs.General">General</span>}>
+      <Tabs.TabPane
+        key="general"
+        tab={<span data-test="Hexmap.EditorTabs.General">General</span>}
+      >
         <GeneralSettings {...props} onOptionsChange={optionsChanged} />
       </Tabs.TabPane>
-      <Tabs.TabPane key="map-view" tab={<span data-test="Hexmap.EditorTabs.MapView">Map View</span>}>
+      <Tabs.TabPane
+        key="map-view"
+        tab={<span data-test="Hexmap.EditorTabs.MapView">Map View</span>}
+      >
         <MapViewSettings {...props} onOptionsChange={optionsChanged} />
       </Tabs.TabPane>
     </Tabs>

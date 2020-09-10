@@ -1,16 +1,25 @@
-import { map } from 'lodash';
-import React from 'react';
-import * as Grid from 'antd/lib/grid';
-import Select from 'antd/lib/select';
-import Input from 'antd/lib/input';
-import Switch from 'antd/lib/switch';
-import InputNumber from 'antd/lib/input-number';
-import { EditorPropTypes } from '@/visualizations';
+import { map } from "lodash";
+import React from "react";
+import * as Grid from "antd/lib/grid";
+import Select from "antd/lib/select";
+import Input from "antd/lib/input";
+import Switch from "antd/lib/switch";
+import InputNumber from "antd/lib/input-number";
+import { EditorPropTypes } from "@/visualizations";
 
-import { setMidLatLon } from '../utils';
+import { setMidLatLon } from "../utils";
 
-export default function GeneralSettings({ options, data, visualizationName, onOptionsChange }) {
-  if (!options.isCenterSet && options.latColName in data.rows[0] && options.lonColName in data.rows[0]) {
+export default function GeneralSettings({
+  options,
+  data,
+  visualizationName,
+  onOptionsChange,
+}) {
+  if (
+    !options.isCenterSet &&
+    options.latColName in data.rows[0] &&
+    options.lonColName in data.rows[0]
+  ) {
     setMidLatLon(data.rows, options, onOptionsChange);
   }
 
@@ -26,10 +35,15 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
             className="w-100"
             data-test="Gridmap.General.Latitude"
             defaultValue={options.latColName}
-            onChange={latColName => onOptionsChange({ latColName })}
+            onChange={(latColName) => onOptionsChange({ latColName })}
           >
-            {map(data.columns, col => (
-              <Select.Option key={col.name} data-test={'Gridmap.General.Latitude.' + col.name}>{col.name}</Select.Option>
+            {map(data.columns, (col) => (
+              <Select.Option
+                key={col.name}
+                data-test={"Gridmap.General.Latitude." + col.name}
+              >
+                {col.name}
+              </Select.Option>
             ))}
           </Select>
         </Grid.Col>
@@ -45,10 +59,15 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
             className="w-100"
             data-test="Gridmap.General.Longitude"
             defaultValue={options.lonColName}
-            onChange={lonColName => onOptionsChange({ lonColName })}
+            onChange={(lonColName) => onOptionsChange({ lonColName })}
           >
-            {map(data.columns, col => (
-              <Select.Option key={col.name} data-test={'Gridmap.General.Longitude.' + col.name}>{col.name}</Select.Option>
+            {map(data.columns, (col) => (
+              <Select.Option
+                key={col.name}
+                data-test={"Gridmap.General.Longitude." + col.name}
+              >
+                {col.name}
+              </Select.Option>
             ))}
           </Select>
         </Grid.Col>
@@ -64,7 +83,7 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
             className="w-100"
             data-test="Gridmap.General.CellSize"
             defaultValue={options.cellSize}
-            onChange={cellSize => onOptionsChange({ cellSize })}
+            onChange={(cellSize) => onOptionsChange({ cellSize })}
           />
         </Grid.Col>
       </Grid.Row>
@@ -80,7 +99,7 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
             data-test="Gridmap.General.Elevation"
             defaultValue={options.elevation}
             step={0.1}
-            onChange={elevation => onOptionsChange({ elevation })}
+            onChange={(elevation) => onOptionsChange({ elevation })}
           />
         </Grid.Col>
       </Grid.Row>
@@ -96,27 +115,33 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
             data-test="Gridmap.General.Label"
             defaultValue={options.tooltipLabel}
             placeholder={visualizationName}
-            onChange={e => onOptionsChange({ tooltipLabel: e.target.value })}
+            onChange={(e) => onOptionsChange({ tooltipLabel: e.target.value })}
           />
         </Grid.Col>
       </Grid.Row>
 
-      <label className="d-flex align-items-center" htmlFor="gridmap-set-map-center">
+      <label
+        className="d-flex align-items-center"
+        htmlFor="gridmap-set-map-center"
+      >
         <Switch
           id="gridmap-set-map-center"
           data-test="Gridmap.General.SetMapCenter"
           defaultChecked={options.setMapCenter}
-          onChange={setMapCenter => onOptionsChange({ setMapCenter })}
+          onChange={(setMapCenter) => onOptionsChange({ setMapCenter })}
         />
         <span className="m-l-10">Get Center Value from Data</span>
       </label>
 
-      <label className="d-flex align-items-center" htmlFor="gridmap-set-max-domain">
+      <label
+        className="d-flex align-items-center"
+        htmlFor="gridmap-set-max-domain"
+      >
         <Switch
           id="gridmap-set-max-domain"
           data-test="Gridmap.General.SetMaxDomain"
           defaultChecked={options.setMaxDomain}
-          onChange={setMaxDomain => onOptionsChange({ setMaxDomain })}
+          onChange={(setMaxDomain) => onOptionsChange({ setMaxDomain })}
         />
         <span className="m-l-10">Set Scale Values</span>
       </label>
@@ -132,7 +157,7 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
             data-test="Gridmap.General.MaxCount"
             disabled={!options.setMaxDomain}
             defaultValue={options.maxCount}
-            onChange={maxCount => onOptionsChange({ maxCount })}
+            onChange={(maxCount) => onOptionsChange({ maxCount })}
           />
         </Grid.Col>
       </Grid.Row>

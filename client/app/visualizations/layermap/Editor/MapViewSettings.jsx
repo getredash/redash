@@ -1,8 +1,8 @@
-import React from 'react';
-import * as Grid from 'antd/lib/grid';
-import InputNumber from 'antd/lib/input-number';
-import { EditorPropTypes } from '@/visualizations';
-import { minZoom, maxZoom } from '../utils';
+import React from "react";
+import * as Grid from "antd/lib/grid";
+import InputNumber from "antd/lib/input-number";
+import { EditorPropTypes } from "@/visualizations";
+import { minZoom, maxZoom } from "../utils";
 
 export default function MapViewSettings({ options, onOptionsChange }) {
   return (
@@ -20,7 +20,7 @@ export default function MapViewSettings({ options, onOptionsChange }) {
             className="w-100"
             data-test="Hexmap.MapView.Zoom"
             value={options.zoom}
-            onChange={zoom => onOptionsChange({ zoom })}
+            onChange={(zoom) => onOptionsChange({ zoom })}
           />
         </Grid.Col>
       </Grid.Row>
@@ -36,7 +36,7 @@ export default function MapViewSettings({ options, onOptionsChange }) {
             className="w-100"
             data-test="Hexmap.MapView.CenterLat"
             value={options.centerLat}
-            onChange={centerLat => onOptionsChange({ centerLat })}
+            onChange={(centerLat) => onOptionsChange({ centerLat })}
           />
         </Grid.Col>
       </Grid.Row>
@@ -52,7 +52,7 @@ export default function MapViewSettings({ options, onOptionsChange }) {
             className="w-100"
             data-test="Hexmap.MapView.CenterLon"
             value={options.centerLon}
-            onChange={centerLon => onOptionsChange({ centerLon })}
+            onChange={(centerLon) => onOptionsChange({ centerLon })}
           />
         </Grid.Col>
       </Grid.Row>
@@ -68,7 +68,7 @@ export default function MapViewSettings({ options, onOptionsChange }) {
             className="w-100"
             data-test="Hexmap.MapView.Bearing"
             value={options.bearing}
-            onChange={bearing => onOptionsChange({ bearing })}
+            onChange={(bearing) => onOptionsChange({ bearing })}
           />
         </Grid.Col>
       </Grid.Row>
@@ -84,7 +84,7 @@ export default function MapViewSettings({ options, onOptionsChange }) {
             className="w-100"
             data-test="Hexmap.MapView.Pitch"
             value={options.pitch}
-            onChange={pitch => onOptionsChange({ pitch })}
+            onChange={(pitch) => onOptionsChange({ pitch })}
           />
         </Grid.Col>
       </Grid.Row>
