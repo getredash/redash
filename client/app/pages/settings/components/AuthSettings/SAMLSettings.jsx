@@ -22,10 +22,7 @@ export default function SAMLSettings(props) {
       {values.auth_saml_enabled && (
         <div>
           <Form.Item label="SAML Single Sign-on URL">
-            <Input
-              value={values.auth_saml_sso_url}
-              onChange={e => onChange({ auth_saml_sso_url: e.target.value })}
-            />
+            <Input value={values.auth_saml_sso_url} onChange={e => onChange({ auth_saml_sso_url: e.target.value })} />
           </Form.Item>
           <Form.Item label="SAML Entity ID">
             <Input
