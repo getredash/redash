@@ -11,7 +11,7 @@ import notification from "@/services/notification";
 import "./IframeboxDialog.less";
 
 export function toIframe(text) {
-  return `<iframe style='height:100%;width:100%;' src=${text}></iframe>`
+  return `<iframe style='height:100%;width:100%;' src=${text}></iframe>`;
 }
 
 function IframeboxDialog({ dialog, isNew, ...props }) {
@@ -51,11 +51,7 @@ function IframeboxDialog({ dialog, isNew, ...props }) {
       width={500}
       wrapProps={{ "data-test": "IframeboxDialog" }}>
       <div className="iframebox-dialog">
-        <Input
-          value={title}
-          onChange={event => setTitle(event.target.value)}
-          placeholder="Title..."
-        />
+        <Input value={title} onChange={event => setTitle(event.target.value)} placeholder="Title..." />
         <Divider dashed />
         <Input.TextArea
           className="resize-vertical"
