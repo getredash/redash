@@ -1,6 +1,14 @@
 import { isArray, isObject, isString, isFunction, startsWith, reduce, merge, map, each } from "lodash";
 import resizeObserver from "@/services/resizeObserver";
-import { Plotly, prepareData, prepareLayout, updateData, updateYRanges, updateChartSize } from "../plotly";
+import {
+  Plotly,
+  prepareData,
+  prepareLayout,
+  updateData,
+  updateYRanges,
+  updateChartSize,
+  updateAxesInversion,
+} from "../plotly";
 
 function createErrorHandler(errorHandler) {
   return error => {
@@ -121,6 +129,7 @@ export default function initChart(container, options, data, additionalOptions, v
       createSafeFunction(() =>
         updater
           .append(updateYRanges(container, plotlyLayout, options))
+          .append(updateAxesInversion(plotlyData, plotlyLayout, options))
           .append(updateChartSize(container, plotlyLayout, options))
           .process(container)
       )
@@ -163,7 +172,9 @@ export default function initChart(container, options, data, additionalOptions, v
                 name: visualization.query.name,
               })
             );
-            const link = `${window.location.origin}/dashboards/${visualization.subDashboard}?p_${axisMapping.x}=${data.points[0].x}`;
+            const link = `${window.location.origin}/dashboards/${visualization.subDashboard}?p_${axisMapping.x}=${
+              options.invertedAxes ? data.points[0].y : data.points[0].x
+            }`;
             window.location.href = link;
             // window.open(link, "_blank").focus();
           }
@@ -179,7 +190,10 @@ export default function initChart(container, options, data, additionalOptions, v
             // We need to catch only changes of traces visibility to update stacking
             if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {
               updateData(plotlyData, options);
-              updater.append(updateYRanges(container, plotlyLayout, options)).process(container);
+              updater
+                .append(updateYRanges(container, plotlyLayout, options))
+                .append(updateAxesInversion(plotlyData, plotlyLayout, options))
+                .process(container);
             }
           })
         );

@@ -20,7 +20,9 @@ export function TabbedEditor({ tabs, options, data, onOptionsChange, ...restProp
   return (
     <Tabs animated={false} tabBarGutter={20}>
       {map(tabs, ({ key, title, component: Component }) => (
-        <Tabs.TabPane key={key} tab={<span data-test={`VisualizationEditor.Tabs.${key}`}>{title}</span>}>
+        <Tabs.TabPane
+          key={key}
+          tab={<span data-test={`VisualizationEditor.Tabs.${key}`}>{isFunction(title) ? title(options) : title}</span>}>
           <Component options={options} data={data} onOptionsChange={optionsChanged} {...restProps} />
         </Tabs.TabPane>
       ))}
@@ -33,7 +35,7 @@ TabbedEditor.propTypes = {
   tabs: PropTypes.arrayOf(
     PropTypes.shape({
       key: PropTypes.string.isRequired,
-      title: PropTypes.string.isRequired,
+      title: PropTypes.oneOfType([PropTypes.string, PropTypes.func]).isRequired,
       isAvailable: PropTypes.func, // (options) => boolean
       component: PropTypes.func.isRequired,
     })

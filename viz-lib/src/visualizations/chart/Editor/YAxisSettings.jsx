@@ -9,7 +9,7 @@ export default function YAxisSettings({ options, onOptionsChange }) {
 
   return (
     <React.Fragment>
-      <Section.Title>Left Y Axis</Section.Title>
+      <Section.Title>{!options.invertedAxes ? "Left Y Axis" : "X Axis"}</Section.Title>
 
       <Section>
         <AxisSettings
@@ -20,7 +20,7 @@ export default function YAxisSettings({ options, onOptionsChange }) {
         />
       </Section>
 
-      {options.globalSeriesType !== "heatmap" && (
+      {options.globalSeriesType !== "heatmap" && !options.invertedAxes && (
         <React.Fragment>
           <Section.Title>Right Y Axis</Section.Title>
 

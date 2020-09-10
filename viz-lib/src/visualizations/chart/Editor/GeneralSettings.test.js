@@ -194,4 +194,19 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       expect(elementExists(el, "Chart.ColumnMapping.yError")).toBeTruthy();
     });
   });
+
+  test("Toggles horizontal bar chart", done => {
+    const el = mount(
+      {
+        globalSeriesType: "column",
+        series: {},
+      },
+      done
+    );
+
+    findByTestID(el, "Chart.InvertedAxes")
+      .last()
+      .find("input")
+      .simulate("change", { target: { checked: true } });
+  });
 });
