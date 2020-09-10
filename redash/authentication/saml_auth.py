@@ -7,7 +7,7 @@ from redash.handlers.base import org_scoped_rule
 from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT, entity
 from saml2.client import Saml2Client
 from saml2.config import Config as Saml2Config
-from saml2.saml import NAMEID_FORMAT_TRANSIENT
+from saml2.saml import NAMEID_FORMAT_EMAILADDRESS
 
 logger = logging.getLogger("saml_auth")
 blueprint = Blueprint("saml_auth", __name__)
@@ -19,8 +19,14 @@ def get_saml_client(org):
 
     The configuration is a hash for use by saml2.config.Config
     """
-    metadata_url = org.get_setting("auth_saml_metadata_url")
+
+    metadata_inline_template = '''<?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor entityID="{}" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"><md:IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:KeyDescriptor use="signing"><ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:X509Data><ds:X509Certificate>{}</ds:X509Certificate></ds:X509Data></ds:KeyInfo></md:KeyDescriptor><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="{}"/><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="{}"/></md:IDPSSODescriptor></md:EntityDescriptor>'''
+
     entity_id = org.get_setting("auth_saml_entity_id")
+    sso_url = org.get_setting("auth_saml_sso_url")
+    x509_cert = org.get_setting("auth_saml_x509_cert")
+
+    metadata_inline = metadata_inline_template.format(entity_id, x509_cert, sso_url, sso_url)
 
     if settings.SAML_SCHEME_OVERRIDE:
         acs_url = url_for("saml_auth.idp_initiated", org_slug=org.slug, _external=True,
@@ -29,7 +35,7 @@ def get_saml_client(org):
         acs_url = url_for("saml_auth.idp_initiated", org_slug=org.slug, _external=True)
 
     saml_settings = {
-        "metadata": {"remote": [{"url": metadata_url}]},
+        "metadata": {"inline": [metadata_inline]},
         "service": {
             "sp": {
                 "endpoints": {
@@ -111,7 +117,7 @@ def sp_initiated(org_slug=None):
     saml_client = get_saml_client(current_org)
     nameid_format = current_org.get_setting("auth_saml_nameid_format")
     if nameid_format is None or nameid_format == "":
-        nameid_format = NAMEID_FORMAT_TRANSIENT
+        nameid_format = NAMEID_FORMAT_EMAILADDRESS
 
     _, info = saml_client.prepare_for_authenticate(nameid_format=nameid_format)
 
