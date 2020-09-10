@@ -209,7 +209,10 @@ class VisualizationWidget extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { localParameters: props.widget.getLocalParameters() };
+    this.state = {
+      localParameters: props.widget.getLocalParameters(),
+      localFilters: props.filters,
+    };
   }
 
   componentDidMount() {
@@ -219,8 +222,12 @@ class VisualizationWidget extends React.Component {
     onLoad();
   }
 
+  onLocalFiltersChange = localFilters => {
+    this.setState({ localFilters });
+  };
+
   expandWidget = () => {
-    ExpandedWidgetDialog.showModal({ widget: this.props.widget });
+    ExpandedWidgetDialog.showModal({ widget: this.props.widget, filters: this.state.localFilters });
   };
 
   editParameterMappings = () => {
@@ -260,6 +267,7 @@ class VisualizationWidget extends React.Component {
               visualization={widget.visualization}
               queryResult={widgetQueryResult}
               filters={filters}
+              onFiltersChange={this.onLocalFiltersChange}
               context="widget"
             />
           </div>
