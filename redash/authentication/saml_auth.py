@@ -22,9 +22,11 @@ def get_saml_client(org):
 
     metadata_inline_template = '''<?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor entityID="{}" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"><md:IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:KeyDescriptor use="signing"><ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:X509Data><ds:X509Certificate>{}</ds:X509Certificate></ds:X509Data></ds:KeyInfo></md:KeyDescriptor><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="{}"/><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="{}"/></md:IDPSSODescriptor></md:EntityDescriptor>'''
 
+    saml_type = org.get_setting("auth_saml_type")
     entity_id = org.get_setting("auth_saml_entity_id")
     sso_url = org.get_setting("auth_saml_sso_url")
     x509_cert = org.get_setting("auth_saml_x509_cert")
+    metadata_url = org.get_setting("auth_saml_metadata_url")
 
     metadata_inline = metadata_inline_template.format(entity_id, x509_cert, sso_url, sso_url)
 
@@ -35,7 +37,7 @@ def get_saml_client(org):
         acs_url = url_for("saml_auth.idp_initiated", org_slug=org.slug, _external=True)
 
     saml_settings = {
-        "metadata": {"inline": [metadata_inline]},
+        "metadata": {"remote": [{"url": metadata_url}]},
         "service": {
             "sp": {
                 "endpoints": {
@@ -56,6 +58,9 @@ def get_saml_client(org):
             }
         },
     }
+
+    if saml_type is not None and saml_type == "dynamic":
+        saml_settings["metadata"] = {"inline": [metadata_inline]}
 
     if entity_id is not None and entity_id != "":
         saml_settings["entityid"] = entity_id

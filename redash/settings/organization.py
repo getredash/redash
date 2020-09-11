@@ -14,6 +14,7 @@ PASSWORD_LOGIN_ENABLED = parse_boolean(
     os.environ.get("REDASH_PASSWORD_LOGIN_ENABLED", "true")
 )
 
+SAML_LOGIN_TYPE = os.environ.get("REDASH_SAML_AUTH_TYPE", "")
 SAML_METADATA_URL = os.environ.get("REDASH_SAML_METADATA_URL", "") # to be deleted
 SAML_ENTITY_ID = os.environ.get("REDASH_SAML_ENTITY_ID", "")
 SAML_NAMEID_FORMAT = os.environ.get("REDASH_SAML_NAMEID_FORMAT", "") # to be deleted
@@ -54,6 +55,7 @@ settings = {
     "beacon_consent": None,
     "auth_password_login_enabled": PASSWORD_LOGIN_ENABLED,
     "auth_saml_enabled": SAML_LOGIN_ENABLED,
+    "auth_saml_type": SAML_LOGIN_TYPE,
     "auth_saml_entity_id": SAML_ENTITY_ID,
     "auth_saml_metadata_url": SAML_METADATA_URL,
     "auth_saml_nameid_format": SAML_NAMEID_FORMAT,
