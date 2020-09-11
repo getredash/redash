@@ -60,4 +60,4 @@ jobs:
       - name: Install / Upgrade App
         run: |
           helm upgrade  --install ra --namespace=ra --values ./helm/values.yaml --values ./helm/requirements.yaml ./helm \
-            --set image.tag=dev-$IMAGE_VERSION
+            --set image.tag=$IMAGE_VERSION
