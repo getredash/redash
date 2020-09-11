@@ -1,10 +1,10 @@
-import { isObject, isNumber } from "lodash";
+import { isObject, isNumber, each } from "lodash";
 
 function calculateAxisRange(range, min, max) {
   return [isNumber(min) ? min : range[0], isNumber(max) ? max : range[1]];
 }
 
-export default function updateYRanges(plotlyElement, layout, options) {
+export default function updateAxes(plotlyElement, seriesList, layout, options) {
   const updates = {};
   if (isObject(layout.yaxis)) {
     updates.yaxis = {
@@ -24,6 +24,7 @@ export default function updateYRanges(plotlyElement, layout, options) {
   return [
     updates,
     () => {
+      // Update Y Ranges
       if (isObject(layout.yaxis)) {
         const axisOptions = options.yAxis[0];
         const defaultRange = plotlyElement.layout.yaxis.range;
@@ -36,6 +37,27 @@ export default function updateYRanges(plotlyElement, layout, options) {
         const defaultRange = plotlyElement.layout.yaxis2.range;
         updates.yaxis2.autorange = false;
         updates.yaxis2.range = calculateAxisRange(defaultRange, axisOptions.rangeMin, axisOptions.rangeMax);
+      }
+
+      // Invert Axes
+      if (options.invertedAxes) {
+        each(seriesList, series => {
+          series.orientation = "h";
+          const { x, y } = series;
+          series.x = y;
+          series.y = x;
+        });
+
+        const { xaxis } = layout;
+        const { yaxis, yaxis2 } = updates;
+
+        if (isObject(xaxis) && isObject(yaxis)) {
+          updates.xaxis = yaxis;
+          updates.yaxis = xaxis;
+        }
+        if (isObject(yaxis2)) {
+          updates.yaxis2 = null;
+        }
       }
 
       return [updates, null]; // no further updates

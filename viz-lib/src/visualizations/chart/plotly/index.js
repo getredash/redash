@@ -8,9 +8,8 @@ import heatmap from "plotly.js/lib/heatmap";
 import prepareData from "./prepareData";
 import prepareLayout from "./prepareLayout";
 import updateData from "./updateData";
-import updateYRanges from "./updateYRanges";
+import updateAxes from "./updateAxes";
 import updateChartSize from "./updateChartSize";
-import updateAxesInversion from "./updateAxesInversion";
 import { prepareCustomChartData, createCustomChartRenderer } from "./customChartUtils";
 
 Plotly.register([bar, pie, histogram, box, heatmap]);
@@ -23,8 +22,7 @@ export {
   prepareData,
   prepareLayout,
   updateData,
-  updateYRanges,
-  updateAxesInversion,
+  updateAxes,
   updateChartSize,
   prepareCustomChartData,
   createCustomChartRenderer,
