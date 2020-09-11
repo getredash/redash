@@ -7,7 +7,7 @@ from redash.handlers.base import org_scoped_rule
 from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT, entity
 from saml2.client import Saml2Client
 from saml2.config import Config as Saml2Config
-from saml2.saml import NAMEID_FORMAT_EMAILADDRESS
+from saml2.saml import NAMEID_FORMAT_TRANSIENT
 
 logger = logging.getLogger("saml_auth")
 blueprint = Blueprint("saml_auth", __name__)
@@ -37,7 +37,13 @@ def get_saml_client(org):
         acs_url = url_for("saml_auth.idp_initiated", org_slug=org.slug, _external=True)
 
     saml_settings = {
-        "metadata": {"remote": [{"url": metadata_url}]},
+        "metadata": {"inline": [metadata_inline]},
+        'xmlsec_binary': '/usr/bin/xmlsec1',
+        "delete_tmpfiles": False,
+        'encryption_keypairs': [{
+            'key_file': '/app/certs/key.pem',
+            'cert_file': '/app/certs/cert.pem',
+        }],
         "service": {
             "sp": {
                 "endpoints": {
@@ -54,7 +60,7 @@ def get_saml_client(org):
                 "authn_requests_signed": False,
                 "logout_requests_signed": True,
                 "want_assertions_signed": True,
-                "want_response_signed": False,
+                "want_response_signed": True,
             }
         },
     }
@@ -122,7 +128,7 @@ def sp_initiated(org_slug=None):
     saml_client = get_saml_client(current_org)
     nameid_format = current_org.get_setting("auth_saml_nameid_format")
     if nameid_format is None or nameid_format == "":
-        nameid_format = NAMEID_FORMAT_EMAILADDRESS
+        nameid_format = NAMEID_FORMAT_TRANSIENT
 
     _, info = saml_client.prepare_for_authenticate(nameid_format=nameid_format)
 
