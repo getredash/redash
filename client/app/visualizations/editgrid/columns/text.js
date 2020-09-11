@@ -1,20 +1,22 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
 import HtmlContent from '@/components/HtmlContent';
-import { createTextFormatter } from '@/lib/value-format';
+import {createTextFormatter} from '@/lib/value-format';
+import React from 'react';
 
 export default function initTextColumn(column) {
   const format = createTextFormatter(column.allowHTML && column.highlightLinks);
 
   function prepareData(row) {
     return {
-      text: format(row[column.name]),
+      text : format(row[column.name]),
     };
   }
 
-  function TextColumn({ row }) {
-    const { text } = prepareData(row);
-    return column.allowHTML ? <HtmlContent>{text}</HtmlContent> : text;
+  function TextColumn({row}) {
+    const {text} = prepareData(row);
+    return column.allowHTML
+        ? <HtmlContent>{text} <
+              /HtmlContent> : text;
   }
 
   TextColumn.prepareData = prepareData;

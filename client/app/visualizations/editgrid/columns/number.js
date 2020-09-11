@@ -1,17 +1,17 @@
 /* eslint-disable react/prop-types */
-import { createNumberFormatter } from '@/lib/value-format';
+import {createNumberFormatter} from '@/lib/value-format';
 
 export default function initNumberColumn(column) {
   const format = createNumberFormatter(column.numberFormat);
 
   function prepareData(row) {
     return {
-      text: format(row[column.name]),
+      text : format(row[column.name]),
     };
   }
 
-  function NumberColumn({ row }) {
-    const { text } = prepareData(row);
+  function NumberColumn({row}) {
+    const {text} = prepareData(row);
     return text;
   }
 

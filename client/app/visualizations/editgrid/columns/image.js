@@ -1,11 +1,11 @@
 /* eslint-disable react/prop-types */
-import { extend, trim } from 'lodash';
+import {formatSimpleTemplate} from '@/lib/value-format';
+import {extend, trim} from 'lodash';
 import React from 'react';
-import { formatSimpleTemplate } from '@/lib/value-format';
 
 export default function initImageColumn(column) {
   function prepareData(row) {
-    row = extend({ '@': row[column.name] }, row);
+    row = extend({'@' : row[column.name]}, row);
 
     const src = trim(formatSimpleTemplate(column.imageUrlTemplate, row));
     if (src === '') {
@@ -16,7 +16,7 @@ export default function initImageColumn(column) {
     const height = parseInt(formatSimpleTemplate(column.imageHeight, row), 10);
     const title = trim(formatSimpleTemplate(column.imageTitleTemplate, row));
 
-    const result = { src };
+    const result = {src};
 
     if (Number.isFinite(width) && (width > 0)) {
       result.width = width;
@@ -33,9 +33,10 @@ export default function initImageColumn(column) {
     return result;
   }
 
-  function ImageColumn({ row }) {
-    const { text, ...props } = prepareData(row);
-    return <img alt="" {...props} />;
+  function ImageColumn({row}) {
+    const {text, ...props} = prepareData(row);
+    return < img alt = "" { ...props }
+    />;
   }
 
   ImageColumn.prepareData = prepareData;

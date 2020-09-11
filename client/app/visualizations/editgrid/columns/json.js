@@ -1,32 +1,34 @@
 /* eslint-disable react/prop-types */
-import { isString, isUndefined } from 'lodash';
+import JsonViewInteractive from
+    '@/components/json-view-interactive/JsonViewInteractive';
+import {clientConfig} from '@/services/auth';
+import {isString, isUndefined} from 'lodash';
 import React from 'react';
-import JsonViewInteractive from '@/components/json-view-interactive/JsonViewInteractive';
-import { clientConfig } from '@/services/auth';
 
 export default function initJsonColumn(column) {
   function prepareData(row) {
     const text = row[column.name];
     if (isString(text) && (text.length <= clientConfig.tableCellMaxJSONSize)) {
       try {
-        return { text, value: JSON.parse(text) };
+        return {text, value : JSON.parse(text)};
       } catch (e) {
         // ignore `JSON.parse` error and return default value
       }
     }
-    return { text, value: undefined };
+    return {text, value : undefined};
   }
 
-  function JsonColumn({ row }) {
-    const { text, value } = prepareData(row);
+  function JsonColumn({row}) {
+    const {text, value} = prepareData(row);
     if (isUndefined(value)) {
-      return <div className="json-cell-invalid">{'' + text}</div>;
+    return <div className = "json-cell-invalid">{'' + text}<
+               /div>;
     }
 
     return (
       <div className="json-cell-valid">
-        <JsonViewInteractive value={value} />
-      </div>
+        <JsonViewInteractive value={value} /><
+           /div>
     );
   }
 
