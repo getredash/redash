@@ -1,20 +1,29 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
-import { RendererPropTypes } from '@/visualizations';
-import { forIn, isEqual, includes } from 'lodash';
-import { Query, isDynamicDate, getDynamicDate } from '@/services/query';
-import notification from '@/services/notification';
-import ParameterValueInput from '@/components/ParameterValueInput';
-import { Table, Input, InputNumber, Checkbox, Select, Button, Popconfirm, Form } from 'antd';
-import * as Grid from 'antd/lib/grid';
+import React, { useState, useContext, useEffect, useRef } from "react";
+import PropTypes from "prop-types";
+import { RendererPropTypes } from "@/visualizations";
+import { forIn, isEqual, includes } from "lodash";
+import { Query, isDynamicDate, getDynamicDate } from "@/services/query";
+import notification from "@/services/notification";
+import ParameterValueInput from "@/components/ParameterValueInput";
+import {
+  Table,
+  Input,
+  InputNumber,
+  Checkbox,
+  Select,
+  Button,
+  Popconfirm,
+  Form,
+} from "antd";
+import * as Grid from "antd/lib/grid";
 
-import initTextColumn from './columns/text';
-import initNumberColumn from './columns/number';
-import initDateTimeColumn from './columns/datetime';
-import initBooleanColumn from './columns/boolean';
-import initLinkColumn from './columns/link';
-import initImageColumn from './columns/image';
-import initJsonColumn from './columns/json';
+import initTextColumn from "./columns/text";
+import initNumberColumn from "./columns/number";
+import initDateTimeColumn from "./columns/datetime";
+import initBooleanColumn from "./columns/boolean";
+import initLinkColumn from "./columns/link";
+import initImageColumn from "./columns/image";
+import initJsonColumn from "./columns/json";
 
 const ColumnTypes = {
   enum: initTextColumn,
@@ -29,33 +38,37 @@ const ColumnTypes = {
 };
 
 const commands = {
-  add: 'insert into {{table}} ({{currentColumns}}) values ({{currentRowValues}});',
-  delete: 'delete from {{table}} where {{primaryKey}} = {{currentKey}};',
-  update: 'update {{table}} set {{endtime}}=\'{{currentTime}}\' where {{primaryKey}} = {{currentKey}} and {{endtime}} is null;',
+  add:
+    "insert into {{table}} ({{currentColumns}}) values ({{currentRowValues}});",
+  delete: "delete from {{table}} where {{primaryKey}} = {{currentKey}};",
+  update:
+    "update {{table}} set {{endtime}}='{{currentTime}}' where {{primaryKey}} = {{currentKey}} and {{endtime}} is null;",
 };
 
 function getCurrentTime() {
-  return getDynamicDate('d_now').value();
+  return getDynamicDate("d_now").value();
 }
 
 function getCurrentTimeString(value) {
-  const dateFormatting = initDateTimeColumn({ name: 'a', dateTimeFormat: 'YYYY-MM-DDTHH:mm:ss.sss' });
+  const dateFormatting = initDateTimeColumn({
+    name: "a",
+    dateTimeFormat: "YYYY-MM-DDTHH:mm:ss.sss",
+  });
   if (value) {
     return dateFormatting({ row: { a: value } });
   }
   return dateFormatting({ row: { a: getCurrentTime() } });
 }
 
-
 function getDefaultColumnsOptions(columns, isEditing) {
   function comparator(a, b, type) {
     // Null Handling first
     if (a !== null && b !== null) {
-      if (type === 'number') {
+      if (type === "number") {
         return a - b;
       }
-      if (type === 'datetime') {
-        const timeDiff = a.diff(b, 'seconds');
+      if (type === "datetime") {
+        const timeDiff = a.diff(b, "seconds");
         if (timeDiff > 0) {
           return 1;
         }
@@ -64,7 +77,7 @@ function getDefaultColumnsOptions(columns, isEditing) {
         }
         return 0;
       }
-      if (type === 'boolean') {
+      if (type === "boolean") {
         if (!a && b) {
           return 1;
         }
@@ -81,8 +94,12 @@ function getDefaultColumnsOptions(columns, isEditing) {
       }
       return 0;
     }
-    if (a !== null) { return -1; }
-    if (b !== null) { return 1; }
+    if (a !== null) {
+      return -1;
+    }
+    if (b !== null) {
+      return 1;
+    }
   }
 
   const editColumns = Object.values(columns).map((col) => {
@@ -90,18 +107,19 @@ function getDefaultColumnsOptions(columns, isEditing) {
     const renderCol = {
       name: col.name,
       type: col.type,
-      dateTimeFormat: col.dateFormat ? col.dateFormat : 'YYYY-MM-DD',
+      dateTimeFormat: col.dateFormat ? col.dateFormat : "YYYY-MM-DD",
     };
     const Component = initColumn(renderCol);
 
     const result = {
       ...col,
-      sorter: (a, b) => comparator(a[col.dataIndex], b[col.dataIndex], col.format),
+      sorter: (a, b) =>
+        comparator(a[col.dataIndex], b[col.dataIndex], col.format),
       render: (value, row) => ({
         children: <Component row={row} />,
         props: { className: `display-as-${col.format}` },
       }),
-      onCell: record => ({
+      onCell: (record) => ({
         record,
         inputType: col.format,
         dataIndex: col.dataIndex,
@@ -111,8 +129,8 @@ function getDefaultColumnsOptions(columns, isEditing) {
         param: {
           name: col.name,
           type: col.format,
-          dateTimeFormat: col.dateFormat || 'YYYY-MM-DD',
-          enumOptions: col.enumOptions || '',
+          dateTimeFormat: col.dateFormat || "YYYY-MM-DD",
+          enumOptions: col.enumOptions || "",
           queryId: Number(col.queryId),
         },
       }),
@@ -120,11 +138,10 @@ function getDefaultColumnsOptions(columns, isEditing) {
     return result;
   });
 
-  return editColumns.filter(col => !col.hide);
+  return editColumns.filter((col) => !col.hide);
 }
 
 const EditableContext = React.createContext();
-
 
 function EditableCell(props) {
   const cellData = useContext(EditableContext);
@@ -133,34 +150,42 @@ function EditableCell(props) {
   const getInput = (column, type, data, param) => {
     const paramType = param.type || type;
 
-    if (paramType === 'boolean') {
+    if (paramType === "boolean") {
       return (
         <Checkbox
           defaultValue={data || false}
-          onChange={e => handleChange(e.target.checked, column, type)}
+          onChange={(e) => handleChange(e.target.checked, column, type)}
         />
       );
-    } else if (paramType === 'number') {
+    } else if (paramType === "number") {
       return (
-        <InputNumber
-          onChange={value => handleChange(value, column, type)}
-        />
+        <InputNumber onChange={(value) => handleChange(value, column, type)} />
       );
     }
     return (
       <ParameterValueInput
         type={paramType}
         parameter={param}
-        enumOptions={param.enumOptions || ''}
+        enumOptions={param.enumOptions || ""}
         allowMultipleValues={false}
-        onSelect={value => handleChange(value, column, type)}
+        onSelect={(value) => handleChange(value, column, type)}
       />
     );
   };
 
   const renderCell = () => {
     // eslint-disable-next-line react/prop-types
-    const { editing, editable, dataIndex, param, title, inputType, record, children, ...restProps } = props;
+    const {
+      editing,
+      editable,
+      dataIndex,
+      param,
+      title,
+      inputType,
+      record,
+      children,
+      ...restProps
+    } = props;
     if (editing) {
       if (editable) {
         return (
@@ -169,7 +194,7 @@ function EditableCell(props) {
               {getFieldDecorator(dataIndex, {
                 rules: [
                   {
-                    required: dataIndex === 'id',
+                    required: dataIndex === "id",
                     message: `Please Input ${title}!`,
                   },
                 ],
@@ -180,7 +205,10 @@ function EditableCell(props) {
         );
       }
       return (
-        <td style={{ minWidth: 100, backgroundColor: 'lightgray' }} {...restProps}>
+        <td
+          style={{ minWidth: 100, backgroundColor: "lightgray" }}
+          {...restProps}
+        >
           {children}
         </td>
       );
@@ -198,8 +226,18 @@ function EditableCell(props) {
 function EditableTable(props) {
   const currentUser = props.currentUser;
   const userName = currentUser.name;
-  const { editTable, allowDelete, isSnapshotting, columns, dataSourceId,
-    primaryKey, modifiedBy, updatedAt, startTime, endTime } = props.options;
+  const {
+    editTable,
+    allowDelete,
+    isSnapshotting,
+    columns,
+    dataSourceId,
+    primaryKey,
+    modifiedBy,
+    updatedAt,
+    startTime,
+    endTime,
+  } = props.options;
   const specialColumns = [
     primaryKey,
     modifiedBy,
@@ -211,18 +249,20 @@ function EditableTable(props) {
   const bareQuery = {
     data_source_id: dataSourceId,
     user: currentUser,
-    name: 'Dummy Query',
+    name: "Dummy Query",
     options: { parameters: [] },
-    query: 'select 1;',
+    query: "select 1;",
   };
 
   const originalData = props.data;
   const [data, setData] = useState(originalData.rows);
   const [displayData, setDisplayData] = useState(originalData.rows);
 
-  const [editingKey, setEditingKey] = useState('');
+  const [editingKey, setEditingKey] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [maxKey, setMaxKey] = useState(Math.max(...originalData.rows.map(r => r.id)));
+  const [maxKey, setMaxKey] = useState(
+    Math.max(...originalData.rows.map((r) => r.id))
+  );
   const [tempKey, setTempKey] = useState(1);
   const [addedKeys, setAddedKeys] = useState([]);
   const [editingRow, setEditingRow] = useState({});
@@ -236,10 +276,10 @@ function EditableTable(props) {
     cancel();
   }
 
-  const isEditing = record => record[primaryKey] === editingKey;
+  const isEditing = (record) => record[primaryKey] === editingKey;
 
   function cancel() {
-    setEditingKey('');
+    setEditingKey("");
     setEditingRow({});
   }
 
@@ -267,38 +307,52 @@ function EditableTable(props) {
       return item;
     });
     setData(editData);
-    if (addedKeys.filter(item => item === editKey).length === 0) {
-      newQueries[`add-${editKey}`] = formatCommand(commands.add, '', '', false);
+    if (addedKeys.filter((item) => item === editKey).length === 0) {
+      newQueries[`add-${editKey}`] = formatCommand(commands.add, "", "", false);
       if (isSnapshotting) {
-        newQueries[`update-${editKey}`] = formatCommand(commands.update, editKey, getCurrentTimeString(editingRow[startTime]));
+        newQueries[`update-${editKey}`] = formatCommand(
+          commands.update,
+          editKey,
+          getCurrentTimeString(editingRow[startTime])
+        );
       } else {
-        newQueries[`delete-${editKey}`] = formatCommand(commands.delete, editKey);
+        newQueries[`delete-${editKey}`] = formatCommand(
+          commands.delete,
+          editKey
+        );
       }
     } else {
-      newQueries[`add-${editKey}`] = formatCommand(commands.add, '', '', true);
+      newQueries[`add-${editKey}`] = formatCommand(commands.add, "", "", true);
     }
     showSubmitMessage();
     setQueriesToRun(newQueries);
-    setEditingKey('');
+    setEditingKey("");
     setEditingRow({});
   }
 
   function deleteRow(editKey) {
-    const editData = data.filter(item => editKey !== item[primaryKey]);
+    const editData = data.filter((item) => editKey !== item[primaryKey]);
     setData(editData);
     const newQueries = queriesToRun;
     delete newQueries[`add-${editKey}`];
-    if (addedKeys.filter(item => item === editKey).length > 0) {
-      setAddedKeys(addedKeys.filter(item => item !== editKey));
+    if (addedKeys.filter((item) => item === editKey).length > 0) {
+      setAddedKeys(addedKeys.filter((item) => item !== editKey));
       if (editKey === maxKey) {
         setMaxKey(maxKey - 1);
         setTempKey(tempKey - 1);
       }
     } else {
       if (isSnapshotting) {
-        newQueries[`update-${editKey}`] = formatCommand(commands.update, editKey, getCurrentTimeString());
+        newQueries[`update-${editKey}`] = formatCommand(
+          commands.update,
+          editKey,
+          getCurrentTimeString()
+        );
       } else {
-        newQueries[`delete-${editKey}`] = formatCommand(commands.delete, editKey);
+        newQueries[`delete-${editKey}`] = formatCommand(
+          commands.delete,
+          editKey
+        );
       }
       setQueriesToRun(newQueries);
     }
@@ -333,7 +387,7 @@ function EditableTable(props) {
   }
 
   function handleChange(value, column, columnType) {
-    if (columnType === 'datetime' && isDynamicDate(value)) {
+    if (columnType === "datetime" && isDynamicDate(value)) {
       setEditingRow({ ...editingRow, [column]: getDynamicDate(value).value() });
     } else {
       setEditingRow({ ...editingRow, [column]: value });
@@ -341,7 +395,7 @@ function EditableTable(props) {
   }
 
   function showSubmitMessage() {
-    notification.warning('Press submit button to make your changes permanent.');
+    notification.warning("Press submit button to make your changes permanent.");
   }
 
   function submitChanges() {
@@ -349,27 +403,33 @@ function EditableTable(props) {
     const updateQueries = [];
     const insertQueries = [];
     forIn(queriesToRun, (v, k) => {
-      if (k.startsWith('delete')) {
+      if (k.startsWith("delete")) {
         deleteQueries.push(v);
-      } else if (k.startsWith('add')) {
+      } else if (k.startsWith("add")) {
         insertQueries.push(v);
-      } else if (k.startsWith('update')) {
+      } else if (k.startsWith("update")) {
         updateQueries.push(v);
       } else {
         // ignore for now
       }
     });
     setUpdating(true);
-    const queryText = deleteQueries.join(' ') + updateQueries.join(' ') + insertQueries.join(' ') + 'select 1;';
+    const queryText =
+      deleteQueries.join(" ") +
+      updateQueries.join(" ") +
+      insertQueries.join(" ") +
+      "select 1;";
     new Query(bareQuery)
       .getQueryResultByText(0, queryText)
       .toPromise()
       .then(() => {
-        notification.success('Table Updated Successfully!');
+        notification.success("Table Updated Successfully!");
         setQueriesToRun({});
         setAddedKeys([]);
       })
-      .catch(error => notification.error('Update Table failed.', error.errorMessage))
+      .catch((error) =>
+        notification.error("Update Table failed.", error.errorMessage)
+      )
       .finally(() => setUpdating(false));
   }
 
@@ -380,34 +440,43 @@ function EditableTable(props) {
   };
 
   const lastColumn = {
-    name: 'actions',
-    type: 'string',
+    name: "actions",
+    type: "string",
     table: false,
-    format: 'string',
+    format: "string",
     edit: false,
     hide: false,
-    title: 'actions',
-    dataIndex: 'actions',
-    alignContent: 'left',
+    title: "actions",
+    dataIndex: "actions",
+    alignContent: "left",
     render: (unused, row) => {
       const isEdit = isEditing(row);
       return isEdit ? (
         <span>
-          <Popconfirm title="Confirm Save?" onConfirm={() => save(row[primaryKey])}>
+          <Popconfirm
+            title="Confirm Save?"
+            onConfirm={() => save(row[primaryKey])}
+          >
             <a style={{ marginRight: 8 }}>Save</a>
           </Popconfirm>
           <a onClick={cancel}>Cancel</a>
         </span>
       ) : (
         <span>
-          <a disabled={editingKey !== ''} onClick={() => edit(row)} style={{ marginRight: 8 }}>
+          <a
+            disabled={editingKey !== ""}
+            onClick={() => edit(row)}
+            style={{ marginRight: 8 }}
+          >
             Edit
           </a>
-          {allowDelete || addedKeys.filter(item => item === editingKey).length > 0 ? (
-            <Popconfirm title="Sure to delete?" onConfirm={() => deleteRow(row[primaryKey])}>
-              <a>
-                Delete
-              </a>
+          {allowDelete ||
+          addedKeys.filter((item) => item === editingKey).length > 0 ? (
+            <Popconfirm
+              title="Sure to delete?"
+              onConfirm={() => deleteRow(row[primaryKey])}
+            >
+              <a>Delete</a>
             </Popconfirm>
           ) : null}
         </span>
@@ -421,10 +490,12 @@ function EditableTable(props) {
 
   function filterTable(event) {
     const searchTerm = event.target.value;
-    if (searchCol && searchTerm !== '') {
+    if (searchCol && searchTerm !== "") {
       const filterData = data.filter((item) => {
         if (item[searchCol]) {
-          return item[searchCol].toLowerCase().indexOf(searchTerm.toLowerCase()) >= 0;
+          return (
+            item[searchCol].toLowerCase().indexOf(searchTerm.toLowerCase()) >= 0
+          );
         }
         return false;
       });
@@ -437,12 +508,12 @@ function EditableTable(props) {
   useEffect(() => {
     if (searchInputRef.current) {
       // pass value and fake event-like object
-      searchInputRef.current.input.setValue('', { target: { value: '' } });
+      searchInputRef.current.input.setValue("", { target: { value: "" } });
     }
   }, [data, searchCol, searchInputRef]);
 
   function formatCommand(command, editKey, currentTime, isNew) {
-    let currentRowValues = '';
+    let currentRowValues = "";
     const currentColumns = [];
     Object.entries(editingRow).forEach(([k, v]) => {
       if (columns[k]) {
@@ -452,23 +523,23 @@ function EditableTable(props) {
         if (col.name === primaryKey && isNew) {
           value = `(select max(${primaryKey}) from ${editTable}) + ${tempKey}`;
           setTempKey(tempKey + 1);
-        } else if (col.type === 'string' && v !== null) {
-          value = '\'' + v + '\'';
-        } else if (col.type === 'datetime' && v) {
-          value = '\'' + getCurrentTimeString(v) + '\'';
+        } else if (col.type === "string" && v !== null) {
+          value = "'" + v + "'";
+        } else if (col.type === "datetime" && v) {
+          value = "'" + getCurrentTimeString(v) + "'";
         }
-        currentRowValues += currentRowValues === '' ? value : ',' + value;
+        currentRowValues += currentRowValues === "" ? value : "," + value;
       }
     });
     return command
-      .replace('{{table}}', editTable)
-      .replace('{{primaryKey}}', primaryKey)
-      .replace('{{currentKey}}', editKey)
-      .replace('{{currentRowValues}}', currentRowValues)
-      .replace('{{currentColumns}}', '"' + currentColumns.join('", "') + '"')
-      .replace('{{endtime}}', endTime)
-      .replace('{{endtime}}', endTime)
-      .replace('{{currentTime}}', currentTime);
+      .replace("{{table}}", editTable)
+      .replace("{{primaryKey}}", primaryKey)
+      .replace("{{currentKey}}", editKey)
+      .replace("{{currentRowValues}}", currentRowValues)
+      .replace("{{currentColumns}}", '"' + currentColumns.join('", "') + '"')
+      .replace("{{endtime}}", endTime)
+      .replace("{{endtime}}", endTime)
+      .replace("{{currentTime}}", currentTime);
   }
 
   const contextData = props.form;
@@ -484,11 +555,11 @@ function EditableTable(props) {
           <Select
             id="search-col"
             className="form-control flex-fill w-100"
-            onSelect={value => setSearchCol(value)}
+            onSelect={(value) => setSearchCol(value)}
           >
             {originalData.columns.map((col) => {
               const colName = col.name;
-              return col.type === 'string' ? (
+              return col.type === "string" ? (
                 <Select.Option value={colName} key={`col-option-${colName}`}>
                   {colName}
                 </Select.Option>
@@ -511,11 +582,11 @@ function EditableTable(props) {
           bordered
           dataSource={displayData}
           columns={renderColumns}
-          rowKey={record => record[primaryKey]}
+          rowKey={(record) => record[primaryKey]}
           rowClassName="editable-row"
           pagination={{
-            size: 'small',
-            position: 'bottom',
+            size: "small",
+            position: "bottom",
             pageSize: 10,
             hideOnSinglePage: true,
             current: currentPage,
@@ -527,13 +598,13 @@ function EditableTable(props) {
       <Button
         type="primary"
         loading={updating}
-        disabled={editingKey !== '' || isEqual(queriesToRun, {}) || updating}
+        disabled={editingKey !== "" || isEqual(queriesToRun, {}) || updating}
         onClick={submitChanges}
         style={{ marginRight: 8 }}
       >
         Submit Changes
       </Button>
-      <Button onClick={addRow} disabled={editingKey !== ''}>
+      <Button onClick={addRow} disabled={editingKey !== ""}>
         Add Row
       </Button>
     </React.Fragment>
@@ -549,7 +620,12 @@ EditableTable.propTypes = {
 
 export default function Renderer({ data, options, currentUser }) {
   const TableForm = Form.create()(EditableTable);
-  if (!options.editTable || !options.primaryKey || !options.columns || isEqual(options.columns, {})) {
+  if (
+    !options.editTable ||
+    !options.primaryKey ||
+    !options.columns ||
+    isEqual(options.columns, {})
+  ) {
     return <React.Fragment />;
   }
 

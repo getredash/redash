@@ -1,14 +1,14 @@
 /* eslint-disable react/prop-types */
-import {formatSimpleTemplate} from '@/lib/value-format';
-import {extend, trim} from 'lodash';
-import React from 'react';
+import { formatSimpleTemplate } from "@/lib/value-format";
+import { extend, trim } from "lodash";
+import React from "react";
 
 export default function initImageColumn(column) {
   function prepareData(row) {
-    row = extend({'@' : row[column.name]}, row);
+    row = extend({ "@": row[column.name] }, row);
 
     const src = trim(formatSimpleTemplate(column.imageUrlTemplate, row));
-    if (src === '') {
+    if (src === "") {
       return {};
     }
 
@@ -16,15 +16,15 @@ export default function initImageColumn(column) {
     const height = parseInt(formatSimpleTemplate(column.imageHeight, row), 10);
     const title = trim(formatSimpleTemplate(column.imageTitleTemplate, row));
 
-    const result = {src};
+    const result = { src };
 
-    if (Number.isFinite(width) && (width > 0)) {
+    if (Number.isFinite(width) && width > 0) {
       result.width = width;
     }
-    if (Number.isFinite(height) && (height > 0)) {
+    if (Number.isFinite(height) && height > 0) {
       result.height = height;
     }
-    if (title !== '') {
+    if (title !== "") {
       result.text = title; // `text` is used for search
       result.title = title;
       result.alt = title;
@@ -33,10 +33,9 @@ export default function initImageColumn(column) {
     return result;
   }
 
-  function ImageColumn({row}) {
-    const {text, ...props} = prepareData(row);
-    return < img alt = "" { ...props }
-    />;
+  function ImageColumn({ row }) {
+    const { text, ...props } = prepareData(row);
+    return <img alt="" {...props} />;
   }
 
   ImageColumn.prepareData = prepareData;
@@ -44,4 +43,4 @@ export default function initImageColumn(column) {
   return ImageColumn;
 }
 
-initImageColumn.friendlyName = 'Image';
+initImageColumn.friendlyName = "Image";

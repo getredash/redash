@@ -1,19 +1,22 @@
-import { isEqual, map, find } from 'lodash';
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
-import useQueryResult from '@/lib/hooks/useQueryResult';
-import { Filters, FiltersType, filterData } from '@/components/Filters';
-import { registeredVisualizations, VisualizationType } from './index';
+import { isEqual, map, find } from "lodash";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import PropTypes from "prop-types";
+import { react2angular } from "react2angular";
+import useQueryResult from "@/lib/hooks/useQueryResult";
+import { Filters, FiltersType, filterData } from "@/components/Filters";
+import { registeredVisualizations, VisualizationType } from "./index";
 
 function combineFilters(localFilters, globalFilters) {
   // tiny optimization - to avoid unnecessary updates
-  if ((localFilters.length === 0) || (globalFilters.length === 0)) {
+  if (localFilters.length === 0 || globalFilters.length === 0) {
     return localFilters;
   }
 
   return map(localFilters, (localFilter) => {
-    const globalFilter = find(globalFilters, f => f.name === localFilter.name);
+    const globalFilter = find(
+      globalFilters,
+      (f) => f.name === localFilter.name
+    );
     if (globalFilter) {
       return {
         ...localFilter,
@@ -39,10 +42,13 @@ export function VisualizationRenderer(props) {
     setFilters(combineFilters(filters, props.filters));
   }, [props.filters]);
 
-  const filteredData = useMemo(() => ({
-    columns: data.columns,
-    rows: filterData(data.rows, filters),
-  }), [data, filters]);
+  const filteredData = useMemo(
+    () => ({
+      columns: data.columns,
+      rows: filterData(data.rows, filters),
+    }),
+    [data, filters]
+  );
 
   const { showFilters, visualization } = props;
   const { Renderer, getOptions } = registeredVisualizations[visualization.type];
@@ -79,7 +85,7 @@ VisualizationRenderer.propTypes = {
   queryResult: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   filters: FiltersType,
   showFilters: PropTypes.bool,
-  context: PropTypes.oneOf(['query', 'widget']).isRequired,
+  context: PropTypes.oneOf(["query", "widget"]).isRequired,
   currentUser: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
@@ -89,7 +95,10 @@ VisualizationRenderer.defaultProps = {
 };
 
 export default function init(ngModule) {
-  ngModule.component('visualizationRenderer', react2angular(VisualizationRenderer));
+  ngModule.component(
+    "visualizationRenderer",
+    react2angular(VisualizationRenderer)
+  );
 }
 
 init.init = true;

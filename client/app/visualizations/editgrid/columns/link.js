@@ -1,14 +1,14 @@
 /* eslint-disable react/prop-types */
-import {formatSimpleTemplate} from '@/lib/value-format';
-import {extend, trim} from 'lodash';
-import React from 'react';
+import { formatSimpleTemplate } from "@/lib/value-format";
+import { extend, trim } from "lodash";
+import React from "react";
 
 export default function initLinkColumn(column) {
   function prepareData(row) {
-    row = extend({'@' : row[column.name]}, row);
+    row = extend({ "@": row[column.name] }, row);
 
     const href = trim(formatSimpleTemplate(column.linkUrlTemplate, row));
-    if (href === '') {
+    if (href === "") {
       return {};
     }
 
@@ -17,23 +17,22 @@ export default function initLinkColumn(column) {
 
     const result = {
       href,
-      text : text !== '' ? text : href,
+      text: text !== "" ? text : href,
     };
 
-    if (title !== '') {
+    if (title !== "") {
       result.title = title;
     }
     if (column.linkOpenInNewTab) {
-      result.target = '_blank';
+      result.target = "_blank";
     }
 
     return result;
   }
 
-  function LinkColumn({row}) {
-    const {text, ...props} = prepareData(row);
-    return <a{...props}>{text} <
-           /a>;
+  function LinkColumn({ row }) {
+    const { text, ...props } = prepareData(row);
+    return <a {...props}>{text} </a>;
   }
 
   LinkColumn.prepareData = prepareData;
@@ -41,4 +40,4 @@ export default function initLinkColumn(column) {
   return LinkColumn;
 }
 
-initLinkColumn.friendlyName = 'Link';
+initLinkColumn.friendlyName = "Link";
