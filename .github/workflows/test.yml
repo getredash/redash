@@ -26,10 +26,10 @@ jobs:
       - name: Build Redash image
         run: |
           # cd packages/redash/
-          docker build --tag docker.pkg.github.com/ttekglobal/redash/redash:dev-$IMAGE_VERSION .
+          docker build --tag docker.pkg.github.com/ttekglobal/redash/ttekredash:dev-$IMAGE_VERSION .
 
-      - name: Push admin image
-        run: docker push docker.pkg.github.com/ttekglobal/redash/redash:dev-$IMAGE_VERSION
+      - name: Push Redash image
+        run: docker push docker.pkg.github.com/ttekglobal/redash/ttekredash:dev-$IMAGE_VERSION
   deploy-k8s:
     name: "Deployment"
     runs-on: ubuntu-latest
@@ -59,7 +59,5 @@ jobs:
 
       - name: Install / Upgrade App
         run: |
-          helm upgrade --install ra --namespace ra . \
-              --values=./helm/requirements.yaml \
-              --values=./helm/values.yaml \
-              --set image.tag=dev-$IMAGE_VERSION
+          helm upgrade  --install ra --namespace=ra --values ./helm/values.yaml --values ./helm/requirements.yaml ./helm \
+            --set image.tag=dev-$IMAGE_VERSION
