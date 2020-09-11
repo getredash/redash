@@ -62,7 +62,7 @@ function confirmDialogClose(isDirty) {
   });
 }
 
-function EditVisualizationDialog({ dialog, visualization, query, queryResult }) {
+function EditVisualizationDialog({ dialog, visualization, query, queryResult, currentUser, schema, dataSourceId }) {
   const isNew = !visualization;
 
   const data = useQueryResult(queryResult);
@@ -179,6 +179,8 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
               options={options}
               visualizationName={name}
               onOptionsChange={onOptionsChanged}
+              schema={schema}
+              dataSourceId={dataSourceId}
             />
           </div>
         </Grid.Col>
@@ -192,6 +194,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
               visualizationName={name}
               onOptionsChange={onOptionsChanged}
               context="query"
+              currentUser={currentUser}
             />
           </div>
         </Grid.Col>
@@ -205,10 +208,14 @@ EditVisualizationDialog.propTypes = {
   query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   visualization: VisualizationType,
   queryResult: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  currentUser: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  schema: PropTypes.arrayOf(PropTypes.object), // eslint-disable-line react/forbid-prop-types
+  dataSourceId: PropTypes.number.isRequired,
 };
 
 EditVisualizationDialog.defaultProps = {
   visualization: null,
+  schema: [],
 };
 
 export default wrapDialog(EditVisualizationDialog);

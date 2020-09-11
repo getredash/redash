@@ -450,6 +450,9 @@ function QueryViewCtrl(
         query: $scope.query,
         visualization: getVisualization(visId),
         queryResult: $scope.queryResult,
+        schema: $scope.schema,
+        currentUser: $scope.currentUser,
+        dataSourceId: $scope.query.data_source_id,
       }).result.then((visualization) => {
         $scope.setVisualizationTab(visualization);
         $scope.$applyAsync();

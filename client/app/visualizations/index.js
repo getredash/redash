@@ -26,6 +26,7 @@ export const RendererPropTypes = {
   options: VisualizationOptions.isRequired,
   onOptionsChange: PropTypes.func, // (newOptions) => void
   context: PropTypes.oneOf(['query', 'widget']).isRequired,
+  currentUser: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
 // For each visualization's editor
@@ -34,6 +35,8 @@ export const EditorPropTypes = {
   data: Data.isRequired,
   options: VisualizationOptions.isRequired,
   onOptionsChange: PropTypes.func.isRequired, // (newOptions) => void
+  schema: PropTypes.arrayOf(PropTypes.object).isRequired, // eslint-disable-line react/forbid-prop-types
+  dataSourceId: PropTypes.number.isRequired,
 };
 
 /* --------------------------------------------------------

@@ -67,6 +67,7 @@ export function VisualizationRenderer(props) {
           data={filteredData}
           visualizationName={visualization.name}
           context={props.context}
+          currentUser={props.currentUser}
         />
       </div>
     </React.Fragment>
@@ -79,6 +80,7 @@ VisualizationRenderer.propTypes = {
   filters: FiltersType,
   showFilters: PropTypes.bool,
   context: PropTypes.oneOf(['query', 'widget']).isRequired,
+  currentUser: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
 VisualizationRenderer.defaultProps = {

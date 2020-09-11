@@ -1,0 +1,27 @@
+import { registerVisualization } from '@/visualizations';
+
+import Renderer from './Renderer';
+import Editor from './Editor';
+
+const DEFAULT_OPTIONS = {
+  isMarkingUser: false,
+  isVersioning: false,
+  isSnapshotting: false,
+  allowDelete: true,
+  columns: {},
+};
+
+export default function init() {
+  registerVisualization({
+    type: 'EDITGRID',
+    name: 'Editable Grid',
+    getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
+    Renderer,
+    Editor,
+
+    defaultColumns: 4,
+    defaultRows: 15,
+  });
+}
+
+init.init = true;
