@@ -59,7 +59,7 @@ def get_saml_client(org):
         },
     }
 
-    if saml_type is not None and saml_type == "dynamic":
+    if saml_type is not None and saml_type == "static":
         saml_settings["metadata"] = {"inline": [metadata_inline]}
 
     if entity_id is not None and entity_id != "":
