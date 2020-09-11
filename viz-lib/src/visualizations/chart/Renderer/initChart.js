@@ -146,9 +146,17 @@ export default function initChart(container, options, data, additionalOptions, v
     .then(
       createSafeFunction(() => {
         container.on("plotly_click", function(data) {
-          // console.log(visualization);
-
           if (visualization.subDashboard) {
+            const parameters = visualization.query.options.parameters;
+            let q = "";
+            if (parameters.length) {
+              for (let i = 0, len = parameters.length; i < len; i++) {
+                const value = `${parameters[i].urlPrefix}${parameters[i].name}=${parameters[i].value}`;
+                q += value;
+              }
+              // console.log(q);
+            }
+
             const keys = Object.keys(options.columnMapping);
             const axisMapping = {};
             for (let i = 0, len = keys.length; i < len; i++) {
@@ -172,9 +180,14 @@ export default function initChart(container, options, data, additionalOptions, v
                 name: visualization.query.name,
               })
             );
-            const link = `${window.location.origin}/dashboards/${visualization.subDashboard}?p_${axisMapping.x}=${
+            let link = `${window.location.origin}/dashboards/${visualization.subDashboard}?p_${axisMapping.x}=${
               options.invertedAxes ? data.points[0].y : data.points[0].x
             }`;
+
+            if (q) {
+              link = `${link}&${q}`;
+            }
+
             window.location.href = link;
             // window.open(link, "_blank").focus();
           }
