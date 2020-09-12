@@ -68,7 +68,6 @@ def get_saml_client(org):
         }]
         }
         saml_settings.update(encryption_dict)
-        print(saml_settings)
 
 
     if saml_type is not None and saml_type == "static":
