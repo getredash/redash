@@ -113,6 +113,13 @@ jobs:
           command: |
             docker-compose logs
           when: on_fail
+      - run:
+          name: Copy Code Coverage results
+          command: |
+            docker cp cypress:/usr/src/app/coverage ./coverage
+          when: always
+      - store_artifacts:
+          path: coverage
   build-docker-image: *build-docker-image-job
   build-preview-docker-image: *build-docker-image-job
 workflows:

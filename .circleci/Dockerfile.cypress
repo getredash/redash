@@ -9,4 +9,6 @@ RUN npm run cypress:install > /dev/null
 COPY client/cypress $APP/client/cypress
 COPY cypress.json $APP/cypress.json
 
+COPY . $APP
+
 RUN ./node_modules/.bin/cypress verify
