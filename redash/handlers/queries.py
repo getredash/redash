@@ -488,9 +488,9 @@ class QueryRefreshResource(BaseResource):
 
         parameter_values = collect_parameters_from_request(request.args)
         parameterized_query = ParameterizedQuery(query.query_text, org=self.current_org)
-        apply_auto_limit = query.options.get("apply_auto_limit", False)
+        should_apply_auto_limit = query.options.get("apply_auto_limit", False)
         return run_query(
-            parameterized_query, parameter_values, query.data_source, query.id, apply_auto_limit
+            parameterized_query, parameter_values, query.data_source, query.id, should_apply_auto_limit
         )
 
 

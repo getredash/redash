@@ -866,14 +866,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return [api_key[0] for api_key in api_keys]
 
     def update_query_hash(self):
-        apply_auto_limit = False
-        if self.options is not None:
-            apply_auto_limit = self.options.get("apply_auto_limit", False)
-        if self.data_source is not None:
-            query_runner = self.data_source.query_runner
-        else:
-            query_runner = BaseQueryRunner({})
-        self.query_hash = query_runner.gen_query_hash(self.query_text, apply_auto_limit)
+        should_apply_auto_limit = self.options.get("apply_auto_limit", False) if self.options else False
+        query_runner = self.data_source.query_runner if self.data_source else BaseQueryRunner({})
+        self.query_hash = query_runner.gen_query_hash(self.query_text, should_apply_auto_limit)
 
 
 @listens_for(Query, "before_insert")

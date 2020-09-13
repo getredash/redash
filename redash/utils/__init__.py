@@ -234,7 +234,6 @@ def find_last_keyword_idx(parsed_query):
 
 
 def add_limit_to_query(query):
-    # this function will only be called if query_is_select_no_limit returns True
     parsed_query = sqlparse.parse(query)[0]
     limit_tokens = sqlparse.parse(" LIMIT 1000")[0].tokens
     length = len(parsed_query.tokens)

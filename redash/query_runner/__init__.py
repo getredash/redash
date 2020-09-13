@@ -194,7 +194,7 @@ class BaseQueryRunner(object):
     def supports_auto_limit(self):
         return False
 
-    def apply_auto_limit(self, query_text, set_auto_limit):
+    def apply_auto_limit(self, query_text, should_apply_auto_limit):
         return query_text
 
     def gen_query_hash(self, query_text, set_auto_limit=False):
@@ -223,15 +223,15 @@ class BaseSQLQueryRunner(BaseQueryRunner):
     def supports_auto_limit(self):
         return True
 
-    def apply_auto_limit(self, query_text, set_auto_limit):
-        if set_auto_limit:
-            from redash.query_runner.databricks import split_sql_statements
-            query_list = split_sql_statements(query_text)
+    def apply_auto_limit(self, query_text, should_apply_auto_limit):
+        if should_apply_auto_limit:
+            from redash.query_runner.databricks import split_sql_statements, combine_sql_statements
+            queries = split_sql_statements(query_text)
             # we only check for last one in the list because it is the one that we show result
-            last_query = query_list[-1]
+            last_query = queries[-1]
             if query_is_select_no_limit(last_query):
-                query_list[-1] = add_limit_to_query(last_query)
-            return ";\n".join(query_list)
+                queries[-1] = add_limit_to_query(last_query)
+            return combine_sql_statements(queries)
         else:
             return query_text
 

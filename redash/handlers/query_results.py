@@ -60,7 +60,7 @@ error_messages = {
 }
 
 
-def run_query(query, parameters, data_source, query_id, apply_auto_limit, max_age=0):
+def run_query(query, parameters, data_source, query_id, should_apply_auto_limit, max_age=0):
     if data_source.paused:
         if data_source.pause_reason:
             message = "{} is paused ({}). Please try later.".format(
@@ -76,7 +76,7 @@ def run_query(query, parameters, data_source, query_id, apply_auto_limit, max_ag
     except (InvalidParameterError, QueryDetachedFromDataSourceError) as e:
         abort(400, message=str(e))
 
-    query_text = _apply_auto_limit(data_source, query, apply_auto_limit)
+    query_text = data_source.query_runner.apply_auto_limit(query.text, should_apply_auto_limit)
 
     if query.missing_params:
         return error_response(
@@ -122,10 +122,6 @@ def run_query(query, parameters, data_source, query_id, apply_auto_limit, max_ag
             },
         )
         return serialize_job(job)
-
-
-def _apply_auto_limit(data_source, query, apply_auto_limit):
-    return data_source.query_runner.apply_auto_limit(query.text, apply_auto_limit)
 
 
 def get_download_filename(query_result, query, filetype):
@@ -185,7 +181,7 @@ class QueryResultListResource(BaseResource):
         )
 
         parameterized_query = ParameterizedQuery(query, org=self.current_org)
-        apply_auto_limit = params.get("apply_auto_limit", False)
+        should_apply_auto_limit = params.get("apply_auto_limit", False)
 
         data_source_id = params.get("data_source_id")
         if data_source_id:
@@ -199,7 +195,7 @@ class QueryResultListResource(BaseResource):
             return error_messages["no_permission"]
 
         return run_query(
-            parameterized_query, parameters, data_source, query_id, apply_auto_limit, max_age
+            parameterized_query, parameters, data_source, query_id, should_apply_auto_limit, max_age
         )
 
 
@@ -292,7 +288,7 @@ class QueryResultResource(BaseResource):
         )
 
         allow_executing_with_view_only_permissions = query.parameterized.is_safe
-        apply_auto_limit = params.get("apply_auto_limit", False)
+        should_apply_auto_limit = params.get("apply_auto_limit", False)
 
         if has_access(
             query, self.current_user, allow_executing_with_view_only_permissions
@@ -302,7 +298,7 @@ class QueryResultResource(BaseResource):
                 parameter_values,
                 query.data_source,
                 query_id,
-                apply_auto_limit,
+                should_apply_auto_limit,
                 max_age,
             )
         else:
