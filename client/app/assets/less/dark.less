@@ -82,7 +82,15 @@
 
 .table-visualization-container {
   .table-fixed-header table th:not(.table-visualization-search) {
-    background: transparent !important;
+    background: @primary-bg !important;
+  }
+}
+
+.widget-visualization {
+  .table-visualization-container {
+    .table-fixed-header table th:not(.table-visualization-search) {
+      background: @second-bg !important;
+    }
   }
 }
 
@@ -104,7 +112,7 @@
 
 .ant-pagination {
   .ant-pagination-item {
-    background-color: @second-bg !important;
+    background-color: transparent !important;
     border-radius: 4px;
     &:hover {
       color: #fff !important;
@@ -201,6 +209,9 @@ div[data-test="VisualizationEditor"] .ant-tabs-nav .ant-tabs-tab {
 .parameter-apply-button {
   box-shadow: none !important;
 }
+.parameter-container .parameter-apply-button button {
+  background: @primary-color-hover !important;
+}
 .parameter-container .parameter-apply-button button:hover {
   background: @primaryColor !important;
 }
@@ -255,4 +266,11 @@ a.label-tag {
 
 .ant-select-focused.ant-select-multiple .ant-select-selector {
   box-shadow: none !important;
+}
+
+.parameter-input[data-dirty] .ant-input,
+.parameter-input[data-dirty] .ant-input-number,
+.parameter-input[data-dirty] .ant-select-selector,
+.parameter-input[data-dirty] .ant-picker {
+  background: transparent;
 }
