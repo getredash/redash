@@ -4,6 +4,7 @@ from unittest import TestCase
 
 import pytz
 from dateutil.parser import parse as date_parse
+
 from tests import BaseTestCase
 
 from redash import models, redis_connection
@@ -470,6 +471,37 @@ class TestQueryAll(BaseTestCase):
         self.assertEqual(["alice", "bob"], [q.user.name for q in qs1])
         qs2 = base.order_by(models.User.name.desc())
         self.assertEqual(["bob", "alice"], [q.user.name for q in qs2])
+
+    def test_update_query_hash_basesql_with_options(self):
+        ds = self.factory.create_data_source(
+            group=self.factory.org.default_group, type="pg"
+        )
+        query = self.factory.create_query(query_text="SELECT 2", data_source=ds)
+        query.options = {"apply_auto_limit": True}
+        origin_hash = query.query_hash
+        query.update_query_hash()
+        self.assertNotEqual(origin_hash, query.query_hash)
+
+    def test_update_query_hash_basesql_no_options(self):
+        ds = self.factory.create_data_source(
+            group=self.factory.org.default_group, type="pg"
+        )
+        query = self.factory.create_query(query_text="SELECT 2", data_source=ds)
+        query.options = {}
+        origin_hash = query.query_hash
+        query.update_query_hash()
+        self.assertEqual(origin_hash, query.query_hash)
+
+    def test_update_query_hash_non_basesql(self):
+        ds = self.factory.create_data_source(
+            group=self.factory.org.default_group, type="prometheus"
+        )
+        query = self.factory.create_query(query_text="SELECT 2", data_source=ds)
+        query.options = {"apply_auto_limit": True}
+        origin_hash = query.query_hash
+        query.update_query_hash()
+        self.assertEqual(origin_hash, query.query_hash)
+
 
 
 class TestGroup(BaseTestCase):
