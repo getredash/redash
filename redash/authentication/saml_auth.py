@@ -62,7 +62,7 @@ def get_saml_client(org):
                 "authn_requests_signed": False,
                 "logout_requests_signed": True,
                 "want_assertions_signed": True,
-                "want_response_signed": True,
+                "want_response_signed": False,
             }
         },
     }
