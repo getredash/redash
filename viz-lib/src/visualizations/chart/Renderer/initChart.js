@@ -151,9 +151,15 @@ export default function initChart(container, options, data, additionalOptions, v
             let q = "";
             if (parameters.length) {
               for (let i = 0, len = parameters.length; i < len; i++) {
-                const value = `${parameters[i].urlPrefix}${parameters[i].name}=${parameters[i].value}`;
+                const encodeValue = Array.isArray(parameters[i].value)
+                  ? encodeURIComponent(JSON.stringify(parameters[i].value))
+                  : parameters[i].value;
+                const value = `${parameters[i].urlPrefix}${parameters[i].name}=${encodeValue}${
+                  i < parameters.length - 1 ? "&" : ""
+                }`;
                 q += value;
               }
+              // console.log(parameters);
               // console.log(q);
             }
 
