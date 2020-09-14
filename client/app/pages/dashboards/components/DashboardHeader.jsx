@@ -19,6 +19,10 @@ import { DashboardStatusEnum } from "../hooks/useDashboard";
 
 import "./DashboardHeader.less";
 
+let backDashboard = localStorage.getItem("b_dashboard");
+backDashboard = backDashboard ? JSON.parse(backDashboard) : "";
+const showBackButton = backDashboard.pathname === window.location.pathname && backDashboard.link ? true : false;
+
 function getDashboardTags() {
   return getTags("api/dashboards/tags").then(tags => map(tags, t => t.name));
 }
@@ -166,6 +170,13 @@ DashboardMoreOptionsButton.propTypes = {
   dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
+function back() {
+  // console.log(backDashboard);
+  const link = backDashboard.link;
+  window.location.href = link;
+  localStorage.removeItem("b_dashboard");
+}
+
 function DashboardControl({ dashboardOptions }) {
   const {
     dashboard,
@@ -184,6 +195,11 @@ function DashboardControl({ dashboardOptions }) {
     <div className="dashboard-control">
       {!dashboard.is_archived && (
         <span className="hidden-print">
+          {showBackButton && (
+            <Button className="m-r-5 hidden-xs" title={backDashboard.parentName} onClick={back}>
+              <div className="back">{backDashboard.parentName}</div>
+            </Button>
+          )}
           {showPublishButton && (
             <Button className="m-r-5 hidden-xs" onClick={togglePublished}>
               <span className="fa fa-paper-plane m-r-5" /> Publish
