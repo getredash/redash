@@ -55,8 +55,7 @@ export const Auth = {
     window.location.href = `${AuthUrls.Login}?next=${next}`;
   },
   logout() {
-    localStorage.removeItem("recentQueries");
-    localStorage.removeItem("recentDashboards");
+    localStorage.removeItem("recents");
     logger("Logout.");
     window.location.href = "logout";
   },
