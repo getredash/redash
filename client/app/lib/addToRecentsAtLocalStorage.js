@@ -1,3 +1,13 @@
+function removeMostOutdatedItemIfTypeLimit(list, objectType) {
+  const objectTypeList = list.map(item => item.object_type);
+  const filteredObjectTypeList = objectTypeList.filter(objectTypeItem => objectTypeItem === objectType);
+  const objectTypeQuantity = filteredObjectTypeList.length;
+  if(objectTypeQuantity >= 5) {
+    const lastIndexOfType = objectTypeList.lastIndexOf(objectType);
+    list.splice(lastIndexOfType, 1);
+  }
+}
+
 function getIndexOfItemInArray (list, id, objectType) {
   const filteredArray = list.map(item => item.object_type === objectType ? item : {object_id: undefined});
   const arrayOnlyWithIds = filteredArray.map(item => item.object_id)
@@ -9,6 +19,8 @@ function updateList (list, id, objectType) {
   const itemIsAlreadyOnTheList = itemArrayIndex !== -1;
   if(itemIsAlreadyOnTheList)
     list.splice(itemArrayIndex, 1);
+  else
+    removeMostOutdatedItemIfTypeLimit(list, objectType);
   list.unshift({object_id: id, object_type: objectType});
   return list;
 }
