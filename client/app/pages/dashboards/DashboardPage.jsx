@@ -166,8 +166,9 @@ function DashboardPage({ dashboardSlug, dashboardId, onError }) {
   }, [dashboardId, dashboardSlug, handleError]);
 
   useEffect(() => {
-    addToRecentsAtLocalStorage(dashboardId, "recentDashboards");
-  }, [dashboardId]);
+    if(dashboard)
+    addToRecentsAtLocalStorage(dashboard.id, "recentDashboards");
+  }, [dashboard]);
 
   return <div className="dashboard-page">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>;
 }

@@ -8,13 +8,12 @@ function updateList (list, id) {
 }
 
 export default function addToRecentsAtLocalStorage(id, localStorageProperty) {
-  const formatedId = Number(id)
   const currentList = localStorage.getItem(localStorageProperty);
   if(!currentList){
-    localStorage.setItem(localStorageProperty, JSON.stringify([formatedId]));
+    localStorage.setItem(localStorageProperty, JSON.stringify([id]));
     return;
   }
   const parsedCurrentList = JSON.parse(currentList);
-  const updatedList = updateList(parsedCurrentList, formatedId);
+  const updatedList = updateList(parsedCurrentList, id);
   localStorage.setItem(localStorageProperty, JSON.stringify(updatedList));
 }
