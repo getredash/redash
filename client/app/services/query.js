@@ -386,7 +386,7 @@ const QueryService = {
   favorites: params => axios.get("api/queries/favorites", { params }).then(mapResults),
   favorite: data => axios.post(`api/queries/${data.id}/favorite`),
   unfavorite: data => axios.delete(`api/queries/${data.id}/favorite`),
-  recentQueries: params => axios.get("api/queries/my", { params }).then(mapResults).then((data) => filterRecent(data, "recentQueries")),
+  recentQueries: params => axios.get("api/queries/my", { params }).then(mapResults).then((data) => filterRecent(data, "query")),
 };
 
 QueryService.newQuery = function newQuery() {

@@ -77,13 +77,13 @@ function QueryView(props) {
         return;
       }
       executeQuery();
-      addToRecentsAtLocalStorage(query.id, "recentQueries");
+      addToRecentsAtLocalStorage(query.id, "query");
     },
     [areParametersDirty, executeQuery, isExecuting, query.id, queryFlags.canExecute]
   );
 
   useEffect(() => {
-    addToRecentsAtLocalStorage(query.id, "recentQueries");
+    addToRecentsAtLocalStorage(query.id, "query");
   }, [query.id]);
 
   useEffect(() => {
