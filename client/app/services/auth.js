@@ -2,6 +2,7 @@ import debug from "debug";
 import { includes, extend } from "lodash";
 import location from "@/services/location";
 import { axios } from "@/services/axios";
+import { notifySessionRestored } from "@/services/restoreSession";
 
 export const currentUser = {
   canEdit(object) {
@@ -94,6 +95,7 @@ export const Auth = {
       .then(() => {
         if (Auth.isAuthenticated()) {
           logger("Loaded session");
+          notifySessionRestored();
           return session;
         }
         logger("Need to login, redirecting");

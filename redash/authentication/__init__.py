@@ -220,6 +220,7 @@ def redirect_to_login():
             {"message": "Couldn't find resource. Please login and try again."}
         )
         response.status_code = 404
+        response.headers["X-Login-Url"] = get_login_url(next=None, external=True)
         return response
 
     login_url = get_login_url(next=request.url, external=False)
