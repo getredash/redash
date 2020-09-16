@@ -80,7 +80,8 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
         <label>Tags</label>
         {showUnselectAll && selectedTags.length > 0 && (
           <a onClick={unselectAll}>
-            <CloseOutlinedIcon /> clear filter
+            <CloseOutlinedIcon />
+            clear selection
           </a>
         )}
       </div>
