@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "redash.scheduledWorker.fullname" . }}
+  labels:
+    {{- include "redash.labels" . | nindent 4 }}
+    app.kubernetes.io/component: scheduledworker
+spec:
+  replicas: {{ .Values.scheduledWorker.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "redash.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: scheduledworker
+  template:
+    metadata:
+      labels:
+        {{- include "redash.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: scheduledworker
+      {{- if .Values.scheduledWorker.podAnnotations }}
+      annotations:
+      {{ toYaml .Values.scheduledWorker.podAnnotations | nindent 8 }}
+      {{- end }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "redash.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ include "redash.name" . }}-scheduledworker
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh"]
+          args: ["-c", ". /config/dynamicenv.sh && /app/bin/docker-entrypoint worker"]
+          volumeMounts:
+            - name: config
+              mountPath: /config
+          env:
+          {{- include "redash.env" . | nindent 12 }}
+          {{- range $key, $value := .Values.scheduledWorker.env }}
+            - name: "{{ $key }}"
+              value: "{{ $value }}"
+          {{- end }}
+          resources:
+{{ toYaml .Values.scheduledWorker.resources | indent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "redash.fullname" . }}
+    {{- if .Values.scheduledWorker.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.scheduledWorker.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- with .Values.scheduledWorker.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.scheduledWorker.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

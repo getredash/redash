@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "redash.scheduler.fullname" . }}
+  labels:
+    {{- include "redash.labels" . | nindent 4 }}
+    app.kubernetes.io/component: scheduler
+spec:
+  replicas: {{ .Values.scheduler.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "redash.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: scheduler
+  template:
+    metadata:
+      labels:
+        {{- include "redash.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: scheduler
+      {{- if .Values.scheduler.podAnnotations }}
+      annotations:
+      {{ toYaml .Values.scheduler.podAnnotations | nindent 8 }}
+      {{- end }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "redash.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ include "redash.name" . }}-scheduler
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh"]
+          args: ["-c", ". /config/dynamicenv.sh && /app/bin/docker-entrypoint scheduler"]
+          volumeMounts:
+            - name: config
+              mountPath: /config
+          env:
+          {{- include "redash.env" . | nindent 12 }}
+          {{- range $key, $value := .Values.scheduler.env }}
+            - name: "{{ $key }}"
+              value: "{{ $value }}"
+          {{- end }}
+          resources:
+{{ toYaml .Values.scheduler.resources | indent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "redash.fullname" . }}
+    {{- if .Values.scheduler.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.scheduler.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- with .Values.scheduler.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.scheduler.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

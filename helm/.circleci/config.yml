@@ -1,0 +1,269 @@
+version: 2.1
+
+jobs:
+  test:
+    parameters:
+      helm:
+        description: "Helm version to test with"
+        default: "v2.16.1"
+        type: string
+      k8s:
+        description: "Kubernetes version to test with"
+        default: "v1.15.3"
+        type: string
+    machine:
+      image: circleci/classic:201808-01
+
+    environment:
+      HELM_VERSION: << parameters.helm >>
+      K8S_VERSION: << parameters.k8s >>
+      REDASH_UPGRADE_SOURCE: 7.0.0.b18042
+      KUBECONFIG: /home/circleci/.kube/config
+      MINIKUBE_VERSION: v1.7.2
+      MINIKUBE_WANTUPDATENOTIFICATION: false
+      MINIKUBE_WANTREPORTERRORPROMPT: false
+      MINIKUBE_HOME: /home/circleci
+      CHANGE_MINIKUBE_NONE_USER: true
+      DOCKER_LATEST: 1
+
+    # Working directory needs to match to pass helm lint.
+    working_directory: ~/redash
+
+    steps:
+      # Add read-only SSH deploy key
+      - add_ssh_keys:
+          fingerprints:
+            - "1a:be:96:4d:6b:be:57:8e:ba:83:66:43:99:f7:96:bc"
+
+      - checkout
+
+      - run:
+          name: Install helm
+          command: |
+            curl -Lo get-helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get && chmod +x get-helm.sh
+            ./get-helm.sh --version "${HELM_VERSION}"
+            rm get-helm.sh
+
+      - run:
+          name: Lint chart
+          command: |
+            helm lint .
+
+      - run:
+          name: Setup minikube
+          command: |
+            curl -Lo minikube https://github.com/kubernetes/minikube/releases/download/${MINIKUBE_VERSION}/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+
+      - run:
+          name: Start minikube
+          background: true
+          command: |
+            sudo -E minikube start --vm-driver=none --cpus 2 --memory 6144 --kubernetes-version=${K8S_VERSION}
+            sudo -E minikube addons enable metrics-server
+
+      - run:
+          name: Setup kubectl
+          command: |
+            curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/${K8S_VERSION}/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+            mkdir -p ${HOME}/.kube
+            touch ${HOME}/.kube/config
+
+      - run:
+          name: Wait for minikube
+          command: |
+            timeout 180s bash \<<EOT
+              set -o pipefail
+              function is_ready()
+              {
+                kubectl get nodes -o json \
+                  | jq '.items[].status.conditions[] | select(.type=="Ready" and .status=="True")'
+              }
+
+              until is_ready
+              do
+                sleep 1
+              done
+            EOT
+
+      - run:
+          name: Install Tiller
+          command: |
+            # Only applicable to Helm v2
+            if [[ $HELM_VERSION == v2* ]]; then
+              helm init --wait
+            fi
+
+      - run:
+          name: Install chart dependencies
+          command: |
+            # Need to add stable repo for Helm v3+
+            if [[ $HELM_VERSION != v2* ]]; then
+              helm repo add stable https://kubernetes-charts.storage.googleapis.com
+            fi
+            helm dependency build .
+
+      - run:
+          name: Generate test configuration
+          command: |
+            # As well a setting secrets we also reduce resource usage a bit by dropping the worker count.
+            cat > test-values.yaml \<<- EOM
+            redash:
+              cookieSecret: $(openssl rand -base64 32)
+              secretKey: $(openssl rand -base64 32)
+              env:
+                REDASH_WEB_WORKERS: 1
+            postgresql:
+              postgresqlPassword: $(openssl rand -base64 32)
+            adhocWorker:
+              env:
+                WORKERS_COUNT: 1
+            scheduledWorker:
+              env:
+                WORKERS_COUNT: 1
+            EOM
+
+      - run:
+          name: Install chart
+          command: |
+            helm upgrade --install redash . --wait -f test-values.yaml
+            sleep 10
+            helm test redash
+            helm delete redash
+
+      - run:
+          name: Test chart upgrade
+          command: |
+            helm upgrade --install redashup . --wait --set image.tag="${REDASH_UPGRADE_SOURCE}" -f test-values.yaml
+            kubectl get pod -l "app.kubernetes.io/instance=redashup,app.kubernetes.io/component=server" -o jsonpath="{..image}"
+            sleep 10
+            helm test redashup
+            kubectl delete pod -l "app.kubernetes.io/instance=redashup,app.kubernetes.io/component=test-connection"
+            helm upgrade --install redashup . --wait --reset-values -f test-values.yaml
+            kubectl get pod -l "app.kubernetes.io/instance=redashup,app.kubernetes.io/component=server" -o jsonpath="{..image}"
+            sleep 10
+            helm test redashup
+
+      - run:
+          name: Debug outout
+          when: on_fail
+          command: |
+            # In case of error, try to display some resource usage and debug logs
+            kubectl top node || true
+            kubectl top pod -A || true
+            kubectl get all -A || true
+            echo "TEST LOGS"
+            kubectl describe pod "$(kubectl get pods -l 'app.kubernetes.io/component=test-connection' -o jsonpath='{.items[0].metadata.name}')"
+            kubectl logs --tail=20 -l "app.kubernetes.io/component=test-connection" || true
+            echo "INSTALL LOGS"
+            kubectl logs --tail=40 -l "job-name=redash-install" || true
+            echo "UPGRADE LOGS"
+            kubectl logs --tail=40 -l "job-name=redash-upgrade" || true
+            echo "SERVER LOGS"
+            kubectl logs --tail=20 -l "app.kubernetes.io/component=server" || true
+            echo "MINIKUBE LOGS"
+            minikube logs -n10 || true
+
+  publish:
+    machine:
+      image: circleci/classic:201808-01
+
+    environment:
+      HELM_VERSION: v3.1.0
+      GITHUB_PAGES_BRANCH: gh-pages
+
+    working_directory: ~/redash
+
+    steps:
+      # Add read-write SSH deploy key
+      - add_ssh_keys:
+          fingerprints:
+            - "36:04:b4:4a:31:a6:16:a1:e8:75:da:ee:b7:05:f4:34"
+
+      - checkout
+
+      - run:
+          name: Install helm
+          command: |
+            curl -Lo get-helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get && chmod +x get-helm.sh
+            ./get-helm.sh --version "${HELM_VERSION}"
+            rm get-helm.sh
+
+      - run:
+          name: Checking out Github Pages branch
+          command: |
+            # use git+ssh instead of https
+            git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
+            git config --global gc.auto 0 || true
+            mkdir -p /tmp/helm
+            git clone -b "${GITHUB_PAGES_BRANCH}" "${CIRCLE_REPOSITORY_URL}" /tmp/helm/publish
+
+      - run:
+          name: Package chart and update chart index
+          command: |
+            helm repo add stable https://kubernetes-charts.storage.googleapis.com
+            helm package --destination /tmp/helm/publish --dependency-update .
+            helm repo index /tmp/helm/publish
+
+      - run:
+          name: Pushing Github Pages branch
+          command: |
+            cd /tmp/helm/publish
+            git config user.email "${CIRCLE_USERNAME}@users.noreply.github.com"
+            git config user.name CircleCI
+            git add .
+            git status
+            git commit -m "Published by CircleCI ${CIRCLE_BUILD_URL} [skip ci]"
+            git push origin "${GITHUB_PAGES_BRANCH}"
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      # We ensure a single variant passes before running the others
+      # This makes tests take a bit longer but conserves resources
+      - test:
+          name: h2k15
+          helm: v2.16.3
+          k8s: v1.15.10
+      - test:
+          name: h2k16
+          helm: v2.16.3
+          k8s: v1.16.7
+          requires:
+            - h2k15
+      - test:
+          name: h2k17
+          helm: v2.16.3
+          k8s: v1.17.3
+          requires:
+            - h2k15
+      - test:
+          name: h3k15
+          helm: v3.1.0
+          k8s: v1.15.10
+          requires:
+            - h2k15
+      - test:
+          name: h3k16
+          helm: v3.1.0
+          k8s: v1.16.7
+          requires:
+            - h2k15
+      - test:
+          name: h3k17
+          helm: v3.1.0
+          k8s: v1.17.3
+          requires:
+            - h2k15
+      - publish:
+          # The publish step depends on all the test steps passing
+          requires:
+            - h2k15
+            - h2k16
+            - h2k17
+            - h3k15
+            - h3k16
+            - h3k17
+          filters:
+            branches:
+              only: master

@@ -1,0 +1,104 @@
+# Redash
+
+{{ template "chart.description" . }}
+
+## Introduction
+
+This chart bootstraps a [Redash](https://github.com/getredash/redash) deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
+
+This is a contributed project developed by volunteers and not officially supported by Redash.
+
+{{ template "chart.versionLine" . }}
+
+{{ template "chart.sourceLinkLine" . }}
+
+## Prerequisites
+
+- At least 3 GB of RAM available on your cluster
+- Kubernetes 1.15+ - chart is tested with latest 3 stable versions
+- Helm 2 or 3
+- PV provisioner support in the underlying infrastructure
+
+## Installing the Chart
+
+To install the chart with the release name `my-release`, add the chart repository:
+
+```bash
+$ helm repo add redash https://getredash.github.io/contrib-helm-chart/
+```
+
+Create a values file with required secrets (store this securely!):
+
+```bash
+$ cat > my-values.yaml <<- EOM
+redash:
+  cookieSecret: $(openssl rand -base64 32)
+  secretKey: $(openssl rand -base64 32)
+postgresql:
+  postgresqlPassword: $(openssl rand -base64 32)
+EOM
+```
+
+Install the chart:
+
+```bash
+$ helm upgrade --install -f my-values.yaml my-release redash/redash
+```
+
+The command deploys Redash on the Kubernetes cluster in the default configuration. The [configuration](#configuration) section and and default [values.yaml](values.yaml) lists the parameters that can be configured during installation.
+
+> **Tip**: List all releases using `helm list`
+
+## Uninstalling the Chart
+
+To uninstall/delete the `my-release` deployment:
+
+```bash
+$ helm delete my-release
+```
+
+The command removes all the Kubernetes components associated with the chart and deletes the release.
+
+{{ template "chart.requirementsSection" . }}
+
+## Configuration
+
+The following table lists the configurable parameters of the Redash chart and their default values.
+
+{{ template "chart.valuesSection" . }}
+
+## Upgrading
+
+- See [the changelog](CHANGELOG.md) for major changes in each release
+- The project will use the [semver specification](http://semver.org) for chart version numbers (chart versions will not match Redash versions, since we may need to update the chart more than once for the same Redash release)
+- Always back up your database before upgrading!
+- Schema migrations will be run automatically after each upgrade
+
+To upgrade a release named `my-release`:
+
+```bash
+helm repo update
+helm upgrade --reuse-values my-release redash/redash
+```
+
+Below are notes on manual configuration changes or steps needed for major chart version updates.
+
+### From 1.x to 2.x
+
+- There are 3 required secrets (see above) that must now be specified in your release
+- The server.env is now depreciated (except for non-standard variables such as PYTHON_*) to allow for better management of Redash configuration and secret values - any existing configuration should be migrated to the new values
+
+### From pre-release to 1.x
+
+- The values.yaml structure has several changes
+- The Redash, PostgreSQL and Redis versions have all been updated
+- Due to these changes you will likely need to dump the database and reload it into a fresh install
+- The chart now has it's own repo: https://getredash.github.io/contrib-helm-chart/
+
+## License
+
+This chart uses the [Apache 2 license](LICENSE).
+
+## Contributing
+
+Contributions [are welcome](CONTRIBUTING.md).

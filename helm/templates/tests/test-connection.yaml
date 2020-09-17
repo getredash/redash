@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "redash.fullname" . }}-test-connection"
+  labels:
+    {{- include "redash.labels" . | nindent 4 }}
+    app.kubernetes.io/component: test-connection
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: curl
+      image: curlimages/curl:7.68.0
+      command: ['sh']
+      args: ['-c', 'curl --silent --show-error -L --max-redirs 3 --retry 3 --retry-connrefused --retry-delay 10 --max-time 30 "http://{{ include "redash.fullname" . }}:{{ .Values.service.port }}" | fgrep "Welcome to Redash"']
+  restartPolicy: Never

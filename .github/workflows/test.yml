@@ -1,5 +1,5 @@
 # This workflow will build a docker container, publish it to Github Packages, and deploy it to DigitalOcean k8s cluster when a release is created
-name: Tests
+name: Tests & Build Redash
 on:
   push:
     branches: "tinrpt"

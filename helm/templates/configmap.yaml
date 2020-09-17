@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "redash.fullname" . }}
+  labels:
+    {{- include "redash.labels" . | nindent 4 }}
+data:
+  install-upgrade.sh: |
+    #!/usr/bin/env bash
+    echo "This will retry connections until PostgreSQL/Redis is up, then perform database installation/migrations as needed."
+
+    # Status command timeout
+    STATUS_TIMEOUT=10
+    # Create tables command timeout
+    CREATE_TIMEOUT=60
+    # Upgrade command timeout
+    UPGRADE_TIMEOUT=600
+    # Time to wait between attempts
+    RETRY_WAIT=10
+    # Max number of attempts
+    MAX_ATTEMPTS=10
+
+    # Patch the status command
+    sed -i '57s/.*/    #removed/' /app/redash/monitor.py
+
+    # Load connection variables
+    . /config/dynamicenv.sh
+    # Initialize attempt counter
+    ATTEMPTS=0
+    while ((ATTEMPTS < MAX_ATTEMPTS)); do
+      echo "Starting attempt ${ATTEMPTS} of ${MAX_ATTEMPTS}"
+      ATTEMPTS=$((ATTEMPTS+1))
+      STATUS=$(timeout $STATUS_TIMEOUT /app/manage.py status 2>&1)
+      RETCODE=$?
+      echo "Return code: ${RETCODE}"
+      echo "Status: ${STATUS}"
+      case "$RETCODE" in
+        0)
+          echo "Database appears to already be installed."
+          if [[ "${1}" == "upgrade" ]]; then
+            echo "Running Redash database migrations:"
+            timeout $UPGRADE_TIMEOUT /app/manage.py db upgrade
+            echo "Upgrade complete, final status:"
+            timeout $STATUS_TIMEOUT /app/manage.py status
+          fi
+          exit 0
+          ;;
+        124)
+          echo "Status command timed out after ${STATUS_TIMEOUT} seconds."
+          ;;
+      esac
+      case "$STATUS" in
+        *sqlalchemy.exc.OperationalError*)
+          echo "Database not yet functional, waiting."
+          ;;
+        *sqlalchemy.exc.ProgrammingError*)
+          echo "Database does not appear to be installed."
+          if [[ "${1}" == "install" ]]; then
+            echo "Installing Redash:"
+            timeout $CREATE_TIMEOUT /app/manage.py database create_tables
+            echo "Tables created, final status:"
+            timeout $STATUS_TIMEOUT /app/manage.py status
+            exit 0
+          else
+            echo "Attempting upgrade but database not installed, something has gone wrong."
+            exit 1
+          fi
+          ;;
+      esac
+      echo "Waiting ${RETRY_WAIT} seconds before retrying."
+      sleep 10
+    done
+    echo "Reached ${MAX_ATTEMPTS} attempts, giving up."
+    exit 1
+  dynamicenv.sh: |
+    # Build connection URLs from environment variables.
+    # NOTES:
+    #   This script should be sourced, not run directly.
+    #   All variables are expected to be set by the caller.
+    if [ -z "$REDASH_DATABASE_URL" ]; then
+      export REDASH_DATABASE_URL=postgresql://${REDASH_DATABASE_USER}:${REDASH_DATABASE_PASSWORD}@${REDASH_DATABASE_HOSTNAME}:${REDASH_DATABASE_PORT}/${REDASH_DATABASE_DB}
+      echo "Using Database: postgresql://${REDASH_DATABASE_USER}:******@${REDASH_DATABASE_HOSTNAME}:${REDASH_DATABASE_PORT}/${REDASH_DATABASE_DB}"
+    else
+      echo "Using external postgresql database"
+    fi
+    if [ -z "$REDASH_REDIS_URL" ]; then
+      export REDASH_REDIS_URL=redis://:${REDASH_REDIS_PASSWORD}@${REDASH_REDIS_HOSTNAME}:${REDASH_REDIS_PORT}/${REDASH_REDIS_DB}
+      echo "Using Redis: redis://:******@${REDASH_REDIS_HOSTNAME}:${REDASH_REDIS_PORT}/${REDASH_REDIS_DB}"
+    else
+      echo "Using external redis database"
+    fi

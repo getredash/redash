@@ -1,0 +1,9 @@
+dependencies:
+  - name: redis
+    version: "^10.5.3"
+    repository: "https://kubernetes-charts.storage.googleapis.com"
+    condition: redis.enabled
+  - name: postgresql
+    version: "^8.3.4"
+    repository: "https://kubernetes-charts.storage.googleapis.com"
+    condition: postgresql.enabled
