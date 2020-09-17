@@ -19,6 +19,7 @@ import ExpandedWidgetDialog from "@/components/dashboards/ExpandedWidgetDialog";
 import EditParameterMappingsDialog from "@/components/dashboards/EditParameterMappingsDialog";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import Widget from "./Widget";
+import querystring from "query-string";
 
 let isOpenWidget = false;
 
@@ -222,8 +223,10 @@ class VisualizationWidget extends React.Component {
   }
 
   onSuccess = state => {
-    // console.log(state, queryString.parse(window.location.search));
-    if (state) {
+    const params = querystring.parseUrl(window.location.href);
+    // console.log(params);
+
+    if (state && params.query.back === "1") {
       let p_widget = localStorage.getItem("p_widget");
       p_widget = p_widget ? JSON.parse(p_widget) : {};
 
@@ -233,8 +236,14 @@ class VisualizationWidget extends React.Component {
           isOpenWidget = true;
           localStorage.removeItem("p_widget");
           localStorage.removeItem("b_dashboard");
+          delete params.query.back;
+          console.log(params);
+          window.history.replaceState({}, "", `${params.url}?${querystring.stringify(params.query)}`);
         }
       }
+    } else {
+      localStorage.removeItem("p_widget");
+      localStorage.removeItem("b_dashboard");
     }
   };
 

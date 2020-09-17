@@ -172,7 +172,7 @@ DashboardMoreOptionsButton.propTypes = {
 
 function back() {
   // console.log(backDashboard);
-  const link = backDashboard.link;
+  const link = `${backDashboard.link}${backDashboard.link.indexOf("?") > -1 ? "&" : "?"}back=1`;
   window.location.href = link;
   localStorage.removeItem("b_dashboard");
 }
