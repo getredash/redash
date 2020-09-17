@@ -231,7 +231,7 @@ class BaseSQLQueryRunner(BaseQueryRunner):
             # we only check for last one in the list because it is the one that we show result
             last_query = queries[-1]
             if query_is_select_no_limit(last_query):
-                queries[-1] = add_limit_to_query(last_query)
+                queries[-1] = add_limit_to_query(last_query, cls.type())
             return combine_sql_statements(queries)
         else:
             return query_text

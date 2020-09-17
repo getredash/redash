@@ -233,9 +233,10 @@ def find_last_keyword_idx(parsed_query):
     return -1
 
 
-def add_limit_to_query(query):
+def add_limit_to_query(query, driver=None):
     parsed_query = sqlparse.parse(query)[0]
-    limit_tokens = sqlparse.parse(" LIMIT 1000")[0].tokens
+    limit_text = " FETCH NEXT 1000 ROWS ONLY" if driver == "oracle" else " LIMIT 1000"
+    limit_tokens = sqlparse.parse(limit_text)[0].tokens
     length = len(parsed_query.tokens)
     if parsed_query.tokens[length - 1].ttype == sqlparse.tokens.Punctuation:
         parsed_query.tokens[length - 1:length - 1] = limit_tokens
