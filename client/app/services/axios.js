@@ -13,7 +13,7 @@ const getData = ({ data }) => data;
 
 axios.interceptors.response.use(getData);
 
-createAuthRefreshInterceptor(
+export const authRefreshInterceptor = createAuthRefreshInterceptor(
   axios,
   failedRequest => {
     const message = failedRequest.response.data.message || "";
