@@ -214,15 +214,20 @@ def render_template(path, context):
     return current_app.jinja_env.get_template(path).render(**context)
 
 
-def query_is_select_no_limit(query):
+def query_is_select_no_limit(query, driver=None):
     parsed_query = sqlparse.parse(query)[0]
     last_keyword_idx = find_last_keyword_idx(parsed_query)
     # Either invalid query or query that is not select
     if last_keyword_idx == -1 or parsed_query.tokens[0].value.upper() != "SELECT":
         return False
 
-    no_limit = parsed_query.tokens[last_keyword_idx].value.upper() != "LIMIT" \
-               and parsed_query.tokens[last_keyword_idx].value.upper() != "OFFSET"
+    if driver == "oracle":
+        no_limit = parsed_query.tokens[last_keyword_idx].value.upper() != "ROW" \
+                and parsed_query.tokens[last_keyword_idx].value.upper() != "ROWS" \
+                and parsed_query.tokens[last_keyword_idx].value.upper() != "ONLY"
+    else:
+        no_limit = parsed_query.tokens[last_keyword_idx].value.upper() != "LIMIT" \
+                and parsed_query.tokens[last_keyword_idx].value.upper() != "OFFSET"
     return no_limit
 
 
