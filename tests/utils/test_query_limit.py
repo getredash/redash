@@ -32,9 +32,17 @@ class TestQueryLimit(unittest.TestCase):
         query = "SELECT *"
         self.assertEqual("SELECT * LIMIT 1000", add_limit_to_query(query))
 
+    def test_add_limit_query_no_limit_on_oracle(self):
+        query = "SELECT *"
+        self.assertEqual("SELECT * FETCH NEXT 1000 ROWS ONLY", add_limit_to_query(query, "oracle"))
+
     def test_add_limit_query_with_punc(self):
         query = "SELECT *;"
         self.assertEqual("SELECT * LIMIT 1000;", add_limit_to_query(query))
+
+    def test_add_limit_query_with_punc_on_oracle(self):
+        query = "SELECT *;"
+        self.assertEqual("SELECT * FETCH NEXT 1000 ROWS ONLY;", add_limit_to_query(query, "oracle"))
 
 
 if __name__ == '__main__':
