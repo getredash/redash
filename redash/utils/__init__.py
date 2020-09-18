@@ -211,40 +211,4 @@ def render_template(path, context):
     Using Flask's `render_template` function requires the entire app context to load, which in turn triggers any
     function decorated with the `context_processor` decorator, which is not explicitly required for rendering purposes.
     """
-    return current_app.jinja_env.get_template(path).render(**context)
-
-
-def query_is_select_no_limit(query, driver=None):
-    parsed_query = sqlparse.parse(query)[0]
-    last_keyword_idx = find_last_keyword_idx(parsed_query)
-    # Either invalid query or query that is not select
-    if last_keyword_idx == -1 or parsed_query.tokens[0].value.upper() != "SELECT":
-        return False
-
-    if driver == "oracle":
-        no_limit = parsed_query.tokens[last_keyword_idx].value.upper() != "ROW" \
-                and parsed_query.tokens[last_keyword_idx].value.upper() != "ROWS" \
-                and parsed_query.tokens[last_keyword_idx].value.upper() != "ONLY"
-    else:
-        no_limit = parsed_query.tokens[last_keyword_idx].value.upper() != "LIMIT" \
-                and parsed_query.tokens[last_keyword_idx].value.upper() != "OFFSET"
-    return no_limit
-
-
-def find_last_keyword_idx(parsed_query):
-    for i in reversed(range(len(parsed_query.tokens))):
-        if parsed_query.tokens[i].ttype in sqlparse.tokens.Keyword:
-            return i
-    return -1
-
-
-def add_limit_to_query(query, driver=None):
-    parsed_query = sqlparse.parse(query)[0]
-    limit_text = " FETCH NEXT 1000 ROWS ONLY" if driver == "oracle" else " LIMIT 1000"
-    limit_tokens = sqlparse.parse(limit_text)[0].tokens
-    length = len(parsed_query.tokens)
-    if parsed_query.tokens[length - 1].ttype == sqlparse.tokens.Punctuation:
-        parsed_query.tokens[length - 1:length - 1] = limit_tokens
-    else:
-        parsed_query.tokens += limit_tokens
-    return str(parsed_query)
+    current_app.jinja_env.get_template(path).render(**context)
