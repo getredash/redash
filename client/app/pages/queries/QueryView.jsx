@@ -34,7 +34,7 @@ import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
 import useFullscreenHandler from "../../lib/hooks/useFullscreenHandler";
-import { RecentObjectsManager } from "../../lib/RecentObjectsManager";
+import { RecentObjectsManager } from "../../services/RecentObjectsManager";
 import "./QueryView.less";
 
 function QueryView(props) {

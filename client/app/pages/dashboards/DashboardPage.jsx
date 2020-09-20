@@ -19,7 +19,7 @@ import url from "@/services/url";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 import useDashboard from "./hooks/useDashboard";
-import { RecentObjectsManager } from "../../lib/RecentObjectsManager";
+import { RecentObjectsManager } from "../../services/RecentObjectsManager";
 import DashboardHeader from "./components/DashboardHeader";
 
 import "./DashboardPage.less";

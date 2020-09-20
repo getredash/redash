@@ -5,7 +5,7 @@ import Widget from "./widget";
 import { currentUser } from "@/services/auth";
 import location from "@/services/location";
 import { cloneParameter } from "@/services/parameters";
-import { filterRecent } from './utils';
+import { RecentObjectsManager } from './RecentObjectsManager';
 
 export const urlForDashboard = ({ id, slug }) => `dashboards/${id}-${slug}`;
 
@@ -155,6 +155,8 @@ function transformResponse(data) {
   return data;
 }
 
+const recentObjectsManager = new RecentObjectsManager();
+
 const saveOrCreateUrl = data => (data.id ? `api/dashboards/${data.id}` : "api/dashboards");
 const DashboardService = {
   get: ({ id, slug }) => {
@@ -172,7 +174,7 @@ const DashboardService = {
   favorites: params => axios.get("api/dashboards/favorites", { params }).then(transformResponse),
   favorite: ({ id }) => axios.post(`api/dashboards/${id}/favorite`),
   unfavorite: ({ id }) => axios.delete(`api/dashboards/${id}/favorite`),
-  recentDashboards: params => axios.get("api/dashboards", { params }).then(transformResponse).then((data) => filterRecent(data, "dashboard"))
+  recentDashboards: params => axios.get("api/dashboards", { params }).then(transformResponse).then((data) => recentObjectsManager.filterItemsThatAreInRecents(data, "dashboard"))
 };
 
 _.extend(Dashboard, DashboardService);

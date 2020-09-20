@@ -20,7 +20,7 @@ import {
   find,
 } from "lodash";
 import location from "@/services/location";
-import { filterRecent } from './utils';
+import { RecentObjectsManager } from './RecentObjectsManager';
 import { Parameter, createParameter } from "./parameters";
 import { currentUser } from "./auth";
 import QueryResult from "./query-result";
@@ -369,6 +369,7 @@ export class QueryResultError {
 const getQuery = query => new Query(query);
 const saveOrCreateUrl = data => (data.id ? `api/queries/${data.id}` : "api/queries");
 const mapResults = data => ({ ...data, results: map(data.results, getQuery) });
+const recentObjectsManager = new RecentObjectsManager();
 
 const QueryService = {
   query: params => axios.get("api/queries", { params }).then(mapResults),
@@ -386,7 +387,7 @@ const QueryService = {
   favorites: params => axios.get("api/queries/favorites", { params }).then(mapResults),
   favorite: data => axios.post(`api/queries/${data.id}/favorite`),
   unfavorite: data => axios.delete(`api/queries/${data.id}/favorite`),
-  recentQueries: params => axios.get("api/queries/my", { params }).then(mapResults).then((data) => filterRecent(data, "query")),
+  recentQueries: params => axios.get("api/queries/my", { params }).then(mapResults).then((data) => recentObjectsManager.filterItemsThatAreInRecents(data, "query")),
 };
 
 QueryService.newQuery = function newQuery() {
