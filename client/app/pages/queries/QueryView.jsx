@@ -34,10 +34,11 @@ import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
 import useFullscreenHandler from "../../lib/hooks/useFullscreenHandler";
-import addToRecentsAtLocalStorage from "../../lib/addToRecentsAtLocalStorage";
+import { RecentObjectsManager } from "../../lib/RecentObjectsManager";
 import "./QueryView.less";
 
 function QueryView(props) {
+  const [ recentObjectsManager ] = useState(new RecentObjectsManager())
   const [query, setQuery] = useState(props.query);
   const [dataSource, setDataSource] = useState();
   const queryFlags = useQueryFlags(query, dataSource);
@@ -77,14 +78,17 @@ function QueryView(props) {
         return;
       }
       executeQuery();
-      addToRecentsAtLocalStorage(query.id, "query");
+      const recentObjectsManager = new RecentObjectsManager()
+      recentObjectsManager.addToRecentsAtLocalStorage(query.id, "query");
+
     },
     [areParametersDirty, executeQuery, isExecuting, query.id, queryFlags.canExecute]
   );
 
   useEffect(() => {
-    addToRecentsAtLocalStorage(query.id, "query");
-  }, [query.id]);
+    recentObjectsManager.addToRecentsAtLocalStorage(query.id, "query");
+
+  }, [query.id, recentObjectsManager]);
 
   useEffect(() => {
     document.title = query.name;

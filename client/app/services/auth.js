@@ -2,6 +2,7 @@ import debug from "debug";
 import { includes, extend } from "lodash";
 import location from "@/services/location";
 import { axios } from "@/services/axios";
+import { RecentObjectsManager } from '../lib/RecentObjectsManager';
 
 export const currentUser = {
   canEdit(object) {
@@ -55,8 +56,9 @@ export const Auth = {
     window.location.href = `${AuthUrls.Login}?next=${next}`;
   },
   logout() {
-    localStorage.removeItem("recents");
     logger("Logout.");
+    const recentObjectsManager = new RecentObjectsManager();
+    recentObjectsManager.clearRecentsAtLocalStorage();
     window.location.href = "logout";
   },
   loadSession() {
