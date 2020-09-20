@@ -20,7 +20,7 @@ import {
   find,
 } from "lodash";
 import location from "@/services/location";
-import { RecentObjectsManager } from './RecentObjectsManager';
+import { RecentObjectsManager } from "./RecentObjectsManager";
 import { Parameter, createParameter } from "./parameters";
 import { currentUser } from "./auth";
 import QueryResult from "./query-result";
@@ -387,7 +387,11 @@ const QueryService = {
   favorites: params => axios.get("api/queries/favorites", { params }).then(mapResults),
   favorite: data => axios.post(`api/queries/${data.id}/favorite`),
   unfavorite: data => axios.delete(`api/queries/${data.id}/favorite`),
-  recentQueries: params => axios.get("api/queries/my", { params }).then(mapResults).then((data) => recentObjectsManager.filterItemsThatAreInRecents(data, "query")),
+  recentQueries: params =>
+    axios
+      .get("api/queries/my", { params })
+      .then(mapResults)
+      .then(data => recentObjectsManager.filterItemsThatAreInRecents(data, "query")),
 };
 
 QueryService.newQuery = function newQuery() {
