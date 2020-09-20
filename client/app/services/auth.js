@@ -2,7 +2,7 @@ import debug from "debug";
 import { includes, extend } from "lodash";
 import location from "@/services/location";
 import { axios } from "@/services/axios";
-import { RecentObjectsManager } from './RecentObjectsManager';
+import { RecentObjectsManager } from "./RecentObjectsManager";
 
 export const currentUser = {
   canEdit(object) {

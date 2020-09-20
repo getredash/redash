@@ -150,7 +150,7 @@ DashboardComponent.propTypes = {
 
 function DashboardPage({ dashboardSlug, dashboardId, onError }) {
   const [dashboard, setDashboard] = useState(null);
-  const [ recentObjectsManager ] = useState(new RecentObjectsManager())
+  const [recentObjectsManager] = useState(new RecentObjectsManager());
   const handleError = useImmutableCallback(onError);
   useEffect(() => {
     Dashboard.get({ id: dashboardId, slug: dashboardSlug })
@@ -167,8 +167,7 @@ function DashboardPage({ dashboardSlug, dashboardId, onError }) {
   }, [dashboardId, dashboardSlug, handleError]);
 
   useEffect(() => {
-    if(dashboard)
-    recentObjectsManager.addToRecentsAtLocalStorage(dashboard.id, "dashboard");
+    if (dashboard) recentObjectsManager.addToRecentsAtLocalStorage(dashboard.id, "dashboard");
   }, [dashboard, recentObjectsManager]);
 
   return <div className="dashboard-page">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>;

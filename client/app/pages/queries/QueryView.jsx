@@ -38,7 +38,7 @@ import { RecentObjectsManager } from "../../services/RecentObjectsManager";
 import "./QueryView.less";
 
 function QueryView(props) {
-  const [ recentObjectsManager ] = useState(new RecentObjectsManager())
+  const [recentObjectsManager] = useState(new RecentObjectsManager());
   const [query, setQuery] = useState(props.query);
   const [dataSource, setDataSource] = useState();
   const queryFlags = useQueryFlags(query, dataSource);
@@ -78,16 +78,14 @@ function QueryView(props) {
         return;
       }
       executeQuery();
-      const recentObjectsManager = new RecentObjectsManager()
+      const recentObjectsManager = new RecentObjectsManager();
       recentObjectsManager.addToRecentsAtLocalStorage(query.id, "query");
-
     },
     [areParametersDirty, executeQuery, isExecuting, query.id, queryFlags.canExecute]
   );
 
   useEffect(() => {
     recentObjectsManager.addToRecentsAtLocalStorage(query.id, "query");
-
   }, [query.id, recentObjectsManager]);
 
   useEffect(() => {
