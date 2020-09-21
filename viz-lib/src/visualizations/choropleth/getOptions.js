@@ -1,11 +1,11 @@
-import { merge } from "lodash";
+import { isNil, merge } from "lodash";
 import ColorPalette from "./ColorPalette";
 
 const DEFAULT_OPTIONS = {
   mapType: "countries",
-  countryCodeColumn: "",
-  countryCodeType: "iso_a3",
-  valueColumn: "",
+  keyColumn: null,
+  targetField: null,
+  valueColumn: null,
   clusteringMode: "e",
   steps: 5,
   valueFormat: "0,0.00",
@@ -33,5 +33,18 @@ const DEFAULT_OPTIONS = {
 };
 
 export default function getOptions(options) {
-  return merge({}, DEFAULT_OPTIONS, options);
+  const result = merge({}, DEFAULT_OPTIONS, options);
+
+  // backward compatibility
+  if (!isNil(result.countryCodeColumn)) {
+    result.keyColumn = result.countryCodeColumn;
+    delete result.countryCodeColumn;
+  }
+
+  if (!isNil(result.countryCodeType)) {
+    result.targetField = result.countryCodeType;
+    delete result.countryCodeType;
+  }
+
+  return result;
 }

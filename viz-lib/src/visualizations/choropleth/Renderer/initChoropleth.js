@@ -35,9 +35,9 @@ const CustomControl = L.Control.extend({
 });
 
 function prepareLayer({ feature, layer, data, options, limits, colors, formatValue }) {
-  const value = getValueForFeature(feature, data, options.countryCodeType);
+  const value = getValueForFeature(feature, data, options.targetField);
   const valueFormatted = formatValue(value);
-  const featureData = prepareFeatureProperties(feature, valueFormatted, data, options.countryCodeType);
+  const featureData = prepareFeatureProperties(feature, valueFormatted, data, options.targetField);
   const color = getColorByValue(value, limits, colors, options.colors.noValue);
 
   layer.setStyle({
@@ -67,6 +67,19 @@ function prepareLayer({ feature, layer, data, options, limits, colors, formatVal
       fillColor: color,
     });
   });
+}
+
+function validateBounds(bounds, fallbackBounds) {
+  if (bounds) {
+    bounds = L.latLngBounds(bounds[0], bounds[1]);
+    if (bounds.isValid()) {
+      return bounds;
+    }
+  }
+  if (fallbackBounds && fallbackBounds.isValid()) {
+    return fallbackBounds;
+  }
+  return null;
 }
 
 export default function initChoropleth(container) {
@@ -123,9 +136,12 @@ export default function initChoropleth(container) {
       },
     }).addTo(_map);
 
-    const bounds = _choropleth.getBounds();
-    _map.fitBounds(options.bounds || bounds, { animate: false, duration: 0 });
-    _map.setMaxBounds(bounds);
+    const mapBounds = _choropleth.getBounds();
+    const bounds = validateBounds(options.bounds, mapBounds);
+    if (bounds) {
+      _map.fitBounds(bounds, { animate: false, duration: 0 });
+      _map.setMaxBounds(mapBounds);
+    }
 
     // send updated bounds to editor; delay this to avoid infinite update loop
     setTimeout(() => {
@@ -149,8 +165,8 @@ export default function initChoropleth(container) {
   function updateBounds(bounds) {
     if (!boundsChangedFromMap) {
       const layerBounds = _choropleth ? _choropleth.getBounds() : _map.getBounds();
-      bounds = bounds ? L.latLngBounds(bounds[0], bounds[1]) : layerBounds;
-      if (bounds.isValid()) {
+      bounds = validateBounds(bounds, layerBounds);
+      if (bounds) {
         _map.fitBounds(bounds, { animate: false, duration: 0 });
       }
     }
