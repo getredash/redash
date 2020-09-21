@@ -1,6 +1,7 @@
 import logging
 import os
 import ssl
+import types
 from base64 import b64decode
 from tempfile import NamedTemporaryFile
 
@@ -12,8 +13,8 @@ logger = logging.getLogger(__name__)
 try:
     from cassandra.cluster import Cluster
     from cassandra.auth import PlainTextAuthProvider
-    from cassandra.util import sortedset
-    from cassandra.util import Date
+    from cassandra.util import (OrderedDict, OrderedMap, OrderedMapSerializedKey,
+                                sortedset, Time, Date, Point, LineString, Polygon)
 
     enabled = True
 except ImportError:
@@ -31,12 +32,38 @@ def generate_ssl_options_dict(protocol, cert_path=None):
 
 
 class CassandraJSONEncoder(JSONEncoder):
+    def __init__(self):
+        super(CassandraJSONEncoder, self).__init__()
+        self.mapping = [
+            Date: self.cql_encode_date_ext,
+            OrderedDict: self.cql_encode_map_collection,
+            OrderedMap: self.cql_encode_map_collection,
+            OrderedMapSerializedKey: self.cql_encode_map_collection,
+            list: self.cql_encode_list_collection,
+            tuple: self.cql_encode_list_collection,
+            set: self.cql_encode_set_collection,
+            sortedset: self.cql_encode_set_collection,
+            frozenset: self.cql_encode_set_collection,
+            types.GeneratorType: self.cql_encode_list_collection,
+        ]
+    
+    def cql_encode_date_ext(self, val):
+        return val.date().isoformat()
+
+    def cql_encode_map_collection(self, val):
+        return (
+            self.mapping.get(type(k), super(CassandraJSONEncoder, self).default)(k),
+            self.mapping.get(type(v), super(CassandraJSONEncoder, self).default)(v)
+        ) for k, v in val.items())
+
+    def cql_encode_list_collection(self, val):
+        return [self.mapping.get(type(v), super(CassandraJSONEncoder, self).default)(v) for v in val]
+
+    def cql_encode_set_collection(self, val):
+        return [self.mapping.get(type(v), super(CassandraJSONEncoder, self).default)(v) for v in val]
+
     def default(self, o):
-        if isinstance(o, sortedset):
-            return list(o)
-        elif isinstance(o, Date):
-            return o.date().isoformat()
-        return super(CassandraJSONEncoder, self).default(o)
+        return self.mapping.get(type(o), super(CassandraJSONEncoder, self).default)(o)
 
 
 class Cassandra(BaseQueryRunner):
