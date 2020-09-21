@@ -20,7 +20,7 @@ export const authRefreshInterceptor = createAuthRefreshInterceptor(
     if (message.includes("CSRF")) {
       return axios.get("/ping");
     } else {
-      return Promise.reject();
+      return Promise.reject(failedRequest);
     }
   },
   { statusCodes: [400] }
