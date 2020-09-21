@@ -1,4 +1,4 @@
-import { isNil, merge } from "lodash";
+import { isNil, merge, get } from "lodash";
 import ColorPalette from "./ColorPalette";
 
 const DEFAULT_OPTIONS = {
@@ -34,6 +34,10 @@ const DEFAULT_OPTIONS = {
 
 export default function getOptions(options) {
   const result = merge({}, DEFAULT_OPTIONS, options);
+
+  // Both renderer and editor always provide new `bounds` array, so no need to clone it here.
+  // Keeping original object also reduces amount of updates in components
+  result.bounds = get(options, "bounds");
 
   // backward compatibility
   if (!isNil(result.countryCodeColumn)) {

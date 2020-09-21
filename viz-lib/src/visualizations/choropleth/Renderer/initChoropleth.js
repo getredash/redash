@@ -82,7 +82,7 @@ function validateBounds(bounds, fallbackBounds) {
   return null;
 }
 
-export default function initChoropleth(container) {
+export default function initChoropleth(container, onBoundsChange) {
   const _map = L.map(container, {
     center: [0.0, 0.0],
     zoom: 1,
@@ -95,13 +95,14 @@ export default function initChoropleth(container) {
   let _choropleth = null;
   const _legend = new CustomControl();
 
-  let onBoundsChange = () => {};
   function handleMapBoundsChange() {
-    const bounds = _map.getBounds();
-    onBoundsChange([
-      [bounds._southWest.lat, bounds._southWest.lng],
-      [bounds._northEast.lat, bounds._northEast.lng],
-    ]);
+    if (isFunction(onBoundsChange)) {
+      const bounds = _map.getBounds();
+      onBoundsChange([
+        [bounds._southWest.lat, bounds._southWest.lng],
+        [bounds._northEast.lat, bounds._northEast.lng],
+      ]);
+    }
   }
 
   let boundsChangedFromMap = false;
@@ -138,15 +139,11 @@ export default function initChoropleth(container) {
 
     const mapBounds = _choropleth.getBounds();
     const bounds = validateBounds(options.bounds, mapBounds);
-    if (bounds) {
-      _map.fitBounds(bounds, { animate: false, duration: 0 });
-      _map.setMaxBounds(mapBounds);
-    }
+    _map.fitBounds(bounds, { animate: false, duration: 0 });
 
-    // send updated bounds to editor; delay this to avoid infinite update loop
-    setTimeout(() => {
-      handleMapBoundsChange();
-    }, 10);
+    // equivalent to `_map.setMaxBounds(mapBounds)` but without animation
+    _map.options.maxBounds = mapBounds;
+    _map.panInsideBounds(mapBounds, { animate: false, duration: 0 });
 
     // update legend
     if (options.legend.visible && legend.length > 0) {
@@ -177,12 +174,6 @@ export default function initChoropleth(container) {
   });
 
   return {
-    get onBoundsChange() {
-      return onBoundsChange;
-    },
-    set onBoundsChange(value) {
-      onBoundsChange = isFunction(value) ? value : () => {};
-    },
     updateLayers,
     updateBounds,
     destroy() {

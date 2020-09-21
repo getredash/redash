@@ -1,5 +1,5 @@
-import { omit, merge, get } from "lodash";
-import React, { useState, useEffect } from "react";
+import { omit, noop } from "lodash";
+import React, { useState, useEffect, useRef } from "react";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 import useMemoWithDeepCompare from "@/lib/hooks/useMemoWithDeepCompare";
 
@@ -10,7 +10,9 @@ import "./renderer.less";
 
 export default function Renderer({ data, options, onOptionsChange }) {
   const [container, setContainer] = useState(null);
-  const [geoJson, isLoadingGeoJson] = useLoadGeoJson(options.mapType);
+  const [geoJson] = useLoadGeoJson(options.mapType);
+  const onBoundsChangeRef = useRef();
+  onBoundsChangeRef.current = onOptionsChange ? bounds => onOptionsChange({ ...options, bounds }) : noop;
 
   const optionsWithoutBounds = useMemoWithDeepCompare(() => omit(options, ["bounds"]), [options]);
 
@@ -18,7 +20,7 @@ export default function Renderer({ data, options, onOptionsChange }) {
 
   useEffect(() => {
     if (container) {
-      const _map = initChoropleth(container);
+      const _map = initChoropleth(container, (...args) => onBoundsChangeRef.current(...args));
       setMap(_map);
       return () => {
         _map.destroy();
@@ -36,19 +38,12 @@ export default function Renderer({ data, options, onOptionsChange }) {
     }
   }, [map, geoJson, data.rows, optionsWithoutBounds]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // This may come only from editor
   useEffect(() => {
-    if (map && !isLoadingGeoJson) {
+    if (map) {
       map.updateBounds(options.bounds);
     }
-  }, [map, isLoadingGeoJson, options.bounds]);
-
-  useEffect(() => {
-    if (map && onOptionsChange && !isLoadingGeoJson) {
-      map.onBoundsChange = bounds => {
-        onOptionsChange(merge({}, options, { bounds }));
-      };
-    }
-  }, [map, isLoadingGeoJson, options, onOptionsChange]);
+  }, [map, options, onOptionsChange]);
 
   return (
     <div className="map-visualization-container" style={{ background: options.colors.background }} ref={setContainer} />

@@ -4,15 +4,10 @@ import axios from "axios";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 import createReferenceCountingCache from "@/lib/referenceCountingCache";
 
-const defaultGeoJson = {
-  type: "FeatureCollection",
-  features: [],
-};
-
 const cache = createReferenceCountingCache();
 
 export default function useLoadGeoJson(mapType) {
-  const [geoJson, setGeoJson] = useState(defaultGeoJson);
+  const [geoJson, setGeoJson] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -22,10 +17,10 @@ export default function useLoadGeoJson(mapType) {
       setIsLoading(true);
       let cancelled = false;
 
-      const promise = cache.get(mapUrl, () => axios.get(mapUrl).catch(() => defaultGeoJson));
+      const promise = cache.get(mapUrl, () => axios.get(mapUrl).catch(() => null));
       promise.then(({ data }) => {
         if (!cancelled) {
-          setGeoJson(isObject(data) ? data : defaultGeoJson);
+          setGeoJson(isObject(data) ? data : null);
           setIsLoading(false);
         }
       });
@@ -35,7 +30,7 @@ export default function useLoadGeoJson(mapType) {
         cache.release(mapUrl);
       };
     } else {
-      setGeoJson(defaultGeoJson);
+      setGeoJson(null);
       setIsLoading(false);
     }
   }, [mapType]);
