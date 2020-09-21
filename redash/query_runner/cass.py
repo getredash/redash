@@ -13,6 +13,7 @@ try:
     from cassandra.cluster import Cluster
     from cassandra.auth import PlainTextAuthProvider
     from cassandra.util import sortedset
+    from cassandra.util import Date
 
     enabled = True
 except ImportError:
@@ -33,6 +34,8 @@ class CassandraJSONEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, sortedset):
             return list(o)
+        elif isinstance(o, Date):
+            return o.date().isoformat()
         return super(CassandraJSONEncoder, self).default(o)
 
 
