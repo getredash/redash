@@ -2,13 +2,15 @@ import { isString, isObject, get } from "lodash";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
+import createReferenceCountingCache from "@/lib/referenceCountingCache";
 
 const defaultGeoJson = {
   type: "FeatureCollection",
   features: [],
 };
 
-// TODO: It needs some cache
+const cache = createReferenceCountingCache();
+
 export default function useLoadGeoJson(mapType) {
   const [geoJson, setGeoJson] = useState(defaultGeoJson);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,18 +21,18 @@ export default function useLoadGeoJson(mapType) {
     if (isString(mapUrl)) {
       setIsLoading(true);
       let cancelled = false;
-      axios
-        .get(mapUrl)
-        .catch(() => defaultGeoJson)
-        .then(({ data }) => {
-          if (!cancelled) {
-            setGeoJson(isObject(data) ? data : defaultGeoJson);
-            setIsLoading(false);
-          }
-        });
+
+      const promise = cache.get(mapUrl, () => axios.get(mapUrl).catch(() => defaultGeoJson));
+      promise.then(({ data }) => {
+        if (!cancelled) {
+          setGeoJson(isObject(data) ? data : defaultGeoJson);
+          setIsLoading(false);
+        }
+      });
 
       return () => {
         cancelled = true;
+        cache.release(mapUrl);
       };
     } else {
       setGeoJson(defaultGeoJson);
