@@ -34,7 +34,7 @@ def generate_ssl_options_dict(protocol, cert_path=None):
 class CassandraJSONEncoder(JSONEncoder):
     def __init__(self):
         super(CassandraJSONEncoder, self).__init__()
-        self.mapping = [
+        self.mapping = {
             Date: self.cql_encode_date_ext,
             OrderedDict: self.cql_encode_map_collection,
             OrderedMap: self.cql_encode_map_collection,
@@ -45,7 +45,7 @@ class CassandraJSONEncoder(JSONEncoder):
             sortedset: self.cql_encode_set_collection,
             frozenset: self.cql_encode_set_collection,
             types.GeneratorType: self.cql_encode_list_collection,
-        ]
+        }
     
     def cql_encode_date_ext(self, val):
         return val.date().isoformat()
