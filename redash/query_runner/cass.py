@@ -51,10 +51,10 @@ class CassandraJSONEncoder(JSONEncoder):
         return val.date().isoformat()
 
     def cql_encode_map_collection(self, val):
-        return (
-            self.mapping.get(type(k), super(CassandraJSONEncoder, self).default)(k),
-            self.mapping.get(type(v), super(CassandraJSONEncoder, self).default)(v)
-        ) for k, v in val.items())
+        return {
+            self.mapping.get(type(k), super(CassandraJSONEncoder, self).default)(k):
+            self.mapping.get(type(v), super(CassandraJSONEncoder, self).default)(v) 
+            for k, v in val.items()}
 
     def cql_encode_list_collection(self, val):
         return [self.mapping.get(type(v), super(CassandraJSONEncoder, self).default)(v) for v in val]
