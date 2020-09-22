@@ -55,4 +55,13 @@ class TestCassandra(TestCase):
             self.assertEqual(json_obj, "00:00:00")
         except Exception as e:
             self.fail(repr(e))
-    
+
+    def test_cass_json_encoder_4(self):
+        built_in_float = 7.0
+
+        try:
+            json_data = json_dumps(built_in_float, cls=CassandraJSONEncoder)
+            json_obj = json_loads(json_data)
+            self.assertEqual(json_obj, built_in_float)
+        except Exception as e:
+            self.fail(repr(e))    
