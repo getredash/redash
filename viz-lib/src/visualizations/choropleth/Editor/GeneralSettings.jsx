@@ -31,7 +31,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           defaultValue={options.mapType}
           onChange={handleMapChange}>
           {map(visualizationsSettings.choroplethAvailableMaps, (_, mapType) => (
-            <Select.Option key={mapType} data-test={`Choropleth.Editor.MapUrl.${mapType}`}>
+            <Select.Option key={mapType} data-test={`Choropleth.Editor.MapType.${mapType}`}>
               {get(visualizationsSettings, `choroplethAvailableMaps.${mapType}.name`, mapType)}
             </Select.Option>
           ))}
