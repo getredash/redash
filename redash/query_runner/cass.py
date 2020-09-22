@@ -49,6 +49,9 @@ class CassandraJSONEncoder(JSONEncoder):
             frozenset: self.cql_encode_set_collection,
             types.GeneratorType: self.cql_encode_list_collection,
         }
+
+    def cql_encode_object(self, val):
+        return self.mapping.get(type(val), super(CassandraJSONEncoder, self).default)(val)
     
     def cql_encode_date_ext(self, val):
         built_in_date = val.date()
@@ -59,19 +62,16 @@ class CassandraJSONEncoder(JSONEncoder):
         return super(CassandraJSONEncoder, self).default(built_in_time)
 
     def cql_encode_map_collection(self, val):
-        return {
-            self.mapping.get(type(k), super(CassandraJSONEncoder, self).default)(k):
-            self.mapping.get(type(v), super(CassandraJSONEncoder, self).default)(v) 
-            for k, v in val.items()}
+        return {self.cql_encode_object(k): self.cql_encode_object(v) for k, v in val.items()}
 
     def cql_encode_list_collection(self, val):
-        return [self.mapping.get(type(v), super(CassandraJSONEncoder, self).default)(v) for v in val]
+        return [self.cql_encode_object(v) for v in val]
 
     def cql_encode_set_collection(self, val):
-        return [self.mapping.get(type(v), super(CassandraJSONEncoder, self).default)(v) for v in val]
+        return [self.cql_encode_object(v) for v in val]
 
     def default(self, o):
-        return self.mapping.get(type(o), super(CassandraJSONEncoder, self).default)(o)
+        return self.cql_encode_object(o)
 
 
 class Cassandra(BaseQueryRunner):
