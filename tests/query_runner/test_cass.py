@@ -4,7 +4,7 @@ import ssl
 from unittest import TestCase
 
 from cassandra.cqltypes import UTF8Type
-from cassandra.util import OrderedMapSerializedKey, Date
+from cassandra.util import OrderedMapSerializedKey, Date, Time
 
 from redash.query_runner.cass import generate_ssl_options_dict, CassandraJSONEncoder
 from redash.utils import json_dumps, json_loads
@@ -45,3 +45,14 @@ class TestCassandra(TestCase):
             self.assertEqual(json_obj, expected_date.isoformat())
         except Exception as e:
             self.fail(repr(e))
+
+    def test_cass_json_encoder_3(self):
+        cass_time = Time("00:00:00.000000001")
+
+        try:
+            json_data = json_dumps(cass_time, cls=CassandraJSONEncoder)
+            json_obj = json_loads(json_data)
+            self.assertEqual(json_obj, "00:00:00")
+        except Exception as e:
+            self.fail(repr(e))
+    

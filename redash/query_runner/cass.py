@@ -38,6 +38,7 @@ class CassandraJSONEncoder(JSONEncoder):
 
         self.mapping = {
             Date: self.cql_encode_date_ext,
+            Time: self.cql_encode_time,
             OrderedDict: self.cql_encode_map_collection,
             OrderedMap: self.cql_encode_map_collection,
             OrderedMapSerializedKey: self.cql_encode_map_collection,
@@ -50,7 +51,12 @@ class CassandraJSONEncoder(JSONEncoder):
         }
     
     def cql_encode_date_ext(self, val):
-        return val.date().isoformat()
+        built_in_date = val.date()
+        return super(CassandraJSONEncoder, self).default(built_in_date)
+
+    def cql_encode_time(self, val):
+        built_in_time = val.time()
+        return super(CassandraJSONEncoder, self).default(built_in_time)
 
     def cql_encode_map_collection(self, val):
         return {
