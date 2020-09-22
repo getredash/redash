@@ -1,12 +1,13 @@
+import datetime
 import shutil
 import ssl
 from unittest import TestCase
 
 from cassandra.cqltypes import UTF8Type
-from cassandra.util import OrderedMapSerializedKey
+from cassandra.util import OrderedMapSerializedKey, Date
 
 from redash.query_runner.cass import generate_ssl_options_dict, CassandraJSONEncoder
-from redash.utils import json_dumps
+from redash.utils import json_dumps, json_loads
 
 class TestCassandra(TestCase):
 
@@ -29,6 +30,18 @@ class TestCassandra(TestCase):
 
         try:
             json_data = json_dumps(om, cls=CassandraJSONEncoder)
-            self.assertEqual(json_data, {})
+            json_obj = json_loads(json_data)
+            self.assertEqual(json_obj, {})
+        except Exception as e:
+            self.fail(repr(e))
+
+    def test_cass_json_encoder_2(self):
+        expected_date = datetime.date(2020, 9, 22)
+        cass_date = Date(expected_date)
+
+        try:
+            json_data = json_dumps(cass_date, cls=CassandraJSONEncoder)
+            json_obj = json_loads(json_data)
+            self.assertEqual(json_obj, expected_date.isoformat())
         except Exception as e:
             self.fail(repr(e))
