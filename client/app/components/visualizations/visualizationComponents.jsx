@@ -6,6 +6,7 @@ import { Renderer as VisRenderer, Editor as VisEditor, updateVisualizationsSetti
 import { clientConfig } from "@/services/auth";
 
 import countriesDataUrl from "@redash/viz/lib/visualizations/choropleth/maps/countries.geo.json";
+import usaDataUrl from "@redash/viz/lib/visualizations/choropleth/maps/usa.geo.json";
 import subdivJapanDataUrl from "@redash/viz/lib/visualizations/choropleth/maps/japan.prefectures.geo.json";
 
 function wrapComponentWithSettings(WrappedComponent) {
@@ -17,6 +18,10 @@ function wrapComponentWithSettings(WrappedComponent) {
         countries: {
           name: "Countries",
           url: countriesDataUrl,
+        },
+        usa: {
+          name: "USA",
+          url: usaDataUrl,
         },
         subdiv_japan: {
           name: "Japan/Prefectures",
