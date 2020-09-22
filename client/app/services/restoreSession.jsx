@@ -53,7 +53,11 @@ function RestoreSessionDialogComponent({ dialog, loginUrl }) {
     <Modal {...dialog.props} centered closable={false} maskClosable={false} footer={false}>
       <h3 className="text-center">Your session has expired.</h3>
       <h3 className="text-center">
-        Click <a onClick={handleRestoreSessionClick}>here</a> to restore it.
+        Click{" "}
+        <a style={{ cursor: "pointer" }} onClick={handleRestoreSessionClick}>
+          here
+        </a>{" "}
+        to restore it.
       </h3>
     </Modal>
   );
