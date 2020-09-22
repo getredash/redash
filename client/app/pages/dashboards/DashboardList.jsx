@@ -95,7 +95,7 @@ class DashboardList extends React.Component {
                 onChange={controller.updateSearch}
               />
               <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
-              <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} />
+              <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} showUnselectAll />
             </Layout.Sidebar>
             <Layout.Content>
               <div data-test="DashboardLayoutContent">

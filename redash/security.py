@@ -27,6 +27,7 @@ def init_app(app):
     csrf.init_app(app)
     app.config["WTF_CSRF_CHECK_DEFAULT"] = False
     app.config["WTF_CSRF_SSL_STRICT"] = False
+    app.config["WTF_CSRF_TIME_LIMIT"] = settings.CSRF_TIME_LIMIT
 
     @app.after_request
     def inject_csrf_token(response):
