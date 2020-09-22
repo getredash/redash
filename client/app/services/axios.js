@@ -1,3 +1,4 @@
+import { get, includes } from "lodash";
 import axiosLib from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
 import { Auth } from "@/services/auth";
@@ -15,8 +16,8 @@ axios.interceptors.response.use(response => response.data);
 export const csrfRefreshInterceptor = createAuthRefreshInterceptor(
   axios,
   error => {
-    const message = error.response.data.message || "";
-    if (message.includes("CSRF")) {
+    const message = get(error, "response.data.message");
+    if (error.isAxiosError && includes(message, "CSRF")) {
       return axios.get("/ping");
     } else {
       return Promise.reject(error);
@@ -28,8 +29,10 @@ export const csrfRefreshInterceptor = createAuthRefreshInterceptor(
 export const sessionRefreshInterceptor = createAuthRefreshInterceptor(
   axios,
   error => {
-    if (error.isAxiosError && error.response) {
-      return restoreSession(error.response);
+    const status = parseInt(get(error, "response.status"));
+    const message = get(error, "response.data.message");
+    if (error.isAxiosError && (status === 401 || includes(message, "Please login"))) {
+      return restoreSession();
     }
     return Promise.reject(error);
   },

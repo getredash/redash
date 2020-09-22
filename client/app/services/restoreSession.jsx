@@ -1,8 +1,8 @@
-import { isString, includes } from "lodash";
 import React, { useEffect, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import { Auth } from "@/services/auth";
 
 const SESSION_RESTORED_MESSAGE = "redash_session_restored";
 
@@ -59,7 +59,7 @@ function RestoreSessionDialogComponent({ dialog, loginUrl }) {
   );
 }
 
-RestoreSessionDialogComponent.ropTypes = {
+RestoreSessionDialogComponent.propTypes = {
   dialog: DialogPropType.isRequired,
   loginUrl: PropTypes.string.isRequired,
 };
@@ -68,38 +68,16 @@ const RestoreSessionDialog = wrapDialog(RestoreSessionDialogComponent);
 
 let restoreSessionPromise = null;
 
-export function restoreSession(axiosResponse) {
+export function restoreSession() {
   if (!restoreSessionPromise) {
-    let loginUrl = null;
-
-    const { status, headers, request } = axiosResponse;
-
-    switch (status) {
-      case 401:
-      case 404:
-        loginUrl = isString(headers["x-login-url"]) ? headers["x-login-url"] : request.responseUrl;
-        break;
-      case 200:
-        // If backend redirected request with 302/303 codes - JS will get 200,
-        // so we have to check a target URL
-        if (includes(request.responseUrl + "?", "/login?")) {
-          loginUrl = request.responseUrl;
-        }
-      // no default
-    }
-
-    if (!loginUrl) {
-      return Promise.resolve(false); // don't retry request
-    }
-
     let resolvePromise = () => {};
     restoreSessionPromise = new Promise(resolve => {
       resolvePromise = resolve;
     });
 
-    RestoreSessionDialog.showModal({ loginUrl }).onClose(() => {
+    RestoreSessionDialog.showModal({ loginUrl: Auth.getLoginUrl() }).onClose(() => {
       restoreSessionPromise = null;
-      resolvePromise(true); // retry request
+      resolvePromise();
     });
   }
 

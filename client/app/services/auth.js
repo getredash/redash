@@ -47,6 +47,9 @@ export const Auth = {
   isAuthenticated() {
     return session.loaded && session.user.id;
   },
+  getLoginUrl() {
+    return AuthUrls.Login;
+  },
   setLoginUrl(loginUrl) {
     AuthUrls.Login = loginUrl;
   },
