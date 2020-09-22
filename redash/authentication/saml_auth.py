@@ -82,8 +82,9 @@ def get_saml_client(org):
     if saml_type is not None and saml_type == "static":
         saml_settings["metadata"] = {"inline": [metadata_inline]}
 
-    if entity_id is not None and entity_id != "":
-        saml_settings["entityid"] = entity_id
+    if acs_url is not None and acs_url != "":
+        saml_settings["entityid"] = acs_url
+
 
     sp_config = Saml2Config()
     sp_config.load(saml_settings)
