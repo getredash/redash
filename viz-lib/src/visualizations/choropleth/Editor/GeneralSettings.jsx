@@ -8,11 +8,6 @@ import { visualizationsSettings } from "@/visualizations/visualizationsSettings"
 import useLoadGeoJson from "../hooks/useLoadGeoJson";
 import { getGeoJsonFields } from "./utils";
 
-function getMapLabel(mapUrl) {
-  const result = find(visualizationsSettings.choroplethAvailableMaps, item => item.url === mapUrl);
-  return result ? result.name : mapUrl;
-}
-
 export default function GeneralSettings({ options, data, onOptionsChange }) {
   const [geoJson, isLoadingGeoJson] = useLoadGeoJson(options.mapType);
   const geoJsonFields = useMemo(() => getGeoJsonFields(geoJson), [geoJson]);

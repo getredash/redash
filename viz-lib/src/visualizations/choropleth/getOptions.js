@@ -1,5 +1,10 @@
-import { isNil, merge, get } from "lodash";
+import { isNil, merge, first, keys, get } from "lodash";
+import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 import ColorPalette from "./ColorPalette";
+
+function getDefaultMap() {
+  return first(keys(visualizationsSettings.choroplethAvailableMaps)) || null;
+}
 
 const DEFAULT_OPTIONS = {
   mapType: "countries",
@@ -39,16 +44,20 @@ export default function getOptions(options) {
   // Keeping original object also reduces amount of updates in components
   result.bounds = get(options, "bounds");
 
+  if (isNil(visualizationsSettings.choroplethAvailableMaps[result.mapType])) {
+    result.mapType = getDefaultMap();
+  }
+
   // backward compatibility
   if (!isNil(result.countryCodeColumn)) {
     result.keyColumn = result.countryCodeColumn;
-    delete result.countryCodeColumn;
   }
+  delete result.countryCodeColumn;
 
   if (!isNil(result.countryCodeType)) {
     result.targetField = result.countryCodeType;
-    delete result.countryCodeType;
   }
+  delete result.countryCodeType;
 
   return result;
 }
