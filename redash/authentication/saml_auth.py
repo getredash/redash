@@ -83,6 +83,7 @@ def get_saml_client(org):
         saml_settings["metadata"] = {"inline": [metadata_inline]}
 
     if acs_url is not None and acs_url != "":
+        logger.info(f"Using SP entityid: {acs_url}")
         saml_settings["entityid"] = acs_url
 
 
