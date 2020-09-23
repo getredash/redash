@@ -31,12 +31,17 @@ export const sessionRefreshInterceptor = createAuthRefreshInterceptor(
   error => {
     const status = parseInt(get(error, "response.status"));
     const message = get(error, "response.data.message");
-    if (error.isAxiosError && (status === 401 || includes(message, "Please login"))) {
+    // TODO: In axios@0.9.1 this check could be replaced with { skipAuthRefresh: true } flag. See axios-auth-refresh docs
+    const requestUrl = get(error, "config.url");
+    if (error.isAxiosError && (status === 401 || includes(message, "Please login")) && requestUrl !== "api/session") {
       return restoreSession();
     }
     return Promise.reject(error);
   },
-  { statusCodes: [401, 404] }
+  {
+    statusCodes: [401, 404],
+    pauseInstanceWhileRefreshing: false, // According to docs, `false` is default value, but in fact it's not :-)
+  }
 );
 
 axios.interceptors.request.use(config => {
