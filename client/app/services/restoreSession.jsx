@@ -1,3 +1,4 @@
+import { map } from "lodash";
 import React from "react";
 import Modal from "antd/lib/modal";
 import { Auth } from "@/services/auth";
@@ -8,6 +9,20 @@ export function notifySessionRestored() {
   if (window.opener) {
     window.opener.postMessage({ type: SESSION_RESTORED_MESSAGE }, window.location.origin);
   }
+}
+
+function getPopupPosition(width, height) {
+  const windowLeft = window.screenX;
+  const windowTop = window.screenY;
+  const windowWidth = window.innerWidth;
+  const windowHeight = window.innerHeight;
+
+  return {
+    left: Math.floor((windowWidth - width) / 2 + windowLeft),
+    top: Math.floor((windowHeight - height) / 2 + windowTop),
+    width: Math.floor(width),
+    height: Math.floor(height),
+  };
 }
 
 function showRestoreSessionPrompt(loginUrl, onSuccess) {
@@ -31,11 +46,17 @@ function showRestoreSessionPrompt(loginUrl, onSuccess) {
         return; // popup already shown
       }
 
-      popup = window.open(
-        loginUrl,
-        "Restore Session",
-        "width=800,height=600,left=300,top=200,menubar=no,toolbar=no,location=yes,resizable=yes,scrollbars=yes,status=yes"
-      );
+      const popupOptions = {
+        ...getPopupPosition(640, 640),
+        menubar: "no",
+        toolbar: "no",
+        location: "yes",
+        resizable: "yes",
+        scrollbars: "yes",
+        status: "yes",
+      };
+
+      popup = window.open(loginUrl, "Restore Session", map(popupOptions, (value, key) => `${key}=${value}`).join(","));
 
       const handlePostMessage = event => {
         if (event.data.type === SESSION_RESTORED_MESSAGE) {
@@ -58,14 +79,11 @@ let restoreSessionPromise = null;
 
 export function restoreSession() {
   if (!restoreSessionPromise) {
-    let resolvePromise = () => {};
     restoreSessionPromise = new Promise(resolve => {
-      resolvePromise = resolve;
-    });
-
-    showRestoreSessionPrompt(Auth.getLoginUrl(), () => {
-      restoreSessionPromise = null;
-      resolvePromise();
+      showRestoreSessionPrompt(Auth.getLoginUrl(), () => {
+        restoreSessionPromise = null;
+        resolve();
+      });
     });
   }
 
