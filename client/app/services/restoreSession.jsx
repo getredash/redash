@@ -1,7 +1,5 @@
-import React, { useEffect, useCallback, useRef } from "react";
-import PropTypes from "prop-types";
+import React from "react";
 import Modal from "antd/lib/modal";
-import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { Auth } from "@/services/auth";
 
 const SESSION_RESTORED_MESSAGE = "redash_session_restored";
@@ -12,63 +10,49 @@ export function notifySessionRestored() {
   }
 }
 
-function RestoreSessionDialogComponent({ dialog, loginUrl }) {
-  const dialogRef = useRef(null);
-  dialogRef.current = dialog;
+function showRestoreSessionPrompt(loginUrl, onSuccess) {
+  let popup = null;
 
-  const popupRef = useRef(null);
-
-  const handleRestoreSessionClick = useCallback(() => {
-    if (popupRef.current && !popupRef.current.closed) {
-      popupRef.current.focus();
-      return; // popup already shown
-    }
-
-    popupRef.current = window.open(
-      loginUrl,
-      "Restore Session",
-      "width=800,height=600,left=300,top=200,menubar=no,toolbar=no,location=yes,resizable=yes,scrollbars=yes,status=yes"
-    );
-  }, [loginUrl]);
-
-  useEffect(() => {
-    let handlePostMessage = event => {
-      if (event.data.type === SESSION_RESTORED_MESSAGE) {
-        if (popupRef.current) {
-          popupRef.current.close();
-        }
-        popupRef.current = null;
-        dialogRef.current.close();
+  Modal.warning({
+    content: "Your session has expired. Please login to continue.",
+    okText: (
+      <React.Fragment>
+        <i className="fa fa-external-link m-r-5" />
+        Login
+      </React.Fragment>
+    ),
+    centered: true,
+    mask: true,
+    maskClosable: false,
+    keyboard: false,
+    onOk: closeModal => {
+      if (popup && !popup.closed) {
+        popup.focus();
+        return; // popup already shown
       }
-    };
 
-    window.addEventListener("message", handlePostMessage, false);
+      popup = window.open(
+        loginUrl,
+        "Restore Session",
+        "width=800,height=600,left=300,top=200,menubar=no,toolbar=no,location=yes,resizable=yes,scrollbars=yes,status=yes"
+      );
 
-    return () => {
-      window.removeEventListener("message", handlePostMessage);
-    };
-  }, []);
+      const handlePostMessage = event => {
+        if (event.data.type === SESSION_RESTORED_MESSAGE) {
+          if (popup) {
+            popup.close();
+          }
+          popup = null;
+          window.removeEventListener("message", handlePostMessage);
+          closeModal();
+          onSuccess();
+        }
+      };
 
-  return (
-    <Modal {...dialog.props} centered closable={false} maskClosable={false} footer={false}>
-      <h3 className="text-center">Your session has expired.</h3>
-      <h3 className="text-center">
-        Click{" "}
-        <a style={{ cursor: "pointer" }} onClick={handleRestoreSessionClick}>
-          here
-        </a>{" "}
-        to restore it.
-      </h3>
-    </Modal>
-  );
+      window.addEventListener("message", handlePostMessage, false);
+    },
+  });
 }
-
-RestoreSessionDialogComponent.propTypes = {
-  dialog: DialogPropType.isRequired,
-  loginUrl: PropTypes.string.isRequired,
-};
-
-const RestoreSessionDialog = wrapDialog(RestoreSessionDialogComponent);
 
 let restoreSessionPromise = null;
 
@@ -79,7 +63,7 @@ export function restoreSession() {
       resolvePromise = resolve;
     });
 
-    RestoreSessionDialog.showModal({ loginUrl: Auth.getLoginUrl() }).onClose(() => {
+    showRestoreSessionPrompt(Auth.getLoginUrl(), () => {
       restoreSessionPromise = null;
       resolvePromise();
     });
