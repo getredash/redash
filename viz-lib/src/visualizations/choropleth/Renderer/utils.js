@@ -18,17 +18,17 @@ export function createNumberFormatter(format, placeholder) {
   };
 }
 
-export function prepareData(data, countryCodeField, valueField) {
-  if (!countryCodeField || !valueField) {
+export function prepareData(data, keyColumn, valueColumn) {
+  if (!keyColumn || !valueColumn) {
     return {};
   }
 
   const result = {};
   each(data, item => {
-    if (item[countryCodeField]) {
-      const value = parseFloat(item[valueField]);
-      result[item[countryCodeField]] = {
-        code: item[countryCodeField],
+    if (item[keyColumn]) {
+      const value = parseFloat(item[valueColumn]);
+      result[item[keyColumn]] = {
+        code: item[keyColumn],
         value: isFinite(value) ? value : undefined,
         item,
       };
@@ -37,18 +37,18 @@ export function prepareData(data, countryCodeField, valueField) {
   return result;
 }
 
-export function prepareFeatureProperties(feature, valueFormatted, data, countryCodeType) {
+export function prepareFeatureProperties(feature, valueFormatted, data, targetField) {
   const result = {};
   each(feature.properties, (value, key) => {
     result["@@" + key] = value;
   });
   result["@@value"] = valueFormatted;
-  const datum = data[feature.properties[countryCodeType]] || {};
+  const datum = data[feature.properties[targetField]] || {};
   return extend(result, datum.item);
 }
 
-export function getValueForFeature(feature, data, countryCodeType) {
-  const code = feature.properties[countryCodeType];
+export function getValueForFeature(feature, data, targetField) {
+  const code = feature.properties[targetField];
   if (isString(code) && isObject(data[code])) {
     return data[code].value;
   }
@@ -70,7 +70,7 @@ export function createScale(features, data, options) {
   // Calculate limits
   const values = uniq(
     filter(
-      map(features, feature => getValueForFeature(feature, data, options.countryCodeType)),
+      map(features, feature => getValueForFeature(feature, data, options.targetField)),
       isFinite
     )
   );

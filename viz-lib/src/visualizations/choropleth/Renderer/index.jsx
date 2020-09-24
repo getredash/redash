@@ -1,43 +1,26 @@
-import { omit, merge, get } from "lodash";
-import axios from "axios";
-import React, { useState, useEffect } from "react";
+import { omit, noop } from "lodash";
+import React, { useState, useEffect, useRef } from "react";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 import useMemoWithDeepCompare from "@/lib/hooks/useMemoWithDeepCompare";
-import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
+import useLoadGeoJson from "../hooks/useLoadGeoJson";
 import initChoropleth from "./initChoropleth";
 import { prepareData } from "./utils";
 import "./renderer.less";
 
-function getDataUrl(type) {
-  return get(visualizationsSettings, `choroplethAvailableMaps.${type}.url`, undefined);
-}
-
 export default function Renderer({ data, options, onOptionsChange }) {
   const [container, setContainer] = useState(null);
-  const [geoJson, setGeoJson] = useState(null);
+  const [geoJson] = useLoadGeoJson(options.mapType);
+  const onBoundsChangeRef = useRef();
+  onBoundsChangeRef.current = onOptionsChange ? bounds => onOptionsChange({ ...options, bounds }) : noop;
 
   const optionsWithoutBounds = useMemoWithDeepCompare(() => omit(options, ["bounds"]), [options]);
 
   const [map, setMap] = useState(null);
 
   useEffect(() => {
-    let cancelled = false;
-
-    axios.get(getDataUrl(options.mapType)).then(({ data }) => {
-      if (!cancelled) {
-        setGeoJson(data);
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [options.mapType]);
-
-  useEffect(() => {
     if (container) {
-      const _map = initChoropleth(container);
+      const _map = initChoropleth(container, (...args) => onBoundsChangeRef.current(...args));
       setMap(_map);
       return () => {
         _map.destroy();
@@ -49,23 +32,16 @@ export default function Renderer({ data, options, onOptionsChange }) {
     if (map) {
       map.updateLayers(
         geoJson,
-        prepareData(data.rows, optionsWithoutBounds.countryCodeColumn, optionsWithoutBounds.valueColumn),
+        prepareData(data.rows, optionsWithoutBounds.keyColumn, optionsWithoutBounds.valueColumn),
         options // detect changes for all options except bounds, but pass them all!
       );
     }
   }, [map, geoJson, data.rows, optionsWithoutBounds]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // This may come only from editor
   useEffect(() => {
     if (map) {
       map.updateBounds(options.bounds);
-    }
-  }, [map, options.bounds]);
-
-  useEffect(() => {
-    if (map && onOptionsChange) {
-      map.onBoundsChange = bounds => {
-        onOptionsChange(merge({}, options, { bounds }));
-      };
     }
   }, [map, options, onOptionsChange]);
 
