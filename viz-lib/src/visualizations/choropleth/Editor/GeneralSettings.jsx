@@ -1,4 +1,4 @@
-import { isString, map, filter, find, get } from "lodash";
+import { isString, map, filter, get } from "lodash";
 import React, { useMemo, useCallback } from "react";
 import * as Grid from "antd/lib/grid";
 import { EditorPropTypes } from "@/visualizations/prop-types";
@@ -14,6 +14,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
 
   // While geoJson is loading - show last selected field in select
   const targetFields = isLoadingGeoJson ? filter([options.targetField], isString) : geoJsonFields;
+
+  const fieldNames = get(visualizationsSettings, `choroplethAvailableMaps.${options.mapType}.fieldNames`, {});
 
   const handleMapChange = useCallback(
     mapType => {
@@ -66,7 +68,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
               onChange={targetField => onOptionsChange({ targetField })}>
               {map(targetFields, field => (
                 <Select.Option key={field} data-test={`Choropleth.Editor.TargetField.${field}`}>
-                  {field}
+                  {fieldNames[field] || field}
                 </Select.Option>
               ))}
             </Select>
