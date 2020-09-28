@@ -4,6 +4,7 @@ from redash import settings
 from redash.authentication import create_and_login_user, logout_and_redirect_to_index
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import org_scoped_rule
+from redash.utils import mustache_render
 from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT, entity
 from saml2.client import Saml2Client
 from saml2.config import Config as Saml2Config
@@ -22,17 +23,11 @@ def get_saml_client(org):
     The configuration is a hash for use by saml2.config.Config
     """
 
-    metadata_inline_template = """<?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor entityID="{}" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"><md:IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:KeyDescriptor use="signing"><ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:X509Data><ds:X509Certificate>{}</ds:X509Certificate></ds:X509Data></ds:KeyInfo></md:KeyDescriptor><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="{}"/><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="{}"/></md:IDPSSODescriptor></md:EntityDescriptor>"""
-
     saml_type = org.get_setting("auth_saml_type")
     entity_id = org.get_setting("auth_saml_entity_id")
     sso_url = org.get_setting("auth_saml_sso_url")
     x509_cert = org.get_setting("auth_saml_x509_cert")
     metadata_url = org.get_setting("auth_saml_metadata_url")
-
-    metadata_inline = metadata_inline_template.format(
-        entity_id, x509_cert, sso_url, sso_url
-    )
 
     if settings.SAML_SCHEME_OVERRIDE:
         acs_url = url_for(
@@ -80,12 +75,13 @@ def get_saml_client(org):
         saml_settings.update(encryption_dict)
 
     if saml_type is not None and saml_type == "static":
+        template = """<?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor entityID="{{entity_id}}" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"><md:IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:KeyDescriptor use="signing"><ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:X509Data><ds:X509Certificate>{{x509_cert}}</ds:X509Certificate></ds:X509Data></ds:KeyInfo></md:KeyDescriptor><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="{{sso_url}}"/><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="{{sso_url}}"/></md:IDPSSODescriptor></md:EntityDescriptor>"""
+        metadata_inline = mustache_render(template, entity_id = entity_id, x509_cert = x509_cert, sso_url = sso_url)
+
         saml_settings["metadata"] = {"inline": [metadata_inline]}
 
     if acs_url is not None and acs_url != "":
-        logger.info(f"Using SP entityid: {acs_url}")
         saml_settings["entityid"] = acs_url
-
 
     sp_config = Saml2Config()
     sp_config.load(saml_settings)
