@@ -3,8 +3,8 @@ FROM cypress/browsers:chrome67
 ENV APP /usr/src/app
 WORKDIR $APP
 
-COPY package.json $APP/package.json
-COPY viz-lib/package.json $APP/viz-lib/package.json
+COPY package.json package-lock.json $APP/
+COPY viz-lib $APP/viz-lib
 RUN npm ci > /dev/null
 
 COPY . $APP
