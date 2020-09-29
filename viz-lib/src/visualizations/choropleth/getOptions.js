@@ -1,11 +1,16 @@
-import { merge } from "lodash";
+import { isNil, merge, first, keys, get } from "lodash";
+import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 import ColorPalette from "./ColorPalette";
+
+function getDefaultMap() {
+  return first(keys(visualizationsSettings.choroplethAvailableMaps)) || null;
+}
 
 const DEFAULT_OPTIONS = {
   mapType: "countries",
-  countryCodeColumn: "",
-  countryCodeType: "iso_a3",
-  valueColumn: "",
+  keyColumn: null,
+  targetField: null,
+  valueColumn: null,
   clusteringMode: "e",
   steps: 5,
   valueFormat: "0,0.00",
@@ -33,5 +38,26 @@ const DEFAULT_OPTIONS = {
 };
 
 export default function getOptions(options) {
-  return merge({}, DEFAULT_OPTIONS, options);
+  const result = merge({}, DEFAULT_OPTIONS, options);
+
+  // Both renderer and editor always provide new `bounds` array, so no need to clone it here.
+  // Keeping original object also reduces amount of updates in components
+  result.bounds = get(options, "bounds");
+
+  if (isNil(visualizationsSettings.choroplethAvailableMaps[result.mapType])) {
+    result.mapType = getDefaultMap();
+  }
+
+  // backward compatibility
+  if (!isNil(result.countryCodeColumn)) {
+    result.keyColumn = result.countryCodeColumn;
+  }
+  delete result.countryCodeColumn;
+
+  if (!isNil(result.countryCodeType)) {
+    result.targetField = result.countryCodeType;
+  }
+  delete result.countryCodeType;
+
+  return result;
 }

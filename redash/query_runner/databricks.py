@@ -21,7 +21,6 @@ try:
 except ImportError:
     enabled = False
 
-
 TYPES_MAP = {
     str: TYPE_STRING,
     bool: TYPE_BOOLEAN,
@@ -81,6 +80,10 @@ def split_sql_statements(query):
         return result
 
     return [""]  # if all statements were empty - return a single empty statement
+
+
+def combine_sql_statements(queries):
+    return ";\n".join(queries)
 
 
 class Databricks(BaseSQLQueryRunner):

@@ -3,9 +3,17 @@ FROM node:12 as frontend-builder
 # Controls whether to build the frontend assets
 ARG skip_frontend_build
 
+ENV CYPRESS_INSTALL_BINARY=0
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+
 WORKDIR /frontend
 COPY package.json package-lock.json /frontend/
 COPY viz-lib /frontend/viz-lib
+
+# Controls whether to instrument code for coverage information
+ARG code_coverage
+ENV BABEL_ENV=${code_coverage:+test}
+
 RUN if [ "x$skip_frontend_build" = "x" ] ; then npm ci --unsafe-perm; fi
 
 COPY client /frontend/client

@@ -32,6 +32,16 @@ export default function YAxisSettings({ options, onOptionsChange }) {
               onChange={axis => onOptionsChange({ yAxis: [leftYAxis, axis] })}
             />
           </Section>
+
+          <Section>
+            <Switch
+              id="chart-editor-y-axis-align-at-zero"
+              data-test="Chart.YAxis.AlignAtZero"
+              defaultChecked={options.alignYAxesAtZero}
+              onChange={alignYAxesAtZero => onOptionsChange({ alignYAxesAtZero })}>
+              Align Y Axes at Zero
+            </Switch>
+          </Section>
         </React.Fragment>
       )}
 
