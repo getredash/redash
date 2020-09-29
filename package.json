@@ -26,7 +26,6 @@
     "jest": "TZ=Africa/Khartoum jest",
     "test": "run-s type-check jest",
     "test:watch": "jest --watch",
-    "cypress:install": "npm install --no-save cypress@~4.12.1 @percy/agent@0.26.2 @percy/cypress@^2.2.0 atob@2.1.2 lodash@^4.17.10 request-cookies@^1.1.0 @cypress/code-coverage@^3.8.1",
     "cypress": "node client/cypress/cypress.js",
     "postinstall": "(cd viz-lib && npm ci && npm run build:babel)"
   },
