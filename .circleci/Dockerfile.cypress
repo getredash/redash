@@ -4,10 +4,8 @@ ENV APP /usr/src/app
 WORKDIR $APP
 
 COPY package.json $APP/package.json
-RUN npm install > /dev/null
-
-COPY client/cypress $APP/client/cypress
-COPY cypress.json $APP/cypress.json
+COPY viz-lib/package.json $APP/viz-lib/package.json
+RUN npm ci > /dev/null
 
 COPY . $APP
 
