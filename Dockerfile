@@ -3,6 +3,9 @@ FROM node:12 as frontend-builder
 # Controls whether to build the frontend assets
 ARG skip_frontend_build
 
+ENV CYPRESS_INSTALL_BINARY=0
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+
 WORKDIR /frontend
 COPY package.json package-lock.json /frontend/
 COPY viz-lib /frontend/viz-lib
