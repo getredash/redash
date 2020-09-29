@@ -1,0 +1,107 @@
+page-query-view {
+  display: flex;
+  flex-grow: 1;
+}
+
+.query-page-wrapper {
+  width: 100%;
+
+  .query-view-content {
+    .query-results {
+      margin: 0px 15px 0px;
+
+      .query-results-footer {
+        position: relative;
+
+        .query-execution-status {
+          position: fixed;
+          min-width: 250px;
+          bottom: 0;
+          right: 0;
+          padding: 15px;
+          z-index: 1000;
+
+          @media (min-width: 768px) {
+            display: flex;
+            min-height: 100%;
+            position: absolute;
+            padding: 3px;
+
+            .ant-alert {
+              flex: 1 1;
+            }
+          }
+        }
+      }
+
+      .query-execution-metadata {
+        border: 1px solid #d9d9d9;
+        border-top-width: 0px;
+        box-sizing: border-box;
+        border-radius: 0px 0px 4px 4px;
+        background: white;
+      }
+
+      .query-parameters-wrapper {
+        margin: 15px 0 5px 0;
+      }
+
+      .query-alerts {
+        margin: 15px 0;
+      }
+
+      .query-results-log {
+        padding: 10px;
+      }
+    }
+  }
+
+  &.query-fixed-layout .query-view-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+
+    .query-results {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      overflow: auto;
+    }
+
+    .query-parameters-wrapper {
+      flex: 0 0 auto;
+    }
+
+    .query-alerts {
+      flex: 0 0 auto;
+    }
+
+    .query-results-log {
+      flex: 0 0 auto;
+    }
+
+    .ant-tabs {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+
+      .ant-tabs-bar {
+        flex: 0 0 auto;
+      }
+
+      .ant-tabs-content-holder {
+        flex: 1 1 auto;
+        position: relative;
+
+        .ant-tabs-tabpane {
+          position: absolute;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          overflow: auto;
+        }
+      }
+    }
+  }
+}

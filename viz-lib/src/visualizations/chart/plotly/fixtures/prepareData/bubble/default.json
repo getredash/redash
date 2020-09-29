@@ -1,0 +1,55 @@
+{
+  "input": {
+    "options": {
+      "globalSeriesType": "bubble",
+      "numberFormat": "0,0[.]00000",
+      "percentFormat": "0[.]00%",
+      "textFormat": "",
+      "showDataLabels": true,
+      "direction": { "type": "counterclockwise" },
+      "xAxis": { "type": "-", "labels": { "enabled": true } },
+      "yAxis": [
+        { "type": "linear" },
+        { "type": "linear", "opposite": true }
+      ],
+      "series": { "stacking": null, "error_y": { "type": "data", "visible": true } },
+      "seriesOptions": {
+        "a": { "type": "bubble", "color": "red" }
+      },
+      "columnMapping": {
+        "x": "x",
+        "y1": "y"
+      },
+      "missingValuesAsZero": true
+    },
+    "data": [
+      {
+        "name": "a",
+        "data": [
+          { "x": "x1", "y": 10, "yError": 0, "size": 51 },
+          { "x": "x2", "y": 20, "yError": 0, "size": 52 },
+          { "x": "x3", "y": 30, "yError": 0, "size": 53 },
+          { "x": "x4", "y": 40, "yError": 0, "size": 54 }
+        ]
+      }
+    ]
+  },
+  "output": {
+    "series": [
+      {
+        "visible": true,
+        "name": "a",
+        "mode": "markers",
+        "marker": { "color": "red", "size": [51, 52, 53, 54], "sizemode": "diameter" },
+        "x": ["x1", "x2", "x3", "x4"],
+        "y": [10, 20, 30, 40],
+        "error_y": { "array": [0, 0, 0, 0], "color": "red" },
+        "hoverinfo": "text+x+name",
+        "hover": [],
+        "text": ["10 ± 0: 51", "20 ± 0: 52", "30 ± 0: 53", "40 ± 0: 54"],
+        "insidetextfont": { "color": "#ffffff" },
+        "yaxis": "y"
+      }
+    ]
+  }
+}

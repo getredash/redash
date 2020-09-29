@@ -1,184 +1,192 @@
-import { filter, debounce, find } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import Modal from 'antd/lib/modal';
-import Input from 'antd/lib/input';
-import List from 'antd/lib/list';
-import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import { BigMessage } from '@/components/BigMessage';
+import { filter, find, isEmpty, size } from "lodash";
+import React, { useState, useCallback, useEffect } from "react";
+import PropTypes from "prop-types";
+import classNames from "classnames";
+import Modal from "antd/lib/modal";
+import Input from "antd/lib/input";
+import List from "antd/lib/list";
+import Button from "antd/lib/button";
+import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import BigMessage from "@/components/BigMessage";
+import LoadingState from "@/components/items-list/components/LoadingState";
+import notification from "@/services/notification";
+import useSearchResults from "@/lib/hooks/useSearchResults";
 
-import LoadingState from '@/components/items-list/components/LoadingState';
-import notification from '@/services/notification';
+function ItemsList({ items, renderItem, onItemClick }) {
+  const renderListItem = useCallback(
+    item => {
+      const { content, className, isDisabled } = renderItem(item);
+      return (
+        <List.Item
+          className={classNames("p-l-10", "p-r-10", { clickable: !isDisabled, disabled: isDisabled }, className)}
+          onClick={isDisabled ? null : () => onItemClick(item)}>
+          {content}
+        </List.Item>
+      );
+    },
+    [renderItem, onItemClick]
+  );
 
-class SelectItemsDialog extends React.Component {
-  static propTypes = {
-    dialog: DialogPropType.isRequired,
-    dialogTitle: PropTypes.string,
-    inputPlaceholder: PropTypes.string,
-    selectedItemsTitle: PropTypes.string,
-    searchItems: PropTypes.func.isRequired, // (searchTerm: string): Promise<Items[]> if `searchTerm === ''` load all
-    itemKey: PropTypes.func, // (item) => string|number - return key of item (by default `id`)
-    // left list
-    // (item, { isSelected }) => {
-    //   content: node, // item contents
-    //   className: string = '', // additional class for item wrapper
-    //   isDisabled: bool = false, // is item clickable or disabled
-    // }
-    renderItem: PropTypes.func,
-    // right list; args/results save as for `renderItem`. if not specified - `renderItem` will be used
-    renderStagedItem: PropTypes.func,
-    save: PropTypes.func, // (selectedItems[]) => Promise<any>
-  };
+  return <List size="small" dataSource={items} renderItem={renderListItem} />;
+}
 
-  static defaultProps = {
-    dialogTitle: 'Add Items',
-    inputPlaceholder: 'Search...',
-    selectedItemsTitle: 'Selected items',
-    itemKey: item => item.id,
-    renderItem: () => '',
-    renderStagedItem: null, // use `renderItem` by default
-    save: items => items,
-  };
+ItemsList.propTypes = {
+  items: PropTypes.array,
+  renderItem: PropTypes.func,
+  onItemClick: PropTypes.func,
+};
 
-  state = {
-    searchTerm: '',
-    loading: false,
-    items: [],
-    selected: [],
-    saveInProgress: false,
-  };
+ItemsList.defaultProps = {
+  items: [],
+  renderItem: () => {},
+  onItemClick: () => {},
+};
 
-  // eslint-disable-next-line react/sort-comp
-  loadItems = (searchTerm = '') => {
-    this.setState({ searchTerm, loading: true }, () => {
-      this.props.searchItems(searchTerm)
-        .then((items) => {
-          // If another search appeared while loading data - just reject this set
-          if (this.state.searchTerm === searchTerm) {
-            this.setState({ items, loading: false });
-          }
-        })
-        .catch(() => {
-          if (this.state.searchTerm === searchTerm) {
-            this.setState({ items: [], loading: false });
-          }
-        });
+function SelectItemsDialog({
+  dialog,
+  dialogTitle,
+  inputPlaceholder,
+  itemKey,
+  renderItem,
+  renderStagedItem,
+  searchItems,
+  selectedItemsTitle,
+  width,
+  showCount,
+  extraFooterContent,
+}) {
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [search, items, isLoading] = useSearchResults(searchItems, { initialResults: [] });
+  const hasResults = items.length > 0;
+
+  useEffect(() => {
+    search();
+  }, [search]);
+
+  const isItemSelected = useCallback(
+    item => {
+      const key = itemKey(item);
+      return !!find(selectedItems, i => itemKey(i) === key);
+    },
+    [selectedItems, itemKey]
+  );
+
+  const toggleItem = useCallback(
+    item => {
+      if (isItemSelected(item)) {
+        const key = itemKey(item);
+        setSelectedItems(filter(selectedItems, i => itemKey(i) !== key));
+      } else {
+        setSelectedItems([...selectedItems, item]);
+      }
+    },
+    [selectedItems, itemKey, isItemSelected]
+  );
+
+  const save = useCallback(() => {
+    dialog.close(selectedItems).catch(error => {
+      if (error) {
+        notification.error("Failed to save some of selected items.");
+      }
     });
-  };
+  }, [dialog, selectedItems]);
 
-  search = debounce(this.loadItems, 200);
-
-  componentDidMount() {
-    this.loadItems();
-  }
-
-  isSelected(item) {
-    const key = this.props.itemKey(item);
-    return !!find(this.state.selected, i => this.props.itemKey(i) === key);
-  }
-
-  toggleItem(item) {
-    if (this.isSelected(item)) {
-      const key = this.props.itemKey(item);
-      this.setState(({ selected }) => ({
-        selected: filter(selected, i => this.props.itemKey(i) !== key),
-      }));
-    } else {
-      this.setState(({ selected }) => ({
-        selected: [...selected, item],
-      }));
-    }
-  }
-
-  save() {
-    this.setState({ saveInProgress: true }, () => {
-      const selectedItems = this.state.selected;
-      Promise.resolve(this.props.save(selectedItems))
-        .then(() => {
-          this.props.dialog.close(selectedItems);
-        })
-        .catch(() => {
-          this.setState({ saveInProgress: false });
-          notification.error('Failed to save some of selected items.');
-        });
-    });
-  }
-
-  renderItem(item, isStagedList) {
-    const { renderItem, renderStagedItem } = this.props;
-    const isSelected = this.isSelected(item);
-    const render = isStagedList ? (renderStagedItem || renderItem) : renderItem;
-
-    const { content, className, isDisabled } = render(item, { isSelected });
-
-    return (
-      <List.Item
-        className={classNames('p-l-10', 'p-r-10', { clickable: !isDisabled, disabled: isDisabled }, className)}
-        onClick={isDisabled ? null : () => this.toggleItem(item)}
-      >
-        {content}
-      </List.Item>
-    );
-  }
-
-  render() {
-    const { dialog, dialogTitle, inputPlaceholder, selectedItemsTitle } = this.props;
-    const { loading, saveInProgress, items, selected } = this.state;
-    const hasResults = items.length > 0;
-    return (
-      <Modal
-        {...dialog.props}
-        width="80%"
-        title={dialogTitle}
-        okText="Save"
-        okButtonProps={{
-          loading: saveInProgress,
-          disabled: selected.length === 0,
-        }}
-        onOk={() => this.save()}
-      >
-        <div className="d-flex align-items-center m-b-10">
-          <div className="w-50 m-r-10">
-            <Input.Search
-              defaultValue={this.state.searchTerm}
-              onChange={event => this.search(event.target.value)}
-              placeholder={inputPlaceholder}
-              autoFocus
-            />
-          </div>
-          <div className="w-50 m-l-10">
+  return (
+    <Modal
+      {...dialog.props}
+      className="select-items-dialog"
+      width={width}
+      title={dialogTitle}
+      footer={
+        <div className="d-flex align-items-center">
+          <span className="flex-fill m-r-5" style={{ textAlign: "left", color: "rgba(0, 0, 0, 0.5)" }}>
+            {extraFooterContent}
+          </span>
+          <Button {...dialog.props.cancelButtonProps} onClick={dialog.dismiss}>
+            Cancel
+          </Button>
+          <Button
+            {...dialog.props.okButtonProps}
+            onClick={save}
+            disabled={selectedItems.length === 0 || dialog.props.okButtonProps.disabled}
+            type="primary">
+            Save
+            {showCount && !isEmpty(selectedItems) ? ` (${size(selectedItems)})` : null}
+          </Button>
+        </div>
+      }>
+      <div className="d-flex align-items-center m-b-10">
+        <div className="flex-fill">
+          <Input.Search onChange={event => search(event.target.value)} placeholder={inputPlaceholder} autoFocus />
+        </div>
+        {renderStagedItem && (
+          <div className="w-50 m-l-20">
             <h5 className="m-0">{selectedItemsTitle}</h5>
           </div>
-        </div>
+        )}
+      </div>
 
-        <div className="d-flex align-items-stretch" style={{ minHeight: '30vh', maxHeight: '50vh' }}>
-          <div className="w-50 m-r-10 scrollbox">
-            {loading && <LoadingState className="" />}
-            {!loading && !hasResults && (
-              <BigMessage icon="fa-search" message="No items match your search." className="" />
-            )}
-            {!loading && hasResults && (
-              <List
-                size="small"
-                dataSource={items}
-                renderItem={item => this.renderItem(item, false)}
-              />
-            )}
-          </div>
-          <div className="w-50 m-l-10 scrollbox">
-            {(selected.length > 0) && (
-              <List
-                size="small"
-                dataSource={selected}
-                renderItem={item => this.renderItem(item, true)}
-              />
-            )}
-          </div>
+      <div className="d-flex align-items-stretch" style={{ minHeight: "30vh", maxHeight: "50vh" }}>
+        <div className="flex-fill scrollbox">
+          {isLoading && <LoadingState className="" />}
+          {!isLoading && !hasResults && (
+            <BigMessage icon="fa-search" message="No items match your search." className="" />
+          )}
+          {!isLoading && hasResults && (
+            <ItemsList
+              items={items}
+              renderItem={item => renderItem(item, { isSelected: isItemSelected(item) })}
+              onItemClick={toggleItem}
+            />
+          )}
         </div>
-      </Modal>
-    );
-  }
+        {renderStagedItem && (
+          <div className="w-50 m-l-20 scrollbox">
+            {selectedItems.length > 0 && (
+              <ItemsList
+                items={selectedItems}
+                renderItem={item => renderStagedItem(item, { isSelected: true })}
+                onItemClick={toggleItem}
+              />
+            )}
+          </div>
+        )}
+      </div>
+    </Modal>
+  );
 }
+
+SelectItemsDialog.propTypes = {
+  dialog: DialogPropType.isRequired,
+  dialogTitle: PropTypes.string,
+  inputPlaceholder: PropTypes.string,
+  selectedItemsTitle: PropTypes.string,
+  searchItems: PropTypes.func.isRequired, // (searchTerm: string): Promise<Items[]> if `searchTerm === ''` load all
+  itemKey: PropTypes.func, // (item) => string|number - return key of item (by default `id`)
+  // left list
+  // (item, { isSelected }) => {
+  //   content: node, // item contents
+  //   className: string = '', // additional class for item wrapper
+  //   isDisabled: bool = false, // is item clickable or disabled
+  // }
+  renderItem: PropTypes.func,
+  // right list; args/results save as for `renderItem`. if not specified - `renderItem` will be used
+  renderStagedItem: PropTypes.func,
+  width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  extraFooterContent: PropTypes.node,
+  showCount: PropTypes.bool,
+};
+
+SelectItemsDialog.defaultProps = {
+  dialogTitle: "Add Items",
+  inputPlaceholder: "Search...",
+  selectedItemsTitle: "Selected items",
+  itemKey: item => item.id,
+  renderItem: () => "",
+  renderStagedItem: null, // hidden by default
+  width: "80%",
+  extraFooterContent: null,
+  showCount: false,
+};
 
 export default wrapDialog(SelectItemsDialog);

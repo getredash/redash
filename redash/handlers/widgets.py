@@ -3,14 +3,17 @@ from flask import request
 from redash import models
 from redash.handlers.base import BaseResource
 from redash.serializers import serialize_widget
-from redash.permissions import (require_access,
-                                require_object_modify_permission,
-                                require_permission, view_only)
+from redash.permissions import (
+    require_access,
+    require_object_modify_permission,
+    require_permission,
+    view_only,
+)
 from redash.utils import json_dumps
 
 
 class WidgetListResource(BaseResource):
-    @require_permission('edit_dashboard')
+    @require_permission("edit_dashboard")
     def post(self):
         """
         Add a widget to a dashboard.
@@ -24,21 +27,24 @@ class WidgetListResource(BaseResource):
         :>json object widget: The created widget
         """
         widget_properties = request.get_json(force=True)
-        dashboard = models.Dashboard.get_by_id_and_org(widget_properties.pop('dashboard_id'), self.current_org)
+        dashboard = models.Dashboard.get_by_id_and_org(
+            widget_properties.get("dashboard_id"), self.current_org
+        )
         require_object_modify_permission(dashboard, self.current_user)
 
-        widget_properties['options'] = json_dumps(widget_properties['options'])
-        widget_properties.pop('id', None)
-        widget_properties['dashboard'] = dashboard
+        widget_properties["options"] = json_dumps(widget_properties["options"])
+        widget_properties.pop("id", None)
 
-        visualization_id = widget_properties.pop('visualization_id')
+        visualization_id = widget_properties.pop("visualization_id")
         if visualization_id:
-            visualization = models.Visualization.get_by_id_and_org(visualization_id, self.current_org)
+            visualization = models.Visualization.get_by_id_and_org(
+                visualization_id, self.current_org
+            )
             require_access(visualization.query_rel, self.current_user, view_only)
         else:
             visualization = None
 
-        widget_properties['visualization'] = visualization
+        widget_properties["visualization"] = visualization
 
         widget = models.Widget(**widget_properties)
         models.db.session.add(widget)
@@ -49,7 +55,7 @@ class WidgetListResource(BaseResource):
 
 
 class WidgetResource(BaseResource):
-    @require_permission('edit_dashboard')
+    @require_permission("edit_dashboard")
     def post(self, widget_id):
         """
         Updates a widget in a dashboard.
@@ -62,12 +68,12 @@ class WidgetResource(BaseResource):
         widget = models.Widget.get_by_id_and_org(widget_id, self.current_org)
         require_object_modify_permission(widget.dashboard, self.current_user)
         widget_properties = request.get_json(force=True)
-        widget.text = widget_properties['text']
-        widget.options = json_dumps(widget_properties['options'])
+        widget.text = widget_properties["text"]
+        widget.options = json_dumps(widget_properties["options"])
         models.db.session.commit()
         return serialize_widget(widget)
 
-    @require_permission('edit_dashboard')
+    @require_permission("edit_dashboard")
     def delete(self, widget_id):
         """
         Remove a widget from a dashboard.
@@ -76,10 +82,8 @@ class WidgetResource(BaseResource):
         """
         widget = models.Widget.get_by_id_and_org(widget_id, self.current_org)
         require_object_modify_permission(widget.dashboard, self.current_user)
-        self.record_event({
-            'action': 'delete',
-            'object_id': widget_id,
-            'object_type': 'widget',
-        })
+        self.record_event(
+            {"action": "delete", "object_id": widget_id, "object_type": "widget"}
+        )
         models.db.session.delete(widget)
         models.db.session.commit()

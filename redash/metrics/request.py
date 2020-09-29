@@ -14,35 +14,42 @@ def record_requets_start_time():
 
 
 def calculate_metrics(response):
-    if 'start_time' not in g:
+    if "start_time" not in g:
         return response
 
     request_duration = (time.time() - g.start_time) * 1000
-    queries_duration = g.get('queries_duration', 0.0)
-    queries_count = g.get('queries_count', 0.0)
-    endpoint = (request.endpoint or 'unknown').replace('.', '_')
+    queries_duration = g.get("queries_duration", 0.0)
+    queries_count = g.get("queries_count", 0.0)
+    endpoint = (request.endpoint or "unknown").replace(".", "_")
 
-    metrics_logger.info("method=%s path=%s endpoint=%s status=%d content_type=%s content_length=%d duration=%.2f query_count=%d query_duration=%.2f",
-                        request.method,
-                        request.path,
-                        endpoint,
-                        response.status_code,
-                        response.content_type,
-                        response.content_length or -1,
-                        request_duration,
-                        queries_count,
-                        queries_duration)
+    metrics_logger.info(
+        "method=%s path=%s endpoint=%s status=%d content_type=%s content_length=%d duration=%.2f query_count=%d query_duration=%.2f",
+        request.method,
+        request.path,
+        endpoint,
+        response.status_code,
+        response.content_type,
+        response.content_length or -1,
+        request_duration,
+        queries_count,
+        queries_duration,
+    )
 
-    statsd_client.timing('requests.{}.{}'.format(endpoint, request.method.lower()), request_duration)
+    statsd_client.timing(
+        "requests.{}.{}".format(endpoint, request.method.lower()), request_duration
+    )
 
     return response
 
-MockResponse = namedtuple('MockResponse', ['status_code', 'content_type', 'content_length'])
+
+MockResponse = namedtuple(
+    "MockResponse", ["status_code", "content_type", "content_length"]
+)
 
 
 def calculate_metrics_on_exception(error):
     if error is not None:
-        calculate_metrics(MockResponse(500, '?', -1))
+        calculate_metrics(MockResponse(500, "?", -1))
 
 
 def init_app(app):

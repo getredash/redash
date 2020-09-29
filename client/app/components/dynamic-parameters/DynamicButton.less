@@ -1,0 +1,36 @@
+.dynamic-button {
+  height: 100%;
+  position: absolute !important;
+  right: 1px;
+  top: 0;
+
+  .ant-dropdown-trigger {
+    height: 100%;
+  }
+
+  button {
+    border: none;
+    padding: 0;
+    box-shadow: none;
+    background-color: transparent !important;
+  }
+
+  &:after {
+    content: "";
+    position: absolute;
+    width: 1px;
+    height: 19px;
+    left: 0;
+    top: 8px;
+    border-left: 1px dotted rgba(0, 0, 0, 0.12);
+  }
+}
+
+.dynamic-menu {
+  width: 187px;
+
+  em {
+    color: #ccc;
+    font-size: 11px;
+  }
+}

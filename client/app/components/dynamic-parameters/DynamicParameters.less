@@ -1,0 +1,34 @@
+@import "../../assets/less/inc/variables";
+
+.redash-datepicker {
+  padding-right: 35px !important;
+
+  &.ant-picker-range .ant-picker-clear {
+    right: 35px !important;
+    background: transparent;
+  }
+
+  &.date-range-input {
+    transition: width 100ms ease-in-out;
+  }
+
+  &.dynamic-value {
+    & ::placeholder {
+      color: @text-color !important;
+    }
+
+    &.date-range-input {
+      .ant-picker-active-bar {
+        opacity: 0;
+      }
+
+      .ant-picker-separator {
+        display: none;
+      }
+
+      .ant-picker-input:not(:first-child) {
+        width: 0;
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
-import { isString, sortBy } from 'lodash';
+import { isString, sortBy } from "lodash";
 
-const ORDER_BY_REVERSE = '-';
+const ORDER_BY_REVERSE = "-";
 
 export function compile(field, reverse) {
   if (!field) {
@@ -10,12 +10,12 @@ export function compile(field, reverse) {
 }
 
 export function parse(compiled) {
-  compiled = isString(compiled) ? compiled : '';
+  compiled = isString(compiled) ? compiled : "";
   const reverse = compiled.startsWith(ORDER_BY_REVERSE);
   if (reverse) {
     compiled = compiled.substring(1);
   }
-  const field = compiled !== '' ? compiled : null;
+  const field = compiled !== "" ? compiled : null;
   return { field, reverse };
 }
 
@@ -23,6 +23,8 @@ export default class Sorter {
   field = null;
 
   reverse = false;
+
+  sortByIteratees = null;
 
   get compiled() {
     return compile(this.field, this.reverse);
@@ -35,20 +37,21 @@ export default class Sorter {
   }
 
   setField(value) {
-    this.field = isString(value) && (value !== '') ? value : null;
+    this.field = isString(value) && value !== "" ? value : null;
   }
 
   setReverse(value) {
     this.reverse = !!value; // cast to boolean
   }
 
-  constructor({ orderByField, orderByReverse } = {}) {
+  constructor({ orderByField, orderByReverse } = {}, sortByIteratees = undefined) {
     this.setField(orderByField);
     this.setReverse(orderByReverse);
+    this.sortByIteratees = sortByIteratees;
   }
 
   toggleField(field) {
-    if (!isString(field) || (field === '')) {
+    if (!isString(field) || field === "") {
       return;
     }
     if (field === this.field) {
@@ -61,7 +64,8 @@ export default class Sorter {
 
   sort(items) {
     if (this.field) {
-      items = sortBy(items, this.field);
+      const customIteratee = this.sortByIteratees && this.sortByIteratees[this.field];
+      items = sortBy(items, customIteratee ? [customIteratee] : this.field);
       if (this.reverse) {
         items.reverse();
       }

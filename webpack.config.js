@@ -1,28 +1,58 @@
 /* eslint-disable */
 
-const fs = require("fs");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
 const ManifestPlugin = require("webpack-manifest-plugin");
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
+const fs = require("fs");
 
 const path = require("path");
+
+function optionalRequire(module, defaultReturn = undefined) {
+  try {
+    require.resolve(module);
+  } catch (e) {
+    if (e && e.code === "MODULE_NOT_FOUND") {
+      // Module was not found, return default value if any
+      return defaultReturn;
+    }
+    throw e;
+  }
+  return require(module);
+}
+
+// Load optionally configuration object (see scripts/README)
+const CONFIG = optionalRequire("./scripts/config", {});
 
 const isProduction = process.env.NODE_ENV === "production";
 
 const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
+const staticPath = CONFIG.staticPath || "/static/";
 
 const basePath = path.join(__dirname, "client");
 const appPath = path.join(__dirname, "client", "app");
 
-const extensionsRelativePath = process.env.EXTENSIONS_DIRECTORY ||
-  path.join("client", "app", "extensions");
+const extensionsRelativePath =
+  process.env.EXTENSIONS_DIRECTORY || path.join("client", "app", "extensions");
 const extensionPath = path.join(__dirname, extensionsRelativePath);
+
+// Function to apply configuration overrides (see scripts/README)
+function maybeApplyOverrides(config) {
+  const overridesLocation = process.env.REDASH_WEBPACK_OVERRIDES || "./scripts/webpack/overrides";
+  const applyOverrides = optionalRequire(overridesLocation);
+  if (!applyOverrides) {
+    return config;
+  }
+  console.info("Custom overrides found. Applying them...");
+  const newConfig = applyOverrides(config);
+  console.info("Custom overrides applied successfully.");
+  return newConfig;
+}
 
 const config = {
   mode: isProduction ? "production" : "development",
@@ -37,26 +67,26 @@ const config = {
   output: {
     path: path.join(basePath, "./dist"),
     filename: isProduction ? "[name].[chunkhash].js" : "[name].js",
-    publicPath: "/static/"
+    publicPath: staticPath
   },
   resolve: {
     symlinks: false,
-    extensions: ['.js', '.jsx'],
+    extensions: [".js", ".jsx", ".ts", ".tsx"],
     alias: {
       "@": appPath,
-      "extensions": extensionPath
-    },
+      extensions: extensionPath
+    }
   },
   plugins: [
     new WebpackBuildNotifierPlugin({ title: "Redash" }),
-    // Enforce angular to use jQuery instead of jqLite
-    new webpack.ProvidePlugin({ "window.jQuery": "jquery" }),
     // bundle only default `moment` locale (`en`)
     new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
     new HtmlWebpackPlugin({
       template: "./client/app/index.html",
       filename: "index.html",
-      excludeChunks: ["server"]
+      excludeChunks: ["server"],
+      release: process.env.BUILD_VERSION || "dev",
+      staticPath
     }),
     new HtmlWebpackPlugin({
       template: "./client/app/multi_org.html",
@@ -68,20 +98,19 @@ const config = {
     }),
     new ManifestPlugin({
       fileName: "asset-manifest.json",
-      publicPath: "",
+      publicPath: ""
     }),
     new CopyWebpackPlugin([
       { from: "client/app/assets/robots.txt" },
       { from: "client/app/unsupported.html" },
       { from: "client/app/unsupportedRedirect.js" },
       { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
-      { from: "node_modules/jquery/dist/jquery.min.js", to: "js/jquery.min.js" },
-      { from: "client/app/assets/fonts", to: "fonts/" },
+      { from: "client/app/assets/fonts", to: "fonts/" }
     ])
   ],
   optimization: {
     splitChunks: {
-      chunks: (chunk) => {
+      chunks: chunk => {
         return chunk.name != "server";
       }
     }
@@ -89,13 +118,13 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        test: /\.(t|j)sx?$/,
         exclude: /node_modules/,
         use: ["babel-loader", "eslint-loader"]
       },
       {
         test: /\.html$/,
-        exclude: [/node_modules/, /index\.html/],
+        exclude: [/node_modules/, /index\.html/, /multi_org\.html/],
         use: [
           {
             loader: "raw-loader"
@@ -154,7 +183,7 @@ const config = {
       },
       {
         test: /\.geo\.json$/,
-        type: 'javascript/auto',
+        type: "javascript/auto",
         use: [
           {
             loader: "file-loader",
@@ -181,6 +210,7 @@ const config = {
   },
   devtool: isProduction ? "source-map" : "cheap-eval-module-source-map",
   stats: {
+    children: false,
     modules: false,
     chunkModules: false
   },
@@ -195,7 +225,7 @@ const config = {
       rewrites: [{ from: /./, to: "/static/index.html" }]
     },
     contentBase: false,
-    publicPath: "/static/",
+    publicPath: staticPath,
     proxy: [
       {
         context: [
@@ -225,6 +255,9 @@ const config = {
       modules: false,
       chunkModules: false
     }
+  },
+  performance: {
+    hints: false
   }
 };
 
@@ -236,4 +269,4 @@ if (process.env.BUNDLE_ANALYZER) {
   config.plugins.push(new BundleAnalyzerPlugin());
 }
 
-module.exports = config;
+module.exports = maybeApplyOverrides(config);

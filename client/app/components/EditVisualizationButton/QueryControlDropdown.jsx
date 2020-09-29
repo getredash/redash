@@ -1,40 +1,55 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Dropdown from 'antd/lib/dropdown';
-import Menu from 'antd/lib/menu';
-import Button from 'antd/lib/button';
-import Icon from 'antd/lib/icon';
-import { react2angular } from 'react2angular';
+import React from "react";
+import PropTypes from "prop-types";
+import Dropdown from "antd/lib/dropdown";
+import Menu from "antd/lib/menu";
+import Button from "antd/lib/button";
+import { clientConfig } from "@/services/auth";
 
-import QueryResultsLink from './QueryResultsLink';
+import PlusCircleFilledIcon from "@ant-design/icons/PlusCircleFilled";
+import ShareAltOutlinedIcon from "@ant-design/icons/ShareAltOutlined";
+import FileOutlinedIcon from "@ant-design/icons/FileOutlined";
+import FileExcelOutlinedIcon from "@ant-design/icons/FileExcelOutlined";
+import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 
+import QueryResultsLink from "./QueryResultsLink";
 
-export function QueryControlDropdown(props) {
+export default function QueryControlDropdown(props) {
   const menu = (
     <Menu>
       {!props.query.isNew() && (!props.query.is_draft || !props.query.is_archived) && (
         <Menu.Item>
           <a target="_self" onClick={() => props.openAddToDashboardForm(props.selectedTab)}>
-            <Icon type="plus-circle" theme="filled" /> Add to Dashboard
+            <PlusCircleFilledIcon /> Add to Dashboard
           </a>
         </Menu.Item>
       )}
-      {!props.query.isNew() && (
+      {!clientConfig.disablePublicUrls && !props.query.isNew() && (
         <Menu.Item>
           <a onClick={() => props.showEmbedDialog(props.query, props.selectedTab)} data-test="ShowEmbedDialogButton">
-            <Icon type="share-alt" /> Embed Elsewhere
+            <ShareAltOutlinedIcon /> Embed Elsewhere
           </a>
         </Menu.Item>
       )}
       <Menu.Item>
         <QueryResultsLink
+          fileType="csv"
           disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
           query={props.query}
           queryResult={props.queryResult}
           embed={props.embed}
-          apiKey={props.apiKey}
-        >
-          <Icon type="file" /> Download as CSV File
+          apiKey={props.apiKey}>
+          <FileOutlinedIcon /> Download as CSV File
+        </QueryResultsLink>
+      </Menu.Item>
+      <Menu.Item>
+        <QueryResultsLink
+          fileType="tsv"
+          disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
+          query={props.query}
+          queryResult={props.queryResult}
+          embed={props.embed}
+          apiKey={props.apiKey}>
+          <FileOutlinedIcon /> Download as TSV File
         </QueryResultsLink>
       </Menu.Item>
       <Menu.Item>
@@ -44,22 +59,17 @@ export function QueryControlDropdown(props) {
           query={props.query}
           queryResult={props.queryResult}
           embed={props.embed}
-          apiKey={props.apiKey}
-        >
-          <Icon type="file-excel" /> Download as Excel File
+          apiKey={props.apiKey}>
+          <FileExcelOutlinedIcon /> Download as Excel File
         </QueryResultsLink>
       </Menu.Item>
     </Menu>
   );
 
   return (
-    <Dropdown
-      trigger={['click']}
-      overlay={menu}
-      overlayClassName="query-control-dropdown-overlay"
-    >
+    <Dropdown trigger={["click"]} overlay={menu} overlayClassName="query-control-dropdown-overlay">
       <Button data-test="QueryControlDropdownButton">
-        <Icon type="ellipsis" rotate={90} />
+        <EllipsisOutlinedIcon rotate={90} />
       </Button>
     </Dropdown>
   );
@@ -72,22 +82,13 @@ QueryControlDropdown.propTypes = {
   showEmbedDialog: PropTypes.func.isRequired,
   embed: PropTypes.bool,
   apiKey: PropTypes.string,
-  selectedTab: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-  ]),
+  selectedTab: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   openAddToDashboardForm: PropTypes.func.isRequired,
 };
 
 QueryControlDropdown.defaultProps = {
   queryResult: {},
   embed: false,
-  apiKey: '',
-  selectedTab: '',
+  apiKey: "",
+  selectedTab: "",
 };
-
-export default function init(ngModule) {
-  ngModule.component('queryControlDropdown', react2angular(QueryControlDropdown));
-}
-
-init.init = true;
