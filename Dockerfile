@@ -6,6 +6,11 @@ ARG skip_frontend_build
 WORKDIR /frontend
 COPY package.json package-lock.json /frontend/
 COPY viz-lib /frontend/viz-lib
+
+# Controls whether to instrument code for coverage information
+ARG code_coverage
+ENV BABEL_ENV=${code_coverage:+test}
+
 RUN if [ "x$skip_frontend_build" = "x" ] ; then npm ci --unsafe-perm; fi
 
 COPY client /frontend/client

@@ -96,6 +96,13 @@ jobs:
       - setup_remote_docker
       - checkout
       - run:
+          name: Enable Code Coverage report for master branch
+          command: |
+            if [ "$CIRCLE_BRANCH" = "master" ]; then
+              echo 'export CODE_COVERAGE=true' >> $BASH_ENV
+              source $BASH_ENV
+            fi
+      - run:
           name: Install npm dependencies
           command: |
             npm ci
@@ -113,6 +120,13 @@ jobs:
           command: |
             docker-compose logs
           when: on_fail
+      - run:
+          name: Copy Code Coverage results
+          command: |
+            docker cp cypress:/usr/src/app/coverage ./coverage || true
+          when: always
+      - store_artifacts:
+          path: coverage
   build-docker-image: *build-docker-image-job
   build-preview-docker-image: *build-docker-image-job
 workflows:
