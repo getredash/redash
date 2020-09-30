@@ -376,39 +376,55 @@ class BigQuery(BaseQueryRunner):
 
         service = self._get_bigquery_service()
         project_id = self._get_project_id()
-        datasets = service.datasets().list(projectId=project_id).execute()
-        schema = []
-        for dataset in datasets.get("datasets", []):
-            dataset_id = dataset["datasetReference"]["datasetId"]
-            tables = (
-                service.tables()
-                .list(projectId=project_id, datasetId=dataset_id)
-                .execute()
+        # get a list of Big Query datasets
+        datasets_request = service.datasets().list(
+            projectId=project_id,
+            fields="datasets/datasetReference/datasetId,nextPageToken",
+        )
+        datasets = []
+        while datasets_request:
+            # request datasets
+            datasets_response = datasets_request.execute()
+            # store results
+            datasets.extend(datasets_response.get("datasets", []))
+            # try loading next page
+            datasets_request = service.datasets().list_next(
+                datasets_request,
+                datasets_response,
             )
-            while True:
-                for table in tables.get("tables", []):
+
+        schema = []
+        # load all tables for all datasets
+        for dataset in datasets:
+            dataset_id = dataset["datasetReference"]["datasetId"]
+            tables_request = service.tables().list(
+                projectId=project_id,
+                datasetId=dataset_id,
+                fields="tables/tableReference/tableId,nextPageToken",
+            )
+            while tables_request:
+                # request tables with fields above
+                tables_response = tables_request.execute()
+                for table in tables_response.get("tables", []):
+                    # load schema for given table
                     table_data = (
                         service.tables()
                         .get(
                             projectId=project_id,
                             datasetId=dataset_id,
                             tableId=table["tableReference"]["tableId"],
+                            fields="id,schema",
                         )
                         .execute()
                     )
+                    # build schema data with given table data
                     table_schema = self._get_columns_schema(table_data)
                     schema.append(table_schema)
 
-                next_token = tables.get("nextPageToken", None)
-                if next_token is None:
-                    break
-
-                tables = (
-                    service.tables()
-                    .list(
-                        projectId=project_id, datasetId=dataset_id, pageToken=next_token
-                    )
-                    .execute()
+                # try loading next page of results
+                tables_request = service.tables().list_next(
+                    tables_request,
+                    tables_response,
                 )
 
         return schema
