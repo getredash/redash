@@ -33,7 +33,7 @@ celery_schedule = {
     },
     'refresh_schemas': {
         'task': 'redash.tasks.refresh_schemas',
-        'schedule': timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE)
+        'schedule': timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE),
     },
     'sync_user_details': {
         'task': 'redash.tasks.sync_user_details',
@@ -62,6 +62,7 @@ if settings.QUERY_RESULTS_CLEANUP_ENABLED:
 celery_schedule.update(settings.dynamic_settings.custom_tasks())
 
 celery.conf.update(result_backend=settings.CELERY_RESULT_BACKEND,
+                   broker_transport_options={ 'master_name': settings.CELERY_BROKER_MASTER },
                    beat_schedule=celery_schedule,
                    timezone='UTC',
                    result_expires=settings.CELERY_RESULT_EXPIRES,
