@@ -29,7 +29,7 @@ describe("Dashboard Filters", () => {
         .as("widget1TestId")
         .then(() => createQueryAndAddWidget(dashboard.id, queryData, { position: { col: 4 } }))
         .as("widget2TestId")
-        .then(() => cy.visit(`/dashboard/${dashboard.slug}`));
+        .then(() => cy.visit(`/dashboards/${dashboard.id}`));
     });
   });
 

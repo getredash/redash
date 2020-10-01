@@ -1,19 +1,19 @@
-import { isFunction, extend, get } from "lodash";
-import { useCallback, useRef } from "react";
+import { extend, get } from "lodash";
+import { useCallback } from "react";
 import { Query } from "@/services/query";
 import notification from "@/services/notification";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 export default function useFormatQuery(query, syntax, onChange) {
-  const onChangeRef = useRef();
-  onChangeRef.current = isFunction(onChange) ? onChange : () => {};
+  const handleChange = useImmutableCallback(onChange);
 
   return useCallback(() => {
     Query.format(syntax || "sql", query.query)
       .then(queryText => {
-        onChangeRef.current(extend(query.clone(), { query: queryText }));
+        handleChange(extend(query.clone(), { query: queryText }));
       })
       .catch(error =>
         notification.error(get(error, "response.data.message", "Failed to format query: unknown error."))
       );
-  }, [query, syntax]);
+  }, [query, syntax, handleChange]);
 }

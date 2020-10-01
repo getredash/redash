@@ -6,9 +6,9 @@ import { createQueryAndAddWidget, editDashboard, resizeBy } from "../../support/
 describe("Widget", () => {
   beforeEach(function() {
     cy.login();
-    createDashboard("Foo Bar").then(({ slug, id }) => {
+    createDashboard("Foo Bar").then(({ id }) => {
       this.dashboardId = id;
-      this.dashboardUrl = `/dashboard/${slug}`;
+      this.dashboardUrl = `/dashboards/${id}`;
     });
   });
 

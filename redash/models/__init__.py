@@ -5,7 +5,7 @@ import time
 import numbers
 import pytz
 
-from sqlalchemy import distinct, or_, and_, UniqueConstraint
+from sqlalchemy import distinct, or_, and_, UniqueConstraint, cast
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -52,6 +52,7 @@ from .types import (
     MutableDict,
     MutableList,
     PseudoJSON,
+    pseudo_json_cast_property
 )
 from .users import AccessPermission, AnonymousUser, ApiUser, Group, User  # noqa
 
@@ -209,7 +210,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     def _sort_schema(self, schema):
         return [
-            {"name": i["name"], "columns": sorted(i["columns"])}
+            {"name": i["name"], "columns": sorted(i["columns"], key=lambda x: x["name"] if isinstance(x, dict) else x)}
             for i in sorted(schema, key=lambda x: x["name"])
         ]
 
@@ -488,6 +489,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
     schedule = Column(MutableDict.as_mutable(PseudoJSON), nullable=True)
+    interval = pseudo_json_cast_property(db.Integer, "schedule", "interval", default=0)
     schedule_failures = Column(db.Integer, default=0)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
     options = Column(MutableDict.as_mutable(PseudoJSON), default={})
@@ -636,6 +638,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             )
             .filter(Query.schedule.isnot(None))
             .order_by(Query.id)
+            .all()
         )
 
         now = utils.utcnow()
@@ -1097,6 +1100,10 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def __str__(self):
         return "%s=%s" % (self.id, self.name)
 
+    @property
+    def name_as_slug(self):
+        return utils.slugify(self.name)
+
     @classmethod
     def all(cls, org, group_ids, user_id):
         query = (
@@ -1301,6 +1308,7 @@ class ApiKey(TimestampMixin, GFKBase, db.Model):
     api_key = Column(db.String(255), index=True, default=lambda: generate_token(40))
     active = Column(db.Boolean, default=True)
     # 'object' provided by GFKBase
+    object_id = Column(key_type("ApiKey"))
     created_by_id = Column(key_type("User"), db.ForeignKey("users.id"), nullable=True)
     created_by = db.relationship(User)
 

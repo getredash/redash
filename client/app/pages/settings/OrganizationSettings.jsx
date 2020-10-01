@@ -1,5 +1,5 @@
 import { get } from "lodash";
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 
 import Button from "antd/lib/button";
@@ -11,6 +11,7 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import recordEvent from "@/services/recordEvent";
 import OrgSettings from "@/services/organizationSettings";
 import routes from "@/services/routes";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 import GeneralSettings from "./components/GeneralSettings";
 import AuthSettings from "./components/AuthSettings";
@@ -21,8 +22,7 @@ function OrganizationSettings({ onError }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  const onErrorRef = useRef(onError);
-  onErrorRef.current = onError;
+  const handleError = useImmutableCallback(onError);
 
   useEffect(() => {
     recordEvent("view", "page", "org_settings");
@@ -40,14 +40,14 @@ function OrganizationSettings({ onError }) {
       })
       .catch(error => {
         if (!isCancelled) {
-          onErrorRef.current(error);
+          handleError(error);
         }
       });
 
     return () => {
       isCancelled = true;
     };
-  }, []);
+  }, [handleError]);
 
   const handleChange = useCallback(changes => {
     setCurrentValues(currentValues => ({ ...currentValues, ...changes }));
@@ -64,11 +64,11 @@ function OrganizationSettings({ onError }) {
             setSettings(settings);
             setCurrentValues({ ...settings });
           })
-          .catch(error => onErrorRef.current(error))
+          .catch(handleError)
           .finally(() => setIsSaving(false));
       }
     },
-    [isSaving, currentValues]
+    [isSaving, currentValues, handleError]
   );
 
   return (

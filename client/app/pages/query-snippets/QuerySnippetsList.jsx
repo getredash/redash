@@ -177,8 +177,10 @@ class QuerySnippetsList extends React.Component {
               toggleSorting={controller.toggleSorting}
             />
             <Paginator
+              showPageSizeSelect
               totalCount={controller.totalItemsCount}
-              itemsPerPage={controller.itemsPerPage}
+              pageSize={controller.itemsPerPage}
+              onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
               page={controller.page}
               onChange={page => controller.updatePagination({ page })}
             />
@@ -224,7 +226,7 @@ routes.register(
 routes.register(
   "QuerySnippets.NewOrEdit",
   routeWithUserSession({
-    path: "/query_snippets/:querySnippetId(new|[0-9]+)",
+    path: "/query_snippets/:querySnippetId",
     title: "Query Snippets",
     render: pageProps => <QuerySnippetsListPage {...pageProps} currentPage="query_snippets" isNewOrEditPage />,
   })

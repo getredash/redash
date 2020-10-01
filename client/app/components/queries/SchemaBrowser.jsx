@@ -1,6 +1,6 @@
-import { isNil, map, filter, some, includes, isFunction } from "lodash";
+import { isNil, map, filter, some, includes, get } from "lodash";
 import cx from "classnames";
-import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import Input from "antd/lib/input";
@@ -9,12 +9,19 @@ import Tooltip from "antd/lib/tooltip";
 import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
 import List from "react-virtualized/dist/commonjs/List";
 import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import LoadingState from "../items-list/components/LoadingState";
 
-const SchemaItemType = PropTypes.shape({
+const SchemaItemColumnType = PropTypes.shape({
+  name: PropTypes.string.isRequired,
+  type: PropTypes.string,
+});
+
+export const SchemaItemType = PropTypes.shape({
   name: PropTypes.string.isRequired,
   size: PropTypes.number,
-  columns: PropTypes.arrayOf(PropTypes.string).isRequired,
+  loading: PropTypes.bool,
+  columns: PropTypes.arrayOf(SchemaItemColumnType).isRequired,
 });
 
 const schemaTableHeight = 22;
@@ -50,16 +57,24 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
       </div>
       {expanded && (
         <div>
-          {map(item.columns, column => (
-            <div key={column} className="table-open">
-              {column}
-              <i
-                className="fa fa-angle-double-right copy-to-editor"
-                aria-hidden="true"
-                onClick={e => handleSelect(e, column)}
-              />
-            </div>
-          ))}
+          {item.loading ? (
+            <div className="table-open">Loading...</div>
+          ) : (
+            map(item.columns, column => {
+              const columnName = get(column, "name");
+              const columnType = get(column, "type");
+              return (
+                <div key={columnName} className="table-open">
+                  {columnName} {columnType && <span className="column-type">{columnType}</span>}
+                  <i
+                    className="fa fa-angle-double-right copy-to-editor"
+                    aria-hidden="true"
+                    onClick={e => handleSelect(e, columnName)}
+                  />
+                </div>
+              );
+            })
+          )}
         </div>
       )}
     </div>
@@ -110,7 +125,8 @@ export function SchemaList({ loading, schema, expandedFlags, onTableExpand, onIt
               rowCount={schema.length}
               rowHeight={({ index }) => {
                 const item = schema[index];
-                const columnCount = expandedFlags[item.name] ? item.columns.length : 0;
+                const columnsLength = !item.loading ? item.columns.length : 1;
+                let columnCount = expandedFlags[item.name] ? columnsLength : 0;
                 return schemaTableHeight + schemaColumnHeight * columnCount;
               }}
               rowRenderer={({ key, index, style }) => {
@@ -150,7 +166,7 @@ export function applyFilterOnSchema(schema, filterString) {
       schema,
       item =>
         includes(item.name.toLowerCase(), nameFilter) ||
-        some(item.columns, column => includes(column.toLowerCase(), columnFilter))
+        some(item.columns, column => includes(get(column, "name").toLowerCase(), columnFilter))
     );
   }
 
@@ -160,7 +176,10 @@ export function applyFilterOnSchema(schema, filterString) {
   return filter(
     map(schema, item => {
       if (includes(item.name.toLowerCase(), nameFilter)) {
-        item = { ...item, columns: filter(item.columns, column => includes(column.toLowerCase(), columnFilter)) };
+        item = {
+          ...item,
+          columns: filter(item.columns, column => includes(get(column, "name").toLowerCase(), columnFilter)),
+        };
         return item.columns.length > 0 ? item : null;
       }
     })
@@ -181,14 +200,12 @@ export default function SchemaBrowser({
   const [handleFilterChange] = useDebouncedCallback(setFilterString, 500);
   const [expandedFlags, setExpandedFlags] = useState({});
 
-  const onSchemaUpdateRef = useRef();
-  onSchemaUpdateRef.current = onSchemaUpdate;
+  const handleSchemaUpdate = useImmutableCallback(onSchemaUpdate);
+
   useEffect(() => {
     setExpandedFlags({});
-    if (isFunction(onSchemaUpdateRef.current)) {
-      onSchemaUpdateRef.current(schema);
-    }
-  }, [schema]);
+    handleSchemaUpdate(schema);
+  }, [schema, handleSchemaUpdate]);
 
   if (schema.length === 0 && !isLoading) {
     return null;

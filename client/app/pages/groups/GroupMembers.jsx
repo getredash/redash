@@ -173,8 +173,10 @@ class GroupMembers extends React.Component {
                   toggleSorting={controller.toggleSorting}
                 />
                 <Paginator
+                  showPageSizeSelect
                   totalCount={controller.totalItemsCount}
-                  itemsPerPage={controller.itemsPerPage}
+                  pageSize={controller.itemsPerPage}
+                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
                   page={controller.page}
                   onChange={page => controller.updatePagination({ page })}
                 />
@@ -209,7 +211,7 @@ const GroupMembersPage = wrapSettingsTab(
 routes.register(
   "Groups.Members",
   routeWithUserSession({
-    path: "/groups/:groupId([0-9]+)",
+    path: "/groups/:groupId",
     title: "Group Members",
     render: pageProps => <GroupMembersPage {...pageProps} currentPage="users" />,
   })
