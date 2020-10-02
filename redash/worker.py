@@ -9,7 +9,9 @@ from celery.signals import worker_process_init
 from celery.utils.log import get_logger
 from flask import current_app
 
-from redash import create_app, extensions, settings
+from redash import create_app
+from redash import extensions
+from redash import settings
 from redash.metrics import celery as celery_metrics  # noqa
 
 logger = get_logger(__name__)
