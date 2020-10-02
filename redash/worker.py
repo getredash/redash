@@ -62,7 +62,7 @@ if settings.QUERY_RESULTS_CLEANUP_ENABLED:
 celery_schedule.update(settings.dynamic_settings.custom_tasks())
 
 celery.conf.update(result_backend=settings.CELERY_RESULT_BACKEND,
-                   broker_transport_options={ 'master_name': settings.CELERY_BROKER_MASTER },
+                   broker_transport_options={'master_name': settings.CELERY_BROKER_MASTER},
                    beat_schedule=celery_schedule,
                    timezone='UTC',
                    result_expires=settings.CELERY_RESULT_EXPIRES,
