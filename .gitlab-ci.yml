@@ -1,0 +1,29 @@
+---
+# Build this using the latest docker image for a docker-in-docker env
+image: docker:latest
+
+variables:
+  # Tag each image built with CI/CD using the tag of the commit
+  IMAGE_TAG: "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}"
+
+stages:
+  - build
+
+build:
+  stage: build
+  only:
+    - tags
+  before_script:
+    # Log into the repo's docker image registry
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY || exit $?
+  script:
+    # Grab the latest build of this image into docker-in-docker to use as a build cache
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+
+    # Build the image using the `Dockerfile` in the application's source and push it to the repo registry.
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
+
+    # Additionally tag this as the latest build of this image
+    - docker tag $IMAGE_TAG ${CI_REGISTRY_IMAGE}:latest
+    - docker push ${CI_REGISTRY_IMAGE}:latest
