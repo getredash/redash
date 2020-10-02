@@ -1,13 +1,13 @@
 from __future__ import absolute_import
+
 from datetime import timedelta
 from random import randint
-
-from flask import current_app
 
 from celery import Celery
 from celery.schedules import crontab
 from celery.signals import worker_process_init
 from celery.utils.log import get_logger
+from flask import current_app
 
 from redash import create_app, extensions, settings
 from redash.metrics import celery as celery_metrics  # noqa
