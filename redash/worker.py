@@ -16,7 +16,6 @@ from redash.metrics import celery as celery_metrics  # noqa
 
 logger = get_logger(__name__)
 
-
 celery = Celery(
     "redash",
     broker=settings.CELERY_BROKER,
