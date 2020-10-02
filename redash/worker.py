@@ -15,63 +15,67 @@ from redash.metrics import celery as celery_metrics  # noqa
 logger = get_logger(__name__)
 
 
-celery = Celery('redash',
-                broker=settings.CELERY_BROKER,
-                broker_use_ssl=settings.CELERY_SSL_CONFIG,
-                redis_backend_use_ssl=settings.CELERY_SSL_CONFIG,
-                include='redash.tasks')
+celery = Celery(
+    "redash",
+    broker=settings.CELERY_BROKER,
+    broker_use_ssl=settings.CELERY_SSL_CONFIG,
+    redis_backend_use_ssl=settings.CELERY_SSL_CONFIG,
+    include="redash.tasks",
+)
 
 # The internal periodic Celery tasks to automatically schedule.
 celery_schedule = {
-    'refresh_queries': {
-        'task': 'redash.tasks.refresh_queries',
-        'schedule': timedelta(seconds=30)
+    "refresh_queries": {
+        "task": "redash.tasks.refresh_queries",
+        "schedule": timedelta(seconds=30),
     },
-    'empty_schedules': {
-        'task': 'redash.tasks.empty_schedules',
-        'schedule': timedelta(minutes=60)
+    "empty_schedules": {
+        "task": "redash.tasks.empty_schedules",
+        "schedule": timedelta(minutes=60),
     },
-    'refresh_schemas': {
-        'task': 'redash.tasks.refresh_schemas',
-        'schedule': timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE),
+    "refresh_schemas": {
+        "task": "redash.tasks.refresh_schemas",
+        "schedule": timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE),
     },
-    'sync_user_details': {
-        'task': 'redash.tasks.sync_user_details',
-        'schedule': timedelta(minutes=1),
+    "sync_user_details": {
+        "task": "redash.tasks.sync_user_details",
+        "schedule": timedelta(minutes=1),
     },
-    'send_aggregated_errors': {
-        'task': 'redash.tasks.send_aggregated_errors',
-        'schedule': timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL),
-    }
+    "send_aggregated_errors": {
+        "task": "redash.tasks.send_aggregated_errors",
+        "schedule": timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL),
+    },
 }
 
 if settings.VERSION_CHECK:
-    celery_schedule['version_check'] = {
-        'task': 'redash.tasks.version_check',
+    celery_schedule["version_check"] = {
+        "task": "redash.tasks.version_check",
         # We need to schedule the version check to run at a random hour/minute, to spread the requests from all users
         # evenly.
-        'schedule': crontab(minute=randint(0, 59), hour=randint(0, 23))
+        "schedule": crontab(minute=randint(0, 59), hour=randint(0, 23)),
     }
 
 if settings.QUERY_RESULTS_CLEANUP_ENABLED:
-    celery_schedule['cleanup_query_results'] = {
-        'task': 'redash.tasks.cleanup_query_results',
-        'schedule': timedelta(minutes=5)
+    celery_schedule["cleanup_query_results"] = {
+        "task": "redash.tasks.cleanup_query_results",
+        "schedule": timedelta(minutes=5),
     }
 
 celery_schedule.update(settings.dynamic_settings.custom_tasks())
 
-celery.conf.update(result_backend=settings.CELERY_RESULT_BACKEND,
-                   broker_transport_options={'master_name': settings.CELERY_BROKER_MASTER},
-                   beat_schedule=celery_schedule,
-                   timezone='UTC',
-                   result_expires=settings.CELERY_RESULT_EXPIRES,
-                   worker_log_format=settings.CELERYD_WORKER_LOG_FORMAT,
-                   worker_task_log_format=settings.CELERYD_WORKER_TASK_LOG_FORMAT,
-                   worker_prefetch_multiplier=settings.CELERY_WORKER_PREFETCH_MULTIPLIER,
-                   accept_content=settings.CELERY_ACCEPT_CONTENT,
-                   task_serializer=settings.CELERY_TASK_SERIALIZER,
-                   result_serializer=settings.CELERY_RESULT_SERIALIZER)
+celery.conf.update(
+    result_backend=settings.CELERY_RESULT_BACKEND,
+    broker_transport_options={"master_name": settings.CELERY_BROKER_MASTER},
+    beat_schedule=celery_schedule,
+    timezone="UTC",
+    result_expires=settings.CELERY_RESULT_EXPIRES,
+    worker_log_format=settings.CELERYD_WORKER_LOG_FORMAT,
+    worker_task_log_format=settings.CELERYD_WORKER_TASK_LOG_FORMAT,
+    worker_prefetch_multiplier=settings.CELERY_WORKER_PREFETCH_MULTIPLIER,
+    accept_content=settings.CELERY_ACCEPT_CONTENT,
+    task_serializer=settings.CELERY_TASK_SERIALIZER,
+    result_serializer=settings.CELERY_RESULT_SERIALIZER,
+)
 
 # Create a new Task base class, that pushes a new Flask app context to allow DB connections if needed.
 TaskBase = celery.Task
