@@ -44,7 +44,7 @@ describe("Choropleth", () => {
     cy.clickThrough(`
       VisualizationEditor.Tabs.General
       Choropleth.Editor.MapType
-      Choropleth.Editor.MapType.Countries
+      Choropleth.Editor.MapType.countries
       Choropleth.Editor.KeyColumn
       Choropleth.Editor.KeyColumn.name
       Choropleth.Editor.KeyType
