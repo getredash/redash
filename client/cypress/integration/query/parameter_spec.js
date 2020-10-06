@@ -501,7 +501,7 @@ describe("Parameter", () => {
         .as("Param")
         .type("Redash");
 
-      cy.getByTestId("ParameterApplyButton").should("be", "visible");
+      cy.getByTestId("ParameterApplyButton").should("be.visible");
 
       cy.get("@Param").clear();
 
