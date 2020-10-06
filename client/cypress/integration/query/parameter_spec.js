@@ -501,11 +501,11 @@ describe("Parameter", () => {
         .as("Param")
         .type("Redash");
 
-      cy.getByTestId("ParameterApplyButton").should("be", "visible");
+      cy.getByTestId("ParameterApplyButton").should("be.visible");
 
       cy.get("@Param").clear();
 
-      cy.getByTestId("ParameterApplyButton").should("not.be", "visible");
+      cy.getByTestId("ParameterApplyButton").should("not.be.visible");
     });
 
     it("updates dirty counter", () => {
