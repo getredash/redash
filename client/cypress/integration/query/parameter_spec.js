@@ -505,7 +505,7 @@ describe("Parameter", () => {
 
       cy.get("@Param").clear();
 
-      cy.getByTestId("ParameterApplyButton").should("not.be.visible");
+      cy.getByTestId("ParameterApplyButton").should("not.be", "visible");
     });
 
     it("updates dirty counter", () => {

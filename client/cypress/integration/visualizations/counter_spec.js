@@ -14,14 +14,12 @@ describe("Counter", () => {
       cy.visit(`queries/${id}/source`);
       cy.getByTestId("ExecuteButton").click();
     });
+    cy.getByTestId("NewVisualization").click();
+    cy.getByTestId("VisualizationType").selectAntdOption("VisualizationType.COUNTER");
   });
 
   it("creates simple Counter", () => {
     cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
-
       Counter.General.ValueColumn
       Counter.General.ValueColumn.a
     `);
@@ -37,10 +35,6 @@ describe("Counter", () => {
 
   it("creates Counter with custom label", () => {
     cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
-
       Counter.General.ValueColumn
       Counter.General.ValueColumn.a
     `);
@@ -60,10 +54,6 @@ describe("Counter", () => {
 
   it("creates Counter with non-numeric value", () => {
     cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
-
       Counter.General.ValueColumn
       Counter.General.ValueColumn.c
 
@@ -86,10 +76,6 @@ describe("Counter", () => {
 
   it("creates Counter with target value (trend positive)", () => {
     cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
-
       Counter.General.ValueColumn
       Counter.General.ValueColumn.a
 
@@ -108,10 +94,6 @@ describe("Counter", () => {
 
   it("creates Counter with custom row number (trend negative)", () => {
     cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
-
       Counter.General.ValueColumn
       Counter.General.ValueColumn.a
 
@@ -135,10 +117,6 @@ describe("Counter", () => {
 
   it("creates Counter with count rows", () => {
     cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
-
       Counter.General.ValueColumn
       Counter.General.ValueColumn.a
 
@@ -156,10 +134,6 @@ describe("Counter", () => {
 
   it("creates Counter with formatting", () => {
     cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
-
       Counter.General.ValueColumn
       Counter.General.ValueColumn.a
 
@@ -188,10 +162,6 @@ describe("Counter", () => {
 
   it("creates Counter with target value formatting", () => {
     cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COUNTER
-
       Counter.General.ValueColumn
       Counter.General.ValueColumn.a
 
