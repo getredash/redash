@@ -8,6 +8,7 @@ import FullscreenOutlinedIcon from "@ant-design/icons/FullscreenOutlined";
 import FullscreenExitOutlinedIcon from "@ant-design/icons/FullscreenExitOutlined";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import DynamicComponent from "@/components/DynamicComponent";
 import EditInPlace from "@/components/EditInPlace";
 import Parameters from "@/components/Parameters";
 
@@ -102,14 +103,16 @@ function QueryView(props) {
           onChange={setQuery}
           selectedVisualization={selectedVisualization}
           headerExtra={
-            <QueryViewButton
-              className="m-r-5"
-              type="primary"
-              shortcut="mod+enter, alt+enter, ctrl+enter"
-              disabled={!queryFlags.canExecute || isExecuting || areParametersDirty}
-              onClick={doExecuteQuery}>
-              Refresh
-            </QueryViewButton>
+            <DynamicComponent name="QueryView.HeaderExtra" query={query}>
+              <QueryViewButton
+                className="m-r-5"
+                type="primary"
+                shortcut="mod+enter, alt+enter, ctrl+enter"
+                disabled={!queryFlags.canExecute || isExecuting || areParametersDirty}
+                onClick={doExecuteQuery}>
+                Refresh
+              </QueryViewButton>
+            </DynamicComponent>
           }
           tagsExtra={
             !query.description &&
