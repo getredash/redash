@@ -39,16 +39,18 @@ export default function useItemsListExtraActions(controller, listColumns, ExtraA
     [selectedItems]
   );
 
-  const checkboxColumn = useMemo(() => {
-    return Columns.custom(
-      (text, item) => <Checkbox checked={includes(selectedItems, item)} onChange={() => toggleItem(item)} />,
-      {
-        title: () => <Checkbox checked={areAllItemsSelected} onChange={toggleAllItems} />,
-        field: "id",
-        width: "1%",
-      }
-    );
-  }, [selectedItems, areAllItemsSelected, toggleAllItems, toggleItem]);
+  const checkboxColumn = useMemo(
+    () =>
+      Columns.custom(
+        (text, item) => <Checkbox checked={includes(selectedItems, item)} onChange={() => toggleItem(item)} />,
+        {
+          title: () => <Checkbox checked={areAllItemsSelected} onChange={toggleAllItems} />,
+          field: "id",
+          width: "1%",
+        }
+      ),
+    [selectedItems, areAllItemsSelected, toggleAllItems, toggleItem]
+  );
 
   const Component = useCallback(
     function ItemsListExtraActionsComponentWrapper(props) {
@@ -62,13 +64,14 @@ export default function useItemsListExtraActions(controller, listColumns, ExtraA
     [ExtraActionsComponent]
   );
 
-  return useMemo(() => {
-    return {
+  return useMemo(
+    () => ({
       areExtraActionsAvailable: actionsState.isAvailable,
       listColumns: actionsState.isAvailable ? [checkboxColumn, ...listColumns] : listColumns,
       Component,
       selectedItems,
       setSelectedItems,
-    };
-  }, [actionsState, listColumns, checkboxColumn, selectedItems, Component]);
+    }),
+    [actionsState, listColumns, checkboxColumn, selectedItems, Component]
+  );
 }
