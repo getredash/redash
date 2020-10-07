@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import routes from "@/services/routes";
+import { DefaultDialogHost } from "@/components/DialogWrapper";
 import Router from "./Router";
 import handleNavigationIntent from "./handleNavigationIntent";
 import ErrorMessage from "./ErrorMessage";
@@ -33,5 +34,10 @@ export default function ApplicationArea() {
     return <ErrorMessage error={unhandledError} />;
   }
 
-  return <Router routes={routes.items} onRouteChange={setCurrentRoute} />;
+  return (
+    <React.Fragment>
+      <Router routes={routes.items} onRouteChange={setCurrentRoute} />
+      <DefaultDialogHost />
+    </React.Fragment>
+  );
 }
