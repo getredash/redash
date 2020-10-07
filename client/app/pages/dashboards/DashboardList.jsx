@@ -22,117 +22,114 @@ import DashboardListEmptyState from "./components/DashboardListEmptyState";
 
 import "./dashboard-list.css";
 
-class DashboardList extends React.Component {
-  static propTypes = {
-    controller: ControllerType.isRequired,
-  };
+const sidebarMenu = [
+  {
+    key: "all",
+    href: "dashboards",
+    title: "All Dashboards",
+  },
+  {
+    key: "favorites",
+    href: "dashboards/favorites",
+    title: "Favorites",
+    icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
+  },
+];
 
-  sidebarMenu = [
-    {
-      key: "all",
-      href: "dashboards",
-      title: "All Dashboards",
-    },
-    {
-      key: "favorites",
-      href: "dashboards/favorites",
-      title: "Favorites",
-      icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
-    },
-  ];
-
-  listColumns = [
-    Columns.favorites({ className: "p-r-0" }),
-    Columns.custom.sortable(
-      (text, item) => (
-        <React.Fragment>
-          <Link className="table-main-title" href={item.url} data-test={`DashboardId${item.id}`}>
-            {item.name}
-          </Link>
-          <DashboardTagsControl
-            className="d-block"
-            tags={item.tags}
-            isDraft={item.is_draft}
-            isArchived={item.is_archived}
-          />
-        </React.Fragment>
-      ),
-      {
-        title: "Name",
-        field: "name",
-        width: null,
-      }
+const listColumns = [
+  Columns.favorites({ className: "p-r-0" }),
+  Columns.custom.sortable(
+    (text, item) => (
+      <React.Fragment>
+        <Link className="table-main-title" href={item.url} data-test={`DashboardId${item.id}`}>
+          {item.name}
+        </Link>
+        <DashboardTagsControl
+          className="d-block"
+          tags={item.tags}
+          isDraft={item.is_draft}
+          isArchived={item.is_archived}
+        />
+      </React.Fragment>
     ),
-    Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
-    Columns.dateTime.sortable({
-      title: "Created At",
-      field: "created_at",
-      width: "1%",
-    }),
-  ];
+    {
+      title: "Name",
+      field: "name",
+      width: null,
+    }
+  ),
+  Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
+  Columns.dateTime.sortable({
+    title: "Created At",
+    field: "created_at",
+    width: "1%",
+  }),
+];
 
-  render() {
-    const { controller } = this.props;
-    return (
-      <div className="page-dashboard-list">
-        <div className="container">
-          <PageHeader
-            title={controller.params.pageTitle}
-            actions={
-              currentUser.hasPermission("create_dashboard") ? (
-                <Button block type="primary" onClick={() => CreateDashboardDialog.showModal()}>
-                  <i className="fa fa-plus m-r-5" />
-                  New Dashboard
-                </Button>
-              ) : null
-            }
-          />
-          <Layout>
-            <Layout.Sidebar className="m-b-0">
-              <Sidebar.SearchInput
-                placeholder="Search Dashboards..."
-                value={controller.searchTerm}
-                onChange={controller.updateSearch}
-              />
-              <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
-              <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} showUnselectAll />
-            </Layout.Sidebar>
-            <Layout.Content>
-              <div data-test="DashboardLayoutContent">
-                {controller.isLoaded && controller.isEmpty ? (
-                  <DashboardListEmptyState
-                    page={controller.params.currentPage}
-                    searchTerm={controller.searchTerm}
-                    selectedTags={controller.selectedTags}
+function DashboardList({ controller }) {
+  return (
+    <div className="page-dashboard-list">
+      <div className="container">
+        <PageHeader
+          title={controller.params.pageTitle}
+          actions={
+            currentUser.hasPermission("create_dashboard") ? (
+              <Button block type="primary" onClick={() => CreateDashboardDialog.showModal()}>
+                <i className="fa fa-plus m-r-5" />
+                New Dashboard
+              </Button>
+            ) : null
+          }
+        />
+        <Layout>
+          <Layout.Sidebar className="m-b-0">
+            <Sidebar.SearchInput
+              placeholder="Search Dashboards..."
+              value={controller.searchTerm}
+              onChange={controller.updateSearch}
+            />
+            <Sidebar.Menu items={sidebarMenu} selected={controller.params.currentPage} />
+            <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} showUnselectAll />
+          </Layout.Sidebar>
+          <Layout.Content>
+            <div data-test="DashboardLayoutContent">
+              {controller.isLoaded && controller.isEmpty ? (
+                <DashboardListEmptyState
+                  page={controller.params.currentPage}
+                  searchTerm={controller.searchTerm}
+                  selectedTags={controller.selectedTags}
+                />
+              ) : (
+                <div className="bg-white tiled table-responsive">
+                  <ItemsTable
+                    items={controller.pageItems}
+                    loading={!controller.isLoaded}
+                    columns={listColumns}
+                    orderByField={controller.orderByField}
+                    orderByReverse={controller.orderByReverse}
+                    toggleSorting={controller.toggleSorting}
                   />
-                ) : (
-                  <div className="bg-white tiled table-responsive">
-                    <ItemsTable
-                      items={controller.pageItems}
-                      loading={!controller.isLoaded}
-                      columns={this.listColumns}
-                      orderByField={controller.orderByField}
-                      orderByReverse={controller.orderByReverse}
-                      toggleSorting={controller.toggleSorting}
-                    />
-                    <Paginator
-                      showPageSizeSelect
-                      totalCount={controller.totalItemsCount}
-                      pageSize={controller.itemsPerPage}
-                      onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-                      page={controller.page}
-                      onChange={page => controller.updatePagination({ page })}
-                    />
-                  </div>
-                )}
-              </div>
-            </Layout.Content>
-          </Layout>
-        </div>
+                  <Paginator
+                    showPageSizeSelect
+                    totalCount={controller.totalItemsCount}
+                    pageSize={controller.itemsPerPage}
+                    onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                    page={controller.page}
+                    onChange={page => controller.updatePagination({ page })}
+                  />
+                </div>
+              )}
+            </div>
+          </Layout.Content>
+        </Layout>
       </div>
-    );
-  }
+    </div>
+  );
 }
+
+DashboardList.propTypes = {
+  controller: ControllerType.isRequired,
+};
 
 const DashboardListPage = itemsList(
   DashboardList,
