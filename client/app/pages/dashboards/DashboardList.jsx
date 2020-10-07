@@ -1,16 +1,19 @@
 import React from "react";
+import cx from "classnames";
 
 import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
+import DynamicComponent from "@/components/DynamicComponent";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
 import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
+import useItemsListExtraActions from "@/components/items-list/hooks/useItemsListExtraActions";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import Layout from "@/components/layouts/ContentWithSidebar";
 
@@ -66,7 +69,18 @@ const listColumns = [
   }),
 ];
 
+function DashboardListExtraActions(props) {
+  return <DynamicComponent name="DashboardList.Actions" {...props} />;
+}
+
 function DashboardList({ controller }) {
+  const {
+    areExtraActionsAvailable,
+    listColumns: tableColumns,
+    Component: ExtraActionsComponent,
+    selectedItems,
+  } = useItemsListExtraActions(controller, listColumns, DashboardListExtraActions);
+
   return (
     <div className="page-dashboard-list">
       <div className="container">
@@ -100,24 +114,29 @@ function DashboardList({ controller }) {
                   selectedTags={controller.selectedTags}
                 />
               ) : (
-                <div className="bg-white tiled table-responsive">
-                  <ItemsTable
-                    items={controller.pageItems}
-                    loading={!controller.isLoaded}
-                    columns={listColumns}
-                    orderByField={controller.orderByField}
-                    orderByReverse={controller.orderByReverse}
-                    toggleSorting={controller.toggleSorting}
-                  />
-                  <Paginator
-                    showPageSizeSelect
-                    totalCount={controller.totalItemsCount}
-                    pageSize={controller.itemsPerPage}
-                    onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-                    page={controller.page}
-                    onChange={page => controller.updatePagination({ page })}
-                  />
-                </div>
+                <React.Fragment>
+                  <div className={cx({ "m-b-10": areExtraActionsAvailable })}>
+                    <ExtraActionsComponent selectedItems={selectedItems} />
+                  </div>
+                  <div className="bg-white tiled table-responsive">
+                    <ItemsTable
+                      items={controller.pageItems}
+                      loading={!controller.isLoaded}
+                      columns={tableColumns}
+                      orderByField={controller.orderByField}
+                      orderByReverse={controller.orderByReverse}
+                      toggleSorting={controller.toggleSorting}
+                    />
+                    <Paginator
+                      showPageSizeSelect
+                      totalCount={controller.totalItemsCount}
+                      pageSize={controller.itemsPerPage}
+                      onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                      page={controller.page}
+                      onChange={page => controller.updatePagination({ page })}
+                    />
+                  </div>
+                </React.Fragment>
               )}
             </div>
           </Layout.Content>

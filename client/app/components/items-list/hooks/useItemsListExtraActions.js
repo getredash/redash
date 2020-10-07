@@ -14,6 +14,9 @@ export default function useItemsListExtraActions(controller, listColumns, ExtraA
 
   const areAllItemsSelected = useMemo(() => {
     const allItems = controller.pageItems;
+    if (allItems.length === 0 || selectedItems.length === 0) {
+      return false;
+    }
     return intersection(selectedItems, allItems).length === allItems.length;
   }, [selectedItems, controller.pageItems]);
 
