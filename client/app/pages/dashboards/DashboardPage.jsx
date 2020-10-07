@@ -115,7 +115,9 @@ function DashboardComponent(props) {
     <div className="container" ref={setPageContainer} data-test={`DashboardId${dashboard.id}Container`}>
       <DashboardHeader
         dashboardOptions={dashboardOptions}
-        headerExtra={<DynamicComponent name="Dashboard.HeaderExtra" dashboard={dashboard} />}
+        headerExtra={
+          <DynamicComponent name="Dashboard.HeaderExtra" dashboard={dashboard} dashboardOptions={dashboardOptions} />
+        }
       />
       {!isEmpty(globalParameters) && (
         <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
