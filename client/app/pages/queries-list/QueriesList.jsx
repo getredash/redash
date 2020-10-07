@@ -1,13 +1,16 @@
 import React, { useEffect, useRef } from "react";
+import cx from "classnames";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
+import DynamicComponent from "@/components/DynamicComponent";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
 
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
+import useItemsListExtraActions from "@/components/items-list/hooks/useItemsListExtraActions";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
 
@@ -84,6 +87,10 @@ const listColumns = [
   }),
 ];
 
+function QueriesListExtraActions(props) {
+  return <DynamicComponent name="QueriesList.Actions" {...props} />;
+}
+
 function QueriesList({ controller }) {
   const controllerRef = useRef();
   controllerRef.current = controller;
@@ -100,6 +107,13 @@ function QueriesList({ controller }) {
       unlistenLocationChanges();
     };
   }, []);
+
+  const {
+    areExtraActionsAvailable,
+    listColumns: tableColumns,
+    Component: ExtraActionsComponent,
+    selectedItems,
+  } = useItemsListExtraActions(controller, listColumns, QueriesListExtraActions);
 
   return (
     <div className="page-queries-list">
@@ -133,24 +147,29 @@ function QueriesList({ controller }) {
                 selectedTags={controller.selectedTags}
               />
             ) : (
-              <div className="bg-white tiled table-responsive">
-                <ItemsTable
-                  items={controller.pageItems}
-                  loading={!controller.isLoaded}
-                  columns={listColumns}
-                  orderByField={controller.orderByField}
-                  orderByReverse={controller.orderByReverse}
-                  toggleSorting={controller.toggleSorting}
-                />
-                <Paginator
-                  showPageSizeSelect
-                  totalCount={controller.totalItemsCount}
-                  pageSize={controller.itemsPerPage}
-                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-                  page={controller.page}
-                  onChange={page => controller.updatePagination({ page })}
-                />
-              </div>
+              <React.Fragment>
+                <div className={cx({ "m-b-10": areExtraActionsAvailable })}>
+                  <ExtraActionsComponent selectedItems={selectedItems} />
+                </div>
+                <div className="bg-white tiled table-responsive">
+                  <ItemsTable
+                    items={controller.pageItems}
+                    loading={!controller.isLoaded}
+                    columns={tableColumns}
+                    orderByField={controller.orderByField}
+                    orderByReverse={controller.orderByReverse}
+                    toggleSorting={controller.toggleSorting}
+                  />
+                  <Paginator
+                    showPageSizeSelect
+                    totalCount={controller.totalItemsCount}
+                    pageSize={controller.itemsPerPage}
+                    onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                    page={controller.page}
+                    onChange={page => controller.updatePagination({ page })}
+                  />
+                </div>
+              </React.Fragment>
             )}
           </Layout.Content>
         </Layout>
