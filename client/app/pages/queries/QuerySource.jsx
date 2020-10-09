@@ -7,6 +7,7 @@ import useMedia from "use-media";
 import Button from "antd/lib/button";
 import Select from "antd/lib/select";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import DynamicComponent from "@/components/DynamicComponent";
 import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";
 import EditInPlace from "@/components/EditInPlace";
@@ -190,6 +191,7 @@ function QuerySource(props) {
           dataSource={dataSource}
           sourceMode
           selectedVisualization={selectedVisualization}
+          headerExtra={<DynamicComponent name="QuerySource.HeaderExtra" query={query} />}
           onChange={setQuery}
         />
       </div>
