@@ -50,24 +50,27 @@ def _value_eval_list(row_values, col_types):
     value_list = []
     raw_values = zip(col_types, row_values)
     for typ, rval in raw_values:
-        try:
-            if rval is None or rval == "":
-                val = None
-            elif typ == TYPE_BOOLEAN:
-                val = True if str(rval).lower() == "true" else False
-            elif typ == TYPE_DATETIME:
-                val = parser.parse(rval)
-            elif typ == TYPE_FLOAT:
-                val = float(rval)
-            elif typ == TYPE_INTEGER:
-                val = int(rval)
-            else:
-                # for TYPE_STRING and default
-                val = str(rval)
-            value_list.append(val)
-        except (ValueError, OverflowError):
-            value_list.append(rval)
+        value_list.append(_value_eval(rval, typ))
     return value_list
+
+
+def _value_eval(rval, typ):
+    try:
+        if rval is None or rval == "":
+            return None
+        elif typ == TYPE_BOOLEAN:
+            return True if str(rval).lower() == "true" else False
+        elif typ == TYPE_DATETIME:
+            return parser.parse(rval)
+        elif typ == TYPE_FLOAT:
+            return float(rval)
+        elif typ == TYPE_INTEGER:
+            return int(rval)
+        else:
+            # for TYPE_STRING and default
+            return str(rval)
+    except (ValueError, OverflowError):
+        return rval
 
 
 HEADER_INDEX = 0
