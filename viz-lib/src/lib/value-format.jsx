@@ -1,6 +1,9 @@
+import React from "react";
+import ReactDOMServer from "react-dom/server";
 import moment from "moment/moment";
 import numeral from "numeral";
 import { isString, isArray, isUndefined, isFinite, isNil, toString } from "lodash";
+import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 numeral.options.scalePercentBy100 = false;
 
@@ -13,7 +16,15 @@ export function createTextFormatter(highlightLinks) {
   if (highlightLinks) {
     return value => {
       if (isString(value)) {
-        value = value.replace(urlPattern, '$1<a href="$2" target="_blank">$2</a>');
+        const Link = visualizationsSettings.LinkComponent;
+        value = value.replace(urlPattern, (unused, prefix, href) => {
+          const link = ReactDOMServer.renderToStaticMarkup(
+            <Link href={href} target="_blank" rel="noopener noreferrer">
+              {href}
+            </Link>
+          );
+          return prefix + link;
+        });
       }
       return toString(value);
     };

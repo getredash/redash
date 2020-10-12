@@ -2,12 +2,21 @@ import { first } from "lodash";
 import React, { useState } from "react";
 import Button from "antd/lib/button";
 import Menu from "antd/lib/menu";
-import Icon from "antd/lib/icon";
+import Link from "@/components/Link";
 import HelpTrigger from "@/components/HelpTrigger";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import { Auth, currentUser } from "@/services/auth";
 import settingsMenu from "@/services/settingsMenu";
 import logoUrl from "@/assets/images/redash_icon_small.png";
+
+import DesktopOutlinedIcon from "@ant-design/icons/DesktopOutlined";
+import CodeOutlinedIcon from "@ant-design/icons/CodeOutlined";
+import AlertOutlinedIcon from "@ant-design/icons/AlertOutlined";
+import PlusOutlinedIcon from "@ant-design/icons/PlusOutlined";
+import QuestionCircleOutlinedIcon from "@ant-design/icons/QuestionCircleOutlined";
+import SettingOutlinedIcon from "@ant-design/icons/SettingOutlined";
+import MenuUnfoldOutlinedIcon from "@ant-design/icons/MenuUnfoldOutlined";
+import MenuFoldOutlinedIcon from "@ant-design/icons/MenuFoldOutlined";
 
 import VersionInfo from "./VersionInfo";
 import "./DesktopNavbar.less";
@@ -37,34 +46,36 @@ export default function DesktopNavbar() {
   return (
     <div className="desktop-navbar">
       <NavbarSection inlineCollapsed={collapsed} className="desktop-navbar-logo">
-        <a href="./">
-          <img src={logoUrl} alt="Redash" />
-        </a>
+        <div>
+          <Link href="./">
+            <img src={logoUrl} alt="Redash" />
+          </Link>
+        </div>
       </NavbarSection>
 
       <NavbarSection inlineCollapsed={collapsed}>
         {currentUser.hasPermission("list_dashboards") && (
           <Menu.Item key="dashboards">
-            <a href="dashboards">
-              <Icon type="desktop" />
+            <Link href="dashboards">
+              <DesktopOutlinedIcon />
               <span>Dashboards</span>
-            </a>
+            </Link>
           </Menu.Item>
         )}
         {currentUser.hasPermission("view_query") && (
           <Menu.Item key="queries">
-            <a href="queries">
-              <Icon type="code" />
+            <Link href="queries">
+              <CodeOutlinedIcon />
               <span>Queries</span>
-            </a>
+            </Link>
           </Menu.Item>
         )}
         {currentUser.hasPermission("list_alerts") && (
           <Menu.Item key="alerts">
-            <a href="alerts">
-              <Icon type="alert" />
+            <Link href="alerts">
+              <AlertOutlinedIcon />
               <span>Alerts</span>
-            </a>
+            </Link>
           </Menu.Item>
         )}
       </NavbarSection>
@@ -78,16 +89,16 @@ export default function DesktopNavbar() {
             title={
               <React.Fragment>
                 <span data-test="CreateButton">
-                  <Icon type="plus" />
+                  <PlusOutlinedIcon />
                   <span>Create</span>
                 </span>
               </React.Fragment>
             }>
             {canCreateQuery && (
               <Menu.Item key="new-query">
-                <a href="queries/new" data-test="CreateQueryMenuItem">
+                <Link href="queries/new" data-test="CreateQueryMenuItem">
                   New Query
-                </a>
+                </Link>
               </Menu.Item>
             )}
             {canCreateDashboard && (
@@ -99,9 +110,9 @@ export default function DesktopNavbar() {
             )}
             {canCreateAlert && (
               <Menu.Item key="new-alert">
-                <a data-test="CreateAlertMenuItem" href="alerts/new">
+                <Link data-test="CreateAlertMenuItem" href="alerts/new">
                   New Alert
-                </a>
+                </Link>
               </Menu.Item>
             )}
           </Menu.SubMenu>
@@ -111,16 +122,16 @@ export default function DesktopNavbar() {
       <NavbarSection inlineCollapsed={collapsed}>
         <Menu.Item key="help">
           <HelpTrigger showTooltip={false} type="HOME">
-            <Icon type="question-circle" />
+            <QuestionCircleOutlinedIcon />
             <span>Help</span>
           </HelpTrigger>
         </Menu.Item>
         {firstSettingsTab && (
           <Menu.Item key="settings">
-            <a href={firstSettingsTab.path} data-test="SettingsLink">
-              <Icon type="setting" />
+            <Link href={firstSettingsTab.path} data-test="SettingsLink">
+              <SettingOutlinedIcon />
               <span>Settings</span>
-            </a>
+            </Link>
           </Menu.Item>
         )}
         <Menu.Divider />
@@ -137,11 +148,11 @@ export default function DesktopNavbar() {
             </span>
           }>
           <Menu.Item key="profile">
-            <a href="users/me">Profile</a>
+            <Link href="users/me">Profile</Link>
           </Menu.Item>
           {currentUser.hasPermission("super_admin") && (
             <Menu.Item key="status">
-              <a href="admin/status">System Status</a>
+              <Link href="admin/status">System Status</Link>
             </Menu.Item>
           )}
           <Menu.Divider />
@@ -158,7 +169,7 @@ export default function DesktopNavbar() {
       </NavbarSection>
 
       <Button onClick={() => setCollapsed(!collapsed)} className="desktop-navbar-collapse-button">
-        <Icon type={collapsed ? "menu-unfold" : "menu-fold"} />
+        {collapsed ? <MenuUnfoldOutlinedIcon /> : <MenuFoldOutlinedIcon />}
       </Button>
     </div>
   );

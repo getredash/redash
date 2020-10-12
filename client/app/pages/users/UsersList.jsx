@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import Link from "@/components/Link";
 import Paginator from "@/components/Paginator";
 import DynamicComponent from "@/components/DynamicComponent";
 import { UserPreviewCard } from "@/components/PreviewCard";
@@ -98,9 +99,9 @@ class UsersList extends React.Component {
     Columns.custom.sortable(
       (text, user) =>
         map(user.groups, group => (
-          <a key={"group" + group.id} className="label label-tag" href={"groups/" + group.id}>
+          <Link key={"group" + group.id} className="label label-tag" href={"groups/" + group.id}>
             {group.name}
-          </a>
+          </Link>
         )),
       {
         title: "Groups",

@@ -130,7 +130,8 @@ export class Query {
   }
 
   getQueryResult(maxAge) {
-    const execute = () => QueryResult.getByQueryId(this.id, this.getParameters().getExecutionValues(), maxAge);
+    const execute = () =>
+      QueryResult.getByQueryId(this.id, this.getParameters().getExecutionValues(), this.getAutoLimit(), maxAge);
     return this.prepareQueryResultExecution(execute, maxAge);
   }
 
@@ -141,7 +142,8 @@ export class Query {
     }
 
     const parameters = this.getParameters().getExecutionValues({ joinListValues: true });
-    const execute = () => QueryResult.get(this.data_source_id, queryText, parameters, maxAge, this.id);
+    const execute = () =>
+      QueryResult.get(this.data_source_id, queryText, parameters, this.getAutoLimit(), maxAge, this.id);
     return this.prepareQueryResultExecution(execute, maxAge);
   }
 
@@ -182,6 +184,10 @@ export class Query {
     }
 
     return this.$parameters;
+  }
+
+  getAutoLimit() {
+    return this.options.apply_auto_limit;
   }
 
   getParametersDefs(update = true) {

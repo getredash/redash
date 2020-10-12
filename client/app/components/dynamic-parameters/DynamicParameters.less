@@ -1,8 +1,10 @@
-@import '../../assets/less/inc/variables';
+@import "../../assets/less/inc/variables";
 
 .redash-datepicker {
-  .ant-calendar-picker-clear {
-    right: 35px;
+  padding-right: 35px !important;
+
+  &.ant-picker-range .ant-picker-clear {
+    right: 35px !important;
     background: transparent;
   }
 
@@ -14,16 +16,18 @@
     & ::placeholder {
       color: @text-color !important;
     }
-  
+
     &.date-range-input {
-      .ant-calendar-range-picker-input {
-        width: 100%;
-        text-align: left;
+      .ant-picker-active-bar {
+        opacity: 0;
       }
-    
-      .ant-calendar-range-picker-separator,
-      .ant-calendar-range-picker-input:not(:first-child) {
+
+      .ant-picker-separator {
         display: none;
+      }
+
+      .ant-picker-input:not(:first-child) {
+        width: 0;
       }
     }
   }

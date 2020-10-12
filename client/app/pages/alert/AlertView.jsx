@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 
+import Link from "@/components/Link";
 import TimeAgo from "@/components/TimeAgo";
 import { Alert as AlertType } from "@/components/proptypes";
 
@@ -23,9 +24,9 @@ function AlertState({ state, lastTriggered }) {
   return (
     <div className="alert-state">
       <span className={`alert-state-indicator label ${STATE_CLASS[state]}`}>Status: {state}</span>
-      {state === "unknown" && <div className="ant-form-explain">Alert condition has not been evaluated.</div>}
+      {state === "unknown" && <div className="ant-form-item-explain">Alert condition has not been evaluated.</div>}
       {lastTriggered && (
-        <div className="ant-form-explain">
+        <div className="ant-form-item-explain">
           Last triggered{" "}
           <span className="alert-last-triggered">
             <TimeAgo date={lastTriggered} />
@@ -136,9 +137,9 @@ export default class AlertView extends React.Component {
               <h4>
                 Destinations{" "}
                 <Tooltip title="Open Alert Destinations page in a new tab.">
-                  <a href="destinations" target="_blank">
+                  <Link href="destinations" target="_blank">
                     <i className="fa fa-external-link f-13" />
-                  </a>
+                  </Link>
                 </Tooltip>
               </h4>
               <AlertDestinations alertId={alert.id} />

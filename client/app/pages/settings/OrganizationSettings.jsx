@@ -12,6 +12,7 @@ import recordEvent from "@/services/recordEvent";
 import OrgSettings from "@/services/organizationSettings";
 import routes from "@/services/routes";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
+import { getHorizontalFormProps, getHorizontalFormItemWithoutLabelProps } from "@/styles/formStyle";
 
 import GeneralSettings from "./components/GeneralSettings";
 import AuthSettings from "./components/AuthSettings";
@@ -53,36 +54,34 @@ function OrganizationSettings({ onError }) {
     setCurrentValues(currentValues => ({ ...currentValues, ...changes }));
   }, []);
 
-  const handleSubmit = useCallback(
-    event => {
-      event.preventDefault();
-      if (!isSaving) {
-        setIsSaving(true);
-        OrgSettings.save(currentValues)
-          .then(response => {
-            const settings = get(response, "settings");
-            setSettings(settings);
-            setCurrentValues({ ...settings });
-          })
-          .catch(handleError)
-          .finally(() => setIsSaving(false));
-      }
-    },
-    [isSaving, currentValues, handleError]
-  );
+  const handleSubmit = useCallback(() => {
+    if (!isSaving) {
+      setIsSaving(true);
+      OrgSettings.save(currentValues)
+        .then(response => {
+          const settings = get(response, "settings");
+          setSettings(settings);
+          setCurrentValues({ ...settings });
+        })
+        .catch(handleError)
+        .finally(() => setIsSaving(false));
+    }
+  }, [isSaving, currentValues, handleError]);
 
   return (
     <div className="row" data-test="OrganizationSettings">
-      <div className="col-md-offset-4 col-md-4">
+      <div className="m-r-20 m-l-20">
         {isLoading ? (
           <LoadingState className="" />
         ) : (
-          <Form layout="vertical" onSubmit={handleSubmit}>
+          <Form {...getHorizontalFormProps()} onFinish={handleSubmit}>
             <GeneralSettings settings={settings} values={currentValues} onChange={handleChange} />
             <AuthSettings settings={settings} values={currentValues} onChange={handleChange} />
-            <Button className="w-100" type="primary" htmlType="submit" loading={isSaving}>
-              Save
-            </Button>
+            <Form.Item {...getHorizontalFormItemWithoutLabelProps()}>
+              <Button type="primary" htmlType="submit" loading={isSaving}>
+                Save
+              </Button>
+            </Form.Item>
           </Form>
         )}
       </div>
@@ -102,8 +101,8 @@ const OrganizationSettingsPage = wrapSettingsTab(
   "Settings.Organization",
   {
     permission: "admin",
-    title: "Settings",
-    path: "settings/organization",
+    title: "General",
+    path: "settings/general",
     order: 6,
   },
   OrganizationSettings
@@ -112,8 +111,8 @@ const OrganizationSettingsPage = wrapSettingsTab(
 routes.register(
   "Settings.Organization",
   routeWithUserSession({
-    path: "/settings/organization",
-    title: "Organization Settings",
+    path: "/settings/general",
+    title: "General Settings",
     render: pageProps => <OrganizationSettingsPage {...pageProps} />,
   })
 );

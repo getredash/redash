@@ -3,6 +3,7 @@ import React from "react";
 
 import Switch from "antd/lib/switch";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import Link from "@/components/Link";
 import Paginator from "@/components/Paginator";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
@@ -37,9 +38,9 @@ class OutdatedQueries extends React.Component {
     Columns.custom.sortable(
       (text, item) => (
         <React.Fragment>
-          <a className="table-main-title" href={"queries/" + item.id}>
+          <Link className="table-main-title" href={"queries/" + item.id}>
             {item.name}
-          </a>
+          </Link>
           <QueryTagsControl
             className="d-block"
             tags={item.tags}

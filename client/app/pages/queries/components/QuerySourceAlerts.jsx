@@ -1,9 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Card from "antd/lib/card";
-import Icon from "antd/lib/icon";
-import Button from "antd/lib/button";
+import WarningFilledIcon from "@ant-design/icons/WarningFilled";
 import Typography from "antd/lib/typography";
+import Link from "@/components/Link";
 import { currentUser } from "@/services/auth";
 
 import useQueryFlags from "../hooks/useQueryFlags";
@@ -21,8 +21,8 @@ export default function QuerySourceAlerts({ query, dataSourcesAvailable }) {
         </Typography.Title>
         <p>
           <Typography.Text type="secondary">
-            You can either <a href="queries">browse existing queries</a>, or ask for additional permissions from your
-            Redash admin.
+            You can either <Link href="queries">browse existing queries</Link>, or ask for additional permissions from
+            your Redash admin.
           </Typography.Text>
         </p>
       </React.Fragment>
@@ -39,12 +39,12 @@ export default function QuerySourceAlerts({ query, dataSourcesAvailable }) {
           </p>
 
           <div className="query-source-alerts-actions">
-            <Button type="primary" href="data_sources/new">
+            <Link.Button type="primary" href="data_sources/new">
               Create Data Source
-            </Button>
-            <Button type="default" href="groups">
+            </Link.Button>
+            <Link.Button type="default" href="groups">
               Manage Group Permissions
-            </Button>
+            </Link.Button>
           </div>
         </React.Fragment>
       );
@@ -70,7 +70,7 @@ export default function QuerySourceAlerts({ query, dataSourcesAvailable }) {
     <div className="query-source-alerts">
       <Card>
         <div className="query-source-alerts-icon">
-          <Icon type="warning" theme="filled" />
+          <WarningFilledIcon />
         </div>
         {message}
       </Card>

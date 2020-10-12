@@ -35,7 +35,7 @@ describe("Visualizations -> Chart -> Editor -> X-Axis Settings", () => {
 
     findByTestID(el, "Chart.XAxis.Type")
       .last()
-      .simulate("click");
+      .simulate("mouseDown");
     findByTestID(el, "Chart.XAxis.Type.Linear")
       .last()
       .simulate("click");

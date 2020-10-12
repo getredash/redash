@@ -93,20 +93,21 @@ class DateParameter extends React.Component {
     }
 
     return (
-      <DateComponent
-        ref={this.dateComponentRef}
-        className={classNames("redash-datepicker", { "dynamic-value": hasDynamicValue }, className)}
-        onSelect={onSelect}
-        suffixIcon={
-          <DynamicButton
-            options={DYNAMIC_DATE_OPTIONS}
-            selectedDynamicValue={hasDynamicValue ? value : null}
-            enabled={hasDynamicValue}
-            onSelect={this.onDynamicValueSelect}
-          />
-        }
-        {...additionalAttributes}
-      />
+      <div className="date-parameter">
+        <DateComponent
+          ref={this.dateComponentRef}
+          className={classNames("redash-datepicker", { "dynamic-value": hasDynamicValue }, className)}
+          onSelect={onSelect}
+          suffixIcon={null}
+          {...additionalAttributes}
+        />
+        <DynamicButton
+          options={DYNAMIC_DATE_OPTIONS}
+          selectedDynamicValue={hasDynamicValue ? value : null}
+          enabled={hasDynamicValue}
+          onSelect={this.onDynamicValueSelect}
+        />
+      </div>
     );
   }
 }

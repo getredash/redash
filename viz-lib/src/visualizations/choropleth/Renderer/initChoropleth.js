@@ -35,9 +35,9 @@ const CustomControl = L.Control.extend({
 });
 
 function prepareLayer({ feature, layer, data, options, limits, colors, formatValue }) {
-  const value = getValueForFeature(feature, data, options.countryCodeType);
+  const value = getValueForFeature(feature, data, options.targetField);
   const valueFormatted = formatValue(value);
-  const featureData = prepareFeatureProperties(feature, valueFormatted, data, options.countryCodeType);
+  const featureData = prepareFeatureProperties(feature, valueFormatted, data, options.targetField);
   const color = getColorByValue(value, limits, colors, options.colors.noValue);
 
   layer.setStyle({
@@ -69,7 +69,20 @@ function prepareLayer({ feature, layer, data, options, limits, colors, formatVal
   });
 }
 
-export default function initChoropleth(container) {
+function validateBounds(bounds, fallbackBounds) {
+  if (bounds) {
+    bounds = L.latLngBounds(bounds[0], bounds[1]);
+    if (bounds.isValid()) {
+      return bounds;
+    }
+  }
+  if (fallbackBounds && fallbackBounds.isValid()) {
+    return fallbackBounds;
+  }
+  return null;
+}
+
+export default function initChoropleth(container, onBoundsChange) {
   const _map = L.map(container, {
     center: [0.0, 0.0],
     zoom: 1,
@@ -82,13 +95,14 @@ export default function initChoropleth(container) {
   let _choropleth = null;
   const _legend = new CustomControl();
 
-  let onBoundsChange = () => {};
   function handleMapBoundsChange() {
-    const bounds = _map.getBounds();
-    onBoundsChange([
-      [bounds._southWest.lat, bounds._southWest.lng],
-      [bounds._northEast.lat, bounds._northEast.lng],
-    ]);
+    if (isFunction(onBoundsChange)) {
+      const bounds = _map.getBounds();
+      onBoundsChange([
+        [bounds._southWest.lat, bounds._southWest.lng],
+        [bounds._northEast.lat, bounds._northEast.lng],
+      ]);
+    }
   }
 
   let boundsChangedFromMap = false;
@@ -123,14 +137,13 @@ export default function initChoropleth(container) {
       },
     }).addTo(_map);
 
-    const bounds = _choropleth.getBounds();
-    _map.fitBounds(options.bounds || bounds, { animate: false, duration: 0 });
-    _map.setMaxBounds(bounds);
+    const mapBounds = _choropleth.getBounds();
+    const bounds = validateBounds(options.bounds, mapBounds);
+    _map.fitBounds(bounds, { animate: false, duration: 0 });
 
-    // send updated bounds to editor; delay this to avoid infinite update loop
-    setTimeout(() => {
-      handleMapBoundsChange();
-    }, 10);
+    // equivalent to `_map.setMaxBounds(mapBounds)` but without animation
+    _map.options.maxBounds = mapBounds;
+    _map.panInsideBounds(mapBounds, { animate: false, duration: 0 });
 
     // update legend
     if (options.legend.visible && legend.length > 0) {
@@ -149,8 +162,8 @@ export default function initChoropleth(container) {
   function updateBounds(bounds) {
     if (!boundsChangedFromMap) {
       const layerBounds = _choropleth ? _choropleth.getBounds() : _map.getBounds();
-      bounds = bounds ? L.latLngBounds(bounds[0], bounds[1]) : layerBounds;
-      if (bounds.isValid()) {
+      bounds = validateBounds(bounds, layerBounds);
+      if (bounds) {
         _map.fitBounds(bounds, { animate: false, duration: 0 });
       }
     }
@@ -161,12 +174,6 @@ export default function initChoropleth(container) {
   });
 
   return {
-    get onBoundsChange() {
-      return onBoundsChange;
-    },
-    set onBoundsChange(value) {
-      onBoundsChange = isFunction(value) ? value : () => {};
-    },
     updateLayers,
     updateBounds,
     destroy() {

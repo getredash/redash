@@ -8,6 +8,7 @@ import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import { currentUser } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
 import { formatDateTime } from "@/lib/utils";
+import Link from "@/components/Link";
 import Parameters from "@/components/Parameters";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
@@ -30,27 +31,27 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
   return compact([
     <Menu.Item key="download_csv" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
-        <a href={downloadLink("csv")} download={downloadName("csv")} target="_self">
+        <Link href={downloadLink("csv")} download={downloadName("csv")} target="_self">
           Download as CSV File
-        </a>
+        </Link>
       ) : (
         "Download as CSV File"
       )}
     </Menu.Item>,
     <Menu.Item key="download_tsv" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
-        <a href={downloadLink("tsv")} download={downloadName("tsv")} target="_self">
+        <Link href={downloadLink("tsv")} download={downloadName("tsv")} target="_self">
           Download as TSV File
-        </a>
+        </Link>
       ) : (
         "Download as TSV File"
       )}
     </Menu.Item>,
     <Menu.Item key="download_excel" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
-        <a href={downloadLink("xlsx")} download={downloadName("xlsx")} target="_self">
+        <Link href={downloadLink("xlsx")} download={downloadName("xlsx")} target="_self">
           Download as Excel File
-        </a>
+        </Link>
       ) : (
         "Download as Excel File"
       )}
@@ -58,7 +59,7 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
     (canViewQuery || canEditParameters) && <Menu.Divider key="divider" />,
     canViewQuery && (
       <Menu.Item key="view_query">
-        <a href={widget.getQuery().getUrl(true, widget.visualization.id)}>View Query</a>
+        <Link href={widget.getQuery().getUrl(true, widget.visualization.id)}>View Query</Link>
       </Menu.Item>
     ),
     canEditParameters && (
@@ -208,7 +209,10 @@ class VisualizationWidget extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { localParameters: props.widget.getLocalParameters() };
+    this.state = {
+      localParameters: props.widget.getLocalParameters(),
+      localFilters: props.filters,
+    };
   }
 
   componentDidMount() {
@@ -218,8 +222,12 @@ class VisualizationWidget extends React.Component {
     onLoad();
   }
 
+  onLocalFiltersChange = localFilters => {
+    this.setState({ localFilters });
+  };
+
   expandWidget = () => {
-    ExpandedWidgetDialog.showModal({ widget: this.props.widget });
+    ExpandedWidgetDialog.showModal({ widget: this.props.widget, filters: this.state.localFilters });
   };
 
   editParameterMappings = () => {
@@ -259,6 +267,7 @@ class VisualizationWidget extends React.Component {
               visualization={widget.visualization}
               queryResult={widgetQueryResult}
               filters={filters}
+              onFiltersChange={this.onLocalFiltersChange}
               context="widget"
             />
           </div>

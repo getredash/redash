@@ -69,6 +69,7 @@ export default function UserInfoForm(props) {
                 name: "group_ids",
                 title: "Groups",
                 type: "content",
+                required: false,
                 content: isLoadingGroups ? "Loading..." : <UserGroups data-test="Groups" groups={groups} />,
               },
         ],

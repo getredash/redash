@@ -5,7 +5,7 @@ import { map, includes } from "lodash";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
-import Icon from "antd/lib/icon";
+import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import Modal from "antd/lib/modal";
 import Tooltip from "antd/lib/tooltip";
 import FavoritesControl from "@/components/FavoritesControl";
@@ -156,7 +156,7 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
         </Menu>
       }>
       <Button className="icon-button m-l-5" data-test="DashboardMoreButton">
-        <Icon type="ellipsis" rotate={90} />
+        <EllipsisOutlinedIcon rotate={90} />
       </Button>
     </Dropdown>
   );
@@ -166,7 +166,7 @@ DashboardMoreOptionsButton.propTypes = {
   dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-function DashboardControl({ dashboardOptions }) {
+function DashboardControl({ dashboardOptions, headerExtra }) {
   const {
     dashboard,
     togglePublished,
@@ -178,7 +178,8 @@ function DashboardControl({ dashboardOptions }) {
   const showPublishButton = dashboard.is_draft;
   const showRefreshButton = true;
   const showFullscreenButton = !dashboard.is_draft;
-  const showShareButton = dashboard.publicAccessEnabled || (canEditDashboard && !dashboard.is_draft);
+  const canShareDashboard = canEditDashboard && !dashboard.is_draft;
+  const showShareButton = !clientConfig.disablePublicUrls && (dashboard.publicAccessEnabled || canShareDashboard);
   const showMoreOptionsButton = canEditDashboard;
   return (
     <div className="dashboard-control">
@@ -197,6 +198,7 @@ function DashboardControl({ dashboardOptions }) {
               </Button>
             </Tooltip>
           )}
+          {headerExtra}
           {showShareButton && (
             <Tooltip title="Dashboard Sharing Options">
               <Button
@@ -217,9 +219,10 @@ function DashboardControl({ dashboardOptions }) {
 
 DashboardControl.propTypes = {
   dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  headerExtra: PropTypes.node,
 };
 
-function DashboardEditControl({ dashboardOptions }) {
+function DashboardEditControl({ dashboardOptions, headerExtra }) {
   const { setEditingLayout, doneBtnClickedWhileSaving, dashboardStatus, retrySaveDashboardLayout } = dashboardOptions;
   let status;
   if (dashboardStatus === DashboardStatusEnum.SAVED) {
@@ -249,26 +252,29 @@ function DashboardEditControl({ dashboardOptions }) {
           {!doneBtnClickedWhileSaving && <i className="fa fa-check m-r-5" />} Done Editing
         </Button>
       )}
+      {headerExtra}
     </div>
   );
 }
 
 DashboardEditControl.propTypes = {
   dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  headerExtra: PropTypes.node,
 };
 
-export default function DashboardHeader({ dashboardOptions }) {
+export default function DashboardHeader({ dashboardOptions, headerExtra }) {
   const { editingLayout } = dashboardOptions;
   const DashboardControlComponent = editingLayout ? DashboardEditControl : DashboardControl;
 
   return (
     <div className="dashboard-header">
       <DashboardPageTitle dashboardOptions={dashboardOptions} />
-      <DashboardControlComponent dashboardOptions={dashboardOptions} />
+      <DashboardControlComponent dashboardOptions={dashboardOptions} headerExtra={headerExtra} />
     </div>
   );
 }
 
 DashboardHeader.propTypes = {
   dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  headerExtra: PropTypes.node,
 };

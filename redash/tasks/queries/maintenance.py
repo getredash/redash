@@ -76,6 +76,11 @@ class RefreshQueriesError(Exception):
     pass
 
 
+def _apply_auto_limit(query_text, query):
+    should_apply_auto_limit = query.options.get("apply_auto_limit", False)
+    return query.data_source.query_runner.apply_auto_limit(query_text, should_apply_auto_limit)
+
+
 def refresh_queries():
     logger.info("Refreshing queries...")
     enqueued = []
@@ -84,8 +89,10 @@ def refresh_queries():
             continue
 
         try:
+            query_text = _apply_default_parameters(query)
+            query_text = _apply_auto_limit(query_text, query)
             enqueue_query(
-                _apply_default_parameters(query),
+                query_text,
                 query.data_source,
                 query.user_id,
                 scheduled_query=query,

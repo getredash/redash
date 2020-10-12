@@ -4,9 +4,16 @@ const atob = require("atob");
 const { execSync } = require("child_process");
 const { get, post } = require("request").defaults({ jar: true });
 const { seedData } = require("./seed-data");
+const fs = require("fs");
 var Cookie = require("request-cookies").Cookie;
 
-const baseUrl = process.env.CYPRESS_baseUrl || "http://localhost:5000";
+let cypressConfigBaseUrl;
+try {
+  const cypressConfig = JSON.parse(fs.readFileSync("cypress.json"));
+  cypressConfigBaseUrl = cypressConfig.baseUrl;
+} catch (e) {}
+
+const baseUrl = process.env.CYPRESS_baseUrl || cypressConfigBaseUrl || "http://localhost:5000";
 
 function seedDatabase(seedValues) {
   get(baseUrl + "/login", (_, { headers }) => {
@@ -37,9 +44,7 @@ function seedDatabase(seedValues) {
 
 function buildServer() {
   console.log("Building the server...");
-  execSync("docker-compose -p cypress build --build-arg skip_dev_deps=true --build-arg skip_ds_deps=true", {
-    stdio: "inherit",
-  });
+  execSync("docker-compose -p cypress build", { stdio: "inherit" });
 }
 
 function startServer() {
@@ -74,7 +79,7 @@ function runCypressCI() {
   }
 
   execSync(
-    "COMMIT_INFO_MESSAGE=$(git show -s --format=%s) docker-compose run cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run --record",
+    "COMMIT_INFO_MESSAGE=$(git show -s --format=%s) docker-compose run --name cypress cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run --record",
     { stdio: "inherit" }
   );
 }
