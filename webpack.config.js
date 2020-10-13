@@ -32,6 +32,7 @@ const CONFIG = optionalRequire("./scripts/config", {});
 const isProduction = process.env.NODE_ENV === "production";
 
 const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
+const baseHref = CONFIG.baseHref || "/";
 const staticPath = CONFIG.staticPath || "/static/";
 const htmlTitle = CONFIG.title || "Redash";
 
@@ -88,6 +89,7 @@ const config = {
       excludeChunks: ["server"],
       release: process.env.BUILD_VERSION || "dev",
       staticPath,
+      baseHref,
       title: htmlTitle
     }),
     new HtmlWebpackPlugin({
