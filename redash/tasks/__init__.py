@@ -3,7 +3,6 @@ from .general import (
     version_check,
     send_mail,
     sync_user_details,
-    purge_failed_jobs,
 )
 from .queries import (
     enqueue_query,
