@@ -1,10 +1,19 @@
 import { NotificationApi, ArgsProps } from "antd/lib/notification";
-type simpleFunc = (message: string, description?: string | null, args?: ArgsProps | null) => void;
+
+export type NotificationConfig = Omit<ArgsProps, "message" | "description"> | null;
+
+type NotificationFunction = (
+  message: ArgsProps["message"],
+  description?: ArgsProps["description"],
+  args?: NotificationConfig
+) => void;
+
 declare const notification: NotificationApi & {
-  success: simpleFunc;
-  error: simpleFunc;
-  info: simpleFunc;
-  warning: simpleFunc;
-  warn: simpleFunc;
+  success: NotificationFunction;
+  error: NotificationFunction;
+  info: NotificationFunction;
+  warning: NotificationFunction;
+  warn: NotificationFunction;
 };
+
 export default notification;

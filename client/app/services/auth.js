@@ -5,9 +5,11 @@ import { axios } from "@/services/axios";
 import { notifySessionRestored } from "@/services/restoreSession";
 
 export const currentUser = {
+  _isAdmin: undefined,
+
   canEdit(object) {
     const userId = object.user_id || (object.user && object.user.id);
-    return this.hasPermission("admin") || (userId && userId === this.id);
+    return this.isAdmin || (userId && userId === this.id);
   },
 
   canCreate() {
@@ -17,11 +19,18 @@ export const currentUser = {
   },
 
   hasPermission(permission) {
+    if (permission === "admin" && this._isAdmin !== undefined) {
+      return this._isAdmin;
+    }
     return includes(this.permissions, permission);
   },
 
   get isAdmin() {
     return this.hasPermission("admin");
+  },
+
+  set isAdmin(isAdmin) {
+    this._isAdmin = isAdmin;
   },
 };
 
