@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { Select } from "@/components/visualizations/editor";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
-export default function ChartTypeSelect(props) {
+export default function ChartTypeSelect({ filterTypes, ...props}) {
   const chartTypes = useMemo(() => {
     const result = [
       { type: "line", name: "Line", icon: "line-chart" },
@@ -18,6 +18,10 @@ export default function ChartTypeSelect(props) {
 
     if (visualizationsSettings.allowCustomJSVisualizations) {
       result.push({ type: "custom", name: "Custom", icon: "code" });
+    }
+
+    if (filterTypes) {
+      return result.filter(({ type }) => !filterTypes.includes(type));
     }
 
     return result;
