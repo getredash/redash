@@ -1,4 +1,4 @@
-import { isString, map, uniq, flatten, filter, sortBy, keys, extend } from "lodash";
+import { isString, map, uniq, flatten, filter, sortBy, keys } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { Section, Select } from "@/components/visualizations/editor";
