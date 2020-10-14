@@ -15,14 +15,14 @@ const MappingTypes = {
 const SwappedMappingTypes = {
   ...MappingTypes,
   x: { label: "Y Column" },
-  y: { label: "X Columns", multiple: true }
-}
+  y: { label: "X Columns", multiple: true },
+};
 
 export default function ColumnMappingSelect({ value, availableColumns, type, onChange, areAxesSwapped }) {
   const options = sortBy(filter(uniq(flatten([availableColumns, value])), v => isString(v) && v !== ""));
 
   // this swaps the ui, as the data will be swapped on render
-  const { label, multiple } = !areAxesSwapped ? MappingTypes[type] : SwappedMappingTypes[type]
+  const { label, multiple } = !areAxesSwapped ? MappingTypes[type] : SwappedMappingTypes[type];
 
   return (
     <Section>

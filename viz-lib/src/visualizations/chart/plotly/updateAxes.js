@@ -75,7 +75,7 @@ export default function updateAxes(plotlyElement, seriesList, layout, options) {
         updates.yaxis2.range = calculateAxisRange(defaultRange, axisOptions.rangeMin, axisOptions.rangeMax);
       }
 
-      // Invert Axes
+      // Swap Axes
       if (options.swappedAxes) {
         each(seriesList, series => {
           series.orientation = "h";
@@ -96,11 +96,12 @@ export default function updateAxes(plotlyElement, seriesList, layout, options) {
         }
       }
 
+      // Align Y axes
       if (options.alignYAxesAtZero && isObject(layout.yaxis) && isObject(layout.yaxis2)) {
         alignYAxesAtZero(updates.yaxis, updates.yaxis2);
       }
 
       return [updates, null]; // no further updates
-  
+    },
+  ];
 }
-  ]}

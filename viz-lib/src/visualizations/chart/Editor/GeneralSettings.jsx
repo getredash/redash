@@ -107,7 +107,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
     }
   }
 
-  function handleAxesInversion() {
+  function handleAxesSwapping() {
     // moves any item in the right Y axis to the left one
     const seriesOptions = mapValues(options.seriesOptions, series => ({
       ...series,
@@ -133,7 +133,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             data-test="Chart.SwappedAxes"
             defaultChecked={options.swappedAxes}
             checked={options.swappedAxes}
-            onChange={handleAxesInversion}>
+            onChange={handleAxesSwapping}>
             Horizontal Chart
           </Checkbox>
         </Section>
