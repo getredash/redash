@@ -83,7 +83,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
     onOptionsChange({
       globalSeriesType,
       showDataLabels: globalSeriesType === "pie",
-      invertedAxes: false,
+      swappedAxes: false,
       seriesOptions: mapValues(options.seriesOptions, series => ({
         ...series,
         type: globalSeriesType,
@@ -113,7 +113,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
       ...series,
       yAxis: 0,
     }));
-    onOptionsChange({ invertedAxes: !options.invertedAxes, seriesOptions });
+    onOptionsChange({ swappedAxes: !options.swappedAxes, seriesOptions });
   }
 
   return (
@@ -130,9 +130,9 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
       {includes(["column", "line"], options.globalSeriesType) && (
         <Section>
           <Checkbox
-            data-test="Chart.InvertedAxes"
-            defaultChecked={options.invertedAxes}
-            checked={options.invertedAxes}
+            data-test="Chart.SwappedAxes"
+            defaultChecked={options.swappedAxes}
+            checked={options.swappedAxes}
             onChange={handleAxesInversion}>
             Horizontal Chart
           </Checkbox>
@@ -144,7 +144,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           key={type}
           type={type}
           value={value}
-          isAxesInverted={options.invertedAxes}
+          areAxesSwapped={options.swappedAxes}
           availableColumns={unusedColumns}
           onChange={handleColumnMappingChange}
         />

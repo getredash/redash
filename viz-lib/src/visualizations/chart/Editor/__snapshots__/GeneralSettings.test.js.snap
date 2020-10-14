@@ -9,7 +9,7 @@ Object {
 exports[`Visualizations -> Chart -> Editor -> General Settings Changes global series type 1`] = `
 Object {
   "globalSeriesType": "pie",
-  "invertedAxes": false,
+  "swappedAxes": false,
   "seriesOptions": Object {
     "a": Object {
       "type": "pie",
@@ -46,7 +46,7 @@ Object {
 
 exports[`Visualizations -> Chart -> Editor -> General Settings Toggles horizontal bar chart 1`] = `
 Object {
-  "invertedAxes": true,
+  "swappedAxes": true,
   "seriesOptions": Object {},
 }
 `;

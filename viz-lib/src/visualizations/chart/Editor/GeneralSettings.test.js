@@ -204,7 +204,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       done
     );
 
-    findByTestID(el, "Chart.InvertedAxes")
+    findByTestID(el, "Chart.SwappedAxes")
       .last()
       .find("input")
       .simulate("change", { target: { checked: true } });

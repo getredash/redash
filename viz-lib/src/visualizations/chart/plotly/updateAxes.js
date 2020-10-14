@@ -40,7 +40,7 @@ export default function updateAxes(plotlyElement, seriesList, layout, options) {
       }
 
       // Invert Axes
-      if (options.invertedAxes) {
+      if (options.swappedAxes) {
         each(seriesList, series => {
           series.orientation = "h";
           const { x, y } = series;

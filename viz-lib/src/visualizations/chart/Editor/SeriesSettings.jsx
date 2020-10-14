@@ -38,7 +38,7 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
     },
   ];
 
-  if (!includes(["pie", "heatmap"], options.globalSeriesType) && !options.invertedAxes) {
+  if (!includes(["pie", "heatmap"], options.globalSeriesType) && !options.swappedAxes) {
     result.push({
       title: "Y Axis",
       dataIndex: "yAxis",
