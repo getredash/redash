@@ -1,6 +1,5 @@
 import React from "react";
 import Form from "antd/lib/form";
-import Checkbox from "antd/lib/checkbox";
 import Input from "antd/lib/input";
 import Radio from "antd/lib/radio";
 import DynamicComponent from "@/components/DynamicComponent";
@@ -9,28 +8,30 @@ import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-typ
 export default function SAMLSettings(props) {
   const { values, onChange } = props;
 
+  const onChangeEnabledStatus = e => {
+    const updates = { auth_saml_enabled: !!e.target.value };
+    if (e.target.value) {
+      updates.auth_saml_type = e.target.value;
+    }
+    onChange(updates);
+  };
+
   return (
     <DynamicComponent name="OrganizationSettings.SAMLSettings" {...props}>
       <h4>SAML</h4>
       <Form.Item label="SAML Enabled">
-        <Checkbox
-          name="auth_saml_enabled"
-          checked={values.auth_saml_enabled}
-          onChange={e => onChange({ auth_saml_enabled: e.target.checked })}>
-          SAML Enabled
-        </Checkbox>
+        <Radio.Group
+          onChange={onChangeEnabledStatus}
+          value={values.auth_saml_enabled && (values.auth_saml_type || "static")}>
+          <Radio value={false}>Disabled</Radio>
+          <Radio value={"static"}>Enabled (Static)</Radio>
+          <Radio value={"dynamic"}>Enabled (Dynamic)</Radio>
+        </Radio.Group>
       </Form.Item>
       {values.auth_saml_enabled && (
-        <div>
-          <Radio.Group
-            onChange={e => onChange({ auth_saml_type: e.target.value })}
-            value={values.auth_saml_type}
-            defaultValue="static">
-            <Radio value={"static"}>Static</Radio>
-            <Radio value={"dynamic"}>Dynamic</Radio>
-          </Radio.Group>
+        <>
           {values.auth_saml_type === "static" && (
-            <div>
+            <>
               <Form.Item label="SAML Single Sign-on URL">
                 <Input
                   value={values.auth_saml_sso_url}
@@ -49,10 +50,10 @@ export default function SAMLSettings(props) {
                   onChange={e => onChange({ auth_saml_x509_cert: e.target.value })}
                 />
               </Form.Item>
-            </div>
+            </>
           )}
           {values.auth_saml_type === "dynamic" && (
-            <div>
+            <>
               <Form.Item label="SAML Metadata URL">
                 <Input
                   value={values.auth_saml_metadata_url}
@@ -71,9 +72,9 @@ export default function SAMLSettings(props) {
                   onChange={e => onChange({ auth_saml_nameid_format: e.target.value })}
                 />
               </Form.Item>
-            </div>
+            </>
           )}
-        </div>
+        </>
       )}
     </DynamicComponent>
   );
