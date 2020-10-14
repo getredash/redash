@@ -1,4 +1,4 @@
-import { isString, map, uniq, flatten, filter, sortBy, keys } from "lodash";
+import { isString, map, uniq, flatten, filter, sortBy, keys, extend } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { Section, Select } from "@/components/visualizations/editor";
@@ -12,18 +12,17 @@ const MappingTypes = {
   zVal: { label: "Color Column" },
 };
 
+const SwappedMappingTypes = {
+  ...MappingTypes,
+  x: { label: "Y Column" },
+  y: { label: "X Columns", multiple: true }
+}
+
 export default function ColumnMappingSelect({ value, availableColumns, type, onChange, areAxesSwapped }) {
   const options = sortBy(filter(uniq(flatten([availableColumns, value])), v => isString(v) && v !== ""));
 
-  let { label, multiple } = MappingTypes[type];
   // this swaps the ui, as the data will be swapped on render
-  if (areAxesSwapped) {
-    if (type === "x") {
-      label = label.replace("X", "Y");
-    } else if (type === "y") {
-      label = label.replace("Y", "X");
-    }
-  }
+  const { label, multiple } = !areAxesSwapped ? MappingTypes[type] : SwappedMappingTypes[type]
 
   return (
     <Section>
