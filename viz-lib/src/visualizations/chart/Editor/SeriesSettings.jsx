@@ -38,24 +38,27 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
     },
   ];
 
-  if (!includes(["pie", "heatmap"], options.globalSeriesType) && !options.swappedAxes) {
-    result.push({
-      title: "Y Axis",
-      dataIndex: "yAxis",
-      render: (unused, item) => (
-        <Radio.Group
-          className="series-settings-y-axis"
-          value={item.yAxis === 1 ? 1 : 0}
-          onChange={event => updateSeriesOption(item.key, "yAxis", event.target.value)}>
-          <Radio value={0} data-test={`Chart.Series.${item.key}.UseLeftAxis`}>
-            left
-          </Radio>
-          <Radio value={1} data-test={`Chart.Series.${item.key}.UseRightAxis`}>
-            right
-          </Radio>
-        </Radio.Group>
-      ),
-    });
+  if (!includes(["pie", "heatmap"], options.globalSeriesType)) {
+    if (!options.swappedAxes) {
+      result.push({
+        title: "Y Axis",
+        dataIndex: "yAxis",
+        render: (unused, item) => (
+          <Radio.Group
+            className="series-settings-y-axis"
+            value={item.yAxis === 1 ? 1 : 0}
+            onChange={event => updateSeriesOption(item.key, "yAxis", event.target.value)}>
+            <Radio value={0} data-test={`Chart.Series.${item.key}.UseLeftAxis`}>
+              left
+            </Radio>
+            <Radio value={1} data-test={`Chart.Series.${item.key}.UseRightAxis`}>
+              right
+            </Radio>
+          </Radio.Group>
+        ),
+      });
+    }
+    
     result.push({
       title: "Type",
       dataIndex: "type",
