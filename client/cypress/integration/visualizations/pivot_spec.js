@@ -18,8 +18,7 @@ const SQL = `
 
 function createPivotThroughUI(visualizationName, options = {}) {
   cy.getByTestId("NewVisualization").click();
-  cy.getByTestId("VisualizationType").click();
-  cy.getByTestId("VisualizationType.PIVOT").click();
+  cy.getByTestId("VisualizationType").selectAntdOption("VisualizationType.PIVOT");
   cy.getByTestId("VisualizationName")
     .clear()
     .type(visualizationName);

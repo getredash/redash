@@ -26,7 +26,6 @@
     "jest": "TZ=Africa/Khartoum jest",
     "test": "run-s type-check jest",
     "test:watch": "jest --watch",
-    "cypress:install": "npm install --no-save cypress@~4.12.1 @percy/agent@0.26.2 @percy/cypress@^2.2.0 atob@2.1.2 lodash@^4.17.10 request-cookies@^1.1.0",
     "cypress": "node client/cypress/cypress.js",
     "postinstall": "(cd viz-lib && npm ci && npm run build:babel)"
   },
@@ -50,6 +49,7 @@
     "ace-builds": "^1.4.12",
     "antd": "^4.4.3",
     "axios": "^0.19.0",
+    "axios-auth-refresh": "^3.0.0",
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.6",
     "d3": "^3.5.17",
@@ -58,8 +58,6 @@
     "font-awesome": "^4.7.0",
     "history": "^4.10.1",
     "hoist-non-react-statics": "^3.3.0",
-    "js-cookie": "^2.2.1",
-    "lodash": "^4.17.10",
     "markdown": "0.5.0",
     "material-design-iconic-font": "^2.2.0",
     "moment": "^2.19.3",
@@ -87,6 +85,9 @@
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.10.4",
+    "@cypress/code-coverage": "^3.8.1",
+    "@percy/agent": "^0.26.2",
+    "@percy/cypress": "^2.3.1",
     "@types/classnames": "^2.2.10",
     "@types/hoist-non-react-statics": "^3.3.1",
     "@types/lodash": "^4.14.157",
@@ -95,12 +96,15 @@
     "@types/react-dom": "^16.9.8",
     "@typescript-eslint/eslint-plugin": "^2.10.0",
     "@typescript-eslint/parser": "^2.10.0",
+    "atob": "^2.1.2",
     "babel-eslint": "^10.0.3",
     "babel-jest": "^24.1.0",
     "babel-loader": "^8.0.5",
+    "babel-plugin-istanbul": "^6.0.0",
     "babel-plugin-transform-builtin-extend": "^1.1.2",
     "copy-webpack-plugin": "^4.5.3",
     "css-loader": "^0.28.7",
+    "cypress": "^5.3.0",
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.7.1",
     "enzyme-to-json": "^3.3.5",
@@ -125,6 +129,7 @@
     "less": "^3.9.0",
     "less-loader": "^4.1.0",
     "less-plugin-autoprefix": "^1.5.1",
+    "lodash": "^4.17.20",
     "mini-css-extract-plugin": "^0.4.4",
     "mockdate": "^2.0.2",
     "npm-run-all": "^4.1.5",
@@ -160,6 +165,12 @@
     },
     "testPathIgnorePatterns": [
       "<rootDir>/app/__tests__/"
+    ]
+  },
+  "nyc": {
+    "include": [
+      "client/app/**",
+      "viz-lib/**"
     ]
   },
   "//": "browserslist set to 'Async functions' compatibility",

@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import cx from "classnames";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
+import DynamicComponent from "@/components/DynamicComponent";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
 
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
+import useItemsListExtraActions from "@/components/items-list/hooks/useItemsListExtraActions";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
 
@@ -25,130 +28,134 @@ import QueriesListEmptyState from "./QueriesListEmptyState";
 
 import "./queries-list.css";
 
-class QueriesList extends React.Component {
-  static propTypes = {
-    controller: ControllerType.isRequired,
-  };
+const sidebarMenu = [
+  {
+    key: "all",
+    href: "queries",
+    title: "All Queries",
+  },
+  {
+    key: "favorites",
+    href: "queries/favorites",
+    title: "Favorites",
+    icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
+  },
+  {
+    key: "my",
+    href: "queries/my",
+    title: "My Queries",
+    icon: () => <Sidebar.ProfileImage user={currentUser} />,
+    isAvailable: () => currentUser.hasPermission("create_query"),
+  },
+  {
+    key: "archive",
+    href: "queries/archive",
+    title: "Archived",
+    icon: () => <Sidebar.MenuIcon icon="fa fa-archive" />,
+  },
+];
 
-  sidebarMenu = [
-    {
-      key: "all",
-      href: "queries",
-      title: "All Queries",
-    },
-    {
-      key: "favorites",
-      href: "queries/favorites",
-      title: "Favorites",
-      icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
-    },
-    {
-      key: "my",
-      href: "queries/my",
-      title: "My Queries",
-      icon: () => <Sidebar.ProfileImage user={currentUser} />,
-      isAvailable: () => currentUser.hasPermission("create_query"),
-    },
-    {
-      key: "archive",
-      href: "queries/archive",
-      title: "Archived",
-      icon: () => <Sidebar.MenuIcon icon="fa fa-archive" />,
-    },
-  ];
-
-  listColumns = [
-    Columns.favorites({ className: "p-r-0" }),
-    Columns.custom.sortable(
-      (text, item) => (
-        <React.Fragment>
-          <Link className="table-main-title" href={"queries/" + item.id}>
-            {item.name}
-          </Link>
-          <QueryTagsControl
-            className="d-block"
-            tags={item.tags}
-            isDraft={item.is_draft}
-            isArchived={item.is_archived}
-          />
-        </React.Fragment>
-      ),
-      {
-        title: "Name",
-        field: "name",
-        width: null,
-      }
+const listColumns = [
+  Columns.favorites({ className: "p-r-0" }),
+  Columns.custom.sortable(
+    (text, item) => (
+      <React.Fragment>
+        <Link className="table-main-title" href={"queries/" + item.id}>
+          {item.name}
+        </Link>
+        <QueryTagsControl className="d-block" tags={item.tags} isDraft={item.is_draft} isArchived={item.is_archived} />
+      </React.Fragment>
     ),
-    Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
-    Columns.dateTime.sortable({ title: "Created At", field: "created_at", width: "1%" }),
-    Columns.dateTime.sortable({
-      title: "Last Executed At",
-      field: "retrieved_at",
-      orderByField: "executed_at",
-      width: "1%",
-    }),
-    Columns.custom.sortable((text, item) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
-      title: "Refresh Schedule",
-      field: "schedule",
-      width: "1%",
-    }),
-  ];
+    {
+      title: "Name",
+      field: "name",
+      width: null,
+    }
+  ),
+  Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
+  Columns.dateTime.sortable({ title: "Created At", field: "created_at", width: "1%" }),
+  Columns.dateTime.sortable({
+    title: "Last Executed At",
+    field: "retrieved_at",
+    orderByField: "executed_at",
+    width: "1%",
+  }),
+  Columns.custom.sortable((text, item) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
+    title: "Refresh Schedule",
+    field: "schedule",
+    width: "1%",
+  }),
+];
 
-  componentDidMount() {
-    this.unlistenLocationChanges = location.listen((unused, action) => {
+function QueriesListExtraActions(props) {
+  return <DynamicComponent name="QueriesList.Actions" {...props} />;
+}
+
+function QueriesList({ controller }) {
+  const controllerRef = useRef();
+  controllerRef.current = controller;
+
+  useEffect(() => {
+    const unlistenLocationChanges = location.listen((unused, action) => {
       const searchTerm = location.search.q || "";
-      if (action === "PUSH" && searchTerm !== this.props.controller.searchTerm) {
-        this.props.controller.updateSearch(searchTerm);
+      if (action === "PUSH" && searchTerm !== controllerRef.current.searchTerm) {
+        controllerRef.current.updateSearch(searchTerm);
       }
     });
-  }
 
-  componentWillUnmount() {
-    if (this.unlistenLocationChanges) {
-      this.unlistenLocationChanges();
-      this.unlistenLocationChanges = null;
-    }
-  }
+    return () => {
+      unlistenLocationChanges();
+    };
+  }, []);
 
-  render() {
-    const { controller } = this.props;
-    return (
-      <div className="page-queries-list">
-        <div className="container">
-          <PageHeader
-            title={controller.params.pageTitle}
-            actions={
-              currentUser.hasPermission("create_query") ? (
-                <Link.Button block type="primary" href="queries/new">
-                  <i className="fa fa-plus m-r-5" />
-                  New Query
-                </Link.Button>
-              ) : null
-            }
-          />
-          <Layout>
-            <Layout.Sidebar className="m-b-0">
-              <Sidebar.SearchInput
-                placeholder="Search Queries..."
-                value={controller.searchTerm}
-                onChange={controller.updateSearch}
+  const {
+    areExtraActionsAvailable,
+    listColumns: tableColumns,
+    Component: ExtraActionsComponent,
+    selectedItems,
+  } = useItemsListExtraActions(controller, listColumns, QueriesListExtraActions);
+
+  return (
+    <div className="page-queries-list">
+      <div className="container">
+        <PageHeader
+          title={controller.params.pageTitle}
+          actions={
+            currentUser.hasPermission("create_query") ? (
+              <Link.Button block type="primary" href="queries/new">
+                <i className="fa fa-plus m-r-5" />
+                New Query
+              </Link.Button>
+            ) : null
+          }
+        />
+        <Layout>
+          <Layout.Sidebar className="m-b-0">
+            <Sidebar.SearchInput
+              placeholder="Search Queries..."
+              value={controller.searchTerm}
+              onChange={controller.updateSearch}
+            />
+            <Sidebar.Menu items={sidebarMenu} selected={controller.params.currentPage} />
+            <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} showUnselectAll />
+          </Layout.Sidebar>
+          <Layout.Content>
+            {controller.isLoaded && controller.isEmpty ? (
+              <QueriesListEmptyState
+                page={controller.params.currentPage}
+                searchTerm={controller.searchTerm}
+                selectedTags={controller.selectedTags}
               />
-              <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
-              <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} />
-            </Layout.Sidebar>
-            <Layout.Content>
-              {controller.isLoaded && controller.isEmpty ? (
-                <QueriesListEmptyState
-                  page={controller.params.currentPage}
-                  searchTerm={controller.searchTerm}
-                  selectedTags={controller.selectedTags}
-                />
-              ) : (
+            ) : (
+              <React.Fragment>
+                <div className={cx({ "m-b-10": areExtraActionsAvailable })}>
+                  <ExtraActionsComponent selectedItems={selectedItems} />
+                </div>
                 <div className="bg-white tiled table-responsive">
                   <ItemsTable
                     items={controller.pageItems}
                     loading={!controller.isLoaded}
-                    columns={this.listColumns}
+                    columns={tableColumns}
                     orderByField={controller.orderByField}
                     orderByReverse={controller.orderByReverse}
                     toggleSorting={controller.toggleSorting}
@@ -162,14 +169,18 @@ class QueriesList extends React.Component {
                     onChange={page => controller.updatePagination({ page })}
                   />
                 </div>
-              )}
-            </Layout.Content>
-          </Layout>
-        </div>
+              </React.Fragment>
+            )}
+          </Layout.Content>
+        </Layout>
       </div>
-    );
-  }
+    </div>
+  );
 }
+
+QueriesList.propTypes = {
+  controller: ControllerType.isRequired,
+};
 
 const QueriesListPage = itemsList(
   QueriesList,

@@ -44,9 +44,7 @@ function seedDatabase(seedValues) {
 
 function buildServer() {
   console.log("Building the server...");
-  execSync("docker-compose -p cypress build --build-arg skip_dev_deps=true --build-arg skip_ds_deps=true", {
-    stdio: "inherit",
-  });
+  execSync("docker-compose -p cypress build", { stdio: "inherit" });
 }
 
 function startServer() {
@@ -81,7 +79,7 @@ function runCypressCI() {
   }
 
   execSync(
-    "COMMIT_INFO_MESSAGE=$(git show -s --format=%s) docker-compose run cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run --record",
+    "COMMIT_INFO_MESSAGE=$(git show -s --format=%s) docker-compose run --name cypress cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run --record",
     { stdio: "inherit" }
   );
 }

@@ -7,6 +7,7 @@ import useMedia from "use-media";
 import Button from "antd/lib/button";
 import Select from "antd/lib/select";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import DynamicComponent from "@/components/DynamicComponent";
 import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";
 import EditInPlace from "@/components/EditInPlace";
@@ -26,6 +27,7 @@ import { getEditorComponents } from "@/components/queries/editor-components";
 import useQuery from "./hooks/useQuery";
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 import useAutocompleteFlags from "./hooks/useAutocompleteFlags";
+import useAutoLimitFlags from "./hooks/useAutoLimitFlags";
 import useQueryExecute from "./hooks/useQueryExecute";
 import useQueryResultData from "@/lib/useQueryResultData";
 import useQueryDataSources from "./hooks/useQueryDataSources";
@@ -76,6 +78,7 @@ function QuerySource(props) {
 
   const editorRef = useRef(null);
   const [autocompleteAvailable, autocompleteEnabled, toggleAutocomplete] = useAutocompleteFlags(schema);
+  const [autoLimitAvailable, autoLimitChecked, setAutoLimit] = useAutoLimitFlags(dataSource, query, setQuery);
 
   const [handleQueryEditorChange] = useDebouncedCallback(queryText => {
     setQuery(extend(query.clone(), { query: queryText }));
@@ -188,6 +191,7 @@ function QuerySource(props) {
           dataSource={dataSource}
           sourceMode
           selectedVisualization={selectedVisualization}
+          headerExtra={<DynamicComponent name="QuerySource.HeaderExtra" query={query} />}
           onChange={setQuery}
         />
       </div>
@@ -304,6 +308,11 @@ function QuerySource(props) {
                         available: autocompleteAvailable,
                         enabled: autocompleteEnabled,
                         onToggle: toggleAutocomplete,
+                      }}
+                      autoLimitCheckboxProps={{
+                        available: autoLimitAvailable,
+                        checked: autoLimitChecked,
+                        onChange: setAutoLimit,
                       }}
                       dataSourceSelectorProps={
                         dataSource

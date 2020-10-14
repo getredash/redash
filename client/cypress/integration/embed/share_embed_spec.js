@@ -21,6 +21,8 @@ describe("Embedded Queries", () => {
 
           // check the feature is disabled
           cy.visit(`/queries/${query.id}/source`);
+          cy.getByTestId("ExecuteButton").click();
+          cy.getByTestId("QueryPageVisualizationTabs", { timeout: 10000 }).should("exist");
           cy.getByTestId("QueryPageHeaderMoreButton").click();
           cy.get(".ant-dropdown-menu-item")
             .should("exist")

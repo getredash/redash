@@ -7,14 +7,53 @@ ENQUEUE_QUERY = "redash.tasks.queries.maintenance.enqueue_query"
 
 
 class TestRefreshQuery(BaseTestCase):
-    def test_enqueues_outdated_queries(self):
+    def test_enqueues_outdated_queries_for_sqlquery(self):
         """
         refresh_queries() launches an execution task for each query returned
         from Query.outdated_queries().
         """
-        query1 = self.factory.create_query()
+        query1 = self.factory.create_query(options={"apply_auto_limit": True})
         query2 = self.factory.create_query(
-            query_text="select 42;", data_source=self.factory.create_data_source()
+            query_text="select 42;", data_source=self.factory.create_data_source(),
+            options={"apply_auto_limit": True}
+        )
+        oq = staticmethod(lambda: [query1, query2])
+        with patch(ENQUEUE_QUERY) as add_job_mock, patch.object(
+            Query, "outdated_queries", oq
+        ):
+            refresh_queries()
+            self.assertEqual(add_job_mock.call_count, 2)
+            add_job_mock.assert_has_calls(
+                [
+                    call(
+                        query1.query_text + " LIMIT 1000",
+                        query1.data_source,
+                        query1.user_id,
+                        scheduled_query=query1,
+                        metadata=ANY,
+                    ),
+                    call(
+                        "select 42 LIMIT 1000",
+                        query2.data_source,
+                        query2.user_id,
+                        scheduled_query=query2,
+                        metadata=ANY,
+                    ),
+                ],
+                any_order=True,
+            )
+
+    def test_enqueues_outdated_queries_for_non_sqlquery(self):
+        """
+        refresh_queries() launches an execution task for each query returned
+        from Query.outdated_queries().
+        """
+        ds = self.factory.create_data_source(
+            group=self.factory.org.default_group, type="prometheus"
+        )
+        query1 = self.factory.create_query(data_source=ds, options={"apply_auto_limit": True})
+        query2 = self.factory.create_query(
+            query_text="select 42;", data_source=ds, options={"apply_auto_limit": True}
         )
         oq = staticmethod(lambda: [query1, query2])
         with patch(ENQUEUE_QUERY) as add_job_mock, patch.object(
@@ -30,7 +69,7 @@ class TestRefreshQuery(BaseTestCase):
                         query1.user_id,
                         scheduled_query=query1,
                         metadata=ANY,
-                    ),
+                        ),
                     call(
                         query2.query_text,
                         query2.data_source,
@@ -42,12 +81,40 @@ class TestRefreshQuery(BaseTestCase):
                 any_order=True,
             )
 
-    def test_doesnt_enqueue_outdated_queries_for_paused_data_source(self):
+    def test_doesnt_enqueue_outdated_queries_for_paused_data_source_for_sqlquery(self):
         """
         refresh_queries() does not launch execution tasks for queries whose
         data source is paused.
         """
-        query = self.factory.create_query()
+        query = self.factory.create_query(options={"apply_auto_limit": True})
+        oq = staticmethod(lambda: [query])
+        query.data_source.pause()
+        with patch.object(Query, "outdated_queries", oq):
+            with patch(ENQUEUE_QUERY) as add_job_mock:
+                refresh_queries()
+                add_job_mock.assert_not_called()
+
+            query.data_source.resume()
+
+            with patch(ENQUEUE_QUERY) as add_job_mock:
+                refresh_queries()
+                add_job_mock.assert_called_with(
+                    query.query_text + " LIMIT 1000",
+                    query.data_source,
+                    query.user_id,
+                    scheduled_query=query,
+                    metadata=ANY,
+                )
+
+    def test_doesnt_enqueue_outdated_queries_for_paused_data_source_for_non_sqlquery(self):
+        """
+        refresh_queries() does not launch execution tasks for queries whose
+        data source is paused.
+        """
+        ds = self.factory.create_data_source(
+            group=self.factory.org.default_group, type="prometheus"
+        )
+        query = self.factory.create_query(data_source=ds, options={"apply_auto_limit": True})
         oq = staticmethod(lambda: [query])
         query.data_source.pause()
         with patch.object(Query, "outdated_queries", oq):
@@ -65,9 +132,9 @@ class TestRefreshQuery(BaseTestCase):
                     query.user_id,
                     scheduled_query=query,
                     metadata=ANY,
-                )
+                    )
 
-    def test_enqueues_parameterized_queries(self):
+    def test_enqueues_parameterized_queries_for_sqlquery(self):
         """
         Scheduled queries with parameters use saved values.
         """
@@ -82,8 +149,46 @@ class TestRefreshQuery(BaseTestCase):
                         "value": "42",
                         "title": "n",
                     }
-                ]
+                ],
+                "apply_auto_limit": True
             },
+        )
+        oq = staticmethod(lambda: [query])
+        with patch(ENQUEUE_QUERY) as add_job_mock, patch.object(
+            Query, "outdated_queries", oq
+        ):
+            refresh_queries()
+            add_job_mock.assert_called_with(
+                "select 42 LIMIT 1000",
+                query.data_source,
+                query.user_id,
+                scheduled_query=query,
+                metadata=ANY,
+            )
+
+    def test_enqueues_parameterized_queries_for_non_sqlquery(self):
+        """
+        Scheduled queries with parameters use saved values.
+        """
+        ds = self.factory.create_data_source(
+            group=self.factory.org.default_group, type="prometheus"
+        )
+        query = self.factory.create_query(
+            query_text="select {{n}}",
+            options={
+                "parameters": [
+                    {
+                        "global": False,
+                        "type": "text",
+                        "name": "n",
+                        "value": "42",
+                        "title": "n",
+                    }
+                ],
+                "apply_auto_limit": True
+
+            },
+            data_source=ds,
         )
         oq = staticmethod(lambda: [query])
         with patch(ENQUEUE_QUERY) as add_job_mock, patch.object(
@@ -113,7 +218,8 @@ class TestRefreshQuery(BaseTestCase):
                         "value": 42,  # <-- should be text!
                         "title": "n",
                     }
-                ]
+                ],
+                "apply_auto_limit": True
             },
         )
         oq = staticmethod(lambda: [query])
@@ -140,7 +246,8 @@ class TestRefreshQuery(BaseTestCase):
                         "queryId": 100,
                         "title": "n",
                     }
-                ]
+                ],
+                "apply_auto_limit": True
             },
         )
 

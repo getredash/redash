@@ -12,7 +12,7 @@ export default function ColorsSettings({ options, onOptionsChange }) {
       <Section>
         <Select
           layout="horizontal"
-          label="Clustering mode"
+          label="Clustering Mode"
           data-test="Choropleth.Editor.ClusteringMode"
           defaultValue={options.clusteringMode}
           onChange={clusteringMode => onOptionsChange({ clusteringMode })}>
@@ -71,7 +71,7 @@ export default function ColorsSettings({ options, onOptionsChange }) {
       <Section>
         <ColorPicker
           layout="horizontal"
-          label="No value color"
+          label="No Value Color"
           interactive
           presetColors={ColorPalette}
           placement="topRight"
@@ -85,7 +85,7 @@ export default function ColorsSettings({ options, onOptionsChange }) {
       <Section>
         <ColorPicker
           layout="horizontal"
-          label="Background color"
+          label="Background Color"
           interactive
           presetColors={ColorPalette}
           placement="topRight"
@@ -99,7 +99,7 @@ export default function ColorsSettings({ options, onOptionsChange }) {
       <Section>
         <ColorPicker
           layout="horizontal"
-          label="Borders color"
+          label="Borders Color"
           interactive
           presetColors={ColorPalette}
           placement="topRight"

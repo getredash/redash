@@ -11,10 +11,8 @@ from rq.job import Job as BaseJob, JobStatus
 
 class CancellableJob(BaseJob):
     def cancel(self, pipeline=None):
-        # TODO - add tests that verify that queued jobs are removed from queue and running jobs are actively cancelled
-        if self.is_started:
-            self.meta["cancelled"] = True
-            self.save_meta()
+        self.meta["cancelled"] = True
+        self.save_meta()
 
         super().cancel(pipeline=pipeline)
 

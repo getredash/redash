@@ -3,10 +3,11 @@ import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import { FiltersType } from "@/components/Filters";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import VisualizationName from "@/components/visualizations/VisualizationName";
 
-function ExpandedWidgetDialog({ dialog, widget }) {
+function ExpandedWidgetDialog({ dialog, widget, filters }) {
   return (
     <Modal
       {...dialog.props}
@@ -20,6 +21,7 @@ function ExpandedWidgetDialog({ dialog, widget }) {
       <VisualizationRenderer
         visualization={widget.visualization}
         queryResult={widget.getQueryResult()}
+        filters={filters}
         context="widget"
       />
     </Modal>
@@ -29,6 +31,11 @@ function ExpandedWidgetDialog({ dialog, widget }) {
 ExpandedWidgetDialog.propTypes = {
   dialog: DialogPropType.isRequired,
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  filters: FiltersType,
+};
+
+ExpandedWidgetDialog.defaultProps = {
+  filters: [],
 };
 
 export default wrapDialog(ExpandedWidgetDialog);

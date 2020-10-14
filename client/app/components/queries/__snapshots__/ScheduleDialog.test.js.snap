@@ -86,15 +86,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                     },
                     Object {
                       "data": Object {
-                        "key": "__RC_SELECT_GRP__Never__",
-                        "label": "Nevers",
-                        "options": Array [],
-                      },
-                      "group": true,
-                      "key": "__RC_SELECT_GRP__Never__",
-                    },
-                    Object {
-                      "data": Object {
                         "key": "__RC_SELECT_GRP__minute__",
                         "label": "Minutes",
                         "options": Array [
@@ -310,11 +301,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                       "value": null,
                     },
                     Object {
-                      "key": "__RC_SELECT_GRP__Never__",
-                      "label": "Nevers",
-                      "options": Array [],
-                    },
-                    Object {
                       "key": "__RC_SELECT_GRP__minute__",
                       "label": "Minutes",
                       "options": Array [
@@ -501,15 +487,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                           },
                           "groupOption": false,
                           "key": "never",
-                        },
-                        Object {
-                          "data": Object {
-                            "key": "__RC_SELECT_GRP__Never__",
-                            "label": "Nevers",
-                            "options": Array [],
-                          },
-                          "group": true,
-                          "key": "__RC_SELECT_GRP__Never__",
                         },
                         Object {
                           "data": Object {
@@ -726,11 +703,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                           "children": "Never",
                           "key": "never",
                           "value": null,
-                        },
-                        Object {
-                          "key": "__RC_SELECT_GRP__Never__",
-                          "label": "Nevers",
-                          "options": Array [],
                         },
                         Object {
                           "key": "__RC_SELECT_GRP__minute__",
@@ -2059,15 +2031,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                     },
                     Object {
                       "data": Object {
-                        "key": "__RC_SELECT_GRP__Never__",
-                        "label": "Nevers",
-                        "options": Array [],
-                      },
-                      "group": true,
-                      "key": "__RC_SELECT_GRP__Never__",
-                    },
-                    Object {
-                      "data": Object {
                         "key": "__RC_SELECT_GRP__minute__",
                         "label": "Minutes",
                         "options": Array [
@@ -2283,11 +2246,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                       "value": null,
                     },
                     Object {
-                      "key": "__RC_SELECT_GRP__Never__",
-                      "label": "Nevers",
-                      "options": Array [],
-                    },
-                    Object {
                       "key": "__RC_SELECT_GRP__minute__",
                       "label": "Minutes",
                       "options": Array [
@@ -2474,15 +2432,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                           },
                           "groupOption": false,
                           "key": "never",
-                        },
-                        Object {
-                          "data": Object {
-                            "key": "__RC_SELECT_GRP__Never__",
-                            "label": "Nevers",
-                            "options": Array [],
-                          },
-                          "group": true,
-                          "key": "__RC_SELECT_GRP__Never__",
                         },
                         Object {
                           "data": Object {
@@ -2699,11 +2648,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                           "children": "Never",
                           "key": "never",
                           "value": null,
-                        },
-                        Object {
-                          "key": "__RC_SELECT_GRP__Never__",
-                          "label": "Nevers",
-                          "options": Array [],
                         },
                         Object {
                           "key": "__RC_SELECT_GRP__minute__",
@@ -3236,15 +3180,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                     },
                     Object {
                       "data": Object {
-                        "key": "__RC_SELECT_GRP__Never__",
-                        "label": "Nevers",
-                        "options": Array [],
-                      },
-                      "group": true,
-                      "key": "__RC_SELECT_GRP__Never__",
-                    },
-                    Object {
-                      "data": Object {
                         "key": "__RC_SELECT_GRP__minute__",
                         "label": "Minutes",
                         "options": Array [
@@ -3460,11 +3395,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                       "value": null,
                     },
                     Object {
-                      "key": "__RC_SELECT_GRP__Never__",
-                      "label": "Nevers",
-                      "options": Array [],
-                    },
-                    Object {
                       "key": "__RC_SELECT_GRP__minute__",
                       "label": "Minutes",
                       "options": Array [
@@ -3651,15 +3581,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                           },
                           "groupOption": false,
                           "key": "never",
-                        },
-                        Object {
-                          "data": Object {
-                            "key": "__RC_SELECT_GRP__Never__",
-                            "label": "Nevers",
-                            "options": Array [],
-                          },
-                          "group": true,
-                          "key": "__RC_SELECT_GRP__Never__",
                         },
                         Object {
                           "data": Object {
@@ -3876,11 +3797,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                           "children": "Never",
                           "key": "never",
                           "value": null,
-                        },
-                        Object {
-                          "key": "__RC_SELECT_GRP__Never__",
-                          "label": "Nevers",
-                          "options": Array [],
                         },
                         Object {
                           "key": "__RC_SELECT_GRP__minute__",
@@ -5583,15 +5499,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                     },
                     Object {
                       "data": Object {
-                        "key": "__RC_SELECT_GRP__Never__",
-                        "label": "Nevers",
-                        "options": Array [],
-                      },
-                      "group": true,
-                      "key": "__RC_SELECT_GRP__Never__",
-                    },
-                    Object {
-                      "data": Object {
                         "key": "__RC_SELECT_GRP__minute__",
                         "label": "Minutes",
                         "options": Array [
@@ -5807,11 +5714,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                       "value": null,
                     },
                     Object {
-                      "key": "__RC_SELECT_GRP__Never__",
-                      "label": "Nevers",
-                      "options": Array [],
-                    },
-                    Object {
                       "key": "__RC_SELECT_GRP__minute__",
                       "label": "Minutes",
                       "options": Array [
@@ -5998,15 +5900,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                           },
                           "groupOption": false,
                           "key": "never",
-                        },
-                        Object {
-                          "data": Object {
-                            "key": "__RC_SELECT_GRP__Never__",
-                            "label": "Nevers",
-                            "options": Array [],
-                          },
-                          "group": true,
-                          "key": "__RC_SELECT_GRP__Never__",
                         },
                         Object {
                           "data": Object {
@@ -6223,11 +6116,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                           "children": "Never",
                           "key": "never",
                           "value": null,
-                        },
-                        Object {
-                          "key": "__RC_SELECT_GRP__Never__",
-                          "label": "Nevers",
-                          "options": Array [],
                         },
                         Object {
                           "key": "__RC_SELECT_GRP__minute__",
@@ -6757,15 +6645,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                     },
                     Object {
                       "data": Object {
-                        "key": "__RC_SELECT_GRP__Never__",
-                        "label": "Nevers",
-                        "options": Array [],
-                      },
-                      "group": true,
-                      "key": "__RC_SELECT_GRP__Never__",
-                    },
-                    Object {
-                      "data": Object {
                         "key": "__RC_SELECT_GRP__minute__",
                         "label": "Minutes",
                         "options": Array [
@@ -6981,11 +6860,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                       "value": null,
                     },
                     Object {
-                      "key": "__RC_SELECT_GRP__Never__",
-                      "label": "Nevers",
-                      "options": Array [],
-                    },
-                    Object {
                       "key": "__RC_SELECT_GRP__minute__",
                       "label": "Minutes",
                       "options": Array [
@@ -7168,15 +7042,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                           },
                           "groupOption": false,
                           "key": "never",
-                        },
-                        Object {
-                          "data": Object {
-                            "key": "__RC_SELECT_GRP__Never__",
-                            "label": "Nevers",
-                            "options": Array [],
-                          },
-                          "group": true,
-                          "key": "__RC_SELECT_GRP__Never__",
                         },
                         Object {
                           "data": Object {
@@ -7393,11 +7258,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                           "children": "Never",
                           "key": "never",
                           "value": null,
-                        },
-                        Object {
-                          "key": "__RC_SELECT_GRP__Never__",
-                          "label": "Nevers",
-                          "options": Array [],
                         },
                         Object {
                           "key": "__RC_SELECT_GRP__minute__",
