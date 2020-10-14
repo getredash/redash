@@ -22,7 +22,7 @@ export default function SAMLSettings(props) {
       <Form.Item label="SAML Enabled">
         <Radio.Group
           onChange={onChangeEnabledStatus}
-          value={values.auth_saml_enabled && (values.auth_saml_type || "static")}>
+          value={values.auth_saml_enabled && (values.auth_saml_type || "dynamic")}>
           <Radio value={false}>Disabled</Radio>
           <Radio value={"static"}>Enabled (Static)</Radio>
           <Radio value={"dynamic"}>Enabled (Dynamic)</Radio>
