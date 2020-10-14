@@ -58,7 +58,7 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
         ),
       });
     }
-    
+
     result.push({
       title: "Type",
       dataIndex: "type",
