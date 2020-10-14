@@ -4,6 +4,8 @@ import DynamicComponent, { registerComponent } from "@/components/DynamicCompone
 import PropTypes from "prop-types";
 import React from "react";
 
+import "./QuerySourceDropdownItem"; // register QuerySourceDropdownItem
+
 export function QuerySourceDropdown(props) {
   return (
     <Select

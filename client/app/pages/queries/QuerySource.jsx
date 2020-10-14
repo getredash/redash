@@ -10,6 +10,7 @@ import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";
 import EditInPlace from "@/components/EditInPlace";
 import recordEvent from "@/services/recordEvent";
+import DynamicComponent from "@/components/DynamicComponent";
 import { ExecutionStatus } from "@/services/query-result";
 import routes from "@/services/routes";
 
@@ -41,8 +42,8 @@ import useUpdateQuery from "./hooks/useUpdateQuery";
 import useUpdateQueryDescription from "./hooks/useUpdateQueryDescription";
 import useUnsavedChangesAlert from "./hooks/useUnsavedChangesAlert";
 
+import "./components/QuerySourceDropdown"; // register QuerySourceDropdown
 import "./QuerySource.less";
-import DynamicComponent from "@/components/DynamicComponent";
 
 function chooseDataSourceId(dataSourceIds, availableDataSources) {
   availableDataSources = map(availableDataSources, ds => ds.id);
