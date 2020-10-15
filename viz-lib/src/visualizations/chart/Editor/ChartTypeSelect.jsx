@@ -16,9 +16,9 @@ const allChartTypes = [
 ];
 
 export default function ChartTypeSelect({ hiddenChartTypes, ...props }) {
-  const result = [...allChartTypes];
-
   const chartTypes = useMemo(() => {
+    const result = [...allChartTypes];
+
     if (visualizationsSettings.allowCustomJSVisualizations) {
       result.push({ type: "custom", name: "Custom", icon: "code" });
     }
