@@ -22,8 +22,8 @@ export function wrap<ROk = void, P = {}, RCancel = void>(
     props?: P
   ) => {
     update: (props: P) => void;
-    onClose: (handler: (result: ROk) => Promise<void>) => void;
-    onDismiss: (handler: (result: RCancel) => Promise<void>) => void;
+    onClose: (handler: (result: ROk) => Promise<void> | void) => void;
+    onDismiss: (handler: (result: RCancel) => Promise<void> | void) => void;
     close: (result: ROk) => void;
     dismiss: (result: RCancel) => void;
   };

@@ -44,7 +44,7 @@ function useDashboard(dashboardData) {
     () =>
       !dashboard.is_archived &&
       has(dashboard, "user.id") &&
-      (currentUser.id === dashboard.user.id || currentUser.hasPermission("admin")),
+      (currentUser.id === dashboard.user.id || currentUser.isAdmin),
     [dashboard]
   );
   const hasOnlySafeQueries = useMemo(
