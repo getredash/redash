@@ -41,7 +41,7 @@ export default function ChartTypeSelect({ hiddenChartTypes, ...props }) {
 }
 
 ChartTypeSelect.propTypes = {
-  hiddenChartTypes: PropTypes.arrayOf(PropTypes.oneOf(map(allChartTypes, ({ type }) => type))),
+  hiddenChartTypes: PropTypes.arrayOf(PropTypes.oneOf(map(allChartTypes, "type"))),
 };
 
 ChartTypeSelect.defaultProps = {
