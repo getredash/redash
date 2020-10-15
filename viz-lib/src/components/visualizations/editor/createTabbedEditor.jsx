@@ -35,7 +35,10 @@ TabbedEditor.propTypes = {
   tabs: PropTypes.arrayOf(
     PropTypes.shape({
       key: PropTypes.string.isRequired,
-      title: PropTypes.oneOfType([PropTypes.string, PropTypes.func]).isRequired,
+      title: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.func, // (options) => string
+      ]).isRequired,
       isAvailable: PropTypes.func, // (options) => boolean
       component: PropTypes.func.isRequired,
     })
