@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { Select } from "@/components/visualizations/editor";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
-const result = [
+const allChartTypes = [
   { type: "line", name: "Line", icon: "line-chart" },
   { type: "column", name: "Bar", icon: "bar-chart" },
   { type: "area", name: "Area", icon: "area-chart" },
@@ -18,14 +18,14 @@ const result = [
 export default function ChartTypeSelect({ hiddenChartTypes, ...props }) {
   const chartTypes = useMemo(() => {
     if (visualizationsSettings.allowCustomJSVisualizations) {
-      result.push({ type: "custom", name: "Custom", icon: "code" });
+      allChartTypes.push({ type: "custom", name: "Custom", icon: "code" });
     }
 
     if (hiddenChartTypes.length > 0) {
-      return filter(result, ({ type }) => !includes(hiddenChartTypes, type));
+      return filter(allChartTypes, ({ type }) => !includes(hiddenChartTypes, type));
     }
 
-    return result;
+    return allChartTypes;
   }, []);
 
   return (
@@ -41,7 +41,7 @@ export default function ChartTypeSelect({ hiddenChartTypes, ...props }) {
 }
 
 ChartTypeSelect.propTypes = {
-  hiddenChartTypes: PropTypes.arrayOf(PropTypes.oneOf(result.map(({ type }) => type))),
+  hiddenChartTypes: PropTypes.arrayOf(PropTypes.oneOf(map(allChartTypes, ({ type }) => type))),
 };
 
 ChartTypeSelect.defaultProps = {
