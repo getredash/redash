@@ -1,21 +1,22 @@
 import { filter, includes, map } from "lodash";
 import React, { useMemo } from "react";
 import { Select } from "@/components/visualizations/editor";
+import PropTypes from "prop-types";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
+
+const result = [
+  { type: "line", name: "Line", icon: "line-chart" },
+  { type: "column", name: "Bar", icon: "bar-chart" },
+  { type: "area", name: "Area", icon: "area-chart" },
+  { type: "pie", name: "Pie", icon: "pie-chart" },
+  { type: "scatter", name: "Scatter", icon: "circle-o" },
+  { type: "bubble", name: "Bubble", icon: "circle-o" },
+  { type: "heatmap", name: "Heatmap", icon: "th" },
+  { type: "box", name: "Box", icon: "square-o" },
+];
 
 export default function ChartTypeSelect({ hiddenChartTypes, ...props }) {
   const chartTypes = useMemo(() => {
-    const result = [
-      { type: "line", name: "Line", icon: "line-chart" },
-      { type: "column", name: "Bar", icon: "bar-chart" },
-      { type: "area", name: "Area", icon: "area-chart" },
-      { type: "pie", name: "Pie", icon: "pie-chart" },
-      { type: "scatter", name: "Scatter", icon: "circle-o" },
-      { type: "bubble", name: "Bubble", icon: "circle-o" },
-      { type: "heatmap", name: "Heatmap", icon: "th" },
-      { type: "box", name: "Box", icon: "square-o" },
-    ];
-
     if (visualizationsSettings.allowCustomJSVisualizations) {
       result.push({ type: "custom", name: "Custom", icon: "code" });
     }
@@ -39,12 +40,10 @@ export default function ChartTypeSelect({ hiddenChartTypes, ...props }) {
   );
 }
 
-ChartTypeSelect.defaultProps = {
-  hiddenChartTypes: [],
+ChartTypeSelect.propTypes = {
+  hiddenChartTypes: PropTypes.arrayOf(PropTypes.oneOf(result.map(({ type }) => type))),
 };
 
-ChartTypeSelect.propTypes = {
-  hiddenChartTypes: PropTypes.arrayOf(
-    PropTypes.oneOf(["line", "area", "column", "pie", "scatter", "heatmap", "bubble", "box"])
-  ),
+ChartTypeSelect.defaultProps = {
+  hiddenChartTypes: [],
 };
