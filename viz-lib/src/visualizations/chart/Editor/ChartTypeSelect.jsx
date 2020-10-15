@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { Select } from "@/components/visualizations/editor";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
-export default function ChartTypeSelect({ filterTypes, ...props}) {
+export default function ChartTypeSelect({ filterTypes, ...props }) {
   const chartTypes = useMemo(() => {
     const result = [
       { type: "line", name: "Line", icon: "line-chart" },

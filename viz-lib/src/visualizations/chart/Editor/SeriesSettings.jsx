@@ -13,8 +13,7 @@ import getChartData from "../getChartData";
 const SortableBodyRow = sortableElement(props => <tr {...props} />);
 
 function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOption) {
-  let restrictedChartTypes = ["pie", "heatmap", "bubble", "box"];
-  if (options.swappedAxes) restrictedChartTypes.push("area");
+  const restrictedChartTypes = ["pie", "heatmap", "bubble", "box"];
 
   const result = [
     {
