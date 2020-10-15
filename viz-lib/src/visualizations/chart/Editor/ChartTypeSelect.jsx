@@ -2,7 +2,6 @@ import { filter, includes, map } from "lodash";
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import { Select } from "@/components/visualizations/editor";
-import PropTypes from "prop-types";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 const result = [
