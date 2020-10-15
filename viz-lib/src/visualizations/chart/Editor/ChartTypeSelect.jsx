@@ -1,9 +1,9 @@
-import { map } from "lodash";
+import { filter, includes, map } from "lodash";
 import React, { useMemo } from "react";
 import { Select } from "@/components/visualizations/editor";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
-export default function ChartTypeSelect({ filterTypes, ...props }) {
+export default function ChartTypeSelect({ hiddenChartTypes, ...props }) {
   const chartTypes = useMemo(() => {
     const result = [
       { type: "line", name: "Line", icon: "line-chart" },
@@ -20,8 +20,8 @@ export default function ChartTypeSelect({ filterTypes, ...props }) {
       result.push({ type: "custom", name: "Custom", icon: "code" });
     }
 
-    if (filterTypes) {
-      return result.filter(({ type }) => !filterTypes.includes(type));
+    if (hiddenChartTypes.length > 0) {
+      return filter(result, ({ type }) => !includes(hiddenChartTypes, type));
     }
 
     return result;
@@ -38,3 +38,13 @@ export default function ChartTypeSelect({ filterTypes, ...props }) {
     </Select>
   );
 }
+
+ChartTypeSelect.defaultProps = {
+  hiddenChartTypes: [],
+};
+
+ChartTypeSelect.propTypes = {
+  hiddenChartTypes: PropTypes.arrayOf(
+    PropTypes.oneOf(["line", "area", "column", "pie", "scatter", "heatmap", "bubble", "box"])
+  ),
+};

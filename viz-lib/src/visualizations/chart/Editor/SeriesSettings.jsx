@@ -13,8 +13,6 @@ import getChartData from "../getChartData";
 const SortableBodyRow = sortableElement(props => <tr {...props} />);
 
 function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOption) {
-  const restrictedChartTypes = ["pie", "heatmap", "bubble", "box"];
-
   const result = [
     {
       title: "Order",
@@ -69,7 +67,7 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
           data-test={`Chart.Series.${item.key}.Type`}
           dropdownMatchSelectWidth={false}
           value={item.type}
-          filterTypes={restrictedChartTypes}
+          hiddenChartTypes={["pie", "heatmap", "bubble", "box"]}
           onChange={value => updateSeriesOption(item.key, "type", value)}
         />
       ),
