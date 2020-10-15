@@ -4,6 +4,7 @@
   command = "npm ci && npm run build"
 
 [build.environment]
+  NODE_VERSION = "12.18.4"
   CYPRESS_INSTALL_BINARY = "0"
   PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "1"
 

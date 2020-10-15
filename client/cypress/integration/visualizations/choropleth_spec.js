@@ -36,15 +36,11 @@ describe("Choropleth", () => {
       cy.visit(`queries/${id}/source`);
       cy.getByTestId("ExecuteButton").click();
     });
+    cy.getByTestId("NewVisualization").click();
+    cy.getByTestId("VisualizationType").selectAntdOption("VisualizationType.CHOROPLETH");
   });
 
   it("creates visualization", () => {
-    cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.CHOROPLETH
-    `);
-
     cy.clickThrough(`
       VisualizationEditor.Tabs.General
       Choropleth.Editor.MapType

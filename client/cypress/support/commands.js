@@ -69,6 +69,14 @@ Cypress.Commands.add("clickThrough", (...args) => {
   return undefined;
 });
 
+/**
+ * Selects ANTD selector option
+ */
+Cypress.Commands.add("selectAntdOption", { prevSubject: "element" }, (subject, testId) => {
+  cy.wrap(subject).click();
+  return cy.getByTestId(testId).click({ force: true });
+});
+
 Cypress.Commands.add("fillInputs", (elements, { wait = 0 } = {}) => {
   each(elements, (value, testId) => {
     cy.getByTestId(testId)
