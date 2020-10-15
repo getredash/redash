@@ -18,8 +18,18 @@ worker() {
 
   export WORKERS_COUNT=${WORKERS_COUNT:-2}
   export QUEUES=${QUEUES:-}
-  
-  supervisord -c worker.conf
+
+  exec supervisord -c worker.conf
+}
+
+shutdown_worker() {
+  echo "Shutting down RQ worker..."
+
+  export WORKER_TIMEOUT=${1:-10}
+
+  # Send TERM to initiate graceful shutdown
+  supervisorctl -c worker.conf signal TERM worker:*
+  sleep "$WORKER_TIMEOUT"
 }
 
 dev_worker() {
@@ -47,6 +57,7 @@ help() {
 
   echo "server -- start Redash server (with gunicorn)"
   echo "worker -- start a single RQ worker"
+  echo "shutdown_worker -- gracefully shutdown RQ worker"
   echo "dev_worker -- start a single RQ worker with code reloading"
   echo "scheduler -- start an rq-scheduler instance"
   echo "dev_scheduler -- start an rq-scheduler instance with code reloading"
@@ -74,6 +85,10 @@ case "$1" in
   worker)
     shift
     worker
+    ;;
+  shutdown_worker)
+    shift
+    shutdown_worker
     ;;
   server)
     shift
