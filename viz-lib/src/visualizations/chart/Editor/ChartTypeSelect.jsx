@@ -16,16 +16,18 @@ const allChartTypes = [
 ];
 
 export default function ChartTypeSelect({ hiddenChartTypes, ...props }) {
+  const result = [...allChartTypes];
+
   const chartTypes = useMemo(() => {
     if (visualizationsSettings.allowCustomJSVisualizations) {
-      allChartTypes.push({ type: "custom", name: "Custom", icon: "code" });
+      result.push({ type: "custom", name: "Custom", icon: "code" });
     }
 
     if (hiddenChartTypes.length > 0) {
-      return filter(allChartTypes, ({ type }) => !includes(hiddenChartTypes, type));
+      return filter(result, ({ type }) => !includes(hiddenChartTypes, type));
     }
 
-    return allChartTypes;
+    return result;
   }, []);
 
   return (
