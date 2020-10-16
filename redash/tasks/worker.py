@@ -3,7 +3,8 @@ import os
 import signal
 import time
 from redash import statsd_client
-from rq import Worker as BaseWorker, Queue as BaseQueue, get_current_job
+from rq import Queue as BaseQueue, get_current_job
+from rq.worker import HerokuWorker as BaseWorker
 from rq.utils import utcnow
 from rq.timeouts import UnixSignalDeathPenalty, HorseMonitorTimeoutException
 from rq.job import Job as BaseJob, JobStatus
