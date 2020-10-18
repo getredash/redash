@@ -122,6 +122,8 @@ class BaseElasticSearch(BaseQueryRunner):
         for index_name in mappings_data:
             index_mappings = mappings_data[index_name]
             for m in index_mappings.get("mappings", {}):
+                if not hasattr(index_mappings["mappings"][m], "__getitem__"):
+                    continue
                 if "properties" not in index_mappings["mappings"][m]:
                     continue
                 for property_name in index_mappings["mappings"][m]["properties"]:
@@ -147,7 +149,12 @@ class BaseElasticSearch(BaseQueryRunner):
             """
             path = path or []
             result = []
-            for field, description in doc["properties"].items():
+            properties = []
+            try:
+                properties = doc["properties"].items()
+            except (TypeError, KeyError):
+                pass
+            for field, description in properties:
                 if "properties" in description:
                     result.extend(parse_doc(description, path + [field]))
                 else:
