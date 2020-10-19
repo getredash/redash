@@ -3,6 +3,7 @@ from unittest import TestCase
 
 from redash.utils.requests_session import requests, ConfiguredSession
 from redash.query_runner import BaseHTTPQueryRunner
+from redash import settings
 
 
 class RequiresAuthQueryRunner(BaseHTTPQueryRunner):
@@ -10,6 +11,13 @@ class RequiresAuthQueryRunner(BaseHTTPQueryRunner):
 
 
 class TestBaseHTTPQueryRunner(TestCase):
+    def setUp(self):
+        super(TestBaseHTTPQueryRunner, self).setUp()
+        settings.ENFORCE_PRIVATE_ADDRESS_BLOCK = False
+
+    def tearDown(self):
+        settings.ENFORCE_PRIVATE_ADDRESS_BLOCK = True
+
     def test_requires_authentication_default(self):
         self.assertFalse(BaseHTTPQueryRunner.requires_authentication)
         schema = BaseHTTPQueryRunner.configuration_schema()
