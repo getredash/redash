@@ -1,5 +1,6 @@
 import moment from "moment";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
+import { sortBy } from "lodash";
 
 function formatDateTime(value) {
   if (!value) {
