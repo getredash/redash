@@ -1,5 +1,5 @@
 import { isEqual, isEmpty } from "lodash";
-import { get80PercentileItemLength } from "../lib/utils";
+import { getPercentileItemLength as getItemOfPercentileLength } from "../lib/utils";
 import React from "react";
 import PropTypes from "prop-types";
 import Select from "antd/lib/select";
@@ -107,7 +107,7 @@ class ParameterValueInput extends React.Component {
         optionFilterProp="children"
         value={normalize(value)}
         onChange={this.onSelect}
-        dropdownMatchSelectWidth={get80PercentileItemLength(enumOptionsArray, window.document)}
+        dropdownMatchSelectWidth={getItemOfPercentileLength(enumOptionsArray, 80)}
         showSearch
         showArrow
         style={{ minWidth: 60 }}

@@ -1,5 +1,6 @@
 import moment from "moment";
 import { clientConfig } from "@/services/auth";
+import { sortBy } from "lodash";
 
 export const IntervalEnum = {
   NEVER: "Never",
@@ -167,9 +168,9 @@ export function formatColumnValue(value, columnType = null) {
   return value;
 }
 
-export function get80PercentileItemLength(list, document) {
+export function getItemOfPercentileLength(list, percentile) {
   return (
-    String([...list].sort((a, b) => String(a).length - String(b).length)[Math.round(list.length * (4 / 5))]).length *
-    parseFloat(getComputedStyle(document.documentElement).fontSize)
+    String(sortBy(list, "length")[Math.ceil((list.length - 1) * (percentile / 100))]).length * 10
+    // 10 is the root document font-size
   );
 }
