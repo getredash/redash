@@ -214,7 +214,7 @@ export class ParameterMappingInput extends React.Component {
       <Select
         value={mapping.mapTo}
         onChange={mapTo => this.updateParamMapping({ mapTo })}
-        dropdownMatchSelectWidth={100}>
+        dropdownMatchSelectWidth={getItemOfPercentileLength(existingParamNames, 80)}>
         {map(existingParamNames, name => (
           <Option value={name} key={name}>
             {name}

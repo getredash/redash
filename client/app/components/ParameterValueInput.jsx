@@ -107,7 +107,7 @@ class ParameterValueInput extends React.Component {
         optionFilterProp="children"
         value={normalize(value)}
         onChange={this.onSelect}
-        dropdownMatchSelectWidth={100}
+        dropdownMatchSelectWidth={getItemOfPercentileLength(enumOptionsArray, 80)}
         showSearch
         showArrow
         style={{ minWidth: 60 }}

@@ -91,7 +91,7 @@ export default class QueryBasedParameterInput extends React.Component {
           mode={mode}
           value={this.state.value}
           onChange={onSelect}
-          dropdownMatchSelectWidth={false}
+          dropdownMatchSelectWidth={getItemOfPercentileLength(options, 80, "name.length")}
           optionFilterProp="children"
           showSearch
           showArrow
