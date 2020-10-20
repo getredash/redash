@@ -2,6 +2,7 @@ import { find, isArray, get, first, map, intersection, isEqual, isEmpty } from "
 import React from "react";
 import PropTypes from "prop-types";
 import Select from "antd/lib/select";
+import { getItemOfPercentileLength } from "../lib/utils";
 
 const { Option } = Select;
 

@@ -168,7 +168,7 @@ export function formatColumnValue(value, columnType = null) {
   return value;
 }
 
-export function getItemOfPercentileLength(list, percentile) {
+export function getItemOfPercentileLength(list, percentile, sortIteratees = ["length"]) {
   return (
     String(sortBy(list, "length")[Math.ceil((list.length - 1) * (percentile / 100))]).length * 10
     // 10 is the root document font-size

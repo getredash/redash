@@ -17,6 +17,7 @@ import ParameterValueInput from "@/components/ParameterValueInput";
 import { ParameterMappingType } from "@/services/widget";
 import { Parameter, cloneParameter } from "@/services/parameters";
 import HelpTrigger from "@/components/HelpTrigger";
+import { getItemOfPercentileLength } from "../lib/utils";
 
 import QuestionCircleFilledIcon from "@ant-design/icons/QuestionCircleFilled";
 import EditOutlinedIcon from "@ant-design/icons/EditOutlined";
@@ -213,7 +214,7 @@ export class ParameterMappingInput extends React.Component {
       <Select
         value={mapping.mapTo}
         onChange={mapTo => this.updateParamMapping({ mapTo })}
-        dropdownMatchSelectWidth={false}>
+        dropdownMatchSelectWidth={100}>
         {map(existingParamNames, name => (
           <Option value={name} key={name}>
             {name}
