@@ -1,4 +1,4 @@
-import { isEqual, isEmpty, maxBy } from "lodash";
+import { isEqual, isEmpty } from "lodash";
 import { get80PercentileItemLength } from "../lib/utils";
 import React from "react";
 import PropTypes from "prop-types";
