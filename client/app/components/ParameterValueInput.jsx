@@ -1,4 +1,5 @@
-import { isEqual, isEmpty } from "lodash";
+import { isEqual, isEmpty, maxBy } from "lodash";
+import { get80PercentileItemLength } from "../lib/utils";
 import React from "react";
 import PropTypes from "prop-types";
 import Select from "antd/lib/select";
@@ -98,6 +99,7 @@ class ParameterValueInput extends React.Component {
     const enumOptionsArray = enumOptions.split("\n").filter(v => v !== "");
     // Antd Select doesn't handle null in multiple mode
     const normalize = val => (parameter.multiValuesOptions && val === null ? [] : val);
+
     return (
       <Select
         className={this.props.className}
@@ -105,7 +107,7 @@ class ParameterValueInput extends React.Component {
         optionFilterProp="children"
         value={normalize(value)}
         onChange={this.onSelect}
-        dropdownMatchSelectWidth={false}
+        dropdownMatchSelectWidth={get80PercentileItemLength(enumOptionsArray, window.document)}
         showSearch
         showArrow
         style={{ minWidth: 60 }}

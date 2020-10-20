@@ -166,3 +166,10 @@ export function formatColumnValue(value, columnType = null) {
 
   return value;
 }
+
+export function get80PercentileItemLength(list, document) {
+  return (
+    String([...list].sort((a, b) => String(a).length - String(b).length)[Math.round(list.length * (4 / 5))]).length *
+    parseFloat(getComputedStyle(document.documentElement).fontSize)
+  );
+}
