@@ -8,13 +8,19 @@ export interface StepItem<K> {
   node: React.ReactNode;
 }
 
+export interface EmptyStateHelpMessageProps {
+  helpTriggerType: string;
+}
+
+export declare const EmptyStateHelpMessage: React.FunctionComponent<EmptyStateHelpMessageProps>;
+
 export interface EmptyStateProps<K = unknown> {
   header?: string;
   icon?: string;
   description: string;
   illustration: string;
   illustrationPath?: string;
-  helpLink: string;
+  helpMessage?: React.ReactNode;
 
   onboardingMode?: boolean;
   showAlertStep?: boolean;

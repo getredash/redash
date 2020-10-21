@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import classNames from "classnames";
 import Link from "@/components/Link";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
+import HelpTrigger from "@/components/HelpTrigger";
 import { currentUser } from "@/services/auth";
 import organizationStatus from "@/services/organizationStatus";
 import "./empty-state.less";
@@ -38,12 +39,27 @@ Step.defaultProps = {
   onClick: null,
 };
 
+export function EmptyStateHelpMessage({ helpTriggerType }) {
+  return (
+    <p>
+      Need more support?{" "}
+      <HelpTrigger className="f-14" type={helpTriggerType} showTooltip={false}>
+        See our Help
+      </HelpTrigger>
+    </p>
+  );
+}
+
+EmptyStateHelpMessage.propTypes = {
+  helpTriggerType: PropTypes.string.isRequired,
+};
+
 function EmptyState({
   icon,
   header,
   description,
   illustration,
-  helpLink,
+  helpMessage,
   onboardingMode,
   showAlertStep,
   showDashboardStep,
@@ -178,13 +194,7 @@ function EmptyState({
       <div className="empty-state__steps">
         <h4>Let&apos;s get started</h4>
         <ol>{stepsItems.map(item => item.node)}</ol>
-        <p>
-          Need more support?{" "}
-          <Link href={helpLink} target="_blank" rel="noopener noreferrer">
-            See our Help
-            <i className="fa fa-external-link m-l-5" aria-hidden="true" />
-          </Link>
-        </p>
+        {helpMessage}
       </div>
     </div>
   );
@@ -196,7 +206,7 @@ EmptyState.propTypes = {
   description: PropTypes.string.isRequired,
   illustration: PropTypes.string.isRequired,
   illustrationPath: PropTypes.string,
-  helpLink: PropTypes.string.isRequired,
+  helpMessage: PropTypes.node,
 
   onboardingMode: PropTypes.bool,
   showAlertStep: PropTypes.bool,
@@ -210,6 +220,7 @@ EmptyState.propTypes = {
 EmptyState.defaultProps = {
   icon: null,
   header: null,
+  helpMessage: null,
 
   onboardingMode: false,
   showAlertStep: false,

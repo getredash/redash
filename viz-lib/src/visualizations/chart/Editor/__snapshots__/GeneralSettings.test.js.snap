@@ -18,6 +18,7 @@ Object {
     },
   },
   "showDataLabels": true,
+  "swappedAxes": false,
 }
 `;
 
@@ -40,6 +41,13 @@ Object {
   "direction": Object {
     "type": "clockwise",
   },
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> General Settings Toggles horizontal bar chart 1`] = `
+Object {
+  "seriesOptions": Object {},
+  "swappedAxes": true,
 }
 `;
 

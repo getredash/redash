@@ -8,7 +8,7 @@ import heatmap from "plotly.js/lib/heatmap";
 import prepareData from "./prepareData";
 import prepareLayout from "./prepareLayout";
 import updateData from "./updateData";
-import updateYRanges from "./updateYRanges";
+import updateAxes from "./updateAxes";
 import updateChartSize from "./updateChartSize";
 import { prepareCustomChartData, createCustomChartRenderer } from "./customChartUtils";
 
@@ -22,7 +22,7 @@ export {
   prepareData,
   prepareLayout,
   updateData,
-  updateYRanges,
+  updateAxes,
   updateChartSize,
   prepareCustomChartData,
   createCustomChartRenderer,

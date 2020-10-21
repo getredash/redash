@@ -189,9 +189,9 @@ export default function QueryPageHeader({
               <Link.Button
                 className="m-r-5"
                 href={query.getUrl(false, selectedVisualization)}
-                data-test="QueryPageShowDataOnly">
+                data-test="QueryPageShowResultOnly">
                 <i className="fa fa-table" aria-hidden="true" />
-                <span className="m-l-5">Show Data Only</span>
+                <span className="m-l-5">Show Results Only</span>
               </Link.Button>
             )}
           </span>

@@ -9,7 +9,7 @@ function getDatabases(dataSource, refresh = false) {
   }
 
   return DatabricksDataSource.getDatabases(dataSource, refresh).catch(() => {
-    notification.error("Failed to load Database list", "Please try again later.");
+    notification.error("Failed to load Database list.", "Please try again later.");
     return Promise.reject();
   });
 }
@@ -20,7 +20,7 @@ function getSchema(dataSource, databaseName, refresh = false) {
   }
 
   return DatabricksDataSource.getDatabaseTables(dataSource, databaseName, refresh).catch(() => {
-    notification.error("Failed to load Schema", "Please try again later.");
+    notification.error(`Failed to load tables for ${databaseName}.`, "Please try again later.");
     return Promise.reject();
   });
 }

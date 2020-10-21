@@ -153,7 +153,7 @@ export default function QueryVisualizationTabs({
             />
           ) : (
             <EmptyState
-              title="Query Has no Result"
+              title="Query has no result"
               message="Execute/Refresh the query to show results."
               refreshButton={refreshButton}
             />

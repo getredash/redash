@@ -1,4 +1,4 @@
-import { isObject, isNumber } from "lodash";
+import { isObject, isNumber, each } from "lodash";
 
 function calculateAxisRange(range, min, max) {
   return [isNumber(min) ? min : range[0], isNumber(max) ? max : range[1]];
@@ -40,7 +40,7 @@ function alignYAxesAtZero(axisA, axisB) {
   }
 }
 
-export default function updateYRanges(plotlyElement, layout, options) {
+export default function updateAxes(plotlyElement, seriesList, layout, options) {
   const updates = {};
   if (isObject(layout.yaxis)) {
     updates.yaxis = {
@@ -60,6 +60,7 @@ export default function updateYRanges(plotlyElement, layout, options) {
   return [
     updates,
     () => {
+      // Update Y Ranges
       if (isObject(layout.yaxis)) {
         const axisOptions = options.yAxis[0];
         const defaultRange = plotlyElement.layout.yaxis.range;
@@ -74,6 +75,28 @@ export default function updateYRanges(plotlyElement, layout, options) {
         updates.yaxis2.range = calculateAxisRange(defaultRange, axisOptions.rangeMin, axisOptions.rangeMax);
       }
 
+      // Swap Axes
+      if (options.swappedAxes) {
+        each(seriesList, series => {
+          series.orientation = "h";
+          const { x, y } = series;
+          series.x = y;
+          series.y = x;
+        });
+
+        const { xaxis } = layout;
+        const { yaxis, yaxis2 } = updates;
+
+        if (isObject(xaxis) && isObject(yaxis)) {
+          updates.xaxis = yaxis;
+          updates.yaxis = xaxis;
+        }
+        if (isObject(yaxis2)) {
+          updates.yaxis2 = null;
+        }
+      }
+
+      // Align Y axes
       if (options.alignYAxesAtZero && isObject(layout.yaxis) && isObject(layout.yaxis2)) {
         alignYAxesAtZero(updates.yaxis, updates.yaxis2);
       }
