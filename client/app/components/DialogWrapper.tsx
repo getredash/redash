@@ -1,54 +1,142 @@
 import { map, merge, omit, filter, each, identity } from "lodash";
-import React, { useState, useImperativeHandle, useEffect, useMemo, useRef } from "react";
+import React, {useState, useImperativeHandle, useEffect, useMemo, useRef, useContext, PropsWithChildren} from "react";
 import { ModalProps } from "antd/lib/modal/Modal";
 import PropTypes from "prop-types";
+
+/**
+  How to:
+  =======
+
+  Use a dialog?
+  -------------
+
+  Wrapped dialog is an object which implements OuterDialogInterface. To open a dialog, simply
+  use its `.showModal()` method and pass dialog props and dialog host:
+
+  import MyDialog from "...";
+
+  MyDialog.showModal({ greeting: "Hello, World!" });
+
+  Obtain a dialog host instance?
+  ------------------------------
+
+  Host instances are provided by DialogHost and DefaultDialogHost components.
+  So you basically can obtain a ref to that components and pass it to `.showModal()`.
+  You can (and probably that's a good idea) wrap the whole app with a `<DefaultDialogHost>...</DefaultDialogHost>` -
+  in this case you can call `.showModal()` without second argument - it will use the default host.
+  **Note:** use the only instance of DefaultDialogHost, otherwise it will lead to undefined behavior.
+
+  Also, each DialogHost component provides self instance to its children via DialogHostContext. There are two
+  helper hooks that can obtain this instance:
+
+  - useParentDialogHost() - will return a DialogHost instance if there is any among component's parents;
+  - useDialogHost() - same as useParentDialogHost, but will fallback to a default host instance.
+
+  If you already have a dialog instance (either InnerDialogInterface in a dialog component or OuterDialogInterface
+  returned by `.showModal()` - you can use it's `.host` property to show other dialogs.
+
+  Create a dialog?
+  ----------------
+
+  1. Add imports:
+
+  import { wrap as wrapDialog, DialogComponentProps } from 'path/to/DialogWrapper';
+
+  2. define a `dialog` property on your component:
+
+  function MyDialog({ dialog }: DialogComponentProps<...>) {
+    ...
+  }
+
+  `dialog` property is an instance of InnerDialogInterface
+
+  3. expand additional properties on <Modal> component:
+
+  function MyDialog(...) {
+    return (
+      <Modal {...dialog.props}>
+    );
+  }
+
+  4. wrap your component and export it:
+
+  export default wrapDialog(MyDialog).
+
+  Your component is ready to use. Wrapper will manage <Modal>'s visibility and events.
+  If you want to override behavior of `onOk`/`onCancel` - don't forget to close dialog:
+
+  function MyDialog(...) {
+    function customOkHandler() {
+      saveData().then(() => {
+        dialog.close({ success: true }); // or dismiss();
+      });
+    }
+
+    return (
+      <Modal {...dialog.props} onOk={customOkHandler}>
+    );
+  }
+*/
 
 type Result<R> = R | Promise<R | undefined>;
 
 type CloseDialogHandler<ROk> = (result?: Result<ROk>) => Result<ROk>;
 type DismissDialogHandler<RCancel> = (result?: Result<RCancel>) => Result<RCancel>;
 
-interface BaseDialogInterface<ROk, RCancel> {
-  host: DialogHostInstance;
+// Instance passed to dialog itself
+export interface InnerDialogInterface<ROk, RCancel> {
+  host: DialogHostInterface;
+  props: ModalProps;
   close(result: Result<ROk>): Promise<ROk | undefined>;
   dismiss(result: Result<RCancel>): Promise<RCancel | undefined>;
 }
 
-export interface InternalDialogInstance<ROk, RCancel> extends BaseDialogInterface<ROk, RCancel> {
-  props: ModalProps;
-}
-
-export interface ExternalDialogInstance<P, ROk, RCancel> extends BaseDialogInterface<ROk, RCancel> {
+// Instance returned by `.showModal()`
+export interface OuterDialogInterface<P, ROk, RCancel> {
+  host: DialogHostInterface;
   update(props: P): void;
+  close(result: Result<ROk>): Promise<ROk | undefined>;
+  dismiss(result: Result<RCancel>): Promise<RCancel | undefined>;
   onClose(handler: CloseDialogHandler<ROk>): this;
   onDismiss(handler: DismissDialogHandler<RCancel>): this;
 }
 
-export type DialogComponentProps<P, ROk, RCancel> = { dialog: InternalDialogInstance<ROk, RCancel> } & P;
+class DialogInstance<P, ROk, RCancel> implements OuterDialogInterface<P, ROk, RCancel> {
+  readonly key = Math.random().toString(32).substr(2);
 
-export type DialogComponent<P, ROk, RCancel> = React.ComponentType<DialogComponentProps<P, ROk, RCancel>>;
-
-class DialogHostItem<P, ROk, RCancel> {
-  readonly key: string;
-  readonly #host: DialogHostInstance;
   readonly #Component: DialogComponent<P, ROk, RCancel>;
   #componentProps: P;
+  #dialog: InnerDialogInterface<ROk, RCancel>;
+
   #closeHandler: CloseDialogHandler<ROk> = identity;
   #dismissHandler: DismissDialogHandler<RCancel> = identity;
-
-  internalInstance: InternalDialogInstance<ROk, RCancel>;
-  externalInstance: ExternalDialogInstance<P, ROk, RCancel>;
-
   #pendingCloseTask: Promise<any> | null = null;
 
+  readonly host: DialogHostInstance;
+
+  readonly update: (props: P) => void = (props) => {
+    this.#componentProps = { ...this.#componentProps, ...props };
+    this.host.changed();
+  };
+
+  readonly onClose = (handler: CloseDialogHandler<ROk>): this => {
+    this.#closeHandler = handler || identity;
+    return this;
+  };
+
+  readonly onDismiss = (handler: DismissDialogHandler<RCancel>): this => {
+    this.#dismissHandler = handler || identity;
+    return this;
+  };
+
   readonly #updateDialogProps = (updater: (props: ModalProps) => ModalProps): void => {
-    this.internalInstance = {
-      ...this.internalInstance,
-      props: updater(this.internalInstance.props),
+    this.#dialog = {
+      ...this.#dialog,
+      props: updater(this.#dialog.props),
     };
   }
 
-  processDialogClose<R>(result: Result<R>, additionalDialogProps: ModalProps): Promise<R> {
+  readonly #processDialogClose: <R>(result: Result<R>, dialogProps: ModalProps) => Promise<R> = (result, dialogProps) => {
     if (!this.#pendingCloseTask) {
       this.#updateDialogProps(props => merge({
         ...props,
@@ -56,8 +144,8 @@ class DialogHostItem<P, ROk, RCancel> {
         maskClosable: false,
         okButtonProps: {disabled: true},
         cancelButtonProps: {disabled: true},
-      }, additionalDialogProps));
-      this.#host.changed();
+      }, dialogProps));
+      this.host.changed();
 
       this.#pendingCloseTask = Promise.resolve(result)
         .then((data) => {
@@ -66,77 +154,60 @@ class DialogHostItem<P, ROk, RCancel> {
         })
         .finally(() => {
           this.#updateDialogProps(props => omit({ ...props, okButtonProps: {}, cancelButtonProps: {} }, ["closable", "maskClosable"]));
-          this.#host.changed();
+          this.host.changed();
           this.#pendingCloseTask = null;
         });
     }
     return this.#pendingCloseTask;
-  }
+  };
 
-  readonly closeDialog = (result?: Result<ROk>): Promise<ROk | undefined> => {
-    return this.processDialogClose(this.#closeHandler(result), {
+  readonly close = (result?: Result<ROk>): Promise<ROk | undefined> => {
+    return this.#processDialogClose(this.#closeHandler(result), {
       okButtonProps: { loading: true }
     });
   };
 
-  readonly dismissDialog = (result?: Result<RCancel>): Promise<RCancel | undefined> => {
-    return this.processDialogClose(this.#dismissHandler(result), {
+  readonly dismiss = (result?: Result<RCancel>): Promise<RCancel | undefined> => {
+    return this.#processDialogClose(this.#dismissHandler(result), {
       cancelButtonProps: { loading: true }
     });
   }
 
   constructor(host: DialogHostInstance, Component: DialogComponent<P, ROk, RCancel>, props: P) {
-    this.key = Math.random()
-      .toString(32)
-      .substr(2);
-    this.#host = host;
+    this.host = host;
     this.#Component = Component;
     this.#componentProps = props;
 
-    this.internalInstance = {
+    this.#dialog = {
       host,
       props: {
         visible: true,
         okButtonProps: {},
         cancelButtonProps: {},
-        onOk: () => this.closeDialog(),
-        onCancel: () => this.dismissDialog(),
+        onOk: () => this.close(),
+        onCancel: () => this.dismiss(),
         afterClose: () => host.destroyDialog(this),
       },
-      close: this.closeDialog,
-      dismiss: this.dismissDialog,
+      close: this.close,
+      dismiss: this.dismiss,
     };
-
-    this.externalInstance = {
-      host,
-      update: (newProps: P) => {
-        this.#componentProps = { ...this.#componentProps, ...newProps };
-        host.changed();
-      },
-      onClose: (handler: CloseDialogHandler<ROk>) => {
-        this.#closeHandler = handler || identity;
-        return this.externalInstance;
-      },
-      onDismiss: (handler: DismissDialogHandler<RCancel>) => {
-        this.#dismissHandler = handler || identity;
-        return this.externalInstance;
-      },
-      close: this.closeDialog,
-      dismiss: this.dismissDialog,
-    }
   }
 
   render() {
     const Component = this.#Component;
-    return <Component key={this.key} dialog={this.internalInstance} {...this.#componentProps} />
+    return <Component key={this.key} dialog={this.#dialog} {...this.#componentProps} />
   }
 }
 
-class DialogHostInstance {
-  #items: DialogHostItem<any, any, any>[] = [];
-  readonly #onChange: (items: DialogHostItem<any, any, any>[]) => void;
+export interface DialogHostInterface {
+  showModal<P, ROk, RCancel>(Component: DialogComponent<P, ROk, RCancel>, props: P): OuterDialogInterface<P, ROk, RCancel>;
+}
 
-  constructor(onChange: (items: DialogHostItem<any, any, any>[]) => void) {
+class DialogHostInstance implements DialogHostInterface {
+  #items: DialogInstance<any, any, any>[] = [];
+  readonly #onChange: (items: DialogInstance<any, any, any>[]) => void;
+
+  constructor(onChange: (items: DialogInstance<any, any, any>[]) => void) {
     this.#onChange = onChange;
   }
 
@@ -144,38 +215,55 @@ class DialogHostInstance {
     this.#onChange([...this.#items]);
   }
 
-  destroyDialog<P, ROk, RCancel>(dialog: DialogHostItem<P, ROk, RCancel>) {
+  destroyDialog<P, ROk, RCancel>(dialog: DialogInstance<P, ROk, RCancel>) {
     this.#items = filter(this.#items, item => item.key !== dialog.key);
     this.changed();
   }
 
   dismissAll<RCancel>(result: RCancel) {
     each(this.#items, item => {
-      item.externalInstance.dismiss(result);
+      item.dismiss(result);
     });
   }
 
-  showModal<P, ROk, RCancel>(Component: DialogComponent<P, ROk, RCancel>, props: P) {
-    const item = new DialogHostItem<P, ROk, RCancel>(this, Component, props);
+  showModal<P, ROk, RCancel>(Component: DialogComponent<P, ROk, RCancel>, props: P): OuterDialogInterface<P, ROk, RCancel> {
+    const item = new DialogInstance<P, ROk, RCancel>(this, Component, props);
     this.#items.push(item);
     this.changed();
-    return item.externalInstance;
+    return item;
   }
 }
 
-let defaultDialogHost: DialogHostInstance | undefined;
+export type DialogComponentProps<P, ROk, RCancel> = { dialog: InnerDialogInterface<ROk, RCancel> } & P;
 
-export const DialogHost = React.forwardRef(function DialogHost(props, ref): JSX.Element {
-  const [items, setItems] = useState<DialogHostItem<any, any, any>[]>([]);
+export type DialogComponent<P, ROk, RCancel> = React.ComponentType<DialogComponentProps<P, ROk, RCancel>>;
+
+let defaultDialogHost: DialogHostInterface | null;
+
+export const DialogHostContext = React.createContext<DialogHostInterface | null>(null);
+
+export function useParentDialogHost(): DialogHostInterface | null {
+  return useContext(DialogHostContext);
+}
+
+export function useDialogHost(): DialogHostInterface | null {
+  return useContext(DialogHostContext) || defaultDialogHost;
+}
+
+type DialogHostProps = PropsWithChildren<{}>;
+type DialogHostRef = DialogHostInterface | null;
+
+export const DialogHost = React.forwardRef<DialogHostRef, DialogHostProps>(function DialogHost({ children }, ref) {
+  const [items, setItems] = useState<DialogInstance<any, any, any>[]>([]);
   const isComponentDestroyedRef = useRef<boolean>(false);
 
-  const instance = useMemo(() => new DialogHostInstance((newItems: DialogHostItem<any, any, any>[]) => {
+  const instance = useMemo(() => new DialogHostInstance((newItems: DialogInstance<any, any, any>[]) => {
     if (!isComponentDestroyedRef.current) {
       setItems(newItems);
     }
   }), []);
 
-  useImperativeHandle(ref, () => instance, [instance]);
+  useImperativeHandle<DialogHostRef, DialogHostInterface>(ref, () => instance, [instance]);
 
   useEffect(() => {
     return () => {
@@ -186,30 +274,33 @@ export const DialogHost = React.forwardRef(function DialogHost(props, ref): JSX.
 
   return (
     <React.Fragment>
+      <DialogHostContext.Provider value={instance}>
+        {children}
+      </DialogHostContext.Provider>
       {map(items, item => item.render())}
     </React.Fragment>
   );
 });
 
-export const DefaultDialogHost = React.forwardRef(function DefaultDialogHost(props, ref): JSX.Element {
-  const [innerRef, setInnerRef] = useState<DialogHostInstance | undefined>();
+export const DefaultDialogHost = React.forwardRef<DialogHostRef, DialogHostProps>(function DefaultDialogHost({ children }, ref) {
+  const [innerRef, setInnerRef] = useState<DialogHostRef>(null);
 
-  useImperativeHandle(ref, () => innerRef, [innerRef]);
+  useImperativeHandle<DialogHostRef, DialogHostRef>(ref, () => innerRef, [innerRef]);
 
   useEffect(() => {
     defaultDialogHost = innerRef;
   }, [innerRef]);
 
-  return <DialogHost ref={setInnerRef} />
+  return <DialogHost ref={setInnerRef}>{children}</DialogHost>;
 });
 
 export function wrap<P, ROk, RCancel>(Component: DialogComponent<P, ROk, RCancel>) {
-  type DialogComponentPropsEx = P & { host?: DialogHostInstance };
+  type DialogComponentPropsEx = P & { host?: DialogHostInterface };
 
   return {
     Component,
-    showModal: (props: DialogComponentPropsEx, host?: DialogHostInstance): ExternalDialogInstance<P, ROk, RCancel> => {
-      host = host || defaultDialogHost;
+    showModal: (props: DialogComponentPropsEx, host?: DialogHostInterface): OuterDialogInterface<P, ROk, RCancel> => {
+      host = host || defaultDialogHost || undefined;
       if (!host) {
         throw new Error("No host provided for dialog");
       }
@@ -218,9 +309,9 @@ export function wrap<P, ROk, RCancel>(Component: DialogComponent<P, ROk, RCancel
   };
 }
 
-// InternalDialogInstance as a prop-type
+// InnerDialogInterface as a proptype
 export const DialogPropType = PropTypes.shape({
-  host: PropTypes.instanceOf(DialogHostInstance).isRequired,
+  host: PropTypes.object.isRequired,
   props: PropTypes.shape({
     visible: PropTypes.bool,
     onOk: PropTypes.func,

@@ -35,9 +35,8 @@ export default function ApplicationArea() {
   }
 
   return (
-    <React.Fragment>
+    <DefaultDialogHost>
       <Router routes={routes.items} onRouteChange={setCurrentRoute} />
-      <DefaultDialogHost />
-    </React.Fragment>
+    </DefaultDialogHost>
   );
 }
