@@ -8,30 +8,31 @@ import navigateTo from "@/components/ApplicationArea/navigateTo";
 import recordEvent from "@/services/recordEvent";
 import { policy } from "@/services/policy";
 import { Dashboard } from "@/services/dashboard";
+import notification from "@/services/notification";
 
 function CreateDashboardDialog({ dialog }) {
-  const [name, setName] = useState("");
-  const [isValid, setIsValid] = useState(false);
-  const [saveInProgress, setSaveInProgress] = useState(false);
   const isCreateDashboardEnabled = policy.isCreateDashboardEnabled();
 
-  function handleNameChange(event) {
-    const value = trim(event.target.value);
-    setName(value);
-    setIsValid(value !== "");
-  }
+  const [name, setName] = useState("");
+  const isNameValid = name !== "";
 
-  function save() {
-    if (name !== "") {
-      setSaveInProgress(true);
+  const saveInProgress = dialog.props.okButtonProps.loading || dialog.props.cancelButtonProps.loading;
 
-      Dashboard.save({ name }).then(data => {
-        dialog.close();
-        navigateTo(`${data.url}?edit`);
-      });
-      recordEvent("create", "dashboard");
+  const save = () => {
+    if (isNameValid) {
+      dialog.close(
+        Dashboard.save({ name })
+          .then(data => {
+            recordEvent("create", "dashboard");
+            navigateTo(`${data.url}?edit`);
+          })
+          .catch(error => {
+            notification.error("Failed to create dashboard", error.message);
+            return Promise.reject(error);
+          })
+      );
     }
-  }
+  };
 
   return (
     <Modal
@@ -41,23 +42,18 @@ function CreateDashboardDialog({ dialog }) {
       okText="Save"
       cancelText="Close"
       okButtonProps={{
-        disabled: !isValid || saveInProgress,
-        loading: saveInProgress,
+        ...dialog.props.okButtonProps,
+        disabled: !isNameValid || dialog.props.okButtonProps.disabled,
         "data-test": "DashboardSaveButton",
       }}
-      cancelButtonProps={{
-        disabled: saveInProgress,
-      }}
       onOk={save}
-      closable={!saveInProgress}
-      maskClosable={!saveInProgress}
       wrapProps={{
         "data-test": "CreateDashboardDialog",
       }}>
       <DynamicComponent name="CreateDashboardDialogExtra" disabled={!isCreateDashboardEnabled}>
         <Input
           defaultValue={name}
-          onChange={handleNameChange}
+          onChange={event => setName(trim(event.target.value))}
           onPressEnter={save}
           placeholder="Dashboard Name"
           disabled={saveInProgress}
