@@ -6,6 +6,7 @@ import { policy } from "@/services/policy";
 import { CurrentRoute } from "@/services/routes";
 import organizationStatus from "@/services/organizationStatus";
 import DynamicComponent from "@/components/DynamicComponent";
+import { DialogHost } from "@/components/DialogWrapper";
 import ApplicationLayout from "./ApplicationLayout";
 import ErrorMessage from "./ErrorMessage";
 
@@ -97,11 +98,13 @@ export default function routeWithUserSession<P extends {} = {}>({
         currentRoute,
       };
       return (
-        <DynamicComponent
-          {...props}
-          name={UserSessionWrapperDynamicComponentName}
-          fallback={<UserSessionWrapper {...props} />}
-        />
+        <DialogHost>
+          <DynamicComponent
+            {...props}
+            name={UserSessionWrapperDynamicComponentName}
+            fallback={<UserSessionWrapper {...props} />}
+          />
+        </DialogHost>
       );
     },
   };

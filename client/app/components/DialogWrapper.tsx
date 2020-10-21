@@ -1,4 +1,4 @@
-import { map, merge, omit, filter, each, identity } from "lodash";
+import { extend, map, merge, omit, filter, each, identity } from "lodash";
 import React, {useState, useImperativeHandle, useEffect, useMemo, useRef, useContext, PropsWithChildren} from "react";
 import { ModalProps } from "antd/lib/modal/Modal";
 import PropTypes from "prop-types";
@@ -115,7 +115,7 @@ class DialogInstance<P, ROk, RCancel> implements OuterDialogInterface<P, ROk, RC
   readonly host: DialogHostInstance;
 
   readonly update: (props: P) => void = (props) => {
-    this.#componentProps = { ...this.#componentProps, ...props };
+    this.#componentProps = extend({}, this.#componentProps, props);
     this.host.changed();
   };
 
@@ -173,10 +173,10 @@ class DialogInstance<P, ROk, RCancel> implements OuterDialogInterface<P, ROk, RC
     });
   }
 
-  constructor(host: DialogHostInstance, Component: DialogComponent<P, ROk, RCancel>, props: P) {
+  constructor(host: DialogHostInstance, Component: DialogComponent<P, ROk, RCancel>, props?: P) {
     this.host = host;
     this.#Component = Component;
-    this.#componentProps = props;
+    this.#componentProps = extend({}, props);
 
     this.#dialog = {
       host,
@@ -200,7 +200,7 @@ class DialogInstance<P, ROk, RCancel> implements OuterDialogInterface<P, ROk, RC
 }
 
 export interface DialogHostInterface {
-  showModal<P, ROk, RCancel>(Component: DialogComponent<P, ROk, RCancel>, props: P): OuterDialogInterface<P, ROk, RCancel>;
+  showModal<P, ROk, RCancel>(Component: DialogComponent<P, ROk, RCancel>, props?: P): OuterDialogInterface<P, ROk, RCancel>;
 }
 
 class DialogHostInstance implements DialogHostInterface {
@@ -226,7 +226,7 @@ class DialogHostInstance implements DialogHostInterface {
     });
   }
 
-  showModal<P, ROk, RCancel>(Component: DialogComponent<P, ROk, RCancel>, props: P): OuterDialogInterface<P, ROk, RCancel> {
+  showModal<P, ROk, RCancel>(Component: DialogComponent<P, ROk, RCancel>, props?: P): OuterDialogInterface<P, ROk, RCancel> {
     const item = new DialogInstance<P, ROk, RCancel>(this, Component, props);
     this.#items.push(item);
     this.changed();
@@ -299,7 +299,7 @@ export function wrap<P, ROk, RCancel>(Component: DialogComponent<P, ROk, RCancel
 
   return {
     Component,
-    showModal: (props: DialogComponentPropsEx, host?: DialogHostInterface): OuterDialogInterface<P, ROk, RCancel> => {
+    showModal: (props?: DialogComponentPropsEx, host?: DialogHostInterface): OuterDialogInterface<P, ROk, RCancel> => {
       host = host || defaultDialogHost || undefined;
       if (!host) {
         throw new Error("No host provided for dialog");

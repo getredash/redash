@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import PropTypes from "prop-types";
+import { DialogHost } from "@/components/DialogWrapper";
 import { ErrorBoundaryContext } from "@redash/viz/lib/components/ErrorBoundary";
 import { Auth, clientConfig } from "@/services/auth";
 
@@ -38,9 +39,9 @@ function ApiKeySessionWrapper({ apiKey, currentRoute, renderChildren }) {
   }
 
   return (
-    <React.Fragment key={currentRoute.key}>
+    <DialogHost key={currentRoute.key}>
       {renderChildren({ ...currentRoute.routeParams, pageTitle: currentRoute.title, onError: handleError, apiKey })}
-    </React.Fragment>
+    </DialogHost>
   );
 }
 
