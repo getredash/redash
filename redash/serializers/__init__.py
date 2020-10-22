@@ -314,6 +314,7 @@ def serialize_job(job):
 
     status = STATUSES[job_status]
     result = query_result_id = None
+    query_text = job.args[0]
 
     if job.is_cancelled:
         error = "Query cancelled by user."
@@ -336,5 +337,6 @@ def serialize_job(job):
             "error": error,
             "result": result,
             "query_result_id": query_result_id,
+            "query_text": query_text,
         }
     }
