@@ -14,22 +14,14 @@ function getItemOfPercentile<T>(list: Array<T>, percentile: number, sortIteratee
 const FONT_RATIO = 0.7;
 
 function Select({ style, options, ...props }: SelectProps<any>): JSX.Element {
-  const selectEl = useRef<AntdSelect>(null);
   const [dropdownMatchSelectWidth, setDropdownMatchSelectWidth] = useState<number | boolean>(false);
   useEffect(() => {
     if (options && options.length > 1) {
-      let fontSize = 10;
-      if (selectEl.current) {
-        console.log(selectEl.current);
-        fontSize = parseFloat(getComputedStyle(document.body).fontSize);
-      }
-      // console.log(fontSize);
+      const fontSize = parseFloat(getComputedStyle(document.body).fontSize);
       const itemOf80thPercentile = getItemOfPercentile(options, 80, "label.length");
       if (itemOf80thPercentile) {
         const len = String(itemOf80thPercentile.label).length;
         setDropdownMatchSelectWidth(len * fontSize * FONT_RATIO);
-
-        console.log(dropdownMatchSelectWidth);
       }
     }
   }, [dropdownMatchSelectWidth, options]);
