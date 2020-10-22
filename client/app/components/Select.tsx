@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { sortBy, get } from "lodash";
 import AntdSelect, { SelectProps } from "antd/lib/select";
 
-function getItemOfPercentile<T>(list: Array<T>, percentile: number, sortIteratee: string | string[] = "length") {
+function getItemOfPercentile<T>(list: Array<T>, percentile: number, sortIteratee = "length") {
   if (get(list[0], sortIteratee, null) === null) {
     return;
   }
@@ -16,7 +16,8 @@ const FONT_RATIO = 0.7;
 function Select({ style, options, ...props }: SelectProps<any>): JSX.Element {
   const [dropdownMatchSelectWidth, setDropdownMatchSelectWidth] = useState<number | boolean>(false);
   useEffect(() => {
-    if (options && options.length > 1) {
+    if (options && options.length > 400) {
+      // using body because it's too messy to get a reference to the element itself
       const fontSize = parseFloat(getComputedStyle(document.body).fontSize);
       const itemOf80thPercentile = getItemOfPercentile(options, 80, "label.length");
       if (itemOf80thPercentile) {
@@ -24,7 +25,7 @@ function Select({ style, options, ...props }: SelectProps<any>): JSX.Element {
         setDropdownMatchSelectWidth(len * fontSize * FONT_RATIO);
       }
     }
-  }, [dropdownMatchSelectWidth, options]);
+  }, [options]);
 
   return (
     <AntdSelect
