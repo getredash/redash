@@ -25,8 +25,6 @@ import CheckOutlinedIcon from "@ant-design/icons/CheckOutlined";
 
 import "./ParameterMappingInput.less";
 
-const { Option } = Select;
-
 export const MappingType = {
   DashboardAddNew: "dashboard-add-new",
   DashboardMapToExisting: "dashboard-map-to-existing",

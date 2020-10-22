@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { sortBy, get } from "lodash";
 import AntdSelect, { SelectProps } from "antd/lib/select";
 

@@ -3,8 +3,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import Select from "../components/Select";
 
-const { Option } = Select;
-
 export default class QueryBasedParameterInput extends React.Component {
   static propTypes = {
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types

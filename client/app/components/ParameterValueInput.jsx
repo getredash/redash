@@ -10,8 +10,6 @@ import QueryBasedParameterInput from "./QueryBasedParameterInput";
 
 import "./ParameterValueInput.less";
 
-const { Option } = Select;
-
 const multipleValuesProps = {
   maxTagCount: 3,
   maxTagTextLength: 10,
