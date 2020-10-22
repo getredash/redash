@@ -228,6 +228,13 @@ class TestUserListGet(BaseTestCase):
             ],
         )
 
+    def test_returns_400_with_invalid_disabled(self):
+        rv = self.make_request("get", "/api/users?disabled=something")
+        self.assertEqual(rv.status_code, 400)
+
+    def test_returns_400_with_invalid_pending(self):
+        rv = self.make_request("get", "/api/users?pending=something")
+        self.assertEqual(rv.status_code, 400)
 
 class TestUserResourceGet(BaseTestCase):
     def test_returns_api_key_for_your_own_user(self):
