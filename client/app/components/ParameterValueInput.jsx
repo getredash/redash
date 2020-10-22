@@ -1,4 +1,4 @@
-import { isEqual, isEmpty, map, uniq } from "lodash";
+import { isEqual, isEmpty, map } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import Select from "../components/Select";

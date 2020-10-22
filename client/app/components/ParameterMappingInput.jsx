@@ -1,6 +1,6 @@
 /* eslint-disable react/no-multi-comp */
 
-import { isString, extend, each, has, map, includes, findIndex, find, fromPairs, clone, isEmpty, uniq } from "lodash";
+import { isString, extend, each, has, map, includes, findIndex, find, fromPairs, clone, isEmpty } from "lodash";
 import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
