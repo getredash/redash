@@ -121,13 +121,17 @@ class UserListResource(BaseResource):
         search_term = request.args.get("q", "")
 
         disabled = request.args.get("disabled", "false")  # get enabled users by default
-        disabled = parse_boolean(disabled)
+        try:
+            disabled = parse_boolean(disabled)
+        except ValueError as e:
+            abort(400, message="disabled must be boolean.")
 
-        pending = request.args.get(
-            "pending", None
-        )  # get both active and pending by default
+        pending = request.args.get("pending", None)  # get both active and pending by default
         if pending is not None:
-            pending = parse_boolean(pending)
+            try:
+                pending = parse_boolean(pending)
+            except ValueError as e:
+                abort(400, message="pending must be boolean.")
 
         users = self.get_users(disabled, pending, search_term)
 
