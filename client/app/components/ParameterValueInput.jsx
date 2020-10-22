@@ -1,8 +1,7 @@
-import { isEqual, isEmpty } from "lodash";
-import { getItemOfPercentileLength } from "../lib/utils";
+import { isEqual, isEmpty, map, uniq } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import Select from "antd/lib/select";
+import Select from "../components/Select";
 import Input from "antd/lib/input";
 import InputNumber from "antd/lib/input-number";
 import DateParameter from "@/components/dynamic-parameters/DateParameter";
@@ -107,18 +106,12 @@ class ParameterValueInput extends React.Component {
         optionFilterProp="children"
         value={normalize(value)}
         onChange={this.onSelect}
-        dropdownMatchSelectWidth={getItemOfPercentileLength(enumOptionsArray, 80)}
+        options={map(enumOptionsArray, opt => ({ label: String(opt), value: opt }))}
         showSearch
         showArrow
-        style={{ minWidth: 60 }}
         notFoundContent={isEmpty(enumOptionsArray) ? "No options available" : null}
-        {...multipleValuesProps}>
-        {enumOptionsArray.map(option => (
-          <Option key={option} value={option}>
-            {option}
-          </Option>
-        ))}
-      </Select>
+        {...multipleValuesProps}
+      />
     );
   }
 

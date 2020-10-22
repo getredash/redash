@@ -1,8 +1,7 @@
 import { find, isArray, get, first, map, intersection, isEqual, isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import Select from "antd/lib/select";
-import { getItemOfPercentileLength } from "../lib/utils";
+import Select from "../components/Select";
 
 const { Option } = Select;
 
@@ -91,18 +90,13 @@ export default class QueryBasedParameterInput extends React.Component {
           mode={mode}
           value={this.state.value}
           onChange={onSelect}
-          dropdownMatchSelectWidth={getItemOfPercentileLength(options, 80, "name.length")}
+          options={map(options, ({ value, name }) => ({ label: String(name), value }))}
           optionFilterProp="children"
           showSearch
           showArrow
           notFoundContent={isEmpty(options) ? "No options available" : null}
-          {...otherProps}>
-          {options.map(option => (
-            <Option value={option.value} key={option.value}>
-              {option.name}
-            </Option>
-          ))}
-        </Select>
+          {...otherProps}
+        />
       </span>
     );
   }

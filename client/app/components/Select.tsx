@@ -11,25 +11,31 @@ function getItemOfPercentile<T>(list: Array<T>, percentile: number, sortIteratee
   return sortedList[percentileIndex];
 }
 
+const FONT_RATIO = 0.7;
+
 function Select({ style, options, ...props }: SelectProps<any>): JSX.Element {
   const selectEl = useRef<AntdSelect>(null);
   const [dropdownMatchSelectWidth, setDropdownMatchSelectWidth] = useState<number | boolean>(false);
   useEffect(() => {
-    if (options && options.length > 500) {
+    if (options && options.length > 1) {
       let fontSize = 10;
       if (selectEl.current) {
-        fontSize = parseFloat(getComputedStyle((selectEl.current as unknown) as Element).fontSize);
+        console.log(selectEl.current);
+        fontSize = parseFloat(getComputedStyle(document.body).fontSize);
       }
+      // console.log(fontSize);
       const itemOf80thPercentile = getItemOfPercentile(options, 80, "label.length");
       if (itemOf80thPercentile) {
-        setDropdownMatchSelectWidth(String(itemOf80thPercentile.label).length);
+        const len = String(itemOf80thPercentile.label).length;
+        setDropdownMatchSelectWidth(len * fontSize * FONT_RATIO);
+
+        console.log(dropdownMatchSelectWidth);
       }
     }
-  }, [options]);
+  }, [dropdownMatchSelectWidth, options]);
 
   return (
     <AntdSelect
-      ref={selectEl}
       dropdownMatchSelectWidth={dropdownMatchSelectWidth}
       options={options}
       style={{ minWidth: 60, ...style }}

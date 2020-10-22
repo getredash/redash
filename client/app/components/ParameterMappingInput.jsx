@@ -1,10 +1,10 @@
 /* eslint-disable react/no-multi-comp */
 
-import { isString, extend, each, has, map, includes, findIndex, find, fromPairs, clone, isEmpty } from "lodash";
+import { isString, extend, each, has, map, includes, findIndex, find, fromPairs, clone, isEmpty, uniq } from "lodash";
 import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import Select from "antd/lib/select";
+import Select from "../components/Select";
 import Table from "antd/lib/table";
 import Popover from "antd/lib/popover";
 import Button from "antd/lib/button";
@@ -17,7 +17,6 @@ import ParameterValueInput from "@/components/ParameterValueInput";
 import { ParameterMappingType } from "@/services/widget";
 import { Parameter, cloneParameter } from "@/services/parameters";
 import HelpTrigger from "@/components/HelpTrigger";
-import { getItemOfPercentileLength } from "../lib/utils";
 
 import QuestionCircleFilledIcon from "@ant-design/icons/QuestionCircleFilled";
 import EditOutlinedIcon from "@ant-design/icons/EditOutlined";
@@ -209,19 +208,9 @@ export class ParameterMappingInput extends React.Component {
 
   renderDashboardMapToExisting() {
     const { mapping, existingParamNames } = this.props;
+    const options = map(existingParamNames, opt => ({ label: String(opt), value: String(opt) }));
 
-    return (
-      <Select
-        value={mapping.mapTo}
-        onChange={mapTo => this.updateParamMapping({ mapTo })}
-        dropdownMatchSelectWidth={getItemOfPercentileLength(existingParamNames, 80)}>
-        {map(existingParamNames, name => (
-          <Option value={name} key={name}>
-            {name}
-          </Option>
-        ))}
-      </Select>
-    );
+    return <Select value={mapping.mapTo} onChange={mapTo => this.updateParamMapping({ mapTo })} options={options} />;
   }
 
   renderStaticValue() {

@@ -8,7 +8,6 @@ import { Query } from "@/services/query";
 import notification from "@/services/notification";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import useSearchResults from "@/lib/hooks/useSearchResults";
-import { getItemOfPercentileLength } from "@/lib/utils";
 
 const { Option } = Select;
 function search(term) {
@@ -91,7 +90,7 @@ export default function QuerySelector(props) {
     return (
       <Select
         showSearch
-        dropdownMatchSelectWidth={getItemOfPercentileLength(searchResults, 80)}
+        dropdownMatchSelectWidth={false}
         placeholder={placeholder}
         value={value || undefined} // undefined for the placeholder to show
         onSearch={setSearchTerm}
