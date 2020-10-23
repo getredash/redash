@@ -82,6 +82,18 @@ const defaultVisualizations = [
   },
 ];
 
+
+const CachedVisualizationRenderer = React.memo(
+  function CachedVisRender(props) {
+    return <VisualizationRenderer {...props} />
+  },
+  (prevProps, nextProps) => (
+    prevProps.queryResult === nextProps.queryResult &&
+    prevProps.filters === nextProps.filters &&
+    prevProps.visualization === nextProps.visualization &&
+    prevProps.onFiltersChange === nextProps.onFiltersChange
+  ))
+
 export default function QueryVisualizationTabs({
   queryResult,
   selectedTab,
@@ -144,7 +156,7 @@ export default function QueryVisualizationTabs({
             />
           }>
           {queryResult ? (
-            <VisualizationRenderer
+            <CachedVisualizationRenderer
               visualization={visualization}
               queryResult={queryResult}
               context="query"
