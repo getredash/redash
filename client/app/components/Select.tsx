@@ -12,7 +12,7 @@ function getItemOfPercentile<T>(list: Array<T>, percentile: number, sortIteratee
   return sortedList[percentileIndex];
 }
 
-function Select({ style, options, ...props }: SelectProps<any>): JSX.Element {
+function Select({ options, ...props }: SelectProps<any>): JSX.Element {
   const [dropdownMatchSelectWidth, setDropdownMatchSelectWidth] = useState<number | boolean>(true);
   useEffect(() => {
     if (options && options.length > 400) {
@@ -30,14 +30,7 @@ function Select({ style, options, ...props }: SelectProps<any>): JSX.Element {
     }
   }, [options]);
 
-  return (
-    <AntdSelect
-      dropdownMatchSelectWidth={dropdownMatchSelectWidth}
-      options={options}
-      style={{ minWidth: 60, ...style }}
-      {...props}
-    />
-  );
+  return <AntdSelect dropdownMatchSelectWidth={dropdownMatchSelectWidth} options={options} {...props} />;
 }
 
 export default Select;
