@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { sortBy, get } from "lodash";
+import { sortBy, get, max } from "lodash";
 import AntdSelect, { SelectProps } from "antd/lib/select";
 import { calculateTextWidth } from "@/lib/calculateTextWidth";
 
@@ -20,7 +20,7 @@ function Select({ options, ...props }: SelectProps<any>): JSX.Element {
 
       if (itemOf80thPercentile) {
         const padding = 12;
-        const optionText = String(itemOf80thPercentile.label);
+        const optionText = String("this should be a huge mess499");
         const width = calculateTextWidth(optionText);
         if (width) {
           setDropdownMatchSelectWidth(width + padding);
