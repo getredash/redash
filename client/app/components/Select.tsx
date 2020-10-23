@@ -19,10 +19,11 @@ function Select({ options, ...props }: SelectProps<any>): JSX.Element {
       const itemOf80thPercentile = getItemOfPercentile(options, 80, "label.length");
 
       if (itemOf80thPercentile) {
+        const padding = 12;
         const optionText = String(itemOf80thPercentile.label);
         const width = calculateTextWidth(optionText);
         if (width) {
-          setDropdownMatchSelectWidth(width);
+          setDropdownMatchSelectWidth(width + padding);
         }
       }
     } else {

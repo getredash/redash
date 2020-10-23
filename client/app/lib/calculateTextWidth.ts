@@ -8,7 +8,7 @@ export function calculateTextWidth(text: string, container = document.body) {
     const containerStyle = window.getComputedStyle(container);
     ctx.font = `${containerStyle.fontSize} ${containerStyle.fontFamily}`;
     const textMetrics = ctx.measureText(text);
-    const actualWidth = textMetrics.width + Math.abs(textMetrics.actualBoundingBoxLeft);
+    const actualWidth = Math.abs(textMetrics.actualBoundingBoxLeft) + Math.abs(textMetrics.actualBoundingBoxRight);
     return actualWidth;
   }
 
