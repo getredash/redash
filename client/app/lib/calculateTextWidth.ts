@@ -1,9 +1,5 @@
 const canvas = document.createElement("canvas");
-// canvas.style.display = "none";
-canvas.style.position = "absolute";
-canvas.style.top = "100px";
-canvas.style.left = "124px";
-canvas.style.zIndex = "9999";
+canvas.style.display = "none";
 document.body.appendChild(canvas);
 
 export function calculateTextWidth(text: string, container = document.body) {
