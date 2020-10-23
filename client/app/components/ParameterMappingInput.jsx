@@ -4,7 +4,7 @@ import { isString, extend, each, has, map, includes, findIndex, find, fromPairs,
 import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import Select from "../components/Select";
+import Select from "@/components/Select";
 import Table from "antd/lib/table";
 import Popover from "antd/lib/popover";
 import Button from "antd/lib/button";
