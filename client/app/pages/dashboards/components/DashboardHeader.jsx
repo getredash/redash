@@ -16,6 +16,7 @@ import { clientConfig } from "@/services/auth";
 import { policy } from "@/services/policy";
 import { durationHumanize } from "@/lib/utils";
 import { DashboardStatusEnum } from "../hooks/useDashboard";
+import useDuplicateDashboard from "@/pages/dashboards/hooks/useDuplicateDashboard";
 
 import "./DashboardHeader.less";
 
@@ -131,6 +132,8 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
     });
   };
 
+  const duplicateDashboard = useDuplicateDashboard(dashboard);
+
   return (
     <Dropdown
       trigger={["click"]}
@@ -152,6 +155,9 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
           )}
           <Menu.Item>
             <a onClick={archive}>Archive</a>
+          </Menu.Item>
+          <Menu.Item>
+            <a onClick={duplicateDashboard}>Copy Dashboard</a>
           </Menu.Item>
         </Menu>
       }>
