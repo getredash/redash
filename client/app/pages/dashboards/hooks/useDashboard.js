@@ -157,6 +157,13 @@ function useDashboard(dashboardData) {
     );
   }, [dashboard]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const copyDashboard = useCallback(() => {
+    const dashboardSlug = dashboard.slug;
+    Dashboard.copy({ slug: dashboardSlug }).then(({ slug }) => {
+      window.open(`dashboard/${slug}`);
+    });
+  }, [dashboard]);
+
   const showShareDashboardDialog = useCallback(() => {
     const handleDialogClose = () => setDashboard(currentDashboard => extend({}, currentDashboard));
 
@@ -228,6 +235,7 @@ function useDashboard(dashboardData) {
     loadWidget,
     refreshWidget,
     removeWidget,
+    copyDashboard,
     canEditDashboard,
     isDashboardOwnerOrAdmin,
     refreshRate,
