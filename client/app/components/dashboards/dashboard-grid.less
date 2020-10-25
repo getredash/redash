@@ -89,6 +89,7 @@
     > .visualization-renderer-wrapper {
       flex-grow: 1;
       position: relative;
+      height: 0;
     }
 
     > .filters-wrapper {
@@ -113,19 +114,15 @@
     overflow: hidden;
   }
 
-  .counter-visualization-container {
-    height: 100%;
-
-    .counter-visualization-content {
-      position: absolute;
-      left: 10px;
-      top: 15px;
-      right: 10px;
-      bottom: 15px;
-      height: auto;
-      overflow: hidden;
-      padding: 0;
-    }
+  .counter-visualization-content {
+    position: absolute;
+    left: 10px;
+    top: 15px;
+    right: 10px;
+    bottom: 15px;
+    height: auto;
+    overflow: hidden;
+    padding: 0;
   }
 }
 
