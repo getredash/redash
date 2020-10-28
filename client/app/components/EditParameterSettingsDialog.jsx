@@ -145,7 +145,6 @@ function EditParameterSettingsDialog(props) {
             value={isNull(param.title) ? getDefaultTitle(param.name) : param.title}
             onChange={e => setParam({ ...param, title: e.target.value })}
             data-test="ParameterTitleInput"
-            required
           />
         </Form.Item>
         <Form.Item label="Type" {...formItemProps}>
