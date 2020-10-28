@@ -1,16 +1,23 @@
 import React, { useMemo } from "react";
 import { maxBy } from "lodash";
-import AntdSelect, { SelectProps } from "antd/lib/select";
+import AntdSelect, { SelectProps, LabeledValue } from "antd/lib/select";
 import { calculateTextWidth } from "@/lib/calculateTextWidth";
 
-function SelectWithVirtualScroll({ options, ...props }: SelectProps<any>): JSX.Element {
+interface VirtualScrollLabeledValue extends LabeledValue {
+  label: string;
+}
+
+interface VirtualScrollSelectProps extends SelectProps<any> {
+  options: Array<VirtualScrollLabeledValue>;
+}
+function SelectWithVirtualScroll({ options, ...props }: VirtualScrollSelectProps): JSX.Element {
   const dropdownMatchSelectWidth = useMemo<number | boolean>(() => {
     if (options && options.length > 400) {
       const largestOpt = maxBy(options, "label.length");
 
       if (largestOpt) {
         const offset = 40;
-        const optionText = String(largestOpt.label);
+        const optionText = largestOpt.label;
         const width = calculateTextWidth(optionText);
         if (width) {
           return width + offset;
@@ -19,6 +26,7 @@ function SelectWithVirtualScroll({ options, ...props }: SelectProps<any>): JSX.E
 
       return true;
     }
+
     return false;
   }, [options]);
 
