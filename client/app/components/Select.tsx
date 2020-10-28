@@ -18,9 +18,8 @@ function SelectWithVirtualScroll({ options, ...props }: SelectProps<any>): JSX.E
       }
 
       return true;
-    } else {
-      return false;
     }
+    return false;
   }, [options]);
 
   return <AntdSelect dropdownMatchSelectWidth={dropdownMatchSelectWidth} options={options} {...props} />;
