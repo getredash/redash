@@ -106,6 +106,7 @@ class HardLimitingWorker(BaseWorker):
         failed
         """
         self.monitor_started = utcnow()
+        job.started_at = utcnow()
         while True:
             try:
                 with UnixSignalDeathPenalty(
