@@ -25,10 +25,8 @@ def login(org_slug=None):
         logger.error("Cannot use remote user for login without being enabled in settings")
         return redirect(url_for("redash.index", next=next_path, org_slug=org_slug))
 
-    print(request.headers)
     email = request.headers.get(settings.REMOTE_USER_HEADER)
     name = extract_name(email)
-    print(email, name)
 
     # Some Apache auth configurations will, stupidly, set (null) instead of a
     # falsey value.  Special case that here so it Just Works for more installs.
