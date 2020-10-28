@@ -276,10 +276,6 @@ def create_and_login_user(org, name, email, picture=None):
         if user_object.is_invitation_pending:
             user_object.is_invitation_pending = False
             models.db.session.commit()
-        if user_object.name != name:
-            logger.debug("Updating user name (%r -> %r)", user_object.name, name)
-            user_object.name = name
-            models.db.session.commit()
     except NoResultFound:
         logger.debug("Creating user object (%r)", name)
         user_object = models.User(

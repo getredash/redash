@@ -188,6 +188,8 @@ def login(org_slug=None):
     next_path = get_next_path(unsafe_next_path)
     if current_user.is_authenticated:
         return redirect(next_path)
+    if settings.REMOTE_USER_LOGIN_ENABLED:
+        return redirect("remote_user/login")
 
     if request.method == "POST" and current_org.get_setting("auth_password_login_enabled"):
         try:
