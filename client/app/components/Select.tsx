@@ -4,8 +4,7 @@ import AntdSelect, { SelectProps } from "antd/lib/select";
 import { calculateTextWidth } from "@/lib/calculateTextWidth";
 
 function SelectWithVirtualScroll({ options, ...props }: SelectProps<any>): JSX.Element {
-  let dropdownMatchSelectWidth: number | boolean = true;
-  useMemo(() => {
+  const dropdownMatchSelectWidth = useMemo<number | boolean>(() => {
     if (options && options.length > 400) {
       const largestOpt = maxBy(options, "label.length");
 
@@ -14,11 +13,13 @@ function SelectWithVirtualScroll({ options, ...props }: SelectProps<any>): JSX.E
         const optionText = String(largestOpt.label);
         const width = calculateTextWidth(optionText);
         if (width) {
-          dropdownMatchSelectWidth = width + offset; // eslint-disable-line react-hooks/exhaustive-deps
+          return width + offset;
         }
       }
+
+      return true;
     } else {
-      dropdownMatchSelectWidth = false;
+      return false;
     }
   }, [options]);
 
