@@ -1,7 +1,7 @@
 import { isEqual, isEmpty, map } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import Select from "@/components/Select";
+import SelectWithVirtualScroll from "@/components/Select";
 import Input from "antd/lib/input";
 import InputNumber from "antd/lib/input-number";
 import DateParameter from "@/components/dynamic-parameters/DateParameter";
@@ -98,7 +98,7 @@ class ParameterValueInput extends React.Component {
     const normalize = val => (parameter.multiValuesOptions && val === null ? [] : val);
 
     return (
-      <Select
+      <SelectWithVirtualScroll
         className={this.props.className}
         mode={parameter.multiValuesOptions ? "multiple" : "default"}
         optionFilterProp="children"

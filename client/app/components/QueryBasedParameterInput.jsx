@@ -1,7 +1,7 @@
 import { find, isArray, get, first, map, intersection, isEqual, isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import Select from "@/components/Select";
+import SelectWithVirtualScroll from "@/components/Select";
 
 export default class QueryBasedParameterInput extends React.Component {
   static propTypes = {
@@ -81,7 +81,7 @@ export default class QueryBasedParameterInput extends React.Component {
     const { loading, options } = this.state;
     return (
       <span>
-        <Select
+        <SelectWithVirtualScroll
           className={className}
           disabled={loading}
           loading={loading}
