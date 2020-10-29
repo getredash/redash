@@ -53,6 +53,7 @@ export function UserSessionWrapper<P>({ bodyClass, currentRoute, render }: UserS
         document.body.classList.toggle(bodyClass, false);
       };
     }
+    return;
   }, [bodyClass]);
 
   if (!isAuthenticated) {
