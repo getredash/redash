@@ -11,6 +11,14 @@ const DATETIME_FORMATS = {
 
 const DYNAMIC_PREFIX = "d_";
 
+/**
+ * Dynamic date range preset value with end set to current time
+ * @param from {function(): moment.Moment}
+ * @param now {function(): moment.Moment=} moment - defaults to now
+ * @returns {function(withNow: boolean): [moment.Moment, moment.Moment|undefined]}
+ */
+const untilNow = (from, now = () => moment()) => (withNow = true) => [from(), withNow ? now() : undefined];
+
 const DYNAMIC_DATE_RANGES = {
   today: {
     name: "Today",
@@ -72,29 +80,77 @@ const DYNAMIC_DATE_RANGES = {
         .endOf("year"),
     ],
   },
+  last_hour: {
+    name: "Last hour",
+    value: untilNow(() => moment().subtract(1, "hour")),
+  },
+  last_8_hours: {
+    name: "Last 8 hours",
+    value: untilNow(() => moment().subtract(8, "hour")),
+  },
+  last_24_hours: {
+    name: "Last 24 hours",
+    value: untilNow(() => moment().subtract(24, "hour")),
+  },
   last_7_days: {
     name: "Last 7 days",
-    value: () => [moment().subtract(7, "days"), moment()],
+    value: untilNow(
+      () =>
+        moment()
+          .subtract(7, "days")
+          .startOf("day"),
+      () => moment().endOf("day")
+    ),
   },
   last_14_days: {
     name: "Last 14 days",
-    value: () => [moment().subtract(14, "days"), moment()],
+    value: untilNow(
+      () =>
+        moment()
+          .subtract(14, "days")
+          .startOf("day"),
+      () => moment().endOf("day")
+    ),
   },
   last_30_days: {
     name: "Last 30 days",
-    value: () => [moment().subtract(30, "days"), moment()],
+    value: untilNow(
+      () =>
+        moment()
+          .subtract(30, "days")
+          .startOf("day"),
+      () => moment().endOf("day")
+    ),
   },
   last_60_days: {
     name: "Last 60 days",
-    value: () => [moment().subtract(60, "days"), moment()],
+    value: untilNow(
+      () =>
+        moment()
+          .subtract(60, "days")
+          .startOf("day"),
+      () => moment().endOf("day")
+    ),
   },
   last_90_days: {
     name: "Last 90 days",
-    value: () => [moment().subtract(90, "days"), moment()],
+    value: untilNow(
+      () =>
+        moment()
+          .subtract(90, "days")
+          .startOf("day"),
+      () => moment().endOf("day")
+    ),
   },
   last_12_months: {
     name: "Last 12 months",
-    value: () => [moment().subtract(12, "months"), moment()],
+    value: untilNow(
+      () =>
+        moment()
+          .subtract(12, "months")
+          .startOf("day"),
+      () => moment().endOf("day")
+    ),
   },
 };
 
@@ -105,6 +161,11 @@ export function isDynamicDateRangeString(value) {
     return false;
   }
   return !!DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_PREFIX.length)];
+}
+
+export function getDynamicDateRangeStringFromName(dynamicRangeName) {
+  const key = findKey(DYNAMIC_DATE_RANGES, range => range.name === dynamicRangeName);
+  return key ? DYNAMIC_PREFIX + key : undefined;
 }
 
 export function isDynamicDateRange(value) {

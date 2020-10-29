@@ -6,7 +6,7 @@ import Alert from "antd/lib/alert";
 import Link from "@/components/Link";
 import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
-import EmptyState from "@/components/empty-state/EmptyState";
+import EmptyState, { EmptyStateHelpMessage } from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
 import BeaconConsent from "@/components/BeaconConsent";
 
@@ -152,7 +152,7 @@ function DashboardAndQueryFavoritesList() {
   );
 }
 
-function Home() {
+export default function Home() {
   useEffect(() => {
     recordEvent("view", "page", "personal_homepage");
   }, []);
@@ -162,15 +162,17 @@ function Home() {
       <div className="container">
         {includes(messages, "using-deprecated-embed-feature") && <DeprecatedEmbedFeatureAlert />}
         {includes(messages, "email-not-verified") && <EmailNotVerifiedAlert />}
-        <EmptyState
-          header="Welcome to Redash 👋"
-          description="Connect to any data source, easily visualize and share your data"
-          illustration="dashboard"
-          helpLink="https://redash.io/help/user-guide/getting-started"
-          showDashboardStep
-          showInviteStep
-          onboardingMode
-        />
+        <DynamicComponent name="Home.EmptyState">
+          <EmptyState
+            header="Welcome to Redash 👋"
+            description="Connect to any data source, easily visualize and share your data"
+            illustration="dashboard"
+            helpMessage={<EmptyStateHelpMessage helpTriggerType="GETTING_STARTED" />}
+            showDashboardStep
+            showInviteStep
+            onboardingMode
+          />
+        </DynamicComponent>
         <DynamicComponent name="HomeExtra" />
         <DashboardAndQueryFavoritesList />
         <BeaconConsent />

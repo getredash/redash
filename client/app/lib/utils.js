@@ -20,7 +20,7 @@ export const AbbreviatedTimeUnits = {
   MILLISECONDS: "ms",
 };
 
-export function formatDateTime(value) {
+function formatDateTimeValue(value, format) {
   if (!value) {
     return "";
   }
@@ -30,20 +30,19 @@ export function formatDateTime(value) {
     return "-";
   }
 
-  return parsed.format(clientConfig.dateTimeFormat);
+  return parsed.format(format);
+}
+
+export function formatDateTime(value) {
+  return formatDateTimeValue(value, clientConfig.dateTimeFormat);
+}
+
+export function formatDateTimePrecise(value, withMilliseconds = false) {
+  return formatDateTimeValue(value, clientConfig.dateFormat + (withMilliseconds ? " HH:mm:ss.SSS" : " HH:mm:ss"));
 }
 
 export function formatDate(value) {
-  if (!value) {
-    return "";
-  }
-
-  const parsed = moment(value);
-  if (!parsed.isValid()) {
-    return "-";
-  }
-
-  return parsed.format(clientConfig.dateFormat);
+  return formatDateTimeValue(value, clientConfig.dateFormat);
 }
 
 export function localizeTime(time) {

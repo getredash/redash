@@ -83,6 +83,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
     onOptionsChange({
       globalSeriesType,
       showDataLabels: globalSeriesType === "pie",
+      swappedAxes: false,
       seriesOptions: mapValues(options.seriesOptions, series => ({
         ...series,
         type: globalSeriesType,
@@ -106,6 +107,15 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
     }
   }
 
+  function handleAxesSwapping() {
+    // moves any item in the right Y axis to the left one
+    const seriesOptions = mapValues(options.seriesOptions, series => ({
+      ...series,
+      yAxis: 0,
+    }));
+    onOptionsChange({ swappedAxes: !options.swappedAxes, seriesOptions });
+  }
+
   return (
     <React.Fragment>
       <Section>
@@ -117,11 +127,24 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         />
       </Section>
 
+      {includes(["column", "line"], options.globalSeriesType) && (
+        <Section>
+          <Checkbox
+            data-test="Chart.SwappedAxes"
+            defaultChecked={options.swappedAxes}
+            checked={options.swappedAxes}
+            onChange={handleAxesSwapping}>
+            Horizontal Chart
+          </Checkbox>
+        </Section>
+      )}
+
       {map(mappedColumns, (value, type) => (
         <ColumnMappingSelect
           key={type}
           type={type}
           value={value}
+          areAxesSwapped={options.swappedAxes}
           availableColumns={unusedColumns}
           onChange={handleColumnMappingChange}
         />

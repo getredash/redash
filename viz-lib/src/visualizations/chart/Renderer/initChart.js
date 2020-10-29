@@ -1,6 +1,6 @@
 import { isArray, isObject, isString, isFunction, startsWith, reduce, merge, map, each } from "lodash";
 import resizeObserver from "@/services/resizeObserver";
-import { Plotly, prepareData, prepareLayout, updateData, updateYRanges, updateChartSize } from "../plotly";
+import { Plotly, prepareData, prepareLayout, updateData, updateAxes, updateChartSize } from "../plotly";
 
 function createErrorHandler(errorHandler) {
   return error => {
@@ -86,7 +86,7 @@ export default function initChart(container, options, data, additionalOptions, o
     .then(
       createSafeFunction(() =>
         updater
-          .append(updateYRanges(container, plotlyLayout, options))
+          .append(updateAxes(container, plotlyData, plotlyLayout, options))
           .append(updateChartSize(container, plotlyLayout, options))
           .process(container)
       )
@@ -100,7 +100,7 @@ export default function initChart(container, options, data, additionalOptions, o
             // We need to catch only changes of traces visibility to update stacking
             if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {
               updateData(plotlyData, options);
-              updater.append(updateYRanges(container, plotlyLayout, options)).process(container);
+              updater.append(updateAxes(container, plotlyData, plotlyLayout, options)).process(container);
             }
           })
         );
