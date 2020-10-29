@@ -9,7 +9,7 @@ interface VirtualScrollLabeledValue extends LabeledValue {
   label: string;
 }
 
-interface VirtualScrollSelectProps extends SelectProps<any> {
+interface VirtualScrollSelectProps extends SelectProps<string> {
   options: Array<VirtualScrollLabeledValue>;
 }
 function SelectWithVirtualScroll({ options, ...props }: VirtualScrollSelectProps): JSX.Element {
@@ -32,7 +32,7 @@ function SelectWithVirtualScroll({ options, ...props }: VirtualScrollSelectProps
     return false;
   }, [options]);
 
-  return <AntdSelect dropdownMatchSelectWidth={dropdownMatchSelectWidth} options={options} {...props} />;
+  return <AntdSelect<string> dropdownMatchSelectWidth={dropdownMatchSelectWidth} options={options} {...props} />;
 }
 
 export default SelectWithVirtualScroll;
