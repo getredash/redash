@@ -53,6 +53,7 @@ export function UserSessionWrapper<P>({ bodyClass, currentRoute, render }: UserS
         document.body.classList.toggle(bodyClass, false);
       };
     }
+    return;
   }, [bodyClass]);
 
   if (!isAuthenticated) {
@@ -83,7 +84,7 @@ export type RouteWithUserSessionOptions<P> = {
 
 export const UserSessionWrapperDynamicComponentName = "UserSessionWrapper";
 
-export default function routeWithUserSession<P extends {} = {}>({
+export default function routeWithUserSession<P extends Record<string, unknown> = Record<string, unknown>>({
   render: originalRender,
   bodyClass,
   ...rest

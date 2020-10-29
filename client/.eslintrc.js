@@ -27,6 +27,11 @@ module.exports = {
         message: "Please use antd/lib instead.",
       },
     ],
+    'no-redeclare': 'off', // FIXME: Suppress warn
+    'no-use-before-define': 'off', // FIXME: Suppress warn
+    'jest/expect-expect': 'off', // FIXME: Suppress warn
+    'import/no-anonymous-default-export': 'off', // FIXME: Suppress warn
+    'react-hooks/exhaustive-deps': 'off', // FIXME: Suppress warn
   },
   overrides: [
     {
@@ -43,6 +48,7 @@ module.exports = {
         "@typescript-eslint/no-useless-constructor": "error",
         // Many API fields and generated types use camelcase
         "@typescript-eslint/camelcase": "off",
+        '@typescript-eslint/explicit-module-boundary-types': 'off', // FIXME: Suppress warn
       },
     },
   ],
