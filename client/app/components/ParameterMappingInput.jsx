@@ -208,13 +208,7 @@ export class ParameterMappingInput extends React.Component {
     const { mapping, existingParamNames } = this.props;
     const options = map(existingParamNames, opt => ({ label: String(opt), value: String(opt) }));
 
-    return (
-      <Select
-        value={mapping.mapTo}
-        onChange={mapTo => this.updateParamMapping({ mapTo })}
-        options={options}
-      />
-    );
+    return <Select value={mapping.mapTo} onChange={mapTo => this.updateParamMapping({ mapTo })} options={options} />;
   }
 
   renderStaticValue() {
