@@ -4,7 +4,7 @@ import { isString, extend, each, has, map, includes, findIndex, find, fromPairs,
 import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import SelectWithVirtualScroll from "@/components/Select";
+import Select from "antd/lib/select";
 import Table from "antd/lib/table";
 import Popover from "antd/lib/popover";
 import Button from "antd/lib/button";
@@ -209,7 +209,7 @@ export class ParameterMappingInput extends React.Component {
     const options = map(existingParamNames, opt => ({ label: String(opt), value: String(opt) }));
 
     return (
-      <SelectWithVirtualScroll
+      <Select
         value={mapping.mapTo}
         onChange={mapTo => this.updateParamMapping({ mapTo })}
         options={options}
