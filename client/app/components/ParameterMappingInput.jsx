@@ -358,7 +358,7 @@ class MappingEditor extends React.Component {
         content={this.renderContent()}
         visible={visible}
         onVisibleChange={this.onVisibleChange}>
-        <Button size="small" type="dashed" data-test={`EditParamMappingButon-${mapping.param.name}`}>
+        <Button size="small" type="dashed" data-test={`EditParamMappingButton-${mapping.param.name}`}>
           <EditOutlinedIcon />
         </Button>
       </Popover>
