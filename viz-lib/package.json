@@ -20,6 +20,10 @@
     "type": "git",
     "url": "git+https://github.com/getredash/redash.git"
   },
+  "engines": {
+    "node": "^12.0.0",
+    "npm": "^6.0.0"
+  },
   "author": "Redash",
   "license": "BSD-2-Clause",
   "peerDependencies": {
