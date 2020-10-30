@@ -23,10 +23,10 @@
   "author": "Redash",
   "license": "BSD-2-Clause",
   "peerDependencies": {
-    "antd": ">=4.0.0",
-    "@ant-design/icons": ">=4.0.0",
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0"
+    "antd": "^4.4.3",
+    "@ant-design/icons": "^4.2.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
