@@ -281,6 +281,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                   ]
                 }
                 height={256}
+                id="rc_select_TEST_OR_SSR"
                 itemHeight={24}
                 menuItemSelectedIcon={null}
                 multiple={false}
@@ -685,6 +686,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                       ]
                     }
                     height={256}
+                    id="rc_select_TEST_OR_SSR"
                     itemHeight={24}
                     menuItemSelectedIcon={null}
                     multiple={false}
@@ -834,6 +836,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                           readonly=""
                           role="combobox"
                           style="opacity: 0;"
+                          type="search"
                           unselectable="on"
                           value=""
                         />
@@ -849,6 +852,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                 }
                 dropdownClassName=""
                 dropdownMatchSelectWidth={false}
+                id="rc_select_TEST_OR_SSR"
                 inputElement={null}
                 inputIcon={[Function]}
                 key="trigger"
@@ -886,6 +890,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
               >
                 <div
                   className="ant-select-selector"
+                  onClick={[Function]}
                   onMouseDown={[Function]}
                 >
                   <SingleSelector
@@ -914,6 +919,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                               readonly=""
                               role="combobox"
                               style="opacity: 0;"
+                              type="search"
                               unselectable="on"
                               value=""
                             />
@@ -929,6 +935,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                     }
                     dropdownClassName=""
                     dropdownMatchSelectWidth={false}
+                    id="rc_select_TEST_OR_SSR"
                     inputElement={null}
                     inputIcon={[Function]}
                     inputRef={
@@ -945,6 +952,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                           readonly=""
                           role="combobox"
                           style="opacity: 0;"
+                          type="search"
                           unselectable="on"
                           value=""
                         />,
@@ -995,6 +1003,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                         accessibilityIndex={0}
                         attrs={Object {}}
                         editable={false}
+                        id="rc_select_TEST_OR_SSR"
                         inputElement={null}
                         onChange={[Function]}
                         onCompositionEnd={[Function]}
@@ -1006,13 +1015,14 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                         value=""
                       >
                         <input
-                          aria-activedescendant="undefined_list_0"
+                          aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
                           aria-autocomplete="list"
-                          aria-controls="undefined_list"
+                          aria-controls="rc_select_TEST_OR_SSR_list"
                           aria-haspopup="listbox"
-                          aria-owns="undefined_list"
+                          aria-owns="rc_select_TEST_OR_SSR_list"
                           autoComplete="off"
                           className="ant-select-selection-search-input"
+                          id="rc_select_TEST_OR_SSR"
                           onChange={[Function]}
                           onCompositionEnd={[Function]}
                           onCompositionStart={[Function]}
@@ -1026,6 +1036,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                               "opacity": 0,
                             }
                           }
+                          type="search"
                           unselectable="on"
                           value=""
                         />
@@ -1828,8 +1839,8 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                         placeholder="Select time"
                         readOnly={true}
                         size={10}
-                        title=""
-                        value=""
+                        title="00:15"
+                        value="00:15"
                       />
                       <span
                         className="ant-picker-suffix"
@@ -2226,6 +2237,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                   ]
                 }
                 height={256}
+                id="rc_select_TEST_OR_SSR"
                 itemHeight={24}
                 menuItemSelectedIcon={null}
                 multiple={false}
@@ -2630,6 +2642,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                       ]
                     }
                     height={256}
+                    id="rc_select_TEST_OR_SSR"
                     itemHeight={24}
                     menuItemSelectedIcon={null}
                     multiple={false}
@@ -2768,16 +2781,18 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                         class="ant-select-selection-search"
                       >
                         <input
-                          aria-activedescendant="undefined_list_0"
+                          aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
                           aria-autocomplete="list"
-                          aria-controls="undefined_list"
+                          aria-controls="rc_select_TEST_OR_SSR_list"
                           aria-haspopup="listbox"
-                          aria-owns="undefined_list"
+                          aria-owns="rc_select_TEST_OR_SSR_list"
                           autocomplete="off"
                           class="ant-select-selection-search-input"
+                          id="rc_select_TEST_OR_SSR"
                           readonly=""
                           role="combobox"
                           style="opacity: 0;"
+                          type="search"
                           unselectable="on"
                           value=""
                         />
@@ -2793,6 +2808,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                 }
                 dropdownClassName=""
                 dropdownMatchSelectWidth={false}
+                id="rc_select_TEST_OR_SSR"
                 inputElement={null}
                 inputIcon={[Function]}
                 key="trigger"
@@ -2830,6 +2846,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
               >
                 <div
                   className="ant-select-selector"
+                  onClick={[Function]}
                   onMouseDown={[Function]}
                 >
                   <SingleSelector
@@ -2847,16 +2864,18 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                             class="ant-select-selection-search"
                           >
                             <input
-                              aria-activedescendant="undefined_list_0"
+                              aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
                               aria-autocomplete="list"
-                              aria-controls="undefined_list"
+                              aria-controls="rc_select_TEST_OR_SSR_list"
                               aria-haspopup="listbox"
-                              aria-owns="undefined_list"
+                              aria-owns="rc_select_TEST_OR_SSR_list"
                               autocomplete="off"
                               class="ant-select-selection-search-input"
+                              id="rc_select_TEST_OR_SSR"
                               readonly=""
                               role="combobox"
                               style="opacity: 0;"
+                              type="search"
                               unselectable="on"
                               value=""
                             />
@@ -2872,21 +2891,24 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                     }
                     dropdownClassName=""
                     dropdownMatchSelectWidth={false}
+                    id="rc_select_TEST_OR_SSR"
                     inputElement={null}
                     inputIcon={[Function]}
                     inputRef={
                       Object {
                         "current": <input
-                          aria-activedescendant="undefined_list_0"
+                          aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
                           aria-autocomplete="list"
-                          aria-controls="undefined_list"
+                          aria-controls="rc_select_TEST_OR_SSR_list"
                           aria-haspopup="listbox"
-                          aria-owns="undefined_list"
+                          aria-owns="rc_select_TEST_OR_SSR_list"
                           autocomplete="off"
                           class="ant-select-selection-search-input"
+                          id="rc_select_TEST_OR_SSR"
                           readonly=""
                           role="combobox"
                           style="opacity: 0;"
+                          type="search"
                           unselectable="on"
                           value=""
                         />,
@@ -2937,6 +2959,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                         accessibilityIndex={0}
                         attrs={Object {}}
                         editable={false}
+                        id="rc_select_TEST_OR_SSR"
                         inputElement={null}
                         onChange={[Function]}
                         onCompositionEnd={[Function]}
@@ -2948,13 +2971,14 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                         value=""
                       >
                         <input
-                          aria-activedescendant="undefined_list_0"
+                          aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
                           aria-autocomplete="list"
-                          aria-controls="undefined_list"
+                          aria-controls="rc_select_TEST_OR_SSR_list"
                           aria-haspopup="listbox"
-                          aria-owns="undefined_list"
+                          aria-owns="rc_select_TEST_OR_SSR_list"
                           autoComplete="off"
                           className="ant-select-selection-search-input"
+                          id="rc_select_TEST_OR_SSR"
                           onChange={[Function]}
                           onCompositionEnd={[Function]}
                           onCompositionStart={[Function]}
@@ -2968,6 +2992,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                               "opacity": 0,
                             }
                           }
+                          type="search"
                           unselectable="on"
                           value=""
                         />
@@ -3375,6 +3400,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                   ]
                 }
                 height={256}
+                id="rc_select_TEST_OR_SSR"
                 itemHeight={24}
                 menuItemSelectedIcon={null}
                 multiple={false}
@@ -3779,6 +3805,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                       ]
                     }
                     height={256}
+                    id="rc_select_TEST_OR_SSR"
                     itemHeight={24}
                     menuItemSelectedIcon={null}
                     multiple={false}
@@ -3928,6 +3955,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                           readonly=""
                           role="combobox"
                           style="opacity: 0;"
+                          type="search"
                           unselectable="on"
                           value=""
                         />
@@ -3943,6 +3971,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                 }
                 dropdownClassName=""
                 dropdownMatchSelectWidth={false}
+                id="rc_select_TEST_OR_SSR"
                 inputElement={null}
                 inputIcon={[Function]}
                 key="trigger"
@@ -3980,6 +4009,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
               >
                 <div
                   className="ant-select-selector"
+                  onClick={[Function]}
                   onMouseDown={[Function]}
                 >
                   <SingleSelector
@@ -4008,6 +4038,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                               readonly=""
                               role="combobox"
                               style="opacity: 0;"
+                              type="search"
                               unselectable="on"
                               value=""
                             />
@@ -4023,6 +4054,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                     }
                     dropdownClassName=""
                     dropdownMatchSelectWidth={false}
+                    id="rc_select_TEST_OR_SSR"
                     inputElement={null}
                     inputIcon={[Function]}
                     inputRef={
@@ -4039,6 +4071,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                           readonly=""
                           role="combobox"
                           style="opacity: 0;"
+                          type="search"
                           unselectable="on"
                           value=""
                         />,
@@ -4089,6 +4122,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                         accessibilityIndex={0}
                         attrs={Object {}}
                         editable={false}
+                        id="rc_select_TEST_OR_SSR"
                         inputElement={null}
                         onChange={[Function]}
                         onCompositionEnd={[Function]}
@@ -4100,13 +4134,14 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                         value=""
                       >
                         <input
-                          aria-activedescendant="undefined_list_0"
+                          aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
                           aria-autocomplete="list"
-                          aria-controls="undefined_list"
+                          aria-controls="rc_select_TEST_OR_SSR_list"
                           aria-haspopup="listbox"
-                          aria-owns="undefined_list"
+                          aria-owns="rc_select_TEST_OR_SSR_list"
                           autoComplete="off"
                           className="ant-select-selection-search-input"
+                          id="rc_select_TEST_OR_SSR"
                           onChange={[Function]}
                           onCompositionEnd={[Function]}
                           onCompositionStart={[Function]}
@@ -4120,6 +4155,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                               "opacity": 0,
                             }
                           }
+                          type="search"
                           unselectable="on"
                           value=""
                         />
@@ -4922,8 +4958,8 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                         placeholder="Select time"
                         readOnly={true}
                         size={10}
-                        title=""
-                        value=""
+                        title="00:15"
+                        value="00:15"
                       />
                       <span
                         className="ant-picker-suffix"
@@ -5694,6 +5730,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                   ]
                 }
                 height={256}
+                id="rc_select_TEST_OR_SSR"
                 itemHeight={24}
                 menuItemSelectedIcon={null}
                 multiple={false}
@@ -6098,6 +6135,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                       ]
                     }
                     height={256}
+                    id="rc_select_TEST_OR_SSR"
                     itemHeight={24}
                     menuItemSelectedIcon={null}
                     multiple={false}
@@ -6236,16 +6274,18 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                         class="ant-select-selection-search"
                       >
                         <input
-                          aria-activedescendant="undefined_list_0"
+                          aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
                           aria-autocomplete="list"
-                          aria-controls="undefined_list"
+                          aria-controls="rc_select_TEST_OR_SSR_list"
                           aria-haspopup="listbox"
-                          aria-owns="undefined_list"
+                          aria-owns="rc_select_TEST_OR_SSR_list"
                           autocomplete="off"
                           class="ant-select-selection-search-input"
+                          id="rc_select_TEST_OR_SSR"
                           readonly=""
                           role="combobox"
                           style="opacity: 0;"
+                          type="search"
                           unselectable="on"
                           value=""
                         />
@@ -6261,6 +6301,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                 }
                 dropdownClassName=""
                 dropdownMatchSelectWidth={false}
+                id="rc_select_TEST_OR_SSR"
                 inputElement={null}
                 inputIcon={[Function]}
                 key="trigger"
@@ -6298,6 +6339,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
               >
                 <div
                   className="ant-select-selector"
+                  onClick={[Function]}
                   onMouseDown={[Function]}
                 >
                   <SingleSelector
@@ -6315,16 +6357,18 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                             class="ant-select-selection-search"
                           >
                             <input
-                              aria-activedescendant="undefined_list_0"
+                              aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
                               aria-autocomplete="list"
-                              aria-controls="undefined_list"
+                              aria-controls="rc_select_TEST_OR_SSR_list"
                               aria-haspopup="listbox"
-                              aria-owns="undefined_list"
+                              aria-owns="rc_select_TEST_OR_SSR_list"
                               autocomplete="off"
                               class="ant-select-selection-search-input"
+                              id="rc_select_TEST_OR_SSR"
                               readonly=""
                               role="combobox"
                               style="opacity: 0;"
+                              type="search"
                               unselectable="on"
                               value=""
                             />
@@ -6340,21 +6384,24 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                     }
                     dropdownClassName=""
                     dropdownMatchSelectWidth={false}
+                    id="rc_select_TEST_OR_SSR"
                     inputElement={null}
                     inputIcon={[Function]}
                     inputRef={
                       Object {
                         "current": <input
-                          aria-activedescendant="undefined_list_0"
+                          aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
                           aria-autocomplete="list"
-                          aria-controls="undefined_list"
+                          aria-controls="rc_select_TEST_OR_SSR_list"
                           aria-haspopup="listbox"
-                          aria-owns="undefined_list"
+                          aria-owns="rc_select_TEST_OR_SSR_list"
                           autocomplete="off"
                           class="ant-select-selection-search-input"
+                          id="rc_select_TEST_OR_SSR"
                           readonly=""
                           role="combobox"
                           style="opacity: 0;"
+                          type="search"
                           unselectable="on"
                           value=""
                         />,
@@ -6405,6 +6452,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                         accessibilityIndex={0}
                         attrs={Object {}}
                         editable={false}
+                        id="rc_select_TEST_OR_SSR"
                         inputElement={null}
                         onChange={[Function]}
                         onCompositionEnd={[Function]}
@@ -6416,13 +6464,14 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                         value=""
                       >
                         <input
-                          aria-activedescendant="undefined_list_0"
+                          aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
                           aria-autocomplete="list"
-                          aria-controls="undefined_list"
+                          aria-controls="rc_select_TEST_OR_SSR_list"
                           aria-haspopup="listbox"
-                          aria-owns="undefined_list"
+                          aria-owns="rc_select_TEST_OR_SSR_list"
                           autoComplete="off"
                           className="ant-select-selection-search-input"
+                          id="rc_select_TEST_OR_SSR"
                           onChange={[Function]}
                           onCompositionEnd={[Function]}
                           onCompositionStart={[Function]}
@@ -6436,6 +6485,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                               "opacity": 0,
                             }
                           }
+                          type="search"
                           unselectable="on"
                           value=""
                         />
@@ -6840,6 +6890,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                   ]
                 }
                 height={256}
+                id="rc_select_TEST_OR_SSR"
                 itemHeight={24}
                 menuItemSelectedIcon={null}
                 multiple={false}
@@ -7240,6 +7291,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                       ]
                     }
                     height={256}
+                    id="rc_select_TEST_OR_SSR"
                     itemHeight={24}
                     menuItemSelectedIcon={null}
                     multiple={false}
@@ -7374,16 +7426,18 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                         class="ant-select-selection-search"
                       >
                         <input
-                          aria-activedescendant="undefined_list_0"
+                          aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
                           aria-autocomplete="list"
-                          aria-controls="undefined_list"
+                          aria-controls="rc_select_TEST_OR_SSR_list"
                           aria-haspopup="listbox"
-                          aria-owns="undefined_list"
+                          aria-owns="rc_select_TEST_OR_SSR_list"
                           autocomplete="off"
                           class="ant-select-selection-search-input"
+                          id="rc_select_TEST_OR_SSR"
                           readonly=""
                           role="combobox"
                           style="opacity: 0;"
+                          type="search"
                           unselectable="on"
                           value=""
                         />
@@ -7396,6 +7450,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                 }
                 dropdownClassName=""
                 dropdownMatchSelectWidth={false}
+                id="rc_select_TEST_OR_SSR"
                 inputElement={null}
                 inputIcon={[Function]}
                 key="trigger"
@@ -7423,6 +7478,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
               >
                 <div
                   className="ant-select-selector"
+                  onClick={[Function]}
                   onMouseDown={[Function]}
                 >
                   <SingleSelector
@@ -7440,16 +7496,18 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                             class="ant-select-selection-search"
                           >
                             <input
-                              aria-activedescendant="undefined_list_0"
+                              aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
                               aria-autocomplete="list"
-                              aria-controls="undefined_list"
+                              aria-controls="rc_select_TEST_OR_SSR_list"
                               aria-haspopup="listbox"
-                              aria-owns="undefined_list"
+                              aria-owns="rc_select_TEST_OR_SSR_list"
                               autocomplete="off"
                               class="ant-select-selection-search-input"
+                              id="rc_select_TEST_OR_SSR"
                               readonly=""
                               role="combobox"
                               style="opacity: 0;"
+                              type="search"
                               unselectable="on"
                               value=""
                             />
@@ -7462,21 +7520,24 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                     }
                     dropdownClassName=""
                     dropdownMatchSelectWidth={false}
+                    id="rc_select_TEST_OR_SSR"
                     inputElement={null}
                     inputIcon={[Function]}
                     inputRef={
                       Object {
                         "current": <input
-                          aria-activedescendant="undefined_list_0"
+                          aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
                           aria-autocomplete="list"
-                          aria-controls="undefined_list"
+                          aria-controls="rc_select_TEST_OR_SSR_list"
                           aria-haspopup="listbox"
-                          aria-owns="undefined_list"
+                          aria-owns="rc_select_TEST_OR_SSR_list"
                           autocomplete="off"
                           class="ant-select-selection-search-input"
+                          id="rc_select_TEST_OR_SSR"
                           readonly=""
                           role="combobox"
                           style="opacity: 0;"
+                          type="search"
                           unselectable="on"
                           value=""
                         />,
@@ -7517,6 +7578,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                         accessibilityIndex={0}
                         attrs={Object {}}
                         editable={false}
+                        id="rc_select_TEST_OR_SSR"
                         inputElement={null}
                         onChange={[Function]}
                         onCompositionEnd={[Function]}
@@ -7528,13 +7590,14 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                         value=""
                       >
                         <input
-                          aria-activedescendant="undefined_list_0"
+                          aria-activedescendant="rc_select_TEST_OR_SSR_list_0"
                           aria-autocomplete="list"
-                          aria-controls="undefined_list"
+                          aria-controls="rc_select_TEST_OR_SSR_list"
                           aria-haspopup="listbox"
-                          aria-owns="undefined_list"
+                          aria-owns="rc_select_TEST_OR_SSR_list"
                           autoComplete="off"
                           className="ant-select-selection-search-input"
+                          id="rc_select_TEST_OR_SSR"
                           onChange={[Function]}
                           onCompositionEnd={[Function]}
                           onCompositionStart={[Function]}
@@ -7548,6 +7611,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                               "opacity": 0,
                             }
                           }
+                          type="search"
                           unselectable="on"
                           value=""
                         />
@@ -9205,8 +9269,8 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
                     placeholder="Select date"
                     readOnly={true}
                     size={12}
-                    title=""
-                    value=""
+                    title="2030-01-01"
+                    value="2030-01-01"
                   />
                   <span
                     className="ant-picker-suffix"
