@@ -77,7 +77,7 @@ Cypress.Commands.add("selectAntdOption", { prevSubject: "element" }, (subject, t
   return cy
     .getByTestId(subject)
     .select(testId)
-    .click({force: true});
+    .click({ force: true });
 });
 
 Cypress.Commands.add("fillInputs", (elements, { wait = 0 } = {}) => {
