@@ -179,6 +179,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
               className="w-100"
               disabled={!isNew}
               value={type}
+              dropdownMatchSelectWidth={false}
               onChange={onTypeChanged}>
               {map(availableVisualizations, vis => (
                 <Select.Option key={vis.type} data-test={"VisualizationType." + vis.type}>
