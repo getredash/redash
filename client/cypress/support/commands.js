@@ -74,7 +74,10 @@ Cypress.Commands.add("clickThrough", (...args) => {
  */
 Cypress.Commands.add("selectAntdOption", { prevSubject: "element" }, (subject, testId) => {
   cy.wrap(subject).click();
-  return cy.getByTestId(testId).click({ force: true });
+  return cy
+    .getByTestId(subject)
+    .select(testId)
+    .click({force: true});
 });
 
 Cypress.Commands.add("fillInputs", (elements, { wait = 0 } = {}) => {

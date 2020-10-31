@@ -38,11 +38,8 @@ describe("Edit visualization dialog", () => {
   it("creates visualization with custom name", () => {
     const visualizationName = "Custom name";
 
-    cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.TABLE
-    `);
+    cy.getByTestId("NewVisualization").click();
+    cy.getByTestId("VisualizationType").selectAntdOption("VisualizationType.SUNBURST_SEQUENCE");
 
     cy.getByTestId("VisualizationName")
       .clear()
