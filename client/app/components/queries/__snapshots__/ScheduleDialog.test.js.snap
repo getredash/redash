@@ -4,17 +4,13 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
 <div
   data-testid="interval"
 >
-  <Select
-    bordered={true}
-    choiceTransitionName="zoom"
+  <ForwardRef(InternalSelect)
     className="input"
     dropdownMatchSelectWidth={false}
     onChange={[Function]}
-    transitionName="slide-up"
     value={86400}
   >
     <Select
-      choiceTransitionName="zoom"
       className="input"
       clearIcon={<ForwardRef(CloseCircleFilled) />}
       dropdownClassName=""
@@ -35,7 +31,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
       value={86400}
     >
       <ForwardRef(Select)
-        choiceTransitionName="zoom"
         className="input"
         clearIcon={<ForwardRef(CloseCircleFilled) />}
         dropdownClassName=""
@@ -813,7 +808,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
               <Selector
                 accessibilityIndex={0}
                 activeValue={null}
-                choiceTransitionName="zoom"
                 className="input"
                 clearIcon={<ForwardRef(CloseCircleFilled) />}
                 domRef={
@@ -896,7 +890,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                   <SingleSelector
                     accessibilityIndex={0}
                     activeValue={null}
-                    choiceTransitionName="zoom"
                     className="input"
                     clearIcon={<ForwardRef(CloseCircleFilled) />}
                     domRef={
@@ -1159,7 +1152,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
         </div>
       </ForwardRef(Select)>
     </Select>
-  </Select>
+  </ForwardRef(InternalSelect)>
 </div>
 `;
 
@@ -1960,17 +1953,13 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
 <div
   data-testid="interval"
 >
-  <Select
-    bordered={true}
-    choiceTransitionName="zoom"
+  <ForwardRef(InternalSelect)
     className="input"
     dropdownMatchSelectWidth={false}
     onChange={[Function]}
-    transitionName="slide-up"
     value={7200}
   >
     <Select
-      choiceTransitionName="zoom"
       className="input"
       clearIcon={<ForwardRef(CloseCircleFilled) />}
       dropdownClassName=""
@@ -1991,7 +1980,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
       value={7200}
     >
       <ForwardRef(Select)
-        choiceTransitionName="zoom"
         className="input"
         clearIcon={<ForwardRef(CloseCircleFilled) />}
         dropdownClassName=""
@@ -2769,7 +2757,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
               <Selector
                 accessibilityIndex={0}
                 activeValue={null}
-                choiceTransitionName="zoom"
                 className="input"
                 clearIcon={<ForwardRef(CloseCircleFilled) />}
                 domRef={
@@ -2852,7 +2839,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                   <SingleSelector
                     accessibilityIndex={0}
                     activeValue={null}
-                    choiceTransitionName="zoom"
                     className="input"
                     clearIcon={<ForwardRef(CloseCircleFilled) />}
                     domRef={
@@ -3115,7 +3101,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
         </div>
       </ForwardRef(Select)>
     </Select>
-  </Select>
+  </ForwardRef(InternalSelect)>
 </div>
 `;
 
@@ -3123,17 +3109,13 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
 <div
   data-testid="interval"
 >
-  <Select
-    bordered={true}
-    choiceTransitionName="zoom"
+  <ForwardRef(InternalSelect)
     className="input"
     dropdownMatchSelectWidth={false}
     onChange={[Function]}
-    transitionName="slide-up"
     value={1209600}
   >
     <Select
-      choiceTransitionName="zoom"
       className="input"
       clearIcon={<ForwardRef(CloseCircleFilled) />}
       dropdownClassName=""
@@ -3154,7 +3136,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
       value={1209600}
     >
       <ForwardRef(Select)
-        choiceTransitionName="zoom"
         className="input"
         clearIcon={<ForwardRef(CloseCircleFilled) />}
         dropdownClassName=""
@@ -3932,7 +3913,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
               <Selector
                 accessibilityIndex={0}
                 activeValue={null}
-                choiceTransitionName="zoom"
                 className="input"
                 clearIcon={<ForwardRef(CloseCircleFilled) />}
                 domRef={
@@ -4015,7 +3995,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                   <SingleSelector
                     accessibilityIndex={0}
                     activeValue={null}
-                    choiceTransitionName="zoom"
                     className="input"
                     clearIcon={<ForwardRef(CloseCircleFilled) />}
                     domRef={
@@ -4278,7 +4257,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         </div>
       </ForwardRef(Select)>
     </Select>
-  </Select>
+  </ForwardRef(InternalSelect)>
 </div>
 `;
 
@@ -5100,7 +5079,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           value="Sun"
         >
           <label
-            className="input ant-radio-button-wrapper"
+            className="ant-radio-button-wrapper input"
           >
             <Checkbox
               checked={false}
@@ -5151,7 +5130,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           value="Mon"
         >
           <label
-            className="input ant-radio-button-wrapper ant-radio-button-wrapper-checked"
+            className="ant-radio-button-wrapper ant-radio-button-wrapper-checked input"
           >
             <Checkbox
               checked={true}
@@ -5202,7 +5181,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           value="Tue"
         >
           <label
-            className="input ant-radio-button-wrapper"
+            className="ant-radio-button-wrapper input"
           >
             <Checkbox
               checked={false}
@@ -5253,7 +5232,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           value="Wed"
         >
           <label
-            className="input ant-radio-button-wrapper"
+            className="ant-radio-button-wrapper input"
           >
             <Checkbox
               checked={false}
@@ -5304,7 +5283,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           value="Thu"
         >
           <label
-            className="input ant-radio-button-wrapper"
+            className="ant-radio-button-wrapper input"
           >
             <Checkbox
               checked={false}
@@ -5355,7 +5334,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           value="Fri"
         >
           <label
-            className="input ant-radio-button-wrapper"
+            className="ant-radio-button-wrapper input"
           >
             <Checkbox
               checked={false}
@@ -5406,7 +5385,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           value="Sat"
         >
           <label
-            className="input ant-radio-button-wrapper"
+            className="ant-radio-button-wrapper input"
           >
             <Checkbox
               checked={false}
@@ -5453,17 +5432,13 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
 <div
   data-testid="interval"
 >
-  <Select
-    bordered={true}
-    choiceTransitionName="zoom"
+  <ForwardRef(InternalSelect)
     className="input"
     dropdownMatchSelectWidth={false}
     onChange={[Function]}
-    transitionName="slide-up"
     value={300}
   >
     <Select
-      choiceTransitionName="zoom"
       className="input"
       clearIcon={<ForwardRef(CloseCircleFilled) />}
       dropdownClassName=""
@@ -5484,7 +5459,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
       value={300}
     >
       <ForwardRef(Select)
-        choiceTransitionName="zoom"
         className="input"
         clearIcon={<ForwardRef(CloseCircleFilled) />}
         dropdownClassName=""
@@ -6262,7 +6236,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
               <Selector
                 accessibilityIndex={0}
                 activeValue={null}
-                choiceTransitionName="zoom"
                 className="input"
                 clearIcon={<ForwardRef(CloseCircleFilled) />}
                 domRef={
@@ -6345,7 +6318,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                   <SingleSelector
                     accessibilityIndex={0}
                     activeValue={null}
-                    choiceTransitionName="zoom"
                     className="input"
                     clearIcon={<ForwardRef(CloseCircleFilled) />}
                     domRef={
@@ -6608,7 +6580,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
         </div>
       </ForwardRef(Select)>
     </Select>
-  </Select>
+  </ForwardRef(InternalSelect)>
 </div>
 `;
 
@@ -6616,16 +6588,12 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
 <div
   data-testid="interval"
 >
-  <Select
-    bordered={true}
-    choiceTransitionName="zoom"
+  <ForwardRef(InternalSelect)
     className="input"
     dropdownMatchSelectWidth={false}
     onChange={[Function]}
-    transitionName="slide-up"
   >
     <Select
-      choiceTransitionName="zoom"
       className="input"
       clearIcon={<ForwardRef(CloseCircleFilled) />}
       dropdownClassName=""
@@ -6645,7 +6613,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
       transitionName="slide-up"
     >
       <ForwardRef(Select)
-        choiceTransitionName="zoom"
         className="input"
         clearIcon={<ForwardRef(CloseCircleFilled) />}
         dropdownClassName=""
@@ -7414,7 +7381,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
               <Selector
                 accessibilityIndex={0}
                 activeValue={null}
-                choiceTransitionName="zoom"
                 className="input"
                 clearIcon={<ForwardRef(CloseCircleFilled) />}
                 domRef={
@@ -7484,7 +7450,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                   <SingleSelector
                     accessibilityIndex={0}
                     activeValue={null}
-                    choiceTransitionName="zoom"
                     className="input"
                     clearIcon={<ForwardRef(CloseCircleFilled) />}
                     domRef={
@@ -7731,7 +7696,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
         </div>
       </ForwardRef(Select)>
     </Select>
-  </Select>
+  </ForwardRef(InternalSelect)>
 </div>
 `;
 
@@ -8633,7 +8598,7 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
     >
       <Picker
         allowClear={false}
-        className="datepicker ant-picker-small"
+        className="ant-picker-small datepicker"
         clearIcon={<ForwardRef(CloseCircleFilled) />}
         components={
           Object {
@@ -8755,7 +8720,7 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
       >
         <InnerPicker
           allowClear={false}
-          className="datepicker ant-picker-small"
+          className="ant-picker-small datepicker"
           clearIcon={<ForwardRef(CloseCircleFilled) />}
           components={
             Object {
@@ -9252,7 +9217,7 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
               showAction={Array []}
             >
               <div
-                className="ant-picker datepicker ant-picker-small"
+                className="ant-picker ant-picker-small datepicker"
                 key="trigger"
                 onMouseUp={[Function]}
               >
