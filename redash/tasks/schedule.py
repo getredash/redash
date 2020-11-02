@@ -61,7 +61,7 @@ def schedule(kwargs):
 
 def periodic_job_definitions():
     jobs = [
-        {"func": refresh_queries, "interval": 30, "result_ttl": 600},
+        {"func": refresh_queries, "timeout": 600, "interval": 30, "result_ttl": 600},
         {
             "func": remove_ghost_locks,
             "interval": timedelta(minutes=1),
