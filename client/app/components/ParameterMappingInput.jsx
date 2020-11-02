@@ -206,7 +206,7 @@ export class ParameterMappingInput extends React.Component {
 
   renderDashboardMapToExisting() {
     const { mapping, existingParamNames } = this.props;
-    const options = map(existingParamNames, opt => ({ label: String(opt), value: String(opt) }));
+    const options = map(existingParamNames, paramName => ({ label: paramName, value: paramName }));
 
     return <Select value={mapping.mapTo} onChange={mapTo => this.updateParamMapping({ mapTo })} options={options} />;
   }
