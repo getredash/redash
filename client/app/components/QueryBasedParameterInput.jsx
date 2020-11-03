@@ -1,7 +1,7 @@
 import { find, isArray, get, first, map, intersection, isEqual, isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import SelectWithVirtualScroll from "@/components/Select";
+import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
 
 export default class QueryBasedParameterInput extends React.Component {
   static propTypes = {

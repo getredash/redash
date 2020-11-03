@@ -1,7 +1,7 @@
 import { isEqual, isEmpty, map } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import SelectWithVirtualScroll from "@/components/Select";
+import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
 import Input from "antd/lib/input";
 import InputNumber from "antd/lib/input-number";
 import DateParameter from "@/components/dynamic-parameters/DateParameter";
