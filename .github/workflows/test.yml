@@ -41,7 +41,7 @@ jobs:
       - name: Setup kubectl
         uses: matootie/dokube@v1.3.1
         with:
-          personalAccessToken: e00d8aa25bfbb7a278dc44f20fa1966095f00098ae3614dcb13c6eaea7dbc357
+          personalAccessToken: ${secrets.DIGITALOCEAN_TOKEN}
           clusterName: ttek
           expirationTime: 300
           namespace: vts-dev
