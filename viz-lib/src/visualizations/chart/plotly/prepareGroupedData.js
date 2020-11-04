@@ -1,4 +1,5 @@
-import _ from "lodash";
+import { uniq, flatten } from "lodash";
+import md5 from "md5";
 
 function stringToColour(str) {
   let hash = 0;
@@ -12,25 +13,37 @@ function stringToColour(str) {
   }
   return colour;
 }
+function getKeyByValue(object, value) {
+  return Object.keys(object).find(key => object[key] === value);
+}
 
 export default function prepareGroupedData(seriesList, options) {
-  // console.log(seriesList, options);
-  const categories = _.uniq(_.flatten(seriesList.map(series => series.data.map(item => item.x))));
+  // console.log(options);
+
+  const { columnMapping } = options;
+  const groupBy = getKeyByValue(columnMapping, "series");
+  const splitBy = getKeyByValue(columnMapping, "group");
+  const x = getKeyByValue(columnMapping, "x");
+  const y = getKeyByValue(columnMapping, "y");
+
+  // console.log(groupBy, splitBy);
+
+  const categories = uniq(flatten(seriesList.map(series => series.data.map(item => item.x))));
   // console.log(categories);
   const plotlyData = [];
   for (let i = 0; i < seriesList.length; i++) {
     for (let j = 0; j < seriesList[i].data.length; j++) {
       const item = seriesList[i].data[j].$raw;
       const plotlyItem = {
-        x: [item.type],
-        y: [item.value],
+        x: [item[splitBy]],
+        y: [item[y]],
         type: "bar",
-        name: item.name,
-        xaxis: `x${categories.indexOf(item.office) + 1}`,
+        name: item[groupBy],
+        xaxis: `x${categories.indexOf(item[x]) + 1}`,
         barmode: "stack",
-        marker: { color: stringToColour(item.name) },
+        marker: { color: stringToColour(md5(item[groupBy])) },
       };
-      // console.log(categories.indexOf(item.office) + 1);
+
       plotlyData.push(plotlyItem);
     }
   }

@@ -63,6 +63,7 @@
     "lodash": "^4.17.10",
     "markdown": "0.5.0",
     "material-design-iconic-font": "^2.2.0",
+    "md5": "^2.3.0",
     "moment": "^2.19.3",
     "mousetrap": "^1.6.1",
     "mustache": "^2.3.0",

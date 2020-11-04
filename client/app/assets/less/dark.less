@@ -182,10 +182,17 @@
   margin-right: 0 !important;
   padding: 8px 12px !important;
 }
-div[data-test="VisualizationEditor"] .ant-tabs-nav .ant-tabs-tab {
-  border-bottom: 2px solid transparent !important;
-  &:hover {
-    border-color: @primary-color-alt !important;
+div[data-test="VisualizationEditor"] {
+  .ant-tabs-nav .ant-tabs-tab {
+    border-bottom: 2px solid transparent !important;
+    &:hover {
+      border-color: @primary-color-alt !important;
+    }
+  }
+
+  .ant-tabs-tab.ant-tabs-tab-active {
+    border-bottom: 2px solid @primary-color-alt !important;
+    color: @white !important;
   }
 }
 
