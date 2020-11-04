@@ -13,15 +13,7 @@ import {
 } from "../plotly";
 
 function isGrouped(columnMapping) {
-  const columns = Object.keys(columnMapping);
-  let checked = false;
-  for (let i = 0; i < columns.length; i++) {
-    if (columnMapping[columns[i]] === "group") {
-      checked = true;
-      break;
-    }
-  }
-  return checked;
+  return Object.values(columnMapping).indexOf("group") > -1 ? true : false;
 }
 
 function createErrorHandler(errorHandler) {
