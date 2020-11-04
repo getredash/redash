@@ -8,7 +8,7 @@ import ChartTypeSelect from "./ChartTypeSelect";
 import ColumnMappingSelect from "./ColumnMappingSelect";
 
 function getAvailableColumnMappingTypes(options) {
-  console.log(options);
+  // console.log(options);
 
   const result = ["x", "y"];
 
