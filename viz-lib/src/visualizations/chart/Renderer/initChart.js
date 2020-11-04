@@ -3,12 +3,18 @@ import resizeObserver from "@/services/resizeObserver";
 import {
   Plotly,
   prepareData,
+  prepareGroupedData,
   prepareLayout,
+  prepareGroupedLayout,
   updateData,
   updateYRanges,
   updateChartSize,
   updateAxesInversion,
 } from "../plotly";
+
+function isGrouped(columnMapping) {
+  return Object.values(columnMapping).indexOf("group") > -1 ? true : false;
+}
 
 function createErrorHandler(errorHandler) {
   return error => {
@@ -58,6 +64,7 @@ function initPlotUpdater() {
 
 export default function initChart(container, options, data, additionalOptions, visualization, onSuccess, onError) {
   // console.log(visualization, onSuccess);
+  // console.log(options);
 
   const handleError = createErrorHandler(onError);
 
@@ -70,8 +77,11 @@ export default function initChart(container, options, data, additionalOptions, v
     plotlyOptions.displayModeBar = false;
   }
 
-  const plotlyData = prepareData(data, options);
-  const plotlyLayout = prepareLayout(container, options, plotlyData);
+  const plotlyData = isGrouped(options.columnMapping) ? prepareGroupedData(data, options) : prepareData(data, options);
+  let plotlyLayout = prepareLayout(container, options, plotlyData);
+  if (isGrouped(options.columnMapping)) {
+    plotlyLayout = prepareGroupedLayout(plotlyLayout, data);
+  }
 
   let isDestroyed = false;
 
@@ -99,22 +109,9 @@ export default function initChart(container, options, data, additionalOptions, v
       if (options.globalSeriesType !== "pie") {
         plotlyLayout.xaxis.color = "#ffffffbf";
         plotlyLayout.xaxis.zerolinecolor = "rgba(255, 255, 255, 0.12)";
-        // plotlyLayout.xaxis.linecolor = "rgba(255, 255, 255, 0.12)";
-        // plotlyLayout.xaxis.gridcolor = "rgba(255, 255, 255, 0.12)";
         plotlyLayout.yaxis.color = "#ffffffbf";
         plotlyLayout.yaxis.zerolinecolor = "rgba(255, 255, 255, 0.12)";
-        // plotlyLayout.yaxis.linecolor = "rgba(255, 255, 255, 0.12)";
-        // plotlyLayout.yaxis.gridcolor = "rgba(255, 255, 255, 0.12)";
-
-        // if (options.globalSeriesType !== "bar") {
-        //   plotlyLayout.yaxis.showgrid = true;
-        //   plotlyLayout.xaxis.showgrid = false;
-        // } else {
-        //   plotlyLayout.xaxis.showgrid = true;
-        //   plotlyLayout.yaxis.showgrid = false;
-        // }
       }
-      // console.log(plotlyLayout);
 
       plotlyLayout.legend = {
         bgcolor: "transparent",

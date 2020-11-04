@@ -6,7 +6,9 @@ import box from "plotly.js/lib/box";
 import heatmap from "plotly.js/lib/heatmap";
 
 import prepareData from "./prepareData";
+import prepareGroupedData from "./prepareGroupedData";
 import prepareLayout from "./prepareLayout";
+import prepareGroupedLayout from "./prepareGroupedLayout";
 import updateData from "./updateData";
 import updateYRanges from "./updateYRanges";
 import updateChartSize from "./updateChartSize";
@@ -21,7 +23,9 @@ Plotly.setPlotConfig({
 export {
   Plotly,
   prepareData,
+  prepareGroupedData,
   prepareLayout,
+  prepareGroupedLayout,
   updateData,
   updateYRanges,
   updateAxesInversion,

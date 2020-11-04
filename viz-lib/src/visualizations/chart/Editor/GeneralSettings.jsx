@@ -8,10 +8,16 @@ import ChartTypeSelect from "./ChartTypeSelect";
 import ColumnMappingSelect from "./ColumnMappingSelect";
 
 function getAvailableColumnMappingTypes(options) {
+  // console.log(options);
+
   const result = ["x", "y"];
 
   if (!includes(["custom", "heatmap"], options.globalSeriesType)) {
     result.push("series");
+  }
+
+  if (options.globalSeriesType === "column" && options.invertedAxes === false) {
+    result.push("group");
   }
 
   if (options.globalSeriesType === "bubble" || some(options.seriesOptions, { type: "bubble" })) {
