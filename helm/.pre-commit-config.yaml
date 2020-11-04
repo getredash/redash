@@ -1,0 +1,15 @@
+repos:
+  # We use this instead of the helm-docs hook we we can run the docs through prettier in the same step.
+  - repo: local
+    hooks:
+      - id: helm-docs-prettier
+        name: helm-docs-prettier
+        entry: sh -c 'helm-docs --dry-run | prettier --parser markdown > README.md'
+        language: system
+        always_run: true
+        require_serial: true
+  - repo: https://github.com/prettier/prettier
+    rev: 1.19.1
+    hooks:
+      - id: prettier
+        require_serial: true

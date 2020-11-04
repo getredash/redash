@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-install"
+  labels:
+    {{- include "redash.labels" . | nindent 4 }}
+    app.kubernetes.io/component: install
+  annotations:
+    # This is what defines this resource as a hook.
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}"
+      labels:
+        {{- include "redash.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      restartPolicy: Never
+      containers:
+      - name: {{ include "redash.name" . }}-server
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        
+        command: ["/bin/bash", "/config/install-upgrade.sh", "install"]
+        volumeMounts:
+          - name: config
+            mountPath: /config
+        env:
+        {{- include "redash.env" . | nindent 10 }}
+        {{- range $key, $value := .Values.server.env }}
+          - name: "{{ $key }}"
+            value: "{{ $value }}"
+        {{- end }}
+        resources:
+{{ toYaml .Values.server.resources | indent 10 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "redash.fullname" . }}
+  {{- with .Values.server.nodeSelector }}
+    nodeSelector:
+{{ toYaml . | indent 6 }}
+  {{- end }}
+  {{- with .Values.server.affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+  {{- end }}
+  {{- with .Values.server.tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+  {{- end }}
