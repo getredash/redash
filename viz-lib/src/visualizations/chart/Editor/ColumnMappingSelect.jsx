@@ -7,6 +7,7 @@ const MappingTypes = {
   x: { label: "X Column" },
   y: { label: "Y Columns", multiple: true },
   series: { label: "Group by" },
+  group: { label: "Stack by" },
   yError: { label: "Errors column" },
   size: { label: "Bubble Size Column" },
   zVal: { label: "Color Column" },

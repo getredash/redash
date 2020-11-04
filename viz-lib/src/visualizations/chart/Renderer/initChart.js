@@ -3,12 +3,26 @@ import resizeObserver from "@/services/resizeObserver";
 import {
   Plotly,
   prepareData,
+  prepareGroupedData,
   prepareLayout,
+  prepareGroupedLayout,
   updateData,
   updateYRanges,
   updateChartSize,
   updateAxesInversion,
 } from "../plotly";
+
+function isGrouped(columnMapping) {
+  const columns = Object.keys(columnMapping);
+  let checked = false;
+  for (let i = 0; i < columns.length; i++) {
+    if (columnMapping[columns[i]] === "group") {
+      checked = true;
+      break;
+    }
+  }
+  return checked;
+}
 
 function createErrorHandler(errorHandler) {
   return error => {
@@ -58,6 +72,7 @@ function initPlotUpdater() {
 
 export default function initChart(container, options, data, additionalOptions, visualization, onSuccess, onError) {
   // console.log(visualization, onSuccess);
+  // console.log(options);
 
   const handleError = createErrorHandler(onError);
 
@@ -70,8 +85,12 @@ export default function initChart(container, options, data, additionalOptions, v
     plotlyOptions.displayModeBar = false;
   }
 
-  const plotlyData = prepareData(data, options);
-  const plotlyLayout = prepareLayout(container, options, plotlyData);
+  const plotlyData = isGrouped(options.columnMapping) ? prepareGroupedData(data, options) : prepareData(data, options);
+  console.log(plotlyData);
+  let plotlyLayout = prepareLayout(container, options, plotlyData);
+  if (isGrouped(options.columnMapping)) {
+    plotlyLayout = prepareGroupedLayout(plotlyLayout, data);
+  }
 
   let isDestroyed = false;
 
@@ -123,7 +142,124 @@ export default function initChart(container, options, data, additionalOptions, v
         },
       };
 
-      Plotly.newPlot(container, plotlyData, plotlyLayout, plotlyOptions);
+      // Plotly.newPlot(container, plotlyData, plotlyLayout, plotlyOptions);
+      Plotly.newPlot(
+        container,
+        [
+          {
+            x: ["FEE"],
+            y: [1],
+            type: "bar",
+            name: "Fee 1",
+            xaxis: "x",
+            barmode: "stack",
+            marker: {
+              color: "#f7d509",
+            },
+          },
+          {
+            x: ["FEE"],
+            y: [1],
+            type: "bar",
+            name: "Fee 1",
+            xaxis: "x2",
+            barmode: "stack",
+            marker: {
+              color: "#f7d509",
+            },
+          },
+          {
+            x: ["FEE"],
+            y: [3],
+            type: "bar",
+            name: "Fee 2",
+            xaxis: "x",
+            barmode: "stack",
+            marker: {
+              color: "#f8d509",
+            },
+          },
+          {
+            x: ["FEE"],
+            y: [3],
+            type: "bar",
+            name: "Fee 2",
+            xaxis: "x2",
+            barmode: "stack",
+            marker: {
+              color: "#f8d509",
+            },
+          },
+          {
+            x: ["TAX"],
+            y: [2],
+            type: "bar",
+            name: "Tax 2",
+            xaxis: "x",
+            barmode: "stack",
+            marker: {
+              color: "#dd94cd",
+            },
+          },
+          {
+            x: ["TAX"],
+            y: [5],
+            type: "bar",
+            name: "Tax 2",
+            xaxis: "x2",
+            barmode: "stack",
+            marker: {
+              color: "#dd94cd",
+            },
+          },
+          {
+            x: ["TAX"],
+            y: [1],
+            type: "bar",
+            name: "Tax 1",
+            xaxis: "x",
+            barmode: "stack",
+            marker: {
+              color: "#dc94cd",
+            },
+          },
+          {
+            x: ["TAX"],
+            y: [3],
+            type: "bar",
+            name: "Tax 1",
+            xaxis: "x2",
+            barmode: "stack",
+            marker: {
+              color: "#dc94cd",
+            },
+          },
+          {
+            x: ["TAX"],
+            y: [5],
+            type: "bar",
+            name: "Tax 3",
+            xaxis: "x",
+            barmode: "stack",
+            marker: {
+              color: "#de94cd",
+            },
+          },
+        ],
+        {
+          barmode: "stack",
+          xaxis: {
+            domain: [0, 0.5],
+            anchor: "x",
+            title: "Apples",
+          },
+          xaxis2: {
+            domain: [0.5, 1],
+            anchor: "x2",
+            title: "Pears",
+          },
+        }
+      );
     })
     .then(
       createSafeFunction(() =>

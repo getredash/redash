@@ -14,6 +14,10 @@ function getAvailableColumnMappingTypes(options) {
     result.push("series");
   }
 
+  if (!includes(["custom", "heatmap"], options.globalSeriesType)) {
+    result.push("group");
+  }
+
   if (options.globalSeriesType === "bubble" || some(options.seriesOptions, { type: "bubble" })) {
     result.push("size");
   }
