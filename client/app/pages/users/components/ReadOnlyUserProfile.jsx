@@ -1,7 +1,7 @@
 import React from "react";
 import { UserProfile } from "@/components/proptypes";
+import UserGroups from "@/components/UserGroups";
 
-import UserGroups from "./UserGroups";
 import useUserGroups from "../hooks/useUserGroups";
 
 export default function ReadOnlyUserProfile({ user }) {

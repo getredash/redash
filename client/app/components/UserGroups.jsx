@@ -4,13 +4,13 @@ import PropTypes from "prop-types";
 import Tag from "antd/lib/tag";
 import Link from "@/components/Link";
 
-export default function UserGroups({ groups, ...props }) {
+import "./UserGroups.less";
+
+export default function UserGroups({ groups, linkGroups, ...props }) {
   return (
-    <div {...props}>
+    <div className="user-groups" {...props}>
       {map(groups, group => (
-        <Tag className="m-b-5 m-r-5" key={group.id}>
-          <Link href={`groups/${group.id}`}>{group.name}</Link>
-        </Tag>
+        <Tag key={group.id}>{linkGroups ? <Link href={`groups/${group.id}`}>{group.name}</Link> : group.name}</Tag>
       ))}
     </div>
   );
@@ -19,12 +19,14 @@ export default function UserGroups({ groups, ...props }) {
 UserGroups.propTypes = {
   groups: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number.isRequired,
+      id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
       name: PropTypes.string,
     })
   ),
+  linkGroups: PropTypes.bool,
 };
 
 UserGroups.defaultProps = {
   groups: [],
+  linkGroups: true,
 };
