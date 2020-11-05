@@ -1,4 +1,4 @@
-import { isFunction, isString, isUndefined, invoke } from "lodash";
+import { isFunction, isString, isUndefined } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
@@ -19,19 +19,6 @@ export function registerComponent(name, component) {
 
 export function unregisterComponent(name) {
   registerComponent(name, null);
-}
-
-export function isComponentRegistered(name) {
-  return isFunction(componentsRegistry.get(name));
-}
-
-export function isComponentAvailable(name) {
-  const component = componentsRegistry.get(name);
-  if (isFunction(component)) {
-    const result = invoke(component, "isComponentAvailable");
-    return isUndefined(result) ? true : !!result;
-  }
-  return false;
 }
 
 export default class DynamicComponent extends React.Component {
