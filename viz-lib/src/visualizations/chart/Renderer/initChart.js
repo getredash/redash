@@ -104,6 +104,8 @@ export default function initChart(container, options, data, additionalOptions, o
             }
           })
         );
+        options.onHover && container.on("plotly_hover", options.onHover);
+        options.onUnHover && container.on("plotly_unhover", options.onUnHover);
 
         unwatchResize = resizeObserver(
           container,
