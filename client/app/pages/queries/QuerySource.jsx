@@ -200,6 +200,7 @@ function QuerySource(props) {
           dataSource={dataSource}
           sourceMode
           selectedVisualization={selectedVisualization}
+          headerExtra={<DynamicComponent name="QuerySource.HeaderExtra" query={query} />}
           onChange={setQuery}
         />
       </div>
