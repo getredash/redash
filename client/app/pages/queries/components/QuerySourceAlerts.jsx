@@ -4,6 +4,7 @@ import Card from "antd/lib/card";
 import WarningFilledIcon from "@ant-design/icons/WarningFilled";
 import Typography from "antd/lib/typography";
 import Link from "@/components/Link";
+import DynamicComponent from "@/components/DynamicComponent";
 import { currentUser } from "@/services/auth";
 
 import useQueryFlags from "../hooks/useQueryFlags";
@@ -69,10 +70,12 @@ export default function QuerySourceAlerts({ query, dataSourcesAvailable }) {
   return (
     <div className="query-source-alerts">
       <Card>
-        <div className="query-source-alerts-icon">
-          <WarningFilledIcon />
-        </div>
-        {message}
+        <DynamicComponent name="QuerySource.Alerts" query={query} dataSourcesAvailable={dataSourcesAvailable}>
+          <div className="query-source-alerts-icon">
+            <WarningFilledIcon />
+          </div>
+          {message}
+        </DynamicComponent>
       </Card>
     </div>
   );
