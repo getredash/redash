@@ -406,19 +406,4 @@ QueryService.newQuery = function newQuery() {
   });
 };
 
-QueryService.format = function formatQuery(syntax, query) {
-  if (syntax === "json") {
-    try {
-      const formatted = JSON.stringify(JSON.parse(query), " ", 4);
-      return Promise.resolve(formatted);
-    } catch (err) {
-      return Promise.reject(String(err));
-    }
-  } else if (syntax === "sql") {
-    return axios.post("api/queries/format", { query }).then(data => data.query);
-  } else {
-    return Promise.reject("Query formatting is not supported for your data source syntax.");
-  }
-};
-
 extend(Query, QueryService);
