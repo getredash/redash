@@ -45,15 +45,14 @@ function createChartThroughUI(chartName, chartSpecificAssertionFn = () => {}) {
     .contains("button", "Save")
     .click();
 
+  cy.getByTestId("QueryPageVisualizationTabs")
+    .contains("span", chartName)
+    .should("exist");
+
   cy.wait("@SaveVisualization").should("have.property", "status", 200);
 
   return cy.get("@SaveVisualization").then(xhr => {
     const { id, name, options } = xhr.response.body;
-
-    cy.getByTestId("QueryPageVisualizationTabs")
-      .contains("span", chartName)
-      .should("exist");
-
     return cy.wrap({ id, name, options });
   });
 }
@@ -99,19 +98,23 @@ function assertAxesAndAddLabels(xaxisLabel, yaxisLabel) {
   cy.getByTestId("Chart.LeftYAxis.Name")
     .clear()
     .type(yaxisLabel);
+
+  cy.getByTestId("VisualizationEditor.Tabs.General").click();
 }
 
-function createDashboardWithCharts(title, charts, widgetsAssertionFn = () => {}) {
-  return cy.createDashboard(title).then(dashboard => {
+function createDashboardWithCharts(title, chartGetters, widgetsAssertionFn = () => {}) {
+  cy.createDashboard(title).then(dashboard => {
     const dashboardUrl = `/dashboards/${dashboard.id}`;
-    return cy
-      .all(
-        charts.map((chart, i) => {
-          const position = { autoHeight: false, sizeY: 8, sizeX: 3, col: (i % 2) * 3 };
-          return () => cy.addWidget(dashboard.id, chart.id, { position });
-        })
-      )
-      .then(widgets => widgetsAssertionFn(widgets, dashboardUrl));
+
+    const widgets = [];
+    chartGetters.forEach((chartGetter, i) => {
+      const position = { autoHeight: false, sizeY: 8, sizeX: 3, col: (i % 2) * 3 };
+      cy.get(chartGetter).then(chart => {
+        widgets.push(cy.addWidget(dashboard.id, chart.id, { position }));
+      });
+    });
+
+    widgetsAssertionFn(widgets, dashboardUrl);
   });
 }
 
@@ -123,13 +126,11 @@ describe("Chart", () => {
       .as("queryId");
   });
 
-  const charts = [];
-
   it("creates Bar charts", function() {
     cy.visit(`queries/${this.queryId}/source`);
     cy.getByTestId("ExecuteButton").click();
 
-    const barChartAssertionFunction = () => {
+    const getBarChartAssertionFunction = (specificBarChartAssertionFn = () => {}) => () => {
       // checks for TabbedEditor standard tabs
       assertTabbedEditor();
 
@@ -144,23 +145,43 @@ describe("Chart", () => {
       cy.getByTestId("Chart.ColumnMapping.x").selectAntdOption("Chart.ColumnMapping.x.stage1");
       assertPlotPreview("exist");
 
-      // checks for axes default scales and set custom labels
-      assertAxesAndAddLabels("Stage 1", "Value");
+      specificBarChartAssertionFn();
     };
 
-    createChartThroughUI("Basic Bar Chart", barChartAssertionFunction).then(basicBarChart => {
-      charts.push(...Array(8).fill(Cypress.dom.unwrap(basicBarChart))); // temporary, testing behavior for multiple charts
-    });
-  });
+    const chartTests = [
+      {
+        name: "Basic Bar Chart",
+        alias: "basicBarChart",
+        assertionFn: () => {
+          assertAxesAndAddLabels("Stage 1", "Value");
+        },
+      },
+      {
+        name: "Horizontal Bar Chart",
+        alias: "horizontalBarChart",
+        assertionFn: () => {
+          cy.getByTestId("Chart.SwappedAxes").check();
+        },
+      },
+    ];
+    // TODO: test other types of bar charts
 
-  it("takes a snapshot with different configured Charts", function() {
+    chartTests.forEach(({ name, alias, assertionFn }) => {
+      createChartThroughUI(name, getBarChartAssertionFunction(assertionFn)).as(alias);
+    });
+
+    const chartGetters = chartTests.map(({ alias }) => `@${alias}`);
+
     const withDashboardWidgetsAssertionFn = (widgets, dashboardUrl) => {
       cy.visit(dashboardUrl);
-      widgets.forEach(widget => {
-        cy.getByTestId(getWidgetTestId(widget)).within(() => cy.get("g.points").should("exist"));
+      widgets.forEach(unfulfilledWidget => {
+        unfulfilledWidget.then(widget =>
+          cy.getByTestId(getWidgetTestId(widget)).within(() => cy.find("g.points").should("exist"))
+        );
       });
       cy.percySnapshot("Visualizations - Charts - Bar");
     };
-    createDashboardWithCharts("Bar chart visualizations", [...charts], withDashboardWidgetsAssertionFn);
+
+    createDashboardWithCharts("Bar chart visualizations", chartGetters, withDashboardWidgetsAssertionFn);
   });
 });
