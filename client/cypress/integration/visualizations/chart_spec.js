@@ -3,17 +3,17 @@
 import { getWidgetTestId } from "../../support/dashboard";
 
 const SQL = `
-  SELECT 'a' AS stage1, 'a1' AS stage2, 11 AS value UNION ALL
-  SELECT 'a' AS stage1, 'a2' AS stage2, 12 AS value UNION ALL
-  SELECT 'a' AS stage1, 'a3' AS stage2, 45 AS value UNION ALL
-  SELECT 'a' AS stage1, 'a4' AS stage2, 54 AS value UNION ALL
-  SELECT 'b' AS stage1, 'b1' AS stage2, 33 AS value UNION ALL
-  SELECT 'b' AS stage1, 'b2' AS stage2, 73 AS value UNION ALL
-  SELECT 'b' AS stage1, 'b3' AS stage2, 90 AS value UNION ALL
-  SELECT 'c' AS stage1, 'c1' AS stage2, 19 AS value UNION ALL
-  SELECT 'c' AS stage1, 'c2' AS stage2, 92 AS value UNION ALL
-  SELECT 'c' AS stage1, 'c3' AS stage2, 63 AS value UNION ALL
-  SELECT 'c' AS stage1, 'c4' AS stage2, 44 AS value\
+  SELECT 'a' AS stage, 11 AS value1, 22 AS value2 UNION ALL
+  SELECT 'a' AS stage, 12 AS value1, 41 AS value2 UNION ALL
+  SELECT 'a' AS stage, 45 AS value1, 93 AS value2 UNION ALL
+  SELECT 'a' AS stage, 54 AS value1, 79 AS value2 UNION ALL
+  SELECT 'b' AS stage, 33 AS value1, 65 AS value2 UNION ALL
+  SELECT 'b' AS stage, 73 AS value1, 50 AS value2 UNION ALL
+  SELECT 'b' AS stage, 90 AS value1, 40 AS value2 UNION ALL
+  SELECT 'c' AS stage, 19 AS value1, 33 AS value2 UNION ALL
+  SELECT 'c' AS stage, 92 AS value1, 14 AS value2 UNION ALL
+  SELECT 'c' AS stage, 63 AS value1, 65 AS value2 UNION ALL
+  SELECT 'c' AS stage, 44 AS value1, 27 AS value2\
 `;
 
 /**
@@ -140,8 +140,9 @@ describe("Chart", () => {
       assertPlotPreview("not.exist");
 
       // creates a chart and checks it is plotted
-      cy.getByTestId("Chart.ColumnMapping.y").selectAntdOption("Chart.ColumnMapping.y.value");
-      cy.getByTestId("Chart.ColumnMapping.x").selectAntdOption("Chart.ColumnMapping.x.stage1");
+      cy.getByTestId("Chart.ColumnMapping.x").selectAntdOption("Chart.ColumnMapping.x.stage");
+      cy.getByTestId("Chart.ColumnMapping.y").selectAntdOption("Chart.ColumnMapping.y.value1");
+      cy.getByTestId("Chart.ColumnMapping.y").selectAntdOption("Chart.ColumnMapping.y.value2");
       assertPlotPreview("exist");
 
       specificBarChartAssertionFn();
@@ -152,7 +153,7 @@ describe("Chart", () => {
         name: "Basic Bar Chart",
         alias: "basicBarChart",
         assertionFn: () => {
-          assertAxesAndAddLabels("Stage 1", "Value");
+          assertAxesAndAddLabels("Stage", "Value");
         },
       },
       {
