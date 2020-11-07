@@ -1,7 +1,6 @@
 /* global cy */
 
 import { getWidgetTestId } from "../../support/dashboard";
-import { get } from "lodash";
 
 const SQL = `
   SELECT 'a' AS stage1, 'a1' AS stage2, 11 AS value UNION ALL
@@ -106,15 +105,15 @@ function createDashboardWithCharts(title, chartGetters, widgetsAssertionFn = () 
   cy.createDashboard(title).then(dashboard => {
     const dashboardUrl = `/dashboards/${dashboard.id}`;
 
-    const widgets = [];
+    const widgetGetters = chartGetters.map(chartGetter => `${chartGetter}Widget`);
     chartGetters.forEach((chartGetter, i) => {
       const position = { autoHeight: false, sizeY: 8, sizeX: 3, col: (i % 2) * 3 };
-      cy.get(chartGetter).then(chart => {
-        widgets.push(cy.addWidget(dashboard.id, chart.id, { position }));
-      });
+      cy.get(`@${chartGetter}`)
+        .then(chart => cy.addWidget(dashboard.id, chart.id, { position }))
+        .as(widgetGetters[i]);
     });
 
-    widgetsAssertionFn(widgets, dashboardUrl);
+    widgetsAssertionFn(widgetGetters, dashboardUrl);
   });
 }
 
@@ -170,14 +169,16 @@ describe("Chart", () => {
       createChartThroughUI(name, getBarChartAssertionFunction(assertionFn)).as(alias);
     });
 
-    const chartGetters = chartTests.map(({ alias }) => `@${alias}`);
+    const chartGetters = chartTests.map(({ alias }) => alias);
 
-    const withDashboardWidgetsAssertionFn = (widgets, dashboardUrl) => {
+    const withDashboardWidgetsAssertionFn = (widgetGetters, dashboardUrl) => {
       cy.visit(dashboardUrl);
-      widgets.forEach(unfulfilledWidget => {
-        unfulfilledWidget.then(widget =>
-          cy.getByTestId(getWidgetTestId(widget)).within(() => cy.find("g.points").should("exist"))
-        );
+      widgetGetters.forEach(widgetGetter => {
+        cy.get(`@${widgetGetter}`).then(widget => {
+          cy.getByTestId(getWidgetTestId(widget)).within(() => {
+            cy.get("g.points").should("exist");
+          });
+        });
       });
       cy.percySnapshot("Visualizations - Charts - Bar");
     };
