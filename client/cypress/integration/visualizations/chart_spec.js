@@ -104,8 +104,8 @@ function assertAxesAndAddLabels(xaxisLabel, yaxisLabel) {
 function createDashboardWithCharts(title, chartGetters, widgetsAssertionFn = () => {}) {
   cy.createDashboard(title).then(dashboard => {
     const dashboardUrl = `/dashboards/${dashboard.id}`;
-
     const widgetGetters = chartGetters.map(chartGetter => `${chartGetter}Widget`);
+
     chartGetters.forEach((chartGetter, i) => {
       const position = { autoHeight: false, sizeY: 8, sizeX: 3, col: (i % 2) * 3 };
       cy.get(`@${chartGetter}`)
@@ -160,10 +160,26 @@ describe("Chart", () => {
         alias: "horizontalBarChart",
         assertionFn: () => {
           cy.getByTestId("Chart.SwappedAxes").check();
+          cy.getByTestId("VisualizationEditor.Tabs.XAxis").should("have.text", "Y Axis");
+          cy.getByTestId("VisualizationEditor.Tabs.YAxis").should("have.text", "X Axis");
+        },
+      },
+      {
+        name: "Stacked Bar Chart",
+        alias: "stackedBarChart",
+        assertionFn: () => {
+          // Will not change anything visually: need to set a query that has 2 y columns
+          cy.getByTestId("Chart.Stacking").selectAntdOption("Chart.Stacking.Stack");
+        },
+      },
+      {
+        name: "Normalized Bar Chart",
+        alias: "normalizedBarChart",
+        assertionFn: () => {
+          cy.getByTestId("Chart.NormalizeValues").check();
         },
       },
     ];
-    // TODO: test other types of bar charts
 
     chartTests.forEach(({ name, alias, assertionFn }) => {
       createChartThroughUI(name, getBarChartAssertionFunction(assertionFn)).as(alias);
@@ -180,9 +196,9 @@ describe("Chart", () => {
           });
         });
       });
-      cy.percySnapshot("Visualizations - Charts - Bar");
     };
-
+    
     createDashboardWithCharts("Bar chart visualizations", chartGetters, withDashboardWidgetsAssertionFn);
+    cy.percySnapshot("Visualizations - Charts - Bar");
   });
 });
