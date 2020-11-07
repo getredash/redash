@@ -169,7 +169,6 @@ describe("Chart", () => {
         name: "Stacked Bar Chart",
         alias: "stackedBarChart",
         assertionFn: () => {
-          // Will not change anything visually: need to set a query that has 2 y columns
           cy.getByTestId("Chart.Stacking").selectAntdOption("Chart.Stacking.Stack");
         },
       },
