@@ -101,31 +101,37 @@ function updateSeriesText(seriesList: any, options: any) {
 
 function updatePercentValues(seriesList: any, options: any) {
   if (options.series.percentValues) {
-    // Some series may not have corresponding x-values;
-    // do calculations for each x only for series that do have that x
-    const sumOfCorrespondingPoints = new Map();
-    each(seriesList, series => {
-      series.sourceData.forEach((item: any) => {
-        const sum = sumOfCorrespondingPoints.get(item.x) || 0;
-        sumOfCorrespondingPoints.set(item.x, sum + Math.abs(item.y || 0.0));
+    if (options.globalSeriesType === "histogram") {
+      each(seriesList, (series) => {
+        series.histnorm = "probability";
       });
-    });
-
-    each(seriesList, series => {
-      const yValues: any = [];
-
-      series.sourceData.forEach((item: any) => {
-        if (isNil(item.y) && !options.missingValuesAsZero) {
-          item.yPercent = null;
-        } else {
-          const sum = sumOfCorrespondingPoints.get(item.x);
-          item.yPercent = (item.y / sum);
-        }
-        yValues.push(item.yPercent);
+    } else {
+      // Some series may not have corresponding x-values;
+      // do calculations for each x only for series that do have that x
+      const sumOfCorrespondingPoints = new Map();
+      each(seriesList, series => {
+        series.sourceData.forEach((item: any) => {
+          const sum = sumOfCorrespondingPoints.get(item.x) || 0;
+          sumOfCorrespondingPoints.set(item.x, sum + Math.abs(item.y || 0.0));
+        });
       });
 
-      series.y = yValues;
-    });
+      each(seriesList, series => {
+        const yValues: any = [];
+
+        series.sourceData.forEach((item: any) => {
+          if (isNil(item.y) && !options.missingValuesAsZero) {
+            item.yPercent = null;
+          } else {
+            const sum = sumOfCorrespondingPoints.get(item.x);
+            item.yPercent = (item.y / sum);
+          }
+          yValues.push(item.yPercent);
+        });
+
+        series.y = yValues;
+      });
+    }
   }
 }
 

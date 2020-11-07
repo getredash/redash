@@ -1,4 +1,4 @@
-import { isNil, isObject, each, forOwn, sortBy, values } from "lodash";
+import { isNil, isObject, isEmpty, each, forOwn, sortBy, values } from "lodash";
 
 function addPointToSeries(point: any, seriesCollection: any, seriesName: any) {
   if (seriesCollection[seriesName] === undefined) {
@@ -75,25 +75,31 @@ export default function getChartData(data: any, options: any) {
     });
 
     if (isNil(seriesName)) {
-      each(yValues, (yValue, ySeriesName) => {
+      if (options.globalSeriesType === "histogram" && isEmpty(yValues)) {
         // @ts-expect-error ts-migrate(2322) FIXME: Type '{ x: number; y: never; $raw: any; }' is not ... Remove this comment to see the full error message
-        point = { x: xValue, y: yValue, $raw: point.$raw };
-        if (eValue !== null) {
-          // @ts-expect-error ts-migrate(2339) FIXME: Property 'yError' does not exist on type '{ $raw: ... Remove this comment to see the full error message
-          point.yError = eValue;
-        }
+        point = { x: xValue, y: null, $raw: point.$raw };
+        addPointToSeries(point, series, "Count");
+      } else {
+        each(yValues, (yValue, ySeriesName) => {
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '{ x: number; y: never; $raw: any; }' is not ... Remove this comment to see the full error message
+          point = { x: xValue, y: yValue, $raw: point.$raw };
+          if (eValue !== null) {
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'yError' does not exist on type '{ $raw: ... Remove this comment to see the full error message
+            point.yError = eValue;
+          }
 
-        if (sizeValue !== null) {
-          // @ts-expect-error ts-migrate(2339) FIXME: Property 'size' does not exist on type '{ $raw: an... Remove this comment to see the full error message
-          point.size = sizeValue;
-        }
+          if (sizeValue !== null) {
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'zVal' does not exist on type '{ $raw: an... Remove this comment to see the full error message
+            point.size = sizeValue;
+          }
 
-        if (zValue !== null) {
-          // @ts-expect-error ts-migrate(2339) FIXME: Property 'zVal' does not exist on type '{ $raw: an... Remove this comment to see the full error message
-          point.zVal = zValue;
-        }
-        addPointToSeries(point, series, ySeriesName);
-      });
+          if (zValue !== null) {
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'zVal' does not exist on type '{ $raw: an... Remove this comment to see the full error message
+            point.zVal = zValue;
+          }
+          addPointToSeries(point, series, ySeriesName);
+        });
+      }
     } else {
       addPointToSeries(point, series, seriesName);
     }

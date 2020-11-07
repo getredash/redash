@@ -1,6 +1,8 @@
+import { includes } from "lodash";
 import React from "react";
-import { Section, Switch } from "@/components/visualizations/editor";
+import { Section, InputNumber, Switch } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
+import { toNumber } from "../plotly/utils";
 
 import AxisSettings from "./AxisSettings";
 
@@ -15,7 +17,32 @@ export default function XAxisSettings({ options, onOptionsChange }: any) {
         onChange={(xAxis: any) => onOptionsChange({ xAxis })}
       />
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
+      {includes(["histogram"], options.globalSeriesType) && (
+        <React.Fragment>
+          <Section>
+            <InputNumber
+              label="Bin Size"
+              className="w-100"
+              placeholder="Auto"
+              data-test="Chart.XAxis.BinSize"
+              defaultValue={options.binSize}
+              onChange={binSize => onOptionsChange({ binSize: toNumber(binSize) })}
+            />
+          </Section>
+
+          <Section>
+            <InputNumber
+              label="Bin Start"
+              className="w-100"
+              placeholder="Auto"
+              data-test="Chart.XAxis.BinStart"
+              defaultValue={options.binStart}
+              onChange={binStart => onOptionsChange({ binStart: toNumber(binStart) })}
+            />
+          </Section>
+        </React.Fragment>
+      )}
+
       <Section>
         {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
         <Switch

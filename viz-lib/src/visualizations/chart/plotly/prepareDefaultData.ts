@@ -71,6 +71,23 @@ function prepareBoxSeries(series: any, options: any, { seriesColor }: any) {
   return series;
 }
 
+function prepareHistogramSeries(series: any, options: any) {
+  series.type = 'histogram';
+  series.hoverinfo = 'x+y+name';
+
+  if (!isNil(options.binSize)) {
+    series.autobinx = false;
+    series.xbins = series.xbins || {};
+    series.xbins.size = options.binSize;
+  }
+  if (!isNil(options.binStart)) {
+    series.autobinx = false;
+    series.xbins = series.xbins || {};
+    series.xbins.start = options.binStart;
+  }
+  return series;
+}
+
 function prepareSeries(series: any, options: any, additionalOptions: any) {
   const { hoverInfoPattern, index } = additionalOptions;
 
@@ -148,6 +165,9 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
       return prepareBubbleSeries(plotlySeries, options, additionalOptions);
     case "box":
       return prepareBoxSeries(plotlySeries, options, additionalOptions);
+    case 'histogram':
+      // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 3.
+      return prepareHistogramSeries(plotlySeries, options, additionalOptions);
     default:
       return plotlySeries;
   }

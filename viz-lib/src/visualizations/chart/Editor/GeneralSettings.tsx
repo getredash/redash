@@ -293,7 +293,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
             label="Stacking"
             data-test="Chart.Stacking"
             defaultValue={options.series.stacking}
-            disabled={!includes(["line", "area", "column"], options.globalSeriesType)}
+            disabled={!includes(["line", "area", "column", "histogram"], options.globalSeriesType)}
             onChange={(stacking: any) => onOptionsChange({ series: { stacking } })}>
             {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             <Select.Option value={null} data-test="Chart.Stacking.Disabled">
@@ -309,7 +309,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         </Section>
       )}
 
-      {includes(["line", "area", "column"], options.globalSeriesType) && (
+      {includes(["line", "area", "column", "histogram"], options.globalSeriesType) && (
         // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Checkbox
