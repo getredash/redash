@@ -197,7 +197,7 @@ describe("Chart", () => {
         });
       });
     };
-    
+
     createDashboardWithCharts("Bar chart visualizations", chartGetters, withDashboardWidgetsAssertionFn);
     cy.percySnapshot("Visualizations - Charts - Bar");
   });
