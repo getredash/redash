@@ -33,7 +33,7 @@ describe("Parameter Mapping", () => {
       .contains("Edit Parameters")
       .click();
 
-    cy.getByTestId(`EditParamMappingButon-${paramName}`).click();
+    cy.getByTestId(`EditParamMappingButton-${paramName}`).click();
   };
 
   const saveMappingOptions = () => {
