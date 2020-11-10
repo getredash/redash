@@ -32,17 +32,6 @@ body {
   #application-root {
     padding-bottom: 15px;
   }
-
-  &.headless {
-    #application-root {
-      padding-top: 10px;
-      padding-bottom: 0;
-    }
-
-    .app-header-wrapper {
-      display: none;
-    }
-  }
 }
 
 #application-root {
@@ -89,46 +78,16 @@ strong {
   }
 }
 
-// Fixed width layout for specific pages
-@media (min-width: 768px) {
-  .settings-screen,
-  .home-page,
-  .page-dashboard-list,
-  .page-queries-list,
-  .page-alerts-list,
-  .alert-page,
-  .fixed-container {
-    .container {
-      width: 750px;
-    }
-  }
-}
-
-@media (min-width: 992px) {
-  .settings-screen,
-  .home-page,
-  .page-dashboard-list,
-  .page-queries-list,
-  .page-alerts-list,
-  .alert-page,
-  .fixed-container {
-    .container {
-      width: 970px;
-    }
-  }
-}
-
-@media (min-width: 1200px) {
-  .settings-screen,
-  .home-page,
-  .page-dashboard-list,
-  .page-queries-list,
-  .page-alerts-list,
-  .alert-page,
-  .fixed-container {
-    .container {
-      width: 1170px;
-    }
+.settings-screen,
+.home-page,
+.page-dashboard-list,
+.page-queries-list,
+.page-alerts-list,
+.alert-page,
+.admin-page-layout {
+  .container {
+    width: 100%;
+    max-width: none;
   }
 }
 
@@ -255,7 +214,6 @@ text.slicetext {
   }
 }
 
-.page-header-wrapper,
 .page-header--new {
   h3 {
     margin: 0.2em 0;

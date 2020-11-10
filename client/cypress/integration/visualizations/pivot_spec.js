@@ -1,9 +1,6 @@
-/* global cy, Cypress */
+/* global cy */
 
-import { createQuery, createVisualization, createDashboard, addWidget } from "../../support/redash-api";
 import { getWidgetTestId } from "../../support/dashboard";
-
-const { get } = Cypress._;
 
 const SQL = `
   SELECT 'a' AS stage1, 'a1' AS stage2, 11 AS value UNION ALL
@@ -21,8 +18,7 @@ const SQL = `
 
 function createPivotThroughUI(visualizationName, options = {}) {
   cy.getByTestId("NewVisualization").click();
-  cy.getByTestId("VisualizationType").click();
-  cy.getByTestId("VisualizationType.PIVOT").click();
+  cy.getByTestId("VisualizationType").selectAntdOption("VisualizationType.PIVOT");
   cy.getByTestId("VisualizationName")
     .clear()
     .type(visualizationName);
@@ -44,7 +40,7 @@ function createPivotThroughUI(visualizationName, options = {}) {
 describe("Pivot", () => {
   beforeEach(() => {
     cy.login();
-    createQuery({ name: "Pivot Visualization", query: SQL })
+    cy.createQuery({ name: "Pivot Visualization", query: SQL })
       .its("id")
       .as("queryId");
   });
@@ -68,18 +64,16 @@ describe("Pivot", () => {
     const visualizationName = "Pivot";
 
     cy.server();
-    cy.route("POST", "api/visualizations").as("SaveVisualization");
+    cy.route("POST", "**/api/visualizations").as("SaveVisualization");
 
     createPivotThroughUI(visualizationName, { hideControls: true });
 
-    cy.wait("@SaveVisualization").then(xhr => {
-      const visualizationId = get(xhr, "response.body.id");
-      // Added visualization should also have hidden controls
-      cy.getByTestId(`QueryPageVisualization${visualizationId}`)
-        .find("table")
-        .find(".pvtAxisContainer, .pvtRenderer, .pvtVals")
-        .should("be.not.visible");
-    });
+    cy.wait("@SaveVisualization");
+    // Added visualization should also have hidden controls
+    cy.getByTestId("PivotTableVisualization")
+      .find("table")
+      .find(".pvtAxisContainer, .pvtRenderer, .pvtVals")
+      .should("be.not.visible");
   });
 
   it("updates the visualization when results change", function() {
@@ -92,12 +86,12 @@ describe("Pivot", () => {
       vals: ["value"],
     };
 
-    createVisualization(this.queryId, "PIVOT", "Pivot", options).then(visualization => {
+    cy.createVisualization(this.queryId, "PIVOT", "Pivot", options).then(visualization => {
       cy.visit(`queries/${this.queryId}/source#${visualization.id}`);
       cy.getByTestId("ExecuteButton").click();
 
       // assert number of rows is 11
-      cy.getByTestId(`QueryPageVisualization${visualization.id}`).contains(".pvtGrandTotal", "11");
+      cy.getByTestId("PivotTableVisualization").contains(".pvtGrandTotal", "11");
 
       cy.getByTestId("QueryEditor")
         .get(".ace_text-input")
@@ -109,7 +103,7 @@ describe("Pivot", () => {
       cy.getByTestId("ExecuteButton").click();
 
       // assert number of rows is 12
-      cy.getByTestId(`QueryPageVisualization${visualization.id}`).contains(".pvtGrandTotal", "12");
+      cy.getByTestId("PivotTableVisualization").contains(".pvtGrandTotal", "12");
     });
   });
 
@@ -141,14 +135,14 @@ describe("Pivot", () => {
       },
     ];
 
-    createDashboard("Pivot Visualization")
+    cy.createDashboard("Pivot Visualization")
       .then(dashboard => {
-        this.dashboardUrl = `/dashboard/${dashboard.slug}`;
+        this.dashboardUrl = `/dashboards/${dashboard.id}`;
         return cy.all(
           pivotTables.map(pivot => () =>
-            createVisualization(this.queryId, "PIVOT", pivot.name, pivot.options).then(visualization =>
-              addWidget(dashboard.id, visualization.id, { position: pivot.position })
-            )
+            cy
+              .createVisualization(this.queryId, "PIVOT", pivot.name, pivot.options)
+              .then(visualization => cy.addWidget(dashboard.id, visualization.id, { position: pivot.position }))
           )
         );
       })

@@ -1,13 +1,12 @@
-import { createDashboard } from "../../support/redash-api";
 import { createQueryAndAddWidget } from "../../support/dashboard";
 
 describe("Parameter Mapping", () => {
   beforeEach(function() {
     cy.login();
-    createDashboard("Foo Bar")
-      .then(({ slug, id }) => {
+    cy.createDashboard("Foo Bar")
+      .then(({ id }) => {
         this.dashboardId = id;
-        this.dashboardUrl = `/dashboard/${slug}`;
+        this.dashboardUrl = `/dashboards/${id}`;
       })
       .then(() => {
         const queryData = {
@@ -34,7 +33,7 @@ describe("Parameter Mapping", () => {
       .contains("Edit Parameters")
       .click();
 
-    cy.getByTestId(`EditParamMappingButon-${paramName}`).click();
+    cy.getByTestId(`EditParamMappingButton-${paramName}`).click();
   };
 
   const saveMappingOptions = () => {

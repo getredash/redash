@@ -1,7 +1,8 @@
+import { without, find, includes, map, toLower } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import { without, find, isEmpty, includes, map } from "lodash";
 
+import Link from "@/components/Link";
 import SelectItemsDialog from "@/components/SelectItemsDialog";
 import { Destination as DestinationType, UserProfile as UserType } from "@/components/proptypes";
 
@@ -12,7 +13,7 @@ import notification from "@/services/notification";
 import ListItemAddon from "@/components/groups/ListItemAddon";
 import EmailSettingsWarning from "@/components/EmailSettingsWarning";
 
-import Icon from "antd/lib/icon";
+import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import Tooltip from "antd/lib/tooltip";
 import Switch from "antd/lib/switch";
 import Button from "antd/lib/button";
@@ -45,7 +46,7 @@ function ListItem({ destination: { name, type }, user, unsubscribe }) {
       )}
       {canUnsubscribe && (
         <Tooltip title="Remove" mouseEnterDelay={0.5}>
-          <Icon type="close" className="remove-button" onClick={unsubscribe} />
+          <CloseOutlinedIcon className="remove-button" onClick={unsubscribe} />
         </Tooltip>
       )}
     </li>
@@ -60,7 +61,7 @@ ListItem.propTypes = {
 
 export default class AlertDestinations extends React.Component {
   static propTypes = {
-    alertId: PropTypes.number.isRequired,
+    alertId: PropTypes.any.isRequired,
   };
 
   state = {
@@ -89,18 +90,17 @@ export default class AlertDestinations extends React.Component {
         <>
           <i className="fa fa-info-circle" /> Create new destinations in{" "}
           <Tooltip title="Opens page in a new tab.">
-            <a href="destinations/new" target="_blank">
+            <Link href="destinations/new" target="_blank">
               Alert Destinations
-            </a>
+            </Link>
           </Tooltip>
         </>
       ),
       dialogTitle: "Add Existing Alert Destinations",
       inputPlaceholder: "Search destinations...",
       searchItems: searchTerm => {
-        searchTerm = searchTerm.toLowerCase();
-        const filtered = dests.filter(d => isEmpty(searchTerm) || includes(d.name.toLowerCase(), searchTerm));
-        return Promise.resolve(filtered);
+        searchTerm = toLower(searchTerm);
+        return Promise.resolve(dests.filter(d => includes(toLower(d.name), searchTerm)));
       },
       renderItem: (item, { isSelected }) => {
         const alreadyInGroup = !!find(subs, s => s.destination.id === item.id);
@@ -117,17 +117,17 @@ export default class AlertDestinations extends React.Component {
           className: isSelected || alreadyInGroup ? "selected" : "",
         };
       },
-      save: items => {
-        const promises = map(items, item => this.subscribe(item));
-        return Promise.all(promises)
-          .then(() => {
-            notification.success("Subscribed.");
-          })
-          .catch(() => {
-            notification.error("Failed saving subscription.");
-          });
-      },
-    }).result.catch(() => {}); // ignore dismiss
+    }).onClose(items => {
+      const promises = map(items, item => this.subscribe(item));
+      return Promise.all(promises)
+        .then(() => {
+          notification.success("Subscribed.");
+        })
+        .catch(() => {
+          notification.error("Failed saving subscription.");
+          return Promise.reject(null); // keep dialog visible but suppress its default error message
+        });
+    });
   };
 
   onUserEmailToggle = sub => {

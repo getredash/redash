@@ -33,9 +33,6 @@ function showNotification(title, content) {
     body: content,
     icon: redashIconUrl,
   });
-  setTimeout(() => {
-    notification.close();
-  }, 3000);
   notification.onclick = function onClick() {
     window.focus();
     this.close();

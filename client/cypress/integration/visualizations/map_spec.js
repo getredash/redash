@@ -1,15 +1,13 @@
 /* global cy */
 
-import { createQuery } from "../../support/redash-api";
-
 const SQL = `
-  SELECT 'Israel' AS country, 32.0808800 AS lat, 34.7805700 AS lng UNION ALL 
+  SELECT 'Israel' AS country, 32.0808800 AS lat, 34.7805700 AS lng UNION ALL
   SELECT 'Israel' AS country, 31.7690400 AS lat, 35.2163300 AS lng UNION ALL
   SELECT 'Israel' AS country, 32.8184100 AS lat, 34.9885000 AS lng UNION ALL
-  
+
   SELECT 'Ukraine' AS country, 50.4546600 AS lat, 30.5238000 AS lng UNION ALL
-  SELECT 'Ukraine' AS country, 49.8382600 AS lat, 24.0232400 AS lng UNION ALL 
-  SELECT 'Ukraine' AS country, 49.9808100 AS lat, 36.2527200 AS lng UNION ALL 
+  SELECT 'Ukraine' AS country, 49.8382600 AS lat, 24.0232400 AS lng UNION ALL
+  SELECT 'Ukraine' AS country, 49.9808100 AS lat, 36.2527200 AS lng UNION ALL
 
   SELECT 'Hungary' AS country, 47.4980100 AS lat, 19.0399100 AS lng
 `;
@@ -19,20 +17,20 @@ describe("Map (Markers)", () => {
 
   beforeEach(() => {
     cy.login();
-    createQuery({ query: SQL }).then(({ id }) => {
-      cy.visit(`queries/${id}/source`);
-      cy.getByTestId("ExecuteButton").click();
-    });
+
+    const mapTileUrl = "/static/images/fixtures/map-tile.png";
+
+    cy.createQuery({ query: SQL })
+      .then(({ id }) => cy.createVisualization(id, "MAP", "Map (Markers)", { mapTileUrl }))
+      .then(({ id: visualizationId, query_id: queryId }) => {
+        cy.visit(`queries/${queryId}/source#${visualizationId}`);
+        cy.getByTestId("ExecuteButton").click();
+      });
   });
 
   it("creates Map with groups", () => {
     cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.MAP
-    `);
-
-    cy.clickThrough(`
+      EditVisualization
       VisualizationEditor.Tabs.General
       Map.Editor.LatitudeColumnName
       Map.Editor.LatitudeColumnName.lat
@@ -64,12 +62,7 @@ describe("Map (Markers)", () => {
 
   it("creates Map with custom markers", () => {
     cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.MAP
-    `);
-
-    cy.clickThrough(`
+      EditVisualization
       VisualizationEditor.Tabs.General
       Map.Editor.LatitudeColumnName
       Map.Editor.LatitudeColumnName.lat

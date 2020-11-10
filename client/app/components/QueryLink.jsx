@@ -1,7 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { VisualizationType } from "@/visualizations/prop-types";
-import VisualizationName from "@/visualizations/components/VisualizationName";
+import { VisualizationType } from "@redash/viz/lib";
+import Link from "@/components/Link";
+import VisualizationName from "@/components/visualizations/VisualizationName";
 
 import "./QueryLink.less";
 
@@ -21,9 +22,9 @@ function QueryLink({ query, visualization, readOnly }) {
   };
 
   return (
-    <a href={readOnly ? null : getUrl()} className="query-link">
+    <Link href={readOnly ? null : getUrl()} className="query-link">
       <VisualizationName visualization={visualization} /> <span>{query.name}</span>
-    </a>
+    </Link>
   );
 }
 

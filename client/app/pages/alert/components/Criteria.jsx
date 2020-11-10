@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { head, includes, toString, isEmpty } from "lodash";
 
 import Input from "antd/lib/input";
-import Icon from "antd/lib/icon";
+import WarningFilledIcon from "@ant-design/icons/WarningFilled";
 import Select from "antd/lib/select";
 import Divider from "antd/lib/divider";
 
@@ -124,12 +124,12 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
           <DisabledInput minWidth={50}>{alertOptions.value}</DisabledInput>
         )}
       </div>
-      <div className="ant-form-explain">
+      <div className="ant-form-item-explain">
         {columnHint}
         <br />
         {invalidMessage && (
           <small>
-            <Icon type="warning" theme="filled" className="warning-icon-danger" /> {invalidMessage}
+            <WarningFilledIcon className="warning-icon-danger" /> {invalidMessage}
           </small>
         )}
       </div>

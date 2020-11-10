@@ -15,7 +15,7 @@ from .app import create_app  # noqa
 from .query_runner import import_query_runners
 from .destinations import import_destinations
 
-__version__ = "9.0.0-alpha"
+__version__ = "9.0.0-beta"
 
 
 if os.environ.get("REMOTE_DEBUG"):
@@ -47,7 +47,7 @@ setup_logging()
 redis_connection = redis.from_url(settings.REDIS_URL)
 rq_redis_connection = redis.from_url(settings.RQ_REDIS_URL)
 mail = Mail()
-migrate = Migrate()
+migrate = Migrate(compare_type=True)
 statsd_client = StatsClient(
     host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX
 )

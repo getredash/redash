@@ -1,42 +1,43 @@
-@import '~antd/lib/style/core/iconfont';
-@import '~antd/lib/style/core/motion';
-@import '~antd/lib/alert/style/index';
-@import '~antd/lib/input/style/index';
-@import '~antd/lib/input-number/style/index';
-@import '~antd/lib/date-picker/style/index';
-@import '~antd/lib/modal/style/index';
-@import '~antd/lib/tooltip/style/index';
-@import '~antd/lib/select/style/index';
-@import '~antd/lib/checkbox/style/index';
-@import '~antd/lib/upload/style/index';
-@import '~antd/lib/form/style/index';
-@import '~antd/lib/button/style/index';
-@import '~antd/lib/radio/style/index';
-@import '~antd/lib/time-picker/style/index';
-@import '~antd/lib/pagination/style/index';
-@import '~antd/lib/table/style/index';
-@import '~antd/lib/popover/style/index';
-@import '~antd/lib/icon/style/index';
-@import '~antd/lib/tag/style/index';
-@import '~antd/lib/grid/style/index';
-@import '~antd/lib/switch/style/index';
-@import '~antd/lib/empty/style/index';
-@import '~antd/lib/drawer/style/index';
-@import '~antd/lib/card/style/index';
-@import '~antd/lib/steps/style/index';
-@import '~antd/lib/divider/style/index';
-@import '~antd/lib/dropdown/style/index';
-@import '~antd/lib/menu/style/index';
-@import '~antd/lib/list/style/index';
+@import "~antd/lib/style/core/iconfont";
+@import "~antd/lib/style/core/motion";
+@import "~antd/lib/alert/style/index";
+@import "~antd/lib/input/style/index";
+@import "~antd/lib/input-number/style/index";
+@import "~antd/lib/date-picker/style/index";
+@import "~antd/lib/modal/style/index";
+@import "~antd/lib/tooltip/style/index";
+@import "~antd/lib/select/style/index";
+@import "~antd/lib/checkbox/style/index";
+@import "~antd/lib/upload/style/index";
+@import "~antd/lib/form/style/index";
+@import "~antd/lib/button/style/index";
+@import "~antd/lib/radio/style/index";
+@import "~antd/lib/time-picker/style/index";
+@import "~antd/lib/pagination/style/index";
+@import "~antd/lib/table/style/index";
+@import "~antd/lib/popover/style/index";
+@import "~antd/lib/tag/style/index";
+@import "~antd/lib/grid/style/index";
+@import "~antd/lib/switch/style/index";
+@import "~antd/lib/empty/style/index";
+@import "~antd/lib/drawer/style/index";
+@import "~antd/lib/card/style/index";
+@import "~antd/lib/steps/style/index";
+@import "~antd/lib/divider/style/index";
+@import "~antd/lib/dropdown/style/index";
+@import "~antd/lib/menu/style/index";
+@import "~antd/lib/list/style/index";
 @import "~antd/lib/badge/style/index";
 @import "~antd/lib/card/style/index";
 @import "~antd/lib/spin/style/index";
+@import "~antd/lib/skeleton/style/index";
 @import "~antd/lib/tabs/style/index";
 @import "~antd/lib/notification/style/index";
 @import "~antd/lib/collapse/style/index";
 @import "~antd/lib/progress/style/index";
 @import "~antd/lib/typography/style/index";
-@import 'inc/ant-variables';
+@import "~antd/lib/descriptions/style/index";
+@import "inc/ant-variables";
 
 // Increase z-indexes to avoid conflicts with some other libraries (e.g. Plotly)
 @zindex-modal: 2000;
@@ -237,11 +238,11 @@
   &-item {
     // custom rule
     &.selected {
-      background-color: #F6F8F9;
+      background-color: #f6f8f9;
     }
 
     &.disabled {
-      background-color: fade(#F6F8F9, 40%);
+      background-color: fade(#f6f8f9, 40%);
 
       & > * {
         opacity: 0.4;
@@ -367,7 +368,7 @@
     top: auto !important;
     bottom: 8px;
 
-     // makes the icon white instead of see-through
+    // makes the icon white instead of see-through
     & svg {
       background: white;
       border-radius: 50%;
@@ -394,9 +395,20 @@
 }
 
 // overrides for checkbox
-@checkbox-prefix-cls: ~'@{ant-prefix}-checkbox';
+@checkbox-prefix-cls: ~"@{ant-prefix}-checkbox";
 
 .@{checkbox-prefix-cls}-wrapper + span,
 .@{checkbox-prefix-cls} + span {
   padding-right: 0;
+}
+
+// make sure Multiple select has room for icons
+.@{select-prefix-cls}-multiple {
+  &.@{select-prefix-cls}-show-arrow,
+  &.@{select-prefix-cls}-show-search,
+  &.@{select-prefix-cls}-loading {
+    .@{select-prefix-cls}-selector {
+      padding-right: 30px;
+    }
+  }
 }

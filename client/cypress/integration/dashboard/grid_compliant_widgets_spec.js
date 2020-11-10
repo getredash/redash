@@ -1,16 +1,17 @@
 /* global cy */
 
-import { createDashboard, addTextbox } from "../../support/redash-api";
 import { getWidgetTestId, editDashboard, resizeBy } from "../../support/dashboard";
+
+const menuWidth = 80;
 
 describe("Grid compliant widgets", () => {
   beforeEach(function() {
     cy.login();
-    cy.viewport(1215, 800);
-    createDashboard("Foo Bar")
-      .then(({ slug, id }) => {
-        this.dashboardUrl = `/dashboard/${slug}`;
-        return addTextbox(id, "Hello World!").then(getWidgetTestId);
+    cy.viewport(1215 + menuWidth, 800);
+    cy.createDashboard("Foo Bar")
+      .then(({ id }) => {
+        this.dashboardUrl = `/dashboards/${id}`;
+        return cy.addTextbox(id, "Hello World!").then(getWidgetTestId);
       })
       .then(elTestId => {
         cy.visit(this.dashboardUrl);
@@ -28,27 +29,27 @@ describe("Grid compliant widgets", () => {
         cy.get("@textboxEl")
           .dragBy(90)
           .invoke("offset")
-          .should("have.property", "left", 15); // no change, 15 -> 15
+          .should("have.property", "left", 15 + menuWidth); // no change, 15 -> 15
       });
 
       it("moves one column when dragged over snap threshold", () => {
         cy.get("@textboxEl")
           .dragBy(110)
           .invoke("offset")
-          .should("have.property", "left", 215); //  moved by 200, 15 -> 215
+          .should("have.property", "left", 215 + menuWidth); //  moved by 200, 15 -> 215
       });
 
       it("moves two columns when dragged over snap threshold", () => {
         cy.get("@textboxEl")
           .dragBy(330)
           .invoke("offset")
-          .should("have.property", "left", 415); //  moved by 400, 15 -> 415
+          .should("have.property", "left", 415 + menuWidth); //  moved by 400, 15 -> 415
       });
     });
 
     it("auto saves after drag", () => {
       cy.server();
-      cy.route("POST", "api/widgets/*").as("WidgetSave");
+      cy.route("POST", "**/api/widgets/*").as("WidgetSave");
 
       editDashboard();
       cy.get("@textboxEl").dragBy(330);
@@ -116,7 +117,7 @@ describe("Grid compliant widgets", () => {
 
     it("auto saves after resize", () => {
       cy.server();
-      cy.route("POST", "api/widgets/*").as("WidgetSave");
+      cy.route("POST", "**/api/widgets/*").as("WidgetSave");
 
       editDashboard();
       resizeBy(cy.get("@textboxEl"), 200);

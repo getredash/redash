@@ -1,7 +1,5 @@
 /* global cy, Cypress */
 
-import { createQuery } from "../../support/redash-api";
-
 const SQL = `
   SELECT '2019-01-01' AS "date", 21 AS "bucket", 5 AS "value", 1 AS "stage" UNION ALL
   SELECT '2019-01-01' AS "date", 21 AS "bucket", 8 AS "value", 2 AS "stage" UNION ALL
@@ -24,19 +22,15 @@ describe("Cohort", () => {
 
   beforeEach(() => {
     cy.login();
-    createQuery({ query: SQL }).then(({ id }) => {
+    cy.createQuery({ query: SQL }).then(({ id }) => {
       cy.visit(`queries/${id}/source`);
       cy.getByTestId("ExecuteButton").click();
     });
+    cy.getByTestId("NewVisualization").click();
+    cy.getByTestId("VisualizationType").selectAntdOption("VisualizationType.COHORT");
   });
 
   it("creates visualization", () => {
-    cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COHORT
-    `);
-
     cy.clickThrough(`
       VisualizationEditor.Tabs.Options
       Cohort.TimeInterval

@@ -1,7 +1,5 @@
 /* global cy */
 
-import { createQuery, addWidget } from "../redash-api";
-
 const { get } = Cypress._;
 const RESIZE_HANDLE_SELECTOR = ".react-resizable-handle";
 
@@ -10,11 +8,12 @@ export function getWidgetTestId(widget) {
 }
 
 export function createQueryAndAddWidget(dashboardId, queryData = {}, widgetOptions = {}) {
-  return createQuery(queryData)
+  return cy
+    .createQuery(queryData)
     .then(query => {
       const visualizationId = get(query, "visualizations.0.id");
       assert.isDefined(visualizationId, "Query api call returns at least one visualization with id");
-      return addWidget(dashboardId, visualizationId, widgetOptions);
+      return cy.addWidget(dashboardId, visualizationId, widgetOptions);
     })
     .then(getWidgetTestId);
 }

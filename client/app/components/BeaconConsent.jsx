@@ -3,6 +3,7 @@ import Card from "antd/lib/card";
 import Button from "antd/lib/button";
 import Typography from "antd/lib/typography";
 import { clientConfig } from "@/services/auth";
+import Link from "@/components/Link";
 import HelpTrigger from "@/components/HelpTrigger";
 import DynamicComponent from "@/components/DynamicComponent";
 import OrgSettings from "@/services/organizationSettings";
@@ -65,8 +66,8 @@ function BeaconConsent() {
           </div>
           <div className="m-t-15">
             <Text type="secondary">
-              You can change this setting anytime from the <a href="settings/organization">Organization Settings</a>{" "}
-              page.
+              You can change this setting anytime from the{" "}
+              <Link href="settings/organization">Organization Settings</Link> page.
             </Text>
           </div>
         </Card>

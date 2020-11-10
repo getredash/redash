@@ -5,6 +5,7 @@ import redis
 from rq import get_current_job
 from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
+from rq.exceptions import NoSuchJobError
 
 from redash import models, redis_connection, settings
 from redash.query_runner import InterruptException
@@ -43,16 +44,28 @@ def enqueue_query(
             job_id = pipe.get(_job_lock_id(query_hash, data_source.id))
             if job_id:
                 logger.info("[%s] Found existing job: %s", query_hash, job_id)
+                job_complete = None
+                job_cancelled = None
 
-                job = Job.fetch(job_id)
+                try:
+                    job = Job.fetch(job_id)
+                    job_exists = True
+                    status = job.get_status()
+                    job_complete = status in [JobStatus.FINISHED, JobStatus.FAILED]
+                    job_cancelled = job.is_cancelled
 
-                status = job.get_status()
-                if status in [JobStatus.FINISHED, JobStatus.FAILED]:
-                    logger.info(
-                        "[%s] job found is ready (%s), removing lock",
-                        query_hash,
-                        status,
-                    )
+                    if job_complete:
+                        message = "job found is complete (%s)" % status
+                    elif job_cancelled:
+                        message = "job found has ben cancelled"
+                except NoSuchJobError:
+                    message = "job found has expired"
+                    job_exists = False
+
+                lock_is_irrelevant = job_complete or job_cancelled or not job_exists
+
+                if lock_is_irrelevant:
+                    logger.info("[%s] %s, removing lock", query_hash, message)
                     redis_connection.delete(_job_lock_id(query_hash, data_source.id))
                     job = None
 
@@ -178,8 +191,9 @@ class QueryExecutor(object):
         run_time = time.time() - started_at
 
         logger.info(
-            "job=execute_query query_hash=%s data_length=%s error=[%s]",
+            "job=execute_query query_hash=%s ds_id=%d data_length=%s error=[%s]",
             self.query_hash,
+            self.data_source_id,
             data and len(data),
             error,
         )

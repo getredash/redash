@@ -4,7 +4,8 @@ import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import List from "antd/lib/list";
-import Icon from "antd/lib/icon";
+import Link from "@/components/Link";
+import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import { Dashboard } from "@/services/dashboard";
@@ -38,7 +39,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
 
   function addWidgetToDashboard() {
     // Load dashboard with all widgets
-    Dashboard.get({ slug: selectedDashboard.slug })
+    Dashboard.get(selectedDashboard)
       .then(dashboard => {
         dashboard.addWidget(visualization);
         return dashboard;
@@ -51,9 +52,9 @@ function AddToDashboardDialog({ dialog, visualization }) {
         notification.success(
           "Widget added to dashboard",
           <React.Fragment>
-            <a href={`dashboard/${dashboard.slug}`} onClick={() => notification.close(key)}>
+            <Link href={`${dashboard.url}`} onClick={() => notification.close(key)}>
               {dashboard.name}
-            </a>
+            </Link>
             <QueryTagsControl isDraft={dashboard.is_draft} tags={dashboard.tags} />
           </React.Fragment>,
           { key }
@@ -88,7 +89,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
           value={searchTerm}
           onChange={event => setSearchTerm(event.target.value)}
           suffix={
-            <Icon type="close" className={searchTerm === "" ? "hidden" : null} onClick={() => setSearchTerm("")} />
+            <CloseOutlinedIcon className={searchTerm === "" ? "hidden" : null} onClick={() => setSearchTerm("")} />
           }
         />
       )}
@@ -103,7 +104,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
           renderItem={d => (
             <List.Item
               key={`dashboard-${d.id}`}
-              actions={selectedDashboard ? [<Icon type="close" onClick={() => setSelectedDashboard(null)} />] : []}
+              actions={selectedDashboard ? [<CloseOutlinedIcon onClick={() => setSelectedDashboard(null)} />] : []}
               onClick={selectedDashboard ? null : () => setSelectedDashboard(d)}>
               <div className="add-to-dashboard-dialog-item-content">
                 {d.name}

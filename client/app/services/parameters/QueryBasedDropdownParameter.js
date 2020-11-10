@@ -127,7 +127,8 @@ class QueryBasedDropdownParameter extends Parameter {
               this.searchTerm = searchTerm;
               return get(result, "query_result.data.rows");
             })
-            .then(mapOptionValuesToString);
+            .then(mapOptionValuesToString)
+            .catch(Promise.resolve([]));
         return this.searchTerm ? this.searchFunction(this.searchTerm) : Promise.resolve([]);
       } else {
         this.searchFunction = null;
@@ -137,13 +138,16 @@ class QueryBasedDropdownParameter extends Parameter {
         return QueryResult.getByQueryId(query.id, { ...this.staticParams }, -1)
           .toPromise()
           .then(result => get(result, "query_result.data.rows"))
-          .then(mapOptionValuesToString);
+          .then(mapOptionValuesToString)
+          .catch(Promise.resolve([]));
       } else if (this.parentQueryId) {
-        return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId }).then(
-          mapOptionValuesToString
-        );
+        return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId })
+          .then(mapOptionValuesToString)
+          .catch(Promise.resolve([]));
       }
-      return Query.asDropdown({ id: this.queryId }).then(mapOptionValuesToString);
+      return Query.asDropdown({ id: this.queryId })
+        .then(mapOptionValuesToString)
+        .catch(Promise.resolve([]));
     });
   }
 }

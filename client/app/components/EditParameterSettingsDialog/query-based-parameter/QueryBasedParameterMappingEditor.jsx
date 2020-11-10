@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useReducer } from "react";
 import PropTypes from "prop-types";
 import { values } from "lodash";
 import Button from "antd/lib/button";
-import Icon from "antd/lib/icon";
 import Tooltip from "antd/lib/tooltip";
 import Radio from "antd/lib/radio";
 import Typography from "antd/lib/typography/Typography";
@@ -10,6 +9,9 @@ import ParameterValueInput from "@/components/ParameterValueInput";
 import InputPopover from "@/components/InputPopover";
 import Form from "antd/lib/form";
 import { QueryBasedParameterMappingType } from "@/services/parameters/QueryBasedDropdownParameter";
+
+import QuestionCircleFilledIcon from "@ant-design/icons/QuestionCircleFilled";
+import EditOutlinedIcon from "@ant-design/icons/EditOutlined";
 
 const { Text } = Typography;
 
@@ -79,7 +81,7 @@ export default function QueryBasedParameterMappingEditor({ parameter, mapping, s
                           ? "Dropdown Search is only available for Text Parameters"
                           : "There is already a parameter mapped with the Dropdown Search type."
                       }>
-                      <Icon type="question-circle" theme="filled" />
+                      <QuestionCircleFilledIcon />
                     </Tooltip>
                   )}
                 </Radio>
@@ -108,7 +110,7 @@ export default function QueryBasedParameterMappingEditor({ parameter, mapping, s
         visible={showPopover}
         onVisibleChange={setShowPopover}>
         <Button className="m-l-5" size="small" type="dashed">
-          <Icon type="edit" />
+          <EditOutlinedIcon />
         </Button>
       </InputPopover>
     </>

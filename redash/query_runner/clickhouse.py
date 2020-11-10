@@ -1,5 +1,6 @@
 import logging
 import re
+from urllib.parse import urlparse
 
 import requests
 
@@ -42,6 +43,30 @@ class ClickHouse(BaseSQLQueryRunner):
     def type(cls):
         return "clickhouse"
 
+    @property
+    def _url(self):
+        return urlparse(self.configuration["url"])
+
+    @_url.setter
+    def _url(self, url):
+        self.configuration["url"] = url.geturl()
+
+    @property
+    def host(self):
+        return self._url.hostname
+
+    @host.setter
+    def host(self, host):
+        self._url = self._url._replace(netloc="{}:{}".format(host, self._url.port))
+
+    @property
+    def port(self):
+        return self._url.port
+
+    @port.setter
+    def port(self, port):
+        self._url = self._url._replace(netloc="{}:{}".format(self._url.hostname, port))
+
     def _get_tables(self, schema):
         query = "SELECT database, table, name FROM system.columns WHERE database NOT IN ('system')"
 
@@ -68,7 +93,7 @@ class ClickHouse(BaseSQLQueryRunner):
             verify = self.configuration.get("verify", True)
             r = requests.post(
                 url,
-                data=data,
+                data=data.encode("utf-8","ignore"),
                 stream=stream,
                 timeout=self.configuration.get("timeout", 30),
                 params={

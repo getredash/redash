@@ -4,10 +4,11 @@ import { compact, isEmpty, invoke } from "lodash";
 import { markdown } from "markdown";
 import cx from "classnames";
 import Menu from "antd/lib/menu";
+import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import { currentUser } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
 import { formatDateTime } from "@/lib/utils";
-import HtmlContent from "@/components/HtmlContent";
+import Link from "@/components/Link";
 import Parameters from "@/components/Parameters";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
@@ -16,7 +17,7 @@ import QueryLink from "@/components/QueryLink";
 import { FiltersType } from "@/components/Filters";
 import ExpandedWidgetDialog from "@/components/dashboards/ExpandedWidgetDialog";
 import EditParameterMappingsDialog from "@/components/dashboards/EditParameterMappingsDialog";
-import VisualizationRenderer from "@/visualizations/components/VisualizationRenderer";
+import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import Widget from "./Widget";
 
 function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit }) {
@@ -30,27 +31,27 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
   return compact([
     <Menu.Item key="download_csv" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
-        <a href={downloadLink("csv")} download={downloadName("csv")} target="_self">
+        <Link href={downloadLink("csv")} download={downloadName("csv")} target="_self">
           Download as CSV File
-        </a>
+        </Link>
       ) : (
         "Download as CSV File"
       )}
     </Menu.Item>,
     <Menu.Item key="download_tsv" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
-        <a href={downloadLink("tsv")} download={downloadName("tsv")} target="_self">
+        <Link href={downloadLink("tsv")} download={downloadName("tsv")} target="_self">
           Download as TSV File
-        </a>
+        </Link>
       ) : (
         "Download as TSV File"
       )}
     </Menu.Item>,
     <Menu.Item key="download_excel" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
-        <a href={downloadLink("xlsx")} download={downloadName("xlsx")} target="_self">
+        <Link href={downloadLink("xlsx")} download={downloadName("xlsx")} target="_self">
           Download as Excel File
-        </a>
+        </Link>
       ) : (
         "Download as Excel File"
       )}
@@ -58,7 +59,7 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
     (canViewQuery || canEditParameters) && <Menu.Divider key="divider" />,
     canViewQuery && (
       <Menu.Item key="view_query">
-        <a href={widget.getQuery().getUrl(true, widget.visualization.id)}>View Query</a>
+        <Link href={widget.getQuery().getUrl(true, widget.visualization.id)}>View Query</Link>
       </Menu.Item>
     ),
     canEditParameters && (
@@ -94,9 +95,11 @@ function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onPar
           <p>
             <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
           </p>
-          <HtmlContent className="text-muted markdown query--description">
-            {markdown.toHTML(widget.getQuery().description || "")}
-          </HtmlContent>
+          {!isEmpty(widget.getQuery().description) && (
+            <HtmlContent className="text-muted markdown query--description">
+              {markdown.toHTML(widget.getQuery().description || "")}
+            </HtmlContent>
+          )}
         </div>
       </div>
       {!isEmpty(parameters) && (
@@ -185,6 +188,7 @@ class VisualizationWidget extends React.Component {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     filters: FiltersType,
     isPublic: PropTypes.bool,
+    isLoading: PropTypes.bool,
     canEdit: PropTypes.bool,
     onLoad: PropTypes.func,
     onRefresh: PropTypes.func,
@@ -195,6 +199,7 @@ class VisualizationWidget extends React.Component {
   static defaultProps = {
     filters: [],
     isPublic: false,
+    isLoading: false,
     canEdit: false,
     onLoad: () => {},
     onRefresh: () => {},
@@ -204,7 +209,10 @@ class VisualizationWidget extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { localParameters: props.widget.getLocalParameters() };
+    this.state = {
+      localParameters: props.widget.getLocalParameters(),
+      localFilters: props.filters,
+    };
   }
 
   componentDidMount() {
@@ -214,8 +222,12 @@ class VisualizationWidget extends React.Component {
     onLoad();
   }
 
+  onLocalFiltersChange = localFilters => {
+    this.setState({ localFilters });
+  };
+
   expandWidget = () => {
-    ExpandedWidgetDialog.showModal({ widget: this.props.widget }).result.catch(() => {}); // ignore dismiss
+    ExpandedWidgetDialog.showModal({ widget: this.props.widget, filters: this.state.localFilters });
   };
 
   editParameterMappings = () => {
@@ -223,16 +235,14 @@ class VisualizationWidget extends React.Component {
     EditParameterMappingsDialog.showModal({
       dashboard,
       widget,
-    })
-      .result.then(valuesChanged => {
-        // refresh widget if any parameter value has been updated
-        if (valuesChanged) {
-          onRefresh();
-        }
-        onParameterMappingsChange();
-        this.setState({ localParameters: widget.getLocalParameters() });
-      })
-      .catch(() => {}); // ignore dismiss
+    }).onClose(valuesChanged => {
+      // refresh widget if any parameter value has been updated
+      if (valuesChanged) {
+        onRefresh();
+      }
+      onParameterMappingsChange();
+      this.setState({ localParameters: widget.getLocalParameters() });
+    });
   };
 
   renderVisualization() {
@@ -257,6 +267,7 @@ class VisualizationWidget extends React.Component {
               visualization={widget.visualization}
               queryResult={widgetQueryResult}
               filters={filters}
+              onFiltersChange={this.onLocalFiltersChange}
               context="widget"
             />
           </div>
@@ -273,10 +284,10 @@ class VisualizationWidget extends React.Component {
   }
 
   render() {
-    const { widget, isPublic, canEdit, onRefresh } = this.props;
+    const { widget, isLoading, isPublic, canEdit, onRefresh } = this.props;
     const { localParameters } = this.state;
     const widgetQueryResult = widget.getQueryResult();
-    const isRefreshing = widget.loading && !!(widgetQueryResult && widgetQueryResult.getStatus());
+    const isRefreshing = isLoading && !!(widgetQueryResult && widgetQueryResult.getStatus());
 
     return (
       <Widget

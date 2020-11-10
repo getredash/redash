@@ -3,7 +3,13 @@ import PropTypes from "prop-types";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Button from "antd/lib/button";
-import Icon from "antd/lib/icon";
+import { clientConfig } from "@/services/auth";
+
+import PlusCircleFilledIcon from "@ant-design/icons/PlusCircleFilled";
+import ShareAltOutlinedIcon from "@ant-design/icons/ShareAltOutlined";
+import FileOutlinedIcon from "@ant-design/icons/FileOutlined";
+import FileExcelOutlinedIcon from "@ant-design/icons/FileExcelOutlined";
+import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 
 import QueryResultsLink from "./QueryResultsLink";
 
@@ -13,14 +19,14 @@ export default function QueryControlDropdown(props) {
       {!props.query.isNew() && (!props.query.is_draft || !props.query.is_archived) && (
         <Menu.Item>
           <a target="_self" onClick={() => props.openAddToDashboardForm(props.selectedTab)}>
-            <Icon type="plus-circle" theme="filled" /> Add to Dashboard
+            <PlusCircleFilledIcon /> Add to Dashboard
           </a>
         </Menu.Item>
       )}
-      {!props.query.isNew() && (
+      {!clientConfig.disablePublicUrls && !props.query.isNew() && (
         <Menu.Item>
           <a onClick={() => props.showEmbedDialog(props.query, props.selectedTab)} data-test="ShowEmbedDialogButton">
-            <Icon type="share-alt" /> Embed Elsewhere
+            <ShareAltOutlinedIcon /> Embed Elsewhere
           </a>
         </Menu.Item>
       )}
@@ -32,7 +38,7 @@ export default function QueryControlDropdown(props) {
           queryResult={props.queryResult}
           embed={props.embed}
           apiKey={props.apiKey}>
-          <Icon type="file" /> Download as CSV File
+          <FileOutlinedIcon /> Download as CSV File
         </QueryResultsLink>
       </Menu.Item>
       <Menu.Item>
@@ -43,7 +49,7 @@ export default function QueryControlDropdown(props) {
           queryResult={props.queryResult}
           embed={props.embed}
           apiKey={props.apiKey}>
-          <Icon type="file" /> Download as TSV File
+          <FileOutlinedIcon /> Download as TSV File
         </QueryResultsLink>
       </Menu.Item>
       <Menu.Item>
@@ -54,7 +60,7 @@ export default function QueryControlDropdown(props) {
           queryResult={props.queryResult}
           embed={props.embed}
           apiKey={props.apiKey}>
-          <Icon type="file-excel" /> Download as Excel File
+          <FileExcelOutlinedIcon /> Download as Excel File
         </QueryResultsLink>
       </Menu.Item>
     </Menu>
@@ -63,7 +69,7 @@ export default function QueryControlDropdown(props) {
   return (
     <Dropdown trigger={["click"]} overlay={menu} overlayClassName="query-control-dropdown-overlay">
       <Button data-test="QueryControlDropdownButton">
-        <Icon type="ellipsis" rotate={90} />
+        <EllipsisOutlinedIcon rotate={90} />
       </Button>
     </Dropdown>
   );

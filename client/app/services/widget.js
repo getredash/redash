@@ -4,7 +4,7 @@ import { each, pick, extend, isObject, truncate, keys, difference, filter, map, 
 import location from "@/services/location";
 import { cloneParameter } from "@/services/parameters";
 import dashboardGridOptions from "@/config/dashboard-grid-options";
-import registeredVisualizations from "@/visualizations";
+import { registeredVisualizations } from "@redash/viz/lib";
 import { Query } from "./query";
 
 export const WidgetTypeEnum = {
@@ -143,18 +143,24 @@ class Widget {
       if (maxAge === undefined || force) {
         maxAge = force ? 0 : undefined;
       }
-      this.queryResult = this.getQuery().getQueryResult(maxAge);
 
-      this.queryResult
+      const queryResult = this.getQuery().getQueryResult(maxAge);
+      this.queryResult = queryResult;
+
+      queryResult
         .toPromise()
         .then(result => {
-          this.loading = false;
-          this.data = result;
+          if (this.queryResult === queryResult) {
+            this.loading = false;
+            this.data = result;
+          }
           return result;
         })
         .catch(error => {
-          this.loading = false;
-          this.data = error;
+          if (this.queryResult === queryResult) {
+            this.loading = false;
+            this.data = error;
+          }
           return error;
         });
     }

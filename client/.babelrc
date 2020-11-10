@@ -1,19 +1,29 @@
 {
   "presets": [
-    ["@babel/preset-env", {
-      "exclude": [
-        "@babel/plugin-transform-async-to-generator",
-        "@babel/plugin-transform-arrow-functions"
-      ],
-      "useBuiltIns": "usage"
-    }],
-    "@babel/preset-react"
+    [
+      "@babel/preset-env",
+      {
+        "exclude": ["@babel/plugin-transform-async-to-generator", "@babel/plugin-transform-arrow-functions"],
+        "corejs": "2",
+        "useBuiltIns": "usage"
+      }
+    ],
+    "@babel/preset-react",
+    "@babel/preset-typescript"
   ],
   "plugins": [
     "@babel/plugin-proposal-class-properties",
     "@babel/plugin-transform-object-assign",
-    ["babel-plugin-transform-builtin-extend", {
-      "globals": ["Error"]
-    }]
-  ]
+    [
+      "babel-plugin-transform-builtin-extend",
+      {
+        "globals": ["Error"]
+      }
+    ]
+  ],
+  "env": {
+    "test": {
+      "plugins": ["istanbul"]
+    }
+  }
 }

@@ -1,5 +1,3 @@
-import { createQuery } from "../../support/redash-api";
-
 describe("Parameter", () => {
   const expectDirtyStateChange = edit => {
     cy.getByTestId("ParameterName-test-parameter")
@@ -31,7 +29,7 @@ describe("Parameter", () => {
         },
       };
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
     });
 
     it("updates the results after clicking Apply", () => {
@@ -63,7 +61,7 @@ describe("Parameter", () => {
         },
       };
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
     });
 
     it("updates the results after clicking Apply", () => {
@@ -105,7 +103,7 @@ describe("Parameter", () => {
         },
       };
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
     });
 
     it("updates the results after selecting a value", () => {
@@ -113,7 +111,7 @@ describe("Parameter", () => {
         .find(".ant-select")
         .click();
 
-      cy.contains("li.ant-select-dropdown-menu-item", "value2").click();
+      cy.contains(".ant-select-item-option", "value2").click();
 
       cy.getByTestId("ParameterApplyButton").click();
       // ensure that query is being executed
@@ -132,12 +130,12 @@ describe("Parameter", () => {
       `);
 
       cy.getByTestId("ParameterName-test-parameter")
-        .find(".ant-select")
+        .find(".ant-select-selection-search")
         .click();
 
       // select all unselected options
-      cy.get("li.ant-select-dropdown-menu-item").each($option => {
-        if (!$option.hasClass("ant-select-dropdown-menu-item-selected")) {
+      cy.get(".ant-select-item-option").each($option => {
+        if (!$option.hasClass("ant-select-item-option-selected")) {
           cy.wrap($option).click();
         }
       });
@@ -155,80 +153,111 @@ describe("Parameter", () => {
           .find(".ant-select")
           .click();
 
-        cy.contains("li.ant-select-dropdown-menu-item", "value2").click();
+        cy.contains(".ant-select-item-option", "value2").click();
       });
     });
   });
 
   describe("Query Based Dropdown Parameter", () => {
-    beforeEach(() => {
-      const dropdownQueryData = {
-        name: "Dropdown Query",
-        query: `SELECT 'value1' AS name, 1 AS value UNION ALL
-                SELECT 'value2' AS name, 2 AS value UNION ALL
-                SELECT 'value3' AS name, 3 AS value`,
-      };
-      createQuery(dropdownQueryData, true).then(dropdownQuery => {
-        const queryData = {
-          name: "Query Based Dropdown Parameter",
-          query: "SELECT '{{test-parameter}}' AS parameter",
-          options: {
-            parameters: [{ name: "test-parameter", title: "Test Parameter", type: "query", queryId: dropdownQuery.id }],
-          },
+    context("based on a query with no results", () => {
+      beforeEach(() => {
+        const dropdownQueryData = {
+          name: "Dropdown Query",
+          query: "",
         };
+        cy.createQuery(dropdownQueryData, true).then(dropdownQuery => {
+          const queryData = {
+            name: "Query Based Dropdown Parameter",
+            query: "SELECT '{{test-parameter}}' AS parameter",
+            options: {
+              parameters: [
+                { name: "test-parameter", title: "Test Parameter", type: "query", queryId: dropdownQuery.id },
+              ],
+            },
+          };
 
-        cy.visit(`/queries/${dropdownQuery.id}`);
-        cy.getByTestId("ExecuteButton").click();
-        cy.getByTestId("TableVisualization")
-          .should("contain", "value1")
-          .and("contain", "value2")
-          .and("contain", "value3");
+          cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+        });
+      });
 
-        createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+      it("should show a 'No options available' message when you click", () => {
+        cy.getByTestId("ParameterName-test-parameter")
+          .find(".ant-select:not(.ant-select-disabled) .ant-select-selector")
+          .click();
+
+        cy.contains(".ant-select-item-empty", "No options available");
       });
     });
 
-    it("supports multi-selection", () => {
-      cy.clickThrough(`
-        ParameterSettings-test-parameter
-        AllowMultipleValuesCheckbox
-        QuotationSelect
-        DoubleQuotationMarkOption
-        SaveParameterSettings
-      `);
+    context("based on a query with 3 results", () => {
+      beforeEach(() => {
+        const dropdownQueryData = {
+          name: "Dropdown Query",
+          query: `SELECT 'value1' AS name, 1 AS value UNION ALL
+                  SELECT 'value2' AS name, 2 AS value UNION ALL
+                  SELECT 'value3' AS name, 3 AS value`,
+        };
+        cy.createQuery(dropdownQueryData, true).then(dropdownQuery => {
+          const queryData = {
+            name: "Query Based Dropdown Parameter",
+            query: "SELECT '{{test-parameter}}' AS parameter",
+            options: {
+              parameters: [
+                { name: "test-parameter", title: "Test Parameter", type: "query", queryId: dropdownQuery.id },
+              ],
+            },
+          };
 
-      // add a little waiting before changing the parameter value
-      cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
+          cy.visit(`/queries/${dropdownQuery.id}`);
+          cy.getByTestId("ExecuteButton").click();
+          cy.getByTestId("TableVisualization")
+            .should("contain", "value1")
+            .and("contain", "value2")
+            .and("contain", "value3");
 
-      cy.getByTestId("ParameterName-test-parameter")
-        .find(".ant-select")
-        .click();
-
-      // make sure all options are unselected and select all
-      cy.get("li.ant-select-dropdown-menu-item").each($option => {
-        expect($option).not.to.have.class("ant-select-dropdown-menu-item-selected");
-        cy.wrap($option).click();
+          cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+        });
       });
 
-      cy.getByTestId("QueryEditor").click(); // just to close the select menu
+      it("supports multi-selection", () => {
+        cy.clickThrough(`
+          ParameterSettings-test-parameter
+          AllowMultipleValuesCheckbox
+          QuotationSelect
+          DoubleQuotationMarkOption
+          SaveParameterSettings
+        `);
 
-      cy.getByTestId("ParameterApplyButton").click();
+        cy.getByTestId("ParameterName-test-parameter")
+          .find(".ant-select")
+          .click();
 
-      cy.getByTestId("TableVisualization").should("contain", '"1","2","3"');
+        // make sure all options are unselected and select all
+        cy.get(".ant-select-item-option").each($option => {
+          expect($option).not.to.have.class("ant-select-dropdown-menu-item-selected");
+          cy.wrap($option).click();
+        });
+
+        cy.getByTestId("QueryEditor").click(); // just to close the select menu
+
+        cy.getByTestId("ParameterApplyButton").click();
+
+        cy.getByTestId("TableVisualization").should("contain", '"1","2","3"');
+      });
     });
   });
 
+  const selectCalendarDate = date => {
+    cy.getByTestId("ParameterName-test-parameter")
+      .find("input")
+      .click();
+
+    cy.get(".ant-picker-panel")
+      .contains(".ant-picker-cell-inner", date)
+      .click();
+  };
+
   describe("Date Parameter", () => {
-    const selectCalendarDate = date => {
-      cy.getByTestId("ParameterName-test-parameter")
-        .find("input")
-        .click();
-
-      cy.get(".ant-calendar-date-panel")
-        .contains(".ant-calendar-date", date)
-        .click();
-    };
-
     beforeEach(() => {
       const queryData = {
         name: "Date Parameter",
@@ -243,7 +272,7 @@ describe("Parameter", () => {
       cy.wrap(now.getTime()).as("now");
       cy.clock(now.getTime(), ["Date"]);
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
     });
 
     afterEach(() => {
@@ -290,7 +319,7 @@ describe("Parameter", () => {
       cy.wrap(now.getTime()).as("now");
       cy.clock(now.getTime(), ["Date"]);
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}`));
     });
 
     afterEach(() => {
@@ -303,11 +332,9 @@ describe("Parameter", () => {
         .as("Input")
         .click();
 
-      cy.get(".ant-calendar-date-panel")
-        .contains(".ant-calendar-date", "15")
-        .click();
+      selectCalendarDate("15");
 
-      cy.get(".ant-calendar-ok-btn").click();
+      cy.get(".ant-picker-ok button").click();
 
       cy.getByTestId("ParameterApplyButton").click();
 
@@ -320,7 +347,7 @@ describe("Parameter", () => {
         .as("Input")
         .click();
 
-      cy.get(".ant-calendar-date-panel")
+      cy.get(".ant-picker-panel")
         .contains("Now")
         .click();
 
@@ -347,7 +374,7 @@ describe("Parameter", () => {
           .find("input")
           .click();
 
-        cy.get(".ant-calendar-date-panel")
+        cy.get(".ant-picker-panel")
           .contains("Now")
           .click();
       });
@@ -361,12 +388,12 @@ describe("Parameter", () => {
         .first()
         .click();
 
-      cy.get(".ant-calendar-date-panel")
-        .contains(".ant-calendar-date", startDate)
+      cy.get(".ant-picker-panel")
+        .contains(".ant-picker-cell-inner", startDate)
         .click();
 
-      cy.get(".ant-calendar-date-panel")
-        .contains(".ant-calendar-date", endDate)
+      cy.get(".ant-picker-panel")
+        .contains(".ant-picker-cell-inner", endDate)
         .click();
     };
 
@@ -384,7 +411,7 @@ describe("Parameter", () => {
       cy.wrap(now.getTime()).as("now");
       cy.clock(now.getTime(), ["Date"]);
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
     });
 
     afterEach(() => {
@@ -438,7 +465,7 @@ describe("Parameter", () => {
       cy.location("search").should("not.contain", "Redash");
 
       cy.server();
-      cy.route("POST", "api/queries/*/results").as("Results");
+      cy.route("POST", "**/api/queries/*/results").as("Results");
 
       apply(cy.get("@Input"));
 
@@ -458,7 +485,12 @@ describe("Parameter", () => {
         },
       };
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+      cy.server();
+      cy.route("GET", "**/api/data_sources/*/schema").as("Schema");
+
+      cy.createQuery(queryData, false)
+        .then(({ id }) => cy.visit(`/queries/${id}/source`))
+        .then(() => cy.wait("@Schema"));
     });
 
     it("shows and hides according to parameter dirty state", () => {
@@ -469,7 +501,7 @@ describe("Parameter", () => {
         .as("Param")
         .type("Redash");
 
-      cy.getByTestId("ParameterApplyButton").should("be", "visible");
+      cy.getByTestId("ParameterApplyButton").should("be.visible");
 
       cy.get("@Param").clear();
 
@@ -533,7 +565,7 @@ describe("Parameter", () => {
         },
       };
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
 
       cy.get(".parameter-block")
         .first()
@@ -555,7 +587,7 @@ describe("Parameter", () => {
 
     it("is possible to rearrange parameters", function() {
       cy.server();
-      cy.route("POST", "api/queries/*").as("QuerySave");
+      cy.route("POST", "**/api/queries/*").as("QuerySave");
 
       dragParam("param1", this.paramWidth, 1);
       cy.wait("@QuerySave");
@@ -579,7 +611,7 @@ describe("Parameter", () => {
         },
       };
 
-      createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
 
       cy.getByTestId("ParameterSettings-parameter").click();
     });

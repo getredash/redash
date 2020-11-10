@@ -88,7 +88,7 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
           />
           <Input.TextArea
             value={showPreview ? render(body) : body}
-            autosize={{ minRows: 9 }}
+            autoSize={{ minRows: 9 }}
             onChange={e => setBody(e.target.value)}
             disabled={showPreview}
             data-test="CustomBody"

@@ -7,7 +7,11 @@ import QueryBasedParameterMappingEditor from "./QueryBasedParameterMappingEditor
 
 export default function QueryBasedParameterMappingTable({ param, mappingParameters, onChangeParam }) {
   return (
-    <Table dataSource={mappingParameters} size="middle" pagination={false} rowKey={(record, idx) => `row${idx}`}>
+    <Table
+      dataSource={mappingParameters}
+      size="middle"
+      pagination={false}
+      rowKey={({ mappingParam }) => `param${mappingParam.name}`}>
       <Table.Column title="Title" key="title" render={({ mappingParam }) => mappingParam.getTitle()} />
       <Table.Column
         title="Keyword"

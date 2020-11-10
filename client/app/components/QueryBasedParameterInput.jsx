@@ -1,9 +1,7 @@
-import { debounce, find, isArray, get, first, map, trim, intersection, isEqual } from "lodash";
+import { find, isArray, get, first, map, intersection, isEqual, isEmpty, trim, debounce } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import Select from "antd/lib/select";
-
-const { Option } = Select;
+import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
 
 export default class QueryBasedParameterInput extends React.Component {
   static propTypes = {
@@ -85,7 +83,7 @@ export default class QueryBasedParameterInput extends React.Component {
   }
 
   render() {
-    const { parameter, className, value, mode, onSelect, ...otherProps } = this.props;
+    const { parameter, className, value, mode, onSelect, queryId, ...otherProps } = this.props;
     const { loading, options } = this.state;
     const selectProps = { ...otherProps };
     if (parameter.searchFunction) {
@@ -103,25 +101,20 @@ export default class QueryBasedParameterInput extends React.Component {
     }
     return (
       <span>
-        <Select
+        <SelectWithVirtualScroll
           className={className}
-          disabled={!parameter.searchFunction && (loading || options.length === 0)}
+          disabled={!parameter.searchFunction && loading}
           loading={loading}
           mode={mode}
           value={this.state.value}
           onChange={onSelect}
-          dropdownMatchSelectWidth={false}
+          options={map(options, ({ value, name }) => ({ label: String(name), value }))}
           optionFilterProp="children"
           showSearch
           showArrow
-          notFoundContent={null}
-          {...selectProps}>
-          {options.map(option => (
-            <Option value={option.value} key={option.value}>
-              {option.name}
-            </Option>
-          ))}
-        </Select>
+          notFoundContent={isEmpty(options) ? "No options available" : null}
+          {...selectProps}
+        />
       </span>
     );
   }

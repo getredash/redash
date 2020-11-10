@@ -49,16 +49,47 @@ class DataSourceTypesTest(BaseTestCase):
         rv = self.make_request("get", "/api/data_sources/types", user=admin)
         self.assertEqual(rv.status_code, 200)
 
-    def test_does_not_show_deprecated_types(self):
-        admin = self.factory.create_admin()
-        with patch.object(PostgreSQL, "deprecated", return_value=True):
-            rv = self.make_request("get", "/api/data_sources/types", user=admin)
-
-        types = [datasource_type["type"] for datasource_type in rv.json]
-        self.assertNotIn("pg", types)
-
     def test_returns_403_for_non_admin(self):
         rv = self.make_request("get", "/api/data_sources/types")
+        self.assertEqual(rv.status_code, 403)
+
+
+class TestDataSourceResourceGet(BaseTestCase):
+    def setUp(self):
+        super(TestDataSourceResourceGet, self).setUp()
+        self.path = "/api/data_sources/{}".format(self.factory.data_source.id)
+
+    def test_returns_all_data_for_admins(self):
+        admin = self.factory.create_admin()
+        rv = self.make_request("get", self.path, user=admin)
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn("view_only", rv.json)
+        self.assertIn("options", rv.json)
+
+    def test_returns_only_view_only_for_users_without_list_permissions(self):
+        group = self.factory.create_group(permissions=[])
+        data_source = self.factory.create_data_source(group=group, view_only=True)
+        user = self.factory.create_user(group_ids=[group.id])
+
+        rv = self.make_request(
+            "get", "/api/data_sources/{}".format(data_source.id), user=user
+        )
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json, {"view_only": True})
+
+    def test_returns_limited_data_for_non_admin_in_the_default_group(self):
+        user = self.factory.create_user()
+        self.assertTrue(user.has_permission("list_data_sources"))
+
+        rv = self.make_request("get", self.path, user=user)
+        self.assertEqual(rv.status_code, 200)
+        self.assertNotIn("options", rv.json)
+        self.assertIn("view_only", rv.json)
+
+    def test_returns_403_for_non_admin_in_group_without_permission(self):
+        group = self.factory.create_group()
+        user = self.factory.create_user(group_ids=[group.id])
+        rv = self.make_request("get", self.path, user=user)
         self.assertEqual(rv.status_code, 403)
 
 
