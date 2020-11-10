@@ -127,21 +127,59 @@ export function remove(items, item) {
   return filtered;
 }
 
-const units = ["bytes", "KB", "MB", "GB", "TB", "PB"];
+/**
+ * Formats number to string
+ * @param value {number}
+ * @param [fractionDigits] {number}
+ * @return {string}
+ */
+export function formatNumber(value, fractionDigits = 3) {
+  return Math.round(value) !== value ? value.toFixed(fractionDigits) : value.toString();
+}
 
-export function prettySize(bytes) {
-  if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) {
-    return "?";
+/**
+ * Formats any number using predefined units
+ * @param value {string|number}
+ * @param divisor {number}
+ * @param [units] {Array<string>}
+ * @param [fractionDigits] {number}
+ * @return {{unit: string, value: string, divisor: number}}
+ */
+export function prettyNumberWithUnit(value, divisor, units = [], fractionDigits) {
+  if (isNaN(parseFloat(value)) || !isFinite(value)) {
+    return {
+      value: "",
+      unit: "",
+      divisor: 1,
+    };
   }
 
   let unit = 0;
+  let greatestDivisor = 1;
 
-  while (bytes >= 1024) {
-    bytes /= 1024;
+  while (value >= divisor && unit < units.length - 1) {
+    value /= divisor;
+    greatestDivisor *= divisor;
     unit += 1;
   }
 
-  return bytes.toFixed(3) + " " + units[unit];
+  return {
+    value: formatNumber(value, fractionDigits),
+    unit: units[unit],
+    divisor: greatestDivisor,
+  };
+}
+
+export function prettySizeWithUnit(bytes, fractionDigits) {
+  return prettyNumberWithUnit(bytes, 1024, ["bytes", "KB", "MB", "GB", "TB", "PB"], fractionDigits);
+}
+
+export function prettySize(bytes) {
+  const { value, unit } = prettySizeWithUnit(bytes);
+  if (!value) {
+    return "?";
+  }
+  return value + " " + unit;
 }
 
 export function join(arr) {
