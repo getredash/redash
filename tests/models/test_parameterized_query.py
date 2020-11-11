@@ -266,7 +266,7 @@ class TestParameterizedQuery(TestCase):
         },
     )
     def test_dropdown_values_prefers_name_and_value_columns(self, _):
-        values = dropdown_values(1, None)
+        values = dropdown_values(None, None)
         self.assertEqual(values, [{"name": "John", "value": "John Doe"}])
 
     @patch(
@@ -277,7 +277,7 @@ class TestParameterizedQuery(TestCase):
         },
     )
     def test_dropdown_values_compromises_for_first_column(self, _):
-        values = dropdown_values(1, None)
+        values = dropdown_values(None, None)
         self.assertEqual(values, [{"name": 5, "value": "5"}])
 
     @patch(
@@ -288,7 +288,7 @@ class TestParameterizedQuery(TestCase):
         },
     )
     def test_dropdown_supports_upper_cased_columns(self, _):
-        values = dropdown_values(1, None)
+        values = dropdown_values(None, None)
         self.assertEqual(values, [{"name": 5, "value": "5"}])
 
     @patch(
@@ -297,4 +297,4 @@ class TestParameterizedQuery(TestCase):
     )
     def test_dropdown_values_raises_when_query_is_detached_from_data_source(self, _):
         with pytest.raises(QueryDetachedFromDataSourceError):
-            dropdown_values(1, None)
+            dropdown_values(None, None)
