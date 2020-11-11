@@ -16,27 +16,22 @@ def _pluck_name_and_value(default_column, row):
     return {"name": row[name_column], "value": str(row[value_column])}
 
 
-def _load_result(query_id, org):
-    query = models.Query.get_by_id_and_org(query_id, org)
-
+def _load_result(query, org):
     if query.data_source:
         query_result = models.QueryResult.get_by_id_and_org(
             query.latest_query_data_id, org
         )
         return query_result.data
     else:
-        raise QueryDetachedFromDataSourceError(query_id)
+        raise QueryDetachedFromDataSourceError(query.id)
 
 
-def query_has_parameters(query_id, org):
-    try:
-        query = models.Query.get_by_id_and_org(query_id, org)
-        return bool(query.parameters)
-    except (models.NoResultFound):
-        return False
+def query_has_parameters(query):
+    return bool(query.parameters)
 
-def dropdown_values(query_id, org):
-    data = _load_result(query_id, org)
+
+def dropdown_values(query, org):
+    data = _load_result(query, org)
     first_column = data["columns"][0]["name"]
     pluck = partial(_pluck_name_and_value, first_column)
     return list(map(pluck, data["rows"]))
@@ -161,6 +156,12 @@ class ParameterizedQuery(object):
         query_id = definition.get("queryId")
         allow_multiple_values = isinstance(definition.get("multiValuesOptions"), dict)
 
+        if definition["type"] == "query":
+            try:
+                query = models.Query.get_by_id_and_org(query_id, self.org)
+            except (models.NoResultFound):
+                return False
+
         if isinstance(enum_options, str):
             enum_options = enum_options.split("\n")
 
@@ -172,9 +173,11 @@ class ParameterizedQuery(object):
             ),
             "query": lambda value: _is_value_within_options(
                 value,
-                [v["value"] for v in dropdown_values(query_id, self.org)],
+                [v["value"] for v in dropdown_values(query, self.org)],
                 allow_multiple_values,
-            ) if not query_has_parameters(query_id, self.org) else True,
+            )
+            if not query_has_parameters(query)
+            else True,
             "date": _is_date,
             "datetime-local": _is_date,
             "datetime-with-seconds": _is_date,
@@ -192,8 +195,14 @@ class ParameterizedQuery(object):
         for param in self.schema:
             if param["type"] == "text":
                 return False
-            if param["type"] == "query" and query_has_parameters(param.get("queryId"), self.org):
-                return False
+            if param["type"] == "query":
+                try:
+                    query = models.Query.get_by_id_and_org(
+                        param.get("queryId"), self.org
+                    )
+                    return not query_has_parameters(query)
+                except (models.NoResultFound):
+                    return True
         return True
 
     @property
