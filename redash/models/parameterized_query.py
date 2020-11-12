@@ -26,10 +26,6 @@ def _load_result(query, org):
         raise QueryDetachedFromDataSourceError(query.id)
 
 
-def query_has_parameters(query):
-    return bool(query.parameters)
-
-
 def dropdown_values(query, org):
     data = _load_result(query, org)
     first_column = data["columns"][0]["name"]
@@ -176,7 +172,7 @@ class ParameterizedQuery(object):
                 [v["value"] for v in dropdown_values(query, self.org)],
                 allow_multiple_values,
             )
-            if not query_has_parameters(query)
+            if not query.parameters
             else True,
             "date": _is_date,
             "datetime-local": _is_date,
@@ -200,7 +196,7 @@ class ParameterizedQuery(object):
                     query = models.Query.get_by_id_and_org(
                         param.get("queryId"), self.org
                     )
-                    return not query_has_parameters(query)
+                    return not query.parameters
                 except (models.NoResultFound):
                     return True
         return True

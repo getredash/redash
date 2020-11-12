@@ -166,8 +166,13 @@ class TestParameterizedQuery(TestCase):
         "redash.models.parameterized_query.dropdown_values",
         return_value=[{"value": "1"}],
     )
-    @patch("redash.models.parameterized_query.query_has_parameters", return_value=False)
-    def test_validation_accepts_integer_values_for_dropdowns(self, dpd_values, query_has_parameters):
+    @patch(
+        "redash.models.Query.get_by_id_and_org",
+        return_value=namedtuple("Query", ["parameters"])(parameters=[]),
+    )
+    def test_validation_accepts_integer_values_for_dropdowns(
+        self, dpd_values, dpd_query
+    ):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo {{bar}}", schema)
 
@@ -176,8 +181,11 @@ class TestParameterizedQuery(TestCase):
         self.assertEqual("foo 1", query.text)
 
     @patch("redash.models.parameterized_query.dropdown_values")
-    @patch("redash.models.parameterized_query.query_has_parameters", return_value=False)
-    def test_raises_on_invalid_query_parameters(self, dpd_values, query_has_parameters):
+    @patch(
+        "redash.models.Query.get_by_id_and_org",
+        return_value=namedtuple("Query", ["parameters"])(parameters=[]),
+    )
+    def test_raises_on_invalid_query_parameters(self, dpd_values, dpd_query):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo", schema)
 
@@ -188,8 +196,11 @@ class TestParameterizedQuery(TestCase):
         "redash.models.parameterized_query.dropdown_values",
         return_value=[{"value": "baz"}],
     )
-    @patch("redash.models.parameterized_query.query_has_parameters", return_value=False)
-    def test_raises_on_unlisted_query_value_parameters(self, dpd_values, query_has_parameters):
+    @patch(
+        "redash.models.Query.get_by_id_and_org",
+        return_value=namedtuple("Query", ["parameters"])(parameters=[]),
+    )
+    def test_raises_on_unlisted_query_value_parameters(self, dpd_values, dpd_query):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo", schema)
 
@@ -200,8 +211,11 @@ class TestParameterizedQuery(TestCase):
         "redash.models.parameterized_query.dropdown_values",
         return_value=[{"value": "baz"}],
     )
-    @patch("redash.models.parameterized_query.query_has_parameters", return_value=False)
-    def test_validates_query_parameters(self, dpd_values, query_has_parameters):
+    @patch(
+        "redash.models.Query.get_by_id_and_org",
+        return_value=namedtuple("Query", ["parameters"])(parameters=[]),
+    )
+    def test_validates_query_parameters(self, dpd_values, dpd_query):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo {{bar}}", schema)
 
@@ -239,12 +253,25 @@ class TestParameterizedQuery(TestCase):
 
         self.assertFalse(query.is_safe)
 
-    @patch("redash.models.parameterized_query.query_has_parameters", return_value=True)
+    @patch(
+        "redash.models.Query.get_by_id_and_org",
+        return_value=namedtuple("Query", ["parameters"])(parameters=[{"name": "test"}]),
+    )
     def test_is_not_safe_if_expecting_parameterized_query_based_parameter(self, _):
         schema = [{"name": "bar", "type": "query"}]
         query = ParameterizedQuery("foo", schema)
 
         self.assertFalse(query.is_safe)
+
+    @patch(
+        "redash.models.Query.get_by_id_and_org",
+        return_value=namedtuple("Query", ["parameters"])(parameters=[]),
+    )
+    def test_is_safe_if_expecting_query_based_parameter(self, _):
+        schema = [{"name": "bar", "type": "query"}]
+        query = ParameterizedQuery("foo", schema)
+
+        self.assertTrue(query.is_safe)
 
     def test_is_safe_if_not_expecting_text_parameter(self):
         schema = [{"name": "bar", "type": "number"}]
@@ -291,10 +318,6 @@ class TestParameterizedQuery(TestCase):
         values = dropdown_values(None, None)
         self.assertEqual(values, [{"name": 5, "value": "5"}])
 
-    @patch(
-        "redash.models.Query.get_by_id_and_org",
-        return_value=namedtuple("Query", "data_source")(None),
-    )
-    def test_dropdown_values_raises_when_query_is_detached_from_data_source(self, _):
+    def test_dropdown_values_raises_when_query_is_detached_from_data_source(self):
         with pytest.raises(QueryDetachedFromDataSourceError):
-            dropdown_values(None, None)
+            dropdown_values(namedtuple("Query", ["id", "data_source"])(None, None), None)
