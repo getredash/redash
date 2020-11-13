@@ -149,7 +149,7 @@ export default class Parameters extends React.Component {
     const { parameters } = this.state;
     const { editable, paramOrder } = this.props;
     const dirtyParamCount = size(filter(parameters, "hasPendingValue"));
-    const sortedParameters = map(paramOrder, name => find(parameters, param => param.name === name))
+    const sortedParameters = map(paramOrder, name => find(parameters, param => param.name === name));
 
     return (
       <SortableContainer
