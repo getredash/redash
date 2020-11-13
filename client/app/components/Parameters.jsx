@@ -1,4 +1,4 @@
-import { size, filter, forEach, extend, sortBy } from "lodash";
+import { size, filter, forEach, extend, map, find } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { SortableContainer, SortableElement, DragHandle } from "@redash/viz/lib/components/sortable";
@@ -149,8 +149,8 @@ export default class Parameters extends React.Component {
     const { parameters } = this.state;
     const { editable, paramOrder } = this.props;
     const dirtyParamCount = size(filter(parameters, "hasPendingValue"));
-    const sortedParameters = paramOrder.map(name => parameters.find(param => param.name === name))
-    // console.log(sortedParameters)
+    const sortedParameters = map(paramOrder, name => find(parameters, param => param.name === name))
+
     return (
       <SortableContainer
         disabled={!editable}
