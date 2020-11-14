@@ -23,8 +23,16 @@ module.exports = {
     "no-restricted-imports": [
       "error",
       {
-        name: "antd",
-        message: "Please use antd/lib instead.",
+        paths: [
+          {
+            name: "antd",
+            message: "Please use 'import XXX from antd/lib/XXX' import instead.",
+          },
+          {
+            name: "antd/lib",
+            message: "Please use 'import XXX from antd/lib/XXX' import instead.",
+          },
+        ],
       },
     ],
   },

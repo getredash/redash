@@ -46,7 +46,7 @@ export default function ErrorMessage({ error, message }) {
   };
 
   return (
-    <div className="error-message-container" data-test="ErrorMessage">
+    <div className="error-message-container" data-test="ErrorMessage" role="alert">
       <div className="error-state bg-white tiled">
         <div className="error-state__icon">
           <i className="zmdi zmdi-alert-circle-o" />

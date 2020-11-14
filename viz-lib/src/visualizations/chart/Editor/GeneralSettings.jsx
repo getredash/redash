@@ -127,7 +127,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         />
       </Section>
 
-      {includes(["column", "line"], options.globalSeriesType) && (
+      {includes(["column", "line", "box"], options.globalSeriesType) && (
         <Section>
           <Checkbox
             data-test="Chart.SwappedAxes"
