@@ -74,6 +74,7 @@ function DashboardComponent(props) {
   const dashboardOptions = useDashboard(props.dashboard);
   const {
     dashboard,
+    canEditDashboard,
     filters,
     setFilters,
     loadDashboard,
@@ -111,9 +112,6 @@ function DashboardComponent(props) {
     }
   }, [pageContainer, editingLayout]);
 
-  // boilerplate, will be replaced with data from the api
-  const [paramOrder, setParamOrder] = useState(globalParameters.map(p => p.name))
-
   return (
     <div className="container" ref={setPageContainer} data-test={`DashboardId${dashboard.id}Container`}>
       <DashboardHeader
@@ -127,12 +125,8 @@ function DashboardComponent(props) {
           <Parameters
             parameters={globalParameters}
             onValuesChange={refreshDashboard}
-            editable={true}
-            paramOrder={paramOrder}
-            setParamOrder={setParamOrder}
-            onParametersEdit={parameters => {
-              setParamOrder(parameters.map(p => p.name))
-            }}
+            editable={canEditDashboard}
+            onParametersEdit={() => {}}
           />
         </div>
       )}

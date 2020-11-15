@@ -1,4 +1,4 @@
-import { size, filter, forEach, extend, map, find } from "lodash";
+import { size, filter, forEach, extend } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { SortableContainer, SortableElement, DragHandle } from "@redash/viz/lib/components/sortable";
@@ -85,7 +85,7 @@ export default class Parameters extends React.Component {
     if (oldIndex !== newIndex) {
       this.setState(({ parameters }) => {
         parameters.splice(newIndex, 0, parameters.splice(oldIndex, 1)[0]);
-        onParametersEdit(parameters);
+        onParametersEdit();
         return { parameters };
       });
     }
@@ -110,7 +110,7 @@ export default class Parameters extends React.Component {
       this.setState(({ parameters }) => {
         const updatedParameter = extend(parameter, updated);
         parameters[index] = createParameter(updatedParameter, updatedParameter.parentQueryId);
-        onParametersEdit(parameters);
+        onParametersEdit();
         return { parameters };
       });
     });
@@ -147,9 +147,8 @@ export default class Parameters extends React.Component {
 
   render() {
     const { parameters } = this.state;
-    const { editable, paramOrder } = this.props;
+    const { editable } = this.props;
     const dirtyParamCount = size(filter(parameters, "hasPendingValue"));
-    const sortedParameters = map(paramOrder, name => find(parameters, param => param.name === name))
 
     return (
       <SortableContainer
@@ -164,7 +163,7 @@ export default class Parameters extends React.Component {
           className: "parameter-container",
           onKeyDown: dirtyParamCount ? this.handleKeyDown : null,
         }}>
-        {sortedParameters.map((param, index) => (
+        {parameters.map((param, index) => (
           <SortableElement key={param.name} index={index}>
             <div className="parameter-block" data-editable={editable || null}>
               {editable && <DragHandle data-test={`DragHandle-${param.name}`} />}

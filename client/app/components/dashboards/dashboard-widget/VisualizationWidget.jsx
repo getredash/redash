@@ -84,7 +84,7 @@ function RefreshIndicator({ refreshStartedAt }) {
 RefreshIndicator.propTypes = { refreshStartedAt: Moment };
 RefreshIndicator.defaultProps = { refreshStartedAt: null };
 
-function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onParametersUpdate }) {
+function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, canEdit, onParametersUpdate }) {
   const canViewQuery = currentUser.hasPermission("view_query");
 
   return (
@@ -104,7 +104,7 @@ function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onPar
       </div>
       {!isEmpty(parameters) && (
         <div className="m-b-10">
-          <Parameters parameters={parameters} onValuesChange={onParametersUpdate} />
+          <Parameters parameters={parameters} editable={canEdit} onValuesChange={onParametersUpdate} />
         </div>
       )}
     </>
@@ -115,12 +115,14 @@ VisualizationWidgetHeader.propTypes = {
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   refreshStartedAt: Moment,
   parameters: PropTypes.arrayOf(PropTypes.object),
+  canEdit: PropTypes.bool,
   onParametersUpdate: PropTypes.func,
 };
 
 VisualizationWidgetHeader.defaultProps = {
   refreshStartedAt: null,
   onParametersUpdate: () => {},
+  canEdit: false,
   parameters: [],
 };
 
@@ -303,6 +305,7 @@ class VisualizationWidget extends React.Component {
             widget={widget}
             refreshStartedAt={isRefreshing ? widget.refreshStartedAt : null}
             parameters={localParameters}
+            canEdit={canEdit}
             onParametersUpdate={onRefresh}
           />
         }

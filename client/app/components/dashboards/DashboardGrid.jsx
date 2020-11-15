@@ -238,7 +238,7 @@ class DashboardGrid extends React.Component {
     return (
       <div className={className}>
         <ResponsiveGridLayout
-          draggableCancel="input"
+          draggableCancel="input,.sortable-container"
           className={cx("layout", { "disable-animations": this.state.disableAnimations })}
           cols={{ [MULTI]: cfg.columns, [SINGLE]: 1 }}
           rowHeight={cfg.rowHeight - cfg.margins}
