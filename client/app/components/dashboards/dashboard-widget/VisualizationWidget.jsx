@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { compact, isEmpty, invoke } from "lodash";
+import { compact, isEmpty, invoke, map } from "lodash";
 import { markdown } from "markdown";
 import cx from "classnames";
 import Menu from "antd/lib/menu";
@@ -84,7 +84,14 @@ function RefreshIndicator({ refreshStartedAt }) {
 RefreshIndicator.propTypes = { refreshStartedAt: Moment };
 RefreshIndicator.defaultProps = { refreshStartedAt: null };
 
-function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, canEdit, onParametersUpdate }) {
+function VisualizationWidgetHeader({
+  widget,
+  refreshStartedAt,
+  parameters,
+  canEdit,
+  onParametersUpdate,
+  onParametersEdit,
+}) {
   const canViewQuery = currentUser.hasPermission("view_query");
 
   return (
@@ -104,7 +111,12 @@ function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, canEd
       </div>
       {!isEmpty(parameters) && (
         <div className="m-b-10">
-          <Parameters parameters={parameters} editable={canEdit} onValuesChange={onParametersUpdate} />
+          <Parameters
+            parameters={parameters}
+            editable={canEdit}
+            onValuesChange={onParametersUpdate}
+            onParametersEdit={onParametersEdit}
+          />
         </div>
       )}
     </>
@@ -117,11 +129,13 @@ VisualizationWidgetHeader.propTypes = {
   parameters: PropTypes.arrayOf(PropTypes.object),
   canEdit: PropTypes.bool,
   onParametersUpdate: PropTypes.func,
+  onParametersEdit: PropTypes.func,
 };
 
 VisualizationWidgetHeader.defaultProps = {
   refreshStartedAt: null,
   onParametersUpdate: () => {},
+  onParametersEdit: () => {},
   canEdit: false,
   parameters: [],
 };
@@ -290,6 +304,10 @@ class VisualizationWidget extends React.Component {
     const { localParameters } = this.state;
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = isLoading && !!(widgetQueryResult && widgetQueryResult.getStatus());
+    const onParametersEdit = parameters => {
+      widget.options.paramOrder = map(parameters, "name");
+      widget.save();
+    };
 
     return (
       <Widget
@@ -307,6 +325,7 @@ class VisualizationWidget extends React.Component {
             parameters={localParameters}
             canEdit={canEdit}
             onParametersUpdate={onRefresh}
+            onParametersEdit={onParametersEdit}
           />
         }
         footer={

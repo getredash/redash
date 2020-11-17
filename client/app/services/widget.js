@@ -14,7 +14,8 @@ import {
   sortBy,
   indexOf,
   size,
-  has,
+  includes,
+  isArray,
 } from "lodash";
 import location from "@/services/location";
 import { cloneParameter } from "@/services/parameters";
@@ -239,9 +240,13 @@ class Widget {
       }
     );
 
+    if (!isArray(this.options.paramOrder)) {
+      this.options.paramOrder = map(localParameters, "name");
+    }
+
     // order widgets using paramOrder
     return sortBy(localParameters, param =>
-      has(this.options.paramOrder, param.name)
+      includes(this.options.paramOrder, param.name)
         ? indexOf(this.options.paramOrder, param.name)
         : size(this.options.paramOrder)
     );

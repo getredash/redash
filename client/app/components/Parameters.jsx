@@ -85,7 +85,7 @@ export default class Parameters extends React.Component {
     if (oldIndex !== newIndex) {
       this.setState(({ parameters }) => {
         parameters.splice(newIndex, 0, parameters.splice(oldIndex, 1)[0]);
-        onParametersEdit();
+        onParametersEdit(parameters);
         return { parameters };
       });
     }
@@ -110,7 +110,7 @@ export default class Parameters extends React.Component {
       this.setState(({ parameters }) => {
         const updatedParameter = extend(parameter, updated);
         parameters[index] = createParameter(updatedParameter, updatedParameter.parentQueryId);
-        onParametersEdit();
+        onParametersEdit(parameters);
         return { parameters };
       });
     });
