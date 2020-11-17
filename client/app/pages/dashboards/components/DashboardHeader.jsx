@@ -156,9 +156,11 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
           <Menu.Item>
             <a onClick={archive}>Archive</a>
           </Menu.Item>
-          {!isDuplicating && (<Menu.Item>
-            <a onClick={duplicateDashboard}>Copy Dashboard</a>
-          </Menu.Item>)}
+          {!isDuplicating && (
+            <Menu.Item>
+              <a onClick={duplicateDashboard}>Copy Dashboard</a>
+            </Menu.Item>
+          )}
         </Menu>
       }>
       <Button className="icon-button m-l-5" data-test="DashboardMoreButton">
