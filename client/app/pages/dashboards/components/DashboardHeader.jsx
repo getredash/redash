@@ -132,7 +132,7 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
     });
   };
 
-  const duplicateDashboard = useDuplicateDashboard(dashboard);
+  const [isDuplicating, duplicateDashboard] = useDuplicateDashboard(dashboard);
 
   return (
     <Dropdown
@@ -156,9 +156,9 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
           <Menu.Item>
             <a onClick={archive}>Archive</a>
           </Menu.Item>
-          <Menu.Item>
+          {!isDuplicating && (<Menu.Item>
             <a onClick={duplicateDashboard}>Copy Dashboard</a>
-          </Menu.Item>
+          </Menu.Item>)}
         </Menu>
       }>
       <Button className="icon-button m-l-5" data-test="DashboardMoreButton">
