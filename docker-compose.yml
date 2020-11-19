@@ -16,6 +16,14 @@ x-redash-environment: &redash-environment
   REDASH_MAIL_DEFAULT_SENDER: "redash@example.com"
   REDASH_MAIL_SERVER: "email"
   REDASH_ENFORCE_CSRF: "true"
+  REDASH_ENFORCE_CSRF: "false"
+  REDASH_JWT_LOGIN_ENABLED: "true"
+  REDASH_JWT_AUTH_ISSUER : "Ecosystem"
+  REDASH_JWT_AUTH_PUBLIC_CERTS_URL : "http://192.168.0.35:44401/api/TokenAuth/ValidateRefreshToken"
+  REDASH_JWT_AUTH_AUDIENCE : "Ecosystem"
+  REDASH_JWT_AUTH_COOKIE_NAME : "Abp.AuthToken"
+  REDASH_JWT_AUTH_HEADER_NAME : "Bearer"
+  REDASH_MULTI_ORG : "true"
 services:
   server:
     <<: *redash-service

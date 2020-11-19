@@ -4,7 +4,7 @@ from flask_login import login_required
 from flask_restful import abort
 from sqlalchemy.orm.exc import StaleDataError
 from funcy import partial
-
+from bson.son import SON
 from redash import models, settings
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import (
@@ -26,7 +26,7 @@ from redash.permissions import (
     require_permission,
     view_only,
 )
-from redash.utils import collect_parameters_from_request
+from redash.utils import collect_parameters_from_request, JSONEncoder, json_dumps, json_loads, parse_human_time
 from redash.serializers import QuerySerializer
 from redash.models.parameterized_query import ParameterizedQuery
 
@@ -251,6 +251,31 @@ class QueryListResource(BaseQueryListResource):
             query_def.pop(field, None)
 
         query_def["query_text"] = query_def.pop("query")
+        if data_source.type == 'mongodb':
+            try:
+                query_data = self.parse_query_json(query_def["query_text"])
+            except ValueError:
+                return None, "Invalid query format. The query is not a valid JSON."
+
+            aggregate = query_data.get("aggregate", None)           
+            if aggregate:
+                Matchfound = False
+                for step in aggregate:
+                    if "$match" in step:
+                        Matchfound = True
+                        step["$match"].update({'tenancyName' : self.current_org.slug})
+                if not Matchfound:
+                    Matchdict = {}
+                    Matchdict["$match"] = {'tenancyName' : self.current_org.slug}
+                    aggregate.insert(0,Matchdict)
+                query_def["query_text"] = json_dumps(query_data)
+            else:              
+                query_data["aggregate"] =[]
+                Matchdict = {}
+                Matchdict["$match"] = {'tenancyName' : self.current_org.slug}
+                query_data["aggregate"].insert(0,Matchdict)
+                query_def["query_text"] = json_dumps(query_data)
+                
         query_def["user"] = self.current_user
         query_def["data_source"] = data_source
         query_def["org"] = self.current_org
@@ -264,6 +289,10 @@ class QueryListResource(BaseQueryListResource):
         )
 
         return QuerySerializer(query, with_visualizations=True).serialize()
+
+    def parse_query_json(self,query):
+        query_data = json_loads(query)
+        return query_data
 
 
 class QueryArchiveResource(BaseQueryListResource):
@@ -361,7 +390,34 @@ class QueryResource(BaseResource):
             query_def.pop(field, None)
 
         if "query" in query_def:
+
             query_def["query_text"] = query_def.pop("query")
+
+            if query.data_source.type == 'mongodb':
+
+                try:
+                    query_data = self.parse_query_json(query_def["query_text"])
+                except ValueError:
+                    return None, "Invalid query format. The query is not a valid JSON."
+
+                aggregate = query_data.get("aggregate", None)           
+                if aggregate:
+                    Matchfound = False
+                    for step in aggregate:
+                        if "$match" in step:
+                            Matchfound = True
+                            step["$match"].update({'tenancyName' : self.current_org.slug})
+                    if not Matchfound:
+                        Matchdict = {}
+                        Matchdict["$match"] = {'tenancyName' : self.current_org.slug}
+                        aggregate.insert(0,Matchdict)
+                    query_def["query_text"] = json_dumps(query_data)
+                else:              
+                    query_data["aggregate"] =[]
+                    Matchdict = {}
+                    Matchdict["$match"] = {'tenancyName' : self.current_org.slug}
+                    query_data["aggregate"].insert(0,Matchdict)
+                    query_def["query_text"] = json_dumps(query_data)
 
         if "tags" in query_def:
             query_def["tags"] = [tag for tag in query_def["tags"] if tag]
@@ -424,6 +480,10 @@ class QueryResource(BaseResource):
         require_admin_or_owner(query.user_id)
         query.archive(self.current_user)
         models.db.session.commit()
+
+    def parse_query_json(self,query):
+        query_data = json_loads(query)
+        return query_data
 
 
 class QueryRegenerateApiKeyResource(BaseResource):

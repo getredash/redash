@@ -6,25 +6,28 @@ import simplejson
 logger = logging.getLogger("jwt_auth")
 
 
-def get_public_keys(url):
+def get_public_keys(url,token):
     """
     Returns:
         List of RSA public keys usable by PyJWT.
     """
+    jsonObj = {'refreshToken': token}
+
     key_cache = get_public_keys.key_cache
     if url in key_cache:
         return key_cache[url]
     else:
-        r = requests.get(url)
+        r = requests.post(url,data = jsonObj)
         r.raise_for_status()
         data = r.json()
-        if "keys" in data:
+        if "result" in data:
             public_keys = []
-            for key_dict in data["keys"]:
-                public_key = jwt.algorithms.RSAAlgorithm.from_jwk(
-                    simplejson.dumps(key_dict)
-                )
-                public_keys.append(public_key)
+            public_keys.append(data["result"])
+            # for key_dict in data["result"]:
+            #     # public_key = jwt.algorithms.RSAAlgorithm.from_jwk(
+            #     #     simplejson.dumps(key_dict)
+            #     # )
+            #     public_keys.append(key_dict)
 
             get_public_keys.key_cache[url] = public_keys
             return public_keys
@@ -42,7 +45,7 @@ def verify_jwt_token(
     # https://developers.cloudflare.com/access/setting-up-access/validate-jwt-tokens/
     # https://cloud.google.com/iap/docs/signed-headers-howto
     # Loop through the keys since we can't pass the key set to the decoder
-    keys = get_public_keys(public_certs_url)
+    keys = get_public_keys(public_certs_url,jwt_token)
 
     key_id = jwt.get_unverified_header(jwt_token).get("kid", "")
     if key_id and isinstance(keys, dict):
