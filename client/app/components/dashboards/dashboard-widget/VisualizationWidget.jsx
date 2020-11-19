@@ -305,8 +305,9 @@ class VisualizationWidget extends React.Component {
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = isLoading && !!(widgetQueryResult && widgetQueryResult.getStatus());
     const onParametersEdit = parameters => {
-      widget.options.paramOrder = map(parameters, "name");
-      widget.save();
+      const paramOrder = map(parameters, "name");
+      widget.options.paramOrder = paramOrder;
+      widget.save("options", { paramOrder });
     };
 
     return (
