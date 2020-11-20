@@ -62,6 +62,7 @@ class WorkerHealthcheck(base.BaseCheck):
         ]
 
         if not workers:
+            self._log(f"Cannot find worker for hostname {socket.gethostname()} and pid {pid}. ==> Is healthy? False")
             return False
 
         worker = workers.pop()
