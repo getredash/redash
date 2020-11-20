@@ -3,6 +3,15 @@ import React from "react";
 import PropTypes from "prop-types";
 import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
 
+function filterValuesThatAreNotInOptions(value, options) {
+  if (isArray(value)) {
+    const optionValues = map(options, option => option.value);
+    return intersection(value, optionValues);
+  }
+  const found = find(options, option => option.value === value) !== undefined;
+  return found ? value : get(first(options), "value");
+}
+
 export default class QueryBasedParameterInput extends React.Component {
   static propTypes = {
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
@@ -48,15 +57,16 @@ export default class QueryBasedParameterInput extends React.Component {
 
   setValue(value) {
     const { options } = this.state;
-    if (this.props.mode === "multiple") {
+    const { mode, parameter } = this.props;
+    if (mode === "multiple") {
       value = isArray(value) ? value : [value];
-      const optionValues = map(options, option => option.value);
-      const validValues = intersection(value, optionValues);
-      this.setState({ value: validValues });
-      return validValues;
     }
-    const found = find(options, option => option.value === this.props.value) !== undefined;
-    value = found ? value : get(first(options), "value");
+
+    // parameters with search don't have options available, so we trust what we get
+    if (!parameter.searchFunction) {
+      value = filterValuesThatAreNotInOptions(value, options);
+    }
+
     this.setState({ value });
     return value;
   }
@@ -73,7 +83,7 @@ export default class QueryBasedParameterInput extends React.Component {
   async _loadOptions(queryId) {
     if (queryId && queryId !== this.state.queryId) {
       this.setState({ loading: true });
-      const options = await this.props.parameter.loadDropdownValues();
+      const options = await this.props.parameter.loadDropdownValues(this.state.currentSearchTerm);
 
       // stale queryId check
       if (this.props.queryId === queryId) {
