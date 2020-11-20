@@ -32,7 +32,6 @@ class QueryBasedDropdownParameter extends Parameter {
     this.queryId = parameter.queryId;
     this.multiValuesOptions = parameter.multiValuesOptions;
     this.parameterMapping = parameter.parameterMapping;
-    this.searchTerm = parameter.searchTerm;
     this.setValue(parameter.value);
   }
 
@@ -81,10 +80,6 @@ class QueryBasedDropdownParameter extends Parameter {
       urlParam = JSON.stringify(this.value);
     }
 
-    if (this.searchColumn) {
-      urlParam = `${this.searchTerm}--${urlParam}`;
-    }
-
     return {
       [`${prefix}${this.name}`]: !this.isEmpty ? urlParam : null,
     };
@@ -94,15 +89,7 @@ class QueryBasedDropdownParameter extends Parameter {
     const prefix = this.urlPrefix;
     const key = `${prefix}${this.name}`;
     if (has(query, key)) {
-      let queryKey = query[key];
-      if (this.searchColumn) {
-        const searchTermAndValue = queryKey.split("--");
-        if (searchTermAndValue.length === 2) {
-          this.searchTerm = searchTermAndValue[0];
-          queryKey = searchTermAndValue[1];
-        }
-      }
-
+      const queryKey = query[key];
       if (this.multiValuesOptions) {
         try {
           const valueFromJson = JSON.parse(queryKey);
@@ -116,39 +103,33 @@ class QueryBasedDropdownParameter extends Parameter {
     }
   }
 
-  loadDropdownValues() {
-    return Query.get({ id: this.queryId }).then(query => {
-      const queryHasParameters = query.hasParameters();
-      if (queryHasParameters && this.searchColumn) {
-        this.searchFunction = searchTerm =>
-          QueryResult.getByQueryId(query.id, { ...this.staticParams, [this.searchColumn]: searchTerm }, -1)
-            .toPromise()
-            .then(result => {
-              this.searchTerm = searchTerm;
-              return get(result, "query_result.data.rows");
-            })
-            .then(mapOptionValuesToString)
-            .catch(() => Promise.resolve([]));
-        return this.searchTerm ? this.searchFunction(this.searchTerm) : Promise.resolve([]);
-      } else {
-        this.searchFunction = null;
-      }
+  loadDropdownValues(initialSearchTerm = null) {
+    return Query.get({ id: this.queryId })
+      .then(query => {
+        const queryHasParameters = query.hasParameters();
+        if (queryHasParameters && this.searchColumn) {
+          this.searchFunction = searchTerm =>
+            QueryResult.getByQueryId(query.id, { ...this.staticParams, [this.searchColumn]: searchTerm }, -1)
+              .toPromise()
+              .then(result => get(result, "query_result.data.rows"))
+              .then(mapOptionValuesToString)
+              .catch(() => Promise.resolve([]));
+          return initialSearchTerm ? this.searchFunction(initialSearchTerm) : Promise.resolve([]);
+        } else {
+          this.searchFunction = null;
+        }
 
-      if (queryHasParameters) {
-        return QueryResult.getByQueryId(query.id, { ...this.staticParams }, -1)
-          .toPromise()
-          .then(result => get(result, "query_result.data.rows"))
-          .then(mapOptionValuesToString)
-          .catch(() => Promise.resolve([]));
-      } else if (this.parentQueryId) {
-        return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId })
-          .then(mapOptionValuesToString)
-          .catch(() => Promise.resolve([]));
-      }
-      return Query.asDropdown({ id: this.queryId })
-        .then(mapOptionValuesToString)
-        .catch(() => Promise.resolve([]));
-    });
+        if (queryHasParameters) {
+          return QueryResult.getByQueryId(query.id, { ...this.staticParams }, -1)
+            .toPromise()
+            .then(result => get(result, "query_result.data.rows"));
+        } else if (this.parentQueryId) {
+          return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId });
+        }
+        return Query.asDropdown({ id: this.queryId });
+      })
+      .then(mapOptionValuesToString)
+      .catch(() => Promise.resolve([]));
   }
 }
 
