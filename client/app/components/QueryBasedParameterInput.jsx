@@ -81,10 +81,9 @@ export default class QueryBasedParameterInput extends React.Component {
       className,
       mode,
       onSelect,
-      maxTagCount,
-      maxTagPlaceholder,
-      maxTagTextLength,
       optionFilterProp,
+      queryId,
+      ...otherProps
     } = this.props;
     const { loading, options } = this.state;
     return (
@@ -97,13 +96,11 @@ export default class QueryBasedParameterInput extends React.Component {
           value={this.state.value}
           onChange={onSelect}
           options={map(options, ({ value, name }) => ({ label: String(name), value }))}
-          optionFilterProp={optionFilterProp}
+          optionFilterProp={optionFilterProp || "children"}
           showSearch
           showArrow
           notFoundContent={isEmpty(options) ? "No options available" : null}
-          maxTagCount={maxTagCount}
-          maxTagPlaceholder={maxTagPlaceholder}
-          maxTagTextLength={maxTagTextLength}
+          {...otherProps}
         />
       </span>
     );
