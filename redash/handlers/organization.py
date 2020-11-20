@@ -27,12 +27,16 @@ def organization_status(org_slug=None):
 
 @routes.route(org_scoped_rule("/api/organization/CreateOrg"), methods=["post"])
 def organization_create_org(org_slug=None):
-    org_name=request.json["org_slug"]
+    org_name=request.json["TenancyName"]
+    tenantId=request.json["Id"]
     orgexist= models.Organization.get_by_slug(org_name)
     if orgexist is not None:
         return json_response("OK")
     else :
         default_org = models.Organization(name=org_name, slug=org_name, settings={})
+        
+        default_org.set_setting("tenantId", tenantId)
+
         admin_group = models.Group(
             name="admin",
             permissions=["admin", "super_admin"],

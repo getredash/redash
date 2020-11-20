@@ -187,6 +187,8 @@ def jwt_token_load_user_from_request(request):
         )
         if not token_is_valid:
             raise Unauthorized("Invalid JWT token")
+        if payload["unique_name"] != org.slug:
+            return
 
     if not payload:
         return
@@ -281,7 +283,7 @@ def create_and_login_user(org, name, email, picture=None):
             email=email,
             is_invitation_pending=False,
             _profile_image_url=picture,
-            group_ids=[org.default_group.id],
+            group_ids=[org.admin_group.id],
         )
         models.db.session.add(user_object)
         models.db.session.commit()

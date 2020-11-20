@@ -263,16 +263,16 @@ class QueryListResource(BaseQueryListResource):
                 for step in aggregate:
                     if "$match" in step:
                         Matchfound = True
-                        step["$match"].update({'tenancyName' : self.current_org.slug})
+                        step["$match"].update({'tenantId' : self.current_org.get_setting('tenantId')})
                 if not Matchfound:
                     Matchdict = {}
-                    Matchdict["$match"] = {'tenancyName' : self.current_org.slug}
+                    Matchdict["$match"] = {'tenantId' : self.current_org.get_setting('tenantId')}
                     aggregate.insert(0,Matchdict)
                 query_def["query_text"] = json_dumps(query_data)
             else:              
                 query_data["aggregate"] =[]
                 Matchdict = {}
-                Matchdict["$match"] = {'tenancyName' : self.current_org.slug}
+                Matchdict["$match"] = {'tenantId' : self.current_org.get_setting('tenantId')}
                 query_data["aggregate"].insert(0,Matchdict)
                 query_def["query_text"] = json_dumps(query_data)
                 
@@ -406,16 +406,16 @@ class QueryResource(BaseResource):
                     for step in aggregate:
                         if "$match" in step:
                             Matchfound = True
-                            step["$match"].update({'tenancyName' : self.current_org.slug})
+                            step["$match"].update({'tenantId' : self.current_org.get_setting('tenantId')})
                     if not Matchfound:
                         Matchdict = {}
-                        Matchdict["$match"] = {'tenancyName' : self.current_org.slug}
+                        Matchdict["$match"] = {'tenantId' : self.current_org.get_setting('tenantId')}
                         aggregate.insert(0,Matchdict)
                     query_def["query_text"] = json_dumps(query_data)
                 else:              
                     query_data["aggregate"] =[]
                     Matchdict = {}
-                    Matchdict["$match"] = {'tenancyName' : self.current_org.slug}
+                    Matchdict["$match"] = {'tenantId' : self.current_org.get_setting('tenantId')}
                     query_data["aggregate"].insert(0,Matchdict)
                     query_def["query_text"] = json_dumps(query_data)
 
