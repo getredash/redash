@@ -66,8 +66,11 @@ class Mysql(BaseSQLQueryRunner):
                 "passwd": {"type": "string", "title": "Password"},
                 "db": {"type": "string", "title": "Database name"},
                 "port": {"type": "number", "default": 3306},
+                "connect_timeout": {"type": "number", "default": 60, "title": "Connection Timeout"},
+                "charset": {"type": "string", "default": "utf8"},
+                "use_unicode": {"type": "boolean", "default": True},
             },
-            "order": ["host", "port", "user", "passwd", "db"],
+            "order": ["host", "port", "user", "passwd", "db", "connect_timeout", "charset", "use_unicode"],
             "required": ["db"],
             "secret": ["passwd"],
         }
@@ -108,9 +111,9 @@ class Mysql(BaseSQLQueryRunner):
             passwd=self.configuration.get("passwd", ""),
             db=self.configuration["db"],
             port=self.configuration.get("port", 3306),
-            charset="utf8",
-            use_unicode=True,
-            connect_timeout=60,
+            charset=self.configuration.get("charset", "utf8"),
+            use_unicode=self.configuration.get("use_unicode", True),
+            connect_timeout=self.configuration.get("connect_timeout", 60),
         )
 
         ssl_options = self._get_ssl_parameters()
