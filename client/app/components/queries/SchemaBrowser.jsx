@@ -41,19 +41,24 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
     return null;
   }
 
+  const tableDisplayName = item.displayName || item.name;
+
   return (
     <div {...props}>
       <div className="table-name" onClick={onToggle}>
         <i className="fa fa-table m-r-5" />
         <strong>
-          <span title={item.name}>{item.name}</span>
+          <span title={item.name}>{tableDisplayName}</span>
           {!isNil(item.size) && <span> ({item.size})</span>}
         </strong>
-        <i
-          className="fa fa-angle-double-right copy-to-editor"
-          aria-hidden="true"
-          onClick={e => handleSelect(e, item.name)}
-        />
+
+        <Tooltip title="Insert table name into query text" mouseEnterDelay={0} mouseLeaveDelay={0}>
+          <i
+            className="fa fa-angle-double-right copy-to-editor"
+            aria-hidden="true"
+            onClick={e => handleSelect(e, item.name)}
+          />
+        </Tooltip>
       </div>
       {expanded && (
         <div>
@@ -66,11 +71,13 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
               return (
                 <div key={columnName} className="table-open">
                   {columnName} {columnType && <span className="column-type">{columnType}</span>}
-                  <i
-                    className="fa fa-angle-double-right copy-to-editor"
-                    aria-hidden="true"
-                    onClick={e => handleSelect(e, columnName)}
-                  />
+                  <Tooltip title="Insert column name into query text" mouseEnterDelay={0} mouseLeaveDelay={0}>
+                    <i
+                      className="fa fa-angle-double-right copy-to-editor"
+                      aria-hidden="true"
+                      onClick={e => handleSelect(e, columnName)}
+                    />
+                  </Tooltip>
                 </div>
               );
             })

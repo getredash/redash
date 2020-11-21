@@ -12,7 +12,7 @@ function Link(props) {
 Link.Component = DefaultLinkComponent;
 
 function DefaultButtonLinkComponent(props) {
-  return <Button {...props} />;
+  return <Button role="button" {...props} />;
 }
 
 function ButtonLink(props) {

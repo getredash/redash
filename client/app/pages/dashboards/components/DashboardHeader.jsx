@@ -145,7 +145,7 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
               <a onClick={managePermissions}>Manage Permissions</a>
             </Menu.Item>
           )}
-          {!dashboard.is_draft && (
+          {!clientConfig.disablePublish && !dashboard.is_draft && (
             <Menu.Item>
               <a onClick={togglePublished}>Unpublish</a>
             </Menu.Item>
