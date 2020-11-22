@@ -71,7 +71,7 @@ class BigQueryGCE(BigQuery):
         http = httplib2.Http()
         http = credentials.authorize(http)
 
-        return build("bigquery", "v2", http=http)
+        return build("bigquery", "v2", http=http, cache_discovery=False)
 
 
 register(BigQueryGCE)
