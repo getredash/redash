@@ -283,7 +283,7 @@ def create_and_login_user(org, name, email, picture=None):
             email=email,
             is_invitation_pending=False,
             _profile_image_url=picture,
-            group_ids=[org.admin_group.id],
+            group_ids=[org.default_group.id],
         )
         models.db.session.add(user_object)
         models.db.session.commit()

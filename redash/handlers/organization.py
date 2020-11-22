@@ -56,7 +56,7 @@ def organization_create_org(org_slug=None):
         user = models.User(
             org=default_org,
             name="admin",
-            email="admin@"+org_name+".com",
+            email=request.json["CreatorUser"]["EmailAddress"],
             group_ids=[admin_group.id, default_group.id],
         )
         user.hash_password(org_name)
