@@ -3,6 +3,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
 
+const SEARCH_DEBOUNCE_TIME = 300;
+
 function filterValuesThatAreNotInOptions(value, options) {
   if (isArray(value)) {
     const optionValues = map(options, option => option.value);
@@ -97,23 +99,29 @@ export default class QueryBasedParameterInput extends React.Component {
     }
   }
 
+  searchFunction = debounce(searchTerm => {
+    const { parameter } = this.props;
+    if (parameter.searchFunction && trim(searchTerm)) {
+      this.setState({ loading: true, currentSearchTerm: searchTerm });
+      parameter.searchFunction(searchTerm).then(options => {
+        if (this.state.currentSearchTerm === searchTerm) {
+          this.updateOptions(options);
+        }
+      });
+    }
+  }, SEARCH_DEBOUNCE_TIME);
+
   render() {
     const { parameter, className, mode, onSelect, queryId, value, ...otherProps } = this.props;
     const { loading, options } = this.state;
     const selectProps = { ...otherProps };
-    if (parameter.searchFunction) {
+
+    if (parameter.searchColumn) {
       selectProps.filterOption = false;
-      selectProps.onSearch = debounce(searchTerm => {
-        if (trim(searchTerm)) {
-          this.setState({ loading: true, currentSearchTerm: searchTerm });
-          parameter.searchFunction(searchTerm).then(options => {
-            if (this.state.currentSearchTerm === searchTerm) {
-              this.updateOptions(options);
-            }
-          });
-        }
-      }, 300);
+      selectProps.onSearch = this.searchFunction;
       selectProps.onChange = value => onSelect(parameter.normalizeValue(value));
+      selectProps.notFoundContent = null;
+      selectProps.labelInValue = true;
     }
     return (
       <span>
@@ -122,14 +130,13 @@ export default class QueryBasedParameterInput extends React.Component {
           disabled={!parameter.searchFunction && loading}
           loading={loading}
           mode={mode}
-          labelInValue={!!parameter.searchColumn}
           value={this.state.value || undefined}
           onChange={onSelect}
           options={options}
           optionFilterProp="children"
           showSearch
           showArrow
-          notFoundContent={isEmpty(options) && !parameter.searchColumn ? "No options available" : null}
+          notFoundContent={isEmpty(options) ? "No options available" : null}
           {...selectProps}
         />
       </span>
