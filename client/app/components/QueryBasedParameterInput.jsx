@@ -1,4 +1,4 @@
-import { find, isArray, get, first, map, intersection, isEqual, isEmpty, trim, debounce } from "lodash";
+import { find, isArray, get, first, map, intersection, isEqual, isEmpty, trim, debounce, isNil } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
@@ -58,7 +58,12 @@ export default class QueryBasedParameterInput extends React.Component {
   setValue(value) {
     const { options } = this.state;
     const { mode, parameter } = this.props;
+
     if (mode === "multiple") {
+      if (isNil(value)) {
+        value = [];
+      }
+
       value = isArray(value) ? value : [value];
     }
 
@@ -108,6 +113,7 @@ export default class QueryBasedParameterInput extends React.Component {
           });
         }
       }, 300);
+      selectProps.onChange = value => onSelect(parameter.normalizeValue(value));
     }
     return (
       <span>
@@ -116,13 +122,14 @@ export default class QueryBasedParameterInput extends React.Component {
           disabled={!parameter.searchFunction && loading}
           loading={loading}
           mode={mode}
-          value={this.state.value}
+          labelInValue={!!parameter.searchColumn}
+          value={this.state.value || undefined}
           onChange={onSelect}
-          options={map(options, ({ value, name }) => ({ label: String(name), value }))}
+          options={options}
           optionFilterProp="children"
           showSearch
           showArrow
-          notFoundContent={isEmpty(options) ? "No options available" : null}
+          notFoundContent={isEmpty(options) && !parameter.searchColumn ? "No options available" : null}
           {...selectProps}
         />
       </span>
