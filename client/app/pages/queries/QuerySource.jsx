@@ -213,7 +213,7 @@ function QuerySource(props) {
                 <DynamicComponent
                   name={"QuerySourceDropdown"}
                   dataSources={dataSources}
-                  value={dataSource ? String(dataSource.id) : undefined}
+                  value={dataSource ? dataSource.id : undefined}
                   disabled={!queryFlags.canEdit || !dataSourcesLoaded || dataSources.length === 0}
                   loading={!dataSourcesLoaded}
                   onChange={handleDataSourceChange}
