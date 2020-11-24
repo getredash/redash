@@ -4,7 +4,7 @@ import logging
 import time
 from urllib.parse import urlsplit, urlunsplit
 
-from flask import jsonify, redirect, request, url_for
+from flask import jsonify, redirect, request, url_for ,make_response
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
 from redash import models, settings
 from redash.authentication import jwt_auth
@@ -169,7 +169,7 @@ def jwt_token_load_user_from_request(request):
     org = current_org._get_current_object()
 
     payload = None
-
+   
     if org_settings["auth_jwt_auth_cookie_name"]:
         jwt_token = request.cookies.get(org_settings["auth_jwt_auth_cookie_name"], None)
     elif org_settings["auth_jwt_auth_header_name"]:

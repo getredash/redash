@@ -19,10 +19,10 @@ x-redash-environment: &redash-environment
   REDASH_ENFORCE_CSRF: "false"
   REDASH_JWT_LOGIN_ENABLED: "true"
   REDASH_JWT_AUTH_ISSUER : "Ecosystem"
-  REDASH_JWT_AUTH_PUBLIC_CERTS_URL : "http://host.staging.api.dyocense.com/api/TokenAuth/ValidateRefreshToken"
-  REDASH_JWT_AUTH_AUDIENCE : "Ecosystem"
-  REDASH_JWT_AUTH_COOKIE_NAME : "Abp.AuthToken"
-  REDASH_JWT_AUTH_HEADER_NAME : "Bearer"
+  REDASH_JWT_AUTH_PUBLIC_CERTS_URL : "http://host.dev.api.dyocense.com/api/TokenAuth/ValidateRefreshToken"
+  REDASH_JWT_AUTH_AUDIENCE : "Ecosystem" 
+  REDASH_JWT_AUTH_COOKIE_NAME : "authToken"
+  REDASH_JWT_AUTH_HEADER_NAME : "authToken"
   REDASH_MULTI_ORG : "true"
 services:
   server:

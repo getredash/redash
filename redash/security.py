@@ -4,7 +4,8 @@ from flask_login import current_user
 from flask_talisman import talisman
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 
-
+import urllib.parse as urlparse
+from urllib.parse import parse_qs
 from redash import settings
 
 
@@ -31,6 +32,11 @@ def init_app(app):
 
     @app.after_request
     def inject_csrf_token(response):
+        if response.location is not None:
+            if "authToken" in response.location:
+                parsed = urlparse.urlparse(response.location)
+                token = parse_qs(parsed.query)['authToken']
+                response.set_cookie("authToken", token[0])           
         response.set_cookie("csrf_token", generate_csrf())
         return response
 
