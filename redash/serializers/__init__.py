@@ -217,6 +217,7 @@ def serialize_alert(alert, full=True):
 
 def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=True):
     layout = json_loads(obj.layout)
+    options = json_loads(obj.options)
 
     widgets = []
 
@@ -256,6 +257,7 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
         },
         "layout": layout,
         "dashboard_filters_enabled": obj.dashboard_filters_enabled,
+        "options": options,
         "widgets": widgets,
         "is_archived": obj.is_archived,
         "is_draft": obj.is_draft,

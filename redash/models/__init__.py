@@ -1099,6 +1099,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     tags = Column(
         "tags", MutableList.as_mutable(postgresql.ARRAY(db.Unicode)), nullable=True
     )
+    options = Column(db.Text)
 
     __tablename__ = "dashboards"
     __mapper_args__ = {"version_id_col": version}
