@@ -27,8 +27,8 @@ function buttonType(value) {
   return value ? "primary" : "default";
 }
 
-function DashboardPageTitle({ dashboardOptions }) {
-  const { dashboard, canEditDashboard, updateDashboard, editingLayout } = dashboardOptions;
+function DashboardPageTitle({ dashboardConfiguration }) {
+  const { dashboard, canEditDashboard, updateDashboard, editingLayout } = dashboardConfiguration;
   return (
     <div className="title-with-tags">
       <div className="page-title">
@@ -58,11 +58,11 @@ function DashboardPageTitle({ dashboardOptions }) {
 }
 
 DashboardPageTitle.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-function RefreshButton({ dashboardOptions }) {
-  const { refreshRate, setRefreshRate, disableRefreshRate, refreshing, refreshDashboard } = dashboardOptions;
+function RefreshButton({ dashboardConfiguration }) {
+  const { refreshRate, setRefreshRate, disableRefreshRate, refreshing, refreshDashboard } = dashboardConfiguration;
   const allowedIntervals = policy.getDashboardRefreshIntervals();
   const refreshRateOptions = clientConfig.dashboardRefreshIntervals;
   const onRefreshRateSelected = ({ key }) => {
@@ -105,10 +105,10 @@ function RefreshButton({ dashboardOptions }) {
 }
 
 RefreshButton.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-function DashboardMoreOptionsButton({ dashboardOptions }) {
+function DashboardMoreOptionsButton({ dashboardConfiguration }) {
   const {
     dashboard,
     setEditingLayout,
@@ -117,7 +117,7 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
     managePermissions,
     gridDisabled,
     isDashboardOwnerOrAdmin,
-  } = dashboardOptions;
+  } = dashboardConfiguration;
 
   const archive = () => {
     Modal.confirm({
@@ -163,10 +163,10 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
 }
 
 DashboardMoreOptionsButton.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-function DashboardControl({ dashboardOptions, headerExtra }) {
+function DashboardControl({ dashboardConfiguration, headerExtra }) {
   const {
     dashboard,
     togglePublished,
@@ -174,7 +174,7 @@ function DashboardControl({ dashboardOptions, headerExtra }) {
     fullscreen,
     toggleFullscreen,
     showShareDashboardDialog,
-  } = dashboardOptions;
+  } = dashboardConfiguration;
   const showPublishButton = dashboard.is_draft;
   const showRefreshButton = true;
   const showFullscreenButton = !dashboard.is_draft;
@@ -190,7 +190,7 @@ function DashboardControl({ dashboardOptions, headerExtra }) {
               <span className="fa fa-paper-plane m-r-5" /> Publish
             </Button>
           )}
-          {showRefreshButton && <RefreshButton dashboardOptions={dashboardOptions} />}
+          {showRefreshButton && <RefreshButton dashboardConfiguration={dashboardConfiguration} />}
           {showFullscreenButton && (
             <Tooltip className="hidden-xs" title="Enable/Disable Fullscreen display">
               <Button type={buttonType(fullscreen)} className="icon-button m-l-5" onClick={toggleFullscreen}>
@@ -210,7 +210,7 @@ function DashboardControl({ dashboardOptions, headerExtra }) {
               </Button>
             </Tooltip>
           )}
-          {showMoreOptionsButton && <DashboardMoreOptionsButton dashboardOptions={dashboardOptions} />}
+          {showMoreOptionsButton && <DashboardMoreOptionsButton dashboardConfiguration={dashboardConfiguration} />}
         </span>
       )}
     </div>
@@ -218,12 +218,17 @@ function DashboardControl({ dashboardOptions, headerExtra }) {
 }
 
 DashboardControl.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   headerExtra: PropTypes.node,
 };
 
-function DashboardEditControl({ dashboardOptions, headerExtra }) {
-  const { setEditingLayout, doneBtnClickedWhileSaving, dashboardStatus, retrySaveDashboardLayout } = dashboardOptions;
+function DashboardEditControl({ dashboardConfiguration, headerExtra }) {
+  const {
+    setEditingLayout,
+    doneBtnClickedWhileSaving,
+    dashboardStatus,
+    retrySaveDashboardLayout,
+  } = dashboardConfiguration;
   let status;
   if (dashboardStatus === DashboardStatusEnum.SAVED) {
     status = <span className="save-status">Saved</span>;
@@ -258,23 +263,23 @@ function DashboardEditControl({ dashboardOptions, headerExtra }) {
 }
 
 DashboardEditControl.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   headerExtra: PropTypes.node,
 };
 
-export default function DashboardHeader({ dashboardOptions, headerExtra }) {
-  const { editingLayout } = dashboardOptions;
+export default function DashboardHeader({ dashboardConfiguration, headerExtra }) {
+  const { editingLayout } = dashboardConfiguration;
   const DashboardControlComponent = editingLayout ? DashboardEditControl : DashboardControl;
 
   return (
     <div className="dashboard-header">
-      <DashboardPageTitle dashboardOptions={dashboardOptions} />
-      <DashboardControlComponent dashboardOptions={dashboardOptions} headerExtra={headerExtra} />
+      <DashboardPageTitle dashboardConfiguration={dashboardConfiguration} />
+      <DashboardControlComponent dashboardConfiguration={dashboardConfiguration} headerExtra={headerExtra} />
     </div>
   );
 }
 
 DashboardHeader.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   headerExtra: PropTypes.node,
 };
