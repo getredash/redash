@@ -1,4 +1,18 @@
-import { isNil, map, extend, sortBy, includes, filter, reduce, find, keys, values, identity } from "lodash";
+import {
+  isNil,
+  map,
+  extend,
+  sortBy,
+  includes,
+  filter,
+  reduce,
+  find,
+  keys,
+  values,
+  identity,
+  each,
+  isNaN,
+} from "lodash";
 import d3 from "d3";
 import d3sankey from "./d3sankey";
 
@@ -109,10 +123,33 @@ function spreadNodes(height, data) {
 
 function isDataValid(data) {
   // data should contain column named 'value', otherwise no reason to render anything at all
-  return data && !!find(data.columns, c => c.name === "value");
+  if (!data || !find(data.columns, c => c.name === "value")) {
+    return false;
+  }
+  // prepareData will have coerced any invalid data into NaN, which is accumulated by the reducers below
+  const doAllRowsContainValidData = !isNaN(
+    reduce(data.rows, (finalAcc, row) => finalAcc * reduce(row, (acc, col) => col * acc, 0), 0)
+  );
+
+  return doAllRowsContainValidData;
+}
+
+// will mutate data into valid numbers
+function prepareData(data) {
+  const { rows } = data;
+  const result = map(rows, row => {
+    const newRow = {};
+    each(row, (value, key) => {
+      newRow[key] = +value;
+    });
+    return newRow;
+  });
+  data.rows = result;
 }
 
 export default function initSankey(data) {
+  // delete data.columns[0].name;
+  prepareData(data);
   if (!isDataValid(data)) {
     return element => {
       d3.select(element)
