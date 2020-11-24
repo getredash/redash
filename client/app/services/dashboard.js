@@ -216,7 +216,6 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
       param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
     })
   );
-  this.options.tmp = 13;
 
   if (!_.isArray(this.options.globalParamOrder)) {
     this.options.globalParamOrder = _.map(resultingGlobalParams, "name");
