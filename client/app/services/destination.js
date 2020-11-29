@@ -1,6 +1,6 @@
 import { axios } from "@/services/axios";
 
-export const IMG_ROOT = "static/images/destinations";
+export const IMG_ROOT = "/static/images/destinations";
 
 const Destination = {
   query: () => axios.get("api/destinations"),

@@ -4,7 +4,7 @@ import { fetchDataFromJob } from "@/services/query-result";
 
 export const SCHEMA_NOT_SUPPORTED = 1;
 export const SCHEMA_LOAD_ERROR = 2;
-export const IMG_ROOT = "static/images/db-logos";
+export const IMG_ROOT = "/static/images/db-logos";
 
 function mapSchemaColumnsToObject(columns) {
   return map(columns, column => (isObject(column) ? column : { name: column }));
