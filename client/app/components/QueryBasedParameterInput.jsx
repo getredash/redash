@@ -77,7 +77,7 @@ export default class QueryBasedParameterInput extends React.Component {
   }
 
   render() {
-    const { className, value, mode, onSelect, ...otherProps } = this.props;
+    const { className, mode, onSelect, queryId, value, ...otherProps } = this.props;
     const { loading, options } = this.state;
     return (
       <span>
