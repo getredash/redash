@@ -251,7 +251,7 @@ class QueryListResource(BaseQueryListResource):
             query_def.pop(field, None)
 
         query_def["query_text"] = query_def.pop("query")
-        if data_source.type == 'mongodb' or data_source.type == 'DyoTelemetryDB' or data_source.type == 'DyoHubManagerDB':
+        if data_source.type == 'mongodb' or data_source.type == 'dyotelemetrydb' or data_source.type == 'dyohubmanagerdb':
             try:
                 query_data = self.parse_query_json(query_def["query_text"])
             except ValueError:
@@ -393,7 +393,7 @@ class QueryResource(BaseResource):
 
             query_def["query_text"] = query_def.pop("query")
 
-            if query.data_source.type == 'mongodb' or query.data_source.type == 'DyoTelemetryDB' or query.data_source.type == 'DyoHubManagerDB':
+            if query.data_source.type == 'mongodb' or query.data_source.type == 'dyotelemetrydb' or query.data_source.type == 'dyohubmanagerdb':
 
                 try:
                     query_data = self.parse_query_json(query_def["query_text"])
