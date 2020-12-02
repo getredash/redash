@@ -321,56 +321,50 @@ ACCESS_CONTROL_ALLOW_HEADERS = os.environ.get(
 )
 
 # Query Runners
-default_query_runners = [
-    "redash.query_runner.athena",
-    "redash.query_runner.big_query",
-    "redash.query_runner.google_spreadsheets",
-    "redash.query_runner.graphite",
-    "redash.query_runner.mongodb",
-    "redash.query_runner.couchbase",
-    "redash.query_runner.mysql",
-    "redash.query_runner.pg",
-    "redash.query_runner.url",
-    "redash.query_runner.influx_db",
-    "redash.query_runner.elasticsearch",
-    "redash.query_runner.amazon_elasticsearch",
-    "redash.query_runner.presto",
-    "redash.query_runner.databricks",
-    "redash.query_runner.hive_ds",
-    "redash.query_runner.impala_ds",
-    "redash.query_runner.vertica",
-    "redash.query_runner.clickhouse",
-    "redash.query_runner.yandex_metrica",
-    "redash.query_runner.rockset",
-    "redash.query_runner.treasuredata",
-    "redash.query_runner.sqlite",
-    "redash.query_runner.dynamodb_sql",
-    "redash.query_runner.mssql",
-    "redash.query_runner.mssql_odbc",
-    "redash.query_runner.memsql_ds",
-    "redash.query_runner.mapd",
-    "redash.query_runner.jql",
-    "redash.query_runner.google_analytics",
-    "redash.query_runner.axibase_tsd",
-    "redash.query_runner.salesforce",
-    "redash.query_runner.query_results",
-    "redash.query_runner.prometheus",
-    "redash.query_runner.qubole",
-    "redash.query_runner.db2",
-    "redash.query_runner.druid",
-    "redash.query_runner.kylin",
-    "redash.query_runner.drill",
-    "redash.query_runner.uptycs",
-    "redash.query_runner.snowflake",
-    "redash.query_runner.phoenix",
-    "redash.query_runner.json_ds",
-    "redash.query_runner.cass",
-    "redash.query_runner.dgraph",
-    "redash.query_runner.azure_kusto",
-    "redash.query_runner.exasol",
-    "redash.query_runner.cloudwatch",
-    "redash.query_runner.cloudwatch_insights",
-]
+default_query_runners = [    
+     "redash.query_runner.mongodb",   
+     "redash.query_runner.pg",
+     "redash.query_runner.url",
+#     "redash.query_runner.influx_db",
+#     "redash.query_runner.elasticsearch",
+#     "redash.query_runner.amazon_elasticsearch",
+#     "redash.query_runner.presto",
+#     "redash.query_runner.databricks",
+#     "redash.query_runner.hive_ds",
+#     "redash.query_runner.impala_ds",
+#     "redash.query_runner.vertica",
+#     "redash.query_runner.clickhouse",
+#     "redash.query_runner.yandex_metrica",
+#     "redash.query_runner.rockset",
+#     "redash.query_runner.treasuredata",
+#     "redash.query_runner.sqlite",
+#     "redash.query_runner.dynamodb_sql",
+#     "redash.query_runner.mssql",
+#     "redash.query_runner.mssql_odbc",
+#     "redash.query_runner.memsql_ds",
+#     "redash.query_runner.mapd",
+#     "redash.query_runner.jql",
+#     "redash.query_runner.google_analytics",
+#     "redash.query_runner.axibase_tsd",
+#     "redash.query_runner.salesforce",
+     "redash.query_runner.query_results",
+#     "redash.query_runner.prometheus",
+#     "redash.query_runner.qubole",
+#     "redash.query_runner.db2",
+#     "redash.query_runner.druid",
+#     "redash.query_runner.kylin",
+#     "redash.query_runner.drill",
+#     "redash.query_runner.uptycs",
+#     "redash.query_runner.snowflake",
+#     "redash.query_runner.phoenix",
+#     "redash.query_runner.json_ds",
+#     "redash.query_runner.cass",
+#     "redash.query_runner.dgraph",
+#     "redash.query_runner.azure_kusto",
+#     "redash.query_runner.exasol",
+#     "redash.query_runner.cloudwatch",
+#     "redash.query_runner.cloudwatch_insights",
+ ]
 
 enabled_query_runners = array_from_string(
     os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners))
@@ -512,3 +506,11 @@ ENFORCE_CSRF = parse_boolean(
 )
 
 CSRF_TIME_LIMIT = int(os.environ.get("REDASH_CSRF_TIME_LIMIT", 3600 * 6))
+
+DYO_MONGO_CONNECTIONSTRING = os.environ.get("DYO_MONGO_CONNECTIONSTRING", "")
+DYO_TELEMETRY_DATABASE_NAME = os.environ.get("DYO_TELEMETRY_DATABASE_NAME", "")
+DYO_IOTHUB_DATABASE_NAME = os.environ.get("DYO_IOTHUB_DATABASE_NAME", "")
+DYO_IOTHUB_REPLICASET = os.environ.get("DYO_IOTHUB_REPLICASET", "")
+DYO_TELEMETRY_REPLICASET = os.environ.get("DYO_TELEMETRY_REPLICASET", "")
+DYO_TELEMETRY_REPLICASET_READPREFERENCE = os.environ.get("DYO_TELEMETRY_REPLICASET_READPREFERENCE", "")
+DYO_IOTHUB_REPLICASET_READPREFERENCE = os.environ.get("DYO_IOTHUB_REPLICASET_READPREFERENCE", "")

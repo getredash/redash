@@ -551,6 +551,6 @@ class CockroachDB(PostgreSQL):
 
 
 register(PostgreSQL)
-register(Redshift)
-register(RedshiftIAM)
-register(CockroachDB)
+# register(Redshift)
+# register(RedshiftIAM)
+# register(CockroachDB)

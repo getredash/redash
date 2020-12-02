@@ -120,12 +120,12 @@ export default function DesktopNavbar() {
       </NavbarSection>
 
       <NavbarSection inlineCollapsed={collapsed}>
-        <Menu.Item key="help">
+        {/* <Menu.Item key="help">
           <HelpTrigger showTooltip={false} type="HOME">
             <QuestionCircleOutlinedIcon />
             <span>Help</span>
           </HelpTrigger>
-        </Menu.Item>
+        </Menu.Item> */}
         {firstSettingsTab && (
           <Menu.Item key="settings">
             <Link href={firstSettingsTab.path} data-test="SettingsLink">
@@ -162,9 +162,9 @@ export default function DesktopNavbar() {
             </a>
           </Menu.Item>
           <Menu.Divider />
-          <Menu.Item key="version" disabled className="version-info">
+          {/* <Menu.Item key="version" disabled className="version-info">
             <VersionInfo />
-          </Menu.Item>
+          </Menu.Item> */}
         </Menu.SubMenu>
       </NavbarSection>
 
