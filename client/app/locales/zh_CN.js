@@ -1,4 +1,4 @@
 export default {
-  "Create": "创建",
+  Create: "创建",
   "...": "...",
 };
