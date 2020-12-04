@@ -2,7 +2,7 @@
 
 import { getWidgetTestId } from "../../support/dashboard";
 
-const menuWidth = 81;
+const menuWidth = 80;
 
 describe("Dashboard", () => {
   beforeEach(() => {
