@@ -103,7 +103,6 @@ export default function DesktopNavbar() {
       </NavbarSection>
 
       <NavbarSection className="desktop-navbar-spacer">
-        {(canCreateQuery || canCreateDashboard || canCreateAlert) && <Menu.Divider />}
         {(canCreateQuery || canCreateDashboard || canCreateAlert) && (
           <Menu.SubMenu
             key="create"
@@ -155,7 +154,6 @@ export default function DesktopNavbar() {
             </Link>
           </Menu.Item>
         )}
-        <Menu.Divider />
       </NavbarSection>
 
       <NavbarSection className="desktop-navbar-profile-menu">
@@ -175,13 +173,11 @@ export default function DesktopNavbar() {
               <Link href="admin/status">System Status</Link>
             </Menu.Item>
           )}
-          <Menu.Divider />
           <Menu.Item key="logout">
             <a data-test="LogOutButton" onClick={() => Auth.logout()}>
               Log out
             </a>
           </Menu.Item>
-          <Menu.Divider />
           <Menu.Item key="version" disabled className="version-info">
             <VersionInfo />
           </Menu.Item>

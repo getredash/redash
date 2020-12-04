@@ -3,6 +3,7 @@
 @textColor: rgba(255, 255, 255, 0.75);
 @brandColor: #ff7964; // Redash logo color
 @activeItemColor: @brandColor;
+@iconSize: 26px;
 
 .desktop-navbar {
   background: @backgroundColor;
@@ -57,7 +58,7 @@
       }
 
       .anticon {
-        font-size: 26px;
+        font-size: @iconSize;
         margin: 0;
       }
 
@@ -116,8 +117,8 @@
       .profile__image_thumb {
         margin: 0;
         vertical-align: middle;
-        width: 28px;
-        height: 28px;
+        width: @iconSize;
+        height: @iconSize;
       }
     }
   }
