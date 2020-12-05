@@ -173,11 +173,13 @@ export default function DesktopNavbar() {
               <Link href="admin/status">System Status</Link>
             </Menu.Item>
           )}
+          <Menu.Divider />
           <Menu.Item key="logout">
             <a data-test="LogOutButton" onClick={() => Auth.logout()}>
               Log out
             </a>
           </Menu.Item>
+          <Menu.Divider />
           <Menu.Item key="version" disabled className="version-info">
             <VersionInfo />
           </Menu.Item>
