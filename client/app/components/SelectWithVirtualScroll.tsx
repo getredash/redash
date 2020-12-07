@@ -9,7 +9,7 @@ interface VirtualScrollLabeledValue extends LabeledValue {
   label: string;
 }
 
-interface VirtualScrollSelectProps extends SelectProps<string> {
+interface VirtualScrollSelectProps extends Omit<SelectProps<string>, "optionFilterProp" | "children"> {
   options: Array<VirtualScrollLabeledValue>;
 }
 function SelectWithVirtualScroll({ options, ...props }: VirtualScrollSelectProps): JSX.Element {
