@@ -120,7 +120,6 @@ class ParameterValueInput extends React.Component {
       <QueryBasedParameterInput
         className={this.props.className}
         mode={parameter.multiValuesOptions ? "multiple" : "default"}
-        optionFilterProp="children"
         parameter={parameter}
         value={value}
         queryId={queryId}
