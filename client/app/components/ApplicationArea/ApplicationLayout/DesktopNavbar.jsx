@@ -29,7 +29,6 @@ function NavbarSection({ children, ...props }) {
 
 function useNavbarActiveState() {
   const currentRoute = useCurrentRoute();
-  console.log("currentRoute: ", currentRoute);
 
   return useMemo(
     () => ({
