@@ -154,7 +154,7 @@ const config = {
         test: /\.css$/,
         use: [
           {
-            loader: isHotReloadingEnabled ? "style-loader" : MiniCssExtractPlugin.loader
+            loader: isDevelopment ? "style-loader" : MiniCssExtractPlugin.loader
           },
           {
             loader: "css-loader",
@@ -168,7 +168,7 @@ const config = {
         test: /\.less$/,
         use: [
           {
-            loader: isHotReloadingEnabled ? "style-loader" : MiniCssExtractPlugin.loader
+            loader: isDevelopment ? "style-loader" : MiniCssExtractPlugin.loader
           },
           {
             loader: "css-loader",
