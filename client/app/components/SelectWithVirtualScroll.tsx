@@ -12,7 +12,7 @@ interface VirtualScrollLabeledValue extends LabeledValue {
 interface VirtualScrollSelectProps extends SelectProps<string> {
   options: Array<VirtualScrollLabeledValue>;
 }
-function SelectWithVirtualScroll({ options, optionFilterProp, ...props }: VirtualScrollSelectProps): JSX.Element {
+function SelectWithVirtualScroll({ options, ...props }: VirtualScrollSelectProps): JSX.Element {
   const dropdownMatchSelectWidth = useMemo<number | boolean>(() => {
     if (options && options.length > MIN_LEN_FOR_VIRTUAL_SCROLL) {
       const largestOpt = maxBy(options, "label.length");
@@ -32,16 +32,12 @@ function SelectWithVirtualScroll({ options, optionFilterProp, ...props }: Virtua
     return false;
   }, [options]);
 
-  if (options) {
-    optionFilterProp = "label";
-  }
-
   return (
     <AntdSelect<string>
       dropdownMatchSelectWidth={dropdownMatchSelectWidth}
       options={options}
-      optionFilterProp={optionFilterProp}
       {...props}
+      optionFilterProp="label" // as this component expects "options" prop
     />
   );
 }
