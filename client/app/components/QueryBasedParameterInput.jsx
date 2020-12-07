@@ -89,7 +89,6 @@ export default class QueryBasedParameterInput extends React.Component {
           value={this.state.value}
           onChange={onSelect}
           options={map(options, ({ value, name }) => ({ label: String(name), value }))}
-          optionFilterProp="label"
           showSearch
           showArrow
           notFoundContent={isEmpty(options) ? "No options available" : null}
