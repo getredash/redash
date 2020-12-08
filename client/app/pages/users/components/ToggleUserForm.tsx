@@ -1,0 +1,56 @@
+import React, { useState, useCallback } from "react";
+import Button from "antd/lib/button";
+import DynamicComponent from "@/components/DynamicComponent";
+import { UserProfile } from "@/components/proptypes";
+import { currentUser } from "@/services/auth";
+import User from "@/services/user";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
+
+type OwnProps = {
+    user: UserProfile;
+    onChange?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof ToggleUserForm.defaultProps;
+
+export default function ToggleUserForm(props: Props) {
+  const { user, onChange } = props;
+
+  const [loading, setLoading] = useState(false);
+  const handleChange = useImmutableCallback(onChange);
+
+  const toggleUser = useCallback(() => {
+    const action = user.isDisabled ? User.enableUser : User.disableUser;
+    setLoading(true);
+    action(user)
+      .then(data => {
+        if (data) {
+          handleChange(User.convertUserInfo(data));
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [user, handleChange]);
+
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type '{ _isAdmin: ... Remove this comment to see the full error message
+  if (!currentUser.isAdmin || user.id === currentUser.id) {
+    return null;
+  }
+
+  const buttonProps = {
+    type: user.isDisabled ? "primary" : "danger",
+    children: user.isDisabled ? "Enable User" : "Disable User",
+  };
+
+  return (
+    <DynamicComponent name="UserProfile.ToggleUserForm">
+      {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ type: string; children: string; className:... Remove this comment to see the full error message */}
+      <Button className="w-100 m-t-10" onClick={toggleUser} loading={loading} {...buttonProps} />
+    </DynamicComponent>
+  );
+}
+
+ToggleUserForm.defaultProps = {
+  onChange: () => {},
+};

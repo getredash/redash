@@ -40,36 +40,52 @@ export interface Controller<I, P = any> {
   handleError: (error: any) => void; // TODO: Find out if error is string or object or Exception.
 }
 
-export const ControllerType = PropTypes.shape({
-  // values of props declared by wrapped component and some additional props from items list
-  params: PropTypes.object.isRequired,
+type ControllerType = {
+    params: any;
+    isLoaded: boolean;
+    isEmpty: boolean;
+    searchTerm?: string;
+    updateSearch: (...args: any[]) => any;
+    selectedTags: any[];
+    updateSelectedTags: (...args: any[]) => any;
+    orderByField?: string;
+    orderByReverse: boolean;
+    toggleSorting: (...args: any[]) => any;
+    page: number;
+    itemsPerPage: number;
+    totalItemsCount: number;
+    pageSizeOptions: number[];
+    pageItems: any[];
+    updatePagination: (...args: any[]) => any;
+    handleError: (...args: any[]) => any;
+};
 
-  isLoaded: PropTypes.bool.isRequired,
-  isEmpty: PropTypes.bool.isRequired,
-
-  // search
-  searchTerm: PropTypes.string,
-  updateSearch: PropTypes.func.isRequired, // (searchTerm: string) => void
-
-  // tags
-  selectedTags: PropTypes.array.isRequired,
-  updateSelectedTags: PropTypes.func.isRequired, // (selectedTags: array of tags) => void
-
-  // sorting
-  orderByField: PropTypes.string,
-  orderByReverse: PropTypes.bool.isRequired,
-  toggleSorting: PropTypes.func.isRequired, // (orderByField: string) => void
-
-  // pagination
-  page: PropTypes.number.isRequired,
-  itemsPerPage: PropTypes.number.isRequired,
-  totalItemsCount: PropTypes.number.isRequired,
-  pageSizeOptions: PropTypes.arrayOf(PropTypes.number).isRequired,
-  pageItems: PropTypes.array.isRequired,
-  updatePagination: PropTypes.func.isRequired, // ({ page: number, itemsPerPage: number }) => void
-
-  handleError: PropTypes.func.isRequired, // (error) => void
+// @ts-expect-error ts-migrate(2322) FIXME: Type 'Requireable<InferProps<{ params: Validator<o... Remove this comment to see the full error message
+const ControllerType: PropTypes.Requireable<ControllerType> = PropTypes.shape({
+    // values of props declared by wrapped component and some additional props from items list
+    params: PropTypes.object.isRequired,
+    isLoaded: PropTypes.bool.isRequired,
+    isEmpty: PropTypes.bool.isRequired,
+    // search
+    searchTerm: PropTypes.string,
+    updateSearch: PropTypes.func.isRequired,
+    // tags
+    selectedTags: PropTypes.array.isRequired,
+    updateSelectedTags: PropTypes.func.isRequired,
+    // sorting
+    orderByField: PropTypes.string,
+    orderByReverse: PropTypes.bool.isRequired,
+    toggleSorting: PropTypes.func.isRequired,
+    // pagination
+    page: PropTypes.number.isRequired,
+    itemsPerPage: PropTypes.number.isRequired,
+    totalItemsCount: PropTypes.number.isRequired,
+    pageSizeOptions: PropTypes.arrayOf(PropTypes.number).isRequired,
+    pageItems: PropTypes.array.isRequired,
+    updatePagination: PropTypes.func.isRequired,
+    handleError: PropTypes.func.isRequired,
 });
+export { ControllerType };
 
 export type GenericItemSourceError = AxiosError | Error;
 
