@@ -5,6 +5,9 @@ describe("Settings", () => {
   });
 
   it("renders the page and takes a screenshot", () => {
+    // wait for page elements to load
+    cy.getByTestId("DateFormatSelect");
+
     cy.percySnapshot("Organization Settings");
   });
 
