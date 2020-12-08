@@ -170,7 +170,7 @@ class User(
 
     @property
     def profile_image_url(self):
-        if self._profile_image_url is not None:
+        if self._profile_image_url:
             return self._profile_image_url
 
         email_md5 = hashlib.md5(self.email.lower().encode()).hexdigest()
