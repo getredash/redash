@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-// @ts-expect-error ts-migrate(7016) FIXME: Could not find a declaration file for module '@red... Remove this comment to see the full error message
+// @ts-expect-error (Must be removed after adding @redash/viz typing)
 import ErrorBoundary, { ErrorBoundaryContext } from "@redash/viz/lib/components/ErrorBoundary";
 import { Auth } from "@/services/auth";
 import { policy } from "@/services/policy";
@@ -61,7 +61,6 @@ export function UserSessionWrapper<P>({ bodyClass, currentRoute, render }: UserS
 
   return (
     <ApplicationLayout>
-      {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
       <React.Fragment key={currentRoute.key}>
         <ErrorBoundary renderError={(error: Error) => <ErrorMessage error={error} />}>
           <ErrorBoundaryContext.Consumer>

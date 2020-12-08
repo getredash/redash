@@ -143,7 +143,6 @@
     "request": "^2.88.0",
     "request-cookies": "^1.1.0",
     "style-loader": "^2.0.0",
-    "ts-migrate": "^0.1.10",
     "typescript": "^3.9.6",
     "url-loader": "^1.1.2",
     "webpack": "^4.44.2",
