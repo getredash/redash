@@ -31,7 +31,8 @@ const CONFIG = optionalRequire("./scripts/config", {});
 
 const isProduction = process.env.NODE_ENV === "production";
 const isDevelopment = !isProduction;
-const isHotReloadingEnabled = isDevelopment && process.env.HOT_RELOAD === "true";
+const isHotReloadingEnabled =
+  isDevelopment && process.env.HOT_RELOAD === "true";
 
 const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
 const baseHref = CONFIG.baseHref || "/";
@@ -154,7 +155,7 @@ const config = {
         test: /\.css$/,
         use: [
           {
-            loader: isHotReloadingEnabled ? "style-loader" : MiniCssExtractPlugin.loader
+            loader: isProduction ? MiniCssExtractPlugin.loader : "style-loader"
           },
           {
             loader: "css-loader",
@@ -168,7 +169,7 @@ const config = {
         test: /\.less$/,
         use: [
           {
-            loader: isHotReloadingEnabled ? "style-loader" : MiniCssExtractPlugin.loader
+            loader: isProduction ? MiniCssExtractPlugin.loader : "style-loader"
           },
           {
             loader: "css-loader",
