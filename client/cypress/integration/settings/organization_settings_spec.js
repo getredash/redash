@@ -5,13 +5,14 @@ describe("Settings", () => {
   });
 
   it("renders the page and takes a screenshot", () => {
-    // wait for page elements to load
-    cy.getByTestId("DateFormatSelect");
+    cy.getByTestId("OrganizationSettings").within(() => {
+      cy.getByTestId("TimeFormatSelect").should("contain", "HH:mm");
+    });
 
     cy.percySnapshot("Organization Settings");
   });
 
-  it("can set date format for the entire app", () => {
+  it("can set date format setting", () => {
     cy.getByTestId("DateFormatSelect").click();
     cy.getByTestId("DateFormatSelect:YYYY-MM-DD").click();
     cy.getByTestId("OrganizationSettingsSaveButton").click();
