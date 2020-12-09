@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 
 const VisualizationOptions = PropTypes.object;
+type VisualizationOptions = any;
 
 type Data = {
     columns: any[];
@@ -16,7 +17,6 @@ type VisualizationType = {
     id?: number;
     type: string;
     name: string;
-    // @ts-expect-error ts-migrate(2749) FIXME: 'VisualizationOptions' refers to a value, but is b... Remove this comment to see the full error message
     options: VisualizationOptions;
 };
 
