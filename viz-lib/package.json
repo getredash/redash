@@ -5,10 +5,10 @@
   "main": "dist/redash-visualizations.js",
   "scripts": {
     "clean": "rm -rf lib dist",
-    "build:babel": "babel src --out-dir lib --source-maps --ignore 'src/**/*.test.js' --copy-files --no-copy-ignored",
+    "build:babel": "babel src --out-dir lib --source-maps --ignore 'src/**/*.test.js' --copy-files --no-copy-ignored --extensions .ts,.tsx,.js,.jsx",
     "build:webpack": "webpack",
     "build": " NODE_ENV=production npm-run-all clean build:babel build:webpack",
-    "watch:babel": "babel src --watch --out-dir lib --source-maps --ignore 'src/**/*.test.js' --copy-files --no-copy-ignored",
+    "watch:babel": "npm run build:babel --watch",
     "watch:webpack": "webpack --watch",
     "watch": "npm-run-all --parallel watch:*",
     "version": "npm run build",
