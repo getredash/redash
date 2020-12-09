@@ -41,6 +41,7 @@
     "@types/debug": "^4.1.5",
     "@types/dompurify": "^2.0.4",
     "@types/enzyme": "^3.10.8",
+    "@types/jest": "^26.0.18",
     "@types/leaflet": "^1.5.19",
     "@types/numeral": "0.0.28",
     "@types/plotly.js": "^1.54.4",
