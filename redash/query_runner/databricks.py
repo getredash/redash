@@ -182,12 +182,7 @@ class Databricks(BaseSQLQueryRunner):
                     len(result_set) >= settings.DATABRICKS_ROW_LIMIT
                     and cursor.fetchone() is not None
                 ):
-                    # HACK: If this is a SQL endpoint (i.e. databricks_internal), "path" will exist
-                    endpoint_path = self.configuration.get("path", None)
-                    logger.warning(
-                        f"Truncated result set for query"
-                        f"path {endpoint_path}"
-                    )
+                    logger.warning("Truncated result set.")
                     statsd_client.incr("redash.query_runner.databricks.truncated")
                     data["truncated"] = True
                 json_data = json_dumps(data)
