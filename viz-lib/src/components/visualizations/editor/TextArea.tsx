@@ -5,7 +5,10 @@ import withControlLabel from "./withControlLabel";
 
 import "./TextArea.less";
 
-function TextArea({ className, ...otherProps }) {
+function TextArea({
+  className,
+  ...otherProps
+}: any) {
   return <AntInput.TextArea className={cx("visualization-editor-text-area", className)} {...otherProps} />;
 }
 

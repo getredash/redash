@@ -1,13 +1,21 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import { Section, Input, ContextHelp } from "@/components/visualizations/editor";
 import { createNumberFormatter } from "@/lib/value-format";
 
-function Editor({ column, onChange }) {
+type Props = {
+    column: {
+        name: string;
+        numberFormat?: string;
+    };
+    onChange: (...args: any[]) => any;
+};
+
+function Editor({ column, onChange }: Props) {
   const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
 
   return (
+    // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
     <Section>
       <Input
         label={
@@ -18,30 +26,24 @@ function Editor({ column, onChange }) {
         }
         data-test="Table.ColumnEditor.Number.Format"
         defaultValue={column.numberFormat}
-        onChange={event => onChangeDebounced({ numberFormat: event.target.value })}
+        onChange={(event: any) => onChangeDebounced({ numberFormat: event.target.value })}
       />
     </Section>
   );
 }
 
-Editor.propTypes = {
-  column: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    numberFormat: PropTypes.string,
-  }).isRequired,
-  onChange: PropTypes.func.isRequired,
-};
-
-export default function initNumberColumn(column) {
+export default function initNumberColumn(column: any) {
   const format = createNumberFormatter(column.numberFormat);
 
-  function prepareData(row) {
+  function prepareData(row: any) {
     return {
       text: format(row[column.name]),
     };
   }
 
-  function NumberColumn({ row }) {
+  function NumberColumn({
+    row
+  }: any) {
     // eslint-disable-line react/prop-types
     const { text } = prepareData(row);
     return text;

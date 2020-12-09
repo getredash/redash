@@ -3,11 +3,11 @@ import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
 import { ColorPaletteArray } from "@/visualizations/ColorPalette";
 import { cleanNumber, normalizeValue, getSeriesAxis } from "./utils";
 
-function getSeriesColor(seriesOptions, seriesIndex) {
+function getSeriesColor(seriesOptions: any, seriesIndex: any) {
   return seriesOptions.color || ColorPaletteArray[seriesIndex % ColorPaletteArray.length];
 }
 
-function getHoverInfoPattern(options) {
+function getHoverInfoPattern(options: any) {
   const hasX = /{{\s*@@x\s*}}/.test(options.textFormat);
   const hasName = /{{\s*@@name\s*}}/.test(options.textFormat);
   let result = "text";
@@ -16,7 +16,7 @@ function getHoverInfoPattern(options) {
   return result;
 }
 
-function prepareBarSeries(series, options, additionalOptions) {
+function prepareBarSeries(series: any, options: any, additionalOptions: any) {
   series.type = "bar";
   series.offsetgroup = toString(additionalOptions.index);
   if (options.showDataLabels) {
@@ -25,24 +25,27 @@ function prepareBarSeries(series, options, additionalOptions) {
   return series;
 }
 
-function prepareLineSeries(series, options) {
+function prepareLineSeries(series: any, options: any) {
   series.mode = "lines" + (options.showDataLabels ? "+text" : "");
   return series;
 }
 
-function prepareAreaSeries(series, options) {
+function prepareAreaSeries(series: any, options: any) {
   series.mode = "lines" + (options.showDataLabels ? "+text" : "");
   series.fill = options.series.stacking ? "tonexty" : "tozeroy";
   return series;
 }
 
-function prepareScatterSeries(series, options) {
+function prepareScatterSeries(series: any, options: any) {
   series.type = "scatter";
   series.mode = "markers" + (options.showDataLabels ? "+text" : "");
   return series;
 }
 
-function prepareBubbleSeries(series, options, { seriesColor, data }) {
+function prepareBubbleSeries(series: any, options: any, {
+  seriesColor,
+  data
+}: any) {
   const coefficient = options.coefficient || 1;
   series.mode = "markers";
   series.marker = {
@@ -53,7 +56,9 @@ function prepareBubbleSeries(series, options, { seriesColor, data }) {
   return series;
 }
 
-function prepareBoxSeries(series, options, { seriesColor }) {
+function prepareBoxSeries(series: any, options: any, {
+  seriesColor
+}: any) {
   series.type = "box";
   series.mode = "markers";
 
@@ -71,7 +76,7 @@ function prepareBoxSeries(series, options, { seriesColor }) {
   return series;
 }
 
-function prepareSeries(series, options, additionalOptions) {
+function prepareSeries(series: any, options: any, additionalOptions: any) {
   const { hoverInfoPattern, index } = additionalOptions;
 
   const seriesOptions = extend({ type: options.globalSeriesType, yAxis: 0 }, options.seriesOptions[series.name]);
@@ -85,15 +90,15 @@ function prepareSeries(series, options, additionalOptions) {
   // for other types `y` is always number
   const cleanYValue = includes(["bubble", "scatter"], seriesOptions.type)
     ? normalizeValue
-    : v => {
+    : (v: any) => {
         v = cleanNumber(v);
         return options.missingValuesAsZero && isNil(v) ? 0.0 : v;
       };
 
   const sourceData = new Map();
-  const xValues = [];
-  const yValues = [];
-  const yErrorValues = [];
+  const xValues: any = [];
+  const yValues: any = [];
+  const yErrorValues: any = [];
   each(data, row => {
     const x = normalizeValue(row.x, options.xAxis.type); // number/datetime/category
     const y = cleanYValue(row.y, seriesYAxis === "y2" ? options.yAxis[1].type : options.yAxis[0].type); // depends on series type!
@@ -136,10 +141,13 @@ function prepareSeries(series, options, additionalOptions) {
     case "column":
       return prepareBarSeries(plotlySeries, options, additionalOptions);
     case "line":
+      // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 3.
       return prepareLineSeries(plotlySeries, options, additionalOptions);
     case "area":
+      // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 3.
       return prepareAreaSeries(plotlySeries, options, additionalOptions);
     case "scatter":
+      // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 3.
       return prepareScatterSeries(plotlySeries, options, additionalOptions);
     case "bubble":
       return prepareBubbleSeries(plotlySeries, options, additionalOptions);
@@ -150,7 +158,7 @@ function prepareSeries(series, options, additionalOptions) {
   }
 }
 
-export default function prepareDefaultData(seriesList, options) {
+export default function prepareDefaultData(seriesList: any, options: any) {
   const additionalOptions = {
     hoverInfoPattern: getHoverInfoPattern(options),
   };

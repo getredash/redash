@@ -1,6 +1,5 @@
 import { filter, includes, map } from "lodash";
 import React, { useMemo } from "react";
-import PropTypes from "prop-types";
 import { Select } from "@/components/visualizations/editor";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
@@ -15,7 +14,13 @@ const allChartTypes = [
   { type: "box", name: "Box", icon: "square-o" },
 ];
 
-export default function ChartTypeSelect({ hiddenChartTypes, ...props }) {
+type OwnProps = {
+    hiddenChartTypes?: any[]; // TODO: PropTypes.oneOf(map(allChartTypes, "type"))
+};
+
+type Props = OwnProps & typeof ChartTypeSelect.defaultProps;
+
+export default function ChartTypeSelect({ hiddenChartTypes, ...props }: Props) {
   const chartTypes = useMemo(() => {
     const result = [...allChartTypes];
 
@@ -33,18 +38,16 @@ export default function ChartTypeSelect({ hiddenChartTypes, ...props }) {
   return (
     <Select {...props}>
       {map(chartTypes, ({ type, name, icon }) => (
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
         <Select.Option key={type} value={type} data-test={`Chart.ChartType.${type}`}>
           <i className={`fa fa-${icon}`} style={{ marginRight: 5 }} />
           {name}
+        {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
         </Select.Option>
       ))}
     </Select>
   );
 }
-
-ChartTypeSelect.propTypes = {
-  hiddenChartTypes: PropTypes.arrayOf(PropTypes.oneOf(map(allChartTypes, "type"))),
-};
 
 ChartTypeSelect.defaultProps = {
   hiddenChartTypes: [],

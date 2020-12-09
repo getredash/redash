@@ -1,6 +1,6 @@
 import { isNil, isObject, each, forOwn, sortBy, values } from "lodash";
 
-function addPointToSeries(point, seriesCollection, seriesName) {
+function addPointToSeries(point: any, seriesCollection: any, seriesName: any) {
   if (seriesCollection[seriesName] === undefined) {
     seriesCollection[seriesName] = {
       name: seriesName,
@@ -12,7 +12,7 @@ function addPointToSeries(point, seriesCollection, seriesName) {
   seriesCollection[seriesName].data.push(point);
 }
 
-export default function getChartData(data, options) {
+export default function getChartData(data: any, options: any) {
   const series = {};
 
   const mappings = options.columnMapping;
@@ -22,9 +22,9 @@ export default function getChartData(data, options) {
     let seriesName = null;
     let xValue = 0;
     const yValues = {};
-    let eValue = null;
-    let sizeValue = null;
-    let zValue = null;
+    let eValue: any = null;
+    let sizeValue: any = null;
+    let zValue: any = null;
 
     forOwn(row, (value, definition) => {
       definition = "" + definition;
@@ -38,14 +38,18 @@ export default function getChartData(data, options) {
 
       if (type === "x") {
         xValue = value;
+        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         point[type] = value;
       }
       if (type === "y") {
+        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         yValues[name] = value;
+        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         point[type] = value;
       }
       if (type === "yError") {
         eValue = value;
+        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         point[type] = value;
       }
 
@@ -54,11 +58,13 @@ export default function getChartData(data, options) {
       }
 
       if (type === "size") {
+        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         point[type] = value;
         sizeValue = value;
       }
 
       if (type === "zVal") {
+        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         point[type] = value;
         zValue = value;
       }
@@ -70,16 +76,20 @@ export default function getChartData(data, options) {
 
     if (isNil(seriesName)) {
       each(yValues, (yValue, ySeriesName) => {
+        // @ts-expect-error ts-migrate(2322) FIXME: Type '{ x: number; y: never; $raw: any; }' is not ... Remove this comment to see the full error message
         point = { x: xValue, y: yValue, $raw: point.$raw };
         if (eValue !== null) {
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'yError' does not exist on type '{ $raw: ... Remove this comment to see the full error message
           point.yError = eValue;
         }
 
         if (sizeValue !== null) {
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'size' does not exist on type '{ $raw: an... Remove this comment to see the full error message
           point.size = sizeValue;
         }
 
         if (zValue !== null) {
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'zVal' does not exist on type '{ $raw: an... Remove this comment to see the full error message
           point.zVal = zValue;
         }
         addPointToSeries(point, series, ySeriesName);

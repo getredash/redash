@@ -12,9 +12,9 @@ const urlPattern = /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
-export function createTextFormatter(highlightLinks) {
+export function createTextFormatter(highlightLinks: any) {
   if (highlightLinks) {
-    return value => {
+    return (value: any) => {
       if (isString(value)) {
         const Link = visualizationsSettings.LinkComponent;
         value = value.replace(urlPattern, (unused, prefix, href) => {
@@ -29,10 +29,10 @@ export function createTextFormatter(highlightLinks) {
       return toString(value);
     };
   }
-  return value => toString(value);
+  return (value: any) => toString(value);
 }
 
-function toMoment(value) {
+function toMoment(value: any) {
   if (moment.isMoment(value)) {
     return value;
   }
@@ -43,21 +43,21 @@ function toMoment(value) {
   return moment(toString(value), [moment.ISO_8601, moment.RFC_2822]);
 }
 
-export function createDateTimeFormatter(format) {
+export function createDateTimeFormatter(format: any) {
   if (isString(format) && format !== "") {
-    return value => {
+    return (value: any) => {
       const wrapped = toMoment(value);
       return wrapped.isValid() ? wrapped.format(format) : toString(value);
     };
   }
-  return value => toString(value);
+  return (value: any) => toString(value);
 }
 
-export function createBooleanFormatter(values) {
+export function createBooleanFormatter(values: any) {
   if (isArray(values)) {
     if (values.length >= 2) {
       // Both `true` and `false` specified
-      return value => {
+      return (value: any) => {
         if (isNil(value)) {
           return "";
         }
@@ -65,10 +65,10 @@ export function createBooleanFormatter(values) {
       };
     } else if (values.length === 1) {
       // Only `true`
-      return value => (value ? values[0] : "");
+      return (value: any) => value ? values[0] : "";
     }
   }
-  return value => {
+  return (value: any) => {
     if (isNil(value)) {
       return "";
     }
@@ -76,15 +76,15 @@ export function createBooleanFormatter(values) {
   };
 }
 
-export function createNumberFormatter(format) {
+export function createNumberFormatter(format: any) {
   if (isString(format) && format !== "") {
     const n = numeral(0); // cache `numeral` instance
-    return value => (value === null || value === "" ? "" : n.set(value).format(format));
+    return (value: any) => value === null || value === "" ? "" : n.set(value).format(format);
   }
-  return value => toString(value);
+  return (value: any) => toString(value);
 }
 
-export function formatSimpleTemplate(str, data) {
+export function formatSimpleTemplate(str: any, data: any) {
   if (!isString(str)) {
     return "";
   }

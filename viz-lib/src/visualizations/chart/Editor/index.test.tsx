@@ -4,15 +4,15 @@ import enzyme from "enzyme";
 import getOptions from "../getOptions";
 import Editor from "./index";
 
-function findByTestID(wrapper, testId) {
+function findByTestID(wrapper: any, testId: any) {
   return wrapper.find(`[data-test="${testId}"]`);
 }
 
-function elementExists(wrapper, testId) {
+function elementExists(wrapper: any, testId: any) {
   return findByTestID(wrapper, testId).length > 0;
 }
 
-function mount(options, data) {
+function mount(options: any, data: any) {
   options = getOptions(options);
   return enzyme.mount(<Editor visualizationName="Test" data={data} options={options} onOptionsChange={() => {}} />);
 }

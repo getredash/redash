@@ -12,7 +12,7 @@ const defaultColorScheme = [
   [1, "#e92827"],
 ];
 
-function prepareSeries(series, options, additionalOptions) {
+function prepareSeries(series: any, options: any, additionalOptions: any) {
   const { colorScheme, formatNumber } = additionalOptions;
 
   const plotlySeries = {
@@ -24,7 +24,9 @@ function prepareSeries(series, options, additionalOptions) {
     colorscale: colorScheme,
   };
 
+  // @ts-expect-error ts-migrate(2322) FIXME: Type 'any[]' is not assignable to type 'never[]'.
   plotlySeries.x = uniq(map(series.data, v => v.x));
+  // @ts-expect-error ts-migrate(2322) FIXME: Type 'any[]' is not assignable to type 'never[]'.
   plotlySeries.y = uniq(map(series.data, v => v.y));
 
   if (options.sortX) {
@@ -69,14 +71,18 @@ function prepareSeries(series, options, additionalOptions) {
       if (isFinite(zMax) && options.showDataLabels) {
         dataLabels.x.push(plotlySeries.x[j]);
         dataLabels.y.push(plotlySeries.y[i]);
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'any' is not assignable to parame... Remove this comment to see the full error message
         dataLabels.text.push(formatNumber(zValue));
         if (options.colorScheme && options.colorScheme === "Custom...") {
+          // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
           dataLabels.textfont.color.push("white");
         } else {
+          // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
           dataLabels.textfont.color.push(zValue / zMax < 0.25 ? "white" : "black");
         }
       }
     }
+    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'any[]' is not assignable to para... Remove this comment to see the full error message
     plotlySeries.z.push(item);
   }
 
@@ -86,7 +92,7 @@ function prepareSeries(series, options, additionalOptions) {
   return [plotlySeries];
 }
 
-export default function prepareHeatmapData(seriesList, options) {
+export default function prepareHeatmapData(seriesList: any, options: any) {
   let colorScheme = [];
 
   if (!options.colorScheme) {

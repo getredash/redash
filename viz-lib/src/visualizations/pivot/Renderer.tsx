@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { get, find, pick, map, mapValues } from "lodash";
+// @ts-expect-error ts-migrate(7016) FIXME: Could not find a declaration file for module 'reac... Remove this comment to see the full error message
 import PivotTableUI from "react-pivottable/PivotTableUI";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 import { formatColumnValue } from "@/lib/utils";
@@ -27,11 +28,18 @@ const VALID_OPTIONS = [
   "rendererOptions",
 ];
 
-function formatRows({ rows, columns }) {
+function formatRows({
+  rows,
+  columns
+}: any) {
   return map(rows, row => mapValues(row, (value, key) => formatColumnValue(value, find(columns, { name: key }).type)));
 }
 
-export default function Renderer({ data, options, onOptionsChange }) {
+export default function Renderer({
+  data,
+  options,
+  onOptionsChange
+}: any) {
   const [config, setConfig] = useState({ ...options });
   const dataRows = useMemo(() => formatRows(data), [data]);
 
@@ -39,7 +47,7 @@ export default function Renderer({ data, options, onOptionsChange }) {
     setConfig({ ...options });
   }, [options]);
 
-  const onChange = updatedOptions => {
+  const onChange = (updatedOptions: any) => {
     const validOptions = pick(updatedOptions, VALID_OPTIONS);
     setConfig({ ...validOptions });
     onOptionsChange(validOptions);

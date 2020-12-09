@@ -24,7 +24,7 @@ const DEFAULT_OPTIONS = {
   },
 };
 
-export default function getOptions(options) {
+export default function getOptions(options: any) {
   options = merge({}, DEFAULT_OPTIONS, options);
   options.mapTileUrl = options.mapTileUrl || DEFAULT_OPTIONS.mapTileUrl;
 

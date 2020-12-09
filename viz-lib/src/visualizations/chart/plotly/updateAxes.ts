@@ -1,14 +1,14 @@
 import { isObject, isNumber, each } from "lodash";
 
-function calculateAxisRange(range, min, max) {
+function calculateAxisRange(range: any, min: any, max: any) {
   return [isNumber(min) ? min : range[0], isNumber(max) ? max : range[1]];
 }
 
-function calculateAbsoluteDiff(value, totalRange, percentageDiff) {
+function calculateAbsoluteDiff(value: any, totalRange: any, percentageDiff: any) {
   return (percentageDiff * totalRange) / (1 - Math.abs(value) / totalRange - percentageDiff);
 }
 
-function alignYAxesAtZero(axisA, axisB) {
+function alignYAxesAtZero(axisA: any, axisB: any) {
   // Make sure the origin is included in both axes
   axisA.range[1] = Math.max(0, axisA.range[1]);
   axisB.range[1] = Math.max(0, axisB.range[1]);
@@ -40,9 +40,10 @@ function alignYAxesAtZero(axisA, axisB) {
   }
 }
 
-export default function updateAxes(plotlyElement, seriesList, layout, options) {
+export default function updateAxes(plotlyElement: any, seriesList: any, layout: any, options: any) {
   const updates = {};
   if (isObject(layout.yaxis)) {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'yaxis' does not exist on type '{}'.
     updates.yaxis = {
       ...layout.yaxis,
       autorange: true,
@@ -50,6 +51,7 @@ export default function updateAxes(plotlyElement, seriesList, layout, options) {
     };
   }
   if (isObject(layout.yaxis2)) {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'yaxis2' does not exist on type '{}'.
     updates.yaxis2 = {
       ...layout.yaxis2,
       autorange: true,
@@ -64,14 +66,18 @@ export default function updateAxes(plotlyElement, seriesList, layout, options) {
       if (isObject(layout.yaxis)) {
         const axisOptions = options.yAxis[0];
         const defaultRange = plotlyElement.layout.yaxis.range;
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'yaxis' does not exist on type '{}'.
         updates.yaxis.autorange = false;
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'yaxis' does not exist on type '{}'.
         updates.yaxis.range = calculateAxisRange(defaultRange, axisOptions.rangeMin, axisOptions.rangeMax);
       }
 
       if (isObject(layout.yaxis2)) {
         const axisOptions = options.yAxis[1];
         const defaultRange = plotlyElement.layout.yaxis2.range;
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'yaxis2' does not exist on type '{}'.
         updates.yaxis2.autorange = false;
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'yaxis2' does not exist on type '{}'.
         updates.yaxis2.range = calculateAxisRange(defaultRange, axisOptions.rangeMin, axisOptions.rangeMax);
       }
 
@@ -85,19 +91,24 @@ export default function updateAxes(plotlyElement, seriesList, layout, options) {
         });
 
         const { xaxis } = layout;
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'yaxis' does not exist on type '{}'.
         const { yaxis, yaxis2 } = updates;
 
         if (isObject(xaxis) && isObject(yaxis)) {
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'xaxis' does not exist on type '{}'.
           updates.xaxis = yaxis;
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'yaxis' does not exist on type '{}'.
           updates.yaxis = xaxis;
         }
         if (isObject(yaxis2)) {
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'yaxis2' does not exist on type '{}'.
           updates.yaxis2 = null;
         }
       }
 
       // Align Y axes
       if (options.alignYAxesAtZero && isObject(layout.yaxis) && isObject(layout.yaxis2)) {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'yaxis' does not exist on type '{}'.
         alignYAxesAtZero(updates.yaxis, updates.yaxis2);
       }
 

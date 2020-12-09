@@ -1,13 +1,22 @@
 import React, { useMemo } from "react";
 import cx from "classnames";
-import PropTypes from "prop-types";
 import hoistNonReactStatics from "hoist-non-react-statics";
 import * as Grid from "antd/lib/grid";
 import Typography from "antd/lib/typography";
 
 import "./control-label.less";
 
-export function ControlLabel({ layout, label, labelProps, disabled, children }) {
+type OwnProps = {
+    layout?: "vertical" | "horizontal";
+    label?: React.ReactNode;
+    labelProps?: any;
+    disabled?: boolean;
+    children?: React.ReactNode;
+};
+
+type Props = OwnProps & typeof ControlLabel.defaultProps;
+
+export function ControlLabel({ layout, label, labelProps, disabled, children }: Props) {
   if (layout === "vertical" && label) {
     return (
       <div className="visualization-editor-control-label visualization-editor-control-label-vertical">
@@ -23,6 +32,7 @@ export function ControlLabel({ layout, label, labelProps, disabled, children }) 
     return (
       <Grid.Row
         className="visualization-editor-control-label visualization-editor-control-label-horizontal"
+        // @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: Element[]; className: string; ty... Remove this comment to see the full error message
         type="flex"
         align="middle"
         gutter={15}>
@@ -39,14 +49,6 @@ export function ControlLabel({ layout, label, labelProps, disabled, children }) 
   return children;
 }
 
-ControlLabel.propTypes = {
-  layout: PropTypes.oneOf(["vertical", "horizontal"]),
-  label: PropTypes.node,
-  labelProps: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  disabled: PropTypes.bool,
-  children: PropTypes.node,
-};
-
 ControlLabel.defaultProps = {
   layout: "vertical",
   label: null,
@@ -54,9 +56,17 @@ ControlLabel.defaultProps = {
   children: null,
 };
 
-export default function withControlLabel(WrappedControl) {
+export default function withControlLabel(WrappedControl: any) {
   // eslint-disable-next-line react/prop-types
-  function ControlWrapper({ className, id, layout, label, labelProps, disabled, ...props }) {
+  function ControlWrapper({
+    className,
+    id,
+    layout,
+    label,
+    labelProps,
+    disabled,
+    ...props
+  }: any) {
     const fallbackId = useMemo(
       () =>
         `visualization-editor-control-${Math.random()
@@ -71,6 +81,7 @@ export default function withControlLabel(WrappedControl) {
 
     return (
       <ControlLabel layout={layout} label={label} labelProps={labelProps} disabled={disabled}>
+        {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
         <WrappedControl
           className={cx("visualization-editor-input", className)}
           id={labelProps.htmlFor}

@@ -7,39 +7,44 @@ const momentInterval = {
   monthly: "months",
 };
 
-function groupData(sortedData) {
+function groupData(sortedData: any) {
   const result = {};
 
   _.each(sortedData, item => {
     const date = moment(item.date);
     const groupKey = date.valueOf();
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     result[groupKey] = result[groupKey] || {
       date,
       total: parseInt(item.total, 10) || 0,
       values: {},
     };
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     result[groupKey].values[item.stage] = parseInt(item.value, 10) || null;
   });
 
   return _.values(result);
 }
 
-function prepareDiagonalData(sortedData, options) {
+function prepareDiagonalData(sortedData: any, options: any) {
   const timeInterval = options.timeInterval;
   const grouped = groupData(sortedData);
   const firstStage = _.min(_.map(sortedData, i => i.stage));
+  // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
   const stageCount = moment(_.last(grouped).date).diff(_.first(grouped).date, momentInterval[timeInterval]);
   let lastStage = firstStage + stageCount;
 
-  let previousDate = null;
+  let previousDate: any = null;
 
-  const data = [];
+  const data: any = [];
   _.each(grouped, group => {
     if (previousDate !== null) {
+      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
       let diff = Math.abs(previousDate.diff(group.date, momentInterval[timeInterval]));
       while (diff > 1) {
         const row = [0];
         for (let stage = firstStage; stage <= lastStage; stage += 1) {
+          // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
           row.push(group.values[stage] || 0);
         }
         data.push(row);
@@ -49,10 +54,13 @@ function prepareDiagonalData(sortedData, options) {
       }
     }
 
+    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
     previousDate = group.date;
 
+    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
     const row = [group.total];
     for (let stage = firstStage; stage <= lastStage; stage += 1) {
+      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
       row.push(group.values[stage] || 0);
     }
     // It should be diagonal, so decrease count of stages for each next row
@@ -64,18 +72,19 @@ function prepareDiagonalData(sortedData, options) {
   return data;
 }
 
-function prepareSimpleData(sortedData, options) {
+function prepareSimpleData(sortedData: any, options: any) {
   const timeInterval = options.timeInterval;
   const grouped = groupData(sortedData);
   const stages = _.map(sortedData, i => i.stage);
   const firstStage = _.min(stages);
   const lastStage = _.max(stages);
 
-  let previousDate = null;
+  let previousDate: any = null;
 
-  const data = [];
+  const data: any = [];
   _.each(grouped, group => {
     if (previousDate !== null) {
+      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
       let diff = Math.abs(previousDate.diff(group.date, momentInterval[timeInterval]));
       while (diff > 1) {
         data.push([0]);
@@ -83,10 +92,13 @@ function prepareSimpleData(sortedData, options) {
       }
     }
 
+    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
     previousDate = group.date;
 
+    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
     const row = [group.total];
     for (let stage = firstStage; stage <= lastStage; stage += 1) {
+      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
       row.push(group.values[stage]);
     }
 
@@ -96,7 +108,7 @@ function prepareSimpleData(sortedData, options) {
   return data;
 }
 
-function isDataValid(rawData, options) {
+function isDataValid(rawData: any, options: any) {
   const columnNames = _.map(rawData.columns, c => c.name);
   return (
     rawData.rows.length > 0 &&
@@ -107,7 +119,7 @@ function isDataValid(rawData, options) {
   );
 }
 
-export default function prepareData(rawData, options) {
+export default function prepareData(rawData: any, options: any) {
   if (!isDataValid(rawData, options)) {
     return { data: [], initialDate: null };
   }

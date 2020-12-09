@@ -6,8 +6,8 @@ import { RendererPropTypes } from "@/visualizations/prop-types";
 import box from "./d3box";
 import "./renderer.less";
 
-function calcIqr(k) {
-  return d => {
+function calcIqr(k: any) {
+  return (d: any) => {
     const q1 = d.quartiles[0];
     const q3 = d.quartiles[2];
     const iqr = (q3 - q1) * k;
@@ -29,7 +29,10 @@ function calcIqr(k) {
   };
 }
 
-function render(container, data, { xAxisLabel, yAxisLabel }) {
+function render(container: any, data: any, {
+  xAxisLabel,
+  yAxisLabel
+}: any) {
   container = d3.select(container);
 
   const containerBounds = container.node().getBoundingClientRect();
@@ -48,11 +51,12 @@ function render(container, data, { xAxisLabel, yAxisLabel }) {
 
   let min = Infinity;
   let max = -Infinity;
-  const mydata = [];
+  const mydata: any = [];
   let value = 0;
   let d = [];
 
   const columns = map(data.columns, col => col.name);
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
   const xscale = d3.scale
     .ordinal()
     .domain(columns)
@@ -76,6 +80,7 @@ function render(container, data, { xAxisLabel, yAxisLabel }) {
     });
   });
 
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
   const yscale = d3.scale
     .linear()
     .domain([min * 0.99, max * 1.01])
@@ -83,32 +88,37 @@ function render(container, data, { xAxisLabel, yAxisLabel }) {
 
   const chart = box()
     .whiskers(calcIqr(1.5))
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'width' does not exist on type '{ (g: any... Remove this comment to see the full error message
     .width(boxWidth - 2 * margin.inner)
     .height(height)
     .domain([min * 0.99, max * 1.01]);
   const xAxis = d3.svg
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'axis' does not exist on type '(url: stri... Remove this comment to see the full error message
     .axis()
     .scale(xscale)
     .orient("bottom");
 
   const yAxis = d3.svg
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'axis' does not exist on type '(url: stri... Remove this comment to see the full error message
     .axis()
     .scale(yscale)
     .orient("left");
 
   const xLines = d3.svg
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'axis' does not exist on type '(url: stri... Remove this comment to see the full error message
     .axis()
     .scale(xscale)
     .tickSize(height)
     .orient("bottom");
 
   const yLines = d3.svg
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'axis' does not exist on type '(url: stri... Remove this comment to see the full error message
     .axis()
     .scale(yscale)
     .tickSize(width)
     .orient("right");
 
-  function barOffset(i) {
+  function barOffset(i: any) {
     return xscale(columns[i]) + (xscale(columns[1]) - margin.inner) / 2.0;
   }
 
@@ -174,11 +184,14 @@ function render(container, data, { xAxisLabel, yAxisLabel }) {
     .attr("class", "box")
     .attr("width", boxWidth)
     .attr("height", height)
-    .attr("transform", (_, i) => `translate(${barOffset(i)},${0})`)
+    .attr("transform", (_: any, i: any) => `translate(${barOffset(i)},${0})`)
     .call(chart);
 }
 
-export default function Renderer({ data, options }) {
+export default function Renderer({
+  data,
+  options
+}: any) {
   const [container, setContainer] = useState(null);
 
   useEffect(() => {
@@ -191,6 +204,7 @@ export default function Renderer({ data, options }) {
     }
   }, [container, data, options]);
 
+  // @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<null>>' is not assig... Remove this comment to see the full error message
   return <div className="box-plot-deprecated-visualization-container" ref={setContainer} />;
 }
 

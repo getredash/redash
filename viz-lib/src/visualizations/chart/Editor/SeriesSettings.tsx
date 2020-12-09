@@ -4,20 +4,21 @@ import { useDebouncedCallback } from "use-debounce";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
 import Radio from "antd/lib/radio";
+// @ts-expect-error ts-migrate(2724) FIXME: Module '"../../../../node_modules/react-sortable-h... Remove this comment to see the full error message
 import { sortableElement } from "react-sortable-hoc";
 import { SortableContainer, DragHandle } from "@/components/sortable";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 import ChartTypeSelect from "./ChartTypeSelect";
 import getChartData from "../getChartData";
 
-const SortableBodyRow = sortableElement(props => <tr {...props} />);
+const SortableBodyRow = sortableElement((props: any) => <tr {...props} />);
 
-function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOption) {
+function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateSeriesOption: any) {
   const result = [
     {
       title: "Order",
       dataIndex: "zIndex",
-      render: (unused, item) => (
+      render: (unused: any, item: any) => (
         <span className="series-settings-order">
           <DragHandle />
           {item.zIndex + 1}
@@ -27,7 +28,7 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
     {
       title: "Label",
       dataIndex: "name",
-      render: (unused, item) => (
+      render: (unused: any, item: any) => (
         <Input
           data-test={`Chart.Series.${item.key}.Label`}
           placeholder={item.key}
@@ -67,8 +68,9 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
           data-test={`Chart.Series.${item.key}.Type`}
           dropdownMatchSelectWidth={false}
           value={item.type}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           hiddenChartTypes={["pie", "heatmap", "bubble", "box"]}
-          onChange={value => updateSeriesOption(item.key, "type", value)}
+          onChange={(value: any) => updateSeriesOption(item.key, "type", value)}
         />
       ),
     });
@@ -77,7 +79,11 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
   return result;
 }
 
-export default function SeriesSettings({ options, data, onOptionsChange }) {
+export default function SeriesSettings({
+  options,
+  data,
+  onOptionsChange
+}: any) {
   const series = useMemo(
     () =>
       map(
@@ -92,6 +98,7 @@ export default function SeriesSettings({ options, data, onOptionsChange }) {
     ({ oldIndex, newIndex }) => {
       const seriesOptions = [...series];
       seriesOptions.splice(newIndex, 0, ...seriesOptions.splice(oldIndex, 1));
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'key' does not exist on type 'Boolean'.
       onOptionsChange({ seriesOptions: fromPairs(map(seriesOptions, ({ key }, zIndex) => [key, { zIndex }])) });
     },
     [onOptionsChange, series]
@@ -124,12 +131,14 @@ export default function SeriesSettings({ options, data, onOptionsChange }) {
       lockToContainerEdges
       useDragHandle
       helperClass="chart-editor-series-dragged-item"
-      helperContainer={container => container.querySelector("tbody")}
+      helperContainer={(container: any) => container.querySelector("tbody")}
       onSortEnd={handleSortEnd}
       containerProps={{
         className: "chart-editor-series",
       }}>
+      {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
       <Table
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean[]' is not assignable to type 'object... Remove this comment to see the full error message
         dataSource={series}
         columns={columns}
         components={{
@@ -137,6 +146,7 @@ export default function SeriesSettings({ options, data, onOptionsChange }) {
             row: SortableBodyRow,
           },
         }}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type '(item: object) => { index: any; }' is not as... Remove this comment to see the full error message
         onRow={item => ({ index: item.zIndex })}
         pagination={false}
       />

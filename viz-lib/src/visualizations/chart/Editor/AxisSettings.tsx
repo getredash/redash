@@ -1,17 +1,35 @@
 import { isString, isObject, isFinite, isNumber, merge } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import * as Grid from "antd/lib/grid";
 import { Section, Select, Input, InputNumber } from "@/components/visualizations/editor";
 
-function toNumber(value) {
+function toNumber(value: any) {
   value = isNumber(value) ? value : parseFloat(value);
   return isFinite(value) ? value : null;
 }
 
-export default function AxisSettings({ id, options, features, onChange }) {
-  function optionsChanged(newOptions) {
+type OwnProps = {
+    id: string;
+    options: {
+        type: string;
+        title?: {
+            text?: string;
+        };
+        rangeMin?: number;
+        rangeMax?: number;
+    };
+    features?: {
+        autoDetectType?: boolean;
+        range?: boolean;
+    };
+    onChange?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof AxisSettings.defaultProps;
+
+export default function AxisSettings({ id, options, features, onChange }: Props) {
+  function optionsChanged(newOptions: any) {
     onChange(merge({}, options, newOptions));
   }
 
@@ -24,43 +42,57 @@ export default function AxisSettings({ id, options, features, onChange }) {
 
   return (
     <React.Fragment>
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
           label="Scale"
           data-test={`Chart.${id}.Type`}
           defaultValue={options.type}
-          onChange={type => optionsChanged({ type })}>
+          onChange={(type: any) => optionsChanged({ type })}>
           {features.autoDetectType && (
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option value="-" data-test={`Chart.${id}.Type.Auto`}>
               Auto Detect
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             </Select.Option>
           )}
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option value="datetime" data-test={`Chart.${id}.Type.DateTime`}>
             Datetime
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           </Select.Option>
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option value="linear" data-test={`Chart.${id}.Type.Linear`}>
             Linear
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           </Select.Option>
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option value="logarithmic" data-test={`Chart.${id}.Type.Logarithmic`}>
             Logarithmic
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           </Select.Option>
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option value="category" data-test={`Chart.${id}.Type.Category`}>
             Category
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           </Select.Option>
         </Select>
       </Section>
 
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label="Name"
           data-test={`Chart.${id}.Name`}
           defaultValue={isObject(options.title) ? options.title.text : null}
-          onChange={event => handleNameChange(event.target.value)}
+          onChange={(event: any) => handleNameChange(event.target.value)}
         />
       </Section>
 
       {features.range && (
+        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: Element[]; gutter: number; type:... Remove this comment to see the full error message */}
           <Grid.Row gutter={15} type="flex" align="middle">
             <Grid.Col span={12}>
               <InputNumber
@@ -68,7 +100,7 @@ export default function AxisSettings({ id, options, features, onChange }) {
                 placeholder="Auto"
                 data-test={`Chart.${id}.RangeMin`}
                 defaultValue={toNumber(options.rangeMin)}
-                onChange={value => handleMinMaxChange({ rangeMin: toNumber(value) })}
+                onChange={(value: any) => handleMinMaxChange({ rangeMin: toNumber(value) })}
               />
             </Grid.Col>
             <Grid.Col span={12}>
@@ -77,7 +109,7 @@ export default function AxisSettings({ id, options, features, onChange }) {
                 placeholder="Auto"
                 data-test={`Chart.${id}.RangeMax`}
                 defaultValue={toNumber(options.rangeMax)}
-                onChange={value => handleMinMaxChange({ rangeMax: toNumber(value) })}
+                onChange={(value: any) => handleMinMaxChange({ rangeMax: toNumber(value) })}
               />
             </Grid.Col>
           </Grid.Row>
@@ -86,23 +118,6 @@ export default function AxisSettings({ id, options, features, onChange }) {
     </React.Fragment>
   );
 }
-
-AxisSettings.propTypes = {
-  id: PropTypes.string.isRequired,
-  options: PropTypes.shape({
-    type: PropTypes.string.isRequired,
-    title: PropTypes.shape({
-      text: PropTypes.string,
-    }),
-    rangeMin: PropTypes.number,
-    rangeMax: PropTypes.number,
-  }).isRequired,
-  features: PropTypes.shape({
-    autoDetectType: PropTypes.bool,
-    range: PropTypes.bool,
-  }),
-  onChange: PropTypes.func,
-};
 
 AxisSettings.defaultProps = {
   features: {},

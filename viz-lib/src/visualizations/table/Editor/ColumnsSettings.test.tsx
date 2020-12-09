@@ -4,11 +4,11 @@ import enzyme from "enzyme";
 import getOptions from "../getOptions";
 import ColumnsSettings from "./ColumnsSettings";
 
-function findByTestID(wrapper, testId) {
+function findByTestID(wrapper: any, testId: any) {
   return wrapper.find(`[data-test="${testId}"]`);
 }
 
-function mount(options, done) {
+function mount(options: any, done: any) {
   const data = {
     columns: [{ name: "a", type: "string" }],
     rows: [{ a: "test" }],

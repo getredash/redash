@@ -8,7 +8,7 @@ const DEFAULT_OPTIONS = {
 
 const filterTypes = ["filter", "multi-filter", "multiFilter"];
 
-function getColumnNameWithoutType(column) {
+function getColumnNameWithoutType(column: any) {
   let typeSplit;
   if (column.indexOf("::") !== -1) {
     typeSplit = "::";
@@ -30,11 +30,11 @@ function getColumnNameWithoutType(column) {
   return parts[0];
 }
 
-function getColumnContentAlignment(type) {
+function getColumnContentAlignment(type: any) {
   return ["integer", "float", "boolean", "date", "datetime"].indexOf(type) >= 0 ? "right" : "left";
 }
 
-function getDefaultColumnsOptions(columns) {
+function getDefaultColumnsOptions(columns: any) {
   const displayAs = {
     integer: "number",
     float: "number",
@@ -46,6 +46,7 @@ function getDefaultColumnsOptions(columns) {
   return _.map(columns, (col, index) => ({
     name: col.name,
     type: col.type,
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     displayAs: displayAs[col.type] || "string",
     visible: true,
     order: 100000 + index,
@@ -58,17 +59,20 @@ function getDefaultColumnsOptions(columns) {
   }));
 }
 
-function getDefaultFormatOptions(column) {
+function getDefaultFormatOptions(column: any) {
   const dateTimeFormat = {
     date: visualizationsSettings.dateFormat || "DD/MM/YYYY",
     datetime: visualizationsSettings.dateTimeFormat || "DD/MM/YYYY HH:mm",
   };
   const numberFormat = {
+    // @ts-expect-error ts-migrate(2551) FIXME: Property 'integerFormat' does not exist on type '{... Remove this comment to see the full error message
     integer: visualizationsSettings.integerFormat || "0,0",
     float: visualizationsSettings.floatFormat || "0,0.00",
   };
   return {
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     dateTimeFormat: dateTimeFormat[column.type],
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     numberFormat: numberFormat[column.type],
     booleanValues: visualizationsSettings.booleanValues || ["false", "true"],
     // `image` cell options
@@ -84,7 +88,7 @@ function getDefaultFormatOptions(column) {
   };
 }
 
-function wereColumnsReordered(queryColumns, visualizationColumns) {
+function wereColumnsReordered(queryColumns: any, visualizationColumns: any) {
   queryColumns = _.map(queryColumns, col => col.name);
   visualizationColumns = _.map(visualizationColumns, col => col.name);
 
@@ -105,7 +109,7 @@ function wereColumnsReordered(queryColumns, visualizationColumns) {
   return false;
 }
 
-function getColumnsOptions(columns, visualizationColumns) {
+function getColumnsOptions(columns: any, visualizationColumns: any) {
   const options = getDefaultColumnsOptions(columns);
 
   if (wereColumnsReordered(columns, visualizationColumns)) {
@@ -121,7 +125,9 @@ function getColumnsOptions(columns, visualizationColumns) {
   return _.sortBy(options, "order");
 }
 
-export default function getOptions(options, { columns }) {
+export default function getOptions(options: any, {
+  columns
+}: any) {
   options = { ...DEFAULT_OPTIONS, ...options };
   options.columns = _.map(getColumnsOptions(columns, options.columns), col => ({
     ...getDefaultFormatOptions(col),

@@ -30,11 +30,20 @@ const CustomControl = L.Control.extend({
     return div;
   },
   onRemove() {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'getContainer' does not exist on type '{ ... Remove this comment to see the full error message
     ReactDOM.unmountComponentAtNode(this.getContainer());
   },
 });
 
-function prepareLayer({ feature, layer, data, options, limits, colors, formatValue }) {
+function prepareLayer({
+  feature,
+  layer,
+  data,
+  options,
+  limits,
+  colors,
+  formatValue
+}: any) {
   const value = getValueForFeature(feature, data, options.targetField);
   const valueFormatted = formatValue(value);
   const featureData = prepareFeatureProperties(feature, valueFormatted, data, options.targetField);
@@ -69,7 +78,7 @@ function prepareLayer({ feature, layer, data, options, limits, colors, formatVal
   });
 }
 
-function validateBounds(bounds, fallbackBounds) {
+function validateBounds(bounds: any, fallbackBounds: any) {
   if (bounds) {
     bounds = L.latLngBounds(bounds[0], bounds[1]);
     if (bounds.isValid()) {
@@ -82,7 +91,7 @@ function validateBounds(bounds, fallbackBounds) {
   return null;
 }
 
-export default function initChoropleth(container, onBoundsChange) {
+export default function initChoropleth(container: any, onBoundsChange: any) {
   const _map = L.map(container, {
     center: [0.0, 0.0],
     zoom: 1,
@@ -90,16 +99,19 @@ export default function initChoropleth(container, onBoundsChange) {
     scrollWheelZoom: false,
     maxBoundsViscosity: 1,
     attributionControl: false,
+    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '{ center: [number, number]; zoom... Remove this comment to see the full error message
     fullscreenControl: true,
   });
-  let _choropleth = null;
+  let _choropleth: any = null;
   const _legend = new CustomControl();
 
   function handleMapBoundsChange() {
     if (isFunction(onBoundsChange)) {
       const bounds = _map.getBounds();
       onBoundsChange([
+        // @ts-expect-error ts-migrate(2551) FIXME: Property '_southWest' does not exist on type 'LatL... Remove this comment to see the full error message
         [bounds._southWest.lat, bounds._southWest.lng],
+        // @ts-expect-error ts-migrate(2551) FIXME: Property '_northEast' does not exist on type 'LatL... Remove this comment to see the full error message
         [bounds._northEast.lat, bounds._northEast.lng],
       ]);
     }
@@ -118,19 +130,23 @@ export default function initChoropleth(container, onBoundsChange) {
     boundsChangedFromMap = false;
   });
 
-  function updateLayers(geoJson, data, options) {
+  function updateLayers(geoJson: any, data: any, options: any) {
     _map.eachLayer(layer => _map.removeLayer(layer));
     _map.removeControl(_legend);
 
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'features' does not exist on type 'object... Remove this comment to see the full error message
     if (!isObject(geoJson) || !isArray(geoJson.features)) {
       _choropleth = null;
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'null' is not assignable to param... Remove this comment to see the full error message
       _map.setMaxBounds(null);
       return;
     }
 
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'features' does not exist on type 'object... Remove this comment to see the full error message
     const { limits, colors, legend } = createScale(geoJson.features, data, options);
     const formatValue = createNumberFormatter(options.valueFormat, options.noValuePlaceholder);
 
+    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'object' is not assignable to par... Remove this comment to see the full error message
     _choropleth = L.geoJSON(geoJson, {
       onEachFeature(feature, layer) {
         prepareLayer({ feature, layer, data, options, limits, colors, formatValue });
@@ -150,7 +166,9 @@ export default function initChoropleth(container, onBoundsChange) {
       _legend.setPosition(options.legend.position.replace("-", ""));
       _map.addControl(_legend);
       ReactDOM.render(
+        // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
         <Legend
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '{ text: any; color: any; limit: any; }[]' is... Remove this comment to see the full error message
           items={map(legend, item => ({ ...item, text: formatValue(item.limit) }))}
           alignText={options.legend.alignText}
         />,
@@ -159,7 +177,7 @@ export default function initChoropleth(container, onBoundsChange) {
     }
   }
 
-  function updateBounds(bounds) {
+  function updateBounds(bounds: any) {
     if (!boundsChangedFromMap) {
       const layerBounds = _choropleth ? _choropleth.getBounds() : _map.getBounds();
       bounds = validateBounds(bounds, layerBounds);

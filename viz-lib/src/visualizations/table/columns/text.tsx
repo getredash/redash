@@ -1,12 +1,21 @@
 import React from "react";
-import PropTypes from "prop-types";
 import HtmlContent from "@/components/HtmlContent";
 import { Section, Checkbox } from "@/components/visualizations/editor";
 import { createTextFormatter } from "@/lib/value-format";
 
-function Editor({ column, onChange }) {
+type Props = {
+    column: {
+        name: string;
+        allowHTML?: boolean;
+        highlightLinks?: boolean;
+    };
+    onChange: (...args: any[]) => any;
+};
+
+function Editor({ column, onChange }: Props) {
   return (
     <React.Fragment>
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Table.ColumnEditor.Text.AllowHTML"
@@ -17,6 +26,7 @@ function Editor({ column, onChange }) {
       </Section>
 
       {column.allowHTML && (
+        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Checkbox
             data-test="Table.ColumnEditor.Text.HighlightLinks"
@@ -30,25 +40,18 @@ function Editor({ column, onChange }) {
   );
 }
 
-Editor.propTypes = {
-  column: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    allowHTML: PropTypes.bool,
-    highlightLinks: PropTypes.bool,
-  }).isRequired,
-  onChange: PropTypes.func.isRequired,
-};
-
-export default function initTextColumn(column) {
+export default function initTextColumn(column: any) {
   const format = createTextFormatter(column.allowHTML && column.highlightLinks);
 
-  function prepareData(row) {
+  function prepareData(row: any) {
     return {
       text: format(row[column.name]),
     };
   }
 
-  function TextColumn({ row }) {
+  function TextColumn({
+    row
+  }: any) {
     // eslint-disable-line react/prop-types
     const { text } = prepareData(row);
     return column.allowHTML ? <HtmlContent>{text}</HtmlContent> : text;

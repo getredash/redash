@@ -4,11 +4,11 @@ import enzyme from "enzyme";
 import getOptions from "../getOptions";
 import DataLabelsSettings from "./DataLabelsSettings";
 
-function findByTestID(wrapper, testId) {
+function findByTestID(wrapper: any, testId: any) {
   return wrapper.find(`[data-test="${testId}"]`);
 }
 
-function mount(options, done) {
+function mount(options: any, done: any) {
   options = getOptions(options);
   return enzyme.mount(
     <DataLabelsSettings

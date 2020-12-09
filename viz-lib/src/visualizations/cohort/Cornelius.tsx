@@ -7,7 +7,6 @@ import { isNil, isFinite, map, extend, min, max } from "lodash";
 import moment from "moment";
 import chroma from "chroma-js";
 import React, { useMemo } from "react";
-import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
 import { createNumberFormatter, formatSimpleTemplate } from "@/lib/value-format";
 import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
@@ -52,13 +51,14 @@ const defaultOptions = {
   },
 };
 
-function prepareOptions(options) {
+function prepareOptions(options: any) {
   options = extend({}, defaultOptions, options, {
     initialDate: moment(options.initialDate),
     colors: extend({}, defaultOptions.colors, options.colors),
   });
 
   return extend(options, {
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     timeLabelFormat: timeLabelFormats[options.timeInterval],
     formatNumber: createNumberFormatter(options.numberFormat),
     formatPercent: createNumberFormatter(options.percentFormat),
@@ -70,18 +70,19 @@ function prepareOptions(options) {
   });
 }
 
-function isLightColor(backgroundColor) {
+function isLightColor(backgroundColor: any) {
   backgroundColor = chroma(backgroundColor);
   const white = "#ffffff";
   const black = "#000000";
   return chroma.contrast(backgroundColor, white) < chroma.contrast(backgroundColor, black);
 }
 
-function formatStageTitle(options, index) {
+function formatStageTitle(options: any, index: any) {
   return formatSimpleTemplate(options.stageColumnTitle, { "@": options.initialIntervalNumber - 1 + index });
 }
 
-function formatTimeLabel(options, offset) {
+function formatTimeLabel(options: any, offset: any) {
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const interval = momentInterval[options.timeInterval];
   return options.initialDate
     .clone()
@@ -89,7 +90,10 @@ function formatTimeLabel(options, offset) {
     .format(options.timeLabelFormat);
 }
 
-function CorneliusHeader({ options, maxRowLength }) {
+function CorneliusHeader({
+  options,
+  maxRowLength
+}: any) {
   // eslint-disable-line react/prop-types
   const cells = [];
   for (let i = 1; i < maxRowLength; i += 1) {
@@ -109,7 +113,12 @@ function CorneliusHeader({ options, maxRowLength }) {
   );
 }
 
-function CorneliusRow({ options, data, index, maxRowLength }) {
+function CorneliusRow({
+  options,
+  data,
+  index,
+  maxRowLength
+}: any) {
   // eslint-disable-line react/prop-types
   const baseValue = data[0] || 0;
 
@@ -120,26 +129,35 @@ function CorneliusRow({ options, data, index, maxRowLength }) {
     const cellProps = { key: `col${i}` };
 
     if (isNil(percentageValue)) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'className' does not exist on type '{ key... Remove this comment to see the full error message
       cellProps.className = "cornelius-empty";
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'children' does not exist on type '{ key:... Remove this comment to see the full error message
       cellProps.children = options.noValuePlaceholder;
     } else {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'className' does not exist on type '{ key... Remove this comment to see the full error message
       cellProps.className = options.displayAbsoluteValues ? "cornelius-absolute" : "cornelius-percentage";
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'children' does not exist on type '{ key:... Remove this comment to see the full error message
       cellProps.children = options.displayAbsoluteValues
         ? options.formatNumber(value)
         : options.formatPercent(percentageValue);
 
       const backgroundColor = options.getColorForValue(percentageValue);
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'style' does not exist on type '{ key: st... Remove this comment to see the full error message
       cellProps.style = {
         backgroundColor,
         color: chooseTextColorForBackground(backgroundColor),
       };
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'style' does not exist on type '{ key: st... Remove this comment to see the full error message
       if (isLightColor(cellProps.style.color)) {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'className' does not exist on type '{ key... Remove this comment to see the full error message
         cellProps.className += " cornelius-white-text";
       }
 
       if (options.rawNumberOnHover && !options.displayAbsoluteValues) {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'children' does not exist on type '{ key:... Remove this comment to see the full error message
         cellProps.children = (
           <Tooltip title={options.formatNumber(value)} mouseEnterDelay={0} mouseLeaveDelay={0}>
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'children' does not exist on type '{ key:... Remove this comment to see the full error message */}
             <div>{cellProps.children}</div>
           </Tooltip>
         );
@@ -158,13 +176,42 @@ function CorneliusRow({ options, data, index, maxRowLength }) {
   );
 }
 
-export default function Cornelius({ data, options }) {
+type OwnCorneliusProps = {
+    data?: number[][];
+    options?: {
+        initialDate: any; // TODO: PropTypes.instanceOf(Date)
+        timeInterval?: "daily" | "weekly" | "monthly" | "yearly";
+        noValuePlaceholder?: string;
+        rawNumberOnHover?: boolean;
+        displayAbsoluteValues?: boolean;
+        initialIntervalNumber?: number;
+        maxColumns?: number;
+        title?: string;
+        timeColumnTitle?: string;
+        peopleColumnTitle?: string;
+        stageColumnTitle?: string;
+        numberFormat?: string;
+        percentFormat?: string;
+        timeLabelFormat?: string;
+        colors?: {
+            min?: string;
+            max?: string;
+            steps?: number;
+        };
+    };
+};
+
+type CorneliusProps = OwnCorneliusProps & typeof Cornelius.defaultProps;
+
+export default function Cornelius({ data, options }: CorneliusProps) {
   options = useMemo(() => prepareOptions(options), [options]);
 
   const maxRowLength = useMemo(
     () =>
       min([
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'length' does not exist on type 'number'.
         max(map(data, d => d.length)) || 0,
+        // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
         options.maxColumns + 1, // each row includes totals, but `maxColumns` is only for stage columns
       ]),
     [data, options.maxColumns]
@@ -191,33 +238,6 @@ export default function Cornelius({ data, options }) {
     </div>
   );
 }
-
-Cornelius.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
-  options: PropTypes.shape({
-    initialDate: PropTypes.instanceOf(Date).isRequired,
-    timeInterval: PropTypes.oneOf(["daily", "weekly", "monthly", "yearly"]),
-    noValuePlaceholder: PropTypes.string,
-    rawNumberOnHover: PropTypes.bool,
-    displayAbsoluteValues: PropTypes.bool,
-    initialIntervalNumber: PropTypes.number,
-    maxColumns: PropTypes.number,
-
-    title: PropTypes.string,
-    timeColumnTitle: PropTypes.string,
-    peopleColumnTitle: PropTypes.string,
-    stageColumnTitle: PropTypes.string,
-    numberFormat: PropTypes.string,
-    percentFormat: PropTypes.string,
-    timeLabelFormat: PropTypes.string,
-
-    colors: PropTypes.shape({
-      min: PropTypes.string,
-      max: PropTypes.string,
-      steps: PropTypes.number,
-    }),
-  }),
-};
 
 Cornelius.defaultProps = {
   data: [],

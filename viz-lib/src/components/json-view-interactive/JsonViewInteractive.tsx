@@ -3,11 +3,16 @@
 import { isFinite, isString, isArray, isObject, keys, map } from "lodash";
 import React, { useState } from "react";
 import cx from "classnames";
-import PropTypes from "prop-types";
 
 import "./json-view-interactive.less";
 
-function JsonBlock({ value, children, openingBrace, closingBrace, withKeys }) {
+function JsonBlock({
+  value,
+  children,
+  openingBrace,
+  closingBrace,
+  withKeys
+}: any) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const objectKeys = keys(value);
@@ -56,7 +61,10 @@ function JsonBlock({ value, children, openingBrace, closingBrace, withKeys }) {
   );
 }
 
-function JsonValue({ value, children }) {
+function JsonValue({
+  value,
+  children
+}: any) {
   if (value === null || value === false || value === true || isFinite(value)) {
     return (
       <span className="jvi-value jvi-primitive">
@@ -92,17 +100,19 @@ function JsonValue({ value, children }) {
   return null;
 }
 
-export default function JsonViewInteractive({ value }) {
+type OwnJsonViewInteractiveProps = {
+    value?: any;
+};
+
+type JsonViewInteractiveProps = OwnJsonViewInteractiveProps & typeof JsonViewInteractive.defaultProps;
+
+export default function JsonViewInteractive({ value }: JsonViewInteractiveProps) {
   return (
     <span className="jvi-item jvi-root">
       <JsonValue value={value} />
     </span>
   );
 }
-
-JsonViewInteractive.propTypes = {
-  value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-};
 
 JsonViewInteractive.defaultProps = {
   // `null` will be rendered as "null" because it is a valid JSON value, so use `undefined` for no value

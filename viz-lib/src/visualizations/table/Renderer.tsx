@@ -1,6 +1,5 @@
 import { filter, map, get, initial, last, reduce } from "lodash";
 import React, { useMemo, useState, useEffect } from "react";
-import PropTypes from "prop-types";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
 import InfoCircleFilledIcon from "@ant-design/icons/InfoCircleFilled";
@@ -11,13 +10,16 @@ import { prepareColumns, initRows, filterRows, sortRows } from "./utils";
 
 import "./renderer.less";
 
-function joinColumns(array, separator = ", ") {
+function joinColumns(array: any, separator = ", ") {
   return reduce(
     array,
     (result, item, index) => {
+      // @ts-expect-error ts-migrate(2365) FIXME: Operator '>' cannot be applied to types 'string' a... Remove this comment to see the full error message
       if (index > 0) {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         result.push(separator);
       }
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'any' is not assignable to parame... Remove this comment to see the full error message
       result.push(item);
       return result;
     },
@@ -25,7 +27,7 @@ function joinColumns(array, separator = ", ") {
   );
 }
 
-function getSearchColumns(columns, { limit = Infinity, renderColumn = col => col.title } = {}) {
+function getSearchColumns(columns: any, { limit = Infinity, renderColumn = (col: any) => col.title } = {}) {
   const firstColumns = map(columns.slice(0, limit), col => renderColumn(col));
   const restColumns = map(columns.slice(limit), col => col.title);
   if (restColumns.length > 0) {
@@ -37,7 +39,9 @@ function getSearchColumns(columns, { limit = Infinity, renderColumn = col => col
   return firstColumns;
 }
 
-function SearchInputInfoIcon({ searchColumns }) {
+function SearchInputInfoIcon({
+  searchColumns
+}: any) {
   return (
     <Popover
       arrowPointAtCenter
@@ -52,7 +56,14 @@ function SearchInputInfoIcon({ searchColumns }) {
   );
 }
 
-function SearchInput({ searchColumns, ...props }) {
+type OwnSearchInputProps = {
+    onChange?: (...args: any[]) => any;
+};
+
+type SearchInputProps = OwnSearchInputProps & typeof SearchInput.defaultProps;
+
+// @ts-expect-error ts-migrate(2339) FIXME: Property 'searchColumns' does not exist on type 'S... Remove this comment to see the full error message
+function SearchInput({ searchColumns, ...props }: SearchInputProps) {
   if (searchColumns.length <= 0) {
     return null;
   }
@@ -67,15 +78,14 @@ function SearchInput({ searchColumns, ...props }) {
   );
 }
 
-SearchInput.propTypes = {
-  onChange: PropTypes.func,
-};
-
 SearchInput.defaultProps = {
   onChange: () => {},
 };
 
-export default function Renderer({ options, data }) {
+export default function Renderer({
+  options,
+  data
+}: any) {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState([]);
 
@@ -84,11 +94,13 @@ export default function Renderer({ options, data }) {
   const tableColumns = useMemo(() => {
     const searchInput =
       searchColumns.length > 0 ? (
-        <SearchInput searchColumns={searchColumns} onChange={event => setSearchTerm(event.target.value)} />
+        // @ts-expect-error ts-migrate(2322) FIXME: Type '(event: any) => void' is not assignable to t... Remove this comment to see the full error message
+        <SearchInput searchColumns={searchColumns} onChange={(event: any) => setSearchTerm(event.target.value)} />
       ) : null;
-    return prepareColumns(options.columns, searchInput, orderBy, newOrderBy => {
+    return prepareColumns(options.columns, searchInput, orderBy, (newOrderBy: any) => {
       setOrderBy(newOrderBy);
       // Remove text selection - may occur accidentally
+      // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
       document.getSelection().removeAllRanges();
     });
   }, [options.columns, searchColumns, orderBy]);
@@ -115,10 +127,12 @@ export default function Renderer({ options, data }) {
         className="table-fixed-header"
         data-percy="show-scrollbars"
         data-test="TableVisualization"
+        // @ts-expect-error ts-migrate(2322) FIXME: Type '{ key: any; dataIndex: string; align: any; s... Remove this comment to see the full error message
         columns={tableColumns}
         dataSource={preparedRows}
         pagination={{
           size: get(options, "paginationSize", ""),
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'TablePagi... Remove this comment to see the full error message
           position: "bottom",
           pageSize: options.itemsPerPage,
           hideOnSinglePage: true,

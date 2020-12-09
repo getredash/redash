@@ -5,11 +5,11 @@ import enzyme from "enzyme";
 import getOptions from "../getOptions";
 import ColorsSettings from "./ColorsSettings";
 
-function findByTestID(wrapper, testId) {
+function findByTestID(wrapper: any, testId: any) {
   return wrapper.find(`[data-test="${testId}"]`);
 }
 
-function mount(options, done) {
+function mount(options: any, done: any) {
   options = getOptions(options);
   return enzyme.mount(
     <ColorsSettings
@@ -22,7 +22,7 @@ function mount(options, done) {
         rows: [{ a: "v", b: 3.14 }],
       }}
       options={options}
-      onOptionsChange={changedOptions => {
+      onOptionsChange={(changedOptions: any) => {
         expect(changedOptions).toMatchSnapshot();
         done();
       }}

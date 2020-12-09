@@ -1,6 +1,5 @@
 import { isString, map, uniq, flatten, filter, sortBy, keys } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 import { Section, Select } from "@/components/visualizations/editor";
 
 const MappingTypes = {
@@ -18,13 +17,23 @@ const SwappedMappingTypes = {
   y: { label: "X Columns", multiple: true },
 };
 
-export default function ColumnMappingSelect({ value, availableColumns, type, onChange, areAxesSwapped }) {
+type OwnProps = {
+    value?: string | string[];
+    availableColumns?: string[];
+    type?: any; // TODO: PropTypes.oneOf(keys(MappingTypes))
+    onChange?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof ColumnMappingSelect.defaultProps;
+
+export default function ColumnMappingSelect({ value, availableColumns, type, onChange, areAxesSwapped }: Props) {
   const options = sortBy(filter(uniq(flatten([availableColumns, value])), v => isString(v) && v !== ""));
 
   // this swaps the ui, as the data will be swapped on render
   const { label, multiple } = !areAxesSwapped ? MappingTypes[type] : SwappedMappingTypes[type];
 
   return (
+    // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
     <Section>
       <Select
         label={label}
@@ -34,23 +43,19 @@ export default function ColumnMappingSelect({ value, availableColumns, type, onC
         showSearch
         placeholder={multiple ? "Choose columns..." : "Choose column..."}
         value={value || undefined}
-        onChange={column => onChange(column || null, type)}>
+        // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
+        onChange={(column: any) => onChange(column || null, type)}>
         {map(options, c => (
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
           <Select.Option key={c} value={c} data-test={`Chart.ColumnMapping.${type}.${c}`}>
             {c}
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           </Select.Option>
         ))}
       </Select>
     </Section>
   );
 }
-
-ColumnMappingSelect.propTypes = {
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
-  availableColumns: PropTypes.arrayOf(PropTypes.string),
-  type: PropTypes.oneOf(keys(MappingTypes)),
-  onChange: PropTypes.func,
-};
 
 ColumnMappingSelect.defaultProps = {
   value: null,

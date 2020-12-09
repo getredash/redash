@@ -5,7 +5,7 @@ import { ColorPaletteArray } from "@/visualizations/ColorPalette";
 
 import { cleanNumber, normalizeValue } from "./utils";
 
-export function getPieDimensions(series) {
+export function getPieDimensions(series: any) {
   const rows = series.length > 2 ? 2 : 1;
   const cellsInRow = Math.ceil(series.length / rows);
   const cellWidth = 1 / cellsInRow;
@@ -16,14 +16,14 @@ export function getPieDimensions(series) {
   return { rows, cellsInRow, cellWidth, cellHeight, xPadding, yPadding };
 }
 
-function getPieHoverInfoPattern(options) {
+function getPieHoverInfoPattern(options: any) {
   const hasX = /{{\s*@@x\s*}}/.test(options.textFormat);
   let result = "text";
   if (!hasX) result += "+label";
   return result;
 }
 
-function prepareSeries(series, options, additionalOptions) {
+function prepareSeries(series: any, options: any, additionalOptions: any) {
   const {
     cellWidth,
     cellHeight,
@@ -41,8 +41,8 @@ function prepareSeries(series, options, additionalOptions) {
   const xPosition = (index % cellsInRow) * cellWidth;
   const yPosition = Math.floor(index / cellsInRow) * cellHeight;
 
-  const labels = [];
-  const values = [];
+  const labels: any = [];
+  const values: any = [];
   const sourceData = new Map();
   const seriesTotal = reduce(
     series.data,
@@ -94,8 +94,9 @@ function prepareSeries(series, options, additionalOptions) {
   };
 }
 
-export default function preparePieData(seriesList, options) {
+export default function preparePieData(seriesList: any, options: any) {
   // we will use this to assign colors for values that have no explicitly set color
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
   const getDefaultColor = d3.scale
     .ordinal()
     .domain([])
@@ -103,6 +104,7 @@ export default function preparePieData(seriesList, options) {
   const valuesColors = {};
   each(options.valuesOptions, (item, key) => {
     if (isString(item.color) && item.color !== "") {
+      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       valuesColors[key] = item.color;
     }
   });
@@ -111,7 +113,8 @@ export default function preparePieData(seriesList, options) {
     ...getPieDimensions(seriesList),
     hasX: includes(options.columnMapping, "x"),
     hoverInfoPattern: getPieHoverInfoPattern(options),
-    getValueColor: v => valuesColors[v] || getDefaultColor(v),
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+    getValueColor: (v: any) => valuesColors[v] || getDefaultColor(v),
   };
 
   return map(seriesList, (series, index) => prepareSeries(series, options, { ...additionalOptions, index }));

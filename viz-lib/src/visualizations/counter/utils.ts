@@ -4,7 +4,7 @@ import numeral from "numeral";
 // TODO: allow user to specify number format string instead of delimiters only
 // It will allow to remove this function (move all that weird formatting logic to a migration
 // that will set number format for all existing counter visualization)
-function numberFormat(value, decimalPoints, decimalDelimiter, thousandsDelimiter) {
+function numberFormat(value: any, decimalPoints: any, decimalDelimiter: any, thousandsDelimiter: any) {
   // Temporarily update locale data (restore defaults after formatting)
   const locale = numeral.localeData();
   const savedDelimiters = locale.delimiters;
@@ -42,7 +42,7 @@ function numberFormat(value, decimalPoints, decimalDelimiter, thousandsDelimiter
 // 0 - special case, use first record
 // 1..N - 1-based record number from beginning (wraps if greater than dataset size)
 // -1..-N - 1-based record number from end (wraps if greater than dataset size)
-function getRowNumber(index, rowsCount) {
+function getRowNumber(index: any, rowsCount: any) {
   index = parseInt(index, 10) || 0;
   if (index === 0) {
     return index;
@@ -51,7 +51,13 @@ function getRowNumber(index, rowsCount) {
   return index > 0 ? wrappedIndex : rowsCount - wrappedIndex - 1;
 }
 
-function formatValue(value, { stringPrefix, stringSuffix, stringDecimal, stringDecChar, stringThouSep }) {
+function formatValue(value: any, {
+  stringPrefix,
+  stringSuffix,
+  stringDecimal,
+  stringDecChar,
+  stringThouSep
+}: any) {
   if (isNumber(value)) {
     value = numberFormat(value, stringDecimal, stringDecChar, stringThouSep);
     return toString(stringPrefix) + value + toString(stringSuffix);
@@ -59,14 +65,14 @@ function formatValue(value, { stringPrefix, stringSuffix, stringDecimal, stringD
   return toString(value);
 }
 
-function formatTooltip(value, formatString) {
+function formatTooltip(value: any, formatString: any) {
   if (isNumber(value)) {
     return numeral(value).format(formatString);
   }
   return toString(value);
 }
 
-export function getCounterData(rows, options, visualizationName) {
+export function getCounterData(rows: any, options: any, visualizationName: any) {
   const result = {};
   const rowsCount = rows.length;
 
@@ -74,39 +80,55 @@ export function getCounterData(rows, options, visualizationName) {
     const counterColName = options.counterColName;
     const targetColName = options.targetColName;
 
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterLabel' does not exist on type '{}... Remove this comment to see the full error message
     result.counterLabel = options.counterLabel || visualizationName;
 
     if (options.countRow) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
       result.counterValue = rowsCount;
     } else if (counterColName) {
       const rowNumber = getRowNumber(options.rowNumber, rowsCount);
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
       result.counterValue = rows[rowNumber][counterColName];
     }
 
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'showTrend' does not exist on type '{}'.
     result.showTrend = false;
 
     if (targetColName) {
       const targetRowNumber = getRowNumber(options.targetRowNumber, rowsCount);
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
       result.targetValue = rows[targetRowNumber][targetColName];
 
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
       if (Number.isFinite(result.counterValue) && isFinite(result.targetValue)) {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
         const delta = result.counterValue - result.targetValue;
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'showTrend' does not exist on type '{}'.
         result.showTrend = true;
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'trendPositive' does not exist on type '{... Remove this comment to see the full error message
         result.trendPositive = delta >= 0;
       }
     } else {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
       result.targetValue = null;
     }
 
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValueTooltip' does not exist on t... Remove this comment to see the full error message
     result.counterValueTooltip = formatTooltip(result.counterValue, options.tooltipFormat);
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValueTooltip' does not exist on ty... Remove this comment to see the full error message
     result.targetValueTooltip = formatTooltip(result.targetValue, options.tooltipFormat);
 
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
     result.counterValue = formatValue(result.counterValue, options);
 
     if (options.formatTargetValue) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
       result.targetValue = formatValue(result.targetValue, options);
     } else {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
       if (isFinite(result.targetValue)) {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
         result.targetValue = numeral(result.targetValue).format("0[.]00[0]");
       }
     }
@@ -115,7 +137,7 @@ export function getCounterData(rows, options, visualizationName) {
   return result;
 }
 
-export function isValueNumber(rows, options) {
+export function isValueNumber(rows: any, options: any) {
   if (options.countRow) {
     return true; // array length is always a number
   }

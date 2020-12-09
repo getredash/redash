@@ -6,7 +6,7 @@ import createReferenceCountingCache from "@/lib/referenceCountingCache";
 
 const cache = createReferenceCountingCache();
 
-export default function useLoadGeoJson(mapType) {
+export default function useLoadGeoJson(mapType: any) {
   const [geoJson, setGeoJson] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,8 +18,11 @@ export default function useLoadGeoJson(mapType) {
       let cancelled = false;
 
       const promise = cache.get(mapUrl, () => axios.get(mapUrl).catch(() => null));
-      promise.then(({ data }) => {
+      promise.then(({
+        data
+      }: any) => {
         if (!cancelled) {
+          // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'object | null' is not assignable... Remove this comment to see the full error message
           setGeoJson(isObject(data) ? data : null);
           setIsLoading(false);
         }

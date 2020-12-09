@@ -1,6 +1,5 @@
 import { isNil, isArray, chunk, map, filter, toPairs } from "lodash";
 import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
 import tinycolor from "tinycolor2";
 import TextInput from "antd/lib/input";
 import Typography from "antd/lib/typography";
@@ -8,7 +7,7 @@ import Swatch from "./Swatch";
 
 import "./input.less";
 
-function preparePresets(presetColors, presetColumns) {
+function preparePresets(presetColors: any, presetColumns: any) {
   presetColors = isArray(presetColors) ? map(presetColors, v => [null, v]) : toPairs(presetColors);
   presetColors = map(presetColors, ([title, value]) => {
     if (isNil(value)) {
@@ -23,7 +22,7 @@ function preparePresets(presetColors, presetColumns) {
   return chunk(filter(presetColors), presetColumns);
 }
 
-function validateColor(value, callback, prefix = "#") {
+function validateColor(value: any, callback: any, prefix = "#") {
   if (isNil(value)) {
     callback(null);
   }
@@ -33,13 +32,25 @@ function validateColor(value, callback, prefix = "#") {
   }
 }
 
-export default function Input({ color, presetColors, presetColumns, onChange, onPressEnter }) {
+type OwnProps = {
+    color?: string;
+    presetColors?: string[] | {
+        [key: string]: string;
+    };
+    presetColumns?: number;
+    onChange?: (...args: any[]) => any;
+    onPressEnter?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof Input.defaultProps;
+
+export default function Input({ color, presetColors, presetColumns, onChange, onPressEnter }: Props) {
   const [inputValue, setInputValue] = useState("");
   const [isInputFocused, setIsInputFocused] = useState(false);
 
   const presets = preparePresets(presetColors, presetColumns);
 
-  function handleInputChange(value) {
+  function handleInputChange(value: any) {
     setInputValue(value);
     validateColor(value, onChange);
   }
@@ -55,6 +66,7 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
       {map(presets, (group, index) => (
         <div className="color-picker-input-swatches" key={`preset-row-${index}`}>
           {map(group, ([title, value]) => (
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
             <Swatch key={value} color={value} title={title} size={30} onClick={() => validateColor(value, onChange)} />
           ))}
         </div>
@@ -73,17 +85,6 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
     </React.Fragment>
   );
 }
-
-Input.propTypes = {
-  color: PropTypes.string,
-  presetColors: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.string), // array of colors (no tooltips)
-    PropTypes.objectOf(PropTypes.string), // color name => color value
-  ]),
-  presetColumns: PropTypes.number,
-  onChange: PropTypes.func,
-  onPressEnter: PropTypes.func,
-};
 
 Input.defaultProps = {
   color: "#FFFFFF",

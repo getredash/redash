@@ -1,20 +1,36 @@
 import { isFunction, map, filter, extend, merge } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 import Tabs from "antd/lib/tabs";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export const UpdateOptionsStrategy = {
-  replace: (existingOptions, newOptions) => merge({}, newOptions),
-  shallowMerge: (existingOptions, newOptions) => extend({}, existingOptions, newOptions),
-  deepMerge: (existingOptions, newOptions) => merge({}, existingOptions, newOptions),
+  replace: (existingOptions: any, newOptions: any) => merge({}, newOptions),
+  shallowMerge: (existingOptions: any, newOptions: any) => extend({}, existingOptions, newOptions),
+  deepMerge: (existingOptions: any, newOptions: any) => merge({}, existingOptions, newOptions),
 };
 
-export function TabbedEditor({ tabs, options, data, onOptionsChange, ...restProps }) {
-  const optionsChanged = (newOptions, updateStrategy = UpdateOptionsStrategy.deepMerge) => {
+/*
+(ts-migrate) TODO: Migrate the remaining prop types
+...EditorPropTypes
+*/
+type OwnProps = {
+    tabs?: {
+        key: string;
+        title: string | ((...args: any[]) => any);
+        isAvailable?: (...args: any[]) => any;
+        component: (...args: any[]) => any;
+    }[];
+};
+
+type Props = OwnProps & typeof TabbedEditor.defaultProps;
+
+// @ts-expect-error ts-migrate(2339) FIXME: Property 'options' does not exist on type 'Props'.
+export function TabbedEditor({ tabs, options, data, onOptionsChange, ...restProps }: Props) {
+  const optionsChanged = (newOptions: any, updateStrategy = UpdateOptionsStrategy.deepMerge) => {
     onOptionsChange(updateStrategy(options, newOptions));
   };
 
+  // @ts-expect-error ts-migrate(2322) FIXME: Type '(number | ((() => string) & (() => string)) ... Remove this comment to see the full error message
   tabs = filter(tabs, tab => (isFunction(tab.isAvailable) ? tab.isAvailable(options, data) : true));
 
   return (
@@ -30,27 +46,12 @@ export function TabbedEditor({ tabs, options, data, onOptionsChange, ...restProp
   );
 }
 
-TabbedEditor.propTypes = {
-  ...EditorPropTypes,
-  tabs: PropTypes.arrayOf(
-    PropTypes.shape({
-      key: PropTypes.string.isRequired,
-      title: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.func, // (options) => string
-      ]).isRequired,
-      isAvailable: PropTypes.func, // (options) => boolean
-      component: PropTypes.func.isRequired,
-    })
-  ),
-};
-
 TabbedEditor.defaultProps = {
   tabs: [],
 };
 
-export default function createTabbedEditor(tabs) {
-  return function TabbedEditorWrapper(props) {
+export default function createTabbedEditor(tabs: any) {
+  return function TabbedEditorWrapper(props: any) {
     return <TabbedEditor {...props} tabs={tabs} />;
   };
 }

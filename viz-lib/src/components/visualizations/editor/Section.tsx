@@ -1,10 +1,17 @@
 import React from "react";
-import PropTypes from "prop-types";
 import cx from "classnames";
 
 import "./Section.less";
 
-function SectionTitle({ className, children, ...props }) {
+type OwnSectionTitleProps = {
+    className?: string;
+    children?: React.ReactNode;
+};
+
+type SectionTitleProps = OwnSectionTitleProps & typeof SectionTitle.defaultProps;
+
+// @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
+function SectionTitle({ className, children, ...props }: SectionTitleProps) {
   if (!children) {
     return null;
   }
@@ -16,28 +23,26 @@ function SectionTitle({ className, children, ...props }) {
   );
 }
 
-SectionTitle.propTypes = {
-  className: PropTypes.string,
-  children: PropTypes.node,
-};
-
 SectionTitle.defaultProps = {
   className: null,
   children: null,
 };
 
-export default function Section({ className, children, ...props }) {
+type OwnSectionProps = {
+    className?: string;
+    children?: React.ReactNode;
+};
+
+type SectionProps = OwnSectionProps & typeof Section.defaultProps;
+
+// @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
+export default function Section({ className, children, ...props }: SectionProps) {
   return (
     <div className={cx("visualization-editor-section", className)} {...props}>
       {children}
     </div>
   );
 }
-
-Section.propTypes = {
-  className: PropTypes.string,
-  children: PropTypes.node,
-};
 
 Section.defaultProps = {
   className: null,

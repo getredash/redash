@@ -3,8 +3,8 @@ import React from "react";
 import JsonViewInteractive from "@/components/json-view-interactive/JsonViewInteractive";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
-export default function initJsonColumn(column) {
-  function prepareData(row) {
+export default function initJsonColumn(column: any) {
+  function prepareData(row: any) {
     const text = row[column.name];
     if (isString(text) && text.length <= visualizationsSettings.tableCellMaxJSONSize) {
       try {
@@ -16,7 +16,9 @@ export default function initJsonColumn(column) {
     return { text, value: undefined };
   }
 
-  function JsonColumn({ row }) {
+  function JsonColumn({
+    row
+  }: any) {
     // eslint-disable-line react/prop-types
     const { text, value } = prepareData(row);
     if (isUndefined(value)) {

@@ -4,15 +4,15 @@ import enzyme from "enzyme";
 import getOptions from "../getOptions";
 import GeneralSettings from "./GeneralSettings";
 
-function findByTestID(wrapper, testId) {
+function findByTestID(wrapper: any, testId: any) {
   return wrapper.find(`[data-test="${testId}"]`);
 }
 
-function elementExists(wrapper, testId) {
+function elementExists(wrapper: any, testId: any) {
   return findByTestID(wrapper, testId).length > 0;
 }
 
-function mount(options, done) {
+function mount(options: any, done: any) {
   options = getOptions(options);
   return enzyme.mount(
     <GeneralSettings
@@ -149,6 +149,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
 
   describe("Column mappings should be available", () => {
     test("for bubble", () => {
+      // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
       const el = mount({
         globalSeriesType: "column",
         seriesOptions: {
@@ -164,6 +165,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
     });
 
     test("for heatmap", () => {
+      // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
       const el = mount({
         globalSeriesType: "heatmap",
         seriesOptions: {
@@ -179,6 +181,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
     });
 
     test("for all types except of bubble, heatmap and custom", () => {
+      // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
       const el = mount({
         globalSeriesType: "column",
         seriesOptions: {

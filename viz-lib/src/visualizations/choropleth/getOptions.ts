@@ -37,13 +37,14 @@ const DEFAULT_OPTIONS = {
   },
 };
 
-export default function getOptions(options) {
+export default function getOptions(options: any) {
   const result = merge({}, DEFAULT_OPTIONS, options);
 
   // Both renderer and editor always provide new `bounds` array, so no need to clone it here.
   // Keeping original object also reduces amount of updates in components
   result.bounds = get(options, "bounds");
 
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   if (isNil(visualizationsSettings.choroplethAvailableMaps[result.mapType])) {
     result.mapType = getDefaultMap();
   }

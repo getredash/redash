@@ -3,13 +3,14 @@ import enzyme from "enzyme";
 
 import Column from "./image";
 
-function findByTestID(wrapper, testId) {
+function findByTestID(wrapper: any, testId: any) {
   return wrapper.find(`[data-test="${testId}"]`);
 }
 
-function mount(column, done) {
+function mount(column: any, done: any) {
   return enzyme.mount(
     <Column.Editor
+      // @ts-expect-error ts-migrate(2322) FIXME: Type '{ visualizationName: string; column: any; on... Remove this comment to see the full error message
       visualizationName="Test"
       column={column}
       onChange={changedColumn => {

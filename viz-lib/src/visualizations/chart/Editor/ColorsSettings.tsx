@@ -10,7 +10,11 @@ const components = {
   heatmap: HeatmapColorsSettings,
 };
 
-export default function ColorsSettings({ options, ...props }) {
+export default function ColorsSettings({
+  options,
+  ...props
+}: any) {
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const Component = components[options.globalSeriesType] || DefaultColorsSettings;
   return <Component options={options} {...props} />;
 }

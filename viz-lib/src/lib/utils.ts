@@ -1,7 +1,7 @@
 import moment from "moment";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
-function formatDateTime(value) {
+function formatDateTime(value: any) {
   if (!value) {
     return "";
   }
@@ -14,7 +14,7 @@ function formatDateTime(value) {
   return parsed.format(visualizationsSettings.dateTimeFormat);
 }
 
-function formatDate(value) {
+function formatDate(value: any) {
   if (!value) {
     return "";
   }
@@ -27,7 +27,7 @@ function formatDate(value) {
   return parsed.format(visualizationsSettings.dateFormat);
 }
 
-export function formatColumnValue(value, columnType = null) {
+export function formatColumnValue(value: any, columnType = null) {
   if (moment.isMoment(value)) {
     if (columnType === "date") {
       return formatDate(value);

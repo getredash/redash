@@ -4,15 +4,15 @@ import enzyme from "enzyme";
 import getOptions from "../getOptions";
 import YAxisSettings from "./YAxisSettings";
 
-function findByTestID(wrapper, testId) {
+function findByTestID(wrapper: any, testId: any) {
   return wrapper.find(`[data-test="${testId}"]`);
 }
 
-function elementExists(wrapper, testId) {
+function elementExists(wrapper: any, testId: any) {
   return findByTestID(wrapper, testId).length > 0;
 }
 
-function mount(options, done) {
+function mount(options: any, done: any) {
   options = getOptions(options);
   return enzyme.mount(
     <YAxisSettings
@@ -91,6 +91,7 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
 
   describe("for non-heatmap", () => {
     test("Right Y Axis should be available", () => {
+      // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
       const el = mount({
         globalSeriesType: "column",
         yAxis: [{ type: "linear" }, { type: "linear", opposite: true }],
@@ -102,6 +103,7 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
 
   describe("for heatmap", () => {
     test("Right Y Axis should not be available", () => {
+      // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
       const el = mount({
         globalSeriesType: "heatmap",
         yAxis: [{ type: "linear" }, { type: "linear", opposite: true }],

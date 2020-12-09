@@ -1,6 +1,5 @@
 import { pickBy, startsWith } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 import cx from "classnames";
 import Radio from "antd/lib/radio";
 import Tooltip from "antd/lib/tooltip";
@@ -11,7 +10,14 @@ import AlignRightOutlinedIcon from "@ant-design/icons/AlignRightOutlined";
 
 import "./index.less";
 
-export default function TextAlignmentSelect({ className, ...props }) {
+type OwnProps = {
+    className?: string;
+};
+
+type Props = OwnProps & typeof TextAlignmentSelect.defaultProps;
+
+// @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
+export default function TextAlignmentSelect({ className, ...props }: Props) {
   return (
     // Antd RadioGroup does not use any custom attributes
     <div {...pickBy(props, (v, k) => startsWith(k, "data-"))}>
@@ -35,10 +41,6 @@ export default function TextAlignmentSelect({ className, ...props }) {
     </div>
   );
 }
-
-TextAlignmentSelect.propTypes = {
-  className: PropTypes.string,
-};
 
 TextAlignmentSelect.defaultProps = {
   className: null,

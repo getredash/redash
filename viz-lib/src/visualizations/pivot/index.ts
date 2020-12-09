@@ -18,7 +18,7 @@ const DEFAULT_OPTIONS = {
 export default {
   type: "PIVOT",
   name: "Pivot Table",
-  getOptions: options => merge({}, DEFAULT_OPTIONS, options),
+  getOptions: (options: any) => merge({}, DEFAULT_OPTIONS, options),
   Renderer,
   Editor,
 

@@ -1,22 +1,25 @@
 import { isEqual } from "lodash";
 import React, { useEffect, useRef } from "react";
-import PropTypes from "prop-types";
 import ErrorBoundary, { ErrorMessage } from "@/components/ErrorBoundary";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 import registeredVisualizations from "@/visualizations/registeredVisualizations";
 
-export default function Renderer({
-  type,
-  data,
-  options: optionsProp,
-  visualizationName,
-  addonBefore,
-  addonAfter,
-  ...otherProps
-}) {
+/*
+(ts-migrate) TODO: Migrate the remaining prop types
+...RendererPropTypes
+*/
+type Props = {
+    type: string;
+    addonBefore?: React.ReactNode;
+    addonAfter?: React.ReactNode;
+};
+
+// @ts-expect-error ts-migrate(2339) FIXME: Property 'data' does not exist on type 'Props'.
+export default function Renderer({ type, data, options: optionsProp, visualizationName, addonBefore, addonAfter, ...otherProps }: Props) {
   const lastOptions = useRef();
   const errorHandlerRef = useRef();
 
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const { Renderer, getOptions } = registeredVisualizations[type];
 
   // Avoid unnecessary updates (which may be expensive or cause issues with
@@ -31,6 +34,7 @@ export default function Renderer({
 
   useEffect(() => {
     if (errorHandlerRef.current) {
+      // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
       errorHandlerRef.current.reset();
     }
   }, [optionsProp, data]);
@@ -38,6 +42,7 @@ export default function Renderer({
   return (
     <div className="visualization-renderer">
       {addonBefore}
+      {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
       <ErrorBoundary
         ref={errorHandlerRef}
         renderError={() => <ErrorMessage>Error while rendering visualization.</ErrorMessage>}>
@@ -49,10 +54,3 @@ export default function Renderer({
     </div>
   );
 }
-
-Renderer.propTypes = {
-  type: PropTypes.string.isRequired,
-  addonBefore: PropTypes.node,
-  addonAfter: PropTypes.node,
-  ...RendererPropTypes,
-};

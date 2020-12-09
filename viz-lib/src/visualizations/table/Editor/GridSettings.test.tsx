@@ -4,11 +4,11 @@ import enzyme from "enzyme";
 import getOptions from "../getOptions";
 import GridSettings from "./GridSettings";
 
-function findByTestID(wrapper, testId) {
+function findByTestID(wrapper: any, testId: any) {
   return wrapper.find(`[data-test="${testId}"]`);
 }
 
-function mount(options, done) {
+function mount(options: any, done: any) {
   const data = { columns: [], rows: [] };
   options = getOptions(options, data);
   return enzyme.mount(

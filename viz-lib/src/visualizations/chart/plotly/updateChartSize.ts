@@ -1,6 +1,6 @@
 import { find, pick, extend } from "lodash";
 
-function fixLegendContainer(plotlyElement) {
+function fixLegendContainer(plotlyElement: any) {
   const legend = plotlyElement.querySelector(".legend");
   if (legend) {
     let node = legend.parentNode;
@@ -14,7 +14,7 @@ function fixLegendContainer(plotlyElement) {
   }
 }
 
-function placeLegendNextToPlot(plotlyElement, layout) {
+function placeLegendNextToPlot(plotlyElement: any, layout: any) {
   const transformName = find(
     ["transform", "WebkitTransform", "MozTransform", "MsTransform", "OTransform"],
     prop => prop in plotlyElement.style
@@ -32,13 +32,14 @@ function placeLegendNextToPlot(plotlyElement, layout) {
 
   const legend = plotlyElement.querySelector(".legend");
   if (legend) {
+    // @ts-expect-error ts-migrate(2538) FIXME: Type 'undefined' cannot be used as an index type.
     legend.style[transformName] = null;
   }
 
   return [pick(layout, ["width", "height", "legend"]), null]; // no further updates
 }
 
-function placeLegendBelowPlot(plotlyElement, layout) {
+function placeLegendBelowPlot(plotlyElement: any, layout: any) {
   const transformName = find(
     ["transform", "WebkitTransform", "MozTransform", "MsTransform", "OTransform"],
     prop => prop in plotlyElement.style
@@ -89,6 +90,7 @@ function placeLegendBelowPlot(plotlyElement, layout) {
         //    so we can split container's height half by half between them.
         layout.height = Math.floor(Math.max(layoutHeight / 2, layoutHeight - (bounds.bottom - bounds.top)));
         // offset the legend
+        // @ts-expect-error ts-migrate(2538) FIXME: Type 'undefined' cannot be used as an index type.
         legend.style[transformName] = "translate(0, " + layout.height + "px)";
         return [pick(layout, ["height"]), null]; // no further updates
       }
@@ -96,7 +98,7 @@ function placeLegendBelowPlot(plotlyElement, layout) {
   ];
 }
 
-function placeLegendAuto(plotlyElement, layout) {
+function placeLegendAuto(plotlyElement: any, layout: any) {
   if (layout.width <= 600) {
     return placeLegendBelowPlot(plotlyElement, layout);
   } else {
@@ -104,7 +106,7 @@ function placeLegendAuto(plotlyElement, layout) {
   }
 }
 
-export default function updateChartSize(plotlyElement, layout, options) {
+export default function updateChartSize(plotlyElement: any, layout: any, options: any) {
   // update layout size to plot container
   // plot size should be at least 5x5px
   layout.width = Math.max(5, Math.floor(plotlyElement.offsetWidth));

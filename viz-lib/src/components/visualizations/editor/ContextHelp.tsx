@@ -1,23 +1,24 @@
 import React from "react";
-import PropTypes from "prop-types";
 import Popover from "antd/lib/popover";
 import QuestionCircleFilledIcon from "@ant-design/icons/QuestionCircleFilled";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 import "./context-help.less";
 
-export default function ContextHelp({ icon, children, ...props }) {
+type OwnContextHelpProps = {
+    icon?: React.ReactNode;
+    children?: React.ReactNode;
+};
+
+type ContextHelpProps = OwnContextHelpProps & typeof ContextHelp.defaultProps;
+
+export default function ContextHelp({ icon, children, ...props }: ContextHelpProps) {
   return (
     <Popover {...props} content={children}>
       {icon || ContextHelp.defaultIcon}
     </Popover>
   );
 }
-
-ContextHelp.propTypes = {
-  icon: PropTypes.node,
-  children: PropTypes.node,
-};
 
 ContextHelp.defaultProps = {
   icon: null,
@@ -30,6 +31,7 @@ function NumberFormatSpecs() {
   const { HelpTriggerComponent } = visualizationsSettings;
   return (
     <HelpTriggerComponent
+      // @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: Element; type: string; title: st... Remove this comment to see the full error message
       type="NUMBER_FORMAT_SPECS"
       title="Formatting Numbers"
       href="https://redash.io/help/user-guide/visualizations/formatting-numbers"

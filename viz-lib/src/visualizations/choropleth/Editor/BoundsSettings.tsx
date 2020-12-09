@@ -8,7 +8,10 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 import useLoadGeoJson from "../hooks/useLoadGeoJson";
 import { getGeoJsonBounds } from "./utils";
 
-export default function BoundsSettings({ options, onOptionsChange }) {
+export default function BoundsSettings({
+  options,
+  onOptionsChange
+}: any) {
   // Bounds may be changed in editor or on preview (by drag/zoom map).
   // Changes from preview does not come frequently (only when user release mouse button),
   // but changes from editor should be debounced.
@@ -51,42 +54,48 @@ export default function BoundsSettings({ options, onOptionsChange }) {
 
   return (
     <React.Fragment>
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
+        {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'null | un... Remove this comment to see the full error message */}
         <ControlLabel label="North-East Latitude and Longitude">
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
           <Grid.Row gutter={15}>
             <Grid.Col span={12}>
               <InputNumber
                 disabled={!boundsAvailable}
                 value={boundsAvailable ? bounds[1][0] : undefined}
-                onChange={value => updateBounds(1, 0, value)}
+                onChange={(value: any) => updateBounds(1, 0, value)}
               />
             </Grid.Col>
             <Grid.Col span={12}>
               <InputNumber
                 disabled={!boundsAvailable}
                 value={boundsAvailable ? bounds[1][1] : undefined}
-                onChange={value => updateBounds(1, 1, value)}
+                onChange={(value: any) => updateBounds(1, 1, value)}
               />
             </Grid.Col>
           </Grid.Row>
         </ControlLabel>
       </Section>
 
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
+        {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'null | un... Remove this comment to see the full error message */}
         <ControlLabel label="South-West Latitude and Longitude">
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
           <Grid.Row gutter={15}>
             <Grid.Col span={12}>
               <InputNumber
                 disabled={!boundsAvailable}
                 value={boundsAvailable ? bounds[0][0] : undefined}
-                onChange={value => updateBounds(0, 0, value)}
+                onChange={(value: any) => updateBounds(0, 0, value)}
               />
             </Grid.Col>
             <Grid.Col span={12}>
               <InputNumber
                 disabled={!boundsAvailable}
                 value={boundsAvailable ? bounds[0][1] : undefined}
-                onChange={value => updateBounds(0, 1, value)}
+                onChange={(value: any) => updateBounds(0, 1, value)}
               />
             </Grid.Col>
           </Grid.Row>

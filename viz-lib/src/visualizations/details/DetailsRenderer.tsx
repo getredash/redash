@@ -8,7 +8,7 @@ import Pagination from "antd/lib/pagination";
 
 import "./details.less";
 
-function renderValue(value, type) {
+function renderValue(value: any, type: any) {
   const formats = {
     date: visualizationsSettings.dateFormat,
     datetime: visualizationsSettings.dateTimeFormat,
@@ -16,6 +16,7 @@ function renderValue(value, type) {
 
   if (type === "date" || type === "datetime") {
     if (moment.isMoment(value)) {
+      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       return value.format(formats[type]);
     }
   }
@@ -23,7 +24,9 @@ function renderValue(value, type) {
   return "" + value;
 }
 
-export default function DetailsRenderer({ data }) {
+export default function DetailsRenderer({
+  data
+}: any) {
   const [page, setPage] = useState(0);
 
   if (!data || !data.rows || data.rows.length === 0) {
@@ -33,7 +36,7 @@ export default function DetailsRenderer({ data }) {
   const types = mapValues(keyBy(data.columns, "name"), "type");
 
   // We use columsn to maintain order of columns in the view.
-  const columns = data.columns.map(column => column.name);
+  const columns = data.columns.map((column: any) => column.name);
   const row = data.rows[page];
 
   return (

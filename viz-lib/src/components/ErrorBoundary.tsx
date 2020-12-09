@@ -1,13 +1,12 @@
 import { isFunction } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 import debug from "debug";
 import Alert from "antd/lib/alert";
 
 const logger = debug("redash:errors");
 
 export const ErrorBoundaryContext = React.createContext({
-  handleError: error => {
+  handleError: (error: any) => {
     // Allow calling chain to roll up, and then throw the error in global context
     setTimeout(() => {
       throw error;
@@ -16,23 +15,29 @@ export const ErrorBoundaryContext = React.createContext({
   reset: () => {},
 });
 
-export function ErrorMessage({ children }) {
+type OwnErrorMessageProps = {
+    children?: React.ReactNode;
+};
+
+type ErrorMessageProps = OwnErrorMessageProps & typeof ErrorMessage.defaultProps;
+
+export function ErrorMessage({ children }: ErrorMessageProps) {
   return <Alert message={children} type="error" showIcon />;
 }
-
-ErrorMessage.propTypes = {
-  children: PropTypes.node,
-};
 
 ErrorMessage.defaultProps = {
   children: "Something went wrong.",
 };
 
-export default class ErrorBoundary extends React.Component {
-  static propTypes = {
-    children: PropTypes.node,
-    renderError: PropTypes.func, // error => ReactNode
-  };
+type OwnErrorBoundaryProps = {
+    renderError?: (...args: any[]) => any;
+};
+
+type ErrorBoundaryState = any;
+
+type ErrorBoundaryProps = OwnErrorBoundaryProps & typeof ErrorBoundary.defaultProps;
+
+export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
   static defaultProps = {
     children: null,
@@ -41,10 +46,13 @@ export default class ErrorBoundary extends React.Component {
 
   state = { error: null };
 
-  handleError = error => {
+  handleError = (error: any) => {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'getDerivedStateFromError' does not exist... Remove this comment to see the full error message
     this.setState(this.constructor.getDerivedStateFromError(error));
     this.componentDidCatch(error, null);
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'handleException' does not exist on type ... Remove this comment to see the full error message
     if (isFunction(window.handleException)) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'handleException' does not exist on type ... Remove this comment to see the full error message
       window.handleException(error);
     }
   };
@@ -53,11 +61,11 @@ export default class ErrorBoundary extends React.Component {
     this.setState({ error: null });
   };
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(error: any) {
     return { error };
   }
 
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(error: any, errorInfo: any) {
     logger(error, errorInfo);
   }
 
@@ -67,6 +75,7 @@ export default class ErrorBoundary extends React.Component {
 
     if (error) {
       if (isFunction(renderError)) {
+        // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
         return renderError(error);
       }
       return <ErrorMessage />;

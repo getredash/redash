@@ -2,11 +2,11 @@
 
 import d3 from "d3";
 
-function center(node) {
+function center(node: any) {
   return node.y + node.dy / 2;
 }
 
-function value(link) {
+function value(link: any) {
   return link.value;
 }
 
@@ -15,16 +15,18 @@ function Sankey() {
   let nodeWidth = 24;
   let nodePadding = 8;
   let size = [1, 1];
-  let nodes = [];
-  let links = [];
+  let nodes: any = [];
+  let links: any = [];
 
   // Populate the sourceLinks and targetLinks for each node.
   // Also, if the source and target are not objects, assume they are indices.
   function computeNodeLinks() {
+    // @ts-expect-error ts-migrate(7006) FIXME: Parameter 'node' implicitly has an 'any' type.
     nodes.forEach(node => {
       node.sourceLinks = [];
       node.targetLinks = [];
     });
+    // @ts-expect-error ts-migrate(7006) FIXME: Parameter 'link' implicitly has an 'any' type.
     links.forEach(link => {
       let source = link.source;
       let target = link.target;
@@ -37,12 +39,14 @@ function Sankey() {
 
   // Compute the value (size) of each node by summing the associated links.
   function computeNodeValues() {
+    // @ts-expect-error ts-migrate(7006) FIXME: Parameter 'node' implicitly has an 'any' type.
     nodes.forEach(node => {
       node.value = Math.max(d3.sum(node.sourceLinks, value), d3.sum(node.targetLinks, value));
     });
   }
 
-  function moveSinksRight(x) {
+  function moveSinksRight(x: any) {
+    // @ts-expect-error ts-migrate(7006) FIXME: Parameter 'node' implicitly has an 'any' type.
     nodes.forEach(node => {
       if (!node.sourceLinks.length) {
         node.x = x - 1;
@@ -50,7 +54,8 @@ function Sankey() {
     });
   }
 
-  function scaleNodeBreadths(kx) {
+  function scaleNodeBreadths(kx: any) {
+    // @ts-expect-error ts-migrate(7006) FIXME: Parameter 'node' implicitly has an 'any' type.
     nodes.forEach(node => {
       node.x *= kx;
     });
@@ -62,13 +67,13 @@ function Sankey() {
   // nodes with no outgoing links are assigned the maximum breadth.
   function computeNodeBreadths() {
     let remainingNodes = nodes;
-    let nextNodes;
+    let nextNodes: any;
     let x = 0;
 
-    function assignBreadth(node) {
+    function assignBreadth(node: any) {
       node.x = x;
       node.dx = nodeWidth;
-      node.sourceLinks.forEach(link => {
+      node.sourceLinks.forEach((link: any) => {
         if (nextNodes.indexOf(link.target) < 0) {
           nextNodes.push(link.target);
         }
@@ -84,42 +89,48 @@ function Sankey() {
 
     moveSinksRight(x);
     x = Math.max(
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string | undefined' is not assig... Remove this comment to see the full error message
       d3.max(nodes, n => n.x),
       2
     ); // get new maximum x value (min 2)
     scaleNodeBreadths((size[0] - nodeWidth) / (x - 1));
   }
 
-  function computeNodeDepths(iterations) {
+  function computeNodeDepths(iterations: any) {
     const nodesByBreadth = d3
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'nest' does not exist on type 'typeof imp... Remove this comment to see the full error message
       .nest()
-      .key(d => d.x)
+      .key((d: any) => d.x)
       .sortKeys(d3.ascending)
       .entries(nodes)
-      .map(d => d.values);
+      .map((d: any) => d.values);
 
     function initializeNodeDepth() {
+      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
       const ky = d3.min(nodesByBreadth, n => (size[1] - (n.length - 1) * nodePadding) / d3.sum(n, value));
 
-      nodesByBreadth.forEach(n => {
-        n.forEach((node, i) => {
+      nodesByBreadth.forEach((n: any) => {
+        n.forEach((node: any, i: any) => {
           node.y = i;
+          // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
           node.dy = node.value * ky;
         });
       });
 
+      // @ts-expect-error ts-migrate(7006) FIXME: Parameter 'link' implicitly has an 'any' type.
       links.forEach(link => {
+        // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
         link.dy = link.value * ky;
       });
     }
 
-    function relaxLeftToRight(alpha) {
-      function weightedSource(link) {
+    function relaxLeftToRight(alpha: any) {
+      function weightedSource(link: any) {
         return center(link.source) * link.value;
       }
 
-      nodesByBreadth.forEach(n => {
-        n.forEach(node => {
+      nodesByBreadth.forEach((n: any) => {
+        n.forEach((node: any) => {
           if (node.targetLinks.length) {
             const y = d3.sum(node.targetLinks, weightedSource) / d3.sum(node.targetLinks, value);
             node.y += (y - center(node)) * alpha;
@@ -129,7 +140,7 @@ function Sankey() {
     }
 
     function resolveCollisions() {
-      nodesByBreadth.forEach(nodes => {
+      nodesByBreadth.forEach((nodes: any) => {
         const n = nodes.length;
         let node;
         let dy;
@@ -171,12 +182,12 @@ function Sankey() {
       resolveCollisions();
     }
 
-    function relaxRightToLeft(alpha) {
+    function relaxRightToLeft(alpha: any) {
       nodesByBreadth
         .slice()
         .reverse()
-        .forEach(nodes => {
-          nodes.forEach(node => {
+        .forEach((nodes: any) => {
+          nodes.forEach((node: any) => {
             if (node.sourceLinks.length) {
               const y = d3.sum(node.sourceLinks, weightedTarget) / d3.sum(node.sourceLinks, value);
               node.y += (y - center(node)) * alpha;
@@ -184,74 +195,82 @@ function Sankey() {
           });
         });
 
-      function weightedTarget(link) {
+      function weightedTarget(link: any) {
         return center(link.target) * link.value;
       }
     }
 
-    function ascendingDepth(a, b) {
+    function ascendingDepth(a: any, b: any) {
       return a.y - b.y;
     }
   }
 
   function computeLinkDepths() {
+    // @ts-expect-error ts-migrate(7006) FIXME: Parameter 'node' implicitly has an 'any' type.
     nodes.forEach(node => {
       node.sourceLinks.sort(ascendingTargetDepth);
       node.targetLinks.sort(ascendingSourceDepth);
     });
+    // @ts-expect-error ts-migrate(7006) FIXME: Parameter 'node' implicitly has an 'any' type.
     nodes.forEach(node => {
       let sy = 0,
         ty = 0;
-      node.sourceLinks.forEach(link => {
+      node.sourceLinks.forEach((link: any) => {
         link.sy = sy;
         sy += link.dy;
       });
-      node.targetLinks.forEach(link => {
+      node.targetLinks.forEach((link: any) => {
         link.ty = ty;
         ty += link.dy;
       });
     });
 
-    function ascendingSourceDepth(a, b) {
+    function ascendingSourceDepth(a: any, b: any) {
       return a.source.y - b.source.y;
     }
 
-    function ascendingTargetDepth(a, b) {
+    function ascendingTargetDepth(a: any, b: any) {
       return a.target.y - b.target.y;
     }
   }
 
-  sankey.nodeWidth = function(_) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'nodeWidth' does not exist on type '{}'.
+  sankey.nodeWidth = function(_: any) {
     if (!arguments.length) return nodeWidth;
     nodeWidth = +_;
     return sankey;
   };
 
-  sankey.nodePadding = function(_) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'nodePadding' does not exist on type '{}'... Remove this comment to see the full error message
+  sankey.nodePadding = function(_: any) {
     if (!arguments.length) return nodePadding;
     nodePadding = +_;
     return sankey;
   };
 
-  sankey.nodes = function(_) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'nodes' does not exist on type '{}'.
+  sankey.nodes = function(_: any) {
     if (!arguments.length) return nodes;
     nodes = _;
     return sankey;
   };
 
-  sankey.links = function(_) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'links' does not exist on type '{}'.
+  sankey.links = function(_: any) {
     if (!arguments.length) return links;
     links = _;
     return sankey;
   };
 
-  sankey.size = function(_) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'size' does not exist on type '{}'.
+  sankey.size = function(_: any) {
     if (!arguments.length) return size;
     size = _;
     return sankey;
   };
 
-  sankey.layout = function(iterations) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'layout' does not exist on type '{}'.
+  sankey.layout = function(iterations: any) {
     computeNodeLinks();
     computeNodeValues();
     computeNodeBreadths();
@@ -260,15 +279,17 @@ function Sankey() {
     return sankey;
   };
 
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'relayout' does not exist on type '{}'.
   sankey.relayout = function() {
     computeLinkDepths();
     return sankey;
   };
 
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'link' does not exist on type '{}'.
   sankey.link = function() {
     let curvature = 0.5;
 
-    function link(d) {
+    function link(d: any) {
       const x0 = d.source.x + d.source.dx;
       const x1 = d.target.x;
       const xi = d3.interpolateNumber(x0, x1);
@@ -280,7 +301,7 @@ function Sankey() {
       return `M${x0},${y0}C${x2},${y0} ${x3},${y1} ${x1},${y1}`;
     }
 
-    link.curvature = _ => {
+    link.curvature = (_: any) => {
       if (!arguments.length) return curvature;
       curvature = +_;
       return link;

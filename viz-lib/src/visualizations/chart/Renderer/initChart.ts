@@ -2,8 +2,8 @@ import { isArray, isObject, isString, isFunction, startsWith, reduce, merge, map
 import resizeObserver from "@/services/resizeObserver";
 import { Plotly, prepareData, prepareLayout, updateData, updateAxes, updateChartSize } from "../plotly";
 
-function createErrorHandler(errorHandler) {
-  return error => {
+function createErrorHandler(errorHandler: any) {
+  return (error: any) => {
     // This error happens only when chart width is 20px and looks that
     // it's safe to just ignore it: 1px less or more and chart will get fixed.
     if (isString(error) && startsWith(error, "ax.dtick error")) {
@@ -21,16 +21,17 @@ function createErrorHandler(errorHandler) {
 // `.process()` merges all updates into a single object and calls `Plotly.relayout()`. After that
 // it calls all callbacks, collects their return values and does another loop if needed.
 function initPlotUpdater() {
-  let actions = [];
+  let actions: any = [];
 
   const updater = {
-    append(action) {
+    append(action: any) {
       if (isArray(action) && isObject(action[0])) {
         actions.push(action);
       }
       return updater;
     },
-    process(plotlyElement) {
+    // @ts-expect-error ts-migrate(7023) FIXME: 'process' implicitly has return type 'any' because... Remove this comment to see the full error message
+    process(plotlyElement: any) {
       if (actions.length > 0) {
         const updates = reduce(actions, (updates, action) => merge(updates, action[0]), {});
         const handlers = map(actions, action => (isFunction(action[1]) ? action[1] : () => null));
@@ -48,7 +49,7 @@ function initPlotUpdater() {
   return updater;
 }
 
-export default function initChart(container, options, data, additionalOptions, onError) {
+export default function initChart(container: any, options: any, data: any, additionalOptions: any, onError: any) {
   const handleError = createErrorHandler(onError);
 
   const plotlyOptions = {
@@ -57,6 +58,7 @@ export default function initChart(container, options, data, additionalOptions, o
   };
 
   if (additionalOptions.hidePlotlyModeBar) {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'displayModeBar' does not exist on type '... Remove this comment to see the full error message
     plotlyOptions.displayModeBar = false;
   }
 
@@ -67,7 +69,8 @@ export default function initChart(container, options, data, additionalOptions, o
 
   let updater = initPlotUpdater();
 
-  function createSafeFunction(fn) {
+  function createSafeFunction(fn: any) {
+    // @ts-expect-error ts-migrate(7019) FIXME: Rest parameter 'args' implicitly has an 'any[]' ty... Remove this comment to see the full error message
     return (...args) => {
       if (!isDestroyed) {
         try {
@@ -95,9 +98,10 @@ export default function initChart(container, options, data, additionalOptions, o
       createSafeFunction(() => {
         container.on(
           "plotly_restyle",
-          createSafeFunction(updates => {
+          createSafeFunction((updates: any) => {
             // This event is triggered if some plotly data/layout has changed.
             // We need to catch only changes of traces visibility to update stacking
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'visible' does not exist on type 'object'... Remove this comment to see the full error message
             if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {
               updateData(plotlyData, options);
               updater.append(updateAxes(container, plotlyData, plotlyLayout, options)).process(container);
@@ -117,10 +121,12 @@ export default function initChart(container, options, data, additionalOptions, o
     )
     .catch(handleError);
 
+  // @ts-expect-error ts-migrate(7022) FIXME: 'result' implicitly has type 'any' because it does... Remove this comment to see the full error message
   const result = {
     initialized: promise.then(() => result),
-    setZoomEnabled: createSafeFunction(allowZoom => {
+    setZoomEnabled: createSafeFunction((allowZoom: any) => {
       const layoutUpdates = { dragmode: allowZoom ? "zoom" : false };
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '{ dragmode: string | boolean; }'... Remove this comment to see the full error message
       return Plotly.relayout(container, layoutUpdates);
     }),
     destroy: createSafeFunction(() => {

@@ -1,9 +1,15 @@
 import React from "react";
 import { extend } from "lodash";
-import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
 
-function HelpTrigger({ title, href, className, children }) {
+type HelpTriggerProps = {
+    title?: React.ReactNode;
+    href: string;
+    className?: string;
+    children?: React.ReactNode;
+};
+
+function HelpTrigger({ title, href, className, children }: HelpTriggerProps) {
   return (
     <Tooltip
       title={
@@ -19,20 +25,13 @@ function HelpTrigger({ title, href, className, children }) {
   );
 }
 
-HelpTrigger.propTypes = {
-  title: PropTypes.node,
-  href: PropTypes.string.isRequired,
-  className: PropTypes.string,
-  children: PropTypes.node,
-};
-
 HelpTrigger.defaultValues = {
   title: null,
   className: null,
   children: null,
 };
 
-function Link(props) {
+function Link(props: any) {
   return <a {...props} />;
 }
 
@@ -50,6 +49,6 @@ export const visualizationsSettings = {
   choroplethAvailableMaps: {},
 };
 
-export function updateVisualizationsSettings(options) {
+export function updateVisualizationsSettings(options: any) {
   extend(visualizationsSettings, options);
 }

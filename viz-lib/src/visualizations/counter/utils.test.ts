@@ -1,6 +1,6 @@
 import { getCounterData } from "./utils";
 
-let dummy;
+let dummy: any;
 
 describe("Visualizations -> Counter -> Utils", () => {
   beforeEach(() => {

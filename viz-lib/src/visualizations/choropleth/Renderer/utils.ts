@@ -2,15 +2,15 @@ import { isString, isObject, isFinite, each, map, extend, uniq, filter, first } 
 import chroma from "chroma-js";
 import { createNumberFormatter as createFormatter } from "@/lib/value-format";
 
-export function darkenColor(color) {
+export function darkenColor(color: any) {
   return chroma(color)
     .darken()
     .hex();
 }
 
-export function createNumberFormatter(format, placeholder) {
+export function createNumberFormatter(format: any, placeholder: any) {
   const formatter = createFormatter(format);
-  return value => {
+  return (value: any) => {
     if (isFinite(value)) {
       return formatter(value);
     }
@@ -18,7 +18,7 @@ export function createNumberFormatter(format, placeholder) {
   };
 }
 
-export function prepareData(data, keyColumn, valueColumn) {
+export function prepareData(data: any, keyColumn: any, valueColumn: any) {
   if (!keyColumn || !valueColumn) {
     return {};
   }
@@ -27,6 +27,7 @@ export function prepareData(data, keyColumn, valueColumn) {
   each(data, item => {
     if (item[keyColumn]) {
       const value = parseFloat(item[valueColumn]);
+      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       result[item[keyColumn]] = {
         code: item[keyColumn],
         value: isFinite(value) ? value : undefined,
@@ -37,17 +38,19 @@ export function prepareData(data, keyColumn, valueColumn) {
   return result;
 }
 
-export function prepareFeatureProperties(feature, valueFormatted, data, targetField) {
+export function prepareFeatureProperties(feature: any, valueFormatted: any, data: any, targetField: any) {
   const result = {};
   each(feature.properties, (value, key) => {
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     result["@@" + key] = value;
   });
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   result["@@value"] = valueFormatted;
   const datum = data[feature.properties[targetField]] || {};
   return extend(result, datum.item);
 }
 
-export function getValueForFeature(feature, data, targetField) {
+export function getValueForFeature(feature: any, data: any, targetField: any) {
   const code = feature.properties[targetField];
   if (isString(code) && isObject(data[code])) {
     return data[code].value;
@@ -55,7 +58,7 @@ export function getValueForFeature(feature, data, targetField) {
   return undefined;
 }
 
-export function getColorByValue(value, limits, colors, defaultColor) {
+export function getColorByValue(value: any, limits: any, colors: any, defaultColor: any) {
   if (isFinite(value)) {
     for (let i = 0; i < limits.length; i += 1) {
       if (value <= limits[i]) {
@@ -66,7 +69,7 @@ export function getColorByValue(value, limits, colors, defaultColor) {
   return defaultColor;
 }
 
-export function createScale(features, data, options) {
+export function createScale(features: any, data: any, options: any) {
   // Calculate limits
   const values = uniq(
     filter(

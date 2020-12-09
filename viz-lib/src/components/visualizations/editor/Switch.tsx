@@ -1,11 +1,19 @@
 import React, { useMemo } from "react";
-import PropTypes from "prop-types";
 import AntSwitch from "antd/lib/switch";
 import Typography from "antd/lib/typography";
 
 import "./Switch.less";
 
-export default function Switch({ id, children, disabled, ...props }) {
+type OwnProps = {
+    id?: string;
+    disabled?: boolean;
+    children?: React.ReactNode;
+};
+
+type Props = OwnProps & typeof Switch.defaultProps;
+
+// @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
+export default function Switch({ id, children, disabled, ...props }: Props) {
   const fallbackId = useMemo(
     () =>
       `visualization-editor-control-${Math.random()
@@ -28,12 +36,6 @@ export default function Switch({ id, children, disabled, ...props }) {
 
   return <AntSwitch {...props} />;
 }
-
-Switch.propTypes = {
-  id: PropTypes.string,
-  disabled: PropTypes.bool,
-  children: PropTypes.node,
-};
 
 Switch.defaultProps = {
   id: null,

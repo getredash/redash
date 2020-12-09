@@ -4,16 +4,17 @@ function box() {
   let width = 1,
     height = 1,
     duration = 0,
-    domain = null,
+    domain: any = null,
     value = Number,
     whiskers = boxWhiskers,
     quartiles = boxQuartiles,
-    tickFormat = null;
+    tickFormat: any = null;
 
   // For each small multiple…
-  function box(g) {
-    g.each(function(d, i) {
+  function box(g: any) {
+    g.each(function(d: any, i: any) {
       d = d.map(value).sort(d3.ascending);
+      // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
       let g = d3.select(this),
         n = d.length,
         min = d[0],
@@ -23,6 +24,7 @@ function box() {
       const quartileData = (d.quartiles = quartiles(d));
 
       // Compute whiskers. Must return exactly 2 elements, or null.
+      // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
       let whiskerIndices = whiskers && whiskers.call(this, d, i),
         whiskerData = whiskerIndices && whiskerIndices.map(i => d[i]);
 
@@ -33,20 +35,25 @@ function box() {
         : d3.range(n);
 
       // Compute the new x-scale.
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
       const x1 = d3.scale
         .linear()
+        // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
         .domain((domain && domain.call(this, d, i)) || [min, max])
         .range([height, 0]);
 
       // Retrieve the old x-scale, if this is an update.
       const x0 =
+        // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
         this.__chart__ ||
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
         d3.scale
           .linear()
           .domain([0, Infinity])
           .range(x1.range());
 
       // Stash the new scale.
+      // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
       this.__chart__ = x1;
 
       // Note: the box, median, and box tick elements are fixed in number,
@@ -84,7 +91,9 @@ function box() {
         .transition()
         .duration(duration)
         .style("opacity", 1e-6)
+        // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
         .attr("y1", d => x1(d[0]))
+        // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
         .attr("y2", d => x1(d[1]))
         .remove();
 
@@ -196,6 +205,7 @@ function box() {
         .exit()
         .transition()
         .duration(duration)
+        // @ts-expect-error ts-migrate(2538) FIXME: Type 'unknown' cannot be used as an index type.
         .attr("cy", i => x1(d[i]))
         .style("opacity", 1e-6)
         .remove();
@@ -263,52 +273,54 @@ function box() {
         .style("opacity", 1e-6)
         .remove();
     });
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'flush' does not exist on type '(callback... Remove this comment to see the full error message
     d3.timer.flush();
   }
 
-  box.width = function(x) {
+  box.width = function(x: any) {
     if (!arguments.length) return width;
     width = x;
     return box;
   };
 
-  box.height = function(x) {
+  box.height = function(x: any) {
     if (!arguments.length) return height;
     height = x;
     return box;
   };
 
-  box.tickFormat = function(x) {
+  box.tickFormat = function(x: any) {
     if (!arguments.length) return tickFormat;
     tickFormat = x;
     return box;
   };
 
-  box.duration = function(x) {
+  box.duration = function(x: any) {
     if (!arguments.length) return duration;
     duration = x;
     return box;
   };
 
-  box.domain = function(x) {
+  box.domain = function(x: any) {
     if (!arguments.length) return domain;
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'functor' does not exist on type 'typeof ... Remove this comment to see the full error message
     domain = x == null ? x : d3.functor(x);
     return box;
   };
 
-  box.value = function(x) {
+  box.value = function(x: any) {
     if (!arguments.length) return value;
     value = x;
     return box;
   };
 
-  box.whiskers = function(x) {
+  box.whiskers = function(x: any) {
     if (!arguments.length) return whiskers;
     whiskers = x;
     return box;
   };
 
-  box.quartiles = function(x) {
+  box.quartiles = function(x: any) {
     if (!arguments.length) return quartiles;
     quartiles = x;
     return box;
@@ -317,11 +329,11 @@ function box() {
   return box;
 }
 
-function boxWhiskers(d) {
+function boxWhiskers(d: any) {
   return [0, d.length - 1];
 }
 
-function boxQuartiles(d) {
+function boxQuartiles(d: any) {
   return [d3.quantile(d, 0.25), d3.quantile(d, 0.5), d3.quantile(d, 0.75)];
 }
 

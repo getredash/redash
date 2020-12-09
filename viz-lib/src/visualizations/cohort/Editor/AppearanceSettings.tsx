@@ -3,27 +3,33 @@ import { useDebouncedCallback } from "use-debounce";
 import { Section, Input, Checkbox, ContextHelp } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
-export default function AppearanceSettings({ options, onOptionsChange }) {
+export default function AppearanceSettings({
+  options,
+  onOptionsChange
+}: any) {
   const [debouncedOnOptionsChange] = useDebouncedCallback(onOptionsChange, 200);
 
   return (
     <React.Fragment>
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           layout="horizontal"
           label="Time Column Title"
           defaultValue={options.timeColumnTitle}
-          onChange={e => debouncedOnOptionsChange({ timeColumnTitle: e.target.value })}
+          onChange={(e: any) => debouncedOnOptionsChange({ timeColumnTitle: e.target.value })}
         />
       </Section>
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           layout="horizontal"
           label="People Column Title"
           defaultValue={options.peopleColumnTitle}
-          onChange={e => debouncedOnOptionsChange({ peopleColumnTitle: e.target.value })}
+          onChange={(e: any) => debouncedOnOptionsChange({ peopleColumnTitle: e.target.value })}
         />
       </Section>
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           layout="horizontal"
@@ -31,6 +37,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
             <React.Fragment>
               Stage Column Title
               <ContextHelp placement="topRight" arrowPointAtCenter>
+                {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
                 <div>
                   Use <code>{"{{ @ }}"}</code> to insert a stage number
                 </div>
@@ -38,10 +45,11 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
             </React.Fragment>
           }
           defaultValue={options.stageColumnTitle}
-          onChange={e => debouncedOnOptionsChange({ stageColumnTitle: e.target.value })}
+          onChange={(e: any) => debouncedOnOptionsChange({ stageColumnTitle: e.target.value })}
         />
       </Section>
 
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           layout="horizontal"
@@ -52,9 +60,10 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
             </React.Fragment>
           }
           defaultValue={options.numberFormat}
-          onChange={e => debouncedOnOptionsChange({ numberFormat: e.target.value })}
+          onChange={(e: any) => debouncedOnOptionsChange({ numberFormat: e.target.value })}
         />
       </Section>
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           layout="horizontal"
@@ -65,19 +74,21 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
             </React.Fragment>
           }
           defaultValue={options.percentFormat}
-          onChange={e => debouncedOnOptionsChange({ percentFormat: e.target.value })}
+          onChange={(e: any) => debouncedOnOptionsChange({ percentFormat: e.target.value })}
         />
       </Section>
 
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           layout="horizontal"
           label="No Value Placeholder"
           defaultValue={options.noValuePlaceholder}
-          onChange={e => debouncedOnOptionsChange({ noValuePlaceholder: e.target.value })}
+          onChange={(e: any) => debouncedOnOptionsChange({ noValuePlaceholder: e.target.value })}
         />
       </Section>
 
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           defaultChecked={options.showTooltips}
@@ -85,6 +96,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           Show Tooltips
         </Checkbox>
       </Section>
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           defaultChecked={options.percentValues}

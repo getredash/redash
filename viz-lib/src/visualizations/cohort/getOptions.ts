@@ -27,6 +27,6 @@ const DEFAULT_OPTIONS = {
   },
 };
 
-export default function getOptions(options) {
+export default function getOptions(options: any) {
   return merge({}, DEFAULT_OPTIONS, options);
 }

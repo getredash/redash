@@ -13,7 +13,7 @@ const DEFAULT_OPTIONS = {
 export default {
   type: "WORD_CLOUD",
   name: "Word Cloud",
-  getOptions: options => merge({}, DEFAULT_OPTIONS, options),
+  getOptions: (options: any) => merge({}, DEFAULT_OPTIONS, options),
   Renderer,
   Editor,
 

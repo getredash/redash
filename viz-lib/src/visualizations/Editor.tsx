@@ -1,16 +1,20 @@
 import React, { useMemo } from "react";
-import PropTypes from "prop-types";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 import registeredVisualizations from "@/visualizations/registeredVisualizations";
 
-export default function Editor({ type, options: optionsProp, data, ...otherProps }) {
+/*
+(ts-migrate) TODO: Migrate the remaining prop types
+...EditorPropTypes
+*/
+type Props = {
+    type: string;
+};
+
+// @ts-expect-error ts-migrate(2339) FIXME: Property 'options' does not exist on type 'Props'.
+export default function Editor({ type, options: optionsProp, data, ...otherProps }: Props) {
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const { Editor, getOptions } = registeredVisualizations[type];
   const options = useMemo(() => getOptions(optionsProp, data), [optionsProp, data]);
 
   return <Editor options={options} data={data} {...otherProps} />;
 }
-
-Editor.propTypes = {
-  type: PropTypes.string.isRequired,
-  ...EditorPropTypes,
-};

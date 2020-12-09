@@ -7,7 +7,10 @@ import { visualizationsSettings } from "@/visualizations/visualizationsSettings"
 
 import "./renderer.less";
 
-export default function Renderer({ options, ...props }) {
+export default function Renderer({
+  options,
+  ...props
+}: any) {
   if (options.globalSeriesType === "custom" && visualizationsSettings.allowCustomJSVisualizations) {
     return <CustomPlotlyChart options={options} {...props} />;
   }
