@@ -34,6 +34,7 @@
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/preset-env": "^7.9.0",
     "@babel/preset-react": "^7.9.4",
+    "@babel/preset-typescript": "^7.12.7",
     "babel-loader": "^8.1.0",
     "babel-plugin-istanbul": "^6.0.0",
     "babel-plugin-module-resolver": "^4.0.0",
@@ -50,6 +51,7 @@
     "prettier": "^1.19.1",
     "prop-types": "^15.7.2",
     "style-loader": "^1.1.4",
+    "ts-migrate": "^0.1.10",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11"
   },
