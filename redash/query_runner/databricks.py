@@ -12,6 +12,7 @@ from redash.query_runner import (
     TYPE_INTEGER,
     TYPE_FLOAT,
 )
+from redash.settings import cast_int_or_default
 from redash.utils import json_dumps, json_loads
 from redash import __version__, settings, statsd_client
 
@@ -31,8 +32,9 @@ TYPES_MAP = {
     float: TYPE_FLOAT,
 }
 
-logger = logging.getLogger(__name__)
+ROW_LIMIT = cast_int_or_default(os.environ.get("DATABRICKS_ROW_LIMIT"), 20000)
 
+logger = logging.getLogger(__name__)
 
 def _build_odbc_connection_string(**kwargs):
     return ";".join([f"{k}={v}" for k, v in kwargs.items()])
@@ -161,7 +163,7 @@ class Databricks(BaseSQLQueryRunner):
                 cursor.execute(stmt)
 
             if cursor.description is not None:
-                result_set = cursor.fetchmany(settings.DATABRICKS_ROW_LIMIT)
+                result_set = cursor.fetchmany(ROW_LIMIT)
                 columns = self.fetch_columns(
                     [
                         (i[0], TYPES_MAP.get(i[1], TYPE_STRING))
