@@ -90,6 +90,7 @@
     "@percy/agent": "0.24.3",
     "@percy/cypress": "^2.3.2",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.4.3",
+    "@testing-library/cypress": "^7.0.2",
     "@types/classnames": "^2.2.10",
     "@types/hoist-non-react-statics": "^3.3.1",
     "@types/lodash": "^4.14.157",
