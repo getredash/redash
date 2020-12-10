@@ -8,9 +8,8 @@ import registeredVisualizations from "@/visualizations/registeredVisualizations"
 */
 type Props = {
     type: string;
-};
+} & typeof EditorPropTypes;
 
-// @ts-expect-error ts-migrate(2339) FIXME: Property 'options' does not exist on type 'Props'.
 export default function Editor({ type, options: optionsProp, data, ...otherProps }: Props) {
   // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const { Editor, getOptions } = registeredVisualizations[type];

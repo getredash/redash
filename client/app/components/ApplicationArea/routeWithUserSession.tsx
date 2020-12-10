@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// @ts-expect-error (Must be removed after adding @redash/viz typing)
 import ErrorBoundary, { ErrorBoundaryContext } from "@redash/viz/lib/components/ErrorBoundary";
 import { Auth } from "@/services/auth";
 import { policy } from "@/services/policy";
@@ -62,9 +61,10 @@ export function UserSessionWrapper<P>({ bodyClass, currentRoute, render }: UserS
   return (
     <ApplicationLayout>
       <React.Fragment key={currentRoute.key}>
+        {/* @ts-expect-error FIXME */}
         <ErrorBoundary renderError={(error: Error) => <ErrorMessage error={error} />}>
           <ErrorBoundaryContext.Consumer>
-            {({ handleError }: { handleError: UserSessionWrapperRenderChildrenProps<P>["onError"] }) =>
+            {({ handleError } /* : { handleError: UserSessionWrapperRenderChildrenProps<P>["onError"] } FIXME bring back type */) =>
               render({ ...currentRoute.routeParams, pageTitle: currentRoute.title, onError: handleError })
             }
           </ErrorBoundaryContext.Consumer>

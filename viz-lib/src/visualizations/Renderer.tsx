@@ -12,9 +12,8 @@ type Props = {
     type: string;
     addonBefore?: React.ReactNode;
     addonAfter?: React.ReactNode;
-};
+} & typeof RendererPropTypes;
 
-// @ts-expect-error ts-migrate(2339) FIXME: Property 'data' does not exist on type 'Props'.
 export default function Renderer({ type, data, options: optionsProp, visualizationName, addonBefore, addonAfter, ...otherProps }: Props) {
   const lastOptions = useRef();
   const errorHandlerRef = useRef();
