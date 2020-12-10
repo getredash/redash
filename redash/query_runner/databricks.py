@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 import sqlparse
 from redash.query_runner import (
     NotSupported,
