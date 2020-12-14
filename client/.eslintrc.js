@@ -20,6 +20,7 @@ module.exports = {
     // allow debugger during development
     "no-debugger": process.env.NODE_ENV === "production" ? 2 : 0,
     "jsx-a11y/anchor-is-valid": "off",
+    "no-console": ["warn", { allow: ["warn", "error"] }],
     "no-restricted-imports": [
       "error",
       {
