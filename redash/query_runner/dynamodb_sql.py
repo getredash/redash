@@ -41,7 +41,10 @@ class DynamoDBSQL(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "region": {"type": "string", "default": "us-east-1"},
+                "region": {
+                    "type": "string",
+                    "default": "us-east-1"
+                },
                 "access_key": {
                     "type": "string",
                 },
@@ -88,7 +91,10 @@ class DynamoDBSQL(BaseSQLQueryRunner):
         for table_name in tables:
             try:
                 table = engine.describe(table_name, True)
-                schema[table.name] = {"name": table.name, "columns": table.attrs.keys()}
+                schema[table.name] = {
+                    "name": table.name,
+                    "columns": table.attrs.keys()
+                }
             except DynamoDBError:
                 pass
 
@@ -117,13 +123,14 @@ class DynamoDBSQL(BaseSQLQueryRunner):
             for item in result:
                 if not columns:
                     for k, v in item.iteritems():
-                        columns.append(
-                            {
-                                "name": k,
-                                "friendly_name": k,
-                                "type": types_map.get(str(type(v)).upper(), None),
-                            }
-                        )
+                        columns.append({
+                            "name":
+                            k,
+                            "friendly_name":
+                            k,
+                            "type":
+                            types_map.get(str(type(v)).upper(), None),
+                        })
                 rows.append(item)
 
             data = {"columns": columns, "rows": rows}
@@ -131,8 +138,7 @@ class DynamoDBSQL(BaseSQLQueryRunner):
             error = None
         except ParseException as e:
             error = u"Error parsing query at line {} (column {}):\n{}".format(
-                e.lineno, e.column, e.line
-            )
+                e.lineno, e.column, e.line)
             json_data = None
         except (SyntaxError, RuntimeError) as e:
             error = e.message

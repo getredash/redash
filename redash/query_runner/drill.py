@@ -51,9 +51,11 @@ def parse_response(data):
     types = {}
 
     for c in cols:
-        columns.append(
-            {"name": c, "type": guess_type(first_row[c]), "friendly_name": c}
-        )
+        columns.append({
+            "name": c,
+            "type": guess_type(first_row[c]),
+            "friendly_name": c
+        })
 
     for col in columns:
         types[col["name"]] = col["type"]
@@ -86,7 +88,8 @@ class Drill(BaseHTTPQueryRunner):
         # We added this to improve user experience and let users focus only on desired schemas.
         schema["properties"]["allowed_schemas"] = {
             "type": "string",
-            "title": "List of schemas to use in schema browser (comma separated)",
+            "title":
+            "List of schemas to use in schema browser (comma separated)",
         }
         schema["order"] += ["allowed_schemas"]
         return schema
@@ -97,9 +100,9 @@ class Drill(BaseHTTPQueryRunner):
         try:
             payload = {"queryType": "SQL", "query": query}
 
-            response, error = self.get_response(
-                drill_url, http_method="post", json=payload
-            )
+            response, error = self.get_response(drill_url,
+                                                http_method="post",
+                                                json=payload)
             if error is not None:
                 return None, error
 
@@ -126,14 +129,11 @@ class Drill(BaseHTTPQueryRunner):
         """
         allowed_schemas = self.configuration.get("allowed_schemas")
         if allowed_schemas:
-            query += "and TABLE_SCHEMA in ({})".format(
-                ", ".join(
-                    map(
-                        lambda x: "'{}'".format(re.sub("[^a-zA-Z0-9_.`]", "", x)),
-                        allowed_schemas.split(","),
-                    )
-                )
-            )
+            query += "and TABLE_SCHEMA in ({})".format(", ".join(
+                map(
+                    lambda x: "'{}'".format(re.sub("[^a-zA-Z0-9_.`]", "", x)),
+                    allowed_schemas.split(","),
+                )))
 
         results, error = self.run_query(query, None)
 
@@ -145,7 +145,8 @@ class Drill(BaseHTTPQueryRunner):
         schema = {}
 
         for row in results["rows"]:
-            table_name = u"{}.{}".format(row["TABLE_SCHEMA"], row["TABLE_NAME"])
+            table_name = u"{}.{}".format(row["TABLE_SCHEMA"],
+                                         row["TABLE_NAME"])
 
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}

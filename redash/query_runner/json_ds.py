@@ -69,9 +69,11 @@ def _get_type(value):
 
 def add_column(columns, column_name, column_type):
     if _get_column_by_name(columns, column_name) is None:
-        columns.append(
-            {"name": column_name, "friendly_name": column_name, "type": column_type}
-        )
+        columns.append({
+            "name": column_name,
+            "friendly_name": column_name,
+            "type": column_type
+        })
 
 
 def _apply_path_search(response, path):
@@ -103,7 +105,8 @@ def _normalize_json(data, path):
 
 def _sort_columns_with_fields(columns, fields):
     if fields:
-        columns = compact([_get_column_by_name(columns, field) for field in fields])
+        columns = compact(
+            [_get_column_by_name(columns, field) for field in fields])
 
     return columns
 
@@ -204,8 +207,7 @@ class JSON(BaseHTTPQueryRunner):
             if isinstance(request_options.get("auth", None), list):
                 request_options["auth"] = tuple(request_options["auth"])
             elif self.configuration.get("username") or self.configuration.get(
-                "password"
-            ):
+                    "password"):
                 request_options["auth"] = (
                     self.configuration.get("username"),
                     self.configuration.get("password"),
@@ -217,9 +219,9 @@ class JSON(BaseHTTPQueryRunner):
             if fields and not isinstance(fields, list):
                 raise QueryParseError("'fields' needs to be a list.")
 
-            response, error = self.get_response(
-                query["url"], http_method=method, **request_options
-            )
+            response, error = self.get_response(query["url"],
+                                                http_method=method,
+                                                **request_options)
 
             if error is not None:
                 return None, error
@@ -229,7 +231,8 @@ class JSON(BaseHTTPQueryRunner):
             if data:
                 return data, None
             else:
-                return None, "Got empty response from '{}'.".format(query["url"])
+                return None, "Got empty response from '{}'.".format(
+                    query["url"])
         except KeyboardInterrupt:
             return None, "Query cancelled by user."
 

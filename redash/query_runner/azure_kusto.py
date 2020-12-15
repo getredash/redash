@@ -44,16 +44,27 @@ class AzureKusto(BaseQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
-            "type": "object",
+            "type":
+            "object",
             "properties": {
-                "cluster": {"type": "string"},
-                "azure_ad_client_id": {"type": "string", "title": "Azure AD Client ID"},
+                "cluster": {
+                    "type": "string"
+                },
+                "azure_ad_client_id": {
+                    "type": "string",
+                    "title": "Azure AD Client ID"
+                },
                 "azure_ad_client_secret": {
                     "type": "string",
                     "title": "Azure AD Client Secret",
                 },
-                "azure_ad_tenant_id": {"type": "string", "title": "Azure AD Tenant Id"},
-                "database": {"type": "string"},
+                "azure_ad_tenant_id": {
+                    "type": "string",
+                    "title": "Azure AD Tenant Id"
+                },
+                "database": {
+                    "type": "string"
+                },
             },
             "required": [
                 "cluster",
@@ -105,13 +116,11 @@ class AzureKusto(BaseQueryRunner):
             columns = []
             rows = []
             for c in result_cols:
-                columns.append(
-                    {
-                        "name": c.column_name,
-                        "friendly_name": c.column_name,
-                        "type": TYPES_MAP.get(c.column_type, None),
-                    }
-                )
+                columns.append({
+                    "name": c.column_name,
+                    "friendly_name": c.column_name,
+                    "type": TYPES_MAP.get(c.column_type, None),
+                })
 
             # rows must be [{'column1': value, 'column2': value}]
             for row in result_rows:
@@ -144,9 +153,8 @@ class AzureKusto(BaseQueryRunner):
         results = json_loads(results)
 
         schema_as_json = json_loads(results["rows"][0]["DatabaseSchema"])
-        tables_list = schema_as_json["Databases"][self.configuration["database"]][
-            "Tables"
-        ].values()
+        tables_list = schema_as_json["Databases"][
+            self.configuration["database"]]["Tables"].values()
 
         schema = {}
 

@@ -64,7 +64,10 @@ def upgrade():
 
                 db.session.execute(
                     "UPDATE widgets SET options=:options WHERE id=:id",
-                    {"options": simplejson.dumps(options), "id": widget_id},
+                    {
+                        "options": simplejson.dumps(options),
+                        "id": widget_id
+                    },
                 )
 
     dashboard_result.close()
@@ -78,9 +81,13 @@ def upgrade():
 def downgrade():
     op.add_column(
         "widgets",
-        sa.Column("query_id", sa.INTEGER(), autoincrement=False, nullable=True),
+        sa.Column("query_id", sa.INTEGER(), autoincrement=False,
+                  nullable=True),
     )
     op.add_column(
         "widgets",
-        sa.Column("type", sa.VARCHAR(length=100), autoincrement=False, nullable=True),
+        sa.Column("type",
+                  sa.VARCHAR(length=100),
+                  autoincrement=False,
+                  nullable=True),
     )

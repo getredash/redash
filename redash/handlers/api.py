@@ -98,10 +98,12 @@ api.add_org_resource(
 )
 api.add_org_resource(AlertListResource, "/api/alerts", endpoint="alerts")
 
-api.add_org_resource(DashboardListResource, "/api/dashboards", endpoint="dashboards")
-api.add_org_resource(
-    DashboardResource, "/api/dashboards/<dashboard_slug>", endpoint="dashboard"
-)
+api.add_org_resource(DashboardListResource,
+                     "/api/dashboards",
+                     endpoint="dashboards")
+api.add_org_resource(DashboardResource,
+                     "/api/dashboards/<dashboard_slug>",
+                     endpoint="dashboard")
 api.add_org_resource(
     PublicDashboardResource,
     "/api/dashboards/public/<token>",
@@ -113,28 +115,27 @@ api.add_org_resource(
     endpoint="dashboard_share",
 )
 
-api.add_org_resource(
-    DataSourceTypeListResource, "/api/data_sources/types", endpoint="data_source_types"
-)
-api.add_org_resource(
-    DataSourceListResource, "/api/data_sources", endpoint="data_sources"
-)
-api.add_org_resource(
-    DataSourceSchemaResource, "/api/data_sources/<data_source_id>/schema"
-)
-api.add_org_resource(
-    DataSourcePauseResource, "/api/data_sources/<data_source_id>/pause"
-)
-api.add_org_resource(DataSourceTestResource, "/api/data_sources/<data_source_id>/test")
-api.add_org_resource(
-    DataSourceResource, "/api/data_sources/<data_source_id>", endpoint="data_source"
-)
+api.add_org_resource(DataSourceTypeListResource,
+                     "/api/data_sources/types",
+                     endpoint="data_source_types")
+api.add_org_resource(DataSourceListResource,
+                     "/api/data_sources",
+                     endpoint="data_sources")
+api.add_org_resource(DataSourceSchemaResource,
+                     "/api/data_sources/<data_source_id>/schema")
+api.add_org_resource(DataSourcePauseResource,
+                     "/api/data_sources/<data_source_id>/pause")
+api.add_org_resource(DataSourceTestResource,
+                     "/api/data_sources/<data_source_id>/test")
+api.add_org_resource(DataSourceResource,
+                     "/api/data_sources/<data_source_id>",
+                     endpoint="data_source")
 
 api.add_org_resource(GroupListResource, "/api/groups", endpoint="groups")
 api.add_org_resource(GroupResource, "/api/groups/<group_id>", endpoint="group")
-api.add_org_resource(
-    GroupMemberListResource, "/api/groups/<group_id>/members", endpoint="group_members"
-)
+api.add_org_resource(GroupMemberListResource,
+                     "/api/groups/<group_id>/members",
+                     endpoint="group_members")
 api.add_org_resource(
     GroupMemberResource,
     "/api/groups/<group_id>/members/<user_id>",
@@ -153,12 +154,12 @@ api.add_org_resource(
 
 api.add_org_resource(EventsResource, "/api/events", endpoint="events")
 
-api.add_org_resource(
-    QueryFavoriteListResource, "/api/queries/favorites", endpoint="query_favorites"
-)
-api.add_org_resource(
-    QueryFavoriteResource, "/api/queries/<query_id>/favorite", endpoint="query_favorite"
-)
+api.add_org_resource(QueryFavoriteListResource,
+                     "/api/queries/favorites",
+                     endpoint="query_favorites")
+api.add_org_resource(QueryFavoriteResource,
+                     "/api/queries/<query_id>/favorite",
+                     endpoint="query_favorite")
 api.add_org_resource(
     DashboardFavoriteListResource,
     "/api/dashboards/favorites",
@@ -170,29 +171,35 @@ api.add_org_resource(
     endpoint="dashboard_favorite",
 )
 
-api.add_org_resource(QueryTagsResource, "/api/queries/tags", endpoint="query_tags")
-api.add_org_resource(
-    DashboardTagsResource, "/api/dashboards/tags", endpoint="dashboard_tags"
-)
+api.add_org_resource(QueryTagsResource,
+                     "/api/queries/tags",
+                     endpoint="query_tags")
+api.add_org_resource(DashboardTagsResource,
+                     "/api/dashboards/tags",
+                     endpoint="dashboard_tags")
 
-api.add_org_resource(
-    QuerySearchResource, "/api/queries/search", endpoint="queries_search"
-)
-api.add_org_resource(
-    QueryRecentResource, "/api/queries/recent", endpoint="recent_queries"
-)
-api.add_org_resource(
-    QueryArchiveResource, "/api/queries/archive", endpoint="queries_archive"
-)
+api.add_org_resource(QuerySearchResource,
+                     "/api/queries/search",
+                     endpoint="queries_search")
+api.add_org_resource(QueryRecentResource,
+                     "/api/queries/recent",
+                     endpoint="recent_queries")
+api.add_org_resource(QueryArchiveResource,
+                     "/api/queries/archive",
+                     endpoint="queries_archive")
 api.add_org_resource(QueryListResource, "/api/queries", endpoint="queries")
-api.add_org_resource(MyQueriesResource, "/api/queries/my", endpoint="my_queries")
-api.add_org_resource(
-    QueryRefreshResource, "/api/queries/<query_id>/refresh", endpoint="query_refresh"
-)
-api.add_org_resource(QueryResource, "/api/queries/<query_id>", endpoint="query")
-api.add_org_resource(
-    QueryForkResource, "/api/queries/<query_id>/fork", endpoint="query_fork"
-)
+api.add_org_resource(MyQueriesResource,
+                     "/api/queries/my",
+                     endpoint="my_queries")
+api.add_org_resource(QueryRefreshResource,
+                     "/api/queries/<query_id>/refresh",
+                     endpoint="query_refresh")
+api.add_org_resource(QueryResource,
+                     "/api/queries/<query_id>",
+                     endpoint="query")
+api.add_org_resource(QueryForkResource,
+                     "/api/queries/<query_id>/fork",
+                     endpoint="query_fork")
 api.add_org_resource(
     QueryRegenerateApiKeyResource,
     "/api/queries/<query_id>/regenerate_api_key",
@@ -210,12 +217,12 @@ api.add_org_resource(
     endpoint="check_permissions",
 )
 
-api.add_org_resource(
-    QueryResultListResource, "/api/query_results", endpoint="query_results"
-)
-api.add_org_resource(
-    QueryBigQueryResultPrice, "/api/bigquery_result_price", endpoint="bigquery_price"
-)
+api.add_org_resource(QueryResultListResource,
+                     "/api/query_results",
+                     endpoint="query_results")
+api.add_org_resource(QueryBigQueryResultPrice,
+                     "/api/bigquery_result_price",
+                     endpoint="bigquery_price")
 api.add_org_resource(
     QueryResultDropdownResource,
     "/api/queries/<query_id>/dropdown",
@@ -244,9 +251,9 @@ api.add_org_resource(
 
 api.add_org_resource(UserListResource, "/api/users", endpoint="users")
 api.add_org_resource(UserResource, "/api/users/<user_id>", endpoint="user")
-api.add_org_resource(
-    UserInviteResource, "/api/users/<user_id>/invite", endpoint="user_invite"
-)
+api.add_org_resource(UserInviteResource,
+                     "/api/users/<user_id>/invite",
+                     endpoint="user_invite")
 api.add_org_resource(
     UserResetPasswordResource,
     "/api/users/<user_id>/reset_password",
@@ -257,13 +264,13 @@ api.add_org_resource(
     "/api/users/<user_id>/regenerate_api_key",
     endpoint="user_regenerate_api_key",
 )
-api.add_org_resource(
-    UserDisableResource, "/api/users/<user_id>/disable", endpoint="user_disable"
-)
+api.add_org_resource(UserDisableResource,
+                     "/api/users/<user_id>/disable",
+                     endpoint="user_disable")
 
-api.add_org_resource(
-    VisualizationListResource, "/api/visualizations", endpoint="visualizations"
-)
+api.add_org_resource(VisualizationListResource,
+                     "/api/visualizations",
+                     endpoint="visualizations")
 api.add_org_resource(
     VisualizationResource,
     "/api/visualizations/<visualization_id>",
@@ -271,25 +278,27 @@ api.add_org_resource(
 )
 
 api.add_org_resource(WidgetListResource, "/api/widgets", endpoint="widgets")
-api.add_org_resource(WidgetResource, "/api/widgets/<int:widget_id>", endpoint="widget")
+api.add_org_resource(WidgetResource,
+                     "/api/widgets/<int:widget_id>",
+                     endpoint="widget")
 
-api.add_org_resource(
-    DestinationTypeListResource, "/api/destinations/types", endpoint="destination_types"
-)
-api.add_org_resource(
-    DestinationResource, "/api/destinations/<destination_id>", endpoint="destination"
-)
-api.add_org_resource(
-    DestinationListResource, "/api/destinations", endpoint="destinations"
-)
+api.add_org_resource(DestinationTypeListResource,
+                     "/api/destinations/types",
+                     endpoint="destination_types")
+api.add_org_resource(DestinationResource,
+                     "/api/destinations/<destination_id>",
+                     endpoint="destination")
+api.add_org_resource(DestinationListResource,
+                     "/api/destinations",
+                     endpoint="destinations")
 
-api.add_org_resource(
-    QuerySnippetResource, "/api/query_snippets/<snippet_id>", endpoint="query_snippet"
-)
-api.add_org_resource(
-    QuerySnippetListResource, "/api/query_snippets", endpoint="query_snippets"
-)
+api.add_org_resource(QuerySnippetResource,
+                     "/api/query_snippets/<snippet_id>",
+                     endpoint="query_snippet")
+api.add_org_resource(QuerySnippetListResource,
+                     "/api/query_snippets",
+                     endpoint="query_snippets")
 
-api.add_org_resource(
-    OrganizationSettings, "/api/settings/organization", endpoint="organization_settings"
-)
+api.add_org_resource(OrganizationSettings,
+                     "/api/settings/organization",
+                     endpoint="organization_settings")

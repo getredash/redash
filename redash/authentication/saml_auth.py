@@ -29,10 +29,16 @@ def get_saml_client(org):
     """
     metadata_url = org.get_setting("auth_saml_metadata_url")
     entity_id = org.get_setting("auth_saml_entity_id")
-    acs_url = url_for("saml_auth.idp_initiated", org_slug=org.slug, _external=True)
+    acs_url = url_for("saml_auth.idp_initiated",
+                      org_slug=org.slug,
+                      _external=True)
 
     saml_settings = {
-        "metadata": {"remote": [{"url": metadata_url}]},
+        "metadata": {
+            "remote": [{
+                "url": metadata_url
+            }]
+        },
         "service": {
             "sp": {
                 "endpoints": {
@@ -74,8 +80,7 @@ def idp_initiated(org_slug=None):
     saml_client = get_saml_client(current_org)
     try:
         authn_response = saml_client.parse_authn_request_response(
-            request.form["SAMLResponse"], entity.BINDING_HTTP_POST
-        )
+            request.form["SAMLResponse"], entity.BINDING_HTTP_POST)
     except Exception:
         logger.error("Failed to parse SAML response", exc_info=True)
         flash("SAML login failed. Please try again later.")

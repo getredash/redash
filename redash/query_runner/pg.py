@@ -38,7 +38,11 @@ class PostgreSQLJSONEncoder(JSONEncoder):
             if o._bounds is None:
                 return ""
 
-            items = [o._bounds[0], str(o._lower), ", ", str(o._upper), o._bounds[1]]
+            items = [
+                o._bounds[0],
+                str(o._lower), ", ",
+                str(o._upper), o._bounds[1]
+            ]
 
             return "".join(items)
 
@@ -69,12 +73,29 @@ class PostgreSQL(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "user": {"type": "string"},
-                "password": {"type": "string"},
-                "host": {"type": "string", "default": "127.0.0.1"},
-                "port": {"type": "number", "default": 5432},
-                "dbname": {"type": "string", "title": "Database Name"},
-                "sslmode": {"type": "string", "title": "SSL Mode", "default": "prefer"},
+                "user": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string",
+                    "default": "127.0.0.1"
+                },
+                "port": {
+                    "type": "number",
+                    "default": 5432
+                },
+                "dbname": {
+                    "type": "string",
+                    "title": "Database Name"
+                },
+                "sslmode": {
+                    "type": "string",
+                    "title": "SSL Mode",
+                    "default": "prefer"
+                },
             },
             "order": ["host", "port", "user", "password"],
             "required": ["dbname"],
@@ -95,7 +116,8 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         for row in results["rows"]:
             if row["table_schema"] != "public":
-                table_name = u"{}.{}".format(row["table_schema"], row["table_name"])
+                table_name = u"{}.{}".format(row["table_schema"],
+                                             row["table_name"])
             else:
                 table_name = row["table_name"]
 
@@ -170,14 +192,18 @@ class PostgreSQL(BaseSQLQueryRunner):
             _wait(connection)
 
             if cursor.description is not None:
-                columns = self.fetch_columns(
-                    [(i[0], types_map.get(i[1], None)) for i in cursor.description]
-                )
-                rows = [dict(zip((c["name"] for c in columns), row)) for row in cursor]
+                columns = self.fetch_columns([(i[0], types_map.get(i[1], None))
+                                              for i in cursor.description])
+                rows = [
+                    dict(zip((c["name"] for c in columns), row))
+                    for row in cursor
+                ]
 
                 data = {"columns": columns, "rows": rows}
                 error = None
-                json_data = json_dumps(data, ignore_nan=True, cls=PostgreSQLJSONEncoder)
+                json_data = json_dumps(data,
+                                       ignore_nan=True,
+                                       cls=PostgreSQLJSONEncoder)
             else:
                 error = "Query completed but it returned no data."
                 json_data = None
@@ -203,9 +229,8 @@ class Redshift(PostgreSQL):
         return "redshift"
 
     def _get_connection(self):
-        sslrootcert_path = os.path.join(
-            os.path.dirname(__file__), "./files/redshift-ca-bundle.crt"
-        )
+        sslrootcert_path = os.path.join(os.path.dirname(__file__),
+                                        "./files/redshift-ca-bundle.crt")
 
         connection = psycopg2.connect(
             user=self.configuration.get("user"),
@@ -223,14 +248,30 @@ class Redshift(PostgreSQL):
     @classmethod
     def configuration_schema(cls):
         return {
-            "type": "object",
+            "type":
+            "object",
             "properties": {
-                "user": {"type": "string"},
-                "password": {"type": "string"},
-                "host": {"type": "string"},
-                "port": {"type": "number"},
-                "dbname": {"type": "string", "title": "Database Name"},
-                "sslmode": {"type": "string", "title": "SSL Mode", "default": "prefer"},
+                "user": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "number"
+                },
+                "dbname": {
+                    "type": "string",
+                    "title": "Database Name"
+                },
+                "sslmode": {
+                    "type": "string",
+                    "title": "SSL Mode",
+                    "default": "prefer"
+                },
                 "adhoc_query_group": {
                     "type": "string",
                     "title": "Query Group for Adhoc Queries",

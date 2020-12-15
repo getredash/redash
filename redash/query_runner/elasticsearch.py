@@ -53,8 +53,14 @@ class BaseElasticSearch(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "server": {"type": "string", "title": "Base URL"},
-                "basic_auth_user": {"type": "string", "title": "Basic Auth User"},
+                "server": {
+                    "type": "string",
+                    "title": "Base URL"
+                },
+                "basic_auth_user": {
+                    "type": "string",
+                    "title": "Basic Auth User"
+                },
                 "basic_auth_password": {
                     "type": "string",
                     "title": "Basic Auth Password",
@@ -90,7 +96,8 @@ class BaseElasticSearch(BaseQueryRunner):
             self.server_url = self.server_url[:-1]
 
         basic_auth_user = self.configuration.get("basic_auth_user", None)
-        basic_auth_password = self.configuration.get("basic_auth_password", None)
+        basic_auth_password = self.configuration.get("basic_auth_password",
+                                                     None)
         self.auth = None
         if basic_auth_user and basic_auth_password:
             self.auth = HTTPBasicAuth(basic_auth_user, basic_auth_password)
@@ -106,8 +113,7 @@ class BaseElasticSearch(BaseQueryRunner):
         except requests.HTTPError as e:
             logger.exception(e)
             error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(
-                r.status_code, r.text
-            )
+                r.status_code, r.text)
             mappings = None
         except requests.exceptions.RequestException as e:
             logger.exception(e)
@@ -127,17 +133,17 @@ class BaseElasticSearch(BaseQueryRunner):
             for m in index_mappings.get("mappings", {}):
                 if "properties" not in index_mappings["mappings"][m]:
                     continue
-                for property_name in index_mappings["mappings"][m]["properties"]:
-                    property_data = index_mappings["mappings"][m]["properties"][
-                        property_name
-                    ]
+                for property_name in index_mappings["mappings"][m][
+                        "properties"]:
+                    property_data = index_mappings["mappings"][m][
+                        "properties"][property_name]
                     if property_name not in mappings:
                         property_type = property_data.get("type", None)
                         if property_type:
                             if property_type in ELASTICSEARCH_TYPES_MAPPING:
-                                mappings[property_name] = ELASTICSEARCH_TYPES_MAPPING[
-                                    property_type
-                                ]
+                                mappings[
+                                    property_name] = ELASTICSEARCH_TYPES_MAPPING[
+                                        property_type]
                             else:
                                 mappings[property_name] = TYPE_STRING
                                 # raise Exception("Unknown property type: {0}".format(property_type))
@@ -175,20 +181,19 @@ class BaseElasticSearch(BaseQueryRunner):
                 schema[name]["columns"] = sorted(set(columns))
         return schema.values()
 
-    def _parse_results(
-        self, mappings, result_fields, raw_result, result_columns, result_rows
-    ):
-        def add_column_if_needed(
-            mappings, column_name, friendly_name, result_columns, result_columns_index
-        ):
+    def _parse_results(self, mappings, result_fields, raw_result,
+                       result_columns, result_rows):
+        def add_column_if_needed(mappings, column_name, friendly_name,
+                                 result_columns, result_columns_index):
             if friendly_name not in result_columns_index:
-                result_columns.append(
-                    {
-                        "name": friendly_name,
-                        "friendly_name": friendly_name,
-                        "type": mappings.get(column_name, "string"),
-                    }
-                )
+                result_columns.append({
+                    "name":
+                    friendly_name,
+                    "friendly_name":
+                    friendly_name,
+                    "type":
+                    mappings.get(column_name, "string"),
+                })
                 result_columns_index[friendly_name] = result_columns[-1]
 
         def get_row(rows, row):
@@ -202,14 +207,12 @@ class BaseElasticSearch(BaseQueryRunner):
                 return
 
             mappings[key] = type
-            add_column_if_needed(
-                mappings, key, key, result_columns, result_columns_index
-            )
+            add_column_if_needed(mappings, key, key, result_columns,
+                                 result_columns_index)
             row[key] = value
 
-        def collect_aggregations(
-            mappings, rows, parent_key, data, row, result_columns, result_columns_index
-        ):
+        def collect_aggregations(mappings, rows, parent_key, data, row,
+                                 result_columns, result_columns_index):
             if isinstance(data, dict):
                 for key, value in data.iteritems():
                     val = collect_aggregations(
@@ -233,7 +236,8 @@ class BaseElasticSearch(BaseQueryRunner):
                         collect_value(
                             mappings,
                             row,
-                            data["key"] if not key_is_string else data["key_as_string"],
+                            data["key"]
+                            if not key_is_string else data["key_as_string"],
                             data[data_key],
                             "long" if not key_is_string else "string",
                         )
@@ -270,9 +274,8 @@ class BaseElasticSearch(BaseQueryRunner):
                                 "string",
                             )
                         else:
-                            collect_value(
-                                mappings, result_row, parent_key, value["key"], "string"
-                            )
+                            collect_value(mappings, result_row, parent_key,
+                                          value["key"], "string")
 
             return None
 
@@ -292,9 +295,8 @@ class BaseElasticSearch(BaseQueryRunner):
         elif "aggregations" in raw_result:
             if result_fields:
                 for field in result_fields:
-                    add_column_if_needed(
-                        mappings, field, field, result_columns, result_columns_index
-                    )
+                    add_column_if_needed(mappings, field, field,
+                                         result_columns, result_columns_index)
 
             for key, data in raw_result["aggregations"].iteritems():
                 collect_aggregations(
@@ -312,9 +314,8 @@ class BaseElasticSearch(BaseQueryRunner):
         elif "hits" in raw_result and "hits" in raw_result["hits"]:
             if result_fields:
                 for field in result_fields:
-                    add_column_if_needed(
-                        mappings, field, field, result_columns, result_columns_index
-                    )
+                    add_column_if_needed(mappings, field, field,
+                                         result_columns, result_columns_index)
 
             for h in raw_result["hits"]["hits"]:
                 row = {}
@@ -324,16 +325,12 @@ class BaseElasticSearch(BaseQueryRunner):
                     if result_fields and column not in result_fields_index:
                         continue
 
-                    add_column_if_needed(
-                        mappings, column, column, result_columns, result_columns_index
-                    )
+                    add_column_if_needed(mappings, column, column,
+                                         result_columns, result_columns_index)
 
                     value = h[column_name][column]
-                    row[column] = (
-                        value[0]
-                        if isinstance(value, list) and len(value) == 1
-                        else value
-                    )
+                    row[column] = (value[0] if isinstance(value, list)
+                                   and len(value) == 1 else value)
 
                 result_rows.append(row)
         else:
@@ -343,17 +340,14 @@ class BaseElasticSearch(BaseQueryRunner):
 
     def test_connection(self):
         try:
-            r = requests.get(
-                "{0}/_cluster/health".format(self.server_url), auth=self.auth
-            )
+            r = requests.get("{0}/_cluster/health".format(self.server_url),
+                             auth=self.auth)
             r.raise_for_status()
         except requests.HTTPError as e:
             logger.exception(e)
             raise Exception(
-                "Failed to execute query. Return Code: {0}   Reason: {1}".format(
-                    r.status_code, r.text
-                )
-            )
+                "Failed to execute query. Return Code: {0}   Reason: {1}".
+                format(r.status_code, r.text))
         except requests.exceptions.RequestException as e:
             logger.exception(e)
             raise Exception("Connection refused")
@@ -364,18 +358,16 @@ class Kibana(BaseElasticSearch):
     def enabled(cls):
         return True
 
-    def _execute_simple_query(
-        self, url, auth, _from, mappings, result_fields, result_columns, result_rows
-    ):
+    def _execute_simple_query(self, url, auth, _from, mappings, result_fields,
+                              result_columns, result_rows):
         url += "&from={0}".format(_from)
         r = requests.get(url, auth=self.auth)
         r.raise_for_status()
 
         raw_result = r.json()
 
-        self._parse_results(
-            mappings, result_fields, raw_result, result_columns, result_rows
-        )
+        self._parse_results(mappings, result_fields, raw_result,
+                            result_columns, result_rows)
 
         total = raw_result["hits"]["total"]
         result_size = len(raw_result["hits"]["hits"])
@@ -402,7 +394,8 @@ class Kibana(BaseElasticSearch):
                 return None, error
 
             url = "{0}/{1}/_search?".format(self.server_url, index_name)
-            mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
+            mapping_url = "{0}/{1}/_mapping".format(self.server_url,
+                                                    index_name)
 
             mappings, error = self._get_query_mappings(mapping_url)
             if error:
@@ -421,7 +414,8 @@ class Kibana(BaseElasticSearch):
             if isinstance(query_data, string_types):
                 _from = 0
                 while True:
-                    query_size = size if limit >= (_from + size) else (limit - _from)
+                    query_size = size if limit >= (_from + size) else (limit -
+                                                                       _from)
                     total = self._execute_simple_query(
                         url + "&size={0}".format(query_size),
                         self.auth,
@@ -438,15 +432,17 @@ class Kibana(BaseElasticSearch):
                 # TODO: Handle complete ElasticSearch queries (JSON based sent over HTTP POST)
                 raise Exception("Advanced queries are not supported")
 
-            json_data = json_dumps({"columns": result_columns, "rows": result_rows})
+            json_data = json_dumps({
+                "columns": result_columns,
+                "rows": result_rows
+            })
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
         except requests.HTTPError as e:
             logger.exception(e)
             error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(
-                r.status_code, r.text
-            )
+                r.status_code, r.text)
             json_data = None
         except requests.exceptions.RequestException as e:
             logger.exception(e)
@@ -480,7 +476,8 @@ class ElasticSearch(BaseElasticSearch):
                 return None, error
 
             url = "{0}/{1}/_search".format(self.server_url, index_name)
-            mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
+            mapping_url = "{0}/{1}/_mapping".format(self.server_url,
+                                                    index_name)
 
             mappings, error = self._get_query_mappings(mapping_url)
             if error:
@@ -494,11 +491,13 @@ class ElasticSearch(BaseElasticSearch):
 
             result_columns = []
             result_rows = []
-            self._parse_results(
-                mappings, result_fields, r.json(), result_columns, result_rows
-            )
+            self._parse_results(mappings, result_fields, r.json(),
+                                result_columns, result_rows)
 
-            json_data = json_dumps({"columns": result_columns, "rows": result_rows})
+            json_data = json_dumps({
+                "columns": result_columns,
+                "rows": result_rows
+            })
         except KeyboardInterrupt:
             logger.exception(e)
             error = "Query cancelled by user."
@@ -506,8 +505,7 @@ class ElasticSearch(BaseElasticSearch):
         except requests.HTTPError as e:
             logger.exception(e)
             error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(
-                r.status_code, r.text
-            )
+                r.status_code, r.text)
             json_data = None
         except requests.exceptions.RequestException as e:
             logger.exception(e)
