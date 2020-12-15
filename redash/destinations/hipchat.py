@@ -25,6 +25,7 @@ class HipChat(BaseDestination):
                     "title": "HipChat Notification URL (get it from the Integrations page)",
                 }
             },
+            "secret": ["url"],
             "required": ["url"],
         }
 
