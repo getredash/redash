@@ -6,10 +6,18 @@ import { visualizationsSettings } from "@/visualizations/visualizationsSettings"
 import getChartData from "../getChartData";
 import initChart from "./initChart";
 
+export interface PlotlyChartProps {
+  data: {
+    rows: any[];
+    columns: any[];
+  }
+  options: object;
+}
+
 export default function PlotlyChart({
   options,
   data
-}: any) {
+}: PlotlyChartProps) {
   const [container, setContainer] = useState(null);
   const [chart, setChart] = useState(null);
 
