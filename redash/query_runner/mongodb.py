@@ -3,10 +3,14 @@ import logging
 import re
 
 from dateutil.parser import parse
-from six import string_types, text_type
+from six import string_types
+from six import text_type
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
+from redash.utils import json_dumps
+from redash.utils import json_loads
+from redash.utils import JSONEncoder
+from redash.utils import parse_human_time
 from redash.utils.compat import long
 
 logger = logging.getLogger(__name__)

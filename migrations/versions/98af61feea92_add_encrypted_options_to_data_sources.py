@@ -12,8 +12,11 @@ from sqlalchemy.sql import table
 from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
 
 from redash import settings
-from redash.models.types import (Configuration, EncryptedConfiguration,
-                                 MutableDict, MutableList, PseudoJSON)
+from redash.models.types import Configuration
+from redash.models.types import EncryptedConfiguration
+from redash.models.types import MutableDict
+from redash.models.types import MutableList
+from redash.models.types import PseudoJSON
 from redash.utils.configuration import ConfigurationContainer
 
 # revision identifiers, used by Alembic.

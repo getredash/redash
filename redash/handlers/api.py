@@ -2,57 +2,67 @@ from flask import make_response
 from flask_restful import Api
 from werkzeug.wrappers import Response
 
-from redash.handlers.alerts import (AlertListResource, AlertResource,
-                                    AlertSubscriptionListResource,
-                                    AlertSubscriptionResource)
+from redash.handlers.alerts import AlertListResource
+from redash.handlers.alerts import AlertResource
+from redash.handlers.alerts import AlertSubscriptionListResource
+from redash.handlers.alerts import AlertSubscriptionResource
 from redash.handlers.base import org_scoped_rule
-from redash.handlers.dashboards import (DashboardFavoriteListResource,
-                                        DashboardListResource,
-                                        DashboardResource,
-                                        DashboardShareResource,
-                                        DashboardTagsResource,
-                                        PublicDashboardResource)
-from redash.handlers.data_sources import (DataSourceListResource,
-                                          DataSourcePauseResource,
-                                          DataSourceResource,
-                                          DataSourceSchemaResource,
-                                          DataSourceTestResource,
-                                          DataSourceTypeListResource)
-from redash.handlers.destinations import (DestinationListResource,
-                                          DestinationResource,
-                                          DestinationTypeListResource)
+from redash.handlers.dashboards import DashboardFavoriteListResource
+from redash.handlers.dashboards import DashboardListResource
+from redash.handlers.dashboards import DashboardResource
+from redash.handlers.dashboards import DashboardShareResource
+from redash.handlers.dashboards import DashboardTagsResource
+from redash.handlers.dashboards import PublicDashboardResource
+from redash.handlers.data_sources import DataSourceListResource
+from redash.handlers.data_sources import DataSourcePauseResource
+from redash.handlers.data_sources import DataSourceResource
+from redash.handlers.data_sources import DataSourceSchemaResource
+from redash.handlers.data_sources import DataSourceTestResource
+from redash.handlers.data_sources import DataSourceTypeListResource
+from redash.handlers.destinations import DestinationListResource
+from redash.handlers.destinations import DestinationResource
+from redash.handlers.destinations import DestinationTypeListResource
 from redash.handlers.events import EventsResource
-from redash.handlers.favorites import (DashboardFavoriteResource,
-                                       QueryFavoriteResource)
-from redash.handlers.groups import (GroupDataSourceListResource,
-                                    GroupDataSourceResource, GroupListResource,
-                                    GroupMemberListResource,
-                                    GroupMemberResource, GroupResource)
-from redash.handlers.permissions import (CheckPermissionResource,
-                                         ObjectPermissionsListResource)
-from redash.handlers.queries import (MyQueriesResource, QueryArchiveResource,
-                                     QueryFavoriteListResource,
-                                     QueryForkResource, QueryListResource,
-                                     QueryRecentResource, QueryRefreshResource,
-                                     QueryRegenerateApiKeyResource,
-                                     QueryResource, QuerySearchResource,
-                                     QueryTagsResource)
-from redash.handlers.query_results import (JobResource,
-                                           QueryBigQueryResultPrice,
-                                           QueryDropdownsResource,
-                                           QueryResultDropdownResource,
-                                           QueryResultListResource,
-                                           QueryResultResource)
-from redash.handlers.query_snippets import (QuerySnippetListResource,
-                                            QuerySnippetResource)
+from redash.handlers.favorites import DashboardFavoriteResource
+from redash.handlers.favorites import QueryFavoriteResource
+from redash.handlers.groups import GroupDataSourceListResource
+from redash.handlers.groups import GroupDataSourceResource
+from redash.handlers.groups import GroupListResource
+from redash.handlers.groups import GroupMemberListResource
+from redash.handlers.groups import GroupMemberResource
+from redash.handlers.groups import GroupResource
+from redash.handlers.permissions import CheckPermissionResource
+from redash.handlers.permissions import ObjectPermissionsListResource
+from redash.handlers.queries import MyQueriesResource
+from redash.handlers.queries import QueryArchiveResource
+from redash.handlers.queries import QueryFavoriteListResource
+from redash.handlers.queries import QueryForkResource
+from redash.handlers.queries import QueryListResource
+from redash.handlers.queries import QueryRecentResource
+from redash.handlers.queries import QueryRefreshResource
+from redash.handlers.queries import QueryRegenerateApiKeyResource
+from redash.handlers.queries import QueryResource
+from redash.handlers.queries import QuerySearchResource
+from redash.handlers.queries import QueryTagsResource
+from redash.handlers.query_results import JobResource
+from redash.handlers.query_results import QueryBigQueryResultPrice
+from redash.handlers.query_results import QueryDropdownsResource
+from redash.handlers.query_results import QueryResultDropdownResource
+from redash.handlers.query_results import QueryResultListResource
+from redash.handlers.query_results import QueryResultResource
+from redash.handlers.query_snippets import QuerySnippetListResource
+from redash.handlers.query_snippets import QuerySnippetResource
 from redash.handlers.settings import OrganizationSettings
-from redash.handlers.users import (UserDisableResource, UserInviteResource,
-                                   UserListResource,
-                                   UserRegenerateApiKeyResource,
-                                   UserResetPasswordResource, UserResource)
-from redash.handlers.visualizations import (VisualizationListResource,
-                                            VisualizationResource)
-from redash.handlers.widgets import WidgetListResource, WidgetResource
+from redash.handlers.users import UserDisableResource
+from redash.handlers.users import UserInviteResource
+from redash.handlers.users import UserListResource
+from redash.handlers.users import UserRegenerateApiKeyResource
+from redash.handlers.users import UserResetPasswordResource
+from redash.handlers.users import UserResource
+from redash.handlers.visualizations import VisualizationListResource
+from redash.handlers.visualizations import VisualizationResource
+from redash.handlers.widgets import WidgetListResource
+from redash.handlers.widgets import WidgetResource
 from redash.utils import json_dumps
 
 

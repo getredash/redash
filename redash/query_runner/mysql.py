@@ -2,11 +2,17 @@ import logging
 import os
 import threading
 
-from redash.query_runner import (TYPE_DATE, TYPE_DATETIME, TYPE_FLOAT,
-                                 TYPE_INTEGER, TYPE_STRING, BaseSQLQueryRunner,
-                                 InterruptException, register)
+from redash.query_runner import BaseSQLQueryRunner
+from redash.query_runner import InterruptException
+from redash.query_runner import register
+from redash.query_runner import TYPE_DATE
+from redash.query_runner import TYPE_DATETIME
+from redash.query_runner import TYPE_FLOAT
+from redash.query_runner import TYPE_INTEGER
+from redash.query_runner import TYPE_STRING
 from redash.settings import parse_boolean
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_dumps
+from redash.utils import json_loads
 
 try:
     import MySQLdb

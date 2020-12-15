@@ -6,7 +6,9 @@ import psycopg2
 from psycopg2.extras import Range
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder, json_dumps, json_loads
+from redash.utils import json_dumps
+from redash.utils import json_loads
+from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
 

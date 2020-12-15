@@ -17,9 +17,8 @@ from funcy import select_values
 from six import string_types
 from sqlalchemy.orm.query import Query
 
-from redash import settings
-
 from .human_time import parse_human_time
+from redash import settings
 
 try:
     buffer
