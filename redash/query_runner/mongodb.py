@@ -13,11 +13,11 @@ logger = logging.getLogger(__name__)
 
 try:
     import pymongo
-    from bson.objectid import ObjectId
-    from bson.timestamp import Timestamp
     from bson.decimal128 import Decimal128
-    from bson.son import SON
     from bson.json_util import object_hook as bson_object_hook
+    from bson.objectid import ObjectId
+    from bson.son import SON
+    from bson.timestamp import Timestamp
 
     enabled = True
 

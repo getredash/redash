@@ -1,5 +1,5 @@
+import binascii
 import codecs
-import cStringIO
 import csv
 import datetime
 import decimal
@@ -8,16 +8,16 @@ import os
 import random
 import re
 import uuid
-import binascii
 
-from six import string_types
-
+import cStringIO
 import pystache
 import pytz
 import simplejson
 from funcy import select_values
-from redash import settings
+from six import string_types
 from sqlalchemy.orm.query import Query
+
+from redash import settings
 
 from .human_time import parse_human_time
 

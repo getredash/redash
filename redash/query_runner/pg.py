@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 import select
 
 import psycopg2

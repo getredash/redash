@@ -1,16 +1,12 @@
-import os
 import importlib
+import os
 import ssl
-from funcy import distinct, remove
-from flask_talisman import talisman
 
-from .helpers import (
-    fix_assets_path,
-    array_from_string,
-    parse_boolean,
-    int_or_none,
-    set_from_string,
-)
+from flask_talisman import talisman
+from funcy import distinct, remove
+
+from .helpers import (array_from_string, fix_assets_path, int_or_none,
+                      parse_boolean, set_from_string)
 from .organization import DATE_FORMAT, TIME_FORMAT  # noqa
 
 REDIS_URL = os.environ.get(

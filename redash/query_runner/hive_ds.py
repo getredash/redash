@@ -1,6 +1,6 @@
+import base64
 import logging
 import sys
-import base64
 
 from redash.query_runner import *
 from redash.utils import json_dumps
