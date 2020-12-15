@@ -1,24 +1,32 @@
-import { extend, map, sortBy, findIndex, isEqual } from 'lodash';
-import React, { useState, useMemo } from 'react';
-import PropTypes from 'prop-types';
-import Modal from 'antd/lib/modal';
-import Select from 'antd/lib/select';
-import Input from 'antd/lib/input';
-import * as Grid from 'antd/lib/grid';
-import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import { Filters, filterData } from '@/components/Filters';
-import notification from '@/services/notification';
-import { Visualization } from '@/services/visualization';
-import recordEvent from '@/services/recordEvent';
+import { extend, map, sortBy, findIndex, isEqual } from "lodash";
+import React, { useState, useMemo } from "react";
+import PropTypes from "prop-types";
+import Modal from "antd/lib/modal";
+import Select from "antd/lib/select";
+import Input from "antd/lib/input";
+import * as Grid from "antd/lib/grid";
+import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import { Filters, filterData } from "@/components/Filters";
+import notification from "@/services/notification";
+import { Visualization } from "@/services/visualization";
+import recordEvent from "@/services/recordEvent";
 
 // ANGULAR_REMOVE_ME Remove when all visualizations will be migrated to React
-import { cleanAngularProps } from '@/lib/utils';
-import useQueryResult from '@/lib/hooks/useQueryResult';
+import { cleanAngularProps } from "@/lib/utils";
+import useQueryResult from "@/lib/hooks/useQueryResult";
 
-import { VisualizationType, registeredVisualizations, getDefaultVisualization, newVisualization } from './index';
+import {
+  VisualizationType,
+  registeredVisualizations,
+  getDefaultVisualization,
+  newVisualization,
+} from "./index";
 
 function updateQueryVisualizations(query, visualization) {
-  const index = findIndex(query.visualizations, v => v.id === visualization.id);
+  const index = findIndex(
+    query.visualizations,
+    (v) => v.id === visualization.id
+  );
   if (index > -1) {
     query.visualizations[index] = visualization;
   } else {
@@ -29,18 +37,20 @@ function updateQueryVisualizations(query, visualization) {
 
 function saveVisualization(visualization) {
   if (visualization.id) {
-    recordEvent('update', 'visualization', visualization.id, { type: visualization.type });
+    recordEvent("update", "visualization", visualization.id, {
+      type: visualization.type,
+    });
   } else {
-    recordEvent('create', 'visualization', null, { type: visualization.type });
+    recordEvent("create", "visualization", null, { type: visualization.type });
   }
 
-  return Visualization.save(visualization).$promise
-    .then((result) => {
-      notification.success('Visualization saved');
+  return Visualization.save(visualization)
+    .$promise.then((result) => {
+      notification.success("Visualization saved");
       return result;
     })
     .catch((error) => {
-      notification.error('Visualization could not be saved');
+      notification.error("Visualization could not be saved");
       return Promise.reject(error);
     });
 }
@@ -49,10 +59,10 @@ function confirmDialogClose(isDirty) {
   return new Promise((resolve, reject) => {
     if (isDirty) {
       Modal.confirm({
-        title: 'Visualization Editor',
-        content: 'Are you sure you want to close the editor without saving?',
-        okText: 'Yes',
-        cancelText: 'No',
+        title: "Visualization Editor",
+        content: "Are you sure you want to close the editor without saving?",
+        okText: "Yes",
+        cancelText: "No",
         onOk: () => resolve(),
         onCancel: () => reject(),
       });
@@ -62,30 +72,37 @@ function confirmDialogClose(isDirty) {
   });
 }
 
-function EditVisualizationDialog({ dialog, visualization, query, queryResult }) {
+function EditVisualizationDialog({
+  dialog,
+  visualization,
+  query,
+  queryResult,
+}) {
   const isNew = !visualization;
 
   const data = useQueryResult(queryResult);
   const [filters, setFilters] = useState(data.filters);
 
-  const filteredData = useMemo(() => ({
-    columns: data.columns,
-    rows: filterData(data.rows, filters),
-  }), [data, filters]);
-
-  const defaultState = useMemo(
-    () => {
-      const config = visualization ? registeredVisualizations[visualization.type] : getDefaultVisualization();
-      const options = config.getOptions(isNew ? {} : visualization.options, data);
-      return {
-        type: config.type,
-        name: isNew ? config.name : visualization.name,
-        options,
-        originalOptions: options,
-      };
-    },
-    [visualization],
+  const filteredData = useMemo(
+    () => ({
+      columns: data.columns,
+      rows: filterData(data.rows, filters),
+    }),
+    [data, filters]
   );
+
+  const defaultState = useMemo(() => {
+    const config = visualization
+      ? registeredVisualizations[visualization.type]
+      : getDefaultVisualization();
+    const options = config.getOptions(isNew ? {} : visualization.options, data);
+    return {
+      type: config.type,
+      name: isNew ? config.name : visualization.name,
+      options,
+      originalOptions: options,
+    };
+  }, [visualization]);
 
   const [type, setType] = useState(defaultState.type);
   const [name, setName] = useState(defaultState.name);
@@ -117,7 +134,11 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
 
   function save() {
     setSaveInProgress(true);
-    const visualizationData = extend(newVisualization(type), visualization, { name, options, query_id: query.id });
+    const visualizationData = extend(newVisualization(type), visualization, {
+      name,
+      options,
+      query_id: query.id,
+    });
     saveVisualization(visualizationData).then((savedVisualization) => {
       updateQueryVisualizations(query, savedVisualization);
       dialog.close(savedVisualization);
@@ -125,7 +146,10 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
   }
 
   function dismiss() {
-    const optionsChanged = !isEqual(cleanAngularProps(options), defaultState.originalOptions);
+    const optionsChanged = !isEqual(
+      cleanAngularProps(options),
+      defaultState.originalOptions
+    );
     confirmDialogClose(nameChanged || optionsChanged).then(dialog.dismiss);
   }
 
@@ -143,7 +167,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
       }}
       onOk={save}
       onCancel={dismiss}
-      wrapProps={{ 'data-test': 'EditVisualizationDialog' }}
+      wrapProps={{ "data-test": "EditVisualizationDialog" }}
     >
       <Grid.Row gutter={24}>
         <Grid.Col span={24} md={10}>
@@ -157,10 +181,14 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
               value={type}
               onChange={onTypeChanged}
             >
-              {map(
-                sortBy(registeredVisualizations, ['type']),
-                vis => <Select.Option key={vis.type} data-test={'VisualizationType.' + vis.type}>{vis.name}</Select.Option>,
-              )}
+              {map(sortBy(registeredVisualizations, ["type"]), (vis) => (
+                <Select.Option
+                  key={vis.type}
+                  data-test={"VisualizationType." + vis.type}
+                >
+                  {vis.name}
+                </Select.Option>
+              ))}
             </Select>
           </div>
           <div className="m-b-15">
@@ -170,7 +198,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
               id="visualization-name"
               className="w-100"
               value={name}
-              onChange={event => onNameChanged(event.target.value)}
+              onChange={(event) => onNameChanged(event.target.value)}
             />
           </div>
           <div data-test="VisualizationEditor">
@@ -183,7 +211,12 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
           </div>
         </Grid.Col>
         <Grid.Col span={24} md={14}>
-          <label htmlFor="visualization-preview" className="invisible hidden-xs">Preview</label>
+          <label
+            htmlFor="visualization-preview"
+            className="invisible hidden-xs"
+          >
+            Preview
+          </label>
           <Filters filters={filters} onChange={setFilters} />
           <div className="scrollbox" data-test="VisualizationPreview">
             <Renderer
