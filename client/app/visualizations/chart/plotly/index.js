@@ -1,19 +1,22 @@
-import Plotly from 'plotly.js/lib/core';
 import bar from 'plotly.js/lib/bar';
-import pie from 'plotly.js/lib/pie';
-import histogram from 'plotly.js/lib/histogram';
 import box from 'plotly.js/lib/box';
+import Plotly from 'plotly.js/lib/core';
 import heatmap from 'plotly.js/lib/heatmap';
+import histogram from 'plotly.js/lib/histogram';
+import pie from 'plotly.js/lib/pie';
 
+import applyLayoutFixes from './applyLayoutFixes';
+import {
+  createCustomChartRenderer,
+  prepareCustomChartData
+} from './customChartUtils';
 import prepareData from './prepareData';
 import prepareLayout from './prepareLayout';
 import updateData from './updateData';
-import applyLayoutFixes from './applyLayoutFixes';
-import { prepareCustomChartData, createCustomChartRenderer } from './customChartUtils';
 
-Plotly.register([bar, pie, histogram, box, heatmap]);
+Plotly.register([ bar, pie, histogram, box, heatmap ]);
 Plotly.setPlotConfig({
-  modeBarButtonsToRemove: ['sendDataToCloud'],
+  modeBarButtonsToRemove : [ 'sendDataToCloud' ],
 });
 
 export {

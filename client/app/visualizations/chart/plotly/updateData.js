@@ -1,9 +1,20 @@
-import { isNil, each, extend, filter, identity, includes, map, sortBy } from 'lodash';
-import { createNumberFormatter, formatSimpleTemplate } from '@/lib/value-format';
-import { normalizeValue } from './utils';
+import {createNumberFormatter, formatSimpleTemplate} from '@/lib/value-format';
+import {
+  each,
+  extend,
+  filter,
+  identity,
+  includes,
+  isNil,
+  map,
+  sortBy
+} from 'lodash';
+
+import {normalizeValue} from './utils';
 
 function shouldUseUnifiedXAxis(options) {
-  return options.sortX && (options.xAxis.type === 'category') && (options.globalSeriesType !== 'box');
+  return options.sortX && (options.xAxis.type === 'category') &&
+         (options.globalSeriesType !== 'box');
 }
 
 function defaultFormatSeriesText(item) {
@@ -26,7 +37,8 @@ function defaultFormatSeriesTextForPie(item) {
 
 function createTextFormatter(options) {
   if (options.textFormat === '') {
-    return options.globalSeriesType === 'pie' ? defaultFormatSeriesTextForPie : defaultFormatSeriesText;
+    return options.globalSeriesType === 'pie' ? defaultFormatSeriesTextForPie
+                                              : defaultFormatSeriesText;
   }
   return item => formatSimpleTemplate(options.textFormat, item);
 }
@@ -34,9 +46,15 @@ function createTextFormatter(options) {
 function formatValue(value, axis, options) {
   let axisType = null;
   switch (axis) {
-    case 'x': axisType = options.xAxis.type; break;
-    case 'y': axisType = options.yAxis[0].type; break;
-    case 'y2': axisType = options.yAxis[1].type; break;
+  case 'x':
+    axisType = options.xAxis.type;
+    break;
+  case 'y':
+    axisType = options.yAxis[0].type;
+    break;
+  case 'y2':
+    axisType = options.yAxis[1].type;
+    break;
     // no default
   }
   return normalizeValue(value, axisType, options.dateTimeFormat);
@@ -50,26 +68,32 @@ function updateSeriesText(seriesList, options) {
   const defaultY = options.missingValuesAsZero ? 0.0 : null;
 
   each(seriesList, (series) => {
-    const seriesOptions = options.seriesOptions[series.name] || { type: options.globalSeriesType };
+    const seriesOptions =
+        options.seriesOptions[series.name] || {type : options.globalSeriesType};
 
     series.text = [];
     series.hover = [];
-    const xValues = (options.globalSeriesType === 'pie') ? series.labels : series.x;
+    const xValues =
+        (options.globalSeriesType === 'pie') ? series.labels : series.x;
     xValues.forEach((x) => {
       const text = {
-        '@@name': series.name,
+        '@@name' : series.name,
       };
-      const item = series.sourceData.get(x) || { x, y: defaultY, row: { x, y: defaultY } };
+      const item = series.sourceData.get(x) ||
+                   {x, y : defaultY, row : {x, y : defaultY}};
 
-      const yValueIsAny = includes(['bubble', 'scatter'], seriesOptions.type);
+      const yValueIsAny = includes([ 'bubble', 'scatter' ], seriesOptions.type);
 
-      // for `formatValue` we have to use original value of `x` and `y`: `item.x`/`item.y` contains value
-      // already processed with `normalizeValue`, and if they were `moment` instances - they are formatted
-      // using default (ISO) date/time format. Here we need to use custom date/time format, so we pass original value
-      // to `formatValue` which will call `normalizeValue` again, but this time with different date/time format
-      // (if needed)
+      // for `formatValue` we have to use original value of `x` and `y`:
+      // `item.x`/`item.y` contains value already processed with
+      // `normalizeValue`, and if they were `moment` instances - they are
+      // formatted using default (ISO) date/time format. Here we need to use
+      // custom date/time format, so we pass original value to `formatValue`
+      // which will call `normalizeValue` again, but this time with different
+      // date/time format (if needed)
       text['@@x'] = formatValue(item.row.x, 'x', options);
-      text['@@y'] = yValueIsAny ? formatValue(item.row.y, series.yaxis, options) : formatNumber(item.y);
+      text['@@y'] = yValueIsAny ? formatValue(item.row.y, series.yaxis, options)
+                                : formatNumber(item.y);
       if (item.yError !== undefined) {
         text['@@yError'] = formatNumber(item.yError);
       }
@@ -77,7 +101,8 @@ function updateSeriesText(seriesList, options) {
         text['@@size'] = formatNumber(item.size);
       }
 
-      if (options.series.percentValues || (options.globalSeriesType === 'pie')) {
+      if (options.series.percentValues ||
+          (options.globalSeriesType === 'pie')) {
         text['@@yPercent'] = formatPercent(Math.abs(item.yPercent));
       }
 
@@ -122,12 +147,10 @@ function getUnifiedXAxisValues(seriesList, sorted) {
   const set = new Set();
   each(seriesList, (series) => {
     // `Map.forEach` will walk items in insertion order
-    series.sourceData.forEach((item) => {
-      set.add(item.x);
-    });
+    series.sourceData.forEach((item) => { set.add(item.x); });
   });
 
-  const result = [...set];
+  const result = [...set ];
   return sorted ? sortBy(result, identity) : result;
 }
 
@@ -205,18 +228,18 @@ export default function updateData(seriesList, options) {
 
   if (visibleSeriesList.length > 0) {
     switch (options.globalSeriesType) {
-      case 'pie':
-        updatePieData(visibleSeriesList, options);
-        break;
-      case 'line':
-      case 'area':
-        updateLineAreaData(visibleSeriesList, options);
-        break;
-      case 'heatmap':
-        break;
-      default:
-        updateDefaultData(visibleSeriesList, options);
-        break;
+    case 'pie':
+      updatePieData(visibleSeriesList, options);
+      break;
+    case 'line':
+    case 'area':
+      updateLineAreaData(visibleSeriesList, options);
+      break;
+    case 'heatmap':
+      break;
+    default:
+      updateDefaultData(visibleSeriesList, options);
+      break;
     }
   }
   return seriesList;
