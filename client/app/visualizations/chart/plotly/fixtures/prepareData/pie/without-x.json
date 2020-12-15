@@ -61,36 +61,16 @@
     "series": [
       {
         "visible": true,
-        "values": [
-          10,
-          60,
-          100,
-          30
-        ],
-        "labels": [
-          "Slice 0",
-          "Slice 0",
-          "Slice 0",
-          "Slice 0"
-        ],
+        "values": [10, 60, 100, 30],
+        "labels": ["Slice 0", "Slice 0", "Slice 0", "Slice 0"],
         "type": "pie",
         "hole": 0.4,
         "marker": {
-          "colors": [
-            "#356AFF",
-            "#E92828",
-            "#3BD973",
-            "#604FE9"
-          ]
+          "colors": ["#356AFF", "#E92828", "#3BD973", "#604FE9"]
         },
         "hoverinfo": "text+label",
         "hover": [],
-        "text": [
-          "15% (30)",
-          "15% (30)",
-          "15% (30)",
-          "15% (30)"
-        ],
+        "text": ["15% (30)", "15% (30)", "15% (30)", "15% (30)"],
         "textinfo": "percent",
         "textposition": "inside",
         "textfont": {
@@ -99,14 +79,8 @@
         "name": "a",
         "direction": "counterclockwise",
         "domain": {
-          "x": [
-            0,
-            0.98
-          ],
-          "y": [
-            0,
-            0.9
-          ]
+          "x": [0, 0.98],
+          "y": [0, 0.9]
         }
       }
     ]

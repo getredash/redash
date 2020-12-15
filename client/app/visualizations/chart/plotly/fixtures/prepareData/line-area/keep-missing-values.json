@@ -96,35 +96,15 @@
         "visible": true,
         "name": "a",
         "mode": "lines+text",
-        "x": [
-          "x1",
-          "x2",
-          "x3",
-          "x4"
-        ],
-        "y": [
-          10,
-          20,
-          30,
-          40
-        ],
+        "x": ["x1", "x2", "x3", "x4"],
+        "y": [10, 20, 30, 40],
         "error_y": {
-          "array": [
-            0,
-            0,
-            0,
-            0
-          ],
+          "array": [0, 0, 0, 0],
           "color": "red"
         },
         "hoverinfo": "text+x+name",
         "hover": [],
-        "text": [
-          "10 ± 0",
-          "20 ± 0",
-          "30 ± 0",
-          "40 ± 0"
-        ],
+        "text": ["10 ± 0", "20 ± 0", "30 ± 0", "40 ± 0"],
         "marker": {
           "color": "red"
         },
@@ -137,35 +117,15 @@
         "visible": true,
         "name": "b",
         "mode": "lines+text",
-        "x": [
-          "x1",
-          "x2",
-          "x3",
-          "x4"
-        ],
-        "y": [
-          null,
-          22,
-          null,
-          44
-        ],
+        "x": ["x1", "x2", "x3", "x4"],
+        "y": [null, 22, null, 44],
         "error_y": {
-          "array": [
-            null,
-            0,
-            null,
-            0
-          ],
+          "array": [null, 0, null, 0],
           "color": "blue"
         },
         "hoverinfo": "text+x+name",
         "hover": [],
-        "text": [
-          "",
-          "2 ± 0",
-          "",
-          "4 ± 0"
-        ],
+        "text": ["", "2 ± 0", "", "4 ± 0"],
         "marker": {
           "color": "blue"
         },
