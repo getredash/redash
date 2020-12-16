@@ -26,7 +26,7 @@ function OrganizationSettings({ onError }) {
             {isLoading ? (
               <Skeleton.Button active />
             ) : (
-              <Button type="primary" htmlType="submit" loading={isSaving}>
+              <Button type="primary" htmlType="submit" loading={isSaving} data-test="OrganizationSettingsSaveButton">
                 Save
               </Button>
             )}
