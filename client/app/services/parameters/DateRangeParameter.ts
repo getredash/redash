@@ -182,11 +182,6 @@ export function getDynamicDateRangeFromString(value: any) {
 }
 
 class DateRangeParameter extends Parameter {
-  $$value: any;
-  name: any;
-  type: any;
-  urlPrefix: any;
-  value: any;
   constructor(parameter: any, parentQueryId: any) {
     super(parameter, parentQueryId);
     this.setValue(parameter.value);

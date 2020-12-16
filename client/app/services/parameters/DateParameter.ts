@@ -42,11 +42,7 @@ export function getDynamicDateFromString(value: any) {
 }
 
 class DateParameter extends Parameter {
-  $$value: any;
-  type: any;
-  useCurrentDateTime: any;
-  value: any;
-  constructor(parameter: any, parentQueryId: any) {
+useCurrentDateTime: any;  constructor(parameter: any, parentQueryId: any) {
     super(parameter, parentQueryId);
     this.useCurrentDateTime = parameter.useCurrentDateTime;
     this.setValue(parameter.value);

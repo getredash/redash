@@ -61,6 +61,16 @@ type OwnProps = {
     children?: React.ReactNode;
 };
 
+const HelpTriggerPropTypes = {
+  type: PropTypes.string,
+  href: PropTypes.string,
+  title: PropTypes.node,
+  className: PropTypes.string,
+  showTooltip: PropTypes.bool,
+  renderAsLink: PropTypes.bool,
+  children: PropTypes.node,
+};
+
 const HelpTriggerDefaultProps = {
   type: null,
   href: null,

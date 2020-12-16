@@ -36,10 +36,7 @@ class ItemsFetcher {
 
 // For endpoints that return just an array with items; sorting and pagination
 // is performed on client
-export class PlainListFetcher extends ItemsFetcher {
-  _originalGetRequest: any;
-  _originalProcessResults: any;
-  _allItems = [];
+export class PlainListFetcher extends ItemsFetcher {  _allItems = [];
 
   _getRequest({
     searchTerm,
@@ -87,9 +84,7 @@ export class PlainListFetcher extends ItemsFetcher {
 
 // For endpoints that support server-side pagination (return object with
 // items for current page and total items count)
-export class PaginatedListFetcher extends ItemsFetcher {
-  _originalGetRequest: any;
-  _getRequest({
+export class PaginatedListFetcher extends ItemsFetcher {  _getRequest({
     paginator,
     sorter,
     searchTerm,
