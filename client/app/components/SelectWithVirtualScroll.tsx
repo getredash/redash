@@ -36,8 +36,8 @@ function SelectWithVirtualScroll({ options, ...props }: VirtualScrollSelectProps
     <AntdSelect<string>
       dropdownMatchSelectWidth={dropdownMatchSelectWidth}
       options={options}
-      {...props}
       optionFilterProp="label" // as this component expects "options" prop
+      {...props}
     />
   );
 }

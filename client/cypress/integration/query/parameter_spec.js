@@ -232,6 +232,18 @@ describe("Parameter", () => {
           .find(".ant-select")
           .click();
 
+        // assures filters are working
+        cy.getByTestId("ParameterValueInput").type("value1");
+
+        // only the filtered option should be on the DOM
+        cy.get(".ant-select-item-option").each($option => {
+          expect($option).to.contain("value1");
+        });
+
+        cy.getByTestId("ParameterValueInput")
+          .find("input")
+          .clear();
+
         // make sure all options are unselected and select all
         cy.get(".ant-select-item-option").each($option => {
           expect($option).not.to.have.class("ant-select-dropdown-menu-item-selected");
