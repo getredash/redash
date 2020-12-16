@@ -1,3 +1,16 @@
+function openAndSearchAntdDropdown(paramOption) {
+  // assures filters are working
+  cy.getByTestId("ParameterValueInput").type(paramOption);
+
+  // only the filtered option should be on the DOM
+  cy.get(".ant-select-item-option").each($option => {
+    expect($option).to.contain(paramOption);
+  });
+
+  cy.getByTestId("ParameterValueInput")
+    .find("input")
+    .clear();
+}
 describe("Parameter", () => {
   const expectDirtyStateChange = edit => {
     cy.getByTestId("ParameterName-test-parameter")
@@ -91,7 +104,7 @@ describe("Parameter", () => {
     });
   });
 
-  describe.only("Dropdown Parameter", () => {
+  describe("Dropdown Parameter", () => {
     beforeEach(() => {
       const queryData = {
         name: "Dropdown Parameter",
@@ -120,15 +133,6 @@ describe("Parameter", () => {
       cy.getByTestId("TableVisualization").should("contain", "value2");
     });
 
-    it("supports filters", () => {
-      cy.getByTestId("ParameterValueInput").type("value1");
-
-      // only the filtered option should be on the DOM
-      cy.get(".ant-select-item-option").each($option => {
-        expect($option).to.contain("value1");
-      });
-    });
-
     it("supports multi-selection", () => {
       cy.clickThrough(`
         ParameterSettings-test-parameter
@@ -148,6 +152,8 @@ describe("Parameter", () => {
           cy.wrap($option).click();
         }
       });
+
+      openAndSearchAntdDropdown("value1"); // asserts option filter prop
 
       cy.getByTestId("QueryEditor").click(); // just to close the select menu
 
@@ -246,6 +252,8 @@ describe("Parameter", () => {
           expect($option).not.to.have.class("ant-select-dropdown-menu-item-selected");
           cy.wrap($option).click();
         });
+
+        openAndSearchAntdDropdown("value1"); // asserts option filter prop
 
         cy.getByTestId("QueryEditor").click(); // just to close the select menu
 
