@@ -1,6 +1,5 @@
 import { isEmpty } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
 import Link from "@/components/Link";
@@ -13,13 +12,18 @@ import Filters from "@/components/Filters";
 import { Dashboard } from "@/services/dashboard";
 import routes from "@/services/routes";
 
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module '@/assets/images/redash_icon_sm... Remove this comment to see the full error message
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
 import useDashboard from "./hooks/useDashboard";
 
 import "./PublicDashboardPage.less";
 
-function PublicDashboard({ dashboard }) {
+type PublicDashboardProps = {
+    dashboard: any;
+};
+
+function PublicDashboard({ dashboard }: PublicDashboardProps) {
   const { globalParameters, filters, setFilters, refreshDashboard, loadWidget, refreshWidget } = useDashboard(
     dashboard
   );
@@ -29,11 +33,13 @@ function PublicDashboard({ dashboard }) {
       <PageHeader title={dashboard.name} />
       {!isEmpty(globalParameters) && (
         <div className="m-b-10 p-15 bg-white tiled">
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type '(updatedParameters: any) => void' is not ass... Remove this comment to see the full error message */}
           <Parameters parameters={globalParameters} onValuesChange={refreshDashboard} />
         </div>
       )}
       {!isEmpty(filters) && (
         <div className="m-b-10 p-15 bg-white tiled">
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<never[]>>' is not as... Remove this comment to see the full error message */}
           <Filters filters={filters} onChange={setFilters} />
         </div>
       )}
@@ -44,7 +50,9 @@ function PublicDashboard({ dashboard }) {
           filters={filters}
           isEditing={false}
           isPublic
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '(widget: any, forceRefresh?: any) => any' is... Remove this comment to see the full error message
           onLoadWidget={loadWidget}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '(widget: any) => any' is not assignable to t... Remove this comment to see the full error message
           onRefreshWidget={refreshWidget}
         />
       </div>
@@ -52,15 +60,16 @@ function PublicDashboard({ dashboard }) {
   );
 }
 
-PublicDashboard.propTypes = {
-  dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+type OwnPublicDashboardPageProps = {
+    token: string;
+    onError?: (...args: any[]) => any;
 };
 
-class PublicDashboardPage extends React.Component {
-  static propTypes = {
-    token: PropTypes.string.isRequired,
-    onError: PropTypes.func,
-  };
+type PublicDashboardPageState = any;
+
+type PublicDashboardPageProps = OwnPublicDashboardPageProps & typeof PublicDashboardPage.defaultProps;
+
+class PublicDashboardPage extends React.Component<PublicDashboardPageProps, PublicDashboardPageState> {
 
   static defaultProps = {
     onError: () => {},
@@ -72,9 +81,10 @@ class PublicDashboardPage extends React.Component {
   };
 
   componentDidMount() {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'getByToken' does not exist on type 'type... Remove this comment to see the full error message
     Dashboard.getByToken({ token: this.props.token })
-      .then(dashboard => this.setState({ dashboard, loading: false }))
-      .catch(error => this.props.onError(error));
+      .then((dashboard: any) => this.setState({ dashboard, loading: false }))
+      .catch((error: any) => this.props.onError(error));
   }
 
   render() {
@@ -105,7 +115,7 @@ routes.register(
   "Dashboards.ViewShared",
   routeWithApiKeySession({
     path: "/public/dashboards/:token",
-    render: pageProps => <PublicDashboardPage {...pageProps} />,
-    getApiKey: currentRoute => currentRoute.routeParams.token,
+    render: (pageProps: any) => <PublicDashboardPage {...pageProps} />,
+    getApiKey: (currentRoute: any) => currentRoute.routeParams.token,
   })
 );

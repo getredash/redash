@@ -6,11 +6,12 @@ import notifications from "@/services/notifications";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 function getMaxAge() {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'maxAge' does not exist on type 'undefine... Remove this comment to see the full error message
   const { maxAge } = location.search;
   return maxAge !== undefined ? maxAge : -1;
 }
 
-const reducer = (prevState, updatedProperty) => ({
+const reducer = (prevState: any, updatedProperty: any) => ({
   ...prevState,
   ...updatedProperty,
 });
@@ -18,7 +19,7 @@ const reducer = (prevState, updatedProperty) => ({
 // This is currently specific to a Query page, we can refactor
 // it slightly to make it suitable for dashboard widgets instead of the other solution it
 // has in there.
-export default function useQueryExecute(query) {
+export default function useQueryExecute(query: any) {
   const [executionState, setExecutionState] = useReducer(reducer, {
     queryResult: null,
     isExecuting: false,
@@ -37,14 +38,15 @@ export default function useQueryExecute(query) {
     };
   }, []);
 
-  const executeQuery = useImmutableCallback((maxAge = 0, queryExecutor) => {
-    let newQueryResult;
+  const executeQuery = useImmutableCallback((maxAge = 0, queryExecutor: any) => {
+    let newQueryResult: any;
     if (queryExecutor) {
       newQueryResult = queryExecutor();
     } else {
       newQueryResult = query.getQueryResult(maxAge);
     }
 
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 4 arguments, but got 3.
     recordEvent("execute", "query", query.id);
     notifications.getPermissions();
 
@@ -55,13 +57,14 @@ export default function useQueryExecute(query) {
       executionStatus: newQueryResult.getStatus(),
       isExecuting: true,
       cancelCallback: () => {
+        // @ts-expect-error ts-migrate(2554) FIXME: Expected 4 arguments, but got 3.
         recordEvent("cancel_execute", "query", query.id);
         setExecutionState({ isCancelling: true });
         newQueryResult.cancelExecution();
       },
     });
 
-    const onStatusChange = status => {
+    const onStatusChange = (status: any) => {
       if (queryResultInExecution.current === newQueryResult) {
         setExecutionState({ updatedAt: newQueryResult.getUpdatedAt(), executionStatus: status });
       }
@@ -69,7 +72,7 @@ export default function useQueryExecute(query) {
 
     newQueryResult
       .toPromise(onStatusChange)
-      .then(queryResult => {
+      .then((queryResult: any) => {
         if (queryResultInExecution.current === newQueryResult) {
           // TODO: this should probably belong in the QueryEditor page.
           if (queryResult && queryResult.query_result.query === query.query) {
@@ -91,7 +94,7 @@ export default function useQueryExecute(query) {
           });
         }
       })
-      .catch(queryResult => {
+      .catch((queryResult: any) => {
         if (queryResultInExecution.current === newQueryResult) {
           if (executionState.loadedInitialResults) {
             notifications.showNotification("Redash", `${query.name} failed to run: ${queryResult.getError()}`);

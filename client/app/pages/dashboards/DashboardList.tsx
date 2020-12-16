@@ -41,13 +41,15 @@ const sidebarMenu = [
 
 const listColumns = [
   Columns.favorites({ className: "p-r-0" }),
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(rende... Remove this comment to see the full error message
   Columns.custom.sortable(
-    (text, item) => (
+    (text: any, item: any) => (
       <React.Fragment>
         <Link className="table-main-title" href={item.url} data-test={`DashboardId${item.id}`}>
           {item.name}
         </Link>
         <DashboardTagsControl
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '{ className: string; tags: any; isDraft: any... Remove this comment to see the full error message
           className="d-block"
           tags={item.tags}
           isDraft={item.is_draft}
@@ -61,7 +63,8 @@ const listColumns = [
       width: null,
     }
   ),
-  Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
+  Columns.custom((text: any, item: any) => item.user.name, { title: "Created By", width: "1%" }),
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(overr... Remove this comment to see the full error message
   Columns.dateTime.sortable({
     title: "Created At",
     field: "created_at",
@@ -69,11 +72,15 @@ const listColumns = [
   }),
 ];
 
-function DashboardListExtraActions(props) {
+function DashboardListExtraActions(props: any) {
   return <DynamicComponent name="DashboardList.Actions" {...props} />;
 }
 
-function DashboardList({ controller }) {
+type DashboardListProps = {
+    controller: ControllerType;
+};
+
+function DashboardList({ controller }: DashboardListProps) {
   const {
     areExtraActionsAvailable,
     listColumns: tableColumns,
@@ -86,8 +93,10 @@ function DashboardList({ controller }) {
       <div className="container">
         <PageHeader
           title={controller.params.pageTitle}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element | null' is not assignable to type 'n... Remove this comment to see the full error message
           actions={
             currentUser.hasPermission("create_dashboard") ? (
+              // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0.
               <Button block type="primary" onClick={() => CreateDashboardDialog.showModal()}>
                 <i className="fa fa-plus m-r-5" />
                 New Dashboard
@@ -95,21 +104,27 @@ function DashboardList({ controller }) {
             ) : null
           }
         />
+        {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
         <Layout>
+          {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
           <Layout.Sidebar className="m-b-0">
             <Sidebar.SearchInput
               placeholder="Search Dashboards..."
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'string | undefined' is not assignable to typ... Remove this comment to see the full error message
               value={controller.searchTerm}
               onChange={controller.updateSearch}
             />
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type '({ key: string; href: string; title: string;... Remove this comment to see the full error message */}
             <Sidebar.Menu items={sidebarMenu} selected={controller.params.currentPage} />
             <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} showUnselectAll />
           </Layout.Sidebar>
+          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Layout.Content>
             <div data-test="DashboardLayoutContent">
               {controller.isLoaded && controller.isEmpty ? (
                 <DashboardListEmptyState
                   page={controller.params.currentPage}
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'string | undefined' is not assignable to typ... Remove this comment to see the full error message
                   searchTerm={controller.searchTerm}
                   selectedTags={controller.selectedTags}
                 />
@@ -119,6 +134,7 @@ function DashboardList({ controller }) {
                     <ExtraActionsComponent selectedItems={selectedItems} />
                   </div>
                   <div className="bg-white tiled table-responsive">
+                    {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
                     <ItemsTable
                       items={controller.pageItems}
                       loading={!controller.isLoaded}
@@ -131,9 +147,11 @@ function DashboardList({ controller }) {
                       showPageSizeSelect
                       totalCount={controller.totalItemsCount}
                       pageSize={controller.itemsPerPage}
-                      onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                      // @ts-expect-error ts-migrate(2322) FIXME: Type '(itemsPerPage: any) => any' is not assignabl... Remove this comment to see the full error message
+                      onPageSizeChange={(itemsPerPage: any) => controller.updatePagination({ itemsPerPage })}
                       page={controller.page}
-                      onChange={page => controller.updatePagination({ page })}
+                      // @ts-expect-error ts-migrate(2322) FIXME: Type '(page: any) => any' is not assignable to typ... Remove this comment to see the full error message
+                      onChange={(page: any) => controller.updatePagination({ page })}
                     />
                   </div>
                 </React.Fragment>
@@ -146,22 +164,24 @@ function DashboardList({ controller }) {
   );
 }
 
-DashboardList.propTypes = {
-  controller: ControllerType.isRequired,
-};
-
 const DashboardListPage = itemsList(
   DashboardList,
   () =>
     new ResourceItemsSource({
-      getResource({ params: { currentPage } }) {
+      getResource({
+        params: { currentPage }
+      }: any) {
+        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         return {
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'query' does not exist on type 'typeof Da... Remove this comment to see the full error message
           all: Dashboard.query.bind(Dashboard),
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'favorites' does not exist on type 'typeo... Remove this comment to see the full error message
           favorites: Dashboard.favorites.bind(Dashboard),
         }[currentPage];
       },
       getItemProcessor() {
-        return item => new Dashboard(item);
+        // @ts-expect-error ts-migrate(7009) FIXME: 'new' expression, whose target lacks a construct s... Remove this comment to see the full error message
+        return (item: any) => new Dashboard(item);
       },
     }),
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
@@ -172,6 +192,7 @@ routes.register(
   routeWithUserSession({
     path: "/dashboards",
     title: "Dashboards",
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '{ currentPage: string; pageTitle?: string | ... Remove this comment to see the full error message
     render: pageProps => <DashboardListPage {...pageProps} currentPage="all" />,
   })
 );
@@ -180,6 +201,7 @@ routes.register(
   routeWithUserSession({
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '{ currentPage: string; pageTitle?: string | ... Remove this comment to see the full error message
     render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
   })
 );

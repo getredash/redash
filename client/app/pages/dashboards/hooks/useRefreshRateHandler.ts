@@ -4,17 +4,18 @@ import location from "@/services/location";
 import { policy } from "@/services/policy";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
-function getLimitedRefreshRate(refreshRate) {
+function getLimitedRefreshRate(refreshRate: any) {
   const allowedIntervals = policy.getDashboardRefreshIntervals();
   return max([30, min(allowedIntervals), refreshRate]);
 }
 
 function getRefreshRateFromUrl() {
+  // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
   const refreshRate = parseFloat(location.search.refresh);
   return isNaN(refreshRate) ? null : getLimitedRefreshRate(refreshRate);
 }
 
-export default function useRefreshRateHandler(refreshDashboard) {
+export default function useRefreshRateHandler(refreshDashboard: any) {
   const [refreshRate, setRefreshRate] = useState(getRefreshRateFromUrl());
 
   // `refreshDashboard` may change quite frequently (on every update of `dashboard` instance), but we
@@ -32,7 +33,7 @@ export default function useRefreshRateHandler(refreshDashboard) {
     }
   }, [refreshRate, doRefreshDashboard]);
 
-  return useMemo(() => [refreshRate, rate => setRefreshRate(getLimitedRefreshRate(rate)), () => setRefreshRate(null)], [
+  return useMemo(() => [refreshRate, (rate: any) => setRefreshRate(getLimitedRefreshRate(rate)), () => setRefreshRate(null)], [
     refreshRate,
   ]);
 }

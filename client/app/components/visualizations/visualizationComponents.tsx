@@ -5,12 +5,15 @@ import Link from "@/components/Link";
 import { Renderer as VisRenderer, Editor as VisEditor, updateVisualizationsSettings } from "@redash/viz/lib";
 import { clientConfig } from "@/services/auth";
 
+// @ts-expect-error ts-migrate(2732) FIXME: Cannot find module '@redash/viz/lib/visualizations... Remove this comment to see the full error message
 import countriesDataUrl from "@redash/viz/lib/visualizations/choropleth/maps/countries.geo.json";
+// @ts-expect-error ts-migrate(2732) FIXME: Cannot find module '@redash/viz/lib/visualizations... Remove this comment to see the full error message
 import usaDataUrl from "@redash/viz/lib/visualizations/choropleth/maps/usa-albers.geo.json";
+// @ts-expect-error ts-migrate(2732) FIXME: Cannot find module '@redash/viz/lib/visualizations... Remove this comment to see the full error message
 import subdivJapanDataUrl from "@redash/viz/lib/visualizations/choropleth/maps/japan.prefectures.geo.json";
 
-function wrapComponentWithSettings(WrappedComponent) {
-  return function VisualizationComponent(props) {
+function wrapComponentWithSettings(WrappedComponent: any) {
+  return function VisualizationComponent(props: any) {
     updateVisualizationsSettings({
       HelpTriggerComponent: HelpTrigger,
       LinkComponent: Link,

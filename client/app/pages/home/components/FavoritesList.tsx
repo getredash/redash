@@ -1,6 +1,5 @@
 import { isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
 
 import Link from "@/components/Link";
 import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
@@ -8,15 +7,27 @@ import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";
 
-export function FavoriteList({ title, resource, itemUrl, emptyState }) {
+type OwnFavoriteListProps = {
+    title: string;
+    resource: (...args: any[]) => any;
+    itemUrl: (...args: any[]) => any;
+    emptyState?: React.ReactNode;
+};
+
+type FavoriteListProps = OwnFavoriteListProps & typeof FavoriteList.defaultProps;
+
+export function FavoriteList({ title, resource, itemUrl, emptyState }: FavoriteListProps) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
     resource
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'favorites' does not exist on type '(...a... Remove this comment to see the full error message
       .favorites()
-      .then(({ results }) => setItems(results))
+      .then(({
+      results
+    }: any) => setItems(results))
       .finally(() => setLoading(false));
   }, [resource]);
 
@@ -33,7 +44,9 @@ export function FavoriteList({ title, resource, itemUrl, emptyState }) {
               <span className="btn-favourite m-r-5">
                 <i className="fa fa-star" aria-hidden="true" />
               </span>
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'. */}
               {item.name}
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'is_draft' does not exist on type 'never'... Remove this comment to see the full error message */}
               {item.is_draft && <span className="label label-default m-l-5">Unpublished</span>}
             </Link>
           ))}
@@ -43,13 +56,6 @@ export function FavoriteList({ title, resource, itemUrl, emptyState }) {
     </>
   );
 }
-
-FavoriteList.propTypes = {
-  title: PropTypes.string.isRequired,
-  resource: PropTypes.func.isRequired, // eslint-disable-line react/forbid-prop-types
-  itemUrl: PropTypes.func.isRequired,
-  emptyState: PropTypes.node,
-};
 FavoriteList.defaultProps = { emptyState: null };
 
 export function DashboardAndQueryFavoritesList() {
@@ -62,6 +68,7 @@ export function DashboardAndQueryFavoritesList() {
               title="Favorite Dashboards"
               resource={Dashboard}
               itemUrl={dashboard => dashboard.url}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message
               emptyState={
                 <p>
                   <span className="btn-favourite m-r-5">
@@ -75,8 +82,10 @@ export function DashboardAndQueryFavoritesList() {
           <div className="col-sm-6 m-t-20">
             <FavoriteList
               title="Favorite Queries"
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'typeof Query' is not assignable to type '(..... Remove this comment to see the full error message
               resource={Query}
               itemUrl={query => `queries/${query.id}`}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message
               emptyState={
                 <p>
                   <span className="btn-favourite m-r-5">

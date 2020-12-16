@@ -1,19 +1,31 @@
 import { isArray } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 import DatePicker from "antd/lib/date-picker";
 import { clientConfig } from "@/services/auth";
+// @ts-expect-error ts-migrate(6133) FIXME: 'Moment' is declared but its value is never read.
 import { Moment } from "@/components/proptypes";
 
 const { RangePicker } = DatePicker;
 
-const DateRangeInput = React.forwardRef(({ defaultValue, value, onSelect, className, ...props }, ref) => {
+type Props = {
+    // @ts-expect-error ts-migrate(2749) FIXME: 'Moment' refers to a value, but is being used as a... Remove this comment to see the full error message
+    defaultValue?: Moment[];
+    // @ts-expect-error ts-migrate(2749) FIXME: 'Moment' refers to a value, but is being used as a... Remove this comment to see the full error message
+    value?: Moment[];
+    onSelect?: (...args: any[]) => any;
+    className?: string;
+};
+
+const DateRangeInput = React.forwardRef<any, Props>(({ defaultValue, value, onSelect, className, ...props }, ref) => {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'dateFormat' does not exist on type '{}'.
   const format = clientConfig.dateFormat || "YYYY-MM-DD";
   const additionalAttributes = {};
   if (isArray(defaultValue) && defaultValue[0].isValid() && defaultValue[1].isValid()) {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'defaultValue' does not exist on type '{}... Remove this comment to see the full error message
     additionalAttributes.defaultValue = defaultValue;
   }
   if (value === null || (isArray(value) && value[0].isValid() && value[1].isValid())) {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'value' does not exist on type '{}'.
     additionalAttributes.value = value;
   }
   return (
@@ -28,14 +40,8 @@ const DateRangeInput = React.forwardRef(({ defaultValue, value, onSelect, classN
   );
 });
 
-DateRangeInput.propTypes = {
-  defaultValue: PropTypes.arrayOf(Moment),
-  value: PropTypes.arrayOf(Moment),
-  onSelect: PropTypes.func,
-  className: PropTypes.string,
-};
-
 DateRangeInput.defaultProps = {
+  // @ts-expect-error ts-migrate(2322) FIXME: Type 'null' is not assignable to type 'any[] | und... Remove this comment to see the full error message
   defaultValue: null,
   value: undefined,
   onSelect: () => {},

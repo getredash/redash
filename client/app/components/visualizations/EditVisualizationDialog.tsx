@@ -1,9 +1,9 @@
 import { isEqual, extend, map, sortBy, findIndex, filter, pick, omit } from "lodash";
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 import Select from "antd/lib/select";
 import Input from "antd/lib/input";
+// @ts-expect-error ts-migrate(6133) FIXME: 'DialogPropType' is declared but its value is neve... Remove this comment to see the full error message
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import Filters, { filterData } from "@/components/Filters";
 import notification from "@/services/notification";
@@ -20,7 +20,8 @@ import { Renderer, Editor } from "@/components/visualizations/visualizationCompo
 
 import "./EditVisualizationDialog.less";
 
-function updateQueryVisualizations(query, visualization) {
+function updateQueryVisualizations(query: any, visualization: any) {
+  // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
   const index = findIndex(query.visualizations, v => v.id === visualization.id);
   if (index > -1) {
     query.visualizations[index] = visualization;
@@ -31,7 +32,7 @@ function updateQueryVisualizations(query, visualization) {
   query.visualizations = [...query.visualizations]; // clone array
 }
 
-function saveVisualization(visualization) {
+function saveVisualization(visualization: any) {
   if (visualization.id) {
     recordEvent("update", "visualization", visualization.id, { type: visualization.type });
   } else {
@@ -40,16 +41,18 @@ function saveVisualization(visualization) {
 
   return Visualization.save(visualization)
     .then(result => {
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
       notification.success("Visualization saved");
       return result;
     })
     .catch(error => {
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
       notification.error("Visualization could not be saved");
       return Promise.reject(error);
     });
 }
 
-function confirmDialogClose(isDirty) {
+function confirmDialogClose(isDirty: any) {
   return new Promise((resolve, reject) => {
     if (isDirty) {
       Modal.confirm({
@@ -57,16 +60,28 @@ function confirmDialogClose(isDirty) {
         content: "Are you sure you want to close the editor without saving?",
         okText: "Yes",
         cancelText: "No",
+        // @ts-expect-error ts-migrate(2794) FIXME: Expected 1 arguments, but got 0. Did you forget to... Remove this comment to see the full error message
         onOk: () => resolve(),
         onCancel: () => reject(),
       });
     } else {
+      // @ts-expect-error ts-migrate(2794) FIXME: Expected 1 arguments, but got 0. Did you forget to... Remove this comment to see the full error message
       resolve();
     }
   });
 }
 
-function EditVisualizationDialog({ dialog, visualization, query, queryResult }) {
+type OwnProps = {
+    // @ts-expect-error ts-migrate(2749) FIXME: 'DialogPropType' refers to a value, but is being u... Remove this comment to see the full error message
+    dialog: DialogPropType;
+    query: any;
+    visualization?: VisualizationType;
+    queryResult: any;
+};
+
+type Props = OwnProps & typeof EditVisualizationDialog.defaultProps;
+
+function EditVisualizationDialog({ dialog, visualization, query, queryResult }: Props) {
   const errorHandlerRef = useRef();
 
   const isNew = !visualization;
@@ -83,10 +98,13 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
   );
 
   const defaultState = useMemo(() => {
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     const config = visualization ? registeredVisualizations[visualization.type] : getDefaultVisualization();
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'options' does not exist on type 'never'.
     const options = config.getOptions(isNew ? {} : visualization.options, data);
     return {
       type: config.type,
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'.
       name: isNew ? config.name : visualization.name,
       options,
       originalOptions: options,
@@ -102,27 +120,31 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
 
   useEffect(() => {
     if (errorHandlerRef.current) {
+      // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
       errorHandlerRef.current.reset();
     }
   }, [data, options]);
 
-  function onTypeChanged(newType) {
+  function onTypeChanged(newType: any) {
     setType(newType);
 
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     const config = registeredVisualizations[newType];
     if (!nameChanged) {
       setName(config.name);
     }
 
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'options' does not exist on type 'never'.
     setOptions(config.getOptions(isNew ? {} : visualization.options, data));
   }
 
-  function onNameChanged(newName) {
+  function onNameChanged(newName: any) {
     setName(newName);
     setNameChanged(newName !== name);
   }
 
-  function onOptionsChanged(newOptions) {
+  function onOptionsChanged(newOptions: any) {
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     const config = registeredVisualizations[type];
     setOptions(config.getOptions(newOptions, data));
   }
@@ -137,27 +159,32 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
     const visualizationData = extend(newVisualization(type), visualization, {
       name,
       options: visualizationOptions,
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type 'never'.
       query_id: query.id,
     });
     saveVisualization(visualizationData).then(savedVisualization => {
       updateQueryVisualizations(query, savedVisualization);
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'close' does not exist on type 'never'.
       dialog.close(savedVisualization);
     });
   }
 
   function dismiss() {
     const optionsChanged = !isEqual(options, defaultState.originalOptions);
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'dismiss' does not exist on type 'never'.
     confirmDialogClose(nameChanged || optionsChanged).then(dialog.dismiss);
   }
 
   // When editing existing visualization chart type selector is disabled, so add only existing visualization's
   // descriptor there (to properly render the component). For new visualizations show all types except of deprecated
   const availableVisualizations = isNew
-    ? filter(sortBy(registeredVisualizations, ["name"]), vis => !vis.isDeprecated)
+    ? // @ts-expect-error ts-migrate(2339) FIXME: Property 'isDeprecated' does not exist on type 'ne... Remove this comment to see the full error message
+      filter(sortBy(registeredVisualizations, ["name"]), vis => !vis.isDeprecated)
     : pick(registeredVisualizations, [type]);
 
   return (
     <Modal
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'props' does not exist on type 'never'.
       {...dialog.props}
       wrapClassName="ant-modal-fullscreen"
       title="Visualization Editor"
@@ -181,7 +208,9 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
               value={type}
               onChange={onTypeChanged}>
               {map(availableVisualizations, vis => (
+                // @ts-expect-error ts-migrate(2741) FIXME: Property 'value' is missing in type '{ children: a... Remove this comment to see the full error message
                 <Select.Option key={vis.type} data-test={"VisualizationType." + vis.type}>
+                  {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'. */}
                   {vis.name}
                 </Select.Option>
               ))}
@@ -211,6 +240,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
           <label htmlFor="visualization-preview" className="invisible hidden-xs">
             Preview
           </label>
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<any>' is not assignable to type '((... Remove this comment to see the full error message */}
           <Filters filters={filters} onChange={setFilters} />
           <div className="scrollbox" data-test="VisualizationPreview">
             <Renderer
@@ -226,13 +256,6 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
     </Modal>
   );
 }
-
-EditVisualizationDialog.propTypes = {
-  dialog: DialogPropType.isRequired,
-  query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  visualization: VisualizationType,
-  queryResult: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-};
 
 EditVisualizationDialog.defaultProps = {
   visualization: null,

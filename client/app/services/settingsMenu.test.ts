@@ -17,6 +17,7 @@ settingsMenu.add(null, usersItem);
 describe("SettingsMenu", () => {
   describe("isActive", () => {
     test("works with non multi org paths", () => {
+      // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
       expect(settingsMenu.getActiveItem("/data_sources/").title).toBe(dataSourcesItem.title);
     });
 
@@ -27,6 +28,7 @@ describe("SettingsMenu", () => {
       document.head.appendChild(base);
 
       expect(settingsMenu.getActiveItem("/acme/data_sources/")).toBeTruthy();
+      // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
       expect(settingsMenu.getActiveItem("/acme/data_sources/").title).toBe(dataSourcesItem.title);
     });
   });

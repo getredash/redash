@@ -8,6 +8,7 @@ import DataSource from "@/services/data-source";
 export default function useDataSources() {
   const [allDataSources, setAllDataSources] = useState([]);
   const [dataSourcesLoaded, setDataSourcesLoaded] = useState(false);
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'view_only' does not exist on type 'never... Remove this comment to see the full error message
   const dataSources = filter(allDataSources, ds => !ds.view_only);
 
   useEffect(() => {
@@ -15,6 +16,7 @@ export default function useDataSources() {
     DataSource.query().then(data => {
       if (!cancelDataSourceLoading) {
         setDataSourcesLoaded(true);
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'AxiosResponse<any>' is not assig... Remove this comment to see the full error message
         setAllDataSources(data);
       }
     });

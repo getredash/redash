@@ -20,7 +20,7 @@ export const AbbreviatedTimeUnits = {
   MILLISECONDS: "ms",
 };
 
-function formatDateTimeValue(value, format) {
+function formatDateTimeValue(value: any, format: any) {
   if (!value) {
     return "";
   }
@@ -33,19 +33,22 @@ function formatDateTimeValue(value, format) {
   return parsed.format(format);
 }
 
-export function formatDateTime(value) {
+export function formatDateTime(value: any) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'dateTimeFormat' does not exist on type '... Remove this comment to see the full error message
   return formatDateTimeValue(value, clientConfig.dateTimeFormat);
 }
 
-export function formatDateTimePrecise(value, withMilliseconds = false) {
+export function formatDateTimePrecise(value: any, withMilliseconds = false) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'dateFormat' does not exist on type '{}'.
   return formatDateTimeValue(value, clientConfig.dateFormat + (withMilliseconds ? " HH:mm:ss.SSS" : " HH:mm:ss"));
 }
 
-export function formatDate(value) {
+export function formatDate(value: any) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'dateFormat' does not exist on type '{}'.
   return formatDateTimeValue(value, clientConfig.dateFormat);
 }
 
-export function localizeTime(time) {
+export function localizeTime(time: any) {
   const [hrs, mins] = time.split(":");
   return moment
     .utc()
@@ -55,7 +58,7 @@ export function localizeTime(time) {
     .format("HH:mm");
 }
 
-export function secondsToInterval(count) {
+export function secondsToInterval(count: any) {
   if (!count) {
     return { interval: IntervalEnum.NEVER };
   }
@@ -80,18 +83,19 @@ export function secondsToInterval(count) {
   return { count, interval };
 }
 
-export function pluralize(text, count) {
+export function pluralize(text: any, count: any) {
   const should = count !== 1;
   return text + (should ? "s" : "");
 }
 
-export function durationHumanize(durationInSeconds, options = {}) {
+export function durationHumanize(durationInSeconds: any, options = {}) {
   if (!durationInSeconds) {
     return "-";
   }
   let ret = "";
   const { interval, count } = secondsToInterval(durationInSeconds);
   const rounded = Math.round(count);
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'omitSingleValueNumber' does not exist on... Remove this comment to see the full error message
   if (rounded !== 1 || !options.omitSingleValueNumber) {
     ret = `${rounded} `;
   }
@@ -99,11 +103,11 @@ export function durationHumanize(durationInSeconds, options = {}) {
   return ret;
 }
 
-export function toHuman(text) {
-  return text.replace(/_/g, " ").replace(/(?:^|\s)\S/g, a => a.toUpperCase());
+export function toHuman(text: any) {
+  return text.replace(/_/g, " ").replace(/(?:^|\s)\S/g, (a: any) => a.toUpperCase());
 }
 
-export function remove(items, item) {
+export function remove(items: any, item: any) {
   if (items === undefined) {
     return items;
   }
@@ -111,9 +115,9 @@ export function remove(items, item) {
   let notEquals;
 
   if (item instanceof Array) {
-    notEquals = other => item.indexOf(other) === -1;
+    notEquals = (other: any) => item.indexOf(other) === -1;
   } else {
-    notEquals = other => item !== other;
+    notEquals = (other: any) => item !== other;
   }
 
   const filtered = [];
@@ -133,7 +137,7 @@ export function remove(items, item) {
  * @param [fractionDigits] {number}
  * @return {string}
  */
-export function formatNumber(value, fractionDigits = 3) {
+export function formatNumber(value: any, fractionDigits = 3) {
   return Math.round(value) !== value ? value.toFixed(fractionDigits) : value.toString();
 }
 
@@ -145,7 +149,7 @@ export function formatNumber(value, fractionDigits = 3) {
  * @param [fractionDigits] {number}
  * @return {{unit: string, value: string, divisor: number}}
  */
-export function prettyNumberWithUnit(value, divisor, units = [], fractionDigits) {
+export function prettyNumberWithUnit(value: any, divisor: any, units = [], fractionDigits: any) {
   if (isNaN(parseFloat(value)) || !isFinite(value)) {
     return {
       value: "",
@@ -170,11 +174,13 @@ export function prettyNumberWithUnit(value, divisor, units = [], fractionDigits)
   };
 }
 
-export function prettySizeWithUnit(bytes, fractionDigits) {
+export function prettySizeWithUnit(bytes: any, fractionDigits: any) {
+  // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
   return prettyNumberWithUnit(bytes, 1024, ["bytes", "KB", "MB", "GB", "TB", "PB"], fractionDigits);
 }
 
-export function prettySize(bytes) {
+export function prettySize(bytes: any) {
+  // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
   const { value, unit } = prettySizeWithUnit(bytes);
   if (!value) {
     return "?";
@@ -182,7 +188,7 @@ export function prettySize(bytes) {
   return value + " " + unit;
 }
 
-export function join(arr) {
+export function join(arr: any) {
   if (arr === undefined || arr === null) {
     return "";
   }
@@ -190,7 +196,7 @@ export function join(arr) {
   return arr.join(" / ");
 }
 
-export function formatColumnValue(value, columnType = null) {
+export function formatColumnValue(value: any, columnType = null) {
   if (moment.isMoment(value)) {
     if (columnType === "date") {
       return formatDate(value);

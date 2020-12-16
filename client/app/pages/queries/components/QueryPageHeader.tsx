@@ -1,6 +1,5 @@
 import { extend, map, filter, reduce } from "lodash";
 import React, { useMemo } from "react";
-import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
@@ -28,7 +27,7 @@ function getQueryTags() {
   return getTags("api/queries/tags").then(tags => map(tags, t => t.name));
 }
 
-function createMenu(menu) {
+function createMenu(menu: any) {
   const handlers = {};
 
   const groups = map(menu, group =>
@@ -36,6 +35,7 @@ function createMenu(menu) {
       map(group, (props, key) => {
         props = extend({ isAvailable: true, isEnabled: true, onClick: () => {} }, props);
         if (props.isAvailable) {
+          // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           handlers[key] = props.onClick;
           return (
             <Menu.Item key={key} disabled={!props.isEnabled}>
@@ -49,9 +49,11 @@ function createMenu(menu) {
   );
 
   return (
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     <Menu onClick={({ key }) => handlers[key]()}>
       {reduce(
         filter(groups, group => group.length > 0),
+        // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
         (result, items, key) => {
           const divider = result.length > 0 ? <Menu.Divider key={`divider${key}`} /> : null;
           return [...result, divider, ...items];
@@ -62,15 +64,23 @@ function createMenu(menu) {
   );
 }
 
-export default function QueryPageHeader({
-  query,
-  dataSource,
-  sourceMode,
-  selectedVisualization,
-  headerExtra,
-  tagsExtra,
-  onChange,
-}) {
+type OwnProps = {
+    query: {
+        id?: number | string;
+        name?: string;
+        tags?: string[];
+    };
+    dataSource?: any;
+    sourceMode?: boolean;
+    selectedVisualization?: number;
+    headerExtra?: React.ReactNode;
+    tagsExtra?: React.ReactNode;
+    onChange?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof QueryPageHeader.defaultProps;
+
+export default function QueryPageHeader({ query, dataSource, sourceMode, selectedVisualization, headerExtra, tagsExtra, onChange, }: Props) {
   const isDesktop = useMedia({ minWidth: 768 });
   const queryFlags = useQueryFlags(query, dataSource);
   const updateName = useRenameQuery(query, onChange);
@@ -105,6 +115,7 @@ export default function QueryPageHeader({
           },
           managePermissions: {
             isAvailable:
+              // @ts-expect-error ts-migrate(2339) FIXME: Property 'showPermissionsControl' does not exist o... Remove this comment to see the full error message
               !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isArchived && clientConfig.showPermissionsControl,
             title: "Manage Permissions",
             onClick: openPermissionsEditorDialog,
@@ -116,6 +127,7 @@ export default function QueryPageHeader({
             onClick: publishQuery,
           },
           unpublish: {
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'disablePublish' does not exist on type '... Remove this comment to see the full error message
             isAvailable: !clientConfig.disablePublish && !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isDraft,
             title: "Unpublish",
             onClick: unpublishQuery,
@@ -123,6 +135,7 @@ export default function QueryPageHeader({
         },
         {
           showAPIKey: {
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'disablePublicUrls' does not exist on typ... Remove this comment to see the full error message
             isAvailable: !clientConfig.disablePublicUrls && !queryFlags.isNew,
             title: "Show API Key",
             onClick: openApiKeyDialog,
@@ -153,12 +166,14 @@ export default function QueryPageHeader({
           <div className="d-flex align-items-center">
             {!queryFlags.isNew && <FavoritesControl item={query} />}
             <h3>
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'. */}
               <EditInPlace isEditable={queryFlags.canEdit} onDone={updateName} ignoreBlanks value={query.name} />
             </h3>
           </div>
         </div>
         <div className="query-tags">
           <QueryTagsControl
+            // @ts-expect-error ts-migrate(2322) FIXME: Type '{ tags: any; isDraft: any; isArchived: any; ... Remove this comment to see the full error message
             tags={query.tags}
             isDraft={queryFlags.isDraft}
             isArchived={queryFlags.isArchived}
@@ -180,6 +195,7 @@ export default function QueryPageHeader({
         {!queryFlags.isNew && queryFlags.canViewSource && (
           <span>
             {!sourceMode && queryFlags.canEdit && (
+              // @ts-expect-error ts-migrate(2339) FIXME: Property 'getUrl' does not exist on type 'never'.
               <Link.Button className="m-r-5" href={query.getUrl(true, selectedVisualization)}>
                 <i className="fa fa-pencil-square-o" aria-hidden="true" />
                 <span className="m-l-5">Edit Source</span>
@@ -188,6 +204,7 @@ export default function QueryPageHeader({
             {sourceMode && (
               <Link.Button
                 className="m-r-5"
+                // @ts-expect-error ts-migrate(2339) FIXME: Property 'getUrl' does not exist on type 'never'.
                 href={query.getUrl(false, selectedVisualization)}
                 data-test="QueryPageShowResultOnly">
                 <i className="fa fa-table" aria-hidden="true" />
@@ -208,20 +225,6 @@ export default function QueryPageHeader({
     </div>
   );
 }
-
-QueryPageHeader.propTypes = {
-  query: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    name: PropTypes.string,
-    tags: PropTypes.arrayOf(PropTypes.string),
-  }).isRequired,
-  dataSource: PropTypes.object,
-  sourceMode: PropTypes.bool,
-  selectedVisualization: PropTypes.number,
-  headerExtra: PropTypes.node,
-  tagsExtra: PropTypes.node,
-  onChange: PropTypes.func,
-};
 
 QueryPageHeader.defaultProps = {
   dataSource: null,

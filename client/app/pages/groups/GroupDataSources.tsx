@@ -30,10 +30,12 @@ import Group from "@/services/group";
 import DataSource from "@/services/data-source";
 import routes from "@/services/routes";
 
-class GroupDataSources extends React.Component {
-  static propTypes = {
-    controller: ControllerType.isRequired,
-  };
+type Props = {
+    controller: ControllerType;
+};
+
+class GroupDataSources extends React.Component<Props> {
+  actions: any;
 
   groupId = parseInt(this.props.controller.params.groupId, 10);
 
@@ -54,13 +56,13 @@ class GroupDataSources extends React.Component {
   ];
 
   listColumns = [
-    Columns.custom((text, datasource) => <DataSourcePreviewCard dataSource={datasource} withLink />, {
+    Columns.custom((text: any, datasource: any) => <DataSourcePreviewCard dataSource={datasource} withLink />, {
       title: "Name",
       field: "name",
       width: null,
     }),
     Columns.custom(
-      (text, datasource) => {
+      (text: any, datasource: any) => {
         const menu = (
           <Menu
             selectedKeys={[datasource.view_only ? "viewonly" : "full"]}
@@ -86,7 +88,8 @@ class GroupDataSources extends React.Component {
       }
     ),
     Columns.custom(
-      (text, datasource) => (
+      (text: any, datasource: any) => (
+        // @ts-expect-error ts-migrate(2322) FIXME: Type '"danger"' is not assignable to type '"link" ... Remove this comment to see the full error message
         <Button className="w-100" type="danger" onClick={() => this.removeGroupDataSource(datasource)}>
           Remove
         </Button>
@@ -101,6 +104,7 @@ class GroupDataSources extends React.Component {
   componentDidMount() {
     Group.get({ id: this.groupId })
       .then(group => {
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'AxiosResponse<any>' is not assignable to typ... Remove this comment to see the full error message
         this.group = group;
         this.forceUpdate();
       })
@@ -109,18 +113,20 @@ class GroupDataSources extends React.Component {
       });
   }
 
-  removeGroupDataSource = datasource => {
+  removeGroupDataSource = (datasource: any) => {
     Group.removeDataSource({ id: this.groupId, dataSourceId: datasource.id })
       .then(() => {
         this.props.controller.updatePagination({ page: 1 });
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'update' does not exist on type 'Controll... Remove this comment to see the full error message
         this.props.controller.update();
       })
       .catch(() => {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.error("Failed to remove data source from group.");
       });
   };
 
-  setDataSourcePermissions = (datasource, permission) => {
+  setDataSourcePermissions = (datasource: any, permission: any) => {
     const viewOnly = permission !== "full";
 
     Group.updateDataSource({ id: this.groupId, dataSourceId: datasource.id }, { view_only: viewOnly })
@@ -129,26 +135,31 @@ class GroupDataSources extends React.Component {
         this.forceUpdate();
       })
       .catch(() => {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.error("Failed change data source permissions.");
       });
   };
 
   addDataSources = () => {
     const allDataSources = DataSource.query();
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'allItems' does not exist on type 'Contro... Remove this comment to see the full error message
     const alreadyAddedDataSources = map(this.props.controller.allItems, ds => ds.id);
     SelectItemsDialog.showModal({
       dialogTitle: "Add Data Sources",
       inputPlaceholder: "Search data sources...",
       selectedItemsTitle: "New Data Sources",
-      searchItems: searchTerm => {
+      searchItems: (searchTerm: any) => {
         searchTerm = toLower(searchTerm);
         return allDataSources.then(items => filter(items, ds => includes(toLower(ds.name), searchTerm)));
       },
-      renderItem: (item, { isSelected }) => {
+      renderItem: (item: any, {
+        isSelected
+      }: any) => {
         const alreadyInGroup = includes(alreadyAddedDataSources, item.id);
         return {
           content: (
             <DataSourcePreviewCard dataSource={item}>
+              {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
               <ListItemAddon isSelected={isSelected} alreadyInGroup={alreadyInGroup} />
             </DataSourcePreviewCard>
           ),
@@ -156,15 +167,19 @@ class GroupDataSources extends React.Component {
           className: isSelected || alreadyInGroup ? "selected" : "",
         };
       },
-      renderStagedItem: (item, { isSelected }) => ({
+      renderStagedItem: (item: any, {
+        isSelected
+      }: any) => ({
         content: (
           <DataSourcePreviewCard dataSource={item}>
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
             <ListItemAddon isSelected={isSelected} isStaged />
           </DataSourcePreviewCard>
         ),
       }),
-    }).onClose(items => {
+    }).onClose((items: any) => {
       const promises = map(items, ds => Group.addDataSource({ id: this.groupId }, { data_source_id: ds.id }));
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'update' does not exist on type 'Controll... Remove this comment to see the full error message
       return Promise.all(promises).then(() => this.props.controller.update());
     });
   };
@@ -173,18 +188,28 @@ class GroupDataSources extends React.Component {
     const { controller } = this.props;
     return (
       <div data-test="Group">
+        {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'. */}
         <GroupName className="d-block m-t-0 m-b-15" group={this.group} onChange={() => this.forceUpdate()} />
+        {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
         <Layout>
+          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Layout.Sidebar>
             <Sidebar
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'ControllerType' is not assignable to type 'n... Remove this comment to see the full error message
               controller={controller}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'null' is not assignable to type 'never'.
               group={this.group}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '({ key: string; href: string; title: string;... Remove this comment to see the full error message
               items={this.sidebarMenu}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
               canAddDataSources={currentUser.isAdmin}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '() => void' is not assignable to type 'never... Remove this comment to see the full error message
               onAddDataSourcesClick={this.addDataSources}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '() => void' is not assignable to type 'never... Remove this comment to see the full error message
               onGroupDeleted={() => navigateTo("groups")}
             />
           </Layout.Sidebar>
+          {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
           <Layout.Content>
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && (
@@ -200,6 +225,7 @@ class GroupDataSources extends React.Component {
             )}
             {controller.isLoaded && !controller.isEmpty && (
               <div className="table-responsive">
+                {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
                 <ItemsTable
                   items={controller.pageItems}
                   columns={this.listColumns}
@@ -213,9 +239,11 @@ class GroupDataSources extends React.Component {
                   showPageSizeSelect
                   totalCount={controller.totalItemsCount}
                   pageSize={controller.itemsPerPage}
-                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type '(itemsPerPage: any) => any' is not assignabl... Remove this comment to see the full error message
+                  onPageSizeChange={(itemsPerPage: any) => controller.updatePagination({ itemsPerPage })}
                   page={controller.page}
-                  onChange={page => controller.updatePagination({ page })}
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type '(page: any) => any' is not assignable to typ... Remove this comment to see the full error message
+                  onChange={(page: any) => controller.updatePagination({ page })}
                 />
               </div>
             )}
@@ -234,7 +262,9 @@ const GroupDataSourcesPage = wrapSettingsTab(
     () =>
       new ResourceItemsSource({
         isPlainList: true,
-        getRequest(unused, { params: { groupId } }) {
+        getRequest(unused: any, {
+          params: { groupId }
+        }: any) {
           return { id: groupId };
         },
         getResource() {

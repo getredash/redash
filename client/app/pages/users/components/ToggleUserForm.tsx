@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from "react";
-import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import DynamicComponent from "@/components/DynamicComponent";
 import { UserProfile } from "@/components/proptypes";
@@ -7,7 +6,14 @@ import { currentUser } from "@/services/auth";
 import User from "@/services/user";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
-export default function ToggleUserForm(props) {
+type OwnProps = {
+    user: UserProfile;
+    onChange?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof ToggleUserForm.defaultProps;
+
+export default function ToggleUserForm(props: Props) {
   const { user, onChange } = props;
 
   const [loading, setLoading] = useState(false);
@@ -27,6 +33,7 @@ export default function ToggleUserForm(props) {
       });
   }, [user, handleChange]);
 
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type '{ _isAdmin: ... Remove this comment to see the full error message
   if (!currentUser.isAdmin || user.id === currentUser.id) {
     return null;
   }
@@ -38,15 +45,11 @@ export default function ToggleUserForm(props) {
 
   return (
     <DynamicComponent name="UserProfile.ToggleUserForm">
+      {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
       <Button className="w-100 m-t-10" onClick={toggleUser} loading={loading} {...buttonProps} />
     </DynamicComponent>
   );
 }
-
-ToggleUserForm.propTypes = {
-  user: UserProfile.isRequired,
-  onChange: PropTypes.func,
-};
 
 ToggleUserForm.defaultProps = {
   onChange: () => {},

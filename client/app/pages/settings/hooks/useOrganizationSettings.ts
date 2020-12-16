@@ -5,7 +5,9 @@ import OrgSettings from "@/services/organizationSettings";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import { updateClientConfig } from "@/services/auth";
 
-export default function useOrganizationSettings({ onError }) {
+export default function useOrganizationSettings({
+  onError
+}: any) {
   const [settings, setSettings] = useState({});
   const [currentValues, setCurrentValues] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -14,6 +16,7 @@ export default function useOrganizationSettings({ onError }) {
   const handleError = useImmutableCallback(onError);
 
   useEffect(() => {
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 4 arguments, but got 3.
     recordEvent("view", "page", "org_settings");
 
     let isCancelled = false;
@@ -51,8 +54,11 @@ export default function useOrganizationSettings({ onError }) {
           setSettings(settings);
           setCurrentValues({ ...settings });
           updateClientConfig({
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'date_format' does not exist on type '{}'... Remove this comment to see the full error message
             dateFormat: currentValues.date_format,
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'time_format' does not exist on type '{}'... Remove this comment to see the full error message
             timeFormat: currentValues.time_format,
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'date_format' does not exist on type '{}'... Remove this comment to see the full error message
             dateTimeFormat: `${currentValues.date_format} ${currentValues.time_format}`,
           });
         })

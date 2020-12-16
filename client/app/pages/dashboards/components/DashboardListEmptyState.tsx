@@ -24,11 +24,17 @@ export default function DashboardListEmptyState({ page, searchTerm, selectedTags
     default:
       return (
         <DynamicComponent name="DashboardList.EmptyState">
+          {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
           <EmptyState
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
             icon="zmdi zmdi-view-quilt"
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
             description="See the big picture"
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
             illustration="dashboard"
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'never'.
             helpMessage={<EmptyStateHelpMessage helpTriggerType="DASHBOARDS" />}
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
             showDashboardStep
           />
         </DynamicComponent>

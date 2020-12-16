@@ -12,19 +12,37 @@ import helper from "./dynamicFormHelper";
 
 import "./DynamicForm.less";
 
-const ActionType = PropTypes.shape({
-  name: PropTypes.string.isRequired,
-  callback: PropTypes.func.isRequired,
-  type: PropTypes.string,
-  pullRight: PropTypes.bool,
-  disabledWhenDirty: PropTypes.bool,
+type ActionType = {
+    name: string;
+    callback: (...args: any[]) => any;
+    type?: string;
+    pullRight?: boolean;
+    disabledWhenDirty?: boolean;
+};
+
+// @ts-expect-error ts-migrate(2322) FIXME: Type 'Requireable<InferProps<{ name: Validator<str... Remove this comment to see the full error message
+const ActionType: PropTypes.Requireable<ActionType> = PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    callback: PropTypes.func.isRequired,
+    type: PropTypes.string,
+    pullRight: PropTypes.bool,
+    disabledWhenDirty: PropTypes.bool,
 });
 
-const AntdFormType = PropTypes.shape({
-  validateFieldsAndScroll: PropTypes.func,
+type AntdFormType = {
+    validateFieldsAndScroll?: (...args: any[]) => any;
+};
+
+// @ts-expect-error ts-migrate(2322) FIXME: Type 'Requireable<InferProps<{ validateFieldsAndSc... Remove this comment to see the full error message
+const AntdFormType: PropTypes.Requireable<AntdFormType> = PropTypes.shape({
+    validateFieldsAndScroll: PropTypes.func,
 });
 
-const fieldRules = ({ type, required, minLength }) => {
+const fieldRules = ({
+  type,
+  required,
+  minLength
+}: any) => {
   const requiredRule = required;
   const minLengthRule = minLength && includes(["text", "email", "password"], type);
   const emailTypeRule = type === "email";
@@ -36,7 +54,7 @@ const fieldRules = ({ type, required, minLength }) => {
   ].filter(rule => rule);
 };
 
-function normalizeEmptyValuesToNull(fields, values) {
+function normalizeEmptyValuesToNull(fields: any, values: any) {
   return mapValues(values, (value, key) => {
     const { initialValue } = find(fields, { name: key }) || {};
     if ((initialValue === null || initialValue === undefined || initialValue === "") && value === "") {
@@ -46,7 +64,15 @@ function normalizeEmptyValuesToNull(fields, values) {
   });
 }
 
-function DynamicFormFields({ fields, feedbackIcons, form }) {
+type OwnDynamicFormFieldsProps = {
+    fields?: FieldType[];
+    feedbackIcons?: boolean;
+    form: AntdFormType;
+};
+
+type DynamicFormFieldsProps = OwnDynamicFormFieldsProps & typeof DynamicFormFields.defaultProps;
+
+function DynamicFormFields({ fields, feedbackIcons, form }: DynamicFormFieldsProps) {
   return fields.map(field => {
     const { name, type, initialValue, contentAfter } = field;
     const fieldLabel = getFieldLabel(field);
@@ -63,9 +89,11 @@ function DynamicFormFields({ fields, feedbackIcons, form }) {
 
     if (type === "file") {
       formItemProps.valuePropName = "data-value";
-      formItemProps.getValueFromEvent = e => {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'getValueFromEvent' does not exist on typ... Remove this comment to see the full error message
+      formItemProps.getValueFromEvent = (e: any) => {
         if (e && e.fileList[0]) {
           helper.getBase64(e.file).then(value => {
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'setFieldsValue' does not exist on type '... Remove this comment to see the full error message
             form.setFieldsValue({ [name]: value });
           });
         }
@@ -76,26 +104,22 @@ function DynamicFormFields({ fields, feedbackIcons, form }) {
     return (
       <React.Fragment key={name}>
         <Form.Item {...formItemProps}>
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ field: FieldType; form: AntdFormType; }' i... Remove this comment to see the full error message */}
           <DynamicFormField field={field} form={form} />
         </Form.Item>
+        {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'getFieldValue' does not exist on type 'A... Remove this comment to see the full error message */}
         {isFunction(contentAfter) ? contentAfter(form.getFieldValue(name)) : contentAfter}
       </React.Fragment>
     );
   });
 }
 
-DynamicFormFields.propTypes = {
-  fields: PropTypes.arrayOf(FieldType),
-  feedbackIcons: PropTypes.bool,
-  form: AntdFormType.isRequired,
-};
-
 DynamicFormFields.defaultProps = {
   fields: [],
   feedbackIcons: false,
 };
 
-const reducerForActionSet = (state, action) => {
+const reducerForActionSet = (state: any, action: any) => {
   if (action.inProgress) {
     state.add(action.actionName);
   } else {
@@ -104,7 +128,14 @@ const reducerForActionSet = (state, action) => {
   return new Set(state);
 };
 
-function DynamicFormActions({ actions, isFormDirty }) {
+type OwnDynamicFormActionsProps = {
+    actions?: ActionType[];
+    isFormDirty?: boolean;
+};
+
+type DynamicFormActionsProps = OwnDynamicFormActionsProps & typeof DynamicFormActions.defaultProps;
+
+function DynamicFormActions({ actions, isFormDirty }: DynamicFormActionsProps) {
   const [inProgressActions, setActionInProgress] = useReducer(reducerForActionSet, new Set());
 
   const handleAction = useCallback(action => {
@@ -121,7 +152,9 @@ function DynamicFormActions({ actions, isFormDirty }) {
       key={action.name}
       htmlType="button"
       className={cx("m-t-10", { "pull-right": action.pullRight })}
+      // @ts-expect-error ts-migrate(2322) FIXME: Type 'string | undefined' is not assignable to typ... Remove this comment to see the full error message
       type={action.type}
+      // @ts-expect-error ts-migrate(2551) FIXME: Property 'disableWhenDirty' does not exist on type... Remove this comment to see the full error message
       disabled={isFormDirty && action.disableWhenDirty}
       loading={inProgressActions.has(action.name)}
       onClick={() => handleAction(action)}>
@@ -130,26 +163,25 @@ function DynamicFormActions({ actions, isFormDirty }) {
   ));
 }
 
-DynamicFormActions.propTypes = {
-  actions: PropTypes.arrayOf(ActionType),
-  isFormDirty: PropTypes.bool,
-};
-
 DynamicFormActions.defaultProps = {
   actions: [],
   isFormDirty: false,
 };
 
-export default function DynamicForm({
-  id,
-  fields,
-  actions,
-  feedbackIcons,
-  hideSubmitButton,
-  defaultShowExtraFields,
-  saveText,
-  onSubmit,
-}) {
+type OwnDynamicFormProps = {
+    id?: string;
+    fields?: FieldType[];
+    actions?: ActionType[];
+    feedbackIcons?: boolean;
+    hideSubmitButton?: boolean;
+    defaultShowExtraFields?: boolean;
+    saveText?: string;
+    onSubmit?: (...args: any[]) => any;
+};
+
+type DynamicFormProps = OwnDynamicFormProps & typeof DynamicForm.defaultProps;
+
+export default function DynamicForm({ id, fields, actions, feedbackIcons, hideSubmitButton, defaultShowExtraFields, saveText, onSubmit, }: DynamicFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showExtraFields, setShowExtraFields] = useState(defaultShowExtraFields);
   const [form] = Form.useForm();
@@ -160,15 +192,16 @@ export default function DynamicForm({
     values => {
       setIsSubmitting(true);
       values = normalizeEmptyValuesToNull(fields, values);
+      // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
       onSubmit(
         values,
-        msg => {
+        (msg: any) => {
           const { setFieldsValue, getFieldsValue } = form;
           setIsSubmitting(false);
           setFieldsValue(getFieldsValue()); // reset form touched state
           notification.success(msg);
         },
-        msg => {
+        (msg: any) => {
           setIsSubmitting(false);
           notification.error(msg);
         }
@@ -192,6 +225,7 @@ export default function DynamicForm({
       layout="vertical"
       onFinish={handleFinish}
       onFinishFailed={handleFinishFailed}>
+      {/* @ts-expect-error ts-migrate(2786) FIXME: 'DynamicFormFields' cannot be used as a JSX compon... Remove this comment to see the full error message */}
       <DynamicFormFields fields={regularFields} feedbackIcons={feedbackIcons} form={form} />
       {!isEmpty(extraFields) && (
         <div className="extra-options">
@@ -199,11 +233,13 @@ export default function DynamicForm({
             type="dashed"
             block
             className="extra-options-button"
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
             onClick={() => setShowExtraFields(currentShowExtraFields => !currentShowExtraFields)}>
             Additional Settings
             <i className={cx("fa m-l-5", { "fa-caret-up": showExtraFields, "fa-caret-down": !showExtraFields })} />
           </Button>
           <Collapse collapsed={!showExtraFields} className="extra-options-content">
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
             <DynamicFormFields fields={extraFields} feedbackIcons={feedbackIcons} form={form} />
           </Collapse>
         </div>
@@ -213,21 +249,11 @@ export default function DynamicForm({
           {saveText}
         </Button>
       )}
+      {/* @ts-expect-error ts-migrate(2786) FIXME: 'DynamicFormActions' cannot be used as a JSX compo... Remove this comment to see the full error message */}
       <DynamicFormActions actions={actions} isFormDirty={form.isFieldsTouched()} />
     </Form>
   );
 }
-
-DynamicForm.propTypes = {
-  id: PropTypes.string,
-  fields: PropTypes.arrayOf(FieldType),
-  actions: PropTypes.arrayOf(ActionType),
-  feedbackIcons: PropTypes.bool,
-  hideSubmitButton: PropTypes.bool,
-  defaultShowExtraFields: PropTypes.bool,
-  saveText: PropTypes.string,
-  onSubmit: PropTypes.func,
-};
 
 DynamicForm.defaultProps = {
   id: null,

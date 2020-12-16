@@ -22,22 +22,25 @@ export const STATE_CLASS = {
   triggered: "label-danger",
 };
 
-class AlertsList extends React.Component {
-  static propTypes = {
-    controller: ControllerType.isRequired,
-  };
+type Props = {
+    controller: ControllerType;
+};
+
+class AlertsList extends React.Component<Props> {
 
   listColumns = [
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(rende... Remove this comment to see the full error message
     Columns.custom.sortable(
-      (text, alert) => <i className={`fa fa-bell-${alert.options.muted ? "slash" : "o"} p-r-0`} />,
+      (text: any, alert: any) => <i className={`fa fa-bell-${alert.options.muted ? "slash" : "o"} p-r-0`} />,
       {
         title: <i className="fa fa-bell p-r-0" />,
         field: "muted",
         width: "1%",
       }
     ),
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(rende... Remove this comment to see the full error message
     Columns.custom.sortable(
-      (text, alert) => (
+      (text: any, alert: any) => (
         <div>
           <Link className="table-main-title" href={"alerts/" + alert.id}>
             {alert.name}
@@ -49,10 +52,12 @@ class AlertsList extends React.Component {
         field: "name",
       }
     ),
-    Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
+    Columns.custom((text: any, item: any) => item.user.name, { title: "Created By", width: "1%" }),
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(rende... Remove this comment to see the full error message
     Columns.custom.sortable(
-      (text, alert) => (
+      (text: any, alert: any) => (
         <div>
+          {/* @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
           <span className={`label ${STATE_CLASS[alert.state]}`}>{toUpper(alert.state)}</span>
         </div>
       ),
@@ -63,7 +68,9 @@ class AlertsList extends React.Component {
         className: "text-nowrap",
       }
     ),
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(overr... Remove this comment to see the full error message
     Columns.timeAgo.sortable({ title: "Last Updated At", field: "updated_at", width: "1%" }),
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(overr... Remove this comment to see the full error message
     Columns.dateTime.sortable({ title: "Created At", field: "created_at", width: "1%" }),
   ];
 
@@ -75,6 +82,7 @@ class AlertsList extends React.Component {
         <div className="container">
           <PageHeader
             title={controller.params.pageTitle}
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element | null' is not assignable to type 'n... Remove this comment to see the full error message
             actions={
               currentUser.hasPermission("list_alerts") ? (
                 <Link.Button block type="primary" href="alerts/new">
@@ -87,16 +95,23 @@ class AlertsList extends React.Component {
           <div>
             {controller.isLoaded && controller.isEmpty ? (
               <DynamicComponent name="AlertsList.EmptyState">
+                {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
                 <EmptyState
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
                   icon="fa fa-bell-o"
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
                   illustration="alert"
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
                   description="Get notified on certain events"
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'never'.
                   helpMessage={<EmptyStateHelpMessage helpTriggerType="ALERTS" />}
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
                   showAlertStep
                 />
               </DynamicComponent>
             ) : (
               <div className="table-responsive bg-white tiled">
+                {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
                 <ItemsTable
                   loading={!controller.isLoaded}
                   items={controller.pageItems}
@@ -109,9 +124,11 @@ class AlertsList extends React.Component {
                   showPageSizeSelect
                   totalCount={controller.totalItemsCount}
                   pageSize={controller.itemsPerPage}
-                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type '(itemsPerPage: any) => any' is not assignabl... Remove this comment to see the full error message
+                  onPageSizeChange={(itemsPerPage: any) => controller.updatePagination({ itemsPerPage })}
                   page={controller.page}
-                  onChange={page => controller.updatePagination({ page })}
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type '(page: any) => any' is not assignable to typ... Remove this comment to see the full error message
+                  onChange={(page: any) => controller.updatePagination({ page })}
                 />
               </div>
             )}
@@ -142,6 +159,7 @@ routes.register(
   routeWithUserSession({
     path: "/alerts",
     title: "Alerts",
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '{ currentPage: string; pageTitle?: string | ... Remove this comment to see the full error message
     render: pageProps => <AlertsListPage {...pageProps} currentPage="alerts" />,
   })
 );

@@ -1,6 +1,5 @@
 import { first } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import MenuOutlinedIcon from "@ant-design/icons/MenuOutlined";
 import Dropdown from "antd/lib/dropdown";
@@ -8,11 +7,18 @@ import Menu from "antd/lib/menu";
 import Link from "@/components/Link";
 import { Auth, currentUser } from "@/services/auth";
 import settingsMenu from "@/services/settingsMenu";
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module '@/assets/images/redash_icon_sm... Remove this comment to see the full error message
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
 import "./MobileNavbar.less";
 
-export default function MobileNavbar({ getPopupContainer }) {
+type OwnProps = {
+    getPopupContainer?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof MobileNavbar.defaultProps;
+
+export default function MobileNavbar({ getPopupContainer }: Props) {
   const firstSettingsTab = first(settingsMenu.getAvailableItems());
 
   return (
@@ -50,6 +56,7 @@ export default function MobileNavbar({ getPopupContainer }) {
               <Menu.Divider />
               {firstSettingsTab && (
                 <Menu.Item key="settings">
+                  {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'path' does not exist on type 'number | (... Remove this comment to see the full error message */}
                   <Link href={firstSettingsTab.path}>Settings</Link>
                 </Menu.Item>
               )}
@@ -78,10 +85,6 @@ export default function MobileNavbar({ getPopupContainer }) {
     </div>
   );
 }
-
-MobileNavbar.propTypes = {
-  getPopupContainer: PropTypes.func,
-};
 
 MobileNavbar.defaultProps = {
   getPopupContainer: null,

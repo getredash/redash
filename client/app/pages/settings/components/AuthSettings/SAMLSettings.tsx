@@ -6,12 +6,13 @@ import Radio from "antd/lib/radio";
 import DynamicComponent from "@/components/DynamicComponent";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
-export default function SAMLSettings(props) {
+export default function SAMLSettings(props: any) {
   const { values, onChange, loading } = props;
 
-  const onChangeEnabledStatus = e => {
+  const onChangeEnabledStatus = (e: any) => {
     const updates = { auth_saml_enabled: !!e.target.value };
     if (e.target.value) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'auth_saml_type' does not exist on type '... Remove this comment to see the full error message
       updates.auth_saml_type = e.target.value;
     }
     onChange(updates);

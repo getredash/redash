@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { axios } from "@/services/axios";
-import PropTypes from "prop-types";
 import { each, debounce, get, find } from "lodash";
 import Button from "antd/lib/button";
 import List from "antd/lib/list";
@@ -8,6 +7,7 @@ import Modal from "antd/lib/modal";
 import Select from "antd/lib/select";
 import Tag from "antd/lib/tag";
 import Tooltip from "antd/lib/tooltip";
+// @ts-expect-error ts-migrate(6133) FIXME: 'DialogPropType' is declared but its value is neve... Remove this comment to see the full error message
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { toHuman } from "@/lib/utils";
 import HelpTrigger from "@/components/HelpTrigger";
@@ -20,13 +20,13 @@ import "./index.less";
 const { Option } = Select;
 const DEBOUNCE_SEARCH_DURATION = 200;
 
-function useGrantees(url) {
+function useGrantees(url: any) {
   const loadGrantees = useCallback(
     () =>
       axios.get(url).then(data => {
-        const resultGrantees = [];
+        const resultGrantees: any = [];
         each(data, (grantees, accessType) => {
-          grantees.forEach(grantee => {
+          grantees.forEach((grantee: any) => {
             grantee.accessType = toHuman(accessType);
             resultGrantees.push(grantee);
           });
@@ -40,6 +40,7 @@ function useGrantees(url) {
     (userId, accessType = "modify") =>
       axios
         .post(url, { access_type: accessType, user_id: userId })
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         .catch(() => notification.error("Could not grant permission to the user")),
     [url]
   );
@@ -48,6 +49,7 @@ function useGrantees(url) {
     (userId, accessType = "modify") =>
       axios
         .delete(url, { data: { access_type: accessType, user_id: userId } })
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         .catch(() => notification.error("Could not remove permission from the user")),
     [url]
   );
@@ -55,37 +57,48 @@ function useGrantees(url) {
   return { loadGrantees, addPermission, removePermission };
 }
 
-const searchUsers = searchTerm =>
-  User.query({ q: searchTerm })
-    .then(({ results }) => results)
-    .catch(() => []);
+const searchUsers = (searchTerm: any) => User.query({ q: searchTerm })
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'results' does not exist on type 'AxiosRe... Remove this comment to see the full error message
+  .then(({ results }) => results)
+  .catch(() => []);
 
-function PermissionsEditorDialogHeader({ context }) {
+type OwnPermissionsEditorDialogHeaderProps = {
+    context?: "query" | "dashboard";
+};
+
+type PermissionsEditorDialogHeaderProps = OwnPermissionsEditorDialogHeaderProps & typeof PermissionsEditorDialogHeader.defaultProps;
+
+function PermissionsEditorDialogHeader({ context }: PermissionsEditorDialogHeaderProps) {
   return (
     <>
       Manage Permissions
       <div className="modal-header-desc">
         {`Editing this ${context} is enabled for the users in this list and for admins. `}
+        {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'. */}
         <HelpTrigger type="MANAGE_PERMISSIONS" />
       </div>
     </>
   );
 }
-
-PermissionsEditorDialogHeader.propTypes = { context: PropTypes.oneOf(["query", "dashboard"]) };
 PermissionsEditorDialogHeader.defaultProps = { context: "query" };
 
-function UserSelect({ onSelect, shouldShowUser }) {
+type OwnUserSelectProps = {
+    onSelect?: (...args: any[]) => any;
+    shouldShowUser?: (...args: any[]) => any;
+};
+
+type UserSelectProps = OwnUserSelectProps & typeof UserSelect.defaultProps;
+
+function UserSelect({ onSelect, shouldShowUser }: UserSelectProps) {
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   const debouncedSearchUsers = useCallback(
     debounce(
-      search =>
-        searchUsers(search)
-          .then(setUsers)
-          .finally(() => setLoadingUsers(false)),
+      (search: any) => searchUsers(search)
+        .then(setUsers)
+        .finally(() => setLoadingUsers(false)),
       DEBOUNCE_SEARCH_DURATION
     ),
     []
@@ -109,6 +122,7 @@ function UserSelect({ onSelect, shouldShowUser }) {
       getPopupContainer={trigger => trigger.parentNode}
       onSelect={onSelect}>
       {users.filter(shouldShowUser).map(user => (
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type 'never'.
         <Option key={user.id} value={user.id}>
           <UserPreviewCard user={user} />
         </Option>
@@ -116,14 +130,19 @@ function UserSelect({ onSelect, shouldShowUser }) {
     </Select>
   );
 }
-
-UserSelect.propTypes = {
-  onSelect: PropTypes.func,
-  shouldShowUser: PropTypes.func,
-};
 UserSelect.defaultProps = { onSelect: () => {}, shouldShowUser: () => true };
 
-function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
+type OwnPermissionsEditorDialogProps = {
+    // @ts-expect-error ts-migrate(2749) FIXME: 'DialogPropType' refers to a value, but is being u... Remove this comment to see the full error message
+    dialog: DialogPropType;
+    author: any;
+    context?: "query" | "dashboard";
+    aclUrl: string;
+};
+
+type PermissionsEditorDialogProps = OwnPermissionsEditorDialogProps & typeof PermissionsEditorDialog.defaultProps;
+
+function PermissionsEditorDialog({ dialog, author, context, aclUrl }: PermissionsEditorDialogProps) {
   const [loadingGrantees, setLoadingGrantees] = useState(true);
   const [grantees, setGrantees] = useState([]);
   const { loadGrantees, addPermission, removePermission } = useGrantees(aclUrl);
@@ -131,6 +150,7 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
     setLoadingGrantees(true);
     loadGrantees()
       .then(setGrantees)
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
       .catch(() => notification.error("Failed to load grantees list"))
       .finally(() => setLoadingGrantees(false));
   }, [loadGrantees]);
@@ -151,8 +171,10 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
       title={<PermissionsEditorDialogHeader context={context} />}
       footer={<Button onClick={dialog.dismiss}>Close</Button>}>
       <UserSelect
-        onSelect={userId => addPermission(userId).then(loadUsersWithPermissions)}
-        shouldShowUser={user => !userHasPermission(user)}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type '(userId: any) => Promise<void>' is not assig... Remove this comment to see the full error message
+        onSelect={(userId: any) => addPermission(userId).then(loadUsersWithPermissions)}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type '(user: any) => boolean' is not assignable to... Remove this comment to see the full error message
+        shouldShowUser={(user: any) => !userHasPermission(user)}
       />
       <div className="d-flex align-items-center m-t-5">
         <h5 className="flex-fill">Users with permissions</h5>
@@ -165,6 +187,7 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
           renderItem={user => (
             <List.Item>
               <UserPreviewCard key={user.id} user={user}>
+                {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
                 {user.id === author.id ? (
                   <Tag className="m-0">Author</Tag>
                 ) : (
@@ -183,13 +206,6 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
     </Modal>
   );
 }
-
-PermissionsEditorDialog.propTypes = {
-  dialog: DialogPropType.isRequired,
-  author: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  context: PropTypes.oneOf(["query", "dashboard"]),
-  aclUrl: PropTypes.string.isRequired,
-};
 
 PermissionsEditorDialog.defaultProps = { context: "query" };
 

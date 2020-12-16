@@ -1,12 +1,19 @@
 import Select from "antd/lib/select";
 import { map } from "lodash";
 import DynamicComponent, { registerComponent } from "@/components/DynamicComponent";
-import PropTypes from "prop-types";
 import React from "react";
 
-import "./QuerySourceDropdownItem"; // register QuerySourceDropdownItem
+import "./QuerySourceDropdownItem";
 
-export function QuerySourceDropdown(props) {
+type Props = {
+    dataSources?: any;
+    value?: string | number;
+    disabled?: boolean;
+    loading?: boolean;
+    onChange?: (...args: any[]) => any;
+}; // register QuerySourceDropdownItem
+
+export function QuerySourceDropdown(props: Props) {
   return (
     <Select
       className="w-100"
@@ -20,19 +27,12 @@ export function QuerySourceDropdown(props) {
       onChange={props.onChange}>
       {map(props.dataSources, ds => (
         <Select.Option key={`ds-${ds.id}`} value={ds.id} data-name={ds.name} data-test={`SelectDataSource${ds.id}`}>
+          {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
           <DynamicComponent name={"QuerySourceDropdownItem"} dataSource={ds} />
         </Select.Option>
       ))}
     </Select>
   );
 }
-
-QuerySourceDropdown.propTypes = {
-  dataSources: PropTypes.any,
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  disabled: PropTypes.bool,
-  loading: PropTypes.bool,
-  onChange: PropTypes.func,
-};
 
 registerComponent("QuerySourceDropdown", QuerySourceDropdown);

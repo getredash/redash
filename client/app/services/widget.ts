@@ -13,7 +13,7 @@ export const WidgetTypeEnum = {
   RESTRICTED: "restricted",
 };
 
-function calculatePositionOptions(widget) {
+function calculatePositionOptions(widget: any) {
   widget.width = 1; // Backward compatibility, user on back-end
 
   const visualizationOptions = {
@@ -26,17 +26,21 @@ function calculatePositionOptions(widget) {
     maxSizeY: dashboardGridOptions.maxSizeY,
   };
 
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const config = widget.visualization ? registeredVisualizations[widget.visualization.type] : null;
   if (isObject(config)) {
     if (Object.prototype.hasOwnProperty.call(config, "autoHeight")) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'autoHeight' does not exist on type 'obje... Remove this comment to see the full error message
       visualizationOptions.autoHeight = config.autoHeight;
     }
 
     // Width constraints
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'minColumns' does not exist on type 'obje... Remove this comment to see the full error message
     const minColumns = parseInt(config.minColumns, 10);
     if (isFinite(minColumns) && minColumns >= 0) {
       visualizationOptions.minSizeX = minColumns;
     }
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'maxColumns' does not exist on type 'obje... Remove this comment to see the full error message
     const maxColumns = parseInt(config.maxColumns, 10);
     if (isFinite(maxColumns) && maxColumns >= 0) {
       visualizationOptions.maxSizeX = Math.min(maxColumns, dashboardGridOptions.columns);
@@ -44,24 +48,29 @@ function calculatePositionOptions(widget) {
 
     // Height constraints
     // `minRows` is preferred, but it should be kept for backward compatibility
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'height' does not exist on type 'object'.
     const height = parseInt(config.height, 10);
     if (isFinite(height)) {
       visualizationOptions.minSizeY = Math.ceil(height / dashboardGridOptions.rowHeight);
     }
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'minRows' does not exist on type 'object'... Remove this comment to see the full error message
     const minRows = parseInt(config.minRows, 10);
     if (isFinite(minRows)) {
       visualizationOptions.minSizeY = minRows;
     }
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'maxRows' does not exist on type 'object'... Remove this comment to see the full error message
     const maxRows = parseInt(config.maxRows, 10);
     if (isFinite(maxRows) && maxRows >= 0) {
       visualizationOptions.maxSizeY = maxRows;
     }
 
     // Default dimensions
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'defaultColumns' does not exist on type '... Remove this comment to see the full error message
     const defaultWidth = parseInt(config.defaultColumns, 10);
     if (isFinite(defaultWidth) && defaultWidth > 0) {
       visualizationOptions.sizeX = defaultWidth;
     }
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'defaultRows' does not exist on type 'obj... Remove this comment to see the full error message
     const defaultHeight = parseInt(config.defaultRows, 10);
     if (isFinite(defaultHeight) && defaultHeight > 0) {
       visualizationOptions.sizeY = defaultHeight;
@@ -80,7 +89,18 @@ export const ParameterMappingType = {
 class Widget {
   static MappingType = ParameterMappingType;
 
-  constructor(data) {
+  data: any;
+  id: any;
+  loading: any;
+  options: any;
+  query: any;
+  queryResult: any;
+  refreshStartedAt: any;
+  restricted: any;
+  text: any;
+  visualization: any;
+
+  constructor(data: any) {
     // Copy properties
     extend(this, data);
 
@@ -123,10 +143,11 @@ class Widget {
     if (this.visualization) {
       return `${this.visualization.query.name} (${this.visualization.name})`;
     }
+    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '20' is not assignable to paramet... Remove this comment to see the full error message
     return truncate(this.text, 20);
   }
 
-  load(force, maxAge) {
+  load(force: any, maxAge: any) {
     if (!this.visualization) {
       return Promise.resolve();
     }
@@ -149,14 +170,14 @@ class Widget {
 
       queryResult
         .toPromise()
-        .then(result => {
+        .then((result: any) => {
           if (this.queryResult === queryResult) {
             this.loading = false;
             this.data = result;
           }
           return result;
         })
-        .catch(error => {
+        .catch((error: any) => {
           if (this.queryResult === queryResult) {
             this.loading = false;
             this.data = error;
@@ -168,9 +189,10 @@ class Widget {
     return this.queryResult.toPromise();
   }
 
-  save(key, value) {
+  save(key: any, value: any) {
     const data = pick(this, "options", "text", "id", "width", "dashboard_id", "visualization_id");
     if (key && value) {
+      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       data[key] = merge({}, data[key], value); // done like this so `this.options` doesn't get updated by side-effect
     }
 
@@ -181,6 +203,7 @@ class Widget {
 
     return axios.post(url, data).then(data => {
       each(data, (v, k) => {
+        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         this[k] = v;
       });
 
@@ -193,7 +216,7 @@ class Widget {
     return axios.delete(url);
   }
 
-  isStaticParam(param) {
+  isStaticParam(param: any) {
     const mappings = this.getParameterMappings();
     const mappingType = mappings[param.name].type;
     return mappingType === Widget.MappingType.StaticValue;
@@ -234,6 +257,7 @@ class Widget {
     // textboxes does not have query
     const params = this.getQuery() ? this.getQuery().getParametersDefs(false) : [];
     each(params, param => {
+      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       existingParams[param.name] = true;
       if (!isObject(this.options.parameterMappings[param.name])) {
         // "migration" for old dashboards: parameters with `global` flag

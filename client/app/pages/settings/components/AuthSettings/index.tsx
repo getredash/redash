@@ -8,12 +8,13 @@ import PasswordLoginSettings from "./PasswordLoginSettings";
 import GoogleLoginSettings from "./GoogleLoginSettings";
 import SAMLSettings from "./SAMLSettings";
 
-export default function AuthSettings(props) {
+export default function AuthSettings(props: any) {
   const { values, onChange } = props;
   const handleChange = useCallback(
     changes => {
       const allSettings = { ...values, ...changes };
       const allAuthMethodsDisabled =
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'googleLoginEnabled' does not exist on ty... Remove this comment to see the full error message
         !clientConfig.googleLoginEnabled && !clientConfig.ldapLoginEnabled && !allSettings.auth_saml_enabled;
       if (allAuthMethodsDisabled) {
         changes = { ...changes, auth_password_login_enabled: true };
@@ -26,6 +27,7 @@ export default function AuthSettings(props) {
   return (
     <DynamicComponent name="OrganizationSettings.AuthSettings" {...props}>
       <h3 className="m-t-0">
+        {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'. */}
         Authentication <HelpTrigger type="AUTHENTICATION_OPTIONS" />
       </h3>
       <hr />

@@ -9,15 +9,16 @@ export const DashboardStatusEnum = {
   SAVING_FAILED: "saving_failed",
 };
 
-function getChangedPositions(widgets, nextPositions = {}) {
+function getChangedPositions(widgets: any, nextPositions = {}) {
   return pickBy(nextPositions, (nextPos, widgetId) => {
     const widget = find(widgets, { id: Number(widgetId) });
     const prevPos = widget.options.position;
+    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'unknown' is not assignable to pa... Remove this comment to see the full error message
     return !isMatch(prevPos, nextPos);
   });
 }
 
-export default function useEditModeHandler(canEditDashboard, widgets) {
+export default function useEditModeHandler(canEditDashboard: any, widgets: any) {
   const [editingLayout, setEditingLayout] = useState(canEditDashboard && has(location.search, "edit"));
   const [dashboardStatus, setDashboardStatus] = useState(DashboardStatusEnum.SAVED);
   const [recentPositions, setRecentPositions] = useState([]);
@@ -61,6 +62,7 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
         .then(() => setDashboardStatus(DashboardStatusEnum.SAVED))
         .catch(() => {
           setDashboardStatus(DashboardStatusEnum.SAVING_FAILED);
+          // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
           notification.error("Error saving changes.");
         });
     },
@@ -70,6 +72,7 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
   const saveDashboardLayoutDebounced = useCallback(
     (...args) => {
       setDashboardStatus(DashboardStatusEnum.SAVING);
+      // @ts-expect-error ts-migrate(2556) FIXME: Expected 1 arguments, but got 0 or more.
       return debounce(() => saveDashboardLayout(...args), 2000)();
     },
     [saveDashboardLayout]

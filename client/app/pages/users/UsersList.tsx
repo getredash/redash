@@ -1,6 +1,5 @@
 import { isString, map, get, find } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
@@ -33,12 +32,25 @@ import routes from "@/services/routes";
 
 import CreateUserDialog from "./components/CreateUserDialog";
 
-function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
+type UsersListActionsProps = {
+    user: {
+        id?: number;
+        is_invitation_pending?: boolean;
+        is_disabled?: boolean;
+    };
+    enableUser: (...args: any[]) => any;
+    disableUser: (...args: any[]) => any;
+    deleteUser: (...args: any[]) => any;
+};
+
+function UsersListActions({ user, enableUser, disableUser, deleteUser }: UsersListActionsProps) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type '{ _isAdmin: ... Remove this comment to see the full error message
   if (user.id === currentUser.id) {
     return null;
   }
   if (user.is_invitation_pending) {
     return (
+      // @ts-expect-error ts-migrate(2322) FIXME: Type '"danger"' is not assignable to type '"text" ... Remove this comment to see the full error message
       <Button type="danger" className="w-100" onClick={event => deleteUser(event, user)}>
         Delete
       </Button>
@@ -55,21 +67,12 @@ function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
   );
 }
 
-UsersListActions.propTypes = {
-  user: PropTypes.shape({
-    id: PropTypes.number,
-    is_invitation_pending: PropTypes.bool,
-    is_disabled: PropTypes.bool,
-  }).isRequired,
-  enableUser: PropTypes.func.isRequired,
-  disableUser: PropTypes.func.isRequired,
-  deleteUser: PropTypes.func.isRequired,
+type UsersListProps = {
+    controller: ControllerType;
 };
 
-class UsersList extends React.Component {
-  static propTypes = {
-    controller: ControllerType.isRequired,
-  };
+class UsersList extends React.Component<UsersListProps> {
+  actions: any;
 
   sidebarMenu = [
     {
@@ -91,13 +94,15 @@ class UsersList extends React.Component {
   ];
 
   listColumns = [
-    Columns.custom.sortable((text, user) => <UserPreviewCard user={user} withLink />, {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(rende... Remove this comment to see the full error message
+    Columns.custom.sortable((text: any, user: any) => <UserPreviewCard user={user} withLink />, {
       title: "Name",
       field: "name",
       width: null,
     }),
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(rende... Remove this comment to see the full error message
     Columns.custom.sortable(
-      (text, user) =>
+      (text: any, user: any) =>
         map(user.groups, group => (
           <Link key={"group" + group.id} className="label label-tag" href={"groups/" + group.id}>
             {group.name}
@@ -108,12 +113,14 @@ class UsersList extends React.Component {
         field: "groups",
       }
     ),
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(overr... Remove this comment to see the full error message
     Columns.timeAgo.sortable({
       title: "Joined",
       field: "created_at",
       className: "text-nowrap",
       width: "1%",
     }),
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(overr... Remove this comment to see the full error message
     Columns.timeAgo.sortable({
       title: "Last Active At",
       field: "active_at",
@@ -121,7 +128,7 @@ class UsersList extends React.Component {
       width: "1%",
     }),
     Columns.custom(
-      (text, user) => (
+      (text: any, user: any) => (
         <UsersListActions
           user={user}
           enableUser={this.enableUser}
@@ -142,28 +149,31 @@ class UsersList extends React.Component {
     }
   }
 
-  createUser = values =>
-    User.create(values)
-      .then(user => {
-        notification.success("Saved.");
-        if (user.invite_link) {
-          Modal.warning({
-            title: "Email not sent!",
-            content: (
-              <React.Fragment>
-                <p>
-                  The mail server is not configured, please send the following link to <b>{user.name}</b>:
-                </p>
-                <InputWithCopy value={absoluteUrl(user.invite_link)} readOnly />
-              </React.Fragment>
-            ),
-          });
-        }
-      })
-      .catch(error => {
-        const message = find([get(error, "response.data.message"), get(error, "message"), "Failed saving."], isString);
-        return Promise.reject(new Error(message));
-      });
+  createUser = (values: any) => User.create(values)
+    .then(user => {
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
+      notification.success("Saved.");
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'invite_link' does not exist on type 'Axi... Remove this comment to see the full error message
+      if (user.invite_link) {
+        Modal.warning({
+          title: "Email not sent!",
+          content: (
+            <React.Fragment>
+              <p>
+                {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'AxiosRespo... Remove this comment to see the full error message */}
+                The mail server is not configured, please send the following link to <b>{user.name}</b>:
+              </p>
+              {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ value: string; readOnly: true; }' is not a... Remove this comment to see the full error message */}
+              <InputWithCopy value={absoluteUrl(user.invite_link)} readOnly />
+            </React.Fragment>
+          ),
+        });
+      }
+    })
+    .catch(error => {
+      const message = find([get(error, "response.data.message"), get(error, "message"), "Failed saving."], isString);
+      return Promise.reject(new Error(message));
+    });
 
   showCreateUserDialog = () => {
     if (policy.isCreateUserEnabled()) {
@@ -172,22 +182,26 @@ class UsersList extends React.Component {
           navigateTo("users");
         }
       };
+      // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0.
       CreateUserDialog.showModal()
-        .onClose(values =>
-          this.createUser(values).then(() => {
-            this.props.controller.update();
-            goToUsersList();
-          })
+        .onClose((values: any) => this.createUser(values).then(() => {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'update' does not exist on type 'Controll... Remove this comment to see the full error message
+        this.props.controller.update();
+        goToUsersList();
+      })
         )
         .onDismiss(goToUsersList);
     }
   };
 
-  enableUser = (event, user) => User.enableUser(user).then(() => this.props.controller.update());
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'update' does not exist on type 'Controll... Remove this comment to see the full error message
+  enableUser = (event: any, user: any) => User.enableUser(user).then(() => this.props.controller.update());
 
-  disableUser = (event, user) => User.disableUser(user).then(() => this.props.controller.update());
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'update' does not exist on type 'Controll... Remove this comment to see the full error message
+  disableUser = (event: any, user: any) => User.disableUser(user).then(() => this.props.controller.update());
 
-  deleteUser = (event, user) => User.deleteUser(user).then(() => this.props.controller.update());
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'update' does not exist on type 'Controll... Remove this comment to see the full error message
+  deleteUser = (event: any, user: any) => User.deleteUser(user).then(() => this.props.controller.update());
 
   // eslint-disable-next-line class-methods-use-this
   renderPageHeader() {
@@ -210,16 +224,22 @@ class UsersList extends React.Component {
     return (
       <React.Fragment>
         {this.renderPageHeader()}
+        {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
         <Layout>
+          {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
           <Layout.Sidebar className="m-b-0">
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string | undefined' is not assignable to typ... Remove this comment to see the full error message */}
             <Sidebar.SearchInput value={controller.searchTerm} onChange={controller.updateSearch} />
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type '({ key: string; href: string; title: string;... Remove this comment to see the full error message */}
             <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
           </Layout.Sidebar>
+          {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
           <Layout.Content>
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
             {controller.isLoaded && !controller.isEmpty && (
               <div className="table-responsive" data-test="UserList">
+                {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
                 <ItemsTable
                   items={controller.pageItems}
                   columns={this.listColumns}
@@ -232,9 +252,11 @@ class UsersList extends React.Component {
                   showPageSizeSelect
                   totalCount={controller.totalItemsCount}
                   pageSize={controller.itemsPerPage}
-                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type '(itemsPerPage: any) => any' is not assignabl... Remove this comment to see the full error message
+                  onPageSizeChange={(itemsPerPage: any) => controller.updatePagination({ itemsPerPage })}
                   page={controller.page}
-                  onChange={page => controller.updatePagination({ page })}
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type '(page: any) => any' is not assignable to typ... Remove this comment to see the full error message
+                  onChange={(page: any) => controller.updatePagination({ page })}
                 />
               </div>
             )}
@@ -251,14 +273,16 @@ const UsersListPage = wrapSettingsTab(
     permission: "list_users",
     title: "Users",
     path: "users",
-    isActive: path => path.startsWith("/users") && path !== "/users/me",
+    isActive: (path: any) => path.startsWith("/users") && path !== "/users/me",
     order: 2,
   },
   itemsList(
     UsersList,
     () =>
       new ResourceItemsSource({
-        getRequest(request, { params: { currentPage } }) {
+        getRequest(request: any, {
+          params: { currentPage }
+        }: any) {
           switch (currentPage) {
             case "active":
               request.pending = false;

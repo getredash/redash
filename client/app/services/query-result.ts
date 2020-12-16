@@ -9,15 +9,18 @@ const logger = debug("redash:services:QueryResult");
 const filterTypes = ["filter", "multi-filter", "multiFilter"];
 
 function defer() {
-  const result = { onStatusChange: status => {} };
+  const result = { onStatusChange: (status: any) => {} };
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'promise' does not exist on type '{ onSta... Remove this comment to see the full error message
   result.promise = new Promise((resolve, reject) => {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'resolve' does not exist on type '{ onSta... Remove this comment to see the full error message
     result.resolve = resolve;
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'reject' does not exist on type '{ onStat... Remove this comment to see the full error message
     result.reject = reject;
   });
   return result;
 }
 
-function getColumnNameWithoutType(column) {
+function getColumnNameWithoutType(column: any) {
   let typeSplit;
   if (column.indexOf("::") !== -1) {
     typeSplit = "::";
@@ -39,14 +42,16 @@ function getColumnNameWithoutType(column) {
   return parts[0];
 }
 
-function getColumnFriendlyName(column) {
-  return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a => a.toUpperCase());
+function getColumnFriendlyName(column: any) {
+  return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, (a: any) => a.toUpperCase());
 }
 
-const createOrSaveUrl = data => (data.id ? `api/query_results/${data.id}` : "api/query_results");
+const createOrSaveUrl = (data: any) => data.id ? `api/query_results/${data.id}` : "api/query_results";
 const QueryResultResource = {
-  get: ({ id }) => axios.get(`api/query_results/${id}`),
-  post: data => axios.post(createOrSaveUrl(data), data),
+  get: ({
+    id
+  }: any) => axios.get(`api/query_results/${id}`),
+  post: (data: any) => axios.post(createOrSaveUrl(data), data),
 };
 
 export const ExecutionStatus = {
@@ -64,7 +69,7 @@ const statuses = {
   4: ExecutionStatus.FAILED,
 };
 
-function handleErrorResponse(queryResult, error) {
+function handleErrorResponse(queryResult: any, error: any) {
   const status = get(error, "response.status");
   switch (status) {
     case 403:
@@ -96,25 +101,38 @@ function handleErrorResponse(queryResult, error) {
   });
 }
 
-function sleep(ms) {
+function sleep(ms: any) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export function fetchDataFromJob(jobId, interval = 1000) {
+// @ts-expect-error ts-migrate(7023) FIXME: 'fetchDataFromJob' implicitly has return type 'any... Remove this comment to see the full error message
+export function fetchDataFromJob(jobId: any, interval = 1000) {
   return axios.get(`api/jobs/${jobId}`).then(data => {
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     const status = statuses[data.job.status];
     if (status === ExecutionStatus.WAITING || status === ExecutionStatus.PROCESSING) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'job' does not exist on type 'AxiosRespon... Remove this comment to see the full error message
       return sleep(interval).then(() => fetchDataFromJob(data.job.id));
     } else if (status === ExecutionStatus.DONE) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'job' does not exist on type 'AxiosRespon... Remove this comment to see the full error message
       return data.job.result;
     } else if (status === ExecutionStatus.FAILED) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'job' does not exist on type 'AxiosRespon... Remove this comment to see the full error message
       return Promise.reject(data.job.error);
     }
   });
 }
 
 class QueryResult {
-  constructor(props) {
+  columnNames: any;
+  columns: any;
+  deferred: any;
+  isLoadingResult: any;
+  job: any;
+  query_result: any;
+  status: any;
+  updatedAt: any;
+  constructor(props: any) {
     this.deferred = defer();
     this.job = {};
     this.query_result = {};
@@ -130,7 +148,7 @@ class QueryResult {
     }
   }
 
-  update(props) {
+  update(props: any) {
     extend(this, props);
 
     if ("query_result" in props) {
@@ -160,9 +178,12 @@ class QueryResult {
           }
 
           if (newType !== null) {
+            // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
             if (columnTypes[k] !== undefined && columnTypes[k] !== newType) {
+              // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
               columnTypes[k] = "string";
             } else {
+              // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
               columnTypes[k] = newType;
             }
           }
@@ -171,8 +192,10 @@ class QueryResult {
 
       each(this.query_result.data.columns, column => {
         column.name = "" + column.name;
+        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         if (columnTypes[column.name]) {
           if (column.type == null || column.type === "string") {
+            // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
             column.type = columnTypes[column.name];
           }
         }
@@ -183,6 +206,7 @@ class QueryResult {
       this.deferred.onStatusChange(ExecutionStatus.PROCESSING);
       this.status = "processing";
     } else if (this.job.status === 4) {
+      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       this.status = statuses[this.job.status];
       this.deferred.reject(new QueryResultError(this.job.error));
     } else {
@@ -207,6 +231,7 @@ class QueryResult {
     if (this.isLoadingResult) {
       return ExecutionStatus.LOADING_RESULT;
     }
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     return this.status || statuses[this.job.status];
   }
 
@@ -261,14 +286,14 @@ class QueryResult {
 
   getColumnNames() {
     if (this.columnNames === undefined && this.query_result.data) {
-      this.columnNames = this.query_result.data.columns.map(v => v.name);
+      this.columnNames = this.query_result.data.columns.map((v: any) => v.name);
     }
 
     return this.columnNames;
   }
 
   getColumnFriendlyNames() {
-    return this.getColumnNames().map(col => getColumnFriendlyName(col));
+    return this.getColumnNames().map((col: any) => getColumnFriendlyName(col));
   }
 
   getFilters() {
@@ -276,9 +301,9 @@ class QueryResult {
       return [];
     }
 
-    const filters = [];
+    const filters: any = [];
 
-    this.getColumns().forEach(col => {
+    this.getColumns().forEach((col: any) => {
       const name = col.name;
       const type = name.split("::")[1] || name.split("__")[1];
       if (includes(filterTypes, type)) {
@@ -294,7 +319,8 @@ class QueryResult {
       }
     }, this);
 
-    this.getRawData().forEach(row => {
+    this.getRawData().forEach((row: any) => {
+      // @ts-expect-error ts-migrate(7006) FIXME: Parameter 'filter' implicitly has an 'any' type.
       filters.forEach(filter => {
         filter.values.push(row[filter.name]);
         if (filter.values.length === 1) {
@@ -307,6 +333,7 @@ class QueryResult {
       });
     });
 
+    // @ts-expect-error ts-migrate(7006) FIXME: Parameter 'filter' implicitly has an 'any' type.
     filters.forEach(filter => {
       filter.values = uniqBy(filter.values, v => {
         if (moment.isMoment(v)) {
@@ -319,14 +346,15 @@ class QueryResult {
     return filters;
   }
 
-  toPromise(statusCallback) {
+  toPromise(statusCallback: any) {
     if (statusCallback) {
       this.deferred.onStatusChange = statusCallback;
     }
     return this.deferred.promise;
   }
 
-  static getById(queryId, id) {
+  static getById(queryId: any, id: any) {
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0.
     const queryResult = new QueryResult();
 
     queryResult.isLoadingResult = true;
@@ -348,7 +376,7 @@ class QueryResult {
     return queryResult;
   }
 
-  loadLatestCachedResult(queryId, parameters) {
+  loadLatestCachedResult(queryId: any, parameters: any) {
     axios
       .post(`api/queries/${queryId}/results`, { queryId, parameters })
       .then(response => {
@@ -359,7 +387,7 @@ class QueryResult {
       });
   }
 
-  loadResult(tryCount) {
+  loadResult(tryCount: any) {
     this.isLoadingResult = true;
     this.deferred.onStatusChange(ExecutionStatus.LOADING_RESULT);
 
@@ -390,8 +418,9 @@ class QueryResult {
       });
   }
 
-  refreshStatus(query, parameters, tryNumber = 1) {
+  refreshStatus(query: any, parameters: any, tryNumber = 1) {
     const loadResult = () =>
+      // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0.
       Auth.isAuthenticated() ? this.loadResult() : this.loadLatestCachedResult(query, parameters);
 
     const request = Auth.isAuthenticated()
@@ -423,7 +452,7 @@ class QueryResult {
       });
   }
 
-  getLink(queryId, fileType, apiKey) {
+  getLink(queryId: any, fileType: any, apiKey: any) {
     let link = `api/queries/${queryId}/results/${this.getId()}.${fileType}`;
     if (apiKey) {
       link = `${link}?api_key=${apiKey}`;
@@ -431,11 +460,12 @@ class QueryResult {
     return link;
   }
 
-  getName(queryName, fileType) {
+  getName(queryName: any, fileType: any) {
     return `${queryName.replace(/ /g, "_") + moment(this.getUpdatedAt()).format("_YYYY_MM_DD")}.${fileType}`;
   }
 
-  static getByQueryId(id, parameters, applyAutoLimit, maxAge) {
+  static getByQueryId(id: any, parameters: any, applyAutoLimit: any, maxAge: any) {
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0.
     const queryResult = new QueryResult();
 
     axios
@@ -454,7 +484,8 @@ class QueryResult {
     return queryResult;
   }
 
-  static get(dataSourceId, query, parameters, applyAutoLimit, maxAge, queryId) {
+  static get(dataSourceId: any, query: any, parameters: any, applyAutoLimit: any, maxAge: any, queryId: any) {
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0.
     const queryResult = new QueryResult();
 
     const params = {
@@ -466,6 +497,7 @@ class QueryResult {
     };
 
     if (queryId !== undefined) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'query_id' does not exist on type '{ data... Remove this comment to see the full error message
       params.query_id = queryId;
     }
 

@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useCallback } from "react";
-import PropTypes from "prop-types";
 import cx from "classnames";
 import { find, orderBy } from "lodash";
 import useMedia from "use-media";
@@ -12,7 +11,15 @@ import "./QueryVisualizationTabs.less";
 
 const { TabPane } = Tabs;
 
-function EmptyState({ title, message, refreshButton }) {
+type OwnEmptyStateProps = {
+    title: string;
+    message: string;
+    refreshButton?: React.ReactNode;
+};
+
+type EmptyStateProps = OwnEmptyStateProps & typeof EmptyState.defaultProps;
+
+function EmptyState({ title, message, refreshButton }: EmptyStateProps) {
   return (
     <div className="query-results-empty-state">
       <div className="empty-state-content">
@@ -27,17 +34,19 @@ function EmptyState({ title, message, refreshButton }) {
   );
 }
 
-EmptyState.propTypes = {
-  title: PropTypes.string.isRequired,
-  message: PropTypes.string.isRequired,
-  refreshButton: PropTypes.node,
-};
-
 EmptyState.defaultProps = {
   refreshButton: null,
 };
 
-function TabWithDeleteButton({ visualizationName, canDelete, onDelete, ...props }) {
+type OwnTabWithDeleteButtonProps = {
+    visualizationName: string;
+    canDelete?: boolean;
+    onDelete?: (...args: any[]) => any;
+};
+
+type TabWithDeleteButtonProps = OwnTabWithDeleteButtonProps & typeof TabWithDeleteButton.defaultProps;
+
+function TabWithDeleteButton({ visualizationName, canDelete, onDelete, ...props }: TabWithDeleteButtonProps) {
   const handleDelete = useCallback(
     e => {
       e.stopPropagation();
@@ -65,12 +74,6 @@ function TabWithDeleteButton({ visualizationName, canDelete, onDelete, ...props 
     </span>
   );
 }
-
-TabWithDeleteButton.propTypes = {
-  visualizationName: PropTypes.string.isRequired,
-  canDelete: PropTypes.bool,
-  onDelete: PropTypes.func,
-};
 TabWithDeleteButton.defaultProps = { canDelete: false, onDelete: () => {} };
 
 const defaultVisualizations = [
@@ -82,18 +85,23 @@ const defaultVisualizations = [
   },
 ];
 
-export default function QueryVisualizationTabs({
-  queryResult,
-  selectedTab,
-  showNewVisualizationButton,
-  canDeleteVisualizations,
-  onChangeTab,
-  onAddVisualization,
-  onDeleteVisualization,
-  refreshButton,
-  canRefresh,
-  ...props
-}) {
+type OwnQueryVisualizationTabsProps = {
+    queryResult?: any;
+    visualizations?: any[];
+    selectedTab?: number;
+    showNewVisualizationButton?: boolean;
+    canDeleteVisualizations?: boolean;
+    onChangeTab?: (...args: any[]) => any;
+    onAddVisualization?: (...args: any[]) => any;
+    onDeleteVisualization?: (...args: any[]) => any;
+    refreshButton?: React.ReactNode;
+    canRefresh?: boolean;
+};
+
+type QueryVisualizationTabsProps = OwnQueryVisualizationTabsProps & typeof QueryVisualizationTabs.defaultProps;
+
+// @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
+export default function QueryVisualizationTabs({ queryResult, selectedTab, showNewVisualizationButton, canDeleteVisualizations, onChangeTab, onAddVisualization, onDeleteVisualization, refreshButton, canRefresh, ...props }: QueryVisualizationTabsProps) {
   const visualizations = useMemo(
     () => (props.visualizations.length > 0 ? props.visualizations : defaultVisualizations),
     [props.visualizations]
@@ -101,15 +109,18 @@ export default function QueryVisualizationTabs({
 
   const tabsProps = {};
   if (find(visualizations, { id: selectedTab })) {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'activeKey' does not exist on type '{}'.
     tabsProps.activeKey = `${selectedTab}`;
   }
 
   if (showNewVisualizationButton) {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'tabBarExtraContent' does not exist on ty... Remove this comment to see the full error message
     tabsProps.tabBarExtraContent = (
       <Button
         className="add-visualization-button"
         data-test="NewVisualization"
         type="link"
+        // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
         onClick={() => onAddVisualization()}>
         <i className="fa fa-plus" />
         <span className="m-l-5 hidden-xs">Add Visualization</span>
@@ -131,6 +142,7 @@ export default function QueryVisualizationTabs({
       data-test="QueryPageVisualizationTabs"
       animated={false}
       tabBarGutter={0}
+      // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
       onChange={activeKey => onChangeTab(+activeKey)}
       destroyInactiveTabPane>
       {orderedVisualizations.map(visualization => (
@@ -141,6 +153,7 @@ export default function QueryVisualizationTabs({
               data-test={`QueryPageVisualizationTab${visualization.id}`}
               canDelete={!isMobile && canDeleteVisualizations && !isFirstVisualization(visualization.id)}
               visualizationName={visualization.name}
+              // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
               onDelete={() => onDeleteVisualization(visualization.id)}
             />
           }>
@@ -150,6 +163,7 @@ export default function QueryVisualizationTabs({
               queryResult={queryResult}
               context="query"
               filters={filters}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<never[]>>' is not as... Remove this comment to see the full error message
               onFiltersChange={setFilters}
             />
           ) : (
@@ -168,19 +182,6 @@ export default function QueryVisualizationTabs({
     </Tabs>
   );
 }
-
-QueryVisualizationTabs.propTypes = {
-  queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  visualizations: PropTypes.arrayOf(PropTypes.object),
-  selectedTab: PropTypes.number,
-  showNewVisualizationButton: PropTypes.bool,
-  canDeleteVisualizations: PropTypes.bool,
-  onChangeTab: PropTypes.func,
-  onAddVisualization: PropTypes.func,
-  onDeleteVisualization: PropTypes.func,
-  refreshButton: PropTypes.node,
-  canRefresh: PropTypes.bool,
-};
 
 QueryVisualizationTabs.defaultProps = {
   queryResult: null,

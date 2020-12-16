@@ -49,16 +49,18 @@ export default class DefaultPolicy {
   }
 
   getDashboardRefreshIntervals() {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'dashboardRefreshIntervals' does not exis... Remove this comment to see the full error message
     const result = clientConfig.dashboardRefreshIntervals;
     return isArray(result) ? result : null;
   }
 
   getQueryRefreshIntervals() {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'queryRefreshIntervals' does not exist on... Remove this comment to see the full error message
     const result = clientConfig.queryRefreshIntervals;
     return isArray(result) ? result : null;
   }
 
-  canEdit(object) {
+  canEdit(object: any) {
     return get(object, "can_edit", false);
   }
 

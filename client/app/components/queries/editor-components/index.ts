@@ -5,7 +5,9 @@ import DatabricksSchemaBrowser from "./databricks/DatabricksSchemaBrowser";
 import { registerEditorComponent, getEditorComponents, QueryEditorComponents } from "./editorComponents";
 
 // default
+// @ts-expect-error ts-migrate(2554) FIXME: Expected 3 arguments, but got 2.
 registerEditorComponent(QueryEditorComponents.SCHEMA_BROWSER, SchemaBrowser);
+// @ts-expect-error ts-migrate(2554) FIXME: Expected 3 arguments, but got 2.
 registerEditorComponent(QueryEditorComponents.QUERY_EDITOR, QueryEditor);
 
 // databricks

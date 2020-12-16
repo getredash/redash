@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState, useCallback, useImperativeHandle } from "react";
-import PropTypes from "prop-types";
 import cx from "classnames";
 import { AceEditor, snippetsModule, updateSchemaCompleter } from "./ace";
 import { SchemaItemType } from "@/components/queries/SchemaBrowser";
@@ -11,7 +10,17 @@ import "./index.less";
 
 const editorProps = { $blockScrolling: Infinity };
 
-const QueryEditor = React.forwardRef(function(
+type Props = {
+    className?: string;
+    syntax?: string;
+    value?: string;
+    autocompleteEnabled?: boolean;
+    schema?: SchemaItemType[];
+    onChange?: (...args: any[]) => any;
+    onSelectionChange?: (...args: any[]) => any;
+};
+
+const QueryEditor = React.forwardRef<any, Props>(function(
   { className, syntax, value, autocompleteEnabled, schema, onChange, onSelectionChange, ...props },
   ref
 ) {
@@ -28,6 +37,7 @@ const QueryEditor = React.forwardRef(function(
   const handleChange = useCallback(
     str => {
       setCurrentValue(str);
+      // @ts-expect-error ts-migrate(2722) FIXME: Cannot invoke an object which is possibly 'undefin... Remove this comment to see the full error message
       onChange(str);
     },
     [onChange]
@@ -46,7 +56,9 @@ const QueryEditor = React.forwardRef(function(
 
   useEffect(() => {
     if (editorRef) {
+      // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
       const editorId = editorRef.editor.id;
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'SchemaItemType[] | undefined' is... Remove this comment to see the full error message
       updateSchemaCompleter(editorId, schema);
       return () => {
         updateSchemaCompleter(editorId, null);
@@ -57,6 +69,7 @@ const QueryEditor = React.forwardRef(function(
   useEffect(() => {
     function resize() {
       if (editorRef) {
+        // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
         editorRef.editor.resize();
       }
     }
@@ -70,8 +83,10 @@ const QueryEditor = React.forwardRef(function(
 
   const handleSelectionChange = useCallback(
     selection => {
+      // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
       const rawSelectedQueryText = editorRef.editor.session.doc.getTextRange(selection.getRange());
       const selectedQueryText = rawSelectedQueryText.length > 1 ? rawSelectedQueryText : null;
+      // @ts-expect-error ts-migrate(2722) FIXME: Cannot invoke an object which is possibly 'undefin... Remove this comment to see the full error message
       onSelectionChange(selectedQueryText);
     },
     [editorRef, onSelectionChange]
@@ -90,7 +105,7 @@ const QueryEditor = React.forwardRef(function(
     editor.commands.bindKey({ win: null, mac: "Ctrl+P" }, "golineup");
 
     // Reset Completer in case dot is pressed
-    editor.commands.on("afterExec", e => {
+    editor.commands.on("afterExec", (e: any) => {
       if (e.command.name === "insertstring" && e.args === "." && editor.completer) {
         editor.completer.showPopup(editor);
       }
@@ -101,10 +116,13 @@ const QueryEditor = React.forwardRef(function(
       const m = {
         snippetText: "",
       };
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'snippets' does not exist on type '{ snip... Remove this comment to see the full error message
       m.snippets = snippetManager.parseSnippetFile(m.snippetText);
       snippets.forEach(snippet => {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'snippets' does not exist on type '{ snip... Remove this comment to see the full error message
         m.snippets.push(snippet.getSnippet());
       });
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'snippets' does not exist on type '{ snip... Remove this comment to see the full error message
       snippetManager.register(m.snippets || [], m.scope);
     });
 
@@ -114,17 +132,20 @@ const QueryEditor = React.forwardRef(function(
   useImperativeHandle(
     ref,
     () => ({
-      paste: text => {
+      paste: (text: any) => {
         if (editorRef) {
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'editor' does not exist on type 'null'.
           const { editor } = editorRef;
           editor.session.doc.replace(editor.selection.getRange(), text);
           const range = editor.selection.getRange();
+          // @ts-expect-error ts-migrate(2722) FIXME: Cannot invoke an object which is possibly 'undefin... Remove this comment to see the full error message
           onChange(editor.session.getValue());
           editor.selection.setRange(range);
         }
       },
       focus: () => {
         if (editorRef) {
+          // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
           editorRef.editor.focus();
         }
       },
@@ -133,8 +154,10 @@ const QueryEditor = React.forwardRef(function(
   );
 
   return (
+    // @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<null>>' is not assig... Remove this comment to see the full error message
     <div className={cx("query-editor-container", className)} {...props} ref={setContainer}>
       <AceEditor
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<null>>' is not assig... Remove this comment to see the full error message
         ref={setEditorRef}
         theme="textmate"
         mode={syntax || "sql"}
@@ -153,19 +176,12 @@ const QueryEditor = React.forwardRef(function(
   );
 });
 
-QueryEditor.propTypes = {
-  className: PropTypes.string,
-  syntax: PropTypes.string,
-  value: PropTypes.string,
-  autocompleteEnabled: PropTypes.bool,
-  schema: PropTypes.arrayOf(SchemaItemType),
-  onChange: PropTypes.func,
-  onSelectionChange: PropTypes.func,
-};
-
 QueryEditor.defaultProps = {
+  // @ts-expect-error ts-migrate(2322) FIXME: Type 'null' is not assignable to type 'string | un... Remove this comment to see the full error message
   className: null,
+  // @ts-expect-error ts-migrate(2322) FIXME: Type 'null' is not assignable to type 'string | un... Remove this comment to see the full error message
   syntax: null,
+  // @ts-expect-error ts-migrate(2322) FIXME: Type 'null' is not assignable to type 'string | un... Remove this comment to see the full error message
   value: null,
   autocompleteEnabled: true,
   schema: [],
@@ -173,6 +189,7 @@ QueryEditor.defaultProps = {
   onSelectionChange: () => {},
 };
 
+// @ts-expect-error ts-migrate(2339) FIXME: Property 'Controls' does not exist on type 'Forwar... Remove this comment to see the full error message
 QueryEditor.Controls = QueryEditorControls;
 
 export default QueryEditor;

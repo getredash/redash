@@ -3,7 +3,7 @@ import AceEditor from "react-ace";
 
 import "./AceEditorInput.less";
 
-function AceEditorInput(props, ref) {
+function AceEditorInput(props: any, ref: any) {
   return (
     <div className="ace-editor-input" data-test={props["data-test"]}>
       <AceEditor

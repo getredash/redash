@@ -22,10 +22,13 @@ import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
 import routes from "@/services/routes";
 
-class OutdatedQueries extends React.Component {
-  static propTypes = {
-    controller: ControllerType.isRequired,
-  };
+type Props = {
+    controller: ControllerType;
+};
+
+type State = any;
+
+class OutdatedQueries extends React.Component<Props, State> {
 
   listColumns = [
     {
@@ -35,13 +38,15 @@ class OutdatedQueries extends React.Component {
       align: "right",
       sorter: true,
     },
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(rende... Remove this comment to see the full error message
     Columns.custom.sortable(
-      (text, item) => (
+      (text: any, item: any) => (
         <React.Fragment>
           <Link className="table-main-title" href={"queries/" + item.id}>
             {item.name}
           </Link>
           <QueryTagsControl
+            // @ts-expect-error ts-migrate(2322) FIXME: Type '{ className: string; tags: any; isDraft: any... Remove this comment to see the full error message
             className="d-block"
             tags={item.tags}
             isDraft={item.is_draft}
@@ -55,11 +60,15 @@ class OutdatedQueries extends React.Component {
         width: null,
       }
     ),
-    Columns.avatar({ field: "user", className: "p-l-0 p-r-0" }, name => `Created by ${name}`),
+    Columns.avatar({ field: "user", className: "p-l-0 p-r-0" }, (name: any) => `Created by ${name}`),
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(overr... Remove this comment to see the full error message
     Columns.dateTime.sortable({ title: "Created At", field: "created_at" }),
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(overr... Remove this comment to see the full error message
     Columns.duration.sortable({ title: "Runtime", field: "runtime" }),
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(overr... Remove this comment to see the full error message
     Columns.dateTime.sortable({ title: "Last Executed At", field: "retrieved_at", orderByField: "executed_at" }),
-    Columns.custom.sortable((text, item) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(rende... Remove this comment to see the full error message
+    Columns.custom.sortable((text: any, item: any) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
       title: "Update Schedule",
       field: "schedule",
     }),
@@ -72,24 +81,29 @@ class OutdatedQueries extends React.Component {
   _updateTimer = null;
 
   componentDidMount() {
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 4 arguments, but got 3.
     recordEvent("view", "page", "admin/queries/outdated");
     this.update(true);
   }
 
   componentWillUnmount() {
+    // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
     clearTimeout(this._updateTimer);
   }
 
   update = (isInitialCall = false) => {
     if (!isInitialCall && this.state.autoUpdate) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'update' does not exist on type 'Controll... Remove this comment to see the full error message
       this.props.controller.update();
     }
+    // @ts-expect-error ts-migrate(2322) FIXME: Type 'number' is not assignable to type 'null'.
     this._updateTimer = setTimeout(this.update, 60 * 1000);
   };
 
   render() {
     const { controller } = this.props;
     return (
+      // @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message
       <Layout activeTab={controller.params.currentPage}>
         <div className="m-15">
           <div>
@@ -97,6 +111,7 @@ class OutdatedQueries extends React.Component {
               Auto update
             </label>
             <Switch
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '{ id: string; className: string; checked: bo... Remove this comment to see the full error message
               id="auto-update-switch"
               className="m-l-10"
               checked={this.state.autoUpdate}
@@ -115,6 +130,7 @@ class OutdatedQueries extends React.Component {
         )}
         {controller.isLoaded && !controller.isEmpty && (
           <div className="bg-white tiled table-responsive">
+            {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
             <ItemsTable
               items={controller.pageItems}
               columns={this.listColumns}
@@ -126,9 +142,11 @@ class OutdatedQueries extends React.Component {
               showPageSizeSelect
               totalCount={controller.totalItemsCount}
               pageSize={controller.itemsPerPage}
-              onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '(itemsPerPage: any) => any' is not assignabl... Remove this comment to see the full error message
+              onPageSizeChange={(itemsPerPage: any) => controller.updatePagination({ itemsPerPage })}
               page={controller.page}
-              onChange={page => controller.updatePagination({ page })}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '(page: any) => any' is not assignable to typ... Remove this comment to see the full error message
+              onChange={(page: any) => controller.updatePagination({ page })}
             />
           </div>
         )}
@@ -141,10 +159,11 @@ const OutdatedQueriesPage = itemsList(
   OutdatedQueries,
   () =>
     new ItemsSource({
-      doRequest(request, context) {
+      doRequest(request: any, context: any) {
         return (
           axios
             .get("/api/admin/queries/outdated")
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'queries' does not exist on type 'AxiosRe... Remove this comment to see the full error message
             // eslint-disable-next-line camelcase
             .then(({ queries, updated_at }) => {
               context.setCustomParams({ lastUpdatedAt: parseFloat(updated_at) });
@@ -152,7 +171,7 @@ const OutdatedQueriesPage = itemsList(
             })
         );
       },
-      processResults(items) {
+      processResults(items: any) {
         return map(items, item => new Query(item));
       },
       isPlainList: true,
@@ -165,6 +184,7 @@ routes.register(
   routeWithUserSession({
     path: "/admin/queries/outdated",
     title: "Outdated Queries",
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '{ currentPage: string; pageTitle?: string | ... Remove this comment to see the full error message
     render: pageProps => <OutdatedQueriesPage {...pageProps} currentPage="outdated_queries" />,
   })
 );

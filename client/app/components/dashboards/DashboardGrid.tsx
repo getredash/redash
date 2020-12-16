@@ -4,6 +4,7 @@ import { chain, cloneDeep, find } from "lodash";
 import cx from "classnames";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { VisualizationWidget, TextboxWidget, RestrictedWidget } from "@/components/dashboards/dashboard-widget";
+// @ts-expect-error ts-migrate(6133) FIXME: 'FiltersType' is declared but its value is never r... Remove this comment to see the full error message
 import { FiltersType } from "@/components/Filters";
 import cfg from "@/config/dashboard-grid-options";
 import AutoHeightController from "./AutoHeightController";
@@ -14,20 +15,36 @@ import "./dashboard-grid.less";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
-const WidgetType = PropTypes.shape({
-  id: PropTypes.number.isRequired,
-  options: PropTypes.shape({
-    position: PropTypes.shape({
-      col: PropTypes.number.isRequired,
-      row: PropTypes.number.isRequired,
-      sizeY: PropTypes.number.isRequired,
-      minSizeY: PropTypes.number.isRequired,
-      maxSizeY: PropTypes.number.isRequired,
-      sizeX: PropTypes.number.isRequired,
-      minSizeX: PropTypes.number.isRequired,
-      maxSizeX: PropTypes.number.isRequired,
+type WidgetType = {
+    id: number;
+    options: {
+        position: {
+            col: number;
+            row: number;
+            sizeY: number;
+            minSizeY: number;
+            maxSizeY: number;
+            sizeX: number;
+            minSizeX: number;
+            maxSizeX: number;
+        };
+    };
+};
+
+const WidgetType: PropTypes.Requireable<WidgetType> = PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    options: PropTypes.shape({
+        position: PropTypes.shape({
+            col: PropTypes.number.isRequired,
+            row: PropTypes.number.isRequired,
+            sizeY: PropTypes.number.isRequired,
+            minSizeY: PropTypes.number.isRequired,
+            maxSizeY: PropTypes.number.isRequired,
+            sizeX: PropTypes.number.isRequired,
+            minSizeX: PropTypes.number.isRequired,
+            maxSizeX: PropTypes.number.isRequired,
+        }).isRequired,
     }).isRequired,
-  }).isRequired,
 });
 
 const SINGLE = "single-column";
@@ -35,15 +52,25 @@ const MULTI = "multi-column";
 
 const DashboardWidget = React.memo(
   function DashboardWidget({
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'widget' does not exist on type '{ childr... Remove this comment to see the full error message
     widget,
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'dashboard' does not exist on type '{ chi... Remove this comment to see the full error message
     dashboard,
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'onLoadWidget' does not exist on type '{ ... Remove this comment to see the full error message
     onLoadWidget,
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'onRefreshWidget' does not exist on type ... Remove this comment to see the full error message
     onRefreshWidget,
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'onRemoveWidget' does not exist on type '... Remove this comment to see the full error message
     onRemoveWidget,
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'onParameterMappingsChange' does not exis... Remove this comment to see the full error message
     onParameterMappingsChange,
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'canEdit' does not exist on type '{ child... Remove this comment to see the full error message
     canEdit,
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'isPublic' does not exist on type '{ chil... Remove this comment to see the full error message
     isPublic,
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'isLoading' does not exist on type '{ chi... Remove this comment to see the full error message
     isLoading,
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'filters' does not exist on type '{ child... Remove this comment to see the full error message
     filters,
   }) {
     const { type } = widget;
@@ -68,32 +95,44 @@ const DashboardWidget = React.memo(
       );
     }
     if (type === WidgetTypeEnum.TEXTBOX) {
+      // @ts-expect-error ts-migrate(2322) FIXME: Type '{ widget: any; canEdit: any; isPublic: any; ... Remove this comment to see the full error message
       return <TextboxWidget widget={widget} canEdit={canEdit} isPublic={isPublic} onDelete={onDelete} />;
     }
     return <RestrictedWidget widget={widget} />;
   },
   (prevProps, nextProps) =>
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'widget' does not exist on type 'Readonly... Remove this comment to see the full error message
     prevProps.widget === nextProps.widget &&
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'canEdit' does not exist on type 'Readonl... Remove this comment to see the full error message
     prevProps.canEdit === nextProps.canEdit &&
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'isPublic' does not exist on type 'Readon... Remove this comment to see the full error message
     prevProps.isPublic === nextProps.isPublic &&
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'isLoading' does not exist on type 'Reado... Remove this comment to see the full error message
     prevProps.isLoading === nextProps.isLoading &&
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'filters' does not exist on type 'Readonl... Remove this comment to see the full error message
     prevProps.filters === nextProps.filters
 );
 
-class DashboardGrid extends React.Component {
-  static propTypes = {
-    isEditing: PropTypes.bool.isRequired,
-    isPublic: PropTypes.bool,
-    dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    widgets: PropTypes.arrayOf(WidgetType).isRequired,
-    filters: FiltersType,
-    onBreakpointChange: PropTypes.func,
-    onLoadWidget: PropTypes.func,
-    onRefreshWidget: PropTypes.func,
-    onRemoveWidget: PropTypes.func,
-    onLayoutChange: PropTypes.func,
-    onParameterMappingsChange: PropTypes.func,
-  };
+type OwnProps = {
+    isEditing: boolean;
+    isPublic?: boolean;
+    dashboard: any;
+    widgets: WidgetType[];
+    // @ts-expect-error ts-migrate(2749) FIXME: 'FiltersType' refers to a value, but is being used... Remove this comment to see the full error message
+    filters?: FiltersType;
+    onBreakpointChange?: (...args: any[]) => any;
+    onLoadWidget?: (...args: any[]) => any;
+    onRefreshWidget?: (...args: any[]) => any;
+    onRemoveWidget?: (...args: any[]) => any;
+    onLayoutChange?: (...args: any[]) => any;
+    onParameterMappingsChange?: (...args: any[]) => any;
+};
+
+type State = any;
+
+type Props = OwnProps & typeof DashboardGrid.defaultProps;
+
+class DashboardGrid extends React.Component<Props, State> {
 
   static defaultProps = {
     isPublic: false,
@@ -106,7 +145,7 @@ class DashboardGrid extends React.Component {
     onParameterMappingsChange: () => {},
   };
 
-  static normalizeFrom(widget) {
+  static normalizeFrom(widget: any) {
     const {
       id,
       options: { position: pos },
@@ -129,7 +168,7 @@ class DashboardGrid extends React.Component {
 
   autoHeightCtrl = null;
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -138,7 +177,9 @@ class DashboardGrid extends React.Component {
     };
 
     // init AutoHeightController
+    // @ts-expect-error ts-migrate(2322) FIXME: Type 'AutoHeightController' is not assignable to t... Remove this comment to see the full error message
     this.autoHeightCtrl = new AutoHeightController(this.onWidgetHeightUpdated);
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
     this.autoHeightCtrl.update(this.props.widgets);
   }
 
@@ -153,14 +194,16 @@ class DashboardGrid extends React.Component {
 
   componentDidUpdate() {
     // update, in case widgets added or removed
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
     this.autoHeightCtrl.update(this.props.widgets);
   }
 
   componentWillUnmount() {
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
     this.autoHeightCtrl.destroy();
   }
 
-  onLayoutChange = (_, layouts) => {
+  onLayoutChange = (_: any, layouts: any) => {
     // workaround for when dashboard starts at single mode and then multi is empty or carries single col data
     // fixes test dashboard_spec['shows widgets with full width']
     // TODO: open react-grid-layout issue
@@ -170,6 +213,7 @@ class DashboardGrid extends React.Component {
 
     // workaround for https://github.com/STRML/react-grid-layout/issues/889
     // remove next line when fix lands
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '"single-column" | "multi-column"' is not ass... Remove this comment to see the full error message
     this.mode = document.body.offsetWidth <= cfg.mobileBreakPoint ? SINGLE : MULTI;
     // end workaround
 
@@ -186,14 +230,16 @@ class DashboardGrid extends React.Component {
     this.props.onLayoutChange(normalized);
   };
 
-  onBreakpointChange = mode => {
+  onBreakpointChange = (mode: any) => {
     this.mode = mode;
     this.props.onBreakpointChange(mode === SINGLE);
   };
 
   // height updated by auto-height
-  onWidgetHeightUpdated = (widgetId, newHeight) => {
-    this.setState(({ layouts }) => {
+  onWidgetHeightUpdated = (widgetId: any, newHeight: any) => {
+    this.setState(({
+      layouts
+    }: any) => {
       const layout = cloneDeep(layouts[MULTI]); // must clone to allow react-grid-layout to compare prev/next state
       const item = find(layout, { i: widgetId.toString() });
       if (item) {
@@ -206,20 +252,23 @@ class DashboardGrid extends React.Component {
   };
 
   // height updated by manual resize
-  onWidgetResize = (layout, oldItem, newItem) => {
+  onWidgetResize = (layout: any, oldItem: any, newItem: any) => {
     if (oldItem.h !== newItem.h) {
+      // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
       this.autoHeightCtrl.remove(Number(newItem.i));
     }
 
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
     this.autoHeightCtrl.resume();
   };
 
-  normalizeTo = layout => ({
+  normalizeTo = (layout: any) => ({
     col: layout.x,
     row: layout.y,
     sizeX: layout.w,
     sizeY: layout.h,
-    autoHeight: this.autoHeightCtrl.exists(layout.i),
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
+    autoHeight: this.autoHeightCtrl.exists(layout.i)
   });
 
   render() {
@@ -245,6 +294,7 @@ class DashboardGrid extends React.Component {
           margin={[cfg.margins, cfg.margins]}
           isDraggable={this.props.isEditing}
           isResizable={this.props.isEditing}
+          // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
           onResizeStart={this.autoHeightCtrl.stop}
           onResizeStop={this.onWidgetResize}
           layouts={this.state.layouts}
@@ -258,13 +308,16 @@ class DashboardGrid extends React.Component {
               data-widgetid={widget.id}
               data-test={`WidgetId${widget.id}`}
               className={cx("dashboard-widget-wrapper", {
+                // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
                 "widget-auto-height-enabled": this.autoHeightCtrl.exists(widget.id),
               })}>
               <DashboardWidget
+                // @ts-expect-error ts-migrate(2322) FIXME: Type '{ dashboard: any; widget: WidgetType; filter... Remove this comment to see the full error message
                 dashboard={dashboard}
                 widget={widget}
                 filters={filters}
                 isPublic={isPublic}
+                // @ts-expect-error ts-migrate(2339) FIXME: Property 'loading' does not exist on type 'WidgetT... Remove this comment to see the full error message
                 isLoading={widget.loading}
                 canEdit={dashboard.canEdit()}
                 onLoadWidget={onLoadWidget}

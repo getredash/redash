@@ -1,7 +1,13 @@
 import React, { useEffect, useState, useContext } from "react";
-import PropTypes from "prop-types";
 import { ErrorBoundaryContext } from "@redash/viz/lib/components/ErrorBoundary";
 import { Auth, clientConfig } from "@/services/auth";
+
+type OwnProps = {
+    apiKey: string;
+    renderChildren?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof ApiKeySessionWrapper.defaultProps;
 
 // This wrapper modifies `route.render` function and instead of passing `currentRoute` passes an object
 // that contains:
@@ -10,7 +16,8 @@ import { Auth, clientConfig } from "@/services/auth";
 // - `onError` field which is a `handleError` method of nearest error boundary
 // - `apiKey` field
 
-function ApiKeySessionWrapper({ apiKey, currentRoute, renderChildren }) {
+// @ts-expect-error ts-migrate(2339) FIXME: Property 'currentRoute' does not exist on type 'Pr... Remove this comment to see the full error message
+function ApiKeySessionWrapper({ apiKey, currentRoute, renderChildren }: Props) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { handleError } = useContext(ErrorBoundaryContext);
 
@@ -33,6 +40,7 @@ function ApiKeySessionWrapper({ apiKey, currentRoute, renderChildren }) {
     };
   }, [apiKey]);
 
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'disablePublicUrls' does not exist on typ... Remove this comment to see the full error message
   if (!isAuthenticated || clientConfig.disablePublicUrls) {
     return null;
   }
@@ -44,20 +52,18 @@ function ApiKeySessionWrapper({ apiKey, currentRoute, renderChildren }) {
   );
 }
 
-ApiKeySessionWrapper.propTypes = {
-  apiKey: PropTypes.string.isRequired,
-  renderChildren: PropTypes.func,
-};
-
 ApiKeySessionWrapper.defaultProps = {
   renderChildren: () => null,
 };
 
-export default function routeWithApiKeySession({ render, getApiKey, ...rest }) {
+export default function routeWithApiKeySession({
+  render,
+  getApiKey,
+  ...rest
+}: any) {
   return {
     ...rest,
-    render: currentRoute => (
-      <ApiKeySessionWrapper apiKey={getApiKey(currentRoute)} currentRoute={currentRoute} renderChildren={render} />
-    ),
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '{ apiKey: any; currentRoute: any; renderChil... Remove this comment to see the full error message
+    render: (currentRoute: any) => <ApiKeySessionWrapper apiKey={getApiKey(currentRoute)} currentRoute={currentRoute} renderChildren={render} />,
   };
 }

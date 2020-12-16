@@ -14,7 +14,9 @@ import location from "@/services/location";
 import recordEvent from "@/services/recordEvent";
 import routes from "@/services/routes";
 
-class Jobs extends React.Component {
+type State = any;
+
+class Jobs extends React.Component<{}, State> {
   state = {
     activeTab: location.hash,
     isLoading: true,
@@ -29,12 +31,14 @@ class Jobs extends React.Component {
   _refreshTimer = null;
 
   componentDidMount() {
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 4 arguments, but got 3.
     recordEvent("view", "page", "admin/rq_status");
     this.refresh();
   }
 
   componentWillUnmount() {
     // Ignore data after component unmounted
+    // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
     clearTimeout(this._refreshTimer);
     this.processQueues = () => {};
     this.handleError = () => {};
@@ -46,10 +50,14 @@ class Jobs extends React.Component {
       .then(data => this.processQueues(data))
       .catch(error => this.handleError(error));
 
+    // @ts-expect-error ts-migrate(2322) FIXME: Type 'number' is not assignable to type 'null'.
     this._refreshTimer = setTimeout(this.refresh, 60 * 1000);
   };
 
-  processQueues = ({ queues, workers }) => {
+  processQueues = ({
+    queues,
+    workers
+  }: any) => {
     const queueCounters = values(queues).map(({ started, ...rest }) => ({
       started: started.length,
       ...rest,
@@ -64,17 +72,17 @@ class Jobs extends React.Component {
     );
 
     const startedJobs = flatMap(values(queues), queue =>
-      queue.started.map(job => ({
+      queue.started.map((job: any) => ({
         ...job,
         enqueued_at: moment.utc(job.enqueued_at),
-        started_at: moment.utc(job.started_at),
+        started_at: moment.utc(job.started_at)
       }))
     );
 
     this.setState({ isLoading: false, queueCounters, startedJobs, overallCounters, workers });
   };
 
-  handleError = error => {
+  handleError = (error: any) => {
     this.setState({ isLoading: false, error });
   };
 
@@ -85,13 +93,14 @@ class Jobs extends React.Component {
       "redash.tasks.queries.execution.execute_query",
     ]);
 
-    const changeTab = newTab => {
+    const changeTab = (newTab: any) => {
       location.setHash(newTab);
       this.setState({ activeTab: newTab });
     };
 
     return (
       <Layout activeTab="jobs">
+        {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
         <div className="p-15">
           {error && <Alert type="error" message="Failed loading status. Please refresh." />}
 
@@ -99,9 +108,11 @@ class Jobs extends React.Component {
             <React.Fragment>
               <Grid.Row gutter={15} className="m-b-15">
                 <Grid.Col span={8}>
+                  {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'number' is not assignable to type 'string | ... Remove this comment to see the full error message */}
                   <CounterCard title="Started Jobs" value={overallCounters.started} loading={isLoading} />
                 </Grid.Col>
                 <Grid.Col span={8}>
+                  {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'number' is not assignable to type 'string | ... Remove this comment to see the full error message */}
                   <CounterCard title="Queued Jobs" value={overallCounters.queued} loading={isLoading} />
                 </Grid.Col>
               </Grid.Row>

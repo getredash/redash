@@ -1,6 +1,6 @@
+// @ts-expect-error ts-migrate(6133) FIXME: 'values' is declared but its value is never read.
 import { head, includes, trim, template, values } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 
 import LoadingState from "@/components/items-list/components/LoadingState";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
@@ -25,19 +25,24 @@ const MODES = {
 
 const defaultNameBuilder = template("<%= query.name %>: <%= options.column %> <%= options.op %> <%= options.value %>");
 
-export function getDefaultName(alert) {
+export function getDefaultName(alert: any) {
   if (!alert.query) {
     return "New Alert";
   }
   return defaultNameBuilder(alert);
 }
 
-class Alert extends React.Component {
-  static propTypes = {
-    mode: PropTypes.oneOf(values(MODES)),
-    alertId: PropTypes.string,
-    onError: PropTypes.func,
-  };
+type OwnProps = {
+    mode?: any; // TODO: PropTypes.oneOf(values(MODES))
+    alertId?: string;
+    onError?: (...args: any[]) => any;
+};
+
+type State = any;
+
+type Props = OwnProps & typeof Alert.defaultProps;
+
+class Alert extends React.Component<Props, State> {
 
   static defaultProps = {
     mode: null,
@@ -84,6 +89,7 @@ class Alert extends React.Component {
               this.setState({ mode: MODES.VIEW });
               notification.warn(
                 "You cannot edit this alert",
+                // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 3.
                 "You do not have sufficient permissions to edit this alert, and have been redirected to the view-only page.",
                 { duration: 0 }
               );
@@ -95,6 +101,7 @@ class Alert extends React.Component {
         })
         .catch(error => {
           if (this._isMounted) {
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'onError' does not exist on type 'never'.
             this.props.onError(error);
           }
         });
@@ -108,31 +115,39 @@ class Alert extends React.Component {
   save = () => {
     const { alert, pendingRearm } = this.state;
 
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
     alert.name = trim(alert.name) || getDefaultName(alert);
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
     alert.rearm = pendingRearm || null;
 
     return AlertService.save(alert)
       .then(alert => {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.success("Saved.");
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type 'AxiosRespons... Remove this comment to see the full error message
         navigateTo(`alerts/${alert.id}`, true);
         this.setState({ alert, mode: MODES.VIEW });
       })
       .catch(() => {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.error("Failed saving alert.");
       });
   };
 
-  onQuerySelected = query => {
-    this.setState(({ alert }) => ({
+  onQuerySelected = (query: any) => {
+    this.setState(({
+      alert
+    }: any) => ({
       alert: Object.assign(alert, { query }),
       queryResult: null,
     }));
 
     if (query) {
       // get cached result for column names and values
-      new QueryService(query).getQueryResultPromise().then(queryResult => {
+      new QueryService(query).getQueryResultPromise().then((queryResult: any) => {
         if (this._isMounted) {
           this.setState({ queryResult });
+          // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
           let { column } = this.state.alert.options;
           const columns = queryResult.getColumnNames();
 
@@ -146,19 +161,20 @@ class Alert extends React.Component {
     }
   };
 
-  onNameChange = name => {
+  onNameChange = (name: any) => {
     const { alert } = this.state;
     this.setState({
       alert: Object.assign(alert, { name }),
     });
   };
 
-  onRearmChange = pendingRearm => {
+  onRearmChange = (pendingRearm: any) => {
     this.setState({ pendingRearm });
   };
 
-  setAlertOptions = obj => {
+  setAlertOptions = (obj: any) => {
     const { alert } = this.state;
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
     const options = { ...alert.options, ...obj };
     this.setState({
       alert: Object.assign(alert, { options }),
@@ -169,10 +185,12 @@ class Alert extends React.Component {
     const { alert } = this.state;
     return AlertService.delete(alert)
       .then(() => {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.success("Alert deleted successfully.");
         navigateTo("alerts");
       })
       .catch(() => {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.error("Failed deleting alert.");
       });
   };
@@ -182,9 +200,11 @@ class Alert extends React.Component {
     return AlertService.mute(alert)
       .then(() => {
         this.setAlertOptions({ muted: true });
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.warn("Notifications have been muted.");
       })
       .catch(() => {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.error("Failed muting notifications.");
       });
   };
@@ -194,20 +214,24 @@ class Alert extends React.Component {
     return AlertService.unmute(alert)
       .then(() => {
         this.setAlertOptions({ muted: false });
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.success("Notifications have been restored.");
       })
       .catch(() => {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.error("Failed restoring notifications.");
       });
   };
 
   edit = () => {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type 'null'.
     const { id } = this.state.alert;
     navigateTo(`alerts/${id}/edit`, true);
     this.setState({ mode: MODES.EDIT });
   };
 
   cancel = () => {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type 'null'.
     const { id } = this.state.alert;
     navigateTo(`alerts/${id}`, true);
     this.setState({ mode: MODES.VIEW });
@@ -219,6 +243,7 @@ class Alert extends React.Component {
       return <LoadingState className="m-t-30" />;
     }
 
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
     const muted = !!alert.options.muted;
     const { queryResult, mode, canEdit, pendingRearm } = this.state;
 
@@ -242,10 +267,13 @@ class Alert extends React.Component {
     return (
       <div className="alert-page">
         <div className="container">
+          {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
           {mode === MODES.NEW && <AlertNew {...commonProps} />}
           {mode === MODES.VIEW && (
+            // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
             <AlertView canEdit={canEdit} onEdit={this.edit} muted={muted} unmute={this.unmute} {...commonProps} />
           )}
+          {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
           {mode === MODES.EDIT && <AlertEdit cancel={this.cancel} {...commonProps} />}
         </div>
       </div>
@@ -258,6 +286,7 @@ routes.register(
   routeWithUserSession({
     path: "/alerts/new",
     title: "New Alert",
+    // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
     render: pageProps => <Alert {...pageProps} mode={MODES.NEW} />,
   })
 );
@@ -266,6 +295,7 @@ routes.register(
   routeWithUserSession({
     path: "/alerts/:alertId",
     title: "Alert",
+    // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
     render: pageProps => <Alert {...pageProps} mode={MODES.VIEW} />,
   })
 );
@@ -274,6 +304,7 @@ routes.register(
   routeWithUserSession({
     path: "/alerts/:alertId/edit",
     title: "Alert",
+    // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
     render: pageProps => <Alert {...pageProps} mode={MODES.EDIT} />,
   })
 );

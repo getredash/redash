@@ -8,14 +8,14 @@ const normalizeCondition = {
   equals: "=",
 };
 
-const transformResponse = data =>
-  merge({}, data, {
-    options: {
-      op: normalizeCondition[data.options.op] || data.options.op,
-    },
-  });
+const transformResponse = (data: any) => merge({}, data, {
+  options: {
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+    op: normalizeCondition[data.options.op] || data.options.op,
+  },
+});
 
-const transformRequest = data => {
+const transformRequest = (data: any) => {
   const newData = Object.assign({}, data);
   if (newData.query_id === undefined) {
     newData.query_id = newData.query.id;
@@ -27,15 +27,17 @@ const transformRequest = data => {
   return newData;
 };
 
-const saveOrCreateUrl = data => (data.id ? `api/alerts/${data.id}` : "api/alerts");
+const saveOrCreateUrl = (data: any) => data.id ? `api/alerts/${data.id}` : "api/alerts";
 
 const Alert = {
   query: () => axios.get("api/alerts"),
-  get: ({ id }) => axios.get(`api/alerts/${id}`).then(transformResponse),
-  save: data => axios.post(saveOrCreateUrl(data), transformRequest(data)),
-  delete: data => axios.delete(`api/alerts/${data.id}`),
-  mute: data => axios.post(`api/alerts/${data.id}/mute`),
-  unmute: data => axios.delete(`api/alerts/${data.id}/mute`),
+  get: ({
+    id
+  }: any) => axios.get(`api/alerts/${id}`).then(transformResponse),
+  save: (data: any) => axios.post(saveOrCreateUrl(data), transformRequest(data)),
+  delete: (data: any) => axios.delete(`api/alerts/${data.id}`),
+  mute: (data: any) => axios.post(`api/alerts/${data.id}/mute`),
+  unmute: (data: any) => axios.delete(`api/alerts/${data.id}/mute`),
 };
 
 export default Alert;

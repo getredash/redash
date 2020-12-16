@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmailSettingsWarning from "@/components/EmailSettingsWarning";
@@ -17,16 +16,25 @@ import ReadOnlyUserProfile from "./components/ReadOnlyUserProfile";
 
 import "./settings.less";
 
-function UserProfile({ userId, onError }) {
+type OwnProps = {
+    userId?: string;
+    onError?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof UserProfile.defaultProps;
+
+function UserProfile({ userId, onError }: Props) {
   const [user, setUser] = useState(null);
 
   const handleError = useImmutableCallback(onError);
 
   useEffect(() => {
     let isCancelled = false;
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type '{ _isAdmin: ... Remove this comment to see the full error message
     User.get({ id: userId || currentUser.id })
       .then(user => {
         if (!isCancelled) {
+          // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '{ id: any; name: any; email: any... Remove this comment to see the full error message
           setUser(User.convertUserInfo(user));
         }
       })
@@ -41,15 +49,20 @@ function UserProfile({ userId, onError }) {
     };
   }, [userId, handleError]);
 
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type '{ _isAdmin: ... Remove this comment to see the full error message
   const canEdit = user && (currentUser.isAdmin || currentUser.id === user.id);
   return (
     <React.Fragment>
+      {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'. */}
       <EmailSettingsWarning featureName="invite emails" className="m-b-20" adminOnly />
       <div className="row">
         {!user && <LoadingState className="" />}
         {user && (
+          // @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message
           <DynamicComponent name="UserProfile" user={user}>
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'null' is not assignable to type 'UserProfile... Remove this comment to see the full error message */}
             {!canEdit && <ReadOnlyUserProfile user={user} />}
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'null' is not assignable to type 'UserProfile... Remove this comment to see the full error message */}
             {canEdit && <EditableUserProfile user={user} />}
           </DynamicComponent>
         )}
@@ -57,11 +70,6 @@ function UserProfile({ userId, onError }) {
     </React.Fragment>
   );
 }
-
-UserProfile.propTypes = {
-  userId: PropTypes.string,
-  onError: PropTypes.func,
-};
 
 UserProfile.defaultProps = {
   userId: null, // defaults to `currentUser.id`

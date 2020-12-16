@@ -32,21 +32,23 @@ moment.updateLocale("en", {
 
 function requireImages() {
   // client/app/assets/images/<path> => /images/<path>
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'context' does not exist on type 'NodeReq... Remove this comment to see the full error message
   const ctx = require.context("@/assets/images/", true, /\.(png|jpe?g|gif|svg)$/);
   ctx.keys().forEach(ctx);
 }
 
 function registerExtensions() {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'context' does not exist on type 'NodeReq... Remove this comment to see the full error message
   const context = require.context("extensions", true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
   const modules = context
     .keys()
     .map(context)
-    .map(module => module.default);
+    .map((module: any) => module.default);
 
   return modules
     .filter(isFunction)
-    .filter(f => f.init)
-    .map(f => f());
+    .filter((f: any) => f.init)
+    .map((f: any) => f());
 }
 
 requireImages();

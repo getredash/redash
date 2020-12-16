@@ -1,24 +1,30 @@
 import React from "react";
-import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Tooltip from "antd/lib/tooltip";
 import CopyOutlinedIcon from "@ant-design/icons/CopyOutlined";
 import "./CodeBlock.less";
 
-export default class CodeBlock extends React.Component {
-  static propTypes = {
-    copyable: PropTypes.bool,
-    children: PropTypes.node,
-  };
+type OwnProps = {
+    copyable?: boolean;
+};
 
+type State = any;
+
+type Props = OwnProps & typeof CodeBlock.defaultProps;
+
+export default class CodeBlock extends React.Component<Props, State> {
   static defaultProps = {
     copyable: false,
     children: null,
   };
 
+  copyFeatureEnabled: any;
+  ref: any;
+  resetCopyState: any;
+
   state = { copied: null };
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.ref = React.createRef();
     this.copyFeatureEnabled = props.copyable && document.queryCommandSupported("copy");
@@ -33,6 +39,7 @@ export default class CodeBlock extends React.Component {
 
   copy = () => {
     // select text
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
     window.getSelection().selectAllChildren(this.ref.current);
 
     // copy
@@ -49,6 +56,7 @@ export default class CodeBlock extends React.Component {
     }
 
     // reset selection
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
     window.getSelection().removeAllRanges();
 
     // reset tooltip

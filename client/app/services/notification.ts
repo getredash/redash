@@ -8,8 +8,10 @@ notification.config({
 const simpleNotification = {};
 
 ["success", "error", "info", "warning", "warn"].forEach(action => {
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   // eslint-disable-next-line arrow-body-style
-  simpleNotification[action] = (message, description = null, props = null) => {
+  simpleNotification[action] = (message: any, description = null, props = null) => {
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     return notification[action]({ ...props, message, description });
   };
 });

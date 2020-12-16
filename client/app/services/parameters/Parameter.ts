@@ -1,7 +1,17 @@
 import { isNull, isObject, isFunction, isUndefined, isEqual, has, omit, isArray, each } from "lodash";
 
 class Parameter {
-  constructor(parameter, parentQueryId) {
+  $$value: any;
+  global: any;
+  locals: any;
+  name: any;
+  parentQueryId: any;
+  pendingValue: any;
+  title: any;
+  type: any;
+  urlPrefix: any;
+  value: any;
+  constructor(parameter: any, parentQueryId: any) {
     this.title = parameter.title;
     this.name = parameter.name;
     this.type = parameter.type;
@@ -15,19 +25,23 @@ class Parameter {
     this.urlPrefix = "p_";
   }
 
-  static getExecutionValue(param, extra = {}) {
+  static getExecutionValue(param: any, extra = {}) {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'getExecutionValue' does not exist on typ... Remove this comment to see the full error message
     if (!isObject(param) || !isFunction(param.getExecutionValue)) {
       return null;
     }
 
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'getExecutionValue' does not exist on typ... Remove this comment to see the full error message
     return param.getExecutionValue(extra);
   }
 
-  static setValue(param, value) {
+  static setValue(param: any, value: any) {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'setValue' does not exist on type 'object... Remove this comment to see the full error message
     if (!isObject(param) || !isFunction(param.setValue)) {
       return null;
     }
 
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'setValue' does not exist on type 'object... Remove this comment to see the full error message
     return param.setValue(value);
   }
 
@@ -44,12 +58,12 @@ class Parameter {
     return this.$$value;
   }
 
-  isEmptyValue(value) {
+  isEmptyValue(value: any) {
     return isNull(this.normalizeValue(value));
   }
 
   // eslint-disable-next-line class-methods-use-this
-  normalizeValue(value) {
+  normalizeValue(value: any) {
     if (isUndefined(value)) {
       return null;
     }
@@ -64,7 +78,7 @@ class Parameter {
     }
   }
 
-  setValue(value) {
+  setValue(value: any) {
     const normalizedValue = this.normalizeValue(value);
     this.value = normalizedValue;
     this.$$value = normalizedValue;
@@ -79,7 +93,7 @@ class Parameter {
     return this.value;
   }
 
-  setPendingValue(value) {
+  setPendingValue(value: any) {
     this.pendingValue = this.normalizeValue(value);
   }
 
@@ -103,7 +117,7 @@ class Parameter {
   }
 
   /** Set parameter value from the URL */
-  fromUrlParams(query) {
+  fromUrlParams(query: any) {
     const prefix = this.urlPrefix;
     const key = `${prefix}${this.name}`;
     if (has(query, key)) {

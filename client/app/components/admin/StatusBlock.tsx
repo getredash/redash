@@ -9,7 +9,9 @@ import TimeAgo from "@/components/TimeAgo";
 
 import { toHuman, prettySize } from "@/lib/utils";
 
-export function General({ info }) {
+export function General({
+  info
+}: any) {
   info = toPairs(info);
   return (
     <Card title="General" size="small">
@@ -19,6 +21,7 @@ export function General({ info }) {
           size="small"
           itemLayout="vertical"
           dataSource={info}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '([name, value]: [any, any]) => Element' is n... Remove this comment to see the full error message
           renderItem={([name, value]) => (
             <List.Item extra={<span className="badge">{value}</span>}>{toHuman(name)}</List.Item>
           )}
@@ -28,7 +31,9 @@ export function General({ info }) {
   );
 }
 
-export function DatabaseMetrics({ info }) {
+export function DatabaseMetrics({
+  info
+}: any) {
   return (
     <Card title="Redash Database" size="small">
       {info.length === 0 && <div className="text-muted text-center">No data</div>}
@@ -37,6 +42,7 @@ export function DatabaseMetrics({ info }) {
           size="small"
           itemLayout="vertical"
           dataSource={info}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '([name, size]: [any, any]) => Element' is no... Remove this comment to see the full error message
           renderItem={([name, size]) => (
             <List.Item extra={<span className="badge">{prettySize(size)}</span>}>{name}</List.Item>
           )}
@@ -46,7 +52,9 @@ export function DatabaseMetrics({ info }) {
   );
 }
 
-export function Queues({ info }) {
+export function Queues({
+  info
+}: any) {
   info = toPairs(info);
   return (
     <Card title="Queues" size="small">
@@ -56,6 +64,7 @@ export function Queues({ info }) {
           size="small"
           itemLayout="vertical"
           dataSource={info}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '([name, queue]: [any, any]) => Element' is n... Remove this comment to see the full error message
           renderItem={([name, queue]) => (
             <List.Item extra={<span className="badge">{queue.size}</span>}>{name}</List.Item>
           )}
@@ -65,7 +74,9 @@ export function Queues({ info }) {
   );
 }
 
-export function Manager({ info }) {
+export function Manager({
+  info
+}: any) {
   const items = info
     ? [
         <List.Item

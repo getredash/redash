@@ -4,7 +4,11 @@ import UserGroups from "@/components/UserGroups";
 
 import useUserGroups from "../hooks/useUserGroups";
 
-export default function ReadOnlyUserProfile({ user }) {
+type Props = {
+    user: UserProfile;
+};
+
+export default function ReadOnlyUserProfile({ user }: Props) {
   const { groups, isLoading: isLoadingGroups } = useUserGroups(user);
 
   return (
@@ -23,7 +27,3 @@ export default function ReadOnlyUserProfile({ user }) {
     </div>
   );
 }
-
-ReadOnlyUserProfile.propTypes = {
-  user: UserProfile.isRequired,
-};

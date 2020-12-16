@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import classNames from "classnames";
 import moment from "moment";
 import { includes, isArray, isObject } from "lodash";
@@ -10,30 +9,30 @@ import DynamicButton from "@/components/dynamic-parameters/DynamicButton";
 
 import "./DynamicParameters.less";
 
-function isValidDateRangeValue(value) {
+function isValidDateRangeValue(value: any) {
   return isArray(value) && value.length === 2 && moment.isMoment(value[0]) && moment.isMoment(value[1]);
 }
 
-class DynamicDateRangePicker extends React.Component {
-  static propTypes = {
-    type: PropTypes.oneOf(["date-range", "datetime-range", "datetime-range-with-seconds"]).isRequired,
-    className: PropTypes.string,
-    value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    onSelect: PropTypes.func,
-    dynamicButtonOptions: PropTypes.shape({
-      staticValueLabel: PropTypes.string,
-      options: PropTypes.arrayOf(
-        PropTypes.shape({
-          name: PropTypes.string,
-          value: PropTypes.object,
-          label: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-        })
-      ),
-    }),
-    dateRangeOptions: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-  };
+type OwnProps = {
+    type: "date-range" | "datetime-range" | "datetime-range-with-seconds";
+    className?: string;
+    value?: any;
+    parameter?: any;
+    onSelect?: (...args: any[]) => any;
+    dynamicButtonOptions?: {
+        staticValueLabel?: string;
+        options?: {
+            name?: string;
+            value?: any;
+            label?: string | ((...args: any[]) => any);
+        }[];
+    };
+    dateRangeOptions?: any;
+};
 
+type Props = OwnProps & typeof DynamicDateRangePicker.defaultProps;
+
+class DynamicDateRangePicker extends React.Component<Props> {
   static defaultProps = {
     type: "date-range",
     className: "",
@@ -45,16 +44,20 @@ class DynamicDateRangePicker extends React.Component {
     onSelect: () => {},
   };
 
-  constructor(props) {
+  dateRangeComponentRef: any;
+
+  constructor(props: Props) {
     super(props);
     this.dateRangeComponentRef = React.createRef();
   }
 
-  onDynamicValueSelect = dynamicValue => {
+  onDynamicValueSelect = (dynamicValue: any) => {
     const { onSelect, parameter } = this.props;
     if (dynamicValue === "static") {
       const parameterValue = parameter.getExecutionValue();
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'start' does not exist on type 'object'.
       if (isObject(parameterValue) && parameterValue.start && parameterValue.end) {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'start' does not exist on type 'object'.
         onSelect([moment(parameterValue.start), moment(parameterValue.end)]);
       } else {
         onSelect(null);
@@ -77,16 +80,20 @@ class DynamicDateRangePicker extends React.Component {
     if (isDateTimeRange) {
       DateRangeComponent = DateTimeRangeInput;
       if (includes(type, "with-seconds")) {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'withSeconds' does not exist on type '{}'... Remove this comment to see the full error message
         additionalAttributes.withSeconds = true;
       }
     }
 
     if (isValidDateRangeValue(value) || value === null) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'value' does not exist on type '{}'.
       additionalAttributes.value = value;
     }
 
     if (hasDynamicValue) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'placeholder' does not exist on type '{}'... Remove this comment to see the full error message
       additionalAttributes.placeholder = [value && value.name];
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'value' does not exist on type '{}'.
       additionalAttributes.value = null;
     }
 
@@ -105,6 +112,7 @@ class DynamicDateRangePicker extends React.Component {
           staticValueLabel={dynamicButtonOptions.staticValueLabel}
           selectedDynamicValue={hasDynamicValue ? value : null}
           enabled={hasDynamicValue}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '(dynamicValue: any) => void' is not assignab... Remove this comment to see the full error message
           onSelect={this.onDynamicValueSelect}
         />
       </div>

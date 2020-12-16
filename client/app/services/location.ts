@@ -4,20 +4,24 @@ import { createBrowserHistory } from "history";
 
 const history = createBrowserHistory();
 
-function normalizeLocation(rawLocation) {
+function normalizeLocation(rawLocation: any) {
   const { pathname, search, hash } = rawLocation;
   const result = {};
 
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'path' does not exist on type '{}'.
   result.path = pathname;
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'search' does not exist on type '{}'.
   result.search = mapValues(qs.parse(search), value => (isNil(value) ? true : value));
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'hash' does not exist on type '{}'.
   result.hash = trimStart(hash, "#");
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'url' does not exist on type '{}'.
   result.url = `${pathname}${search}${hash}`;
 
   return result;
 }
 
 const location = {
-  listen(handler) {
+  listen(handler: any) {
     if (isFunction(handler)) {
       return history.listen((unused, action) => handler(location, action));
     } else {
@@ -25,7 +29,7 @@ const location = {
     }
   },
 
-  confirmChange(handler) {
+  confirmChange(handler: any) {
     if (isFunction(handler)) {
       return history.block(nextLocation => {
         return handler(normalizeLocation(nextLocation), location);
@@ -35,13 +39,16 @@ const location = {
     }
   },
 
-  update(newLocation, replace = false) {
+  update(newLocation: any, replace = false) {
     if (isObject(newLocation)) {
       // remap fields and remove undefined ones
       newLocation = omitBy(
         {
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'path' does not exist on type 'object'.
           pathname: newLocation.path,
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'search' does not exist on type 'object'.
           search: newLocation.search,
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'hash' does not exist on type 'object'.
           hash: newLocation.hash,
         },
         isUndefined
@@ -74,17 +81,17 @@ const location = {
   url: undefined,
 
   path: undefined,
-  setPath(path, replace = false) {
+  setPath(path: any, replace = false) {
     location.update({ path }, replace);
   },
 
   search: undefined,
-  setSearch(search, replace = false) {
+  setSearch(search: any, replace = false) {
     location.update({ search }, replace);
   },
 
   hash: undefined,
-  setHash(hash, replace = false) {
+  setHash(hash: any, replace = false) {
     location.update({ hash }, replace);
   },
 };

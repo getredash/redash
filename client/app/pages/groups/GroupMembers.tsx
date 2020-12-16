@@ -27,10 +27,12 @@ import Group from "@/services/group";
 import User from "@/services/user";
 import routes from "@/services/routes";
 
-class GroupMembers extends React.Component {
-  static propTypes = {
-    controller: ControllerType.isRequired,
-  };
+type Props = {
+    controller: ControllerType;
+};
+
+class GroupMembers extends React.Component<Props> {
+  actions: any;
 
   groupId = parseInt(this.props.controller.params.groupId, 10);
 
@@ -51,22 +53,24 @@ class GroupMembers extends React.Component {
   ];
 
   listColumns = [
-    Columns.custom((text, user) => <UserPreviewCard user={user} withLink />, {
+    Columns.custom((text: any, user: any) => <UserPreviewCard user={user} withLink />, {
       title: "Name",
       field: "name",
       width: null,
     }),
     Columns.custom(
-      (text, user) => {
+      (text: any, user: any) => {
         if (!this.group) {
           return null;
         }
 
         // cannot remove self from built-in groups
+        // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
         if (this.group.type === "builtin" && currentUser.id === user.id) {
           return null;
         }
         return (
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '"danger"' is not assignable to type '"link" ... Remove this comment to see the full error message
           <Button className="w-100" type="danger" onClick={event => this.removeGroupMember(event, user)}>
             Remove
           </Button>
@@ -82,6 +86,7 @@ class GroupMembers extends React.Component {
   componentDidMount() {
     Group.get({ id: this.groupId })
       .then(group => {
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'AxiosResponse<any>' is not assignable to typ... Remove this comment to see the full error message
         this.group = group;
         this.forceUpdate();
       })
@@ -90,28 +95,35 @@ class GroupMembers extends React.Component {
       });
   }
 
-  removeGroupMember = (event, user) =>
+  removeGroupMember = (event: any, user: any) =>
     Group.removeMember({ id: this.groupId, userId: user.id })
       .then(() => {
         this.props.controller.updatePagination({ page: 1 });
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'update' does not exist on type 'Controll... Remove this comment to see the full error message
         this.props.controller.update();
       })
       .catch(() => {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.error("Failed to remove member from group.");
       });
 
   addMembers = () => {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'allItems' does not exist on type 'Contro... Remove this comment to see the full error message
     const alreadyAddedUsers = map(this.props.controller.allItems, u => u.id);
     SelectItemsDialog.showModal({
       dialogTitle: "Add Members",
       inputPlaceholder: "Search users...",
       selectedItemsTitle: "New Members",
-      searchItems: searchTerm => User.query({ q: searchTerm }).then(({ results }) => results),
-      renderItem: (item, { isSelected }) => {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'results' does not exist on type 'AxiosRe... Remove this comment to see the full error message
+      searchItems: (searchTerm: any) => User.query({ q: searchTerm }).then(({ results }) => results),
+      renderItem: (item: any, {
+        isSelected
+      }: any) => {
         const alreadyInGroup = includes(alreadyAddedUsers, item.id);
         return {
           content: (
             <UserPreviewCard user={item}>
+              {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
               <ListItemAddon isSelected={isSelected} alreadyInGroup={alreadyInGroup} />
             </UserPreviewCard>
           ),
@@ -119,15 +131,19 @@ class GroupMembers extends React.Component {
           className: isSelected || alreadyInGroup ? "selected" : "",
         };
       },
-      renderStagedItem: (item, { isSelected }) => ({
+      renderStagedItem: (item: any, {
+        isSelected
+      }: any) => ({
         content: (
           <UserPreviewCard user={item}>
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
             <ListItemAddon isSelected={isSelected} isStaged />
           </UserPreviewCard>
         ),
       }),
-    }).onClose(items => {
+    }).onClose((items: any) => {
       const promises = map(items, u => Group.addMember({ id: this.groupId }, { user_id: u.id }));
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'update' does not exist on type 'Controll... Remove this comment to see the full error message
       return Promise.all(promises).then(() => this.props.controller.update());
     });
   };
@@ -136,18 +152,28 @@ class GroupMembers extends React.Component {
     const { controller } = this.props;
     return (
       <div data-test="Group">
+        {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'. */}
         <GroupName className="d-block m-t-0 m-b-15" group={this.group} onChange={() => this.forceUpdate()} />
+        {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
         <Layout>
+          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Layout.Sidebar>
             <Sidebar
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'ControllerType' is not assignable to type 'n... Remove this comment to see the full error message
               controller={controller}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'null' is not assignable to type 'never'.
               group={this.group}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '({ key: string; href: string; title: string;... Remove this comment to see the full error message
               items={this.sidebarMenu}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
               canAddMembers={currentUser.isAdmin}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '() => void' is not assignable to type 'never... Remove this comment to see the full error message
               onAddMembersClick={this.addMembers}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '() => void' is not assignable to type 'never... Remove this comment to see the full error message
               onGroupDeleted={() => navigateTo("groups")}
             />
           </Layout.Sidebar>
+          {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
           <Layout.Content>
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && (
@@ -163,6 +189,7 @@ class GroupMembers extends React.Component {
             )}
             {controller.isLoaded && !controller.isEmpty && (
               <div className="table-responsive">
+                {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
                 <ItemsTable
                   items={controller.pageItems}
                   columns={this.listColumns}
@@ -176,9 +203,11 @@ class GroupMembers extends React.Component {
                   showPageSizeSelect
                   totalCount={controller.totalItemsCount}
                   pageSize={controller.itemsPerPage}
-                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type '(itemsPerPage: any) => any' is not assignabl... Remove this comment to see the full error message
+                  onPageSizeChange={(itemsPerPage: any) => controller.updatePagination({ itemsPerPage })}
                   page={controller.page}
-                  onChange={page => controller.updatePagination({ page })}
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type '(page: any) => any' is not assignable to typ... Remove this comment to see the full error message
+                  onChange={(page: any) => controller.updatePagination({ page })}
                 />
               </div>
             )}
@@ -197,7 +226,9 @@ const GroupMembersPage = wrapSettingsTab(
     () =>
       new ResourceItemsSource({
         isPlainList: true,
-        getRequest(unused, { params: { groupId } }) {
+        getRequest(unused: any, {
+          params: { groupId }
+        }: any) {
           return { id: groupId };
         },
         getResource() {

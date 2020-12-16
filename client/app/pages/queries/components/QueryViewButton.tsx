@@ -1,10 +1,20 @@
 import React, { useState, useMemo, useEffect } from "react";
-import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import KeyboardShortcuts from "@/services/KeyboardShortcuts";
 import { ButtonTooltip } from "@/components/queries/QueryEditor/QueryEditorControls";
 
-export default function QueryViewButton({ title, shortcut, disabled, children, onClick, ...props }) {
+type OwnProps = {
+    className?: string;
+    shortcut?: string;
+    disabled?: boolean;
+    children?: React.ReactNode;
+    onClick?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof QueryViewButton.defaultProps;
+
+// @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
+export default function QueryViewButton({ title, shortcut, disabled, children, onClick, ...props }: Props) {
   const [tooltipVisible, setTooltipVisible] = useState(false);
 
   const eventHandlers = useMemo(
@@ -35,6 +45,7 @@ export default function QueryViewButton({ title, shortcut, disabled, children, o
   }, [shortcut, onClick]);
 
   return (
+    // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
     <ButtonTooltip title={title} shortcut={shortcut} visible={tooltipVisible}>
       <span {...eventHandlers}>
         <Button
@@ -49,14 +60,6 @@ export default function QueryViewButton({ title, shortcut, disabled, children, o
     </ButtonTooltip>
   );
 }
-
-QueryViewButton.propTypes = {
-  className: PropTypes.string,
-  shortcut: PropTypes.string,
-  disabled: PropTypes.bool,
-  children: PropTypes.node,
-  onClick: PropTypes.func,
-};
 
 QueryViewButton.defaultProps = {
   className: null,

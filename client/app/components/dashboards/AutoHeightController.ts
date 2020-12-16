@@ -19,17 +19,17 @@ export default class AutoHeightController {
 
   onHeightChange = null;
 
-  constructor(handler) {
+  constructor(handler: any) {
     this.onHeightChange = handler;
   }
 
-  update(widgets) {
+  update(widgets: any) {
     const newWidgetIds = widgets
-      .filter(widget => widget.options.position.autoHeight)
-      .map(widget => widget.id.toString());
+      .filter((widget: any) => widget.options.position.autoHeight)
+      .map((widget: any) => widget.id.toString());
 
     // added
-    newWidgetIds.filter(id => !includes(Object.keys(this.widgets), id)).forEach(this.add);
+    newWidgetIds.filter((id: any) => !includes(Object.keys(this.widgets), id)).forEach(this.add);
 
     // removed
     Object.keys(this.widgets)
@@ -37,12 +37,13 @@ export default class AutoHeightController {
       .forEach(this.remove);
   }
 
-  add = id => {
+  add = (id: any) => {
     if (this.isEmpty()) {
       this.start();
     }
 
     const selector = WIDGET_SELECTOR.replace("{0}", id);
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     this.widgets[id] = [
       function getHeight() {
         const widgetEl = document.querySelector(selector);
@@ -66,13 +67,14 @@ export default class AutoHeightController {
     ];
   };
 
-  remove = id => {
+  remove = (id: any) => {
     // ignore if not an active autoHeight widget
     if (!this.exists(id)) {
       return;
     }
 
     // not actually deleting from this.widgets to prevent case of unwanted re-adding
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     this.widgets[id.toString()] = false;
 
     if (this.isEmpty()) {
@@ -80,7 +82,8 @@ export default class AutoHeightController {
     }
   };
 
-  exists = id => !!this.widgets[id.toString()];
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+  exists = (id: any) => !!this.widgets[id.toString()];
 
   isEmpty = () => !some(this.widgets);
 
@@ -88,10 +91,13 @@ export default class AutoHeightController {
     Object.keys(this.widgets)
       .filter(this.exists) // reject already removed items
       .forEach(id => {
+        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         const [getHeight, prevHeight] = this.widgets[id];
         const height = getHeight();
         if (height && height !== prevHeight) {
+          // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           this.widgets[id][1] = height; // save
+          // @ts-expect-error ts-migrate(2721) FIXME: Cannot invoke an object which is possibly 'null'.
           this.onHeightChange(id, height); // dispatch
         }
       });
@@ -99,10 +105,12 @@ export default class AutoHeightController {
 
   start = () => {
     this.stop();
+    // @ts-expect-error ts-migrate(2322) FIXME: Type 'number' is not assignable to type 'null'.
     this.interval = setInterval(this.checkHeightChanges, INTERVAL);
   };
 
   stop = () => {
+    // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
     clearInterval(this.interval);
   };
 
@@ -114,6 +122,7 @@ export default class AutoHeightController {
 
   destroy = () => {
     this.stop();
+    // @ts-expect-error ts-migrate(2322) FIXME: Type 'null' is not assignable to type '{}'.
     this.widgets = null;
   };
 }

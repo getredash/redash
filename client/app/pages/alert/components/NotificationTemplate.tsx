@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import PropTypes from "prop-types";
 import { head, isEmpty, isNull, isUndefined } from "lodash";
 import Mustache from "mustache";
 
@@ -13,7 +12,8 @@ import Switch from "antd/lib/switch";
 
 import "./NotificationTemplate.less";
 
-function normalizeCustomTemplateData(alert, query, columnNames, resultValues) {
+function normalizeCustomTemplateData(alert: any, query: any, columnNames: any, resultValues: any) {
+  // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
   const topValue = !isEmpty(resultValues) ? head(resultValues)[alert.options.column] : null;
 
   return {
@@ -30,15 +30,28 @@ function normalizeCustomTemplateData(alert, query, columnNames, resultValues) {
   };
 }
 
-function NotificationTemplate({ alert, query, columnNames, resultValues, subject, setSubject, body, setBody }) {
+type OwnProps = {
+    alert: AlertType;
+    query: QueryType;
+    columnNames: string[];
+    resultValues: any[];
+    subject?: string;
+    setSubject: (...args: any[]) => any;
+    body?: string;
+    setBody: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof NotificationTemplate.defaultProps;
+
+function NotificationTemplate({ alert, query, columnNames, resultValues, subject, setSubject, body, setBody }: Props) {
   const hasContent = !!(subject || body);
   const [enabled, setEnabled] = useState(hasContent ? 1 : 0);
   const [showPreview, setShowPreview] = useState(false);
 
   const renderData = normalizeCustomTemplateData(alert, query, columnNames, resultValues);
 
-  const render = tmpl => Mustache.render(tmpl || "", renderData);
-  const onEnabledChange = value => {
+  const render = (tmpl: any) => Mustache.render(tmpl || "", renderData);
+  const onEnabledChange = (value: any) => {
     if (value || !hasContent) {
       setEnabled(value);
       setShowPreview(false);
@@ -78,6 +91,7 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
           <div className="d-flex align-items-center">
             <h5 className="flex-fill">Subject / Body</h5>
             Preview{" "}
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ size: "small"; className: string; value: b... Remove this comment to see the full error message */}
             <Switch size="small" className="alert-template-preview" value={showPreview} onChange={setShowPreview} />
           </div>
           <Input
@@ -93,6 +107,7 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
             disabled={showPreview}
             data-test="CustomBody"
           />
+          {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
           <HelpTrigger type="ALERT_NOTIF_TEMPLATE_GUIDE" className="f-13">
             <i className="fa fa-question-circle" /> Formatting guide
           </HelpTrigger>
@@ -101,17 +116,6 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
     </div>
   );
 }
-
-NotificationTemplate.propTypes = {
-  alert: AlertType.isRequired,
-  query: QueryType.isRequired,
-  columnNames: PropTypes.arrayOf(PropTypes.string).isRequired,
-  resultValues: PropTypes.arrayOf(PropTypes.any).isRequired,
-  subject: PropTypes.string,
-  setSubject: PropTypes.func.isRequired,
-  body: PropTypes.string,
-  setBody: PropTypes.func.isRequired,
-};
 
 NotificationTemplate.defaultProps = {
   subject: "",

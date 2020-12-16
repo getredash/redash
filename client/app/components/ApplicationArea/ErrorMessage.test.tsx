@@ -10,7 +10,9 @@ const ErrorMessages = {
 
 function mockAxiosError(status = 500, response = {}) {
   const error = new Error(`Failed with code ${status}.`);
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'isAxiosError' does not exist on type 'Er... Remove this comment to see the full error message
   error.isAxiosError = true;
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'response' does not exist on type 'Error'... Remove this comment to see the full error message
   error.response = { status, ...response };
   return error;
 }
@@ -22,7 +24,7 @@ describe("Error Message", () => {
     spyError.mockReset();
   });
 
-  function expectErrorMessageToBe(error, errorMessage) {
+  function expectErrorMessageToBe(error: any, errorMessage: any) {
     const component = mount(<ErrorMessage error={error} />);
 
     expect(component.find(".error-state__details h4").text()).toBe(errorMessage);

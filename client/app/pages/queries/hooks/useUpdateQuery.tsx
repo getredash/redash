@@ -7,7 +7,8 @@ import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import { policy } from "@/services/policy";
 
 class SaveQueryError extends Error {
-  constructor(message, detailedMessage = null) {
+  detailedMessage: any;
+  constructor(message: any, detailedMessage = null) {
     super(message);
     this.detailedMessage = detailedMessage;
   }
@@ -17,6 +18,7 @@ class SaveQueryConflictError extends SaveQueryError {
   constructor() {
     super(
       "Changes not saved",
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'Element' is not assignable to pa... Remove this comment to see the full error message
       <React.Fragment>
         <div className="m-b-5">It seems like the query has been modified by another user.</div>
         <div>Please copy/backup your changes and reload this page.</div>
@@ -38,6 +40,7 @@ function confirmOverwrite() {
       okText: "Overwrite",
       okType: "danger",
       onOk: () => {
+        // @ts-expect-error ts-migrate(2794) FIXME: Expected 1 arguments, but got 0. Did you forget to... Remove this comment to see the full error message
         resolve();
       },
       onCancel: () => {
@@ -49,7 +52,7 @@ function confirmOverwrite() {
   });
 }
 
-function doSaveQuery(data, { canOverwrite = false } = {}) {
+function doSaveQuery(data: any, { canOverwrite = false } = {}) {
   // omit parameter properties that don't need to be stored
   if (isObject(data.options) && data.options.parameters) {
     data.options = {
@@ -58,10 +61,12 @@ function doSaveQuery(data, { canOverwrite = false } = {}) {
     };
   }
 
-  return Query.save(data).catch(error => {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'save' does not exist on type 'typeof Que... Remove this comment to see the full error message
+  return Query.save(data).catch((error: any) => {
     if (get(error, "response.status") === 409) {
       if (canOverwrite) {
         return confirmOverwrite()
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'save' does not exist on type 'typeof Que... Remove this comment to see the full error message
           .then(() => Query.save(omit(data, ["version"])))
           .catch(() => Promise.reject(new SaveQueryConflictError()));
       }
@@ -71,7 +76,7 @@ function doSaveQuery(data, { canOverwrite = false } = {}) {
   });
 }
 
-export default function useUpdateQuery(query, onChange) {
+export default function useUpdateQuery(query: any, onChange: any) {
   const handleChange = useImmutableCallback(onChange);
 
   return useCallback(
@@ -100,7 +105,7 @@ export default function useUpdateQuery(query, onChange) {
       }
 
       return doSaveQuery(data, { canOverwrite: policy.canEdit(query) })
-        .then(updatedQuery => {
+        .then((updatedQuery: any) => {
           if (!isNil(successMessage)) {
             notification.success(successMessage);
           }
@@ -113,11 +118,13 @@ export default function useUpdateQuery(query, onChange) {
             )
           );
         })
-        .catch(error => {
+        .catch((error: any) => {
           const notificationOptions = {};
           if (error instanceof SaveQueryConflictError) {
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'duration' does not exist on type '{}'.
             notificationOptions.duration = null;
           }
+          // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 3.
           notification.error(error.message, error.detailedMessage, notificationOptions);
         });
     },

@@ -11,7 +11,7 @@ export function notifySessionRestored() {
   }
 }
 
-function getPopupPosition(width, height) {
+function getPopupPosition(width: any, height: any) {
   const windowLeft = window.screenX;
   const windowTop = window.screenY;
   const windowWidth = window.innerWidth;
@@ -25,8 +25,8 @@ function getPopupPosition(width, height) {
   };
 }
 
-function showRestoreSessionPrompt(loginUrl, onSuccess) {
-  let popup = null;
+function showRestoreSessionPrompt(loginUrl: any, onSuccess: any) {
+  let popup: any = null;
 
   Modal.warning({
     content: "Your session has expired. Please login to continue.",
@@ -58,7 +58,7 @@ function showRestoreSessionPrompt(loginUrl, onSuccess) {
 
       popup = window.open(loginUrl, "Restore Session", map(popupOptions, (value, key) => `${key}=${value}`).join(","));
 
-      const handlePostMessage = event => {
+      const handlePostMessage = (event: any) => {
         if (event.data.type === SESSION_RESTORED_MESSAGE) {
           if (popup) {
             popup.close();
@@ -75,13 +75,14 @@ function showRestoreSessionPrompt(loginUrl, onSuccess) {
   });
 }
 
-let restoreSessionPromise = null;
+let restoreSessionPromise: any = null;
 
 export function restoreSession() {
   if (!restoreSessionPromise) {
     restoreSessionPromise = new Promise(resolve => {
       showRestoreSessionPrompt(Auth.getLoginUrl(), () => {
         restoreSessionPromise = null;
+        // @ts-expect-error ts-migrate(2794) FIXME: Expected 1 arguments, but got 0. Did you forget to... Remove this comment to see the full error message
         resolve();
       });
     });

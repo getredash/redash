@@ -1,21 +1,25 @@
 import { trim } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 import cx from "classnames";
 import Input from "antd/lib/input";
 
-export default class EditInPlace extends React.Component {
-  static propTypes = {
-    ignoreBlanks: PropTypes.bool,
-    isEditable: PropTypes.bool,
-    placeholder: PropTypes.string,
-    value: PropTypes.string,
-    onDone: PropTypes.func.isRequired,
-    onStopEditing: PropTypes.func,
-    multiline: PropTypes.bool,
-    editorProps: PropTypes.object,
-    defaultEditing: PropTypes.bool,
-  };
+type OwnProps = {
+    ignoreBlanks?: boolean;
+    isEditable?: boolean;
+    placeholder?: string;
+    value?: string;
+    onDone: (...args: any[]) => any;
+    onStopEditing?: (...args: any[]) => any;
+    multiline?: boolean;
+    editorProps?: any;
+    defaultEditing?: boolean;
+};
+
+type State = any;
+
+type Props = OwnProps & typeof EditInPlace.defaultProps;
+
+export default class EditInPlace extends React.Component<Props, State> {
 
   static defaultProps = {
     ignoreBlanks: false,
@@ -28,14 +32,14 @@ export default class EditInPlace extends React.Component {
     defaultEditing: false,
   };
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       editing: props.defaultEditing,
     };
   }
 
-  componentDidUpdate(_, prevState) {
+  componentDidUpdate(_: Props, prevState: State) {
     if (!this.state.editing && prevState.editing) {
       this.props.onStopEditing();
     }
@@ -47,7 +51,7 @@ export default class EditInPlace extends React.Component {
     }
   };
 
-  stopEditing = currentValue => {
+  stopEditing = (currentValue: any) => {
     const newValue = trim(currentValue);
     const ignorableBlank = this.props.ignoreBlanks && newValue === "";
     if (!ignorableBlank && newValue !== this.props.value) {
@@ -56,7 +60,7 @@ export default class EditInPlace extends React.Component {
     this.setState({ editing: false });
   };
 
-  handleKeyDown = event => {
+  handleKeyDown = (event: any) => {
     if (event.keyCode === 13 && !event.shiftKey) {
       event.preventDefault();
       this.stopEditing(event.target.value);
@@ -86,7 +90,7 @@ export default class EditInPlace extends React.Component {
     return (
       <InputComponent
         defaultValue={value}
-        onBlur={e => this.stopEditing(e.target.value)}
+        onBlur={(e: any) => this.stopEditing(e.target.value)}
         onKeyDown={this.handleKeyDown}
         autoFocus
         {...editorProps}
@@ -96,6 +100,7 @@ export default class EditInPlace extends React.Component {
 
   render() {
     return (
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'className' does not exist on type 'Reado... Remove this comment to see the full error message
       <span className={cx("edit-in-place", { active: this.state.editing }, this.props.className)}>
         {this.state.editing ? this.renderEdit() : this.renderNormal()}
       </span>

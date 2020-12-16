@@ -10,13 +10,16 @@ import "ace-builds/src-noconflict/mode-yaml";
 import "ace-builds/src-noconflict/theme-textmate";
 import "ace-builds/src-noconflict/ext-searchbox";
 
+// @ts-expect-error ts-migrate(2551) FIXME: Property 'acequire' does not exist on type 'typeof... Remove this comment to see the full error message
 const langTools = ace.acequire("ace/ext/language_tools");
+// @ts-expect-error ts-migrate(2551) FIXME: Property 'acequire' does not exist on type 'typeof... Remove this comment to see the full error message
 const snippetsModule = ace.acequire("ace/snippets");
 
 // By default Ace will try to load snippet files for the different modes and fail.
 // We don't need them, so we use these placeholders until we define our own.
-function defineDummySnippets(mode) {
-  ace.define(`ace/snippets/${mode}`, ["require", "exports", "module"], (require, exports) => {
+function defineDummySnippets(mode: any) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'define' does not exist on type 'typeof i... Remove this comment to see the full error message
+  ace.define(`ace/snippets/${mode}`, ["require", "exports", "module"], (require: any, exports: any) => {
     exports.snippetText = "";
     exports.scope = mode;
   });
@@ -27,9 +30,9 @@ defineDummySnippets("sql");
 defineDummySnippets("json");
 defineDummySnippets("yaml");
 
-function buildTableColumnKeywords(table) {
-  const keywords = [];
-  table.columns.forEach(column => {
+function buildTableColumnKeywords(table: any) {
+  const keywords: any = [];
+  table.columns.forEach((column: any) => {
     const columnName = get(column, "name");
     keywords.push({
       name: `${table.name}.${columnName}`,
@@ -41,21 +44,23 @@ function buildTableColumnKeywords(table) {
   return keywords;
 }
 
-function buildKeywordsFromSchema(schema) {
-  const tableKeywords = [];
+function buildKeywordsFromSchema(schema: any) {
+  const tableKeywords: any = [];
   const columnKeywords = {};
   const tableColumnKeywords = {};
 
-  schema.forEach(table => {
+  schema.forEach((table: any) => {
     tableKeywords.push({
       name: table.name,
       value: table.name,
       score: 100,
       meta: "Table",
     });
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     tableColumnKeywords[table.name] = buildTableColumnKeywords(table);
-    table.columns.forEach(c => {
+    table.columns.forEach((c: any) => {
       const columnName = get(c, "name", c);
+      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       columnKeywords[columnName] = capitalize(get(c, "type", "Column"));
     });
   });
@@ -74,7 +79,8 @@ function buildKeywordsFromSchema(schema) {
 
 const schemaCompleterKeywords = {};
 
-export function updateSchemaCompleter(editorKey, schema = null) {
+export function updateSchemaCompleter(editorKey: any, schema = null) {
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   schemaCompleterKeywords[editorKey] = isNil(schema) ? null : buildKeywordsFromSchema(schema);
 }
 
@@ -84,7 +90,8 @@ langTools.setCompleters([
   langTools.textCompleter,
   {
     identifierRegexps: [/[a-zA-Z_0-9.\-\u00A2-\uFFFF]/],
-    getCompletions: (editor, session, pos, prefix, callback) => {
+    getCompletions: (editor: any, session: any, pos: any, prefix: any, callback: any) => {
+      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       const { table, column, tableColumn } = schemaCompleterKeywords[editor.id] || {
         table: [],
         column: [],

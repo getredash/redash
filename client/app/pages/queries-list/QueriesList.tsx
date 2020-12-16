@@ -44,6 +44,7 @@ const sidebarMenu = [
     key: "my",
     href: "queries/my",
     title: "My Queries",
+    // @ts-expect-error ts-migrate(2559) FIXME: Type '{ _isAdmin: undefined; canEdit(object: any):... Remove this comment to see the full error message
     icon: () => <Sidebar.ProfileImage user={currentUser} />,
     isAvailable: () => currentUser.hasPermission("create_query"),
   },
@@ -57,12 +58,14 @@ const sidebarMenu = [
 
 const listColumns = [
   Columns.favorites({ className: "p-r-0" }),
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(rende... Remove this comment to see the full error message
   Columns.custom.sortable(
-    (text, item) => (
+    (text: any, item: any) => (
       <React.Fragment>
         <Link className="table-main-title" href={"queries/" + item.id}>
           {item.name}
         </Link>
+        {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ className: string; tags: any; isDraft: any... Remove this comment to see the full error message */}
         <QueryTagsControl className="d-block" tags={item.tags} isDraft={item.is_draft} isArchived={item.is_archived} />
       </React.Fragment>
     ),
@@ -72,33 +75,44 @@ const listColumns = [
       width: null,
     }
   ),
-  Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
+  Columns.custom((text: any, item: any) => item.user.name, { title: "Created By", width: "1%" }),
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(overr... Remove this comment to see the full error message
   Columns.dateTime.sortable({ title: "Created At", field: "created_at", width: "1%" }),
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(overr... Remove this comment to see the full error message
   Columns.dateTime.sortable({
     title: "Last Executed At",
     field: "retrieved_at",
     orderByField: "executed_at",
     width: "1%",
   }),
-  Columns.custom.sortable((text, item) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(rende... Remove this comment to see the full error message
+  Columns.custom.sortable((text: any, item: any) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
     title: "Refresh Schedule",
     field: "schedule",
     width: "1%",
   }),
 ];
 
-function QueriesListExtraActions(props) {
+function QueriesListExtraActions(props: any) {
   return <DynamicComponent name="QueriesList.Actions" {...props} />;
 }
 
-function QueriesList({ controller }) {
+type QueriesListProps = {
+    controller: ControllerType;
+};
+
+function QueriesList({ controller }: QueriesListProps) {
   const controllerRef = useRef();
+  // @ts-expect-error ts-migrate(2322) FIXME: Type 'ControllerType' is not assignable to type 'u... Remove this comment to see the full error message
   controllerRef.current = controller;
 
   useEffect(() => {
-    const unlistenLocationChanges = location.listen((unused, action) => {
+    const unlistenLocationChanges = location.listen((unused: any, action: any) => {
+      // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
       const searchTerm = location.search.q || "";
+      // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
       if (action === "PUSH" && searchTerm !== controllerRef.current.searchTerm) {
+        // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
         controllerRef.current.updateSearch(searchTerm);
       }
     });
@@ -120,6 +134,7 @@ function QueriesList({ controller }) {
       <div className="container">
         <PageHeader
           title={controller.params.pageTitle}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element | null' is not assignable to type 'n... Remove this comment to see the full error message
           actions={
             currentUser.hasPermission("create_query") ? (
               <Link.Button block type="primary" href="queries/new">
@@ -129,20 +144,26 @@ function QueriesList({ controller }) {
             ) : null
           }
         />
+        {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
         <Layout>
+          {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
           <Layout.Sidebar className="m-b-0">
             <Sidebar.SearchInput
               placeholder="Search Queries..."
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'string | undefined' is not assignable to typ... Remove this comment to see the full error message
               value={controller.searchTerm}
               onChange={controller.updateSearch}
             />
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type '({ key: string; href: string; title: string;... Remove this comment to see the full error message */}
             <Sidebar.Menu items={sidebarMenu} selected={controller.params.currentPage} />
             <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} showUnselectAll />
           </Layout.Sidebar>
+          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Layout.Content>
             {controller.isLoaded && controller.isEmpty ? (
               <QueriesListEmptyState
                 page={controller.params.currentPage}
+                // @ts-expect-error ts-migrate(2322) FIXME: Type 'string | undefined' is not assignable to typ... Remove this comment to see the full error message
                 searchTerm={controller.searchTerm}
                 selectedTags={controller.selectedTags}
               />
@@ -152,6 +173,7 @@ function QueriesList({ controller }) {
                   <ExtraActionsComponent selectedItems={selectedItems} />
                 </div>
                 <div className="bg-white tiled table-responsive">
+                  {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
                   <ItemsTable
                     items={controller.pageItems}
                     loading={!controller.isLoaded}
@@ -164,9 +186,11 @@ function QueriesList({ controller }) {
                     showPageSizeSelect
                     totalCount={controller.totalItemsCount}
                     pageSize={controller.itemsPerPage}
-                    onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                    // @ts-expect-error ts-migrate(2322) FIXME: Type '(itemsPerPage: any) => any' is not assignabl... Remove this comment to see the full error message
+                    onPageSizeChange={(itemsPerPage: any) => controller.updatePagination({ itemsPerPage })}
                     page={controller.page}
-                    onChange={page => controller.updatePagination({ page })}
+                    // @ts-expect-error ts-migrate(2322) FIXME: Type '(page: any) => any' is not assignable to typ... Remove this comment to see the full error message
+                    onChange={(page: any) => controller.updatePagination({ page })}
                   />
                 </div>
               </React.Fragment>
@@ -178,24 +202,27 @@ function QueriesList({ controller }) {
   );
 }
 
-QueriesList.propTypes = {
-  controller: ControllerType.isRequired,
-};
-
 const QueriesListPage = itemsList(
   QueriesList,
   () =>
     new ResourceItemsSource({
-      getResource({ params: { currentPage } }) {
+      getResource({
+        params: { currentPage }
+      }: any) {
+        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         return {
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'query' does not exist on type 'typeof Qu... Remove this comment to see the full error message
           all: Query.query.bind(Query),
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'myQueries' does not exist on type 'typeo... Remove this comment to see the full error message
           my: Query.myQueries.bind(Query),
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'favorites' does not exist on type 'typeo... Remove this comment to see the full error message
           favorites: Query.favorites.bind(Query),
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'archive' does not exist on type 'typeof ... Remove this comment to see the full error message
           archive: Query.archive.bind(Query),
         }[currentPage];
       },
       getItemProcessor() {
-        return item => new Query(item);
+        return (item: any) => new Query(item);
       },
     }),
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
@@ -206,6 +233,7 @@ routes.register(
   routeWithUserSession({
     path: "/queries",
     title: "Queries",
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '{ currentPage: string; pageTitle?: string | ... Remove this comment to see the full error message
     render: pageProps => <QueriesListPage {...pageProps} currentPage="all" />,
   })
 );
@@ -214,6 +242,7 @@ routes.register(
   routeWithUserSession({
     path: "/queries/favorites",
     title: "Favorite Queries",
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '{ currentPage: string; pageTitle?: string | ... Remove this comment to see the full error message
     render: pageProps => <QueriesListPage {...pageProps} currentPage="favorites" />,
   })
 );
@@ -222,6 +251,7 @@ routes.register(
   routeWithUserSession({
     path: "/queries/archive",
     title: "Archived Queries",
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '{ currentPage: string; pageTitle?: string | ... Remove this comment to see the full error message
     render: pageProps => <QueriesListPage {...pageProps} currentPage="archive" />,
   })
 );
@@ -230,6 +260,7 @@ routes.register(
   routeWithUserSession({
     path: "/queries/my",
     title: "My Queries",
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '{ currentPage: string; pageTitle?: string | ... Remove this comment to see the full error message
     render: pageProps => <QueriesListPage {...pageProps} currentPage="my" />,
   })
 );

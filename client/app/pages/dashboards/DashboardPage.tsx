@@ -24,7 +24,11 @@ import DashboardHeader from "./components/DashboardHeader";
 
 import "./DashboardPage.less";
 
-function DashboardSettings({ dashboardOptions }) {
+type DashboardSettingsProps = {
+    dashboardOptions: any;
+};
+
+function DashboardSettings({ dashboardOptions }: DashboardSettingsProps) {
   const { dashboard, updateDashboard } = dashboardOptions;
   return (
     <div className="m-b-10 p-15 bg-white tiled">
@@ -38,11 +42,12 @@ function DashboardSettings({ dashboardOptions }) {
   );
 }
 
-DashboardSettings.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+type AddWidgetContainerProps = {
+    dashboardOptions: any;
+    className?: string;
 };
 
-function AddWidgetContainer({ dashboardOptions, className, ...props }) {
+function AddWidgetContainer({ dashboardOptions, className, ...props }: AddWidgetContainerProps) {
   const { showAddTextboxDialog, showAddWidgetDialog } = dashboardOptions;
   return (
     <div className={cx("add-widget-container", className)} {...props}>
@@ -65,12 +70,11 @@ function AddWidgetContainer({ dashboardOptions, className, ...props }) {
   );
 }
 
-AddWidgetContainer.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  className: PropTypes.string,
+type DashboardComponentProps = {
+    dashboard: any;
 };
 
-function DashboardComponent(props) {
+function DashboardComponent(props: DashboardComponentProps) {
   const dashboardOptions = useDashboard(props.dashboard);
   const {
     dashboard,
@@ -94,12 +98,15 @@ function DashboardComponent(props) {
     if (pageContainer) {
       const unobserve = resizeObserver(pageContainer, () => {
         if (editingLayout) {
+          // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'null' is not assignable to param... Remove this comment to see the full error message
           const style = window.getComputedStyle(pageContainer, null);
+          // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
           const bounds = pageContainer.getBoundingClientRect();
           const paddingLeft = parseFloat(style.paddingLeft) || 0;
           const paddingRight = parseFloat(style.paddingRight) || 0;
           setBottomPanelStyles({
             left: Math.round(bounds.left) + paddingRight,
+            // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
             width: pageContainer.clientWidth - paddingLeft - paddingRight,
           });
         }
@@ -112,20 +119,24 @@ function DashboardComponent(props) {
   }, [pageContainer, editingLayout]);
 
   return (
+    // @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<null>>' is not assig... Remove this comment to see the full error message
     <div className="container" ref={setPageContainer} data-test={`DashboardId${dashboard.id}Container`}>
       <DashboardHeader
         dashboardOptions={dashboardOptions}
         headerExtra={
+          // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
           <DynamicComponent name="Dashboard.HeaderExtra" dashboard={dashboard} dashboardOptions={dashboardOptions} />
         }
       />
       {!isEmpty(globalParameters) && (
         <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type '(updatedParameters: any) => void' is not ass... Remove this comment to see the full error message */}
           <Parameters parameters={globalParameters} onValuesChange={refreshDashboard} />
         </div>
       )}
       {!isEmpty(filters) && (
         <div className="m-b-10 p-15 bg-white tiled" data-test="DashboardFilters">
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<never[]>>' is not as... Remove this comment to see the full error message */}
           <Filters filters={filters} onChange={setFilters} />
         </div>
       )}
@@ -137,29 +148,40 @@ function DashboardComponent(props) {
           filters={filters}
           isEditing={editingLayout}
           onLayoutChange={editingLayout ? saveDashboardLayout : () => {}}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<boolean>>' is not as... Remove this comment to see the full error message
           onBreakpointChange={setGridDisabled}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '(widget: any, forceRefresh?: any) => any' is... Remove this comment to see the full error message
           onLoadWidget={loadWidget}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '(widget: any) => any' is not assignable to t... Remove this comment to see the full error message
           onRefreshWidget={refreshWidget}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '(widgetId: any) => void' is not assignable t... Remove this comment to see the full error message
           onRemoveWidget={removeWidget}
           onParameterMappingsChange={loadDashboard}
         />
       </div>
+      {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ dashboardOptions: { gridDisabled: boolean;... Remove this comment to see the full error message */}
       {editingLayout && <AddWidgetContainer dashboardOptions={dashboardOptions} style={bottomPanelStyles} />}
     </div>
   );
 }
 
-DashboardComponent.propTypes = {
-  dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+type OwnDashboardPageProps = {
+    dashboardSlug?: string;
+    dashboardId?: string;
+    onError?: (...args: any[]) => any;
 };
 
-function DashboardPage({ dashboardSlug, dashboardId, onError }) {
+type DashboardPageProps = OwnDashboardPageProps & typeof DashboardPage.defaultProps;
+
+function DashboardPage({ dashboardSlug, dashboardId, onError }: DashboardPageProps) {
   const [dashboard, setDashboard] = useState(null);
   const handleError = useImmutableCallback(onError);
 
   useEffect(() => {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'get' does not exist on type 'typeof Dash... Remove this comment to see the full error message
     Dashboard.get({ id: dashboardId, slug: dashboardSlug })
-      .then(dashboardData => {
+      .then((dashboardData: any) => {
+        // @ts-expect-error ts-migrate(2554) FIXME: Expected 4 arguments, but got 3.
         recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
 
@@ -174,12 +196,6 @@ function DashboardPage({ dashboardSlug, dashboardId, onError }) {
   return <div className="dashboard-page">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>;
 }
 
-DashboardPage.propTypes = {
-  dashboardSlug: PropTypes.string,
-  dashboardId: PropTypes.string,
-  onError: PropTypes.func,
-};
-
 DashboardPage.defaultProps = {
   dashboardSlug: null,
   dashboardId: null,
@@ -189,16 +205,20 @@ DashboardPage.defaultProps = {
 // route kept for backward compatibility
 routes.register(
   "Dashboards.LegacyViewOrEdit",
+  // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '{ path: string; render: (pagePro... Remove this comment to see the full error message
   routeWithUserSession({
     path: "/dashboard/:dashboardSlug",
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '{ pageTitle?: string | undefined; onError: (... Remove this comment to see the full error message
     render: pageProps => <DashboardPage {...pageProps} />,
   })
 );
 
 routes.register(
   "Dashboards.ViewOrEdit",
+  // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '{ path: string; render: (pagePro... Remove this comment to see the full error message
   routeWithUserSession({
     path: "/dashboards/:dashboardId([^-]+)(-.*)?",
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '{ pageTitle?: string | undefined; onError: (... Remove this comment to see the full error message
     render: pageProps => <DashboardPage {...pageProps} />,
   })
 );

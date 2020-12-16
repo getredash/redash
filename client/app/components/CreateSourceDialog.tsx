@@ -1,11 +1,11 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { isEmpty, toUpper, includes, get } from "lodash";
 import Button from "antd/lib/button";
 import List from "antd/lib/list";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import Steps from "antd/lib/steps";
+// @ts-expect-error ts-migrate(6133) FIXME: 'DialogPropType' is declared but its value is neve... Remove this comment to see the full error message
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import Link from "@/components/Link";
 import { PreviewCard } from "@/components/PreviewCard";
@@ -23,15 +23,21 @@ const StepEnum = {
   DONE: 2,
 };
 
-class CreateSourceDialog extends React.Component {
-  static propTypes = {
-    dialog: DialogPropType.isRequired,
-    types: PropTypes.arrayOf(PropTypes.object),
-    sourceType: PropTypes.string.isRequired,
-    imageFolder: PropTypes.string.isRequired,
-    helpTriggerPrefix: PropTypes.string,
-    onCreate: PropTypes.func.isRequired,
-  };
+type OwnProps = {
+    // @ts-expect-error ts-migrate(2749) FIXME: 'DialogPropType' refers to a value, but is being u... Remove this comment to see the full error message
+    dialog: DialogPropType;
+    types?: any[];
+    sourceType: string;
+    imageFolder: string;
+    helpTriggerPrefix?: string;
+    onCreate: (...args: any[]) => any;
+};
+
+type State = any;
+
+type Props = OwnProps & typeof CreateSourceDialog.defaultProps;
+
+class CreateSourceDialog extends React.Component<Props, State> {
 
   static defaultProps = {
     types: [],
@@ -45,7 +51,7 @@ class CreateSourceDialog extends React.Component {
     currentStep: StepEnum.SELECT_TYPE,
   };
 
-  selectType = selectedType => {
+  selectType = (selectedType: any) => {
     this.setState({ selectedType, currentStep: StepEnum.CONFIGURE_IT });
   };
 
@@ -55,17 +61,19 @@ class CreateSourceDialog extends React.Component {
     }
   };
 
-  createSource = (values, successCallback, errorCallback) => {
+  createSource = (values: any, successCallback: any, errorCallback: any) => {
     const { selectedType, savingSource } = this.state;
     if (!savingSource) {
       this.setState({ savingSource: true, currentStep: StepEnum.DONE });
       this.props
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'onCreate' does not exist on type 'never'... Remove this comment to see the full error message
         .onCreate(selectedType, values)
-        .then(data => {
+        .then((data: any) => {
           successCallback("Saved.");
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'dialog' does not exist on type 'never'.
           this.props.dialog.close({ success: true, data });
         })
-        .catch(error => {
+        .catch((error: any) => {
           this.setState({ savingSource: false, currentStep: StepEnum.CONFIGURE_IT });
           errorCallback(get(error, "response.data.message", "Failed saving."));
         });
@@ -75,8 +83,9 @@ class CreateSourceDialog extends React.Component {
   renderTypeSelector() {
     const { types } = this.props;
     const { searchText } = this.state;
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'filter' does not exist on type 'never'.
     const filteredTypes = types.filter(
-      type => isEmpty(searchText) || includes(type.name.toLowerCase(), searchText.toLowerCase())
+      (type: any) => isEmpty(searchText) || includes(type.name.toLowerCase(), searchText.toLowerCase())
     );
     return (
       <div className="m-t-10">
@@ -100,22 +109,30 @@ class CreateSourceDialog extends React.Component {
   renderForm() {
     const { imageFolder, helpTriggerPrefix } = this.props;
     const { selectedType } = this.state;
+    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'null' is not assignable to param... Remove this comment to see the full error message
     const fields = helper.getFields(selectedType);
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
     const helpTriggerType = `${helpTriggerPrefix}${toUpper(selectedType.type)}`;
     return (
       <div>
         <div className="d-flex justify-content-center align-items-center">
+          {/* @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'. */}
           <img className="p-5" src={`${imageFolder}/${selectedType.type}.png`} alt={selectedType.name} width="48" />
+          {/* @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'. */}
           <h4 className="m-0">{selectedType.name}</h4>
         </div>
         <div className="text-right">
+          {/* @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
           {HELP_TRIGGER_TYPES[helpTriggerType] && (
+            // @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message
             <HelpTrigger className="f-13" type={helpTriggerType}>
               Setup Instructions <i className="fa fa-question-circle" />
             </HelpTrigger>
           )}
         </div>
+        {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'. */}
         <DynamicForm id="sourceForm" fields={fields} onSubmit={this.createSource} feedbackIcons hideSubmitButton />
+        {/* @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'. */}
         {selectedType.type === "databricks" && (
           <small>
             By using the Databricks Data Source you agree to the Databricks JDBC/ODBC{" "}
@@ -129,7 +146,7 @@ class CreateSourceDialog extends React.Component {
     );
   }
 
-  renderItem(item) {
+  renderItem(item: any) {
     const { imageFolder } = this.props;
     return (
       <List.Item className="p-l-10 p-r-10 clickable" onClick={() => this.selectType(item)}>
@@ -139,6 +156,7 @@ class CreateSourceDialog extends React.Component {
           roundedImage={false}
           data-test="PreviewItem"
           data-test-type={item.type}>
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
           <i className="fa fa-angle-double-right" />
         </PreviewCard>
       </List.Item>
@@ -150,11 +168,13 @@ class CreateSourceDialog extends React.Component {
     const { dialog, sourceType } = this.props;
     return (
       <Modal
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'props' does not exist on type 'never'.
         {...dialog.props}
         title={`Create a New ${sourceType}`}
         footer={
           currentStep === StepEnum.SELECT_TYPE
             ? [
+                // @ts-expect-error ts-migrate(2339) FIXME: Property 'dismiss' does not exist on type 'never'.
                 <Button key="cancel" onClick={() => dialog.dismiss()} data-test="CreateSourceCancelButton">
                   Cancel
                 </Button>,

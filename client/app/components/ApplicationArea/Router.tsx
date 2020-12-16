@@ -1,6 +1,5 @@
 import { isFunction, startsWith, trimStart, trimEnd } from "lodash";
 import React, { useState, useEffect, useRef, useContext } from "react";
-import PropTypes from "prop-types";
 import UniversalRouter from "universal-router";
 import ErrorBoundary from "@redash/viz/lib/components/ErrorBoundary";
 import location from "@/services/location";
@@ -20,7 +19,7 @@ export function useCurrentRoute() {
   return useContext(CurrentRouteContext);
 }
 
-export function stripBase(href) {
+export function stripBase(href: any) {
   // Resolve provided link and '' (root) relative to document's base.
   // If provided href is not related to current document (does not
   // start with resolved root) - return false. Otherwise
@@ -36,7 +35,20 @@ export function stripBase(href) {
   return false;
 }
 
-export default function Router({ routes, onRouteChange }) {
+type OwnProps = {
+    routes?: {
+        path: string;
+        render?: (...args: any[]) => any;
+        resolve?: {
+            [key: string]: any;
+        };
+    }[];
+    onRouteChange?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof Router.defaultProps;
+
+export default function Router({ routes, onRouteChange }: Props) {
   const [currentRoute, setCurrentRoute] = useState(null);
 
   const currentPathRef = useRef(null);
@@ -47,15 +59,17 @@ export default function Router({ routes, onRouteChange }) {
 
     const router = new UniversalRouter(routes, {
       resolveRoute({ route }, routeParams) {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'render' does not exist on type 'Route<Co... Remove this comment to see the full error message
         if (isFunction(route.render)) {
           return { ...route, routeParams };
         }
       },
     });
 
-    function resolve(action) {
+    function resolve(action: any) {
       if (!isAbandoned) {
         if (errorHandlerRef.current) {
+          // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
           errorHandlerRef.current.reset();
         }
 
@@ -70,6 +84,7 @@ export default function Router({ routes, onRouteChange }) {
         if (pathname === currentPathRef.current) {
           return;
         }
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'null'.
         currentPathRef.current = pathname;
 
         // Don't reload controller if URL was replaced
@@ -87,7 +102,8 @@ export default function Router({ routes, onRouteChange }) {
           .catch(error => {
             if (!isAbandoned && currentPathRef.current === pathname) {
               setCurrentRoute({
-                render: currentRoute => <ErrorMessage {...currentRoute.routeParams} />,
+                // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '{ render: (currentRoute: any) =>... Remove this comment to see the full error message
+                render: (currentRoute: any) => <ErrorMessage {...currentRoute.routeParams} />,
                 routeParams: { error },
               });
             }
@@ -97,7 +113,7 @@ export default function Router({ routes, onRouteChange }) {
 
     resolve("PUSH");
 
-    const unlisten = location.listen((unused, action) => resolve(action));
+    const unlisten = location.listen((unused: any, action: any) => resolve(action));
 
     return () => {
       isAbandoned = true;
@@ -116,28 +132,14 @@ export default function Router({ routes, onRouteChange }) {
 
   return (
     <CurrentRouteContext.Provider value={currentRoute}>
-      <ErrorBoundary ref={errorHandlerRef} renderError={error => <ErrorMessage error={error} />}>
+      {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
+      <ErrorBoundary ref={errorHandlerRef} renderError={(error: any) => <ErrorMessage error={error} />}>
+        {/* @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'. */}
         {currentRoute.render(currentRoute)}
       </ErrorBoundary>
     </CurrentRouteContext.Provider>
   );
 }
-
-Router.propTypes = {
-  routes: PropTypes.arrayOf(
-    PropTypes.shape({
-      path: PropTypes.string.isRequired,
-      render: PropTypes.func, // (routeParams: PropTypes.object; currentRoute; location) => PropTypes.node
-      // Additional props to be injected into route component.
-      // Object keys are props names. Object values will become prop values:
-      // - if value is a function - it will be called without arguments, and result will be used; otherwise value will be used;
-      // - after previous step, if value is a promise - router will wait for it to resolve; resolved value then will be used;
-      //   otherwise value will be used directly.
-      resolve: PropTypes.objectOf(PropTypes.any),
-    })
-  ),
-  onRouteChange: PropTypes.func,
-};
 
 Router.defaultProps = {
   routes: [],

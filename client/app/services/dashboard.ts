@@ -6,9 +6,12 @@ import location from "@/services/location";
 import { cloneParameter } from "@/services/parameters";
 import { policy } from "@/services/policy";
 
-export const urlForDashboard = ({ id, slug }) => `dashboards/${id}-${slug}`;
+export const urlForDashboard = ({
+  id,
+  slug
+}: any) => `dashboards/${id}-${slug}`;
 
-export function collectDashboardFilters(dashboard, queryResults, urlParams) {
+export function collectDashboardFilters(dashboard: any, queryResults: any, urlParams: any) {
   const filters = {};
   _.each(queryResults, queryResult => {
     const queryFilters = queryResult && queryResult.getFilters ? queryResult.getFilters() : [];
@@ -27,8 +30,10 @@ export function collectDashboardFilters(dashboard, queryResults, urlParams) {
 
       const filter = { ...queryFilter };
       if (!_.has(filters, queryFilter.name)) {
+        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         filters[filter.name] = filter;
       } else {
+        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         filters[filter.name].values = _.union(filters[filter.name].values, filter.values);
       }
     });
@@ -37,7 +42,7 @@ export function collectDashboardFilters(dashboard, queryResults, urlParams) {
   return _.values(filters);
 }
 
-function prepareWidgetsForDashboard(widgets) {
+function prepareWidgetsForDashboard(widgets: any) {
   // Default height for auto-height widgets.
   // Compute biggest widget size and choose between it and some magic number.
   // This value should be big enough so auto-height widgets will not overlap other ones.
@@ -80,7 +85,7 @@ function prepareWidgetsForDashboard(widgets) {
   return widgets;
 }
 
-function calculateNewWidgetPosition(existingWidgets, newWidget) {
+function calculateNewWidgetPosition(existingWidgets: any, newWidget: any) {
   const width = _.extend({ sizeX: dashboardGridOptions.defaultSizeX }, _.extend({}, newWidget.options).position).sizeX;
 
   // Find first free row for each column
@@ -123,8 +128,10 @@ function calculateNewWidgetPosition(existingWidgets, newWidget) {
     .value();
 }
 
-export function Dashboard(dashboard) {
+export function Dashboard(dashboard: any) {
+  // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
   _.extend(this, dashboard);
+  // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
   Object.defineProperty(this, "url", {
     get: function() {
       return urlForDashboard(this);
@@ -132,11 +139,12 @@ export function Dashboard(dashboard) {
   });
 }
 
-function prepareDashboardWidgets(widgets) {
+function prepareDashboardWidgets(widgets: any) {
   return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget)));
 }
 
-function transformSingle(dashboard) {
+function transformSingle(dashboard: any) {
+  // @ts-expect-error ts-migrate(7009) FIXME: 'new' expression, whose target lacks a construct s... Remove this comment to see the full error message
   dashboard = new Dashboard(dashboard);
   if (dashboard.widgets) {
     dashboard.widgets = prepareDashboardWidgets(dashboard.widgets);
@@ -145,7 +153,7 @@ function transformSingle(dashboard) {
   return dashboard;
 }
 
-function transformResponse(data) {
+function transformResponse(data: any) {
   if (data.results) {
     data = { ...data, results: _.map(data.results, transformSingle) };
   } else {
@@ -154,23 +162,35 @@ function transformResponse(data) {
   return data;
 }
 
-const saveOrCreateUrl = data => (data.id ? `api/dashboards/${data.id}` : "api/dashboards");
+const saveOrCreateUrl = (data: any) => data.id ? `api/dashboards/${data.id}` : "api/dashboards";
 const DashboardService = {
-  get: ({ id, slug }) => {
+  get: ({
+    id,
+    slug
+  }: any) => {
     const params = {};
     if (!id) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'legacy' does not exist on type '{}'.
       params.legacy = null;
     }
     return axios.get(`api/dashboards/${id || slug}`, { params }).then(transformResponse);
   },
-  getByToken: ({ token }) => axios.get(`api/dashboards/public/${token}`).then(transformResponse),
-  save: data => axios.post(saveOrCreateUrl(data), data).then(transformResponse),
-  delete: ({ id }) => axios.delete(`api/dashboards/${id}`).then(transformResponse),
-  query: params => axios.get("api/dashboards", { params }).then(transformResponse),
-  recent: params => axios.get("api/dashboards/recent", { params }).then(transformResponse),
-  favorites: params => axios.get("api/dashboards/favorites", { params }).then(transformResponse),
-  favorite: ({ id }) => axios.post(`api/dashboards/${id}/favorite`),
-  unfavorite: ({ id }) => axios.delete(`api/dashboards/${id}/favorite`),
+  getByToken: ({
+    token
+  }: any) => axios.get(`api/dashboards/public/${token}`).then(transformResponse),
+  save: (data: any) => axios.post(saveOrCreateUrl(data), data).then(transformResponse),
+  delete: ({
+    id
+  }: any) => axios.delete(`api/dashboards/${id}`).then(transformResponse),
+  query: (params: any) => axios.get("api/dashboards", { params }).then(transformResponse),
+  recent: (params: any) => axios.get("api/dashboards/recent", { params }).then(transformResponse),
+  favorites: (params: any) => axios.get("api/dashboards/favorites", { params }).then(transformResponse),
+  favorite: ({
+    id
+  }: any) => axios.post(`api/dashboards/${id}/favorite`),
+  unfavorite: ({
+    id
+  }: any) => axios.delete(`api/dashboards/${id}/favorite`),
 };
 
 _.extend(Dashboard, DashboardService);
@@ -191,18 +211,24 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
       widget
         .getQuery()
         .getParametersDefs(false)
-        .forEach(param => {
+        .forEach((param: any) => {
           const mapping = mappings[param.name];
           if (mapping.type === Widget.MappingType.DashboardLevel) {
             // create global param
+            // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
             if (!globalParams[mapping.mapTo]) {
+              // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
               globalParams[mapping.mapTo] = cloneParameter(param);
+              // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
               globalParams[mapping.mapTo].name = mapping.mapTo;
+              // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
               globalParams[mapping.mapTo].title = mapping.title || param.title;
+              // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
               globalParams[mapping.mapTo].locals = [];
             }
 
             // add to locals list
+            // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
             globalParams[mapping.mapTo].locals.push(param);
           }
         });
@@ -210,13 +236,15 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
   });
   return _.values(
     _.each(globalParams, param => {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'setValue' does not exist on type 'never'... Remove this comment to see the full error message
       param.setValue(param.value); // apply global param value to all locals
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'fromUrlParams' does not exist on type 'n... Remove this comment to see the full error message
       param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
     })
   );
 };
 
-Dashboard.prototype.addWidget = function addWidget(textOrVisualization, options = {}) {
+Dashboard.prototype.addWidget = function addWidget(textOrVisualization: any, options = {}) {
   const props = {
     dashboard_id: this.id,
     options: {
@@ -232,7 +260,9 @@ Dashboard.prototype.addWidget = function addWidget(textOrVisualization, options 
   if (_.isString(textOrVisualization)) {
     props.text = textOrVisualization;
   } else if (_.isObject(textOrVisualization)) {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type 'object'.
     props.visualization_id = textOrVisualization.id;
+    // @ts-expect-error ts-migrate(2322) FIXME: Type 'object' is not assignable to type 'null'.
     props.visualization = textOrVisualization;
   } else {
     // TODO: Throw an error?
@@ -244,6 +274,7 @@ Dashboard.prototype.addWidget = function addWidget(textOrVisualization, options 
   widget.options.position.col = position.col;
   widget.options.position.row = position.row;
 
+  // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 0.
   return widget.save().then(() => {
     this.widgets = [...this.widgets, widget];
     return widget;
@@ -251,9 +282,11 @@ Dashboard.prototype.addWidget = function addWidget(textOrVisualization, options 
 };
 
 Dashboard.prototype.favorite = function favorite() {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'favorite' does not exist on type 'typeof... Remove this comment to see the full error message
   return Dashboard.favorite(this);
 };
 
 Dashboard.prototype.unfavorite = function unfavorite() {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'unfavorite' does not exist on type 'type... Remove this comment to see the full error message
   return Dashboard.unfavorite(this);
 };

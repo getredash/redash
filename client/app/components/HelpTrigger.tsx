@@ -51,14 +51,14 @@ export const TYPES = mapValues(
   ([url, title]) => [DOMAIN + HELP_PATH + url, title]
 );
 
-const HelpTriggerPropTypes = {
-  type: PropTypes.string,
-  href: PropTypes.string,
-  title: PropTypes.node,
-  className: PropTypes.string,
-  showTooltip: PropTypes.bool,
-  renderAsLink: PropTypes.bool,
-  children: PropTypes.node,
+type OwnProps = {
+    type?: string;
+    href?: string;
+    title?: React.ReactNode;
+    className?: string;
+    showTooltip?: boolean;
+    renderAsLink?: boolean;
+    children?: React.ReactNode;
 };
 
 const HelpTriggerDefaultProps = {
@@ -71,9 +71,10 @@ const HelpTriggerDefaultProps = {
   children: <i className="fa fa-question-circle" />,
 };
 
-export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName = null) {
+export function helpTriggerWithTypes(types: any, allowedDomains = [], drawerClassName = null) {
   return class HelpTrigger extends React.Component {
     static propTypes = {
+      // @ts-expect-error ts-migrate(2552) FIXME: Cannot find name 'HelpTriggerPropTypes'. Did you m... Remove this comment to see the full error message
       ...HelpTriggerPropTypes,
       type: PropTypes.oneOf(Object.keys(types)),
     };
@@ -97,14 +98,18 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
 
     componentWillUnmount() {
       window.removeEventListener("message", this.onPostMessageReceived);
+      // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
       clearTimeout(this.iframeLoadingTimeout);
     }
 
-    loadIframe = url => {
+    loadIframe = (url: any) => {
+      // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
       clearTimeout(this.iframeLoadingTimeout);
       this.setState({ loading: true, error: false });
 
+      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
       this.iframeRef.current.src = url;
+      // @ts-expect-error ts-migrate(2322) FIXME: Type 'number' is not assignable to type 'null'.
       this.iframeLoadingTimeout = setTimeout(() => {
         this.setState({ error: url, loading: false });
       }, IFRAME_TIMEOUT); // safety
@@ -112,10 +117,11 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
 
     onIframeLoaded = () => {
       this.setState({ loading: false });
+      // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
       clearTimeout(this.iframeLoadingTimeout);
     };
 
-    onPostMessageReceived = event => {
+    onPostMessageReceived = (event: any) => {
       if (!some(allowedDomains, domain => startsWith(event.origin, domain))) {
         return;
       }
@@ -129,11 +135,13 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
     };
 
     getUrl = () => {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'type' does not exist on type 'Readonly<{... Remove this comment to see the full error message
       const helpTriggerType = get(types, this.props.type);
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'href' does not exist on type 'Readonly<{... Remove this comment to see the full error message
       return helpTriggerType ? helpTriggerType[0] : this.props.href;
     };
 
-    openDrawer = e => {
+    openDrawer = (e: any) => {
       // keep "open in new tab" behavior
       if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
@@ -143,7 +151,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
       }
     };
 
-    closeDrawer = event => {
+    closeDrawer = (event: any) => {
       if (event) {
         event.preventDefault();
       }
@@ -157,16 +165,20 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
         return null;
       }
 
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'type' does not exist on type 'Readonly<{... Remove this comment to see the full error message
       const tooltip = get(types, `${this.props.type}[1]`, this.props.title);
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'className' does not exist on type 'Reado... Remove this comment to see the full error message
       const className = cx("help-trigger", this.props.className);
       const url = this.state.currentUrl;
       const isAllowedDomain = some(allowedDomains, domain => startsWith(url || targetUrl, domain));
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'renderAsLink' does not exist on type 'Re... Remove this comment to see the full error message
       const shouldRenderAsLink = this.props.renderAsLink || !isAllowedDomain;
 
       return (
         <React.Fragment>
           <Tooltip
             title={
+              // @ts-expect-error ts-migrate(2339) FIXME: Property 'showTooltip' does not exist on type 'Rea... Remove this comment to see the full error message
               this.props.showTooltip ? (
                 <>
                   {tooltip}
@@ -211,6 +223,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
               {/* iframe */}
               {!this.state.error && (
                 <iframe
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'RefObject<unknown>' is not assignable to typ... Remove this comment to see the full error message
                   ref={this.iframeRef}
                   title="Usage Help"
                   src="about:blank"
@@ -226,6 +239,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
 
               {/* error message */}
               {this.state.error && (
+                // @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message
                 <BigMessage icon="fa-exclamation-circle" className="help-message">
                   Something went wrong.
                   <br />
@@ -239,6 +253,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
             </div>
 
             {/* extra content */}
+            {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
             <DynamicComponent name="HelpDrawerExtraContent" onLeave={this.closeDrawer} openPageUrl={this.loadIframe} />
           </Drawer>
         </React.Fragment>
@@ -247,11 +262,12 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
   };
 }
 
+// @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
 registerComponent("HelpTrigger", helpTriggerWithTypes(TYPES, [DOMAIN]));
 
-export default function HelpTrigger(props) {
+type Props = OwnProps & typeof HelpTriggerDefaultProps;
+
+export default function HelpTrigger(props: Props) {
   return <DynamicComponent {...props} name="HelpTrigger" />;
 }
-
-HelpTrigger.propTypes = HelpTriggerPropTypes;
 HelpTrigger.defaultProps = HelpTriggerDefaultProps;

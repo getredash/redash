@@ -60,8 +60,9 @@ export function UserSessionWrapper<P>({ bodyClass, currentRoute, render }: UserS
 
   return (
     <ApplicationLayout>
+      {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
       <React.Fragment key={currentRoute.key}>
-        {/* @ts-expect-error FIXME */}
+        {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
         <ErrorBoundary renderError={(error: Error) => <ErrorMessage error={error} />}>
           <ErrorBoundaryContext.Consumer>
             {({ handleError } /* : { handleError: UserSessionWrapperRenderChildrenProps<P>["onError"] } FIXME bring back type */) =>

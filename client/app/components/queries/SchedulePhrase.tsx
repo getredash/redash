@@ -1,18 +1,20 @@
 import React from "react";
-import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
 import { localizeTime, durationHumanize } from "@/lib/utils";
 import { RefreshScheduleType, RefreshScheduleDefault } from "../proptypes";
 
 import "./ScheduleDialog.css";
 
-export default class SchedulePhrase extends React.Component {
-  static propTypes = {
-    schedule: RefreshScheduleType,
-    isNew: PropTypes.bool.isRequired,
-    isLink: PropTypes.bool,
-    onClick: PropTypes.func,
-  };
+type OwnProps = {
+    schedule?: RefreshScheduleType;
+    isNew: boolean;
+    isLink?: boolean;
+    onClick?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof SchedulePhrase.defaultProps;
+
+export default class SchedulePhrase extends React.Component<Props> {
 
   static defaultProps = {
     schedule: RefreshScheduleDefault,
@@ -48,6 +50,7 @@ export default class SchedulePhrase extends React.Component {
     }
 
     const [short, full] = this.content;
+    // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'ReactElem... Remove this comment to see the full error message
     const content = full ? <Tooltip title={full}>{short}</Tooltip> : short;
 
     return this.props.isLink ? (

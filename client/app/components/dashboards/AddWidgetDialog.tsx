@@ -1,15 +1,23 @@
 import { map, includes, groupBy, first, find } from "lodash";
 import React, { useState, useMemo, useCallback } from "react";
-import PropTypes from "prop-types";
 import Select from "antd/lib/select";
 import Modal from "antd/lib/modal";
+// @ts-expect-error ts-migrate(6133) FIXME: 'DialogPropType' is declared but its value is neve... Remove this comment to see the full error message
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { MappingType, ParameterMappingListInput } from "@/components/ParameterMappingInput";
 import QuerySelector from "@/components/QuerySelector";
 import notification from "@/services/notification";
 import { Query } from "@/services/query";
 
-function VisualizationSelect({ query, visualization, onChange }) {
+type OwnVisualizationSelectProps = {
+    query?: any;
+    visualization?: any;
+    onChange?: (...args: any[]) => any;
+};
+
+type VisualizationSelectProps = OwnVisualizationSelectProps & typeof VisualizationSelect.defaultProps;
+
+function VisualizationSelect({ query, visualization, onChange }: VisualizationSelectProps) {
   const visualizationGroups = useMemo(() => {
     return query ? groupBy(query.visualizations, "type") : {};
   }, [query]);
@@ -50,19 +58,19 @@ function VisualizationSelect({ query, visualization, onChange }) {
   );
 }
 
-VisualizationSelect.propTypes = {
-  query: PropTypes.object,
-  visualization: PropTypes.object,
-  onChange: PropTypes.func,
-};
-
 VisualizationSelect.defaultProps = {
   query: null,
   visualization: null,
   onChange: () => {},
 };
 
-function AddWidgetDialog({ dialog, dashboard }) {
+type AddWidgetDialogProps = {
+    // @ts-expect-error ts-migrate(2749) FIXME: 'DialogPropType' refers to a value, but is being u... Remove this comment to see the full error message
+    dialog: DialogPropType;
+    dashboard: any;
+};
+
+function AddWidgetDialog({ dialog, dashboard }: AddWidgetDialogProps) {
   const [selectedQuery, setSelectedQuery] = useState(null);
   const [selectedVisualization, setSelectedVisualization] = useState(null);
   const [parameterMappings, setParameterMappings] = useState([]);
@@ -75,11 +83,13 @@ function AddWidgetDialog({ dialog, dashboard }) {
       setParameterMappings([]);
 
       if (queryId) {
-        Query.get({ id: queryId }).then(query => {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'get' does not exist on type 'typeof Quer... Remove this comment to see the full error message
+        Query.get({ id: queryId }).then((query: any) => {
           if (query) {
             const existingParamNames = map(dashboard.getParametersDefs(), param => param.name);
             setSelectedQuery(query);
             setParameterMappings(
+              // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '{ name: any; type: string; mapTo... Remove this comment to see the full error message
               map(query.getParametersDefs(), param => ({
                 name: param.name,
                 type: includes(existingParamNames, param.name)
@@ -92,6 +102,7 @@ function AddWidgetDialog({ dialog, dashboard }) {
               }))
             );
             if (query.visualizations.length > 0) {
+              // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '((prevState: null) => null) | nu... Remove this comment to see the full error message
               setSelectedVisualization(first(query.visualizations));
             }
           }
@@ -103,6 +114,7 @@ function AddWidgetDialog({ dialog, dashboard }) {
 
   const saveWidget = useCallback(() => {
     dialog.close({ visualization: selectedVisualization, parameterMappings }).catch(() => {
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
       notification.error("Widget could not be added");
     });
   }, [dialog, selectedVisualization, parameterMappings]);
@@ -121,12 +133,14 @@ function AddWidgetDialog({ dialog, dashboard }) {
       okText="Add to Dashboard"
       width={700}>
       <div data-test="AddWidgetDialog">
-        <QuerySelector onChange={query => selectQuery(query ? query.id : null)} />
+        {/* @ts-expect-error ts-migrate(2322) FIXME: Type '(query: any) => void' is not assignable to t... Remove this comment to see the full error message */}
+        <QuerySelector onChange={(query: any) => selectQuery(query ? query.id : null)} />
 
         {selectedQuery && (
           <VisualizationSelect
             query={selectedQuery}
             visualization={selectedVisualization}
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<null>>' is not assig... Remove this comment to see the full error message
             onChange={setSelectedVisualization}
           />
         )}
@@ -140,6 +154,7 @@ function AddWidgetDialog({ dialog, dashboard }) {
             id="parameter-mappings"
             mappings={parameterMappings}
             existingParams={existingParams}
+            // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
             onChange={setParameterMappings}
           />,
         ]}
@@ -147,10 +162,5 @@ function AddWidgetDialog({ dialog, dashboard }) {
     </Modal>
   );
 }
-
-AddWidgetDialog.propTypes = {
-  dialog: DialogPropType.isRequired,
-  dashboard: PropTypes.object.isRequired,
-};
 
 export default wrapDialog(AddWidgetDialog);

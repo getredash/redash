@@ -1,9 +1,20 @@
+// @ts-expect-error ts-migrate(6133) FIXME: 'extend' is declared but its value is never read.
 import { isFunction, identity, map, extend } from "lodash";
 import Paginator from "./Paginator";
 import Sorter from "./Sorter";
 import { PlainListFetcher, PaginatedListFetcher } from "./ItemsFetcher";
 
 export class ItemsSource {
+  _allItems: any;
+  _currentFetchToken: any;
+  _fetcher: any;
+  _pageItems: any;
+  _paginator: any;
+  _params: any;
+  _savedOrderByField: any;
+  _searchTerm: any;
+  _selectedTags: any;
+  _sorter: any;
   onBeforeUpdate = null;
 
   onAfterUpdate = null;
@@ -16,6 +27,7 @@ export class ItemsSource {
 
   _beforeUpdate() {
     if (isFunction(this.onBeforeUpdate)) {
+      // @ts-expect-error ts-migrate(2721) FIXME: Cannot invoke an object which is possibly 'null'.
       return Promise.resolve(this.onBeforeUpdate(this.getState(), this.getCallbackContext()));
     }
     return Promise.resolve();
@@ -23,13 +35,14 @@ export class ItemsSource {
 
   _afterUpdate() {
     if (isFunction(this.onAfterUpdate)) {
+      // @ts-expect-error ts-migrate(2721) FIXME: Cannot invoke an object which is possibly 'null'.
       return Promise.resolve(this.onAfterUpdate(this.getState(), this.getCallbackContext()));
     }
     return Promise.resolve();
   }
 
   // changes: object with flags or null (full refresh requested)
-  _changed(changes) {
+  _changed(changes: any) {
     const state = {
       paginator: this._paginator,
       sorter: this._sorter,
@@ -38,6 +51,7 @@ export class ItemsSource {
     };
     const customParams = {};
     const context = {
+      // @ts-expect-error ts-migrate(2698) FIXME: Spread types may only be created from object types... Remove this comment to see the full error message
       ...this.getCallbackContext(),
       setCustomParams: params => {
         extend(customParams, params);
@@ -50,7 +64,11 @@ export class ItemsSource {
       this._currentFetchToken = fetchToken;
       return this._fetcher
         .fetch(changes, state, context)
-        .then(({ results, count, allResults }) => {
+        .then(({
+        results,
+        count,
+        allResults
+      }: any) => {
           if (this._currentFetchToken === fetchToken) {
             this._pageItems = results;
             this._allItems = allResults || null;
@@ -59,7 +77,7 @@ export class ItemsSource {
             return this._afterUpdate();
           }
         })
-        .catch(error => this.handleError(error));
+        .catch((error: any) => this.handleError(error));
     });
   }
 
@@ -70,7 +88,7 @@ export class ItemsSource {
     isPlainList = false,
     sortByIteratees = undefined,
     ...defaultState
-  }) {
+  }: any) {
     if (!isFunction(getRequest)) {
       getRequest = identity;
     }
@@ -102,7 +120,7 @@ export class ItemsSource {
     };
   }
 
-  setState(state) {
+  setState(state: any) {
     this._paginator = new Paginator(state);
     this._sorter = new Sorter(state, this.sortByIteratees);
 
@@ -112,7 +130,10 @@ export class ItemsSource {
     this._savedOrderByField = this._sorter.field;
   }
 
-  updatePagination = ({ page, itemsPerPage }) => {
+  updatePagination = ({
+    page,
+    itemsPerPage
+  }: any) => {
     const { page: prevPage, itemsPerPage: prevItemsPerPage } = this._paginator;
     this._paginator.setItemsPerPage(itemsPerPage);
     this._paginator.setPage(page);
@@ -124,13 +145,13 @@ export class ItemsSource {
     });
   };
 
-  toggleSorting = orderByField => {
+  toggleSorting = (orderByField: any) => {
     this._sorter.toggleField(orderByField);
     this._savedOrderByField = this._sorter.field;
     this._changed({ sorting: true });
   };
 
-  updateSearch = searchTerm => {
+  updateSearch = (searchTerm: any) => {
     // here we update state directly, but later `fetchData` will update it properly
     this._searchTerm = searchTerm;
     // in search mode ignore the ordering and use the ranking order
@@ -145,31 +166,37 @@ export class ItemsSource {
     this._changed({ search: true, pagination: { page: true } });
   };
 
-  updateSelectedTags = selectedTags => {
+  updateSelectedTags = (selectedTags: any) => {
     this._selectedTags = selectedTags;
     this._paginator.setPage(1);
     this._changed({ tags: true, pagination: { page: true } });
   };
 
+  // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0.
   update = () => this._changed();
 
-  handleError = error => {
+  handleError = (error: any) => {
     if (isFunction(this.onError)) {
+      // @ts-expect-error ts-migrate(2721) FIXME: Cannot invoke an object which is possibly 'null'.
       this.onError(error);
     }
   };
 }
 
 export class ResourceItemsSource extends ItemsSource {
-  constructor({ getResource, getItemProcessor, ...rest }) {
+  constructor({
+    getResource,
+    getItemProcessor,
+    ...rest
+  }: any) {
     getItemProcessor = isFunction(getItemProcessor) ? getItemProcessor : () => null;
     super({
       ...rest,
-      doRequest: (request, context) => {
+      doRequest: (request: any, context: any) => {
         const resource = getResource(context)(request);
         return resource;
       },
-      processResults: (results, context) => {
+      processResults: (results: any, context: any) => {
         let processItem = getItemProcessor(context);
         processItem = isFunction(processItem) ? processItem : identity;
         return map(results, item => processItem(item, context));

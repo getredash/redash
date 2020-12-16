@@ -43,6 +43,7 @@ function DeprecatedEmbedFeatureAlert() {
 function EmailNotVerifiedAlert() {
   const verifyEmail = () => {
     axios.post("verification_email/").then(data => {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'message' does not exist on type 'AxiosRe... Remove this comment to see the full error message
       notification.success(data.message);
     });
   };
@@ -67,6 +68,7 @@ function EmailNotVerifiedAlert() {
 
 export default function Home() {
   useEffect(() => {
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 4 arguments, but got 3.
     recordEvent("view", "page", "personal_homepage");
   }, []);
 
@@ -76,13 +78,21 @@ export default function Home() {
         {includes(messages, "using-deprecated-embed-feature") && <DeprecatedEmbedFeatureAlert />}
         {includes(messages, "email-not-verified") && <EmailNotVerifiedAlert />}
         <DynamicComponent name="Home.EmptyState">
+          {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
           <EmptyState
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
             header="Welcome to Redash 👋"
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
             description="Connect to any data source, easily visualize and share your data"
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
             illustration="dashboard"
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'never'.
             helpMessage={<EmptyStateHelpMessage helpTriggerType="GETTING_STARTED" />}
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
             showDashboardStep
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
             showInviteStep
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
             onboardingMode
           />
         </DynamicComponent>
@@ -99,6 +109,7 @@ routes.register(
   routeWithUserSession({
     path: "/",
     title: "Redash",
+    // @ts-expect-error ts-migrate(2559) FIXME: Type '{ pageTitle?: string | undefined; onError: (... Remove this comment to see the full error message
     render: pageProps => <Home {...pageProps} />,
   })
 );

@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { filter, includes, get, find } from "lodash";
-import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import Button from "antd/lib/button";
 import SyncOutlinedIcon from "@ant-design/icons/SyncOutlined";
@@ -13,14 +12,17 @@ import useDatabricksSchema from "./useDatabricksSchema";
 
 import "./DatabricksSchemaBrowser.less";
 
-export default function DatabricksSchemaBrowser({
-  dataSource,
-  options,
-  onOptionsUpdate,
-  onSchemaUpdate,
-  onItemSelect,
-  ...props
-}) {
+type OwnProps = {
+    dataSource?: any;
+    options?: any;
+    onOptionsUpdate?: (...args: any[]) => any;
+    onSchemaUpdate?: (...args: any[]) => any;
+    onItemSelect?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof DatabricksSchemaBrowser.defaultProps;
+
+export default function DatabricksSchemaBrowser({ dataSource, options, onOptionsUpdate, onSchemaUpdate, onItemSelect, ...props }: Props) {
   const {
     databases,
     loadingDatabases,
@@ -31,6 +33,7 @@ export default function DatabricksSchemaBrowser({
     setCurrentDatabase,
     refreshAll,
     refreshing,
+  // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '((...args: any[]) => any) & (() ... Remove this comment to see the full error message
   } = useDatabricksSchema(dataSource, options, onOptionsUpdate);
   const [filterString, setFilterString] = useState("");
   const [databaseFilterString, setDatabaseFilterString] = useState("");
@@ -53,6 +56,7 @@ export default function DatabricksSchemaBrowser({
   );
 
   const filteredDatabases = useMemo(
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'toLowerCase' does not exist on type 'nev... Remove this comment to see the full error message
     () => filter(databases, database => includes(database.toLowerCase(), databaseFilterString.toLowerCase())),
     [databases, databaseFilterString]
   );
@@ -67,13 +71,15 @@ export default function DatabricksSchemaBrowser({
     setExpandedFlags({});
   }, [currentDatabaseName]);
 
-  function toggleTable(tableName) {
+  function toggleTable(tableName: any) {
     const table = find(schema, { name: tableName });
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     if (!expandedFlags[tableName] && get(table, "loading", false)) {
       loadTableColumns(tableName);
     }
     setExpandedFlags({
       ...expandedFlags,
+      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       [tableName]: !expandedFlags[tableName],
     });
   }
@@ -102,6 +108,7 @@ export default function DatabricksSchemaBrowser({
                 </>
               }>
               {filteredDatabases.map(database => (
+                // @ts-expect-error ts-migrate(2741) FIXME: Property 'value' is missing in type '{ children: E... Remove this comment to see the full error message
                 <Select.Option key={database}>
                   <i className="fa fa-database m-r-5" />
                   {database}
@@ -132,14 +139,6 @@ export default function DatabricksSchemaBrowser({
     </div>
   );
 }
-
-DatabricksSchemaBrowser.propTypes = {
-  dataSource: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  options: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  onOptionsUpdate: PropTypes.func,
-  onSchemaUpdate: PropTypes.func,
-  onItemSelect: PropTypes.func,
-};
 
 DatabricksSchemaBrowser.defaultProps = {
   dataSource: null,

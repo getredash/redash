@@ -13,16 +13,18 @@ const Text = Typography.Text;
 function BeaconConsent() {
   const [hide, setHide] = useState(false);
 
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'showBeaconConsentMessage' does not exist... Remove this comment to see the full error message
   if (!clientConfig.showBeaconConsentMessage || hide) {
     return null;
   }
 
   const hideConsentCard = () => {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'showBeaconConsentMessage' does not exist... Remove this comment to see the full error message
     clientConfig.showBeaconConsentMessage = false;
     setHide(true);
   };
 
-  const confirmConsent = confirm => {
+  const confirmConsent = (confirm: any) => {
     let message = "🙏 Thank you.";
 
     if (!confirm) {
@@ -39,11 +41,13 @@ function BeaconConsent() {
 
   return (
     <DynamicComponent name="BeaconConsent">
+      {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
       <div className="m-t-10 tiled">
         <Card
           title={
             <>
               Would you be ok with sharing anonymous usage data with the Redash team?{" "}
+              {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'. */}
               <HelpTrigger type="USAGE_DATA_SHARING" />
             </>
           }

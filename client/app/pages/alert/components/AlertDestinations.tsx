@@ -1,6 +1,5 @@
 import { without, find, includes, map, toLower } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 
 import Link from "@/components/Link";
 import SelectItemsDialog from "@/components/SelectItemsDialog";
@@ -22,7 +21,7 @@ import "./AlertDestinations.less";
 
 const USER_EMAIL_DEST_ID = -1;
 
-function normalizeSub(sub) {
+function normalizeSub(sub: any) {
   if (!sub.destination) {
     sub.destination = {
       id: USER_EMAIL_DEST_ID,
@@ -34,7 +33,14 @@ function normalizeSub(sub) {
   return sub;
 }
 
-function ListItem({ destination: { name, type }, user, unsubscribe }) {
+type ListItemProps = {
+    destination: DestinationType;
+    user: UserType;
+    unsubscribe: (...args: any[]) => any;
+};
+
+function ListItem({ destination: { name, type }, user, unsubscribe }: ListItemProps) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type '{ _isAdmin: ... Remove this comment to see the full error message
   const canUnsubscribe = currentUser.isAdmin || currentUser.id === user.id;
 
   return (
@@ -42,6 +48,7 @@ function ListItem({ destination: { name, type }, user, unsubscribe }) {
       <img src={`${IMG_ROOT}/${type}.png`} className="destination-icon" alt={name} />
       <span className="flex-fill">{name}</span>
       {type === "email" && (
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
         <EmailSettingsWarning className="destination-warning" featureName="alert emails" mode="icon" />
       )}
       {canUnsubscribe && (
@@ -53,16 +60,13 @@ function ListItem({ destination: { name, type }, user, unsubscribe }) {
   );
 }
 
-ListItem.propTypes = {
-  destination: DestinationType.isRequired,
-  user: UserType.isRequired,
-  unsubscribe: PropTypes.func.isRequired,
+type AlertDestinationsProps = {
+    alertId: any;
 };
 
-export default class AlertDestinations extends React.Component {
-  static propTypes = {
-    alertId: PropTypes.any.isRequired,
-  };
+type AlertDestinationsState = any;
+
+export default class AlertDestinations extends React.Component<AlertDestinationsProps, AlertDestinationsState> {
 
   state = {
     dests: [],
@@ -75,6 +79,7 @@ export default class AlertDestinations extends React.Component {
       DestinationService.query(), // get all destinations
       AlertSubscription.query({ alertId }), // get subcriptions per alert
     ]).then(([dests, subs]) => {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'map' does not exist on type 'AxiosRespon... Remove this comment to see the full error message
       subs = subs.map(normalizeSub);
       this.setState({ dests, subs });
     });
@@ -98,11 +103,15 @@ export default class AlertDestinations extends React.Component {
       ),
       dialogTitle: "Add Existing Alert Destinations",
       inputPlaceholder: "Search destinations...",
-      searchItems: searchTerm => {
+      searchItems: (searchTerm: any) => {
         searchTerm = toLower(searchTerm);
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'.
         return Promise.resolve(dests.filter(d => includes(toLower(d.name), searchTerm)));
       },
-      renderItem: (item, { isSelected }) => {
+      renderItem: (item: any, {
+        isSelected
+      }: any) => {
+        // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
         const alreadyInGroup = !!find(subs, s => s.destination.id === item.id);
 
         return {
@@ -117,44 +126,49 @@ export default class AlertDestinations extends React.Component {
           className: isSelected || alreadyInGroup ? "selected" : "",
         };
       },
-    }).onClose(items => {
+    }).onClose((items: any) => {
       const promises = map(items, item => this.subscribe(item));
       return Promise.all(promises)
         .then(() => {
+          // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
           notification.success("Subscribed.");
         })
         .catch(() => {
+          // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
           notification.error("Failed saving subscription.");
           return Promise.reject(null); // keep dialog visible but suppress its default error message
         });
     });
   };
 
-  onUserEmailToggle = sub => {
+  onUserEmailToggle = (sub: any) => {
     if (sub) {
       this.unsubscribe(sub);
     } else {
+      // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0.
       this.subscribe();
     }
   };
 
-  subscribe = dest => {
+  subscribe = (dest: any) => {
     const { alertId } = this.props;
 
     const sub = { alert_id: alertId };
     if (dest) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'destination_id' does not exist on type '... Remove this comment to see the full error message
       sub.destination_id = dest.id;
     }
 
     return AlertSubscription.create(sub).then(sub => {
       const { subs } = this.state;
       this.setState({
+        // @ts-expect-error ts-migrate(2488) FIXME: Type 'null' must have a '[Symbol.iterator]()' meth... Remove this comment to see the full error message
         subs: [...subs, normalizeSub(sub)],
       });
     });
   };
 
-  unsubscribe = sub => {
+  unsubscribe = (sub: any) => {
     AlertSubscription.delete(sub)
       .then(() => {
         // not showing subscribe notification cause it's redundant here
@@ -164,6 +178,7 @@ export default class AlertDestinations extends React.Component {
         });
       })
       .catch(() => {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.error("Failed unsubscribing.");
       });
   };
@@ -176,9 +191,11 @@ export default class AlertDestinations extends React.Component {
     const { subs } = this.state;
     const currentUserEmailSub = find(subs, {
       destination: { id: USER_EMAIL_DEST_ID },
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type '{ _isAdmin: ... Remove this comment to see the full error message
       user: { id: currentUser.id },
     });
     const filteredSubs = without(subs, currentUserEmailSub);
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'mailSettingsMissing' does not exist on t... Remove this comment to see the full error message
     const { mailSettingsMissing } = clientConfig;
 
     return (
@@ -196,7 +213,9 @@ export default class AlertDestinations extends React.Component {
         <ul>
           <li className="destination-wrapper">
             <i className="destination-icon fa fa-envelope" />
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'email' does not exist on type '{ _isAdmi... Remove this comment to see the full error message */}
             <span className="flex-fill">{currentUser.email}</span>
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'. */}
             <EmailSettingsWarning className="destination-warning" featureName="alert emails" mode="icon" />
             {!mailSettingsMissing && (
               <Switch
@@ -210,6 +229,7 @@ export default class AlertDestinations extends React.Component {
             )}
           </li>
           {filteredSubs.map(s => (
+            // @ts-expect-error ts-migrate(2322) FIXME: Type '{ destination?: { id: number; }; user?: { id... Remove this comment to see the full error message
             <ListItem key={s.id} unsubscribe={() => this.unsubscribe(s)} {...s} />
           ))}
         </ul>

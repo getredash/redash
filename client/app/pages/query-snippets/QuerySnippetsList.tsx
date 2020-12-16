@@ -24,16 +24,20 @@ import routes from "@/services/routes";
 
 import "./QuerySnippetsList.less";
 
-const canEditQuerySnippet = querySnippet => currentUser.isAdmin || currentUser.id === get(querySnippet, "user.id");
+// @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type '{ _isAdmin: ... Remove this comment to see the full error message
+const canEditQuerySnippet = (querySnippet: any) => currentUser.isAdmin || currentUser.id === get(querySnippet, "user.id");
 
-class QuerySnippetsList extends React.Component {
-  static propTypes = {
-    controller: ControllerType.isRequired,
-  };
+type QuerySnippetsListProps = {
+    controller: ControllerType;
+};
+
+class QuerySnippetsList extends React.Component<QuerySnippetsListProps> {
+  actions: any;
 
   listColumns = [
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(rende... Remove this comment to see the full error message
     Columns.custom.sortable(
-      (text, querySnippet) => (
+      (text: any, querySnippet: any) => (
         <div>
           <a className="table-main-title clickable" onClick={() => this.showSnippetDialog(querySnippet)}>
             {querySnippet.trigger}
@@ -46,16 +50,18 @@ class QuerySnippetsList extends React.Component {
         className: "text-nowrap",
       }
     ),
-    Columns.custom.sortable(text => text, {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(rende... Remove this comment to see the full error message
+    Columns.custom.sortable((text: any) => text, {
       title: "Description",
       field: "description",
       className: "text-nowrap",
     }),
-    Columns.custom(snippet => <code className="snippet-content">{snippet}</code>, {
+    Columns.custom((snippet: any) => <code className="snippet-content">{snippet}</code>, {
       title: "Snippet",
       field: "snippet",
     }),
-    Columns.avatar({ field: "user", className: "p-l-0 p-r-0" }, name => `Created by ${name}`),
+    Columns.avatar({ field: "user", className: "p-l-0 p-r-0" }, (name: any) => `Created by ${name}`),
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'sortable' does not exist on type '(overr... Remove this comment to see the full error message
     Columns.date.sortable({
       title: "Created At",
       field: "created_at",
@@ -63,8 +69,9 @@ class QuerySnippetsList extends React.Component {
       width: "1%",
     }),
     Columns.custom(
-      (text, querySnippet) =>
+      (text: any, querySnippet: any) =>
         canEditQuerySnippet(querySnippet) && (
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '"danger"' is not assignable to type '"link" ... Remove this comment to see the full error message
           <Button type="danger" className="w-100" onClick={e => this.deleteQuerySnippet(e, querySnippet)}>
             Delete
           </Button>
@@ -87,6 +94,7 @@ class QuerySnippetsList extends React.Component {
         }
       } else {
         QuerySnippet.get({ id: querySnippetId })
+          // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '(querySnippet?: null) => void' i... Remove this comment to see the full error message
           .then(this.showSnippetDialog)
           .catch(error => {
             this.props.controller.handleError(error);
@@ -95,12 +103,12 @@ class QuerySnippetsList extends React.Component {
     }
   }
 
-  saveQuerySnippet = querySnippet => {
+  saveQuerySnippet = (querySnippet: any) => {
     const saveSnippet = querySnippet.id ? QuerySnippet.save : QuerySnippet.create;
     return saveSnippet(querySnippet);
   };
 
-  deleteQuerySnippet = (event, querySnippet) => {
+  deleteQuerySnippet = (event: any, querySnippet: any) => {
     Modal.confirm({
       title: "Delete Query Snippet",
       content: "Are you sure you want to delete this query snippet?",
@@ -110,10 +118,13 @@ class QuerySnippetsList extends React.Component {
       onOk: () => {
         QuerySnippet.delete(querySnippet)
           .then(() => {
+            // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
             notification.success("Query snippet deleted successfully.");
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'update' does not exist on type 'Controll... Remove this comment to see the full error message
             this.props.controller.update();
           })
           .catch(() => {
+            // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
             notification.error("Failed deleting query snippet.");
           });
       },
@@ -128,11 +139,11 @@ class QuerySnippetsList extends React.Component {
       querySnippet,
       readOnly: !canSave,
     })
-      .onClose(querySnippet =>
-        this.saveQuerySnippet(querySnippet).then(() => {
-          this.props.controller.update();
-          goToSnippetsList();
-        })
+      .onClose((querySnippet: any) => this.saveQuerySnippet(querySnippet).then(() => {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'update' does not exist on type 'Controll... Remove this comment to see the full error message
+      this.props.controller.update();
+      goToSnippetsList();
+    })
       )
       .onDismiss(goToSnippetsList);
   };
@@ -168,6 +179,7 @@ class QuerySnippetsList extends React.Component {
         )}
         {controller.isLoaded && !controller.isEmpty && (
           <div className="table-responsive">
+            {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
             <ItemsTable
               items={controller.pageItems}
               columns={this.listColumns}
@@ -180,9 +192,11 @@ class QuerySnippetsList extends React.Component {
               showPageSizeSelect
               totalCount={controller.totalItemsCount}
               pageSize={controller.itemsPerPage}
-              onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '(itemsPerPage: any) => any' is not assignabl... Remove this comment to see the full error message
+              onPageSizeChange={(itemsPerPage: any) => controller.updatePagination({ itemsPerPage })}
               page={controller.page}
-              onChange={page => controller.updatePagination({ page })}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '(page: any) => any' is not assignable to typ... Remove this comment to see the full error message
+              onChange={(page: any) => controller.updatePagination({ page })}
             />
           </div>
         )}

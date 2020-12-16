@@ -6,7 +6,7 @@ import QueryBasedDropdownParameter from "./QueryBasedDropdownParameter";
 import DateParameter from "./DateParameter";
 import DateRangeParameter from "./DateRangeParameter";
 
-function createParameter(param, parentQueryId) {
+function createParameter(param: any, parentQueryId: any) {
   switch (param.type) {
     case "number":
       return new NumberParameter(param, parentQueryId);
@@ -27,7 +27,7 @@ function createParameter(param, parentQueryId) {
   }
 }
 
-function cloneParameter(param) {
+function cloneParameter(param: any) {
   return createParameter(param, param.parentQueryId);
 }
 

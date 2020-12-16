@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import EditVisualizationDialog from "@/components/visualizations/EditVisualizationDialog";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
-export default function useEditVisualizationDialog(query, queryResult, onChange) {
+export default function useEditVisualizationDialog(query: any, queryResult: any, onChange: any) {
   const handleChange = useImmutableCallback(onChange);
 
   return useCallback(
@@ -13,7 +13,7 @@ export default function useEditVisualizationDialog(query, queryResult, onChange)
         query,
         visualization,
         queryResult,
-      }).onClose(updatedVisualization => {
+      }).onClose((updatedVisualization: any) => {
         const filteredVisualizations = filter(query.visualizations, v => v.id !== updatedVisualization.id);
         handleChange(
           extend(query.clone(), { visualizations: [...filteredVisualizations, updatedVisualization] }),

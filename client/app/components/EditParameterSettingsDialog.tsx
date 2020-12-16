@@ -1,6 +1,5 @@
 import { includes, words, capitalize, clone, isNull } from "lodash";
 import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
 import Checkbox from "antd/lib/checkbox";
 import Modal from "antd/lib/modal";
 import Form from "antd/lib/form";
@@ -8,6 +7,7 @@ import Button from "antd/lib/button";
 import Select from "antd/lib/select";
 import Input from "antd/lib/input";
 import Divider from "antd/lib/divider";
+// @ts-expect-error ts-migrate(6133) FIXME: 'DialogPropType' is declared but its value is neve... Remove this comment to see the full error message
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import QuerySelector from "@/components/QuerySelector";
 import { Query } from "@/services/query";
@@ -15,20 +15,28 @@ import { Query } from "@/services/query";
 const { Option } = Select;
 const formItemProps = { labelCol: { span: 6 }, wrapperCol: { span: 16 } };
 
-function getDefaultTitle(text) {
+function getDefaultTitle(text: any) {
   return capitalize(words(text).join(" ")); // humanize
 }
 
-function isTypeDateRange(type) {
+function isTypeDateRange(type: any) {
   return /-range/.test(type);
 }
 
-function joinExampleList(multiValuesOptions) {
+function joinExampleList(multiValuesOptions: any) {
   const { prefix, suffix } = multiValuesOptions;
   return ["value1", "value2", "value3"].map(value => `${prefix}${value}${suffix}`).join(",");
 }
 
-function NameInput({ name, type, onChange, existingNames, setValidation }) {
+type NameInputProps = {
+    name: string;
+    onChange: (...args: any[]) => any;
+    existingNames: string[];
+    setValidation: (...args: any[]) => any;
+    type: string;
+};
+
+function NameInput({ name, type, onChange, existingNames, setValidation }: NameInputProps) {
   let helpText = "";
   let validateStatus = "";
 
@@ -41,6 +49,7 @@ function NameInput({ name, type, onChange, existingNames, setValidation }) {
     validateStatus = "error";
   } else {
     if (isTypeDateRange(type)) {
+      // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'string'.
       helpText = (
         <React.Fragment>
           Appears in query as{" "}
@@ -52,21 +61,23 @@ function NameInput({ name, type, onChange, existingNames, setValidation }) {
   }
 
   return (
+    // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type '"" | "err... Remove this comment to see the full error message
     <Form.Item required label="Keyword" help={helpText} validateStatus={validateStatus} {...formItemProps}>
       <Input onChange={e => onChange(e.target.value)} autoFocus />
     </Form.Item>
   );
 }
 
-NameInput.propTypes = {
-  name: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-  existingNames: PropTypes.arrayOf(PropTypes.string).isRequired,
-  setValidation: PropTypes.func.isRequired,
-  type: PropTypes.string.isRequired,
+type OwnEditParameterSettingsDialogProps = {
+    parameter: any;
+    // @ts-expect-error ts-migrate(2749) FIXME: 'DialogPropType' refers to a value, but is being u... Remove this comment to see the full error message
+    dialog: DialogPropType;
+    existingParams?: string[];
 };
 
-function EditParameterSettingsDialog(props) {
+type EditParameterSettingsDialogProps = OwnEditParameterSettingsDialogProps & typeof EditParameterSettingsDialog.defaultProps;
+
+function EditParameterSettingsDialog(props: EditParameterSettingsDialogProps) {
   const [param, setParam] = useState(clone(props.parameter));
   const [isNameValid, setIsNameValid] = useState(true);
   const [initialQuery, setInitialQuery] = useState();
@@ -77,6 +88,7 @@ function EditParameterSettingsDialog(props) {
   useEffect(() => {
     const queryId = props.parameter.queryId;
     if (queryId) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'get' does not exist on type 'typeof Quer... Remove this comment to see the full error message
       Query.get({ id: queryId }).then(setInitialQuery);
     }
   }, [props.parameter.queryId]);
@@ -157,6 +169,7 @@ function EditParameterSettingsDialog(props) {
             </Option>
             <Option value="enum">Dropdown List</Option>
             <Option value="query">Query Based Dropdown List</Option>
+            {/* @ts-expect-error ts-migrate(2741) FIXME: Property 'value' is missing in type '{ children: E... Remove this comment to see the full error message */}
             <Option disabled key="dv1">
               <Divider className="select-option-divider" />
             </Option>
@@ -167,6 +180,7 @@ function EditParameterSettingsDialog(props) {
               Date and Time
             </Option>
             <Option value="datetime-with-seconds">Date and Time (with seconds)</Option>
+            {/* @ts-expect-error ts-migrate(2741) FIXME: Property 'value' is missing in type '{ children: E... Remove this comment to see the full error message */}
             <Option disabled key="dv2">
               <Divider className="select-option-divider" />
             </Option>
@@ -189,8 +203,11 @@ function EditParameterSettingsDialog(props) {
         {param.type === "query" && (
           <Form.Item label="Query" help="Select query to load dropdown values from" {...formItemProps}>
             <QuerySelector
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'undefined' is not assignable to type 'never'... Remove this comment to see the full error message
               selectedQuery={initialQuery}
-              onChange={q => setParam({ ...param, queryId: q && q.id })}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '(q: any) => void' is not assignable to type ... Remove this comment to see the full error message
+              onChange={(q: any) => setParam({ ...param, queryId: q && q.id })}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
               type="select"
             />
           </Form.Item>
@@ -250,12 +267,6 @@ function EditParameterSettingsDialog(props) {
     </Modal>
   );
 }
-
-EditParameterSettingsDialog.propTypes = {
-  parameter: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  dialog: DialogPropType.isRequired,
-  existingParams: PropTypes.arrayOf(PropTypes.string),
-};
 
 EditParameterSettingsDialog.defaultProps = {
   existingParams: [],

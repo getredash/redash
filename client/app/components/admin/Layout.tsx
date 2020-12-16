@@ -1,12 +1,18 @@
 import React from "react";
-import PropTypes from "prop-types";
 import Menu from "antd/lib/menu";
 import PageHeader from "@/components/PageHeader";
 import Link from "@/components/Link";
 
 import "./layout.less";
 
-export default function Layout({ activeTab, children }) {
+type OwnProps = {
+    activeTab?: string;
+    children?: React.ReactNode;
+};
+
+type Props = OwnProps & typeof Layout.defaultProps;
+
+export default function Layout({ activeTab, children }: Props) {
   return (
     <div className="admin-page-layout">
       <div className="container">
@@ -29,11 +35,6 @@ export default function Layout({ activeTab, children }) {
     </div>
   );
 }
-
-Layout.propTypes = {
-  activeTab: PropTypes.string,
-  children: PropTypes.node,
-};
 
 Layout.defaultProps = {
   activeTab: "system_status",

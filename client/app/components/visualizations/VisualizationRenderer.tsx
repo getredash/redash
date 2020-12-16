@@ -1,13 +1,13 @@
 import { isEqual, map, find, fromPairs } from "lodash";
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import PropTypes from "prop-types";
 import useQueryResultData from "@/lib/useQueryResultData";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
+// @ts-expect-error ts-migrate(6133) FIXME: 'FiltersType' is declared but its value is never r... Remove this comment to see the full error message
 import Filters, { FiltersType, filterData } from "@/components/Filters";
 import { VisualizationType } from "@redash/viz/lib";
 import { Renderer } from "@/components/visualizations/visualizationComponents";
 
-function combineFilters(localFilters, globalFilters) {
+function combineFilters(localFilters: any, globalFilters: any) {
   // tiny optimization - to avoid unnecessary updates
   if (localFilters.length === 0 || globalFilters.length === 0) {
     return localFilters;
@@ -25,7 +25,7 @@ function combineFilters(localFilters, globalFilters) {
   });
 }
 
-function areFiltersEqual(a, b) {
+function areFiltersEqual(a: any, b: any) {
   if (a.length !== b.length) {
     return false;
   }
@@ -36,13 +36,25 @@ function areFiltersEqual(a, b) {
   return isEqual(a, b);
 }
 
-export default function VisualizationRenderer(props) {
+type OwnProps = {
+    visualization: VisualizationType;
+    queryResult: any;
+    showFilters?: boolean;
+    // @ts-expect-error ts-migrate(2749) FIXME: 'FiltersType' refers to a value, but is being used... Remove this comment to see the full error message
+    filters?: FiltersType;
+    onFiltersChange?: (...args: any[]) => any;
+    context: "query" | "widget";
+};
+
+type Props = OwnProps & typeof VisualizationRenderer.defaultProps;
+
+export default function VisualizationRenderer(props: Props) {
   const data = useQueryResultData(props.queryResult);
   const [filters, setFilters] = useState(() => combineFilters(data.filters, props.filters)); // lazy initialization
   const filtersRef = useRef();
   filtersRef.current = filters;
 
-  const handleFiltersChange = useImmutableCallback(newFilters => {
+  const handleFiltersChange = useImmutableCallback((newFilters: any) => {
     if (!areFiltersEqual(newFilters, filters)) {
       setFilters(newFilters);
       props.onFiltersChange(newFilters);
@@ -71,7 +83,7 @@ export default function VisualizationRenderer(props) {
 
   const { showFilters, visualization } = props;
 
-  let options = { ...visualization.options };
+  const options = { ...visualization.options };
 
   // define pagination size based on context for Table visualization
   if (visualization.type === "TABLE") {
@@ -89,15 +101,6 @@ export default function VisualizationRenderer(props) {
     />
   );
 }
-
-VisualizationRenderer.propTypes = {
-  visualization: VisualizationType.isRequired,
-  queryResult: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  showFilters: PropTypes.bool,
-  filters: FiltersType,
-  onFiltersChange: PropTypes.func,
-  context: PropTypes.oneOf(["query", "widget"]).isRequired,
-};
 
 VisualizationRenderer.defaultProps = {
   showFilters: true,

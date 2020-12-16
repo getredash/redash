@@ -1,9 +1,9 @@
 import { extend } from "lodash";
 import React, { useMemo, useState, useCallback } from "react";
-import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import Button from "antd/lib/button";
+// @ts-expect-error ts-migrate(6133) FIXME: 'DialogPropType' is declared but its value is neve... Remove this comment to see the full error message
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import CodeBlock from "@/components/CodeBlock";
 import { axios } from "@/services/axios";
@@ -13,7 +13,17 @@ import notification from "@/services/notification";
 import "./index.less";
 import { policy } from "@/services/policy";
 
-function ApiKeyDialog({ dialog, ...props }) {
+type Props = {
+    // @ts-expect-error ts-migrate(2749) FIXME: 'DialogPropType' refers to a value, but is being u... Remove this comment to see the full error message
+    dialog: DialogPropType;
+    query: {
+        id: number;
+        api_key?: string;
+        can_edit?: boolean;
+    };
+};
+
+function ApiKeyDialog({ dialog, ...props }: Props) {
   const [query, setQuery] = useState(props.query);
   const [updatingApiKey, setUpdatingApiKey] = useState(false);
 
@@ -23,17 +33,21 @@ function ApiKeyDialog({ dialog, ...props }) {
       .post(`api/queries/${query.id}/regenerate_api_key`)
       .then(data => {
         setUpdatingApiKey(false);
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'clone' does not exist on type '{ id: num... Remove this comment to see the full error message
         setQuery(extend(query.clone(), { api_key: data.api_key }));
       })
       .catch(() => {
         setUpdatingApiKey(false);
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.error("Failed to update API key");
       });
   }, [query]);
 
   const { csvUrl, jsonUrl } = useMemo(
     () => ({
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'basePath' does not exist on type '{}'.
       csvUrl: `${clientConfig.basePath}api/queries/${query.id}/results.csv?api_key=${query.api_key}`,
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'basePath' does not exist on type '{}'.
       jsonUrl: `${clientConfig.basePath}api/queries/${query.id}/results.json?api_key=${query.api_key}`,
     }),
     [query.id, query.api_key]
@@ -57,24 +71,17 @@ function ApiKeyDialog({ dialog, ...props }) {
         <h5>Example API Calls:</h5>
         <div className="m-b-10">
           <label>Results in CSV format:</label>
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'null | un... Remove this comment to see the full error message */}
           <CodeBlock copyable>{csvUrl}</CodeBlock>
         </div>
         <div>
           <label>Results in JSON format:</label>
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'null | un... Remove this comment to see the full error message */}
           <CodeBlock copyable>{jsonUrl}</CodeBlock>
         </div>
       </div>
     </Modal>
   );
 }
-
-ApiKeyDialog.propTypes = {
-  dialog: DialogPropType.isRequired,
-  query: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    api_key: PropTypes.string,
-    can_edit: PropTypes.bool,
-  }).isRequired,
-};
 
 export default wrapDialog(ApiKeyDialog);

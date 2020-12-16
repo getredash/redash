@@ -1,24 +1,30 @@
 import { replace } from "lodash";
 import React from "react";
 import { axios } from "@/services/axios";
-import PropTypes from "prop-types";
 import Switch from "antd/lib/switch";
 import Modal from "antd/lib/modal";
 import Form from "antd/lib/form";
 import Alert from "antd/lib/alert";
 import notification from "@/services/notification";
+// @ts-expect-error ts-migrate(6133) FIXME: 'DialogPropType' is declared but its value is neve... Remove this comment to see the full error message
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import InputWithCopy from "@/components/InputWithCopy";
 import HelpTrigger from "@/components/HelpTrigger";
 
 const API_SHARE_URL = "api/dashboards/{id}/share";
 
-class ShareDashboardDialog extends React.Component {
-  static propTypes = {
-    dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    hasOnlySafeQueries: PropTypes.bool.isRequired,
-    dialog: DialogPropType.isRequired,
-  };
+type Props = {
+    dashboard: any;
+    hasOnlySafeQueries: boolean;
+    // @ts-expect-error ts-migrate(2749) FIXME: 'DialogPropType' refers to a value, but is being u... Remove this comment to see the full error message
+    dialog: DialogPropType;
+};
+
+type State = any;
+
+class ShareDashboardDialog extends React.Component<Props, State> {
+  apiUrl: any;
+  enabled: any;
 
   formItemProps = {
     labelCol: { span: 8 },
@@ -26,7 +32,7 @@ class ShareDashboardDialog extends React.Component {
     style: { marginBottom: 7 },
   };
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     const { dashboard } = this.props;
 
@@ -43,6 +49,7 @@ class ShareDashboardDialog extends React.Component {
       <React.Fragment>
         Share Dashboard
         <div className="modal-header-desc">
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'. */}
           Allow public access to this dashboard with a secret address. <HelpTrigger type="SHARE_DASHBOARD" />
         </div>
       </React.Fragment>
@@ -57,9 +64,11 @@ class ShareDashboardDialog extends React.Component {
       .post(this.apiUrl)
       .then(data => {
         dashboard.publicAccessEnabled = true;
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'public_url' does not exist on type 'Axio... Remove this comment to see the full error message
         dashboard.public_url = data.public_url;
       })
       .catch(() => {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.error("Failed to turn on sharing for this dashboard");
       })
       .finally(() => {
@@ -78,6 +87,7 @@ class ShareDashboardDialog extends React.Component {
         delete dashboard.public_url;
       })
       .catch(() => {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.error("Failed to turn off sharing for this dashboard");
       })
       .finally(() => {
@@ -85,7 +95,7 @@ class ShareDashboardDialog extends React.Component {
       });
   };
 
-  onChange = checked => {
+  onChange = (checked: any) => {
     if (checked) {
       this.enableAccess();
     } else {
@@ -97,6 +107,7 @@ class ShareDashboardDialog extends React.Component {
     const { dialog, dashboard } = this.props;
 
     return (
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'headerContent' does not exist on type 'F... Remove this comment to see the full error message
       <Modal {...dialog.props} title={this.constructor.headerContent} footer={null}>
         <Form layout="horizontal">
           {!this.props.hasOnlySafeQueries && (
@@ -118,6 +129,7 @@ class ShareDashboardDialog extends React.Component {
           </Form.Item>
           {dashboard.public_url && (
             <Form.Item label="Secret address" {...this.formItemProps}>
+              {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ value: any; "data-test": string; }' is not... Remove this comment to see the full error message */}
               <InputWithCopy value={dashboard.public_url} data-test="SecretAddress" />
             </Form.Item>
           )}

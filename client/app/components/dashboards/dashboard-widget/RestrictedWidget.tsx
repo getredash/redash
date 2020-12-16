@@ -1,7 +1,7 @@
 import React from "react";
 import Widget from "./Widget";
 
-function RestrictedWidget(props) {
+function RestrictedWidget(props: any) {
   return (
     <Widget {...props} className="d-flex justify-content-center align-items-center widget-restricted">
       <div className="t-body scrollbox">

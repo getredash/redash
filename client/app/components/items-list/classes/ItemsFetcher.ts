@@ -1,35 +1,50 @@
 import { identity, isFunction, isNil, isString } from "lodash";
 
 class ItemsFetcher {
-  _getRequest(state, context) {
+  _originalDoRequest: any;
+  _originalGetRequest: any;
+  _originalProcessResults: any;
+  _getRequest(state: any, context: any) {
     return this._originalGetRequest({}, context);
   }
 
-  _processResults({ results, count }, state, context) {
+  _processResults({
+    results,
+    count
+  }: any, state: any, context: any) {
     return {
       results: this._originalProcessResults(results, context),
       count,
     };
   }
 
-  constructor({ getRequest, doRequest, processResults }) {
+  constructor({
+    getRequest,
+    doRequest,
+    processResults
+  }: any) {
     this._originalGetRequest = isFunction(getRequest) ? getRequest : identity;
     this._originalDoRequest = doRequest;
     this._originalProcessResults = isFunction(processResults) ? processResults : identity;
   }
 
-  fetch(changes, state, context) {
+  fetch(changes: any, state: any, context: any) {
     const request = this._getRequest(state, context);
-    return this._originalDoRequest(request, context).then(data => this._processResults(data, state, context));
+    return this._originalDoRequest(request, context).then((data: any) => this._processResults(data, state, context));
   }
 }
 
 // For endpoints that return just an array with items; sorting and pagination
 // is performed on client
 export class PlainListFetcher extends ItemsFetcher {
+  _originalGetRequest: any;
+  _originalProcessResults: any;
   _allItems = [];
 
-  _getRequest({ searchTerm, selectedTags }, context) {
+  _getRequest({
+    searchTerm,
+    selectedTags
+  }: any, context: any) {
     return this._originalGetRequest(
       {
         q: isString(searchTerm) && searchTerm !== "" ? searchTerm : undefined,
@@ -39,7 +54,10 @@ export class PlainListFetcher extends ItemsFetcher {
     );
   }
 
-  _processResults(data, { paginator, sorter }, context) {
+  _processResults(data: any, {
+    paginator,
+    sorter
+  }: any, context: any) {
     this._allItems = this._originalProcessResults(data, context);
     this._allItems = sorter.sort(this._allItems);
     return {
@@ -49,7 +67,7 @@ export class PlainListFetcher extends ItemsFetcher {
     };
   }
 
-  fetch(changes, state, context) {
+  fetch(changes: any, state: any, context: any) {
     // For plain lists we need to reload items from server only if tags or search changes.
     if (isNil(changes) || changes.tags || changes.sorting) {
       return super.fetch(changes, state, context);
@@ -70,7 +88,13 @@ export class PlainListFetcher extends ItemsFetcher {
 // For endpoints that support server-side pagination (return object with
 // items for current page and total items count)
 export class PaginatedListFetcher extends ItemsFetcher {
-  _getRequest({ paginator, sorter, searchTerm, selectedTags }, context) {
+  _originalGetRequest: any;
+  _getRequest({
+    paginator,
+    sorter,
+    searchTerm,
+    selectedTags
+  }: any, context: any) {
     return this._originalGetRequest(
       {
         page: paginator.page,

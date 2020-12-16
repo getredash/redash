@@ -12,26 +12,52 @@ import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import LoadingState from "../items-list/components/LoadingState";
 
-const SchemaItemColumnType = PropTypes.shape({
-  name: PropTypes.string.isRequired,
-  type: PropTypes.string,
+type SchemaItemColumnType = {
+    name: string;
+    type?: string;
+};
+
+// @ts-expect-error ts-migrate(2322) FIXME: Type 'Requireable<InferProps<{ name: Validator<str... Remove this comment to see the full error message
+const SchemaItemColumnType: PropTypes.Requireable<SchemaItemColumnType> = PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    type: PropTypes.string,
 });
 
-export const SchemaItemType = PropTypes.shape({
-  name: PropTypes.string.isRequired,
-  size: PropTypes.number,
-  loading: PropTypes.bool,
-  columns: PropTypes.arrayOf(SchemaItemColumnType).isRequired,
+type SchemaItemType = {
+    name: string;
+    size?: number;
+    loading?: boolean;
+    columns: SchemaItemColumnType[];
+};
+
+// @ts-expect-error ts-migrate(2322) FIXME: Type 'Requireable<InferProps<{ name: Validator<str... Remove this comment to see the full error message
+const SchemaItemType: PropTypes.Requireable<SchemaItemType> = PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    size: PropTypes.number,
+    loading: PropTypes.bool,
+    columns: PropTypes.arrayOf(SchemaItemColumnType).isRequired,
 });
+export { SchemaItemType };
 
 const schemaTableHeight = 22;
 const schemaColumnHeight = 18;
 
-function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
+type OwnSchemaItemProps = {
+    item?: SchemaItemType;
+    expanded?: boolean;
+    onToggle?: (...args: any[]) => any;
+    onSelect?: (...args: any[]) => any;
+};
+
+type SchemaItemProps = OwnSchemaItemProps & typeof SchemaItem.defaultProps;
+
+// @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
+function SchemaItem({ item, expanded, onToggle, onSelect, ...props }: SchemaItemProps) {
   const handleSelect = useCallback(
     (event, ...args) => {
       event.preventDefault();
       event.stopPropagation();
+      // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
       onSelect(...args);
     },
     [onSelect]
@@ -41,6 +67,7 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
     return null;
   }
 
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'displayName' does not exist on type 'nev... Remove this comment to see the full error message
   const tableDisplayName = item.displayName || item.name;
 
   return (
@@ -48,7 +75,9 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
       <div className="table-name" onClick={onToggle}>
         <i className="fa fa-table m-r-5" />
         <strong>
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'. */}
           <span title={item.name}>{tableDisplayName}</span>
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'size' does not exist on type 'never'. */}
           {!isNil(item.size) && <span> ({item.size})</span>}
         </strong>
 
@@ -56,15 +85,18 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
           <i
             className="fa fa-angle-double-right copy-to-editor"
             aria-hidden="true"
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'.
             onClick={e => handleSelect(e, item.name)}
           />
         </Tooltip>
       </div>
       {expanded && (
         <div>
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'loading' does not exist on type 'never'. */}
           {item.loading ? (
             <div className="table-open">Loading...</div>
           ) : (
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'columns' does not exist on type 'never'.
             map(item.columns, column => {
               const columnName = get(column, "name");
               const columnType = get(column, "type");
@@ -88,13 +120,6 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
   );
 }
 
-SchemaItem.propTypes = {
-  item: SchemaItemType,
-  expanded: PropTypes.bool,
-  onToggle: PropTypes.func,
-  onSelect: PropTypes.func,
-};
-
 SchemaItem.defaultProps = {
   item: null,
   expanded: false,
@@ -110,11 +135,18 @@ function SchemaLoadingState() {
   );
 }
 
-export function SchemaList({ loading, schema, expandedFlags, onTableExpand, onItemSelect }) {
+export function SchemaList({
+  loading,
+  schema,
+  expandedFlags,
+  onTableExpand,
+  onItemSelect
+}: any) {
   const [listRef, setListRef] = useState(null);
 
   useEffect(() => {
     if (listRef) {
+      // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
       listRef.recomputeRowHeights();
     }
   }, [listRef, schema, expandedFlags]);
@@ -123,28 +155,45 @@ export function SchemaList({ loading, schema, expandedFlags, onTableExpand, onIt
     <div className="schema-browser">
       {loading && <SchemaLoadingState />}
       {!loading && (
+        // @ts-expect-error ts-migrate(2604) FIXME: JSX element type 'AutoSizer' does not have any con... Remove this comment to see the full error message
         <AutoSizer>
-          {({ width, height }) => (
+          {({
+            width,
+            height
+          }: any) => (
+            // @ts-expect-error ts-migrate(2604) FIXME: JSX element type 'List' does not have any construc... Remove this comment to see the full error message
             <List
               ref={setListRef}
               width={width}
               height={height}
               rowCount={schema.length}
-              rowHeight={({ index }) => {
+              rowHeight={({
+                index
+              }: any) => {
                 const item = schema[index];
                 const columnsLength = !item.loading ? item.columns.length : 1;
-                let columnCount = expandedFlags[item.name] ? columnsLength : 0;
+                const columnCount = expandedFlags[item.name] ? columnsLength : 0;
                 return schemaTableHeight + schemaColumnHeight * columnCount;
               }}
-              rowRenderer={({ key, index, style }) => {
+              rowRenderer={({
+                key,
+                index,
+                style
+              }: any) => {
                 const item = schema[index];
                 return (
                   <SchemaItem
+                    // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                     key={key}
+                    // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                     style={style}
+                    // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                     item={item}
+                    // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                     expanded={expandedFlags[item.name]}
+                    // @ts-expect-error ts-migrate(2322) FIXME: Type '() => any' is not assignable to type 'never'... Remove this comment to see the full error message
                     onToggle={() => onTableExpand(item.name)}
+                    // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                     onSelect={onItemSelect}
                   />
                 );
@@ -157,7 +206,7 @@ export function SchemaList({ loading, schema, expandedFlags, onTableExpand, onIt
   );
 }
 
-export function applyFilterOnSchema(schema, filterString) {
+export function applyFilterOnSchema(schema: any, filterString: any) {
   const filters = filter(filterString.toLowerCase().split(/\s+/), s => s.length > 0);
 
   // Empty string: return original schema
@@ -193,14 +242,16 @@ export function applyFilterOnSchema(schema, filterString) {
   );
 }
 
-export default function SchemaBrowser({
-  dataSource,
-  onSchemaUpdate,
-  onItemSelect,
-  options,
-  onOptionsUpdate,
-  ...props
-}) {
+type OwnSchemaBrowserProps = {
+    dataSource?: any;
+    onSchemaUpdate?: (...args: any[]) => any;
+    onItemSelect?: (...args: any[]) => any;
+};
+
+type SchemaBrowserProps = OwnSchemaBrowserProps & typeof SchemaBrowser.defaultProps;
+
+// @ts-expect-error ts-migrate(2339) FIXME: Property 'options' does not exist on type 'SchemaB... Remove this comment to see the full error message
+export default function SchemaBrowser({ dataSource, onSchemaUpdate, onItemSelect, options, onOptionsUpdate, ...props }: SchemaBrowserProps) {
   const [schema, isLoading, refreshSchema] = useDataSourceSchema(dataSource);
   const [filterString, setFilterString] = useState("");
   const filteredSchema = useMemo(() => applyFilterOnSchema(schema, filterString), [schema, filterString]);
@@ -214,13 +265,15 @@ export default function SchemaBrowser({
     handleSchemaUpdate(schema);
   }, [schema, handleSchemaUpdate]);
 
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'length' does not exist on type 'boolean ... Remove this comment to see the full error message
   if (schema.length === 0 && !isLoading) {
     return null;
   }
 
-  function toggleTable(tableName) {
+  function toggleTable(tableName: any) {
     setExpandedFlags({
       ...expandedFlags,
+      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       [tableName]: !expandedFlags[tableName],
     });
   }
@@ -231,17 +284,20 @@ export default function SchemaBrowser({
         <Input
           className="m-r-5"
           placeholder="Search schema..."
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'length' does not exist on type 'boolean ... Remove this comment to see the full error message
           disabled={schema.length === 0}
           onChange={event => handleFilterChange(event.target.value)}
         />
 
         <Tooltip title="Refresh Schema">
+          {/* @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable. */}
           <Button onClick={() => refreshSchema(true)}>
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": isLoading })} />
           </Button>
         </Tooltip>
       </div>
       <SchemaList
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'length' does not exist on type 'boolean ... Remove this comment to see the full error message
         loading={isLoading && schema.length === 0}
         schema={filteredSchema}
         expandedFlags={expandedFlags}
@@ -251,12 +307,6 @@ export default function SchemaBrowser({
     </div>
   );
 }
-
-SchemaBrowser.propTypes = {
-  dataSource: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  onSchemaUpdate: PropTypes.func,
-  onItemSelect: PropTypes.func,
-};
 
 SchemaBrowser.defaultProps = {
   dataSource: null,

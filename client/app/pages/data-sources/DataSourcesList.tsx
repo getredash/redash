@@ -1,6 +1,5 @@
 import { isEmpty, reject } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 
 import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
@@ -17,11 +16,14 @@ import { policy } from "@/services/policy";
 import recordEvent from "@/services/recordEvent";
 import routes from "@/services/routes";
 
-export function DataSourcesListComponent({ dataSources, onClickCreate }) {
-  const items = dataSources.map(dataSource => ({
+export function DataSourcesListComponent({
+  dataSources,
+  onClickCreate
+}: any) {
+  const items = dataSources.map((dataSource: any) => ({
     title: dataSource.name,
     imgSrc: `${IMG_ROOT}/${dataSource.type}.png`,
-    href: `data_sources/${dataSource.id}`,
+    href: `data_sources/${dataSource.id}`
   }));
 
   return isEmpty(dataSources) ? (
@@ -43,11 +45,16 @@ export function DataSourcesListComponent({ dataSources, onClickCreate }) {
 
 registerComponent("DataSourcesListComponent", DataSourcesListComponent);
 
-class DataSourcesList extends React.Component {
-  static propTypes = {
-    isNewDataSourcePage: PropTypes.bool,
-    onError: PropTypes.func,
-  };
+type OwnDataSourcesListProps = {
+    isNewDataSourcePage?: boolean;
+    onError?: (...args: any[]) => any;
+};
+
+type DataSourcesListState = any;
+
+type DataSourcesListProps = OwnDataSourcesListProps & typeof DataSourcesList.defaultProps;
+
+class DataSourcesList extends React.Component<DataSourcesListProps, DataSourcesListState> {
 
   static defaultProps = {
     isNewDataSourcePage: false,
@@ -88,11 +95,12 @@ class DataSourcesList extends React.Component {
 
   componentWillUnmount() {
     if (this.newDataSourceDialog) {
+      // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
       this.newDataSourceDialog.dismiss();
     }
   }
 
-  createDataSource = (selectedType, values) => {
+  createDataSource = (selectedType: any, values: any) => {
     const target = { options: {}, type: selectedType.type };
     helper.updateTargetWithValues(target, values);
 
@@ -104,7 +112,9 @@ class DataSourcesList extends React.Component {
   };
 
   showCreateSourceDialog = () => {
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 4 arguments, but got 3.
     recordEvent("view", "page", "data_sources/new");
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '{ close: (result: any) => any; dismiss: (res... Remove this comment to see the full error message
     this.newDataSourceDialog = CreateSourceDialog.showModal({
       types: reject(this.state.dataSourceTypes, "deprecated"),
       sourceType: "Data Source",
@@ -113,10 +123,13 @@ class DataSourcesList extends React.Component {
       onCreate: this.createDataSource,
     });
 
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
     this.newDataSourceDialog
       .onClose((result = {}) => {
         this.newDataSourceDialog = null;
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'success' does not exist on type '{}'.
         if (result.success) {
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'data' does not exist on type '{}'.
           navigateTo(`data_sources/${result.data.id}`);
         }
       })
@@ -137,6 +150,7 @@ class DataSourcesList extends React.Component {
     return (
       <div>
         <div className="m-b-15">
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: (string | Element)[]; type: stri... Remove this comment to see the full error message */}
           <Button {...newDataSourceProps}>
             <i className="fa fa-plus m-r-5" />
             New Data Source
@@ -148,6 +162,7 @@ class DataSourcesList extends React.Component {
         ) : (
           <DynamicComponent
             name="DataSourcesListComponent"
+            // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
             dataSources={this.state.dataSources}
             onClickCreate={this.showCreateSourceDialog}
           />

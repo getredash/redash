@@ -1,19 +1,21 @@
 import React from "react";
-import PropTypes from "prop-types";
 
-export default class FavoritesControl extends React.Component {
-  static propTypes = {
-    item: PropTypes.shape({
-      is_favorite: PropTypes.bool.isRequired,
-    }).isRequired,
-    onChange: PropTypes.func,
-  };
+type OwnProps = {
+    item: {
+        is_favorite: boolean;
+    };
+    onChange?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof FavoritesControl.defaultProps;
+
+export default class FavoritesControl extends React.Component<Props> {
 
   static defaultProps = {
     onChange: () => {},
   };
 
-  toggleItem(event, item, callback) {
+  toggleItem(event: any, item: any, callback: any) {
     const action = item.is_favorite ? item.unfavorite.bind(item) : item.favorite.bind(item);
     const savedIsFavorite = item.is_favorite;
 

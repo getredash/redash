@@ -3,7 +3,11 @@ import Button from "antd/lib/button";
 import Upload from "antd/lib/upload";
 import UploadOutlinedIcon from "@ant-design/icons/UploadOutlined";
 
-export default function FileField({ form, field, ...otherProps }) {
+export default function FileField({
+  form,
+  field,
+  ...otherProps
+}: any) {
   const { name, initialValue } = field;
   const { getFieldValue } = form;
   const disabled = getFieldValue(name) !== undefined && getFieldValue(name) !== initialValue;

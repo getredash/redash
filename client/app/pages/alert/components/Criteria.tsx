@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { head, includes, toString, isEmpty } from "lodash";
 
 import Input from "antd/lib/input";
@@ -22,7 +21,12 @@ const CONDITIONS = {
 
 const VALID_STRING_CONDITIONS = ["==", "!="];
 
-function DisabledInput({ children, minWidth }) {
+type DisabledInputProps = {
+    children: React.ReactNode;
+    minWidth: number;
+};
+
+function DisabledInput({ children, minWidth }: DisabledInputProps) {
   return (
     <div className="criteria-disabled-input" style={{ minWidth }}>
       {children}
@@ -30,12 +34,18 @@ function DisabledInput({ children, minWidth }) {
   );
 }
 
-DisabledInput.propTypes = {
-  children: PropTypes.node.isRequired,
-  minWidth: PropTypes.number.isRequired,
+type OwnCriteriaProps = {
+    columnNames: string[];
+    resultValues: any[];
+    alertOptions: AlertOptionsType;
+    onChange?: (...args: any[]) => any;
+    editMode?: boolean;
 };
 
-export default function Criteria({ columnNames, resultValues, alertOptions, onChange, editMode }) {
+type CriteriaProps = OwnCriteriaProps & typeof Criteria.defaultProps;
+
+export default function Criteria({ columnNames, resultValues, alertOptions, onChange, editMode }: CriteriaProps) {
+  // @ts-expect-error ts-migrate(2538) FIXME: Type 'undefined' cannot be used as an index type.
   const columnValue = !isEmpty(resultValues) ? head(resultValues)[alertOptions.column] : null;
   const invalidMessage = (() => {
     // bail if condition is valid for strings
@@ -43,6 +53,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
       return null;
     }
 
+    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string | number | undefined' is ... Remove this comment to see the full error message
     if (isNaN(alertOptions.value)) {
       return "Value column type doesn't match threshold type.";
     }
@@ -71,6 +82,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
             dropdownMatchSelectWidth={false}
             style={{ minWidth: 100 }}>
             {columnNames.map(name => (
+              // @ts-expect-error ts-migrate(2741) FIXME: Property 'value' is missing in type '{ children: s... Remove this comment to see the full error message
               <Select.Option key={name}>{name}</Select.Option>
             ))}
           </Select>
@@ -93,6 +105,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
             <Select.Option value=">=" label={CONDITIONS[">="]}>
               {CONDITIONS[">="]} greater than or equals
             </Select.Option>
+            {/* @ts-expect-error ts-migrate(2741) FIXME: Property 'value' is missing in type '{ children: E... Remove this comment to see the full error message */}
             <Select.Option disabled key="dv1">
               <Divider className="select-option-divider m-t-10 m-b-5" />
             </Select.Option>
@@ -102,6 +115,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
             <Select.Option value="<=" label={CONDITIONS["<="]}>
               {CONDITIONS["<="]} less than or equals
             </Select.Option>
+            {/* @ts-expect-error ts-migrate(2741) FIXME: Property 'value' is missing in type '{ children: E... Remove this comment to see the full error message */}
             <Select.Option disabled key="dv2">
               <Divider className="select-option-divider m-t-10 m-b-5" />
             </Select.Option>
@@ -113,6 +127,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
             </Select.Option>
           </Select>
         ) : (
+          // @ts-expect-error ts-migrate(2538) FIXME: Type 'undefined' cannot be used as an index type.
           <DisabledInput minWidth={50}>{CONDITIONS[alertOptions.op]}</DisabledInput>
         )}
       </div>
@@ -136,14 +151,6 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
     </div>
   );
 }
-
-Criteria.propTypes = {
-  columnNames: PropTypes.arrayOf(PropTypes.string).isRequired,
-  resultValues: PropTypes.arrayOf(PropTypes.object).isRequired,
-  alertOptions: AlertOptionsType.isRequired,
-  onChange: PropTypes.func,
-  editMode: PropTypes.bool,
-};
 
 Criteria.defaultProps = {
   onChange: () => {},

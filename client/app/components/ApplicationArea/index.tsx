@@ -9,13 +9,15 @@ export default function ApplicationArea() {
   const [unhandledError, setUnhandledError] = useState(null);
 
   useEffect(() => {
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
     if (currentRoute && currentRoute.title) {
+      // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
       document.title = currentRoute.title;
     }
   }, [currentRoute]);
 
   useEffect(() => {
-    function globalErrorHandler(event) {
+    function globalErrorHandler(event: any) {
       event.preventDefault();
       setUnhandledError(event.error);
     }
@@ -33,5 +35,6 @@ export default function ApplicationArea() {
     return <ErrorMessage error={unhandledError} />;
   }
 
+  // @ts-expect-error ts-migrate(2322) FIXME: Type 'RouteItem[]' is not assignable to type '{ pa... Remove this comment to see the full error message
   return <Router routes={routes.items} onRouteChange={setCurrentRoute} />;
 }

@@ -6,7 +6,7 @@ import HelpTrigger from "@/components/HelpTrigger";
 import DynamicComponent from "@/components/DynamicComponent";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
-export default function BeaconConsentSettings(props) {
+export default function BeaconConsentSettings(props: any) {
   const { values, onChange, loading } = props;
 
   return (
@@ -15,6 +15,7 @@ export default function BeaconConsentSettings(props) {
         label={
           <span>
             Anonymous Usage Data Sharing
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'. */}
             <HelpTrigger className="m-l-5 m-r-5" type="USAGE_DATA_SHARING" />
           </span>
         }>

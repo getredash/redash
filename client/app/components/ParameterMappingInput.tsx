@@ -2,7 +2,6 @@
 
 import { isString, extend, each, has, map, includes, findIndex, find, fromPairs, clone, isEmpty } from "lodash";
 import React, { Fragment } from "react";
-import PropTypes from "prop-types";
 import classNames from "classnames";
 import Select from "antd/lib/select";
 import Table from "antd/lib/table";
@@ -32,7 +31,7 @@ export const MappingType = {
   StaticValue: "static-value",
 };
 
-export function parameterMappingsToEditableMappings(mappings, parameters, existingParameterNames = []) {
+export function parameterMappingsToEditableMappings(mappings: any, parameters: any, existingParameterNames = []) {
   return map(mappings, mapping => {
     const result = extend({}, mapping);
     const alreadyExists = includes(existingParameterNames, mapping.mapTo);
@@ -57,7 +56,7 @@ export function parameterMappingsToEditableMappings(mappings, parameters, existi
   });
 }
 
-export function editableMappingsToParameterMappings(mappings) {
+export function editableMappingsToParameterMappings(mappings: any) {
   return fromPairs(
     map(
       // convert to map
@@ -92,8 +91,8 @@ export function editableMappingsToParameterMappings(mappings) {
   );
 }
 
-export function synchronizeWidgetTitles(sourceMappings, widgets) {
-  const affectedWidgets = [];
+export function synchronizeWidgetTitles(sourceMappings: any, widgets: any) {
+  const affectedWidgets: any = [];
 
   each(sourceMappings, sourceMapping => {
     if (sourceMapping.type === ParameterMappingType.DashboardLevel) {
@@ -119,13 +118,16 @@ export function synchronizeWidgetTitles(sourceMappings, widgets) {
   return affectedWidgets;
 }
 
-export class ParameterMappingInput extends React.Component {
-  static propTypes = {
-    mapping: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-    existingParamNames: PropTypes.arrayOf(PropTypes.string),
-    onChange: PropTypes.func,
-    inputError: PropTypes.string,
-  };
+type OwnParameterMappingInputProps = {
+    mapping?: any;
+    existingParamNames?: string[];
+    onChange?: (...args: any[]) => any;
+    inputError?: string;
+};
+
+type ParameterMappingInputProps = OwnParameterMappingInputProps & typeof ParameterMappingInput.defaultProps;
+
+export class ParameterMappingInput extends React.Component<ParameterMappingInputProps> {
 
   static defaultProps = {
     mapping: {},
@@ -140,7 +142,7 @@ export class ParameterMappingInput extends React.Component {
     className: "form-item",
   };
 
-  updateSourceType = type => {
+  updateSourceType = (type: any) => {
     let {
       mapping: { mapTo },
     } = this.props;
@@ -155,26 +157,34 @@ export class ParameterMappingInput extends React.Component {
     this.updateParamMapping({ type, mapTo });
   };
 
-  updateParamMapping = update => {
+  updateParamMapping = (update: any) => {
     const { onChange, mapping } = this.props;
     const newMapping = extend({}, mapping, update);
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'value' does not exist on type 'never'.
     if (newMapping.value !== mapping.value) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'param' does not exist on type 'never'.
       newMapping.param = cloneParameter(newMapping.param);
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'param' does not exist on type 'never'.
       newMapping.param.setValue(newMapping.value);
     }
     if (has(update, "type")) {
       if (update.type === MappingType.StaticValue) {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'value' does not exist on type 'never'.
         newMapping.value = newMapping.param.value;
       } else {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'value' does not exist on type 'never'.
         newMapping.value = null;
       }
     }
+    // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
     onChange(newMapping);
   };
 
   renderMappingTypeSelector() {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'existingParamNames' does not exist on ty... Remove this comment to see the full error message
     const noExisting = isEmpty(this.props.existingParamNames);
     return (
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'mapping' does not exist on type 'never'.
       <Radio.Group value={this.props.mapping.type} onChange={e => this.updateSourceType(e.target.value)}>
         <Radio className="radio" value={MappingType.DashboardAddNew} data-test="NewDashboardParameterOption">
           New dashboard parameter
@@ -208,6 +218,7 @@ export class ParameterMappingInput extends React.Component {
     const { mapping, existingParamNames } = this.props;
     const options = map(existingParamNames, paramName => ({ label: paramName, value: paramName }));
 
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'mapTo' does not exist on type 'never'.
     return <Select value={mapping.mapTo} onChange={mapTo => this.updateParamMapping({ mapTo })} options={options} />;
   }
 
@@ -215,18 +226,25 @@ export class ParameterMappingInput extends React.Component {
     const { mapping } = this.props;
     return (
       <ParameterValueInput
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
         type={mapping.param.type}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
         value={mapping.param.normalizedValue}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
         enumOptions={mapping.param.enumOptions}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
         queryId={mapping.param.queryId}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
         parameter={mapping.param}
-        onSelect={value => this.updateParamMapping({ value })}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type '(value: any) => void' is not assignable to t... Remove this comment to see the full error message
+        onSelect={(value: any) => this.updateParamMapping({ value })}
       />
     );
   }
 
   renderInputBlock() {
     const { mapping } = this.props;
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'type' does not exist on type 'never'.
     switch (mapping.type) {
       case MappingType.DashboardAddNew:
         return ["Key", "Enter a new parameter keyword", this.renderDashboardAddNew()];
@@ -262,14 +280,17 @@ export class ParameterMappingInput extends React.Component {
   }
 }
 
-class MappingEditor extends React.Component {
-  static propTypes = {
-    mapping: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    existingParamNames: PropTypes.arrayOf(PropTypes.string).isRequired,
-    onChange: PropTypes.func.isRequired,
-  };
+type MappingEditorProps = {
+    mapping: any;
+    existingParamNames: string[];
+    onChange: (...args: any[]) => any;
+};
 
-  constructor(props) {
+type MappingEditorState = any;
+
+class MappingEditor extends React.Component<MappingEditorProps, MappingEditorState> {
+
+  constructor(props: MappingEditorProps) {
     super(props);
     this.state = {
       visible: false,
@@ -278,12 +299,12 @@ class MappingEditor extends React.Component {
     };
   }
 
-  onVisibleChange = visible => {
+  onVisibleChange = (visible: any) => {
     if (visible) this.show();
     else this.hide();
   };
 
-  onChange = mapping => {
+  onChange = (mapping: any) => {
     let inputError = null;
 
     if (mapping.type === MappingType.DashboardAddNew) {
@@ -319,8 +340,10 @@ class MappingEditor extends React.Component {
     return (
       <div className="parameter-mapping-editor" data-test="EditParamMappingPopover">
         <header>
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'. */}
           Edit Source and Value <HelpTrigger type="VALUE_SOURCE_OPTIONS" />
         </header>
+        {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
         <ParameterMappingInput
           mapping={mapping}
           existingParamNames={this.props.existingParamNames}
@@ -354,12 +377,17 @@ class MappingEditor extends React.Component {
   }
 }
 
-class TitleEditor extends React.Component {
-  static propTypes = {
-    existingParams: PropTypes.arrayOf(PropTypes.object),
-    mapping: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    onChange: PropTypes.func.isRequired,
-  };
+type OwnTitleEditorProps = {
+    existingParams?: any[];
+    mapping: any;
+    onChange: (...args: any[]) => any;
+};
+
+type TitleEditorState = any;
+
+type TitleEditorProps = OwnTitleEditorProps & typeof TitleEditor.defaultProps;
+
+class TitleEditor extends React.Component<TitleEditorProps, TitleEditorState> {
 
   static defaultProps = {
     existingParams: [],
@@ -370,14 +398,14 @@ class TitleEditor extends React.Component {
     title: "", // will be set on editing
   };
 
-  onPopupVisibleChange = showPopup => {
+  onPopupVisibleChange = (showPopup: any) => {
     this.setState({
       showPopup,
       title: showPopup ? this.getMappingTitle() : "",
     });
   };
 
-  onEditingTitleChange = event => {
+  onEditingTitleChange = (event: any) => {
     this.setState({ title: event.target.value });
   };
 
@@ -472,12 +500,15 @@ class TitleEditor extends React.Component {
   }
 }
 
-export class ParameterMappingListInput extends React.Component {
-  static propTypes = {
-    mappings: PropTypes.arrayOf(PropTypes.object),
-    existingParams: PropTypes.arrayOf(PropTypes.object),
-    onChange: PropTypes.func,
-  };
+type OwnParameterMappingListInputProps = {
+    mappings?: any[];
+    existingParams?: any[];
+    onChange?: (...args: any[]) => any;
+};
+
+type ParameterMappingListInputProps = OwnParameterMappingListInputProps & typeof ParameterMappingListInput.defaultProps;
+
+export class ParameterMappingListInput extends React.Component<ParameterMappingListInputProps> {
 
   static defaultProps = {
     mappings: [],
@@ -485,7 +516,8 @@ export class ParameterMappingListInput extends React.Component {
     onChange: () => {},
   };
 
-  static getStringValue(value) {
+  // @ts-expect-error ts-migrate(7023) FIXME: 'getStringValue' implicitly has return type 'any' ... Remove this comment to see the full error message
+  static getStringValue(value: any) {
     // null
     if (!value) {
       return "";
@@ -505,7 +537,7 @@ export class ParameterMappingListInput extends React.Component {
     return value.toString();
   }
 
-  static getDefaultValue(mapping, existingParams) {
+  static getDefaultValue(mapping: any, existingParams: any) {
     const { type, mapTo, name } = mapping;
     let { param } = mapping;
 
@@ -532,7 +564,10 @@ export class ParameterMappingListInput extends React.Component {
     return this.getStringValue(value);
   }
 
-  static getSourceTypeLabel({ type, mapTo }) {
+  static getSourceTypeLabel({
+    type,
+    mapTo
+  }: any) {
     switch (type) {
       case MappingType.DashboardAddNew:
       case MappingType.DashboardMapToExisting:
@@ -550,13 +585,15 @@ export class ParameterMappingListInput extends React.Component {
     }
   }
 
-  updateParamMapping(oldMapping, newMapping) {
+  updateParamMapping(oldMapping: any, newMapping: any) {
     const mappings = [...this.props.mappings];
     const index = findIndex(mappings, oldMapping);
     if (index >= 0) {
       // This should be the only possible case, but need to handle `else` too
+      // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
       mappings[index] = newMapping;
     } else {
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'any' is not assignable to parame... Remove this comment to see the full error message
       mappings.push(newMapping);
     }
     this.props.onChange(mappings);
@@ -592,6 +629,7 @@ export class ParameterMappingListInput extends React.Component {
             title="Default Value"
             dataIndex="mapping"
             key="value"
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'getDefaultValue' does not exist on type ... Remove this comment to see the full error message
             render={mapping => this.constructor.getDefaultValue(mapping, this.props.existingParams)}
           />
           <Table.Column
@@ -605,6 +643,7 @@ export class ParameterMappingListInput extends React.Component {
 
               return (
                 <Fragment>
+                  {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'getSourceTypeLabel' does not exist on ty... Remove this comment to see the full error message */}
                   {this.constructor.getSourceTypeLabel(mapping)}{" "}
                   <MappingEditor
                     mapping={mapping}

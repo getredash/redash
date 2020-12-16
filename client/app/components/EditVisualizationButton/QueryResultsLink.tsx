@@ -1,8 +1,19 @@
 import React from "react";
-import PropTypes from "prop-types";
 import Link from "@/components/Link";
 
-export default function QueryResultsLink(props) {
+type OwnProps = {
+    query: any;
+    queryResult?: any;
+    fileType?: string;
+    disabled: boolean;
+    embed?: boolean;
+    apiKey?: string;
+    children: React.ReactNode[] | React.ReactNode;
+};
+
+type Props = OwnProps & typeof QueryResultsLink.defaultProps;
+
+export default function QueryResultsLink(props: Props) {
   let href = "";
 
   const { query, queryResult, fileType } = props;
@@ -23,16 +34,6 @@ export default function QueryResultsLink(props) {
     </Link>
   );
 }
-
-QueryResultsLink.propTypes = {
-  query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  fileType: PropTypes.string,
-  disabled: PropTypes.bool.isRequired,
-  embed: PropTypes.bool,
-  apiKey: PropTypes.string,
-  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
-};
 
 QueryResultsLink.defaultProps = {
   queryResult: {},

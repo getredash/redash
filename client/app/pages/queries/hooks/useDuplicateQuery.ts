@@ -4,7 +4,7 @@ import url from "url";
 import qs from "query-string";
 import { Query } from "@/services/query";
 
-function keepCurrentUrlParams(targetUrl) {
+function keepCurrentUrlParams(targetUrl: any) {
   const currentUrlParams = qs.parse(window.location.search);
   targetUrl = url.parse(targetUrl);
   const targetUrlParams = qs.parse(targetUrl.search);
@@ -15,7 +15,7 @@ function keepCurrentUrlParams(targetUrl) {
   );
 }
 
-export default function useDuplicateQuery(query) {
+export default function useDuplicateQuery(query: any) {
   const [isDuplicating, setIsDuplicating] = useState(false);
 
   const duplicateQuery = useCallback(() => {
@@ -27,8 +27,10 @@ export default function useDuplicateQuery(query) {
     const tab = window.open("", tabName);
 
     setIsDuplicating(true);
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'fork' does not exist on type 'typeof Que... Remove this comment to see the full error message
     Query.fork({ id: query.id })
-      .then(newQuery => {
+      .then((newQuery: any) => {
+        // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
         tab.location = keepCurrentUrlParams(newQuery.getUrl(true));
       })
       .finally(() => {

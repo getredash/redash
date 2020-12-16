@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import useQueryFlags from "./useQueryFlags";
 import useEditVisualizationDialog from "./useEditVisualizationDialog";
 
-export default function useAddVisualizationDialog(query, queryResult, saveQuery, onChange) {
+export default function useAddVisualizationDialog(query: any, queryResult: any, saveQuery: any, onChange: any) {
   const queryFlags = useQueryFlags(query);
   const editVisualization = useEditVisualizationDialog(query, queryResult, onChange);
   const [shouldOpenDialog, setShouldOpenDialog] = useState(false);

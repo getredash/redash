@@ -1,12 +1,20 @@
 import d3 from "d3";
 import React, { useRef, useMemo, useCallback, useState, useEffect } from "react";
-import PropTypes from "prop-types";
 import { Resizable as ReactResizable } from "react-resizable";
 import KeyboardShortcuts from "@/services/KeyboardShortcuts";
 
 import "./index.less";
 
-export default function Resizable({ toggleShortcut, direction, sizeAttribute, children }) {
+type OwnProps = {
+    direction?: "horizontal" | "vertical";
+    sizeAttribute?: string;
+    toggleShortcut?: string;
+    children?: React.ReactElement;
+};
+
+type Props = OwnProps & typeof Resizable.defaultProps;
+
+export default function Resizable({ toggleShortcut, direction, sizeAttribute, children }: Props) {
   const [size, setSize] = useState(0);
   const elementRef = useRef();
   const wasUsingTouchEventsRef = useRef(false);
@@ -19,6 +27,7 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
     if (!elementRef.current) {
       return 0;
     }
+    // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
     return Math.floor(elementRef.current.getBoundingClientRect()[sizeProp]);
   }, [sizeProp]);
 
@@ -28,10 +37,12 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
       return;
     }
 
+    // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
     const element = d3.select(elementRef.current);
     let targetSize;
     if (savedSize.current === null) {
       targetSize = "0px";
+      // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'null'.
       savedSize.current = `${getElementSize()}px`;
     } else {
       targetSize = savedSize.current;
@@ -42,10 +53,13 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
       .style(sizeAttribute, savedSize.current || "0px")
       .transition()
       .duration(200)
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
       .ease("swing")
+      // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
       .style(sizeAttribute, targetSize);
 
     // update state to new element's size
+    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string | null' is not assignable... Remove this comment to see the full error message
     setSize(parseInt(targetSize) || 0);
   }, [getElementSize, sizeAttribute]);
 
@@ -92,8 +106,9 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
         // updated here and in `draggableCore::onMouseDown` handler to ensure that right value will be used
         setSize(getElementSize());
       },
-      onResize: (unused, data) => {
+      onResize: (unused: any, data: any) => {
         // update element directly for better UI responsiveness
+        // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
         d3.select(elementRef.current).style(sizeAttribute, `${data.size[sizeProp]}px`);
         setSize(data.size[sizeProp]);
         wasResizedRef.current = true;
@@ -109,7 +124,7 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
 
   const draggableCoreOptions = useMemo(
     () => ({
-      onMouseDown: e => {
+      onMouseDown: (e: any) => {
         // In some cases this handler is executed twice during the same resize operation - first time
         // with `touchstart` event and second time with `mousedown` (probably emulated by browser).
         // Therefore we set the flag only when we receive `touchstart` because in ths case it's definitely
@@ -130,6 +145,7 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
     return null;
   }
 
+  // @ts-expect-error ts-migrate(2322) FIXME: Type 'CElement<any, Component<any, any, any>>' is ... Remove this comment to see the full error message
   children = React.createElement(children.type, { ...children.props, ref: elementRef });
 
   return (
@@ -147,13 +163,6 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
     </ReactResizable>
   );
 }
-
-Resizable.propTypes = {
-  direction: PropTypes.oneOf(["horizontal", "vertical"]),
-  sizeAttribute: PropTypes.string,
-  toggleShortcut: PropTypes.string,
-  children: PropTypes.element,
-};
 
 Resizable.defaultProps = {
   direction: "horizontal",

@@ -1,16 +1,28 @@
 import React from "react";
-import PropTypes from "prop-types";
 import DatePicker from "antd/lib/date-picker";
 import { clientConfig } from "@/services/auth";
+// @ts-expect-error ts-migrate(6133) FIXME: 'Moment' is declared but its value is never read.
 import { Moment } from "@/components/proptypes";
 
-const DateInput = React.forwardRef(({ defaultValue, value, onSelect, className, ...props }, ref) => {
+type Props = {
+    // @ts-expect-error ts-migrate(2749) FIXME: 'Moment' refers to a value, but is being used as a... Remove this comment to see the full error message
+    defaultValue?: Moment;
+    // @ts-expect-error ts-migrate(2749) FIXME: 'Moment' refers to a value, but is being used as a... Remove this comment to see the full error message
+    value?: Moment;
+    onSelect?: (...args: any[]) => any;
+    className?: string;
+};
+
+const DateInput = React.forwardRef<any, Props>(({ defaultValue, value, onSelect, className, ...props }, ref) => {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'dateFormat' does not exist on type '{}'.
   const format = clientConfig.dateFormat || "YYYY-MM-DD";
   const additionalAttributes = {};
   if (defaultValue && defaultValue.isValid()) {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'defaultValue' does not exist on type '{}... Remove this comment to see the full error message
     additionalAttributes.defaultValue = defaultValue;
   }
   if (value === null || (value && value.isValid())) {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'value' does not exist on type '{}'.
     additionalAttributes.value = value;
   }
   return (
@@ -25,13 +37,6 @@ const DateInput = React.forwardRef(({ defaultValue, value, onSelect, className, 
     />
   );
 });
-
-DateInput.propTypes = {
-  defaultValue: Moment,
-  value: Moment,
-  onSelect: PropTypes.func,
-  className: PropTypes.string,
-};
 
 DateInput.defaultProps = {
   defaultValue: null,

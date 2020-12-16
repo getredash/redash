@@ -19,22 +19,24 @@ import { policy } from "@/services/policy";
 
 export { DashboardStatusEnum } from "./useEditModeHandler";
 
-function getAffectedWidgets(widgets, updatedParameters = []) {
+function getAffectedWidgets(widgets: any, updatedParameters = []) {
   return !isEmpty(updatedParameters)
-    ? widgets.filter(widget =>
-        Object.values(widget.getParameterMappings())
-          .filter(({ type }) => type === "dashboard-level")
-          .some(({ mapTo }) =>
-            includes(
-              updatedParameters.map(p => p.name),
-              mapTo
-            )
-          )
+    ? widgets.filter((widget: any) => Object.values(widget.getParameterMappings())
+    // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
+    .filter(({ type }) => type === "dashboard-level")
+    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '({ mapTo }: { mapTo: any; }) => ... Remove this comment to see the full error message
+    .some(({ mapTo }) =>
+      includes(
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'.
+        updatedParameters.map(p => p.name),
+        mapTo
+      )
+    )
       )
     : widgets;
 }
 
-function useDashboard(dashboardData) {
+function useDashboard(dashboardData: any) {
   const [dashboard, setDashboard] = useState(dashboardData);
   const [filters, setFilters] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -45,6 +47,7 @@ function useDashboard(dashboardData) {
     () =>
       !dashboard.is_archived &&
       has(dashboard, "user.id") &&
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type '{ _isAdmin: ... Remove this comment to see the full error message
       (currentUser.id === dashboard.user.id || currentUser.isAdmin),
     [dashboard]
   );
@@ -64,25 +67,28 @@ function useDashboard(dashboardData) {
 
   const updateDashboard = useCallback(
     (data, includeVersion = true) => {
-      setDashboard(currentDashboard => extend({}, currentDashboard, data));
+      setDashboard((currentDashboard: any) => extend({}, currentDashboard, data));
       data = { ...data, id: dashboard.id };
       if (includeVersion) {
         data = { ...data, version: dashboard.version };
       }
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'save' does not exist on type 'typeof Das... Remove this comment to see the full error message
       return Dashboard.save(data)
-        .then(updatedDashboard => {
-          setDashboard(currentDashboard => extend({}, currentDashboard, pick(updatedDashboard, keys(data))));
+        .then((updatedDashboard: any) => {
+          setDashboard((currentDashboard: any) => extend({}, currentDashboard, pick(updatedDashboard, keys(data))));
           if (has(data, "name")) {
             location.setPath(url.parse(updatedDashboard.url).pathname, true);
           }
         })
-        .catch(error => {
+        .catch((error: any) => {
           const status = get(error, "response.status");
           if (status === 403) {
+            // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 2.
             notification.error("Dashboard update failed", "Permission Denied.");
           } else if (status === 409) {
             notification.error(
               "It seems like the dashboard has been modified by another user. ",
+              // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 3.
               "Please copy/backup your changes and reload this page.",
               { duration: null }
             );
@@ -93,32 +99,32 @@ function useDashboard(dashboardData) {
   );
 
   const togglePublished = useCallback(() => {
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 4 arguments, but got 3.
     recordEvent("toggle_published", "dashboard", dashboard.id);
     updateDashboard({ is_draft: !dashboard.is_draft }, false);
   }, [dashboard, updateDashboard]);
 
   const loadWidget = useCallback((widget, forceRefresh = false) => {
     widget.getParametersDefs(); // Force widget to read parameters values from URL
-    setDashboard(currentDashboard => extend({}, currentDashboard));
+    setDashboard((currentDashboard: any) => extend({}, currentDashboard));
     return widget
       .load(forceRefresh)
-      .catch(error => {
+      .catch((error: any) => {
         // QueryResultErrors are expected
         if (error instanceof QueryResultError) {
           return;
         }
         return Promise.reject(error);
       })
-      .finally(() => setDashboard(currentDashboard => extend({}, currentDashboard)));
+      .finally(() => setDashboard((currentDashboard: any) => extend({}, currentDashboard)));
   }, []);
 
   const refreshWidget = useCallback(widget => loadWidget(widget, true), [loadWidget]);
 
   const removeWidget = useCallback(widgetId => {
-    setDashboard(currentDashboard =>
-      extend({}, currentDashboard, {
-        widgets: currentDashboard.widgets.filter(widget => widget.id !== undefined && widget.id !== widgetId),
-      })
+    setDashboard((currentDashboard: any) => extend({}, currentDashboard, {
+      widgets: currentDashboard.widgets.filter((widget: any) => widget.id !== undefined && widget.id !== widgetId),
+    })
     );
   }, []);
 
@@ -127,14 +133,17 @@ function useDashboard(dashboardData) {
 
   const loadDashboard = useCallback(
     (forceRefresh = false, updatedParameters = []) => {
+      // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
       const affectedWidgets = getAffectedWidgets(dashboardRef.current.widgets, updatedParameters);
       const loadWidgetPromises = compact(
-        affectedWidgets.map(widget => loadWidget(widget, forceRefresh).catch(error => error))
+        affectedWidgets.map((widget: any) => loadWidget(widget, forceRefresh).catch((error: any) => error))
       );
 
       return Promise.all(loadWidgetPromises).then(() => {
+        // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
         const queryResults = compact(map(dashboardRef.current.widgets, widget => widget.getQueryResult()));
         const updatedFilters = collectDashboardFilters(dashboardRef.current, queryResults, location.search);
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'unknown[]' is not assignable to ... Remove this comment to see the full error message
         setFilters(updatedFilters);
       });
     },
@@ -152,14 +161,15 @@ function useDashboard(dashboardData) {
   );
 
   const archiveDashboard = useCallback(() => {
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 4 arguments, but got 3.
     recordEvent("archive", "dashboard", dashboard.id);
-    Dashboard.delete(dashboard).then(updatedDashboard =>
-      setDashboard(currentDashboard => extend({}, currentDashboard, pick(updatedDashboard, ["is_archived"])))
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'delete' does not exist on type 'typeof D... Remove this comment to see the full error message
+    Dashboard.delete(dashboard).then((updatedDashboard: any) => setDashboard((currentDashboard: any) => extend({}, currentDashboard, pick(updatedDashboard, ["is_archived"])))
     );
   }, [dashboard]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showShareDashboardDialog = useCallback(() => {
-    const handleDialogClose = () => setDashboard(currentDashboard => extend({}, currentDashboard));
+    const handleDialogClose = () => setDashboard((currentDashboard: any) => extend({}, currentDashboard));
 
     ShareDashboardDialog.showModal({
       dashboard,
@@ -172,26 +182,28 @@ function useDashboard(dashboardData) {
   const showAddTextboxDialog = useCallback(() => {
     TextboxDialog.showModal({
       isNew: true,
-    }).onClose(text =>
-      dashboard.addWidget(text).then(() => setDashboard(currentDashboard => extend({}, currentDashboard)))
+    }).onClose((text: any) => dashboard.addWidget(text).then(() => setDashboard((currentDashboard: any) => extend({}, currentDashboard)))
     );
   }, [dashboard]);
 
   const showAddWidgetDialog = useCallback(() => {
     AddWidgetDialog.showModal({
       dashboard,
-    }).onClose(({ visualization, parameterMappings }) =>
+    }).onClose(({
+      visualization,
+      parameterMappings
+    }: any) =>
       dashboard
         .addWidget(visualization, {
           parameterMappings: editableMappingsToParameterMappings(parameterMappings),
         })
-        .then(widget => {
+        .then((widget: any) => {
           const widgetsToSave = [
             widget,
             ...synchronizeWidgetTitles(widget.options.parameterMappings, dashboard.widgets),
           ];
           return Promise.all(widgetsToSave.map(w => w.save())).then(() =>
-            setDashboard(currentDashboard => extend({}, currentDashboard))
+            setDashboard((currentDashboard: any) => extend({}, currentDashboard))
           );
         })
     );

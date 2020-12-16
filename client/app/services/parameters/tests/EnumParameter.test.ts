@@ -1,8 +1,8 @@
 import { createParameter } from "..";
 
 describe("EnumParameter", () => {
-  let param;
-  let multiValuesOptions = null;
+  let param: any;
+  let multiValuesOptions: any = null;
   const enumOptions = "value1\nvalue2\nvalue3\nvalue4";
 
   beforeEach(() => {
@@ -13,6 +13,7 @@ describe("EnumParameter", () => {
       enumOptions,
       multiValuesOptions,
     };
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
     param = createParameter(paramOptions);
   });
 

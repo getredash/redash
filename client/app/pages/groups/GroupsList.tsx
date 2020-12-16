@@ -22,14 +22,16 @@ import Group from "@/services/group";
 import { currentUser } from "@/services/auth";
 import routes from "@/services/routes";
 
-class GroupsList extends React.Component {
-  static propTypes = {
-    controller: ControllerType.isRequired,
-  };
+type Props = {
+    controller: ControllerType;
+};
+
+class GroupsList extends React.Component<Props> {
+  actions: any;
 
   listColumns = [
     Columns.custom(
-      (text, group) => (
+      (text: any, group: any) => (
         <div>
           <Link href={"groups/" + group.id}>{group.name}</Link>
           {group.type === "builtin" && <span className="label label-default m-l-10">built-in</span>}
@@ -41,7 +43,7 @@ class GroupsList extends React.Component {
       }
     ),
     Columns.custom(
-      (text, group) => (
+      (text: any, group: any) => (
         <Button.Group>
           <Link.Button href={`groups/${group.id}`}>Members</Link.Button>
           {currentUser.isAdmin && <Link.Button href={`groups/${group.id}/data_sources`}>Data Sources</Link.Button>}
@@ -53,14 +55,20 @@ class GroupsList extends React.Component {
       }
     ),
     Columns.custom(
-      (text, group) => {
+      (text: any, group: any) => {
         const canRemove = group.type !== "builtin";
         return (
+          // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
           <DeleteGroupButton
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
             className="w-100"
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
             disabled={!canRemove}
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
             group={group}
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'string | null' is not assignable to type 'ne... Remove this comment to see the full error message
             title={canRemove ? null : "Cannot delete built-in group"}
+            // @ts-expect-error ts-migrate(2322) FIXME: Type '() => void' is not assignable to type 'never... Remove this comment to see the full error message
             onClick={() => this.onGroupDeleted()}>
             Delete
           </DeleteGroupButton>
@@ -75,13 +83,14 @@ class GroupsList extends React.Component {
   ];
 
   createGroup = () => {
-    CreateGroupDialog.showModal().onClose(group =>
-      Group.create(group).then(newGroup => navigateTo(`groups/${newGroup.id}`))
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0.
+    CreateGroupDialog.showModal().onClose((group: any) => Group.create(group).then(newGroup => navigateTo(`groups/${newGroup.id}`))
     );
   };
 
   onGroupDeleted = () => {
     this.props.controller.updatePagination({ page: 1 });
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'update' does not exist on type 'Controll... Remove this comment to see the full error message
     this.props.controller.update();
   };
 
@@ -103,6 +112,7 @@ class GroupsList extends React.Component {
         {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
         {controller.isLoaded && !controller.isEmpty && (
           <div className="table-responsive">
+            {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
             <ItemsTable
               items={controller.pageItems}
               columns={this.listColumns}
@@ -116,9 +126,11 @@ class GroupsList extends React.Component {
               showPageSizeSelect
               totalCount={controller.totalItemsCount}
               pageSize={controller.itemsPerPage}
-              onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '(itemsPerPage: any) => any' is not assignabl... Remove this comment to see the full error message
+              onPageSizeChange={(itemsPerPage: any) => controller.updatePagination({ itemsPerPage })}
               page={controller.page}
-              onChange={page => controller.updatePagination({ page })}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '(page: any) => any' is not assignable to typ... Remove this comment to see the full error message
+              onChange={(page: any) => controller.updatePagination({ page })}
             />
           </div>
         )}

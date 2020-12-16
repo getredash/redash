@@ -1,22 +1,28 @@
 import React from "react";
-import PropTypes from "prop-types";
 import Alert from "antd/lib/alert";
 import Button from "antd/lib/button";
 import Checkbox from "antd/lib/checkbox";
 import Form from "antd/lib/form";
 import InputNumber from "antd/lib/input-number";
 import Modal from "antd/lib/modal";
+// @ts-expect-error ts-migrate(6133) FIXME: 'DialogPropType' is declared but its value is neve... Remove this comment to see the full error message
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { clientConfig } from "@/services/auth";
 import CodeBlock from "@/components/CodeBlock";
 import "./EmbedQueryDialog.less";
 
-class EmbedQueryDialog extends React.Component {
-  static propTypes = {
-    dialog: DialogPropType.isRequired,
-    query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    visualization: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  };
+type Props = {
+    // @ts-expect-error ts-migrate(2749) FIXME: 'DialogPropType' refers to a value, but is being u... Remove this comment to see the full error message
+    dialog: DialogPropType;
+    query: any;
+    visualization: any;
+};
+
+type State = any;
+
+class EmbedQueryDialog extends React.Component<Props, State> {
+  embedUrl: any;
+  snapshotUrl: any;
 
   state = {
     enableChangeIframeSize: false,
@@ -24,14 +30,17 @@ class EmbedQueryDialog extends React.Component {
     iframeHeight: 391,
   };
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     const { query, visualization } = props;
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'basePath' does not exist on type '{}'.
     this.embedUrl = `${clientConfig.basePath}embed/query/${query.id}/visualization/${visualization.id}?api_key=${
       query.api_key
     }&${query.getParameters().toUrlParams()}`;
 
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'snapshotUrlBuilder' does not exist on ty... Remove this comment to see the full error message
     if (window.snapshotUrlBuilder) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'snapshotUrlBuilder' does not exist on ty... Remove this comment to see the full error message
       this.snapshotUrl = window.snapshotUrlBuilder(query, visualization);
     }
   }
@@ -57,6 +66,7 @@ class EmbedQueryDialog extends React.Component {
             <h5 className="m-t-0">IFrame Embed</h5>
             <div>
               <CodeBlock copyable>
+                {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'null | un... Remove this comment to see the full error message */}
                 {`<iframe src="${this.embedUrl}" width="${iframeWidth}" height="${iframeHeight}"></iframe>`}
               </CodeBlock>
               <Form className="m-t-10" layout="inline">

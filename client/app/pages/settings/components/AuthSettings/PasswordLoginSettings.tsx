@@ -8,10 +8,11 @@ import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
-export default function PasswordLoginSettings(props) {
+export default function PasswordLoginSettings(props: any) {
   const { settings, values, onChange, loading } = props;
 
   const isTheOnlyAuthMethod =
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'googleLoginEnabled' does not exist on ty... Remove this comment to see the full error message
     !clientConfig.googleLoginEnabled && !clientConfig.ldapLoginEnabled && !values.auth_saml_enabled;
 
   return (
@@ -36,6 +37,7 @@ export default function PasswordLoginSettings(props) {
               title={
                 isTheOnlyAuthMethod ? "Password login can be disabled only if another login method is enabled." : null
               }
+              // @ts-expect-error ts-migrate(2747) FIXME: 'Tooltip' components don't accept text as child el... Remove this comment to see the full error message
               placement="right">
               Password Login Enabled
             </Tooltip>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import PropTypes from "prop-types";
 import cx from "classnames";
 import useMedia from "use-media";
 import Button from "antd/lib/button";
@@ -39,7 +38,11 @@ import useFullscreenHandler from "../../lib/hooks/useFullscreenHandler";
 
 import "./QueryView.less";
 
-function QueryView(props) {
+type Props = {
+    query: any;
+};
+
+function QueryView(props: Props) {
   const [query, setQuery] = useState(props.query);
   const [dataSource, setDataSource] = useState();
   const queryFlags = useQueryFlags(query, dataSource);
@@ -47,6 +50,7 @@ function QueryView(props) {
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
   const isDesktop = useMedia({ minWidth: 768 });
   const isFixedLayout = useMedia({ minHeight: 500 }) && isDesktop;
+  // @ts-expect-error ts-migrate(2554) FIXME: Expected 0 arguments, but got 1.
   const [fullscreen, toggleFullscreen] = useFullscreenHandler(isDesktop);
   const [addingDescription, setAddingDescription] = useState(false);
 
@@ -66,11 +70,11 @@ function QueryView(props) {
 
   const updateQueryDescription = useUpdateQueryDescription(query, setQuery);
   const editSchedule = useEditScheduleDialog(query, setQuery);
-  const addVisualization = useEditVisualizationDialog(query, queryResult, (newQuery, visualization) => {
+  const addVisualization = useEditVisualizationDialog(query, queryResult, (newQuery: any, visualization: any) => {
     setQuery(newQuery);
     setSelectedVisualization(visualization.id);
   });
-  const editVisualization = useEditVisualizationDialog(query, queryResult, newQuery => setQuery(newQuery));
+  const editVisualization = useEditVisualizationDialog(query, queryResult, (newQuery: any) => setQuery(newQuery));
   const deleteVisualization = useDeleteVisualization(query, setQuery);
 
   const doExecuteQuery = useCallback(
@@ -88,6 +92,7 @@ function QueryView(props) {
   }, [query.name]);
 
   useEffect(() => {
+    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'Dispatch<SetStateAction<undefine... Remove this comment to see the full error message
     DataSource.get({ id: query.data_source_id }).then(setDataSource);
   }, [query.data_source_id]);
 
@@ -99,24 +104,37 @@ function QueryView(props) {
       })}>
       <div className="container w-100">
         <QueryPageHeader
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           query={query}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'undefined' is not assignable to type 'never'... Remove this comment to see the full error message
           dataSource={dataSource}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<any>' is not assignable to type 'ne... Remove this comment to see the full error message
           onChange={setQuery}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           selectedVisualization={selectedVisualization}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'never'.
           headerExtra={
             <DynamicComponent name="QueryView.HeaderExtra" query={query}>
+              {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
               {policy.canRun(query) && (
+                // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
                 <QueryViewButton
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
                   className="m-r-5"
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
                   type="primary"
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
                   shortcut="mod+enter, alt+enter, ctrl+enter"
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                   disabled={!queryFlags.canExecute || isExecuting || areParametersDirty}
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type '(skipParametersDirtyFlag?: any) => void' is ... Remove this comment to see the full error message
                   onClick={doExecuteQuery}>
                   Refresh
                 </QueryViewButton>
               )}
             </DynamicComponent>
           }
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           tagsExtra={
             !query.description &&
             queryFlags.canEdit &&
@@ -132,6 +150,7 @@ function QueryView(props) {
         {(query.description || addingDescription) && (
           <div className={cx("m-t-5", { hidden: fullscreen })}>
             <EditInPlace
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '{ className: string; value: any; isEditable:... Remove this comment to see the full error message
               className="w-100"
               value={query.description}
               isEditable={queryFlags.canEdit}
@@ -162,15 +181,25 @@ function QueryView(props) {
         <div className="query-results m-t-15">
           {loadedInitialResults && (
             <QueryVisualizationTabs
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
               queryResult={queryResult}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
               visualizations={query.visualizations}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
               showNewVisualizationButton={queryFlags.canEdit && queryResultData.status === ExecutionStatus.DONE}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
               canDeleteVisualizations={queryFlags.canEdit}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
               selectedTab={selectedVisualization}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
               onChangeTab={setSelectedVisualization}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '(visualizationId?: any) => void' is not assi... Remove this comment to see the full error message
               onAddVisualization={addVisualization}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '(visualizationId: any) => Promise<void>' is ... Remove this comment to see the full error message
               onDeleteVisualization={deleteVisualization}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'false | Element' is not assignable to type '... Remove this comment to see the full error message
               refreshButton={
+                // @ts-expect-error ts-migrate(2554) FIXME: Expected 0 arguments, but got 1.
                 policy.canRun(query) && (
                   <Button
                     type="primary"
@@ -182,24 +211,38 @@ function QueryView(props) {
                   </Button>
                 )
               }
+              // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
               canRefresh={policy.canRun(query)}
             />
           )}
           <div className="query-results-footer">
             {queryResult && !queryResult.getError() && (
               <QueryExecutionMetadata
+                // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                 query={query}
+                // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                 queryResult={queryResult}
+                // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                 selectedVisualization={selectedVisualization}
+                // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                 isQueryExecuting={isExecuting}
+                // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                 showEditVisualizationButton={queryFlags.canEdit}
+                // @ts-expect-error ts-migrate(2322) FIXME: Type '(visualizationId?: any) => void' is not assi... Remove this comment to see the full error message
                 onEditVisualization={editVisualization}
+                // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'never'.
                 extraActions={
+                  // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
                   <QueryViewButton
+                    // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
                     className="icon-button m-r-5 hidden-xs"
+                    // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
                     title="Toggle Fullscreen"
+                    // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
                     type="default"
+                    // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
                     shortcut="alt+f"
+                    // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean | (() => void)' is not assignable to... Remove this comment to see the full error message
                     onClick={toggleFullscreen}>
                     {fullscreen ? <FullscreenExitOutlinedIcon /> : <FullscreenOutlinedIcon />}
                   </QueryViewButton>
@@ -209,10 +252,15 @@ function QueryView(props) {
             {(executionError || isExecuting) && (
               <div className="query-execution-status">
                 <QueryExecutionStatus
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                   status={executionStatus}
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                   error={executionError}
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                   isCancelling={isExecutionCancelling}
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                   onCancel={cancelExecution}
+                  // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
                   updatedAt={updatedAt}
                 />
               </div>
@@ -220,19 +268,19 @@ function QueryView(props) {
           </div>
         </div>
         <div className={cx("p-t-15 p-r-15 p-l-15", { hidden: fullscreen })}>
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'. */}
           <QueryMetadata layout="horizontal" query={query} dataSource={dataSource} onEditSchedule={editSchedule} />
         </div>
       </div>
     </div>
   );
-}
-
-QueryView.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-line react/forbid-prop-types
+} // eslint-disable-line react/forbid-prop-types
 
 const QueryViewPage = wrapQueryPage(QueryView);
 
 routes.register(
   "Queries.View",
+  // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '{ path: string; render: (pagePro... Remove this comment to see the full error message
   routeWithUserSession({
     path: "/queries/:queryId",
     render: pageProps => <QueryViewPage {...pageProps} />,

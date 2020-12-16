@@ -1,32 +1,35 @@
 import { isFunction, isString, isUndefined } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 
 const componentsRegistry = new Map();
 const activeInstances = new Set();
 
-export function registerComponent(name, component) {
+export function registerComponent(name: any, component: any) {
   if (isString(name) && name !== "") {
     componentsRegistry.set(name, isFunction(component) ? component : null);
     // Refresh active DynamicComponent instances which use this component
     activeInstances.forEach(dynamicComponent => {
+      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
       if (dynamicComponent.props.name === name) {
+        // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
         dynamicComponent.forceUpdate();
       }
     });
   }
 }
 
-export function unregisterComponent(name) {
+export function unregisterComponent(name: any) {
   registerComponent(name, null);
 }
 
-export default class DynamicComponent extends React.Component {
-  static propTypes = {
-    name: PropTypes.string.isRequired,
-    fallback: PropTypes.node,
-    children: PropTypes.node,
-  };
+type OwnProps = {
+    name: string;
+    fallback?: React.ReactNode;
+};
+
+type Props = OwnProps & typeof DynamicComponent.defaultProps;
+
+export default class DynamicComponent extends React.Component<Props> {
 
   static defaultProps = {
     children: null,

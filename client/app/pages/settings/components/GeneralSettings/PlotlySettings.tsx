@@ -5,7 +5,7 @@ import Skeleton from "antd/lib/skeleton";
 import DynamicComponent from "@/components/DynamicComponent";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
-export default function PlotlySettings(props) {
+export default function PlotlySettings(props: any) {
   const { values, onChange, loading } = props;
 
   return (

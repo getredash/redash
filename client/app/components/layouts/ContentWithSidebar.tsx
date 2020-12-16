@@ -1,12 +1,21 @@
 import React from "react";
-import PropTypes from "prop-types";
 import classNames from "classnames";
 
 import "./content-with-sidebar.less";
 
-const propTypes = {
-  className: PropTypes.string,
-  children: PropTypes.node,
+type OwnSidebarProps = {
+    className?: string;
+    children?: React.ReactNode;
+};
+
+type OwnContentProps = {
+    className?: string;
+    children?: React.ReactNode;
+};
+
+type OwnLayoutProps = {
+    className?: string;
+    children?: React.ReactNode;
 };
 
 const defaultProps = {
@@ -14,43 +23,46 @@ const defaultProps = {
   children: null,
 };
 
+type SidebarProps = OwnSidebarProps & typeof defaultProps;
+
 // Sidebar
 
-function Sidebar({ className, children, ...props }) {
+// @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
+function Sidebar({ className, children, ...props }: SidebarProps) {
   return (
     <div className={classNames("layout-sidebar", className)} {...props}>
       <div>{children}</div>
     </div>
   );
 }
-
-Sidebar.propTypes = propTypes;
 Sidebar.defaultProps = defaultProps;
+
+type ContentProps = OwnContentProps & typeof defaultProps;
 
 // Content
 
-function Content({ className, children, ...props }) {
+// @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
+function Content({ className, children, ...props }: ContentProps) {
   return (
     <div className={classNames("layout-content", className)} {...props}>
       <div>{children}</div>
     </div>
   );
 }
-
-Content.propTypes = propTypes;
 Content.defaultProps = defaultProps;
+
+type LayoutProps = OwnLayoutProps & typeof defaultProps;
 
 // Layout
 
-export default function Layout({ children, className = undefined, ...props }) {
+// @ts-expect-error ts-migrate(2322) FIXME: Type 'undefined' is not assignable to type 'never'... Remove this comment to see the full error message
+export default function Layout({ children, className = undefined, ...props }: LayoutProps) {
   return (
     <div className={classNames("layout-with-sidebar", className)} {...props}>
       {children}
     </div>
   );
 }
-
-Layout.propTypes = propTypes;
 Layout.defaultProps = defaultProps;
 
 Layout.Sidebar = Sidebar;

@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import classNames from "classnames";
 import moment from "moment";
 import { includes } from "lodash";
@@ -10,26 +9,26 @@ import DynamicButton from "@/components/dynamic-parameters/DynamicButton";
 
 import "./DynamicParameters.less";
 
-class DynamicDatePicker extends React.Component {
-  static propTypes = {
-    type: PropTypes.string,
-    className: PropTypes.string,
-    value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    onSelect: PropTypes.func,
-    dynamicButtonOptions: PropTypes.shape({
-      staticValueLabel: PropTypes.string,
-      options: PropTypes.arrayOf(
-        PropTypes.shape({
-          name: PropTypes.string,
-          value: PropTypes.object,
-          label: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-        })
-      ),
-    }),
-    dateOptions: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-  };
+type OwnProps = {
+    type?: string;
+    className?: string;
+    value?: any;
+    parameter?: any;
+    onSelect?: (...args: any[]) => any;
+    dynamicButtonOptions?: {
+        staticValueLabel?: string;
+        options?: {
+            name?: string;
+            value?: any;
+            label?: string | ((...args: any[]) => any);
+        }[];
+    };
+    dateOptions?: any;
+};
 
+type Props = OwnProps & typeof DynamicDatePicker.defaultProps;
+
+class DynamicDatePicker extends React.Component<Props> {
   static defaultProps = {
     type: "",
     className: "",
@@ -41,12 +40,14 @@ class DynamicDatePicker extends React.Component {
     onSelect: () => {},
   };
 
-  constructor(props) {
+  dateComponentRef: any;
+
+  constructor(props: Props) {
     super(props);
     this.dateComponentRef = React.createRef();
   }
 
-  onDynamicValueSelect = dynamicValue => {
+  onDynamicValueSelect = (dynamicValue: any) => {
     const { onSelect, parameter } = this.props;
     if (dynamicValue === "static") {
       const parameterValue = parameter.getExecutionValue();
@@ -73,17 +74,21 @@ class DynamicDatePicker extends React.Component {
     if (isDateTime) {
       DateComponent = DateTimeInput;
       if (includes(type, "with-seconds")) {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'withSeconds' does not exist on type '{}'... Remove this comment to see the full error message
         additionalAttributes.withSeconds = true;
       }
     }
 
     if (moment.isMoment(value) || value === null) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'value' does not exist on type '{}'.
       additionalAttributes.value = value;
     }
 
     if (hasDynamicValue) {
       const dynamicDate = value;
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'placeholder' does not exist on type '{}'... Remove this comment to see the full error message
       additionalAttributes.placeholder = dynamicDate && dynamicDate.name;
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'value' does not exist on type '{}'.
       additionalAttributes.value = null;
     }
 
@@ -102,6 +107,7 @@ class DynamicDatePicker extends React.Component {
           staticValueLabel={dynamicButtonOptions.staticValueLabel}
           selectedDynamicValue={hasDynamicValue ? value : null}
           enabled={hasDynamicValue}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '(dynamicValue: any) => void' is not assignab... Remove this comment to see the full error message
           onSelect={this.onDynamicValueSelect}
         />
       </div>

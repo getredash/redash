@@ -4,17 +4,22 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import { Query } from "@/services/query";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
-export default function wrapQueryPage(WrappedComponent) {
-  function QueryPageWrapper({ queryId, onError, ...props }) {
+export default function wrapQueryPage(WrappedComponent: any) {
+  function QueryPageWrapper({
+    queryId,
+    onError,
+    ...props
+  }: any) {
     const [query, setQuery] = useState(null);
 
     const handleError = useImmutableCallback(onError);
 
     useEffect(() => {
       let isCancelled = false;
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'get' does not exist on type 'typeof Quer... Remove this comment to see the full error message
       const promise = queryId ? Query.get({ id: queryId }) : Promise.resolve(Query.newQuery());
       promise
-        .then(result => {
+        .then((result: any) => {
           if (!isCancelled) {
             setQuery(result);
           }

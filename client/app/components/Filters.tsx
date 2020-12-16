@@ -8,18 +8,28 @@ import { formatColumnValue } from "@/lib/utils";
 const ALL_VALUES = "###Redash::Filters::SelectAll###";
 const NONE_VALUES = "###Redash::Filters::Clear###";
 
-export const FilterType = PropTypes.shape({
-  name: PropTypes.string.isRequired,
-  friendlyName: PropTypes.string.isRequired,
-  multiple: PropTypes.bool,
-  current: PropTypes.oneOfType([PropTypes.any, PropTypes.arrayOf(PropTypes.any)]),
-  values: PropTypes.arrayOf(PropTypes.any).isRequired,
+type FilterType = {
+    name: string;
+    friendlyName: string;
+    multiple?: boolean;
+    current?: any | any[];
+    values: any[];
+};
+
+// @ts-expect-error ts-migrate(2322) FIXME: Type 'Requireable<InferProps<{ name: Validator<str... Remove this comment to see the full error message
+const FilterType: PropTypes.Requireable<FilterType> = PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    friendlyName: PropTypes.string.isRequired,
+    multiple: PropTypes.bool,
+    current: PropTypes.oneOfType([PropTypes.any, PropTypes.arrayOf(PropTypes.any)]),
+    values: PropTypes.arrayOf(PropTypes.any).isRequired,
 });
+export { FilterType };
 
 export const FiltersType = PropTypes.arrayOf(FilterType);
 
-function createFilterChangeHandler(filters, onChange) {
-  return (filter, values) => {
+function createFilterChangeHandler(filters: any, onChange: any) {
+  return (filter: any, values: any) => {
     if (isArray(values)) {
       values = map(values, value => filter.values[toNumber(value.key)] || value.key);
     } else {
@@ -38,7 +48,7 @@ function createFilterChangeHandler(filters, onChange) {
   };
 }
 
-export function filterData(rows, filters = []) {
+export function filterData(rows: any, filters = []) {
   if (!isArray(rows)) {
     return [];
   }
@@ -49,7 +59,9 @@ export function filterData(rows, filters = []) {
     // "every" field's value should match "some" of corresponding filter's values
     result = result.filter(row =>
       every(filters, filter => {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'.
         const rowValue = row[filter.name];
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'current' does not exist on type 'never'.
         const filterValues = isArray(filter.current) ? filter.current : [filter.current];
         return some(filterValues, filterValue => {
           if (moment.isMoment(rowValue)) {
@@ -66,11 +78,20 @@ export function filterData(rows, filters = []) {
   return result;
 }
 
-function Filters({ filters, onChange }) {
+type OwnProps = {
+    // @ts-expect-error ts-migrate(2749) FIXME: 'FiltersType' refers to a value, but is being used... Remove this comment to see the full error message
+    filters: FiltersType;
+    onChange?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof Filters.defaultProps;
+
+function Filters({ filters, onChange }: Props) {
   if (filters.length === 0) {
     return null;
   }
 
+  // @ts-expect-error ts-migrate(2322) FIXME: Type '(filter: any, values: any) => void' is not a... Remove this comment to see the full error message
   onChange = createFilterChangeHandler(filters, onChange);
 
   return (
@@ -79,6 +100,7 @@ function Filters({ filters, onChange }) {
         <div className="row">
           {map(filters, filter => {
             const options = map(filter.values, (value, index) => (
+              // @ts-expect-error ts-migrate(2741) FIXME: Property 'value' is missing in type '{ children: a... Remove this comment to see the full error message
               <Select.Option key={index}>{formatColumnValue(value, get(filter, "column.type"))}</Select.Option>
             ));
 
@@ -90,6 +112,7 @@ function Filters({ filters, onChange }) {
                 <label>{filter.friendlyName}</label>
                 {options.length === 0 && <Select className="w-100" disabled value="No values" />}
                 {options.length > 0 && (
+                  // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
                   <Select
                     labelInValue
                     className="w-100"
@@ -111,10 +134,12 @@ function Filters({ filters, onChange }) {
                     onChange={values => onChange(filter, values)}>
                     {!filter.multiple && options}
                     {filter.multiple && [
+                      // @ts-expect-error ts-migrate(2741) FIXME: Property 'value' is missing in type '{ children: (... Remove this comment to see the full error message
                       <Select.Option key={NONE_VALUES} data-test="ClearOption">
                         <i className="fa fa-square-o m-r-5" />
                         Clear
                       </Select.Option>,
+                      // @ts-expect-error ts-migrate(2741) FIXME: Property 'value' is missing in type '{ children: (... Remove this comment to see the full error message
                       <Select.Option key={ALL_VALUES} data-test="SelectAllOption">
                         <i className="fa fa-check-square-o m-r-5" />
                         Select All
@@ -133,11 +158,6 @@ function Filters({ filters, onChange }) {
     </div>
   );
 }
-
-Filters.propTypes = {
-  filters: FiltersType.isRequired,
-  onChange: PropTypes.func, // (name, value) => void
-};
 
 Filters.defaultProps = {
   onChange: () => {},

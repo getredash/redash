@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import PropTypes from "prop-types";
 import { compact, isEmpty, invoke } from "lodash";
+// @ts-expect-error ts-migrate(7016) FIXME: Could not find a declaration file for module 'mark... Remove this comment to see the full error message
 import { markdown } from "markdown";
 import cx from "classnames";
 import Menu from "antd/lib/menu";
@@ -12,22 +12,28 @@ import Link from "@/components/Link";
 import Parameters from "@/components/Parameters";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
+// @ts-expect-error ts-migrate(6133) FIXME: 'Moment' is declared but its value is never read.
 import { Moment } from "@/components/proptypes";
 import QueryLink from "@/components/QueryLink";
+// @ts-expect-error ts-migrate(6133) FIXME: 'FiltersType' is declared but its value is never r... Remove this comment to see the full error message
 import { FiltersType } from "@/components/Filters";
 import ExpandedWidgetDialog from "@/components/dashboards/ExpandedWidgetDialog";
 import EditParameterMappingsDialog from "@/components/dashboards/EditParameterMappingsDialog";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import Widget from "./Widget";
 
-function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit }) {
+function visualizationWidgetMenuOptions({
+  widget,
+  canEditDashboard,
+  onParametersEdit
+}: any) {
   const canViewQuery = currentUser.hasPermission("view_query");
   const canEditParameters = canEditDashboard && !isEmpty(invoke(widget, "query.getParametersDefs"));
   const widgetQueryResult = widget.getQueryResult();
   const isQueryResultEmpty = !widgetQueryResult || !widgetQueryResult.isEmpty || widgetQueryResult.isEmpty();
 
-  const downloadLink = fileType => widgetQueryResult.getLink(widget.getQuery().id, fileType);
-  const downloadName = fileType => widgetQueryResult.getName(widget.getQuery().name, fileType);
+  const downloadLink = (fileType: any) => widgetQueryResult.getLink(widget.getQuery().id, fileType);
+  const downloadName = (fileType: any) => widgetQueryResult.getName(widget.getQuery().name, fileType);
   return compact([
     <Menu.Item key="download_csv" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
@@ -70,7 +76,14 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
   ]);
 }
 
-function RefreshIndicator({ refreshStartedAt }) {
+type OwnRefreshIndicatorProps = {
+    // @ts-expect-error ts-migrate(2749) FIXME: 'Moment' refers to a value, but is being used as a... Remove this comment to see the full error message
+    refreshStartedAt?: Moment;
+};
+
+type RefreshIndicatorProps = OwnRefreshIndicatorProps & typeof RefreshIndicator.defaultProps;
+
+function RefreshIndicator({ refreshStartedAt }: RefreshIndicatorProps) {
   return (
     <div className="refresh-indicator">
       <div className="refresh-icon">
@@ -80,11 +93,19 @@ function RefreshIndicator({ refreshStartedAt }) {
     </div>
   );
 }
-
-RefreshIndicator.propTypes = { refreshStartedAt: Moment };
 RefreshIndicator.defaultProps = { refreshStartedAt: null };
 
-function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onParametersUpdate }) {
+type OwnVisualizationWidgetHeaderProps = {
+    widget: any;
+    // @ts-expect-error ts-migrate(2749) FIXME: 'Moment' refers to a value, but is being used as a... Remove this comment to see the full error message
+    refreshStartedAt?: Moment;
+    parameters?: any[];
+    onParametersUpdate?: (...args: any[]) => any;
+};
+
+type VisualizationWidgetHeaderProps = OwnVisualizationWidgetHeaderProps & typeof VisualizationWidgetHeader.defaultProps;
+
+function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onParametersUpdate }: VisualizationWidgetHeaderProps) {
   const canViewQuery = currentUser.hasPermission("view_query");
 
   return (
@@ -93,9 +114,11 @@ function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onPar
       <div className="t-header widget clearfix">
         <div className="th-title">
           <p>
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'. */}
             <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
           </p>
           {!isEmpty(widget.getQuery().description) && (
+            // @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: any; className: string; }' is no... Remove this comment to see the full error message
             <HtmlContent className="text-muted markdown query--description">
               {markdown.toHTML(widget.getQuery().description || "")}
             </HtmlContent>
@@ -111,27 +134,30 @@ function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onPar
   );
 }
 
-VisualizationWidgetHeader.propTypes = {
-  widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  refreshStartedAt: Moment,
-  parameters: PropTypes.arrayOf(PropTypes.object),
-  onParametersUpdate: PropTypes.func,
-};
-
 VisualizationWidgetHeader.defaultProps = {
   refreshStartedAt: null,
   onParametersUpdate: () => {},
   parameters: [],
 };
 
-function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
+type OwnVisualizationWidgetFooterProps = {
+    widget: any;
+    isPublic?: boolean;
+    onRefresh: (...args: any[]) => any;
+    onExpand: (...args: any[]) => any;
+};
+
+type VisualizationWidgetFooterProps = OwnVisualizationWidgetFooterProps & typeof VisualizationWidgetFooter.defaultProps;
+
+function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }: VisualizationWidgetFooterProps) {
   const widgetQueryResult = widget.getQueryResult();
   const updatedAt = invoke(widgetQueryResult, "getUpdatedAt");
   const [refreshClickButtonId, setRefreshClickButtonId] = useState();
 
-  const refreshWidget = buttonId => {
+  const refreshWidget = (buttonId: any) => {
     if (!refreshClickButtonId) {
       setRefreshClickButtonId(buttonId);
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'null' is not assignable to param... Remove this comment to see the full error message
       onRefresh().finally(() => setRefreshClickButtonId(null));
     }
   };
@@ -173,28 +199,27 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
   ) : null;
 }
 
-VisualizationWidgetFooter.propTypes = {
-  widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  isPublic: PropTypes.bool,
-  onRefresh: PropTypes.func.isRequired,
-  onExpand: PropTypes.func.isRequired,
-};
-
 VisualizationWidgetFooter.defaultProps = { isPublic: false };
 
-class VisualizationWidget extends React.Component {
-  static propTypes = {
-    widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    filters: FiltersType,
-    isPublic: PropTypes.bool,
-    isLoading: PropTypes.bool,
-    canEdit: PropTypes.bool,
-    onLoad: PropTypes.func,
-    onRefresh: PropTypes.func,
-    onDelete: PropTypes.func,
-    onParameterMappingsChange: PropTypes.func,
-  };
+type OwnVisualizationWidgetProps = {
+    widget: any;
+    dashboard: any;
+    // @ts-expect-error ts-migrate(2749) FIXME: 'FiltersType' refers to a value, but is being used... Remove this comment to see the full error message
+    filters?: FiltersType;
+    isPublic?: boolean;
+    isLoading?: boolean;
+    canEdit?: boolean;
+    onLoad?: (...args: any[]) => any;
+    onRefresh?: (...args: any[]) => any;
+    onDelete?: (...args: any[]) => any;
+    onParameterMappingsChange?: (...args: any[]) => any;
+};
+
+type VisualizationWidgetState = any;
+
+type VisualizationWidgetProps = OwnVisualizationWidgetProps & typeof VisualizationWidget.defaultProps;
+
+class VisualizationWidget extends React.Component<VisualizationWidgetProps, VisualizationWidgetState> {
 
   static defaultProps = {
     filters: [],
@@ -207,7 +232,7 @@ class VisualizationWidget extends React.Component {
     onParameterMappingsChange: () => {},
   };
 
-  constructor(props) {
+  constructor(props: VisualizationWidgetProps) {
     super(props);
     this.state = {
       localParameters: props.widget.getLocalParameters(),
@@ -222,7 +247,7 @@ class VisualizationWidget extends React.Component {
     onLoad();
   }
 
-  onLocalFiltersChange = localFilters => {
+  onLocalFiltersChange = (localFilters: any) => {
     this.setState({ localFilters });
   };
 
@@ -235,7 +260,7 @@ class VisualizationWidget extends React.Component {
     EditParameterMappingsDialog.showModal({
       dashboard,
       widget,
-    }).onClose(valuesChanged => {
+    }).onClose((valuesChanged: any) => {
       // refresh widget if any parameter value has been updated
       if (valuesChanged) {
         onRefresh();
@@ -267,6 +292,7 @@ class VisualizationWidget extends React.Component {
               visualization={widget.visualization}
               queryResult={widgetQueryResult}
               filters={filters}
+              // @ts-expect-error ts-migrate(2322) FIXME: Type '(localFilters: any) => void' is not assignab... Remove this comment to see the full error message
               onFiltersChange={this.onLocalFiltersChange}
               context="widget"
             />
@@ -290,6 +316,7 @@ class VisualizationWidget extends React.Component {
     const isRefreshing = isLoading && !!(widgetQueryResult && widgetQueryResult.getStatus());
 
     return (
+      // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
       <Widget
         {...this.props}
         className="widget-visualization"

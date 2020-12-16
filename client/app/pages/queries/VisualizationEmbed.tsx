@@ -1,7 +1,7 @@
 import { find, has } from "lodash";
 import React, { useState, useEffect, useCallback } from "react";
-import PropTypes from "prop-types";
 import moment from "moment";
+// @ts-expect-error ts-migrate(7016) FIXME: Could not find a declaration file for module 'mark... Remove this comment to see the full error message
 import { markdown } from "markdown";
 
 import Button from "antd/lib/button";
@@ -11,6 +11,7 @@ import Tooltip from "antd/lib/tooltip";
 import Link from "@/components/Link";
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
 import Parameters from "@/components/Parameters";
+// @ts-expect-error ts-migrate(6133) FIXME: 'Moment' is declared but its value is never read.
 import { Moment } from "@/components/proptypes";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
@@ -30,9 +31,18 @@ import { Query } from "@/services/query";
 import location from "@/services/location";
 import routes from "@/services/routes";
 
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module '@/assets/images/redash_icon_sm... Remove this comment to see the full error message
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
-function VisualizationEmbedHeader({ queryName, queryDescription, visualization }) {
+type OwnVisualizationEmbedHeaderProps = {
+    queryName: string;
+    queryDescription?: string;
+    visualization: VisualizationType;
+};
+
+type VisualizationEmbedHeaderProps = OwnVisualizationEmbedHeaderProps & typeof VisualizationEmbedHeader.defaultProps;
+
+function VisualizationEmbedHeader({ queryName, queryDescription, visualization }: VisualizationEmbedHeaderProps) {
   return (
     <div className="embed-heading p-b-10 p-r-15 p-l-15">
       <h3>
@@ -40,6 +50,7 @@ function VisualizationEmbedHeader({ queryName, queryDescription, visualization }
         <VisualizationName visualization={visualization} /> {queryName}
         {queryDescription && (
           <small>
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: any; className: string; }' is no... Remove this comment to see the full error message */}
             <HtmlContent className="markdown text-muted">{markdown.toHTML(queryDescription || "")}</HtmlContent>
           </small>
         )}
@@ -48,23 +59,22 @@ function VisualizationEmbedHeader({ queryName, queryDescription, visualization }
   );
 }
 
-VisualizationEmbedHeader.propTypes = {
-  queryName: PropTypes.string.isRequired,
-  queryDescription: PropTypes.string,
-  visualization: VisualizationType.isRequired,
-};
-
 VisualizationEmbedHeader.defaultProps = { queryDescription: "" };
 
-function VisualizationEmbedFooter({
-  query,
-  queryResults,
-  updatedAt,
-  refreshStartedAt,
-  queryUrl,
-  hideTimestamp,
-  apiKey,
-}) {
+type OwnVisualizationEmbedFooterProps = {
+    query: any;
+    queryResults?: any;
+    updatedAt?: string;
+    // @ts-expect-error ts-migrate(2749) FIXME: 'Moment' refers to a value, but is being used as a... Remove this comment to see the full error message
+    refreshStartedAt?: Moment;
+    queryUrl?: string;
+    hideTimestamp?: boolean;
+    apiKey?: string;
+};
+
+type VisualizationEmbedFooterProps = OwnVisualizationEmbedFooterProps & typeof VisualizationEmbedFooter.defaultProps;
+
+function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStartedAt, queryUrl, hideTimestamp, apiKey, }: VisualizationEmbedFooterProps) {
   const downloadMenu = (
     <Menu>
       <Menu.Item>
@@ -73,6 +83,7 @@ function VisualizationEmbedFooter({
           query={query}
           queryResult={queryResults}
           apiKey={apiKey}
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'getData' does not exist on type 'never'.
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
           <FileOutlinedIcon /> Download as CSV File
@@ -84,6 +95,7 @@ function VisualizationEmbedFooter({
           query={query}
           queryResult={queryResults}
           apiKey={apiKey}
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'getData' does not exist on type 'never'.
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
           <FileOutlinedIcon /> Download as TSV File
@@ -95,6 +107,7 @@ function VisualizationEmbedFooter({
           query={query}
           queryResult={queryResults}
           apiKey={apiKey}
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'getData' does not exist on type 'never'.
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
           <FileExcelOutlinedIcon /> Download as Excel File
@@ -123,6 +136,7 @@ function VisualizationEmbedFooter({
               <i className="fa fa-external-link" />
             </Link.Button>
           </Tooltip>
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'hasParameters' does not exist on type 'n... Remove this comment to see the full error message */}
           {!query.hasParameters() && (
             <Dropdown overlay={downloadMenu} disabled={!queryResults} trigger={["click"]} placement="topLeft">
               <Button loading={!queryResults && !!refreshStartedAt} className="m-l-5">
@@ -137,16 +151,6 @@ function VisualizationEmbedFooter({
   );
 }
 
-VisualizationEmbedFooter.propTypes = {
-  query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  queryResults: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  updatedAt: PropTypes.string,
-  refreshStartedAt: Moment,
-  queryUrl: PropTypes.string,
-  hideTimestamp: PropTypes.bool,
-  apiKey: PropTypes.string,
-};
-
 VisualizationEmbedFooter.defaultProps = {
   queryResults: null,
   updatedAt: null,
@@ -156,7 +160,16 @@ VisualizationEmbedFooter.defaultProps = {
   apiKey: null,
 };
 
-function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
+type OwnVisualizationEmbedProps = {
+    queryId: string;
+    visualizationId?: string;
+    apiKey: string;
+    onError?: (...args: any[]) => any;
+};
+
+type VisualizationEmbedProps = OwnVisualizationEmbedProps & typeof VisualizationEmbed.defaultProps;
+
+function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }: VisualizationEmbedProps) {
   const [query, setQuery] = useState(null);
   const [error, setError] = useState(null);
   const [refreshStartedAt, setRefreshStartedAt] = useState(null);
@@ -166,8 +179,9 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
 
   useEffect(() => {
     let isCancelled = false;
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'get' does not exist on type 'typeof Quer... Remove this comment to see the full error message
     Query.get({ id: queryId })
-      .then(result => {
+      .then((result: any) => {
         if (!isCancelled) {
           setQuery(result);
         }
@@ -182,13 +196,15 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
   const refreshQueryResults = useCallback(() => {
     if (query) {
       setError(null);
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'Moment' is not assignable to par... Remove this comment to see the full error message
       setRefreshStartedAt(moment());
+      // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
       query
         .getQueryResultPromise()
-        .then(result => {
+        .then((result: any) => {
           setQueryResults(result);
         })
-        .catch(err => {
+        .catch((err: any) => {
           setError(err.getError());
         })
         .finally(() => setRefreshStartedAt(null));
@@ -196,6 +212,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
   }, [query]);
 
   useEffect(() => {
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
     document.querySelector("body").classList.add("headless");
     refreshQueryResults();
   }, [refreshQueryResults]);
@@ -210,7 +227,9 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
   const hideTimestamp = has(location.search, "hide_timestamp");
 
   const showQueryDescription = has(location.search, "showDescription");
+  // @ts-expect-error ts-migrate(2322) FIXME: Type 'number' is not assignable to type 'string | ... Remove this comment to see the full error message
   visualizationId = parseInt(visualizationId, 10);
+  // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
   const visualization = find(query.visualizations, vis => vis.id === visualizationId);
 
   if (!visualization) {
@@ -225,14 +244,18 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
     <div className="tile m-t-10 m-l-10 m-r-10 p-t-10 embed__vis" data-test="VisualizationEmbed">
       {!hideHeader && (
         <VisualizationEmbedHeader
+          // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
           queryName={query.name}
+          // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
           queryDescription={showQueryDescription ? query.description : null}
           visualization={visualization}
         />
       )}
       <div className="col-md-12 query__vis">
+        {/* @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'. */}
         {!hideParametersUI && query.hasParameters() && (
           <div className="p-t-15 p-b-10">
+            {/* @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'. */}
             <Parameters parameters={query.getParametersDefs()} onValuesChange={refreshQueryResults} />
           </div>
         )}
@@ -249,24 +272,24 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
         )}
       </div>
       <VisualizationEmbedFooter
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'null' is not assignable to type 'never'.
         query={query}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'null' is not assignable to type 'never'.
         queryResults={queryResults}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
         updatedAt={queryResults ? queryResults.getUpdatedAt() : undefined}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'null' is not assignable to type 'never'.
         refreshStartedAt={refreshStartedAt}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
         queryUrl={!hideQueryLink ? query.getUrl() : null}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
         hideTimestamp={hideTimestamp}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
         apiKey={apiKey}
       />
     </div>
   );
 }
-
-VisualizationEmbed.propTypes = {
-  queryId: PropTypes.string.isRequired,
-  visualizationId: PropTypes.string,
-  apiKey: PropTypes.string.isRequired,
-  onError: PropTypes.func,
-};
 
 VisualizationEmbed.defaultProps = {
   onError: () => {},
@@ -276,7 +299,8 @@ routes.register(
   "Visualizations.ViewShared",
   routeWithApiKeySession({
     path: "/embed/query/:queryId/visualization/:visualizationId",
-    render: pageProps => <VisualizationEmbed {...pageProps} />,
+    render: (pageProps: any) => <VisualizationEmbed {...pageProps} />,
+    // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
     getApiKey: () => location.search.api_key,
   })
 );

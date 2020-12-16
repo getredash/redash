@@ -3,29 +3,31 @@ import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import notification from "@/services/notification";
 import DatabricksDataSource from "@/services/databricks-data-source";
 
-function getDatabases(dataSource, refresh = false) {
+function getDatabases(dataSource: any, refresh = false) {
   if (!dataSource) {
     return Promise.resolve([]);
   }
 
   return DatabricksDataSource.getDatabases(dataSource, refresh).catch(() => {
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 2.
     notification.error("Failed to load Database list.", "Please try again later.");
     return Promise.reject();
   });
 }
 
-function getSchema(dataSource, databaseName, refresh = false) {
+function getSchema(dataSource: any, databaseName: any, refresh = false) {
   if (!dataSource || !databaseName) {
     return Promise.resolve([]);
   }
 
   return DatabricksDataSource.getDatabaseTables(dataSource, databaseName, refresh).catch(() => {
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 2.
     notification.error(`Failed to load tables for ${databaseName}.`, "Please try again later.");
     return Promise.reject();
   });
 }
 
-function addDisplayNameWithoutDatabaseName(schema, databaseName) {
+function addDisplayNameWithoutDatabaseName(schema: any, databaseName: any) {
   if (!databaseName) {
     return schema;
   }
@@ -40,7 +42,7 @@ function addDisplayNameWithoutDatabaseName(schema, databaseName) {
   });
 }
 
-export default function useDatabricksSchema(dataSource, options = null, onOptionsUpdate = null) {
+export default function useDatabricksSchema(dataSource: any, options = null, onOptionsUpdate = null) {
   const [databases, setDatabases] = useState([]);
   const [loadingDatabases, setLoadingDatabases] = useState(true);
   const [currentDatabaseName, setCurrentDatabaseName] = useState();
@@ -52,6 +54,7 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
     schema =>
       setSchemas(currentSchemas => ({
         ...currentSchemas,
+        // @ts-expect-error ts-migrate(2464) FIXME: A computed property name must be of type 'string',... Remove this comment to see the full error message
         [currentDatabaseName]: schema,
       })),
     [currentDatabaseName]
@@ -65,19 +68,24 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
       DatabricksDataSource.getTableColumns(
         dataSource,
         currentDatabaseName,
+        // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
         tableName.substring(currentDatabaseName.length + 1)
       ).then(columns => {
         if (currentDatabaseNameRef.current === currentDatabaseName) {
           setSchemas(currentSchemas => {
+            // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
             const schema = get(currentSchemas, currentDatabaseName, []);
             const updatedSchema = map(schema, table => {
+              // @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'.
               if (table.name === tableName) {
+                // @ts-expect-error ts-migrate(2698) FIXME: Spread types may only be created from object types... Remove this comment to see the full error message
                 return { ...table, columns, loading: false };
               }
               return table;
             });
             return {
               ...currentSchemas,
+              // @ts-expect-error ts-migrate(2464) FIXME: A computed property name must be of type 'string',... Remove this comment to see the full error message
               [currentDatabaseName]: updatedSchema,
             };
           });
@@ -88,6 +96,7 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
   );
 
   const schema = useMemo(() => {
+    // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
     const currentSchema = get(schemas, currentDatabaseName, []);
     return addDisplayNameWithoutDatabaseName(currentSchema, currentDatabaseName);
   }, [schemas, currentDatabaseName]);
@@ -107,9 +116,11 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
   }, [dataSource, currentDatabaseName, setCurrentSchema, refreshing]);
 
   const schemasRef = useRef();
+  // @ts-expect-error ts-migrate(2322) FIXME: Type '{}' is not assignable to type 'undefined'.
   schemasRef.current = schemas;
   useEffect(() => {
     let isCancelled = false;
+    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'undefined' is not assignable to ... Remove this comment to see the full error message
     if (currentDatabaseName && !has(schemasRef.current, currentDatabaseName)) {
       setLoadingSchema(true);
       getSchema(dataSource, currentDatabaseName)
@@ -139,6 +150,7 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
   }, [dataSource, currentDatabaseName, setCurrentSchema]);
 
   const defaultDatabaseNameRef = useRef();
+  // @ts-expect-error ts-migrate(2322) FIXME: Type 'null' is not assignable to type 'undefined'.
   defaultDatabaseNameRef.current = get(options, "selectedDatabase", null);
   useEffect(() => {
     let isCancelled = false;
@@ -163,6 +175,7 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
             lastUsedDatabase = includes(data, "default") ? "default" : first(data) || null;
           }
 
+          // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string | null' is not assignable... Remove this comment to see the full error message
           setCurrentDatabaseName(lastUsedDatabase);
         }
       })
@@ -187,7 +200,9 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
       }
       setCurrentDatabaseName(databaseName);
       if (isFunction(onOptionsUpdate) && databaseName !== defaultDatabaseNameRef.current) {
+        // @ts-expect-error ts-migrate(2721) FIXME: Cannot invoke an object which is possibly 'null'.
         onOptionsUpdate({
+          // @ts-expect-error ts-migrate(2698) FIXME: Spread types may only be created from object types... Remove this comment to see the full error message
           ...options,
           selectedDatabase: databaseName,
         });

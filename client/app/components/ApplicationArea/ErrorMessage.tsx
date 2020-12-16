@@ -1,12 +1,11 @@
 import { get, isObject } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 
 import "./ErrorMessage.less";
 import DynamicComponent from "@/components/DynamicComponent";
 import { ErrorMessageDetails } from "@/components/ApplicationArea/ErrorMessageDetails";
 
-function getErrorMessageByStatus(status, defaultMessage) {
+function getErrorMessageByStatus(status: any, defaultMessage: any) {
   switch (status) {
     case 404:
       return "It seems like the page you're looking for cannot be found.";
@@ -18,22 +17,31 @@ function getErrorMessageByStatus(status, defaultMessage) {
   }
 }
 
-function getErrorMessage(error) {
+function getErrorMessage(error: any) {
   const message = "It seems like we encountered an error. Try refreshing this page or contact your administrator.";
   if (isObject(error)) {
     // HTTP errors
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'isAxiosError' does not exist on type 'ob... Remove this comment to see the full error message
     if (error.isAxiosError && isObject(error.response)) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'response' does not exist on type 'object... Remove this comment to see the full error message
       return getErrorMessageByStatus(error.response.status, get(error, "response.data.message", message));
     }
     // Router errors
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'status' does not exist on type 'object'.
     if (error.status) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'status' does not exist on type 'object'.
       return getErrorMessageByStatus(error.status, message);
     }
   }
   return message;
 }
 
-export default function ErrorMessage({ error, message }) {
+type Props = {
+    error: any;
+    message?: string;
+};
+
+export default function ErrorMessage({ error, message }: Props) {
   if (!error) {
     return null;
   }
@@ -62,8 +70,3 @@ export default function ErrorMessage({ error, message }) {
     </div>
   );
 }
-
-ErrorMessage.propTypes = {
-  error: PropTypes.object.isRequired,
-  message: PropTypes.string,
-};

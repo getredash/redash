@@ -1,13 +1,20 @@
 import { isString } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 import Alert from "antd/lib/alert";
 import DynamicComponent from "@/components/DynamicComponent";
 import InputWithCopy from "@/components/InputWithCopy";
 import { UserProfile } from "@/components/proptypes";
 import { absoluteUrl } from "@/services/utils";
 
-export default function PasswordLinkAlert(props) {
+type OwnProps = {
+    user: UserProfile;
+    passwordLink?: string;
+};
+
+type Props = OwnProps & typeof PasswordLinkAlert.defaultProps;
+
+export default function PasswordLinkAlert(props: Props) {
+  // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
   const { user, passwordLink, ...restProps } = props;
 
   if (!isString(passwordLink)) {
@@ -21,8 +28,10 @@ export default function PasswordLinkAlert(props) {
         description={
           <React.Fragment>
             <p>
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'. */}
               The mail server is not configured, please send the following link to <b>{user.name}</b>:
             </p>
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ value: string; readOnly: true; }' is not a... Remove this comment to see the full error message */}
             <InputWithCopy value={absoluteUrl(passwordLink)} readOnly />
           </React.Fragment>
         }
@@ -34,11 +43,6 @@ export default function PasswordLinkAlert(props) {
     </DynamicComponent>
   );
 }
-
-PasswordLinkAlert.propTypes = {
-  user: UserProfile.isRequired,
-  passwordLink: PropTypes.string,
-};
 
 PasswordLinkAlert.defaultProps = {
   passwordLink: null,

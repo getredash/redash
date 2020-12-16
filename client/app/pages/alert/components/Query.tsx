@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 
 import Link from "@/components/Link";
 import QuerySelector from "@/components/QuerySelector";
@@ -14,12 +13,23 @@ import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 
 import "./Query.less";
 
-export default function QueryFormItem({ query, queryResult, onChange, editMode }) {
+type OwnProps = {
+    query?: QueryType;
+    queryResult?: any;
+    onChange?: (...args: any[]) => any;
+    editMode?: boolean;
+};
+
+type Props = OwnProps & typeof QueryFormItem.defaultProps;
+
+export default function QueryFormItem({ query, queryResult, onChange, editMode }: Props) {
   const queryHint =
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'schedule' does not exist on type 'never'... Remove this comment to see the full error message
     query && query.schedule ? (
       <small>
         Scheduled to refresh{" "}
         <i className="alert-query-schedule">
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'schedule' does not exist on type 'never'... Remove this comment to see the full error message */}
           <SchedulePhrase schedule={query.schedule} isNew={false} />
         </i>
       </small>
@@ -37,10 +47,13 @@ export default function QueryFormItem({ query, queryResult, onChange, editMode }
   return (
     <>
       {editMode ? (
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
         <QuerySelector onChange={onChange} selectedQuery={query} className="alert-query-selector" type="select" />
       ) : (
         <Tooltip title="Open query in a new tab.">
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type 'never'. */}
           <Link href={`queries/${query.id}`} target="_blank" rel="noopener noreferrer" className="alert-query-link">
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'. */}
             {query.name}
             <i className="fa fa-external-link" />
           </Link>
@@ -55,13 +68,6 @@ export default function QueryFormItem({ query, queryResult, onChange, editMode }
     </>
   );
 }
-
-QueryFormItem.propTypes = {
-  query: QueryType,
-  queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  onChange: PropTypes.func,
-  editMode: PropTypes.bool,
-};
 
 QueryFormItem.defaultProps = {
   query: null,

@@ -18,6 +18,7 @@ function confirmArchive() {
       okText: "Archive",
       okType: "danger",
       onOk: () => {
+        // @ts-expect-error ts-migrate(2794) FIXME: Expected 1 arguments, but got 0. Did you forget to... Remove this comment to see the full error message
         resolve();
       },
       onCancel: () => {
@@ -29,18 +30,20 @@ function confirmArchive() {
   });
 }
 
-function doArchiveQuery(query) {
+function doArchiveQuery(query: any) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'delete' does not exist on type 'typeof Q... Remove this comment to see the full error message
   return Query.delete({ id: query.id })
     .then(() => {
       return extend(query.clone(), { is_archived: true, schedule: null });
     })
-    .catch(error => {
+    .catch((error: any) => {
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
       notification.error("Query could not be archived.");
       return Promise.reject(error);
     });
 }
 
-export default function useArchiveQuery(query, onChange) {
+export default function useArchiveQuery(query: any, onChange: any) {
   const handleChange = useImmutableCallback(onChange);
 
   return useCallback(() => {

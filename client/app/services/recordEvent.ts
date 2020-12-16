@@ -1,7 +1,7 @@
 import { axios } from "@/services/axios";
 import { debounce, extend } from "lodash";
 
-let events = [];
+let events: any = [];
 
 const post = debounce(() => {
   const eventsToSend = events;
@@ -10,7 +10,7 @@ const post = debounce(() => {
   axios.post("api/events", eventsToSend);
 }, 1000);
 
-export default function recordEvent(action, objectType, objectId, additionalProperties) {
+export default function recordEvent(action: any, objectType: any, objectId: any, additionalProperties: any) {
   const event = {
     action,
     object_type: objectType,

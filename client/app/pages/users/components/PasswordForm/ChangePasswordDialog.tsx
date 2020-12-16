@@ -4,17 +4,22 @@ import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import { UserProfile } from "@/components/proptypes";
+// @ts-expect-error ts-migrate(6133) FIXME: 'DialogPropType' is declared but its value is neve... Remove this comment to see the full error message
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import User from "@/services/user";
 import notification from "@/services/notification";
 
-class ChangePasswordDialog extends React.Component {
-  static propTypes = {
-    user: UserProfile.isRequired,
-    dialog: DialogPropType.isRequired,
-  };
+type Props = {
+    user: UserProfile;
+    // @ts-expect-error ts-migrate(2749) FIXME: 'DialogPropType' refers to a value, but is being u... Remove this comment to see the full error message
+    dialog: DialogPropType;
+};
 
-  constructor(props) {
+type State = any;
+
+class ChangePasswordDialog extends React.Component<Props, State> {
+
+  constructor(props: Props) {
     super(props);
     this.state = {
       currentPassword: { value: "", error: null, touched: false },
@@ -24,14 +29,14 @@ class ChangePasswordDialog extends React.Component {
     };
   }
 
-  fieldError = (name, value) => {
+  fieldError = (name: any, value: any) => {
     if (value.length === 0) return "This field is required.";
     if (name !== "currentPassword" && value.length < 6) return "This field is too short.";
     if (name === "repeatPassword" && value !== this.state.newPassword.value) return "Passwords don't match";
     return null;
   };
 
-  validateFields = callback => {
+  validateFields = (callback: any) => {
     const { currentPassword, newPassword, repeatPassword } = this.state;
 
     const errors = {
@@ -57,7 +62,7 @@ class ChangePasswordDialog extends React.Component {
     const { currentPassword, newPassword, updatingPassword } = this.state;
 
     if (!updatingPassword) {
-      this.validateFields(err => {
+      this.validateFields((err: any) => {
         if (!err) {
           const userData = {
             id: this.props.user.id,
@@ -69,6 +74,7 @@ class ChangePasswordDialog extends React.Component {
 
           User.save(userData)
             .then(() => {
+              // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
               notification.success("Saved.");
               this.props.dialog.close({ success: true });
             })
@@ -77,21 +83,22 @@ class ChangePasswordDialog extends React.Component {
               this.setState({ updatingPassword: false });
             });
         } else {
-          this.setState(prevState => ({
+          this.setState((prevState: any) => ({
             currentPassword: { ...prevState.currentPassword, touched: true },
             newPassword: { ...prevState.newPassword, touched: true },
-            repeatPassword: { ...prevState.repeatPassword, touched: true },
+            repeatPassword: { ...prevState.repeatPassword, touched: true }
           }));
         }
       });
     }
   };
 
-  handleChange = e => {
+  handleChange = (e: any) => {
     const { name, value } = e.target;
     const { error } = this.state[name];
 
     this.setState({ [name]: { value, error, touched: true } }, () => {
+      // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0.
       this.validateFields();
     });
   };
@@ -116,6 +123,7 @@ class ChangePasswordDialog extends React.Component {
         <Form layout="vertical">
           <Form.Item
             {...formItemProps}
+            // @ts-expect-error ts-migrate(2322) FIXME: Type '"error" | null' is not assignable to type '"... Remove this comment to see the full error message
             validateStatus={currentPassword.touched && currentPassword.error ? "error" : null}
             help={currentPassword.touched ? currentPassword.error : null}
             label="Current Password">
@@ -123,6 +131,7 @@ class ChangePasswordDialog extends React.Component {
           </Form.Item>
           <Form.Item
             {...formItemProps}
+            // @ts-expect-error ts-migrate(2322) FIXME: Type '"error" | null' is not assignable to type '"... Remove this comment to see the full error message
             validateStatus={newPassword.touched && newPassword.error ? "error" : null}
             help={newPassword.touched ? newPassword.error : null}
             label="New Password">
@@ -130,6 +139,7 @@ class ChangePasswordDialog extends React.Component {
           </Form.Item>
           <Form.Item
             {...formItemProps}
+            // @ts-expect-error ts-migrate(2322) FIXME: Type '"error" | null' is not assignable to type '"... Remove this comment to see the full error message
             validateStatus={repeatPassword.touched && repeatPassword.error ? "error" : null}
             help={repeatPassword.touched ? repeatPassword.error : null}
             label="Repeat New Password">

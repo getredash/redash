@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import TimeAgo from "@/components/TimeAgo";
 import useAddToDashboardDialog from "../hooks/useAddToDashboardDialog";
 import useEmbedDialog from "../hooks/useEmbedDialog";
@@ -10,15 +9,19 @@ import { durationHumanize, pluralize, prettySize } from "@/lib/utils";
 
 import "./QueryExecutionMetadata.less";
 
-export default function QueryExecutionMetadata({
-  query,
-  queryResult,
-  isQueryExecuting,
-  selectedVisualization,
-  showEditVisualizationButton,
-  onEditVisualization,
-  extraActions,
-}) {
+type OwnProps = {
+    query: any;
+    queryResult: any;
+    isQueryExecuting?: boolean;
+    selectedVisualization?: number;
+    showEditVisualizationButton?: boolean;
+    onEditVisualization?: (...args: any[]) => any;
+    extraActions?: React.ReactNode;
+};
+
+type Props = OwnProps & typeof QueryExecutionMetadata.defaultProps;
+
+export default function QueryExecutionMetadata({ query, queryResult, isQueryExecuting, selectedVisualization, showEditVisualizationButton, onEditVisualization, extraActions, }: Props) {
   const queryResultData = useQueryResultData(queryResult);
   const openAddToDashboardDialog = useAddToDashboardDialog(query);
   const openEmbedDialog = useEmbedDialog(query);
@@ -31,6 +34,7 @@ export default function QueryExecutionMetadata({
           queryExecuting={isQueryExecuting}
           showEmbedDialog={openEmbedDialog}
           embed={false}
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'api_key' does not exist on type 'never'.
           apiKey={query.api_key}
           selectedTab={selectedVisualization}
           openAddToDashboardForm={openAddToDashboardDialog}
@@ -71,16 +75,6 @@ export default function QueryExecutionMetadata({
     </div>
   );
 }
-
-QueryExecutionMetadata.propTypes = {
-  query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  queryResult: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  isQueryExecuting: PropTypes.bool,
-  selectedVisualization: PropTypes.number,
-  showEditVisualizationButton: PropTypes.bool,
-  onEditVisualization: PropTypes.func,
-  extraActions: PropTypes.node,
-};
 
 QueryExecutionMetadata.defaultProps = {
   isQueryExecuting: false,

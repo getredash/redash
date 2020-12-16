@@ -1,6 +1,5 @@
 import { isEmpty, reject } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 
 import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
@@ -15,11 +14,16 @@ import Destination, { IMG_ROOT } from "@/services/destination";
 import { policy } from "@/services/policy";
 import routes from "@/services/routes";
 
-class DestinationsList extends React.Component {
-  static propTypes = {
-    isNewDestinationPage: PropTypes.bool,
-    onError: PropTypes.func,
-  };
+type OwnProps = {
+    isNewDestinationPage?: boolean;
+    onError?: (...args: any[]) => any;
+};
+
+type State = any;
+
+type Props = OwnProps & typeof DestinationsList.defaultProps;
+
+class DestinationsList extends React.Component<Props, State> {
 
   static defaultProps = {
     isNewDestinationPage: false,
@@ -56,7 +60,7 @@ class DestinationsList extends React.Component {
       .catch(error => this.props.onError(error));
   }
 
-  createDestination = (selectedType, values) => {
+  createDestination = (selectedType: any, values: any) => {
     const target = { options: {}, type: selectedType.type };
     helper.updateTargetWithValues(target, values);
 
@@ -75,7 +79,9 @@ class DestinationsList extends React.Component {
       onCreate: this.createDestination,
     })
       .onClose((result = {}) => {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'success' does not exist on type '{}'.
         if (result.success) {
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'data' does not exist on type '{}'.
           navigateTo(`destinations/${result.data.id}`);
         }
       })
@@ -87,8 +93,11 @@ class DestinationsList extends React.Component {
   renderDestinations() {
     const { destinations } = this.state;
     const items = destinations.map(destination => ({
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'.
       title: destination.name,
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'type' does not exist on type 'never'.
       imgSrc: `${IMG_ROOT}/${destination.type}.png`,
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type 'never'.
       href: `destinations/${destination.id}`,
     }));
 
@@ -119,6 +128,7 @@ class DestinationsList extends React.Component {
     return (
       <div>
         <div className="m-b-15">
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: (string | Element)[]; type: stri... Remove this comment to see the full error message */}
           <Button {...newDestinationProps}>
             <i className="fa fa-plus m-r-5" />
             New Alert Destination

@@ -1,7 +1,7 @@
 import { isString } from "lodash";
 import navigateTo from "./navigateTo";
 
-export default function handleNavigationIntent(event) {
+export default function handleNavigationIntent(event: any) {
   let element = event.target;
   while (element) {
     if (element.tagName === "A") {

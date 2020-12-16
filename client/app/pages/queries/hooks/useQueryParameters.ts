@@ -1,7 +1,7 @@
 import { isUndefined } from "lodash";
 import { useEffect, useMemo, useState, useCallback } from "react";
 
-export default function useQueryParameters(query) {
+export default function useQueryParameters(query: any) {
   const parameters = useMemo(() => query.getParametersDefs(), [query]);
   const [dirtyFlag, setDirtyFlag] = useState(query.getParameters().hasPendingValues());
 

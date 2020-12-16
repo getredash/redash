@@ -1,19 +1,30 @@
 import moment from "moment";
 import { isNil } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
-import PropTypes from "prop-types";
+// @ts-expect-error ts-migrate(6133) FIXME: 'Moment' is declared but its value is never read.
 import { Moment } from "@/components/proptypes";
 import { clientConfig } from "@/services/auth";
 import Tooltip from "antd/lib/tooltip";
 
-function toMoment(value) {
+function toMoment(value: any) {
   value = !isNil(value) ? moment(value) : null;
   return value && value.isValid() ? value : null;
 }
 
-export default function TimeAgo({ date, placeholder, autoUpdate, variation }) {
+type OwnProps = {
+    // @ts-expect-error ts-migrate(2749) FIXME: 'Moment' refers to a value, but is being used as a... Remove this comment to see the full error message
+    date?: string | number | any | Moment;
+    placeholder?: string;
+    autoUpdate?: boolean;
+    variation?: "timeAgoInTooltip";
+};
+
+type Props = OwnProps & typeof TimeAgo.defaultProps;
+
+export default function TimeAgo({ date, placeholder, autoUpdate, variation }: Props) {
   const startDate = toMoment(date);
   const [value, setValue] = useState(null);
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'dateTimeFormat' does not exist on type '... Remove this comment to see the full error message
   const title = useMemo(() => (startDate ? startDate.format(clientConfig.dateTimeFormat) : null), [startDate]);
 
   useEffect(() => {
@@ -41,13 +52,6 @@ export default function TimeAgo({ date, placeholder, autoUpdate, variation }) {
     </Tooltip>
   );
 }
-
-TimeAgo.propTypes = {
-  date: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.instanceOf(Date), Moment]),
-  placeholder: PropTypes.string,
-  autoUpdate: PropTypes.bool,
-  variation: PropTypes.oneOf(["timeAgoInTooltip"]),
-};
 
 TimeAgo.defaultProps = {
   date: null,

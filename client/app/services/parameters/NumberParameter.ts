@@ -2,13 +2,13 @@ import { toNumber, isNull } from "lodash";
 import Parameter from "./Parameter";
 
 class NumberParameter extends Parameter {
-  constructor(parameter, parentQueryId) {
+  constructor(parameter: any, parentQueryId: any) {
     super(parameter, parentQueryId);
     this.setValue(parameter.value);
   }
 
   // eslint-disable-next-line class-methods-use-this
-  normalizeValue(value) {
+  normalizeValue(value: any) {
     if (isNull(value)) {
       return null;
     }

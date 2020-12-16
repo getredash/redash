@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import cx from "classnames";
 
 import Link from "@/components/Link";
@@ -21,7 +20,14 @@ import HorizontalFormItem from "./components/HorizontalFormItem";
 import { STATE_CLASS } from "../alerts/AlertsList";
 import DynamicComponent from "@/components/DynamicComponent";
 
-function AlertState({ state, lastTriggered }) {
+type OwnAlertStateProps = {
+    state: string;
+    lastTriggered?: string;
+};
+
+type AlertStateProps = OwnAlertStateProps & typeof AlertState.defaultProps;
+
+function AlertState({ state, lastTriggered }: AlertStateProps) {
   return (
     <div className="alert-state">
       <span className={`alert-state-indicator label ${STATE_CLASS[state]}`}>Status: {state}</span>
@@ -38,23 +44,38 @@ function AlertState({ state, lastTriggered }) {
   );
 }
 
-AlertState.propTypes = {
-  state: PropTypes.string.isRequired,
-  lastTriggered: PropTypes.string,
-};
-
 AlertState.defaultProps = {
   lastTriggered: null,
 };
 
+type OwnAlertViewProps = {
+    alert: AlertType;
+    queryResult?: any;
+    canEdit: boolean;
+    onEdit: (...args: any[]) => any;
+    menuButton: React.ReactNode;
+    unmute?: (...args: any[]) => any;
+};
+
+type AlertViewState = any;
+
+type AlertViewProps = OwnAlertViewProps & typeof AlertView.defaultProps;
+
 // eslint-disable-next-line react/prefer-stateless-function
-export default class AlertView extends React.Component {
+export default class AlertView extends React.Component<AlertViewProps, AlertViewState> {
+
+static defaultProps = {
+    queryResult: null,
+    unmute: null,
+};
+
   state = {
     unmuting: false,
   };
 
   unmute = () => {
     this.setState({ unmuting: true });
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'unmute' does not exist on type 'never'.
     this.props.unmute().finally(() => {
       this.setState({ unmuting: false });
     });
@@ -66,9 +87,13 @@ export default class AlertView extends React.Component {
 
     return (
       <>
+        {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
         <Title name={name} alert={alert}>
+          {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
           <DynamicComponent name="AlertView.HeaderExtra" alert={alert} />
+          {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
           <Tooltip title={canEdit ? "" : "You do not have sufficient permissions to edit this alert"}>
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'null' is not assignable to type '((event: Mo... Remove this comment to see the full error message */}
             <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}>
               <i className="fa fa-edit m-r-5" />
               Edit
@@ -77,27 +102,38 @@ export default class AlertView extends React.Component {
           </Tooltip>
         </Title>
         <div className="bg-white tiled p-20">
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: Element[]; type: string; gutter:... Remove this comment to see the full error message */}
           <Grid.Row type="flex" gutter={16}>
             <Grid.Col xs={24} md={16} className="d-flex">
               <Form className="flex-fill">
+                {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
                 <HorizontalFormItem>
+                  {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'. */}
                   <AlertState state={alert.state} lastTriggered={alert.last_triggered_at} />
                 </HorizontalFormItem>
+                {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
                 <HorizontalFormItem label="Query">
+                  {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ query: never; queryResult: never; }' is no... Remove this comment to see the full error message */}
                   <Query query={query} queryResult={queryResult} />
                 </HorizontalFormItem>
                 {queryResult && options && (
                   <>
+                    {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
                     <HorizontalFormItem label="Trigger when" className="alert-criteria">
                       <Criteria
+                        // @ts-expect-error ts-migrate(2339) FIXME: Property 'getColumnNames' does not exist on type '... Remove this comment to see the full error message
                         columnNames={queryResult.getColumnNames()}
+                        // @ts-expect-error ts-migrate(2339) FIXME: Property 'getData' does not exist on type 'never'.
                         resultValues={queryResult.getData()}
                         alertOptions={options}
                       />
                     </HorizontalFormItem>
+                    {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
                     <HorizontalFormItem label="Notifications" className="form-item-line-height-normal">
+                      {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ value: never; }' is not assignable to type... Remove this comment to see the full error message */}
                       <Rearm value={rearm || 0} />
                       <br />
+                      {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'custom_subject' does not exist on type '... Remove this comment to see the full error message */}
                       Set to {options.custom_subject || options.custom_body ? "custom" : "default"} notification
                       template.
                     </HorizontalFormItem>
@@ -106,6 +142,7 @@ export default class AlertView extends React.Component {
               </Form>
             </Grid.Col>
             <Grid.Col xs={24} md={8}>
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'muted' does not exist on type 'never'. */}
               {options.muted && (
                 <AntAlert
                   className="m-b-20"
@@ -144,6 +181,7 @@ export default class AlertView extends React.Component {
                   </Link>
                 </Tooltip>
               </h4>
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type 'never'. */}
               <AlertDestinations alertId={alert.id} />
             </Grid.Col>
           </Grid.Row>
@@ -152,17 +190,3 @@ export default class AlertView extends React.Component {
     );
   }
 }
-
-AlertView.propTypes = {
-  alert: AlertType.isRequired,
-  queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types,
-  canEdit: PropTypes.bool.isRequired,
-  onEdit: PropTypes.func.isRequired,
-  menuButton: PropTypes.node.isRequired,
-  unmute: PropTypes.func,
-};
-
-AlertView.defaultProps = {
-  queryResult: null,
-  unmute: null,
-};

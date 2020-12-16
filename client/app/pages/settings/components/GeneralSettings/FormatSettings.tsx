@@ -6,7 +6,7 @@ import Skeleton from "antd/lib/skeleton";
 import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
 
-export default function FormatSettings(props) {
+export default function FormatSettings(props: any) {
   const { values, onChange, loading } = props;
 
   return (
@@ -19,11 +19,10 @@ export default function FormatSettings(props) {
             value={values.date_format}
             onChange={value => onChange({ date_format: value })}
             data-test="DateFormatSelect">
-            {clientConfig.dateFormatList.map(dateFormat => (
-              <Select.Option key={dateFormat} data-test={`DateFormatSelect:${dateFormat}`}>
-                {dateFormat}
-              </Select.Option>
-            ))}
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'dateFormatList' does not exist on type '... Remove this comment to see the full error message */}
+            {clientConfig.dateFormatList.map((dateFormat: any) => <Select.Option key={dateFormat} data-test={`DateFormatSelect:${dateFormat}`}>
+              {dateFormat}
+            </Select.Option>)}
           </Select>
         )}
       </Form.Item>
@@ -35,9 +34,8 @@ export default function FormatSettings(props) {
             value={values.time_format}
             onChange={value => onChange({ time_format: value })}
             data-test="TimeFormatSelect">
-            {clientConfig.timeFormatList.map(timeFormat => (
-              <Select.Option key={timeFormat}>{timeFormat}</Select.Option>
-            ))}
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'timeFormatList' does not exist on type '... Remove this comment to see the full error message */}
+            {clientConfig.timeFormatList.map((timeFormat: any) => <Select.Option key={timeFormat}>{timeFormat}</Select.Option>)}
           </Select>
         )}
       </Form.Item>

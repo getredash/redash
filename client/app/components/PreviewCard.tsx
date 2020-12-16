@@ -1,11 +1,21 @@
 import React from "react";
-import PropTypes from "prop-types";
 import classNames from "classnames";
 import Link from "@/components/Link";
 
+type OwnPreviewCardProps = {
+    imageUrl: string;
+    title: React.ReactNode;
+    body?: React.ReactNode;
+    roundedImage?: boolean;
+    className?: string;
+    children?: React.ReactNode;
+};
+
+type PreviewCardProps = OwnPreviewCardProps & typeof PreviewCard.defaultProps;
+
 // PreviewCard
 
-export function PreviewCard({ imageUrl, roundedImage, title, body, children, className, ...props }) {
+export function PreviewCard({ imageUrl, roundedImage, title, body, children, className, ...props }: PreviewCardProps) {
   return (
     <div {...props} className={className + " w-100 d-flex align-items-center"}>
       <img
@@ -24,15 +34,6 @@ export function PreviewCard({ imageUrl, roundedImage, title, body, children, cla
   );
 }
 
-PreviewCard.propTypes = {
-  imageUrl: PropTypes.string.isRequired,
-  title: PropTypes.node.isRequired,
-  body: PropTypes.node,
-  roundedImage: PropTypes.bool,
-  className: PropTypes.string,
-  children: PropTypes.node,
-};
-
 PreviewCard.defaultProps = {
   body: null,
   roundedImage: true,
@@ -40,36 +41,52 @@ PreviewCard.defaultProps = {
   children: null,
 };
 
+type OwnUserPreviewCardProps = {
+    user: {
+        profile_image_url: string;
+        name: string;
+        email: string;
+    };
+    withLink?: boolean;
+    children?: React.ReactNode;
+};
+
+type UserPreviewCardProps = OwnUserPreviewCardProps & typeof UserPreviewCard.defaultProps;
+
 // UserPreviewCard
 
-export function UserPreviewCard({ user, withLink, children, ...props }) {
+export function UserPreviewCard({ user, withLink, children, ...props }: UserPreviewCardProps) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type '{ profile_im... Remove this comment to see the full error message
   const title = withLink ? <Link href={"users/" + user.id}>{user.name}</Link> : user.name;
   return (
+    // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'null | un... Remove this comment to see the full error message
     <PreviewCard {...props} imageUrl={user.profile_image_url} title={title} body={user.email}>
       {children}
     </PreviewCard>
   );
 }
 
-UserPreviewCard.propTypes = {
-  user: PropTypes.shape({
-    profile_image_url: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    email: PropTypes.string.isRequired,
-  }).isRequired,
-  withLink: PropTypes.bool,
-  children: PropTypes.node,
-};
-
 UserPreviewCard.defaultProps = {
   withLink: false,
   children: null,
 };
 
+type OwnDataSourcePreviewCardProps = {
+    dataSource: {
+        name: string;
+        type: string;
+    };
+    withLink?: boolean;
+    children?: React.ReactNode;
+};
+
+type DataSourcePreviewCardProps = OwnDataSourcePreviewCardProps & typeof DataSourcePreviewCard.defaultProps;
+
 // DataSourcePreviewCard
 
-export function DataSourcePreviewCard({ dataSource, withLink, children, ...props }) {
+export function DataSourcePreviewCard({ dataSource, withLink, children, ...props }: DataSourcePreviewCardProps) {
   const imageUrl = `static/images/db-logos/${dataSource.type}.png`;
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type '{ name: stri... Remove this comment to see the full error message
   const title = withLink ? <Link href={"data_sources/" + dataSource.id}>{dataSource.name}</Link> : dataSource.name;
   return (
     <PreviewCard {...props} imageUrl={imageUrl} title={title}>
@@ -77,15 +94,6 @@ export function DataSourcePreviewCard({ dataSource, withLink, children, ...props
     </PreviewCard>
   );
 }
-
-DataSourcePreviewCard.propTypes = {
-  dataSource: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
-  }).isRequired,
-  withLink: PropTypes.bool,
-  children: PropTypes.node,
-};
 
 DataSourcePreviewCard.defaultProps = {
   withLink: false,

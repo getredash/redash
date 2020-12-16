@@ -1,12 +1,21 @@
 import React from "react";
-import PropTypes from "prop-types";
 import cx from "classnames";
 import { clientConfig, currentUser } from "@/services/auth";
 import Tooltip from "antd/lib/tooltip";
 import Alert from "antd/lib/alert";
 import HelpTrigger from "@/components/HelpTrigger";
 
-export default function EmailSettingsWarning({ featureName, className, mode, adminOnly }) {
+type OwnProps = {
+    featureName: string;
+    className?: string;
+    mode?: "alert" | "icon";
+    adminOnly?: boolean;
+};
+
+type Props = OwnProps & typeof EmailSettingsWarning.defaultProps;
+
+export default function EmailSettingsWarning({ featureName, className, mode, adminOnly }: Props) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'mailSettingsMissing' does not exist on t... Remove this comment to see the full error message
   if (!clientConfig.mailSettingsMissing) {
     return null;
   }
@@ -18,6 +27,7 @@ export default function EmailSettingsWarning({ featureName, className, mode, adm
   const message = (
     <span>
       Your mail server isn&apos;t configured correctly, and is needed for {featureName} to work.{" "}
+      {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'. */}
       <HelpTrigger type="MAIL_CONFIG" className="f-inherit" />
     </span>
   );
@@ -32,13 +42,6 @@ export default function EmailSettingsWarning({ featureName, className, mode, adm
 
   return <Alert message={message} type="error" className={className} />;
 }
-
-EmailSettingsWarning.propTypes = {
-  featureName: PropTypes.string.isRequired,
-  className: PropTypes.string,
-  mode: PropTypes.oneOf(["alert", "icon"]),
-  adminOnly: PropTypes.bool,
-};
 
 EmailSettingsWarning.defaultProps = {
   className: null,

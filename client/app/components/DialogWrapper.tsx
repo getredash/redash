@@ -3,6 +3,17 @@ import React from "react";
 import PropTypes from "prop-types";
 import ReactDOM from "react-dom";
 
+type DialogPropType = {
+    props: {
+        visible?: boolean;
+        onOk?: (...args: any[]) => any;
+        onCancel?: (...args: any[]) => any;
+        afterClose?: (...args: any[]) => any;
+    };
+    close: (...args: any[]) => any;
+    dismiss: (...args: any[]) => any;
+};
+
 /**
   Wrapper for dialogs based on Ant's <Modal> component.
 
@@ -75,7 +86,7 @@ import ReactDOM from "react-dom";
       );
     }
 
-  4. wrap your component and export it:
+  4. wrap your component and it:
 
     export default wrapDialog(YourComponent).
 
@@ -96,18 +107,21 @@ import ReactDOM from "react-dom";
     }
 */
 
-export const DialogPropType = PropTypes.shape({
-  props: PropTypes.shape({
-    visible: PropTypes.bool,
-    onOk: PropTypes.func,
-    onCancel: PropTypes.func,
-    afterClose: PropTypes.func,
-  }).isRequired,
-  close: PropTypes.func.isRequired,
-  dismiss: PropTypes.func.isRequired,
+// @ts-expect-error ts-migrate(2322) FIXME: Type 'Requireable<InferProps<{ props: Validator<In... Remove this comment to see the full error message
+export const DialogPropType: PropTypes.Requireable<DialogPropType> = PropTypes.shape({
+    props: PropTypes.shape({
+        visible: PropTypes.bool,
+        onOk: PropTypes.func,
+        onCancel: PropTypes.func,
+        afterClose: PropTypes.func,
+    }).isRequired,
+    close: PropTypes.func.isRequired,
+    dismiss: PropTypes.func.isRequired,
 });
+// @ts-expect-error ts-migrate(2323) FIXME: Cannot redeclare exported variable 'DialogPropType... Remove this comment to see the full error message
+export { DialogPropType };
 
-function openDialog(DialogComponent, props) {
+function openDialog(DialogComponent: any, props: any) {
   const dialog = {
     props: {
       visible: true,
@@ -121,7 +135,7 @@ function openDialog(DialogComponent, props) {
     dismiss: () => {},
   };
 
-  let pendingCloseTask = null;
+  let pendingCloseTask: any = null;
 
   const handlers = {
     onClose: () => {},
@@ -143,7 +157,7 @@ function openDialog(DialogComponent, props) {
     }, 10);
   }
 
-  function processDialogClose(result, setAdditionalDialogProps) {
+  function processDialogClose(result: any, setAdditionalDialogProps: any) {
     dialog.props.okButtonProps = { disabled: true };
     dialog.props.cancelButtonProps = { disabled: true };
     setAdditionalDialogProps();
@@ -160,9 +174,11 @@ function openDialog(DialogComponent, props) {
       });
   }
 
-  function closeDialog(result) {
+  function closeDialog(result: any) {
     if (!pendingCloseTask) {
+      // @ts-expect-error ts-migrate(2554) FIXME: Expected 0 arguments, but got 1.
       pendingCloseTask = processDialogClose(handlers.onClose(result), () => {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'loading' does not exist on type '{}'.
         dialog.props.okButtonProps.loading = true;
       }).finally(() => {
         pendingCloseTask = null;
@@ -171,9 +187,11 @@ function openDialog(DialogComponent, props) {
     return pendingCloseTask;
   }
 
-  function dismissDialog(result) {
+  function dismissDialog(result: any) {
     if (!pendingCloseTask) {
+      // @ts-expect-error ts-migrate(2554) FIXME: Expected 0 arguments, but got 1.
       pendingCloseTask = processDialogClose(handlers.onDismiss(result), () => {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'loading' does not exist on type '{}'.
         dialog.props.cancelButtonProps.loading = true;
       }).finally(() => {
         pendingCloseTask = null;
@@ -182,26 +200,30 @@ function openDialog(DialogComponent, props) {
     return pendingCloseTask;
   }
 
+  // @ts-expect-error ts-migrate(2322) FIXME: Type '(result: any) => any' is not assignable to t... Remove this comment to see the full error message
   dialog.props.onOk = closeDialog;
+  // @ts-expect-error ts-migrate(2322) FIXME: Type '(result: any) => any' is not assignable to t... Remove this comment to see the full error message
   dialog.props.onCancel = dismissDialog;
   dialog.props.afterClose = destroyDialog;
+  // @ts-expect-error ts-migrate(2322) FIXME: Type '(result: any) => any' is not assignable to t... Remove this comment to see the full error message
   dialog.close = closeDialog;
+  // @ts-expect-error ts-migrate(2322) FIXME: Type '(result: any) => any' is not assignable to t... Remove this comment to see the full error message
   dialog.dismiss = dismissDialog;
 
   const result = {
     close: closeDialog,
     dismiss: dismissDialog,
-    update: newProps => {
+    update: (newProps: any) => {
       props = { ...props, ...newProps };
       render();
     },
-    onClose: handler => {
+    onClose: (handler: any) => {
       if (isFunction(handler)) {
         handlers.onClose = handler;
       }
       return result;
     },
-    onDismiss: handler => {
+    onDismiss: (handler: any) => {
       if (isFunction(handler)) {
         handlers.onDismiss = handler;
       }
@@ -214,9 +236,9 @@ function openDialog(DialogComponent, props) {
   return result;
 }
 
-export function wrap(DialogComponent) {
+export function wrap(DialogComponent: any) {
   return {
     Component: DialogComponent,
-    showModal: props => openDialog(DialogComponent, props),
+    showModal: (props: any) => openDialog(DialogComponent, props),
   };
 }

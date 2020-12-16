@@ -30,10 +30,10 @@ Mustache.escape = identity; // do not html-escape values
 
 const logger = debug("redash:services:query");
 
-function collectParams(parts) {
-  let parameters = [];
+function collectParams(parts: any) {
+  let parameters: any = [];
 
-  parts.forEach(part => {
+  parts.forEach((part: any) => {
     if (part[0] === "name" || part[0] === "&") {
       parameters.push(part[1].split(".")[0]);
     } else if (part[0] === "#") {
@@ -45,7 +45,16 @@ function collectParams(parts) {
 }
 
 export class Query {
-  constructor(query) {
+  $parameters: any;
+  data_source_id: any;
+  id: any;
+  latest_query_data: any;
+  latest_query_data_id: any;
+  options: any;
+  query: any;
+  queryResult: any;
+  schedule: any;
+  constructor(query: any) {
     extend(this, query);
 
     if (!has(this, "options")) {
@@ -88,7 +97,7 @@ export class Query {
     return this.getParametersDefs().length > 0;
   }
 
-  prepareQueryResultExecution(execute, maxAge) {
+  prepareQueryResultExecution(execute: any, maxAge: any) {
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
 
@@ -131,13 +140,13 @@ export class Query {
     return this.queryResult;
   }
 
-  getQueryResult(maxAge) {
+  getQueryResult(maxAge: any) {
     const execute = () =>
       QueryResult.getByQueryId(this.id, this.getParameters().getExecutionValues(), this.getAutoLimit(), maxAge);
     return this.prepareQueryResultExecution(execute, maxAge);
   }
 
-  getQueryResultByText(maxAge, selectedQueryText) {
+  getQueryResultByText(maxAge: any, selectedQueryText: any) {
     const queryText = selectedQueryText || this.query;
     if (!queryText) {
       return new QueryResultError("Can't execute empty query.");
@@ -149,7 +158,7 @@ export class Query {
     return this.prepareQueryResultExecution(execute, maxAge);
   }
 
-  getUrl(source, hash) {
+  getUrl(source: any, hash: any) {
     let url = `queries/${this.id}`;
 
     if (source) {
@@ -158,10 +167,11 @@ export class Query {
 
     let params = {};
     if (this.getParameters().isRequired()) {
-      this.getParametersDefs().forEach(param => {
+      this.getParametersDefs().forEach((param: any) => {
         extend(params, param.toUrlParams());
       });
     }
+    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     Object.keys(params).forEach(key => params[key] == null && delete params[key]);
     params = map(params, (value, name) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`).join("&");
 
@@ -177,6 +187,7 @@ export class Query {
   }
 
   getQueryResultPromise() {
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0.
     return this.getQueryResult().toPromise();
   }
 
@@ -197,10 +208,12 @@ export class Query {
   }
 
   favorite() {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'favorite' does not exist on type 'typeof... Remove this comment to see the full error message
     return Query.favorite(this);
   }
 
   unfavorite() {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'unfavorite' does not exist on type 'type... Remove this comment to see the full error message
     return Query.unfavorite(this);
   }
 
@@ -213,8 +226,11 @@ export class Query {
 }
 
 class Parameters {
-  constructor(query, queryString) {
+  cachedQueryText: any;
+  query: any;
+  constructor(query: any, queryString: any) {
     this.query = query;
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0.
     this.updateParameters();
     this.initFromQueryString(queryString);
   }
@@ -239,7 +255,7 @@ class Parameters {
     return parameters;
   }
 
-  updateParameters(update) {
+  updateParameters(update: any) {
     if (this.query.query === this.cachedQueryText) {
       const parameters = this.query.options.parameters;
       const hasUnprocessedParameters = find(parameters, p => !(p instanceof Parameter));
@@ -257,13 +273,15 @@ class Parameters {
     this.query.options.parameters = this.query.options.parameters || [];
 
     const parametersMap = {};
-    this.query.options.parameters.forEach(param => {
+    this.query.options.parameters.forEach((param: any) => {
+      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       parametersMap[param.name] = param;
     });
 
     parameterNames.forEach(param => {
       if (!has(parametersMap, param)) {
         this.query.options.parameters.push(
+          // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
           createParameter({
             title: param,
             name: param,
@@ -275,15 +293,15 @@ class Parameters {
       }
     });
 
-    const parameterExists = p => includes(parameterNames, p.name);
+    const parameterExists = (p: any) => includes(parameterNames, p.name);
     const parameters = this.query.options.parameters;
     this.query.options.parameters = parameters
       .filter(parameterExists)
-      .map(p => (p instanceof Parameter ? p : createParameter(p, this.query.id)));
+      .map((p: any) => p instanceof Parameter ? p : createParameter(p, this.query.id));
   }
 
-  initFromQueryString(query) {
-    this.get().forEach(param => {
+  initFromQueryString(query: any) {
+    this.get().forEach((param: any) => {
       param.fromUrlParams(query);
     });
   }
@@ -293,8 +311,9 @@ class Parameters {
     return this.query.options.parameters;
   }
 
-  add(parameterDef) {
-    this.query.options.parameters = this.query.options.parameters.filter(p => p.name !== parameterDef.name);
+  add(parameterDef: any) {
+    this.query.options.parameters = this.query.options.parameters.filter((p: any) => p.name !== parameterDef.name);
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
     const param = createParameter(parameterDef);
     this.query.options.parameters.push(param);
     return param;
@@ -332,7 +351,8 @@ class Parameters {
       return "";
     }
 
-    const params = Object.assign(...this.get().map(p => p.toUrlParams()));
+    // @ts-expect-error ts-migrate(2557) FIXME: Expected at least 1 arguments, but got 0 or more.
+    const params = Object.assign(...this.get().map((p: any) => p.toUrlParams()));
     Object.keys(params).forEach(key => params[key] == null && delete params[key]);
     return Object.keys(params)
       .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
@@ -341,7 +361,9 @@ class Parameters {
 }
 
 export class QueryResultError {
-  constructor(errorMessage) {
+  errorMessage: any;
+  updatedAt: any;
+  constructor(errorMessage: any) {
     this.errorMessage = errorMessage;
     this.updatedAt = moment.utc();
   }
@@ -374,34 +396,44 @@ export class QueryResultError {
   }
 }
 
-const getQuery = query => new Query(query);
-const saveOrCreateUrl = data => (data.id ? `api/queries/${data.id}` : "api/queries");
-const mapResults = data => ({ ...data, results: map(data.results, getQuery) });
+const getQuery = (query: any) => new Query(query);
+const saveOrCreateUrl = (data: any) => data.id ? `api/queries/${data.id}` : "api/queries";
+const mapResults = (data: any) => ({
+  ...data,
+  results: map(data.results, getQuery)
+});
 
 const QueryService = {
-  query: params => axios.get("api/queries", { params }).then(mapResults),
-  get: data => axios.get(`api/queries/${data.id}`, data).then(getQuery),
-  save: data => axios.post(saveOrCreateUrl(data), data).then(getQuery),
-  delete: data => axios.delete(`api/queries/${data.id}`),
-  recent: params => axios.get(`api/queries/recent`, { params }).then(data => map(data, getQuery)),
-  archive: params => axios.get(`api/queries/archive`, { params }).then(mapResults),
-  myQueries: params => axios.get("api/queries/my", { params }).then(mapResults),
-  fork: ({ id }) => axios.post(`api/queries/${id}/fork`, { id }).then(getQuery),
-  resultById: data => axios.get(`api/queries/${data.id}/results.json`),
-  asDropdown: data => axios.get(`api/queries/${data.id}/dropdown`),
-  associatedDropdown: ({ queryId, dropdownQueryId }) =>
+  query: (params: any) => axios.get("api/queries", { params }).then(mapResults),
+  get: (data: any) => axios.get(`api/queries/${data.id}`, data).then(getQuery),
+  save: (data: any) => axios.post(saveOrCreateUrl(data), data).then(getQuery),
+  delete: (data: any) => axios.delete(`api/queries/${data.id}`),
+  recent: (params: any) => axios.get(`api/queries/recent`, { params }).then(data => map(data, getQuery)),
+  archive: (params: any) => axios.get(`api/queries/archive`, { params }).then(mapResults),
+  myQueries: (params: any) => axios.get("api/queries/my", { params }).then(mapResults),
+  fork: ({
+    id
+  }: any) => axios.post(`api/queries/${id}/fork`, { id }).then(getQuery),
+  resultById: (data: any) => axios.get(`api/queries/${data.id}/results.json`),
+  asDropdown: (data: any) => axios.get(`api/queries/${data.id}/dropdown`),
+  associatedDropdown: ({
+    queryId,
+    dropdownQueryId
+  }: any) =>
     axios.get(`api/queries/${queryId}/dropdowns/${dropdownQueryId}`),
-  favorites: params => axios.get("api/queries/favorites", { params }).then(mapResults),
-  favorite: data => axios.post(`api/queries/${data.id}/favorite`),
-  unfavorite: data => axios.delete(`api/queries/${data.id}/favorite`),
+  favorites: (params: any) => axios.get("api/queries/favorites", { params }).then(mapResults),
+  favorite: (data: any) => axios.post(`api/queries/${data.id}/favorite`),
+  unfavorite: (data: any) => axios.delete(`api/queries/${data.id}/favorite`),
 };
 
+// @ts-expect-error ts-migrate(2339) FIXME: Property 'newQuery' does not exist on type '{ quer... Remove this comment to see the full error message
 QueryService.newQuery = function newQuery() {
   return new Query({
     query: "",
     name: "New Query",
     schedule: null,
     user: currentUser,
+    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'true' is not assignable to param... Remove this comment to see the full error message
     options: { apply_auto_limit: localOptions.get("applyAutoLimit", true) },
     tags: [],
     can_edit: true,

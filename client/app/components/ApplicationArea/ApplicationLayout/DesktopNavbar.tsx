@@ -7,6 +7,7 @@ import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog
 import { useCurrentRoute } from "@/components/ApplicationArea/Router";
 import { Auth, currentUser } from "@/services/auth";
 import settingsMenu from "@/services/settingsMenu";
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module '@/assets/images/redash_icon_sm... Remove this comment to see the full error message
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
 import DesktopOutlinedIcon from "@ant-design/icons/DesktopOutlined";
@@ -19,7 +20,10 @@ import SettingOutlinedIcon from "@ant-design/icons/SettingOutlined";
 import VersionInfo from "./VersionInfo";
 import "./DesktopNavbar.less";
 
-function NavbarSection({ children, ...props }) {
+function NavbarSection({
+  children,
+  ...props
+}: any) {
   return (
     <Menu selectable={false} mode="vertical" theme="dark" {...props}>
       {children}
@@ -34,6 +38,7 @@ function useNavbarActiveState() {
     () => ({
       dashboards: includes(
         ["Dashboards.List", "Dashboards.Favorites", "Dashboards.ViewOrEdit", "Dashboards.LegacyViewOrEdit"],
+        // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
         currentRoute.id
       ),
       queries: includes(
@@ -46,11 +51,15 @@ function useNavbarActiveState() {
           "Queries.New",
           "Queries.Edit",
         ],
+        // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
         currentRoute.id
       ),
+      // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
       dataSources: includes(["DataSources.List"], currentRoute.id),
+      // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
       alerts: includes(["Alerts.List", "Alerts.New", "Alerts.View", "Alerts.Edit"], currentRoute.id),
     }),
+    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
     [currentRoute.id]
   );
 }
@@ -76,6 +85,7 @@ export default function DesktopNavbar() {
 
       <NavbarSection>
         {currentUser.hasPermission("list_dashboards") && (
+          // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
           <Menu.Item key="dashboards" className={activeState.dashboards ? "navbar-active-item" : null}>
             <Link href="dashboards">
               <DesktopOutlinedIcon />
@@ -84,6 +94,7 @@ export default function DesktopNavbar() {
           </Menu.Item>
         )}
         {currentUser.hasPermission("view_query") && (
+          // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
           <Menu.Item key="queries" className={activeState.queries ? "navbar-active-item" : null}>
             <Link href="queries">
               <CodeOutlinedIcon />
@@ -92,6 +103,7 @@ export default function DesktopNavbar() {
           </Menu.Item>
         )}
         {currentUser.hasPermission("list_alerts") && (
+          // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
           <Menu.Item key="alerts" className={activeState.alerts ? "navbar-active-item" : null}>
             <Link href="alerts">
               <AlertOutlinedIcon />
@@ -122,6 +134,7 @@ export default function DesktopNavbar() {
             )}
             {canCreateDashboard && (
               <Menu.Item key="new-dashboard">
+                {/* @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0. */}
                 <a data-test="CreateDashboardMenuItem" onMouseUp={() => CreateDashboardDialog.showModal()}>
                   New Dashboard
                 </a>
@@ -140,13 +153,16 @@ export default function DesktopNavbar() {
 
       <NavbarSection>
         <Menu.Item key="help">
+          {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
           <HelpTrigger showTooltip={false} type="HOME">
             <QuestionCircleOutlinedIcon />
             <span className="desktop-navbar-label">Help</span>
           </HelpTrigger>
         </Menu.Item>
         {firstSettingsTab && (
+          // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
           <Menu.Item key="settings" className={activeState.dataSources ? "navbar-active-item" : null}>
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'path' does not exist on type 'number | (... Remove this comment to see the full error message */}
             <Link href={firstSettingsTab.path} data-test="SettingsLink">
               <SettingOutlinedIcon />
               <span className="desktop-navbar-label">Settings</span>
@@ -161,6 +177,7 @@ export default function DesktopNavbar() {
           popupClassName="desktop-navbar-submenu"
           title={
             <span data-test="ProfileDropdown" className="desktop-navbar-profile-menu-title">
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'profile_image_url' does not exist on typ... Remove this comment to see the full error message */}
               <img className="profile__image_thumb" src={currentUser.profile_image_url} alt={currentUser.name} />
             </span>
           }>

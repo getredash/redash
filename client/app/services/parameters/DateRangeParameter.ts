@@ -17,7 +17,7 @@ const DYNAMIC_PREFIX = "d_";
  * @param now {function(): moment.Moment=} moment - defaults to now
  * @returns {function(withNow: boolean): [moment.Moment, moment.Moment|undefined]}
  */
-const untilNow = (from, now = () => moment()) => (withNow = true) => [from(), withNow ? now() : undefined];
+const untilNow = (from: any, now = () => moment()) => (withNow = true) => [from(), withNow ? now() : undefined];
 
 const DYNAMIC_DATE_RANGES = {
   today: {
@@ -156,31 +156,38 @@ const DYNAMIC_DATE_RANGES = {
 
 export const DynamicDateRangeType = PropTypes.oneOf(values(DYNAMIC_DATE_RANGES));
 
-export function isDynamicDateRangeString(value) {
+export function isDynamicDateRangeString(value: any) {
   if (!startsWith(value, DYNAMIC_PREFIX)) {
     return false;
   }
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   return !!DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_PREFIX.length)];
 }
 
-export function getDynamicDateRangeStringFromName(dynamicRangeName) {
+export function getDynamicDateRangeStringFromName(dynamicRangeName: any) {
   const key = findKey(DYNAMIC_DATE_RANGES, range => range.name === dynamicRangeName);
   return key ? DYNAMIC_PREFIX + key : undefined;
 }
 
-export function isDynamicDateRange(value) {
+export function isDynamicDateRange(value: any) {
   return includes(DYNAMIC_DATE_RANGES, value);
 }
 
-export function getDynamicDateRangeFromString(value) {
+export function getDynamicDateRangeFromString(value: any) {
   if (!isDynamicDateRangeString(value)) {
     return null;
   }
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   return DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_PREFIX.length)];
 }
 
 class DateRangeParameter extends Parameter {
-  constructor(parameter, parentQueryId) {
+  $$value: any;
+  name: any;
+  type: any;
+  urlPrefix: any;
+  value: any;
+  constructor(parameter: any, parentQueryId: any) {
     super(parameter, parentQueryId);
     this.setValue(parameter.value);
   }
@@ -190,7 +197,7 @@ class DateRangeParameter extends Parameter {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  normalizeValue(value) {
+  normalizeValue(value: any) {
     if (isDynamicDateRangeString(value)) {
       return getDynamicDateRangeFromString(value);
     }
@@ -200,6 +207,7 @@ class DateRangeParameter extends Parameter {
     }
 
     if (isObject(value) && !isArray(value)) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'start' does not exist on type 'object'.
       value = [value.start, value.end];
     }
 
@@ -212,13 +220,15 @@ class DateRangeParameter extends Parameter {
     return null;
   }
 
-  setValue(value) {
+  setValue(value: any) {
     const normalizedValue = this.normalizeValue(value);
     if (isDynamicDateRange(normalizedValue)) {
       this.value = DYNAMIC_PREFIX + findKey(DYNAMIC_DATE_RANGES, normalizedValue);
     } else if (isArray(normalizedValue)) {
       this.value = {
+        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         start: normalizedValue[0].format(DATETIME_FORMATS[this.type]),
+        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         end: normalizedValue[1].format(DATETIME_FORMATS[this.type]),
       };
     } else {
@@ -233,7 +243,8 @@ class DateRangeParameter extends Parameter {
 
   getExecutionValue() {
     if (this.hasDynamicValue) {
-      const format = date => date.format(DATETIME_FORMATS[this.type]);
+      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+      const format = (date: any) => date.format(DATETIME_FORMATS[this.type]);
       const [start, end] = this.normalizedValue.value().map(format);
       return { start, end };
     }
@@ -242,15 +253,17 @@ class DateRangeParameter extends Parameter {
 
   toUrlParams() {
     const prefix = this.urlPrefix;
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'start' does not exist on type 'object'.
     if (isObject(this.value) && this.value.start && this.value.end) {
       return {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'start' does not exist on type 'object'.
         [`${prefix}${this.name}`]: `${this.value.start}--${this.value.end}`,
       };
     }
     return super.toUrlParams();
   }
 
-  fromUrlParams(query) {
+  fromUrlParams(query: any) {
     const prefix = this.urlPrefix;
     const key = `${prefix}${this.name}`;
 

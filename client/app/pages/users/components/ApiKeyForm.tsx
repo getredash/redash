@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from "react";
-import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
@@ -9,7 +8,14 @@ import { UserProfile } from "@/components/proptypes";
 import User from "@/services/user";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
-export default function ApiKeyForm(props) {
+type OwnProps = {
+    user: UserProfile;
+    onChange?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof ApiKeyForm.defaultProps;
+
+export default function ApiKeyForm(props: Props) {
   const { user, onChange } = props;
 
   const [loading, setLoading] = useState(false);
@@ -41,9 +47,11 @@ export default function ApiKeyForm(props) {
 
   return (
     <DynamicComponent name="UserProfile.ApiKeyForm" {...props}>
+      {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
       <Form layout="vertical">
         <hr />
         <Form.Item label="API Key" className="m-b-10">
+          {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ id: string; className: string; value: stri... Remove this comment to see the full error message */}
           <InputWithCopy id="apiKey" className="hide-in-percy" value={user.apiKey} data-test="ApiKey" readOnly />
         </Form.Item>
         <Button className="w-100" onClick={regenerateApiKey} loading={loading} data-test="RegenerateApiKey">
@@ -53,11 +61,6 @@ export default function ApiKeyForm(props) {
     </DynamicComponent>
   );
 }
-
-ApiKeyForm.propTypes = {
-  user: UserProfile.isRequired,
-  onChange: PropTypes.func,
-};
 
 ApiKeyForm.defaultProps = {
   onChange: () => {},

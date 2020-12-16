@@ -1,6 +1,5 @@
 import React from "react";
 import cx from "classnames";
-import PropTypes from "prop-types";
 import { map, includes } from "lodash";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
@@ -23,11 +22,15 @@ function getDashboardTags() {
   return getTags("api/dashboards/tags").then(tags => map(tags, t => t.name));
 }
 
-function buttonType(value) {
+function buttonType(value: any) {
   return value ? "primary" : "default";
 }
 
-function DashboardPageTitle({ dashboardOptions }) {
+type DashboardPageTitleProps = {
+    dashboardOptions: any;
+};
+
+function DashboardPageTitle({ dashboardOptions }: DashboardPageTitleProps) {
   const { dashboard, canEditDashboard, updateDashboard, editingLayout } = dashboardOptions;
   return (
     <div className="title-with-tags">
@@ -46,26 +49,30 @@ function DashboardPageTitle({ dashboardOptions }) {
         </Tooltip>
       </div>
       <DashboardTagsControl
+        // @ts-expect-error ts-migrate(2322) FIXME: Type '{ tags: any; isDraft: any; isArchived: any; ... Remove this comment to see the full error message
         tags={dashboard.tags}
         isDraft={dashboard.is_draft}
         isArchived={dashboard.is_archived}
         canEdit={canEditDashboard}
         getAvailableTags={getDashboardTags}
-        onEdit={tags => updateDashboard({ tags })}
+        onEdit={(tags: any) => updateDashboard({ tags })}
       />
     </div>
   );
 }
 
-DashboardPageTitle.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+type RefreshButtonProps = {
+    dashboardOptions: any;
 };
 
-function RefreshButton({ dashboardOptions }) {
+function RefreshButton({ dashboardOptions }: RefreshButtonProps) {
   const { refreshRate, setRefreshRate, disableRefreshRate, refreshing, refreshDashboard } = dashboardOptions;
   const allowedIntervals = policy.getDashboardRefreshIntervals();
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'dashboardRefreshIntervals' does not exis... Remove this comment to see the full error message
   const refreshRateOptions = clientConfig.dashboardRefreshIntervals;
-  const onRefreshRateSelected = ({ key }) => {
+  const onRefreshRateSelected = ({
+    key
+  }: any) => {
     const parsedRefreshRate = parseFloat(key);
     if (parsedRefreshRate) {
       setRefreshRate(parsedRefreshRate);
@@ -87,11 +94,9 @@ function RefreshButton({ dashboardOptions }) {
         placement="bottomRight"
         overlay={
           <Menu onClick={onRefreshRateSelected} selectedKeys={[`${refreshRate}`]}>
-            {refreshRateOptions.map(option => (
-              <Menu.Item key={`${option}`} disabled={!includes(allowedIntervals, option)}>
-                {durationHumanize(option)}
-              </Menu.Item>
-            ))}
+            {refreshRateOptions.map((option: any) => <Menu.Item key={`${option}`} disabled={!includes(allowedIntervals, option)}>
+              {durationHumanize(option)}
+            </Menu.Item>)}
             {refreshRate && <Menu.Item key={null}>Disable auto refresh</Menu.Item>}
           </Menu>
         }>
@@ -104,11 +109,11 @@ function RefreshButton({ dashboardOptions }) {
   );
 }
 
-RefreshButton.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+type DashboardMoreOptionsButtonProps = {
+    dashboardOptions: any;
 };
 
-function DashboardMoreOptionsButton({ dashboardOptions }) {
+function DashboardMoreOptionsButton({ dashboardOptions }: DashboardMoreOptionsButtonProps) {
   const {
     dashboard,
     setEditingLayout,
@@ -140,11 +145,13 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
           <Menu.Item className={cx({ hidden: gridDisabled })}>
             <a onClick={() => setEditingLayout(true)}>Edit</a>
           </Menu.Item>
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'showPermissionsControl' does not exist o... Remove this comment to see the full error message */}
           {clientConfig.showPermissionsControl && isDashboardOwnerOrAdmin && (
             <Menu.Item>
               <a onClick={managePermissions}>Manage Permissions</a>
             </Menu.Item>
           )}
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'disablePublish' does not exist on type '... Remove this comment to see the full error message */}
           {!clientConfig.disablePublish && !dashboard.is_draft && (
             <Menu.Item>
               <a onClick={togglePublished}>Unpublish</a>
@@ -162,11 +169,12 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
   );
 }
 
-DashboardMoreOptionsButton.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+type DashboardControlProps = {
+    dashboardOptions: any;
+    headerExtra?: React.ReactNode;
 };
 
-function DashboardControl({ dashboardOptions, headerExtra }) {
+function DashboardControl({ dashboardOptions, headerExtra }: DashboardControlProps) {
   const {
     dashboard,
     togglePublished,
@@ -179,6 +187,7 @@ function DashboardControl({ dashboardOptions, headerExtra }) {
   const showRefreshButton = true;
   const showFullscreenButton = !dashboard.is_draft;
   const canShareDashboard = canEditDashboard && !dashboard.is_draft;
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'disablePublicUrls' does not exist on typ... Remove this comment to see the full error message
   const showShareButton = !clientConfig.disablePublicUrls && (dashboard.publicAccessEnabled || canShareDashboard);
   const showMoreOptionsButton = canEditDashboard;
   return (
@@ -217,12 +226,12 @@ function DashboardControl({ dashboardOptions, headerExtra }) {
   );
 }
 
-DashboardControl.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  headerExtra: PropTypes.node,
+type DashboardEditControlProps = {
+    dashboardOptions: any;
+    headerExtra?: React.ReactNode;
 };
 
-function DashboardEditControl({ dashboardOptions, headerExtra }) {
+function DashboardEditControl({ dashboardOptions, headerExtra }: DashboardEditControlProps) {
   const { setEditingLayout, doneBtnClickedWhileSaving, dashboardStatus, retrySaveDashboardLayout } = dashboardOptions;
   let status;
   if (dashboardStatus === DashboardStatusEnum.SAVED) {
@@ -257,12 +266,12 @@ function DashboardEditControl({ dashboardOptions, headerExtra }) {
   );
 }
 
-DashboardEditControl.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  headerExtra: PropTypes.node,
+type DashboardHeaderProps = {
+    dashboardOptions: any;
+    headerExtra?: React.ReactNode;
 };
 
-export default function DashboardHeader({ dashboardOptions, headerExtra }) {
+export default function DashboardHeader({ dashboardOptions, headerExtra }: DashboardHeaderProps) {
   const { editingLayout } = dashboardOptions;
   const DashboardControlComponent = editingLayout ? DashboardEditControl : DashboardControl;
 
@@ -273,8 +282,3 @@ export default function DashboardHeader({ dashboardOptions, headerExtra }) {
     </div>
   );
 }
-
-DashboardHeader.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  headerExtra: PropTypes.node,
-};

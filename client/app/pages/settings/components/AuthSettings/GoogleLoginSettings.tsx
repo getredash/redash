@@ -7,9 +7,10 @@ import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
-export default function GoogleLoginSettings(props) {
+export default function GoogleLoginSettings(props: any) {
   const { values, onChange } = props;
 
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'googleLoginEnabled' does not exist on ty... Remove this comment to see the full error message
   if (!clientConfig.googleLoginEnabled) {
     return null;
   }
