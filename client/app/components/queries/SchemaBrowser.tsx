@@ -265,7 +265,6 @@ export default function SchemaBrowser({ dataSource, onSchemaUpdate, onItemSelect
     handleSchemaUpdate(schema);
   }, [schema, handleSchemaUpdate]);
 
-  // @ts-expect-error ts-migrate(2339) FIXME: Property 'length' does not exist on type 'boolean ... Remove this comment to see the full error message
   if (schema.length === 0 && !isLoading) {
     return null;
   }
@@ -284,20 +283,17 @@ export default function SchemaBrowser({ dataSource, onSchemaUpdate, onItemSelect
         <Input
           className="m-r-5"
           placeholder="Search schema..."
-          // @ts-expect-error ts-migrate(2339) FIXME: Property 'length' does not exist on type 'boolean ... Remove this comment to see the full error message
           disabled={schema.length === 0}
           onChange={event => handleFilterChange(event.target.value)}
         />
 
         <Tooltip title="Refresh Schema">
-          {/* @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable. */}
           <Button onClick={() => refreshSchema(true)}>
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": isLoading })} />
           </Button>
         </Tooltip>
       </div>
       <SchemaList
-        // @ts-expect-error ts-migrate(2339) FIXME: Property 'length' does not exist on type 'boolean ... Remove this comment to see the full error message
         loading={isLoading && schema.length === 0}
         schema={filteredSchema}
         expandedFlags={expandedFlags}

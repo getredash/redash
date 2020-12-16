@@ -179,7 +179,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }: 
   // descriptor there (to properly render the component). For new visualizations show all types except of deprecated
   const availableVisualizations = isNew
     ? // @ts-expect-error ts-migrate(2339) FIXME: Property 'isDeprecated' does not exist on type 'ne... Remove this comment to see the full error message
-      filter(sortBy(registeredVisualizations, ["name"]), vis => !vis.isDeprecated)
+           filter(sortBy(registeredVisualizations, ["name"]), vis => !vis.isDeprecated)
     : pick(registeredVisualizations, [type]);
 
   return (
