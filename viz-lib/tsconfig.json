@@ -8,7 +8,6 @@
     "types": ["node", "jest"],
     "outDir": "lib",
     "declaration": true,
-    "emitDeclarationOnly": true,
     "strict": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
