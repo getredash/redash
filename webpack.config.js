@@ -64,7 +64,7 @@ const config = {
   mode: isProduction ? "production" : "development",
   entry: {
     app: [
-      "./client/app/index.js",
+      "./client/app/index.tsx",
       "./client/app/assets/less/main.less",
       "./client/app/assets/less/ant.less"
     ],
@@ -139,7 +139,7 @@ const config = {
               ].filter(Boolean)
             }
           },
-          require.resolve("eslint-loader")
+          
         ]
       },
       {

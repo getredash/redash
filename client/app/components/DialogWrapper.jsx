@@ -220,8 +220,3 @@ export function wrap(DialogComponent) {
     showModal: props => openDialog(DialogComponent, props),
   };
 }
-
-export default {
-  DialogPropType,
-  wrap,
-};
