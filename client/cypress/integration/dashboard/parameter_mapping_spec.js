@@ -37,7 +37,7 @@ describe("Parameter Mapping", () => {
   };
 
   const saveMappingOptions = () => {
-    cy.getByTestId("EditParamMappingPopover").within(() => {
+    cy.getByTestId("InputPopoverContent").within(() => {
       cy.contains("button", "OK").click();
     });
 
@@ -90,7 +90,7 @@ describe("Parameter Mapping", () => {
 
     cy.getByTestId("StaticValueOption").click();
 
-    cy.getByTestId("EditParamMappingPopover").within(() => {
+    cy.getByTestId("InputPopoverContent").within(() => {
       cy.getByTestId("ParameterValueInput")
         .find("input")
         .type("{selectall}StaticValue");

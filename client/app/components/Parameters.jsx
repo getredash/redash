@@ -7,7 +7,6 @@ import { Parameter, createParameter } from "@/services/parameters";
 import ParameterApplyButton from "@/components/ParameterApplyButton";
 import ParameterValueInput from "@/components/ParameterValueInput";
 import EditParameterSettingsDialog from "./EditParameterSettingsDialog";
-import { toHuman } from "@/lib/utils";
 
 import "./Parameters.less";
 
@@ -121,7 +120,7 @@ export default class Parameters extends React.Component {
     return (
       <div key={param.name} className="di-block" data-test={`ParameterName-${param.name}`}>
         <div className="parameter-heading">
-          <label>{param.title || toHuman(param.name)}</label>
+          <label>{param.getTitle()}</label>
           {editable && (
             <button
               className="btn btn-default btn-xs m-l-5"

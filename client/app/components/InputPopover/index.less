@@ -1,0 +1,37 @@
+@import "~antd/lib/modal/style/index"; // for ant @vars
+
+.input-popover-content {
+  width: 390px;
+
+  .radio {
+    display: block;
+    height: 30px;
+    line-height: 30px;
+  }
+
+  .form-item {
+    margin-bottom: 10px;
+  }
+
+  header {
+    padding: 0 16px 10px;
+    margin: 0 -16px 20px;
+    border-bottom: @border-width-base @border-style-base @border-color-split;
+    font-size: @font-size-lg;
+    font-weight: 500;
+    color: @heading-color;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  footer {
+    border-top: @border-width-base @border-style-base @border-color-split;
+    padding: 10px 16px 0;
+    margin: 0 -16px;
+    text-align: right;
+
+    button {
+      margin-left: 8px;
+    }
+  }
+}

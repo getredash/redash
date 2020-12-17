@@ -31,6 +31,18 @@ describe("QueryBasedDropdownParameter", () => {
     });
   });
 
+  describe("getExecutionValue", () => {
+    test("returns value when stored value doesn't contain its label", () => {
+      param.setValue("test");
+      expect(param.getExecutionValue()).toBe("test");
+    });
+
+    test("returns value from object when stored value contains its label", () => {
+      param.setValue({ label: "Test Label", value: "test" });
+      expect(param.getExecutionValue()).toBe("test");
+    });
+  });
+
   describe("Multi-valued", () => {
     beforeAll(() => {
       multiValuesOptions = { prefix: '"', suffix: '"', separator: "," };
@@ -44,6 +56,19 @@ describe("QueryBasedDropdownParameter", () => {
     });
 
     describe("getExecutionValue", () => {
+      test("returns value when stored value doesn't contain its label", () => {
+        param.setValue(["test1", "test2"]);
+        expect(param.getExecutionValue()).toEqual(["test1", "test2"]);
+      });
+
+      test("returns value from object when stored value contains its label", () => {
+        param.setValue([
+          { label: "Test Label 1", value: "test1" },
+          { label: "Test Label 2", value: "test2" },
+        ]);
+        expect(param.getExecutionValue()).toEqual(["test1", "test2"]);
+      });
+
       test("joins values when joinListValues is truthy", () => {
         param.setValue(["value1", "value3"]);
         const executionValue = param.getExecutionValue({ joinListValues: true });

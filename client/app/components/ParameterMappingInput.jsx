@@ -17,6 +17,7 @@ import ParameterValueInput from "@/components/ParameterValueInput";
 import { ParameterMappingType } from "@/services/widget";
 import { Parameter, cloneParameter } from "@/services/parameters";
 import HelpTrigger from "@/components/HelpTrigger";
+import InputPopover from "@/components/InputPopover";
 
 import QuestionCircleFilledIcon from "@ant-design/icons/QuestionCircleFilled";
 import EditOutlinedIcon from "@ant-design/icons/EditOutlined";
@@ -313,43 +314,34 @@ class MappingEditor extends React.Component {
     this.setState({ visible: false });
   };
 
-  renderContent() {
-    const { mapping, inputError } = this.state;
-
-    return (
-      <div className="parameter-mapping-editor" data-test="EditParamMappingPopover">
-        <header>
-          Edit Source and Value <HelpTrigger type="VALUE_SOURCE_OPTIONS" />
-        </header>
-        <ParameterMappingInput
-          mapping={mapping}
-          existingParamNames={this.props.existingParamNames}
-          onChange={this.onChange}
-          inputError={inputError}
-        />
-        <footer>
-          <Button onClick={this.hide}>Cancel</Button>
-          <Button onClick={this.save} disabled={!!inputError} type="primary">
-            OK
-          </Button>
-        </footer>
-      </div>
-    );
-  }
-
   render() {
-    const { visible, mapping } = this.state;
+    const { visible, mapping, inputError } = this.state;
     return (
-      <Popover
+      <InputPopover
         placement="left"
         trigger="click"
-        content={this.renderContent()}
+        header={
+          <>
+            Edit Source and Value <HelpTrigger type="VALUE_SOURCE_OPTIONS" />
+          </>
+        }
+        content={
+          <ParameterMappingInput
+            mapping={mapping}
+            existingParamNames={this.props.existingParamNames}
+            onChange={this.onChange}
+            inputError={inputError}
+          />
+        }
+        onOk={this.save}
+        onCancel={this.hide}
+        okButtonProps={{ disabled: !!inputError }}
         visible={visible}
         onVisibleChange={this.onVisibleChange}>
         <Button size="small" type="dashed" data-test={`EditParamMappingButton-${mapping.param.name}`}>
           <EditOutlinedIcon />
         </Button>
-      </Popover>
+      </InputPopover>
     );
   }
 }

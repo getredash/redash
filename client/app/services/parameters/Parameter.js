@@ -1,4 +1,5 @@
 import { isNull, isObject, isFunction, isUndefined, isEqual, has, omit, isArray, each } from "lodash";
+import { toHuman } from "@/lib/utils";
 
 class Parameter {
   constructor(parameter, parentQueryId) {
@@ -42,6 +43,10 @@ class Parameter {
   /** Get normalized value to be used in inputs */
   get normalizedValue() {
     return this.$$value;
+  }
+
+  getTitle() {
+    return this.title || toHuman(this.name);
   }
 
   isEmptyValue(value) {

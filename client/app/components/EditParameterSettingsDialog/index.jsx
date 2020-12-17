@@ -1,5 +1,5 @@
-import { includes, words, capitalize, clone, isNull } from "lodash";
-import React, { useState, useEffect } from "react";
+import { includes, words, capitalize, clone, isNull, map, get, find } from "lodash";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import PropTypes from "prop-types";
 import Checkbox from "antd/lib/checkbox";
 import Modal from "antd/lib/modal";
@@ -11,6 +11,8 @@ import Divider from "antd/lib/divider";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import QuerySelector from "@/components/QuerySelector";
 import { Query } from "@/services/query";
+import { QueryBasedParameterMappingType } from "@/services/parameters/QueryBasedDropdownParameter";
+import QueryBasedParameterMappingTable from "./query-based-parameter/QueryBasedParameterMappingTable";
 
 const { Option } = Select;
 const formItemProps = { labelCol: { span: 6 }, wrapperCol: { span: 16 } };
@@ -69,17 +71,27 @@ NameInput.propTypes = {
 function EditParameterSettingsDialog(props) {
   const [param, setParam] = useState(clone(props.parameter));
   const [isNameValid, setIsNameValid] = useState(true);
-  const [initialQuery, setInitialQuery] = useState();
+  const [paramQuery, setParamQuery] = useState();
+  const mappingParameters = useMemo(
+    () =>
+      map(paramQuery && paramQuery.getParametersDefs(), mappingParam => ({
+        mappingParam,
+        existingMapping: get(param.parameterMapping, mappingParam.name, {
+          mappingType: QueryBasedParameterMappingType.UNDEFINED,
+        }),
+      })),
+    [param.parameterMapping, paramQuery]
+  );
 
   const isNew = !props.parameter.name;
 
   // fetch query by id
+  const initialQueryId = useRef(props.parameter.queryId);
   useEffect(() => {
-    const queryId = props.parameter.queryId;
-    if (queryId) {
-      Query.get({ id: queryId }).then(setInitialQuery);
+    if (initialQueryId.current) {
+      Query.get({ id: initialQueryId.current }).then(setParamQuery);
     }
-  }, [props.parameter.queryId]);
+  }, []);
 
   function isFulfilled() {
     // name
@@ -93,8 +105,14 @@ function EditParameterSettingsDialog(props) {
     }
 
     // query
-    if (param.type === "query" && !param.queryId) {
-      return false;
+    if (param.type === "query") {
+      if (!param.queryId) {
+        return false;
+      }
+
+      if (find(mappingParameters, { existingMapping: { mappingType: QueryBasedParameterMappingType.UNDEFINED } })) {
+        return false;
+      }
     }
 
     return true;
@@ -187,11 +205,25 @@ function EditParameterSettingsDialog(props) {
           </Form.Item>
         )}
         {param.type === "query" && (
-          <Form.Item label="Query" help="Select query to load dropdown values from" {...formItemProps}>
+          <Form.Item label="Query" help="Select query to load dropdown values from" required {...formItemProps}>
             <QuerySelector
-              selectedQuery={initialQuery}
-              onChange={q => setParam({ ...param, queryId: q && q.id })}
+              selectedQuery={paramQuery}
+              onChange={q => {
+                if (q) {
+                  setParamQuery(q);
+                  setParam({ ...param, queryId: q.id, parameterMapping: {} });
+                }
+              }}
               type="select"
+            />
+          </Form.Item>
+        )}
+        {param.type === "query" && paramQuery && paramQuery.hasParameters() && (
+          <Form.Item className="m-t-15 m-b-5" label="Parameters" required {...formItemProps}>
+            <QueryBasedParameterMappingTable
+              param={param}
+              mappingParameters={mappingParameters}
+              onChangeParam={setParam}
             />
           </Form.Item>
         )}
