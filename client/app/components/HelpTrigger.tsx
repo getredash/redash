@@ -75,7 +75,6 @@ const HelpTriggerDefaultProps = {
 export function helpTriggerWithTypes(types: any, allowedDomains = [], drawerClassName = null) {
     return class HelpTrigger extends React.Component {
         static propTypes = {
-            // @ts-expect-error ts-migrate(2552) FIXME: Cannot find name 'HelpTriggerPropTypes'. Did you m... Remove this comment to see the full error message
             ...HelpTriggerPropTypes,
             type: PropTypes.oneOf(Object.keys(types)),
         };
