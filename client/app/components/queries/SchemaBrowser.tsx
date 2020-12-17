@@ -177,7 +177,6 @@ export default function SchemaBrowser({ dataSource, onSchemaUpdate, onItemSelect
         <Input className="m-r-5" placeholder="Search schema..." disabled={(schema as any).length === 0} onChange={event => handleFilterChange(event.target.value)}/>
 
         <Tooltip title="Refresh Schema">
-          {/* @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable. */}
           <Button onClick={() => refreshSchema(true)}>
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": isLoading })}/>
           </Button>
