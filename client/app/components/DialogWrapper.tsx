@@ -116,7 +116,7 @@ export const DialogPropType: PropTypes.Requireable<DialogPropType> = PropTypes.s
     dismiss: PropTypes.func.isRequired,
 });
 // @ts-expect-error ts-migrate(2323) FIXME: Cannot redeclare exported variable 'DialogPropType... Remove this comment to see the full error message
-export { DialogPropType };
+
 function openDialog(DialogComponent: any, props: any) {
     const dialog = {
         props: {

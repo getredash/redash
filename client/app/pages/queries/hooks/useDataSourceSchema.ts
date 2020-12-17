@@ -54,5 +54,5 @@ export default function useDataSourceSchema(dataSource: any) {
     };
   }, []);
 
-  return useMemo(() => [schema, loadingSchema, reloadSchema], [schema, loadingSchema, reloadSchema]);
+  return useMemo(() => [schema, loadingSchema, reloadSchema] as const, [schema, loadingSchema, reloadSchema]);
 }
