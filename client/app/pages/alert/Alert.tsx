@@ -1,5 +1,4 @@
-// @ts-expect-error ts-migrate(6133) FIXME: 'values' is declared but its value is never read.
-import { head, includes, trim, template, values } from "lodash";
+import { head, includes, trim, template } from "lodash";
 import React from "react";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";

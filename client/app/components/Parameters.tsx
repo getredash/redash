@@ -2,8 +2,7 @@ import { size, filter, forEach, extend } from "lodash";
 import React from "react";
 import { SortableContainer, SortableElement, DragHandle } from "@redash/viz/lib/components/sortable";
 import location from "@/services/location";
-// @ts-expect-error ts-migrate(6133) FIXME: 'Parameter' is declared but its value is never rea... Remove this comment to see the full error message
-import { Parameter, createParameter } from "@/services/parameters";
+import { createParameter } from "@/services/parameters";
 import ParameterApplyButton from "@/components/ParameterApplyButton";
 import ParameterValueInput from "@/components/ParameterValueInput";
 import EditParameterSettingsDialog from "./EditParameterSettingsDialog";
