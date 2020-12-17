@@ -1,15 +1,14 @@
-function openAndSearchAntdDropdown(paramOption) {
+function openAndSearchAntdDropdown(testId, paramOption) {
   // assures filters are working
-  cy.getByTestId("ParameterValueInput").type(paramOption);
+  cy.getByTestId(testId)
+    .find(".ant-select-selection-search-input")
+    .type(paramOption, { force: true });
 
   // only the filtered option should be on the DOM
   cy.get(".ant-select-item-option").each($option => {
     expect($option).to.contain(paramOption);
+    $option.click();
   });
-
-  cy.getByTestId("ParameterValueInput")
-    .find("input")
-    .clear();
 }
 describe("Parameter", () => {
   const expectDirtyStateChange = edit => {
@@ -120,11 +119,7 @@ describe("Parameter", () => {
     });
 
     it("updates the results after selecting a value", () => {
-      cy.getByTestId("ParameterName-test-parameter")
-        .find(".ant-select")
-        .click();
-
-      cy.contains(".ant-select-item-option", "value2").click();
+      openAndSearchAntdDropdown("ParameterName-test-parameter", "value2"); // asserts option filter prop
 
       cy.getByTestId("ParameterApplyButton").click();
       // ensure that query is being executed
@@ -152,8 +147,6 @@ describe("Parameter", () => {
           cy.wrap($option).click();
         }
       });
-
-      openAndSearchAntdDropdown("value1"); // asserts option filter prop
 
       cy.getByTestId("QueryEditor").click(); // just to close the select menu
 
@@ -234,6 +227,16 @@ describe("Parameter", () => {
         });
       });
 
+      it("updates the results after selecting a value", () => {
+        openAndSearchAntdDropdown("ParameterName-test-parameter", "value2"); // asserts option filter prop
+
+        cy.getByTestId("ParameterApplyButton").click();
+        // ensure that query is being executed
+        cy.getByTestId("QueryExecutionStatus").should("exist");
+
+        cy.getByTestId("TableVisualization").should("contain", "2");
+      });
+
       it("supports multi-selection", () => {
         cy.clickThrough(`
           ParameterSettings-test-parameter
@@ -252,8 +255,6 @@ describe("Parameter", () => {
           expect($option).not.to.have.class("ant-select-dropdown-menu-item-selected");
           cy.wrap($option).click();
         });
-
-        openAndSearchAntdDropdown("value1"); // asserts option filter prop
 
         cy.getByTestId("QueryEditor").click(); // just to close the select menu
 
