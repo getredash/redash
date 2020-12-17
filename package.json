@@ -180,8 +180,8 @@
   "jest": {
     "rootDir": "./client",
     "setupFiles": [
-      "./app/__tests__/enzyme_setup.js",
-      "./app/__tests__/mocks.js"
+      "./app/__tests__/enzyme_setup.ts",
+      "./app/__tests__/mocks.ts"
     ],
     "snapshotSerializers": [
       "enzyme-to-json/serializer"

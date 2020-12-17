@@ -4,9 +4,6 @@ import Parameter from "./Parameter";
 class EnumParameter extends Parameter {
   enumOptions: any;
   multiValuesOptions: any;
-  name: any;
-  urlPrefix: any;
-  value: any;
   constructor(parameter: any, parentQueryId: any) {
     super(parameter, parentQueryId);
     this.enumOptions = parameter.enumOptions;

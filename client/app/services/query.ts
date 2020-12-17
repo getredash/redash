@@ -34,7 +34,7 @@ export class Query {
     schedule: any;
     constructor(query: any) {
         extend(this, query);
-        if (!has(this, "options")) {
+        if (!this.options) {
             this.options = {};
         }
         this.options.apply_auto_limit = !!this.options.apply_auto_limit;

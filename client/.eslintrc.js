@@ -51,7 +51,7 @@ module.exports = {
         "no-useless-constructor": "off",
         "@typescript-eslint/no-useless-constructor": "error",
         // Many API fields and generated types use camelcase
-        "@typescript-eslint/camelcase": "off",
+        "@typescript-eslint/camelcase": "off","@typescript-eslint/no-empty-function": "off",
       },
     },
   ],
