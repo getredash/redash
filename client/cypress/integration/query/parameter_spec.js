@@ -1,12 +1,9 @@
 function openAndSearchAntdDropdown(testId, paramOption) {
-  // assures filters are working
   cy.getByTestId(testId)
     .find(".ant-select-selection-search-input")
     .type(paramOption, { force: true });
-
-  // only the filtered options should be on the DOM
-  return cy.get(".ant-select-item-option").should("contain", paramOption);
 }
+
 describe("Parameter", () => {
   const expectDirtyStateChange = edit => {
     cy.getByTestId("ParameterName-test-parameter")
@@ -116,8 +113,13 @@ describe("Parameter", () => {
     });
 
     it("updates the results after selecting a value", () => {
-      const $value2 = openAndSearchAntdDropdown("ParameterName-test-parameter", "value2"); // asserts option filter prop
-      $value2.click();
+      openAndSearchAntdDropdown("ParameterName-test-parameter", "value2"); // asserts option filter prop
+
+      // only the filtered option should be on the DOM
+      cy.get(".ant-select-item-option")
+        .should("have.length", 1)
+        .and("contain", "value2")
+        .click();
 
       cy.getByTestId("ParameterApplyButton").click();
       // ensure that query is being executed
@@ -226,8 +228,13 @@ describe("Parameter", () => {
       });
 
       it("updates the results after selecting a value", () => {
-        const $value2 = openAndSearchAntdDropdown("ParameterName-test-parameter", "value2"); // asserts option filter prop
-        $value2.click();
+        openAndSearchAntdDropdown("ParameterName-test-parameter", "value2"); // asserts option filter prop
+
+        // only the filtered option should be on the DOM
+        cy.get(".ant-select-item-option")
+          .should("have.length", 1)
+          .and("contain", "value2")
+          .click();
 
         cy.getByTestId("ParameterApplyButton").click();
         // ensure that query is being executed
