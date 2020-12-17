@@ -2,6 +2,7 @@ import React from "react";
 import { mount } from "enzyme";
 import moment from "moment";
 import ScheduleDialog, { TimeEditor } from "./ScheduleDialog";
+// @ts-expect-error ts-migrate(2613) FIXME: Module '"/Users/elad.ossadon/dev/redash/client/app... Remove this comment to see the full error message
 import RefreshScheduleDefault from "../proptypes";
 
 const defaultProps = {
@@ -31,7 +32,11 @@ const defaultProps = {
   },
 };
 
-function getWrapper(schedule = {}, { onConfirm, onCancel, ...props } = {}) {
+function getWrapper(schedule = {}, {
+  onConfirm,
+  onCancel,
+  ...props
+}: any = {}) {
   onConfirm = onConfirm || (() => {});
   onCancel = onCancel || (() => {});
 
@@ -57,7 +62,7 @@ function getWrapper(schedule = {}, { onConfirm, onCancel, ...props } = {}) {
   return [mount(<ScheduleDialog.Component {...props} />), props];
 }
 
-function findByTestID(wrapper, id) {
+function findByTestID(wrapper: any, id: any) {
   return wrapper.find(`[data-testid="${id}"]`);
 }
 
@@ -209,6 +214,7 @@ describe("ScheduleDialog", () => {
   describe("Adheres to user permissions", () => {
     test("Shows correct interval options", () => {
       const refreshOptions = [60, 300, 3600, 7200]; // 1 min, 1 hour
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'null' is not assignable to param... Remove this comment to see the full error message
       const [wrapper] = getWrapper(null, { refreshOptions });
 
       // click select
@@ -244,6 +250,7 @@ describe("ScheduleDialog", () => {
 
     test("Query saved on confirm if state changed", () => {
       // init
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'null' is not assignable to param... Remove this comment to see the full error message
       const [wrapper, props] = getWrapper(null, initProps);
 
       // change state
@@ -264,6 +271,7 @@ describe("ScheduleDialog", () => {
 
     test("Query not saved on confirm if state unchanged", () => {
       // init
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'null' is not assignable to param... Remove this comment to see the full error message
       const [wrapper] = getWrapper(null, initProps);
 
       // click confirm button
@@ -279,6 +287,7 @@ describe("ScheduleDialog", () => {
 
     test("Cancel closes modal and query unsaved", () => {
       // init
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'null' is not assignable to param... Remove this comment to see the full error message
       const [wrapper, props] = getWrapper(null, initProps);
 
       // change state

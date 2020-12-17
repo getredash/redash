@@ -1,13 +1,24 @@
 import React from "react";
-import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
+// @ts-expect-error ts-migrate(6133) FIXME: 'DialogPropType' is declared but its value is neve... Remove this comment to see the full error message
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+// @ts-expect-error ts-migrate(6133) FIXME: 'FiltersType' is declared but its value is never r... Remove this comment to see the full error message
 import { FiltersType } from "@/components/Filters";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import VisualizationName from "@/components/visualizations/VisualizationName";
 
-function ExpandedWidgetDialog({ dialog, widget, filters }) {
+type OwnProps = {
+    // @ts-expect-error ts-migrate(2749) FIXME: 'DialogPropType' refers to a value, but is being u... Remove this comment to see the full error message
+    dialog: DialogPropType;
+    widget: any;
+    // @ts-expect-error ts-migrate(2749) FIXME: 'FiltersType' refers to a value, but is being used... Remove this comment to see the full error message
+    filters?: FiltersType;
+};
+
+type Props = OwnProps & typeof ExpandedWidgetDialog.defaultProps;
+
+function ExpandedWidgetDialog({ dialog, widget, filters }: Props) {
   return (
     <Modal
       {...dialog.props}
@@ -27,12 +38,6 @@ function ExpandedWidgetDialog({ dialog, widget, filters }) {
     </Modal>
   );
 }
-
-ExpandedWidgetDialog.propTypes = {
-  dialog: DialogPropType.isRequired,
-  widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  filters: FiltersType,
-};
 
 ExpandedWidgetDialog.defaultProps = {
   filters: [],

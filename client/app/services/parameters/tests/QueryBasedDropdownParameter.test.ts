@@ -1,8 +1,8 @@
 import { createParameter } from "..";
 
 describe("QueryBasedDropdownParameter", () => {
-  let param;
-  let multiValuesOptions = null;
+  let param: any;
+  let multiValuesOptions: any = null;
 
   beforeEach(() => {
     const paramOptions = {
@@ -12,6 +12,7 @@ describe("QueryBasedDropdownParameter", () => {
       queryId: 1,
       multiValuesOptions,
     };
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
     param = createParameter(paramOptions);
   });
 

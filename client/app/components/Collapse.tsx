@@ -1,12 +1,20 @@
 import React from "react";
-import PropTypes from "prop-types";
 import cx from "classnames";
 import AntCollapse from "antd/lib/collapse";
 
-export default function Collapse({ collapsed, children, className, ...props }) {
+type OwnProps = {
+    collapsed?: boolean;
+    children?: React.ReactNode;
+    className?: string;
+};
+
+type Props = OwnProps & typeof Collapse.defaultProps;
+
+export default function Collapse({ collapsed, children, className, ...props }: Props) {
   return (
     <AntCollapse
       {...props}
+      // @ts-expect-error ts-migrate(2322) FIXME: Type 'string | null' is not assignable to type 'st... Remove this comment to see the full error message
       activeKey={collapsed ? null : "content"}
       className={cx(className, "ant-collapse-headerless")}>
       <AntCollapse.Panel key="content" header="">
@@ -15,12 +23,6 @@ export default function Collapse({ collapsed, children, className, ...props }) {
     </AntCollapse>
   );
 }
-
-Collapse.propTypes = {
-  collapsed: PropTypes.bool,
-  children: PropTypes.node,
-  className: PropTypes.string,
-};
 
 Collapse.defaultProps = {
   collapsed: true,

@@ -1,6 +1,7 @@
 import { find } from "lodash";
 import debug from "debug";
 import recordEvent from "@/services/recordEvent";
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module '@/assets/images/redash_icon_sm... Remove this comment to see the full error message
 import redashIconUrl from "@/assets/images/redash_icon_small.png";
 
 const logger = debug("redash:notifications");
@@ -13,6 +14,7 @@ if (!Notification) {
 const hidden = find(["hidden", "webkitHidden", "mozHidden", "msHidden"], prop => prop in document);
 
 function isPageVisible() {
+  // @ts-expect-error ts-migrate(2538) FIXME: Type 'undefined' cannot be used as an index type.
   return !document[hidden];
 }
 
@@ -22,7 +24,7 @@ function getPermissions() {
   }
 }
 
-function showNotification(title, content) {
+function showNotification(title: any, content: any) {
   if (!Notification || isPageVisible() || Notification.permission !== "granted") {
     return;
   }
@@ -36,6 +38,7 @@ function showNotification(title, content) {
   notification.onclick = function onClick() {
     window.focus();
     this.close();
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 4 arguments, but got 2.
     recordEvent("click", "notification");
   };
 }

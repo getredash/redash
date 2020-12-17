@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 
 import Button from "antd/lib/button";
 import Form from "antd/lib/form";
@@ -14,7 +13,13 @@ import useOrganizationSettings from "./hooks/useOrganizationSettings";
 import GeneralSettings from "./components/GeneralSettings";
 import AuthSettings from "./components/AuthSettings";
 
-function OrganizationSettings({ onError }) {
+type OwnProps = {
+    onError?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof OrganizationSettings.defaultProps;
+
+function OrganizationSettings({ onError }: Props) {
   const { settings, currentValues, isLoading, isSaving, handleSubmit, handleChange } = useOrganizationSettings(onError);
   return (
     <div className="row" data-test="OrganizationSettings">
@@ -36,10 +41,6 @@ function OrganizationSettings({ onError }) {
     </div>
   );
 }
-
-OrganizationSettings.propTypes = {
-  onError: PropTypes.func,
-};
 
 OrganizationSettings.defaultProps = {
   onError: () => {},

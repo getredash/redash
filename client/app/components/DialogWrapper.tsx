@@ -2,7 +2,16 @@ import { isFunction } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import ReactDOM from "react-dom";
-
+type DialogPropType = {
+    props: {
+        visible?: boolean;
+        onOk?: (...args: any[]) => any;
+        onCancel?: (...args: any[]) => any;
+        afterClose?: (...args: any[]) => any;
+    };
+    close: (...args: any[]) => any;
+    dismiss: (...args: any[]) => any;
+};
 /**
   Wrapper for dialogs based on Ant's <Modal> component.
 
@@ -75,7 +84,7 @@ import ReactDOM from "react-dom";
       );
     }
 
-  4. wrap your component and export it:
+  4. wrap your component and it:
 
     export default wrapDialog(YourComponent).
 
@@ -95,128 +104,121 @@ import ReactDOM from "react-dom";
         );
     }
 */
-
-export const DialogPropType = PropTypes.shape({
-  props: PropTypes.shape({
-    visible: PropTypes.bool,
-    onOk: PropTypes.func,
-    onCancel: PropTypes.func,
-    afterClose: PropTypes.func,
-  }).isRequired,
-  close: PropTypes.func.isRequired,
-  dismiss: PropTypes.func.isRequired,
+// @ts-expect-error ts-migrate(2322) FIXME: Type 'Requireable<InferProps<{ props: Validator<In... Remove this comment to see the full error message
+export const DialogPropType: PropTypes.Requireable<DialogPropType> = PropTypes.shape({
+    props: PropTypes.shape({
+        visible: PropTypes.bool,
+        onOk: PropTypes.func,
+        onCancel: PropTypes.func,
+        afterClose: PropTypes.func,
+    }).isRequired,
+    close: PropTypes.func.isRequired,
+    dismiss: PropTypes.func.isRequired,
 });
-
-function openDialog(DialogComponent, props) {
-  const dialog = {
-    props: {
-      visible: true,
-      okButtonProps: {},
-      cancelButtonProps: {},
-      onOk: () => {},
-      onCancel: () => {},
-      afterClose: () => {},
-    },
-    close: () => {},
-    dismiss: () => {},
-  };
-
-  let pendingCloseTask = null;
-
-  const handlers = {
-    onClose: () => {},
-    onDismiss: () => {},
-  };
-
-  const container = document.createElement("div");
-  document.body.appendChild(container);
-
-  function render() {
-    ReactDOM.render(<DialogComponent {...props} dialog={dialog} />, container);
-  }
-
-  function destroyDialog() {
-    // Allow calling chain to roll up, and then destroy component
-    setTimeout(() => {
-      ReactDOM.unmountComponentAtNode(container);
-      document.body.removeChild(container);
-    }, 10);
-  }
-
-  function processDialogClose(result, setAdditionalDialogProps) {
-    dialog.props.okButtonProps = { disabled: true };
-    dialog.props.cancelButtonProps = { disabled: true };
-    setAdditionalDialogProps();
-    render();
-
-    return Promise.resolve(result)
-      .then(() => {
-        dialog.props.visible = false;
-      })
-      .finally(() => {
-        dialog.props.okButtonProps = {};
-        dialog.props.cancelButtonProps = {};
+// @ts-expect-error ts-migrate(2323) FIXME: Cannot redeclare exported variable 'DialogPropType... Remove this comment to see the full error message
+export { DialogPropType };
+function openDialog(DialogComponent: any, props: any) {
+    const dialog = {
+        props: {
+            visible: true,
+            okButtonProps: {},
+            cancelButtonProps: {},
+            onOk: () => { },
+            onCancel: () => { },
+            afterClose: () => { },
+        },
+        close: () => { },
+        dismiss: () => { },
+    };
+    let pendingCloseTask: any = null;
+    const handlers = {
+        onClose: () => { },
+        onDismiss: () => { },
+    };
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    function render() {
+        ReactDOM.render(<DialogComponent {...props} dialog={dialog}/>, container);
+    }
+    function destroyDialog() {
+        // Allow calling chain to roll up, and then destroy component
+        setTimeout(() => {
+            ReactDOM.unmountComponentAtNode(container);
+            document.body.removeChild(container);
+        }, 10);
+    }
+    function processDialogClose(result: any, setAdditionalDialogProps: any) {
+        dialog.props.okButtonProps = { disabled: true };
+        dialog.props.cancelButtonProps = { disabled: true };
+        setAdditionalDialogProps();
         render();
-      });
-  }
-
-  function closeDialog(result) {
-    if (!pendingCloseTask) {
-      pendingCloseTask = processDialogClose(handlers.onClose(result), () => {
-        dialog.props.okButtonProps.loading = true;
-      }).finally(() => {
-        pendingCloseTask = null;
-      });
+        return Promise.resolve(result)
+            .then(() => {
+            dialog.props.visible = false;
+        })
+            .finally(() => {
+            dialog.props.okButtonProps = {};
+            dialog.props.cancelButtonProps = {};
+            render();
+        });
     }
-    return pendingCloseTask;
-  }
-
-  function dismissDialog(result) {
-    if (!pendingCloseTask) {
-      pendingCloseTask = processDialogClose(handlers.onDismiss(result), () => {
-        dialog.props.cancelButtonProps.loading = true;
-      }).finally(() => {
-        pendingCloseTask = null;
-      });
+    function closeDialog(result: any) {
+        if (!pendingCloseTask) {
+            // @ts-expect-error ts-migrate(2554) FIXME: Expected 0 arguments, but got 1.
+            pendingCloseTask = processDialogClose(handlers.onClose(result), () => {
+                (dialog.props.okButtonProps as any).loading = true;
+            }).finally(() => {
+                pendingCloseTask = null;
+            });
+        }
+        return pendingCloseTask;
     }
-    return pendingCloseTask;
-  }
-
-  dialog.props.onOk = closeDialog;
-  dialog.props.onCancel = dismissDialog;
-  dialog.props.afterClose = destroyDialog;
-  dialog.close = closeDialog;
-  dialog.dismiss = dismissDialog;
-
-  const result = {
-    close: closeDialog,
-    dismiss: dismissDialog,
-    update: newProps => {
-      props = { ...props, ...newProps };
-      render();
-    },
-    onClose: handler => {
-      if (isFunction(handler)) {
-        handlers.onClose = handler;
-      }
-      return result;
-    },
-    onDismiss: handler => {
-      if (isFunction(handler)) {
-        handlers.onDismiss = handler;
-      }
-      return result;
-    },
-  };
-
-  render(); // show it only when all structures initialized to avoid unnecessary re-rendering
-
-  return result;
+    function dismissDialog(result: any) {
+        if (!pendingCloseTask) {
+            // @ts-expect-error ts-migrate(2554) FIXME: Expected 0 arguments, but got 1.
+            pendingCloseTask = processDialogClose(handlers.onDismiss(result), () => {
+                (dialog.props.cancelButtonProps as any).loading = true;
+            }).finally(() => {
+                pendingCloseTask = null;
+            });
+        }
+        return pendingCloseTask;
+    }
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '(result: any) => any' is not assignable to t... Remove this comment to see the full error message
+    dialog.props.onOk = closeDialog;
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '(result: any) => any' is not assignable to t... Remove this comment to see the full error message
+    dialog.props.onCancel = dismissDialog;
+    dialog.props.afterClose = destroyDialog;
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '(result: any) => any' is not assignable to t... Remove this comment to see the full error message
+    dialog.close = closeDialog;
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '(result: any) => any' is not assignable to t... Remove this comment to see the full error message
+    dialog.dismiss = dismissDialog;
+    const result = {
+        close: closeDialog,
+        dismiss: dismissDialog,
+        update: (newProps: any) => {
+            props = { ...props, ...newProps };
+            render();
+        },
+        onClose: (handler: any) => {
+            if (isFunction(handler)) {
+                handlers.onClose = handler;
+            }
+            return result;
+        },
+        onDismiss: (handler: any) => {
+            if (isFunction(handler)) {
+                handlers.onDismiss = handler;
+            }
+            return result;
+        },
+    };
+    render(); // show it only when all structures initialized to avoid unnecessary re-rendering
+    return result;
 }
-
-export function wrap(DialogComponent) {
-  return {
-    Component: DialogComponent,
-    showModal: props => openDialog(DialogComponent, props),
-  };
+export function wrap(DialogComponent: any) {
+    return {
+        Component: DialogComponent,
+        showModal: (props: any) => openDialog(DialogComponent, props),
+    };
 }

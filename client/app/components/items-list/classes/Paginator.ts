@@ -11,7 +11,7 @@ export default class Paginator {
     return Math.ceil(this.totalCount / this.itemsPerPage);
   }
 
-  setPage(value, validate = true) {
+  setPage(value: any, validate = true) {
     if (isUndefined(value)) {
       return;
     }
@@ -23,7 +23,7 @@ export default class Paginator {
     }
   }
 
-  setItemsPerPage(value, validate = true) {
+  setItemsPerPage(value: any, validate = true) {
     if (isUndefined(value)) {
       return;
     }
@@ -34,7 +34,7 @@ export default class Paginator {
     }
   }
 
-  setTotalCount(value, validate = true) {
+  setTotalCount(value: any, validate = true) {
     if (isUndefined(value)) {
       return;
     }
@@ -45,13 +45,18 @@ export default class Paginator {
     }
   }
 
-  constructor({ page, itemsPerPage, totalCount, validate = true } = {}) {
+  constructor({
+    page,
+    itemsPerPage,
+    totalCount,
+    validate = true
+  }: any = {}) {
     this.setItemsPerPage(itemsPerPage, validate);
     this.setTotalCount(totalCount, validate);
     this.setPage(page, validate);
   }
 
-  getItemsForPage(items) {
+  getItemsForPage(items: any) {
     const first = this.itemsPerPage * (this.page - 1);
     const last = first + this.itemsPerPage;
 

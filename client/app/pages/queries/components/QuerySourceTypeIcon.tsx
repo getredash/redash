@@ -1,11 +1,11 @@
-import PropTypes from "prop-types";
+
 import React from "react";
 
-export function QuerySourceTypeIcon(props) {
+type Props = {
+    type?: string;
+    alt?: string;
+};
+
+export function QuerySourceTypeIcon(props: Props) {
   return <img src={`static/images/db-logos/${props.type}.png`} width="20" alt={props.alt} />;
 }
-
-QuerySourceTypeIcon.propTypes = {
-  type: PropTypes.string,
-  alt: PropTypes.string,
-};

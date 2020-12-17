@@ -25,23 +25,28 @@ const DYNAMIC_DATES = {
 
 export const DynamicDateType = PropTypes.oneOf(values(DYNAMIC_DATES));
 
-function isDynamicDateString(value) {
+function isDynamicDateString(value: any) {
   return startsWith(value, DYNAMIC_PREFIX) && has(DYNAMIC_DATES, value.substring(DYNAMIC_PREFIX.length));
 }
 
-export function isDynamicDate(value) {
+export function isDynamicDate(value: any) {
   return includes(DYNAMIC_DATES, value);
 }
 
-export function getDynamicDateFromString(value) {
+export function getDynamicDateFromString(value: any) {
   if (!isDynamicDateString(value)) {
     return null;
   }
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   return DYNAMIC_DATES[value.substring(DYNAMIC_PREFIX.length)];
 }
 
 class DateParameter extends Parameter {
-  constructor(parameter, parentQueryId) {
+  $$value: any;
+  type: any;
+  useCurrentDateTime: any;
+  value: any;
+  constructor(parameter: any, parentQueryId: any) {
     super(parameter, parentQueryId);
     this.useCurrentDateTime = parameter.useCurrentDateTime;
     this.setValue(parameter.value);
@@ -52,7 +57,7 @@ class DateParameter extends Parameter {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  normalizeValue(value) {
+  normalizeValue(value: any) {
     if (isDynamicDateString(value)) {
       return getDynamicDateFromString(value);
     }
@@ -65,11 +70,12 @@ class DateParameter extends Parameter {
     return normalizedValue.isValid() ? normalizedValue : null;
   }
 
-  setValue(value) {
+  setValue(value: any) {
     const normalizedValue = this.normalizeValue(value);
     if (isDynamicDate(normalizedValue)) {
       this.value = DYNAMIC_PREFIX + findKey(DYNAMIC_DATES, normalizedValue);
     } else if (moment.isMoment(normalizedValue)) {
+      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       this.value = normalizedValue.format(DATETIME_FORMATS[this.type]);
     } else {
       this.value = normalizedValue;
@@ -83,9 +89,11 @@ class DateParameter extends Parameter {
 
   getExecutionValue() {
     if (this.hasDynamicValue) {
+      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       return this.normalizedValue.value().format(DATETIME_FORMATS[this.type]);
     }
     if (isNull(this.value) && this.useCurrentDateTime) {
+      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       return moment().format(DATETIME_FORMATS[this.type]);
     }
     return this.value;

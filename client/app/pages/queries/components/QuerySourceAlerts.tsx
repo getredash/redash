@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import Card from "antd/lib/card";
 import WarningFilledIcon from "@ant-design/icons/WarningFilled";
 import Typography from "antd/lib/typography";
@@ -10,7 +9,14 @@ import { currentUser } from "@/services/auth";
 import useQueryFlags from "../hooks/useQueryFlags";
 import "./QuerySourceAlerts.less";
 
-export default function QuerySourceAlerts({ query, dataSourcesAvailable }) {
+type OwnProps = {
+    query: any;
+    dataSourcesAvailable?: boolean;
+};
+
+type Props = OwnProps & typeof QuerySourceAlerts.defaultProps;
+
+export default function QuerySourceAlerts({ query, dataSourcesAvailable }: Props) {
   const queryFlags = useQueryFlags(query); // we don't use flags that depend on data source
 
   let message = null;
@@ -70,6 +76,7 @@ export default function QuerySourceAlerts({ query, dataSourcesAvailable }) {
   return (
     <div className="query-source-alerts">
       <Card>
+        {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
         <DynamicComponent name="QuerySource.Alerts" query={query} dataSourcesAvailable={dataSourcesAvailable}>
           <div className="query-source-alerts-icon">
             <WarningFilledIcon />
@@ -80,11 +87,6 @@ export default function QuerySourceAlerts({ query, dataSourcesAvailable }) {
     </div>
   );
 }
-
-QuerySourceAlerts.propTypes = {
-  query: PropTypes.object.isRequired,
-  dataSourcesAvailable: PropTypes.bool,
-};
 
 QuerySourceAlerts.defaultProps = {
   dataSourcesAvailable: false,

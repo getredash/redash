@@ -1,16 +1,24 @@
 import React from "react";
-import PropTypes from "prop-types";
 import cx from "classnames";
 import { isEmpty } from "lodash";
 import Dropdown from "antd/lib/dropdown";
 import Modal from "antd/lib/modal";
 import Menu from "antd/lib/menu";
 import recordEvent from "@/services/recordEvent";
+// @ts-expect-error ts-migrate(6133) FIXME: 'Moment' is declared but its value is never read.
 import { Moment } from "@/components/proptypes";
 
 import "./Widget.less";
 
-function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
+type OwnWidgetDropdownButtonProps = {
+    extraOptions?: React.ReactNode;
+    showDeleteOption?: boolean;
+    onDelete?: (...args: any[]) => any;
+};
+
+type WidgetDropdownButtonProps = OwnWidgetDropdownButtonProps & typeof WidgetDropdownButton.defaultProps;
+
+function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }: WidgetDropdownButtonProps) {
   const WidgetMenu = (
     <Menu data-test="WidgetDropdownButtonMenu">
       {extraOptions}
@@ -30,19 +38,19 @@ function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
   );
 }
 
-WidgetDropdownButton.propTypes = {
-  extraOptions: PropTypes.node,
-  showDeleteOption: PropTypes.bool,
-  onDelete: PropTypes.func,
-};
-
 WidgetDropdownButton.defaultProps = {
   extraOptions: null,
   showDeleteOption: false,
   onDelete: () => {},
 };
 
-function WidgetDeleteButton({ onClick }) {
+type OwnWidgetDeleteButtonProps = {
+    onClick?: (...args: any[]) => any;
+};
+
+type WidgetDeleteButtonProps = OwnWidgetDeleteButtonProps & typeof WidgetDeleteButton.defaultProps;
+
+function WidgetDeleteButton({ onClick }: WidgetDeleteButtonProps) {
   return (
     <div className="widget-menu-remove">
       <a className="action" title="Remove From Dashboard" onClick={onClick} data-test="WidgetDeleteButton">
@@ -51,24 +59,25 @@ function WidgetDeleteButton({ onClick }) {
     </div>
   );
 }
-
-WidgetDeleteButton.propTypes = { onClick: PropTypes.func };
 WidgetDeleteButton.defaultProps = { onClick: () => {} };
 
-class Widget extends React.Component {
-  static propTypes = {
-    widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    className: PropTypes.string,
-    children: PropTypes.node,
-    header: PropTypes.node,
-    footer: PropTypes.node,
-    canEdit: PropTypes.bool,
-    isPublic: PropTypes.bool,
-    refreshStartedAt: Moment,
-    menuOptions: PropTypes.node,
-    tileProps: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-    onDelete: PropTypes.func,
-  };
+type OwnWidgetProps = {
+    widget: any;
+    className?: string;
+    header?: React.ReactNode;
+    footer?: React.ReactNode;
+    canEdit?: boolean;
+    isPublic?: boolean;
+    // @ts-expect-error ts-migrate(2749) FIXME: 'Moment' refers to a value, but is being used as a... Remove this comment to see the full error message
+    refreshStartedAt?: Moment;
+    menuOptions?: React.ReactNode;
+    tileProps?: any;
+    onDelete?: (...args: any[]) => any;
+};
+
+type WidgetProps = OwnWidgetProps & typeof Widget.defaultProps;
+
+class Widget extends React.Component<WidgetProps> {
 
   static defaultProps = {
     className: "",
@@ -85,6 +94,7 @@ class Widget extends React.Component {
 
   componentDidMount() {
     const { widget } = this.props;
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 4 arguments, but got 3.
     recordEvent("view", "widget", widget.id);
   }
 

@@ -2,7 +2,7 @@ import { find } from "lodash";
 import { useCallback } from "react";
 import AddToDashboardDialog from "@/components/queries/AddToDashboardDialog";
 
-export default function useAddToDashboardDialog(query) {
+export default function useAddToDashboardDialog(query: any) {
   return useCallback(
     visualizationId => {
       const visualization = find(query.visualizations, { id: visualizationId });

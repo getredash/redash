@@ -1,12 +1,17 @@
 import React from "react";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
+// @ts-expect-error ts-migrate(6133) FIXME: 'DialogPropType' is declared but its value is neve... Remove this comment to see the full error message
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 
-class CreateGroupDialog extends React.Component {
-  static propTypes = {
-    dialog: DialogPropType.isRequired,
-  };
+type Props = {
+    // @ts-expect-error ts-migrate(2749) FIXME: 'DialogPropType' refers to a value, but is being u... Remove this comment to see the full error message
+    dialog: DialogPropType;
+};
+
+type State = any;
+
+class CreateGroupDialog extends React.Component<Props, State> {
 
   state = {
     name: "",

@@ -4,17 +4,19 @@ import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
 import EditTagsDialog from "./EditTagsDialog";
 
-export class TagsControl extends React.Component {
-  static propTypes = {
-    tags: PropTypes.arrayOf(PropTypes.string),
-    canEdit: PropTypes.bool,
-    getAvailableTags: PropTypes.func,
-    onEdit: PropTypes.func,
-    className: PropTypes.string,
-    tagsExtra: PropTypes.node,
-    tagSeparator: PropTypes.node,
-    children: PropTypes.node,
-  };
+type OwnProps = {
+    tags?: string[];
+    canEdit?: boolean;
+    getAvailableTags?: (...args: any[]) => any;
+    onEdit?: (...args: any[]) => any;
+    className?: string;
+    tagsExtra?: React.ReactNode;
+    tagSeparator?: React.ReactNode;
+};
+
+type Props = OwnProps & typeof TagsControl.defaultProps;
+
+export class TagsControl extends React.Component<Props> {
 
   static defaultProps = {
     tags: [],
@@ -27,7 +29,7 @@ export class TagsControl extends React.Component {
     children: null,
   };
 
-  editTags = (tags, getAvailableTags) => {
+  editTags = (tags: any, getAvailableTags: any) => {
     EditTagsDialog.showModal({ tags, getAvailableTags }).onClose(this.props.onEdit);
   };
 
@@ -70,10 +72,16 @@ export class TagsControl extends React.Component {
   }
 }
 
-function modelTagsControl({ archivedTooltip }) {
+function modelTagsControl({
+  archivedTooltip
+}: any) {
   // See comment for `propTypes`/`defaultProps`
   // eslint-disable-next-line react/prop-types
-  function ModelTagsControl({ isDraft, isArchived, ...props }) {
+  function ModelTagsControl({
+    isDraft,
+    isArchived,
+    ...props
+  }: any) {
     return (
       <TagsControl {...props}>
         {!isArchived && isDraft && <span className="label label-tag-unpublished">Unpublished</span>}

@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { includes } from "lodash";
 import { getDynamicDateRangeFromString } from "@/services/parameters/DateRangeParameter";
 import DynamicDateRangePicker from "@/components/dynamic-parameters/DynamicDateRangePicker";
@@ -128,18 +127,21 @@ const DYNAMIC_DATETIME_OPTIONS = [
   ...DYNAMIC_DATE_OPTIONS,
 ];
 
-function DateRangeParameter(props) {
+type OwnProps = {
+    type?: string;
+    className?: string;
+    value?: any;
+    parameter?: any;
+    onSelect?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof DateRangeParameter.defaultProps;
+
+function DateRangeParameter(props: Props) {
   const options = includes(props.type, "datetime-range") ? DYNAMIC_DATETIME_OPTIONS : DYNAMIC_DATE_OPTIONS;
+  // @ts-expect-error ts-migrate(2322) FIXME: Type '({ name: string; value: any; label: () => an... Remove this comment to see the full error message
   return <DynamicDateRangePicker {...props} dynamicButtonOptions={{ options }} />;
 }
-
-DateRangeParameter.propTypes = {
-  type: PropTypes.string,
-  className: PropTypes.string,
-  value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-  parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-  onSelect: PropTypes.func,
-};
 
 DateRangeParameter.defaultProps = {
   type: "",

@@ -1,6 +1,10 @@
 import React from "react";
 import AceEditorInput from "@/components/AceEditorInput";
 
-export default function AceEditorField({ form, field, ...otherProps }) {
+export default function AceEditorField({
+  form,
+  field,
+  ...otherProps
+}: any) {
   return <AceEditorInput {...otherProps} />;
 }

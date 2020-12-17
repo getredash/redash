@@ -6,7 +6,7 @@ import PlotlySettings from "./PlotlySettings";
 import FeatureFlagsSettings from "./FeatureFlagsSettings";
 import BeaconConsentSettings from "./BeaconConsentSettings";
 
-export default function GeneralSettings(props) {
+export default function GeneralSettings(props: any) {
   return (
     <DynamicComponent name="OrganizationSettings.GeneralSettings" {...props}>
       <h3 className="m-t-0">General</h3>

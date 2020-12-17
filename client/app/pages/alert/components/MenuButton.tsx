@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from "react";
-import PropTypes from "prop-types";
 import cx from "classnames";
 
 import Modal from "antd/lib/modal";
@@ -10,7 +9,17 @@ import Button from "antd/lib/button";
 import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 
-export default function MenuButton({ doDelete, canEdit, mute, unmute, muted }) {
+type OwnProps = {
+    doDelete: (...args: any[]) => any;
+    canEdit: boolean;
+    mute: (...args: any[]) => any;
+    unmute: (...args: any[]) => any;
+    muted?: boolean;
+};
+
+type Props = OwnProps & typeof MenuButton.defaultProps;
+
+export default function MenuButton({ doDelete, canEdit, mute, unmute, muted }: Props) {
   const [loading, setLoading] = useState(false);
 
   const execute = useCallback(action => {
@@ -40,6 +49,7 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, muted }) {
   return (
     <Dropdown
       className={cx("m-l-5", { disabled: !canEdit })}
+      // @ts-expect-error ts-migrate(2322) FIXME: Type '"click" | undefined' is not assignable to ty... Remove this comment to see the full error message
       trigger={[canEdit ? "click" : undefined]}
       placement="bottomRight"
       overlay={
@@ -60,14 +70,6 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, muted }) {
     </Dropdown>
   );
 }
-
-MenuButton.propTypes = {
-  doDelete: PropTypes.func.isRequired,
-  canEdit: PropTypes.bool.isRequired,
-  mute: PropTypes.func.isRequired,
-  unmute: PropTypes.func.isRequired,
-  muted: PropTypes.bool,
-};
 
 MenuButton.defaultProps = {
   muted: false,

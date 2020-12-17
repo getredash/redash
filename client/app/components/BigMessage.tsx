@@ -1,7 +1,15 @@
 import React from "react";
-import PropTypes from "prop-types";
 
-function BigMessage({ message, icon, children, className }) {
+type OwnProps = {
+    message?: string;
+    icon: string;
+    children?: React.ReactNode;
+    className?: string;
+};
+
+type Props = OwnProps & typeof BigMessage.defaultProps;
+
+function BigMessage({ message, icon, children, className }: Props) {
   return (
     <div className={"p-15 text-center " + className}>
       <h3 className="m-t-0 m-b-0">
@@ -13,13 +21,6 @@ function BigMessage({ message, icon, children, className }) {
     </div>
   );
 }
-
-BigMessage.propTypes = {
-  message: PropTypes.string,
-  icon: PropTypes.string.isRequired,
-  children: PropTypes.node,
-  className: PropTypes.string,
-};
 
 BigMessage.defaultProps = {
   message: "",

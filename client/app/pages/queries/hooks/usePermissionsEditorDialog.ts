@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
 
-export default function usePermissionsEditorDialog(query) {
+export default function usePermissionsEditorDialog(query: any) {
   return useCallback(() => {
     PermissionsEditorDialog.showModal({
       aclUrl: `api/queries/${query.id}/acl`,

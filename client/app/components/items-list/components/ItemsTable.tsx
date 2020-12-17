@@ -1,208 +1,152 @@
 import { isFunction, map, filter, extend, omit, identity, range, isEmpty } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 import classNames from "classnames";
 import Table from "antd/lib/table";
 import Skeleton from "antd/lib/skeleton";
 import FavoritesControl from "@/components/FavoritesControl";
 import TimeAgo from "@/components/TimeAgo";
 import { durationHumanize, formatDate, formatDateTime } from "@/lib/utils";
-
 // `this` refers to previous function in the chain (`Columns.***`).
 // Adds `sorter: true` field to column definition
+// @ts-expect-error ts-migrate(7019) FIXME: Rest parameter 'args' implicitly has an 'any[]' ty... Remove this comment to see the full error message
 function sortable(...args) {
-  return extend(this(...args), { sorter: true });
+    // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
+    return extend(this(...args), { sorter: true });
 }
-
 export const Columns = {
-  favorites(overrides) {
-    return extend(
-      {
-        width: "1%",
-        render: (text, item) => <FavoritesControl item={item} />,
-      },
-      overrides
-    );
-  },
-  avatar(overrides, formatTitle) {
-    formatTitle = isFunction(formatTitle) ? formatTitle : identity;
-    return extend(
-      {
-        width: "1%",
-        render: (user, item) => (
-          <img
-            src={item.user.profile_image_url}
-            className="profile__image_thumb"
-            alt={formatTitle(user.name, item)}
-            title={formatTitle(user.name, item)}
-          />
-        ),
-      },
-      overrides
-    );
-  },
-  date(overrides) {
-    return extend(
-      {
-        render: text => formatDate(text),
-      },
-      overrides
-    );
-  },
-  dateTime(overrides) {
-    return extend(
-      {
-        render: text => formatDateTime(text),
-      },
-      overrides
-    );
-  },
-  duration(overrides) {
-    return extend(
-      {
-        width: "1%",
-        className: "text-nowrap",
-        render: text => durationHumanize(text),
-      },
-      overrides
-    );
-  },
-  timeAgo(overrides, timeAgoCustomProps = undefined) {
-    return extend(
-      {
-        render: value => <TimeAgo date={value} {...timeAgoCustomProps} />,
-      },
-      overrides
-    );
-  },
-  custom(render, overrides) {
-    return extend(
-      {
-        render,
-      },
-      overrides
-    );
-  },
+    favorites(overrides: any) {
+        return extend({
+            width: "1%",
+            render: (text: any, item: any) => <FavoritesControl item={item}/>,
+        }, overrides);
+    },
+    avatar(overrides: any, formatTitle: any) {
+        formatTitle = isFunction(formatTitle) ? formatTitle : identity;
+        return extend({
+            width: "1%",
+            render: (user: any, item: any) => (<img src={item.user.profile_image_url} className="profile__image_thumb" alt={formatTitle(user.name, item)} title={formatTitle(user.name, item)}/>),
+        }, overrides);
+    },
+    date(overrides: any) {
+        return extend({
+            render: (text: any) => formatDate(text),
+        }, overrides);
+    },
+    dateTime(overrides: any) {
+        return extend({
+            render: (text: any) => formatDateTime(text),
+        }, overrides);
+    },
+    duration(overrides: any) {
+        return extend({
+            width: "1%",
+            className: "text-nowrap",
+            render: (text: any) => durationHumanize(text),
+        }, overrides);
+    },
+    timeAgo(overrides: any, timeAgoCustomProps = undefined) {
+        return extend({
+            render: (value: any) => <TimeAgo date={value} {...timeAgoCustomProps}/>,
+        }, overrides);
+    },
+    custom(render: any, overrides: any) {
+        return extend({
+            render,
+        }, overrides);
+    },
 };
-
-Columns.date.sortable = sortable;
-Columns.dateTime.sortable = sortable;
-Columns.duration.sortable = sortable;
-Columns.timeAgo.sortable = sortable;
-Columns.custom.sortable = sortable;
-
-export default class ItemsTable extends React.Component {
-  static propTypes = {
-    loading: PropTypes.bool,
-    // eslint-disable-next-line react/forbid-prop-types
-    items: PropTypes.arrayOf(PropTypes.object),
-    columns: PropTypes.arrayOf(
-      PropTypes.shape({
-        field: PropTypes.string, // data field
-        orderByField: PropTypes.string, // field to order by (defaults to `field`)
-        render: PropTypes.func, // (prop, item) => text | node; `prop` is `item[field]`
-        isAvailable: PropTypes.func, // return `true` to show column and `false` to hide; if omitted: show column
-      })
-    ),
-    showHeader: PropTypes.bool,
-    onRowClick: PropTypes.func, // (event, item) => void
-
-    orderByField: PropTypes.string,
-    orderByReverse: PropTypes.bool,
-    toggleSorting: PropTypes.func,
-    "data-test": PropTypes.string,
-    rowKey: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-  };
-
-  static defaultProps = {
-    loading: false,
-    items: [],
-    columns: [],
-    showHeader: true,
-    onRowClick: null,
-
-    orderByField: null,
-    orderByReverse: false,
-    toggleSorting: () => {},
-  };
-
-  prepareColumns() {
-    const { orderByField, orderByReverse, toggleSorting } = this.props;
-    const orderByDirection = orderByReverse ? "descend" : "ascend";
-
-    return map(
-      map(
-        filter(this.props.columns, column => (isFunction(column.isAvailable) ? column.isAvailable() : true)),
-        column => extend(column, { orderByField: column.orderByField || column.field })
-      ),
-      (column, index) => {
-        // Bind click events only to sortable columns
-        const onHeaderCell = column.sorter ? () => ({ onClick: () => toggleSorting(column.orderByField) }) : null;
-
-        // Wrap render function to pass correct arguments
-        const render = isFunction(column.render) ? (text, row) => column.render(text, row.item) : identity;
-
-        return extend(omit(column, ["field", "orderByField", "render"]), {
-          key: "column" + index,
-          dataIndex: ["item", column.field],
-          defaultSortOrder: column.orderByField === orderByField ? orderByDirection : null,
-          onHeaderCell,
-          render,
-        });
-      }
-    );
-  }
-
-  getRowKey = record => {
-    const { rowKey } = this.props;
-    if (rowKey) {
-      if (isFunction(rowKey)) {
-        return rowKey(record.item);
-      }
-      return record.item[rowKey];
-    }
-    return record.key;
-  };
-
-  render() {
-    const tableDataProps = {
-      columns: this.prepareColumns(),
-      dataSource: map(this.props.items, (item, index) => ({ key: "row" + index, item })),
+(Columns.date as any).sortable = sortable;
+(Columns.dateTime as any).sortable = sortable;
+(Columns.duration as any).sortable = sortable;
+(Columns.timeAgo as any).sortable = sortable;
+(Columns.custom as any).sortable = sortable;
+type OwnProps = {
+    loading?: boolean;
+    items?: any[];
+    columns?: {
+        field?: string;
+        orderByField?: string;
+        render?: (...args: any[]) => any;
+        isAvailable?: (...args: any[]) => any;
+    }[];
+    showHeader?: boolean;
+    onRowClick?: (...args: any[]) => any;
+    orderByField?: string;
+    orderByReverse?: boolean;
+    toggleSorting?: (...args: any[]) => any;
+    "data-test"?: string;
+    rowKey?: string | ((...args: any[]) => any);
+};
+type Props = OwnProps & typeof ItemsTable.defaultProps;
+export default class ItemsTable extends React.Component<Props> {
+    static defaultProps = {
+        loading: false,
+        items: [],
+        columns: [],
+        showHeader: true,
+        onRowClick: null,
+        orderByField: null,
+        orderByReverse: false,
+        toggleSorting: () => { },
     };
-
-    // Bind events only if `onRowClick` specified
-    const onTableRow = isFunction(this.props.onRowClick)
-      ? row => ({
-          onClick: event => {
-            this.props.onRowClick(event, row.item);
-          },
-        })
-      : null;
-
-    const { showHeader } = this.props;
-    if (this.props.loading) {
-      if (isEmpty(tableDataProps.dataSource)) {
-        tableDataProps.columns = tableDataProps.columns.map(column => ({
-          ...column,
-          sorter: false,
-          render: () => <Skeleton active paragraph={false} />,
-        }));
-        tableDataProps.dataSource = range(10).map(key => ({ key: `${key}` }));
-      } else {
-        tableDataProps.loading = { indicator: null };
-      }
+    prepareColumns() {
+        const { orderByField, orderByReverse, toggleSorting } = this.props;
+        const orderByDirection = orderByReverse ? "descend" : "ascend";
+        return map(map(filter((this.props as any).columns, column => (isFunction(column.isAvailable) ? column.isAvailable() : true)), column => extend(column, { orderByField: column.orderByField || column.field })), (column, index) => {
+            // Bind click events only to sortable columns
+            // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
+            const onHeaderCell = column.sorter ? () => ({ onClick: () => toggleSorting(column.orderByField) }) : null;
+            // Wrap render function to pass correct arguments
+            const render = isFunction(column.render) ? (text: any, row: any) => column.render(text, row.item) : identity;
+            return extend(omit(column, ["field", "orderByField", "render"]), {
+                key: "column" + index,
+                dataIndex: ["item", column.field],
+                defaultSortOrder: column.orderByField === orderByField ? orderByDirection : null,
+                onHeaderCell,
+                render,
+            });
+        });
     }
-
-    return (
-      <Table
-        className={classNames("table-data", { "ant-table-headerless": !showHeader })}
-        showHeader={showHeader}
-        rowKey={this.getRowKey}
-        pagination={false}
-        onRow={onTableRow}
-        data-test={this.props["data-test"]}
-        {...tableDataProps}
-      />
-    );
-  }
+    getRowKey = (record: any) => {
+        const { rowKey } = this.props;
+        if (rowKey) {
+            if (isFunction(rowKey)) {
+                // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
+                return rowKey(record.item);
+            }
+            return record.item[rowKey];
+        }
+        return record.key;
+    };
+    render() {
+        const tableDataProps = {
+            columns: this.prepareColumns(),
+            dataSource: map((this.props as any).items, (item, index) => ({ key: "row" + index, item })),
+        };
+        // Bind events only if `onRowClick` specified
+        const onTableRow = isFunction((this.props as any).onRowClick)
+            ? (row: any) => ({
+                onClick: (event: any) => {
+                    (this.props as any).onRowClick(event, row.item);
+                }
+            })
+            : null;
+        const { showHeader } = this.props;
+        if ((this.props as any).loading) {
+            if (isEmpty(tableDataProps.dataSource)) {
+                tableDataProps.columns = tableDataProps.columns.map(column => ({
+                    ...column,
+                    sorter: false,
+                    render: () => <Skeleton active paragraph={false}/>,
+                }));
+                // @ts-expect-error ts-migrate(2322) FIXME: Type '{ key: string; }[]' is not assignable to typ... Remove this comment to see the full error message
+                tableDataProps.dataSource = range(10).map(key => ({ key: `${key}` }));
+            }
+            else {
+                (tableDataProps as any).loading = { indicator: null };
+            }
+        }
+        // @ts-expect-error ts-migrate(2322) FIXME: Type '((row: any) => { onClick: (event: any) => vo... Remove this comment to see the full error message
+        return (<Table className={classNames("table-data", { "ant-table-headerless": !showHeader })} showHeader={showHeader} rowKey={this.getRowKey} pagination={false} onRow={onTableRow} data-test={this.props["data-test"]} {...tableDataProps}/>);
+    }
 }

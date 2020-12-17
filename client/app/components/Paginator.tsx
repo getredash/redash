@@ -1,10 +1,20 @@
 import React from "react";
-import PropTypes from "prop-types";
 import Pagination from "antd/lib/pagination";
 
 const MIN_ITEMS_PER_PAGE = 5;
 
-export default function Paginator({ page, showPageSizeSelect, pageSize, onPageSizeChange, totalCount, onChange }) {
+type OwnProps = {
+    page: number;
+    showPageSizeSelect?: boolean;
+    pageSize: number;
+    totalCount: number;
+    onPageSizeChange?: (...args: any[]) => any;
+    onChange?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof Paginator.defaultProps;
+
+export default function Paginator({ page, showPageSizeSelect, pageSize, onPageSizeChange, totalCount, onChange }: Props) {
   if (totalCount <= (showPageSizeSelect ? MIN_ITEMS_PER_PAGE : pageSize)) {
     return null;
   }
@@ -22,15 +32,6 @@ export default function Paginator({ page, showPageSizeSelect, pageSize, onPageSi
     </div>
   );
 }
-
-Paginator.propTypes = {
-  page: PropTypes.number.isRequired,
-  showPageSizeSelect: PropTypes.bool,
-  pageSize: PropTypes.number.isRequired,
-  totalCount: PropTypes.number.isRequired,
-  onPageSizeChange: PropTypes.func,
-  onChange: PropTypes.func,
-};
 
 Paginator.defaultProps = {
   showPageSizeSelect: false,

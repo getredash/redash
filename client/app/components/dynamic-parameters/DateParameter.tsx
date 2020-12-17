@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { getDynamicDateFromString } from "@/services/parameters/DateParameter";
 import DynamicDatePicker from "@/components/dynamic-parameters/DynamicDatePicker";
 
@@ -22,17 +21,20 @@ const DYNAMIC_DATE_OPTIONS = [
   },
 ];
 
-function DateParameter(props) {
+type OwnProps = {
+    type?: string;
+    className?: string;
+    value?: any;
+    parameter?: any;
+    onSelect?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof DateParameter.defaultProps;
+
+function DateParameter(props: Props) {
+  // @ts-expect-error ts-migrate(2322) FIXME: Type '{ name: string; value: any; label: () => any... Remove this comment to see the full error message
   return <DynamicDatePicker dynamicButtonOptions={{ options: DYNAMIC_DATE_OPTIONS }} {...props} />;
 }
-
-DateParameter.propTypes = {
-  type: PropTypes.string,
-  className: PropTypes.string,
-  value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-  parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-  onSelect: PropTypes.func,
-};
 
 DateParameter.defaultProps = {
   type: "",

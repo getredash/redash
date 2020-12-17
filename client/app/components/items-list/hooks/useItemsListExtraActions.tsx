@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect, useCallback } from "react";
 import Checkbox from "antd/lib/checkbox";
 import { Columns } from "../components/ItemsTable";
 
-export default function useItemsListExtraActions(controller, listColumns, ExtraActionsComponent) {
+export default function useItemsListExtraActions(controller: any, listColumns: any, ExtraActionsComponent: any) {
   const [actionsState, setActionsState] = useState({ isAvailable: false });
   const [selectedItems, setSelectedItems] = useState([]);
 
@@ -33,6 +33,7 @@ export default function useItemsListExtraActions(controller, listColumns, ExtraA
       if (includes(selectedItems, item)) {
         setSelectedItems(filter(selectedItems, s => s !== item));
       } else {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'any[]' is not assignable to para... Remove this comment to see the full error message
         setSelectedItems([...selectedItems, item]);
       }
     },
@@ -42,7 +43,7 @@ export default function useItemsListExtraActions(controller, listColumns, ExtraA
   const checkboxColumn = useMemo(
     () =>
       Columns.custom(
-        (text, item) => <Checkbox checked={includes(selectedItems, item)} onChange={() => toggleItem(item)} />,
+        (text: any, item: any) => <Checkbox checked={includes(selectedItems, item)} onChange={() => toggleItem(item)} />,
         {
           title: () => <Checkbox checked={areAllItemsSelected} onChange={toggleAllItems} />,
           field: "id",

@@ -1,6 +1,5 @@
 import { map } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 
 import Badge from "antd/lib/badge";
 import Card from "antd/lib/card";
@@ -8,9 +7,17 @@ import Spin from "antd/lib/spin";
 import Table from "antd/lib/table";
 import { Columns } from "@/components/items-list/components/ItemsTable";
 
+type OwnCounterCardProps = {
+    title: string;
+    value?: number | string;
+    loading: boolean;
+};
+
+type CounterCardProps = OwnCounterCardProps & typeof CounterCard.defaultProps;
+
 // CounterCard
 
-export function CounterCard({ title, value, loading }) {
+export function CounterCard({ title, value, loading }: CounterCardProps) {
   return (
     <Spin spinning={loading}>
       <Card>
@@ -20,12 +27,6 @@ export function CounterCard({ title, value, loading }) {
     </Spin>
   );
 }
-
-CounterCard.propTypes = {
-  title: PropTypes.string.isRequired,
-  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  loading: PropTypes.bool.isRequired,
-};
 
 CounterCard.defaultProps = {
   value: "",
@@ -39,7 +40,7 @@ const queryJobsColumns = [
   { title: "Org ID", dataIndex: ["meta", "org_id"] },
   { title: "Data Source ID", dataIndex: ["meta", "data_source_id"] },
   { title: "User ID", dataIndex: ["meta", "user_id"] },
-  Columns.custom(scheduled => scheduled.toString(), { title: "Scheduled", dataIndex: ["meta", "scheduled"] }),
+  Columns.custom((scheduled: any) => scheduled.toString(), { title: "Scheduled", dataIndex: ["meta", "scheduled"] }),
   Columns.timeAgo({ title: "Start Time", dataIndex: "started_at" }),
   Columns.timeAgo({ title: "Enqueue Time", dataIndex: "enqueued_at" }),
 ];
@@ -53,12 +54,11 @@ const otherJobsColumns = [
 
 const workersColumns = [
   Columns.custom(
-    value => (
-      <span>
-        <Badge status={{ busy: "processing", idle: "default", started: "success", suspended: "warning" }[value]} />{" "}
-        {value}
-      </span>
-    ),
+    (value: any) => <span>
+      {/* @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
+      <Badge status={{ busy: "processing", idle: "default", started: "success", suspended: "warning" }[value]} />{" "}
+      {value}
+    </span>,
     { title: "State", dataIndex: "state" }
   ),
 ]
@@ -75,12 +75,27 @@ const workersColumns = [
 
 const queuesColumns = map(["Name", "Started", "Queued"], c => ({ title: c, dataIndex: c.toLowerCase() }));
 
-const TablePropTypes = {
-  loading: PropTypes.bool.isRequired,
-  items: PropTypes.arrayOf(PropTypes.object).isRequired,
+type WorkersTableProps = {
+    loading: boolean;
+    items: any[];
 };
 
-export function WorkersTable({ loading, items }) {
+type QueuesTableProps = {
+    loading: boolean;
+    items: any[];
+};
+
+type QueryJobsTableProps = {
+    loading: boolean;
+    items: any[];
+};
+
+type OtherJobsTableProps = {
+    loading: boolean;
+    items: any[];
+};
+
+export function WorkersTable({ loading, items }: WorkersTableProps) {
   return (
     <Table
       loading={loading}
@@ -96,9 +111,7 @@ export function WorkersTable({ loading, items }) {
   );
 }
 
-WorkersTable.propTypes = TablePropTypes;
-
-export function QueuesTable({ loading, items }) {
+export function QueuesTable({ loading, items }: QueuesTableProps) {
   return (
     <Table
       loading={loading}
@@ -114,9 +127,7 @@ export function QueuesTable({ loading, items }) {
   );
 }
 
-QueuesTable.propTypes = TablePropTypes;
-
-export function QueryJobsTable({ loading, items }) {
+export function QueryJobsTable({ loading, items }: QueryJobsTableProps) {
   return (
     <Table
       loading={loading}
@@ -132,9 +143,7 @@ export function QueryJobsTable({ loading, items }) {
   );
 }
 
-QueryJobsTable.propTypes = TablePropTypes;
-
-export function OtherJobsTable({ loading, items }) {
+export function OtherJobsTable({ loading, items }: OtherJobsTableProps) {
   return (
     <Table
       loading={loading}
@@ -149,5 +158,3 @@ export function OtherJobsTable({ loading, items }) {
     />
   );
 }
-
-OtherJobsTable.propTypes = TablePropTypes;

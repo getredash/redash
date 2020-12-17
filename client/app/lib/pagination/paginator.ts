@@ -1,7 +1,13 @@
 import { sortBy } from "lodash";
 
 export default class Paginator {
-  constructor(rows, { page = 1, itemsPerPage = 20, totalCount = undefined } = {}) {
+  itemsPerPage: any;
+  orderByField: any;
+  orderByReverse: any;
+  page: any;
+  rows: any;
+  totalCount: any;
+  constructor(rows: any, { page = 1, itemsPerPage = 20, totalCount = undefined } = {}) {
     this.page = page;
     this.itemsPerPage = itemsPerPage;
     this.updateRows(rows, totalCount);
@@ -9,7 +15,7 @@ export default class Paginator {
     this.orderByReverse = false;
   }
 
-  setPage(page) {
+  setPage(page: any) {
     this.page = page;
   }
 
@@ -20,7 +26,7 @@ export default class Paginator {
     return this.rows.slice(first, last);
   }
 
-  updateRows(rows, totalCount = undefined) {
+  updateRows(rows: any, totalCount = undefined) {
     this.rows = rows;
     if (this.rows) {
       this.totalCount = totalCount || rows.length;
@@ -29,7 +35,7 @@ export default class Paginator {
     }
   }
 
-  orderBy(column) {
+  orderBy(column: any) {
     if (column === this.orderByField) {
       this.orderByReverse = !this.orderByReverse;
     } else {

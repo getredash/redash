@@ -1,9 +1,18 @@
-import PropTypes from "prop-types";
+
 import React from "react";
 import { registerComponent } from "@/components/DynamicComponent";
 import { QuerySourceTypeIcon } from "@/pages/queries/components/QuerySourceTypeIcon";
 
-export function QuerySourceDropdownItem({ dataSource, children }) {
+type Props = {
+    dataSource: {
+        name?: string;
+        id?: string | number;
+        type?: string;
+    };
+    children?: React.ReactElement;
+};
+
+export function QuerySourceDropdownItem({ dataSource, children }: Props) {
   return (
     <React.Fragment>
       <QuerySourceTypeIcon type={dataSource.type} alt={dataSource.name} />
@@ -11,14 +20,5 @@ export function QuerySourceDropdownItem({ dataSource, children }) {
     </React.Fragment>
   );
 }
-
-QuerySourceDropdownItem.propTypes = {
-  dataSource: PropTypes.shape({
-    name: PropTypes.string,
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    type: PropTypes.string,
-  }).isRequired,
-  children: PropTypes.element,
-};
 
 registerComponent("QuerySourceDropdownItem", QuerySourceDropdownItem);

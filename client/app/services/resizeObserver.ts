@@ -19,7 +19,7 @@ function checkItems() {
   }
 }
 
-export default function observe(node, callback) {
+export default function observe(node: any, callback: any) {
   if (node && !items.has(node)) {
     const shouldTrigger = items.size === 0;
     items.set(node, { callback });

@@ -1,12 +1,17 @@
 import React from "react";
-import PropTypes from "prop-types";
 import Link from "@/components/Link";
 import BigMessage from "@/components/BigMessage";
 import NoTaggedObjectsFound from "@/components/NoTaggedObjectsFound";
 import EmptyState, { EmptyStateHelpMessage } from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
 
-export default function QueriesListEmptyState({ page, searchTerm, selectedTags }) {
+type Props = {
+    page: string;
+    searchTerm: string;
+    selectedTags: any[];
+};
+
+export default function QueriesListEmptyState({ page, searchTerm, selectedTags }: Props) {
   if (searchTerm !== "") {
     return <BigMessage message="Sorry, we couldn't find anything." icon="fa-search" />;
   }
@@ -31,19 +36,18 @@ export default function QueriesListEmptyState({ page, searchTerm, selectedTags }
     default:
       return (
         <DynamicComponent name="QueriesList.EmptyState">
+          {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
           <EmptyState
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
             icon="fa fa-code"
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
             illustration="query"
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
             description="Getting the data from your datasources."
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'never'.
             helpMessage={<EmptyStateHelpMessage helpTriggerType="QUERIES" />}
           />
         </DynamicComponent>
       );
   }
 }
-
-QueriesListEmptyState.propTypes = {
-  page: PropTypes.string.isRequired,
-  searchTerm: PropTypes.string.isRequired,
-  selectedTags: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
-};

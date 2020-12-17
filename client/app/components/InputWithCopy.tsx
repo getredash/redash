@@ -3,8 +3,13 @@ import Input from "antd/lib/input";
 import CopyOutlinedIcon from "@ant-design/icons/CopyOutlined";
 import Tooltip from "antd/lib/tooltip";
 
-export default class InputWithCopy extends React.Component {
-  constructor(props) {
+type State = any;
+
+export default class InputWithCopy extends React.Component<{}, State> {
+  copyFeatureSupported: any;
+  ref: any;
+  resetCopyState: any;
+  constructor(props: {}) {
     super(props);
     this.state = { copied: null };
     this.ref = React.createRef();

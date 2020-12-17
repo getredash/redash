@@ -1,9 +1,10 @@
 import { createParameter } from "..";
 
 describe("NumberParameter", () => {
-  let param;
+  let param: any;
 
   beforeEach(() => {
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
     param = createParameter({ name: "param", title: "Param", type: "number" });
   });
 

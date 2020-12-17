@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
 import { toLower, isNumber } from "lodash";
 
 import InputNumber from "antd/lib/input-number";
@@ -15,15 +14,26 @@ const DURATIONS = [
   ["Week", 604800],
 ];
 
-function RearmByDuration({ value, onChange, editMode }) {
+type OwnRearmByDurationProps = {
+    onChange?: (...args: any[]) => any;
+    value: number;
+    editMode: boolean;
+};
+
+type RearmByDurationProps = OwnRearmByDurationProps & typeof RearmByDuration.defaultProps;
+
+function RearmByDuration({ value, onChange, editMode }: RearmByDurationProps) {
   const [durationIdx, setDurationIdx] = useState();
   const [count, setCount] = useState();
 
   useEffect(() => {
     for (let i = DURATIONS.length - 1; i >= 0; i -= 1) {
       const [, durValue] = DURATIONS[i];
+      // @ts-expect-error ts-migrate(2363) FIXME: The right-hand side of an arithmetic operation mus... Remove this comment to see the full error message
       if (value % durValue === 0) {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'number' is not assignable to par... Remove this comment to see the full error message
         setDurationIdx(i);
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'number' is not assignable to par... Remove this comment to see the full error message
         setCount(value / durValue);
         break;
       }
@@ -34,13 +44,15 @@ function RearmByDuration({ value, onChange, editMode }) {
     return null;
   }
 
-  const onChangeCount = newCount => {
+  const onChangeCount = (newCount: any) => {
     setCount(newCount);
+    // @ts-expect-error ts-migrate(2538) FIXME: Type 'undefined' cannot be used as an index type.
     onChange(newCount * DURATIONS[durationIdx][1]);
   };
 
-  const onChangeIdx = newIdx => {
+  const onChangeIdx = (newIdx: any) => {
     setDurationIdx(newIdx);
+    // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
     onChange(count * DURATIONS[newIdx][1]);
   };
 
@@ -62,24 +74,24 @@ function RearmByDuration({ value, onChange, editMode }) {
     );
   }
 
+  // @ts-expect-error ts-migrate(2538) FIXME: Type 'undefined' cannot be used as an index type.
   const [name] = DURATIONS[durationIdx];
   return count + " " + toLower(name) + plural;
 }
-
-RearmByDuration.propTypes = {
-  onChange: PropTypes.func,
-  value: PropTypes.number.isRequired,
-  editMode: PropTypes.bool.isRequired,
-};
 
 RearmByDuration.defaultProps = {
   onChange: () => {},
 };
 
-function RearmEditor({ value, onChange }) {
+type RearmEditorProps = {
+    onChange: (...args: any[]) => any;
+    value: number;
+};
+
+function RearmEditor({ value, onChange }: RearmEditorProps) {
   const [selected, setSelected] = useState(value < 2 ? value : 2);
 
-  const _onChange = newSelected => {
+  const _onChange = (newSelected: any) => {
     setSelected(newSelected);
     onChange(newSelected < 2 ? newSelected : 3600);
   };
@@ -101,17 +113,17 @@ function RearmEditor({ value, onChange }) {
           At most every ... <em>when alert is evaluated</em>
         </Select.Option>
       </Select>
+      {/* @ts-expect-error ts-migrate(2786) FIXME: 'RearmByDuration' cannot be used as a JSX componen... Remove this comment to see the full error message */}
       {selected === 2 && value && <RearmByDuration value={value} onChange={onChange} editMode />}
     </div>
   );
 }
 
-RearmEditor.propTypes = {
-  onChange: PropTypes.func.isRequired,
-  value: PropTypes.number.isRequired,
+type RearmViewerProps = {
+    value: number;
 };
 
-function RearmViewer({ value }) {
+function RearmViewer({ value }: RearmViewerProps) {
   let phrase = "";
   switch (value) {
     case 0:
@@ -121,8 +133,10 @@ function RearmViewer({ value }) {
       phrase = "each time alert is evaluated, until back to normal";
       break;
     default:
+      // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'string'.
       phrase = (
         <>
+          {/* @ts-expect-error ts-migrate(2786) FIXME: 'RearmByDuration' cannot be used as a JSX componen... Remove this comment to see the full error message */}
           at most every <RearmByDuration value={value} editMode={false} />, when alert is evaluated
         </>
       );
@@ -131,19 +145,18 @@ function RearmViewer({ value }) {
   return <span>Notifications are sent {phrase}.</span>;
 }
 
-RearmViewer.propTypes = {
-  value: PropTypes.number.isRequired,
+type OwnRearmProps = {
+    onChange?: (...args: any[]) => any;
+    value: number;
+    editMode?: boolean;
 };
 
-export default function Rearm({ editMode, ...props }) {
+type RearmProps = OwnRearmProps & typeof Rearm.defaultProps;
+
+// @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
+export default function Rearm({ editMode, ...props }: RearmProps) {
   return editMode ? <RearmEditor {...props} /> : <RearmViewer {...props} />;
 }
-
-Rearm.propTypes = {
-  onChange: PropTypes.func,
-  value: PropTypes.number.isRequired,
-  editMode: PropTypes.bool,
-};
 
 Rearm.defaultProps = {
   onChange: null,

@@ -1,3 +1,5 @@
-export default function ContentField({ field }) {
+export default function ContentField({
+  field
+}: any) {
   return field.content;
 }

@@ -2,11 +2,11 @@ import { useCallback, useState } from "react";
 import localOptions from "@/lib/localOptions";
 import { get, extend } from "lodash";
 
-function isAutoLimitAvailable(dataSource) {
+function isAutoLimitAvailable(dataSource: any) {
   return get(dataSource, "supports_auto_limit", false);
 }
 
-export default function useAutoLimitFlags(dataSource, query, setQuery) {
+export default function useAutoLimitFlags(dataSource: any, query: any, setQuery: any) {
   const isAvailable = isAutoLimitAvailable(dataSource);
   const [isChecked, setIsChecked] = useState(query.options.apply_auto_limit);
   query.options.apply_auto_limit = isChecked;

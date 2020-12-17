@@ -1,8 +1,16 @@
 import React from "react";
-import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
 
-export default function ListItemAddon({ isSelected, isStaged, alreadyInGroup, deselectedIcon }) {
+type OwnProps = {
+    isSelected?: boolean;
+    isStaged?: boolean;
+    alreadyInGroup?: boolean;
+    deselectedIcon?: string;
+};
+
+type Props = OwnProps & typeof ListItemAddon.defaultProps;
+
+export default function ListItemAddon({ isSelected, isStaged, alreadyInGroup, deselectedIcon }: Props) {
   if (isStaged) {
     return <i className="fa fa-remove" />;
   }
@@ -15,13 +23,6 @@ export default function ListItemAddon({ isSelected, isStaged, alreadyInGroup, de
   }
   return isSelected ? <i className="fa fa-check" /> : <i className={`fa ${deselectedIcon}`} />;
 }
-
-ListItemAddon.propTypes = {
-  isSelected: PropTypes.bool,
-  isStaged: PropTypes.bool,
-  alreadyInGroup: PropTypes.bool,
-  deselectedIcon: PropTypes.string,
-};
 
 ListItemAddon.defaultProps = {
   isSelected: false,

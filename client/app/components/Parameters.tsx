@@ -1,8 +1,8 @@
 import { size, filter, forEach, extend } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 import { SortableContainer, SortableElement, DragHandle } from "@redash/viz/lib/components/sortable";
 import location from "@/services/location";
+// @ts-expect-error ts-migrate(6133) FIXME: 'Parameter' is declared but its value is never rea... Remove this comment to see the full error message
 import { Parameter, createParameter } from "@/services/parameters";
 import ParameterApplyButton from "@/components/ParameterApplyButton";
 import ParameterValueInput from "@/components/ParameterValueInput";
@@ -11,24 +11,28 @@ import { toHuman } from "@/lib/utils";
 
 import "./Parameters.less";
 
-function updateUrl(parameters) {
+function updateUrl(parameters: any) {
   const params = extend({}, location.search);
-  parameters.forEach(param => {
+  parameters.forEach((param: any) => {
     extend(params, param.toUrlParams());
   });
   location.setSearch(params, true);
 }
 
-export default class Parameters extends React.Component {
-  static propTypes = {
-    parameters: PropTypes.arrayOf(PropTypes.instanceOf(Parameter)),
-    editable: PropTypes.bool,
-    disableUrlUpdate: PropTypes.bool,
-    onValuesChange: PropTypes.func,
-    onPendingValuesChange: PropTypes.func,
-    onParametersEdit: PropTypes.func,
-  };
+type OwnProps = {
+    parameters?: any[]; // TODO: PropTypes.instanceOf(Parameter)
+    editable?: boolean;
+    disableUrlUpdate?: boolean;
+    onValuesChange?: (...args: any[]) => any;
+    onPendingValuesChange?: (...args: any[]) => any;
+    onParametersEdit?: (...args: any[]) => any;
+};
 
+type State = any;
+
+type Props = OwnProps & typeof Parameters.defaultProps;
+
+export default class Parameters extends React.Component<Props, State> {
   static defaultProps = {
     parameters: [],
     editable: false,
@@ -38,7 +42,9 @@ export default class Parameters extends React.Component {
     onParametersEdit: () => {},
   };
 
-  constructor(props) {
+  onBeforeSortStart: any;
+
+  constructor(props: Props) {
     super(props);
     const { parameters } = props;
     this.state = { parameters };
@@ -47,7 +53,7 @@ export default class Parameters extends React.Component {
     }
   }
 
-  componentDidUpdate = prevProps => {
+  componentDidUpdate = (prevProps: any) => {
     const { parameters, disableUrlUpdate } = this.props;
     const parametersChanged = prevProps.parameters !== parameters;
     const disableUrlUpdateChanged = prevProps.disableUrlUpdate !== disableUrlUpdate;
@@ -59,7 +65,7 @@ export default class Parameters extends React.Component {
     }
   };
 
-  handleKeyDown = e => {
+  handleKeyDown = (e: any) => {
     // Cmd/Ctrl/Alt + Enter
     if (e.keyCode === 13 && (e.ctrlKey || e.metaKey || e.altKey)) {
       e.stopPropagation();
@@ -67,9 +73,11 @@ export default class Parameters extends React.Component {
     }
   };
 
-  setPendingValue = (param, value, isDirty) => {
+  setPendingValue = (param: any, value: any, isDirty: any) => {
     const { onPendingValuesChange } = this.props;
-    this.setState(({ parameters }) => {
+    this.setState(({
+      parameters
+    }: any) => {
       if (isDirty) {
         param.setPendingValue(value);
       } else {
@@ -80,10 +88,15 @@ export default class Parameters extends React.Component {
     });
   };
 
-  moveParameter = ({ oldIndex, newIndex }) => {
+  moveParameter = ({
+    oldIndex,
+    newIndex
+  }: any) => {
     const { onParametersEdit } = this.props;
     if (oldIndex !== newIndex) {
-      this.setState(({ parameters }) => {
+      this.setState(({
+        parameters
+      }: any) => {
         parameters.splice(newIndex, 0, parameters.splice(oldIndex, 1)[0]);
         onParametersEdit();
         return { parameters };
@@ -93,8 +106,10 @@ export default class Parameters extends React.Component {
 
   applyChanges = () => {
     const { onValuesChange, disableUrlUpdate } = this.props;
-    this.setState(({ parameters }) => {
-      const parametersWithPendingValues = parameters.filter(p => p.hasPendingValue);
+    this.setState(({
+      parameters
+    }: any) => {
+      const parametersWithPendingValues = parameters.filter((p: any) => p.hasPendingValue);
       forEach(parameters, p => p.applyPendingValue());
       if (!disableUrlUpdate) {
         updateUrl(parameters);
@@ -104,10 +119,12 @@ export default class Parameters extends React.Component {
     });
   };
 
-  showParameterSettings = (parameter, index) => {
+  showParameterSettings = (parameter: any, index: any) => {
     const { onParametersEdit } = this.props;
-    EditParameterSettingsDialog.showModal({ parameter }).onClose(updated => {
-      this.setState(({ parameters }) => {
+    EditParameterSettingsDialog.showModal({ parameter }).onClose((updated: any) => {
+      this.setState(({
+        parameters
+      }: any) => {
         const updatedParameter = extend(parameter, updated);
         parameters[index] = createParameter(updatedParameter, updatedParameter.parentQueryId);
         onParametersEdit();
@@ -116,7 +133,7 @@ export default class Parameters extends React.Component {
     });
   };
 
-  renderParameter(param, index) {
+  renderParameter(param: any, index: any) {
     const { editable } = this.props;
     return (
       <div key={param.name} className="di-block" data-test={`ParameterName-${param.name}`}>
@@ -133,12 +150,18 @@ export default class Parameters extends React.Component {
           )}
         </div>
         <ParameterValueInput
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           type={param.type}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           value={param.normalizedValue}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           parameter={param}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           enumOptions={param.enumOptions}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           queryId={param.queryId}
-          onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '(value: any, isDirty: any) => void' is not a... Remove this comment to see the full error message
+          onSelect={(value: any, isDirty: any) => this.setPendingValue(param, value, isDirty)}
         />
       </div>
     );
@@ -149,6 +172,7 @@ export default class Parameters extends React.Component {
     const { editable } = this.props;
     const dirtyParamCount = size(filter(parameters, "hasPendingValue"));
     return (
+      // @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message
       <SortableContainer
         disabled={!editable}
         axis="xy"
@@ -161,7 +185,7 @@ export default class Parameters extends React.Component {
           className: "parameter-container",
           onKeyDown: dirtyParamCount ? this.handleKeyDown : null,
         }}>
-        {parameters.map((param, index) => (
+        {parameters.map((param: any, index: any) => (
           <SortableElement key={param.name} index={index}>
             <div className="parameter-block" data-editable={editable || null}>
               {editable && <DragHandle data-test={`DragHandle-${param.name}`} />}

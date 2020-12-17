@@ -1,7 +1,7 @@
 import { isMatch, map, find, sortBy } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
+// @ts-expect-error ts-migrate(6133) FIXME: 'DialogPropType' is declared but its value is neve... Remove this comment to see the full error message
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import {
   MappingType,
@@ -12,7 +12,7 @@ import {
 } from "@/components/ParameterMappingInput";
 import notification from "@/services/notification";
 
-export function getParamValuesSnapshot(mappings, dashboardParameters) {
+export function getParamValuesSnapshot(mappings: any, dashboardParameters: any) {
   return map(
     sortBy(mappings, m => m.name),
     m => {
@@ -32,24 +32,30 @@ export function getParamValuesSnapshot(mappings, dashboardParameters) {
   );
 }
 
-class EditParameterMappingsDialog extends React.Component {
-  static propTypes = {
-    dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    dialog: DialogPropType.isRequired,
-  };
+type Props = {
+    dashboard: any;
+    widget: any;
+    // @ts-expect-error ts-migrate(2749) FIXME: 'DialogPropType' refers to a value, but is being u... Remove this comment to see the full error message
+    dialog: DialogPropType;
+};
+
+type State = any;
+
+class EditParameterMappingsDialog extends React.Component<Props, State> {
 
   originalParamValuesSnapshot = null;
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     const parameterMappings = parameterMappingsToEditableMappings(
       props.widget.options.parameterMappings,
       props.widget.query.getParametersDefs(),
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'any[]' is not assignable to para... Remove this comment to see the full error message
       map(this.props.dashboard.getParametersDefs(), p => p.name)
     );
 
+    // @ts-expect-error ts-migrate(2322) FIXME: Type '(any[] | undefined)[]' is not assignable to ... Remove this comment to see the full error message
     this.originalParamValuesSnapshot = getParamValuesSnapshot(
       parameterMappings,
       this.props.dashboard.getParametersDefs()
@@ -70,6 +76,7 @@ class EditParameterMappingsDialog extends React.Component {
     widget.options.parameterMappings = newMappings;
 
     const valuesChanged = !isMatch(
+      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'null' is not assignable to param... Remove this comment to see the full error message
       this.originalParamValuesSnapshot,
       getParamValuesSnapshot(this.state.parameterMappings, this.props.dashboard.getParametersDefs())
     );
@@ -84,6 +91,7 @@ class EditParameterMappingsDialog extends React.Component {
         this.props.dialog.close(valuesChanged);
       })
       .catch(() => {
+        // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
         notification.error("Widget cannot be updated");
       })
       .finally(() => {
@@ -91,7 +99,7 @@ class EditParameterMappingsDialog extends React.Component {
       });
   }
 
-  updateParamMappings(parameterMappings) {
+  updateParamMappings(parameterMappings: any) {
     this.setState({ parameterMappings });
   }
 
@@ -108,7 +116,8 @@ class EditParameterMappingsDialog extends React.Component {
           <ParameterMappingListInput
             mappings={this.state.parameterMappings}
             existingParams={this.props.dashboard.getParametersDefs()}
-            onChange={mappings => this.updateParamMappings(mappings)}
+            // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
+            onChange={(mappings: any) => this.updateParamMappings(mappings)}
           />
         )}
       </Modal>

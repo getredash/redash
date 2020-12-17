@@ -1,9 +1,15 @@
 import React from "react";
-import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import FormOutlinedIcon from "@ant-design/icons/FormOutlined";
 
-export default function EditVisualizationButton(props) {
+type OwnProps = {
+    openVisualizationEditor: (...args: any[]) => any;
+    selectedTab?: string | number;
+};
+
+type Props = OwnProps & typeof EditVisualizationButton.defaultProps;
+
+export default function EditVisualizationButton(props: Props) {
   return (
     <Button
       data-test="EditVisualization"
@@ -14,11 +20,6 @@ export default function EditVisualizationButton(props) {
     </Button>
   );
 }
-
-EditVisualizationButton.propTypes = {
-  openVisualizationEditor: PropTypes.func.isRequired,
-  selectedTab: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-};
 
 EditVisualizationButton.defaultProps = {
   selectedTab: "",

@@ -2,14 +2,19 @@ import { isArray, isEmpty, includes, intersection, get, map, join, has } from "l
 import Parameter from "./Parameter";
 
 class EnumParameter extends Parameter {
-  constructor(parameter, parentQueryId) {
+  enumOptions: any;
+  multiValuesOptions: any;
+  name: any;
+  urlPrefix: any;
+  value: any;
+  constructor(parameter: any, parentQueryId: any) {
     super(parameter, parentQueryId);
     this.enumOptions = parameter.enumOptions;
     this.multiValuesOptions = parameter.multiValuesOptions;
     this.setValue(parameter.value);
   }
 
-  normalizeValue(value) {
+  normalizeValue(value: any) {
     if (isEmpty(this.enumOptions)) {
       return null;
     }
@@ -31,6 +36,7 @@ class EnumParameter extends Parameter {
   }
 
   getExecutionValue(extra = {}) {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'joinListValues' does not exist on type '... Remove this comment to see the full error message
     const { joinListValues } = extra;
     if (joinListValues && isArray(this.value)) {
       const separator = get(this.multiValuesOptions, "separator", ",");
@@ -55,7 +61,7 @@ class EnumParameter extends Parameter {
     };
   }
 
-  fromUrlParams(query) {
+  fromUrlParams(query: any) {
     const prefix = this.urlPrefix;
     const key = `${prefix}${this.name}`;
     if (has(query, key)) {

@@ -1,6 +1,5 @@
 import { keys, some } from "lodash";
 import React, { useCallback } from "react";
-import PropTypes from "prop-types";
 import classNames from "classnames";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import Link from "@/components/Link";
@@ -10,7 +9,19 @@ import { currentUser } from "@/services/auth";
 import organizationStatus from "@/services/organizationStatus";
 import "./empty-state.less";
 
-export function Step({ show, completed, text, url, urlTarget, urlText, onClick }) {
+type OwnStepProps = {
+    show: boolean;
+    completed: boolean;
+    text?: React.ReactNode;
+    url?: string;
+    urlTarget?: string;
+    urlText?: React.ReactNode;
+    onClick?: (...args: any[]) => any;
+};
+
+type StepProps = OwnStepProps & typeof Step.defaultProps;
+
+export function Step({ show, completed, text, url, urlTarget, urlText, onClick }: StepProps) {
   if (!show) {
     return null;
   }
@@ -25,16 +36,6 @@ export function Step({ show, completed, text, url, urlTarget, urlText, onClick }
   );
 }
 
-Step.propTypes = {
-  show: PropTypes.bool.isRequired,
-  completed: PropTypes.bool.isRequired,
-  text: PropTypes.node,
-  url: PropTypes.string,
-  urlTarget: PropTypes.string,
-  urlText: PropTypes.node,
-  onClick: PropTypes.func,
-};
-
 Step.defaultProps = {
   url: null,
   urlTarget: null,
@@ -43,10 +44,15 @@ Step.defaultProps = {
   onClick: null,
 };
 
-export function EmptyStateHelpMessage({ helpTriggerType }) {
+type EmptyStateHelpMessageProps = {
+    helpTriggerType: string;
+};
+
+export function EmptyStateHelpMessage({ helpTriggerType }: EmptyStateHelpMessageProps) {
   return (
     <p>
       Need more support?{" "}
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <HelpTrigger className="f-14" type={helpTriggerType} showTooltip={false}>
         See our Help
       </HelpTrigger>
@@ -54,26 +60,26 @@ export function EmptyStateHelpMessage({ helpTriggerType }) {
   );
 }
 
-EmptyStateHelpMessage.propTypes = {
-  helpTriggerType: PropTypes.string.isRequired,
+type OwnEmptyStateProps = {
+    icon?: string;
+    header?: string;
+    description: string;
+    illustration: string;
+    illustrationPath?: string;
+    helpMessage?: React.ReactNode;
+    closable?: boolean;
+    onClose?: (...args: any[]) => any;
+    onboardingMode?: boolean;
+    showAlertStep?: boolean;
+    showDashboardStep?: boolean;
+    showDataSourceStep?: boolean;
+    showInviteStep?: boolean;
+    getStepItems?: (...args: any[]) => any;
 };
 
-function EmptyState({
-  icon,
-  header,
-  description,
-  illustration,
-  helpMessage,
-  closable,
-  onClose,
-  onboardingMode,
-  showAlertStep,
-  showDashboardStep,
-  showDataSourceStep,
-  showInviteStep,
-  getStepsItems,
-  illustrationPath,
-}) {
+type EmptyStateProps = OwnEmptyStateProps & typeof EmptyState.defaultProps;
+
+function EmptyState({ icon, header, description, illustration, helpMessage, closable, onClose, onboardingMode, showAlertStep, showDashboardStep, showDataSourceStep, showInviteStep, getStepsItems, illustrationPath, }: EmptyStateProps) {
   const isAvailable = {
     dataSource: showDataSourceStep,
     query: true,
@@ -91,10 +97,12 @@ function EmptyState({
   };
 
   const showCreateDashboardDialog = useCallback(() => {
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0.
     CreateDashboardDialog.showModal();
   }, []);
 
   // Show if `onboardingMode=false` or any requested step not completed
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const shouldShow = !onboardingMode || some(keys(isAvailable), step => isAvailable[step] && !isCompleted[step]);
 
   if (!shouldShow) {
@@ -105,10 +113,14 @@ function EmptyState({
     if (currentUser.isAdmin) {
       return (
         <Step
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           key="dataSources"
           show={isAvailable.dataSource}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
           completed={isCompleted.dataSource}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           url="data_sources/new"
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           urlText="Connect a Data Source"
         />
       );
@@ -116,9 +128,12 @@ function EmptyState({
 
     return (
       <Step
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
         key="dataSources"
         show={isAvailable.dataSource}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
         completed={isCompleted.dataSource}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
         text="Ask an account admin to connect a data source"
       />
     );
@@ -133,10 +148,15 @@ function EmptyState({
       key: "queries",
       node: (
         <Step
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           key="queries"
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
           show={isAvailable.query}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
           completed={isCompleted.query}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           url="queries/new"
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           urlText="Create your first Query"
         />
       ),
@@ -145,10 +165,14 @@ function EmptyState({
       key: "alerts",
       node: (
         <Step
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           key="alerts"
           show={isAvailable.alert}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
           completed={isCompleted.alert}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           url="alerts/new"
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           urlText="Create your first Alert"
         />
       ),
@@ -157,10 +181,14 @@ function EmptyState({
       key: "dashboards",
       node: (
         <Step
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           key="dashboards"
           show={isAvailable.dashboard}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
           completed={isCompleted.dashboard}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type '() => void' is not assignable to type 'never... Remove this comment to see the full error message
           onClick={showCreateDashboardDialog}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           urlText="Create your first Dashboard"
         />
       ),
@@ -169,16 +197,21 @@ function EmptyState({
       key: "users",
       node: (
         <Step
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           key="users"
           show={isAvailable.inviteUsers}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
           completed={isCompleted.inviteUsers}
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           url="users/new"
+          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           urlText="Invite your team members"
         />
       ),
     },
   ];
 
+  // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
   const stepsItems = getStepsItems ? getStepsItems(defaultStepsItems) : defaultStepsItems;
   const imageSource = illustrationPath ? illustrationPath : "static/images/illustrations/" + illustration + ".svg";
 
@@ -195,7 +228,7 @@ function EmptyState({
         </div>
         <div className="empty-state__steps">
           <h4>Let&apos;s get started</h4>
-          <ol>{stepsItems.map(item => item.node)}</ol>
+          <ol>{stepsItems.map((item: any) => item.node)}</ol>
           {helpMessage}
         </div>
       </div>
@@ -207,25 +240,6 @@ function EmptyState({
     </div>
   );
 }
-
-EmptyState.propTypes = {
-  icon: PropTypes.string,
-  header: PropTypes.string,
-  description: PropTypes.string.isRequired,
-  illustration: PropTypes.string.isRequired,
-  illustrationPath: PropTypes.string,
-  helpMessage: PropTypes.node,
-  closable: PropTypes.bool,
-  onClose: PropTypes.func,
-
-  onboardingMode: PropTypes.bool,
-  showAlertStep: PropTypes.bool,
-  showDashboardStep: PropTypes.bool,
-  showDataSourceStep: PropTypes.bool,
-  showInviteStep: PropTypes.bool,
-
-  getStepItems: PropTypes.func,
-};
 
 EmptyState.defaultProps = {
   icon: null,

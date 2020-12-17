@@ -2,7 +2,10 @@ import { axios } from "@/services/axios";
 import { extend, map } from "lodash";
 
 class QuerySnippet {
-  constructor(querySnippet) {
+  description: any;
+  snippet: any;
+  trigger: any;
+  constructor(querySnippet: any) {
     extend(this, querySnippet);
   }
 
@@ -20,14 +23,14 @@ class QuerySnippet {
   }
 }
 
-const getQuerySnippet = querySnippet => new QuerySnippet(querySnippet);
+const getQuerySnippet = (querySnippet: any) => new QuerySnippet(querySnippet);
 
 const QuerySnippetService = {
-  get: data => axios.get(`api/query_snippets/${data.id}`).then(getQuerySnippet),
+  get: (data: any) => axios.get(`api/query_snippets/${data.id}`).then(getQuerySnippet),
   query: () => axios.get("api/query_snippets").then(data => map(data, getQuerySnippet)),
-  create: data => axios.post("api/query_snippets", data).then(getQuerySnippet),
-  save: data => axios.post(`api/query_snippets/${data.id}`, data).then(getQuerySnippet),
-  delete: data => axios.delete(`api/query_snippets/${data.id}`),
+  create: (data: any) => axios.post("api/query_snippets", data).then(getQuerySnippet),
+  save: (data: any) => axios.post(`api/query_snippets/${data.id}`, data).then(getQuerySnippet),
+  delete: (data: any) => axios.delete(`api/query_snippets/${data.id}`),
 };
 
 export default QuerySnippetService;

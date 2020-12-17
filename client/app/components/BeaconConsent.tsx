@@ -7,47 +7,36 @@ import Link from "@/components/Link";
 import HelpTrigger from "@/components/HelpTrigger";
 import DynamicComponent from "@/components/DynamicComponent";
 import OrgSettings from "@/services/organizationSettings";
-
 const Text = Typography.Text;
-
 function BeaconConsent() {
-  const [hide, setHide] = useState(false);
-
-  if (!clientConfig.showBeaconConsentMessage || hide) {
-    return null;
-  }
-
-  const hideConsentCard = () => {
-    clientConfig.showBeaconConsentMessage = false;
-    setHide(true);
-  };
-
-  const confirmConsent = confirm => {
-    let message = "🙏 Thank you.";
-
-    if (!confirm) {
-      message = "Settings Saved.";
+    const [hide, setHide] = useState(false);
+    if (!(clientConfig as any).showBeaconConsentMessage || hide) {
+        return null;
     }
-
-    OrgSettings.save({ beacon_consent: confirm }, message)
-      // .then(() => {
-      //   // const settings = get(response, 'settings');
-      //   // this.setState({ settings, formValues: { ...settings } });
-      // })
-      .finally(hideConsentCard);
-  };
-
-  return (
-    <DynamicComponent name="BeaconConsent">
+    const hideConsentCard = () => {
+        (clientConfig as any).showBeaconConsentMessage = false;
+        setHide(true);
+    };
+    const confirmConsent = (confirm: any) => {
+        let message = "🙏 Thank you.";
+        if (!confirm) {
+            message = "Settings Saved.";
+        }
+        OrgSettings.save({ beacon_consent: confirm }, message)
+            // .then(() => {
+            //   // const settings = get(response, 'settings');
+            //   // this.setState({ settings, formValues: { ...settings } });
+            // })
+            .finally(hideConsentCard);
+    };
+    return (<DynamicComponent name="BeaconConsent">
+      {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
       <div className="m-t-10 tiled">
-        <Card
-          title={
-            <>
+        <Card title={<>
               Would you be ok with sharing anonymous usage data with the Redash team?{" "}
-              <HelpTrigger type="USAGE_DATA_SHARING" />
-            </>
-          }
-          bordered={false}>
+              {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'. */}
+              <HelpTrigger type="USAGE_DATA_SHARING"/>
+            </>} bordered={false}>
           <Text>Help Redash improve by automatically sending anonymous usage data:</Text>
           <div className="m-t-5">
             <ul>
@@ -72,8 +61,6 @@ function BeaconConsent() {
           </div>
         </Card>
       </div>
-    </DynamicComponent>
-  );
+    </DynamicComponent>);
 }
-
 export default BeaconConsent;

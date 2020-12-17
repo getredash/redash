@@ -1,11 +1,20 @@
 import { includes } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 import Alert from "antd/lib/alert";
 import Button from "antd/lib/button";
 import Timer from "@/components/Timer";
 
-export default function QueryExecutionStatus({ status, updatedAt, error, isCancelling, onCancel }) {
+type OwnProps = {
+    status?: string;
+    updatedAt?: any;
+    error?: string;
+    isCancelling?: boolean;
+    onCancel?: (...args: any[]) => any;
+};
+
+type Props = OwnProps & typeof QueryExecutionStatus.defaultProps;
+
+export default function QueryExecutionStatus({ status, updatedAt, error, isCancelling, onCancel }: Props) {
   const alertType = status === "failed" ? "error" : "info";
   const showTimer = status !== "failed" && updatedAt;
   const isCancelButtonAvailable = includes(["waiting", "processing"], status);
@@ -56,14 +65,6 @@ export default function QueryExecutionStatus({ status, updatedAt, error, isCance
     />
   );
 }
-
-QueryExecutionStatus.propTypes = {
-  status: PropTypes.string,
-  updatedAt: PropTypes.any,
-  error: PropTypes.string,
-  isCancelling: PropTypes.bool,
-  onCancel: PropTypes.func,
-};
 
 QueryExecutionStatus.defaultProps = {
   status: "waiting",

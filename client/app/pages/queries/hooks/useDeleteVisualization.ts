@@ -4,7 +4,7 @@ import Visualization from "@/services/visualization";
 import notification from "@/services/notification";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
-export default function useDeleteVisualization(query, onChange) {
+export default function useDeleteVisualization(query: any, onChange: any) {
   const handleChange = useImmutableCallback(onChange);
 
   return useCallback(
@@ -15,6 +15,7 @@ export default function useDeleteVisualization(query, onChange) {
           handleChange(extend(query.clone(), { visualizations: filteredVisualizations }));
         })
         .catch(() => {
+          // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 2.
           notification.error("Error deleting visualization.", "Maybe it's used in a dashboard?");
         }),
     [query, handleChange]
