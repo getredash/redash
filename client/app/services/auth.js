@@ -44,6 +44,10 @@ const AuthUrls = {
   Login: "login",
 };
 
+export function updateClientConfig(newClientConfig) {
+  extend(clientConfig, newClientConfig);
+}
+
 function updateSession(sessionData) {
   logger("Updating session to be:", sessionData);
   extend(session, sessionData, { loaded: true });
