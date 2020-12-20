@@ -6,7 +6,7 @@ import Link from "@/components/Link";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmptyState, { EmptyStateHelpMessage } from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
-import BeaconConsent from "@/components/BeaconConsent";
+//import BeaconConsent from "@/components/BeaconConsent";
 
 import { axios } from "@/services/axios";
 import recordEvent from "@/services/recordEvent";

@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { first, includes } from "lodash";
 import Menu from "antd/lib/menu";
 import Link from "@/components/Link";
-import HelpTrigger from "@/components/HelpTrigger";
+//import HelpTrigger from "@/components/HelpTrigger";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import { useCurrentRoute } from "@/components/ApplicationArea/Router";
 import { Auth, currentUser } from "@/services/auth";
@@ -13,10 +13,10 @@ import DesktopOutlinedIcon from "@ant-design/icons/DesktopOutlined";
 import CodeOutlinedIcon from "@ant-design/icons/CodeOutlined";
 import AlertOutlinedIcon from "@ant-design/icons/AlertOutlined";
 import PlusOutlinedIcon from "@ant-design/icons/PlusOutlined";
-import QuestionCircleOutlinedIcon from "@ant-design/icons/QuestionCircleOutlined";
+//import QuestionCircleOutlinedIcon from "@ant-design/icons/QuestionCircleOutlined";
 import SettingOutlinedIcon from "@ant-design/icons/SettingOutlined";
 
-import VersionInfo from "./VersionInfo";
+//import VersionInfo from "./VersionInfo";
 import "./DesktopNavbar.less";
 
 function NavbarSection({ children, ...props }) {
@@ -138,7 +138,7 @@ export default function DesktopNavbar() {
         )}
       </NavbarSection>
 
-      <NavbarSection inlineCollapsed={collapsed}>
+      <NavbarSection >
         {/* <Menu.Item key="help">
       <NavbarSection>
         <Menu.Item key="help">

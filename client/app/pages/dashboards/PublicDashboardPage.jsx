@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
-import Link from "@/components/Link";
+//import Link from "@/components/Link";
 import BigMessage from "@/components/BigMessage";
 import PageHeader from "@/components/PageHeader";
 import Parameters from "@/components/Parameters";
@@ -13,7 +13,7 @@ import Filters from "@/components/Filters";
 import { Dashboard } from "@/services/dashboard";
 import routes from "@/services/routes";
 
-import logoUrl from "@/assets/images/redash_icon_small.png";
+//import logoUrl from "@/assets/images/redash_icon_small.png";
 
 import useDashboard from "./hooks/useDashboard";
 
@@ -88,14 +88,14 @@ class PublicDashboardPage extends React.Component {
         ) : (
           <PublicDashboard dashboard={dashboard} />
         )}
-        <div id="footer">
+        {/* <div id="footer">
           <div className="text-center">
             <Link href="https://redash.io">
               <img alt="Redash Logo" src={logoUrl} width="38" />
             </Link>
           </div>
           Powered by <Link href="https://redash.io/?ref=public-dashboard">Redash</Link>
-        </div>
+        </div> */}
       </div>
     );
   }
