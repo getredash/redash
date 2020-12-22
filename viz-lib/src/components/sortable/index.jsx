@@ -29,12 +29,6 @@ export function SortableContainer({ disabled, containerComponent, containerProps
   } else {
     // Enabled state:
 
-    // EXPERIMENTAL: having the helper attached to document body eliminates mispositioning
-    // - use container element as a default helper element
-    // wrapperProps.helperContainer = wrap(wrapperProps.helperContainer, helperContainer =>
-    //   isFunction(helperContainer) ? helperContainer(containerRef.current) : containerRef.current
-    // );
-
     // - hook drag start/end events
     wrapperProps.updateBeforeSortStart = wrap(wrapperProps.updateBeforeSortStart, (updateBeforeSortStart, ...args) => {
       setIsDragging(true);
