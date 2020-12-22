@@ -22,6 +22,7 @@ class ChatWork(BaseDestination):
                     "title": "Message Template",
                 },
             },
+            "secret": ["api_token"],
             "required": ["message_template", "api_token", "room_id"],
         }
 
