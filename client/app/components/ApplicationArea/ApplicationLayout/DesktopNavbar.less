@@ -1,12 +1,17 @@
 @backgroundColor: #001529;
 @dividerColor: rgba(255, 255, 255, 0.5);
 @textColor: rgba(255, 255, 255, 0.75);
+@brandColor: #ff7964; // Redash logo color
+@activeItemColor: @brandColor;
+@iconSize: 26px;
 
 .desktop-navbar {
   background: @backgroundColor;
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 80px;
+  overflow: hidden;
 
   &-spacer {
     flex: 1 1 auto;
@@ -21,12 +26,6 @@
       height: 40px;
       transition: all 270ms;
     }
-
-    &.ant-menu-inline-collapsed {
-      img {
-        height: 20px;
-      }
-    }
   }
 
   .help-trigger {
@@ -34,31 +33,34 @@
   }
 
   .ant-menu {
-    &:not(.ant-menu-inline-collapsed) {
-      width: 170px;
-    }
-
-    &.ant-menu-inline-collapsed > .ant-menu-submenu-title span img + span,
-    &.ant-menu-inline-collapsed > .ant-menu-item i + span {
-      display: inline-block;
-      max-width: 0;
-      opacity: 0;
-    }
-
-    .ant-menu-item-divider {
-      background: @dividerColor;
-    }
-
     .ant-menu-item,
     .ant-menu-submenu {
       font-weight: 500;
       color: @textColor;
+
+      &.navbar-active-item {
+        box-shadow: inset 3px 0 0 @activeItemColor;
+
+        .anticon {
+          color: @activeItemColor;
+        }
+      }
 
       &.ant-menu-submenu-open,
       &.ant-menu-submenu-active,
       &:hover,
       &:active {
         color: #fff;
+      }
+
+      .anticon {
+        font-size: @iconSize;
+        margin: 0;
+      }
+
+      .desktop-navbar-label {
+        margin-top: 4px;
+        font-size: 11px;
       }
 
       a,
@@ -71,21 +73,33 @@
     .ant-menu-submenu-arrow {
       display: none;
     }
-  }
 
-  .ant-btn.desktop-navbar-collapse-button {
-    background-color: @backgroundColor;
-    border: 0;
-    border-radius: 0;
-    color: @textColor;
-
-    &:hover,
-    &:active {
-      color: #fff;
+    .ant-menu-item,
+    .ant-menu-submenu {
+      padding: 0;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      justify-content: center;
     }
 
-    &:after {
-      animation: 0s !important;
+    .ant-menu-submenu-title {
+      width: 100%;
+      padding: 0;
+    }
+
+    a,
+    &.ant-menu-vertical > .ant-menu-submenu > .ant-menu-submenu-title,
+    .ant-menu-submenu-title {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: normal;
+      height: auto;
+      background: none;
+      color: inherit;
     }
   }
 
@@ -99,37 +113,8 @@
       .profile__image_thumb {
         margin: 0;
         vertical-align: middle;
-      }
-
-      .profile__image_thumb + span {
-        flex: 1 1 auto;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-
-        margin-left: 10px;
-        vertical-align: middle;
-        display: inline-block;
-
-        // styles from Antd
-        opacity: 1;
-        transition: opacity 0.3s cubic-bezier(0.645, 0.045, 0.355, 1),
-          margin-left 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), width 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-      }
-    }
-
-    &.ant-menu-inline-collapsed {
-      .ant-menu-submenu-title {
-        padding-left: 16px !important;
-        padding-right: 16px !important;
-      }
-
-      .desktop-navbar-profile-menu-title {
-        .profile__image_thumb + span {
-          opacity: 0;
-          max-width: 0;
-          margin-left: 0;
-        }
+        width: @iconSize;
+        height: @iconSize;
       }
     }
   }
