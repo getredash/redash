@@ -135,7 +135,6 @@ class DashboardResource(BaseResource):
         :>json boolean is_draft: Whether this dashboard is a draft or not.
         :>json array layout: Array of arrays containing widget IDs, corresponding to the rows and columns the widgets are displayed in
         :>json array widgets: Array of arrays containing :ref:`widget <widget-response-label>` data
-        :>json object options: Dashboard options
 
         .. _widget-response-label:
 
@@ -206,7 +205,6 @@ class DashboardResource(BaseResource):
                 "is_draft",
                 "is_archived",
                 "dashboard_filters_enabled",
-                "options"
             ),
         )
 
