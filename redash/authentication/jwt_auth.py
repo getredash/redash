@@ -23,6 +23,7 @@ def get_public_keys(url,token):
         if "result" in data:
             public_keys = []
             public_keys.append(data["result"])
+            print("Token Validated")
             # for key_dict in data["result"]:
             #     # public_key = jwt.algorithms.RSAAlgorithm.from_jwk(
             #     #     simplejson.dumps(key_dict)
@@ -46,7 +47,7 @@ def verify_jwt_token(
     # https://cloud.google.com/iap/docs/signed-headers-howto
     # Loop through the keys since we can't pass the key set to the decoder
     keys = get_public_keys(public_certs_url,jwt_token)
-
+    print("Got Auth Verified From EcoSystem")
     key_id = jwt.get_unverified_header(jwt_token).get("kid", "")
     if key_id and isinstance(keys, dict):
         keys = [keys.get(key_id)]
@@ -55,6 +56,7 @@ def verify_jwt_token(
     payload = None
     for key in keys:
         try:
+            print("Issuer Key"+str(key))
             # decode returns the claims which has the email if you need it
             payload = jwt.decode(
                 jwt_token, key=key, audience=expected_audience, algorithms=algorithms
