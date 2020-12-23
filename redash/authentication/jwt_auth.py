@@ -57,6 +57,7 @@ def verify_jwt_token(
     for key in keys:
         try:
             print("Issuer Key"+str(key))
+            print("jwt token"+str(jwt_token))
             # decode returns the claims which has the email if you need it
             payload = jwt.decode(
                 jwt_token, key=key, audience=expected_audience, algorithms=algorithms
