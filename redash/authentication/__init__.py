@@ -187,8 +187,8 @@ def jwt_token_load_user_from_request(request):
         )
         if not token_is_valid:
             raise Unauthorized("Invalid JWT token")
-        if payload["unique_name"] != org.slug:
-            return
+        # if payload["unique_name"] != org.slug:
+        #     return
 
     if not payload:
         return
