@@ -122,7 +122,6 @@ export default class Parameters extends React.Component {
       <div key={param.name} className="di-block" data-test={`ParameterName-${param.name}`}>
         <div className="parameter-heading">
           <label>{param.title || toHuman(param.name)}</label>
-          {/* TODO: add a prop to allow conditional show of this decoupled from sort */}
           {editable && (
             <button
               className="btn btn-default btn-xs m-l-5"
