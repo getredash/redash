@@ -2,6 +2,7 @@ import datetime
 from unittest import TestCase
 
 from mock import MagicMock
+from gspread.exceptions import WorksheetNotFound as GSWorksheetNotFound
 
 from redash.query_runner import TYPE_DATETIME, TYPE_FLOAT
 from redash.query_runner.google_spreadsheets import (
@@ -14,6 +15,7 @@ from redash.query_runner.google_spreadsheets import (
 )
 from redash.query_runner.google_spreadsheets import (
     WorksheetNotFoundError,
+    WorksheetNotFoundByTitleError,
     parse_spreadsheet,
     parse_worksheet,
 )
@@ -61,10 +63,20 @@ class TestParseSpreadsheet(TestCase):
         spreadsheet = MagicMock()
 
         spreadsheet.worksheets = MagicMock(return_value=[])
+        # get_worksheet returns None if a sheet is not found. https://github.com/burnash/gspread/blob/v3.1.0/gspread/models.py#L188
+        spreadsheet.get_worksheet = MagicMock(return_value=None)
         self.assertRaises(WorksheetNotFoundError, parse_spreadsheet, spreadsheet, 0)
 
         spreadsheet.worksheets = MagicMock(return_value=[1, 2])
+        spreadsheet.get_worksheet = MagicMock(return_value=None)
         self.assertRaises(WorksheetNotFoundError, parse_spreadsheet, spreadsheet, 2)
+
+    def test_returns_meaningful_error_for_missing_worksheet_by_title(self):
+        spreadsheet = MagicMock()
+
+        # worksheet raises an exception if a sheet is not found. https://github.com/burnash/gspread/blob/v3.1.0/gspread/models.py#L219
+        spreadsheet.worksheet = MagicMock(side_effect=GSWorksheetNotFound("t"))
+        self.assertRaises(WorksheetNotFoundByTitleError, parse_spreadsheet, spreadsheet, "a")
 
 
 empty_worksheet = []
