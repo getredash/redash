@@ -114,6 +114,29 @@ class TestParseQuery(TestCase):
         parsed = parse_query("key|0")
         self.assertEqual(("key", 0), parsed)
 
+    def test_parse_query_ignored(self):
+        parsed = parse_query("key")
+        self.assertEqual(("key", 0), parsed)
+
+        parsed = parse_query("key|")
+        self.assertEqual(("key", 0), parsed)
+
+        parsed = parse_query("key|1|")
+        self.assertEqual(("key", 0), parsed)
+
+    def test_parse_query_title(self):
+        parsed = parse_query("key|+")
+        self.assertEqual(("key", ""), parsed)
+
+        parsed = parse_query("key|+1")
+        self.assertEqual(("key", "1"), parsed)
+
+        parsed = parse_query("key|+abc")
+        self.assertEqual(("key", "abc"), parsed)
+
+        parsed = parse_query("key|+あ")
+        self.assertEqual(("key", "あ"), parsed)
+
 
 class TestGetColumnsAndColumnNames(TestCase):
     def test_get_columns(self):
