@@ -23,6 +23,7 @@ export default class Parameters extends React.Component {
   static propTypes = {
     parameters: PropTypes.arrayOf(PropTypes.instanceOf(Parameter)),
     editable: PropTypes.bool,
+    sortable: PropTypes.bool,
     disableUrlUpdate: PropTypes.bool,
     onValuesChange: PropTypes.func,
     onPendingValuesChange: PropTypes.func,
@@ -32,6 +33,7 @@ export default class Parameters extends React.Component {
   static defaultProps = {
     parameters: [],
     editable: false,
+    sortable: false,
     disableUrlUpdate: false,
     onValuesChange: () => {},
     onPendingValuesChange: () => {},
@@ -146,12 +148,12 @@ export default class Parameters extends React.Component {
 
   render() {
     const { parameters } = this.state;
-    const { editable } = this.props;
+    const { sortable } = this.props;
     const dirtyParamCount = size(filter(parameters, "hasPendingValue"));
 
     return (
       <SortableContainer
-        disabled={!editable}
+        disabled={!sortable}
         axis="xy"
         useDragHandle
         lockToContainerEdges
@@ -164,8 +166,8 @@ export default class Parameters extends React.Component {
         }}>
         {parameters.map((param, index) => (
           <SortableElement key={param.name} index={index}>
-            <div className="parameter-block" data-editable={editable || null}>
-              {editable && <DragHandle data-test={`DragHandle-${param.name}`} />}
+            <div className="parameter-block" data-editable={sortable || null}>
+              {sortable && <DragHandle data-test={`DragHandle-${param.name}`} />}
               {this.renderParameter(param, index)}
             </div>
           </SortableElement>

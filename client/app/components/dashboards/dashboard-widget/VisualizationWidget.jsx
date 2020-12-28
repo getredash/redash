@@ -113,7 +113,7 @@ function VisualizationWidgetHeader({
         <div className="m-b-10">
           <Parameters
             parameters={parameters}
-            editable={canEdit}
+            sortable={canEdit}
             onValuesChange={onParametersUpdate}
             onParametersEdit={onParametersEdit}
           />

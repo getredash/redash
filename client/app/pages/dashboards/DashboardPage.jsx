@@ -134,7 +134,7 @@ function DashboardComponent(props) {
           <Parameters
             parameters={globalParameters}
             onValuesChange={refreshDashboard}
-            editable={canEditDashboard}
+            sortable={canEditDashboard}
             onParametersEdit={onParametersEdit}
           />
         </div>
