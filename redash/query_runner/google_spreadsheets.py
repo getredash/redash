@@ -12,13 +12,12 @@ logger = logging.getLogger(__name__)
 
 try:
     import gspread
-    from gspread.exceptions import APIError
+    from gspread.exceptions import APIError, WorksheetNotFound as GSWorksheetNotFound
     from oauth2client.service_account import ServiceAccountCredentials
 
     enabled = True
 except ImportError:
     enabled = False
-
 
 def _load_key(filename):
     with open(filename, "rb") as f:
@@ -134,11 +133,11 @@ def parse_spreadsheet(spreadsheet, worksheet_num_or_title):
         if worksheet is None:
             worksheet_count = len(spreadsheet.worksheets())
             raise WorksheetNotFoundError(worksheet_num, worksheet_count)
-    elif type(worksheet_num_or_title) is string:
+    elif type(worksheet_num_or_title) is str:
         worksheet_title = worksheet_num_or_title
         try:
             worksheet = spreadsheet.worksheet(worksheet_title) # Get a sheet by the title
-        except spreadsheet.WorksheetNotFound:
+        except GSWorksheetNotFound:
             raise WorksheetNotFoundByTitleError(worksheet_title)
 
     worksheet_values = worksheet.get_all_values()
