@@ -20,6 +20,7 @@ try:
 except ImportError:
     enabled = False
 
+
 def _load_key(filename):
     with open(filename, "rb") as f:
         return json_loads(f.read())
