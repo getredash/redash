@@ -83,7 +83,7 @@ class WorksheetNotFoundError(Exception):
 
 class WorksheetNotFoundByTitleError(Exception):
     def __init__(self, worksheet_title):
-        message = "Worksheet title {} not found.".format(
+        message = "Worksheet title '{}' not found.".format(
             worksheet_title
         )
         super(WorksheetNotFoundByTitleError, self).__init__(message)
