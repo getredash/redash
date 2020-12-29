@@ -3,13 +3,13 @@ import resizeObserver from "@/services/resizeObserver";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 
 import { SankeyDataType } from "./index";
-import initSankey from "./initSankey";
+import initSankey, { ExtendedSankeyDataType } from "./initSankey";
 import "./renderer.less";
 
 export default function Renderer({ data }: { data: SankeyDataType }) {
   const [container, setContainer] = useState<null | HTMLDivElement>(null);
 
-  const render = useMemo(() => initSankey(data), [data]);
+  const render = useMemo(() => initSankey(data as ExtendedSankeyDataType), [data]);
 
   useEffect(() => {
     if (container) {

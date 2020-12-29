@@ -10,14 +10,14 @@ import {
   keys,
   values,
   identity,
-  each,
-  isNaN,
+  mapValues,
+  every,
 } from "lodash";
 import d3 from "d3";
 import d3sankey, { NodeType, LinkType, SourceTargetType, DType } from "./d3sankey";
 import { SankeyDataType } from ".";
 
-type ExtendedSankeyDataType = Partial<SankeyDataType> & { nodes: any[]; links: any[] };
+export type ExtendedSankeyDataType = Partial<SankeyDataType> & { nodes: any[]; links: any[] };
 
 function getConnectedNodes(node: NodeType) {
   console.log(node);
@@ -140,15 +140,19 @@ function isDataValid(data: ExtendedSankeyDataType) {
   if (!data || !find(data.columns, c => c.name === "value")) {
     return false;
   }
-  // prepareData will have coerced any invalid data into NaN, which is accumulated by the reducers below
-  const doAllRowsContainValidData = !isNaN(
-    reduce(data.rows, (finalAcc, row) => finalAcc * reduce(row, (acc, col) => col * acc, 0), 0)
-  );
+  // prepareData will have coerced any invalid data rows into NaN, which is verified below
+  return every(data.rows, row => every(row, v => isFinite(v)));
+}
 
-  return doAllRowsContainValidData;
+// will mutate data into valid numbers
+function prepareData(data: any) {
+  data.rows = map(data.rows, row => mapValues(row, v => parseFloat(v)));
 }
 
 export default function initSankey(data: ExtendedSankeyDataType) {
+  // mutates data.rows
+  prepareData(data);
+
   if (!isDataValid(data)) {
     return (element: HTMLDivElement) => {
       d3.select(element)
