@@ -128,17 +128,14 @@ def parse_worksheet(worksheet):
 def parse_spreadsheet(spreadsheet, worksheet_num_or_title):
     worksheet = None
     if type(worksheet_num_or_title) is int:
-        worksheet_num = worksheet_num_or_title
-        worksheet = spreadsheet.get_worksheet(worksheet_num) # Get a sheet by the num
+        worksheet = spreadsheet.get_worksheet_by_index(worksheet_num_or_title)
         if worksheet is None:
             worksheet_count = len(spreadsheet.worksheets())
-            raise WorksheetNotFoundError(worksheet_num, worksheet_count)
+            raise WorksheetNotFoundError(worksheet_num_or_title, worksheet_count)
     elif type(worksheet_num_or_title) is str:
-        worksheet_title = worksheet_num_or_title
-        try:
-            worksheet = spreadsheet.worksheet(worksheet_title) # Get a sheet by the title
-        except GSWorksheetNotFound:
-            raise WorksheetNotFoundByTitleError(worksheet_title)
+        worksheet = spreadsheet.get_worksheet_by_title(worksheet_num_or_title)
+        if worksheet is None:
+            raise WorksheetNotFoundByTitleError(worksheet_num_or_title)
 
     worksheet_values = worksheet.get_all_values()
 
@@ -159,6 +156,21 @@ def parse_api_error(error):
 
     return message
 
+class SpreadsheetWrapper:
+    def __init__(self, spreadsheet):
+        self.spreadsheet = spreadsheet
+
+    def worksheets(self):
+        return self.spreadsheet.worksheets()
+
+    def get_worksheet_by_index(self, index):
+        return self.spreadsheet.get_worksheet(index)
+
+    def get_worksheet_by_title(self, title):
+        try:
+            return self.spreadsheet.worksheet(title)
+        except GSWorksheetNotFound:
+            return None
 
 class TimeoutSession(Session):
     def request(self, *args, **kwargs):
@@ -227,7 +239,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
             else:
                 spreadsheet = spreadsheet_service.open_by_key(key)
 
-            data = parse_spreadsheet(spreadsheet, worksheet_num_or_title)
+            data = parse_spreadsheet(SpreadsheetWrapper(spreadsheet), worksheet_num_or_title)
 
             return json_dumps(data), None
         except gspread.SpreadsheetNotFound:
