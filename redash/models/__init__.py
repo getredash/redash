@@ -195,7 +195,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
         if out_schema is None:
             query_runner = self.query_runner
-            schema = query_runner.get_schema(get_stats=refresh)
+            schema = query_runner.get_schema()
 
             try:
                 out_schema = self._sort_schema(schema)
