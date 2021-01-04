@@ -5,7 +5,7 @@ export interface MapOptionsType {
   latColName: string;
   lonColName: string;
   classify: any;
-  groups: object;
+  groups: Record<string, any>;
   mapTileUrl: string;
   clusterMarkers: boolean;
   customizeMarkers: boolean;
