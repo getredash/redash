@@ -8,8 +8,8 @@ export interface SankeyDataType {
   }[];
 
   rows: {
-    [name: string]: number;
     value: number;
+    [name: string]: number | string | null;
   }[];
 }
 

@@ -12,6 +12,9 @@ import {
   identity,
   mapValues,
   every,
+  isNaN,
+  isNumber,
+  isString,
 } from "lodash";
 import d3 from "d3";
 import d3sankey, { NodeType, LinkType, SourceTargetType, DType } from "./d3sankey";
@@ -141,17 +144,30 @@ function isDataValid(data: ExtendedSankeyDataType) {
     return false;
   }
   // prepareData will have coerced any invalid data rows into NaN, which is verified below
-  return every(data.rows, row => every(row, v => isFinite(v)));
+  return every(data.rows, row =>
+    every(row, v => {
+      if (!v || isString(v)) {
+        return true;
+      }
+      return isFinite(v);
+    })
+  );
 }
 
-// will mutate data into valid numbers
-function prepareData(data: any) {
-  data.rows = map(data.rows, row => mapValues(row, v => parseFloat(v)));
+// will coerce number strings into valid numbers
+function prepareDataRows(rows: ExtendedSankeyDataType["rows"]) {
+  return map(rows, row =>
+    mapValues(row, v => {
+      if (!v || isNumber(v)) {
+        return v;
+      }
+      return isNaN(parseFloat(v)) ? v : parseFloat(v);
+    })
+  );
 }
 
 export default function initSankey(data: ExtendedSankeyDataType) {
-  // mutates data.rows
-  prepareData(data);
+  data.rows = prepareDataRows(data.rows) as ExtendedSankeyDataType["rows"];
 
   if (!isDataValid(data)) {
     return (element: HTMLDivElement) => {
