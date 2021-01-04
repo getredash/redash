@@ -153,7 +153,7 @@ class QueryExecutor(object):
         self.job = get_current_job()
         self.query = query
         self.query_id = metadata.get("query_id")
-        self.scheduled = metadata.get("scheduled")
+        self.scheduled = metadata.get("scheduled", False)
         self.data_source_id = data_source_id
         self.metadata = metadata
         self.data_source = self._load_data_source()
