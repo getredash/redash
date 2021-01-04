@@ -149,23 +149,26 @@ def _resolve_user(user_id, is_api_key, query_id):
 
 
 class QueryExecutor(object):
-    def __init__(
-        self, query, data_source_id, user_id, is_api_key, metadata, scheduled_query
-    ):
+    def __init__(self, query, data_source_id, user_id, is_api_key, metadata):
         self.job = get_current_job()
         self.query = query
+        self.query_id = metadata.get("query_id")
+        self.scheduled = metadata.get("scheduled")
         self.data_source_id = data_source_id
         self.metadata = metadata
         self.data_source = self._load_data_source()
         self.user = _resolve_user(user_id, is_api_key, metadata.get("Query ID"))
+        self.query_model = (
+            models.Query.query.get(self.query_id) if self.query_id else None
+        )
 
         # Close DB connection to prevent holding a connection for a long time while the query is executing.
         models.db.session.close()
         self.query_hash = gen_query_hash(self.query)
-        self.scheduled_query = scheduled_query
+
         # Load existing tracker or create a new one if the job was created before code update:
-        if scheduled_query:
-            models.scheduled_queries_executions.update(scheduled_query.id)
+        if self.scheduled:
+            models.scheduled_queries_executions.update(self.query_id)
 
     def run(self):
         signal.signal(signal.SIGINT, signal_handler)
@@ -202,20 +205,16 @@ class QueryExecutor(object):
 
         if error is not None and data is None:
             result = QueryExecutionError(error)
-            if self.scheduled_query is not None:
-                self.scheduled_query = models.db.session.merge(
-                    self.scheduled_query, load=False
-                )
-                track_failure(self.scheduled_query, error)
+            if self.scheduled:
+                self.query_model = models.db.session.merge(self.query_model, load=False)
+                track_failure(self.query_model, error)
             raise result
         else:
-            if self.scheduled_query and self.scheduled_query.schedule_failures > 0:
-                self.scheduled_query = models.db.session.merge(
-                    self.scheduled_query, load=False
-                )
-                self.scheduled_query.schedule_failures = 0
-                self.scheduled_query.skip_updated_at = True
-                models.db.session.add(self.scheduled_query)
+            if self.scheduled and self.query_model.schedule_failures > 0:
+                self.query_model = models.db.session.merge(self.query_model, load=False)
+                self.query_model.schedule_failures = 0
+                self.query_model.skip_updated_at = True
+                models.db.session.add(self.query_model)
 
             query_result = models.QueryResult.store_result(
                 self.data_source.org_id,
@@ -242,7 +241,7 @@ class QueryExecutor(object):
     def _annotate_query(self, query_runner):
         self.metadata["Job ID"] = self.job.id
         self.metadata["Query Hash"] = self.query_hash
-        self.metadata["Scheduled"] = self.scheduled_query is not None
+        self.metadata["Scheduled"] = self.scheduled
 
         return query_runner.annotate_query(self.query, self.metadata)
 
@@ -275,15 +274,8 @@ def execute_query(
     scheduled_query_id=None,
     is_api_key=False,
 ):
-    if scheduled_query_id is not None:
-        scheduled_query = models.Query.query.get(scheduled_query_id)
-    else:
-        scheduled_query = None
-
     try:
-        return QueryExecutor(
-            query, data_source_id, user_id, is_api_key, metadata, scheduled_query
-        ).run()
+        return QueryExecutor(query, data_source_id, user_id, is_api_key, metadata).run()
     except QueryExecutionError as e:
         models.db.session.rollback()
         return e
