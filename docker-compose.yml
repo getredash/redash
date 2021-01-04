@@ -29,6 +29,7 @@ x-redash-environment: &redash-environment
   DYO_TELEMETRY_REPLICASET : ""
   DYO_IOTHUB_DATABASE_NAME : "sensewire_hubmanager"
   DYO_IOTHUB_REPLICASET : ""
+  DYO_ENABLE_ALL_DATA_SOURCES: "false"
  
 services:
   server:
