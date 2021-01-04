@@ -210,7 +210,7 @@ class QueryExecutor(object):
                 track_failure(self.query_model, error)
             raise result
         else:
-            if self.scheduled and self.query_model.schedule_failures > 0:
+            if self.query_model and self.query_model.schedule_failures > 0:
                 self.query_model = models.db.session.merge(self.query_model, load=False)
                 self.query_model.schedule_failures = 0
                 self.query_model.skip_updated_at = True
