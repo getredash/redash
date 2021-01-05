@@ -18,6 +18,7 @@ const momentInterval = {
   weekly: "weeks",
   monthly: "months",
   yearly: "years",
+  quarterly: "quarters",
 };
 
 const timeLabelFormats = {
@@ -25,6 +26,7 @@ const timeLabelFormats = {
   weekly: "[Week of] MMM D, YYYY",
   monthly: "MMMM YYYY",
   yearly: "YYYY",
+  quarterly: "[Q]Q, YYYY",
 };
 
 const defaultOptions = {

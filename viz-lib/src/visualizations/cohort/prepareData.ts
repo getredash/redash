@@ -2,9 +2,10 @@ import _ from "lodash";
 import moment from "moment";
 
 const momentInterval = {
-  weekly: "weeks",
   daily: "days",
+  weekly: "weeks",
   monthly: "months",
+  quarterly: "quarters",
 };
 
 function groupData(sortedData: any) {
