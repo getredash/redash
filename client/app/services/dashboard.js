@@ -142,8 +142,6 @@ function transformSingle(dashboard) {
     dashboard.widgets = prepareDashboardWidgets(dashboard.widgets);
   }
   dashboard.publicAccessEnabled = dashboard.public_url !== undefined;
-  // WIP
-  dashboard.options = { globalParamOrder: [] };
   return dashboard;
 }
 

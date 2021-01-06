@@ -15,7 +15,6 @@ import {
   indexOf,
   size,
   includes,
-  isArray,
 } from "lodash";
 import location from "@/services/location";
 import { cloneParameter } from "@/services/parameters";
