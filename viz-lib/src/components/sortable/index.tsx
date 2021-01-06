@@ -47,6 +47,16 @@ export function SortableContainer({ disabled, containerComponent, containerProps
         updateBeforeSortStart(...args);
       }
     });
+    // @ts-expect-error
+    wrapperProps.onSortStart = wrap(wrapperProps.onSortStart, (onSortStart, ...args) => {
+      if (isFunction(onSortStart)) {
+        onSortStart(...args);
+      } else {
+        const event = args[1] as DragEvent;
+        event.preventDefault();
+      }
+    });
+
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'onSortEnd' does not exist on type '{}'.
     wrapperProps.onSortEnd = wrap(wrapperProps.onSortEnd, (onSortEnd, ...args) => {
       setIsDragging(false);
