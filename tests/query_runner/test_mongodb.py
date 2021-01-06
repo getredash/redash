@@ -1,15 +1,44 @@
 import datetime
 from unittest import TestCase
+from mock import patch, call
 
 from pytz import utc
 from freezegun import freeze_time
 
 from redash.query_runner.mongodb import (
+    MongoDB,
     parse_query_json,
     parse_results,
     _get_column_by_name,
 )
 from redash.utils import json_dumps, parse_human_time
+
+
+@patch("redash.query_runner.mongodb.pymongo.MongoClient")
+class TestUserPassOverride(TestCase):
+    def test_username_password_present_overrides_username_from_uri(self, mongo_client):
+        config = {
+            "connectionString": "mongodb://localhost:27017/test",
+            "username": "test_user",
+            "password": "test_pass",
+            "dbName": "test"
+        }
+        mongo_qr = MongoDB(config)
+        _ = mongo_qr._get_db()
+
+        self.assertIn("username", mongo_client.call_args.kwargs)
+        self.assertIn("password", mongo_client.call_args.kwargs)
+
+    def test_username_password_absent_does_not_pass_args(self, mongo_client):
+        config = {
+            "connectionString": "mongodb://user:pass@localhost:27017/test",
+            "dbName": "test"
+        }
+        mongo_qr = MongoDB(config)
+        _ = mongo_qr._get_db()
+
+        self.assertNotIn("username", mongo_client.call_args.kwargs)
+        self.assertNotIn("password", mongo_client.call_args.kwargs)
 
 
 class TestParseQueryJson(TestCase):
