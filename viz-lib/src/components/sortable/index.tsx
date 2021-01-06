@@ -39,6 +39,12 @@ export function SortableContainer({ disabled, containerComponent, containerProps
   } else {
     // Enabled state:
 
+    // - use container element as a default helper element
+    // @ts-expect-error
+    wrapperProps.helperContainer = wrap(wrapperProps.helperContainer, helperContainer =>
+      isFunction(helperContainer) ? helperContainer(containerRef.current) : containerRef.current
+    );
+
     // - hook drag start/end events
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'updateBeforeSortStart' does not exist on... Remove this comment to see the full error message
     wrapperProps.updateBeforeSortStart = wrap(wrapperProps.updateBeforeSortStart, (updateBeforeSortStart, ...args) => {
