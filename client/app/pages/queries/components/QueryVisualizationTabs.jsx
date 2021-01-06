@@ -91,6 +91,7 @@ export default function QueryVisualizationTabs({
   onAddVisualization,
   onDeleteVisualization,
   refreshButton,
+  canRefresh,
   ...props
 }) {
   const visualizations = useMemo(
@@ -154,7 +155,11 @@ export default function QueryVisualizationTabs({
           ) : (
             <EmptyState
               title="Query has no result"
-              message="Execute/Refresh the query to show results."
+              message={
+                canRefresh
+                  ? "Execute/Refresh the query to show results."
+                  : "You do not have a permission to execute/refresh this query."
+              }
               refreshButton={refreshButton}
             />
           )}
@@ -174,6 +179,7 @@ QueryVisualizationTabs.propTypes = {
   onAddVisualization: PropTypes.func,
   onDeleteVisualization: PropTypes.func,
   refreshButton: PropTypes.node,
+  canRefresh: PropTypes.bool,
 };
 
 QueryVisualizationTabs.defaultProps = {
@@ -186,4 +192,5 @@ QueryVisualizationTabs.defaultProps = {
   onAddVisualization: () => {},
   onDeleteVisualization: () => {},
   refreshButton: null,
+  canRefresh: true,
 };

@@ -304,7 +304,7 @@ RATELIMIT_ENABLED = parse_boolean(os.environ.get("REDASH_RATELIMIT_ENABLED", "tr
 THROTTLE_LOGIN_PATTERN = os.environ.get("REDASH_THROTTLE_LOGIN_PATTERN", "50/hour")
 LIMITER_STORAGE = os.environ.get("REDASH_LIMITER_STORAGE", REDIS_URL)
 
-# CORS settings for the Query Result API (and possbily future external APIs).
+# CORS settings for the Query Result API (and possibly future external APIs).
 # In most cases all you need to do is set REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
 # to the calling domain (or domains in a comma separated list).
 ACCESS_CONTROL_ALLOW_ORIGIN = set_from_string(

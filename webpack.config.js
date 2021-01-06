@@ -9,7 +9,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
-const fs = require("fs");
+const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 
 const path = require("path");
 
@@ -30,6 +30,9 @@ function optionalRequire(module, defaultReturn = undefined) {
 const CONFIG = optionalRequire("./scripts/config", {});
 
 const isProduction = process.env.NODE_ENV === "production";
+const isDevelopment = !isProduction;
+const isHotReloadingEnabled =
+  isDevelopment && process.env.HOT_RELOAD === "true";
 
 const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
 const baseHref = CONFIG.baseHref || "/";
@@ -45,7 +48,8 @@ const extensionPath = path.join(__dirname, extensionsRelativePath);
 
 // Function to apply configuration overrides (see scripts/README)
 function maybeApplyOverrides(config) {
-  const overridesLocation = process.env.REDASH_WEBPACK_OVERRIDES || "./scripts/webpack/overrides";
+  const overridesLocation =
+    process.env.REDASH_WEBPACK_OVERRIDES || "./scripts/webpack/overrides";
   const applyOverrides = optionalRequire(overridesLocation);
   if (!applyOverrides) {
     return config;
@@ -97,9 +101,10 @@ const config = {
       filename: "multi_org.html",
       excludeChunks: ["server"]
     }),
-    new MiniCssExtractPlugin({
-      filename: "[name].[chunkhash].css"
-    }),
+    isProduction &&
+      new MiniCssExtractPlugin({
+        filename: "[name].[chunkhash].css"
+      }),
     new ManifestPlugin({
       fileName: "asset-manifest.json",
       publicPath: ""
@@ -110,8 +115,9 @@ const config = {
       { from: "client/app/unsupportedRedirect.js" },
       { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
       { from: "client/app/assets/fonts", to: "fonts/" }
-    ])
-  ],
+    ]),
+    isHotReloadingEnabled && new ReactRefreshWebpackPlugin({ overlay: false })
+  ].filter(Boolean),
   optimization: {
     splitChunks: {
       chunks: chunk => {
@@ -124,7 +130,17 @@ const config = {
       {
         test: /\.(t|j)sx?$/,
         exclude: /node_modules/,
-        use: ["babel-loader", "eslint-loader"]
+        use: [
+          {
+            loader: require.resolve("babel-loader"),
+            options: {
+              plugins: [
+                isHotReloadingEnabled && require.resolve("react-refresh/babel")
+              ].filter(Boolean)
+            }
+          },
+          require.resolve("eslint-loader")
+        ]
       },
       {
         test: /\.html$/,
@@ -139,7 +155,7 @@ const config = {
         test: /\.css$/,
         use: [
           {
-            loader: MiniCssExtractPlugin.loader
+            loader: isProduction ? MiniCssExtractPlugin.loader : "style-loader"
           },
           {
             loader: "css-loader",
@@ -153,12 +169,12 @@ const config = {
         test: /\.less$/,
         use: [
           {
-            loader: MiniCssExtractPlugin.loader
+            loader: isProduction ? MiniCssExtractPlugin.loader : "style-loader"
           },
           {
             loader: "css-loader",
             options: {
-              minimize: process.env.NODE_ENV === "production"
+              minimize: isProduction
             }
           },
           {
@@ -258,7 +274,8 @@ const config = {
     stats: {
       modules: false,
       chunkModules: false
-    }
+    },
+    hot: isHotReloadingEnabled
   },
   performance: {
     hints: false

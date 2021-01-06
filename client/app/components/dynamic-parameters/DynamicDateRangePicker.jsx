@@ -67,7 +67,7 @@ class DynamicDateRangePicker extends React.Component {
   };
 
   render() {
-    const { type, value, onSelect, className, dynamicButtonOptions, dateRangeOptions } = this.props;
+    const { type, value, onSelect, className, dynamicButtonOptions, dateRangeOptions, parameter, ...rest } = this.props;
     const isDateTimeRange = includes(type, "datetime-range");
     const hasDynamicValue = isDynamicDateRange(value);
 
@@ -91,7 +91,7 @@ class DynamicDateRangePicker extends React.Component {
     }
 
     return (
-      <div className={classNames("date-range-parameter", className)}>
+      <div {...rest} className={classNames("date-range-parameter", className)}>
         <DateRangeComponent
           {...dateRangeOptions}
           ref={this.dateRangeComponentRef}

@@ -1,4 +1,4 @@
-import { isArray } from "lodash";
+import { get, isArray } from "lodash";
 import { currentUser, clientConfig } from "@/services/auth";
 
 /* eslint-disable class-methods-use-this */
@@ -56,5 +56,13 @@ export default class DefaultPolicy {
   getQueryRefreshIntervals() {
     const result = clientConfig.queryRefreshIntervals;
     return isArray(result) ? result : null;
+  }
+
+  canEdit(object) {
+    return get(object, "can_edit", false);
+  }
+
+  canRun() {
+    return true;
   }
 }

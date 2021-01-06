@@ -1,89 +1,37 @@
-import { get } from "lodash";
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 
 import Button from "antd/lib/button";
 import Form from "antd/lib/form";
+import Skeleton from "antd/lib/skeleton";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
-import LoadingState from "@/components/items-list/components/LoadingState";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 
-import recordEvent from "@/services/recordEvent";
-import OrgSettings from "@/services/organizationSettings";
 import routes from "@/services/routes";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import { getHorizontalFormProps, getHorizontalFormItemWithoutLabelProps } from "@/styles/formStyle";
 
+import useOrganizationSettings from "./hooks/useOrganizationSettings";
 import GeneralSettings from "./components/GeneralSettings";
 import AuthSettings from "./components/AuthSettings";
 
 function OrganizationSettings({ onError }) {
-  const [settings, setSettings] = useState({});
-  const [currentValues, setCurrentValues] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const handleError = useImmutableCallback(onError);
-
-  useEffect(() => {
-    recordEvent("view", "page", "org_settings");
-
-    let isCancelled = false;
-
-    OrgSettings.get()
-      .then(response => {
-        if (!isCancelled) {
-          const settings = get(response, "settings");
-          setSettings(settings);
-          setCurrentValues({ ...settings });
-          setIsLoading(false);
-        }
-      })
-      .catch(error => {
-        if (!isCancelled) {
-          handleError(error);
-        }
-      });
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [handleError]);
-
-  const handleChange = useCallback(changes => {
-    setCurrentValues(currentValues => ({ ...currentValues, ...changes }));
-  }, []);
-
-  const handleSubmit = useCallback(() => {
-    if (!isSaving) {
-      setIsSaving(true);
-      OrgSettings.save(currentValues)
-        .then(response => {
-          const settings = get(response, "settings");
-          setSettings(settings);
-          setCurrentValues({ ...settings });
-        })
-        .catch(handleError)
-        .finally(() => setIsSaving(false));
-    }
-  }, [isSaving, currentValues, handleError]);
-
+  const { settings, currentValues, isLoading, isSaving, handleSubmit, handleChange } = useOrganizationSettings(onError);
   return (
     <div className="row" data-test="OrganizationSettings">
       <div className="m-r-20 m-l-20">
-        {isLoading ? (
-          <LoadingState className="" />
-        ) : (
-          <Form {...getHorizontalFormProps()} onFinish={handleSubmit}>
-            <GeneralSettings settings={settings} values={currentValues} onChange={handleChange} />
-            <AuthSettings settings={settings} values={currentValues} onChange={handleChange} />
-            <Form.Item {...getHorizontalFormItemWithoutLabelProps()}>
-              <Button type="primary" htmlType="submit" loading={isSaving}>
+        <Form {...getHorizontalFormProps()} onFinish={handleSubmit}>
+          <GeneralSettings loading={isLoading} settings={settings} values={currentValues} onChange={handleChange} />
+          <AuthSettings loading={isLoading} settings={settings} values={currentValues} onChange={handleChange} />
+          <Form.Item {...getHorizontalFormItemWithoutLabelProps()}>
+            {isLoading ? (
+              <Skeleton.Button active />
+            ) : (
+              <Button type="primary" htmlType="submit" loading={isSaving} data-test="OrganizationSettingsSaveButton">
                 Save
               </Button>
-            </Form.Item>
-          </Form>
-        )}
+            )}
+          </Form.Item>
+        </Form>
       </div>
     </div>
   );

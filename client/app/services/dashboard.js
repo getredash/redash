@@ -2,9 +2,9 @@ import _ from "lodash";
 import { axios } from "@/services/axios";
 import dashboardGridOptions from "@/config/dashboard-grid-options";
 import Widget from "./widget";
-import { currentUser } from "@/services/auth";
 import location from "@/services/location";
 import { cloneParameter } from "@/services/parameters";
+import { policy } from "@/services/policy";
 
 export const urlForDashboard = ({ id, slug }) => `dashboards/${id}-${slug}`;
 
@@ -179,7 +179,7 @@ Dashboard.prepareDashboardWidgets = prepareDashboardWidgets;
 Dashboard.prepareWidgetsForDashboard = prepareWidgetsForDashboard;
 
 Dashboard.prototype.canEdit = function canEdit() {
-  return currentUser.canEdit(this) || this.can_edit;
+  return policy.canEdit(this);
 };
 
 Dashboard.prototype.getParametersDefs = function getParametersDefs() {
