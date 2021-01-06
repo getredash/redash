@@ -248,7 +248,7 @@ class QueryExecutor(object):
 
     def _log_progress(self, state):
         logger.info(
-            "job=execute_query state=%s query_hash=%s type=%s ds_id=%d  "
+            "job=execute_query state=%s query_hash=%s type=%s ds_id=%d "
             "job_id=%s queue=%s query_id=%s username=%s",
             state,
             self.query_hash,
