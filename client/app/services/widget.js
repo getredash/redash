@@ -240,10 +240,6 @@ class Widget {
       }
     );
 
-    if (!isArray(this.options.paramOrder)) {
-      this.options.paramOrder = map(localParameters, "name");
-    }
-
     // order widget params using paramOrder
     return sortBy(localParameters, param =>
       includes(this.options.paramOrder, param.name)

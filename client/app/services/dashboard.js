@@ -142,7 +142,6 @@ function transformSingle(dashboard) {
     dashboard.widgets = prepareDashboardWidgets(dashboard.widgets);
   }
   dashboard.publicAccessEnabled = dashboard.public_url !== undefined;
-
   return dashboard;
 }
 
@@ -215,10 +214,6 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
       param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
     })
   );
-
-  if (!_.isArray(this.options.globalParamOrder)) {
-    this.options.globalParamOrder = _.map(resultingGlobalParams, "name");
-  }
 
   // order dashboard params using paramOrder
   return _.sortBy(resultingGlobalParams, param =>
