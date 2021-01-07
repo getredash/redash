@@ -1,4 +1,6 @@
+import { before, each } from "lodash";
 import { createQueryAndAddWidget } from "../../support/dashboard";
+import { assertParameterPairSwapping } from "../../support/parameters";
 
 describe("Parameter Mapping", () => {
   const parameters = [
@@ -51,37 +53,17 @@ describe("Parameter Mapping", () => {
     }
   };
 
-  const reorderTwoParameters = (param1, param2, type = "WIDGET") => {
-    cy.get(".parameter-block")
-      .first()
-      .invoke("width")
-      .as("paramWidth");
-
-    const dragParam = (paramName, offsetLeft, offsetTop) => {
-      cy.getByTestId(`DragHandle-${paramName}`)
-        .trigger("mouseover")
-        .trigger("mousedown");
-
-      cy.get(".parameter-dragged .drag-handle")
-        .trigger("mousemove", offsetLeft, offsetTop, { force: true })
-        .trigger("mouseup", { force: true });
-    };
-
-    cy.get("@paramWidth").then(paramWidth => {
-      cy.server();
-      cy.route("POST", `**/api/${type === "WIDGET" ? "widgets" : "dashboards"}/*`).as("Save");
-
-      dragParam(param1.name, paramWidth, 1);
-      cy.wait("@Save");
-
-      cy.reload();
-
-      const expectedOrder = [param2.title, param1.title];
-      cy.get(".parameter-container label").each(($label, index) => expect($label).to.have.text(expectedOrder[index]));
-
-      dragParam(param2.name, paramWidth, 1);
-      cy.wait("@Save");
+  const setWidgetParametersToDashboard = parameters => {
+    cy.server();
+    cy.route("POST", `**/api/**`).as("CloseMappingOptions");
+    each(parameters, ({ name: paramName }, i) => {
+      cy.getByTestId(`EditParamMappingButton-${paramName}`).click();
+      cy.getByTestId("NewDashboardParameterOption")
+        .filter(":visible")
+        .click();
+      saveMappingOptions(i === parameters.length - 1);
     });
+    cy.wait("@CloseMappingOptions");
   };
 
   it("supports widget parameters", function() {
@@ -99,21 +81,11 @@ describe("Parameter Mapping", () => {
     });
 
     cy.getByTestId("DashboardParameters").should("not.exist");
-
-    reorderTwoParameters(parameters[0], parameters[1]);
   });
 
   it("supports dashboard parameters", function() {
     openMappingOptions(this.widgetTestId);
-    cy.getByTestId("EditParamMappingButton-param1").click();
-    cy.getByTestId("NewDashboardParameterOption").click();
-    saveMappingOptions(false);
-
-    cy.getByTestId("EditParamMappingButton-param2").click();
-    cy.getByTestId("NewDashboardParameterOption")
-      .filter(":visible")
-      .click();
-    saveMappingOptions(true);
+    setWidgetParametersToDashboard(parameters);
 
     cy.getByTestId(this.widgetTestId).within(() => {
       cy.getByTestId("ParameterName-param1").should("not.exist");
@@ -130,8 +102,6 @@ describe("Parameter Mapping", () => {
     cy.getByTestId(this.widgetTestId).within(() => {
       cy.getByTestId("TableVisualization").should("contain", "DashboardParam");
     });
-
-    reorderTwoParameters(parameters[0], parameters[1], "DASHBOARD");
   });
 
   it("supports static values for parameters", function() {
@@ -157,5 +127,16 @@ describe("Parameter Mapping", () => {
     cy.getByTestId(this.widgetTestId).within(() => {
       cy.getByTestId("TableVisualization").should("contain", "StaticValue");
     });
+  });
+
+  it("reorders parameters", function() {
+    cy.getByTestId("ParameterBlock-param1")
+      .invoke("width")
+      .then(paramWidth => {
+        assertParameterPairSwapping(parameters[0], parameters[1], paramWidth);
+        openMappingOptions(this.widgetTestId);
+        setWidgetParametersToDashboard(parameters);
+        assertParameterPairSwapping(parameters[0], parameters[1], paramWidth);
+      });
   });
 });

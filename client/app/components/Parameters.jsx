@@ -169,7 +169,10 @@ export default class Parameters extends React.Component {
         }}>
         {parameters.map((param, index) => (
           <SortableElement key={param.name} index={index}>
-            <div className="parameter-block" data-editable={sortable || null}>
+            <div
+              className="parameter-block"
+              data-editable={sortable || null}
+              data-test={`ParameterBlock-${param.name}`}>
               {sortable && <DragHandle data-test={`DragHandle-${param.name}`} />}
               {this.renderParameter(param, index)}
             </div>
