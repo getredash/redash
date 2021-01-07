@@ -601,7 +601,7 @@ describe("Parameter", () => {
       cy.get("body").type("{alt}D"); // hide schema browser
     });
 
-    it.only("is possible to rearrange parameters", function() {
+    it("is possible to rearrange parameters", function() {
       cy.server();
       cy.route("POST", "**/api/queries/*").as("QuerySave");
 

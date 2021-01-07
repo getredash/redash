@@ -1,7 +1,7 @@
 export function dragParam(paramName, offsetLeft, offsetTop) {
   cy.getByTestId(`DragHandle-${paramName}`)
-    .trigger("mouseover", { force: true })
-    .trigger("mousedown", { force: true });
+    .trigger("mouseover")
+    .trigger("mousedown");
 
   cy.get(".parameter-dragged .drag-handle")
     .trigger("mousemove", offsetLeft, offsetTop, { force: true })

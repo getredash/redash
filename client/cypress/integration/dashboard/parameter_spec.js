@@ -1,4 +1,4 @@
-import { before, each } from "lodash";
+import { each } from "lodash";
 import { createQueryAndAddWidget } from "../../support/dashboard";
 import { assertParameterPairSwapping } from "../../support/parameters";
 
