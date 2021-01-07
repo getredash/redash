@@ -74,7 +74,6 @@ function DashboardComponent(props) {
   const dashboardConfiguration = useDashboard(props.dashboard);
   const {
     dashboard,
-    canEditDashboard,
     filters,
     setFilters,
     loadDashboard,
@@ -134,7 +133,7 @@ function DashboardComponent(props) {
           <Parameters
             parameters={globalParameters}
             onValuesChange={refreshDashboard}
-            sortable={canEditDashboard}
+            sortable={editingLayout}
             onParametersEdit={onParametersEdit}
           />
         </div>

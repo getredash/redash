@@ -88,7 +88,7 @@ function VisualizationWidgetHeader({
   widget,
   refreshStartedAt,
   parameters,
-  canEdit,
+  isEditing,
   onParametersUpdate,
   onParametersEdit,
 }) {
@@ -113,7 +113,7 @@ function VisualizationWidgetHeader({
         <div className="m-b-10">
           <Parameters
             parameters={parameters}
-            sortable={canEdit}
+            sortable={isEditing}
             appendSortableToParent={false}
             onValuesChange={onParametersUpdate}
             onParametersEdit={onParametersEdit}
@@ -128,7 +128,7 @@ VisualizationWidgetHeader.propTypes = {
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   refreshStartedAt: Moment,
   parameters: PropTypes.arrayOf(PropTypes.object),
-  canEdit: PropTypes.bool,
+  isEditing: PropTypes.bool,
   onParametersUpdate: PropTypes.func,
   onParametersEdit: PropTypes.func,
 };
@@ -137,7 +137,7 @@ VisualizationWidgetHeader.defaultProps = {
   refreshStartedAt: null,
   onParametersUpdate: () => {},
   onParametersEdit: () => {},
-  canEdit: false,
+  isEditing: false,
   parameters: [],
 };
 
@@ -207,6 +207,7 @@ class VisualizationWidget extends React.Component {
     isPublic: PropTypes.bool,
     isLoading: PropTypes.bool,
     canEdit: PropTypes.bool,
+    isEditing: PropTypes.bool,
     onLoad: PropTypes.func,
     onRefresh: PropTypes.func,
     onDelete: PropTypes.func,
@@ -218,6 +219,7 @@ class VisualizationWidget extends React.Component {
     isPublic: false,
     isLoading: false,
     canEdit: false,
+    isEditing: false,
     onLoad: () => {},
     onRefresh: () => {},
     onDelete: () => {},
@@ -301,7 +303,7 @@ class VisualizationWidget extends React.Component {
   }
 
   render() {
-    const { widget, isLoading, isPublic, canEdit, onRefresh } = this.props;
+    const { widget, isLoading, isPublic, canEdit, isEditing, onRefresh } = this.props;
     const { localParameters } = this.state;
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = isLoading && !!(widgetQueryResult && widgetQueryResult.getStatus());
@@ -325,7 +327,7 @@ class VisualizationWidget extends React.Component {
             widget={widget}
             refreshStartedAt={isRefreshing ? widget.refreshStartedAt : null}
             parameters={localParameters}
-            canEdit={canEdit}
+            isEditing={isEditing}
             onParametersUpdate={onRefresh}
             onParametersEdit={onParametersEdit}
           />
