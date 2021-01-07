@@ -14,13 +14,14 @@
     height: 36px;
   }
 
-  .parameter-container.sortable-container &:not(.parameter-dragged) {
+  .parameter-container.sortable-container & {
     margin: 4px 0 0 4px;
     padding: 3px 6px 6px;
   }
 
   &.parameter-dragged {
     z-index: 2;
+    margin: 4px 0 0 4px;
     padding: 3px 6px 6px;
     box-shadow: 0 4px 9px -3px rgba(102, 136, 153, 0.15);
   }
