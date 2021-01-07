@@ -1,8 +1,8 @@
 import { each } from "lodash";
-import { createQueryAndAddWidget } from "../../support/dashboard";
-import { assertParameterPairSwapping } from "../../support/parameters";
+import { createQueryAndAddWidget, editDashboard } from "../../support/dashboard";
+import { dragParam, expectParamOrder } from "../../support/parameters";
 
-describe("Parameter Mapping", () => {
+describe("Dashboard Parameters", () => {
   const parameters = [
     { name: "param1", title: "Parameter 1", type: "text", value: "example1" },
     { name: "param2", title: "Parameter 2", type: "text", value: "example2" },
@@ -54,8 +54,6 @@ describe("Parameter Mapping", () => {
   };
 
   const setWidgetParametersToDashboard = parameters => {
-    cy.server();
-    cy.route("POST", `**/api/**`).as("CloseMappingOptions");
     each(parameters, ({ name: paramName }, i) => {
       cy.getByTestId(`EditParamMappingButton-${paramName}`).click();
       cy.getByTestId("NewDashboardParameterOption")
@@ -63,7 +61,6 @@ describe("Parameter Mapping", () => {
         .click();
       saveMappingOptions(i === parameters.length - 1);
     });
-    cy.wait("@CloseMappingOptions");
   };
 
   it("supports widget parameters", function() {
@@ -130,13 +127,32 @@ describe("Parameter Mapping", () => {
   });
 
   it("reorders parameters", function() {
+    // Reorder is only available in edit mode
+    editDashboard();
+
+    const [param1, param2] = parameters;
+
     cy.getByTestId("ParameterBlock-param1")
       .invoke("width")
       .then(paramWidth => {
-        assertParameterPairSwapping(parameters[0], parameters[1], paramWidth);
+        cy.server();
+        cy.route("POST", `**/api/dashboards/*`).as("SaveDashboard");
+        cy.route("POST", `**/api/widgets/*`).as("SaveWidget");
+
+        // Asserts widget param order
+        dragParam(param1.name, paramWidth, 1);
+        cy.wait("@SaveWidget");
+        cy.reload();
+        expectParamOrder([param2.title, param1.title]);
+
+        // Asserts dashboard param order
         openMappingOptions(this.widgetTestId);
         setWidgetParametersToDashboard(parameters);
-        assertParameterPairSwapping(parameters[0], parameters[1], paramWidth);
+        cy.wait("@SaveWidget");
+        dragParam(param1.name, paramWidth, 1);
+        cy.wait("@SaveDashboard");
+        cy.reload();
+        expectParamOrder([param2.title, param1.title]);
       });
   });
 });
