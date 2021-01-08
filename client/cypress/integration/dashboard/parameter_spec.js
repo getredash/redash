@@ -48,6 +48,8 @@ describe("Dashboard Parameters", () => {
         cy.contains("button", "OK").click();
       });
 
+    cy.getByTestId("EditParamMappingPopover").should("not.be.visible");
+
     if (close) {
       cy.contains("button", "OK").click();
     }
