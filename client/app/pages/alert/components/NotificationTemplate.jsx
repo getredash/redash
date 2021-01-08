@@ -18,14 +18,14 @@ function normalizeCustomTemplateData(alert, query, columnNames, resultValues) {
   const topValue = !isEmpty(resultValues) ? head(resultValues)[alert.options.column] : null;
 
   const tabulateFn = (text, _subRender) => {
-    if (_.isEmpty(resultValues)) {
+    if (isEmpty(resultValues)) {
       return "ERROR: No data.";
     }
     const colNames = text
       .split("|")
       .map((t) => t.trim())
       .filter((t) => t.length >= 0);
-    const firstRow = head(rows);
+    const firstRow = head(resultValues);
     const columns = [];
     for (const colName of colNames) {
       if (isNil(firstRow[colName])) {
@@ -51,7 +51,7 @@ function normalizeCustomTemplateData(alert, query, columnNames, resultValues) {
     return table(zip(...columns), tableOptions);
   };
 
-  const resultColumns = !isEmpty(resultValues) ? mapKeys(result, (_v, c) => `RESULT_${c}`) : {};
+  const resultColumns = !isEmpty(resultValues) ? mapKeys(head(resultValues), (_v, c) => `RESULT_${c}`) : {};
 
   return {
     ALERT_STATUS: "TRIGGERED",
