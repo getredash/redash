@@ -11,6 +11,7 @@ from .helpers import (
     int_or_none,
     set_from_string,
     add_decode_responses_to_redis_url,
+    cast_int_or_default
 )
 from .organization import DATE_FORMAT, TIME_FORMAT  # noqa
 
@@ -510,5 +511,7 @@ REQUESTS_ALLOW_REDIRECTS = parse_boolean(
 ENFORCE_CSRF = parse_boolean(
     os.environ.get("REDASH_ENFORCE_CSRF", "false")
 )
+
+# Databricks
 
 CSRF_TIME_LIMIT = int(os.environ.get("REDASH_CSRF_TIME_LIMIT", 3600 * 6))

@@ -1,4 +1,6 @@
 import datetime
+import logging
+import os
 import sqlparse
 from redash.query_runner import (
     NotSupported,
@@ -11,8 +13,9 @@ from redash.query_runner import (
     TYPE_INTEGER,
     TYPE_FLOAT,
 )
+from redash.settings import cast_int_or_default
 from redash.utils import json_dumps, json_loads
-from redash import __version__
+from redash import __version__, settings, statsd_client
 
 try:
     import pyodbc
@@ -30,6 +33,9 @@ TYPES_MAP = {
     float: TYPE_FLOAT,
 }
 
+ROW_LIMIT = cast_int_or_default(os.environ.get("DATABRICKS_ROW_LIMIT"), 20000)
+
+logger = logging.getLogger(__name__)
 
 def _build_odbc_connection_string(**kwargs):
     return ";".join([f"{k}={v}" for k, v in kwargs.items()])
@@ -40,8 +46,10 @@ def split_sql_statements(query):
         idx = len(stmt.tokens) - 1
         while idx >= 0:
             tok = stmt.tokens[idx]
-            if tok.is_whitespace or sqlparse.utils.imt(tok, i=sqlparse.sql.Comment, t=sqlparse.tokens.Comment):
-                stmt.tokens[idx] = sqlparse.sql.Token(sqlparse.tokens.Whitespace, ' ')
+            if tok.is_whitespace or sqlparse.utils.imt(
+                tok, i=sqlparse.sql.Comment, t=sqlparse.tokens.Comment
+            ):
+                stmt.tokens[idx] = sqlparse.sql.Token(sqlparse.tokens.Whitespace, " ")
             else:
                 break
             idx -= 1
@@ -53,8 +61,13 @@ def split_sql_statements(query):
             tok = stmt.tokens[idx]
             # we expect that trailing comments already are removed
             if not tok.is_whitespace:
-                if sqlparse.utils.imt(tok, t=sqlparse.tokens.Punctuation) and tok.value == ";":
-                    stmt.tokens[idx] = sqlparse.sql.Token(sqlparse.tokens.Whitespace, ' ')
+                if (
+                    sqlparse.utils.imt(tok, t=sqlparse.tokens.Punctuation)
+                    and tok.value == ";"
+                ):
+                    stmt.tokens[idx] = sqlparse.sql.Token(
+                        sqlparse.tokens.Whitespace, " "
+                    )
                 break
             idx -= 1
         return stmt
@@ -74,7 +87,11 @@ def split_sql_statements(query):
     result = [stmt for stmt in stack.run(query)]
     result = [strip_trailing_comments(stmt) for stmt in result]
     result = [strip_trailing_semicolon(stmt) for stmt in result]
-    result = [sqlparse.text_type(stmt).strip() for stmt in result if not is_empty_statement(stmt)]
+    result = [
+        sqlparse.text_type(stmt).strip()
+        for stmt in result
+        if not is_empty_statement(stmt)
+    ]
 
     if len(result) > 0:
         return result
@@ -147,7 +164,7 @@ class Databricks(BaseSQLQueryRunner):
                 cursor.execute(stmt)
 
             if cursor.description is not None:
-                data = cursor.fetchall()
+                result_set = cursor.fetchmany(ROW_LIMIT)
                 columns = self.fetch_columns(
                     [
                         (i[0], TYPES_MAP.get(i[1], TYPE_STRING))
@@ -157,10 +174,18 @@ class Databricks(BaseSQLQueryRunner):
 
                 rows = [
                     dict(zip((column["name"] for column in columns), row))
-                    for row in data
+                    for row in result_set
                 ]
 
                 data = {"columns": columns, "rows": rows}
+
+                if (
+                    len(result_set) >= ROW_LIMIT
+                    and cursor.fetchone() is not None
+                ):
+                    logger.warning("Truncated result set.")
+                    statsd_client.incr("redash.query_runner.databricks.truncated")
+                    data["truncated"] = True
                 json_data = json_dumps(data)
                 error = None
             else:
