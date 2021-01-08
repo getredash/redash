@@ -27,7 +27,8 @@
     "test": "run-s type-check jest",
     "test:watch": "jest --watch",
     "cypress": "node client/cypress/cypress.js",
-    "postinstall": "(cd viz-lib && npm ci && npm run build:babel)"
+    "postinstall": "(cd viz-lib && npm ci && npm run build:babel)",
+    "test-template": "node ./testTemplate.js"
   },
   "repository": {
     "type": "git",
@@ -74,6 +75,7 @@
     "react-resizable": "^1.10.1",
     "react-virtualized": "^9.21.2",
     "sql-formatter": "git+https://github.com/getredash/sql-formatter.git",
+    "table": "^6.0.7",
     "universal-router": "^8.3.0",
     "use-debounce": "^3.1.0",
     "use-media": "^1.4.0"

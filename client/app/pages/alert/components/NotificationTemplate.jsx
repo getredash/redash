@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { head, isEmpty, isNull, isUndefined } from "lodash";
+import { head, isEmpty, isNull, isUndefined, isNil, isArray, zip, mapKeys } from "lodash";
 import Mustache from "mustache";
+import { table, getBorderCharacters } from "table";
 
 import HelpTrigger from "@/components/HelpTrigger";
 import { Alert as AlertType, Query as QueryType } from "@/components/proptypes";
@@ -16,6 +17,42 @@ import "./NotificationTemplate.less";
 function normalizeCustomTemplateData(alert, query, columnNames, resultValues) {
   const topValue = !isEmpty(resultValues) ? head(resultValues)[alert.options.column] : null;
 
+  const tabulateFn = (text, _subRender) => {
+    if (_.isEmpty(resultValues)) {
+      return "ERROR: No data.";
+    }
+    const colNames = text
+      .split("|")
+      .map((t) => t.trim())
+      .filter((t) => t.length >= 0);
+    const firstRow = head(rows);
+    const columns = [];
+    for (const colName of colNames) {
+      if (isNil(firstRow[colName])) {
+        return `ERROR: Column ${colName} not in result.`;
+      }
+      try {
+        const parsed = JSON.parse(firstRow[colName]);
+        if (!isArray(parsed)) {
+          throw new Error(`Column ${colName} is not an array.`);
+        }
+        columns.push([colName, ...parsed]);
+      } catch (_e) {
+        return `ERROR: Column ${colName} is not a valid json array.`;
+      }
+    }
+    const tableOptions = {
+      drawHorizontalLine: (index, size) => {
+        return index === 0 || index === 1 || index === size;
+      },
+      border: getBorderCharacters("ramac"),
+    };
+
+    return table(zip(...columns), tableOptions);
+  };
+
+  const resultColumns = !isEmpty(resultValues) ? mapKeys(result, (_v, c) => `RESULT_${c}`) : {};
+
   return {
     ALERT_STATUS: "TRIGGERED",
     ALERT_CONDITION: alert.options.op,
@@ -25,8 +62,10 @@ function normalizeCustomTemplateData(alert, query, columnNames, resultValues) {
     QUERY_NAME: query.name,
     QUERY_URL: `${window.location.origin}/queries/${query.id}`,
     QUERY_RESULT_VALUE: isNull(topValue) || isUndefined(topValue) ? "UNKNOWN" : topValue,
-    QUERY_RESULT_ROWS: resultValues,
+    QUERY_RESULT_ROWS: JSON.stringify(resultValues),
     QUERY_RESULT_COLS: columnNames,
+    ...resultColumns,
+    tabulate: () => tabulateFn,
   };
 }
 
@@ -37,8 +76,8 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
 
   const renderData = normalizeCustomTemplateData(alert, query, columnNames, resultValues);
 
-  const render = tmpl => Mustache.render(tmpl || "", renderData);
-  const onEnabledChange = value => {
+  const render = (tmpl) => Mustache.render(tmpl || "", renderData);
+  const onEnabledChange = (value) => {
     if (value || !hasContent) {
       setEnabled(value);
       setShowPreview(false);
@@ -82,14 +121,14 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
           </div>
           <Input
             value={showPreview ? render(subject) : subject}
-            onChange={e => setSubject(e.target.value)}
+            onChange={(e) => setSubject(e.target.value)}
             disabled={showPreview}
             data-test="CustomSubject"
           />
           <Input.TextArea
             value={showPreview ? render(body) : body}
             autoSize={{ minRows: 9 }}
-            onChange={e => setBody(e.target.value)}
+            onChange={(e) => setBody(e.target.value)}
             disabled={showPreview}
             data-test="CustomBody"
           />
