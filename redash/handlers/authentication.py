@@ -16,6 +16,7 @@ from redash.authentication.account import (
 from redash.handlers import routes
 from redash.handlers.base import json_response, org_scoped_rule
 from redash.version_check import get_latest_version
+from redash.security import csp_allows_embeding
 from sqlalchemy.orm.exc import NoResultFound
 
 logger = logging.getLogger(__name__)
@@ -126,9 +127,7 @@ def verify(token, org_slug=None):
         org = current_org._get_current_object()
         user = models.User.get_by_id_and_org(user_id, org)
     except (BadSignature, NoResultFound):
-        logger.exception(
-            "Failed to verify email verification token: %s, org=%s", token, org_slug
-        )
+        logger.exception("Failed to verify email verification token: %s, org=%s", token, org_slug)
         return (
             render_template(
                 "error.html",
@@ -175,14 +174,13 @@ def verification_email(org_slug=None):
         send_verify_email(current_user, current_org)
 
     return json_response(
-        {
-            "message": "Please check your email inbox in order to verify your email address."
-        }
+        {"message": "Please check your email inbox in order to verify your email address."}
     )
 
 
 @routes.route(org_scoped_rule("/login"), methods=["GET", "POST"])
 @limiter.limit(settings.THROTTLE_LOGIN_PATTERN)
+@csp_allows_embeding
 def login(org_slug=None):
     # We intentionally use == as otherwise it won't actually use the proxy. So weird :O
     # noinspection PyComparisonWithNone
@@ -201,11 +199,7 @@ def login(org_slug=None):
         try:
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(request.form["email"], org)
-            if (
-                user
-                and not user.is_disabled
-                and user.verify_password(request.form["password"])
-            ):
+            if user and not user.is_disabled and user.verify_password(request.form["password"]):
                 remember = "remember" in request.form
                 login_user(user, remember=remember)
                 return redirect(next_path)
@@ -274,20 +268,13 @@ def client_config():
     else:
         client_config = {}
 
-    if (
-        current_user.has_permission("admin")
-        and current_org.get_setting("beacon_consent") is None
-    ):
+    if current_user.has_permission("admin") and current_org.get_setting("beacon_consent") is None:
         client_config["showBeaconConsentMessage"] = True
 
     defaults = {
         "allowScriptsInUserInput": settings.ALLOW_SCRIPTS_IN_USER_INPUT,
-        "showPermissionsControl": current_org.get_setting(
-            "feature_show_permissions_control"
-        ),
-        "hidePlotlyModeBar": current_org.get_setting(
-            "hide_plotly_mode_bar"
-        ),
+        "showPermissionsControl": current_org.get_setting("feature_show_permissions_control"),
+        "hidePlotlyModeBar": current_org.get_setting("hide_plotly_mode_bar"),
         "disablePublicUrls": current_org.get_setting("disable_public_urls"),
         "allowCustomJSVisualizations": settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         "autoPublishNamedQueries": settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
@@ -324,9 +311,7 @@ def messages():
 
 @routes.route("/api/config", methods=["GET"])
 def config(org_slug=None):
-    return json_response(
-        {"org_slug": current_org.slug, "client_config": client_config()}
-    )
+    return json_response({"org_slug": current_org.slug, "client_config": client_config()})
 
 
 @routes.route(org_scoped_rule("/api/session"), methods=["GET"])

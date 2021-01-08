@@ -32,9 +32,7 @@ order_map = {
     "-created_at": "-created_at",
 }
 
-order_results = partial(
-    _order_results, default_order="-created_at", allowed_orders=order_map
-)
+order_results = partial(_order_results, default_order="-created_at", allowed_orders=order_map)
 
 
 class DashboardListResource(BaseResource):
@@ -83,9 +81,7 @@ class DashboardListResource(BaseResource):
         )
 
         if search_term:
-            self.record_event(
-                {"action": "search", "object_type": "dashboard", "term": search_term}
-            )
+            self.record_event({"action": "search", "object_type": "dashboard", "term": search_term})
         else:
             self.record_event({"action": "list", "object_type": "dashboard"})
 
@@ -114,6 +110,8 @@ class DashboardListResource(BaseResource):
 
 
 class DashboardResource(BaseResource):
+    decorators = BaseResource.decorators + [csp_allows_embeding]
+
     @require_permission("list_dashboards")
     def get(self, dashboard_id=None):
         """
@@ -171,9 +169,7 @@ class DashboardResource(BaseResource):
 
         response["can_edit"] = can_modify(dashboard, self.current_user)
 
-        self.record_event(
-            {"action": "view", "object_id": dashboard.id, "object_type": "dashboard"}
-        )
+        self.record_event({"action": "view", "object_id": dashboard.id, "object_type": "dashboard"})
 
         return response
 
@@ -227,9 +223,7 @@ class DashboardResource(BaseResource):
             dashboard, with_widgets=True, user=self.current_user
         ).serialize()
 
-        self.record_event(
-            {"action": "edit", "object_id": dashboard.id, "object_type": "dashboard"}
-        )
+        self.record_event({"action": "edit", "object_id": dashboard.id, "object_type": "dashboard"})
 
         return result
 
@@ -246,9 +240,7 @@ class DashboardResource(BaseResource):
         dashboard.is_archived = True
         dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)
-        d = DashboardSerializer(
-            dashboard, with_widgets=True, user=self.current_user
-        ).serialize()
+        d = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user).serialize()
         models.db.session.commit()
 
         self.record_event(
@@ -357,9 +349,7 @@ class DashboardFavoriteListResource(BaseResource):
                 self.current_user.id,
                 search_term,
             )
-            favorites = models.Dashboard.favorites(
-                self.current_user, base_query=base_query
-            )
+            favorites = models.Dashboard.favorites(self.current_user, base_query=base_query)
         else:
             favorites = models.Dashboard.favorites(self.current_user)
 
