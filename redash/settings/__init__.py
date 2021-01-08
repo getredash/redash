@@ -513,6 +513,5 @@ ENFORCE_CSRF = parse_boolean(
 )
 
 # Databricks
-DATABRICKS_ROW_LIMIT = int(os.environ.get("REDASH_DATABRICKS_ROW_LIMIT", 20000))
 
 CSRF_TIME_LIMIT = int(os.environ.get("REDASH_CSRF_TIME_LIMIT", 3600 * 6))
