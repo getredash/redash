@@ -82,8 +82,13 @@ ENV PIP_NO_CACHE_DIR=1
 # We first copy only the requirements file, to avoid rebuilding on every file
 # change.
 COPY requirements.txt requirements_bundles.txt requirements_dev.txt requirements_all_ds.txt ./
+RUN pip install pip==20.2.4
 RUN if [ "x$skip_dev_deps" = "x" ] ; then pip install -r requirements.txt -r requirements_dev.txt; else pip install -r requirements.txt; fi
 RUN if [ "x$skip_ds_deps" = "x" ] ; then pip install -r requirements_all_ds.txt ; else echo "Skipping pip install -r requirements_all_ds.txt" ; fi
+
+# Custom packages for Scale
+# TODO: Move these into a separate requirements.txt
+RUN pip install numpy scipy pandas requests pytz imageio
 
 COPY . /app
 COPY --from=frontend-builder /frontend/client/dist /app/client/dist
