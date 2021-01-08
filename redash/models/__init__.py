@@ -1022,7 +1022,8 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
                     cols[col_name] = parsed
                 except Exception:
                     return f"ERROR: Column {col_name} is not a valid json array."
-            return tabulate(cols, headers=col_names, tablefmt="psql")
+            formatted = tabulate(cols, headers=col_names, tablefmt="psql")
+            return f"```{formatted}```"
 
         context = {
             "ALERT_NAME": self.name,
