@@ -180,7 +180,7 @@ class Databricks(BaseSQLQueryRunner):
                 data = {"columns": columns, "rows": rows}
 
                 if (
-                    len(result_set) >= settings.DATABRICKS_ROW_LIMIT
+                    len(result_set) >= ROW_LIMIT
                     and cursor.fetchone() is not None
                 ):
                     logger.warning("Truncated result set.")
