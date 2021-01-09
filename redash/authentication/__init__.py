@@ -68,9 +68,7 @@ def request_loader(request):
         user = api_key_load_user_from_request(request)
     else:
         logger.warning(
-            "Unknown authentication type ({}). Using default (HMAC).".format(
-                settings.AUTH_TYPE
-            )
+            "Unknown authentication type ({}). Using default (HMAC).".format(settings.AUTH_TYPE)
         )
         user = hmac_load_user_from_request(request)
 
@@ -215,10 +213,8 @@ def log_user_logged_in(app, user):
 
 @login_manager.unauthorized_handler
 def redirect_to_login():
-    if request.is_xhr or "/api/" in request.path:
-        response = jsonify(
-            {"message": "Couldn't find resource. Please login and try again."}
-        )
+    if "/api/" in request.path:
+        response = jsonify({"message": "Couldn't find resource. Please login and try again."})
         response.status_code = 404
         return response
 
@@ -252,6 +248,7 @@ def init_app(app):
     login_manager.anonymous_user = models.AnonymousUser
 
     from redash.security import csrf
+
     for auth in [google_oauth, saml_auth, remote_user_auth, ldap_auth]:
         blueprint = auth.blueprint
         csrf.exempt(blueprint)

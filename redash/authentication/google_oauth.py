@@ -1,7 +1,7 @@
 import logging
 import requests
 from flask import redirect, url_for, Blueprint, flash, request, session
-from flask_oauthlib.client import OAuth
+from authlib.integrations.flask_client import OAuth
 
 from redash import models, settings
 from redash.authentication import (
@@ -18,10 +18,10 @@ blueprint = Blueprint("google_oauth", __name__)
 
 
 def google_remote_app():
-    if "google" not in oauth.remote_apps:
-        oauth.remote_app(
+    if "google" not in oauth._registry:
+        oauth.register(
             "google",
-            base_url="https://www.google.com/accounts/",
+            api_base_url="https://www.google.com/accounts/",
             authorize_url="https://accounts.google.com/o/oauth2/auth?prompt=select_account+consent",
             request_token_url=None,
             request_token_params={
@@ -29,8 +29,8 @@ def google_remote_app():
             },
             access_token_url="https://accounts.google.com/o/oauth2/token",
             access_token_method="POST",
-            consumer_key=settings.GOOGLE_CLIENT_ID,
-            consumer_secret=settings.GOOGLE_CLIENT_SECRET,
+            client_id=settings.GOOGLE_CLIENT_ID,
+            client_secret=settings.GOOGLE_CLIENT_SECRET,
         )
 
     return oauth.google
@@ -38,9 +38,7 @@ def google_remote_app():
 
 def get_user_profile(access_token):
     headers = {"Authorization": "OAuth {}".format(access_token)}
-    response = requests.get(
-        "https://www.googleapis.com/oauth2/v1/userinfo", headers=headers
-    )
+    response = requests.get("https://www.googleapis.com/oauth2/v1/userinfo", headers=headers)
 
     if response.status_code == 401:
         logger.warning("Failed getting user profile (response code 401).")
@@ -74,18 +72,17 @@ def org_login(org_slug):
 @blueprint.route("/oauth/google", endpoint="authorize")
 def login():
     callback = url_for(".callback", _external=True)
-    next_path = request.args.get(
-        "next", url_for("redash.index", org_slug=session.get("org_slug"))
-    )
+    next_path = request.args.get("next", url_for("redash.index", org_slug=session.get("org_slug")))
     logger.debug("Callback url: %s", callback)
     logger.debug("Next is: %s", next_path)
-    return google_remote_app().authorize(callback=callback, state=next_path)
+    # TODO: Not sure if `state` works, for an alternative see:
+    # https://flask-oauthlib.readthedocs.io/en/latest/client.html#signing-in-authorizing
+    return google_remote_app().authorize_redirect(callback, state=next_path)
 
 
 @blueprint.route("/oauth/google_callback", endpoint="callback")
 def authorized():
-    resp = google_remote_app().authorized_response()
-    access_token = resp["access_token"]
+    access_token = google_remote_app().authorize_access_token()
 
     if access_token is None:
         logger.warning("Access token missing in call back request.")
@@ -116,9 +113,7 @@ def authorized():
     if user is None:
         return logout_and_redirect_to_index()
 
-    unsafe_next_path = request.args.get("state") or url_for(
-        "redash.index", org_slug=org.slug
-    )
+    unsafe_next_path = request.args.get("state") or url_for("redash.index", org_slug=org.slug)
     next_path = get_next_path(unsafe_next_path)
 
     return redirect(next_path)
