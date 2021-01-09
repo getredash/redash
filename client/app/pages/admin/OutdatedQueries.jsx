@@ -104,8 +104,12 @@ class OutdatedQueries extends React.Component {
             />
           </div>
           <div className="m-t-5">
-            Last updated: {controller.params.lastUpdatedAt ?
-            <TimeAgo date={controller.params.lastUpdatedAt * 1000} /> : "Seem rq scheduler no running"}
+            Last updated:{" "}
+            {controller.params.lastUpdatedAt ? (
+              <TimeAgo date={controller.params.lastUpdatedAt * 1000} />
+            ) : (
+              "Seem rq scheduler no running"
+            )}
           </div>
         </div>
         {!controller.isLoaded && <LoadingState />}
