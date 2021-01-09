@@ -51,6 +51,10 @@ def init_app(app):
             if not current_user.is_authenticated or "user_id" in session:
                 csrf.protect()
 
+    # To allow embeds to authenticate
+    app.config.update(
+        SESSION_COOKIE_SAMESITE='None',
+    )
     talisman.init_app(
         app,
         feature_policy=settings.FEATURE_POLICY,
