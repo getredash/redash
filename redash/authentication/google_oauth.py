@@ -17,14 +17,18 @@ oauth = OAuth()
 blueprint = Blueprint("google_oauth", __name__)
 
 
+def init_app(app):
+    oauth.init_app(app)
+
+
 def google_remote_app():
     if "google" not in oauth._registry:
         oauth.register(
             "google",
-            api_base_url="https://www.google.com/accounts/",
+            api_base_url="https://www.googleapis.com/oauth2/v1/",
             authorize_url="https://accounts.google.com/o/oauth2/auth?prompt=select_account+consent",
             request_token_url=None,
-            request_token_params={
+            authorize_params={
                 "scope": "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
             },
             access_token_url="https://accounts.google.com/o/oauth2/token",
@@ -37,8 +41,7 @@ def google_remote_app():
 
 
 def get_user_profile(access_token):
-    headers = {"Authorization": "OAuth {}".format(access_token)}
-    response = requests.get("https://www.googleapis.com/oauth2/v1/userinfo", headers=headers)
+    response = google_remote_app().get("userinfo", token=access_token)
 
     if response.status_code == 401:
         logger.warning("Failed getting user profile (response code 401).")
@@ -71,8 +74,8 @@ def org_login(org_slug):
 
 @blueprint.route("/oauth/google", endpoint="authorize")
 def login():
-    callback = url_for(".callback", _external=True)
     next_path = request.args.get("next", url_for("redash.index", org_slug=session.get("org_slug")))
+    callback = url_for(".callback", _external=True)
     logger.debug("Callback url: %s", callback)
     logger.debug("Next is: %s", next_path)
     # TODO: Not sure if `state` works, for an alternative see:

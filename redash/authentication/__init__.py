@@ -247,6 +247,8 @@ def init_app(app):
     login_manager.init_app(app)
     login_manager.anonymous_user = models.AnonymousUser
 
+    google_oauth.init_app(app)
+
     from redash.security import csrf
 
     for auth in [google_oauth, saml_auth, remote_user_auth, ldap_auth]:
