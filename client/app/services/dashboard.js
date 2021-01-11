@@ -208,11 +208,18 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
         });
     }
   });
-  return _.values(
+  const resultingGlobalParams = _.values(
     _.each(globalParams, param => {
       param.setValue(param.value); // apply global param value to all locals
       param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
     })
+  );
+
+  // order dashboard params using paramOrder
+  return _.sortBy(resultingGlobalParams, param =>
+    _.includes(this.options.globalParamOrder, param.name)
+      ? _.indexOf(this.options.globalParamOrder, param.name)
+      : _.size(this.options.globalParamOrder)
   );
 };
 
