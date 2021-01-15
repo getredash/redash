@@ -21,7 +21,7 @@ memsql==3.0.0
 atsd_client==3.0.5
 simple_salesforce==0.74.3
 PyAthena>=1.5.0
-pymapd==0.19.0
+pymapd>=0.25.1
 qds-sdk>=1.9.6
 ibm-db>=2.0.9
 pydruid==0.5.7
