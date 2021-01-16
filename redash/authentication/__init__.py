@@ -66,7 +66,7 @@ def request_loader(request):
         user = hmac_load_user_from_request(request)
     elif settings.AUTH_TYPE == "api_key":
         user = api_key_load_user_from_request(request)
-    elif settings.AUTH_TYPE != "jwt":
+    else:
         logger.warning(
             "Unknown authentication type ({}). Using default (HMAC).".format(
                 settings.AUTH_TYPE
