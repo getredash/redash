@@ -5,11 +5,17 @@ import simplejson
 
 logger = logging.getLogger("jwt_auth")
 
+# https://tools.ietf.org/html/rfc7518#section-6.1
+jwt_algorithms = {
+    "EC": jwt.algorithms.ECAlgorithm,
+    "RSA": jwt.algorithms.RSAAlgorithm,
+    "oct": jwt.algorithms.HMACAlgorithm
+}
 
 def get_public_keys(url):
     """
     Returns:
-        List of RSA public keys usable by PyJWT.
+        List of RSA, EC or HMAC public keys usable by PyJWT.
     """
     key_cache = get_public_keys.key_cache
     if url in key_cache:
@@ -21,10 +27,12 @@ def get_public_keys(url):
         if "keys" in data:
             public_keys = []
             for key_dict in data["keys"]:
-                public_key = jwt.algorithms.RSAAlgorithm.from_jwk(
-                    simplejson.dumps(key_dict)
-                )
-                public_keys.append(public_key)
+                try:
+                    algorithm = jwt_algorithms[key_dict["kty"]]
+                except KeyError:
+                    raise Exception("Unknown key type: {}".format(key_dict["kty"]))
+
+                public_keys.append(algorithm.from_jwk(simplejson.dumps(key_dict)))
 
             get_public_keys.key_cache[url] = public_keys
             return public_keys
