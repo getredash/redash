@@ -1,5 +1,8 @@
 google-api-python-client==1.7.11
 gspread==3.1.0
+# impyla depends on bitarray, but doesn't pin its version. Latest release (1.6.2) has a build issue
+# so we're pinning the versino to 1.6.1 until it's resolved. https://github.com/ilanschnell/bitarray/issues/113
+bitarray==1.6.1
 impyla==0.16.0
 influxdb==5.2.3
 mysqlclient==1.3.14
