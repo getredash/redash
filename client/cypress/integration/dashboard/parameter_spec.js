@@ -40,7 +40,7 @@ describe("Dashboard Parameters", () => {
       .click();
   };
 
-  const saveMappingOptions = (closeMappingMenu = true) => {
+  const saveMappingOptions = (closeMappingMenu = false) => {
     return cy
       .getByTestId("EditParamMappingPopover")
       .filter(":visible")
@@ -48,18 +48,14 @@ describe("Dashboard Parameters", () => {
       .within(() => {
         // This is needed to grant the element will have finished loading
         // eslint-disable-next-line cypress/no-unnecessary-waiting
-        cy.wait(150);
-        cy.get(".ant-btn:enabled:not(.ant-btn-loading)")
-          .contains("OK")
-          .click();
+        cy.wait(200);
+        cy.contains("button", "OK").click();
       })
       .then(() => {
-        cy.get("@Popover").should("not.be.visible");
         if (closeMappingMenu) {
-          cy.get(".ant-btn:enabled:not(.ant-btn-loading)")
-            .contains("OK")
-            .click();
+          cy.contains("button", "OK").click();
         }
+        return cy.get("@Popover").should("not.be.visible");
       });
   };
 
