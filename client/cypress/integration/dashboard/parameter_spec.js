@@ -1,4 +1,3 @@
-import { each } from "lodash";
 import { createQueryAndAddWidget, editDashboard } from "../../support/dashboard";
 import { dragParam, expectParamOrder } from "../../support/parameters";
 
@@ -41,27 +40,32 @@ describe("Dashboard Parameters", () => {
       .click();
   };
 
-  const saveMappingOptions = (close = true) => {
-    cy.getByTestId("EditParamMappingPopover")
+  const saveMappingOptions = (closeMappingMenu = false) => {
+    return cy
+      .getByTestId("EditParamMappingPopover")
       .filter(":visible")
+      .as("Popover")
       .within(() => {
+        // This is needed to grant the element will have finished loading
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
+        cy.wait(200);
         cy.contains("button", "OK").click();
+      })
+      .then(() => {
+        if (closeMappingMenu) {
+          cy.contains("button", "OK").click();
+        }
+        return cy.get("@Popover").should("not.be.visible");
       });
-
-    cy.getByTestId("EditParamMappingPopover").should("not.be.visible");
-
-    if (close) {
-      cy.contains("button", "OK").click();
-    }
   };
 
   const setWidgetParametersToDashboard = parameters => {
-    each(parameters, ({ name: paramName }, i) => {
+    cy.wrap(parameters).each(({ name: paramName }, i) => {
       cy.getByTestId(`EditParamMappingButton-${paramName}`).click();
       cy.getByTestId("NewDashboardParameterOption")
         .filter(":visible")
         .click();
-      saveMappingOptions(i === parameters.length - 1);
+      return saveMappingOptions(i === parameters.length - 1);
     });
   };
 
