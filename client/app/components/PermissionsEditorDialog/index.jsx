@@ -170,8 +170,10 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
                 ) : (
                   <Tooltip title="Remove user permissions">
                     <i
-                      className="fa fa-remove clickable"
+                      role="button"
+                      tabIndex="-1"
                       onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}
+                      className="fa fa-remove clickable"
                     />
                   </Tooltip>
                 )}

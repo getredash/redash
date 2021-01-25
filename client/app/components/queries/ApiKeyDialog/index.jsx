@@ -56,11 +56,11 @@ function ApiKeyDialog({ dialog, ...props }) {
 
         <h5>Example API Calls:</h5>
         <div className="m-b-10">
-          <label>Results in CSV format:</label>
+          <span>Results in CSV format:</span>
           <CodeBlock copyable>{csvUrl}</CodeBlock>
         </div>
         <div>
-          <label>Results in JSON format:</label>
+          <span>Results in JSON format:</span>
           <CodeBlock copyable>{jsonUrl}</CodeBlock>
         </div>
       </div>

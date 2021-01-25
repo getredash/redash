@@ -77,9 +77,9 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
   return (
     <div className="tags-list">
       <div className="tags-list-title">
-        <label>Tags</label>
+        <span className="tags-list-label">Tags</span>
         {showUnselectAll && selectedTags.length > 0 && (
-          <a onClick={unselectAll}>
+          <a role="button" tabIndex="0" onClick={unselectAll}>
             <CloseOutlinedIcon />
             clear selection
           </a>
@@ -92,6 +92,8 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
             <Menu.Item key={tag.name} className="m-0">
               <a
                 className="d-flex align-items-center justify-content-between"
+                role="menuitem"
+                tabIndex="0"
                 onClick={event => toggleTag(event, tag.name)}>
                 <span className="max-character col-xs-11">{tag.name}</span>
                 <Badge count={tag.count} />
