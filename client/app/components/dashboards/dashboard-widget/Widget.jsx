@@ -49,7 +49,7 @@ function WidgetDeleteButton({ onClick }) {
         className="action"
         title="Remove From Dashboard"
         role="button"
-        tabIndex="0"
+        tabIndex={0}
         onClick={onClick}
         data-test="WidgetDeleteButton">
         <i className="zmdi zmdi-close" />

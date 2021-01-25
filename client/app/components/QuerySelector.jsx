@@ -71,7 +71,7 @@ export default function QuerySelector(props) {
             className={cx("query-selector-result", "list-group-item", { inactive: q.is_draft })}
             key={q.id}
             role="menuitem"
-            tabIndex="0"
+            tabIndex={0}
             onClick={() => selectQuery(q.id)}
             data-test={`QueryId${q.id}`}>
             {q.name} <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className="inline-tags-control" />
