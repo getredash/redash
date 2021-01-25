@@ -22,7 +22,7 @@ module.exports = {
     "no-debugger": process.env.NODE_ENV === "production" ? 2 : 0,
     "jsx-a11y/anchor-is-valid": "off",
     "jsx-a11y/no-autofocus": "off",
-    "jsx-a11y/click-events-have-key-events": "warn",
+    "jsx-a11y/click-events-have-key-events": "off", // TODO: create a wrapper for key events
     "no-console": ["warn", { allow: ["warn", "error"] }],
     "no-restricted-imports": [
       "error",
