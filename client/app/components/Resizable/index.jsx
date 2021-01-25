@@ -54,7 +54,7 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
       <span
         className={`react-resizable-handle react-resizable-handle-${direction}`}
         role="gridcell"
-        tabIndex="-1"
+        tabIndex={-1}
         onClick={() => {
           // On desktops resize uses `mousedown`/`mousemove`/`mouseup` events, and there is a conflict
           // with this `click` handler: after user releases mouse - this handler will be executed.

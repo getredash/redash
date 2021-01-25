@@ -125,7 +125,7 @@ export default function DesktopNavbar() {
                 <a
                   data-test="CreateDashboardMenuItem"
                   role="menuitem"
-                  tabIndex="0"
+                  tabIndex={0}
                   onMouseUp={() => CreateDashboardDialog.showModal()}>
                   New Dashboard
                 </a>
@@ -178,7 +178,7 @@ export default function DesktopNavbar() {
           )}
           <Menu.Divider />
           <Menu.Item key="logout">
-            <a data-test="LogOutButton" role="menuitem" tabIndex="0" onClick={() => Auth.logout()}>
+            <a data-test="LogOutButton" role="menuitem" tabIndex={0} onClick={() => Auth.logout()}>
               Log out
             </a>
           </Menu.Item>

@@ -58,7 +58,7 @@ function TabWithDeleteButton({ visualizationName, canDelete, onDelete, ...props 
     <span {...props}>
       {visualizationName}
       {canDelete && (
-        <a className="delete-visualization-button" role="button" tabIndex="0" onClick={handleDelete}>
+        <a className="delete-visualization-button" role="button" tabIndex={0} onClick={handleDelete}>
           <i className="zmdi zmdi-close" />
         </a>
       )}

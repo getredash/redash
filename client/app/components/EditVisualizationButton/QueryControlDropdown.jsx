@@ -21,7 +21,7 @@ export default function QueryControlDropdown(props) {
           <a
             target="_self"
             role="menuitem"
-            tabIndex="0"
+            tabIndex={0}
             onClick={() => props.openAddToDashboardForm(props.selectedTab)}>
             <PlusCircleFilledIcon /> Add to Dashboard
           </a>
@@ -31,7 +31,7 @@ export default function QueryControlDropdown(props) {
         <Menu.Item>
           <a
             role="menuitem"
-            tabIndex="0"
+            tabIndex={0}
             onClick={() => props.showEmbedDialog(props.query, props.selectedTab)}
             data-test="ShowEmbedDialogButton">
             <ShareAltOutlinedIcon /> Embed Elsewhere
