@@ -200,7 +200,7 @@ function EmptyState({
         </div>
       </div>
       {closable && (
-        <a className="close-button" onClick={onClose}>
+        <a className="close-button" role="button" tabIndex="0" onClick={onClose}>
           <CloseOutlinedIcon />
         </a>
       )}

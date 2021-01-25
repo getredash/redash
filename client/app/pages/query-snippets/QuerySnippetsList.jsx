@@ -35,7 +35,10 @@ class QuerySnippetsList extends React.Component {
     Columns.custom.sortable(
       (text, querySnippet) => (
         <div>
-          <a className="table-main-title clickable" onClick={() => this.showSnippetDialog(querySnippet)}>
+          <a
+            className="table-main-title clickable"
+            role="presentation"
+            onClick={() => this.showSnippetDialog(querySnippet)}>
             {querySnippet.trigger}
           </a>
         </div>
@@ -158,7 +161,7 @@ class QuerySnippetsList extends React.Component {
             There are no query snippets yet.
             {policy.isCreateQuerySnippetEnabled() && (
               <div className="m-t-5">
-                <a className="clickable" onClick={() => this.showSnippetDialog()}>
+                <a className="clickable" role="link" tabIndex="0" onClick={() => this.showSnippetDialog()}>
                   Click here
                 </a>{" "}
                 to add one.

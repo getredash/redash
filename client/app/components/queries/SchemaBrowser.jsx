@@ -45,7 +45,7 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
 
   return (
     <div {...props}>
-      <div className="table-name" onClick={onToggle}>
+      <div className="table-name" role="presentation" onClick={onToggle}>
         <i className="fa fa-table m-r-5" />
         <strong>
           <span title={item.name}>{tableDisplayName}</span>

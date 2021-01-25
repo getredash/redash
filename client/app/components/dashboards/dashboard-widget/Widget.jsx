@@ -45,7 +45,13 @@ WidgetDropdownButton.defaultProps = {
 function WidgetDeleteButton({ onClick }) {
   return (
     <div className="widget-menu-remove">
-      <a className="action" title="Remove From Dashboard" onClick={onClick} data-test="WidgetDeleteButton">
+      <a
+        className="action"
+        title="Remove From Dashboard"
+        role="button"
+        tabIndex="0"
+        onClick={onClick}
+        data-test="WidgetDeleteButton">
         <i className="zmdi zmdi-close" />
       </a>
     </div>

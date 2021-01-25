@@ -30,7 +30,7 @@ export default function QuerySelector(props) {
   const [doSearch, searchResults, searching] = useSearchResults(search, { initialResults: [] });
 
   const placeholder = "Search a query by name";
-  const clearIcon = <i className="fa fa-times hide-in-percy" onClick={() => selectQuery(null)} />;
+  const clearIcon = <i className="fa fa-times hide-in-percy" role="presentation" onClick={() => selectQuery(null)} />;
   const spinIcon = <i className={cx("fa fa-spinner fa-pulse hide-in-percy", { hidden: !searching })} />;
 
   useEffect(() => {
@@ -70,6 +70,8 @@ export default function QuerySelector(props) {
           <a
             className={cx("query-selector-result", "list-group-item", { inactive: q.is_draft })}
             key={q.id}
+            role="menuitem"
+            tabIndex="0"
             onClick={() => selectQuery(q.id)}
             data-test={`QueryId${q.id}`}>
             {q.name} <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className="inline-tags-control" />
