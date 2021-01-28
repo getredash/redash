@@ -113,6 +113,43 @@ class DashboardListResource(BaseResource):
         return DashboardSerializer(dashboard).serialize()
 
 
+class DashboardForkResource(BaseResource):
+    @require_permission('edit_dashboard')
+    def post(self):
+        dashboard_properties = request.get_json(force=True)
+        dashboard_slug = dashboard_properties['slug']
+        dashboard = models.Dashboard.get_by_slug_and_org(dashboard_slug, self.current_org)
+
+        require_admin_or_owner(dashboard.user_id)
+
+        widgets = (models.Widget.query
+                   .filter(models.Widget.dashboard_id == dashboard.id)
+                   .outerjoin(models.Visualization)
+                   .outerjoin(models.Query))
+
+        dashboard_duplicate = models.Dashboard(name=u'Copy of (#{}) {}'.format(dashboard.name, dashboard_slug),
+                                               org=self.current_org,
+                                               user=self.current_user,
+                                               is_draft=True,
+                                               layout='[]')
+
+        dashboard_duplicate.slug = dashboard_duplicate.id
+        models.db.session.add(dashboard_duplicate)
+
+        for widget in widgets:
+            new_widget = models.Widget(dashboard_id=dashboard_duplicate.id,
+                                       visualization_id=widget.visualization_id,
+                                       text=widget.text,
+                                       width=widget.width,
+                                       options=widget.options
+                                       )
+
+            models.db.session.add(new_widget)
+        models.db.session.commit()
+
+        return DashboardSerializer(dashboard_duplicate, with_widgets=True, user=self.current_user).serialize()
+
+
 class DashboardResource(BaseResource):
     @require_permission("list_dashboards")
     def get(self, dashboard_id=None):

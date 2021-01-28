@@ -13,6 +13,7 @@ from redash.handlers.base import org_scoped_rule
 from redash.handlers.dashboards import (
     DashboardFavoriteListResource,
     DashboardListResource,
+    DashboardForkResource,
     DashboardResource,
     DashboardShareResource,
     DashboardTagsResource,
@@ -129,6 +130,9 @@ api.add_org_resource(AlertListResource, "/api/alerts", endpoint="alerts")
 api.add_org_resource(DashboardListResource, "/api/dashboards", endpoint="dashboards")
 api.add_org_resource(
     DashboardResource, "/api/dashboards/<dashboard_id>", endpoint="dashboard"
+)
+api.add_org_resource(
+    DashboardForkResource, "/api/dashboards/fork", endpoint="dashboard_fork"
 )
 api.add_org_resource(
     PublicDashboardResource,

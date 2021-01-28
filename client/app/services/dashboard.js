@@ -164,6 +164,7 @@ const DashboardService = {
     return axios.get(`api/dashboards/${id || slug}`, { params }).then(transformResponse);
   },
   getByToken: ({ token }) => axios.get(`api/dashboards/public/${token}`).then(transformResponse),
+  fork: ({ slug }) => axios.post("api/dashboards/fork", { slug }).then(transformResponse),
   save: data => axios.post(saveOrCreateUrl(data), data).then(transformResponse),
   delete: ({ id }) => axios.delete(`api/dashboards/${id}`).then(transformResponse),
   query: params => axios.get("api/dashboards", { params }).then(transformResponse),
