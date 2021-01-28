@@ -48,7 +48,7 @@ describe("Dashboard Parameters", () => {
       .within(() => {
         // This is needed to grant the element will have finished loading
         // eslint-disable-next-line cypress/no-unnecessary-waiting
-        cy.wait(200);
+        cy.wait(500);
         cy.contains("button", "OK").click();
       })
       .then(() => {
