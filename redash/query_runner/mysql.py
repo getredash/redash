@@ -50,7 +50,7 @@ class Result(object):
 
 
 class Mysql(BaseSQLQueryRunner):
-    noop_query = "MATCH (n) RETURN n LIMIT 25"
+    noop_query = "SELECT 1"
 
     @classmethod
     def configuration_schema(cls):
