@@ -139,13 +139,17 @@ class Neo4j(BaseQueryRunner):
                 data = session.read_transaction(read_query, query) 
                 if data is not None:
                     arr = []
+                    exclude = []
                     for x in data:
                         for v in x.keys():
+                            if v in exclude:
+                                continue
                             arr.append((v,self._translate_type(x[v])))
-                    
+                            exclude.append(v)
+                    print(set(arr))
                     columns = self.fetch_columns(set(arr))
                     
-
+                    print(columns)
                     data = {"columns": columns, "rows": data}
                     r.json_data = json_dumps(data)
                     r.error = None
