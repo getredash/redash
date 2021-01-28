@@ -70,8 +70,9 @@ export default function DesktopNavbar() {
   const canCreateDashboard = currentUser.hasPermission("create_dashboard");
   const canCreateAlert = currentUser.hasPermission("list_alerts");
 
+  // TODO [A11Y]: allow navigation via arrow keys and bind click events to enter key (or use b)
   return (
-    <div className="desktop-navbar">
+    <div className="desktop-navbar" role="navigation">
       <NavbarSection className="desktop-navbar-logo">
         <div>
           <Link href="./">
@@ -82,25 +83,37 @@ export default function DesktopNavbar() {
 
       <NavbarSection>
         {currentUser.hasPermission("list_dashboards") && (
-          <Menu.Item key="dashboards" className={activeState.dashboards ? "navbar-active-item" : null}>
-            <Link href="dashboards">
-              <DesktopOutlinedIcon />
+          <Menu.Item
+            role="menuitem"
+            tabIndex={0}
+            key="dashboards"
+            className={activeState.dashboards ? "navbar-active-item" : null}>
+            <Link href="dashboards" tabIndex={-1}>
+              <DesktopOutlinedIcon alt="Dashboard navigation button" />
               <span className="desktop-navbar-label">Dashboards</span>
             </Link>
           </Menu.Item>
         )}
         {currentUser.hasPermission("view_query") && (
-          <Menu.Item key="queries" className={activeState.queries ? "navbar-active-item" : null}>
-            <Link href="queries">
-              <CodeOutlinedIcon />
+          <Menu.Item
+            role="menuitem"
+            tabIndex={0}
+            key="queries"
+            className={activeState.queries ? "navbar-active-item" : null}>
+            <Link href="queries" tabIndex={-1}>
+              <CodeOutlinedIcon alt="Queries navigation button" />
               <span className="desktop-navbar-label">Queries</span>
             </Link>
           </Menu.Item>
         )}
         {currentUser.hasPermission("list_alerts") && (
-          <Menu.Item key="alerts" className={activeState.alerts ? "navbar-active-item" : null}>
-            <Link href="alerts">
-              <AlertOutlinedIcon />
+          <Menu.Item
+            role="menuitem"
+            tabIndex={0}
+            key="alerts"
+            className={activeState.alerts ? "navbar-active-item" : null}>
+            <Link href="alerts" tabIndex={-1}>
+              <AlertOutlinedIcon alt="Alerts navigation button" />
               <span className="desktop-navbar-label">Alerts</span>
             </Link>
           </Menu.Item>
@@ -110,6 +123,8 @@ export default function DesktopNavbar() {
       <NavbarSection className="desktop-navbar-spacer">
         {(canCreateQuery || canCreateDashboard || canCreateAlert) && (
           <Menu.SubMenu
+            role="menuitem"
+            tabIndex={0}
             key="create"
             popupClassName="desktop-navbar-submenu"
             data-test="CreateButton"
@@ -120,7 +135,7 @@ export default function DesktopNavbar() {
               </React.Fragment>
             }>
             {canCreateQuery && (
-              <Menu.Item key="new-query">
+              <Menu.Item key="new-query" role="menuitem" tabIndex={0}>
                 <Link href="queries/new" data-test="CreateQueryMenuItem">
                   New Query
                 </Link>
@@ -138,7 +153,7 @@ export default function DesktopNavbar() {
               </Menu.Item>
             )}
             {canCreateAlert && (
-              <Menu.Item key="new-alert">
+              <Menu.Item key="new-alert" role="menuitem" tabIndex={0}>
                 <Link data-test="CreateAlertMenuItem" href="alerts/new">
                   New Alert
                 </Link>
