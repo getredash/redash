@@ -4,6 +4,8 @@ import BigMessage from "@/components/BigMessage";
 import NoTaggedObjectsFound from "@/components/NoTaggedObjectsFound";
 import EmptyState, { EmptyStateHelpMessage } from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
+import Link from "@/components/Link";
+import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 
 export interface DashboardListEmptyStateProps {
   page: string;
@@ -22,7 +24,15 @@ export default function DashboardListEmptyState({ page, searchTerm, selectedTags
     case "favorites":
       return <BigMessage message="Mark dashboards as Favorite to list them here." icon="fa-star" />;
     case "my":
-      return <BigMessage message="Create your own dashboards to list them here." icon="fa-line-chart" />;
+      return (
+        <div className="tiled bg-white p-15">
+          <Link.Button type="primary" size="small" onClick={() => CreateDashboardDialog.showModal()}>
+            Create your first dashboard
+          </Link.Button>{" "}
+          to populate My Dashboards list. Need help? Check out our{" "}
+          <Link href="https://redash.io/help/user-guide/dashboards/dashboard-editing">dashboard editing documentation</Link>.
+        </div>
+      );
     default:
       return (
         <DynamicComponent name="DashboardList.EmptyState">
