@@ -116,7 +116,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
         scope = ["https://www.googleapis.com/auth/analytics.readonly"]
         key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
         creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
-        return build("analytics", "v3", http=creds.authorize(httplib2.Http()))
+        return build("analytics", "v3", http=creds.authorize(httplib2.Http()), cache_discovery=False)
 
     def _get_tables(self, schema):
         accounts = (
