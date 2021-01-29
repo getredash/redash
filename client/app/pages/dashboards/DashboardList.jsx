@@ -37,6 +37,13 @@ const sidebarMenu = [
     title: "Favorites",
     icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
   },
+  {
+    key: "my",
+    href: "dashboards/my",
+    title: "My Dashboards",
+    icon: () => <Sidebar.ProfileImage user={currentUser} />,
+    isAvailable: () => currentUser.hasPermission("create_dashboard"),
+  },
 ];
 
 const listColumns = [
@@ -157,6 +164,7 @@ const DashboardListPage = itemsList(
       getResource({ params: { currentPage } }) {
         return {
           all: Dashboard.query.bind(Dashboard),
+          my: Dashboard.myDashboards.bind(Dashboard),
           favorites: Dashboard.favorites.bind(Dashboard),
         }[currentPage];
       },
@@ -181,5 +189,13 @@ routes.register(
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
     render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
+  })
+);
+routes.register(
+  "Dashboards.My",
+  routeWithUserSession({
+    path: "/dashboards/my",
+    title: "My Dashboards",
+    render: pageProps => <DashboardListPage {...pageProps} currentPage="my" />,
   })
 );

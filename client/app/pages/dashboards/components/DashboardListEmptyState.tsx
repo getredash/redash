@@ -21,6 +21,8 @@ export default function DashboardListEmptyState({ page, searchTerm, selectedTags
   switch (page) {
     case "favorites":
       return <BigMessage message="Mark dashboards as Favorite to list them here." icon="fa-star" />;
+    case "my":
+      return <BigMessage message="Create your own dashboards to list them here." icon="fa-line-chart" />;
     default:
       return (
         <DynamicComponent name="DashboardList.EmptyState">

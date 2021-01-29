@@ -113,6 +113,43 @@ class DashboardListResource(BaseResource):
         return DashboardSerializer(dashboard).serialize()
 
 
+class MyDashboardsResource(BaseResource):
+    @require_permission("list_dashboards")
+    def get(self):
+        """
+        Retrieve a list of dashboards created by the current user.
+
+        :qparam number page_size: Number of dashboards to return per page
+        :qparam number page: Page number to retrieve
+        :qparam number order: Name of column to order by
+        :qparam number search: Full text search term
+
+        Responds with an array of :ref:`dashboard <dashboard-response-label>`
+        objects.
+        """
+        search_term = request.args.get("q", "")
+        if search_term:
+            results = models.Dashboard.search_by_user(search_term, self.current_user)
+        else:
+            results = models.Dashboard.by_user(self.current_user)
+
+        results = filter_by_tags(results, models.Dashboard.tags)
+
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        ordered_results = order_results(results, fallback=not bool(search_term))
+
+        page = request.args.get("page", 1, type=int)
+        page_size = request.args.get("page_size", 25, type=int)
+        return paginate(
+            ordered_results,
+            page,
+            page_size,
+            DashboardSerializer
+        )
+
+
 class DashboardResource(BaseResource):
     @require_permission("list_dashboards")
     def get(self, dashboard_id=None):
