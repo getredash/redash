@@ -64,10 +64,11 @@ def invite_user(org, inviter, user, send_email=True):
     return d
 
 
-def email_block(email):
-    _, domain = email.split("@", 1)
+def require_allowed_email(email):
+    # `example.com` and `example.com.` are equal - last dot stands for DNS root but usually is omitted
+    _, domain = email.lower().rstrip(".").split("@", 1)
 
-    if domain.lower() in blacklist or domain.lower() in settings.EMAIL_BLOCK_DOMAIN:
+    if domain in blacklist or domain in settings.BLOCKED_DOMAINS:
         abort(400, message="Bad email address.")
 
 
