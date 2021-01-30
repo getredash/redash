@@ -263,7 +263,7 @@ class UserResource(BaseResource):
                 params.pop("group_ids")
 
         if "email" in params:
-            email_block(params["email"])
+            require_allowed_email(params["email"])
 
         email_address_changed = "email" in params and params["email"] != user.email
         needs_to_verify_email = (
