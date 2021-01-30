@@ -513,5 +513,5 @@ ENFORCE_CSRF = parse_boolean(
 
 CSRF_TIME_LIMIT = int(os.environ.get("REDASH_CSRF_TIME_LIMIT", 3600 * 6))
 
-# Email block domain
+# Email blocked domains, use delimiter comma to separated multiple domains
 BLOCKED_DOMAINS = set_from_string(os.environ.get("REDASH_BLOCKED_DOMAINS", "qq.com"))
