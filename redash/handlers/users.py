@@ -64,6 +64,13 @@ def invite_user(org, inviter, user, send_email=True):
     return d
 
 
+def email_block(email):
+    _, domain = email.split("@", 1)
+
+    if domain.lower() in blacklist or domain.lower() in settings.EMAIL_BLOCK_DOMAIN:
+        abort(400, message="Bad email address.")
+
+
 class UserListResource(BaseResource):
     decorators = BaseResource.decorators + [
         limiter.limit("200/day;50/hour", methods=["POST"])
@@ -140,10 +147,7 @@ class UserListResource(BaseResource):
 
         if "@" not in req["email"]:
             abort(400, message="Bad email address.")
-        name, domain = req["email"].split("@", 1)
-
-        if domain.lower() in blacklist or domain.lower() == "qq.com":
-            abort(400, message="Bad email address.")
+        email_block(req["email"])
 
         user = models.User(
             org=self.current_org,
@@ -258,10 +262,7 @@ class UserResource(BaseResource):
                 params.pop("group_ids")
 
         if "email" in params:
-            _, domain = params["email"].split("@", 1)
-
-            if domain.lower() in blacklist or domain.lower() == "qq.com":
-                abort(400, message="Bad email address.")
+            email_block(params["email"])
 
         email_address_changed = "email" in params and params["email"] != user.email
         needs_to_verify_email = (
