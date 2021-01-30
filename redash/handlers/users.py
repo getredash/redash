@@ -148,7 +148,7 @@ class UserListResource(BaseResource):
 
         if "@" not in req["email"]:
             abort(400, message="Bad email address.")
-        email_block(req["email"])
+        require_allowed_email(req["email"])
 
         user = models.User(
             org=self.current_org,
