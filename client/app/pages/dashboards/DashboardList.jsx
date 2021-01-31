@@ -30,19 +30,19 @@ const sidebarMenu = [
     key: "all",
     href: "dashboards",
     title: "All Dashboards",
-  },
-  {
-    key: "favorites",
-    href: "dashboards/favorites",
-    title: "Favorites",
-    icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
+    icon: () => <Sidebar.MenuIcon icon="zmdi zmdi-view-quilt" />,
   },
   {
     key: "my",
     href: "dashboards/my",
     title: "My Dashboards",
     icon: () => <Sidebar.ProfileImage user={currentUser} />,
-    isAvailable: () => currentUser.hasPermission("create_dashboard"),
+  },
+  {
+    key: "favorites",
+    href: "dashboards/favorites",
+    title: "Favorites",
+    icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
   },
 ];
 

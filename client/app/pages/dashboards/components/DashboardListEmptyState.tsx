@@ -6,6 +6,8 @@ import EmptyState, { EmptyStateHelpMessage } from "@/components/empty-state/Empt
 import DynamicComponent from "@/components/DynamicComponent";
 import Link from "@/components/Link";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
+import { currentUser } from "@/services/auth";
+import HelpTrigger from "@/components/HelpTrigger";
 
 export interface DashboardListEmptyStateProps {
   page: string;
@@ -24,15 +26,19 @@ export default function DashboardListEmptyState({ page, searchTerm, selectedTags
     case "favorites":
       return <BigMessage message="Mark dashboards as Favorite to list them here." icon="fa-star" />;
     case "my":
-      return (
-        <div className="tiled bg-white p-15">
+      const my_msg = currentUser.hasPermission("create_dashboard") ? (
+        <span>
           <Link.Button type="primary" size="small" onClick={() => CreateDashboardDialog.showModal()}>
-            Create your first dashboard
+            Create your first dashboard!
           </Link.Button>{" "}
-          to populate My Dashboards list. Need help? Check out our{" "}
-          <Link href="https://redash.io/help/user-guide/dashboards/dashboard-editing">dashboard editing documentation</Link>.
-        </div>
+          <HelpTrigger className="f-14" type="DASHBOARDS" showTooltip={false}>
+            Need help?
+          </HelpTrigger>
+        </span>
+      ) : (
+        <span>Sorry, we couldn't find anything.</span>
       );
+      return <BigMessage children={my_msg} icon="fa-search" />;
     default:
       return (
         <DynamicComponent name="DashboardList.EmptyState">
