@@ -38,7 +38,7 @@ export default function DashboardListEmptyState({ page, searchTerm, selectedTags
       ) : (
         <span>Sorry, we couldn't find anything.</span>
       );
-      return <BigMessage children={my_msg} icon="fa-search" />;
+      return <BigMessage icon="fa-search">{my_msg}</BigMessage>;
     default:
       return (
         <DynamicComponent name="DashboardList.EmptyState">
