@@ -27,9 +27,9 @@ export function FavoriteList({ title, resource, itemUrl, emptyState }) {
         {loading && <LoadingOutlinedIcon />}
       </div>
       {!isEmpty(items) && (
-        <div className="list-group">
+        <div className="list-group" role="list">
           {items.map(item => (
-            <Link key={itemUrl(item)} className="list-group-item" href={itemUrl(item)}>
+            <Link key={itemUrl(item)} role="listitem" tabIndex={0} className="list-group-item" href={itemUrl(item)}>
               <span className="btn-favourite m-r-5">
                 <i className="fa fa-star" aria-hidden="true" />
               </span>
