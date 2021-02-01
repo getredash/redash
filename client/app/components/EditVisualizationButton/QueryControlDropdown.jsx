@@ -41,6 +41,8 @@ export default function QueryControlDropdown(props) {
       <Menu.Item>
         <QueryResultsLink
           fileType="csv"
+          role="menuitem"
+          tabIndex={0}
           disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
           query={props.query}
           queryResult={props.queryResult}
@@ -52,6 +54,8 @@ export default function QueryControlDropdown(props) {
       <Menu.Item>
         <QueryResultsLink
           fileType="tsv"
+          role="menuitem"
+          tabIndex={0}
           disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
           query={props.query}
           queryResult={props.queryResult}
@@ -63,6 +67,8 @@ export default function QueryControlDropdown(props) {
       <Menu.Item>
         <QueryResultsLink
           fileType="xlsx"
+          role="menuitem"
+          tabIndex={0}
           disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
           query={props.query}
           queryResult={props.queryResult}
@@ -75,7 +81,7 @@ export default function QueryControlDropdown(props) {
   );
 
   return (
-    <Dropdown trigger={["click"]} overlay={menu} overlayClassName="query-control-dropdown-overlay">
+    <Dropdown trigger={["click"]} overlay={menu} role="menu" overlayClassName="query-control-dropdown-overlay">
       <Button data-test="QueryControlDropdownButton">
         <EllipsisOutlinedIcon rotate={90} />
       </Button>
