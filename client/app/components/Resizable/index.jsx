@@ -51,10 +51,11 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
 
   const resizeHandle = useMemo(
     () => (
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
       <span
         className={`react-resizable-handle react-resizable-handle-${direction}`}
-        role="gridcell"
-        tabIndex={-1}
+        role="separator"
+        tabIndex={-1} // TODO: add key controls
         onClick={() => {
           // On desktops resize uses `mousedown`/`mousemove`/`mouseup` events, and there is a conflict
           // with this `click` handler: after user releases mouse - this handler will be executed.
