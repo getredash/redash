@@ -30,7 +30,15 @@ export default function QuerySelector(props) {
   const [doSearch, searchResults, searching] = useSearchResults(search, { initialResults: [] });
 
   const placeholder = "Search a query by name";
-  const clearIcon = <i className="fa fa-times hide-in-percy" role="presentation" onClick={() => selectQuery(null)} />;
+  const clearIcon = (
+    <i
+      className="fa fa-times hide-in-percy"
+      role="button"
+      tabIndex={0}
+      aria-label="Clear"
+      onClick={() => selectQuery(null)}
+    />
+  );
   const spinIcon = <i className={cx("fa fa-spinner fa-pulse hide-in-percy", { hidden: !searching })} />;
 
   useEffect(() => {
