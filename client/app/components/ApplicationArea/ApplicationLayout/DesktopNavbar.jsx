@@ -71,7 +71,7 @@ export default function DesktopNavbar() {
   const canCreateAlert = currentUser.hasPermission("list_alerts");
 
   return (
-    <div className="desktop-navbar" role="navigation">
+    <nav className="desktop-navbar" role="navigation">
       <NavbarSection className="desktop-navbar-logo">
         <div role="menuitem">
           <Link href="./" tabIndex={0}>
@@ -82,11 +82,7 @@ export default function DesktopNavbar() {
 
       <NavbarSection>
         {currentUser.hasPermission("list_dashboards") && (
-          <Menu.Item
-            tabIndex={-1}
-            key="dashboards"
-            role="menuitem"
-            className={activeState.dashboards ? "navbar-active-item" : null}>
+          <Menu.Item key="dashboards" role="menuitem" className={activeState.dashboards ? "navbar-active-item" : null}>
             <Link href="dashboards" tabIndex={0}>
               <DesktopOutlinedIcon alt="Dashboard navigation button" />
               <span className="desktop-navbar-label">Dashboards</span>
@@ -206,6 +202,6 @@ export default function DesktopNavbar() {
           </Menu.Item>
         </Menu.SubMenu>
       </NavbarSection>
-    </div>
+    </nav>
   );
 }
