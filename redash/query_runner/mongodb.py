@@ -231,7 +231,7 @@ class MongoDB(BaseQueryRunner):
 
                 for d in db[collection_name].find().sort([("$natural", -1)]).limit(1):
                     documents_sample.append(d)
-        except pymongo.errors.OperationFailure as e:
+        except pymongo.errors.OperationFailure:
             # Users may have role privileges that only grant access to specific collections
             logger.debug("Unable to get document to get document samples.")
             raise e
