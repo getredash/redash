@@ -45,7 +45,7 @@ export const TYPES = mapValues(
     NUMBER_FORMAT_SPECS: ["/user-guide/visualizations/formatting-numbers", "Formatting Numbers"],
     GETTING_STARTED: ["/user-guide/getting-started", "Guide: Getting Started"],
     DASHBOARDS: ["/user-guide/dashboards", "Guide: Dashboards"],
-    QUERIES: ["/help/user-guide/querying", "Guide: Queries"],
+    QUERIES: ["/user-guide/querying", "Guide: Queries"],
     ALERTS: ["/user-guide/alerts", "Guide: Alerts"],
   },
   ([url, title]) => [DOMAIN + HELP_PATH + url, title]
