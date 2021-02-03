@@ -23,19 +23,23 @@ export default class Parameters extends React.Component {
   static propTypes = {
     parameters: PropTypes.arrayOf(PropTypes.instanceOf(Parameter)),
     editable: PropTypes.bool,
+    sortable: PropTypes.bool,
     disableUrlUpdate: PropTypes.bool,
     onValuesChange: PropTypes.func,
     onPendingValuesChange: PropTypes.func,
     onParametersEdit: PropTypes.func,
+    appendSortableToParent: PropTypes.bool,
   };
 
   static defaultProps = {
     parameters: [],
     editable: false,
+    sortable: false,
     disableUrlUpdate: false,
     onValuesChange: () => {},
     onPendingValuesChange: () => {},
     onParametersEdit: () => {},
+    appendSortableToParent: true,
   };
 
   constructor(props) {
@@ -85,7 +89,7 @@ export default class Parameters extends React.Component {
     if (oldIndex !== newIndex) {
       this.setState(({ parameters }) => {
         parameters.splice(newIndex, 0, parameters.splice(oldIndex, 1)[0]);
-        onParametersEdit();
+        onParametersEdit(parameters);
         return { parameters };
       });
     }
@@ -110,7 +114,7 @@ export default class Parameters extends React.Component {
       this.setState(({ parameters }) => {
         const updatedParameter = extend(parameter, updated);
         parameters[index] = createParameter(updatedParameter, updatedParameter.parentQueryId);
-        onParametersEdit();
+        onParametersEdit(parameters);
         return { parameters };
       });
     });
@@ -146,15 +150,17 @@ export default class Parameters extends React.Component {
 
   render() {
     const { parameters } = this.state;
-    const { editable } = this.props;
+    const { sortable, appendSortableToParent } = this.props;
     const dirtyParamCount = size(filter(parameters, "hasPendingValue"));
+
     return (
       <SortableContainer
-        disabled={!editable}
+        disabled={!sortable}
         axis="xy"
         useDragHandle
         lockToContainerEdges
         helperClass="parameter-dragged"
+        helperContainer={containerEl => (appendSortableToParent ? containerEl : document.body)}
         updateBeforeSortStart={this.onBeforeSortStart}
         onSortEnd={this.moveParameter}
         containerProps={{
@@ -163,8 +169,11 @@ export default class Parameters extends React.Component {
         }}>
         {parameters.map((param, index) => (
           <SortableElement key={param.name} index={index}>
-            <div className="parameter-block" data-editable={editable || null}>
-              {editable && <DragHandle data-test={`DragHandle-${param.name}`} />}
+            <div
+              className="parameter-block"
+              data-editable={sortable || null}
+              data-test={`ParameterBlock-${param.name}`}>
+              {sortable && <DragHandle data-test={`DragHandle-${param.name}`} />}
               {this.renderParameter(param, index)}
             </div>
           </SortableElement>

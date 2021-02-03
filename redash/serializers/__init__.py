@@ -55,7 +55,7 @@ def public_widget(widget):
 def public_dashboard(dashboard):
     dashboard_dict = project(
         serialize_dashboard(dashboard, with_favorite_state=False),
-        ("name", "layout", "dashboard_filters_enabled", "updated_at", "created_at"),
+        ("name", "layout", "dashboard_filters_enabled", "updated_at", "created_at", "options"),
     )
 
     widget_list = (
@@ -257,6 +257,7 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
         "layout": layout,
         "dashboard_filters_enabled": obj.dashboard_filters_enabled,
         "widgets": widgets,
+        "options": obj.options,
         "is_archived": obj.is_archived,
         "is_draft": obj.is_draft,
         "tags": obj.tags or [],
