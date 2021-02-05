@@ -7,8 +7,8 @@ function DefaultLinkComponent(props: React.AnchorHTMLAttributes<any>) {
 
 Link.Component = DefaultLinkComponent;
 
-function Link(props: React.AnchorHTMLAttributes<any>) {
-  return <Link.Component {...props} />;
+function Link({ tabIndex = 0, ...props }: React.AnchorHTMLAttributes<any>) {
+  return <Link.Component tabIndex={tabIndex} {...props} />;
 }
 
 function DefaultButtonLinkComponent(props: ButtonProps) {
