@@ -12,7 +12,7 @@ function Link(props: React.AnchorHTMLAttributes<any>) {
 }
 
 function DefaultButtonLinkComponent(props: ButtonProps) {
-  return <Button role="button" {...props} />;
+  return <Button {...props} />;
 }
 
 ButtonLink.Component = DefaultButtonLinkComponent;
