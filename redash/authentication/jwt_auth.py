@@ -67,4 +67,7 @@ def verify_jwt_token(
             break
         except Exception as e:
             logging.exception(e)
+    if valid_token == False:
+        get_public_keys.key_cache = {}
+        verify_jwt_token(jwt_token,expected_issuer,expected_audience,algorithms,public_certs_url)
     return payload, valid_token

@@ -187,8 +187,8 @@ def jwt_token_load_user_from_request(request):
         )
         if not token_is_valid:
             raise Unauthorized("Invalid JWT token")
-        # if payload["unique_name"] != org.slug:
-        #     return
+        if payload["unique_name"] != org.slug:
+             return
 
     if not payload:
         return
@@ -261,6 +261,8 @@ def init_app(app):
 
     user_logged_in.connect(log_user_logged_in)
     login_manager.request_loader(request_loader)
+   
+    
 
 
 def create_and_login_user(org, name, email, picture=None):
