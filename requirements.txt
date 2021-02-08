@@ -4,7 +4,7 @@ itsdangerous==1.1.0
 click==6.7
 MarkupSafe==1.1.1
 pyOpenSSL==19.0.0
-httplib2==0.14.0
+httplib2==0.19.0
 wtforms==2.2.1
 Flask-RESTful==0.3.7
 Flask-Login==0.4.1
