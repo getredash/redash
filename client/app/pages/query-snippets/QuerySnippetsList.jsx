@@ -23,6 +23,7 @@ import notification from "@/services/notification";
 import routes from "@/services/routes";
 
 import "./QuerySnippetsList.less";
+import Link from "@/components/Link";
 
 const canEditQuerySnippet = querySnippet => currentUser.isAdmin || currentUser.id === get(querySnippet, "user.id");
 
@@ -35,12 +36,12 @@ class QuerySnippetsList extends React.Component {
     Columns.custom.sortable(
       (text, querySnippet) => (
         <div>
-          <a
+          <Link
             className="table-main-title clickable"
-            role="presentation"
+            role="button"
             onClick={() => this.showSnippetDialog(querySnippet)}>
             {querySnippet.trigger}
-          </a>
+          </Link>
         </div>
       ),
       {
@@ -161,9 +162,9 @@ class QuerySnippetsList extends React.Component {
             There are no query snippets yet.
             {policy.isCreateQuerySnippetEnabled() && (
               <div className="m-t-5">
-                <a className="clickable" role="link" tabIndex={0} onClick={() => this.showSnippetDialog()}>
+                <Link className="clickable" onClick={() => this.showSnippetDialog()}>
                   Click here
-                </a>{" "}
+                </Link>{" "}
                 to add one.
               </div>
             )}

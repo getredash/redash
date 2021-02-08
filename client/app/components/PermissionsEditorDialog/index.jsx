@@ -16,6 +16,7 @@ import notification from "@/services/notification";
 import User from "@/services/user";
 
 import "./index.less";
+import Link from "../Link";
 
 const { Option } = Select;
 const DEBOUNCE_SEARCH_DURATION = 200;
@@ -169,12 +170,13 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
                   <Tag className="m-0">Author</Tag>
                 ) : (
                   <Tooltip title="Remove user permissions">
-                    <i
+                    <Link
                       role="button"
                       tabIndex={-1}
-                      onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}
-                      className="fa fa-remove clickable"
-                    />
+                      className="clickable"
+                      onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}>
+                      <i className="fa fa-remove" />
+                    </Link>
                   </Tooltip>
                 )}
               </UserPreviewCard>

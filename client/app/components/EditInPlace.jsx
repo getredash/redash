@@ -3,6 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import Input from "antd/lib/input";
+import Link from "./Link";
 
 export default class EditInPlace extends React.Component {
   static propTypes = {
@@ -75,9 +76,9 @@ export default class EditInPlace extends React.Component {
         {this.props.value}
       </span>
     ) : (
-      <a className="clickable" role="link" tabIndex={0} onClick={this.startEditing}>
+      <Link className="clickable" role="button" onClick={this.startEditing}>
         {this.props.placeholder}
-      </a>
+      </Link>
     );
 
   renderEdit = () => {

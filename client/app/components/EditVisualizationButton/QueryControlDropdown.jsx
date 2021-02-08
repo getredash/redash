@@ -12,30 +12,23 @@ import FileExcelOutlinedIcon from "@ant-design/icons/FileExcelOutlined";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 
 import QueryResultsLink from "./QueryResultsLink";
+import Link from "../Link";
 
 export default function QueryControlDropdown(props) {
   const menu = (
     <Menu>
       {!props.query.isNew() && (!props.query.is_draft || !props.query.is_archived) && (
         <Menu.Item>
-          <a
-            target="_self"
-            role="menuitem"
-            tabIndex={0}
-            onClick={() => props.openAddToDashboardForm(props.selectedTab)}>
+          <Link target="_self" onClick={() => props.openAddToDashboardForm(props.selectedTab)}>
             <PlusCircleFilledIcon /> Add to Dashboard
-          </a>
+          </Link>
         </Menu.Item>
       )}
       {!clientConfig.disablePublicUrls && !props.query.isNew() && (
         <Menu.Item>
-          <a
-            role="menuitem"
-            tabIndex={0}
-            onClick={() => props.showEmbedDialog(props.query, props.selectedTab)}
-            data-test="ShowEmbedDialogButton">
+          <Link onClick={() => props.showEmbedDialog(props.query, props.selectedTab)} data-test="ShowEmbedDialogButton">
             <ShareAltOutlinedIcon /> Embed Elsewhere
-          </a>
+          </Link>
         </Menu.Item>
       )}
       <Menu.Item>

@@ -38,6 +38,7 @@ import useDeleteVisualization from "./hooks/useDeleteVisualization";
 import useFullscreenHandler from "../../lib/hooks/useFullscreenHandler";
 
 import "./QueryView.less";
+import Link from "@/components/Link";
 
 function QueryView(props) {
   const [query, setQuery] = useState(props.query);
@@ -122,10 +123,10 @@ function QueryView(props) {
             queryFlags.canEdit &&
             !addingDescription &&
             !fullscreen && (
-              <a className="label label-tag hidden-xs" role="none" onClick={() => setAddingDescription(true)}>
+              <Link className="label label-tag hidden-xs" role="none" onClick={() => setAddingDescription(true)}>
                 <i className="zmdi zmdi-plus m-r-5" />
                 Add description
-              </a>
+              </Link>
             )
           }
         />

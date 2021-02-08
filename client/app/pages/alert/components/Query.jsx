@@ -27,9 +27,9 @@ export default function QueryFormItem({ query, queryResult, onChange, editMode }
       <small>
         <WarningFilledIcon className="warning-icon-danger" /> This query has no <i>refresh schedule</i>.{" "}
         <Tooltip title="A query schedule is not necessary but is highly recommended for alerts. An Alert without a query schedule will only send notifications if a user in your organization manually executes this query.">
-          <a>
+          <Link>
             Why it&apos;s recommended <QuestionCircleTwoToneIcon />
-          </a>
+          </Link>
         </Tooltip>
       </small>
     );

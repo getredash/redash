@@ -202,9 +202,9 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
                   </Tooltip>
                 )}
                 <Tooltip title="Close" placement="bottom">
-                  <a onClick={this.closeDrawer} role="button" tabIndex={0}>
+                  <Link onClick={this.closeDrawer} role="button">
                     <CloseOutlinedIcon aria-hidden="true" />
-                  </a>
+                  </Link>
                 </Tooltip>
               </div>
 

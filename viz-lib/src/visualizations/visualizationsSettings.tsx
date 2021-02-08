@@ -3,10 +3,10 @@ import { extend } from "lodash";
 import Tooltip from "antd/lib/tooltip";
 
 type HelpTriggerProps = {
-    title?: React.ReactNode;
-    href: string;
-    className?: string;
-    children?: React.ReactNode;
+  title?: React.ReactNode;
+  href: string;
+  className?: string;
+  children?: React.ReactNode;
 };
 
 function HelpTrigger({ title, href, className, children }: HelpTriggerProps) {

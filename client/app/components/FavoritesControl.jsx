@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import Link from "./Link";
 
 export default class FavoritesControl extends React.Component {
   static propTypes = {
@@ -29,14 +30,13 @@ export default class FavoritesControl extends React.Component {
     const icon = item.is_favorite ? "fa fa-star" : "fa fa-star-o";
     const title = item.is_favorite ? "Remove from favorites" : "Add to favorites";
     return (
-      <a
+      <Link
         title={title}
         className="favorites-control btn-favorite"
         role="button"
-        tabIndex={0}
         onClick={event => this.toggleItem(event, item, onChange)}>
         <i className={icon} aria-hidden="true" />
-      </a>
+      </Link>
     );
   }
 }

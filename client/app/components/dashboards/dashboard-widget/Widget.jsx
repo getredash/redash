@@ -9,6 +9,7 @@ import recordEvent from "@/services/recordEvent";
 import { Moment } from "@/components/proptypes";
 
 import "./Widget.less";
+import Link from "@/components/Link";
 
 function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
   const WidgetMenu = (
@@ -22,9 +23,9 @@ function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
   return (
     <div className="widget-menu-regular">
       <Dropdown overlay={WidgetMenu} placement="bottomRight" trigger={["click"]}>
-        <a className="action p-l-15 p-r-15" data-test="WidgetDropdownButton">
+        <Link role="button" className="action p-l-15 p-r-15" data-test="WidgetDropdownButton">
           <i className="zmdi zmdi-more-vert" />
-        </a>
+        </Link>
       </Dropdown>
     </div>
   );
@@ -45,15 +46,14 @@ WidgetDropdownButton.defaultProps = {
 function WidgetDeleteButton({ onClick }) {
   return (
     <div className="widget-menu-remove">
-      <a
+      <Link
         className="action"
         title="Remove From Dashboard"
         role="button"
-        tabIndex={0}
         onClick={onClick}
         data-test="WidgetDeleteButton">
         <i className="zmdi zmdi-close" />
-      </a>
+      </Link>
     </div>
   );
 }

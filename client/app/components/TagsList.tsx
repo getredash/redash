@@ -6,6 +6,7 @@ import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import getTags from "@/services/getTags";
 
 import "./TagsList.less";
+import Link from "./Link";
 
 type Tag = {
   name: string;
@@ -79,10 +80,10 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
       <div className="tags-list-title">
         <span className="tags-list-label">Tags</span>
         {showUnselectAll && selectedTags.length > 0 && (
-          <a role="button" tabIndex={0} onClick={unselectAll}>
+          <Link role="button" onClick={unselectAll}>
             <CloseOutlinedIcon />
             clear selection
-          </a>
+          </Link>
         )}
       </div>
 
@@ -90,14 +91,13 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
         <Menu className="invert-stripe-position" mode="inline" selectedKeys={selectedTags} role="menu">
           {map(allTags, tag => (
             <Menu.Item key={tag.name} className="m-0" role="menuitem">
-              <a
+              <Link
                 className="d-flex align-items-center justify-content-between"
-                role="menuitem"
-                tabIndex={0}
+                role="button"
                 onClick={event => toggleTag(event, tag.name)}>
                 <span className="max-character col-xs-11">{tag.name}</span>
                 <Badge count={tag.count} />
-              </a>
+              </Link>
             </Menu.Item>
           ))}
         </Menu>

@@ -157,15 +157,14 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
     <>
       <span>
         {!isPublic && !!widgetQueryResult && (
-          <a
+          <Link
             className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
             role="button"
-            tabIndex={0}
             onClick={() => refreshWidget(1)}
             data-test="RefreshButton">
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 1 })} />{" "}
             <TimeAgo date={updatedAt} />
-          </a>
+          </Link>
         )}
         <span className="visible-print">
           <i className="zmdi zmdi-time-restore" /> {formatDateTime(updatedAt)}
@@ -178,21 +177,19 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
       </span>
       <span>
         {!isPublic && (
-          <a
+          <Link
             className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh"
             role="button"
-            tabIndex={0}
             onClick={() => refreshWidget(2)}>
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 2 })} />
-          </a>
+          </Link>
         )}
-        <a
+        <Link
           className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh"
           role="button"
-          tabIndex={0}
           onClick={onExpand}>
           <i className="zmdi zmdi-fullscreen" />
-        </a>
+        </Link>
       </span>
     </>
   ) : null;

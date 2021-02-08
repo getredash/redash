@@ -12,6 +12,7 @@ import ThunderboltTwoToneIcon from "@ant-design/icons/ThunderboltTwoTone";
 import ThunderboltOutlinedIcon from "@ant-design/icons/ThunderboltOutlined";
 
 import "./DynamicButton.less";
+import Link from "../Link";
 
 const { Text } = Typography;
 
@@ -42,7 +43,7 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled, stati
 
   return (
     <div ref={containerRef}>
-      <a role="presentation" onClick={e => e.stopPropagation()}>
+      <Link role="presentation" onClick={e => e.stopPropagation()}>
         <Dropdown.Button
           overlay={menu}
           className="dynamic-button"
@@ -58,7 +59,7 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled, stati
           getPopupContainer={() => containerRef.current}
           data-test="DynamicButton"
         />
-      </a>
+      </Link>
     </div>
   );
 }

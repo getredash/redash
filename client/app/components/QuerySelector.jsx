@@ -8,6 +8,7 @@ import { Query } from "@/services/query";
 import notification from "@/services/notification";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import useSearchResults from "@/lib/hooks/useSearchResults";
+import Link from "./Link";
 
 const { Option } = Select;
 function search(term) {
@@ -31,13 +32,9 @@ export default function QuerySelector(props) {
 
   const placeholder = "Search a query by name";
   const clearIcon = (
-    <i
-      className="fa fa-times hide-in-percy"
-      role="button"
-      tabIndex={0}
-      aria-label="Clear"
-      onClick={() => selectQuery(null)}
-    />
+    <Link role="button" aria-label="Clear" onClick={() => selectQuery(null)}>
+      <i className="fa fa-times hide-in-percy" />
+    </Link>
   );
   const spinIcon = <i className={cx("fa fa-spinner fa-pulse hide-in-percy", { hidden: !searching })} />;
 
@@ -75,15 +72,14 @@ export default function QuerySelector(props) {
     return (
       <div className="list-group">
         {searchResults.map(q => (
-          <a
+          <Link
             className={cx("query-selector-result", "list-group-item", { inactive: q.is_draft })}
             key={q.id}
             role="menuitem"
-            tabIndex={0}
             onClick={() => selectQuery(q.id)}
             data-test={`QueryId${q.id}`}>
             {q.name} <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className="inline-tags-control" />
-          </a>
+          </Link>
         ))}
       </div>
     );

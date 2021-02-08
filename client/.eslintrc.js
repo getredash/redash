@@ -20,9 +20,15 @@ module.exports = {
   rules: {
     // allow debugger during development
     "no-debugger": process.env.NODE_ENV === "production" ? 2 : 0,
-    "jsx-a11y/anchor-is-valid": "off",
+    "jsx-a11y/anchor-is-valid": [
+      "error",
+      {
+        aspects: ["noHref", "invalidHref", "preferButton"],
+      },
+    ],
+    "jsx-a11y/no-redundant-roles": "error",
     "jsx-a11y/no-autofocus": "off",
-    "jsx-a11y/click-events-have-key-events": "off", // TODO: create a wrapper for key events
+    "jsx-a11y/click-events-have-key-events": "off",
     "no-console": ["warn", { allow: ["warn", "error"] }],
     "no-restricted-imports": [
       "error",
