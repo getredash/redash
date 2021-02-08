@@ -2,7 +2,12 @@ import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import useMedia from "use-media";
+<<<<<<< HEAD
 import Button from "antd/lib/button";
+=======
+import Link from "@/components/Link";
+import Button from "@/components/Button";
+>>>>>>> b12a718a (Reordered imports)
 
 import FullscreenOutlinedIcon from "@ant-design/icons/FullscreenOutlined";
 import FullscreenExitOutlinedIcon from "@ant-design/icons/FullscreenExitOutlined";
@@ -122,10 +127,10 @@ function QueryView(props) {
             queryFlags.canEdit &&
             !addingDescription &&
             !fullscreen && (
-              <a className="label label-tag hidden-xs" role="none" onClick={() => setAddingDescription(true)}>
+              <Link className="label label-tag hidden-xs" role="none" onClick={() => setAddingDescription(true)}>
                 <i className="zmdi zmdi-plus m-r-5" />
                 Add description
-              </a>
+              </Link>
             )
           }
         />

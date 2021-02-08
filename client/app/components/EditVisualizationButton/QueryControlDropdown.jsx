@@ -4,6 +4,7 @@ import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Button from "antd/lib/button";
 import { clientConfig } from "@/services/auth";
+import Link from "@/components/Link";
 
 import PlusCircleFilledIcon from "@ant-design/icons/PlusCircleFilled";
 import ShareAltOutlinedIcon from "@ant-design/icons/ShareAltOutlined";
@@ -18,16 +19,16 @@ export default function QueryControlDropdown(props) {
     <Menu>
       {!props.query.isNew() && (!props.query.is_draft || !props.query.is_archived) && (
         <Menu.Item>
-          <a target="_self" onClick={() => props.openAddToDashboardForm(props.selectedTab)}>
+          <Link target="_self" onClick={() => props.openAddToDashboardForm(props.selectedTab)}>
             <PlusCircleFilledIcon /> Add to Dashboard
-          </a>
+          </Link>
         </Menu.Item>
       )}
       {!clientConfig.disablePublicUrls && !props.query.isNew() && (
         <Menu.Item>
-          <a onClick={() => props.showEmbedDialog(props.query, props.selectedTab)} data-test="ShowEmbedDialogButton">
+          <Link onClick={() => props.showEmbedDialog(props.query, props.selectedTab)} data-test="ShowEmbedDialogButton">
             <ShareAltOutlinedIcon /> Embed Elsewhere
-          </a>
+          </Link>
         </Menu.Item>
       )}
       <Menu.Item>

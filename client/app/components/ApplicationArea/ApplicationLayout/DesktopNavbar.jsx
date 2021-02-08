@@ -128,9 +128,9 @@ export default function DesktopNavbar() {
             )}
             {canCreateDashboard && (
               <Menu.Item key="new-dashboard">
-                <a data-test="CreateDashboardMenuItem" onMouseUp={() => CreateDashboardDialog.showModal()}>
+                <Link data-test="CreateDashboardMenuItem" onMouseUp={() => CreateDashboardDialog.showModal()}>
                   New Dashboard
-                </a>
+                </Link>
               </Menu.Item>
             )}
             {canCreateAlert && (
@@ -180,9 +180,9 @@ export default function DesktopNavbar() {
           )}
           <Menu.Divider />
           <Menu.Item key="logout">
-            <a data-test="LogOutButton" onClick={() => Auth.logout()}>
+            <Link data-test="LogOutButton" onClick={() => Auth.logout()}>
               Log out
-            </a>
+            </Link>
           </Menu.Item>
           <Menu.Divider />
           <Menu.Item key="version" disabled className="version-info">

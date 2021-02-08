@@ -18,6 +18,7 @@ import { durationHumanize } from "@/lib/utils";
 import { DashboardStatusEnum } from "../hooks/useDashboard";
 
 import "./DashboardHeader.less";
+import Link from "@/components/Link";
 
 function getDashboardTags() {
   return getTags("api/dashboards/tags").then(tags => map(tags, t => t.name));
@@ -138,20 +139,28 @@ function DashboardMoreOptionsButton({ dashboardConfiguration }) {
       overlay={
         <Menu data-test="DashboardMoreButtonMenu">
           <Menu.Item className={cx({ hidden: gridDisabled })}>
-            <a onClick={() => setEditingLayout(true)}>Edit</a>
+            <Link role="button" tabIndex={0} onClick={() => setEditingLayout(true)}>
+              Edit
+            </Link>
           </Menu.Item>
           {clientConfig.showPermissionsControl && isDashboardOwnerOrAdmin && (
             <Menu.Item>
-              <a onClick={managePermissions}>Manage Permissions</a>
+              <Link role="button" tabIndex={-1} onClick={managePermissions}>
+                Manage Permissions
+              </Link>
             </Menu.Item>
           )}
           {!clientConfig.disablePublish && !dashboard.is_draft && (
             <Menu.Item>
-              <a onClick={togglePublished}>Unpublish</a>
+              <Link role="button" tabIndex={-1} onClick={togglePublished}>
+                Unpublish
+              </Link>
             </Menu.Item>
           )}
           <Menu.Item>
-            <a onClick={archive}>Archive</a>
+            <Link role="button" tabIndex={-1} onClick={archive}>
+              Archive
+            </Link>
           </Menu.Item>
         </Menu>
       }>

@@ -180,7 +180,13 @@ class CreateSourceDialog extends React.Component {
         <div data-test="CreateSourceDialog">
           <Steps className="hidden-xs m-b-10" size="small" current={currentStep} progressDot>
             {currentStep === StepEnum.CONFIGURE_IT ? (
-              <Step title={<a>Type Selection</a>} className="clickable" onClick={this.resetType} />
+              <Step
+                title={
+                  <Link role="button" className="clickable" onClick={this.resetType}>
+                    Type Selection
+                  </Link>
+                }
+              />
             ) : (
               <Step title="Type Selection" />
             )}
