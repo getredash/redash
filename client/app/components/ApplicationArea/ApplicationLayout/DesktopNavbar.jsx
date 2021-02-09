@@ -33,7 +33,13 @@ function useNavbarActiveState() {
   return useMemo(
     () => ({
       dashboards: includes(
-        ["Dashboards.List", "Dashboards.Favorites", "Dashboards.ViewOrEdit", "Dashboards.LegacyViewOrEdit"],
+        [
+          "Dashboards.List",
+          "Dashboards.Favorites",
+          "Dashboards.My",
+          "Dashboards.ViewOrEdit",
+          "Dashboards.LegacyViewOrEdit",
+        ],
         currentRoute.id
       ),
       queries: includes(

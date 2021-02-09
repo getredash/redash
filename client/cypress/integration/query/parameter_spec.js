@@ -1,3 +1,5 @@
+import { dragParam } from "../../support/parameters";
+
 function openAndSearchAntdDropdown(testId, paramOption) {
   cy.getByTestId(testId)
     .find(".ant-select-selection-search-input")
@@ -598,16 +600,6 @@ describe("Parameter", () => {
 
       cy.get("body").type("{alt}D"); // hide schema browser
     });
-
-    const dragParam = (paramName, offsetLeft, offsetTop) => {
-      cy.getByTestId(`DragHandle-${paramName}`)
-        .trigger("mouseover")
-        .trigger("mousedown");
-
-      cy.get(".parameter-dragged .drag-handle")
-        .trigger("mousemove", offsetLeft, offsetTop, { force: true })
-        .trigger("mouseup", { force: true });
-    };
 
     it("is possible to rearrange parameters", function() {
       cy.server();
