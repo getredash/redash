@@ -3,9 +3,9 @@ import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
 import { localizeTime, durationHumanize } from "@/lib/utils";
 import { RefreshScheduleType, RefreshScheduleDefault } from "../proptypes";
+import Button from "@/components/Button";
 
 import "./ScheduleDialog.css";
-import Link from "@/components/Link";
 
 export default class SchedulePhrase extends React.Component {
   static propTypes = {
@@ -52,9 +52,9 @@ export default class SchedulePhrase extends React.Component {
     const content = full ? <Tooltip title={full}>{short}</Tooltip> : short;
 
     return this.props.isLink ? (
-      <Link className="schedule-phrase" role="button" onClick={this.props.onClick} data-test="EditSchedule">
+      <Button className="schedule-phrase" type="plain" onClick={this.props.onClick} data-test="EditSchedule">
         {content}
-      </Link>
+      </Button>
     ) : (
       content
     );

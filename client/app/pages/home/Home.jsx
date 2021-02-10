@@ -17,6 +17,7 @@ import routes from "@/services/routes";
 import { DashboardAndQueryFavoritesList } from "./components/FavoritesList";
 
 import "./Home.less";
+import Button from "@/components/Button";
 
 function DeprecatedEmbedFeatureAlert() {
   return (
@@ -55,9 +56,9 @@ function EmailNotVerifiedAlert() {
         <>
           We have sent an email with a confirmation link to your email address. Please follow the link to verify your
           email address.{" "}
-          <Link className="clickable" role="link" onClick={verifyEmail}>
+          <Button type="plain" className="clickable" onClick={verifyEmail}>
             Resend email
-          </Link>
+          </Button>
           .
         </>
       }

@@ -9,7 +9,6 @@ import Button from "@/components/Button";
 import Modal from "antd/lib/modal";
 
 import "./QueryVisualizationTabs.less";
-import Link from "@/components/Link";
 
 const { TabPane } = Tabs;
 
@@ -59,9 +58,9 @@ function TabWithDeleteButton({ visualizationName, canDelete, onDelete, ...props 
     <span {...props}>
       {visualizationName}
       {canDelete && (
-        <Link className="delete-visualization-button" role="button" onClick={handleDelete}>
+        <Button type="plain" className="delete-visualization-button" onClick={handleDelete}>
           <i className="zmdi zmdi-close" />
-        </Link>
+        </Button>
       )}
     </span>
   );

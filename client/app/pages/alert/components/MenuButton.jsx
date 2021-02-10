@@ -9,7 +9,6 @@ import Button from "@/components/Button";
 
 import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
-import Link from "@/components/Link";
 
 export default function MenuButton({ doDelete, canEdit, mute, unmute, muted }) {
   const [loading, setLoading] = useState(false);
@@ -47,19 +46,19 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, muted }) {
         <Menu>
           <Menu.Item>
             {muted ? (
-              <Link role="button" onClick={() => execute(unmute)}>
+              <Button type="plain" onClick={() => execute(unmute)}>
                 Unmute Notifications
-              </Link>
+              </Button>
             ) : (
-              <Link role="button" onClick={() => execute(mute)}>
+              <Button type="plain" onClick={() => execute(mute)}>
                 Mute Notifications
-              </Link>
+              </Button>
             )}
           </Menu.Item>
           <Menu.Item>
-            <Link role="button" onClick={confirmDelete}>
+            <Button type="plain" onClick={confirmDelete}>
               Delete
-            </Link>
+            </Button>
           </Menu.Item>
         </Menu>
       }>

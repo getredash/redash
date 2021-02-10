@@ -16,7 +16,6 @@ import DataSource, { IMG_ROOT } from "@/services/data-source";
 import { policy } from "@/services/policy";
 import recordEvent from "@/services/recordEvent";
 import routes from "@/services/routes";
-import Link from "@/components/Link";
 
 export function DataSourcesListComponent({ dataSources, onClickCreate }) {
   const items = dataSources.map(dataSource => ({
@@ -30,9 +29,9 @@ export function DataSourcesListComponent({ dataSources, onClickCreate }) {
       There are no data sources yet.
       {policy.isCreateDataSourceEnabled() && (
         <div className="m-t-5">
-          <Link className="clickable" role="button" onClick={onClickCreate} data-test="CreateDataSourceLink">
+          <Button type="plain" className="clickable" onClick={onClickCreate} data-test="CreateDataSourceLink">
             Click here
-          </Link>{" "}
+          </Button>{" "}
           to add one.
         </div>
       )}

@@ -14,7 +14,6 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import Destination, { IMG_ROOT } from "@/services/destination";
 import { policy } from "@/services/policy";
 import routes from "@/services/routes";
-import Link from "@/components/Link";
 
 class DestinationsList extends React.Component {
   static propTypes = {
@@ -98,9 +97,9 @@ class DestinationsList extends React.Component {
         There are no alert destinations yet.
         {policy.isCreateDestinationEnabled() && (
           <div className="m-t-5">
-            <Link className="clickable" onClick={this.showCreateSourceDialog}>
+            <Button type="plain" className="clickable" onClick={this.showCreateSourceDialog}>
               Click here
-            </Link>{" "}
+            </Button>{" "}
             to add one.
           </div>
         )}

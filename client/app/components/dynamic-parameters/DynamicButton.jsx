@@ -6,7 +6,6 @@ import Menu from "antd/lib/menu";
 import Typography from "antd/lib/typography";
 import { DynamicDateType } from "@/services/parameters/DateParameter";
 import { DynamicDateRangeType } from "@/services/parameters/DateRangeParameter";
-import Link from "@/components/Link";
 
 import ArrowLeftOutlinedIcon from "@ant-design/icons/ArrowLeftOutlined";
 import ThunderboltTwoToneIcon from "@ant-design/icons/ThunderboltTwoTone";
@@ -43,7 +42,7 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled, stati
 
   return (
     <div ref={containerRef}>
-      <Link role="presentation" onClick={e => e.stopPropagation()}>
+      <div role="presentation" onClick={e => e.stopPropagation()}>
         <Dropdown.Button
           overlay={menu}
           className="dynamic-button"
@@ -59,7 +58,7 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled, stati
           getPopupContainer={() => containerRef.current}
           data-test="DynamicButton"
         />
-      </Link>
+      </div>
     </div>
   );
 }
