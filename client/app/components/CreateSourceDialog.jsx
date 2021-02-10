@@ -132,15 +132,17 @@ class CreateSourceDialog extends React.Component {
   renderItem(item) {
     const { imageFolder } = this.props;
     return (
-      <List.Item className="p-l-10 p-r-10 clickable" onClick={() => this.selectType(item)}>
-        <PreviewCard
-          title={item.name}
-          imageUrl={`${imageFolder}/${item.type}.png`}
-          roundedImage={false}
-          data-test="PreviewItem"
-          data-test-type={item.type}>
-          <i className="fa fa-angle-double-right" />
-        </PreviewCard>
+      <List.Item className="p-l-0 p-r-0">
+        <Button type="plain" className="p-l-10 p-r-10" onClick={() => this.selectType(item)}>
+          <PreviewCard
+            title={item.name}
+            imageUrl={`${imageFolder}/${item.type}.png`}
+            roundedImage={false}
+            data-test="PreviewItem"
+            data-test-type={item.type}>
+            <i className="fa fa-angle-double-right" />
+          </PreviewCard>
+        </Button>
       </List.Item>
     );
   }

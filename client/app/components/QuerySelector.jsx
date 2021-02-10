@@ -70,18 +70,19 @@ export default function QuerySelector(props) {
     }
 
     return (
-      <div className="list-group">
+      <ul className="list-group">
         {searchResults.map(q => (
           <Button
             type="plain"
             className={cx("query-selector-result", "list-group-item", { inactive: q.is_draft })}
             key={q.id}
+            role="listitem"
             onClick={() => selectQuery(q.id)}
             data-test={`QueryId${q.id}`}>
             {q.name} <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className="inline-tags-control" />
           </Button>
         ))}
-      </div>
+      </ul>
     );
   }
 
