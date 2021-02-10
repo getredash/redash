@@ -1,29 +1,30 @@
 import React from "react";
-import Button, { ButtonProps } from "antd/lib/button";
+import { ButtonProps as AntdButtonProps } from "antd/lib/button";
 
-type AnchorButtonProps = React.AnchorHTMLAttributes<any> & React.ButtonHTMLAttributes<any>;
+interface LinkProps extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "role"> {
+  href: string;
+}
 
-// TODO: adapt click handlers to keypress events
-function DefaultLinkComponent({ type, role, ...props }: AnchorButtonProps) {
-  return role === "button" ? (
-    <button type="button" style={{ all: "unset" }} {...props} />
-  ) : (
-    <a role={role} type={type} {...props} /> // eslint-disable-line jsx-a11y/anchor-has-content
-  );
+interface ButtonProps extends LinkProps {
+  type: AntdButtonProps["type"];
+}
+
+function DefaultLinkComponent({ children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+  return <a {...props}>{children}</a>;
 }
 
 Link.Component = DefaultLinkComponent;
 
-function Link({ tabIndex = 0, ...props }: AnchorButtonProps) {
-  return !props.href && !props.role ? (
-    <Link.Component tabIndex={tabIndex} role="link" {...props} />
-  ) : (
-    <Link.Component tabIndex={tabIndex} {...props} />
-  );
+function Link({ tabIndex = 0, ...props }: LinkProps) {
+  return <Link.Component tabIndex={tabIndex} {...props} />;
 }
 
-function DefaultButtonLinkComponent(props: ButtonProps) {
-  return <Button {...props} />;
+function DefaultButtonLinkComponent({ children, type, ...props }: ButtonProps) {
+  return (
+    <a className={`ant-btn ${type ? "ant-btn-" + type : ""}`} role="button" {...props}>
+      {children}
+    </a>
+  );
 }
 
 ButtonLink.Component = DefaultButtonLinkComponent;
