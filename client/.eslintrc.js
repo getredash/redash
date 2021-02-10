@@ -23,12 +23,13 @@ module.exports = {
     "jsx-a11y/anchor-is-valid": [
       "error",
       {
+        components: ["Link"],
         aspects: ["noHref", "invalidHref", "preferButton"],
       },
     ],
     "jsx-a11y/no-redundant-roles": "error",
     "jsx-a11y/no-autofocus": "off",
-    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/click-events-have-key-events": "error",
     "no-console": ["warn", { allow: ["warn", "error"] }],
     "no-restricted-imports": [
       "error",
