@@ -169,11 +169,7 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
                   <Tag className="m-0">Author</Tag>
                 ) : (
                   <Tooltip title="Remove user permissions">
-                    <Button
-                      type="plain"
-                      tabIndex={-1}
-                      className="clickable"
-                      onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}>
+                    <Button type="plain" onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}>
                       <i className="fa fa-remove" />
                     </Button>
                   </Tooltip>

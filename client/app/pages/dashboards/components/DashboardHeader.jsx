@@ -138,26 +138,26 @@ function DashboardMoreOptionsButton({ dashboardConfiguration }) {
       overlay={
         <Menu data-test="DashboardMoreButtonMenu">
           <Menu.Item className={cx({ hidden: gridDisabled })}>
-            <Button type="plain" tabIndex={0} onClick={() => setEditingLayout(true)}>
+            <Button type="plain" onClick={() => setEditingLayout(true)}>
               Edit
             </Button>
           </Menu.Item>
           {clientConfig.showPermissionsControl && isDashboardOwnerOrAdmin && (
             <Menu.Item>
-              <Button type="plain" tabIndex={-1} onClick={managePermissions}>
+              <Button type="plain" onClick={managePermissions}>
                 Manage Permissions
               </Button>
             </Menu.Item>
           )}
           {!clientConfig.disablePublish && !dashboard.is_draft && (
             <Menu.Item>
-              <Button type="plain" tabIndex={-1} onClick={togglePublished}>
+              <Button type="plain" onClick={togglePublished}>
                 Unpublish
               </Button>
             </Menu.Item>
           )}
           <Menu.Item>
-            <Button type="plain" tabIndex={-1} onClick={archive}>
+            <Button type="plain" onClick={archive}>
               Archive
             </Button>
           </Menu.Item>

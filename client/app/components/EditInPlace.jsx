@@ -76,7 +76,7 @@ export default class EditInPlace extends React.Component {
         {this.props.value}
       </span>
     ) : (
-      <Button type="plain" className="clickable" onClick={this.startEditing}>
+      <Button type="plain" onClick={this.startEditing}>
         {this.props.placeholder}
       </Button>
     );
