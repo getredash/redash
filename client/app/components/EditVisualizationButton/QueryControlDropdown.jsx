@@ -4,7 +4,6 @@ import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Button from "@/components/Button";
 import { clientConfig } from "@/services/auth";
-import Link from "@/components/Link";
 
 import PlusCircleFilledIcon from "@ant-design/icons/PlusCircleFilled";
 import ShareAltOutlinedIcon from "@ant-design/icons/ShareAltOutlined";
@@ -19,16 +18,19 @@ export default function QueryControlDropdown(props) {
     <Menu>
       {!props.query.isNew() && (!props.query.is_draft || !props.query.is_archived) && (
         <Menu.Item>
-          <Link target="_self" onClick={() => props.openAddToDashboardForm(props.selectedTab)}>
+          <Button type="plain" onClick={() => props.openAddToDashboardForm(props.selectedTab)}>
             <PlusCircleFilledIcon /> Add to Dashboard
-          </Link>
+          </Button>
         </Menu.Item>
       )}
       {!clientConfig.disablePublicUrls && !props.query.isNew() && (
         <Menu.Item>
-          <Link onClick={() => props.showEmbedDialog(props.query, props.selectedTab)} data-test="ShowEmbedDialogButton">
+          <Button
+            type="plain"
+            onClick={() => props.showEmbedDialog(props.query, props.selectedTab)}
+            data-test="ShowEmbedDialogButton">
             <ShareAltOutlinedIcon /> Embed Elsewhere
-          </Link>
+          </Button>
         </Menu.Item>
       )}
       <Menu.Item>
@@ -71,7 +73,7 @@ export default function QueryControlDropdown(props) {
   );
 
   return (
-    <Dropdown trigger={["click"]} overlay={menu} role="menu" overlayClassName="query-control-dropdown-overlay">
+    <Dropdown trigger={["click"]} overlay={menu} overlayClassName="query-control-dropdown-overlay">
       <Button data-test="QueryControlDropdownButton">
         <EllipsisOutlinedIcon rotate={90} />
       </Button>

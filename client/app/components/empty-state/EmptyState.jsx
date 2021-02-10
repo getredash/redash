@@ -3,7 +3,6 @@ import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
-import Link from "@/components/Link";
 import Button from "@/components/Button";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import HelpTrigger from "@/components/HelpTrigger";
@@ -19,9 +18,9 @@ export function Step({ show, completed, text, url, urlTarget, urlText, onClick }
 
   return (
     <li className={classNames({ done: completed })}>
-      <Link href={url} onClick={onClick} target={urlTarget}>
+      <Button type="link" href={url} onClick={onClick} target={urlTarget}>
         {urlText}
-      </Link>{" "}
+      </Button>{" "}
       {text}
     </li>
   );
