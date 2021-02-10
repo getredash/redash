@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import useMedia from "use-media";
+import Link from "@/components/Link";
 import Button from "@/components/Button";
 
 import FullscreenOutlinedIcon from "@ant-design/icons/FullscreenOutlined";
@@ -38,7 +39,6 @@ import useDeleteVisualization from "./hooks/useDeleteVisualization";
 import useFullscreenHandler from "../../lib/hooks/useFullscreenHandler";
 
 import "./QueryView.less";
-import Link from "@/components/Link";
 
 function QueryView(props) {
   const [query, setQuery] = useState(props.query);

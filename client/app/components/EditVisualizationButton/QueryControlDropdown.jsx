@@ -4,6 +4,7 @@ import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Button from "@/components/Button";
 import { clientConfig } from "@/services/auth";
+import Link from "@/components/Link";
 
 import PlusCircleFilledIcon from "@ant-design/icons/PlusCircleFilled";
 import ShareAltOutlinedIcon from "@ant-design/icons/ShareAltOutlined";
@@ -12,7 +13,6 @@ import FileExcelOutlinedIcon from "@ant-design/icons/FileExcelOutlined";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 
 import QueryResultsLink from "./QueryResultsLink";
-import Link from "@/components/Link";
 
 export default function QueryControlDropdown(props) {
   const menu = (
