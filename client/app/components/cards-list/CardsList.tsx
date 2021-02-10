@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import Input from "antd/lib/input";
 import EmptyState from "@/components/items-list/components/EmptyState";
-import Button from "@/components/Button";
+import PlainButton from "@/components/PlainButton";
 
 import "./CardsList.less";
 
@@ -26,10 +26,10 @@ interface ListItemProps {
 
 function ListItem({ item, keySuffix }: ListItemProps) {
   return (
-    <Button type="plain" key={`card${keySuffix}`} className="visual-card" onClick={item.onClick} href={item.href}>
+    <PlainButton key={`card${keySuffix}`} className="visual-card" onClick={item.onClick} href={item.href}>
       <img alt={item.title} src={item.imgSrc} />
       <h3>{item.title}</h3>
-    </Button>
+    </PlainButton>
   );
 }
 

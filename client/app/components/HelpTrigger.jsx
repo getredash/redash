@@ -175,15 +175,14 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
                 </>
               ) : null
             }>
-            <Button
-              type="link"
+            <Link
               href={url || this.getUrl()}
               className={className}
               rel="noopener noreferrer"
               target="_blank"
               onClick={shouldRenderAsLink ? () => {} : this.openDrawer}>
               {this.props.children}
-            </Button>
+            </Link>
           </Tooltip>
           <Drawer
             placement="right"

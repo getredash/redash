@@ -16,11 +16,15 @@ function ItemsList({ items, renderItem, onItemClick }) {
   const renderListItem = useCallback(
     item => {
       const { content, className, isDisabled } = renderItem(item);
+
       return (
-        <List.Item
-          className={classNames("p-l-10", "p-r-10", { clickable: !isDisabled, disabled: isDisabled }, className)}
-          onClick={isDisabled ? null : () => onItemClick(item)}>
-          {content}
+        <List.Item className="p-l-0 p-r-0">
+          <Button
+            type="plain"
+            className={classNames("w-100", "p-l-10", "p-r-10", { disabled: isDisabled }, className)}
+            onClick={isDisabled ? null : () => onItemClick(item)}>
+            {content}
+          </Button>
         </List.Item>
       );
     },
