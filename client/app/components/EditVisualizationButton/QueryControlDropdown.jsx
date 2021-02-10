@@ -34,7 +34,6 @@ export default function QueryControlDropdown(props) {
       <Menu.Item>
         <QueryResultsLink
           fileType="csv"
-          role="menuitem"
           tabIndex={0}
           disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
           query={props.query}
@@ -47,7 +46,6 @@ export default function QueryControlDropdown(props) {
       <Menu.Item>
         <QueryResultsLink
           fileType="tsv"
-          role="menuitem"
           tabIndex={0}
           disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
           query={props.query}
@@ -60,7 +58,6 @@ export default function QueryControlDropdown(props) {
       <Menu.Item>
         <QueryResultsLink
           fileType="xlsx"
-          role="menuitem"
           tabIndex={0}
           disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
           query={props.query}

@@ -83,7 +83,7 @@ export default function DesktopNavbar() {
 
       <NavbarSection>
         {currentUser.hasPermission("list_dashboards") && (
-          <Menu.Item key="dashboards" role="menuitem" className={activeState.dashboards ? "navbar-active-item" : null}>
+          <Menu.Item key="dashboards" className={activeState.dashboards ? "navbar-active-item" : null}>
             <Link href="dashboards">
               <DesktopOutlinedIcon alt="Dashboard navigation button" />
               <span className="desktop-navbar-label">Dashboards</span>
@@ -91,7 +91,7 @@ export default function DesktopNavbar() {
           </Menu.Item>
         )}
         {currentUser.hasPermission("view_query") && (
-          <Menu.Item key="queries" role="menuitem" className={activeState.queries ? "navbar-active-item" : null}>
+          <Menu.Item key="queries" className={activeState.queries ? "navbar-active-item" : null}>
             <Link href="queries">
               <CodeOutlinedIcon alt="Queries navigation button" />
               <span className="desktop-navbar-label">Queries</span>
@@ -99,7 +99,7 @@ export default function DesktopNavbar() {
           </Menu.Item>
         )}
         {currentUser.hasPermission("list_alerts") && (
-          <Menu.Item key="alerts" role="menuitem" className={activeState.alerts ? "navbar-active-item" : null}>
+          <Menu.Item key="alerts" className={activeState.alerts ? "navbar-active-item" : null}>
             <Link href="alerts">
               <AlertOutlinedIcon alt="Alerts navigation button" />
               <span className="desktop-navbar-label">Alerts</span>
@@ -158,7 +158,7 @@ export default function DesktopNavbar() {
           </HelpTrigger>
         </Menu.Item>
         {firstSettingsTab && (
-          <Menu.Item key="settings" role="menuitem" className={activeState.dataSources ? "navbar-active-item" : null}>
+          <Menu.Item key="settings" className={activeState.dataSources ? "navbar-active-item" : null}>
             <Link href={firstSettingsTab.path} data-test="SettingsLink">
               <SettingOutlinedIcon />
               <span className="desktop-navbar-label">Settings</span>

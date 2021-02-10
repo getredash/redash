@@ -90,7 +90,7 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
       <div className="tiled">
         <Menu className="invert-stripe-position" mode="inline" selectedKeys={selectedTags} role="menu">
           {map(allTags, tag => (
-            <Menu.Item key={tag.name} className="m-0" role="menuitem">
+            <Menu.Item key={tag.name} className="m-0">
               <Button
                 type="plain"
                 className="d-flex align-items-center justify-content-between"
