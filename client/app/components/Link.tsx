@@ -1,12 +1,12 @@
 import React from "react";
-import { ButtonProps as AntdButtonProps } from "antd/lib/button";
+import Button, { ButtonProps as AntdButtonProps } from "antd/lib/button";
 
 interface LinkProps extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "role"> {
   href: string;
 }
 
-interface ButtonProps extends LinkProps {
-  type: AntdButtonProps["type"];
+interface ButtonProps extends AntdButtonProps {
+  href: string;
 }
 
 function DefaultLinkComponent({ children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
@@ -19,12 +19,9 @@ function Link({ tabIndex = 0, ...props }: LinkProps) {
   return <Link.Component tabIndex={tabIndex} {...props} />;
 }
 
-function DefaultButtonLinkComponent({ children, type, ...props }: ButtonProps) {
-  return (
-    <a className={`ant-btn ${type ? "ant-btn-" + type : ""}`} role="button" {...props}>
-      {children}
-    </a>
-  );
+// Ant Button will render an <a> if href is present.
+function DefaultButtonLinkComponent(props: ButtonProps) {
+  return <Button {...props} />;
 }
 
 ButtonLink.Component = DefaultButtonLinkComponent;
