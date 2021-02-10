@@ -73,19 +73,18 @@ export default function QuerySelector(props) {
     }
 
     return (
-      <div className="list-group">
+      <ul className="list-group">
         {searchResults.map(q => (
           <a
             className={cx("query-selector-result", "list-group-item", { inactive: q.is_draft })}
             key={q.id}
-            role="menuitem"
-            tabIndex={0}
+            role="listitem"
             onClick={() => selectQuery(q.id)}
             data-test={`QueryId${q.id}`}>
             {q.name} <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className="inline-tags-control" />
           </a>
         ))}
-      </div>
+      </ul>
     );
   }
 
