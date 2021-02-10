@@ -1,7 +1,7 @@
 import { isNil, get } from "lodash";
 import React, { useCallback } from "react";
 import PropTypes from "prop-types";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import Modal from "antd/lib/modal";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";

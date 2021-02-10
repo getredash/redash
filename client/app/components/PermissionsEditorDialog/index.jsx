@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { axios } from "@/services/axios";
 import PropTypes from "prop-types";
 import { each, debounce, get, find } from "lodash";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import List from "antd/lib/list";
 import Modal from "antd/lib/modal";
 import Select from "antd/lib/select";

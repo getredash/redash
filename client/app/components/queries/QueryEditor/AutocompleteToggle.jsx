@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import Tooltip from "antd/lib/tooltip";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import PropTypes from "prop-types";
 import "@/redash-font/style.less";
 import recordEvent from "@/services/recordEvent";

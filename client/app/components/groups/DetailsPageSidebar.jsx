@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import Divider from "antd/lib/divider";
 
 import * as Sidebar from "@/components/items-list/components/Sidebar";

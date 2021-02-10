@@ -2,7 +2,7 @@ import React from "react";
 import cx from "classnames";
 import PropTypes from "prop-types";
 import { map, includes } from "lodash";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";

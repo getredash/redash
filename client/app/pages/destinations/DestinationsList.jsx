@@ -2,7 +2,7 @@ import { isEmpty, reject } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";

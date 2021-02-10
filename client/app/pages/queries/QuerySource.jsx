@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import { useDebouncedCallback } from "use-debounce";
 import useMedia from "use-media";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";

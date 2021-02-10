@@ -5,7 +5,7 @@ import cx from "classnames";
 import Modal from "antd/lib/modal";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 
 import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";

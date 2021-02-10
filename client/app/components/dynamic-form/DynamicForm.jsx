@@ -2,7 +2,7 @@ import React, { useState, useReducer, useCallback } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import Form from "antd/lib/form";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import { includes, isFunction, filter, find, difference, isEmpty, mapValues } from "lodash";
 import notification from "@/services/notification";
 import Collapse from "@/components/Collapse";

@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import { clientConfig } from "@/services/auth";
 
 import PlusCircleFilledIcon from "@ant-design/icons/PlusCircleFilled";

@@ -16,7 +16,7 @@ import EmailSettingsWarning from "@/components/EmailSettingsWarning";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import Tooltip from "antd/lib/tooltip";
 import Switch from "antd/lib/switch";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 
 import "./AlertDestinations.less";
 
