@@ -5,7 +5,7 @@ import { localizeTime, durationHumanize } from "@/lib/utils";
 import { RefreshScheduleType, RefreshScheduleDefault } from "../proptypes";
 
 import "./ScheduleDialog.css";
-import Link from "../Link";
+import Link from "@/components/Link";
 
 export default class SchedulePhrase extends React.Component {
   static propTypes = {

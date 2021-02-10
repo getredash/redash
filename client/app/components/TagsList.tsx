@@ -6,7 +6,7 @@ import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import getTags from "@/services/getTags";
 
 import "./TagsList.less";
-import Link from "./Link";
+import Link from "@/components/Link";
 
 type Tag = {
   name: string;

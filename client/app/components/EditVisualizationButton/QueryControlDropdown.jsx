@@ -12,7 +12,7 @@ import FileExcelOutlinedIcon from "@ant-design/icons/FileExcelOutlined";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 
 import QueryResultsLink from "./QueryResultsLink";
-import Link from "../Link";
+import Link from "@/components/Link";
 
 export default function QueryControlDropdown(props) {
   const menu = (

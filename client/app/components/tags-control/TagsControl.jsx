@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
 import EditTagsDialog from "./EditTagsDialog";
-import Link from "../Link";
+import Link from "@/components/Link";
 
 export class TagsControl extends React.Component {
   static propTypes = {

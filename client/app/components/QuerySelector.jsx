@@ -8,7 +8,7 @@ import { Query } from "@/services/query";
 import notification from "@/services/notification";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import useSearchResults from "@/lib/hooks/useSearchResults";
-import Link from "./Link";
+import Link from "@/components/Link";
 
 const { Option } = Select;
 function search(term) {

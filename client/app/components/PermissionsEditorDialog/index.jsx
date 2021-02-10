@@ -16,7 +16,7 @@ import notification from "@/services/notification";
 import User from "@/services/user";
 
 import "./index.less";
-import Link from "../Link";
+import Link from "@/components/Link";
 
 const { Option } = Select;
 const DEBOUNCE_SEARCH_DURATION = 200;

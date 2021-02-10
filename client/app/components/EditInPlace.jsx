@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import Input from "antd/lib/input";
-import Link from "./Link";
+import Link from "@/components/Link";
 
 export default class EditInPlace extends React.Component {
   static propTypes = {

@@ -12,7 +12,7 @@ import ThunderboltTwoToneIcon from "@ant-design/icons/ThunderboltTwoTone";
 import ThunderboltOutlinedIcon from "@ant-design/icons/ThunderboltOutlined";
 
 import "./DynamicButton.less";
-import Link from "../Link";
+import Link from "@/components/Link";
 
 const { Text } = Typography;
 
