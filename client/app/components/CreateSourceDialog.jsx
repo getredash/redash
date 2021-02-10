@@ -182,9 +182,9 @@ class CreateSourceDialog extends React.Component {
             {currentStep === StepEnum.CONFIGURE_IT ? (
               <Step
                 title={
-                  <Link role="button" className="clickable" onClick={this.resetType}>
+                  <Button type="plain" className="clickable" onClick={this.resetType}>
                     Type Selection
-                  </Link>
+                  </Button>
                 }
               />
             ) : (

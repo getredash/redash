@@ -7,9 +7,9 @@ import Modal from "antd/lib/modal";
 import Menu from "antd/lib/menu";
 import recordEvent from "@/services/recordEvent";
 import { Moment } from "@/components/proptypes";
+import Button from "@/components/Button";
 
 import "./Widget.less";
-import Link from "@/components/Link";
 
 function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
   const WidgetMenu = (
@@ -23,9 +23,9 @@ function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
   return (
     <div className="widget-menu-regular">
       <Dropdown overlay={WidgetMenu} placement="bottomRight" trigger={["click"]}>
-        <Link role="button" className="action p-l-15 p-r-15" data-test="WidgetDropdownButton">
+        <Button type="plain" className="action p-l-15 p-r-15" data-test="WidgetDropdownButton">
           <i className="zmdi zmdi-more-vert" />
-        </Link>
+        </Button>
       </Dropdown>
     </div>
   );
@@ -46,14 +46,14 @@ WidgetDropdownButton.defaultProps = {
 function WidgetDeleteButton({ onClick }) {
   return (
     <div className="widget-menu-remove">
-      <Link
-        className="action"
+      <Button
+        type="plain"
+        className="action p-0 b-0"
         title="Remove From Dashboard"
-        role="button"
         onClick={onClick}
         data-test="WidgetDeleteButton">
         <i className="zmdi zmdi-close" />
-      </Link>
+      </Button>
     </div>
   );
 }

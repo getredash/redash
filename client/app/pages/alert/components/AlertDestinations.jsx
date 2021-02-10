@@ -3,6 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import Link from "@/components/Link";
+import Button from "@/components/Button";
 import SelectItemsDialog from "@/components/SelectItemsDialog";
 import { Destination as DestinationType, UserProfile as UserType } from "@/components/proptypes";
 
@@ -16,7 +17,6 @@ import EmailSettingsWarning from "@/components/EmailSettingsWarning";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import Tooltip from "antd/lib/tooltip";
 import Switch from "antd/lib/switch";
-import Button from "@/components/Button";
 
 import "./AlertDestinations.less";
 

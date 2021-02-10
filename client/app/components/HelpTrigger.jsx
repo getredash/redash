@@ -5,6 +5,7 @@ import cx from "classnames";
 import Tooltip from "antd/lib/tooltip";
 import Drawer from "antd/lib/drawer";
 import Link from "@/components/Link";
+import Button from "@/components/Button";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import BigMessage from "@/components/BigMessage";
 import DynamicComponent, { registerComponent } from "@/components/DynamicComponent";
@@ -174,14 +175,15 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
                 </>
               ) : null
             }>
-            <Link
+            <Button
+              type="link"
               href={url || this.getUrl()}
               className={className}
               rel="noopener noreferrer"
               target="_blank"
               onClick={shouldRenderAsLink ? () => {} : this.openDrawer}>
               {this.props.children}
-            </Link>
+            </Button>
           </Tooltip>
           <Drawer
             placement="right"
@@ -202,9 +204,9 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
                   </Tooltip>
                 )}
                 <Tooltip title="Close" placement="bottom">
-                  <Link onClick={this.closeDrawer} role="button">
+                  <Button type="plain" onClick={this.closeDrawer}>
                     <CloseOutlinedIcon aria-hidden="true" />
-                  </Link>
+                  </Button>
                 </Tooltip>
               </div>
 

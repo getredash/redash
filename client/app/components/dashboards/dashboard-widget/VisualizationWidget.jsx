@@ -19,6 +19,7 @@ import ExpandedWidgetDialog from "@/components/dashboards/ExpandedWidgetDialog";
 import EditParameterMappingsDialog from "@/components/dashboards/EditParameterMappingsDialog";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import Widget from "./Widget";
+import Button from "@/components/Button";
 
 function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit }) {
   const canViewQuery = currentUser.hasPermission("view_query");
@@ -157,14 +158,14 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
     <>
       <span>
         {!isPublic && !!widgetQueryResult && (
-          <Link
+          <Button
+            type="plain"
             className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
-            role="button"
             onClick={() => refreshWidget(1)}
             data-test="RefreshButton">
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 1 })} />{" "}
             <TimeAgo date={updatedAt} />
-          </Link>
+          </Button>
         )}
         <span className="visible-print">
           <i className="zmdi zmdi-time-restore" /> {formatDateTime(updatedAt)}
@@ -177,19 +178,19 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
       </span>
       <span>
         {!isPublic && (
-          <Link
+          <Button
+            type="plain"
             className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh"
-            role="button"
             onClick={() => refreshWidget(2)}>
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 2 })} />
-          </Link>
+          </Button>
         )}
-        <Link
+        <Button
+          type="plain"
           className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh"
-          role="button"
           onClick={onExpand}>
           <i className="zmdi zmdi-fullscreen" />
-        </Link>
+        </Button>
       </span>
     </>
   ) : null;

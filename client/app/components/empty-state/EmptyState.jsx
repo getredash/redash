@@ -4,10 +4,12 @@ import PropTypes from "prop-types";
 import classNames from "classnames";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import Link from "@/components/Link";
+import Button from "@/components/Button";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import HelpTrigger from "@/components/HelpTrigger";
 import { currentUser } from "@/services/auth";
 import organizationStatus from "@/services/organizationStatus";
+
 import "./empty-state.less";
 
 export function Step({ show, completed, text, url, urlTarget, urlText, onClick }) {
@@ -200,9 +202,9 @@ function EmptyState({
         </div>
       </div>
       {closable && (
-        <Link className="close-button" role="button" aria-label="Close" onClick={onClose}>
+        <Button type="plain" className="close-button" aria-label="Close" onClick={onClose}>
           <CloseOutlinedIcon />
-        </Link>
+        </Button>
       )}
     </div>
   );
