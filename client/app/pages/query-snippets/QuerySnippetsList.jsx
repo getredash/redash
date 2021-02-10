@@ -1,7 +1,7 @@
 import { get } from "lodash";
 import React from "react";
 
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import Modal from "antd/lib/modal";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";

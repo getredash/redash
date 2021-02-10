@@ -7,7 +7,7 @@ import classNames from "classnames";
 import Select from "antd/lib/select";
 import Table from "antd/lib/table";
 import Popover from "antd/lib/popover";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import Tag from "antd/lib/tag";
 import Input from "antd/lib/input";
 import Radio from "antd/lib/radio";

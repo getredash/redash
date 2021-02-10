@@ -1,7 +1,7 @@
 import React from "react";
 import cx from "classnames";
 
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
 import PageHeader from "@/components/PageHeader";

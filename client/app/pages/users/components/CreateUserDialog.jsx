@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import Modal from "antd/lib/modal";
 import Alert from "antd/lib/alert";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";

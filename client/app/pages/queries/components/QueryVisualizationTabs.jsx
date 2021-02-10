@@ -5,7 +5,7 @@ import { find, orderBy } from "lodash";
 import useMedia from "use-media";
 import Tabs from "antd/lib/tabs";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import Modal from "antd/lib/modal";
 
 import "./QueryVisualizationTabs.less";

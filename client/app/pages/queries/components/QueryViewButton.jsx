@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import PropTypes from "prop-types";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import KeyboardShortcuts from "@/services/KeyboardShortcuts";
 import { ButtonTooltip } from "@/components/queries/QueryEditor/QueryEditorControls";
 

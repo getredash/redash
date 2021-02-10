@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import FormOutlinedIcon from "@ant-design/icons/FormOutlined";
 
 export default function EditVisualizationButton(props) {

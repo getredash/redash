@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import DynamicComponent from "@/components/DynamicComponent";
 import { UserProfile } from "@/components/proptypes";
 import { currentUser } from "@/services/auth";

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import DynamicComponent from "@/components/DynamicComponent";
 import { UserProfile } from "@/components/proptypes";
 import User from "@/services/user";

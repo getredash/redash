@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import Button from "antd/lib/button";
+import Button from "@/components/Button";
 import Form from "antd/lib/form";
 import Skeleton from "antd/lib/skeleton";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
