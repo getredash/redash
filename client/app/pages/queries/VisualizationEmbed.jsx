@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import moment from "moment";
 import { markdown } from "markdown";
 
-import Button from "@/components/Button";
+import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Tooltip from "antd/lib/tooltip";

@@ -1,5 +1,5 @@
 import React from "react";
-import Button from "@/components/Button";
+import Button from "antd/lib/button";
 import Upload from "antd/lib/upload";
 import UploadOutlinedIcon from "@ant-design/icons/UploadOutlined";
 

@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Button from "@/components/Button";
+import Button from "antd/lib/button";
 import Badge from "antd/lib/badge";
 import Tooltip from "antd/lib/tooltip";
 import KeyboardShortcuts from "@/services/KeyboardShortcuts";

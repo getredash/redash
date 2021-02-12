@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import useMedia from "use-media";
-import Button from "@/components/Button";
 
 import FullscreenOutlinedIcon from "@ant-design/icons/FullscreenOutlined";
 import FullscreenExitOutlinedIcon from "@ant-design/icons/FullscreenExitOutlined";
@@ -11,6 +10,8 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import EditInPlace from "@/components/EditInPlace";
 import Parameters from "@/components/Parameters";
 import DynamicComponent from "@/components/DynamicComponent";
+import PlainButton from "@/components/PlainButton";
+import Button from "antd/lib/button";
 
 import DataSource from "@/services/data-source";
 import { ExecutionStatus } from "@/services/query-result";
@@ -122,10 +123,10 @@ function QueryView(props) {
             queryFlags.canEdit &&
             !addingDescription &&
             !fullscreen && (
-              <Button type="plain" className="label label-tag hidden-xs" onClick={() => setAddingDescription(true)}>
+              <PlainButton className="label label-tag hidden-xs" onClick={() => setAddingDescription(true)}>
                 <i className="zmdi zmdi-plus m-r-5" />
                 Add description
-              </Button>
+              </PlainButton>
             )
           }
         />

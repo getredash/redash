@@ -7,6 +7,7 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import EmptyState, { EmptyStateHelpMessage } from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
 import BeaconConsent from "@/components/BeaconConsent";
+import PlainButton from "@/components/PlainButton";
 
 import { axios } from "@/services/axios";
 import recordEvent from "@/services/recordEvent";
@@ -17,7 +18,6 @@ import routes from "@/services/routes";
 import { DashboardAndQueryFavoritesList } from "./components/FavoritesList";
 
 import "./Home.less";
-import Button from "@/components/Button";
 
 function DeprecatedEmbedFeatureAlert() {
   return (
@@ -55,11 +55,7 @@ function EmailNotVerifiedAlert() {
       message={
         <>
           We have sent an email with a confirmation link to your email address. Please follow the link to verify your
-          email address.{" "}
-          <Button type="plain" onClick={verifyEmail}>
-            Resend email
-          </Button>
-          .
+          email address. <PlainButton onClick={verifyEmail}>Resend email</PlainButton>.
         </>
       }
     />

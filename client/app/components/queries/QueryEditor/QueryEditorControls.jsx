@@ -2,7 +2,7 @@ import { isFunction, map, filter, fromPairs, noop } from "lodash";
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
-import Button from "@/components/Button";
+import Button from "antd/lib/button";
 import Select from "antd/lib/select";
 import KeyboardShortcuts, { humanReadableShortcut } from "@/services/KeyboardShortcuts";
 

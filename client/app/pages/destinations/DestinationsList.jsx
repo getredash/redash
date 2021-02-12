@@ -2,7 +2,7 @@ import { isEmpty, reject } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
-import Button from "@/components/Button";
+import PlainButton from "@/components/PlainButton";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
@@ -97,10 +97,7 @@ class DestinationsList extends React.Component {
         There are no alert destinations yet.
         {policy.isCreateDestinationEnabled() && (
           <div className="m-t-5">
-            <Button type="plain" onClick={this.showCreateSourceDialog}>
-              Click here
-            </Button>{" "}
-            to add one.
+            <PlainButton onClick={this.showCreateSourceDialog}>Click here</PlainButton> to add one.
           </div>
         )}
       </div>
@@ -119,10 +116,10 @@ class DestinationsList extends React.Component {
     return (
       <div>
         <div className="m-b-15">
-          <Button {...newDestinationProps}>
+          <PlainButton {...newDestinationProps}>
             <i className="fa fa-plus m-r-5" />
             New Alert Destination
-          </Button>
+          </PlainButton>
         </div>
         {this.state.loading ? <LoadingState className="" /> : this.renderDestinations()}
       </div>

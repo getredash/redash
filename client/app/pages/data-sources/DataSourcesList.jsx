@@ -2,7 +2,7 @@ import { isEmpty, reject } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
-import Button from "@/components/Button";
+import PlainButton from "@/components/PlainButton";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
@@ -11,6 +11,7 @@ import CreateSourceDialog from "@/components/CreateSourceDialog";
 import DynamicComponent, { registerComponent } from "@/components/DynamicComponent";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import Button from "antd/lib/button";
 
 import DataSource, { IMG_ROOT } from "@/services/data-source";
 import { policy } from "@/services/policy";
@@ -29,9 +30,9 @@ export function DataSourcesListComponent({ dataSources, onClickCreate }) {
       There are no data sources yet.
       {policy.isCreateDataSourceEnabled() && (
         <div className="m-t-5">
-          <Button type="plain" onClick={onClickCreate} data-test="CreateDataSourceLink">
+          <PlainButton onClick={onClickCreate} data-test="CreateDataSourceLink">
             Click here
-          </Button>{" "}
+          </PlainButton>{" "}
           to add one.
         </div>
       )}

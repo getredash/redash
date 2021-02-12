@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import Link from "@/components/Link";
-import Button from "@/components/Button";
+import Button from "antd/lib/button";
 import QuerySelector from "@/components/QuerySelector";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
 import { Query as QueryType } from "@/components/proptypes";

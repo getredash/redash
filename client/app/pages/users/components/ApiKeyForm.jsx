@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
-import Button from "@/components/Button";
+import Button from "antd/lib/button";
 import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
 import DynamicComponent from "@/components/DynamicComponent";

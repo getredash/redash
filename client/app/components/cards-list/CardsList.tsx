@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import Input from "antd/lib/input";
 import EmptyState from "@/components/items-list/components/EmptyState";
-import PlainButton from "@/components/PlainButton";
+import Button from "@/components/PlainButton";
 
 import "./CardsList.less";
 

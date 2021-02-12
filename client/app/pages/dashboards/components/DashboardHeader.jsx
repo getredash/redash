@@ -2,7 +2,8 @@ import React from "react";
 import cx from "classnames";
 import PropTypes from "prop-types";
 import { map, includes } from "lodash";
-import Button from "@/components/Button";
+import Button from "antd/lib/button";
+import PlainButton from "@/components/PlainButton";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
@@ -138,28 +139,20 @@ function DashboardMoreOptionsButton({ dashboardConfiguration }) {
       overlay={
         <Menu data-test="DashboardMoreButtonMenu">
           <Menu.Item className={cx({ hidden: gridDisabled })}>
-            <Button type="plain" onClick={() => setEditingLayout(true)}>
-              Edit
-            </Button>
+            <PlainButton onClick={() => setEditingLayout(true)}>Edit</PlainButton>
           </Menu.Item>
           {clientConfig.showPermissionsControl && isDashboardOwnerOrAdmin && (
             <Menu.Item>
-              <Button type="plain" onClick={managePermissions}>
-                Manage Permissions
-              </Button>
+              <PlainButton onClick={managePermissions}>Manage Permissions</PlainButton>
             </Menu.Item>
           )}
           {!clientConfig.disablePublish && !dashboard.is_draft && (
             <Menu.Item>
-              <Button type="plain" onClick={togglePublished}>
-                Unpublish
-              </Button>
+              <PlainButton onClick={togglePublished}>Unpublish</PlainButton>
             </Menu.Item>
           )}
           <Menu.Item>
-            <Button type="plain" onClick={archive}>
-              Archive
-            </Button>
+            <PlainButton onClick={archive}>Archive</PlainButton>
           </Menu.Item>
         </Menu>
       }>

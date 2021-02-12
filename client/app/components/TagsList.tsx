@@ -4,7 +4,7 @@ import Badge from "antd/lib/badge";
 import Menu from "antd/lib/menu";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import getTags from "@/services/getTags";
-import Button from "@/components/Button";
+import PlainButton from "@/components/PlainButton";
 
 import "./TagsList.less";
 
@@ -80,24 +80,23 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
       <div className="tags-list-title">
         <label>Tags</label>
         {showUnselectAll && selectedTags.length > 0 && (
-          <Button type="plain" onClick={unselectAll}>
+          <PlainButton onClick={unselectAll}>
             <CloseOutlinedIcon />
             clear selection
-          </Button>
+          </PlainButton>
         )}
       </div>
 
       <div className="tiled">
         <Menu className="invert-stripe-position" mode="inline" selectedKeys={selectedTags}>
           {map(allTags, tag => (
-            <Menu.Item key={tag.name} className="m-0" role="menuitem">
-              <Button
-                type="plain"
+            <Menu.Item key={tag.name} className="m-0">
+              <PlainButton
                 className="d-flex align-items-center justify-content-between"
                 onClick={event => toggleTag(event, tag.name)}>
                 <span className="max-character col-xs-11">{tag.name}</span>
                 <Badge count={tag.count} />
-              </Button>
+              </PlainButton>
             </Menu.Item>
           ))}
         </Menu>

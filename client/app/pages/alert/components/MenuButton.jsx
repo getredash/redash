@@ -5,7 +5,8 @@ import cx from "classnames";
 import Modal from "antd/lib/modal";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
-import Button from "@/components/Button";
+import PlainButton from "@/components/PlainButton";
+import Button from "antd/lib/button";
 
 import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
@@ -46,19 +47,13 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, muted }) {
         <Menu>
           <Menu.Item>
             {muted ? (
-              <Button type="plain" onClick={() => execute(unmute)}>
-                Unmute Notifications
-              </Button>
+              <PlainButton onClick={() => execute(unmute)}>Unmute Notifications</PlainButton>
             ) : (
-              <Button type="plain" onClick={() => execute(mute)}>
-                Mute Notifications
-              </Button>
+              <PlainButton onClick={() => execute(mute)}>Mute Notifications</PlainButton>
             )}
           </Menu.Item>
           <Menu.Item>
-            <Button type="plain" onClick={confirmDelete}>
-              Delete
-            </Button>
+            <PlainButton onClick={confirmDelete}>Delete</PlainButton>
           </Menu.Item>
         </Menu>
       }>
