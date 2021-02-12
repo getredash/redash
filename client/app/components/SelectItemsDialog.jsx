@@ -34,6 +34,12 @@ function ItemsList({ items, renderItem, onItemClick }) {
   return <List size="small" dataSource={items} renderItem={renderListItem} />;
 }
 
+ItemsList.propTypes = {
+  items: PropTypes.array,
+  renderItem: PropTypes.func,
+  onItemClick: PropTypes.func,
+};
+
 ItemsList.defaultProps = {
   items: [],
   renderItem: () => {},
