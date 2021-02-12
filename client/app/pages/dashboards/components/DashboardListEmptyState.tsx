@@ -4,10 +4,10 @@ import BigMessage from "@/components/BigMessage";
 import NoTaggedObjectsFound from "@/components/NoTaggedObjectsFound";
 import EmptyState, { EmptyStateHelpMessage } from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
-import Link from "@/components/Link";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import { currentUser } from "@/services/auth";
 import HelpTrigger from "@/components/HelpTrigger";
+import Button from "antd/lib/button";
 
 export interface DashboardListEmptyStateProps {
   page: string;
@@ -28,9 +28,9 @@ export default function DashboardListEmptyState({ page, searchTerm, selectedTags
     case "my":
       const my_msg = currentUser.hasPermission("create_dashboard") ? (
         <span>
-          <Link.Button type="primary" size="small" onClick={() => CreateDashboardDialog.showModal()}>
+          <Button type="primary" size="small" onClick={() => CreateDashboardDialog.showModal()}>
             Create your first dashboard!
-          </Link.Button>{" "}
+          </Button>{" "}
           <HelpTrigger className="f-14" type="DASHBOARDS" showTooltip={false}>
             Need help?
           </HelpTrigger>
