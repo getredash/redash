@@ -3,16 +3,27 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import Input from "antd/lib/input";
 import EmptyState from "@/components/items-list/components/EmptyState";
-import Button from "@/components/PlainButton";
+import PlainButton from "@/components/PlainButton";
+import Link from "@/components/Link";
 
 import "./CardsList.less";
 
-export interface CardsListItem {
+interface BaseCardsListItem {
   title: string;
   imgSrc: string;
-  onClick?: () => void;
-  href?: string;
 }
+
+interface ButtonCardsListItem extends BaseCardsListItem {
+  onClick?: () => void;
+  href?: never;
+}
+
+interface LinkCardsListItem extends BaseCardsListItem {
+  href: string;
+  onClick?: never;
+}
+
+export type CardsListItem = ButtonCardsListItem | LinkCardsListItem;
 
 export interface CardsListProps {
   items?: CardsListItem[];
@@ -25,10 +36,20 @@ interface ListItemProps {
 }
 
 function ListItem({ item, keySuffix }: ListItemProps) {
-  return (
-    <PlainButton key={`card${keySuffix}`} className="visual-card" onClick={item.onClick} href={item.href}>
+  const content = (
+    <>
       <img alt={item.title} src={item.imgSrc} />
       <h3>{item.title}</h3>
+    </>
+  );
+
+  return item.href ? (
+    <Link key={`card${keySuffix}`} className="visual-card" href={item.href}>
+      {content}
+    </Link>
+  ) : (
+    <PlainButton key={`card${keySuffix}`} className="visual-card" onClick={item.onClick}>
+      {content}
     </PlainButton>
   );
 }
