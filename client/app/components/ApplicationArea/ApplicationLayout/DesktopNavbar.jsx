@@ -114,7 +114,6 @@ export default function DesktopNavbar() {
             key="create"
             popupClassName="desktop-navbar-submenu"
             data-test="CreateButton"
-            role="menuitem"
             tabIndex={0}
             title={
               <React.Fragment>
@@ -168,7 +167,6 @@ export default function DesktopNavbar() {
         <Menu.SubMenu
           key="profile"
           popupClassName="desktop-navbar-submenu"
-          role="menuitem"
           tabIndex={0}
           title={
             <span data-test="ProfileDropdown" className="desktop-navbar-profile-menu-title">
