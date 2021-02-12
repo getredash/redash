@@ -72,7 +72,7 @@ export default function DesktopNavbar() {
   const canCreateAlert = currentUser.hasPermission("list_alerts");
 
   return (
-    <nav className="desktop-navbar" role="navigation">
+    <nav className="desktop-navbar">
       <NavbarSection className="desktop-navbar-logo">
         <div role="menuitem">
           <Link href="./">
