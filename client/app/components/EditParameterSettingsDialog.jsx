@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import Checkbox from "antd/lib/checkbox";
 import Modal from "antd/lib/modal";
 import Form from "antd/lib/form";
-import Button from "@/components/Button";
+import Button from "antd/lib/button";
 import Select from "antd/lib/select";
 import Input from "antd/lib/input";
 import Divider from "antd/lib/divider";

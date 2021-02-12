@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { filter, includes, get, find } from "lodash";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
-import Button from "@/components/Button";
+import Button from "antd/lib/button";
 import SyncOutlinedIcon from "@ant-design/icons/SyncOutlined";
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";

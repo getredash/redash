@@ -2,11 +2,12 @@ import React, { useState, useEffect, useCallback } from "react";
 import { axios } from "@/services/axios";
 import PropTypes from "prop-types";
 import { each, debounce, get, find } from "lodash";
-import Button from "@/components/Button";
+import PlainButton from "@/components/PlainButton";
 import List from "antd/lib/list";
 import Modal from "antd/lib/modal";
 import Select from "antd/lib/select";
 import Tag from "antd/lib/tag";
+import Button from "antd/lib/button";
 import Tooltip from "antd/lib/tooltip";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { toHuman } from "@/lib/utils";
@@ -169,9 +170,9 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
                   <Tag className="m-0">Author</Tag>
                 ) : (
                   <Tooltip title="Remove user permissions">
-                    <Button type="plain" onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}>
+                    <PlainButton onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}>
                       <i className="fa fa-remove" />
-                    </Button>
+                    </PlainButton>
                   </Tooltip>
                 )}
               </UserPreviewCard>

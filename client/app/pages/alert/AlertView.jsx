@@ -7,7 +7,7 @@ import TimeAgo from "@/components/TimeAgo";
 import { Alert as AlertType } from "@/components/proptypes";
 
 import Form from "antd/lib/form";
-import Button from "@/components/Button";
+import Button from "antd/lib/button";
 import Tooltip from "antd/lib/tooltip";
 import AntAlert from "antd/lib/alert";
 import * as Grid from "antd/lib/grid";

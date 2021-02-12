@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import Input from "antd/lib/input";
-import Button from "@/components/Button";
+import PlainButton from "@/components/PlainButton";
 
 export default class EditInPlace extends React.Component {
   static propTypes = {
@@ -76,9 +76,7 @@ export default class EditInPlace extends React.Component {
         {this.props.value}
       </span>
     ) : (
-      <Button type="plain" onClick={this.startEditing}>
-        {this.props.placeholder}
-      </Button>
+      <PlainButton onClick={this.startEditing}>{this.props.placeholder}</PlainButton>
     );
 
   renderEdit = () => {

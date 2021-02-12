@@ -1,7 +1,7 @@
 import { first } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import Button from "@/components/Button";
+import Button from "antd/lib/button";
 import MenuOutlinedIcon from "@ant-design/icons/MenuOutlined";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";

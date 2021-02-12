@@ -5,12 +5,13 @@ import classNames from "classnames";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import List from "antd/lib/list";
-import Button from "@/components/Button";
+import PlainButton from "@/components/PlainButton";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import BigMessage from "@/components/BigMessage";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import notification from "@/services/notification";
 import useSearchResults from "@/lib/hooks/useSearchResults";
+import Button from "antd/lib/button";
 
 function ItemsList({ items, renderItem, onItemClick }) {
   const renderListItem = useCallback(
@@ -19,12 +20,11 @@ function ItemsList({ items, renderItem, onItemClick }) {
 
       return (
         <List.Item className="p-l-0 p-r-0">
-          <Button
-            type="plain"
+          <PlainButton
             className={classNames("w-100", "p-l-10", "p-r-10", { disabled: isDisabled }, className)}
             onClick={isDisabled ? null : () => onItemClick(item)}>
             {content}
-          </Button>
+          </PlainButton>
         </List.Item>
       );
     },

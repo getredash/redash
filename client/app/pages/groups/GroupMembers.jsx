@@ -1,6 +1,6 @@
 import { includes, map } from "lodash";
 import React from "react";
-import Button from "@/components/Button";
+import Button from "antd/lib/button";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";

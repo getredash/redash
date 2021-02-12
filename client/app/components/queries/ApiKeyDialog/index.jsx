@@ -3,7 +3,7 @@ import React, { useMemo, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
-import Button from "@/components/Button";
+import Button from "antd/lib/button";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import CodeBlock from "@/components/CodeBlock";
 import { axios } from "@/services/axios";

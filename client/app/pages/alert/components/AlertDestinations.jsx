@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import Link from "@/components/Link";
-import Button from "@/components/Button";
+import Button from "antd/lib/button";
 import SelectItemsDialog from "@/components/SelectItemsDialog";
 import { Destination as DestinationType, UserProfile as UserType } from "@/components/proptypes";
 

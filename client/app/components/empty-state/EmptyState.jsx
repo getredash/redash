@@ -3,10 +3,11 @@ import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
-import Button from "@/components/Button";
+import PlainButton from "@/components/PlainButton";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import HelpTrigger from "@/components/HelpTrigger";
 import { currentUser } from "@/services/auth";
+import Button from "antd/lib/button";
 import organizationStatus from "@/services/organizationStatus";
 
 import "./empty-state.less";
@@ -201,9 +202,9 @@ function EmptyState({
         </div>
       </div>
       {closable && (
-        <Button type="plain" className="close-button" aria-label="Close" onClick={onClose}>
+        <PlainButton className="close-button" aria-label="Close" onClick={onClose}>
           <CloseOutlinedIcon />
-        </Button>
+        </PlainButton>
       )}
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { first, includes } from "lodash";
 import Menu from "antd/lib/menu";
 import Link from "@/components/Link";
-import Button from "@/components/Button";
+import PlainButton from "@/components/PlainButton";
 import HelpTrigger from "@/components/HelpTrigger";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import { useCurrentRoute } from "@/components/ApplicationArea/Router";
@@ -131,12 +131,9 @@ export default function DesktopNavbar() {
             )}
             {canCreateDashboard && (
               <Menu.Item key="new-dashboard">
-                <Button
-                  type="plain"
-                  data-test="CreateDashboardMenuItem"
-                  onClick={() => CreateDashboardDialog.showModal()}>
+                <PlainButton data-test="CreateDashboardMenuItem" onClick={() => CreateDashboardDialog.showModal()}>
                   New Dashboard
-                </Button>
+                </PlainButton>
               </Menu.Item>
             )}
             {canCreateAlert && (
@@ -188,9 +185,9 @@ export default function DesktopNavbar() {
           )}
           <Menu.Divider />
           <Menu.Item key="logout">
-            <Button type="plain" data-test="LogOutButton" onClick={() => Auth.logout()}>
+            <PlainButton data-test="LogOutButton" onClick={() => Auth.logout()}>
               Log out
-            </Button>
+            </PlainButton>
           </Menu.Item>
           <Menu.Divider />
           <Menu.Item key="version" role="presentation" disabled className="version-info">

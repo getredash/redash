@@ -1,12 +1,13 @@
 import { get } from "lodash";
 import React from "react";
 
-import Button from "@/components/Button";
+import PlainButton from "@/components/PlainButton";
 import Modal from "antd/lib/modal";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 import QuerySnippetDialog from "@/components/query-snippets/QuerySnippetDialog";
+import Button from "antd/lib/button";
 
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
@@ -35,9 +36,9 @@ class QuerySnippetsList extends React.Component {
     Columns.custom.sortable(
       (text, querySnippet) => (
         <div>
-          <Button type="plain" className="table-main-title" onClick={() => this.showSnippetDialog(querySnippet)}>
+          <PlainButton className="table-main-title" onClick={() => this.showSnippetDialog(querySnippet)}>
             {querySnippet.trigger}
-          </Button>
+          </PlainButton>
         </div>
       ),
       {
@@ -158,10 +159,7 @@ class QuerySnippetsList extends React.Component {
             There are no query snippets yet.
             {policy.isCreateQuerySnippetEnabled() && (
               <div className="m-t-5">
-                <Button type="plain" onClick={() => this.showSnippetDialog()}>
-                  Click here
-                </Button>{" "}
-                to add one.
+                <PlainButton onClick={() => this.showSnippetDialog()}>Click here</PlainButton> to add one.
               </div>
             )}
           </div>

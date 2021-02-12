@@ -1,11 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { isEmpty, toUpper, includes, get } from "lodash";
-import Button from "@/components/Button";
+import PlainButton from "@/components/PlainButton";
 import List from "antd/lib/list";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import Steps from "antd/lib/steps";
+import Button from "antd/lib/button";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import Link from "@/components/Link";
 import { PreviewCard } from "@/components/PreviewCard";
@@ -133,7 +134,7 @@ class CreateSourceDialog extends React.Component {
     const { imageFolder } = this.props;
     return (
       <List.Item className="p-l-0 p-r-0">
-        <Button type="plain" className="p-l-10 p-r-10" onClick={() => this.selectType(item)}>
+        <PlainButton className="p-l-10 p-r-10" onClick={() => this.selectType(item)}>
           <PreviewCard
             title={item.name}
             imageUrl={`${imageFolder}/${item.type}.png`}
@@ -142,7 +143,7 @@ class CreateSourceDialog extends React.Component {
             data-test-type={item.type}>
             <i className="fa fa-angle-double-right" />
           </PreviewCard>
-        </Button>
+        </PlainButton>
       </List.Item>
     );
   }
@@ -182,13 +183,7 @@ class CreateSourceDialog extends React.Component {
         <div data-test="CreateSourceDialog">
           <Steps className="hidden-xs m-b-10" size="small" current={currentStep} progressDot>
             {currentStep === StepEnum.CONFIGURE_IT ? (
-              <Step
-                title={
-                  <Button type="plain" className="clickable" onClick={this.resetType}>
-                    Type Selection
-                  </Button>
-                }
-              />
+              <Step title={<PlainButton onClick={this.resetType}>Type Selection</PlainButton>} />
             ) : (
               <Step title="Type Selection" />
             )}

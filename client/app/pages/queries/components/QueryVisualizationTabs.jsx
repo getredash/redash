@@ -5,7 +5,8 @@ import { find, orderBy } from "lodash";
 import useMedia from "use-media";
 import Tabs from "antd/lib/tabs";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
-import Button from "@/components/Button";
+import PlainButton from "@/components/PlainButton";
+import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
 
 import "./QueryVisualizationTabs.less";
@@ -58,9 +59,9 @@ function TabWithDeleteButton({ visualizationName, canDelete, onDelete, ...props 
     <span {...props}>
       {visualizationName}
       {canDelete && (
-        <Button type="plain" className="delete-visualization-button" onClick={handleDelete}>
+        <PlainButton className="delete-visualization-button" onClick={handleDelete}>
           <i className="zmdi zmdi-close" />
-        </Button>
+        </PlainButton>
       )}
     </span>
   );

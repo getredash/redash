@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
 import EditTagsDialog from "./EditTagsDialog";
-import Button from "@/components/Button";
+import PlainButton from "@/components/PlainButton";
 
 export class TagsControl extends React.Component {
   static propTypes = {
@@ -35,8 +35,7 @@ export class TagsControl extends React.Component {
   renderEditButton() {
     const tags = map(this.props.tags, trim);
     return (
-      <Button
-        type="plain"
+      <PlainButton
         className="label label-tag hidden-xs"
         onClick={() => this.editTags(tags, this.props.getAvailableTags)}
         data-test="EditTagsButton">
@@ -47,7 +46,7 @@ export class TagsControl extends React.Component {
           </React.Fragment>
         )}
         {tags.length > 0 && <i className="zmdi zmdi-edit" />}
-      </Button>
+      </PlainButton>
     );
   }
 
