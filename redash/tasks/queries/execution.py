@@ -94,7 +94,7 @@ def enqueue_query(
                         "data_source_id": data_source.id,
                         "org_id": data_source.org_id,
                         "scheduled": scheduled_query_id is not None,
-                        "query_id": metadata.get("Query ID"),
+                        "query_id": metadata.get("query_id", metadata.get("Query ID")),
                         "user_id": user_id,
                     },
                 }
