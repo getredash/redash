@@ -2,6 +2,7 @@ import errno
 import os
 import signal
 import time
+from redash.tasks.capacity import CapacityQueue, CapacityWorker
 from redash import statsd_client
 from rq import Queue as BaseQueue, get_current_job
 from rq.worker import HerokuWorker # HerokuWorker implements graceful shutdown on SIGTERM
@@ -37,7 +38,7 @@ class CancellableQueue(BaseQueue):
     job_class = CancellableJob
 
 
-class RedashQueue(StatsdRecordingQueue, CancellableQueue):
+class RedashQueue(StatsdRecordingQueue, CancellableQueue, CapacityQueue):
     pass
 
 
@@ -165,7 +166,7 @@ class HardLimitingWorker(HerokuWorker):
             )
 
 
-class RedashWorker(StatsdRecordingWorker, HardLimitingWorker):
+class RedashWorker(StatsdRecordingWorker, HardLimitingWorker, CapacityWorker):
     queue_class = RedashQueue
 
 

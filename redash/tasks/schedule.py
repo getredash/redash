@@ -18,6 +18,7 @@ from redash.tasks import (
     version_check,
     send_aggregated_errors,
     Queue,
+    cleanup_waiting_lists,
 )
 
 logger = logging.getLogger(__name__)
@@ -81,6 +82,7 @@ def periodic_job_definitions():
             "func": send_aggregated_errors,
             "interval": timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL),
         },
+        {"func": cleanup_waiting_lists, "interval": timedelta(minutes=1)},
     ]
 
     if settings.VERSION_CHECK:

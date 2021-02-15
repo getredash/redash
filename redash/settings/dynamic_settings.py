@@ -61,3 +61,14 @@ def database_key_definitions(default):
 # Since you can define custom primary key types using `database_key_definitions`, you may want to load certain extensions when creating the database. 
 # To do so, simply add the name of the extension you'd like to load to this list.
 database_extensions = []
+
+
+# If you'd like to limit the amount of concurrent query executions made by a certain org or user,
+# implement this method by returning a boolean which would indicate if the limit has reached.
+# If you return `True`, the query execution would move to a waiting list and would only be executed 
+# when a spot clears up for it within the defined capacity.
+# `entity` is either "user" or "org".
+# `executions` is the number of currently running query execution jobs for the specific user/org.
+# `meta` is the query execution job's meta attribute.
+def capacity_reached_for(entity, executions, meta):
+    return False
