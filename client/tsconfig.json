@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     // Target latest version of ECMAScript.
-    "target": "esnext",
+    "target": "es2019",
     // Search under node_modules for non-relative imports.
     "moduleResolution": "node",
     // Process & infer types from .js files.
@@ -15,21 +15,14 @@
     "jsx": "react",
     "allowSyntheticDefaultImports": true,
     "noUnusedLocals": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "forceConsistentCasingInFileNames": true,
     "baseUrl": "./",
     "paths": {
       "@/*": ["./app/*"]
-    }
+    },
+    "skipLibCheck": true
   },
-  "include": [
-    "app/**/*"
-  ],
-  "exclude": [
-    "dist"
-  ]
+  "include": ["app/**/*"],
+  "exclude": ["dist"]
 }

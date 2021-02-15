@@ -2,20 +2,22 @@ import { keys, some } from "lodash";
 import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
+import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import Link from "@/components/Link";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
+import HelpTrigger from "@/components/HelpTrigger";
 import { currentUser } from "@/services/auth";
 import organizationStatus from "@/services/organizationStatus";
 import "./empty-state.less";
 
-export function Step({ show, completed, text, url, urlText, onClick }) {
+export function Step({ show, completed, text, url, urlTarget, urlText, onClick }) {
   if (!show) {
     return null;
   }
 
   return (
     <li className={classNames({ done: completed })}>
-      <Link href={url} onClick={onClick}>
+      <Link href={url} onClick={onClick} target={urlTarget}>
         {urlText}
       </Link>{" "}
       {text}
@@ -26,16 +28,34 @@ export function Step({ show, completed, text, url, urlText, onClick }) {
 Step.propTypes = {
   show: PropTypes.bool.isRequired,
   completed: PropTypes.bool.isRequired,
-  text: PropTypes.string.isRequired,
+  text: PropTypes.node,
   url: PropTypes.string,
-  urlText: PropTypes.string,
+  urlTarget: PropTypes.string,
+  urlText: PropTypes.node,
   onClick: PropTypes.func,
 };
 
 Step.defaultProps = {
   url: null,
+  urlTarget: null,
   urlText: null,
+  text: null,
   onClick: null,
+};
+
+export function EmptyStateHelpMessage({ helpTriggerType }) {
+  return (
+    <p>
+      Need more support?{" "}
+      <HelpTrigger className="f-14" type={helpTriggerType} showTooltip={false}>
+        See our Help
+      </HelpTrigger>
+    </p>
+  );
+}
+
+EmptyStateHelpMessage.propTypes = {
+  helpTriggerType: PropTypes.string.isRequired,
 };
 
 function EmptyState({
@@ -43,7 +63,9 @@ function EmptyState({
   header,
   description,
   illustration,
-  helpLink,
+  helpMessage,
+  closable,
+  onClose,
   onboardingMode,
   showAlertStep,
   showDashboardStep,
@@ -87,8 +109,7 @@ function EmptyState({
           show={isAvailable.dataSource}
           completed={isCompleted.dataSource}
           url="data_sources/new"
-          urlText="Connect"
-          text="a Data Source"
+          urlText="Connect a Data Source"
         />
       );
     }
@@ -116,8 +137,7 @@ function EmptyState({
           show={isAvailable.query}
           completed={isCompleted.query}
           url="queries/new"
-          urlText="Create"
-          text="your first Query"
+          urlText="Create your first Query"
         />
       ),
     },
@@ -129,8 +149,7 @@ function EmptyState({
           show={isAvailable.alert}
           completed={isCompleted.alert}
           url="alerts/new"
-          urlText="Create"
-          text="your first Alert"
+          urlText="Create your first Alert"
         />
       ),
     },
@@ -142,8 +161,7 @@ function EmptyState({
           show={isAvailable.dashboard}
           completed={isCompleted.dashboard}
           onClick={showCreateDashboardDialog}
-          urlText="Create"
-          text="your first Dashboard"
+          urlText="Create your first Dashboard"
         />
       ),
     },
@@ -155,8 +173,7 @@ function EmptyState({
           show={isAvailable.inviteUsers}
           completed={isCompleted.inviteUsers}
           url="users/new"
-          urlText="Invite"
-          text="your team members"
+          urlText="Invite your team members"
         />
       ),
     },
@@ -166,26 +183,27 @@ function EmptyState({
   const imageSource = illustrationPath ? illustrationPath : "static/images/illustrations/" + illustration + ".svg";
 
   return (
-    <div className="empty-state bg-white tiled">
-      <div className="empty-state__summary">
-        {header && <h4>{header}</h4>}
-        <h2>
-          <i className={icon} />
-        </h2>
-        <p>{description}</p>
-        <img src={imageSource} alt={illustration + " Illustration"} width="75%" />
+    <div className="empty-state-wrapper">
+      <div className="empty-state bg-white tiled">
+        <div className="empty-state__summary">
+          {header && <h4>{header}</h4>}
+          <h2>
+            <i className={icon} />
+          </h2>
+          <p>{description}</p>
+          <img src={imageSource} alt={illustration + " Illustration"} width="75%" />
+        </div>
+        <div className="empty-state__steps">
+          <h4>Let&apos;s get started</h4>
+          <ol>{stepsItems.map(item => item.node)}</ol>
+          {helpMessage}
+        </div>
       </div>
-      <div className="empty-state__steps">
-        <h4>Let&apos;s get started</h4>
-        <ol>{stepsItems.map(item => item.node)}</ol>
-        <p>
-          Need more support?{" "}
-          <Link href={helpLink} target="_blank" rel="noopener noreferrer">
-            See our Help
-            <i className="fa fa-external-link m-l-5" aria-hidden="true" />
-          </Link>
-        </p>
-      </div>
+      {closable && (
+        <a className="close-button" onClick={onClose}>
+          <CloseOutlinedIcon />
+        </a>
+      )}
     </div>
   );
 }
@@ -196,7 +214,9 @@ EmptyState.propTypes = {
   description: PropTypes.string.isRequired,
   illustration: PropTypes.string.isRequired,
   illustrationPath: PropTypes.string,
-  helpLink: PropTypes.string.isRequired,
+  helpMessage: PropTypes.node,
+  closable: PropTypes.bool,
+  onClose: PropTypes.func,
 
   onboardingMode: PropTypes.bool,
   showAlertStep: PropTypes.bool,
@@ -210,6 +230,9 @@ EmptyState.propTypes = {
 EmptyState.defaultProps = {
   icon: null,
   header: null,
+  helpMessage: null,
+  closable: false,
+  onClose: () => {},
 
   onboardingMode: false,
   showAlertStep: false,

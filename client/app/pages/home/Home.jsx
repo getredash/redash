@@ -1,12 +1,10 @@
-import { includes, isEmpty } from "lodash";
-import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
+import { includes } from "lodash";
+import React, { useEffect } from "react";
 
 import Alert from "antd/lib/alert";
 import Link from "@/components/Link";
-import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
-import EmptyState from "@/components/empty-state/EmptyState";
+import EmptyState, { EmptyStateHelpMessage } from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
 import BeaconConsent from "@/components/BeaconConsent";
 
@@ -14,9 +12,9 @@ import { axios } from "@/services/axios";
 import recordEvent from "@/services/recordEvent";
 import { messages } from "@/services/auth";
 import notification from "@/services/notification";
-import { Dashboard } from "@/services/dashboard";
-import { Query } from "@/services/query";
 import routes from "@/services/routes";
+
+import { DashboardAndQueryFavoritesList } from "./components/FavoritesList";
 
 import "./Home.less";
 
@@ -67,92 +65,7 @@ function EmailNotVerifiedAlert() {
   );
 }
 
-function FavoriteList({ title, resource, itemUrl, emptyState }) {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(true);
-    resource
-      .favorites()
-      .then(({ results }) => setItems(results))
-      .finally(() => setLoading(false));
-  }, [resource]);
-
-  return (
-    <>
-      <div className="d-flex align-items-center m-b-20">
-        <p className="flex-fill f-500 c-black m-0">{title}</p>
-        {loading && <LoadingOutlinedIcon />}
-      </div>
-      {!isEmpty(items) && (
-        <div className="list-group">
-          {items.map(item => (
-            <Link key={itemUrl(item)} className="list-group-item" href={itemUrl(item)}>
-              <span className="btn-favourite m-r-5">
-                <i className="fa fa-star" aria-hidden="true" />
-              </span>
-              {item.name}
-              {item.is_draft && <span className="label label-default m-l-5">Unpublished</span>}
-            </Link>
-          ))}
-        </div>
-      )}
-      {isEmpty(items) && !loading && emptyState}
-    </>
-  );
-}
-
-FavoriteList.propTypes = {
-  title: PropTypes.string.isRequired,
-  resource: PropTypes.func.isRequired, // eslint-disable-line react/forbid-prop-types
-  itemUrl: PropTypes.func.isRequired,
-  emptyState: PropTypes.node,
-};
-FavoriteList.defaultProps = { emptyState: null };
-
-function DashboardAndQueryFavoritesList() {
-  return (
-    <div className="tile">
-      <div className="t-body tb-padding">
-        <div className="row home-favorites-list">
-          <div className="col-sm-6 m-t-20">
-            <FavoriteList
-              title="Favorite Dashboards"
-              resource={Dashboard}
-              itemUrl={dashboard => dashboard.url}
-              emptyState={
-                <p>
-                  <span className="btn-favourite m-r-5">
-                    <i className="fa fa-star" aria-hidden="true" />
-                  </span>
-                  Favorite <Link href="dashboards">Dashboards</Link> will appear here
-                </p>
-              }
-            />
-          </div>
-          <div className="col-sm-6 m-t-20">
-            <FavoriteList
-              title="Favorite Queries"
-              resource={Query}
-              itemUrl={query => `queries/${query.id}`}
-              emptyState={
-                <p>
-                  <span className="btn-favourite m-r-5">
-                    <i className="fa fa-star" aria-hidden="true" />
-                  </span>
-                  Favorite <Link href="queries">Queries</Link> will appear here
-                </p>
-              }
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Home() {
+export default function Home() {
   useEffect(() => {
     recordEvent("view", "page", "personal_homepage");
   }, []);
@@ -162,15 +75,17 @@ function Home() {
       <div className="container">
         {includes(messages, "using-deprecated-embed-feature") && <DeprecatedEmbedFeatureAlert />}
         {includes(messages, "email-not-verified") && <EmailNotVerifiedAlert />}
-        <EmptyState
-          header="Welcome to Redash 👋"
-          description="Connect to any data source, easily visualize and share your data"
-          illustration="dashboard"
-          helpLink="https://redash.io/help/user-guide/getting-started"
-          showDashboardStep
-          showInviteStep
-          onboardingMode
-        />
+        <DynamicComponent name="Home.EmptyState">
+          <EmptyState
+            header="Welcome to Redash 👋"
+            description="Connect to any data source, easily visualize and share your data"
+            illustration="dashboard"
+            helpMessage={<EmptyStateHelpMessage helpTriggerType="GETTING_STARTED" />}
+            showDashboardStep
+            showInviteStep
+            onboardingMode
+          />
+        </DynamicComponent>
         <DynamicComponent name="HomeExtra" />
         <DashboardAndQueryFavoritesList />
         <BeaconConsent />

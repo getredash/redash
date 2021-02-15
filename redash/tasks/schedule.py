@@ -60,7 +60,7 @@ def schedule(kwargs):
 
 def periodic_job_definitions():
     jobs = [
-        {"func": refresh_queries, "interval": 30, "result_ttl": 600},
+        {"func": refresh_queries, "timeout": 600, "interval": 30, "result_ttl": 600},
         {
             "func": remove_ghost_locks,
             "interval": timedelta(minutes=1),
@@ -70,8 +70,13 @@ def periodic_job_definitions():
         {
             "func": refresh_schemas,
             "interval": timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE),
+        },      
+        {
+            "func": sync_user_details,
+            "timeout": 60,
+            "interval": timedelta(minutes=1),
+            "result_ttl": 600,
         },
-        {"func": sync_user_details, "timeout": 60, "interval": timedelta(minutes=1),},
         {
             "func": send_aggregated_errors,
             "interval": timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL),

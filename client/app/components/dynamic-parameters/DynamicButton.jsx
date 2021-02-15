@@ -15,7 +15,7 @@ import "./DynamicButton.less";
 
 const { Text } = Typography;
 
-function DynamicButton({ options, selectedDynamicValue, onSelect, enabled }) {
+function DynamicButton({ options, selectedDynamicValue, onSelect, enabled, staticValueLabel }) {
   const menu = (
     <Menu
       className="dynamic-menu"
@@ -32,7 +32,7 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled }) {
       {enabled && (
         <Menu.Item>
           <ArrowLeftOutlinedIcon />
-          <Text type="secondary">Back to Static Value</Text>
+          <Text type="secondary">{staticValueLabel}</Text>
         </Menu.Item>
       )}
     </Menu>
@@ -68,6 +68,7 @@ DynamicButton.propTypes = {
   selectedDynamicValue: PropTypes.oneOfType([DynamicDateType, DynamicDateRangeType]),
   onSelect: PropTypes.func,
   enabled: PropTypes.bool,
+  staticValueLabel: PropTypes.string,
 };
 
 DynamicButton.defaultProps = {
@@ -75,6 +76,7 @@ DynamicButton.defaultProps = {
   selectedDynamicValue: null,
   onSelect: () => {},
   enabled: false,
+  staticValueLabel: "Back to Static Value",
 };
 
 export default DynamicButton;

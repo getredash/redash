@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { compact, isEmpty, invoke } from "lodash";
+import { compact, isEmpty, invoke, map } from "lodash";
 import { markdown } from "markdown";
 import cx from "classnames";
 import Menu from "antd/lib/menu";
@@ -84,7 +84,14 @@ function RefreshIndicator({ refreshStartedAt }) {
 RefreshIndicator.propTypes = { refreshStartedAt: Moment };
 RefreshIndicator.defaultProps = { refreshStartedAt: null };
 
-function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onParametersUpdate }) {
+function VisualizationWidgetHeader({
+  widget,
+  refreshStartedAt,
+  parameters,
+  isEditing,
+  onParametersUpdate,
+  onParametersEdit,
+}) {
   const canViewQuery = currentUser.hasPermission("view_query");
 
   return (
@@ -104,7 +111,13 @@ function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onPar
       </div>
       {!isEmpty(parameters) && (
         <div className="m-b-10">
-          <Parameters parameters={parameters} onValuesChange={onParametersUpdate} />
+          <Parameters
+            parameters={parameters}
+            sortable={isEditing}
+            appendSortableToParent={false}
+            onValuesChange={onParametersUpdate}
+            onParametersEdit={onParametersEdit}
+          />
         </div>
       )}
     </>
@@ -115,12 +128,16 @@ VisualizationWidgetHeader.propTypes = {
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   refreshStartedAt: Moment,
   parameters: PropTypes.arrayOf(PropTypes.object),
+  isEditing: PropTypes.bool,
   onParametersUpdate: PropTypes.func,
+  onParametersEdit: PropTypes.func,
 };
 
 VisualizationWidgetHeader.defaultProps = {
   refreshStartedAt: null,
   onParametersUpdate: () => {},
+  onParametersEdit: () => {},
+  isEditing: false,
   parameters: [],
 };
 
@@ -190,6 +207,7 @@ class VisualizationWidget extends React.Component {
     isPublic: PropTypes.bool,
     isLoading: PropTypes.bool,
     canEdit: PropTypes.bool,
+    isEditing: PropTypes.bool,
     onLoad: PropTypes.func,
     onRefresh: PropTypes.func,
     onDelete: PropTypes.func,
@@ -201,6 +219,7 @@ class VisualizationWidget extends React.Component {
     isPublic: false,
     isLoading: false,
     canEdit: false,
+    isEditing: false,
     onLoad: () => {},
     onRefresh: () => {},
     onDelete: () => {},
@@ -284,10 +303,15 @@ class VisualizationWidget extends React.Component {
   }
 
   render() {
-    const { widget, isLoading, isPublic, canEdit, onRefresh } = this.props;
+    const { widget, isLoading, isPublic, canEdit, isEditing, onRefresh } = this.props;
     const { localParameters } = this.state;
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = isLoading && !!(widgetQueryResult && widgetQueryResult.getStatus());
+    const onParametersEdit = parameters => {
+      const paramOrder = map(parameters, "name");
+      widget.options.paramOrder = paramOrder;
+      widget.save("options", { paramOrder });
+    };
 
     return (
       <Widget
@@ -303,7 +327,9 @@ class VisualizationWidget extends React.Component {
             widget={widget}
             refreshStartedAt={isRefreshing ? widget.refreshStartedAt : null}
             parameters={localParameters}
+            isEditing={isEditing}
             onParametersUpdate={onRefresh}
+            onParametersEdit={onParametersEdit}
           />
         }
         footer={

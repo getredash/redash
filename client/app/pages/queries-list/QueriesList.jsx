@@ -33,19 +33,19 @@ const sidebarMenu = [
     key: "all",
     href: "queries",
     title: "All Queries",
-  },
-  {
-    key: "favorites",
-    href: "queries/favorites",
-    title: "Favorites",
-    icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
+    icon: () => <Sidebar.MenuIcon icon="fa fa-code" />,
   },
   {
     key: "my",
     href: "queries/my",
     title: "My Queries",
     icon: () => <Sidebar.ProfileImage user={currentUser} />,
-    isAvailable: () => currentUser.hasPermission("create_query"),
+  },
+  {
+    key: "favorites",
+    href: "queries/favorites",
+    title: "Favorites",
+    icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
   },
   {
     key: "archive",

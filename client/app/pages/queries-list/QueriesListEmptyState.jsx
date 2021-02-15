@@ -3,7 +3,10 @@ import PropTypes from "prop-types";
 import Link from "@/components/Link";
 import BigMessage from "@/components/BigMessage";
 import NoTaggedObjectsFound from "@/components/NoTaggedObjectsFound";
-import EmptyState from "@/components/empty-state/EmptyState";
+import EmptyState, { EmptyStateHelpMessage } from "@/components/empty-state/EmptyState";
+import DynamicComponent from "@/components/DynamicComponent";
+import { currentUser } from "@/services/auth";
+import HelpTrigger from "@/components/HelpTrigger";
 
 export default function QueriesListEmptyState({ page, searchTerm, selectedTags }) {
   if (searchTerm !== "") {
@@ -18,23 +21,29 @@ export default function QueriesListEmptyState({ page, searchTerm, selectedTags }
     case "archive":
       return <BigMessage message="Archived queries will be listed here." icon="fa-archive" />;
     case "my":
-      return (
-        <div className="tiled bg-white p-15">
+      const my_msg = currentUser.hasPermission("create_query") ? (
+        <span>
           <Link.Button href="queries/new" type="primary" size="small">
-            Create your first query
+            Create your first query!
           </Link.Button>{" "}
-          to populate My Queries list. Need help? Check out our{" "}
-          <Link href="https://redash.io/help/user-guide/querying/writing-queries">query writing documentation</Link>.
-        </div>
+          <HelpTrigger className="f-13" type="QUERIES" showTooltip={false}>
+            Need help?
+          </HelpTrigger>
+        </span>
+      ) : (
+        <span>Sorry, we couldn't find anything.</span>
       );
+      return <BigMessage icon="fa-search">{my_msg}</BigMessage>;
     default:
       return (
-        <EmptyState
-          icon="fa fa-code"
-          illustration="query"
-          description="Getting the data from your datasources."
-          helpLink="https://help.redash.io/category/21-querying"
-        />
+        <DynamicComponent name="QueriesList.EmptyState">
+          <EmptyState
+            icon="fa fa-code"
+            illustration="query"
+            description="Getting the data from your datasources."
+            helpMessage={<EmptyStateHelpMessage helpTriggerType="QUERIES" />}
+          />
+        </DynamicComponent>
       );
   }
 }

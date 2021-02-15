@@ -116,7 +116,7 @@ export default function QueryPageHeader({
             onClick: publishQuery,
           },
           unpublish: {
-            isAvailable: !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isDraft,
+            isAvailable: !clientConfig.disablePublish && !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isDraft,
             title: "Unpublish",
             onClick: unpublishQuery,
           },
@@ -179,7 +179,7 @@ export default function QueryPageHeader({
 
         {!queryFlags.isNew && queryFlags.canViewSource && (
           <span>
-            {!sourceMode && (
+            {!sourceMode && queryFlags.canEdit && (
               <Link.Button className="m-r-5" href={query.getUrl(true, selectedVisualization)}>
                 <i className="fa fa-pencil-square-o" aria-hidden="true" />
                 <span className="m-l-5">Edit Source</span>
@@ -189,9 +189,9 @@ export default function QueryPageHeader({
               <Link.Button
                 className="m-r-5"
                 href={query.getUrl(false, selectedVisualization)}
-                data-test="QueryPageShowDataOnly">
+                data-test="QueryPageShowResultOnly">
                 <i className="fa fa-table" aria-hidden="true" />
-                <span className="m-l-5">Show Data Only</span>
+                <span className="m-l-5">Show Results Only</span>
               </Link.Button>
             )}
           </span>
@@ -211,7 +211,7 @@ export default function QueryPageHeader({
 
 QueryPageHeader.propTypes = {
   query: PropTypes.shape({
-    id: PropTypes.number,
+    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     name: PropTypes.string,
     tags: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,

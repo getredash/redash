@@ -1,7 +1,9 @@
+@import (reference, less) "~@/assets/less/ant";
+
 // Empty states
 .empty-state {
   width: 100%;
-  margin: 0px auto 10px;
+  margin: 0 auto 10px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -16,14 +18,17 @@
   }
 
   .empty-state__steps {
-    padding-left: 0px;
+    padding-left: 0;
   }
-
 
   .empty-state__summary {
     align-self: flex-start;
     text-align: center;
     background: rgba(102, 136, 153, 0.025);
+
+    p {
+      margin-bottom: 0;
+    }
   }
 
   ol {
@@ -42,10 +47,6 @@
   h4 {
     margin-top: 0;
     margin-bottom: 15px;
-  }
-
-  p {
-    margin-bottom: 0;
   }
 
   a:hover {
@@ -68,6 +69,25 @@
     .empty-state__steps {
       padding-left: 35px;
       padding-top: 15px;
+    }
+  }
+}
+
+// close button
+.empty-state-wrapper {
+  position: relative;
+
+  .close-button {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 15px;
+    color: @text-color-secondary;
+    cursor: pointer;
+    transition: color @animation-duration-slow;
+
+    &:hover {
+      color: @text-color;
     }
   }
 }

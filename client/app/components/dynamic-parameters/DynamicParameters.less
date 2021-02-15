@@ -1,7 +1,25 @@
-@import "../../assets/less/inc/variables";
+@import (reference, less) "~@/assets/less/inc/variables";
+
+.date-range-parameter,
+.date-parameter {
+  position: relative;
+}
 
 .redash-datepicker {
   padding-right: 35px !important;
+
+  &.date-range {
+    width: 294px;
+  }
+  &.datetime-range {
+    width: 352px;
+  }
+  &.datetime-range-with-seconds {
+    width: 382px;
+  }
+  &.dynamic-value {
+    width: 195px;
+  }
 
   &.ant-picker-range .ant-picker-clear {
     right: 35px !important;
@@ -14,7 +32,7 @@
 
   &.dynamic-value {
     & ::placeholder {
-      color: @text-color !important;
+      color: @input-color !important;
     }
 
     &.date-range-input {
@@ -22,7 +40,8 @@
         opacity: 0;
       }
 
-      .ant-picker-separator {
+      .ant-picker-separator,
+      .ant-picker-range-separator {
         display: none;
       }
 

@@ -4,12 +4,12 @@ import PropTypes from "prop-types";
 import { UserProfile } from "@/components/proptypes";
 import DynamicComponent from "@/components/DynamicComponent";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
+import UserGroups from "@/components/UserGroups";
 
 import User from "@/services/user";
 import { currentUser } from "@/services/auth";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
-import UserGroups from "./UserGroups";
 import useUserGroups from "../hooks/useUserGroups";
 
 export default function UserInfoForm(props) {
