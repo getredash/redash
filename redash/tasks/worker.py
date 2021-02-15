@@ -101,12 +101,13 @@ class HardLimitingWorker(HerokuWorker):
         )
         self.kill_horse()
 
-    def monitor_work_horse(self, job):
+    def monitor_work_horse(self, job, queue):
         """The worker will monitor the work horse and make sure that it
         either executes successfully or the status of the job is set to
         failed
         """
         self.monitor_started = utcnow()
+        job.started_at = utcnow()
         while True:
             try:
                 with UnixSignalDeathPenalty(
@@ -158,6 +159,7 @@ class HardLimitingWorker(HerokuWorker):
 
             self.handle_job_failure(
                 job,
+                queue=queue,
                 exc_string="Work-horse process was terminated unexpectedly "
                 "(waitpid returned %s)" % ret_val,
             )
