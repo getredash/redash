@@ -13,7 +13,7 @@ import Filters from "@/components/Filters";
 import { Dashboard } from "@/services/dashboard";
 import routes from "@/services/routes";
 
-import logoUrl from "@/assets/images/redash_icon_small.png";
+import logoUrl from "@/assets/images/logicloop_icon_small.png";
 
 import useDashboard from "./hooks/useDashboard";
 
@@ -90,11 +90,11 @@ class PublicDashboardPage extends React.Component {
         )}
         <div id="footer">
           <div className="text-center">
-            <Link href="https://redash.io">
-              <img alt="Redash Logo" src={logoUrl} width="38" />
+            <Link href="https://getlogicloop.com">
+              <img alt="LogicLoop Logo" src={logoUrl} width="50" />
             </Link>
           </div>
-          Powered by <Link href="https://redash.io/?ref=public-dashboard">Redash</Link>
+          Powered by <Link href="https://getlogicloop.com">LogicLoop</Link>
         </div>
       </div>
     );

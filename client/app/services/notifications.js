@@ -1,9 +1,9 @@
 import { find } from "lodash";
 import debug from "debug";
 import recordEvent from "@/services/recordEvent";
-import redashIconUrl from "@/assets/images/redash_icon_small.png";
+import logicloopIconUrl from "@/assets/images/logicloop_icon_small.png";
 
-const logger = debug("redash:notifications");
+const logger = debug("logicloop:notifications");
 
 const Notification = window.Notification || null;
 if (!Notification) {
@@ -31,8 +31,9 @@ function showNotification(title, content) {
   const notification = new Notification(title, {
     tag: title + content,
     body: content,
-    icon: redashIconUrl,
+    icon: logicloopIconUrl,
   });
+
   notification.onclick = function onClick() {
     window.focus();
     this.close();
