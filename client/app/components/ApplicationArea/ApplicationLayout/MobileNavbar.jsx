@@ -19,7 +19,7 @@ export default function MobileNavbar({ getPopupContainer }) {
     <div className="mobile-navbar">
       <div className="mobile-navbar-logo">
         <Link href="./">
-          <img src={logoUrl} alt="Redash" style={{ maxWidth: '100%', height: 'auto' }} />
+          <img src={logoUrl} alt="Redash" style={{ maxWidth: "100%", height: "auto" }} />
         </Link>
       </div>
       <div>

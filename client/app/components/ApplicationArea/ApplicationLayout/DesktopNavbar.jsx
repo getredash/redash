@@ -75,7 +75,7 @@ export default function DesktopNavbar() {
       <NavbarSection className="desktop-navbar-logo">
         <div>
           <Link href="./">
-            <img src={logoUrl} alt="LogicLoop" style={{ maxWidth: '80%', height: 'auto' }}/>
+            <img src={logoUrl} alt="LogicLoop" style={{ maxWidth: "80%", height: "auto" }} />
           </Link>
         </div>
       </NavbarSection>
