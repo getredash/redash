@@ -168,6 +168,7 @@ const DashboardService = {
   delete: ({ id }) => axios.delete(`api/dashboards/${id}`).then(transformResponse),
   query: params => axios.get("api/dashboards", { params }).then(transformResponse),
   recent: params => axios.get("api/dashboards/recent", { params }).then(transformResponse),
+  myDashboards: params => axios.get("api/dashboards/my", { params }).then(transformResponse),
   favorites: params => axios.get("api/dashboards/favorites", { params }).then(transformResponse),
   favorite: ({ id }) => axios.post(`api/dashboards/${id}/favorite`),
   unfavorite: ({ id }) => axios.delete(`api/dashboards/${id}/favorite`),

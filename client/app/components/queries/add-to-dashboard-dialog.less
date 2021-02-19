@@ -1,4 +1,4 @@
-@import (reference, less) '~@/assets/less/main.less';
+@import (reference, less) "~@/assets/less/main.less";
 
 .ant-list {
   &.add-to-dashboard-dialog-search-results {
@@ -13,7 +13,8 @@
       padding: 12px;
       cursor: pointer;
 
-      &:hover, &:active {
+      &:hover,
+      &:active {
         @table-row-hover-bg: fade(@redash-gray, 5%);
         background-color: @table-row-hover-bg;
       }
