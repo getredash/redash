@@ -50,30 +50,22 @@ def worker(queues):
 
 
 class WorkerHealthcheck(base.BaseCheck):
-    NAME = 'RQ Worker Healthcheck'
-    INTERVAL = datetime.timedelta(minutes=5)
-    _last_check_time = {}
-
-    def time_to_check(self, pid):
-        now = datetime.datetime.utcnow()
-
-        if pid not in self._last_check_time:
-            self._last_check_time[pid] = now
-
-        if now - self._last_check_time[pid] >= self.INTERVAL:
-            self._last_check_time[pid] = now
-            return True
-
-        return False
+    NAME = "RQ Worker Healthcheck"
 
     def __call__(self, process_spec):
-        pid = process_spec['pid']
-        if not self.time_to_check(pid):
-            return True
-
+        pid = process_spec["pid"]
         all_workers = Worker.all(connection=rq_redis_connection)
-        worker = [w for w in all_workers if w.hostname == socket.gethostname().encode() and
-                  w.pid == pid].pop()
+        workers = [
+            w
+            for w in all_workers
+            if w.hostname == socket.gethostname() and w.pid == pid
+        ]
+
+        if not workers:
+            self._log(f"Cannot find worker for hostname {socket.gethostname()} and pid {pid}. ==> Is healthy? False")
+            return False
+
+        worker = workers.pop()
 
         is_busy = worker.get_state() == WorkerStatus.BUSY
 
@@ -85,12 +77,19 @@ class WorkerHealthcheck(base.BaseCheck):
 
         is_healthy = is_busy or seen_lately or has_nothing_to_do
 
-        self._log("Worker %s healthcheck: Is busy? %s. "
-                  "Seen lately? %s (%d seconds ago). "
-                  "Has nothing to do? %s (%d jobs in watched queues). "
-                  "==> Is healthy? %s",
-                  worker.key, is_busy, seen_lately, time_since_seen.seconds,
-                  has_nothing_to_do, total_jobs_in_watched_queues, is_healthy)
+        self._log(
+            "Worker %s healthcheck: Is busy? %s. "
+            "Seen lately? %s (%d seconds ago). "
+            "Has nothing to do? %s (%d jobs in watched queues). "
+            "==> Is healthy? %s",
+            worker.key,
+            is_busy,
+            seen_lately,
+            time_since_seen.seconds,
+            has_nothing_to_do,
+            total_jobs_in_watched_queues,
+            is_healthy,
+        )
 
         return is_healthy
 
@@ -98,4 +97,5 @@ class WorkerHealthcheck(base.BaseCheck):
 @manager.command()
 def healthcheck():
     return check_runner.CheckRunner(
-        'worker_healthcheck', 'worker', None, [(WorkerHealthcheck, {})]).run()
+        "worker_healthcheck", "worker", None, [(WorkerHealthcheck, {})]
+    ).run()
