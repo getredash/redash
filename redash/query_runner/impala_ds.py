@@ -56,6 +56,7 @@ class Impala(BaseSQLQueryRunner):
                 "ldap_user": {"type": "string"},
                 "ldap_password": {"type": "string"},
                 "timeout": {"type": "number"},
+                "user": {"type": "string"},
             },
             "required": ["host"],
             "secret": ["ldap_password"],
@@ -95,10 +96,12 @@ class Impala(BaseSQLQueryRunner):
 
         connection = None
         try:
-            connection = connect(**self.configuration.to_dict())
-
-            cursor = connection.cursor()
-
+            config = self.configuration.to_dict()
+            connection = connect(**config)
+            if 'user' in config:
+                cursor = connection.cursor(user=config['user'])
+            else:
+                cursor = connection.cursor()
             cursor.execute(query)
 
             column_names = []
