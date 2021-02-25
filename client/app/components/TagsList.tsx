@@ -92,7 +92,6 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
             <Menu.Item key={tag.name} className="m-0">
               <a
                 className="d-flex align-items-center justify-content-between"
-                role="menuitem"
                 onClick={event => toggleTag(event, tag.name)}>
                 <span className="max-character col-xs-11">{tag.name}</span>
                 <Badge count={tag.count} />
