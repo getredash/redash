@@ -75,7 +75,7 @@ export default class EditInPlace extends React.Component {
         {this.props.value}
       </span>
     ) : (
-      <a className="clickable" role="link" onClick={this.startEditing}>
+      <a className="clickable" onClick={this.startEditing}>
         {this.props.placeholder}
       </a>
     );

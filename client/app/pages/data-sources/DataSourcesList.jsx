@@ -29,7 +29,7 @@ export function DataSourcesListComponent({ dataSources, onClickCreate }) {
       There are no data sources yet.
       {policy.isCreateDataSourceEnabled() && (
         <div className="m-t-5">
-          <a className="clickable" role="link" onClick={onClickCreate} data-test="CreateDataSourceLink">
+          <a className="clickable" onClick={onClickCreate} data-test="CreateDataSourceLink">
             Click here
           </a>{" "}
           to add one.

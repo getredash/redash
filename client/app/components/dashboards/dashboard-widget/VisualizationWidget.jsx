@@ -159,7 +159,6 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
         {!isPublic && !!widgetQueryResult && (
           <a
             className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
-            role="button"
             onClick={() => refreshWidget(1)}
             data-test="RefreshButton">
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 1 })} />{" "}
@@ -179,15 +178,11 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
         {!isPublic && (
           <a
             className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh"
-            role="button"
             onClick={() => refreshWidget(2)}>
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 2 })} />
           </a>
         )}
-        <a
-          className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh"
-          role="button"
-          onClick={onExpand}>
+        <a className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh" onClick={onExpand}>
           <i className="zmdi zmdi-fullscreen" />
         </a>
       </span>
