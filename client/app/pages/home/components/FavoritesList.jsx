@@ -29,7 +29,7 @@ export function FavoriteList({ title, resource, itemUrl, emptyState }) {
       {!isEmpty(items) && (
         <ul className="list-group">
           {items.map(item => (
-            <Link key={itemUrl(item)} role="listitem" tabIndex={0} className="list-group-item" href={itemUrl(item)}>
+            <Link key={itemUrl(item)} role="listitem" className="list-group-item" href={itemUrl(item)}>
               <span className="btn-favorite m-r-5">
                 <i className="fa fa-star" aria-hidden="true" />
               </span>

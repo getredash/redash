@@ -74,7 +74,7 @@ export default function DesktopNavbar() {
     <nav className="desktop-navbar">
       <NavbarSection className="desktop-navbar-logo">
         <div role="menuitem">
-          <Link href="./" tabIndex={0}>
+          <Link href="./">
             <img src={logoUrl} alt="Redash" />
           </Link>
         </div>
