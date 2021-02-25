@@ -46,17 +46,17 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, muted }) {
         <Menu>
           <Menu.Item>
             {muted ? (
-              <a role="menuitem" tabIndex={-1} onClick={() => execute(unmute)}>
+              <a role="menuitem" onClick={() => execute(unmute)}>
                 Unmute Notifications
               </a>
             ) : (
-              <a role="menuitem" tabIndex={-1} onClick={() => execute(mute)}>
+              <a role="menuitem" onClick={() => execute(mute)}>
                 Mute Notifications
               </a>
             )}
           </Menu.Item>
           <Menu.Item>
-            <a role="menuitem" tabIndex={-1} onClick={confirmDelete}>
+            <a role="menuitem" onClick={confirmDelete}>
               Delete
             </a>
           </Menu.Item>

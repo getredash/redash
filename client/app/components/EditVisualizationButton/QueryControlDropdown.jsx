@@ -18,11 +18,7 @@ export default function QueryControlDropdown(props) {
     <Menu>
       {!props.query.isNew() && (!props.query.is_draft || !props.query.is_archived) && (
         <Menu.Item>
-          <a
-            target="_self"
-            role="menuitem"
-            tabIndex={0}
-            onClick={() => props.openAddToDashboardForm(props.selectedTab)}>
+          <a target="_self" role="menuitem" onClick={() => props.openAddToDashboardForm(props.selectedTab)}>
             <PlusCircleFilledIcon /> Add to Dashboard
           </a>
         </Menu.Item>
@@ -31,7 +27,6 @@ export default function QueryControlDropdown(props) {
         <Menu.Item>
           <a
             role="menuitem"
-            tabIndex={0}
             onClick={() => props.showEmbedDialog(props.query, props.selectedTab)}
             data-test="ShowEmbedDialogButton">
             <ShareAltOutlinedIcon /> Embed Elsewhere

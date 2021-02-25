@@ -55,7 +55,7 @@ function EmailNotVerifiedAlert() {
         <>
           We have sent an email with a confirmation link to your email address. Please follow the link to verify your
           email address.{" "}
-          <a className="clickable" role="link" tabIndex={0} onClick={verifyEmail}>
+          <a className="clickable" role="link" onClick={verifyEmail}>
             Resend email
           </a>
           .

@@ -132,7 +132,6 @@ export default function DesktopNavbar() {
                 <a
                   data-test="CreateDashboardMenuItem"
                   role="button"
-                  tabIndex={0}
                   onMouseUp={() => CreateDashboardDialog.showModal()}>
                   New Dashboard
                 </a>

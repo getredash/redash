@@ -161,7 +161,7 @@ class QuerySnippetsList extends React.Component {
             There are no query snippets yet.
             {policy.isCreateQuerySnippetEnabled() && (
               <div className="m-t-5">
-                <a className="clickable" role="link" tabIndex={0} onClick={() => this.showSnippetDialog()}>
+                <a className="clickable" role="link" onClick={() => this.showSnippetDialog()}>
                   Click here
                 </a>{" "}
                 to add one.

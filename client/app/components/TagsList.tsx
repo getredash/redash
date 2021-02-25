@@ -79,7 +79,7 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
       <div className="tags-list-title">
         <span className="tags-list-label">Tags</span>
         {showUnselectAll && selectedTags.length > 0 && (
-          <a role="button" tabIndex={0} onClick={unselectAll}>
+          <a role="button" onClick={unselectAll}>
             <CloseOutlinedIcon />
             clear selection
           </a>
@@ -93,7 +93,6 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
               <a
                 className="d-flex align-items-center justify-content-between"
                 role="menuitem"
-                tabIndex={0}
                 onClick={event => toggleTag(event, tag.name)}>
                 <span className="max-character col-xs-11">{tag.name}</span>
                 <Badge count={tag.count} />
