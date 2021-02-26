@@ -98,7 +98,7 @@ class Impala(BaseSQLQueryRunner):
         try:
             config = self.configuration.to_dict()
             connection = connect(**config)
-            if 'user' in config:
+            if 'user' in config and not config.get('use_ldap', False):
                 cursor = connection.cursor(user=config['user'])
             else:
                 cursor = connection.cursor()
