@@ -84,7 +84,7 @@ export default function DesktopNavbar() {
         {currentUser.hasPermission("list_dashboards") && (
           <Menu.Item key="dashboards" className={activeState.dashboards ? "navbar-active-item" : null}>
             <Link href="dashboards">
-              <DesktopOutlinedIcon alt="Dashboard navigation button" />
+              <DesktopOutlinedIcon aria-label="Dashboard navigation button" />
               <span className="desktop-navbar-label">Dashboards</span>
             </Link>
           </Menu.Item>
@@ -92,7 +92,7 @@ export default function DesktopNavbar() {
         {currentUser.hasPermission("view_query") && (
           <Menu.Item key="queries" className={activeState.queries ? "navbar-active-item" : null}>
             <Link href="queries">
-              <CodeOutlinedIcon alt="Queries navigation button" />
+              <CodeOutlinedIcon aria-label="Queries navigation button" />
               <span className="desktop-navbar-label">Queries</span>
             </Link>
           </Menu.Item>
@@ -100,7 +100,7 @@ export default function DesktopNavbar() {
         {currentUser.hasPermission("list_alerts") && (
           <Menu.Item key="alerts" className={activeState.alerts ? "navbar-active-item" : null}>
             <Link href="alerts">
-              <AlertOutlinedIcon alt="Alerts navigation button" />
+              <AlertOutlinedIcon aria-label="Alerts navigation button" />
               <span className="desktop-navbar-label">Alerts</span>
             </Link>
           </Menu.Item>
