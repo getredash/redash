@@ -66,9 +66,9 @@ export default class CodeBlock extends React.Component {
 
     return (
       <div className="code-block">
-        <code {...props} ref={this.ref}>
+        <textarea {...props} ref={this.ref}>
           {children}
-        </code>
+        </textarea>
         {this.copyFeatureEnabled && copyButton}
       </div>
     );
