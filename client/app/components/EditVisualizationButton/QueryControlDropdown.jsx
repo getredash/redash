@@ -67,7 +67,7 @@ export default function QueryControlDropdown(props) {
   );
 
   return (
-    <Dropdown trigger={["click"]} overlay={menu} role="menu" overlayClassName="query-control-dropdown-overlay">
+    <Dropdown trigger={["click"]} overlay={menu} overlayClassName="query-control-dropdown-overlay">
       <Button data-test="QueryControlDropdownButton">
         <EllipsisOutlinedIcon rotate={90} />
       </Button>
