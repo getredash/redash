@@ -27,7 +27,7 @@ export function FavoriteList({ title, resource, itemUrl, emptyState }) {
         {loading && <LoadingOutlinedIcon />}
       </div>
       {!isEmpty(items) && (
-        <ul className="list-group">
+        <div role="list" className="list-group">
           {items.map(item => (
             <Link key={itemUrl(item)} role="listitem" className="list-group-item" href={itemUrl(item)}>
               <span className="btn-favorite m-r-5">
@@ -37,7 +37,7 @@ export function FavoriteList({ title, resource, itemUrl, emptyState }) {
               {item.is_draft && <span className="label label-default m-l-5">Unpublished</span>}
             </Link>
           ))}
-        </ul>
+        </div>
       )}
       {isEmpty(items) && !loading && emptyState}
     </>
