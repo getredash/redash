@@ -35,10 +35,7 @@ class QuerySnippetsList extends React.Component {
     Columns.custom.sortable(
       (text, querySnippet) => (
         <div>
-          <a
-            className="table-main-title clickable"
-            role="presentation"
-            onClick={() => this.showSnippetDialog(querySnippet)}>
+          <a className="table-main-title clickable" onClick={() => this.showSnippetDialog(querySnippet)}>
             {querySnippet.trigger}
           </a>
         </div>
