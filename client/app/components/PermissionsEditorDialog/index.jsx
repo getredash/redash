@@ -169,6 +169,7 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
                   <Tag className="m-0">Author</Tag>
                 ) : (
                   <Tooltip title="Remove user permissions">
+                    {/* TODO: wrap in a button */}
                     <i
                       role="button"
                       tabIndex={-1}

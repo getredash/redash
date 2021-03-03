@@ -55,8 +55,8 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
       <span
         className={`react-resizable-handle react-resizable-handle-${direction}`}
         role="separator"
-        tabIndex={-1} // TODO: add key controls
         onClick={() => {
+          // TODO: add key controls
           // On desktops resize uses `mousedown`/`mousemove`/`mouseup` events, and there is a conflict
           // with this `click` handler: after user releases mouse - this handler will be executed.
           // So we use `wasResized` flag to check if there was actual resize or user just pressed and released
