@@ -13,12 +13,9 @@ from redash.utils import json_dumps, json_loads
 from . import register
 
 try:
-    from cmem.cmempy.queries import (
-        SparqlQuery,
-        QueryCatalog,
-        QUERY_STRING
-    )
+    from cmem.cmempy.queries import SparqlQuery, QueryCatalog, QUERY_STRING
     from cmem.cmempy.dp.proxy.graph import get_graphs_list
+
     enabled = True
 except ImportError:
     enabled = False
@@ -31,26 +28,23 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
 
     # These environment keys are used by cmempy
     KNOWN_CONFIG_KEYS = (
-        'CMEM_BASE_PROTOCOL',
-        'CMEM_BASE_DOMAIN',
-        'CMEM_BASE_URI',
-        'SSL_VERIFY',
-        'REQUESTS_CA_BUNDLE',
-        'DP_API_ENDPOINT',
-        'DI_API_ENDPOINT',
-        'OAUTH_TOKEN_URI',
-        'OAUTH_GRANT_TYPE',
-        'OAUTH_USER',
-        'OAUTH_PASSWORD',
-        'OAUTH_CLIENT_ID',
-        'OAUTH_CLIENT_SECRET'
+        "CMEM_BASE_PROTOCOL",
+        "CMEM_BASE_DOMAIN",
+        "CMEM_BASE_URI",
+        "SSL_VERIFY",
+        "REQUESTS_CA_BUNDLE",
+        "DP_API_ENDPOINT",
+        "DI_API_ENDPOINT",
+        "OAUTH_TOKEN_URI",
+        "OAUTH_GRANT_TYPE",
+        "OAUTH_USER",
+        "OAUTH_PASSWORD",
+        "OAUTH_CLIENT_ID",
+        "OAUTH_CLIENT_SECRET",
     )
 
     # These variables hold secret data and should be logged
-    KNOWN_SECRET_KEYS = (
-        'OAUTH_PASSWORD',
-        'OAUTH_CLIENT_SECRET'
-    )
+    KNOWN_SECRET_KEYS = ("OAUTH_PASSWORD", "OAUTH_CLIENT_SECRET")
 
     # This allows for an easy connection test
     noop_query = "SELECT ?noop WHERE {BIND('noop' as ?noop)}"
@@ -92,13 +86,9 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
             if value is not None:
                 environ[key] = value
                 if key in self.KNOWN_SECRET_KEYS:
-                    logger.info(
-                        "{} set by config".format(key)
-                    )
+                    logger.info("{} set by config".format(key))
                 else:
-                    logger.info(
-                        "{} set by config to {}".format(key, environ[key])
-                    )
+                    logger.info("{} set by config to {}".format(key, environ[key]))
 
     def _transform_sparql_results(self, results):
         """transforms a SPARQL query result to a redash query result
@@ -138,13 +128,7 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
         # transform all vars to redash columns
         columns = []
         for var in sparql_results["head"]["vars"]:
-            columns.append(
-                {
-                    "name": var,
-                    "friendly_name": var,
-                    "type": "string"
-                }
-            )
+            columns.append({"name": var, "friendly_name": var, "type": "string"})
         # Not sure why we do not use the json package here but all other
         # query runner do it the same way :-)
         return json_dumps({"columns": columns, "rows": rows})
@@ -168,32 +152,28 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
                 possible race condition which should be avoided
         """
         query_text = query
-        logger.info("about to execute query (user='{}'): {}"
-                    .format(user, query_text))
+        logger.info("about to execute query (user='{}'): {}".format(user, query_text))
         query = SparqlQuery(query_text)
         query_type = query.get_query_type()
         # type of None means, there is an error in the query
         # so execution is at least tried on endpoint
         if query_type not in ["SELECT", None]:
             raise ValueError(
-                "Queries of type {} can not be processed by redash."
-                .format(query_type)
+                "Queries of type {} can not be processed by redash.".format(query_type)
             )
 
         self._setup_environment()
         try:
-            data = self._transform_sparql_results(
-                query.get_results()
-            )
+            data = self._transform_sparql_results(query.get_results())
         except Exception as error:
             logger.info("Error: {}".format(error))
             try:
                 # try to load Problem Details for HTTP API JSON
                 details = json.loads(error.response.text)
                 error = ""
-                if 'title' in details:
+                if "title" in details:
                     error += details["title"] + ": "
-                if 'detail' in details:
+                if "detail" in details:
                     error += details["detail"]
                     return None, error
             except Exception:
@@ -210,19 +190,16 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "CMEM_BASE_URI": {
-                    "type": "string",
-                    "title": "CMEM_BASE_URL"
-                },
+                "CMEM_BASE_URI": {"type": "string", "title": "CMEM_BASE_URL"},
                 "OAUTH_GRANT_TYPE": {
                     "type": "string",
                     "title": "OAUTH_GRANT_TYPE (can be: password or client_credentials)",
-                    "default": "client_credentials"
+                    "default": "client_credentials",
                 },
                 "OAUTH_CLIENT_ID": {
                     "type": "string",
                     "title": "OAUTH_CLIENT_ID (e.g. cmem-service-account)",
-                    "default": "cmem-service-account"
+                    "default": "cmem-service-account",
                 },
                 "OAUTH_CLIENT_SECRET": {
                     "type": "string",
@@ -230,38 +207,35 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
                 },
                 "OAUTH_USER": {
                     "type": "string",
-                    "title": "OAUTH_USER (e.g. admin) - only needed for grant type 'password'"
+                    "title": "OAUTH_USER (e.g. admin) - only needed for grant type 'password'",
                 },
                 "OAUTH_PASSWORD": {
                     "type": "string",
-                    "title": "OAUTH_PASSWORD - only needed for grant type 'password'"
+                    "title": "OAUTH_PASSWORD - only needed for grant type 'password'",
                 },
                 "SSL_VERIFY": {
                     "type": "string",
                     "title": "SSL_VERIFY - Verify SSL certs for API requests",
-                    "default": "true"
+                    "default": "true",
                 },
                 "REQUESTS_CA_BUNDLE": {
                     "type": "string",
-                    "title": "REQUESTS_CA_BUNDLE - Path to the CA Bundle file (.pem)"
+                    "title": "REQUESTS_CA_BUNDLE - Path to the CA Bundle file (.pem)",
                 },
             },
             "required": ["CMEM_BASE_URI", "OAUTH_GRANT_TYPE", "OAUTH_CLIENT_ID"],
-            "secret": ["OAUTH_CLIENT_SECRET"]
+            "secret": ["OAUTH_CLIENT_SECRET"],
         }
 
     def get_schema(self, get_stats=False):
         """Get the schema structure (prefixes, graphs)."""
         schema = dict()
         schema["1"] = {
-            'name': "-> Common Prefixes <-",
-            'columns': self._get_common_prefixes_schema()
+            "name": "-> Common Prefixes <-",
+            "columns": self._get_common_prefixes_schema(),
         }
-        schema["2"] = {
-            'name': "-> Graphs <-",
-            'columns': self._get_graphs_schema()
-        }
-        #schema.update(self._get_query_schema())
+        schema["2"] = {"name": "-> Graphs <-", "columns": self._get_graphs_schema()}
+        # schema.update(self._get_query_schema())
         logger.info(schema.values())
         return schema.values()
 
@@ -271,7 +245,7 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
         self._setup_environment()
         query_catalog = QueryCatalog()
         query_index = 0
-        #logger.info(str(QUERY_STRING))
+        # logger.info(str(QUERY_STRING))
         for _, query in query_catalog.get_queries().items():
             logger.info("------> " + str(query.label))
             logger.info(str(query.get_query_type()))
@@ -284,14 +258,9 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
                 columns = ["LOAD_QUERY={}".format(query.short_url)]
                 for parameter in query.get_placeholder_keys():
                     logger.info(type(parameter))
-                    columns.append(
-                        parameter + "={{" + parameter + "}}"
-                    )
+                    columns.append(parameter + "={{" + parameter + "}}")
                 logger.info(columns)
-                schema[schema_index] = {
-                    'name': query.label,
-                    'columns': columns
-                }
+                schema[schema_index] = {"name": query.label, "columns": columns}
                 query_index += 1
         return schema
 
@@ -300,9 +269,7 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
         self._setup_environment()
         graphs = []
         for graph in get_graphs_list():
-            graphs.append(
-                "FROM <{}>".format(graph["iri"])
-            )
+            graphs.append("FROM <{}>".format(graph["iri"]))
         return graphs
 
     @staticmethod
@@ -314,7 +281,7 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
             "PREFIX owl: <http://www.w3.org/2002/07/owl#>",
             "PREFIX schema: <http://schema.org/>",
             "PREFIX dct: <http://purl.org/dc/terms/>",
-            "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"
+            "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>",
         ]
         return common_prefixes
 
