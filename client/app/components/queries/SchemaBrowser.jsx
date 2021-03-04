@@ -45,6 +45,7 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
 
   return (
     <div {...props}>
+      {/* TODO: Replace with a button */}
       <div className="table-name" onClick={onToggle}>
         <i className="fa fa-table m-r-5" />
         <strong>

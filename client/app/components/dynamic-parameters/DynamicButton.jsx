@@ -42,7 +42,7 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled, stati
 
   return (
     <div ref={containerRef}>
-      <a onClick={e => e.stopPropagation()}>
+      <a role="presentation" onClick={e => e.stopPropagation()}>
         <Dropdown.Button
           overlay={menu}
           className="dynamic-button"
