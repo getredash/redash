@@ -43,33 +43,29 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
         "OAUTH_CLIENT_SECRET",
     )
 
-    # These variables hold secret data and should be logged
+    # These variables hold secret data and should NOT be logged
     KNOWN_SECRET_KEYS = ("OAUTH_PASSWORD", "OAUTH_CLIENT_SECRET")
 
     # This allows for an easy connection test
     noop_query = "SELECT ?noop WHERE {BIND('noop' as ?noop)}"
 
     # We do not want to have comment in our sparql queries
-    # TODO?: Implement annotate_query in case the metadata is useful somewhere
+    # FEATURE?: Implement annotate_query in case the metadata is useful somewhere
     should_annotate_query = False
 
     def __init__(self, configuration):
         """init the class and configuration"""
         super(CorporateMemoryQueryRunner, self).__init__(configuration)
         """
-        TODO: activate SPARQL support in the redash query editor
+        FEATURE?: activate SPARQL support in the redash query editor
             Currently SPARQL syntax seems not to be available for react-ace
             component. However, the ace editor itself supports sparql mode:
             https://github.com/ajaxorg/ace/blob/master/lib/ace/mode/sparql.js
             then we can hopefully do: self.syntax = "sparql"
-
-        TODO: implement the retrieve Query catalog URIs in order to use them in queries
-
-        TODO?: implement a way to use queries from the query catalog
-
-        TODO: allow a checkbox to NOT use owl:imports imported graphs
-
-        TODO: allow to use a context graph per data source
+        FEATURE?: implement the retrieve Query catalog URIs in order to use them in queries
+        FEATURE?: implement a way to use queries from the query catalog
+        FEATURE?: allow a checkbox to NOT use owl:imports imported graphs
+        FEATURE?: allow to use a context graph per data source
         """
         self.configuration = configuration
 
@@ -90,7 +86,8 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
                 else:
                     logger.info("{} set by config to {}".format(key, environ[key]))
 
-    def _transform_sparql_results(self, results):
+    @staticmethod
+    def _transform_sparql_results(results):
         """transforms a SPARQL query result to a redash query result
 
         source structure: SPARQL 1.1 Query Results JSON Format
@@ -106,7 +103,7 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
                     {"name": "value 2"}
                 ]}
 
-        TODO?: During the sparql_row loop, we could check the datatypes of the
+        FEATURE?: During the sparql_row loop, we could check the data types of the
             values and, in case they are all the same, choose something better than
             just string.
         """
@@ -146,11 +143,7 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
         return "corporate_memory"
 
     def run_query(self, query, user):
-        """send a sparql query to corporate memory
-
-        TODO: between _setup_environment and .get_results call there is a
-                possible race condition which should be avoided
-        """
+        """send a sparql query to corporate memory"""
         query_text = query
         logger.info("about to execute query (user='{}'): {}".format(user, query_text))
         query = SparqlQuery(query_text)
@@ -238,31 +231,6 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
         # schema.update(self._get_query_schema())
         logger.info(schema.values())
         return schema.values()
-
-    def _get_query_schema(self):
-        """Return the query parts of the schema."""
-        schema = dict()
-        self._setup_environment()
-        query_catalog = QueryCatalog()
-        query_index = 0
-        # logger.info(str(QUERY_STRING))
-        for _, query in query_catalog.get_queries().items():
-            logger.info("------> " + str(query.label))
-            logger.info(str(query.get_query_type()))
-            logger.info(str(query.short_url))
-            logger.info(str(query.text))
-            logger.info(type(query.get_placeholder_keys()))
-            logger.info(str(query.get_placeholder_keys()))
-            if query.get_query_type() in ["SELECT", None]:
-                schema_index = "q{}".format(query_index)
-                columns = ["LOAD_QUERY={}".format(query.short_url)]
-                for parameter in query.get_placeholder_keys():
-                    logger.info(type(parameter))
-                    columns.append(parameter + "={{" + parameter + "}}")
-                logger.info(columns)
-                schema[schema_index] = {"name": query.label, "columns": columns}
-                query_index += 1
-        return schema
 
     def _get_graphs_schema(self):
         """Get a list of readable graph FROM clause strings."""
