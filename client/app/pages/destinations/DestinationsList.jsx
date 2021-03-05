@@ -2,6 +2,7 @@ import { isEmpty, reject } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
+import Button from "antd/lib/button";
 import PlainButton from "@/components/PlainButton";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -116,10 +117,10 @@ class DestinationsList extends React.Component {
     return (
       <div>
         <div className="m-b-15">
-          <PlainButton {...newDestinationProps}>
+          <Button {...newDestinationProps}>
             <i className="fa fa-plus m-r-5" />
             New Alert Destination
-          </PlainButton>
+          </Button>
         </div>
         {this.state.loading ? <LoadingState className="" /> : this.renderDestinations()}
       </div>
