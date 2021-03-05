@@ -70,7 +70,7 @@ export default function QuerySelector(props) {
     }
 
     return (
-      <ul className="list-group">
+      <div role="list" className="list-group">
         {searchResults.map(q => (
           <PlainButton
             className={cx("query-selector-result", "list-group-item", { inactive: q.is_draft })}
@@ -81,7 +81,7 @@ export default function QuerySelector(props) {
             {q.name} <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className="inline-tags-control" />
           </PlainButton>
         ))}
-      </ul>
+      </div>
     );
   }
 
