@@ -29,9 +29,7 @@ from redash.serializers import serialize_job
 class DataSourceTypeListResource(BaseResource):
     @require_admin
     def get(self):
-        return [
-            q.to_dict() for q in sorted(query_runners.values(), key=lambda q: q.name())
-        ]
+        return [q.to_dict() for q in sorted(query_runners.values(), key=lambda q: q.name())]
 
 
 class DataSourceResource(BaseResource):
@@ -47,9 +45,7 @@ class DataSourceResource(BaseResource):
             ds = data_source.to_dict(all=self.current_user.has_permission("admin"))
 
         # add view_only info, required for frontend permissions
-        ds["view_only"] = all(
-            project(data_source.groups, self.current_user.group_ids).values()
-        )
+        ds["view_only"] = all(project(data_source.groups, self.current_user.group_ids).values())
         self.record_event(
             {"action": "view", "object_id": data_source_id, "object_type": "datasource"}
         )
@@ -57,9 +53,7 @@ class DataSourceResource(BaseResource):
 
     @require_admin
     def post(self, data_source_id):
-        data_source = models.DataSource.get_by_id_and_org(
-            data_source_id, self.current_org
-        )
+        data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         req = request.get_json(True)
 
         schema = get_configuration_schema_for_query_runner_type(req["type"])
@@ -81,9 +75,7 @@ class DataSourceResource(BaseResource):
             if req["name"] in str(e):
                 abort(
                     400,
-                    message="Data source with the name {} already exists.".format(
-                        req["name"]
-                    ),
+                    message="Data source with the name {} already exists.".format(req["name"]),
                 )
 
             abort(400)
@@ -96,9 +88,7 @@ class DataSourceResource(BaseResource):
 
     @require_admin
     def delete(self, data_source_id):
-        data_source = models.DataSource.get_by_id_and_org(
-            data_source_id, self.current_org
-        )
+        data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         data_source.delete()
 
         self.record_event(
@@ -129,14 +119,10 @@ class DataSourceListResource(BaseResource):
 
             try:
                 d = ds.to_dict()
-                d["view_only"] = all(
-                    project(ds.groups, self.current_user.group_ids).values()
-                )
+                d["view_only"] = all(project(ds.groups, self.current_user.group_ids).values())
                 response[ds.id] = d
             except AttributeError:
-                logging.exception(
-                    "Error with DataSource#to_dict (data source id: %d)", ds.id
-                )
+                logging.exception("Error with DataSource#to_dict (data source id: %d)", ds.id)
 
         self.record_event(
             {
@@ -171,9 +157,7 @@ class DataSourceListResource(BaseResource):
             if req["name"] in str(e):
                 abort(
                     400,
-                    message="Data source with the name {} already exists.".format(
-                        req["name"]
-                    ),
+                    message="Data source with the name {} already exists.".format(req["name"]),
                 )
 
             abort(400)
