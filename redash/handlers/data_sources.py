@@ -5,6 +5,7 @@ from flask import make_response, request
 from flask_restful import abort
 from funcy import project
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import StaleDataError
 
 from redash import models
 from redash.handlers.base import BaseResource, get_object_or_404, require_fields
@@ -275,3 +276,26 @@ class DataSourceTestResource(BaseResource):
             }
         )
         return response
+
+
+class DataSourceQueueResource(BaseResource):
+    @require_admin
+    def post(self, data_source_id):
+        data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
+        req = request.get_json(True)
+
+        data_source_def = {
+            k: v for k, v in req.items() if k in ("queue_name", "scheduled_queue_name")
+        }
+
+        try:
+            self.update_model(data_source, data_source_def)
+            models.db.session.commit()
+        except StaleDataError:
+            abort(409)
+
+        self.record_event(
+            {"action": "edit", "object_id": data_source.id, "object_type": "datasource"}
+        )
+
+        return data_source.to_dict(all=True)

@@ -26,6 +26,7 @@ from redash.handlers.data_sources import (
     DataSourceSchemaResource,
     DataSourceTestResource,
     DataSourceTypeListResource,
+    DataSourceQueueResource,
 )
 from redash.handlers.databricks import (
     DatabricksDatabaseListResource,
@@ -168,6 +169,11 @@ api.add_org_resource(
 api.add_org_resource(DataSourceTestResource, "/api/data_sources/<data_source_id>/test")
 api.add_org_resource(
     DataSourceResource, "/api/data_sources/<data_source_id>", endpoint="data_source"
+)
+api.add_org_resource(
+    DataSourceQueueResource,
+    "/api/data_sources/<data_source_id>/queue",
+    endpoint="data_source_queue",
 )
 
 api.add_org_resource(GroupListResource, "/api/groups", endpoint="groups")
