@@ -67,16 +67,12 @@ export default class EditInPlace extends React.Component {
   };
 
   renderNormal = () =>
-    this.props.value ? (
-      <span
-        role="presentation"
-        onFocus={this.startEditing}
-        onClick={this.startEditing}
-        className={this.props.isEditable ? "editable" : ""}>
-        {this.props.value}
-      </span>
+    this.props.isEditable ? (
+      <PlainButton onClick={this.startEditing} onFocus={this.startEditing} className="editable">
+        {this.props.value || this.props.placeholder}
+      </PlainButton>
     ) : (
-      <PlainButton onClick={this.startEditing}>{this.props.placeholder}</PlainButton>
+      <span>{this.props.value}</span>
     );
 
   renderEdit = () => {
