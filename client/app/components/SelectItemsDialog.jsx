@@ -13,6 +13,8 @@ import notification from "@/services/notification";
 import useSearchResults from "@/lib/hooks/useSearchResults";
 import Button from "antd/lib/button";
 
+import "./SelectItemsDialog.less";
+
 function ItemsList({ items, renderItem, onItemClick }) {
   const renderListItem = useCallback(
     item => {
