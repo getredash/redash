@@ -51,8 +51,8 @@ export default class SchedulePhrase extends React.Component {
     const [short, full] = this.content;
     const content = full ? <Tooltip title={full}>{short}</Tooltip> : short;
 
-    return this.props.isLink ? (
-      <PlainButton className="schedule-phrase" onClick={this.props.onClick} data-test="EditSchedule">
+    return true ? (
+      <PlainButton type="link" className="schedule-phrase" onClick={this.props.onClick} data-test="EditSchedule">
         {content}
       </PlainButton>
     ) : (

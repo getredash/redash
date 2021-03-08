@@ -98,7 +98,10 @@ class DestinationsList extends React.Component {
         There are no alert destinations yet.
         {policy.isCreateDestinationEnabled() && (
           <div className="m-t-5">
-            <PlainButton onClick={this.showCreateSourceDialog}>Click here</PlainButton> to add one.
+            <PlainButton type="link" onClick={this.showCreateSourceDialog}>
+              Click here
+            </PlainButton>{" "}
+            to add one.
           </div>
         )}
       </div>
