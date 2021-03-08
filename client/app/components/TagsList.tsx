@@ -90,12 +90,13 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
       <div className="tiled">
         <Menu className="invert-stripe-position" mode="inline" selectedKeys={selectedTags}>
           {map(allTags, tag => (
-            <Menu.Item
-              key={tag.name}
-              className="m-0 d-flex align-items-center justify-content-between"
-              onClick={event => toggleTag(event, tag.name)}>
-              <span className="max-character col-xs-11">{tag.name}</span>
-              <Badge count={tag.count} />
+            <Menu.Item key={tag.name} className="m-0">
+              <PlainButton
+                className="d-flex align-items-center justify-content-between"
+                onClick={event => toggleTag(event, tag.name)}>
+                <span className="max-character col-xs-11">{tag.name}</span>
+                <Badge count={tag.count} />
+              </PlainButton>
             </Menu.Item>
           ))}
         </Menu>

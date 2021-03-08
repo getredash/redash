@@ -3,6 +3,7 @@ import cx from "classnames";
 import PropTypes from "prop-types";
 import { map, includes } from "lodash";
 import Button from "antd/lib/button";
+import PlainButton from "@/components/PlainButton";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
@@ -137,16 +138,22 @@ function DashboardMoreOptionsButton({ dashboardConfiguration }) {
       placement="bottomRight"
       overlay={
         <Menu data-test="DashboardMoreButtonMenu">
-          <Menu.Item className={cx({ hidden: gridDisabled })} onClick={() => setEditingLayout(true)}>
-            Edit
+          <Menu.Item className={cx({ hidden: gridDisabled })}>
+            <PlainButton onClick={() => setEditingLayout(true)}>Edit</PlainButton>
           </Menu.Item>
           {clientConfig.showPermissionsControl && isDashboardOwnerOrAdmin && (
-            <Menu.Item onClick={managePermissions}>Manage Permissions</Menu.Item>
+            <Menu.Item>
+              <PlainButton onClick={managePermissions}>Manage Permissions</PlainButton>
+            </Menu.Item>
           )}
           {!clientConfig.disablePublish && !dashboard.is_draft && (
-            <Menu.Item onClick={togglePublished}>Unpublish</Menu.Item>
+            <Menu.Item>
+              <PlainButton onClick={togglePublished}>Unpublish</PlainButton>
+            </Menu.Item>
           )}
-          <Menu.Item onClick={archive}>Archive</Menu.Item>
+          <Menu.Item>
+            <PlainButton onClick={archive}>Archive</PlainButton>
+          </Menu.Item>
         </Menu>
       }>
       <Button className="icon-button m-l-5" data-test="DashboardMoreButton">
