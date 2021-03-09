@@ -8,6 +8,7 @@ import List from "antd/lib/list";
 import Button from "antd/lib/button";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import BigMessage from "@/components/BigMessage";
+import PlainButton from "@/components/PlainButton";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import notification from "@/services/notification";
 import useSearchResults from "@/lib/hooks/useSearchResults";
@@ -20,11 +21,12 @@ function ItemsList({ items, renderItem, onItemClick }) {
       const { content, className, isDisabled } = renderItem(item);
 
       return (
-        <List.Item
-          className="p-l-0 p-r-0"
-          className={classNames("w-100", "p-l-10", "p-r-10", { disabled: isDisabled }, className)}
-          onClick={isDisabled ? null : () => onItemClick(item)}>
-          {content}
+        <List.Item className="p-l-0 p-r-0">
+          <PlainButton
+            className={classNames("p-l-10", "p-r-10", { clickable: !isDisabled, disabled: isDisabled }, className)}
+            onClick={isDisabled ? null : () => onItemClick(item)}>
+            {content}
+          </PlainButton>
         </List.Item>
       );
     },
