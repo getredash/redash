@@ -51,7 +51,7 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
 
   const resizeHandle = useMemo(
     () => (
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
       <span
         className={`react-resizable-handle react-resizable-handle-${direction}`}
         role="separator"
