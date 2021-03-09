@@ -11,6 +11,7 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import EditInPlace from "@/components/EditInPlace";
 import Parameters from "@/components/Parameters";
 import DynamicComponent from "@/components/DynamicComponent";
+import PlainButton from "@/components/PlainButton";
 
 import DataSource from "@/services/data-source";
 import { ExecutionStatus } from "@/services/query-result";
@@ -122,10 +123,10 @@ function QueryView(props) {
             queryFlags.canEdit &&
             !addingDescription &&
             !fullscreen && (
-              <a className="label label-tag hidden-xs" role="none" onClick={() => setAddingDescription(true)}>
+              <PlainButton className="label label-tag hidden-xs" onClick={() => setAddingDescription(true)}>
                 <i className="zmdi zmdi-plus m-r-5" />
                 Add description
-              </a>
+              </PlainButton>
             )
           }
         />
