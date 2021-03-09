@@ -1,13 +1,5 @@
 @import (reference, less) "~@/assets/less/inc/variables";
 
-.tile .t-header .th-title a.query-link {
-  color: rgba(0, 0, 0, 0.5);
-}
-
-.th-title p.hidden-print {
-  margin-bottom: 0;
-}
-
 .widget-wrapper {
   .widget-actions {
     display: flex;
@@ -83,7 +75,7 @@
     display: block;
   }
 
-  a.query-link {
+  .query-link {
     pointer-events: none;
     cursor: move;
   }
@@ -190,7 +182,11 @@
     .th-title {
       padding-right: 23px; // no overlap on RefreshIndicator
 
-      a {
+      .hidden-print {
+        margin-bottom: 0;
+      }
+
+      .query-link {
         color: fade(@redash-black, 80%);
         font-size: 15px;
         font-weight: 500;
@@ -240,7 +236,8 @@
       }
     }
 
-    a {
+    a,
+    button {
       color: fade(@redash-black, 65%);
 
       &:hover {

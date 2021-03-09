@@ -127,11 +127,13 @@ body.fixed-layout {
   }
 }
 
-a.label-tag {
+.label-tag {
   background: fade(@redash-gray, 15%);
   color: darken(@redash-gray, 15%);
 
-  &:hover {
+  &:hover,
+  &:focus,
+  &:active {
     color: darken(@redash-gray, 15%);
     background: fade(@redash-gray, 25%);
   }
