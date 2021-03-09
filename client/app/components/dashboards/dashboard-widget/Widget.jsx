@@ -7,6 +7,7 @@ import Modal from "antd/lib/modal";
 import Menu from "antd/lib/menu";
 import recordEvent from "@/services/recordEvent";
 import { Moment } from "@/components/proptypes";
+import PlainButton from "@/components/PlainButton";
 
 import "./Widget.less";
 
@@ -22,9 +23,9 @@ function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
   return (
     <div className="widget-menu-regular">
       <Dropdown overlay={WidgetMenu} placement="bottomRight" trigger={["click"]}>
-        <a className="action p-l-15 p-r-15" data-test="WidgetDropdownButton">
+        <PlainButton className="action p-l-15 p-r-15" data-test="WidgetDropdownButton">
           <i className="zmdi zmdi-more-vert" />
-        </a>
+        </PlainButton>
       </Dropdown>
     </div>
   );
@@ -45,9 +46,9 @@ WidgetDropdownButton.defaultProps = {
 function WidgetDeleteButton({ onClick }) {
   return (
     <div className="widget-menu-remove">
-      <a className="action" title="Remove From Dashboard" onClick={onClick} data-test="WidgetDeleteButton">
+      <PlainButton className="action" title="Remove From Dashboard" onClick={onClick} data-test="WidgetDeleteButton">
         <i className="zmdi zmdi-close" />
-      </a>
+      </PlainButton>
     </div>
   );
 }

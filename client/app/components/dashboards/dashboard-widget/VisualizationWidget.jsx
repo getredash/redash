@@ -19,6 +19,7 @@ import ExpandedWidgetDialog from "@/components/dashboards/ExpandedWidgetDialog";
 import EditParameterMappingsDialog from "@/components/dashboards/EditParameterMappingsDialog";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import Widget from "./Widget";
+import PlainButton from "@/components/PlainButton";
 
 function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit }) {
   const canViewQuery = currentUser.hasPermission("view_query");
@@ -157,13 +158,13 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
     <>
       <span>
         {!isPublic && !!widgetQueryResult && (
-          <a
+          <PlainButton
             className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
             onClick={() => refreshWidget(1)}
             data-test="RefreshButton">
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 1 })} />{" "}
             <TimeAgo date={updatedAt} />
-          </a>
+          </PlainButton>
         )}
         <span className="visible-print">
           <i className="zmdi zmdi-time-restore" /> {formatDateTime(updatedAt)}
@@ -176,15 +177,15 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
       </span>
       <span>
         {!isPublic && (
-          <a
+          <PlainButton
             className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh"
             onClick={() => refreshWidget(2)}>
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 2 })} />
-          </a>
+          </PlainButton>
         )}
-        <a className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh" onClick={onExpand}>
+        <PlainButton className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh" onClick={onExpand}>
           <i className="zmdi zmdi-fullscreen" />
-        </a>
+        </PlainButton>
       </span>
     </>
   ) : null;
