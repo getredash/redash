@@ -5,6 +5,7 @@ import cx from "classnames";
 import Tooltip from "antd/lib/tooltip";
 import Drawer from "antd/lib/drawer";
 import Link from "@/components/Link";
+import PlainButton from "@/components/PlainButton";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import BigMessage from "@/components/BigMessage";
 import DynamicComponent, { registerComponent } from "@/components/DynamicComponent";
@@ -202,9 +203,9 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
                   </Tooltip>
                 )}
                 <Tooltip title="Close" placement="bottom">
-                  <a onClick={this.closeDrawer}>
-                    <CloseOutlinedIcon />
-                  </a>
+                  <PlainButton onClick={this.closeDrawer}>
+                    <CloseOutlinedIcon aria-hidden="true" />
+                  </PlainButton>
                 </Tooltip>
               </div>
 
