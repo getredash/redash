@@ -118,14 +118,19 @@
   color: #d4d4d4;
   transition: all 0.25s ease-in-out;
 
+  .fa-star {
+    color: @yellow-darker;
+  }
+
   &:hover,
   &:focus {
     color: @yellow-darker;
     cursor: pointer;
-  }
 
-  .fa-star {
-    color: @yellow-darker;
+    .fa-star {
+      filter: saturate(75%);
+      opacity: 0.75;
+    }
   }
 }
 
