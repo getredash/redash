@@ -91,9 +91,14 @@
     font-size: 11px;
     border-radius: 100%;
 
-    &:hover {
+    &:hover,
+    &:focus {
       color: white;
       background-color: #ff8080;
+    }
+
+    &:active {
+      filter: brightness(80%);
     }
   }
 }

@@ -40,7 +40,10 @@
     transition: opacity 0.2s ease-in-out;
   }
 
-  &:hover {
+  &:hover,
+  &:focus,
+  &:active,
+  &:focus-within {
     .tags-control > .label-tag {
       opacity: 1;
     }
