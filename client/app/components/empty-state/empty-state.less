@@ -86,8 +86,13 @@
     cursor: pointer;
     transition: color @animation-duration-slow;
 
-    &:hover {
+    &:hover,
+    &:focus {
       color: @text-color;
+    }
+
+    &:active {
+      filter: contrast(200%);
     }
   }
 }
