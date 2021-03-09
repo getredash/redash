@@ -3,6 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Tooltip from "@/components/Tooltip";
 import EditTagsDialog from "./EditTagsDialog";
+import PlainButton from "@/components/PlainButton";
 
 export class TagsControl extends React.Component {
   static propTypes = {
@@ -34,9 +35,8 @@ export class TagsControl extends React.Component {
   renderEditButton() {
     const tags = map(this.props.tags, trim);
     return (
-      <a
+      <PlainButton
         className="label label-tag hidden-xs"
-        role="none"
         onClick={() => this.editTags(tags, this.props.getAvailableTags)}
         data-test="EditTagsButton">
         {tags.length === 0 && (
@@ -51,7 +51,7 @@ export class TagsControl extends React.Component {
             <span className="sr-only">Edit</span>
           </>
         )}
-      </a>
+      </PlainButton>
     );
   }
 
