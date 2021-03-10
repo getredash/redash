@@ -21,7 +21,7 @@ function ItemsList({ items, renderItem, onItemClick }) {
 
       return (
         <List.Item
-          className={classNames("w-100", "p-l-10", "p-r-10", { disabled: isDisabled }, className)}
+          className={classNames("select-items-list", "w-100", "p-l-10", "p-r-10", { disabled: isDisabled }, className)}
           onClick={isDisabled ? null : () => onItemClick(item)}>
           {content}
         </List.Item>
