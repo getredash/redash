@@ -7,12 +7,12 @@ interface PlainButtonType extends Omit<React.ButtonHTMLAttributes<HTMLButtonElem
   type?: "link" | "button";
 }
 
-function PlainButton({ className, type, ...props }: PlainButtonType) {
+function PlainButton({ className, type, ...rest }: PlainButtonType) {
   return (
     <button
-      className={classNames("plain-button", "clickable", type === "link" ? "plain-button-link" : "", className)}
+      className={classNames("plain-button", "clickable", { "plain-button-link": type === "link" }, className)}
       type="button"
-      {...props}
+      {...rest}
     />
   );
 }
