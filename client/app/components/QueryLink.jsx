@@ -21,10 +21,12 @@ function QueryLink({ query, visualization, readOnly }) {
     return query.getUrl(false, hash);
   };
 
+  const QueryLinkWrapper = props => (readOnly ? <span {...props} /> : <Link href={getUrl()} {...props} />);
+
   return (
-    <Link href={readOnly ? null : getUrl()} className="query-link">
+    <QueryLinkWrapper className="query-link">
       <VisualizationName visualization={visualization} /> <span>{query.name}</span>
-    </Link>
+    </QueryLinkWrapper>
   );
 }
 
