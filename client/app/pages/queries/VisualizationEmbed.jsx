@@ -107,10 +107,10 @@ function VisualizationEmbedFooter({
     <div className="tile__bottom-control">
       {!hideTimestamp && (
         <span>
-          <a className="small hidden-print">
+          <span className="small hidden-print">
             <i className="zmdi zmdi-time-restore" />{" "}
             {refreshStartedAt ? <Timer from={refreshStartedAt} /> : <TimeAgo date={updatedAt} />}
-          </a>
+          </span>
           <span className="small visible-print">
             <i className="zmdi zmdi-time-restore" /> {formatDateTime(updatedAt)}
           </span>
