@@ -6,26 +6,19 @@ import { sortableContainer, sortableElement, sortableHandle } from "react-sortab
 
 import "./style.less";
 
-export const DragHandle = sortableHandle(({
-  className,
-  ...restProps
-}: any) => (
+export const DragHandle = sortableHandle(({ className, ...restProps }: any) => (
   <div className={cx("drag-handle", className)} {...restProps} />
 ));
 
-export const SortableContainerWrapper = sortableContainer(({
-  children
-}: any) => children);
+export const SortableContainerWrapper = sortableContainer(({ children }: any) => children);
 
-export const SortableElement = sortableElement(({
-  children
-}: any) => children);
+export const SortableElement = sortableElement(({ children }: any) => children);
 
 type OwnProps = {
-    disabled?: boolean;
-    containerComponent?: React.ReactElement;
-    containerProps?: any;
-    children?: React.ReactNode;
+  disabled?: boolean;
+  containerComponent?: React.ReactElement;
+  containerProps?: any;
+  children?: React.ReactNode;
 };
 
 type Props = OwnProps & typeof SortableContainer.defaultProps;
@@ -47,7 +40,7 @@ export function SortableContainer({ disabled, containerComponent, containerProps
     // Enabled state:
 
     // - use container element as a default helper element
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'helperContainer' does not exist on type ... Remove this comment to see the full error message
+    // @ts-expect-error
     wrapperProps.helperContainer = wrap(wrapperProps.helperContainer, helperContainer =>
       isFunction(helperContainer) ? helperContainer(containerRef.current) : containerRef.current
     );
@@ -60,6 +53,16 @@ export function SortableContainer({ disabled, containerComponent, containerProps
         updateBeforeSortStart(...args);
       }
     });
+    // @ts-expect-error
+    wrapperProps.onSortStart = wrap(wrapperProps.onSortStart, (onSortStart, ...args) => {
+      if (isFunction(onSortStart)) {
+        onSortStart(...args);
+      } else {
+        const event = args[1] as DragEvent;
+        event.preventDefault();
+      }
+    });
+
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'onSortEnd' does not exist on type '{}'.
     wrapperProps.onSortEnd = wrap(wrapperProps.onSortEnd, (onSortEnd, ...args) => {
       setIsDragging(false);

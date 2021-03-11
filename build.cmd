@@ -3,7 +3,7 @@
 :: Note: use lowercase names for the Docker images
 SET DOCKER_IMAGE=dyocense/redash
 :: "testing" is the latest dev build, usually matching the code in the "master" branch
-SET DOCKER_TAG=%DOCKER_IMAGE%:1.0
+SET DOCKER_TAG=%DOCKER_IMAGE%:1.3
 
 :: Debug|Release
 SET CONFIGURATION=Release

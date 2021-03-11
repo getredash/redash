@@ -90,6 +90,7 @@ def enqueue_query(
                     "scheduled_query_id": scheduled_query_id,
                     "is_api_key": is_api_key,
                     "job_timeout": time_limit,
+                    "failure_ttl": settings.JOB_DEFAULT_FAILURE_TTL,
                     "meta": {
                         "data_source_id": data_source.id,
                         "org_id": data_source.org_id,
@@ -248,7 +249,7 @@ class QueryExecutor(object):
 
     def _log_progress(self, state):
         logger.info(
-            "job=execute_query state=%s query_hash=%s type=%s ds_id=%d  "
+            "job=execute_query state=%s query_hash=%s type=%s ds_id=%d "
             "job_id=%s queue=%s query_id=%s username=%s",
             state,
             self.query_hash,
