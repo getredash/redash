@@ -343,8 +343,6 @@ class MongoDB(BaseQueryRunner):
 
 
 
-
-
 class DyoTelemetryDB(BaseQueryRunner):
     should_annotate_query = False
 
@@ -746,8 +744,207 @@ class DyoHubManagerDB(BaseQueryRunner):
 
         return json_data, error
 
+class DyoAssetDB(BaseQueryRunner):
+    should_annotate_query = False
+
+    @classmethod
+    def configuration_schema(cls):
+         return {"type": "object", "properties": {}}
+
+    @classmethod
+    def enabled(cls):
+        return enabled
+    @classmethod
+    def name(cls):
+        return "Dyo Asset DB"
+    def __init__(self, configuration):
+        super(DyoAssetDB, self).__init__(configuration)
+
+        self.syntax = "json"
+
+        self.db_name = settings.DYO_ASSET_DATABASE_NAME
+
+        self.is_replica_set = (
+            True
+            if settings.DYO_IOTHUB_REPLICASET
+            else False
+        )
+
+    def _get_db(self):
+        kwargs = {}
+        if self.is_replica_set:
+            kwargs["replicaSet"] = settings.DYO_IOTHUB_REPLICASET
+            readPreference = settings.DYO_IOTHUB_REPLICASET_READPREFERENCE
+            if readPreference:
+                kwargs["readPreference"] = readPreference
+
+        db_connection = pymongo.MongoClient(
+           settings.DYO_MONGO_CONNECTIONSTRING, **kwargs
+        )
+
+        return db_connection[self.db_name]
+
+    def test_connection(self):
+        db = self._get_db()
+        if not db.command("connectionStatus")["ok"]:
+            raise Exception("MongoDB connection error")
+
+        return db
+
+    def _merge_property_names(self, columns, document):
+        for property in document:
+            if property not in columns:
+                columns.append(property)
+
+    def _is_collection_a_view(self, db, collection_name):
+        if "viewOn" in db[collection_name].options():
+            return True
+        else:
+            return False
+
+    def _get_collection_fields(self, db, collection_name):
+        # Since MongoDB is a document based database and each document doesn't have
+        # to have the same fields as another documet in the collection its a bit hard to
+        # show these attributes as fields in the schema.
+        #
+        # For now, the logic is to take the first and last documents (last is determined
+        # by the Natural Order (http://www.mongodb.org/display/DOCS/Sorting+and+Natural+Order)
+        # as we don't know the correct order. In most single server installations it would be
+        # fine. In replicaset when reading from non master it might not return the really last
+        # document written.
+        collection_is_a_view = self._is_collection_a_view(db, collection_name)
+        documents_sample = []
+        if collection_is_a_view:
+            for d in db[collection_name].find().limit(2):
+                documents_sample.append(d)
+        else:
+            for d in db[collection_name].find().sort([("$natural", 1)]).limit(1):
+                documents_sample.append(d)
+
+            for d in db[collection_name].find().sort([("$natural", -1)]).limit(1):
+                documents_sample.append(d)
+        columns = []
+        for d in documents_sample:
+            self._merge_property_names(columns, d)
+        return columns
+
+    def get_schema(self, get_stats=False):
+        schema = {}
+        db = self._get_db()
+        for collection_name in db.collection_names():
+            if collection_name.startswith("system.") or collection_name.startswith("_migrations"):
+                continue
+            columns = self._get_collection_fields(db, collection_name)
+            schema[collection_name] = {
+                "name": collection_name,
+                "columns": sorted(columns),
+            }
+
+        return list(schema.values())
+
+    def run_query(self, query, user):
+        db = self._get_db()
+
+        logger.debug(
+            "mongodb connection string: %s",settings.DYO_MONGO_CONNECTIONSTRING
+        )
+        logger.debug("mongodb got query: %s", query)
+
+        try:
+            query_data = parse_query_json(query)
+        except ValueError:
+            return None, "Invalid query format. The query is not a valid JSON."
+
+        if "collection" not in query_data:
+            return None, "'collection' must have a value to run a query"
+        else:
+            collection = query_data["collection"]
+
+        q = query_data.get("query", None)
+        f = None
+
+        aggregate = query_data.get("aggregate", None)
+        if aggregate:
+            for step in aggregate:
+                if "$sort" in step:
+                    sort_list = []
+                    for sort_item in step["$sort"]:
+                        sort_list.append((sort_item["name"], sort_item["direction"]))
+
+                    step["$sort"] = SON(sort_list)
+
+        if "fields" in query_data:
+            f = query_data["fields"]
+
+        s = None
+        if "sort" in query_data and query_data["sort"]:
+            s = []
+            for field_data in query_data["sort"]:
+                s.append((field_data["name"], field_data["direction"]))
+
+        columns = []
+        rows = []
+
+        cursor = None
+        if q or (not q and not aggregate):
+            if s:
+                cursor = db[collection].find(q, f).sort(s)
+            else:
+                cursor = db[collection].find(q, f)
+
+            if "skip" in query_data:
+                cursor = cursor.skip(query_data["skip"])
+
+            if "limit" in query_data:
+                cursor = cursor.limit(query_data["limit"])
+
+            if "count" in query_data:
+                cursor = cursor.count()
+
+        elif aggregate:
+            allow_disk_use = query_data.get("allowDiskUse", False)
+            r = db[collection].aggregate(aggregate, allowDiskUse=allow_disk_use)
+
+            # Backwards compatibility with older pymongo versions.
+            #
+            # Older pymongo version would return a dictionary from an aggregate command.
+            # The dict would contain a "result" key which would hold the cursor.
+            # Newer ones return pymongo.command_cursor.CommandCursor.
+            if isinstance(r, dict):
+                cursor = r["result"]
+            else:
+                cursor = r
+
+        if "count" in query_data:
+            columns.append(
+                {"name": "count", "friendly_name": "count", "type": TYPE_INTEGER}
+            )
+
+            rows.append({"count": cursor})
+        else:
+            rows, columns = parse_results(cursor)
+
+        if f:
+            ordered_columns = []
+            for k in sorted(f, key=f.get):
+                column = _get_column_by_name(columns, k)
+                if column:
+                    ordered_columns.append(column)
+
+            columns = ordered_columns
+
+        if query_data.get("sortColumns"):
+            reverse = query_data["sortColumns"] == "desc"
+            columns = sorted(columns, key=lambda col: col["name"], reverse=reverse)
+
+        data = {"columns": columns, "rows": rows}
+        error = None
+        json_data = json_dumps(data, cls=MongoDBJSONEncoder)
+
+        return json_data, error
 
 
 register(MongoDB)
 register(DyoTelemetryDB)
 register(DyoHubManagerDB)
+register(DyoAssetDB)

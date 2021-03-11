@@ -25,6 +25,7 @@ x-redash-environment: &redash-environment
   REDASH_MULTI_ORG : "true"
   DYO_MONGO_CONNECTIONSTRING : "mongodb://10.0.0.6:27017"
   DYO_TELEMETRY_DATABASE_NAME : "sensewire_telemetry"
+  DYO_ASSET_DATABASE_NAME : "sensewire_documents"
   DYO_TELEMETRY_REPLICASET : ""
   DYO_IOTHUB_DATABASE_NAME : "sensewire_hubmanager"
   DYO_IOTHUB_REPLICASET : ""
