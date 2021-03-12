@@ -78,7 +78,7 @@ class AlertsList extends React.Component {
             actions={
               currentUser.hasPermission("list_alerts") ? (
                 <Link.Button block type="primary" href="alerts/new">
-                  <i className="fa fa-plus m-r-5" />
+                  <i className="fa fa-plus m-r-5" aria-hidden="true" />
                   New Alert
                 </Link.Button>
               ) : null

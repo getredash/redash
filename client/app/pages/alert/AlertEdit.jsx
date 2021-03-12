@@ -55,7 +55,7 @@ export default class AlertEdit extends React.Component {
         <Title name={name} alert={alert} onChange={onNameChange} editMode>
           <DynamicComponent name="AlertEdit.HeaderExtra" alert={alert} />
           <Button className="m-r-5" onClick={() => this.cancel()}>
-            <i className="fa fa-times m-r-5" />
+            <i className="fa fa-times m-r-5" aria-hidden="true" />
             Cancel
           </Button>
           <Button type="primary" onClick={() => this.save()}>
@@ -65,7 +65,9 @@ export default class AlertEdit extends React.Component {
                 <span className="sr-only">Saving...</span>
               </>
             ) : (
-              <i className="fa fa-check m-r-5" />
+              <>
+                <i className="fa fa-check m-r-5" aria-hidden="true" />
+              </>
             )}
             Save Changes
           </Button>

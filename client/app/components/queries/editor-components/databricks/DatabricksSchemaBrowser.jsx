@@ -98,12 +98,12 @@ export default function DatabricksSchemaBrowser({
               onDropdownVisibleChange={setIsDatabaseSelectOpen}
               placeholder={
                 <>
-                  <i className="fa fa-database m-r-5" /> Database
+                  <i className="fa fa-database m-r-5" aria-hidden="true" /> Database
                 </>
               }>
               {filteredDatabases.map(database => (
                 <Select.Option key={database}>
-                  <i className="fa fa-database m-r-5" />
+                  <i className="fa fa-database m-r-5" aria-hidden="true" />
                   {database}
                 </Select.Option>
               ))}

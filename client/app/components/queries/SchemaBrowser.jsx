@@ -47,7 +47,7 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
     <div {...props}>
       {/* TODO: Replace with a button */}
       <div className="table-name" onClick={onToggle}>
-        <i className="fa fa-table m-r-5" />
+        <i className="fa fa-table m-r-5" aria-hidden="true" />
         <strong>
           <span title={item.name}>{tableDisplayName}</span>
           {!isNil(item.size) && <span> ({item.size})</span>}

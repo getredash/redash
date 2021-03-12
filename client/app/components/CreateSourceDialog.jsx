@@ -140,7 +140,7 @@ class CreateSourceDialog extends React.Component {
           roundedImage={false}
           data-test="PreviewItem"
           data-test-type={item.type}>
-          <i className="fa fa-angle-double-right" />
+          <i className="fa fa-angle-double-right" aria-hidden="true" />
         </PreviewCard>
       </List.Item>
     );

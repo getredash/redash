@@ -111,7 +111,7 @@ export default function QueryVisualizationTabs({
         data-test="NewVisualization"
         type="link"
         onClick={() => onAddVisualization()}>
-        <i className="fa fa-plus" />
+        <i className="fa fa-plus" aria-hidden="true" />
         <span className="m-l-5 hidden-xs">Add Visualization</span>
       </Button>
     );

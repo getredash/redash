@@ -96,7 +96,7 @@ function RefreshButton({ dashboardConfiguration }) {
           </Menu>
         }>
         <Button className="icon-button hidden-xs" type={buttonType(refreshRate)}>
-          <i className="fa fa-angle-down" />
+          <i className="fa fa-angle-down" aria-hidden="true" />
           <span className="sr-only">Split button!</span>
         </Button>
       </Dropdown>
@@ -254,7 +254,7 @@ function DashboardEditControl({ dashboardConfiguration, headerExtra }) {
         </Button>
       ) : (
         <Button loading={doneBtnClickedWhileSaving} type="primary" onClick={() => setEditingLayout(false)}>
-          {!doneBtnClickedWhileSaving && <i className="fa fa-check m-r-5" />} Done Editing
+          {!doneBtnClickedWhileSaving && <i className="fa fa-check m-r-5" aria-hidden="true" />} Done Editing
         </Button>
       )}
       {headerExtra}

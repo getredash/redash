@@ -108,11 +108,11 @@ function VisualizationEmbedFooter({
       {!hideTimestamp && (
         <span>
           <span className="small hidden-print">
-            <i className="zmdi zmdi-time-restore" />{" "}
+            <i className="zmdi zmdi-time-restore" aria-hidden="true" />{" "}
             {refreshStartedAt ? <Timer from={refreshStartedAt} /> : <TimeAgo date={updatedAt} />}
           </span>
           <span className="small visible-print">
-            <i className="zmdi zmdi-time-restore" /> {formatDateTime(updatedAt)}
+            <i className="zmdi zmdi-time-restore" aria-hidden="true" /> {formatDateTime(updatedAt)}
           </span>
         </span>
       )}
@@ -128,7 +128,7 @@ function VisualizationEmbedFooter({
             <Dropdown overlay={downloadMenu} disabled={!queryResults} trigger={["click"]} placement="topLeft">
               <Button loading={!queryResults && !!refreshStartedAt} className="m-l-5">
                 Download Dataset
-                <i className="fa fa-caret-up m-l-5" />
+                <i className="fa fa-caret-up m-l-5" aria-hidden="true" />
               </Button>
             </Dropdown>
           )}

@@ -109,7 +109,7 @@ function UserSelect({ onSelect, shouldShowUser }) {
             <span className="sr-only">Loading...</span>
           </>
         ) : (
-          <i className="fa fa-search" />
+          <i className="fa fa-search" aria-hidden="true" />
         )
       }
       filterOption={false}

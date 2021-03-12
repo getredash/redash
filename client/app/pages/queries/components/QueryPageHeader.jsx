@@ -173,7 +173,7 @@ export default function QueryPageHeader({
         {headerExtra}
         {isDesktop && queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit && (
           <Button className="m-r-5" onClick={publishQuery}>
-            <i className="fa fa-paper-plane m-r-5" /> Publish
+            <i className="fa fa-paper-plane m-r-5" aria-hidden="true" /> Publish
           </Button>
         )}
 
