@@ -108,7 +108,8 @@ export default class AlertEdit extends React.Component {
             </Form>
             <div>
               <HelpTrigger className="f-13" type="ALERT_SETUP">
-                Setup Instructions <i className="fa fa-question-circle" />
+                Setup Instructions <i className="fa fa-question-circle" aria-hidden="true" />
+                <span className="sr-only">&#40;help&#41;</span>
               </HelpTrigger>
             </div>
           </div>
