@@ -90,8 +90,8 @@ export default function QueryPageHeader({
             isEnabled: !queryFlags.isNew && queryFlags.canFork && !isDuplicating,
             title: (
               <React.Fragment>
-                Fork
-                <i className="fa fa-external-link m-l-5" />
+                Fork <i className="fa fa-external-link m-l-5" aria-hidden="true" />
+                <span className="sr-only">&#40;External link&#41;</span>
               </React.Fragment>
             ),
             onClick: duplicateQuery,

@@ -170,7 +170,13 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
               this.props.showTooltip ? (
                 <>
                   {tooltip}
-                  {shouldRenderAsLink && <i className="fa fa-external-link" style={{ marginLeft: 5 }} />}
+                  {shouldRenderAsLink && (
+                    <>
+                      {" "}
+                      <i className="fa fa-external-link" style={{ marginLeft: 5 }} aria-hidden="true" />
+                      <span className="sr-only">&#40;External link&#41;</span>
+                    </>
+                  )}
                 </>
               ) : null
             }>
@@ -197,7 +203,8 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
                   <Tooltip title="Open page in a new window" placement="left">
                     {/* eslint-disable-next-line react/jsx-no-target-blank */}
                     <Link href={url} target="_blank">
-                      <i className="fa fa-external-link" />
+                      <i className="fa fa-external-link" aria-hidden="true" />
+                      <span className="sr-only">&#40;External link&#41;</span>
                     </Link>
                   </Tooltip>
                 )}

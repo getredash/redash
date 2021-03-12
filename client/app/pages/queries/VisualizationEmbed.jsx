@@ -120,7 +120,8 @@ function VisualizationEmbedFooter({
         <span className="hidden-print">
           <Tooltip title="Open in Redash">
             <Link.Button className="icon-button" href={queryUrl} target="_blank">
-              <i className="fa fa-external-link" />
+              <i className="fa fa-external-link" aria-hidden="true" />
+              <span className="sr-only">Open in Redash</span>
             </Link.Button>
           </Tooltip>
           {!query.hasParameters() && (
