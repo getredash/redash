@@ -16,7 +16,7 @@ export default function EmailSettingsWarning({ featureName, className, mode, adm
   }
 
   const message = (
-    <span>
+    <span id="sr-mail-description">
       Your mail server isn&apos;t configured correctly, and is needed for {featureName} to work.{" "}
       <HelpTrigger type="MAIL_CONFIG" className="f-inherit" />
     </span>
@@ -24,8 +24,12 @@ export default function EmailSettingsWarning({ featureName, className, mode, adm
 
   if (mode === "icon") {
     return (
-      <Tooltip title={message}>
-        <i className={cx("fa fa-exclamation-triangle", className)} />
+      <Tooltip title={message} placement="topRight" arrowPointAtCenter>
+        <i
+          className={cx("fa fa-exclamation-triangle", className)}
+          aria-label="Mail alert"
+          aria-describedby="sr-mail-description"
+        />
       </Tooltip>
     );
   }

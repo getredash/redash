@@ -3,12 +3,13 @@ import PropTypes from "prop-types";
 
 function BigMessage({ message, icon, children, className }) {
   return (
-    <div className={"p-15 text-center " + className}>
-      <h3 className="m-t-0 m-b-0">
-        <i className={"fa " + icon} />
+    <div className={"big-message p-15 text-center " + className}>
+      {/* TODO: replace misuse of header */}
+      <h3 className="m-t-0 m-b-0" aria-labelledby="bm-message">
+        <i className={"fa " + icon} aria-hidden="true" />
       </h3>
       <br />
-      {message}
+      <span id="bm-message">{message}</span>
       {children}
     </div>
   );

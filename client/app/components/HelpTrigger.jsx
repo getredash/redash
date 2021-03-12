@@ -68,7 +68,7 @@ const HelpTriggerDefaultProps = {
   className: null,
   showTooltip: true,
   renderAsLink: false,
-  children: <i className="fa fa-question-circle" />,
+  children: <i className="fa fa-question-circle" aria-hidden="true" />,
 };
 
 export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName = null) {
@@ -187,6 +187,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
               target="_blank"
               onClick={shouldRenderAsLink ? () => {} : this.openDrawer}>
               {this.props.children}
+              <span className="sr-only">{tooltip}</span>
             </Link>
           </Tooltip>
           <Drawer
