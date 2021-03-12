@@ -102,7 +102,16 @@ function UserSelect({ onSelect, shouldShowUser }) {
       placeholder="Add users..."
       showSearch
       onSearch={setSearchTerm}
-      suffixIcon={loadingUsers ? <i className="fa fa-spinner fa-pulse" /> : <i className="fa fa-search" />}
+      suffixIcon={
+        loadingUsers ? (
+          <>
+            <i className="fa fa-spinner fa-pulse" aria-hidden="true" />
+            <span className="sr-only">Loading...</span>
+          </>
+        ) : (
+          <i className="fa fa-search" />
+        )
+      }
       filterOption={false}
       notFoundContent={null}
       value={undefined}
@@ -156,7 +165,12 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
       />
       <div className="d-flex align-items-center m-t-5">
         <h5 className="flex-fill">Users with permissions</h5>
-        {loadingGrantees && <i className="fa fa-spinner fa-pulse" />}
+        {loadingGrantees && (
+          <>
+            <i className="fa fa-spinner fa-pulse" aria-hidden="true" />
+            <span className="sr-only">Loading...</span>
+          </>
+        )}
       </div>
       <div className="scrollbox p-5" style={{ maxHeight: "40vh" }}>
         <List

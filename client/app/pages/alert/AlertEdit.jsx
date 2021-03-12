@@ -59,7 +59,14 @@ export default class AlertEdit extends React.Component {
             Cancel
           </Button>
           <Button type="primary" onClick={() => this.save()}>
-            {saving ? <i className="fa fa-spinner fa-pulse m-r-5" /> : <i className="fa fa-check m-r-5" />}
+            {saving ? (
+              <>
+                <i className="fa fa-spinner fa-pulse m-r-5" aria-hidden="true" />
+                <span className="sr-only">Saving...</span>
+              </>
+            ) : (
+              <i className="fa fa-check m-r-5" />
+            )}
             Save Changes
           </Button>
           {menuButton}

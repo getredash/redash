@@ -39,7 +39,12 @@ export default function QuerySelector(props) {
       onClick={() => selectQuery(null)}
     />
   );
-  const spinIcon = <i className={cx("fa fa-spinner fa-pulse hide-in-percy", { hidden: !searching })} />;
+  const spinIcon = (
+    <>
+      <i className={cx("fa fa-spinner fa-pulse hide-in-percy", { hidden: !searching })} aria-hidden="true" />
+      <span className="sr-only">Searching...</span>
+    </>
+  );
 
   useEffect(() => {
     doSearch(searchTerm);
