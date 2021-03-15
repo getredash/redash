@@ -185,6 +185,7 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
                   <Tooltip title="Remove user permissions">
                     <button // TODO: replace with button component
                       style={{ all: "unset" }}
+                      aria-label="Remove permissions"
                       onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}>
                       <i className="fa fa-remove clickable" aria-hidden="true" />
                     </button>
