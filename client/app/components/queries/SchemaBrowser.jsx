@@ -238,7 +238,8 @@ export default function SchemaBrowser({
 
         <Tooltip title="Refresh Schema">
           <Button onClick={() => refreshSchema(true)}>
-            <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": isLoading })} />
+            <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": isLoading })} aria-hidden="true" />
+            <span className="sr-only">{isLoading ? "Loading, please wait." : "Press to refresh."}</span>
           </Button>
         </Tooltip>
       </div>
