@@ -80,7 +80,7 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
                 environ.pop(key)
             value = self.configuration.get(key, None)
             if value is not None:
-                environ[key] = value
+                environ[key] = str(value)
                 if key in self.KNOWN_SECRET_KEYS:
                     logger.info("{} set by config".format(key))
                 else:
@@ -132,7 +132,7 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
 
     @classmethod
     def name(cls):
-        return "eccenca Corporate Memory (SPARQL)"
+        return "eccenca Corporate Memory (with SPARQL)"
 
     @classmethod
     def enabled(cls):
@@ -183,41 +183,52 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "CMEM_BASE_URI": {"type": "string", "title": "CMEM_BASE_URL"},
+                "CMEM_BASE_URI": {"type": "string", "title": "Base URL"},
                 "OAUTH_GRANT_TYPE": {
                     "type": "string",
-                    "title": "OAUTH_GRANT_TYPE (can be: password or client_credentials)",
+                    "title": "Grant Type",
                     "default": "client_credentials",
+                    "extendedEnum": [
+                        {"value": "client_credentials", "name": "client_credentials"},
+                        {"value": "password", "name": "password"},
+                    ],
                 },
                 "OAUTH_CLIENT_ID": {
                     "type": "string",
-                    "title": "OAUTH_CLIENT_ID (e.g. cmem-service-account)",
+                    "title": "Client ID (e.g. cmem-service-account)",
                     "default": "cmem-service-account",
                 },
                 "OAUTH_CLIENT_SECRET": {
                     "type": "string",
-                    "title": "OAUTH_CLIENT_SECRET - only needed for grant type 'client_credentials'",
+                    "title": "Client Secret - only needed for grant type 'client_credentials'",
                 },
                 "OAUTH_USER": {
                     "type": "string",
-                    "title": "OAUTH_USER (e.g. admin) - only needed for grant type 'password'",
+                    "title": "User account - only needed for grant type 'password'",
                 },
                 "OAUTH_PASSWORD": {
                     "type": "string",
-                    "title": "OAUTH_PASSWORD - only needed for grant type 'password'",
+                    "title": "User Password - only needed for grant type 'password'",
                 },
                 "SSL_VERIFY": {
-                    "type": "string",
-                    "title": "SSL_VERIFY - Verify SSL certs for API requests",
-                    "default": "true",
+                    "type": "boolean",
+                    "title": "Verify SSL certificates for API requests",
+                    "default": True,
                 },
                 "REQUESTS_CA_BUNDLE": {
                     "type": "string",
-                    "title": "REQUESTS_CA_BUNDLE - Path to the CA Bundle file (.pem)",
+                    "title": "Path to the CA Bundle file (.pem)",
                 },
             },
             "required": ["CMEM_BASE_URI", "OAUTH_GRANT_TYPE", "OAUTH_CLIENT_ID"],
-            "secret": ["OAUTH_CLIENT_SECRET"],
+            "secret": ["OAUTH_CLIENT_SECRET", "OAUTH_PASSWORD"],
+            "extra_options": [
+                "OAUTH_GRANT_TYPE",
+                "OAUTH_USER",
+                "OAUTH_PASSWORD",
+                "SSL_VERIFY",
+                "REQUESTS_CA_BUNDLE",
+            ],
         }
 
     def get_schema(self, get_stats=False):
