@@ -91,7 +91,7 @@ export default function QueryPageHeader({
             title: (
               <React.Fragment>
                 Fork <i className="fa fa-external-link m-l-5" aria-hidden="true" />
-                <span className="sr-only">&#40;External link&#41;</span>
+                <span className="sr-only">{"(External link)"}</span>
               </React.Fragment>
             ),
             onClick: duplicateQuery,

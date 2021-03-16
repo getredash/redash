@@ -88,7 +88,7 @@ export default class AlertNew extends React.Component {
             </Form>
             <HelpTrigger className="f-13" type="ALERT_SETUP">
               Setup Instructions <i className="fa fa-question-circle" aria-hidden="true" />
-              <span className="sr-only">&#40;help&#41;</span>
+              <span className="sr-only">{"(help)"}</span>
             </HelpTrigger>
           </div>
         </div>
