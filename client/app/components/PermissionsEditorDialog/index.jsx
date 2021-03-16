@@ -106,7 +106,9 @@ function UserSelect({ onSelect, shouldShowUser }) {
         loadingUsers ? (
           <>
             <i className="fa fa-spinner fa-pulse" aria-hidden="true" />
-            <span className="sr-only">Loading...</span>
+            <span className="sr-only" aria-live="polite">
+              Loading...
+            </span>
           </>
         ) : (
           <i className="fa fa-search" aria-hidden="true" />
@@ -168,7 +170,9 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
         {loadingGrantees && (
           <>
             <i className="fa fa-spinner fa-pulse" aria-hidden="true" />
-            <span className="sr-only">Loading...</span>
+            <span className="sr-only" aria-live="polite">
+              Loading...
+            </span>
           </>
         )}
       </div>

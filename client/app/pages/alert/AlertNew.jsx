@@ -79,7 +79,9 @@ export default class AlertNew extends React.Component {
                   {saving && (
                     <>
                       <i className="fa fa-spinner fa-pulse m-r-5" aria-hidden="true" />
-                      <span className="sr-only">Saving...</span>
+                      <span className="sr-only" aria-live="polite">
+                        Saving...
+                      </span>
                     </>
                   )}
                   Create Alert

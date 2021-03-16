@@ -42,7 +42,9 @@ export default function QuerySelector(props) {
   const spinIcon = (
     <>
       <i className={cx("fa fa-spinner fa-pulse hide-in-percy", { hidden: !searching })} aria-hidden="true" />
-      <span className="sr-only">Searching...</span>
+      <span className="sr-only" aria-live="polite">
+        Searching...
+      </span>
     </>
   );
 

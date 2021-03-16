@@ -10,7 +10,9 @@ function ParameterApplyButton({ paramCount, onClick }) {
   const icon = !paramCount ? (
     <>
       <i className="fa fa-spinner fa-pulse" aria-hidden="true" />
-      <span className="sr-only">Loading...</span>
+      <span className="sr-only" aria-live="polite">
+        Loading...
+      </span>
     </>
   ) : (
     <i className="fa fa-check" aria-hidden="true" />
