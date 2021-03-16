@@ -33,7 +33,7 @@ function showRestoreSessionPrompt(loginUrl, onSuccess) {
     okText: (
       <React.Fragment>
         Login <i className="fa fa-external-link m-r-5" aria-hidden="true" />
-        <span className="sr-only">{"(External link)"}</span>
+        <span className="sr-only">{"(opens in a new tab)"}</span>
       </React.Fragment>
     ),
     centered: true,
