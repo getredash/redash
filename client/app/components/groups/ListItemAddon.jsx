@@ -14,8 +14,10 @@ export default function ListItemAddon({ isSelected, isStaged, alreadyInGroup, de
   if (alreadyInGroup) {
     return (
       <Tooltip title="Already selected">
-        <i className="fa fa-check" aria-hidden="true" />
-        <span className="sr-only">Already selected</span>
+        <span tabIndex={0}>
+          <i className="fa fa-check" aria-hidden="true" />
+          <span className="sr-only">Already selected</span>
+        </span>
       </Tooltip>
     );
   }

@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import cx from "classnames";
 import { clientConfig, currentUser } from "@/services/auth";
 import Tooltip from "antd/lib/tooltip";
 import Alert from "antd/lib/alert";
@@ -25,11 +24,9 @@ export default function EmailSettingsWarning({ featureName, className, mode, adm
   if (mode === "icon") {
     return (
       <Tooltip title={message} placement="topRight" arrowPointAtCenter>
-        <i
-          className={cx("fa fa-exclamation-triangle", className)}
-          aria-label="Mail alert"
-          aria-describedby="sr-mail-description"
-        />
+        <span className={className} aria-label="Mail alert" aria-describedby="sr-mail-description" tabIndex={0}>
+          <i className={"fa fa-exclamation-triangle"} aria-hidden="true" />
+        </span>
       </Tooltip>
     );
   }
