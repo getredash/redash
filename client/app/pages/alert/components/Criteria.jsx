@@ -117,9 +117,14 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         )}
       </div>
       <div className="input-title">
-        <span>Threshold</span>
+        <span id="threshold-criterion-label">Threshold</span>
         {editMode ? (
-          <Input style={{ width: 90 }} value={alertOptions.value} onChange={e => onChange({ value: e.target.value })} />
+          <Input
+            style={{ width: 90 }}
+            value={alertOptions.value}
+            aria-labelledby="threshold-criterion-label"
+            onChange={e => onChange({ value: e.target.value })}
+          />
         ) : (
           <DisabledInput minWidth={50}>{alertOptions.value}</DisabledInput>
         )}
