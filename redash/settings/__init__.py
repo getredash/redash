@@ -335,6 +335,7 @@ default_query_runners = [
     "redash.query_runner.influx_db",
     "redash.query_runner.elasticsearch",
     "redash.query_runner.amazon_elasticsearch",
+    "redash.query_runner.trino",
     "redash.query_runner.presto",
     "redash.query_runner.databricks",
     "redash.query_runner.hive_ds",
@@ -516,3 +517,6 @@ ENFORCE_CSRF = parse_boolean(
 # Databricks
 
 CSRF_TIME_LIMIT = int(os.environ.get("REDASH_CSRF_TIME_LIMIT", 3600 * 6))
+
+# Email blocked domains, use delimiter comma to separated multiple domains
+BLOCKED_DOMAINS = set_from_string(os.environ.get("REDASH_BLOCKED_DOMAINS", "qq.com"))
