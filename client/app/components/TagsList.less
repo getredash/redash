@@ -13,7 +13,8 @@
       margin: 0;
     }
 
-    a {
+    a,
+    .plain-button {
       display: block;
       white-space: nowrap;
       cursor: pointer;
@@ -41,6 +42,16 @@
       .ant-badge-count {
         background-color: @primary-color;
         color: white;
+      }
+    }
+
+    .ant-menu-item {
+      &:hover,
+      &:active,
+      &:focus,
+      &:focus-within {
+        color: @primary-color;
+        transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
       }
     }
   }

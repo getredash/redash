@@ -81,15 +81,24 @@
   }
 
   .delete-visualization-button {
+    height: 1.5rem;
+    width: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     margin-left: 5px;
-    cursor: pointer;
     color: #a09797;
     font-size: 11px;
-    padding: 0 4px 1px;
-    &:hover {
+    border-radius: 100%;
+
+    &:hover,
+    &:focus {
       color: white;
       background-color: #ff8080;
-      border-radius: 50%;
+    }
+
+    &:active {
+      filter: brightness(80%);
     }
   }
 }
