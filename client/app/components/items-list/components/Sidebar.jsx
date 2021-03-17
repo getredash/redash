@@ -29,7 +29,13 @@ export function SearchInput({ placeholder, value, showIcon, onChange }) {
   const InputControl = showIcon ? Input.Search : Input;
   return (
     <div className="m-b-10">
-      <InputControl className="form-control" placeholder={placeholder} value={currentValue} onChange={onInputChange} />
+      <InputControl
+        className="form-control"
+        placeholder={placeholder}
+        value={currentValue}
+        aria-label="Search" // TODO: consider receiving as prop (depends on parent render)
+        onChange={onInputChange}
+      />
     </div>
   );
 }

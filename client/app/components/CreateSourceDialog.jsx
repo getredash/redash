@@ -82,6 +82,7 @@ class CreateSourceDialog extends React.Component {
       <div className="m-t-10">
         <Search
           placeholder="Search..."
+          aria-label="Search"
           onChange={e => this.setState({ searchText: e.target.value })}
           autoFocus
           data-test="SearchSource"

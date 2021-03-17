@@ -232,6 +232,7 @@ export default function SchemaBrowser({
         <Input
           className="m-r-5"
           placeholder="Search schema..."
+          aria-label="Schema"
           disabled={schema.length === 0}
           onChange={event => handleFilterChange(event.target.value)}
         />

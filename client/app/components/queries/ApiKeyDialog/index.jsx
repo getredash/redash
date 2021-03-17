@@ -45,7 +45,7 @@ function ApiKeyDialog({ dialog, ...props }) {
         <h5>API Key</h5>
         <div className="m-b-20">
           <Input.Group compact>
-            <Input readOnly value={query.api_key} />
+            <Input readOnly value={query.api_key} aria-label="Query API Key" />
             {policy.canEdit(query) && (
               <Button disabled={updatingApiKey} loading={updatingApiKey} onClick={regenerateQueryApiKey}>
                 Regenerate

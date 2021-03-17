@@ -154,7 +154,7 @@ class UsersList extends React.Component {
                 <p>
                   The mail server is not configured, please send the following link to <b>{user.name}</b>:
                 </p>
-                <InputWithCopy value={absoluteUrl(user.invite_link)} readOnly />
+                <InputWithCopy value={absoluteUrl(user.invite_link)} aria-label="Invite link" readOnly />
               </React.Fragment>
             ),
           });
