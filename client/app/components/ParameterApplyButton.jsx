@@ -18,6 +18,7 @@ function ParameterApplyButton({ paramCount, onClick }) {
 
   return (
     <div className="parameter-apply-button" data-show={!!paramCount} data-test="ParameterApplyButton">
+      {/* TODO: This button stays detectable even when invisible */}
       <Badge count={paramCount}>
         <Tooltip title={paramCount ? `${KeyboardShortcuts.modKey} + Enter` : null}>
           <span>
