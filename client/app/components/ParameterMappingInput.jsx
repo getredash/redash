@@ -201,7 +201,13 @@ export class ParameterMappingInput extends React.Component {
     const {
       mapping: { mapTo },
     } = this.props;
-    return <Input value={mapTo} onChange={e => this.updateParamMapping({ mapTo: e.target.value })} />;
+    return (
+      <Input
+        value={mapTo}
+        aria-label="Parameter name (key)"
+        onChange={e => this.updateParamMapping({ mapTo: e.target.value })}
+      />
+    );
   }
 
   renderDashboardMapToExisting() {
@@ -420,6 +426,7 @@ class TitleEditor extends React.Component {
           size="small"
           value={this.state.title}
           placeholder={paramTitle}
+          aria-label="Edit parameter title"
           onChange={this.onEditingTitleChange}
           onPressEnter={this.save}
           maxLength={100}
