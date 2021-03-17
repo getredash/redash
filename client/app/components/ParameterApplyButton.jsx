@@ -8,12 +8,10 @@ import KeyboardShortcuts from "@/services/KeyboardShortcuts";
 function ParameterApplyButton({ paramCount, onClick }) {
   // show spinner when count is empty so the fade out is consistent
   const icon = !paramCount ? (
-    <>
+    <span role="status" aria-live="polite" aria-relevant="additions removals">
       <i className="fa fa-spinner fa-pulse" aria-hidden="true" />
-      <span className="sr-only" aria-live="polite">
-        Loading...
-      </span>
-    </>
+      <span className="sr-only">Loading...</span>
+    </span>
   ) : (
     <i className="fa fa-check" aria-hidden="true" />
   );

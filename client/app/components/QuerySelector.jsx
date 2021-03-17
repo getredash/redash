@@ -40,12 +40,10 @@ export default function QuerySelector(props) {
     />
   );
   const spinIcon = (
-    <>
+    <span role="status" aria-live="polite" aria-relevant="additions removals">
       <i className={cx("fa fa-spinner fa-pulse hide-in-percy", { hidden: !searching })} aria-hidden="true" />
-      <span className="sr-only" aria-live="polite">
-        Searching...
-      </span>
-    </>
+      <span className="sr-only">Searching...</span>
+    </span>
   );
 
   useEffect(() => {

@@ -3,7 +3,11 @@ import PropTypes from "prop-types";
 
 function BigMessage({ message, icon, children, className }) {
   return (
-    <div className={"big-message p-15 text-center " + className} aria-live="assertive">
+    <div
+      className={"big-message p-15 text-center " + className}
+      role="status"
+      aria-live="assertive"
+      aria-relevant="additions removals">
       {/* TODO: replace misuse of header */}
       <h3 className="m-t-0 m-b-0" aria-labelledby="bm-message">
         <i className={"fa " + icon} aria-hidden="true" />

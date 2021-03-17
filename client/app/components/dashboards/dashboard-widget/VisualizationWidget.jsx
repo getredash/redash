@@ -300,12 +300,14 @@ class VisualizationWidget extends React.Component {
         );
       default:
         return (
-          <div className="body-row-auto spinner-container">
+          <div
+            className="body-row-auto spinner-container"
+            role="status"
+            aria-live="polite"
+            aria-relevant="additions removals">
             <div className="spinner">
               <i className="zmdi zmdi-refresh zmdi-hc-spin zmdi-hc-5x" aria-hidden="true" />
-              <span className="sr-only" aria-live="polite">
-                Loading...
-              </span>
+              <span className="sr-only">Loading...</span>
             </div>
           </div>
         );

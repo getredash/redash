@@ -104,12 +104,10 @@ function UserSelect({ onSelect, shouldShowUser }) {
       onSearch={setSearchTerm}
       suffixIcon={
         loadingUsers ? (
-          <>
+          <span role="status" aria-live="polite" aria-relevant="additions removals">
             <i className="fa fa-spinner fa-pulse" aria-hidden="true" />
-            <span className="sr-only" aria-live="polite">
-              Loading...
-            </span>
-          </>
+            <span className="sr-only">Loading...</span>
+          </span>
         ) : (
           <i className="fa fa-search" aria-hidden="true" />
         )
@@ -168,12 +166,10 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
       <div className="d-flex align-items-center m-t-5">
         <h5 className="flex-fill">Users with permissions</h5>
         {loadingGrantees && (
-          <>
+          <span role="status" aria-live="polite" aria-relevant="additions removals">
             <i className="fa fa-spinner fa-pulse" aria-hidden="true" />
-            <span className="sr-only" aria-live="polite">
-              Loading...
-            </span>
-          </>
+            <span className="sr-only">Loading...</span>
+          </span>
         )}
       </div>
       <div className="scrollbox p-5" style={{ maxHeight: "40vh" }}>
