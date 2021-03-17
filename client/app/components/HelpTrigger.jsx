@@ -174,7 +174,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
                     <>
                       {" "}
                       <i className="fa fa-external-link" style={{ marginLeft: 5 }} aria-hidden="true" />
-                      <span className="sr-only">{"(opens in a new tab)"}</span>
+                      <span className="sr-only">(opens in a new tab)</span>
                     </>
                   )}
                 </>
@@ -204,7 +204,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
                     {/* eslint-disable-next-line react/jsx-no-target-blank */}
                     <Link href={url} target="_blank">
                       <i className="fa fa-external-link" aria-hidden="true" />
-                      <span className="sr-only">{"(opens in a new tab)"}</span>
+                      <span className="sr-only">(opens in a new tab)</span>
                     </Link>
                   </Tooltip>
                 )}
