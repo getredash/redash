@@ -156,7 +156,7 @@ function DashboardMoreOptionsButton({ dashboardConfiguration }) {
         </Menu>
       }>
       <Button className="icon-button m-l-5" data-test="DashboardMoreButton" aria-label="More actions">
-        <EllipsisOutlinedIcon rotate={90} aria-label="" />
+        <EllipsisOutlinedIcon rotate={90} aria-hidden="true" />
       </Button>
     </Dropdown>
   );

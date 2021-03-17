@@ -200,7 +200,7 @@ export default function QueryPageHeader({
         {!queryFlags.isNew && (
           <Dropdown overlay={moreActionsMenu} trigger={["click"]}>
             <Button data-test="QueryPageHeaderMoreButton" aria-label="More actions">
-              <EllipsisOutlinedIcon rotate={90} aria-label="" />
+              <EllipsisOutlinedIcon rotate={90} aria-hidden="true" />
             </Button>
           </Dropdown>
         )}

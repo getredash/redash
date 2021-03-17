@@ -57,7 +57,7 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, muted }) {
         </Menu>
       }>
       <Button aria-label="More actions">
-        {loading ? <LoadingOutlinedIcon /> : <EllipsisOutlinedIcon rotate={90} aria-label="" />}
+        {loading ? <LoadingOutlinedIcon /> : <EllipsisOutlinedIcon rotate={90} aria-hidden="true" />}
       </Button>
     </Dropdown>
   );
