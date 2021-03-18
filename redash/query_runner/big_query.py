@@ -77,14 +77,14 @@ def _load_key(filename):
         f.close()
 
 
-def _get_query_results(jobs, project_id, location, job_id, start_index):
+def _get_query_results(jobs, project_id, location, default_dataset, job_id, start_index):
     query_reply = jobs.getQueryResults(
-        projectId=project_id, location=location, jobId=job_id, startIndex=start_index
+        projectId=project_id, location=location, defaultDataset=default_dataset, jobId=job_id, startIndex=start_index
     ).execute()
     logging.debug("query_reply %s", query_reply)
     if not query_reply["jobComplete"]:
         time.sleep(10)
-        return _get_query_results(jobs, project_id, location, job_id, start_index)
+        return _get_query_results(jobs, project_id, location, default_dataset, job_id, start_index)
 
     return query_reply
 
@@ -123,6 +123,10 @@ class BigQuery(BaseQueryRunner):
                     "title": "Use Standard SQL",
                     "default": True,
                 },
+                "defaultDataset": {
+                    "type": "string",
+                    "title": "Default Dataset"
+                },
                 "location": {"type": "string", "title": "Processing Location"},
                 "loadSchema": {"type": "boolean", "title": "Load Schema"},
                 "maximumBillingTier": {
@@ -136,6 +140,7 @@ class BigQuery(BaseQueryRunner):
                 "jsonKeyFile",
                 "loadSchema",
                 "useStandardSql",
+                "defaultDataset",
                 "location",
                 "totalMBytesProcessedLimit",
                 "maximumBillingTier",
@@ -163,12 +168,18 @@ class BigQuery(BaseQueryRunner):
 
     def _get_location(self):
         return self.configuration.get("location")
-
+    
+    def _get_default_dataset(self):
+        return self.configuration.get("defaultDataset")
+    
     def _get_total_bytes_processed(self, jobs, query):
         job_data = {"query": query, "dryRun": True}
 
         if self._get_location():
             job_data["location"] = self._get_location()
+
+        if self._get_default_dataset():
+            job_data["query"]["defaultDataset"] = {"datasetId": self._get_default_dataset()}
 
         if self.configuration.get("useStandardSql", False):
             job_data["useLegacySql"] = False
@@ -181,6 +192,9 @@ class BigQuery(BaseQueryRunner):
 
         if self._get_location():
             job_data["jobReference"] = {"location": self._get_location()}
+
+        if self._get_default_dataset():
+            job_data["configuration"]["query"]["defaultDataset"] = {"datasetId": self._get_default_dataset()}
 
         if self.configuration.get("useStandardSql", False):
             job_data["configuration"]["query"]["useLegacySql"] = False
@@ -206,6 +220,7 @@ class BigQuery(BaseQueryRunner):
             jobs,
             project_id=project_id,
             location=self._get_location(),
+            default_dataset=self._get_default_dataset(),
             job_id=self.current_job_id,
             start_index=current_row,
         )
