@@ -50,6 +50,10 @@ class BigQueryGCE(BigQuery):
                     "title": "Use Standard SQL",
                     "default": True,
                 },
+                "defaultDataset": {
+                    "type": "string",
+                    "title": "Default Dataset",
+                },
                 "location": {
                     "type": "string",
                     "title": "Processing Location",
