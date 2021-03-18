@@ -197,6 +197,14 @@ class TestCreateAndLoginUser(BaseTestCase):
             create_and_login_user(self.factory.org, "New Name", user.email)
             login_user_mock.assert_called_once_with(user, remember=True)
 
+    def test_updates_user_profile_image(self):
+        user = self.factory.create_user(email="test@example.com")
+
+        with patch("redash.authentication.login_user") as login_user_mock:
+            create_and_login_user(
+                self.factory.org, user.name, user.email, "https://example.com/new.png"
+            )
+            login_user_mock.assert_called_once_with(user, remember=True)
 
 class TestVerifyProfile(BaseTestCase):
     def test_no_domain_allowed_for_org(self):

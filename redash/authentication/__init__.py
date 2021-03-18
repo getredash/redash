@@ -273,6 +273,14 @@ def create_and_login_user(org, name, email, picture=None):
             logger.debug("Updating user name (%r -> %r)", user_object.name, name)
             user_object.name = name
             models.db.session.commit()
+        if user_object._profile_image_url != picture:
+            logger.debug(
+                "Updating user _profile_image_url (%r -> %r)",
+                user_object._profile_image_url,
+                picture
+            )
+            user_object._profile_image_url = picture
+            models.db.session.commit()
     except NoResultFound:
         logger.debug("Creating user object (%r)", name)
         user_object = models.User(
