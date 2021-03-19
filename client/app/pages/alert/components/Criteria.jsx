@@ -63,7 +63,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
   return (
     <div data-test="Criteria">
       <div className="input-title">
-        <span>Value column</span>
+        <span className="input-label">Value column</span>
         {editMode ? (
           <Select
             value={alertOptions.column}
@@ -79,7 +79,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         )}
       </div>
       <div className="input-title">
-        <span>Condition</span>
+        <span className="input-label">Condition</span>
         {editMode ? (
           <Select
             value={alertOptions.op}
@@ -117,12 +117,14 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         )}
       </div>
       <div className="input-title">
-        <span id="threshold-criterion-label">Threshold</span>
+        <label className="input-label" htmlFor="threshold-criterion">
+          Threshold
+        </label>
         {editMode ? (
           <Input
+            id="threshold-criterion"
             style={{ width: 90 }}
             value={alertOptions.value}
-            aria-labelledby="threshold-criterion-label"
             onChange={e => onChange({ value: e.target.value })}
           />
         ) : (
