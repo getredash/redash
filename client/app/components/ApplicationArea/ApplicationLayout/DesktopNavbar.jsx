@@ -189,9 +189,9 @@ export default function DesktopNavbar() {
             </a>
           </Menu.Item>
           <Menu.Divider />
-          {/* <Menu.Item key="version" role="presentation" disabled className="version-info">
+          <Menu.Item key="version" role="presentation" disabled className="version-info">
             <VersionInfo />
-          </Menu.Item>  */}
+          </Menu.Item>  
         </Menu.SubMenu>
       </NavbarSection>
     </nav>
