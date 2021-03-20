@@ -841,13 +841,14 @@ class DyoAssetDB(BaseQueryRunner):
         schema = {}
         db = self._get_db()
         for collection_name in db.collection_names():
-            if collection_name.startswith("system.") or collection_name.startswith("_migrations"):
+            if collection_name.startswith("Asset"):               
+                columns = self._get_collection_fields(db, collection_name)
+                schema[collection_name] = {
+                    "name": collection_name,
+                    "columns": sorted(columns),
+                }
+            else:
                 continue
-            columns = self._get_collection_fields(db, collection_name)
-            schema[collection_name] = {
-                "name": collection_name,
-                "columns": sorted(columns),
-            }
 
         return list(schema.values())
 

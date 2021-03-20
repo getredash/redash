@@ -195,8 +195,14 @@ def jwt_token_load_user_from_request(request):
 
     try:
         user = models.User.get_by_email_and_org(payload["email"], org)
+        if payload["org_codes"]:
+            user.details['org_codes'] = payload["org_codes"]
+            models.db.session.commit()
     except models.NoResultFound:
         user = create_and_login_user(current_org, payload["email"], payload["email"])
+        if payload["org_codes"]:
+            user.details['org_codes'] = payload["org_codes"]
+            models.db.session.commit()
 
     return user
 
