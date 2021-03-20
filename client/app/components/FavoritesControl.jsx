@@ -31,7 +31,7 @@ export default class FavoritesControl extends React.Component {
     return (
       <a
         title={title}
-        className="favorites-control btn-favourite"
+        className="favorites-control btn-favorite"
         onClick={event => this.toggleItem(event, item, onChange)}>
         <i className={icon} aria-hidden="true" />
       </a>

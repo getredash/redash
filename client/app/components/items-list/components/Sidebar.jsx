@@ -62,7 +62,7 @@ export function Menu({ items, selected }) {
           <AntdMenu.Item key={item.key} className="m-0">
             <Link href={item.href}>
               {isString(item.icon) && item.icon !== "" && (
-                <span className="btn-favourite m-r-5">
+                <span className="btn-favorite m-r-5">
                   <i className={item.icon} aria-hidden="true" />
                 </span>
               )}
@@ -100,7 +100,7 @@ Menu.defaultProps = {
 
 export function MenuIcon({ icon }) {
   return (
-    <span className="btn-favourite m-r-5">
+    <span className="btn-favorite m-r-5">
       <i className={icon} aria-hidden="true" />
     </span>
   );

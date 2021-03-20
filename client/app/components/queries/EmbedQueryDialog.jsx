@@ -48,15 +48,19 @@ class EmbedQueryDialog extends React.Component {
         footer={<Button onClick={dialog.dismiss}>Close</Button>}>
         {query.is_safe ? (
           <React.Fragment>
-            <h5 className="m-t-0">Public URL</h5>
+            <h5 id="url-embed-label" className="m-t-0">
+              Public URL
+            </h5>
             <div className="m-b-30">
-              <CodeBlock data-test="EmbedIframe" copyable>
+              <CodeBlock aria-labelledby="url-embed-label" data-test="EmbedIframe" copyable>
                 {this.embedUrl}
               </CodeBlock>
             </div>
-            <h5 className="m-t-0">IFrame Embed</h5>
+            <h5 id="iframe-embed-label" className="m-t-0">
+              IFrame Embed
+            </h5>
             <div>
-              <CodeBlock copyable>
+              <CodeBlock aria-labelledby="iframe-embed-label" copyable>
                 {`<iframe src="${this.embedUrl}" width="${iframeWidth}" height="${iframeHeight}"></iframe>`}
               </CodeBlock>
               <Form className="m-t-10" layout="inline">

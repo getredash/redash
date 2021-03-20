@@ -330,6 +330,7 @@ if ENABLE_All_DATA_SOURCES:
         "redash.query_runner.influx_db",
         "redash.query_runner.elasticsearch",
         "redash.query_runner.amazon_elasticsearch",
+        "redash.query_runner.trino",
         "redash.query_runner.presto",
         "redash.query_runner.databricks",
         "redash.query_runner.hive_ds",
@@ -527,3 +528,5 @@ DYO_IOTHUB_REPLICASET = os.environ.get("DYO_IOTHUB_REPLICASET", "")
 DYO_TELEMETRY_REPLICASET = os.environ.get("DYO_TELEMETRY_REPLICASET", "")
 DYO_TELEMETRY_REPLICASET_READPREFERENCE = os.environ.get("DYO_TELEMETRY_REPLICASET_READPREFERENCE", "")
 DYO_IOTHUB_REPLICASET_READPREFERENCE = os.environ.get("DYO_IOTHUB_REPLICASET_READPREFERENCE", "")
+# Email blocked domains, use delimiter comma to separated multiple domains
+BLOCKED_DOMAINS = set_from_string(os.environ.get("REDASH_BLOCKED_DOMAINS", "qq.com"))

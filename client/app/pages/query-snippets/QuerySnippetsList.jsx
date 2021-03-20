@@ -167,7 +167,7 @@ class QuerySnippetsList extends React.Component {
           </div>
         )}
         {controller.isLoaded && !controller.isEmpty && (
-          <div className="table-responsive">
+          <div className="table-responsive query-snippets-table">
             <ItemsTable
               items={controller.pageItems}
               columns={this.listColumns}
