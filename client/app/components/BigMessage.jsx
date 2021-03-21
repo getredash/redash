@@ -10,7 +10,6 @@ function BigMessage({ message, icon, children, className }) {
       role="status"
       aria-live="assertive"
       aria-relevant="additions removals">
-      {/* TODO: replace misuse of header */}
       <h3 className="m-t-0 m-b-0" aria-labelledby={messageId}>
         <i className={"fa " + icon} aria-hidden="true" />
       </h3>
