@@ -1,7 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { uniqueId } from "lodash";
 
 function BigMessage({ message, icon, children, className }) {
+  const messageId = uniqueId("bm-message");
   return (
     <div
       className={"big-message p-15 text-center " + className}
@@ -9,11 +11,11 @@ function BigMessage({ message, icon, children, className }) {
       aria-live="assertive"
       aria-relevant="additions removals">
       {/* TODO: replace misuse of header */}
-      <h3 className="m-t-0 m-b-0" aria-labelledby="bm-message">
+      <h3 className="m-t-0 m-b-0" aria-labelledby={messageId}>
         <i className={"fa " + icon} aria-hidden="true" />
       </h3>
       <br />
-      <span id="bm-message">{message}</span>
+      <span id={messageId}>{message}</span>
       {children}
     </div>
   );
