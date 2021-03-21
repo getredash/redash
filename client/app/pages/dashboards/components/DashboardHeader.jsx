@@ -197,7 +197,7 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
                 type={buttonType(fullscreen)}
                 className="icon-button m-l-5"
                 onClick={toggleFullscreen}
-                aria-label="Fullscreen display">
+                aria-label="Toggle fullscreen display">
                 <i className="zmdi zmdi-fullscreen" aria-hidden="true" />
               </Button>
             </Tooltip>
