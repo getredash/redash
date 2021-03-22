@@ -1,9 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { uniqueId } from "lodash";
+import { useUniqueId } from "@/lib/hooks/useUniqueId";
+import cx from "classnames";
 
 function BigMessage({ message, icon, children, className }) {
-  const messageId = uniqueId("bm-message");
+  const messageId = useUniqueId("bm-message");
   return (
     <div
       className={"big-message p-15 text-center " + className}
@@ -11,7 +12,7 @@ function BigMessage({ message, icon, children, className }) {
       aria-live="assertive"
       aria-relevant="additions removals">
       <h3 className="m-t-0 m-b-0" aria-labelledby={messageId}>
-        <i className={"fa " + icon} aria-hidden="true" />
+        <i className={cx("fa", icon)} aria-hidden="true" />
       </h3>
       <br />
       <span id={messageId}>{message}</span>
