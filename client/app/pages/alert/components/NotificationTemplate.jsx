@@ -94,7 +94,8 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
             data-test="CustomBody"
           />
           <HelpTrigger type="ALERT_NOTIF_TEMPLATE_GUIDE" className="f-13">
-            <i className="fa fa-question-circle" /> Formatting guide
+            <i className="fa fa-question-circle" aria-hidden="true" /> Formatting guide{" "}
+            <span className="sr-only">(help)</span>
           </HelpTrigger>
         </div>
       )}

@@ -96,7 +96,7 @@ function DashboardList({ controller }) {
           actions={
             currentUser.hasPermission("create_dashboard") ? (
               <Button block type="primary" onClick={() => CreateDashboardDialog.showModal()}>
-                <i className="fa fa-plus m-r-5" />
+                <i className="fa fa-plus m-r-5" aria-hidden="true" />
                 New Dashboard
               </Button>
             ) : null

@@ -129,10 +129,11 @@ export default class Parameters extends React.Component {
           {editable && (
             <button
               className="btn btn-default btn-xs m-l-5"
+              aria-label="Edit"
               onClick={() => this.showParameterSettings(param, index)}
               data-test={`ParameterSettings-${param.name}`}
               type="button">
-              <i className="fa fa-cog" />
+              <i className="fa fa-cog" aria-hidden="true" />
             </button>
           )}
         </div>

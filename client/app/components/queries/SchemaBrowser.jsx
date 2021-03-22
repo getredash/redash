@@ -11,6 +11,7 @@ import List from "react-virtualized/dist/commonjs/List";
 import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import LoadingState from "../items-list/components/LoadingState";
+import PlainButton from "@/components/PlainButton";
 
 const SchemaItemColumnType = PropTypes.shape({
   name: PropTypes.string.isRequired,
@@ -47,18 +48,16 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
     <div {...props}>
       {/* TODO: Replace with a button */}
       <div className="table-name" onClick={onToggle}>
-        <i className="fa fa-table m-r-5" />
+        <i className="fa fa-table m-r-5" aria-hidden="true" />
         <strong>
           <span title={item.name}>{tableDisplayName}</span>
           {!isNil(item.size) && <span> ({item.size})</span>}
         </strong>
 
         <Tooltip title="Insert table name into query text" mouseEnterDelay={0} mouseLeaveDelay={0}>
-          <i
-            className="fa fa-angle-double-right copy-to-editor"
-            aria-hidden="true"
-            onClick={e => handleSelect(e, item.name)}
-          />
+          <PlainButton onClick={e => handleSelect(e, item.name)}>
+            <i className="fa fa-angle-double-right copy-to-editor" aria-hidden="true" />
+          </PlainButton>
         </Tooltip>
       </div>
       {expanded && (
@@ -73,11 +72,9 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
                 <div key={columnName} className="table-open">
                   {columnName} {columnType && <span className="column-type">{columnType}</span>}
                   <Tooltip title="Insert column name into query text" mouseEnterDelay={0} mouseLeaveDelay={0}>
-                    <i
-                      className="fa fa-angle-double-right copy-to-editor"
-                      aria-hidden="true"
-                      onClick={e => handleSelect(e, columnName)}
-                    />
+                    <PlainButton onClick={e => handleSelect(e, columnName)}>
+                      <i className="fa fa-angle-double-right copy-to-editor" aria-hidden="true" />
+                    </PlainButton>
                   </Tooltip>
                 </div>
               );
@@ -238,7 +235,8 @@ export default function SchemaBrowser({
 
         <Tooltip title="Refresh Schema">
           <Button onClick={() => refreshSchema(true)}>
-            <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": isLoading })} />
+            <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": isLoading })} aria-hidden="true" />
+            <span className="sr-only">{isLoading ? "Loading, please wait." : "Press to refresh."}</span>
           </Button>
         </Tooltip>
       </div>

@@ -41,11 +41,16 @@ export class TagsControl extends React.Component {
         data-test="EditTagsButton">
         {tags.length === 0 && (
           <React.Fragment>
-            <i className="zmdi zmdi-plus m-r-5" />
+            <i className="zmdi zmdi-plus m-r-5" aria-hidden="true" />
             Add tag
           </React.Fragment>
         )}
-        {tags.length > 0 && <i className="zmdi zmdi-edit" />}
+        {tags.length > 0 && (
+          <>
+            <i className="zmdi zmdi-edit" aria-hidden="true" />
+            <span className="sr-only">Edit</span>
+          </>
+        )}
       </a>
     );
   }

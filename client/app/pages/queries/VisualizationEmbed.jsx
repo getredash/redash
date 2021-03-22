@@ -108,11 +108,11 @@ function VisualizationEmbedFooter({
       {!hideTimestamp && (
         <span>
           <span className="small hidden-print">
-            <i className="zmdi zmdi-time-restore" />{" "}
+            <i className="zmdi zmdi-time-restore" aria-hidden="true" />{" "}
             {refreshStartedAt ? <Timer from={refreshStartedAt} /> : <TimeAgo date={updatedAt} />}
           </span>
           <span className="small visible-print">
-            <i className="zmdi zmdi-time-restore" /> {formatDateTime(updatedAt)}
+            <i className="zmdi zmdi-time-restore" aria-hidden="true" /> {formatDateTime(updatedAt)}
           </span>
         </span>
       )}
@@ -120,14 +120,15 @@ function VisualizationEmbedFooter({
         <span className="hidden-print">
           <Tooltip title="Open in Redash">
             <Link.Button className="icon-button" href={queryUrl} target="_blank">
-              <i className="fa fa-external-link" />
+              <i className="fa fa-external-link" aria-hidden="true" />
+              <span className="sr-only">Open in Redash</span>
             </Link.Button>
           </Tooltip>
           {!query.hasParameters() && (
             <Dropdown overlay={downloadMenu} disabled={!queryResults} trigger={["click"]} placement="topLeft">
               <Button loading={!queryResults && !!refreshStartedAt} className="m-l-5">
                 Download Dataset
-                <i className="fa fa-caret-up m-l-5" />
+                <i className="fa fa-caret-up m-l-5" aria-hidden="true" />
               </Button>
             </Dropdown>
           )}
@@ -243,7 +244,8 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
         {!queryResults && refreshStartedAt && (
           <div className="d-flex justify-content-center">
             <div className="spinner">
-              <i className="zmdi zmdi-refresh zmdi-hc-spin zmdi-hc-5x" />
+              <i className="zmdi zmdi-refresh zmdi-hc-spin zmdi-hc-5x" aria-hidden="true" />
+              <span className="sr-only">Refreshing...</span>
             </div>
           </div>
         )}

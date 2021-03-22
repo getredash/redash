@@ -88,7 +88,7 @@ export default class AlertDestinations extends React.Component {
       showCount: true,
       extraFooterContent: (
         <>
-          <i className="fa fa-info-circle" /> Create new destinations in{" "}
+          <i className="fa fa-info-circle" aria-hidden="true" /> Create new destinations in{" "}
           <Tooltip title="Opens page in a new tab.">
             <Link href="destinations/new" target="_blank">
               Alert Destinations
@@ -190,12 +190,12 @@ export default class AlertDestinations extends React.Component {
             size="small"
             className="add-button"
             onClick={this.showAddAlertSubDialog}>
-            <i className="fa fa-plus f-12 m-r-5" /> Add
+            <i className="fa fa-plus f-12 m-r-5" aria-hidden="true" /> Add
           </Button>
         </Tooltip>
         <ul>
           <li className="destination-wrapper">
-            <i className="destination-icon fa fa-envelope" />
+            <i className="destination-icon fa fa-envelope" aria-hidden="true" />
             <span className="flex-fill">{currentUser.email}</span>
             <EmailSettingsWarning className="destination-warning" featureName="alert emails" mode="icon" />
             {!mailSettingsMissing && (

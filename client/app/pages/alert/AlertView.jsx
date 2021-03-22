@@ -70,7 +70,7 @@ export default class AlertView extends React.Component {
           <DynamicComponent name="AlertView.HeaderExtra" alert={alert} />
           <Tooltip title={canEdit ? "" : "You do not have sufficient permissions to edit this alert"}>
             <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}>
-              <i className="fa fa-edit m-r-5" />
+              <i className="fa fa-edit m-r-5" aria-hidden="true" />
               Edit
             </Button>
             {menuButton}
@@ -111,7 +111,7 @@ export default class AlertView extends React.Component {
                   className="m-b-20"
                   message={
                     <>
-                      <i className="fa fa-bell-slash-o" /> Notifications are muted
+                      <i className="fa fa-bell-slash-o" aria-hidden="true" /> Notifications are muted
                     </>
                   }
                   description={
@@ -140,7 +140,8 @@ export default class AlertView extends React.Component {
                 Destinations{" "}
                 <Tooltip title="Open Alert Destinations page in a new tab.">
                   <Link href="destinations" target="_blank">
-                    <i className="fa fa-external-link f-13" />
+                    <i className="fa fa-external-link f-13" aria-hidden="true" />
+                    <span className="sr-only">(opens in a new tab)</span>
                   </Link>
                 </Tooltip>
               </h4>

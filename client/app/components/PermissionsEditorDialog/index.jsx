@@ -102,7 +102,16 @@ function UserSelect({ onSelect, shouldShowUser }) {
       placeholder="Add users..."
       showSearch
       onSearch={setSearchTerm}
-      suffixIcon={loadingUsers ? <i className="fa fa-spinner fa-pulse" /> : <i className="fa fa-search" />}
+      suffixIcon={
+        loadingUsers ? (
+          <span role="status" aria-live="polite" aria-relevant="additions removals">
+            <i className="fa fa-spinner fa-pulse" aria-hidden="true" />
+            <span className="sr-only">Loading...</span>
+          </span>
+        ) : (
+          <i className="fa fa-search" aria-hidden="true" />
+        )
+      }
       filterOption={false}
       notFoundContent={null}
       value={undefined}
@@ -156,7 +165,12 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
       />
       <div className="d-flex align-items-center m-t-5">
         <h5 className="flex-fill">Users with permissions</h5>
-        {loadingGrantees && <i className="fa fa-spinner fa-pulse" />}
+        {loadingGrantees && (
+          <span role="status" aria-live="polite" aria-relevant="additions removals">
+            <i className="fa fa-spinner fa-pulse" aria-hidden="true" />
+            <span className="sr-only">Loading...</span>
+          </span>
+        )}
       </div>
       <div className="scrollbox p-5" style={{ maxHeight: "40vh" }}>
         <List
@@ -171,6 +185,7 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
                   <Tooltip title="Remove user permissions">
                     <button // TODO: replace with button component
                       style={{ all: "unset" }}
+                      aria-label="Remove permissions"
                       onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}>
                       <i className="fa fa-remove clickable" aria-hidden="true" />
                     </button>

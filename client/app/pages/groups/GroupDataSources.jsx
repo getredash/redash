@@ -72,9 +72,9 @@ class GroupDataSources extends React.Component {
 
         return (
           <Dropdown trigger={["click"]} overlay={menu}>
-            <Button className="w-100">
+            <Button className="w-100" aria-label="Permissions">
               {datasource.view_only ? "View Only" : "Full Access"}
-              <DownOutlinedIcon />
+              <DownOutlinedIcon aria-hidden="true" />
             </Button>
           </Dropdown>
         );
@@ -192,7 +192,7 @@ class GroupDataSources extends React.Component {
                 <p>There are no data sources in this group yet.</p>
                 {currentUser.isAdmin && (
                   <Button type="primary" onClick={this.addDataSources}>
-                    <i className="fa fa-plus m-r-5" />
+                    <i className="fa fa-plus m-r-5" aria-hidden="true" />
                     Add Data Sources
                   </Button>
                 )}
