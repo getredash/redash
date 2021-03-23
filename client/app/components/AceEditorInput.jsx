@@ -1,11 +1,11 @@
-import React, { forwardRef } from 'react';
-import AceEditor from 'react-ace';
+import React, { forwardRef } from "react";
+import AceEditor from "react-ace";
 
-import './AceEditorInput.less';
+import "./AceEditorInput.less";
 
 function AceEditorInput(props, ref) {
   return (
-    <div className="ace-editor-input">
+    <div className="ace-editor-input" data-test={props["data-test"]}>
       <AceEditor
         ref={ref}
         mode="sql"

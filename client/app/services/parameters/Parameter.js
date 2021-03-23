@@ -1,8 +1,4 @@
-import { isNull, isObject, isFunction, isUndefined, isEqual, has, omit, isArray, each } from 'lodash';
-import {
-  TextParameter, NumberParameter, EnumParameter, QueryBasedDropdownParameter,
-  DateParameter, DateRangeParameter,
-} from '.';
+import { isNull, isObject, isFunction, isUndefined, isEqual, has, omit, isArray, each } from "lodash";
 
 class Parameter {
   constructor(parameter, parentQueryId) {
@@ -16,28 +12,7 @@ class Parameter {
     this.locals = [];
 
     // Used for URL serialization
-    this.urlPrefix = 'p_';
-  }
-
-  static create(param, parentQueryId) {
-    switch (param.type) {
-      case 'number':
-        return new NumberParameter(param, parentQueryId);
-      case 'enum':
-        return new EnumParameter(param, parentQueryId);
-      case 'query':
-        return new QueryBasedDropdownParameter(param, parentQueryId);
-      case 'date':
-      case 'datetime-local':
-      case 'datetime-with-seconds':
-        return new DateParameter(param, parentQueryId);
-      case 'date-range':
-      case 'datetime-range':
-      case 'datetime-range-with-seconds':
-        return new DateRangeParameter(param, parentQueryId);
-      default:
-        return new TextParameter({ ...param, type: 'text' }, parentQueryId);
-    }
+    this.urlPrefix = "p_";
   }
 
   static getExecutionValue(param, extra = {}) {
@@ -69,10 +44,6 @@ class Parameter {
     return this.$$value;
   }
 
-  clone() {
-    return Parameter.create(this, this.parentQueryId);
-  }
-
   isEmptyValue(value) {
     return isNull(this.normalizeValue(value));
   }
@@ -87,7 +58,7 @@ class Parameter {
 
   updateLocals() {
     if (isArray(this.locals)) {
-      each(this.locals, (local) => {
+      each(this.locals, local => {
         local.setValue(this.value);
       });
     }
@@ -146,7 +117,7 @@ class Parameter {
 
   /** Get a saveable version of the Parameter by omitting unnecessary props */
   toSaveableObject() {
-    return omit(this, ['$$value', 'urlPrefix', 'pendingValue', 'parentQueryId']);
+    return omit(this, ["$$value", "urlPrefix", "pendingValue", "parentQueryId"]);
   }
 }
 

@@ -8,13 +8,13 @@ from redash.permissions import require_super_admin
 from redash.security import talisman
 
 
-@routes.route('/ping', methods=['GET'])
+@routes.route("/ping", methods=["GET"])
 @talisman(force_https=False)
 def ping():
-    return 'PONG.'
+    return "PONG."
 
 
-@routes.route('/status.json')
+@routes.route("/status.json")
 @login_required
 @require_super_admin
 def status_api():
@@ -23,6 +23,15 @@ def status_api():
 
 
 def init_app(app):
-    from redash.handlers import embed, queries, static, authentication, admin, setup, organization
+    from redash.handlers import (
+        embed,
+        queries,
+        static,
+        authentication,
+        admin,
+        setup,
+        organization,
+    )
+
     app.register_blueprint(routes)
     api.init_app(app)

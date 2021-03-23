@@ -1,33 +1,29 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import { isEmpty } from 'lodash';
-import Dropdown from 'antd/lib/dropdown';
-import Modal from 'antd/lib/modal';
-import Menu from 'antd/lib/menu';
-import recordEvent from '@/services/recordEvent';
-import { Moment } from '@/components/proptypes';
+import React from "react";
+import PropTypes from "prop-types";
+import cx from "classnames";
+import { isEmpty } from "lodash";
+import Dropdown from "antd/lib/dropdown";
+import Modal from "antd/lib/modal";
+import Menu from "antd/lib/menu";
+import recordEvent from "@/services/recordEvent";
+import { Moment } from "@/components/proptypes";
 
-import './Widget.less';
+import "./Widget.less";
 
 function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
   const WidgetMenu = (
     <Menu data-test="WidgetDropdownButtonMenu">
       {extraOptions}
-      {(showDeleteOption && extraOptions) && <Menu.Divider />}
+      {showDeleteOption && extraOptions && <Menu.Divider />}
       {showDeleteOption && <Menu.Item onClick={onDelete}>Remove from Dashboard</Menu.Item>}
     </Menu>
   );
 
   return (
     <div className="widget-menu-regular">
-      <Dropdown
-        overlay={WidgetMenu}
-        placement="bottomRight"
-        trigger={['click']}
-      >
-        <a className="action p-l-15 p-r-15" data-test="WidgetDropdownButton">
-          <i className="zmdi zmdi-more-vert" />
+      <Dropdown overlay={WidgetMenu} placement="bottomRight" trigger={["click"]}>
+        <a className="action p-l-15 p-r-15" data-test="WidgetDropdownButton" aria-label="More options">
+          <i className="zmdi zmdi-more-vert" aria-hidden="true" />
         </a>
       </Dropdown>
     </div>
@@ -49,8 +45,13 @@ WidgetDropdownButton.defaultProps = {
 function WidgetDeleteButton({ onClick }) {
   return (
     <div className="widget-menu-remove">
-      <a className="action" title="Remove From Dashboard" onClick={onClick} data-test="WidgetDeleteButton">
-        <i className="zmdi zmdi-close" />
+      <a
+        className="action"
+        title="Remove From Dashboard"
+        onClick={onClick}
+        data-test="WidgetDeleteButton"
+        aria-label="Close">
+        <i className="zmdi zmdi-close" aria-hidden="true" />
       </a>
     </div>
   );
@@ -75,7 +76,7 @@ class Widget extends React.Component {
   };
 
   static defaultProps = {
-    className: '',
+    className: "",
     children: null,
     header: null,
     footer: null,
@@ -89,17 +90,17 @@ class Widget extends React.Component {
 
   componentDidMount() {
     const { widget } = this.props;
-    recordEvent('view', 'widget', widget.id);
+    recordEvent("view", "widget", widget.id);
   }
 
   deleteWidget = () => {
     const { widget, onDelete } = this.props;
 
     Modal.confirm({
-      title: 'Delete Widget',
-      content: 'Are you sure you want to remove this widget from the dashboard?',
-      okText: 'Delete',
-      okType: 'danger',
+      title: "Delete Widget",
+      content: "Are you sure you want to remove this widget from the dashboard?",
+      okText: "Delete",
+      okType: "danger",
       onOk: () => widget.delete().then(onDelete),
       maskClosable: true,
       autoFocusButton: null,
@@ -107,12 +108,11 @@ class Widget extends React.Component {
   };
 
   render() {
-    const { className, children, header, footer, canEdit, isPublic,
-      menuOptions, tileProps } = this.props;
+    const { className, children, header, footer, canEdit, isPublic, menuOptions, tileProps } = this.props;
     const showDropdownButton = !isPublic && (canEdit || !isEmpty(menuOptions));
     return (
       <div className="widget-wrapper">
-        <div className={cx('tile body-container', className)} {...tileProps}>
+        <div className={cx("tile body-container", className)} {...tileProps}>
           <div className="widget-actions">
             {showDropdownButton && (
               <WidgetDropdownButton
@@ -123,15 +123,9 @@ class Widget extends React.Component {
             )}
             {canEdit && <WidgetDeleteButton onClick={this.deleteWidget} />}
           </div>
-          <div className="body-row widget-header">
-            {header}
-          </div>
+          <div className="body-row widget-header">{header}</div>
           {children}
-          {footer && (
-            <div className="body-row tile__bottom-control">
-              {footer}
-            </div>
-          )}
+          {footer && <div className="body-row tile__bottom-control">{footer}</div>}
         </div>
       </div>
     );

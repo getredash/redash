@@ -1,12 +1,16 @@
-import boto3
 import yaml
 import datetime
 import time
 
-from botocore.exceptions import ParamValidationError
-
 from redash.query_runner import BaseQueryRunner, register
 from redash.utils import json_dumps, parse_human_time
+
+try:
+    import boto3
+    from botocore.exceptions import ParamValidationError
+    enabled = True
+except ImportError:
+    enabled = False
 
 POLL_INTERVAL = 3
 TIMEOUT = 180
@@ -80,6 +84,10 @@ class CloudWatchInsights(BaseQueryRunner):
             "order": ["region", "aws_access_key", "aws_secret_key"],
             "secret": ["aws_secret_key"],
         }
+
+    @classmethod
+    def enabled(cls):
+        return enabled
 
     def __init__(self, configuration):
         super(CloudWatchInsights, self).__init__(configuration)

@@ -16,53 +16,62 @@ export const config = {
   itemsPerPage: 25,
   columns: [
     {
-      name: 'num',
-      displayAs: 'number',
-      numberFormat: '0.000',
-    }, {
-      name: 'str',
-      displayAs: 'string',
+      name: "num",
+      displayAs: "number",
+      numberFormat: "0.000",
+    },
+    {
+      name: "str",
+      displayAs: "string",
       allowHTML: true,
       highlightLinks: false,
-    }, {
-      name: 'html',
-      displayAs: 'string',
+    },
+    {
+      name: "html",
+      displayAs: "string",
       allowHTML: true,
       highlightLinks: false,
-    }, {
-      name: 'html2',
-      displayAs: 'string',
+    },
+    {
+      name: "html2",
+      displayAs: "string",
       allowHTML: false,
       highlightLinks: false,
-    }, {
-      name: 'html3',
-      displayAs: 'string',
+    },
+    {
+      name: "html3",
+      displayAs: "string",
       allowHTML: true,
       highlightLinks: true,
-    }, {
-      name: 'date',
-      displayAs: 'datetime',
-      dateTimeFormat: 'D MMMM YYYY, h:mm A',
-    }, {
-      name: 'bool',
-      displayAs: 'boolean',
-      booleanValues: ['No', 'Yes'],
-    }, {
-      name: 'json',
-      displayAs: 'json',
-    }, {
-      name: 'img',
-      displayAs: 'image',
-      imageUrlTemplate: 'https://raw.githubusercontent.com/linssen/country-flag-icons/master/images/png/{{ @ }}.png',
-      imageTitleTemplate: 'ISO: {{ @ }}',
-      imageWidth: '30',
-      imageHeight: '',
-    }, {
-      name: 'link',
-      displayAs: 'link',
-      linkUrlTemplate: 'https://www.google.com.ua/search?q={{ @ }}',
-      linkTextTemplate: 'Search for \'{{ @ }}\'',
-      linkTitleTemplate: 'Search for \'{{ @ }}\'',
+    },
+    {
+      name: "date",
+      displayAs: "datetime",
+      dateTimeFormat: "D MMMM YYYY, h:mm A",
+    },
+    {
+      name: "bool",
+      displayAs: "boolean",
+      booleanValues: ["No", "Yes"],
+    },
+    {
+      name: "json",
+      displayAs: "json",
+    },
+    {
+      name: "img",
+      displayAs: "image",
+      imageUrlTemplate: "https://raw.githubusercontent.com/linssen/country-flag-icons/master/images/png/{{ @ }}.png",
+      imageTitleTemplate: "ISO: {{ @ }}",
+      imageWidth: "30",
+      imageHeight: "",
+    },
+    {
+      name: "link",
+      displayAs: "link",
+      linkUrlTemplate: "https://www.google.com.ua/search?q={{ @ }}",
+      linkTextTemplate: "Search for '{{ @ }}'",
+      linkTitleTemplate: "Search for '{{ @ }}'",
       linkOpenInNewTab: true,
     },
   ],

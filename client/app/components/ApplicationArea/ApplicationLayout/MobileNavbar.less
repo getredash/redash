@@ -1,0 +1,35 @@
+@backgroundColor: #001529;
+@dividerColor: rgba(255, 255, 255, 0.5);
+@textColor: rgba(255, 255, 255, 0.75);
+
+.mobile-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: @backgroundColor;
+  box-shadow: 0 4px 9px -3px rgba(102, 136, 153, 0.15);
+  padding: 0 15px;
+  height: 100%;
+
+  &-logo {
+    img {
+      height: 40px;
+      width: 40px;
+    }
+  }
+
+  .ant-btn.mobile-navbar-toggle-button {
+    padding: 0 10px;
+  }
+}
+
+.mobile-navbar-menu {
+  .ant-dropdown-menu-item {
+    font-weight: 500;
+    color: @textColor;
+  }
+
+  .ant-dropdown-menu-item-divider {
+    background: @dividerColor;
+  }
+}

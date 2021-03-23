@@ -25,7 +25,7 @@ class BigQueryGCE(BigQuery):
 
         try:
             # check if we're on a GCE instance
-            requests.get('http://metadata.google.internal')
+            requests.get("http://metadata.google.internal")
         except requests.exceptions.ConnectionError:
             return False
 
@@ -34,38 +34,40 @@ class BigQueryGCE(BigQuery):
     @classmethod
     def configuration_schema(cls):
         return {
-            'type': 'object',
-            'properties': {
-                'totalMBytesProcessedLimit': {
+            "type": "object",
+            "properties": {
+                "totalMBytesProcessedLimit": {
                     "type": "number",
-                    'title': 'Total MByte Processed Limit'
+                    "title": "Total MByte Processed Limit",
                 },
-                'userDefinedFunctionResourceUri': {
+                "userDefinedFunctionResourceUri": {
                     "type": "string",
-                    'title': 'UDF Source URIs (i.e. gs://bucket/date_utils.js, gs://bucket/string_utils.js )'
+                    "title": "UDF Source URIs (i.e. gs://bucket/date_utils.js, gs://bucket/string_utils.js )",
                 },
-                'useStandardSql': {
+                "useStandardSql": {
                     "type": "boolean",
-                    'title': "Use Standard SQL",
+                    "title": "Use Standard SQL",
                     "default": True,
                 },
-                'location': {
+                "location": {
                     "type": "string",
                     "title": "Processing Location",
                     "default": "US",
                 },
-                'loadSchema': {
-                    "type": "boolean",
-                    "title": "Load Schema"
-                }
-            }
+                "loadSchema": {"type": "boolean", "title": "Load Schema"},
+            },
         }
 
     def _get_project_id(self):
-        return requests.get('http://metadata/computeMetadata/v1/project/project-id', headers={'Metadata-Flavor': 'Google'}).content
+        return requests.get(
+            "http://metadata/computeMetadata/v1/project/project-id",
+            headers={"Metadata-Flavor": "Google"},
+        ).content
 
     def _get_bigquery_service(self):
-        credentials = gce.AppAssertionCredentials(scope='https://www.googleapis.com/auth/bigquery')
+        credentials = gce.AppAssertionCredentials(
+            scope="https://www.googleapis.com/auth/bigquery"
+        )
         http = httplib2.Http()
         http = credentials.authorize(http)
 

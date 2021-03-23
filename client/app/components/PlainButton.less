@@ -1,0 +1,22 @@
+@import (reference, less) "~@/assets/less/ant";
+
+.plain-button {
+  all: unset;
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+
+  .@{dropdown-prefix-cls}-menu-item > & {
+    width: 100%;
+    margin: -5px -12px;
+    padding: 5px 12px;
+  }
+
+  .@{menu-prefix-cls}-item > & {
+    width: 100%;
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+}
+
+.plain-button-link {
+  .btn-link();
+}

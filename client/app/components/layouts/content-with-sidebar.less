@@ -9,7 +9,7 @@
   margin: 0;
 
   > .layout-content {
-    flex: 0 0 auto;
+    flex: 1 0 auto;
     width: 75%;
     order: 0;
     margin: 0;
@@ -18,6 +18,7 @@
   > .layout-sidebar {
     flex: 0 0 auto;
     width: 25%;
+    max-width: 350px;
     order: 1;
     margin: 0;
     padding: 0 0 0 @spacing;
@@ -34,6 +35,7 @@
 
     > .layout-sidebar {
       width: 100%;
+      max-width: none;
       order: 0;
       margin: 0 0 @spacing 0;
       padding: 0;

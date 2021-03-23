@@ -15,16 +15,18 @@ export const config = {
   itemsPerPage: 25,
   columns: [
     {
-      name: 'a',
-      displayAs: 'number',
-      numberFormat: '0',
-    }, {
-      name: 'b',
-      displayAs: 'number',
-      numberFormat: '0',
-    }, {
-      name: 'c',
-      displayAs: 'string',
+      name: "a",
+      displayAs: "number",
+      numberFormat: "0",
+    },
+    {
+      name: "b",
+      displayAs: "number",
+      numberFormat: "0",
+    },
+    {
+      name: "c",
+      displayAs: "string",
     },
   ],
 };

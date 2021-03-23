@@ -1,0 +1,66 @@
+@import (reference, less) "~@/assets/less/inc/variables.less";
+
+.query-source-alerts {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.45); // same as Ant drawer
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 10vh;
+
+  @large-spacing: 20px;
+  @small-spacing: 10px;
+  @icon-size: 60px;
+
+  .ant-card {
+    width: 50%;
+    min-width: 300px;
+    height: auto;
+  }
+
+  .ant-card-body {
+    .query-source-alerts-icon {
+      font-size: @icon-size;
+      line-height: @icon-size;
+      margin: @large-spacing 0;
+      text-align: center;
+      color: @brand-warning;
+    }
+
+    h4 {
+      text-align: center;
+      margin: @large-spacing 0;
+      font-weight: normal;
+    }
+
+    p {
+      text-align: center;
+      margin: @small-spacing 0;
+      font-size: 1.1em;
+    }
+
+    .query-source-alerts-actions {
+      text-align: center;
+      margin: @large-spacing 0;
+
+      .ant-btn {
+        margin: 0 15px 0 0;
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+
+    :first-child {
+      margin-top: 0;
+    }
+    :last-child {
+      margin-bottom: 0;
+    }
+  }
+}

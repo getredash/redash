@@ -1,10 +1,14 @@
-import boto3
 import yaml
 import datetime
 
 from redash.query_runner import BaseQueryRunner, register
-from redash.utils import json_dumps
+from redash.utils import json_dumps, parse_human_time
 
+try:
+    import boto3
+    enabled = True
+except ImportError:
+    enabled = False
 
 def parse_response(results):
     columns = [
@@ -30,6 +34,18 @@ def parse_response(results):
     return rows, columns
 
 
+def parse_query(query):
+    query = yaml.safe_load(query)
+
+    for timeKey in ["StartTime", "EndTime"]:
+        if isinstance(query.get(timeKey), str):
+            query[timeKey] = int(parse_human_time(query[timeKey]).timestamp())
+    if not query.get("EndTime"):
+        query["EndTime"] = int(datetime.datetime.now().timestamp())
+
+    return query
+
+
 class CloudWatch(BaseQueryRunner):
     should_annotate_query = False
 
@@ -50,6 +66,10 @@ class CloudWatch(BaseQueryRunner):
             "order": ["region", "aws_access_key", "aws_secret_key"],
             "secret": ["aws_secret_key"],
         }
+
+    @classmethod
+    def enabled(cls):
+        return enabled
 
     def __init__(self, configuration):
         super(CloudWatch, self).__init__(configuration)
@@ -89,7 +109,7 @@ class CloudWatch(BaseQueryRunner):
     def run_query(self, query, user):
         cloudwatch = self._get_client()
 
-        query = yaml.safe_load(query)
+        query = parse_query(query)
 
         results = []
         paginator = cloudwatch.get_paginator("get_metric_data")

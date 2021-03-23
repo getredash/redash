@@ -1,15 +1,15 @@
-import { includes, reduce, some } from 'lodash';
+import { includes, reduce, some } from "lodash";
 
 // TODO: Revisit this implementation when migrating widget component to React
 
 const WIDGET_SELECTOR = '[data-widgetid="{0}"]';
 const WIDGET_CONTENT_SELECTOR = [
-  '.widget-header', // header
-  '.visualization-renderer', // visualization
-  '.scrollbox .alert', // error state
-  '.spinner-container', // loading state
-  '.tile__bottom-control', // footer
-].join(',');
+  ".widget-header", // header
+  ".visualization-renderer", // visualization
+  ".scrollbox .alert", // error state
+  ".spinner-container", // loading state
+  ".tile__bottom-control", // footer
+].join(",");
 const INTERVAL = 200;
 
 export default class AutoHeightController {
@@ -29,9 +29,7 @@ export default class AutoHeightController {
       .map(widget => widget.id.toString());
 
     // added
-    newWidgetIds
-      .filter(id => !includes(Object.keys(this.widgets), id))
-      .forEach(this.add);
+    newWidgetIds.filter(id => !includes(Object.keys(this.widgets), id)).forEach(this.add);
 
     // removed
     Object.keys(this.widgets)
@@ -39,12 +37,12 @@ export default class AutoHeightController {
       .forEach(this.remove);
   }
 
-  add = (id) => {
+  add = id => {
     if (this.isEmpty()) {
       this.start();
     }
 
-    const selector = WIDGET_SELECTOR.replace('{0}', id);
+    const selector = WIDGET_SELECTOR.replace("{0}", id);
     this.widgets[id] = [
       function getHeight() {
         const widgetEl = document.querySelector(selector);
@@ -56,15 +54,19 @@ export default class AutoHeightController {
         const els = widgetEl.querySelectorAll(WIDGET_CONTENT_SELECTOR);
 
         // calculate accumulated height
-        return reduce(els, (acc, el) => {
-          const height = el ? el.getBoundingClientRect().height : 0;
-          return acc + height;
-        }, 0);
+        return reduce(
+          els,
+          (acc, el) => {
+            const height = el ? el.getBoundingClientRect().height : 0;
+            return acc + height;
+          },
+          0
+        );
       },
     ];
   };
 
-  remove = (id) => {
+  remove = id => {
     // ignore if not an active autoHeight widget
     if (!this.exists(id)) {
       return;
@@ -83,10 +85,9 @@ export default class AutoHeightController {
   isEmpty = () => !some(this.widgets);
 
   checkHeightChanges = () => {
-    Object
-      .keys(this.widgets)
+    Object.keys(this.widgets)
       .filter(this.exists) // reject already removed items
-      .forEach((id) => {
+      .forEach(id => {
         const [getHeight, prevHeight] = this.widgets[id];
         const height = getHeight();
         if (height && height !== prevHeight) {
@@ -114,5 +115,5 @@ export default class AutoHeightController {
   destroy = () => {
     this.stop();
     this.widgets = null;
-  }
+  };
 }

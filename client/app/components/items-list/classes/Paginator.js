@@ -1,4 +1,4 @@
-import { isUndefined } from 'lodash';
+import { isUndefined } from "lodash";
 
 export default class Paginator {
   page = 1;
@@ -17,9 +17,9 @@ export default class Paginator {
     }
     value = parseInt(value, 10) || 1;
     if (validate) {
-      this.page = ((value >= 1) && (value <= this.totalPages)) ? value : 1;
+      this.page = value >= 1 && value <= this.totalPages ? value : 1;
     } else {
-      this.page = (value >= 1) ? value : 1;
+      this.page = value >= 1 ? value : 1;
     }
   }
 
@@ -28,7 +28,7 @@ export default class Paginator {
       return;
     }
     value = parseInt(value, 10) || 20;
-    this.itemsPerPage = (value >= 1) ? value : 1;
+    this.itemsPerPage = value >= 1 ? value : 1;
     if (validate) {
       this.setPage(this.page, validate);
     }

@@ -39,8 +39,8 @@
   }
 }
 
-// hide indicator when app-view has content
-app-view:not(:empty) ~ .loading-indicator {
+// hide indicator when application has content
+#application-root:not(:empty) ~ .loading-indicator {
   opacity: 0;
   transform: scale(0.9);
   pointer-events: none;

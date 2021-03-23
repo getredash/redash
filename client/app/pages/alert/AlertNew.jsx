@@ -1,18 +1,18 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
-import HelpTrigger from '@/components/HelpTrigger';
-import { Alert as AlertType } from '@/components/proptypes';
+import HelpTrigger from "@/components/HelpTrigger";
+import { Alert as AlertType } from "@/components/proptypes";
 
-import Form from 'antd/lib/form';
-import Button from 'antd/lib/button';
+import Form from "antd/lib/form";
+import Button from "antd/lib/button";
 
-import Title from './components/Title';
-import Criteria from './components/Criteria';
-import NotificationTemplate from './components/NotificationTemplate';
-import Rearm from './components/Rearm';
-import Query from './components/Query';
-import HorizontalFormItem from './components/HorizontalFormItem';
+import Title from "./components/Title";
+import Criteria from "./components/Criteria";
+import NotificationTemplate from "./components/NotificationTemplate";
+import Rearm from "./components/Rearm";
+import Query from "./components/Query";
+import HorizontalFormItem from "./components/HorizontalFormItem";
 
 export default class AlertNew extends React.Component {
   state = {
@@ -24,7 +24,7 @@ export default class AlertNew extends React.Component {
     this.props.save().catch(() => {
       this.setState({ saving: false });
     });
-  }
+  };
 
   render() {
     const { alert, queryResult, pendingRearm, onNotificationTemplateChange } = this.props;
@@ -35,7 +35,7 @@ export default class AlertNew extends React.Component {
     return (
       <>
         <Title alert={alert} name={name} onChange={onNameChange} editMode />
-        <div className="row bg-white tiled p-20">
+        <div className="bg-white tiled p-20">
           <div className="d-flex">
             <Form className="flex-fill">
               <div className="m-b-30">
@@ -76,13 +76,19 @@ export default class AlertNew extends React.Component {
               )}
               <HorizontalFormItem>
                 <Button type="primary" onClick={this.save} disabled={!query} className="btn-create-alert">
-                  {saving && <i className="fa fa-spinner fa-pulse m-r-5" />}
+                  {saving && (
+                    <span role="status" aria-live="polite" aria-relevant="additions removals">
+                      <i className="fa fa-spinner fa-pulse m-r-5" aria-hidden="true" />
+                      <span className="sr-only">Saving...</span>
+                    </span>
+                  )}
                   Create Alert
                 </Button>
               </HorizontalFormItem>
             </Form>
             <HelpTrigger className="f-13" type="ALERT_SETUP">
-              Setup Instructions <i className="fa fa-question-circle" />
+              Setup Instructions <i className="fa fa-question-circle" aria-hidden="true" />
+              <span className="sr-only">(help)</span>
             </HelpTrigger>
           </div>
         </div>

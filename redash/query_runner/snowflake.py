@@ -1,14 +1,20 @@
-
-
 try:
     import snowflake.connector
+
     enabled = True
 except ImportError:
     enabled = False
 
 
 from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN
+from redash.query_runner import (
+    TYPE_STRING,
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_INTEGER,
+    TYPE_FLOAT,
+    TYPE_BOOLEAN,
+)
 from redash.utils import json_dumps, json_loads
 
 TYPES_MAP = {
@@ -19,7 +25,9 @@ TYPES_MAP = {
     4: TYPE_DATETIME,
     5: TYPE_STRING,
     6: TYPE_DATETIME,
-    13: TYPE_BOOLEAN
+    7: TYPE_DATETIME,
+    8: TYPE_DATETIME,
+    13: TYPE_BOOLEAN,
 }
 
 
@@ -31,29 +39,16 @@ class Snowflake(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "account": {
-                    "type": "string"
-                },
-                "user": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "warehouse": {
-                    "type": "string"
-                },
-                "database": {
-                    "type": "string"
-                },
-                "region": {
-                    "type": "string",
-                    "default": "us-west"
-                }
+                "account": {"type": "string"},
+                "user": {"type": "string"},
+                "password": {"type": "string"},
+                "warehouse": {"type": "string"},
+                "database": {"type": "string"},
+                "region": {"type": "string", "default": "us-west"},
             },
             "order": ["account", "user", "password", "warehouse", "database", "region"],
             "required": ["user", "password", "account", "database", "warehouse"],
-            "secret": ["password"]
+            "secret": ["password"],
         }
 
     @classmethod
@@ -68,28 +63,30 @@ class Snowflake(BaseQueryRunner):
         return t
 
     def _get_connection(self):
-        region = self.configuration.get('region')
+        region = self.configuration.get("region")
 
         # for us-west we don't need to pass a region (and if we do, it fails to connect)
-        if region == 'us-west':
+        if region == "us-west":
             region = None
 
         connection = snowflake.connector.connect(
-            user=self.configuration['user'],
-            password=self.configuration['password'],
-            account=self.configuration['account'],
-            region=region
+            user=self.configuration["user"],
+            password=self.configuration["password"],
+            account=self.configuration["account"],
+            region=region,
         )
 
         return connection
 
     def _parse_results(self, cursor):
         columns = self.fetch_columns(
-            [(i[0], self.determine_type(i[1], i[5])) for i in cursor.description])
-        rows = [dict(zip((column['name'] for column in columns), row))
-                for row in cursor]
+            [(i[0], self.determine_type(i[1], i[5])) for i in cursor.description]
+        )
+        rows = [
+            dict(zip((column["name"] for column in columns), row)) for row in cursor
+        ]
 
-        data = {'columns': columns, 'rows': rows}
+        data = {"columns": columns, "rows": rows}
         return data
 
     def run_query(self, query, user):
@@ -97,9 +94,8 @@ class Snowflake(BaseQueryRunner):
         cursor = connection.cursor()
 
         try:
-            cursor.execute("USE WAREHOUSE {}".format(
-                self.configuration['warehouse']))
-            cursor.execute("USE {}".format(self.configuration['database']))
+            cursor.execute("USE WAREHOUSE {}".format(self.configuration["warehouse"]))
+            cursor.execute("USE {}".format(self.configuration["database"]))
 
             cursor.execute(query)
 
@@ -117,7 +113,7 @@ class Snowflake(BaseQueryRunner):
         cursor = connection.cursor()
 
         try:
-            cursor.execute("USE {}".format(self.configuration['database']))
+            cursor.execute("USE {}".format(self.configuration["database"]))
 
             cursor.execute(query)
 
@@ -127,12 +123,16 @@ class Snowflake(BaseQueryRunner):
             cursor.close()
             connection.close()
 
-        return data, error
+        return data, error    
+    
+    def _database_name_includes_schema(self):
+        return '.' in self.configuration.get('database')
 
     def get_schema(self, get_stats=False):
-        query = """
-        SHOW COLUMNS IN DATABASE {database}
-        """.format(database=self.configuration['database'])
+        if self._database_name_includes_schema():
+            query = "SHOW COLUMNS"
+        else:
+            query = "SHOW COLUMNS IN DATABASE"
 
         results, error = self._run_query_without_warehouse(query)
 
@@ -140,14 +140,14 @@ class Snowflake(BaseQueryRunner):
             raise Exception("Failed getting schema.")
 
         schema = {}
-        for row in results['rows']:
-            if row['kind'] == 'COLUMN':
-                table_name = '{}.{}'.format(row['schema_name'], row['table_name'])
+        for row in results["rows"]:
+            if row["kind"] == "COLUMN":
+                table_name = "{}.{}".format(row["schema_name"], row["table_name"])
 
                 if table_name not in schema:
-                    schema[table_name] = {'name': table_name, 'columns': []}
+                    schema[table_name] = {"name": table_name, "columns": []}
 
-                schema[table_name]['columns'].append(row['column_name'])
+                schema[table_name]["columns"].append(row["column_name"])
 
         return list(schema.values())
 

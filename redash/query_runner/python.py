@@ -7,7 +7,7 @@ from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
 from redash import models
 from RestrictedPython import compile_restricted
-from RestrictedPython.Guards import safe_builtins
+from RestrictedPython.Guards import safe_builtins, guarded_iter_unpack_sequence, guarded_unpack_sequence
 
 
 logger = logging.getLogger(__name__)
@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 class CustomPrint(object):
     """CustomPrint redirect "print" calls to be sent as "log" on the result object."""
+
     def __init__(self):
         self.enabled = True
         self.lines = []
@@ -22,7 +23,9 @@ class CustomPrint(object):
     def write(self, text):
         if self.enabled:
             if text and text.strip():
-                log_line = "[{0}] {1}".format(datetime.datetime.utcnow().isoformat(), text)
+                log_line = "[{0}] {1}".format(
+                    datetime.datetime.utcnow().isoformat(), text
+                )
                 self.lines.append(log_line)
 
     def enable(self):
@@ -31,33 +34,55 @@ class CustomPrint(object):
     def disable(self):
         self.enabled = False
 
-    def __call__(self):
+    def __call__(self, *args):
         return self
+
+    def _call_print(self, *objects, **kwargs):
+        print(*objects, file=self)
 
 
 class Python(BaseQueryRunner):
     should_annotate_query = False
 
     safe_builtins = (
-        'sorted', 'reversed', 'map', 'any', 'all',
-        'slice', 'filter', 'len', 'next', 'enumerate',
-        'sum', 'abs', 'min', 'max', 'round', 'divmod',
-        'str', 'int', 'float', 'complex',
-        'tuple', 'set', 'list', 'dict', 'bool',
+        "sorted",
+        "reversed",
+        "map",
+        "any",
+        "all",
+        "slice",
+        "filter",
+        "len",
+        "next",
+        "enumerate",
+        "sum",
+        "abs",
+        "min",
+        "max",
+        "round",
+        "divmod",
+        "str",
+        "int",
+        "float",
+        "complex",
+        "tuple",
+        "set",
+        "list",
+        "dict",
+        "bool",
     )
 
     @classmethod
     def configuration_schema(cls):
         return {
-            'type': 'object',
-            'properties': {
-                'allowedImportModules': {
-                    'type': 'string',
-                    'title': 'Modules to import prior to running the script'
+            "type": "object",
+            "properties": {
+                "allowedImportModules": {
+                    "type": "string",
+                    "title": "Modules to import prior to running the script",
                 },
-                'additionalModulesPaths': {
-                    'type': 'string'
-                }
+                "additionalModulesPaths": {"type": "string"},
+                "additionalBuiltins": {"type": "string"},
             },
         }
 
@@ -84,6 +109,11 @@ class Python(BaseQueryRunner):
                 if p not in sys.path:
                     sys.path.append(p)
 
+        if self.configuration.get("additionalBuiltins", None):
+            for b in self.configuration["additionalBuiltins"].split(","):
+                if b not in self.safe_builtins:
+                    self.safe_builtins += (b, )
+
     def custom_import(self, name, globals=None, locals=None, fromlist=(), level=0):
         if name in self._allowed_modules:
             m = None
@@ -95,7 +125,9 @@ class Python(BaseQueryRunner):
 
             return m
 
-        raise Exception("'{0}' is not configured as a supported import module".format(name))
+        raise Exception(
+            "'{0}' is not configured as a supported import module".format(name)
+        )
 
     @staticmethod
     def custom_write(obj):
@@ -129,11 +161,9 @@ class Python(BaseQueryRunner):
         if "columns" not in result:
             result["columns"] = []
 
-        result["columns"].append({
-            "name": column_name,
-            "friendly_name": friendly_name,
-            "type": column_type
-        })
+        result["columns"].append(
+            {"name": column_name, "friendly_name": friendly_name, "type": column_type}
+        )
 
     @staticmethod
     def add_result_row(result, values):
@@ -221,7 +251,7 @@ class Python(BaseQueryRunner):
         try:
             error = None
 
-            code = compile_restricted(query, '<string>', 'exec')
+            code = compile_restricted(query, "<string>", "exec")
 
             builtins = safe_builtins.copy()
             builtins["_write_"] = self.custom_write
@@ -233,6 +263,8 @@ class Python(BaseQueryRunner):
             builtins["_getitem_"] = self.custom_get_item
             builtins["_getiter_"] = self.custom_get_iter
             builtins["_print_"] = self._custom_print
+            builtins["_unpack_sequence_"] = guarded_unpack_sequence
+            builtins["_iter_unpack_sequence_"] = guarded_iter_unpack_sequence
 
             # Layer in our own additional set of builtins that we have
             # considered safe.
@@ -263,12 +295,9 @@ class Python(BaseQueryRunner):
 
             exec(code, restricted_globals, self._script_locals)
 
-            result = self._script_locals['result']
-            result['log'] = self._custom_print.lines
+            result = self._script_locals["result"]
+            result["log"] = self._custom_print.lines
             json_data = json_dumps(result)
-        except KeyboardInterrupt:
-            error = "Query cancelled by user."
-            json_data = None
         except Exception as e:
             error = str(type(e)) + " " + str(e)
             json_data = None

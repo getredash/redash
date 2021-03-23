@@ -1,0 +1,56 @@
+@import (reference, less) "~@/assets/less/inc/variables";
+
+/****
+  grid bg - based on 6 cols, 35px rows and 15px spacing
+****/
+
+// let the bg go all the way to the bottom
+.dashboard-page,
+.dashboard-page .container {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  width: 100%;
+}
+
+#dashboard-container {
+  position: relative;
+  flex-grow: 1;
+  display: flex;
+}
+
+.add-widget-container {
+  background: #fff;
+  border-radius: @redash-radius;
+  padding: 15px;
+  position: fixed;
+  bottom: 20px;
+  z-index: 99;
+  box-shadow: fade(@redash-gray, 50%) 0px 7px 29px -3px;
+  display: flex;
+  justify-content: space-between;
+
+  h2 {
+    margin: 0;
+    font-size: 14px;
+    line-height: 2.1;
+    font-weight: 400;
+
+    .zmdi {
+      margin: 0;
+      margin-right: 5px;
+      font-size: 24px;
+      position: absolute;
+      bottom: 18px;
+    }
+
+    span {
+      vertical-align: middle;
+      padding-left: 30px;
+    }
+  }
+
+  .btn {
+    align-self: center;
+  }
+}

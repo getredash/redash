@@ -6,8 +6,8 @@ manager = AppGroup(help="Queries management commands.")
 
 
 @manager.command()
-@argument('query_id')
-@argument('tag')
+@argument("query_id")
+@argument("tag")
 def add_tag(query_id, tag):
     from redash import models
 
@@ -32,8 +32,8 @@ def add_tag(query_id, tag):
 
 
 @manager.command()
-@argument('query_id')
-@argument('tag')
+@argument("query_id")
+@argument("tag")
 def remove_tag(query_id, tag):
     from redash import models
 

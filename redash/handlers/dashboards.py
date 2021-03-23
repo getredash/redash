@@ -2,35 +2,43 @@ from flask import request, url_for
 from funcy import project, partial
 
 from flask_restful import abort
-from redash import models, serializers
-from redash.handlers.base import (BaseResource, get_object_or_404, paginate,
-                                  filter_by_tags,
-                                  order_results as _order_results)
-from redash.permissions import (can_modify, require_admin_or_owner,
-                                require_object_modify_permission,
-                                require_permission)
+from redash import models
+from redash.handlers.base import (
+    BaseResource,
+    get_object_or_404,
+    paginate,
+    filter_by_tags,
+    order_results as _order_results,
+)
+from redash.permissions import (
+    can_modify,
+    require_admin_or_owner,
+    require_object_modify_permission,
+    require_permission,
+)
 from redash.security import csp_allows_embeding
-from redash.serializers import serialize_dashboard
+from redash.serializers import (
+    DashboardSerializer,
+    public_dashboard,
+)
 from sqlalchemy.orm.exc import StaleDataError
 
 
 # Ordering map for relationships
 order_map = {
-    'name': 'lowercase_name',
-    '-name': '-lowercase_name',
-    'created_at': 'created_at',
-    '-created_at': '-created_at',
+    "name": "lowercase_name",
+    "-name": "-lowercase_name",
+    "created_at": "created_at",
+    "-created_at": "-created_at",
 }
 
 order_results = partial(
-    _order_results,
-    default_order='-created_at',
-    allowed_orders=order_map,
+    _order_results, default_order="-created_at", allowed_orders=order_map
 )
 
 
 class DashboardListResource(BaseResource):
-    @require_permission('list_dashboards')
+    @require_permission("list_dashboards")
     def get(self):
         """
         Lists all accessible dashboards.
@@ -43,7 +51,7 @@ class DashboardListResource(BaseResource):
         Responds with an array of :ref:`dashboard <dashboard-response-label>`
         objects.
         """
-        search_term = request.args.get('q')
+        search_term = request.args.get("q")
 
         if search_term:
             results = models.Dashboard.search(
@@ -54,9 +62,7 @@ class DashboardListResource(BaseResource):
             )
         else:
             results = models.Dashboard.all(
-                self.current_org,
-                self.current_user.group_ids,
-                self.current_user.id,
+                self.current_org, self.current_user.group_ids, self.current_user.id
             )
 
         results = filter_by_tags(results, models.Dashboard.tags)
@@ -66,31 +72,26 @@ class DashboardListResource(BaseResource):
         # provides an order by search rank
         ordered_results = order_results(results, fallback=not bool(search_term))
 
-        page = request.args.get('page', 1, type=int)
-        page_size = request.args.get('page_size', 25, type=int)
+        page = request.args.get("page", 1, type=int)
+        page_size = request.args.get("page_size", 25, type=int)
 
         response = paginate(
             ordered_results,
             page=page,
             page_size=page_size,
-            serializer=serialize_dashboard,
+            serializer=DashboardSerializer,
         )
 
         if search_term:
-            self.record_event({
-                'action': 'search',
-                'object_type': 'dashboard',
-                'term': search_term,
-            })
+            self.record_event(
+                {"action": "search", "object_type": "dashboard", "term": search_term}
+            )
         else:
-            self.record_event({
-                'action': 'list',
-                'object_type': 'dashboard',
-            })
+            self.record_event({"action": "list", "object_type": "dashboard"})
 
         return response
 
-    @require_permission('create_dashboard')
+    @require_permission("create_dashboard")
     def post(self):
         """
         Creates a new dashboard.
@@ -100,23 +101,62 @@ class DashboardListResource(BaseResource):
         Responds with a :ref:`dashboard <dashboard-response-label>`.
         """
         dashboard_properties = request.get_json(force=True)
-        dashboard = models.Dashboard(name=dashboard_properties['name'],
-                                     org=self.current_org,
-                                     user=self.current_user,
-                                     is_draft=True,
-                                     layout='[]')
+        dashboard = models.Dashboard(
+            name=dashboard_properties["name"],
+            org=self.current_org,
+            user=self.current_user,
+            is_draft=True,
+            layout="[]",
+        )
         models.db.session.add(dashboard)
         models.db.session.commit()
-        return serialize_dashboard(dashboard)
+        return DashboardSerializer(dashboard).serialize()
+
+
+class MyDashboardsResource(BaseResource):
+    @require_permission("list_dashboards")
+    def get(self):
+        """
+        Retrieve a list of dashboards created by the current user.
+
+        :qparam number page_size: Number of dashboards to return per page
+        :qparam number page: Page number to retrieve
+        :qparam number order: Name of column to order by
+        :qparam number search: Full text search term
+
+        Responds with an array of :ref:`dashboard <dashboard-response-label>`
+        objects.
+        """
+        search_term = request.args.get("q", "")
+        if search_term:
+            results = models.Dashboard.search_by_user(search_term, self.current_user)
+        else:
+            results = models.Dashboard.by_user(self.current_user)
+
+        results = filter_by_tags(results, models.Dashboard.tags)
+
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        ordered_results = order_results(results, fallback=not bool(search_term))
+
+        page = request.args.get("page", 1, type=int)
+        page_size = request.args.get("page_size", 25, type=int)
+        return paginate(
+            ordered_results,
+            page,
+            page_size,
+            DashboardSerializer
+        )
 
 
 class DashboardResource(BaseResource):
-    @require_permission('list_dashboards')
-    def get(self, dashboard_slug=None):
+    @require_permission("list_dashboards")
+    def get(self, dashboard_id=None):
         """
         Retrieves a dashboard.
 
-        :qparam string slug: Slug of dashboard to retrieve.
+        :qparam number id: Id of dashboard to retrieve.
 
         .. _dashboard-response-label:
 
@@ -132,6 +172,7 @@ class DashboardResource(BaseResource):
         :>json boolean is_draft: Whether this dashboard is a draft or not.
         :>json array layout: Array of arrays containing widget IDs, corresponding to the rows and columns the widgets are displayed in
         :>json array widgets: Array of arrays containing :ref:`widget <widget-response-label>` data
+        :>json object options: Dashboard options
 
         .. _widget-response-label:
 
@@ -146,30 +187,40 @@ class DashboardResource(BaseResource):
         :>json string widget.created_at: ISO format timestamp for widget creation
         :>json string widget.updated_at: ISO format timestamp for last widget modification
         """
-        dashboard = get_object_or_404(models.Dashboard.get_by_slug_and_org, dashboard_slug, self.current_org)
-        response = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
+        if request.args.get("legacy") is not None:
+            fn = models.Dashboard.get_by_slug_and_org
+        else:
+            fn = models.Dashboard.get_by_id_and_org
+
+        dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
+        response = DashboardSerializer(
+            dashboard, with_widgets=True, user=self.current_user
+        ).serialize()
 
         api_key = models.ApiKey.get_by_object(dashboard)
         if api_key:
-            response['public_url'] = url_for('redash.public_dashboard', token=api_key.api_key, org_slug=self.current_org.slug, _external=True)
-            response['api_key'] = api_key.api_key
+            response["public_url"] = url_for(
+                "redash.public_dashboard",
+                token=api_key.api_key,
+                org_slug=self.current_org.slug,
+                _external=True,
+            )
+            response["api_key"] = api_key.api_key
 
-        response['can_edit'] = can_modify(dashboard, self.current_user)
+        response["can_edit"] = can_modify(dashboard, self.current_user)
 
-        self.record_event({
-            'action': 'view',
-            'object_id': dashboard.id,
-            'object_type': 'dashboard',
-        })
+        self.record_event(
+            {"action": "view", "object_id": dashboard.id, "object_type": "dashboard"}
+        )
 
         return response
 
-    @require_permission('edit_dashboard')
-    def post(self, dashboard_slug):
+    @require_permission("edit_dashboard")
+    def post(self, dashboard_id):
         """
         Modifies a dashboard.
 
-        :qparam string slug: Slug of dashboard to retrieve.
+        :qparam number id: Id of dashboard to retrieve.
 
         Responds with the updated :ref:`dashboard <dashboard-response-label>`.
 
@@ -178,20 +229,31 @@ class DashboardResource(BaseResource):
         """
         dashboard_properties = request.get_json(force=True)
         # TODO: either convert all requests to use slugs or ids
-        dashboard = models.Dashboard.get_by_id_and_org(dashboard_slug, self.current_org)
+        dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
 
         require_object_modify_permission(dashboard, self.current_user)
 
-        updates = project(dashboard_properties, ('name', 'layout', 'version', 'tags',
-                                                 'is_draft', 'dashboard_filters_enabled'))
+        updates = project(
+            dashboard_properties,
+            (
+                "name",
+                "layout",
+                "version",
+                "tags",
+                "is_draft",
+                "is_archived",
+                "dashboard_filters_enabled",
+                "options",
+            ),
+        )
 
         # SQLAlchemy handles the case where a concurrent transaction beats us
         # to the update. But we still have to make sure that we're not starting
         # out behind.
-        if 'version' in updates and updates['version'] != dashboard.version:
+        if "version" in updates and updates["version"] != dashboard.version:
             abort(409)
 
-        updates['changed_by'] = self.current_user
+        updates["changed_by"] = self.current_user
 
         self.update_model(dashboard, updates)
         models.db.session.add(dashboard)
@@ -200,37 +262,37 @@ class DashboardResource(BaseResource):
         except StaleDataError:
             abort(409)
 
-        result = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
+        result = DashboardSerializer(
+            dashboard, with_widgets=True, user=self.current_user
+        ).serialize()
 
-        self.record_event({
-            'action': 'edit',
-            'object_id': dashboard.id,
-            'object_type': 'dashboard',
-        })
+        self.record_event(
+            {"action": "edit", "object_id": dashboard.id, "object_type": "dashboard"}
+        )
 
         return result
 
-    @require_permission('edit_dashboard')
-    def delete(self, dashboard_slug):
+    @require_permission("edit_dashboard")
+    def delete(self, dashboard_id):
         """
         Archives a dashboard.
 
-        :qparam string slug: Slug of dashboard to retrieve.
+        :qparam number id: Id of dashboard to retrieve.
 
         Responds with the archived :ref:`dashboard <dashboard-response-label>`.
         """
-        dashboard = models.Dashboard.get_by_slug_and_org(dashboard_slug, self.current_org)
+        dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
         dashboard.is_archived = True
         dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)
-        d = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
+        d = DashboardSerializer(
+            dashboard, with_widgets=True, user=self.current_user
+        ).serialize()
         models.db.session.commit()
 
-        self.record_event({
-            'action': 'archive',
-            'object_id': dashboard.id,
-            'object_type': 'dashboard',
-        })
+        self.record_event(
+            {"action": "archive", "object_id": dashboard.id, "object_type": "dashboard"}
+        )
 
         return d
 
@@ -245,13 +307,16 @@ class PublicDashboardResource(BaseResource):
         :param token: An API key for a public dashboard.
         :>json array widgets: An array of arrays of :ref:`public widgets <public-widget-label>`, corresponding to the rows and columns the widgets are displayed in
         """
+        if self.current_org.get_setting("disable_public_urls"):
+            abort(400, message="Public URLs are disabled.")
+
         if not isinstance(self.current_user, models.ApiUser):
             api_key = get_object_or_404(models.ApiKey.get_by_api_key, token)
             dashboard = api_key.object
         else:
             dashboard = self.current_user.object
 
-        return serializers.public_dashboard(dashboard)
+        return public_dashboard(dashboard)
 
 
 class DashboardShareResource(BaseResource):
@@ -269,15 +334,22 @@ class DashboardShareResource(BaseResource):
         models.db.session.flush()
         models.db.session.commit()
 
-        public_url = url_for('redash.public_dashboard', token=api_key.api_key, org_slug=self.current_org.slug, _external=True)
+        public_url = url_for(
+            "redash.public_dashboard",
+            token=api_key.api_key,
+            org_slug=self.current_org.slug,
+            _external=True,
+        )
 
-        self.record_event({
-            'action': 'activate_api_key',
-            'object_id': dashboard.id,
-            'object_type': 'dashboard',
-        })
+        self.record_event(
+            {
+                "action": "activate_api_key",
+                "object_id": dashboard.id,
+                "object_type": "dashboard",
+            }
+        )
 
-        return {'public_url': public_url, 'api_key': api_key.api_key}
+        return {"public_url": public_url, "api_key": api_key.api_key}
 
     def delete(self, dashboard_id):
         """
@@ -294,38 +366,39 @@ class DashboardShareResource(BaseResource):
             models.db.session.add(api_key)
             models.db.session.commit()
 
-        self.record_event({
-            'action': 'deactivate_api_key',
-            'object_id': dashboard.id,
-            'object_type': 'dashboard',
-        })
+        self.record_event(
+            {
+                "action": "deactivate_api_key",
+                "object_id": dashboard.id,
+                "object_type": "dashboard",
+            }
+        )
 
 
 class DashboardTagsResource(BaseResource):
-    @require_permission('list_dashboards')
+    @require_permission("list_dashboards")
     def get(self):
         """
         Lists all accessible dashboards.
         """
         tags = models.Dashboard.all_tags(self.current_org, self.current_user)
-        return {
-            'tags': [
-                {
-                    'name': name,
-                    'count': count,
-                }
-                for name, count in tags
-            ]
-        }
+        return {"tags": [{"name": name, "count": count} for name, count in tags]}
 
 
 class DashboardFavoriteListResource(BaseResource):
     def get(self):
-        search_term = request.args.get('q')
+        search_term = request.args.get("q")
 
         if search_term:
-            base_query = models.Dashboard.search(self.current_org, self.current_user.group_ids, self.current_user.id, search_term)
-            favorites = models.Dashboard.favorites(self.current_user, base_query=base_query)
+            base_query = models.Dashboard.search(
+                self.current_org,
+                self.current_user.group_ids,
+                self.current_user.id,
+                search_term,
+            )
+            favorites = models.Dashboard.favorites(
+                self.current_user, base_query=base_query
+            )
         else:
             favorites = models.Dashboard.favorites(self.current_user)
 
@@ -336,18 +409,21 @@ class DashboardFavoriteListResource(BaseResource):
         # provides an order by search rank
         favorites = order_results(favorites, fallback=not bool(search_term))
 
-        page = request.args.get('page', 1, type=int)
-        page_size = request.args.get('page_size', 25, type=int)
-        response = paginate(favorites, page, page_size, serialize_dashboard)
+        page = request.args.get("page", 1, type=int)
+        page_size = request.args.get("page_size", 25, type=int)
+        # TODO: we don't need to check for favorite status here
+        response = paginate(favorites, page, page_size, DashboardSerializer)
 
-        self.record_event({
-            'action': 'load_favorites',
-            'object_type': 'dashboard',
-            'params': {
-                'q': search_term,
-                'tags': request.args.getlist('tags'),
-                'page': page
+        self.record_event(
+            {
+                "action": "load_favorites",
+                "object_type": "dashboard",
+                "params": {
+                    "q": search_term,
+                    "tags": request.args.getlist("tags"),
+                    "page": page,
+                },
             }
-        })
+        )
 
         return response
