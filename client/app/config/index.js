@@ -11,6 +11,7 @@ import "@redash/viz/lib";
 import "@/pages";
 
 import "./antd-spinner";
+import "./antd-tooltip";
 
 moment.updateLocale("en", {
   relativeTime: {
