@@ -1,5 +1,6 @@
 import logging
 import requests
+import re
 from flask import redirect, url_for, Blueprint, flash, request, session
 from flask_oauthlib.client import OAuth
 
@@ -111,7 +112,7 @@ def authorized():
         flash("Your Google Apps account ({}) isn't allowed.".format(profile["email"]))
         return redirect(url_for("redash.login", org_slug=org.slug))
 
-    picture_url = "%s?sz=40" % profile["picture"]
+    picture_url = re.sub('=[a-z0-9\-]*$', '=s40-c', profile['picture'])
     user = create_and_login_user(org, profile["name"], profile["email"], picture_url)
     if user is None:
         return logout_and_redirect_to_index()
