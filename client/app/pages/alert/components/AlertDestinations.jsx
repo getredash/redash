@@ -12,9 +12,10 @@ import { clientConfig, currentUser } from "@/services/auth";
 import notification from "@/services/notification";
 import ListItemAddon from "@/components/groups/ListItemAddon";
 import EmailSettingsWarning from "@/components/EmailSettingsWarning";
+import PlainButton from "@/components/PlainButton";
+import Tooltip from "@/components/Tooltip";
 
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
-import Tooltip from "@/components/Tooltip";
 import Switch from "antd/lib/switch";
 import Button from "antd/lib/button";
 
@@ -46,7 +47,10 @@ function ListItem({ destination: { name, type }, user, unsubscribe }) {
       )}
       {canUnsubscribe && (
         <Tooltip title="Remove" mouseEnterDelay={0.5}>
-          <CloseOutlinedIcon className="remove-button" onClick={unsubscribe} />
+          <PlainButton className="remove-button" onClick={unsubscribe}>
+            {/* TODO: lacks visual feedback */}
+            <CloseOutlinedIcon />
+          </PlainButton>
         </Tooltip>
       )}
     </li>
