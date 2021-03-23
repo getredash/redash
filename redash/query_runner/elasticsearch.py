@@ -62,7 +62,7 @@ class BaseElasticSearch(BaseQueryRunner):
                     "default": False
                 }
             },
-            "order": ['server', 'basic_auth_user', 'basic_auth_password', 'skip_tls_verification'],
+            "order": ["server", "basic_auth_user", "basic_auth_password", "skip_tls_verification"],
 
             "secret": ["basic_auth_password"],
             "required": ["server"],
