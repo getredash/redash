@@ -8,10 +8,10 @@ import Button from "antd/lib/button";
 import Tooltip from "@/components/Tooltip";
 import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
 import List from "react-virtualized/dist/commonjs/List";
+import PlainButton from "@/components/PlainButton";
 import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import LoadingState from "../items-list/components/LoadingState";
-import PlainButton from "@/components/PlainButton";
 
 const SchemaItemColumnType = PropTypes.shape({
   name: PropTypes.string.isRequired,
@@ -46,20 +46,18 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
 
   return (
     <div {...props}>
-      {/* TODO: Replace with a button */}
-      <div className="table-name" onClick={onToggle}>
+      <PlainButton className="table-name" onClick={onToggle}>
         <i className="fa fa-table m-r-5" aria-hidden="true" />
         <strong>
           <span title={item.name}>{tableDisplayName}</span>
           {!isNil(item.size) && <span> ({item.size})</span>}
         </strong>
-
         <Tooltip title="Insert table name into query text" mouseEnterDelay={0} mouseLeaveDelay={0}>
           <PlainButton onClick={e => handleSelect(e, item.name)}>
             <i className="fa fa-angle-double-right copy-to-editor" aria-hidden="true" />
           </PlainButton>
         </Tooltip>
-      </div>
+      </PlainButton>
       {expanded && (
         <div>
           {item.loading ? (
