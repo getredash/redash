@@ -179,6 +179,8 @@ class Athena(BaseQueryRunner):
             for database in databases["DatabaseList"]:
                 iterator = table_paginator.paginate(DatabaseName=database["Name"])
                 for table in iterator.search("TableList[]"):
+                    if 'StorageDescriptor' not in table:
+                        continue
                     table_name = "%s.%s" % (database["Name"], table["Name"])
                     if table_name not in schema:
                         column = [
