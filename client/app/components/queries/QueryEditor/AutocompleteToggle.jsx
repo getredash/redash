@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 import Button from "antd/lib/button";
 import PropTypes from "prop-types";
 import "@/redash-font/style.less";

@@ -1,7 +1,7 @@
 import { map, trim } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 import EditTagsDialog from "./EditTagsDialog";
 
 export class TagsControl extends React.Component {

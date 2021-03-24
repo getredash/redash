@@ -14,7 +14,7 @@ import ListItemAddon from "@/components/groups/ListItemAddon";
 import EmailSettingsWarning from "@/components/EmailSettingsWarning";
 
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 import Switch from "antd/lib/switch";
 import Button from "antd/lib/button";
 

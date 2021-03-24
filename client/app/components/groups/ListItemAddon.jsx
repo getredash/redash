@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 
 export default function ListItemAddon({ isSelected, isStaged, alreadyInGroup, deselectedIcon }) {
   if (isStaged) {

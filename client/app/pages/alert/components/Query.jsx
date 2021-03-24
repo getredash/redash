@@ -6,7 +6,7 @@ import QuerySelector from "@/components/QuerySelector";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
 import { Query as QueryType } from "@/components/proptypes";
 
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 
 import WarningFilledIcon from "@ant-design/icons/WarningFilled";
 import QuestionCircleTwoToneIcon from "@ant-design/icons/QuestionCircleTwoTone";

@@ -7,7 +7,7 @@ import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import Modal from "antd/lib/modal";
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 import FavoritesControl from "@/components/FavoritesControl";
 import EditInPlace from "@/components/EditInPlace";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
