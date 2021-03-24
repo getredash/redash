@@ -440,6 +440,7 @@ class TitleEditor extends React.Component {
     if (mapping.type === MappingType.StaticValue) {
       return (
         <Tooltip placement="right" title="Titles for static values don't appear in widgets">
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
           <span tabIndex={0}>
             <i className="fa fa-eye-slash" aria-hidden="true" />
           </span>

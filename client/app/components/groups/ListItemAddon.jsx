@@ -14,6 +14,7 @@ export default function ListItemAddon({ isSelected, isStaged, alreadyInGroup, de
   if (alreadyInGroup) {
     return (
       <Tooltip title="Already selected">
+        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
         <span tabIndex={0}>
           <i className="fa fa-check" aria-hidden="true" />
           <span className="sr-only">Already selected</span>
