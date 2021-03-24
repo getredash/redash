@@ -42,10 +42,7 @@ function prepareScatterSeries(series: any, options: any) {
   return series;
 }
 
-function prepareBubbleSeries(series: any, options: any, {
-  seriesColor,
-  data
-}: any) {
+function prepareBubbleSeries(series: any, options: any, { seriesColor, data }: any) {
   const coefficient = options.coefficient || 1;
   series.mode = "markers";
   series.marker = {
@@ -56,9 +53,7 @@ function prepareBubbleSeries(series: any, options: any, {
   return series;
 }
 
-function prepareBoxSeries(series: any, options: any, {
-  seriesColor
-}: any) {
+function prepareBoxSeries(series: any, options: any, { seriesColor }: any) {
   series.type = "box";
   series.mode = "markers";
 

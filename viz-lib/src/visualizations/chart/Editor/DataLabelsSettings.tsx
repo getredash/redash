@@ -4,10 +4,7 @@ import { useDebouncedCallback } from "use-debounce";
 import { Section, Input, Checkbox, ContextHelp } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
-export default function DataLabelsSettings({
-  options,
-  onOptionsChange
-}: any) {
+export default function DataLabelsSettings({ options, onOptionsChange }: any) {
   const isShowDataLabelsAvailable = includes(
     ["line", "area", "column", "scatter", "pie", "heatmap"],
     options.globalSeriesType

@@ -15,7 +15,7 @@ const allChartTypes = [
 ];
 
 type OwnProps = {
-    hiddenChartTypes?: any[]; // TODO: PropTypes.oneOf(map(allChartTypes, "type"))
+  hiddenChartTypes?: any[]; // TODO: PropTypes.oneOf(map(allChartTypes, "type"))
 };
 
 type Props = OwnProps & typeof ChartTypeSelect.defaultProps;
@@ -42,7 +42,7 @@ export default function ChartTypeSelect({ hiddenChartTypes, ...props }: Props) {
         <Select.Option key={type} value={type} data-test={`Chart.ChartType.${type}`}>
           <i className={`fa fa-${icon}`} style={{ marginRight: 5 }} />
           {name}
-        {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
         </Select.Option>
       ))}
     </Select>

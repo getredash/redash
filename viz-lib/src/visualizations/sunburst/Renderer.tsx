@@ -5,9 +5,7 @@ import { RendererPropTypes } from "@/visualizations/prop-types";
 import initSunburst from "./initSunburst";
 import "./renderer.less";
 
-export default function Renderer({
-  data
-}: any) {
+export default function Renderer({ data }: any) {
   const [container, setContainer] = useState(null);
 
   const render = useMemo(() => initSunburst(data), [data]);

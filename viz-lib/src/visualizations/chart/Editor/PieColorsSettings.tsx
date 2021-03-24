@@ -16,11 +16,7 @@ function getUniqueValues(chartData: any) {
   return [...uniqueValuesNames];
 }
 
-export default function PieColorsSettings({
-  options,
-  data,
-  onOptionsChange
-}: any) {
+export default function PieColorsSettings({ options, data, onOptionsChange }: any) {
   const colors = useMemo(
     () => ({
       Automatic: null,
