@@ -6,6 +6,7 @@ import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import Link from "@/components/Link";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import HelpTrigger from "@/components/HelpTrigger";
+import PlainButton from "@/components/PlainButton";
 import { currentUser } from "@/services/auth";
 import organizationStatus from "@/services/organizationStatus";
 import "./empty-state.less";
@@ -200,9 +201,9 @@ function EmptyState({
         </div>
       </div>
       {closable && (
-        <a className="close-button" aria-label="Close" onClick={onClose}>
+        <PlainButton className="close-button" aria-label="Close" onClick={onClose}>
           <CloseOutlinedIcon />
-        </a>
+        </PlainButton>
       )}
     </div>
   );
