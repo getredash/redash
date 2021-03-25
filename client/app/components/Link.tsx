@@ -21,12 +21,8 @@ function DefaultLinkComponent({ children, ...props }: React.AnchorHTMLAttributes
 
 Link.Component = DefaultLinkComponent;
 
-function Link({ tabIndex = 0, children, ...props }: LinkProps) {
-  return (
-    <Link.Component tabIndex={tabIndex} {...props}>
-      {children}
-    </Link.Component>
-  );
+function Link({ children, ...props }: LinkProps) {
+  return <Link.Component {...props}>{children}</Link.Component>;
 }
 
 function LinkWithIcon({ icon, alt, children, ...props }: LinkWithIconProps) {
