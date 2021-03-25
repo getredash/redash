@@ -106,6 +106,7 @@ function DashboardList({ controller }) {
           <Layout.Sidebar className="m-b-0">
             <Sidebar.SearchInput
               placeholder="Search Dashboards..."
+              label="Search dashboards"
               value={controller.searchTerm}
               onChange={controller.updateSearch}
             />

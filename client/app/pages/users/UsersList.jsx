@@ -212,7 +212,11 @@ class UsersList extends React.Component {
         {this.renderPageHeader()}
         <Layout>
           <Layout.Sidebar className="m-b-0">
-            <Sidebar.SearchInput value={controller.searchTerm} onChange={controller.updateSearch} />
+            <Sidebar.SearchInput
+              value={controller.searchTerm}
+              onChange={controller.updateSearch}
+              label="Search users"
+            />
             <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
           </Layout.Sidebar>
           <Layout.Content>
