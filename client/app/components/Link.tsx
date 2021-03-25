@@ -5,12 +5,10 @@ interface LinkProps extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 
   href: string;
 }
 
-interface ExternalLinkProps extends LinkProps {
+interface LinkWithIconProps extends LinkProps {
   children: string;
-  externalLink?: {
-    icon: JSX.Element;
-    alt: string;
-  };
+  icon: JSX.Element;
+  alt: string;
 }
 
 interface ButtonProps extends AntdButtonProps {
@@ -31,16 +29,24 @@ function Link({ tabIndex = 0, children, ...props }: LinkProps) {
   );
 }
 
-function ExternalLink({ tabIndex = 0, children, externalLink, ...props }: ExternalLinkProps) {
-  const externalLinkProps = { target: "_blank", rel: "noopener noreferrer" };
-  const icon = externalLink?.icon || <i className="fa fa-external-link" aria-hidden="true" />;
-  const alt = externalLink?.alt || "(opens in a new tab)";
-
+function LinkWithIcon({ icon, alt, children, ...props }: LinkWithIconProps) {
   return (
-    <Link.Component tabIndex={tabIndex} {...externalLinkProps} {...props}>
+    <Link {...props}>
       {children} {icon} <span className="sr-only">{alt}</span>
-    </Link.Component>
+    </Link>
   );
+}
+
+Link.WithIcon = LinkWithIcon;
+
+function ExternalLink({
+  icon = <i className="fa fa-external-link" aria-hidden="true" />,
+  alt = "(opens in a new tab)",
+  ...props
+}: LinkWithIconProps) {
+  const externalLinkProps = { target: "_blank", rel: "noopener noreferrer", icon, alt };
+
+  return <Link.WithIcon {...externalLinkProps} {...props} />;
 }
 
 Link.External = ExternalLink;
