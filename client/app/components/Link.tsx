@@ -40,9 +40,7 @@ function ExternalLink({
   alt = "(opens in a new tab)",
   ...props
 }: LinkWithIconProps) {
-  const externalLinkProps = { target: "_blank", rel: "noopener noreferrer", icon, alt };
-
-  return <Link.WithIcon {...externalLinkProps} {...props} />;
+  return <Link.WithIcon target="_blank" rel="noopener noreferrer" icon={icon} alt={alt} {...props} />;
 }
 
 Link.External = ExternalLink;
