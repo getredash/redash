@@ -8,6 +8,7 @@ from flask_login import current_user
 
 try:
     from ldap3 import Server, Connection
+    from ldap3.utils.conv import escape_filter_chars
 except ImportError:
     if settings.LDAP_LOGIN_ENABLED:
         sys.exit(
@@ -83,7 +84,7 @@ def auth_ldap_user(username, password):
 
     conn.search(
         settings.LDAP_SEARCH_DN,
-        settings.LDAP_SEARCH_TEMPLATE % {"username": username},
+        settings.LDAP_SEARCH_TEMPLATE % {"username": escape_filter_chars(username)},
         attributes=[settings.LDAP_DISPLAY_NAME_KEY, settings.LDAP_EMAIL_KEY],
     )
 
