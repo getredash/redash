@@ -27,6 +27,7 @@ export default function EmailSettingsWarning({ featureName, className, mode, adm
   if (mode === "icon") {
     return (
       <Tooltip title={message} placement="topRight" arrowPointAtCenter>
+        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
         <span className={className} aria-label="Mail alert" aria-describedby={messageDescriptionId} tabIndex={0}>
           <i className={"fa fa-exclamation-triangle"} aria-hidden="true" />
         </span>
