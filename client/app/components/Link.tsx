@@ -18,7 +18,7 @@ interface LinkWithIconProps extends LinkProps {
   children: string;
   icon: JSX.Element;
   alt: string;
-  target?: "_blank" | "_parent" | "_top";
+  target?: "_self" | "_blank" | "_parent" | "_top";
 }
 
 function LinkWithIcon({ icon, alt, children, ...props }: LinkWithIconProps) {
@@ -35,7 +35,7 @@ function ExternalLink({
   icon = <i className="fa fa-external-link" aria-hidden="true" />,
   alt = "(opens in a new tab)",
   ...props
-}: LinkWithIconProps) {
+}: Omit<LinkWithIconProps, "target">) {
   return <Link.WithIcon target="_blank" rel="noopener noreferrer" icon={icon} alt={alt} {...props} />;
 }
 
