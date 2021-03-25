@@ -10,7 +10,7 @@ import TagsList from "@/components/TagsList";
     SearchInput
  */
 
-export function SearchInput({ placeholder, value, showIcon, onChange }) {
+export function SearchInput({ placeholder, value, showIcon, onChange, label }) {
   const [currentValue, setCurrentValue] = useState(value);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export function SearchInput({ placeholder, value, showIcon, onChange }) {
         className="form-control"
         placeholder={placeholder}
         value={currentValue}
-        aria-label="Search" // TODO: consider receiving as prop (depends on parent render)
+        aria-label={label}
         onChange={onInputChange}
       />
     </div>
@@ -41,15 +41,17 @@ export function SearchInput({ placeholder, value, showIcon, onChange }) {
 }
 
 SearchInput.propTypes = {
-  placeholder: PropTypes.string,
   value: PropTypes.string.isRequired,
+  placeholder: PropTypes.string,
   showIcon: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
+  label: PropTypes.string,
 };
 
 SearchInput.defaultProps = {
   placeholder: "Search...",
   showIcon: false,
+  label: "Search",
 };
 
 /*
