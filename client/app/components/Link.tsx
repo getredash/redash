@@ -1,8 +1,17 @@
 import React from "react";
 import Button, { ButtonProps as AntdButtonProps } from "antd/lib/button";
 
+function DefaultLinkComponent({ children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+  return <a {...props}>{children}</a>;
+}
+
+Link.Component = DefaultLinkComponent;
+
 interface LinkProps extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "role" | "type" | "target"> {
   href: string;
+}
+function Link({ children, ...props }: LinkProps) {
+  return <Link.Component {...props}>{children}</Link.Component>;
 }
 
 interface LinkWithIconProps extends LinkProps {
@@ -10,20 +19,6 @@ interface LinkWithIconProps extends LinkProps {
   icon: JSX.Element;
   alt: string;
   target?: "_blank" | "_parent" | "_top";
-}
-
-interface ButtonProps extends AntdButtonProps {
-  href: string;
-}
-
-function DefaultLinkComponent({ children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
-  return <a {...props}>{children}</a>;
-}
-
-Link.Component = DefaultLinkComponent;
-
-function Link({ children, ...props }: LinkProps) {
-  return <Link.Component {...props}>{children}</Link.Component>;
 }
 
 function LinkWithIcon({ icon, alt, children, ...props }: LinkWithIconProps) {
@@ -52,6 +47,10 @@ function DefaultButtonLinkComponent(props: ButtonProps) {
 }
 
 ButtonLink.Component = DefaultButtonLinkComponent;
+
+interface ButtonProps extends AntdButtonProps {
+  href: string;
+}
 
 function ButtonLink(props: ButtonProps) {
   return <ButtonLink.Component {...props} />;
