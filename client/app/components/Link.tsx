@@ -9,6 +9,7 @@ interface LinkWithIconProps extends LinkProps {
   children: string;
   icon: JSX.Element;
   alt: string;
+  target?: "_blank" | "_parent" | "_top";
 }
 
 interface ButtonProps extends AntdButtonProps {
@@ -27,9 +28,9 @@ function Link({ children, ...props }: LinkProps) {
 
 function LinkWithIcon({ icon, alt, children, ...props }: LinkWithIconProps) {
   return (
-    <Link {...props}>
+    <Link.Component {...props}>
       {children} {icon} <span className="sr-only">{alt}</span>
-    </Link>
+    </Link.Component>
   );
 }
 
