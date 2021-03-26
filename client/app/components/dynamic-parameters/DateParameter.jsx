@@ -23,7 +23,13 @@ const DYNAMIC_DATE_OPTIONS = [
 ];
 
 function DateParameter(props) {
-  return <DynamicDatePicker dynamicButtonOptions={{ options: DYNAMIC_DATE_OPTIONS }} {...props} />;
+  return (
+    <DynamicDatePicker
+      dynamicButtonOptions={{ options: DYNAMIC_DATE_OPTIONS }}
+      {...props}
+      dateOptions={{ "aria-label": "Parameter date value" }}
+    />
+  );
 }
 
 DateParameter.propTypes = {

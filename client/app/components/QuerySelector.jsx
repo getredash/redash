@@ -94,7 +94,9 @@ export default function QuerySelector(props) {
   }
 
   if (props.disabled) {
-    return <Input value={selectedQuery && selectedQuery.name} placeholder={placeholder} disabled />;
+    return (
+      <Input value={selectedQuery && selectedQuery.name} aria-label="Tied query" placeholder={placeholder} disabled />
+    );
   }
 
   if (props.type === "select") {
@@ -141,11 +143,12 @@ export default function QuerySelector(props) {
   return (
     <span data-test="QuerySelector">
       {selectedQuery ? (
-        <Input value={selectedQuery.name} suffix={clearIcon} readOnly />
+        <Input value={selectedQuery.name} aria-label="Tied query" suffix={clearIcon} readOnly />
       ) : (
         <Input
           placeholder={placeholder}
           value={searchTerm}
+          aria-label="Tied query"
           onChange={e => setSearchTerm(e.target.value)}
           suffix={spinIcon}
         />

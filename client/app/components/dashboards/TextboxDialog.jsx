@@ -73,6 +73,7 @@ function TextboxDialog({ dialog, isNew, ...props }) {
           className="resize-vertical"
           rows="5"
           value={text}
+          aria-label="Textbox widget content"
           onChange={handleInputChange}
           autoFocus
           placeholder="This is where you write some text"

@@ -80,14 +80,17 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
             Preview{" "}
             <Switch size="small" className="alert-template-preview" value={showPreview} onChange={setShowPreview} />
           </div>
+          {/* TODO: consider adding real labels (not clear for sighted users as well) */}
           <Input
             value={showPreview ? render(subject) : subject}
+            aria-label="Subject"
             onChange={e => setSubject(e.target.value)}
             disabled={showPreview}
             data-test="CustomSubject"
           />
           <Input.TextArea
             value={showPreview ? render(body) : body}
+            aria-label="Body"
             autoSize={{ minRows: 9 }}
             onChange={e => setBody(e.target.value)}
             disabled={showPreview}
