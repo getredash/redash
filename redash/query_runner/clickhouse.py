@@ -6,15 +6,14 @@ from uuid import uuid4
 import requests
 
 from redash.query_runner import *
+from redash.query_runner.databricks import split_sql_statements
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
 
 def split_multi_query(query):
-    queries = re.split(r";[\s;]*$", query, flags=re.MULTILINE)
-
-    return [q.strip() for q in queries if q and not q.isspace()]
+    return [st for st in split_sql_statements(query) if st != ""]
 
 
 class ClickHouse(BaseSQLQueryRunner):
@@ -102,6 +101,7 @@ class ClickHouse(BaseSQLQueryRunner):
             "user": self.configuration.get("user", "default"),
             "password": self.configuration.get("password", ""),
             "database": self.configuration["dbname"],
+            "default_format": "JSON",
         }
 
         if session_id:
@@ -119,11 +119,16 @@ class ClickHouse(BaseSQLQueryRunner):
                 params=params,
                 verify=verify,
             )
+
             if r.status_code != 200:
                 raise Exception(r.text)
-            # logging.warning(r.json())
 
-            return r.json() if r.text else None
+            # In some foreseen requests response body can be empty - i.e. in temporary table creation requests.
+            # Execution scenario in that case is like if regular query requested and no matching rows found.
+            if not r.text:
+                return {}
+
+            return r.json()
         except requests.RequestException as e:
             if e.response:
                 details = "({}, Status Code: {})".format(
@@ -155,16 +160,14 @@ class ClickHouse(BaseSQLQueryRunner):
 
         query += "\nFORMAT JSON"
 
-        result = self._send_query(query, session_id, session_check)
-
-        if not result:
-            return None
+        response = self._send_query(query, session_id, session_check)
 
         columns = []
         columns_int64 = []  # db converts value to string if its type equals UInt64
         columns_totals = {}
 
-        for r in result["meta"]:
+        meta = response.get("meta", [])
+        for r in meta:
             column_name = r["name"]
             column_type = self._define_column_type(r["type"])
 
@@ -179,7 +182,7 @@ class ClickHouse(BaseSQLQueryRunner):
                 {"name": column_name, "friendly_name": column_name, "type": column_type}
             )
 
-        rows = result["data"]
+        rows = response.get("data", [])
         for row in rows:
             for column in columns_int64:
                 try:
@@ -187,8 +190,8 @@ class ClickHouse(BaseSQLQueryRunner):
                 except TypeError:
                     row[column] = None
 
-        if "totals" in result:
-            totals = result["totals"]
+        if "totals" in response:
+            totals = response["totals"]
             for column, value in columns_totals.items():
                 totals[column] = value
             rows.append(totals)
@@ -204,17 +207,24 @@ class ClickHouse(BaseSQLQueryRunner):
             return json_data, error
 
         try:
+            # If just one query was given then no need in session creation
             if len(queries) == 1:
-                q = self._clickhouse_query(queries[0])
+                results = self._clickhouse_query(queries[0])
             else:
+                # Session is created otherwise. Parameter session_check has to be false for the first query
+                # and true for all consequent queries.
                 session_id = "redash_{}".format(uuid4().hex)
 
-                self._clickhouse_query(queries[0], session_id, session_check=False)
+                results = self._clickhouse_query(
+                    queries[0], session_id, session_check=False
+                )
 
                 for query in queries[1:]:
-                    q = self._clickhouse_query(query, session_id, session_check=True)
+                    results = self._clickhouse_query(
+                        query, session_id, session_check=True
+                    )
 
-            data = json_dumps(q)
+            data = json_dumps(results)
             error = None
         except Exception as e:
             data = None
