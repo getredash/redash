@@ -1,6 +1,6 @@
 {
   "name": "@redash/viz",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Redash visualizations",
   "main": "dist/redash-visualizations.js",
   "scripts": {
