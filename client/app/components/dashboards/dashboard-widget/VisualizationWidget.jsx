@@ -15,11 +15,12 @@ import Timer from "@/components/Timer";
 import { Moment } from "@/components/proptypes";
 import QueryLink from "@/components/QueryLink";
 import { FiltersType } from "@/components/Filters";
+import PlainButton from "@/components/PlainButton";
 import ExpandedWidgetDialog from "@/components/dashboards/ExpandedWidgetDialog";
 import EditParameterMappingsDialog from "@/components/dashboards/EditParameterMappingsDialog";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
+
 import Widget from "./Widget";
-import PlainButton from "@/components/PlainButton";
 
 function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit }) {
   const canViewQuery = currentUser.hasPermission("view_query");
