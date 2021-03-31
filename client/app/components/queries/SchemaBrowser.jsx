@@ -5,10 +5,10 @@ import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import Input from "antd/lib/input";
 import Button from "antd/lib/button";
-import Tooltip from "@/components/Tooltip";
 import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
 import List from "react-virtualized/dist/commonjs/List";
 import PlainButton from "@/components/PlainButton";
+import Tooltip from "@/components/Tooltip";
 import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import LoadingState from "../items-list/components/LoadingState";
@@ -46,20 +46,27 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
 
   return (
     <div {...props}>
-      <PlainButton className="table-name" onClick={onToggle}>
-        <i className="fa fa-table m-r-5" aria-hidden="true" />
-        <strong>
-          <span title={item.name}>{tableDisplayName}</span>
-          {!isNil(item.size) && <span> ({item.size})</span>}
-        </strong>
-        <Tooltip title="Insert table name into query text" mouseEnterDelay={0} mouseLeaveDelay={0}>
-          <PlainButton onClick={e => handleSelect(e, item.name)}>
-            <i className="fa fa-angle-double-right copy-to-editor" aria-hidden="true" />
+      <div className="schema-list-item">
+        <PlainButton className="table-name" onClick={onToggle}>
+          <i className="fa fa-table m-r-5" aria-hidden="true" />
+          <strong>
+            <span title={item.name}>{tableDisplayName}</span>
+            {!isNil(item.size) && <span> ({item.size})</span>}
+          </strong>
+        </PlainButton>
+        <Tooltip
+          title="Insert table name into query text"
+          mouseEnterDelay={0}
+          mouseLeaveDelay={0}
+          placement="topRight"
+          arrowPointAtCenter>
+          <PlainButton className="copy-to-editor" onClick={e => handleSelect(e, item.name)}>
+            <i className="fa fa-angle-double-right" aria-hidden="true" />
           </PlainButton>
         </Tooltip>
-      </PlainButton>
+      </div>
       {expanded && (
-        <div>
+        <div className="table-open">
           {item.loading ? (
             <div className="table-open">Loading...</div>
           ) : (
@@ -67,14 +74,21 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
               const columnName = get(column, "name");
               const columnType = get(column, "type");
               return (
-                <div key={columnName} className="table-open">
-                  {columnName} {columnType && <span className="column-type">{columnType}</span>}
-                  <Tooltip title="Insert column name into query text" mouseEnterDelay={0} mouseLeaveDelay={0}>
-                    <PlainButton onClick={e => handleSelect(e, columnName)}>
-                      <i className="fa fa-angle-double-right copy-to-editor" aria-hidden="true" />
-                    </PlainButton>
-                  </Tooltip>
-                </div>
+                <Tooltip
+                  title="Insert column name into query text"
+                  mouseEnterDelay={0}
+                  mouseLeaveDelay={0}
+                  placement="rightTop">
+                  <PlainButton key={columnName} className="table-open-item" onClick={e => handleSelect(e, columnName)}>
+                    <div>
+                      {columnName} {columnType && <span className="column-type">{columnType}</span>}
+                    </div>
+
+                    <div className="copy-to-editor">
+                      <i className="fa fa-angle-double-right" aria-hidden="true" />
+                    </div>
+                  </PlainButton>
+                </Tooltip>
               );
             })
           )}
