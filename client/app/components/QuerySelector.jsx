@@ -7,6 +7,7 @@ import Select from "antd/lib/select";
 import { Query } from "@/services/query";
 import notification from "@/services/notification";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
+import PlainButton from "@/components/PlainButton";
 import useSearchResults from "@/lib/hooks/useSearchResults";
 
 const { Option } = Select;
@@ -31,13 +32,9 @@ export default function QuerySelector(props) {
 
   const placeholder = "Search a query by name";
   const clearIcon = (
-    <i
-      className="fa fa-times hide-in-percy"
-      role="button"
-      tabIndex={0}
-      aria-label="Clear"
-      onClick={() => selectQuery(null)}
-    />
+    <PlainButton aria-label="Clear" onClick={() => selectQuery(null)}>
+      <i className="fa fa-times hide-in-percy" />
+    </PlainButton>
   );
   const spinIcon = (
     <span role="status" aria-live="polite" aria-relevant="additions removals">
@@ -78,7 +75,7 @@ export default function QuerySelector(props) {
     }
 
     return (
-      <ul className="list-group">
+      <div role="list" className="list-group">
         {searchResults.map(q => (
           <a
             className={cx("query-selector-result", "list-group-item", { inactive: q.is_draft })}
@@ -89,7 +86,7 @@ export default function QuerySelector(props) {
             {q.name} <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className="inline-tags-control" />
           </a>
         ))}
-      </ul>
+      </div>
     );
   }
 
