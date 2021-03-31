@@ -61,7 +61,7 @@ export default function UserInfoForm(props) {
                 type: "select",
                 mode: "multiple",
                 options: map(allGroups, group => ({ name: group.name, value: group.id })),
-                initialValue: map(groups, group => group.id),
+                initialValue: user.groupIds,
                 loading: isLoadingGroups,
                 placeholder: isLoadingGroups ? "Loading..." : "",
               }
