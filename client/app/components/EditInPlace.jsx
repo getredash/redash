@@ -3,6 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import Input from "antd/lib/input";
+import PlainButton from "@/components/PlainButton";
 
 export default class EditInPlace extends React.Component {
   static propTypes = {
@@ -66,18 +67,12 @@ export default class EditInPlace extends React.Component {
   };
 
   renderNormal = () =>
-    this.props.value ? (
-      <span
-        role="presentation"
-        onFocus={this.startEditing}
-        onClick={this.startEditing}
-        className={this.props.isEditable ? "editable" : ""}>
-        {this.props.value}
-      </span>
+    this.props.isEditable ? (
+      <PlainButton onClick={this.startEditing} onFocus={this.startEditing} className="editable">
+        {this.props.value || this.props.placeholder}
+      </PlainButton>
     ) : (
-      <a className="clickable" onClick={this.startEditing}>
-        {this.props.placeholder}
-      </a>
+      <span>{this.props.value}</span>
     );
 
   renderEdit = () => {
