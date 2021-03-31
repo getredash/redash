@@ -8,6 +8,7 @@ import Input from "antd/lib/input";
 import Steps from "antd/lib/steps";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import Link from "@/components/Link";
+import PlainButton from "@/components/PlainButton";
 import { PreviewCard } from "@/components/PreviewCard";
 import EmptyState from "@/components/items-list/components/EmptyState";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
@@ -182,7 +183,13 @@ class CreateSourceDialog extends React.Component {
         <div data-test="CreateSourceDialog">
           <Steps className="hidden-xs m-b-10" size="small" current={currentStep} progressDot>
             {currentStep === StepEnum.CONFIGURE_IT ? (
-              <Step title={<a>Type Selection</a>} className="clickable" onClick={this.resetType} />
+              <Step
+                title={
+                  <PlainButton type="link" onClick={this.resetType}>
+                    Type Selection
+                  </PlainButton>
+                }
+              />
             ) : (
               <Step title="Type Selection" />
             )}
