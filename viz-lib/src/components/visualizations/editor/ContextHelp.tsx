@@ -6,8 +6,8 @@ import { visualizationsSettings } from "@/visualizations/visualizationsSettings"
 import "./context-help.less";
 
 type OwnContextHelpProps = {
-    icon?: React.ReactNode;
-    children?: React.ReactNode;
+  icon?: React.ReactNode;
+  children?: React.ReactNode;
 };
 
 type ContextHelpProps = OwnContextHelpProps & typeof ContextHelp.defaultProps;

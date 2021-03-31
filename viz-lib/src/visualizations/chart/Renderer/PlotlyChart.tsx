@@ -10,14 +10,11 @@ export interface PlotlyChartProps {
   data: {
     rows: any[];
     columns: any[];
-  }
+  };
   options: object;
 }
 
-export default function PlotlyChart({
-  options,
-  data
-}: PlotlyChartProps) {
+export default function PlotlyChart({ options, data }: PlotlyChartProps) {
   const [container, setContainer] = useState(null);
   const [chart, setChart] = useState(null);
 
