@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import PlainButton from "@/components/PlainButton";
 import Link from "@/components/Link";
 import QuerySelector from "@/components/QuerySelector";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
@@ -27,9 +28,9 @@ export default function QueryFormItem({ query, queryResult, onChange, editMode }
       <small>
         <WarningFilledIcon className="warning-icon-danger" /> This query has no <i>refresh schedule</i>.{" "}
         <Tooltip title="A query schedule is not necessary but is highly recommended for alerts. An Alert without a query schedule will only send notifications if a user in your organization manually executes this query.">
-          <a>
+          <PlainButton type="link">
             Why it&apos;s recommended <QuestionCircleTwoToneIcon />
-          </a>
+          </PlainButton>
         </Tooltip>
       </small>
     );
