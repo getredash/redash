@@ -108,7 +108,7 @@ class EditDataSource extends React.Component {
       type,
       actions: [
         { name: "Delete", type: "danger", callback: this.deleteDataSource },
-        { name: "Test Connection", pullRight: true, callback: this.testConnection, disableWhenDirty: true },
+        { name: "Test Connection", pullRight: true, callback: this.testConnection, disableWhenDirty: false },
       ],
       onSubmit: this.saveDataSource,
       feedbackIcons: true,
