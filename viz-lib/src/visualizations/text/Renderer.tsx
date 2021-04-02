@@ -28,7 +28,7 @@ function renderValue(value: any, type: any) {
   return "" + value;
 }
 
-export default function TextRenderer({options, data }: any) {
+export default function Renderer({options, data }: any) {
   const [page, setPage] = useState(0);
 
   if (!data || !data.rows || data.rows.length === 0) {
@@ -63,4 +63,5 @@ export default function TextRenderer({options, data }: any) {
   );
 }
 
-TextRenderer.propTypes = RendererPropTypes;
+Renderer.propTypes = RendererPropTypes;
+
