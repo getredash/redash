@@ -2,9 +2,6 @@ import React from "react";
 import { Section, Select, TextArea } from "@/components/visualizations/editor";
 import createTabbedEditor from "@/components/visualizations/editor/createTabbedEditor";
 
-//import GeneralSettings from "./GeneralSettings";
-//import FormatSettings from "./FormatSettings";
-
 function TextSettings({ options, data, onOptionsChange }: any) {
   return (
     <React.Fragment>
@@ -25,6 +22,5 @@ function TextSettings({ options, data, onOptionsChange }: any) {
 
 export default createTabbedEditor([
   { key: "General", title: "General", component: TextSettings },
-//  { key: "Format", title: "Format", component: FormatSettings },
 ]);
 

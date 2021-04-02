@@ -40,13 +40,12 @@ export default function TextRenderer({options, data }: any) {
   // We use columsn to maintain order of columns in the view.
   const columns = data.columns.map((column: any) => column.name);
   const row = data.rows[page];
-  const toformat = options.template;
 
   return (
     <div className="text-viz">
       <HtmlContent className="markdown">{
         markdown.toHTML(
-          Handlebars.compile(toformat||"")(row)
+          Handlebars.compile(options.template||"")(row)
 	)
       }</HtmlContent>
       {data.rows.length > 1 && (
