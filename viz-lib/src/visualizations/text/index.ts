@@ -1,14 +1,10 @@
 import TextRenderer from "./TextRenderer";
-
-const DEFAULT_OPTIONS = {};
+import getOptions from "./getOptions";
 
 export default {
   type: "TEXT",
   name: "Text (Markdown template)",
-  getOptions: (options: any) => ({
-    ...DEFAULT_OPTIONS,
-    ...options,
-  }),
+  getOptions,
   Renderer: TextRenderer,
   defaultColumns: 2,
   defaultRows: 2,

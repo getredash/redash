@@ -28,7 +28,7 @@ function renderValue(value: any, type: any) {
   return "" + value;
 }
 
-export default function TextRenderer({ data }: any) {
+export default function TextRenderer({options, data }: any) {
   const [page, setPage] = useState(0);
 
   if (!data || !data.rows || data.rows.length === 0) {
@@ -40,7 +40,7 @@ export default function TextRenderer({ data }: any) {
   // We use columsn to maintain order of columns in the view.
   const columns = data.columns.map((column: any) => column.name);
   const row = data.rows[page];
-  const toformat = "# hello **{{ name }}** you produced {{ export_energy_wh }} kwh!!";
+  const toformat = options.template;
 
   return (
     <div className="text-viz">
