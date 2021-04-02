@@ -86,6 +86,7 @@ function Example() {
 - Sunburst Sequence: `SUNBURST_SEQUENCE`
 - Table: `TABLE`
 - Word Cloud: `WORD_CLOUD`
+- Text: `TEXT`
 
 ### Column Types
 
