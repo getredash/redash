@@ -5,6 +5,10 @@ import { RendererPropTypes } from "@/visualizations/prop-types";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 import Descriptions from "antd/lib/descriptions";
 import Pagination from "antd/lib/pagination";
+import { markdown } from "markdown";
+import HtmlContent from "@/components/HtmlContent";
+import Handlebars from "handlebars"
+
 
 import "./text.less";
 
@@ -36,9 +40,12 @@ export default function TextRenderer({ data }: any) {
   // We use columsn to maintain order of columns in the view.
   const columns = data.columns.map((column: any) => column.name);
   const row = data.rows[page];
+  const toformat = "# hello **{{ name }}** you produced {{ export_energy_wh }} kwh!!";
 
   return (
     <div className="text-viz">
+      <HtmlContent className="markdown">{ markdown.toHTML(
+        Handlebars.compile(toformat||"")(row)) + row['name'] }</HtmlContent>
       <Descriptions size="small" column={1} bordered>
         {map(columns, key => (
           <Descriptions.Item key={key} label={key}>
