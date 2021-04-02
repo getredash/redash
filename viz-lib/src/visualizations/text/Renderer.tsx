@@ -40,14 +40,17 @@ export default function Renderer({options, data }: any) {
   // We use columsn to maintain order of columns in the view.
   const columns = data.columns.map((column: any) => column.name);
   const row = data.rows[page];
+  var renderedText = "";
+  try {
+    const template = Handlebars.compile(options.template||"");
+    renderedText = markdown.toHTML(template(row) || "");
+  } catch (error) {
+    renderedText = "<b>Template Error:</b>\n<pre>"+error+"</pre>";
+  }
 
   return (
     <div className="text-viz">
-      <HtmlContent className="markdown">{
-        markdown.toHTML(
-          Handlebars.compile(options.template||"")(row)
-	)
-      }</HtmlContent>
+      <HtmlContent>{ renderedText }</HtmlContent>
       {data.rows.length > 1 && (
         <div className="paginator-container">
           <Pagination
