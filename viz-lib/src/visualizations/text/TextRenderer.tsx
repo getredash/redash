@@ -44,15 +44,11 @@ export default function TextRenderer({ data }: any) {
 
   return (
     <div className="text-viz">
-      <HtmlContent className="markdown">{ markdown.toHTML(
-        Handlebars.compile(toformat||"")(row)) + row['name'] }</HtmlContent>
-      <Descriptions size="small" column={1} bordered>
-        {map(columns, key => (
-          <Descriptions.Item key={key} label={key}>
-            {renderValue(row[key], types[key])}
-          </Descriptions.Item>
-        ))}
-      </Descriptions>
+      <HtmlContent className="markdown">{
+        markdown.toHTML(
+          Handlebars.compile(toformat||"")(row)
+	)
+      }</HtmlContent>
       {data.rows.length > 1 && (
         <div className="paginator-container">
           <Pagination
