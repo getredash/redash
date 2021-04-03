@@ -6,7 +6,7 @@ import QuerySelector from "@/components/QuerySelector";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
 import { Query as QueryType } from "@/components/proptypes";
 
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 
 import WarningFilledIcon from "@ant-design/icons/WarningFilled";
 import QuestionCircleTwoToneIcon from "@ant-design/icons/QuestionCircleTwoTone";
@@ -41,8 +41,8 @@ export default function QueryFormItem({ query, queryResult, onChange, editMode }
       ) : (
         <Tooltip title="Open query in a new tab.">
           <Link href={`queries/${query.id}`} target="_blank" rel="noopener noreferrer" className="alert-query-link">
-            {query.name}
-            <i className="fa fa-external-link" />
+            {query.name} <i className="fa fa-external-link" aria-hidden="true" />
+            <span className="sr-only">(opens in a new tab)</span>
           </Link>
         </Tooltip>
       )}

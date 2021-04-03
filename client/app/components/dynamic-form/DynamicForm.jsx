@@ -201,7 +201,10 @@ export default function DynamicForm({
             className="extra-options-button"
             onClick={() => setShowExtraFields(currentShowExtraFields => !currentShowExtraFields)}>
             Additional Settings
-            <i className={cx("fa m-l-5", { "fa-caret-up": showExtraFields, "fa-caret-down": !showExtraFields })} />
+            <i
+              className={cx("fa m-l-5", { "fa-caret-up": showExtraFields, "fa-caret-down": !showExtraFields })}
+              aria-hidden="true"
+            />
           </Button>
           <Collapse collapsed={!showExtraFields} className="extra-options-content">
             <DynamicFormFields fields={extraFields} feedbackIcons={feedbackIcons} form={form} />

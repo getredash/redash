@@ -14,8 +14,8 @@ export default function VersionInfo() {
         <div className="m-t-10">
           {/* eslint-disable react/jsx-no-target-blank */}
           <Link href="https://version.redash.io/" className="update-available" target="_blank" rel="noopener">
-            Update Available
-            <i className="fa fa-external-link m-l-5" />
+            Update Available <i className="fa fa-external-link m-l-5" aria-hidden="true" />
+            <span className="sr-only">(opens in a new tab)</span>
           </Link>
         </div>
       )}

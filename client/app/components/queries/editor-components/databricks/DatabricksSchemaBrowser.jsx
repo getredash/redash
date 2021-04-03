@@ -6,7 +6,7 @@ import Button from "antd/lib/button";
 import SyncOutlinedIcon from "@ant-design/icons/SyncOutlined";
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 import { SchemaList, applyFilterOnSchema } from "@/components/queries/SchemaBrowser";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import useDatabricksSchema from "./useDatabricksSchema";
@@ -84,6 +84,7 @@ export default function DatabricksSchemaBrowser({
         <Input
           className={isDatabaseSelectOpen ? "database-select-open" : ""}
           placeholder="Filter tables & columns..."
+          aria-label="Search schema"
           disabled={loadingDatabases || loadingSchema}
           onChange={event => handleFilterChange(event.target.value)}
           addonBefore={
@@ -98,12 +99,12 @@ export default function DatabricksSchemaBrowser({
               onDropdownVisibleChange={setIsDatabaseSelectOpen}
               placeholder={
                 <>
-                  <i className="fa fa-database m-r-5" /> Database
+                  <i className="fa fa-database m-r-5" aria-hidden="true" /> Database
                 </>
               }>
               {filteredDatabases.map(database => (
                 <Select.Option key={database}>
-                  <i className="fa fa-database m-r-5" />
+                  <i className="fa fa-database m-r-5" aria-hidden="true" />
                   {database}
                 </Select.Option>
               ))}

@@ -36,10 +36,7 @@ function getWordsWithFrequencies(rows: any, wordColumn: any, frequencyColumn: an
   return result;
 }
 
-function applyLimitsToWords(words: any, {
-  wordLength,
-  wordCount
-}: any) {
+function applyLimitsToWords(words: any, { wordLength, wordCount }: any) {
   wordLength.min = Number.isFinite(wordLength.min) ? wordLength.min : null;
   wordLength.max = Number.isFinite(wordLength.max) ? wordLength.max : null;
 
@@ -147,10 +144,7 @@ function render(container: any, words: any) {
   scaleElement(svg.node(), container.node());
 }
 
-export default function Renderer({
-  data,
-  options
-}: any) {
+export default function Renderer({ data, options }: any) {
   const [container, setContainer] = useState(null);
   const [words, setWords] = useState([]);
   const layout = useMemo(createLayout, []);

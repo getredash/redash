@@ -188,7 +188,7 @@ function EmptyState({
         <div className="empty-state__summary">
           {header && <h4>{header}</h4>}
           <h2>
-            <i className={icon} />
+            <i className={icon} aria-hidden="true" />
           </h2>
           <p>{description}</p>
           <img src={imageSource} alt={illustration + " Illustration"} width="75%" />

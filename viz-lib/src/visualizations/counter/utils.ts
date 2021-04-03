@@ -51,13 +51,7 @@ function getRowNumber(index: any, rowsCount: any) {
   return index > 0 ? wrappedIndex : rowsCount - wrappedIndex - 1;
 }
 
-function formatValue(value: any, {
-  stringPrefix,
-  stringSuffix,
-  stringDecimal,
-  stringDecChar,
-  stringThouSep
-}: any) {
+function formatValue(value: any, { stringPrefix, stringSuffix, stringDecimal, stringDecChar, stringThouSep }: any) {
   if (isNumber(value)) {
     value = numberFormat(value, stringDecimal, stringDecChar, stringThouSep);
     return toString(stringPrefix) + value + toString(stringSuffix);

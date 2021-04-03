@@ -3,10 +3,7 @@ import React from "react";
 import { Section, Switch } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
-export default function Editor({
-  options,
-  onOptionsChange
-}: any) {
+export default function Editor({ options, onOptionsChange }: any) {
   const updateOptions = (updates: any) => {
     onOptionsChange(merge({}, options, updates));
   };

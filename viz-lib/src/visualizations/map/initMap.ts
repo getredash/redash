@@ -74,13 +74,11 @@ L.MarkerClusterIcon = L.DivIcon.extend({
 // @ts-expect-error ts-migrate(2339) FIXME: Property 'markerClusterIcon' does not exist on typ... Remove this comment to see the full error message
 L.markerClusterIcon = (...args) => new L.MarkerClusterIcon(...args);
 
-function createIconMarker(lat: any, lon: any, {
-  iconShape,
-  iconFont,
-  foregroundColor,
-  backgroundColor,
-  borderColor
-}: any) {
+function createIconMarker(
+  lat: any,
+  lon: any,
+  { iconShape, iconFont, foregroundColor, backgroundColor, borderColor }: any
+) {
   // @ts-expect-error ts-migrate(2339) FIXME: Property 'BeautifyIcon' does not exist on type 'ty... Remove this comment to see the full error message
   const icon = L.BeautifyIcon.icon({
     iconShape,
@@ -109,10 +107,7 @@ function createMarkerClusterGroup(color: any) {
   });
 }
 
-function createMarkersLayer(options: any, {
-  color,
-  points
-}: any) {
+function createMarkersLayer(options: any, { color, points }: any) {
   const { classify, clusterMarkers, customizeMarkers } = options;
 
   const result = clusterMarkers ? createMarkerClusterGroup(color) : L.featureGroup();

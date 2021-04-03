@@ -10,7 +10,7 @@ import TagsList from "@/components/TagsList";
     SearchInput
  */
 
-export function SearchInput({ placeholder, value, showIcon, onChange }) {
+export function SearchInput({ placeholder, value, showIcon, onChange, label }) {
   const [currentValue, setCurrentValue] = useState(value);
 
   useEffect(() => {
@@ -29,21 +29,29 @@ export function SearchInput({ placeholder, value, showIcon, onChange }) {
   const InputControl = showIcon ? Input.Search : Input;
   return (
     <div className="m-b-10">
-      <InputControl className="form-control" placeholder={placeholder} value={currentValue} onChange={onInputChange} />
+      <InputControl
+        className="form-control"
+        placeholder={placeholder}
+        value={currentValue}
+        aria-label={label}
+        onChange={onInputChange}
+      />
     </div>
   );
 }
 
 SearchInput.propTypes = {
-  placeholder: PropTypes.string,
   value: PropTypes.string.isRequired,
+  placeholder: PropTypes.string,
   showIcon: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
+  label: PropTypes.string,
 };
 
 SearchInput.defaultProps = {
   placeholder: "Search...",
   showIcon: false,
+  label: "Search",
 };
 
 /*

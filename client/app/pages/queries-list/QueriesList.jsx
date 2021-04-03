@@ -123,7 +123,7 @@ function QueriesList({ controller }) {
           actions={
             currentUser.hasPermission("create_query") ? (
               <Link.Button block type="primary" href="queries/new">
-                <i className="fa fa-plus m-r-5" />
+                <i className="fa fa-plus m-r-5" aria-hidden="true" />
                 New Query
               </Link.Button>
             ) : null
@@ -133,6 +133,7 @@ function QueriesList({ controller }) {
           <Layout.Sidebar className="m-b-0">
             <Sidebar.SearchInput
               placeholder="Search Queries..."
+              label="Search queries"
               value={controller.searchTerm}
               onChange={controller.updateSearch}
             />

@@ -14,12 +14,12 @@ export const UpdateOptionsStrategy = {
 ...EditorPropTypes
 */
 type OwnProps = {
-    tabs?: {
-        key: string;
-        title: string | ((...args: any[]) => any);
-        isAvailable?: (...args: any[]) => any;
-        component: (...args: any[]) => any;
-    }[];
+  tabs?: {
+    key: string;
+    title: string | ((...args: any[]) => any);
+    isAvailable?: (...args: any[]) => any;
+    component: (...args: any[]) => any;
+  }[];
 };
 
 type Props = OwnProps & typeof TabbedEditor.defaultProps;

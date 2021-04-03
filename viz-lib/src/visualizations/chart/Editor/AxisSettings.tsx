@@ -10,20 +10,20 @@ function toNumber(value: any) {
 }
 
 type OwnProps = {
-    id: string;
-    options: {
-        type: string;
-        title?: {
-            text?: string;
-        };
-        rangeMin?: number;
-        rangeMax?: number;
+  id: string;
+  options: {
+    type: string;
+    title?: {
+      text?: string;
     };
-    features?: {
-        autoDetectType?: boolean;
-        range?: boolean;
-    };
-    onChange?: (...args: any[]) => any;
+    rangeMin?: number;
+    rangeMax?: number;
+  };
+  features?: {
+    autoDetectType?: boolean;
+    range?: boolean;
+  };
+  onChange?: (...args: any[]) => any;
 };
 
 type Props = OwnProps & typeof AxisSettings.defaultProps;
@@ -53,28 +53,28 @@ export default function AxisSettings({ id, options, features, onChange }: Props)
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option value="-" data-test={`Chart.${id}.Type.Auto`}>
               Auto Detect
-            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             </Select.Option>
           )}
           {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option value="datetime" data-test={`Chart.${id}.Type.DateTime`}>
             Datetime
-          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           </Select.Option>
           {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option value="linear" data-test={`Chart.${id}.Type.Linear`}>
             Linear
-          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           </Select.Option>
           {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option value="logarithmic" data-test={`Chart.${id}.Type.Logarithmic`}>
             Logarithmic
-          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           </Select.Option>
           {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option value="category" data-test={`Chart.${id}.Type.Category`}>
             Category
-          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           </Select.Option>
         </Select>
       </Section>

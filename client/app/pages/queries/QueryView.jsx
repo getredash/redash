@@ -123,7 +123,7 @@ function QueryView(props) {
             !addingDescription &&
             !fullscreen && (
               <a className="label label-tag hidden-xs" role="none" onClick={() => setAddingDescription(true)}>
-                <i className="zmdi zmdi-plus m-r-5" />
+                <i className="zmdi zmdi-plus m-r-5" aria-hidden="true" />
                 Add description
               </a>
             )

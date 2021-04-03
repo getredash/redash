@@ -7,7 +7,7 @@ export default {
   name: "Details View",
   getOptions: (options: any) => ({
     ...DEFAULT_OPTIONS,
-    ...options
+    ...options,
   }),
   Renderer: DetailsRenderer,
   defaultColumns: 2,

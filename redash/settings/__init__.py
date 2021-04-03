@@ -324,7 +324,13 @@ ENABLE_All_DATA_SOURCES = parse_boolean(os.environ.get("DYO_ENABLE_ALL_DATA_SOUR
 # Query Runners
 if ENABLE_All_DATA_SOURCES:
     default_query_runners = [    
-        "redash.query_runner.mongodb",   
+        "redash.query_runner.athena",
+        "redash.query_runner.big_query",
+        "redash.query_runner.google_spreadsheets",
+        "redash.query_runner.graphite",
+        "redash.query_runner.mongodb",
+        "redash.query_runner.couchbase",
+        "redash.query_runner.mysql",
         "redash.query_runner.pg",
         "redash.query_runner.url",
         "redash.query_runner.influx_db",
@@ -367,6 +373,7 @@ if ENABLE_All_DATA_SOURCES:
         "redash.query_runner.exasol",
         "redash.query_runner.cloudwatch",
         "redash.query_runner.cloudwatch_insights",
+        "redash.query_runner.corporate_memory",
     ]
 else:
     default_query_runners = [    

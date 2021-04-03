@@ -36,3 +36,4 @@ pyexasol==0.12.0
 python-rapidjson==0.8.0
 pyodbc==4.0.28
 trino~=0.305
+cmem-cmempy==21.2.3

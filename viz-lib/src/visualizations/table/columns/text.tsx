@@ -4,12 +4,12 @@ import { Section, Checkbox } from "@/components/visualizations/editor";
 import { createTextFormatter } from "@/lib/value-format";
 
 type Props = {
-    column: {
-        name: string;
-        allowHTML?: boolean;
-        highlightLinks?: boolean;
-    };
-    onChange: (...args: any[]) => any;
+  column: {
+    name: string;
+    allowHTML?: boolean;
+    highlightLinks?: boolean;
+  };
+  onChange: (...args: any[]) => any;
 };
 
 function Editor({ column, onChange }: Props) {
@@ -49,9 +49,7 @@ export default function initTextColumn(column: any) {
     };
   }
 
-  function TextColumn({
-    row
-  }: any) {
+  function TextColumn({ row }: any) {
     // eslint-disable-line react/prop-types
     const { text } = prepareData(row);
     return column.allowHTML ? <HtmlContent>{text}</HtmlContent> : text;

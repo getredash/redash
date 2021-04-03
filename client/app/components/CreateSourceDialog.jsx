@@ -82,6 +82,7 @@ class CreateSourceDialog extends React.Component {
       <div className="m-t-10">
         <Search
           placeholder="Search..."
+          aria-label="Search"
           onChange={e => this.setState({ searchText: e.target.value })}
           autoFocus
           data-test="SearchSource"
@@ -111,7 +112,8 @@ class CreateSourceDialog extends React.Component {
         <div className="text-right">
           {HELP_TRIGGER_TYPES[helpTriggerType] && (
             <HelpTrigger className="f-13" type={helpTriggerType}>
-              Setup Instructions <i className="fa fa-question-circle" />
+              Setup Instructions <i className="fa fa-question-circle" aria-hidden="true" />
+              <span className="sr-only">(help)</span>
             </HelpTrigger>
           )}
         </div>
@@ -139,7 +141,7 @@ class CreateSourceDialog extends React.Component {
           roundedImage={false}
           data-test="PreviewItem"
           data-test-type={item.type}>
-          <i className="fa fa-angle-double-right" />
+          <i className="fa fa-angle-double-right" aria-hidden="true" />
         </PreviewCard>
       </List.Item>
     );

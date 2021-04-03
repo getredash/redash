@@ -2,10 +2,7 @@
 import prepareData from "./prepareData";
 
 function cleanSeries(series: any) {
-  return series.map(({
-    sourceData,
-    ...rest
-  }: any) => rest);
+  return series.map(({ sourceData, ...rest }: any) => rest);
 }
 
 describe("Visualizations", () => {

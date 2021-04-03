@@ -4,11 +4,11 @@ import cx from "classnames";
 import "./funnel-bar.less";
 
 type OwnProps = {
-    color?: string;
-    value?: number;
-    align?: "left" | "center" | "right";
-    className?: string;
-    children?: React.ReactNode;
+  color?: string;
+  value?: number;
+  align?: "left" | "center" | "right";
+  className?: string;
+  children?: React.ReactNode;
 };
 
 type Props = OwnProps & typeof FunnelBar.defaultProps;

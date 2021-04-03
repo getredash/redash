@@ -1,7 +1,7 @@
 import React from "react";
 import Input from "antd/lib/input";
 import CopyOutlinedIcon from "@ant-design/icons/CopyOutlined";
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 
 export default class InputWithCopy extends React.Component {
   constructor(props) {

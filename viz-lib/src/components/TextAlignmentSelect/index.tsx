@@ -11,7 +11,7 @@ import AlignRightOutlinedIcon from "@ant-design/icons/AlignRightOutlined";
 import "./index.less";
 
 type OwnProps = {
-    className?: string;
+  className?: string;
 };
 
 type Props = OwnProps & typeof TextAlignmentSelect.defaultProps;

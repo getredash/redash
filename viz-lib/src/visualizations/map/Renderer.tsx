@@ -15,11 +15,7 @@ function useMemoWithDeepCompare(create: any, inputs: any) {
   return valueRef.current;
 }
 
-export default function Renderer({
-  data,
-  options,
-  onOptionsChange
-}: any) {
+export default function Renderer({ data, options, onOptionsChange }: any) {
   const [container, setContainer] = useState(null);
 
   const optionsWithoutBounds = useMemoWithDeepCompare(() => omit(options, ["bounds"]), [options]);
