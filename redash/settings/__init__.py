@@ -322,7 +322,7 @@ ACCESS_CONTROL_ALLOW_HEADERS = os.environ.get(
 )
 ENABLE_All_DATA_SOURCES = parse_boolean(os.environ.get("DYO_ENABLE_ALL_DATA_SOURCES", "false"))
 # Query Runners
-if ENABLE_All_DATA_SOURCES:
+if ENABLE_All_DATA_SOURCES == True:
     default_query_runners = [    
         "redash.query_runner.athena",
         "redash.query_runner.big_query",
