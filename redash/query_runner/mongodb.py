@@ -350,8 +350,6 @@ class MongoDB(BaseQueryRunner):
 
         return json_data, error
 
-
-
 class DyoTelemetryDB(BaseQueryRunner):
     should_annotate_query = False
 
@@ -551,8 +549,6 @@ class DyoTelemetryDB(BaseQueryRunner):
         json_data = json_dumps(data, cls=MongoDBJSONEncoder)
 
         return json_data, error
-
-
 
 class DyoHubManagerDB(BaseQueryRunner):
     should_annotate_query = False
