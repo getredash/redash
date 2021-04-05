@@ -172,7 +172,7 @@ class QueryExecutor(object):
         self.is_scheduled_query = is_scheduled_query
         if self.is_scheduled_query:
             # Load existing tracker or create a new one if the job was created before code update:
-            models.scheduled_queries_executions.update(str(self.query_id))
+            models.scheduled_queries_executions.update(self.query_model.id)
 
     def run(self):
         signal.signal(signal.SIGINT, signal_handler)
