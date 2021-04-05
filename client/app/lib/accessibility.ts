@@ -1,21 +1,45 @@
-export function srNotify(text: string, expiry = 1000, container = document.body): void {
+import { HTMLAttributes } from "react";
+
+interface SrNotifyProps {
+  text: string;
+  expiry: number;
+  container: HTMLElement;
+  politeness: HTMLAttributes<HTMLDivElement>["aria-live"];
+}
+
+export function srNotify({ text, expiry = 1000, container = document.body, politeness = "polite" }: SrNotifyProps) {
   const element = document.createElement("div");
   const id = `speak-${Date.now()}`;
 
-  Object.assign(element, {
-    id,
-    className: "sr-only",
-    textContent: text,
-  });
+  element.id = id;
+  element.className = "sr-only";
+  element.textContent = text;
 
-  [
-    ["role", "alert"],
-    ["aria-live", "assertive"],
-  ].forEach(([attr, value]) => element.setAttribute(attr, value));
+  element.setAttribute("role", "alert");
+  element.setAttribute("aria-live", politeness);
 
   container.appendChild(element);
 
-  setTimeout(() => {
-    container.removeChild(element);
-  }, expiry);
+  let timer: null | number = null;
+  let isDone = false;
+  const cleanupFn = () => {
+    if (isDone) {
+      return;
+    }
+    isDone = true;
+
+    try {
+      container.removeChild(element);
+    } catch (e) {
+      console.error(e);
+    }
+
+    if (timer) {
+      window.clearTimeout(timer);
+    }
+  };
+
+  timer = window.setTimeout(cleanupFn, expiry);
+
+  return cleanupFn;
 }

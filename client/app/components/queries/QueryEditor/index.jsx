@@ -95,8 +95,18 @@ const QueryEditor = React.forwardRef(function(
       editor.blur();
     });
 
+    let notificationCleanup = null;
     editor.on("focus", () => {
-      srNotify("You've entered the SQL editor. To exit press the ESC key.");
+      notificationCleanup = srNotify({
+        text: "You've entered the SQL editor. To exit press the ESC key.",
+        politeness: "assertive",
+      });
+    });
+
+    editor.on("blur", () => {
+      if (notificationCleanup) {
+        notificationCleanup();
+      }
     });
 
     // Reset Completer in case dot is pressed
