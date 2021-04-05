@@ -48,7 +48,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
             enqueue_query(
                 query.query_text,
@@ -56,7 +56,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
             enqueue_query(
                 query.query_text,
@@ -64,7 +64,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
 
         self.assertEqual(1, enqueue.call_count)
@@ -79,7 +79,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
 
             # "expire" the previous job
@@ -91,7 +91,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
 
         self.assertEqual(2, enqueue.call_count)
@@ -106,7 +106,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
 
             # "cancel" the previous job
@@ -123,7 +123,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
 
         self.assertEqual(2, enqueue.call_count)
@@ -139,7 +139,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
 
         _, kwargs = enqueue.call_args
@@ -155,7 +155,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 None,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
             enqueue_query(
                 query.query_text + "2",
@@ -163,7 +163,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 None,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
             enqueue_query(
                 query.query_text + "3",
@@ -171,7 +171,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 None,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
 
         self.assertEqual(3, enqueue.call_count)

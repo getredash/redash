@@ -96,7 +96,7 @@ def refresh_queries():
                 query.data_source,
                 query.user_id,
                 scheduled_query=query,
-                metadata={"Query ID": query.id, "Username": "Scheduled"},
+                metadata={"query_id": query.id, "Username": "Scheduled"},
             )
             enqueued.append(query)
         except Exception as e:

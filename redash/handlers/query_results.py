@@ -118,7 +118,7 @@ def run_query(query, parameters, data_source, query_id, should_apply_auto_limit,
                 "Username": repr(current_user)
                 if current_user.is_api_user()
                 else current_user.email,
-                "Query ID": query_id,
+                "query_id": query_id,
             },
         )
         return serialize_job(job)
