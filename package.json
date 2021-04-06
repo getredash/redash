@@ -93,6 +93,7 @@
     "@testing-library/cypress": "^7.0.2",
     "@types/classnames": "^2.2.10",
     "@types/hoist-non-react-statics": "^3.3.1",
+    "@types/jest": "^26.0.22",
     "@types/lodash": "^4.14.157",
     "@types/prop-types": "^15.7.3",
     "@types/react": "^16.14.2",
