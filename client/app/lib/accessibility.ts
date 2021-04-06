@@ -2,9 +2,9 @@ import { HTMLAttributes } from "react";
 
 interface SrNotifyProps {
   text: string;
-  expiry: number;
-  container: HTMLElement;
-  politeness: HTMLAttributes<HTMLDivElement>["aria-live"];
+  expiry?: number;
+  container?: HTMLElement;
+  politeness?: HTMLAttributes<HTMLDivElement>["aria-live"];
 }
 
 export function srNotify({ text, expiry = 1000, container = document.body, politeness = "polite" }: SrNotifyProps) {
