@@ -95,7 +95,7 @@ const QueryEditor = React.forwardRef(function(
       editor.blur();
     });
 
-    let notificationCleanup = null;
+    let notificationCleanup;
     editor.on("focus", () => {
       notificationCleanup = srNotify({
         text: "You've entered the SQL editor. To exit press the ESC key.",
