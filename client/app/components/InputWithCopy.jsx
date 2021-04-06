@@ -44,7 +44,7 @@ export default class InputWithCopy extends React.Component {
     const copyButton = (
       <Tooltip title={this.state.copied || "Copy"}>
         <PlainButton onClick={this.copy}>
-          {/* TODO: MISSING_VISUAL_FEEDBACK */}
+          {/* TODO: lacks visual feedback */}
           <CopyOutlinedIcon />
         </PlainButton>
       </Tooltip>

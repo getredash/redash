@@ -48,7 +48,7 @@ function ListItem({ destination: { name, type }, user, unsubscribe }) {
       {canUnsubscribe && (
         <Tooltip title="Remove" mouseEnterDelay={0.5}>
           <PlainButton className="remove-button" onClick={unsubscribe}>
-            {/* TODO: MISSING_VISUAL_FEEDBACK */}
+            {/* TODO: lacks visual feedback */}
             <CloseOutlinedIcon />
           </PlainButton>
         </Tooltip>
