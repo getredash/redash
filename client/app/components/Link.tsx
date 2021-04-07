@@ -1,5 +1,6 @@
 import React from "react";
 import Button, { ButtonProps as AntdButtonProps } from "antd/lib/button";
+import PlainButton, { PlainButtonProps } from "@/components/PlainButton";
 
 function DefaultLinkComponent({ children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   return <a {...props}>{children}</a>;
@@ -13,6 +14,18 @@ interface LinkProps extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 
 function Link({ children, ...props }: LinkProps) {
   return <Link.Component {...props}>{children}</Link.Component>;
 }
+
+type LinkButtonProps = PlainButtonProps | LinkProps;
+
+function LinkOrButton(props: LinkButtonProps) {
+  if ("href" in props) {
+    return <Link {...props} />;
+  }
+
+  return <PlainButton type="link" {...props} />;
+}
+
+Link.OrButton = LinkOrButton;
 
 interface LinkWithIconProps extends LinkProps {
   children: string;
