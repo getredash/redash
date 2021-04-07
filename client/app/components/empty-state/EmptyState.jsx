@@ -3,7 +3,7 @@ import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
-import Button from "antd/lib/button";
+import Link from "@/components/Link";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import HelpTrigger from "@/components/HelpTrigger";
 import PlainButton from "@/components/PlainButton";
@@ -12,16 +12,16 @@ import organizationStatus from "@/services/organizationStatus";
 
 import "./empty-state.less";
 
-export function Step({ show, completed, text, url, urlTarget, urlText, onClick }) {
+function Step({ show, completed, text, url, urlTarget, urlText, onClick }) {
   if (!show) {
     return null;
   }
 
   return (
     <li className={classNames({ done: completed })}>
-      <Button type="link" href={url} onClick={onClick} target={urlTarget}>
+      <Link href={url} onClick={onClick} target={urlTarget}>
         {urlText}
-      </Button>{" "}
+      </Link>{" "}
       {text}
     </li>
   );
