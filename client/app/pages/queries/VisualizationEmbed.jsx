@@ -23,6 +23,12 @@ import VisualizationRenderer from "@/components/visualizations/VisualizationRend
 import { VisualizationType } from "@redash/viz/lib";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
+function getMaxAge() {
+  const { maxAge } = location.search;
+  return maxAge !== undefined ? maxAge : -1;
+}
+
+
 function VisualizationEmbedHeader({ queryName, queryDescription, visualization }) {
   return (
     <div className="embed-heading p-b-10 p-r-15 p-l-15">
@@ -176,7 +182,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
       setError(null);
       setRefreshStartedAt(moment());
       query
-        .getQueryResultPromise()
+        .getQueryResultPromise(getMaxAge())
         .then(result => {
           setQueryResults(result);
         })
