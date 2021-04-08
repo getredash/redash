@@ -10,8 +10,8 @@ import "./CardsList.less";
 export interface CardsListItem {
   title: string;
   imgSrc: string;
-  onClick?: () => void;
   href?: string;
+  onClick?: React.MouseEventHandler<HTMLElement>;
 }
 
 export interface CardsListProps {
@@ -26,11 +26,10 @@ interface ListItemProps {
 
 function ListItem({ item, keySuffix }: ListItemProps) {
   return (
-    // @ts-expect-error TODO: refactor component
-    <Link key={`card${keySuffix}`} className="visual-card" onClick={item.onClick} href={item.href}>
+    <Link.OrButton key={`card${keySuffix}`} className="visual-card" onClick={item.onClick} href={item.href}>
       <img alt={item.title} src={item.imgSrc} />
       <h3>{item.title}</h3>
-    </Link>
+    </Link.OrButton>
   );
 }
 

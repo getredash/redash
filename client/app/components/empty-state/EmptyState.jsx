@@ -17,9 +17,9 @@ export function Step({ show, completed, text, url, urlTarget, urlText, onClick }
 
   return (
     <li className={classNames({ done: completed })}>
-      <Link href={url} onClick={onClick} target={urlTarget}>
+      <Link.OrButton href={url} onClick={onClick} target={urlTarget}>
         {urlText}
-      </Link>{" "}
+      </Link.OrButton>{" "}
       {text}
     </li>
   );
