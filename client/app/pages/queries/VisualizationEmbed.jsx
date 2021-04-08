@@ -28,7 +28,6 @@ function getMaxAge() {
   return maxAge !== undefined ? maxAge : -1;
 }
 
-
 function VisualizationEmbedHeader({ queryName, queryDescription, visualization }) {
   return (
     <div className="embed-heading p-b-10 p-r-15 p-l-15">
