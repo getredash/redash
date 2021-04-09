@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import Input from "antd/lib/input";
 import Link from "@/components/Link";
+import PlainButton from "@/components/PlainButton";
 import EmptyState from "@/components/items-list/components/EmptyState";
 
 import "./CardsList.less";
@@ -10,8 +11,8 @@ import "./CardsList.less";
 export interface CardsListItem {
   title: string;
   imgSrc: string;
-  onClick?: () => void;
   href?: string;
+  onClick?: React.MouseEventHandler<HTMLElement>;
 }
 
 export interface CardsListProps {
@@ -25,13 +26,19 @@ interface ListItemProps {
 }
 
 function ListItem({ item, keySuffix }: ListItemProps) {
-  return (
-    // @ts-expect-error TODO: refactor component
-    <Link key={`card${keySuffix}`} className="visual-card" onClick={item.onClick} href={item.href}>
-      <img alt={item.title} src={item.imgSrc} />
-      <h3>{item.title}</h3>
-    </Link>
-  );
+  const commonProps = {
+    key: `card${keySuffix}`,
+    className: "visual-card",
+    onClick: item.onClick,
+    children: (
+      <>
+        <img alt={item.title} src={item.imgSrc} />
+        <h3>{item.title}</h3>
+      </>
+    ),
+  };
+
+  return item.href ? <Link href={item.href} {...commonProps} /> : <PlainButton type="link" {...commonProps} />;
 }
 
 export default function CardsList({ items = [], showSearch = false }: CardsListProps) {
