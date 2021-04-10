@@ -9,6 +9,7 @@ import PlainButton from "@/components/PlainButton";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import BigMessage from "@/components/BigMessage";
 import DynamicComponent, { registerComponent } from "@/components/DynamicComponent";
+import { WithIcon } from "@/components/WithIcon";
 
 import "./HelpTrigger.less";
 
@@ -171,13 +172,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
               this.props.showTooltip ? (
                 <>
                   {tooltip}
-                  {shouldRenderAsLink && (
-                    <>
-                      {" "}
-                      <i className="fa fa-external-link" style={{ marginLeft: 5 }} aria-hidden="true" />
-                      <span className="sr-only">(opens in a new tab)</span>
-                    </>
-                  )}
+                  {shouldRenderAsLink && <WithIcon style={{ marginLeft: 5 }} />}
                 </>
               ) : null
             }>
@@ -202,11 +197,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
               <div className="drawer-menu">
                 {url && (
                   <Tooltip title="Open page in a new window" placement="left">
-                    {/* eslint-disable-next-line react/jsx-no-target-blank */}
-                    <Link href={url} target="_blank">
-                      <i className="fa fa-external-link" aria-hidden="true" />
-                      <span className="sr-only">(opens in a new tab)</span>
-                    </Link>
+                    <Link.External href={url} />
                   </Tooltip>
                 )}
                 <Tooltip title="Close" placement="bottom">

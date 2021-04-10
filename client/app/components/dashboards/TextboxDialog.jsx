@@ -80,12 +80,9 @@ function TextboxDialog({ dialog, isNew, ...props }) {
         />
         <small>
           Supports basic{" "}
-          <Link
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://www.markdownguide.org/cheat-sheet/#basic-syntax">
-            <Tooltip title="Markdown guide opens in new window">Markdown</Tooltip>
-          </Link>
+          <Link.External href="https://www.markdownguide.org/cheat-sheet/#basic-syntax">
+            <Tooltip title="Markdown guide">Markdown</Tooltip>
+          </Link.External>
           .
         </small>
         {text && (

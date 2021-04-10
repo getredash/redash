@@ -10,6 +10,7 @@ import Link from "@/components/Link";
 import EditInPlace from "@/components/EditInPlace";
 import FavoritesControl from "@/components/FavoritesControl";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
+import { WithIcon } from "@/components/WithIcon";
 import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
 import useQueryFlags from "../hooks/useQueryFlags";
@@ -88,12 +89,7 @@ export default function QueryPageHeader({
         {
           fork: {
             isEnabled: !queryFlags.isNew && queryFlags.canFork && !isDuplicating,
-            title: (
-              <React.Fragment>
-                Fork <i className="fa fa-external-link m-l-5" aria-hidden="true" />
-                <span className="sr-only">(opens in a new tab)</span>
-              </React.Fragment>
-            ),
+            title: <WithIcon>Fork</WithIcon>,
             onClick: duplicateQuery,
           },
         },

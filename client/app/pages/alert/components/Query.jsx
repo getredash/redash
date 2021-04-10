@@ -40,10 +40,9 @@ export default function QueryFormItem({ query, queryResult, onChange, editMode }
         <QuerySelector onChange={onChange} selectedQuery={query} className="alert-query-selector" type="select" />
       ) : (
         <Tooltip title="Open query in a new tab.">
-          <Link href={`queries/${query.id}`} target="_blank" rel="noopener noreferrer" className="alert-query-link">
-            {query.name} <i className="fa fa-external-link" aria-hidden="true" />
-            <span className="sr-only">(opens in a new tab)</span>
-          </Link>
+          <Link.External href={`queries/${query.id}`} className="alert-query-link">
+            {query.name}
+          </Link.External>
         </Tooltip>
       )}
       <div className="ant-form-item-explain">{query && queryHint}</div>

@@ -139,10 +139,7 @@ export default class AlertView extends React.Component {
               <h4>
                 Destinations{" "}
                 <Tooltip title="Open Alert Destinations page in a new tab.">
-                  <Link href="destinations" target="_blank">
-                    <i className="fa fa-external-link f-13" aria-hidden="true" />
-                    <span className="sr-only">(opens in a new tab)</span>
-                  </Link>
+                  <Link.External href="destinations" className="f-13" />
                 </Tooltip>
               </h4>
               <AlertDestinations alertId={alert.id} />
