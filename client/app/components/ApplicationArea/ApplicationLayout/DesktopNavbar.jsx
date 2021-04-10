@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { first, includes } from "lodash";
 import Menu from "antd/lib/menu";
 import Link from "@/components/Link";
+import PlainButton from "@/components/PlainButton";
 import HelpTrigger from "@/components/HelpTrigger";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import { useCurrentRoute } from "@/components/ApplicationArea/Router";
@@ -15,8 +16,8 @@ import AlertOutlinedIcon from "@ant-design/icons/AlertOutlined";
 import PlusOutlinedIcon from "@ant-design/icons/PlusOutlined";
 import QuestionCircleOutlinedIcon from "@ant-design/icons/QuestionCircleOutlined";
 import SettingOutlinedIcon from "@ant-design/icons/SettingOutlined";
-
 import VersionInfo from "./VersionInfo";
+
 import "./DesktopNavbar.less";
 
 function NavbarSection({ children, ...props }) {
@@ -129,9 +130,9 @@ export default function DesktopNavbar() {
             )}
             {canCreateDashboard && (
               <Menu.Item key="new-dashboard">
-                <a data-test="CreateDashboardMenuItem" onMouseUp={() => CreateDashboardDialog.showModal()}>
+                <PlainButton data-test="CreateDashboardMenuItem" onClick={() => CreateDashboardDialog.showModal()}>
                   New Dashboard
-                </a>
+                </PlainButton>
               </Menu.Item>
             )}
             {canCreateAlert && (
@@ -182,9 +183,9 @@ export default function DesktopNavbar() {
           )}
           <Menu.Divider />
           <Menu.Item key="logout">
-            <a data-test="LogOutButton" onClick={() => Auth.logout()}>
+            <PlainButton data-test="LogOutButton" onClick={() => Auth.logout()}>
               Log out
-            </a>
+            </PlainButton>
           </Menu.Item>
           <Menu.Divider />
           <Menu.Item key="version" role="presentation" disabled className="version-info">

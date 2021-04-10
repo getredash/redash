@@ -201,9 +201,9 @@ function EmptyState({
         </div>
       </div>
       {closable && (
-        <a className="close-button" aria-label="Close" onClick={onClose}>
+        <PlainButton className="close-button" aria-label="Close" onClick={onClose}>
           <CloseOutlinedIcon />
-        </a>
+        </PlainButton>
       )}
     </div>
   );
