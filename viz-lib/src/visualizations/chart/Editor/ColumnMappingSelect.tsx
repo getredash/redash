@@ -18,10 +18,10 @@ const SwappedMappingTypes = {
 };
 
 type OwnProps = {
-    value?: string | string[];
-    availableColumns?: string[];
-    type?: any; // TODO: PropTypes.oneOf(keys(MappingTypes))
-    onChange?: (...args: any[]) => any;
+  value?: string | string[];
+  availableColumns?: string[];
+  type?: any; // TODO: PropTypes.oneOf(keys(MappingTypes))
+  onChange?: (...args: any[]) => any;
 };
 
 type Props = OwnProps & typeof ColumnMappingSelect.defaultProps;
@@ -49,7 +49,7 @@ export default function ColumnMappingSelect({ value, availableColumns, type, onC
           // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
           <Select.Option key={c} value={c} data-test={`Chart.ColumnMapping.${type}.${c}`}>
             {c}
-          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           </Select.Option>
         ))}
       </Select>

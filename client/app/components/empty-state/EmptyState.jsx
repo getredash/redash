@@ -4,25 +4,24 @@ import PropTypes from "prop-types";
 import classNames from "classnames";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import Link from "@/components/Link";
+import PlainButton from "@/components/PlainButton";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import HelpTrigger from "@/components/HelpTrigger";
-import PlainButton from "@/components/PlainButton";
 import { currentUser } from "@/services/auth";
 import organizationStatus from "@/services/organizationStatus";
 
 import "./empty-state.less";
 
-function Step({ show, completed, text, url, urlTarget, urlText, onClick }) {
+export function Step({ show, completed, text, url, urlText, onClick }) {
   if (!show) {
     return null;
   }
 
+  const commonProps = { children: urlText, onClick };
+
   return (
     <li className={classNames({ done: completed })}>
-      <Link href={url} onClick={onClick} target={urlTarget}>
-        {urlText}
-      </Link>{" "}
-      {text}
+      {url ? <Link href={url} {...commonProps} /> : <PlainButton type="link" {...commonProps} />} {text}
     </li>
   );
 }

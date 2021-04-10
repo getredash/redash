@@ -16,10 +16,7 @@ function TemplateFormatHint() {
   );
 }
 
-export default function FormatSettings({
-  options,
-  onOptionsChange
-}: any) {
+export default function FormatSettings({ options, onOptionsChange }: any) {
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
 
   const templateFormatHint = <TemplateFormatHint />;

@@ -4,11 +4,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 
 import { isValueNumber } from "../utils";
 
-export default function FormatSettings({
-  options,
-  data,
-  onOptionsChange
-}: any) {
+export default function FormatSettings({ options, data, onOptionsChange }: any) {
   const inputsEnabled = isValueNumber(data.rows, options);
   return (
     <React.Fragment>

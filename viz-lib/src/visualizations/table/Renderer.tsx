@@ -39,9 +39,7 @@ function getSearchColumns(columns: any, { limit = Infinity, renderColumn = (col:
   return firstColumns;
 }
 
-function SearchInputInfoIcon({
-  searchColumns
-}: any) {
+function SearchInputInfoIcon({ searchColumns }: any) {
   return (
     <Popover
       arrowPointAtCenter
@@ -57,7 +55,7 @@ function SearchInputInfoIcon({
 }
 
 type OwnSearchInputProps = {
-    onChange?: (...args: any[]) => any;
+  onChange?: (...args: any[]) => any;
 };
 
 type SearchInputProps = OwnSearchInputProps & typeof SearchInput.defaultProps;
@@ -82,10 +80,7 @@ SearchInput.defaultProps = {
   onChange: () => {},
 };
 
-export default function Renderer({
-  options,
-  data
-}: any) {
+export default function Renderer({ options, data }: any) {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState([]);
 
