@@ -14,6 +14,7 @@ from . import register
 
 try:
     import requests
+    from cmem.cmempy.queries import SparqlQuery
     from rdflib.plugins.sparql import prepareQuery
 
     enabled = True
@@ -118,19 +119,15 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
         return "sparql_endpoint"
 
     def remove_comments(self, string):
-        # remove all occurrences streamed comments (/*COMMENT */) from string
-        string = re.sub(re.compile("/\*.*?\*/",re.DOTALL ) ,"" ,string)
-        # remove all occurrence single-line comments (//COMMENT\n ) from string
-        string = re.sub(re.compile("//.*?\n" ) ,"" ,string)
-        return string.strip()
+        return string[string.index('*/')+2:].strip()
 
     def run_query(self, query, user):
         """send a query to a sparql endpoint"""
         logger.info("about to execute query (user='{}'): {}".format(user, query))
         query_text = self.remove_comments(query)
-        query = prepareQuery(query_text)
-        query_type = query.algebra.name
-        if query_type not in ["SelectQuery", None]:
+        query = SparqlQuery(query_text)
+        query_type = query.get_query_type()
+        if query_type not in ["SELECT", None]:
             raise ValueError(
                 "Queries of type {} can not be processed by redash.".format(query_type)
             )
