@@ -21,21 +21,14 @@ export function withIcon<ComponentProps extends object>(Component: React.Compone
   };
 }
 
-/**
- * Accessible wrapper for adding icons to a component.
- * Defaults to the external icon.
- */
-export function WithIcon({
+export const WithInlineIcon = withIcon((props: React.PropsWithChildren<React.HTMLAttributes<HTMLSpanElement>>) => {
+  return <span {...props} />;
+});
+
+export const WithExternalIcon = ({
   icon = <i className="fa fa-external-link" aria-hidden="true" />,
   alt = "(opens in a new tab)",
-  children,
   ...props
-}: Partial<WithIconProps> & React.ComponentProps<"span">) {
-  return (
-    <span {...props}>
-      {children}
-      {children && " "}
-      {icon} <span className="sr-only">{alt}</span>
-    </span>
-  );
-}
+}: Partial<WithIconProps> & React.HTMLAttributes<HTMLSpanElement>) => {
+  return <WithInlineIcon icon={icon} alt={alt} {...props} />;
+};
