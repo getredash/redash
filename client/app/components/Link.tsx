@@ -16,14 +16,14 @@ function Link({ children, ...props }: LinkProps) {
   return <Link.Component {...props}>{children}</Link.Component>;
 }
 
-Link.WithIcon = withIcon(Link.Component);
-
 function ExternalLink({
   icon = <i className="fa fa-external-link" aria-hidden="true" />,
   alt = "(opens in a new tab)",
   ...props
 }: LinkProps & Partial<WithIconProps>) {
-  return <Link.WithIcon target="_blank" rel="noopener noreferrer" icon={icon} alt={alt} {...props} />;
+  const WithIcon = withIcon(Link as typeof Link.Component);
+
+  return <WithIcon target="_blank" rel="noopener noreferrer" icon={icon} alt={alt} {...props} />;
 }
 
 Link.External = ExternalLink;
