@@ -388,7 +388,16 @@ class Redshift(PostgreSQL):
         # https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_EXTERNAL_SCHEMAS.html
         # https://docs.aws.amazon.com/redshift/latest/dg/r_HAS_TABLE_PRIVILEGE.html
         query = """
-        WITH tables AS (
+		WITH tables2 AS (
+            SELECT DISTINCT table_name, table_schema
+            FROM svv_tables
+            where HAS_SCHEMA_PRIVILEGE(table_schema, 'USAGE')
+            AND
+            (
+                table_schema IN (SELECT schemaname FROM SVV_EXTERNAL_SCHEMAS) OR
+                HAS_TABLE_PRIVILEGE('"' || table_schema || '"."' || table_name || '"', 'SELECT')
+            )
+        ), tables AS (
             SELECT DISTINCT table_name,
                             table_schema,
                             column_name,
@@ -396,16 +405,19 @@ class Redshift(PostgreSQL):
             FROM svv_columns
             WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
             AND table_schema NOT LIKE 'pg_temp_%'
-        )
-        SELECT table_name, table_schema, column_name
-        FROM tables
-        WHERE
-            HAS_SCHEMA_PRIVILEGE(table_schema, 'USAGE') AND
+            AND HAS_SCHEMA_PRIVILEGE(table_schema, 'USAGE')
+            AND
             (
                 table_schema IN (SELECT schemaname FROM SVV_EXTERNAL_SCHEMAS) OR
                 HAS_TABLE_PRIVILEGE('"' || table_schema || '"."' || table_name || '"', 'SELECT')
             )
-        ORDER BY table_name, pos
+            ORDER BY table_name, pos
+        )
+        SELECT table_name, table_schema, column_name
+        FROM tables
+        UNION
+        SELECT table_name, table_schema, '' as "column_name"
+        FROM tables2 where table_schema not in (SELECT distinct table_schema from tables);
         """
 
         self._get_definitions(schema, query)
