@@ -11,7 +11,7 @@ from .helpers import (
     int_or_none,
     set_from_string,
     add_decode_responses_to_redis_url,
-    cast_int_or_default
+    cast_int_or_default,
 )
 from .organization import DATE_FORMAT, TIME_FORMAT  # noqa
 
@@ -106,7 +106,7 @@ REMEMBER_COOKIE_HTTPONLY = parse_boolean(
 # on the specific deployment.
 # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
 # for more information.
-FRAME_OPTIONS = os.environ.get("REDASH_FRAME_OPTIONS", "deny")
+FRAME_OPTIONS = os.environ.get("REDASH_FRAME_OPTIONS", None)
 FRAME_OPTIONS_ALLOW_FROM = os.environ.get("REDASH_FRAME_OPTIONS_ALLOW_FROM", "")
 
 # Whether and how to send Strict-Transport-Security response headers.
@@ -170,7 +170,9 @@ SAML_SCHEME_OVERRIDE = os.environ.get("REDASH_SAML_SCHEME_OVERRIDE", "")
 
 SAML_ENCRYPTION_PEM_PATH = os.environ.get("REDASH_SAML_ENCRYPTION_PEM_PATH", "")
 SAML_ENCRYPTION_CERT_PATH = os.environ.get("REDASH_SAML_ENCRYPTION_CERT_PATH", "")
-SAML_ENCRYPTION_ENABLED = SAML_ENCRYPTION_PEM_PATH != "" and SAML_ENCRYPTION_CERT_PATH != ""
+SAML_ENCRYPTION_ENABLED = (
+    SAML_ENCRYPTION_PEM_PATH != "" and SAML_ENCRYPTION_CERT_PATH != ""
+)
 
 # Enables the use of an externally-provided and trusted remote user via an HTTP
 # header.  The "user" must be an email address.
@@ -508,9 +510,7 @@ REQUESTS_ALLOW_REDIRECTS = parse_boolean(
 
 # Enforces CSRF token validation on API requests.
 # This is turned off by default to avoid breaking any existing deployments but it is highly recommended to turn this toggle on to prevent CSRF attacks.
-ENFORCE_CSRF = parse_boolean(
-    os.environ.get("REDASH_ENFORCE_CSRF", "false")
-)
+ENFORCE_CSRF = parse_boolean(os.environ.get("REDASH_ENFORCE_CSRF", "false"))
 
 # Databricks
 
