@@ -391,7 +391,9 @@ class Redshift(PostgreSQL):
 		WITH tables2 AS (
             SELECT DISTINCT table_name, table_schema
             FROM svv_tables
-            where HAS_SCHEMA_PRIVILEGE(table_schema, 'USAGE')
+            where table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
+            AND table_schema NOT LIKE 'pg_temp_%'
+            AND HAS_SCHEMA_PRIVILEGE(table_schema, 'USAGE')
             AND
             (
                 table_schema IN (SELECT schemaname FROM SVV_EXTERNAL_SCHEMAS) OR
