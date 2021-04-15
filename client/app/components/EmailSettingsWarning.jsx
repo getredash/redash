@@ -1,13 +1,13 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { getUniqueId } from "@/lib/utils";
 import { clientConfig, currentUser } from "@/services/auth";
 import Tooltip from "@/components/Tooltip";
 import Alert from "antd/lib/alert";
 import HelpTrigger from "@/components/HelpTrigger";
-import { useUniqueId } from "@/lib/hooks/useUniqueId";
 
 export default function EmailSettingsWarning({ featureName, className, mode, adminOnly }) {
-  const messageDescriptionId = useUniqueId("sr-mail-description");
+  const messageDescriptionId = getUniqueId("sr-mail-description");
 
   if (!clientConfig.mailSettingsMissing) {
     return null;

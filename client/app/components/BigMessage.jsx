@@ -1,10 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useUniqueId } from "@/lib/hooks/useUniqueId";
+import { getUniqueId } from "@/lib/utils";
 import cx from "classnames";
 
 function BigMessage({ message, icon, children, className }) {
-  const messageId = useUniqueId("bm-message");
+  const messageId = getUniqueId("bm-message");
   return (
     <div
       className={"big-message p-15 text-center " + className}
