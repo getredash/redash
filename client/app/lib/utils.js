@@ -1,5 +1,6 @@
 import moment from "moment";
 import { clientConfig } from "@/services/auth";
+import short from "short-uuid";
 
 export const IntervalEnum = {
   NEVER: "Never",
@@ -203,4 +204,11 @@ export function formatColumnValue(value, columnType = null) {
   }
 
   return value;
+}
+
+export function getUniqueId(prefix = "") {
+  if (prefix) {
+    prefix += "-";
+  }
+  return prefix + short.generate();
 }

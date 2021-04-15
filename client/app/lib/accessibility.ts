@@ -1,4 +1,5 @@
 import { HTMLAttributes } from "react";
+import { getUniqueId } from "@/lib/utils";
 
 interface SrNotifyProps {
   text: string;
@@ -9,7 +10,7 @@ interface SrNotifyProps {
 
 export function srNotify({ text, expiry = 1000, container = document.body, politeness = "polite" }: SrNotifyProps) {
   const element = document.createElement("div");
-  const id = `speak-${Date.now()}`;
+  const id = getUniqueId("speak");
 
   element.id = id;
   element.className = "sr-only";
