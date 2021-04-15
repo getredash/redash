@@ -419,7 +419,8 @@ class Redshift(PostgreSQL):
         FROM tables
         UNION
         SELECT table_name, table_schema, '' as "column_name"
-        FROM tables2 where table_schema not in (SELECT distinct table_schema from tables);
+        FROM tables2 where table_schema not in (SELECT distinct table_schema from tables)
+        AND table_name not in (SELECT distinct table_name from tables);
         """
 
         self._get_definitions(schema, query)
