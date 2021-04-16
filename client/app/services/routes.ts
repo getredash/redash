@@ -1,3 +1,4 @@
+/* eslint-disable import/named */
 import { isString, isObject, filter, sortBy } from "lodash";
 import React from "react";
 import { Context, Route as UniversalRouterRoute } from "universal-router";

@@ -6,11 +6,13 @@ module.exports = {
     "plugin:compat/recommended",
     "prettier",
     "plugin:jsx-a11y/recommended",
+    "plugin:import/errors",
     "plugin:import/typescript",
+    "plugin:import/warnings",
     // Remove any typescript-eslint rules that would conflict with prettier
     "prettier/@typescript-eslint",
   ],
-  plugins: ["jest", "compat", "no-only-tests", "@typescript-eslint", "jsx-a11y"],
+  plugins: ["jest", "compat", "no-only-tests", "@typescript-eslint", "jsx-a11y", "import"],
   settings: {
     "import/resolver": "webpack",
   },
