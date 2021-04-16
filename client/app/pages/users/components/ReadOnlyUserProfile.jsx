@@ -2,7 +2,7 @@ import React from "react";
 import { UserProfile } from "@/components/proptypes";
 import UserGroups from "@/components/UserGroups";
 
-import useUserGroups from '@/pages/users/hooks/useUserGroups';
+import useUserGroups from "@/pages/users/hooks/useUserGroups";
 
 export default function ReadOnlyUserProfile({ user }) {
   const { groups, isLoading: isLoadingGroups } = useUserGroups(user);

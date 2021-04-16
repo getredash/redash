@@ -1,5 +1,5 @@
 import React from "react";
-import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from '@/pages/settings/components/prop-types';
+import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "@/pages/settings/components/prop-types";
 import Form from "antd/lib/form";
 import Select from "antd/lib/select";
 import Skeleton from "antd/lib/skeleton";

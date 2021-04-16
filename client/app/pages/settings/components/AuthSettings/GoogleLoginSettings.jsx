@@ -5,7 +5,7 @@ import Select from "antd/lib/select";
 import Alert from "antd/lib/alert";
 import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
-import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from '@/pages/settings/components/prop-types';
+import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "@/pages/settings/components/prop-types";
 
 export default function GoogleLoginSettings(props) {
   const { values, onChange } = props;

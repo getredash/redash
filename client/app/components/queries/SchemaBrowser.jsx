@@ -11,7 +11,7 @@ import PlainButton from "@/components/PlainButton";
 import Tooltip from "@/components/Tooltip";
 import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
-import LoadingState from '@/components/items-list/components/LoadingState';
+import LoadingState from "@/components/items-list/components/LoadingState";
 
 const SchemaItemColumnType = PropTypes.shape({
   name: PropTypes.string.isRequired,

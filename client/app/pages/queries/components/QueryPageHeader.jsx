@@ -12,15 +12,15 @@ import FavoritesControl from "@/components/FavoritesControl";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
-import useQueryFlags from '@/pages/queries/hooks/useQueryFlags';
-import useArchiveQuery from '@/pages/queries/hooks/useArchiveQuery';
-import usePublishQuery from '@/pages/queries/hooks/usePublishQuery';
-import useUnpublishQuery from '@/pages/queries/hooks/useUnpublishQuery';
-import useUpdateQueryTags from '@/pages/queries/hooks/useUpdateQueryTags';
-import useRenameQuery from '@/pages/queries/hooks/useRenameQuery';
-import useDuplicateQuery from '@/pages/queries/hooks/useDuplicateQuery';
-import useApiKeyDialog from '@/pages/queries/hooks/useApiKeyDialog';
-import usePermissionsEditorDialog from '@/pages/queries/hooks/usePermissionsEditorDialog';
+import useQueryFlags from "@/pages/queries/hooks/useQueryFlags";
+import useArchiveQuery from "@/pages/queries/hooks/useArchiveQuery";
+import usePublishQuery from "@/pages/queries/hooks/usePublishQuery";
+import useUnpublishQuery from "@/pages/queries/hooks/useUnpublishQuery";
+import useUpdateQueryTags from "@/pages/queries/hooks/useUpdateQueryTags";
+import useRenameQuery from "@/pages/queries/hooks/useRenameQuery";
+import useDuplicateQuery from "@/pages/queries/hooks/useDuplicateQuery";
+import useApiKeyDialog from "@/pages/queries/hooks/useApiKeyDialog";
+import usePermissionsEditorDialog from "@/pages/queries/hooks/usePermissionsEditorDialog";
 
 import "./QueryPageHeader.less";
 

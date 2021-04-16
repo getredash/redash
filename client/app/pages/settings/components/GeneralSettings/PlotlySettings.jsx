@@ -3,7 +3,7 @@ import Checkbox from "antd/lib/checkbox";
 import Form from "antd/lib/form";
 import Skeleton from "antd/lib/skeleton";
 import DynamicComponent from "@/components/DynamicComponent";
-import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from '@/pages/settings/components/prop-types';
+import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "@/pages/settings/components/prop-types";
 
 export default function PlotlySettings(props) {
   const { values, onChange, loading } = props;

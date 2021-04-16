@@ -36,7 +36,7 @@ import useQueryParameters from "./hooks/useQueryParameters";
 import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
-import useFullscreenHandler from '@/lib/hooks/useFullscreenHandler';
+import useFullscreenHandler from "@/lib/hooks/useFullscreenHandler";
 
 import "./QueryView.less";
 

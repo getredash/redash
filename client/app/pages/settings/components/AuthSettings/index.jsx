@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import HelpTrigger from "@/components/HelpTrigger";
 import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
-import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from '@/pages/settings/components/prop-types';
+import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "@/pages/settings/components/prop-types";
 
 import PasswordLoginSettings from "./PasswordLoginSettings";
 import GoogleLoginSettings from "./GoogleLoginSettings";
