@@ -8,12 +8,14 @@ import InputWithCopy from "@/components/InputWithCopy";
 import { UserProfile } from "@/components/proptypes";
 import User from "@/services/user";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
+import { useUniqueId } from "@/lib/hooks/useUniqueId";
 
 export default function ApiKeyForm(props) {
   const { user, onChange } = props;
 
   const [loading, setLoading] = useState(false);
   const handleChange = useImmutableCallback(onChange);
+  const apiKeyInputId = useUniqueId("apiKey");
 
   const regenerateApiKey = useCallback(() => {
     const doRegenerate = () => {
@@ -44,7 +46,7 @@ export default function ApiKeyForm(props) {
       <Form layout="vertical">
         <hr />
         <Form.Item label="API Key" className="m-b-10">
-          <InputWithCopy id="apiKey" className="hide-in-percy" value={user.apiKey} data-test="ApiKey" readOnly />
+          <InputWithCopy id={apiKeyInputId} className="hide-in-percy" value={user.apiKey} data-test="ApiKey" readOnly />
         </Form.Item>
         <Button className="w-100" onClick={regenerateApiKey} loading={loading} data-test="RegenerateApiKey">
           Regenerate
