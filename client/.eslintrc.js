@@ -6,6 +6,7 @@ module.exports = {
     "plugin:compat/recommended",
     "prettier",
     "plugin:jsx-a11y/recommended",
+    "plugin:import/typescript",
     // Remove any typescript-eslint rules that would conflict with prettier
     "prettier/@typescript-eslint",
   ],
