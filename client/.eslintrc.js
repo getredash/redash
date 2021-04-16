@@ -12,7 +12,7 @@ module.exports = {
     // Remove any typescript-eslint rules that would conflict with prettier
     "prettier/@typescript-eslint",
   ],
-  plugins: ["jest", "compat", "no-only-tests", "@typescript-eslint", "jsx-a11y", "import"],
+  plugins: ["jest", "compat", "no-only-tests", "@typescript-eslint", "jsx-a11y", "import", "replace-relative-imports"],
   settings: {
     "import/resolver": "webpack",
   },
