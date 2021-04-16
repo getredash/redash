@@ -7,7 +7,7 @@ import Link from "@/components/Link";
 import DynamicComponent from "@/components/DynamicComponent";
 import { currentUser } from "@/services/auth";
 
-import useQueryFlags from "../hooks/useQueryFlags";
+import useQueryFlags from '@/pages/queries/hooks/useQueryFlags';
 import "./QuerySourceAlerts.less";
 
 export default function QuerySourceAlerts({ query, dataSourcesAvailable }) {

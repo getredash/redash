@@ -16,7 +16,7 @@ import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
 import { policy } from "@/services/policy";
 import { durationHumanize } from "@/lib/utils";
-import { DashboardStatusEnum } from "../hooks/useDashboard";
+import { DashboardStatusEnum } from '@/pages/dashboards/hooks/useDashboard';
 
 import "./DashboardHeader.less";
 

@@ -2,7 +2,7 @@ import React from "react";
 import { mount } from "enzyme";
 import moment from "moment";
 import ScheduleDialog, { TimeEditor } from "./ScheduleDialog";
-import { RefreshScheduleDefault } from "../proptypes";
+import { RefreshScheduleDefault } from '@/components/proptypes';
 
 const defaultProps = {
   schedule: RefreshScheduleDefault,

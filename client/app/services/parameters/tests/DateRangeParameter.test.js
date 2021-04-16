@@ -1,5 +1,5 @@
 import { createParameter } from "..";
-import { getDynamicDateRangeFromString } from "../DateRangeParameter";
+import { getDynamicDateRangeFromString } from '@/services/parameters/DateRangeParameter';
 import moment from "moment";
 
 describe("DateRangeParameter", () => {

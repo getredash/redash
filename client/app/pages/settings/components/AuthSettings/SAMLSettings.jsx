@@ -4,7 +4,7 @@ import Input from "antd/lib/input";
 import Skeleton from "antd/lib/skeleton";
 import Radio from "antd/lib/radio";
 import DynamicComponent from "@/components/DynamicComponent";
-import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
+import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from '@/pages/settings/components/prop-types';
 
 export default function SAMLSettings(props) {
   const { values, onChange, loading } = props;

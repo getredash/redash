@@ -9,7 +9,7 @@ import { capitalize, clone, isEqual, omitBy, isNil, isEmpty } from "lodash";
 import moment from "moment";
 import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from "@/lib/utils";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import { RefreshScheduleType, RefreshScheduleDefault, Moment } from "../proptypes";
+import { RefreshScheduleType, RefreshScheduleDefault, Moment } from '@/components/proptypes';
 
 import "./ScheduleDialog.css";
 

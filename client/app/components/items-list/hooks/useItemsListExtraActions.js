@@ -1,7 +1,7 @@
 import { filter, includes, intersection } from "lodash";
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import Checkbox from "antd/lib/checkbox";
-import { Columns } from "../components/ItemsTable";
+import { Columns } from '@/components/items-list/components/ItemsTable';
 
 export default function useItemsListExtraActions(controller, listColumns, ExtraActionsComponent) {
   const [actionsState, setActionsState] = useState({ isAvailable: false });

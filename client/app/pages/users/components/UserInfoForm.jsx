@@ -10,7 +10,7 @@ import User from "@/services/user";
 import { currentUser } from "@/services/auth";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
-import useUserGroups from "../hooks/useUserGroups";
+import useUserGroups from '@/pages/users/hooks/useUserGroups';
 
 export default function UserInfoForm(props) {
   const { user, onChange } = props;

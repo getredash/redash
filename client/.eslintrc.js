@@ -52,6 +52,16 @@ module.exports = {
         ],
       },
     ],
+    "replace-relative-imports/replace": [
+      "warn",
+      {
+        ignore: ["**/cypress/**/*"],
+        aliases: [
+          { name: "@", path: "client/app" },
+          { name: "extensions", path: "client/app/entensions" },
+        ],
+      },
+    ],
   },
   overrides: [
     {
