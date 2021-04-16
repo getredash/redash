@@ -12,7 +12,7 @@ module.exports = {
     // Remove any typescript-eslint rules that would conflict with prettier
     "prettier/@typescript-eslint",
   ],
-  plugins: ["jest", "compat", "no-only-tests", "@typescript-eslint", "jsx-a11y", "import", "replace-relative-imports"],
+  plugins: ["jest", "compat", "no-only-tests", "@typescript-eslint", "jsx-a11y", "import"],
   settings: {
     "import/resolver": "webpack",
   },
@@ -49,16 +49,6 @@ module.exports = {
             name: "antd/lib",
             message: "Please use 'import XXX from antd/lib/XXX' import instead.",
           },
-        ],
-      },
-    ],
-    "replace-relative-imports/replace": [
-      "warn",
-      {
-        ignore: ["**/cypress/**/*"],
-        aliases: [
-          { name: "@", path: "client/app" },
-          { name: "extensions", path: "client/app/entensions" },
         ],
       },
     ],

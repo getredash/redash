@@ -4,7 +4,7 @@ import Checkbox from "antd/lib/checkbox";
 import Skeleton from "antd/lib/skeleton";
 import HelpTrigger from "@/components/HelpTrigger";
 import DynamicComponent from "@/components/DynamicComponent";
-import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from '@/pages/settings/components/prop-types';
+import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 export default function BeaconConsentSettings(props) {
   const { values, onChange, loading } = props;

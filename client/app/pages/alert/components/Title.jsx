@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Input from "antd/lib/input";
-import { getDefaultName } from '@/pages/alert/Alert';
+import { getDefaultName } from "../Alert";
 
 import { Alert as AlertType } from "@/components/proptypes";
 

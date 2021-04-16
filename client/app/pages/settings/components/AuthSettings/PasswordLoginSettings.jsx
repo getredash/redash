@@ -6,7 +6,7 @@ import Tooltip from "@/components/Tooltip";
 import Skeleton from "antd/lib/skeleton";
 import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
-import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from '@/pages/settings/components/prop-types';
+import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 export default function PasswordLoginSettings(props) {
   const { settings, values, onChange, loading } = props;
