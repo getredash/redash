@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { isEmpty, toUpper, includes, get } from "lodash";
+import { isEmpty, toUpper, includes, get, uniqueId } from "lodash";
 import Button from "antd/lib/button";
 import List from "antd/lib/list";
 import Modal from "antd/lib/modal";
@@ -44,6 +44,8 @@ class CreateSourceDialog extends React.Component {
     savingSource: false,
     currentStep: StepEnum.SELECT_TYPE,
   };
+
+  formId = uniqueId("sourceForm");
 
   selectType = selectedType => {
     this.setState({ selectedType, currentStep: StepEnum.CONFIGURE_IT });
@@ -117,7 +119,7 @@ class CreateSourceDialog extends React.Component {
             </HelpTrigger>
           )}
         </div>
-        <DynamicForm id="sourceForm" fields={fields} onSubmit={this.createSource} feedbackIcons hideSubmitButton />
+        <DynamicForm id={this.formId} fields={fields} onSubmit={this.createSource} feedbackIcons hideSubmitButton />
         {selectedType.type === "databricks" && (
           <small>
             By using the Databricks Data Source you agree to the Databricks JDBC/ODBC{" "}
@@ -171,7 +173,7 @@ class CreateSourceDialog extends React.Component {
                 <Button
                   key="submit"
                   htmlType="submit"
-                  form="sourceForm"
+                  form={this.formId}
                   type="primary"
                   loading={savingSource}
                   data-test="CreateSourceSaveButton">
