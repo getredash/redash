@@ -56,14 +56,18 @@ module.exports = {
       "error",
       {
         groups: ["builtin", "external", "internal", ["parent", "sibling", "index"], "unknown"],
-        "newlines-between": "ignore", // should follow best practices
+        /**
+         * Should follow best practices
+         * Change to "always-and-inside-groups" and comment "pathGroups" to auto-add a new line after each group
+         */
+        "newlines-between": "ignore",
         pathGroups: [
           // Uncomment to move all React imports to the top
-          {
-            pattern: "react",
-            group: "external",
-            position: "before",
-          },
+          // {
+          //   pattern: "react",
+          //   group: "external",
+          //   position: "before",
+          // },
           {
             pattern: "*(antd|@ant-design)/**",
             group: "external",
