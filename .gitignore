@@ -27,3 +27,7 @@ npm-debug.log
 
 client/cypress/screenshots
 client/cypress/videos
+.vs/VSWorkspaceState.json
+.vs/ProjectSettings.json
+.vs/slnx.sqlite
+.vs/redash/v16/.suo

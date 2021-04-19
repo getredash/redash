@@ -379,7 +379,7 @@ else:
     default_query_runners = [    
         "redash.query_runner.mongodb",   
         "redash.query_runner.pg",
-        "redash.query_runner.url",    
+        "redash.query_runner.json_ds",    
         "redash.query_runner.query_results",   
     ]
 
