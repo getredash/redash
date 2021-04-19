@@ -146,7 +146,7 @@ export default function DesktopNavbar() {
         )}
       </NavbarSection>
 
-      <NavbarSection >
+      <NavbarSection>
         {/* <Menu.Item key="help">
       <NavbarSection>
         <Menu.Item key="help">
@@ -192,7 +192,7 @@ export default function DesktopNavbar() {
           <Menu.Divider />
           <Menu.Item key="version" role="presentation" disabled className="version-info">
             <VersionInfo />
-          </Menu.Item>  
+          </Menu.Item>
         </Menu.SubMenu>
       </NavbarSection>
     </nav>

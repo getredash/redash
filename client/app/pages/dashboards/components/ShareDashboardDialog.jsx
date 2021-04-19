@@ -36,7 +36,7 @@ class ShareDashboardDialog extends React.Component {
     };
 
     this.apiUrl = replace(API_SHARE_URL, "{id}", dashboard.id);
-    this.dashboardUpdateUrl=replace(UPDATE_DASHBAORD_URL, "{id}", dashboard.id);
+    this.dashboardUpdateUrl = replace(UPDATE_DASHBAORD_URL, "{id}", dashboard.id);
     this.enabled = this.props.hasOnlySafeQueries || dashboard.publicAccessEnabled;
   }
 
@@ -100,14 +100,12 @@ class ShareDashboardDialog extends React.Component {
     dashboard.options.ShareWithAssociates = checked;
 
     axios
-      .post(this.dashboardUpdateUrl,{options:{'shareWithAssociates':checked}})
+      .post(this.dashboardUpdateUrl, { options: { shareWithAssociates: checked } })
       .then(() => {
-        if(checked){
+        if (checked) {
           notification.success("Dashboard shared successfully");
-
-        }else{
-        notification.success("Dashboard share disabled");
-
+        } else {
+          notification.success("Dashboard share disabled");
         }
       })
       .catch(() => {
