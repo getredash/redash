@@ -5,6 +5,7 @@ import cx from "classnames";
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";
 import { Query } from "@/services/query";
+import PlainButton from "@/components/PlainButton";
 import notification from "@/services/notification";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import useSearchResults from "@/lib/hooks/useSearchResults";
@@ -80,14 +81,14 @@ export default function QuerySelector(props) {
     return (
       <ul className="list-group">
         {searchResults.map(q => (
-          <a
+          <PlainButton
             className={cx("query-selector-result", "list-group-item", { inactive: q.is_draft })}
             key={q.id}
             role="listitem"
             onClick={() => selectQuery(q.id)}
             data-test={`QueryId${q.id}`}>
             {q.name} <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className="inline-tags-control" />
-          </a>
+          </PlainButton>
         ))}
       </ul>
     );
