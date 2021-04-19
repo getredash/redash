@@ -1,6 +1,8 @@
 import { useCallback } from "react";
-import useUpdateQuery from "./useUpdateQuery";
+
 import recordEvent from "@/services/recordEvent";
+
+import useUpdateQuery from "./useUpdateQuery";
 
 export default function useUpdateQueryTags(query, onChange) {
   const updateQuery = useUpdateQuery(query, onChange);

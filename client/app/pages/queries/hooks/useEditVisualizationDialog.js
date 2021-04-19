@@ -1,7 +1,8 @@
-import { extend, filter, find } from "lodash";
 import { useCallback } from "react";
-import EditVisualizationDialog from "@/components/visualizations/EditVisualizationDialog";
+import { extend, filter, find } from "lodash";
+
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
+import EditVisualizationDialog from "@/components/visualizations/EditVisualizationDialog";
 
 export default function useEditVisualizationDialog(query, queryResult, onChange) {
   const handleChange = useImmutableCallback(onChange);

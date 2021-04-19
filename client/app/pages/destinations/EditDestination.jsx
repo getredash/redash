@@ -1,8 +1,9 @@
-import { get, find } from "lodash";
 import React from "react";
+import { get, find } from "lodash";
 import PropTypes from "prop-types";
 
 import Modal from "antd/lib/modal";
+
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import LoadingState from "@/components/items-list/components/LoadingState";

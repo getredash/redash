@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
+
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import DynamicComponent from "@/components/DynamicComponent";
 import { UserProfile } from "@/components/proptypes";
 import { currentUser } from "@/services/auth";
 import User from "@/services/user";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 export default function ToggleUserForm(props) {
   const { user, onChange } = props;

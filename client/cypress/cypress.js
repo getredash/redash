@@ -1,11 +1,13 @@
 /* eslint-disable import/no-extraneous-dependencies, no-console */
+const fs = require("fs");
+const { execSync } = require("child_process");
+
+var Cookie = require("request-cookies").Cookie;
 const { find } = require("lodash");
 const atob = require("atob");
-const { execSync } = require("child_process");
 const { get, post } = require("request").defaults({ jar: true });
+
 const { seedData } = require("./seed-data");
-const fs = require("fs");
-var Cookie = require("request-cookies").Cookie;
 
 let cypressConfigBaseUrl;
 try {

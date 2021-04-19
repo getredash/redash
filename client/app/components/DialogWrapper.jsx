@@ -1,5 +1,5 @@
-import { isFunction } from "lodash";
 import React from "react";
+import { isFunction } from "lodash";
 import PropTypes from "prop-types";
 import ReactDOM from "react-dom";
 

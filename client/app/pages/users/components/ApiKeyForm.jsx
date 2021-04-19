@@ -3,11 +3,12 @@ import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
+
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import DynamicComponent from "@/components/DynamicComponent";
 import InputWithCopy from "@/components/InputWithCopy";
 import { UserProfile } from "@/components/proptypes";
 import User from "@/services/user";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 export default function ApiKeyForm(props) {
   const { user, onChange } = props;

@@ -3,11 +3,13 @@ import PropTypes from "prop-types";
 import { chain, cloneDeep, find } from "lodash";
 import cx from "classnames";
 import { Responsive, WidthProvider } from "react-grid-layout";
+
 import { VisualizationWidget, TextboxWidget, RestrictedWidget } from "@/components/dashboards/dashboard-widget";
 import { FiltersType } from "@/components/Filters";
-import cfg from "@/config/dashboard-grid-options";
-import AutoHeightController from "./AutoHeightController";
 import { WidgetTypeEnum } from "@/services/widget";
+import cfg from "@/config/dashboard-grid-options";
+
+import AutoHeightController from "./AutoHeightController";
 
 import "react-grid-layout/css/styles.css";
 import "./dashboard-grid.less";

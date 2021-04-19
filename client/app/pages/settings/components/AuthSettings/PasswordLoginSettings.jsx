@@ -2,10 +2,12 @@ import React from "react";
 import Alert from "antd/lib/alert";
 import Form from "antd/lib/form";
 import Checkbox from "antd/lib/checkbox";
-import Tooltip from "@/components/Tooltip";
 import Skeleton from "antd/lib/skeleton";
+
+import Tooltip from "@/components/Tooltip";
 import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
+
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 export default function PasswordLoginSettings(props) {

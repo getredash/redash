@@ -1,5 +1,6 @@
-import { filter, includes, isArray } from "lodash";
 import { useEffect, useMemo, useState } from "react";
+import { filter, includes, isArray } from "lodash";
+
 import Group from "@/services/group";
 
 export default function useUserGroups(user) {

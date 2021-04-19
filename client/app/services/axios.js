@@ -1,8 +1,9 @@
 import { get, includes } from "lodash";
 import axiosLib from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
-import { Auth } from "@/services/auth";
 import qs from "query-string";
+
+import { Auth } from "@/services/auth";
 import { restoreSession } from "@/services/restoreSession";
 
 export const axios = axiosLib.create({

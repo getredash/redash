@@ -1,9 +1,10 @@
 import { useReducer, useEffect, useRef } from "react";
+
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import location from "@/services/location";
 import recordEvent from "@/services/recordEvent";
 import { ExecutionStatus } from "@/services/query-result";
 import notifications from "@/services/notifications";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 function getMaxAge() {
   const { maxAge } = location.search;

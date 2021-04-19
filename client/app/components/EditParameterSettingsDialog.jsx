@@ -1,5 +1,5 @@
-import { includes, words, capitalize, clone, isNull } from "lodash";
 import React, { useState, useEffect } from "react";
+import { includes, words, capitalize, clone, isNull } from "lodash";
 import PropTypes from "prop-types";
 import Checkbox from "antd/lib/checkbox";
 import Modal from "antd/lib/modal";
@@ -8,6 +8,7 @@ import Button from "antd/lib/button";
 import Select from "antd/lib/select";
 import Input from "antd/lib/input";
 import Divider from "antd/lib/divider";
+
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import QuerySelector from "@/components/QuerySelector";
 import { Query } from "@/services/query";

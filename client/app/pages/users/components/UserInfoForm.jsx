@@ -1,6 +1,8 @@
-import { get, map } from "lodash";
 import React, { useMemo, useCallback } from "react";
+import { get, map } from "lodash";
 import PropTypes from "prop-types";
+
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import { UserProfile } from "@/components/proptypes";
 import DynamicComponent from "@/components/DynamicComponent";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
@@ -8,7 +10,6 @@ import UserGroups from "@/components/UserGroups";
 
 import User from "@/services/user";
 import { currentUser } from "@/services/auth";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 import useUserGroups from "../hooks/useUserGroups";
 

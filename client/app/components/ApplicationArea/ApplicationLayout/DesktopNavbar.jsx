@@ -1,6 +1,13 @@
 import React, { useMemo } from "react";
 import { first, includes } from "lodash";
 import Menu from "antd/lib/menu";
+import DesktopOutlinedIcon from "@ant-design/icons/DesktopOutlined";
+import CodeOutlinedIcon from "@ant-design/icons/CodeOutlined";
+import AlertOutlinedIcon from "@ant-design/icons/AlertOutlined";
+import PlusOutlinedIcon from "@ant-design/icons/PlusOutlined";
+import QuestionCircleOutlinedIcon from "@ant-design/icons/QuestionCircleOutlined";
+import SettingOutlinedIcon from "@ant-design/icons/SettingOutlined";
+
 import Link from "@/components/Link";
 import PlainButton from "@/components/PlainButton";
 import HelpTrigger from "@/components/HelpTrigger";
@@ -10,12 +17,6 @@ import { Auth, currentUser } from "@/services/auth";
 import settingsMenu from "@/services/settingsMenu";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
-import DesktopOutlinedIcon from "@ant-design/icons/DesktopOutlined";
-import CodeOutlinedIcon from "@ant-design/icons/CodeOutlined";
-import AlertOutlinedIcon from "@ant-design/icons/AlertOutlined";
-import PlusOutlinedIcon from "@ant-design/icons/PlusOutlined";
-import QuestionCircleOutlinedIcon from "@ant-design/icons/QuestionCircleOutlined";
-import SettingOutlinedIcon from "@ant-design/icons/SettingOutlined";
 import VersionInfo from "./VersionInfo";
 
 import "./DesktopNavbar.less";

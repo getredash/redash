@@ -1,8 +1,9 @@
-import { get } from "lodash";
 import { useState, useEffect, useCallback } from "react";
+import { get } from "lodash";
+
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import recordEvent from "@/services/recordEvent";
 import OrgSettings from "@/services/organizationSettings";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import { updateClientConfig } from "@/services/auth";
 
 export default function useOrganizationSettings({ onError }) {

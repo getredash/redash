@@ -1,10 +1,12 @@
 import _ from "lodash";
+
 import { axios } from "@/services/axios";
-import dashboardGridOptions from "@/config/dashboard-grid-options";
-import Widget from "./widget";
 import location from "@/services/location";
 import { cloneParameter } from "@/services/parameters";
 import { policy } from "@/services/policy";
+import dashboardGridOptions from "@/config/dashboard-grid-options";
+
+import Widget from "./widget";
 
 export const urlForDashboard = ({ id, slug }) => `dashboards/${id}-${slug}`;
 

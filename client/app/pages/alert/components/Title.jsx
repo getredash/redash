@@ -1,9 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Input from "antd/lib/input";
-import { getDefaultName } from "../Alert";
 
 import { Alert as AlertType } from "@/components/proptypes";
+
+import { getDefaultName } from "../Alert";
 
 import "./Title.less";
 

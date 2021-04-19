@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
-import localOptions from "@/lib/localOptions";
 import { get, extend } from "lodash";
+
+import localOptions from "@/lib/localOptions";
 
 function isAutoLimitAvailable(dataSource) {
   return get(dataSource, "supports_auto_limit", false);

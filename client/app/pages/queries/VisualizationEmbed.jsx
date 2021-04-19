@@ -1,12 +1,19 @@
-import { find, has } from "lodash";
 import React, { useState, useEffect, useCallback } from "react";
+import { find, has } from "lodash";
 import PropTypes from "prop-types";
 import moment from "moment";
 import { markdown } from "markdown";
 
+import { VisualizationType } from "@redash/viz/lib";
+import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
+import FileOutlinedIcon from "@ant-design/icons/FileOutlined";
+import FileExcelOutlinedIcon from "@ant-design/icons/FileExcelOutlined";
+
+import { formatDateTime } from "@/lib/utils";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import Tooltip from "@/components/Tooltip";
 import Link from "@/components/Link";
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
@@ -18,14 +25,6 @@ import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsL
 import VisualizationName from "@/components/visualizations/VisualizationName";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 
-import FileOutlinedIcon from "@ant-design/icons/FileOutlined";
-import FileExcelOutlinedIcon from "@ant-design/icons/FileExcelOutlined";
-
-import { VisualizationType } from "@redash/viz/lib";
-import HtmlContent from "@redash/viz/lib/components/HtmlContent";
-
-import { formatDateTime } from "@/lib/utils";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import { Query } from "@/services/query";
 import location from "@/services/location";
 import routes from "@/services/routes";

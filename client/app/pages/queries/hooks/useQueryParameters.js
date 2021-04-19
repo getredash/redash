@@ -1,5 +1,5 @@
-import { isUndefined } from "lodash";
 import { useEffect, useMemo, useState, useCallback } from "react";
+import { isUndefined } from "lodash";
 
 export default function useQueryParameters(query) {
   const parameters = useMemo(() => query.getParametersDefs(), [query]);

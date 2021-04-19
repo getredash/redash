@@ -1,8 +1,9 @@
-import Select from "antd/lib/select";
-import { map } from "lodash";
-import DynamicComponent, { registerComponent } from "@/components/DynamicComponent";
-import PropTypes from "prop-types";
 import React from "react";
+import { map } from "lodash";
+import PropTypes from "prop-types";
+import Select from "antd/lib/select";
+
+import DynamicComponent, { registerComponent } from "@/components/DynamicComponent";
 
 import "./QuerySourceDropdownItem"; // register QuerySourceDropdownItem
 

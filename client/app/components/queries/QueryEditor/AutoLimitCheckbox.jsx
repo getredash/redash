@@ -1,8 +1,9 @@
 import React, { useCallback } from "react";
 import PropTypes from "prop-types";
-import recordEvent from "@/services/recordEvent";
 import Checkbox from "antd/lib/checkbox";
+
 import Tooltip from "@/components/Tooltip";
+import recordEvent from "@/services/recordEvent";
 
 export default function AutoLimitCheckbox({ available, checked, onChange }) {
   const handleClick = useCallback(() => {

@@ -1,4 +1,5 @@
 import { isString, isObject, isFunction, extend, omit, sortBy, find, filter } from "lodash";
+
 import { stripBase } from "@/components/ApplicationArea/Router";
 import { currentUser } from "@/services/auth";
 

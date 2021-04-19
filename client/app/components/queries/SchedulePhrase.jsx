@@ -1,8 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
+
+import { localizeTime, durationHumanize } from "@/lib/utils";
 import Tooltip from "@/components/Tooltip";
 import PlainButton from "@/components/PlainButton";
-import { localizeTime, durationHumanize } from "@/lib/utils";
+
 import { RefreshScheduleType, RefreshScheduleDefault } from "../proptypes";
 
 import "./ScheduleDialog.css";

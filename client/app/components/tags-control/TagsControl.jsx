@@ -1,9 +1,11 @@
-import { map, trim } from "lodash";
 import React from "react";
+import { map, trim } from "lodash";
 import PropTypes from "prop-types";
+
 import Tooltip from "@/components/Tooltip";
-import EditTagsDialog from "./EditTagsDialog";
 import PlainButton from "@/components/PlainButton";
+
+import EditTagsDialog from "./EditTagsDialog";
 
 export class TagsControl extends React.Component {
   static propTypes = {

@@ -1,9 +1,10 @@
-import { isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
+import { isEmpty } from "lodash";
 import PropTypes from "prop-types";
 
-import Link from "@/components/Link";
 import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
+
+import Link from "@/components/Link";
 
 import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";

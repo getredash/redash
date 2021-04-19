@@ -1,5 +1,7 @@
 import { isNull, isUndefined, isArray, isEmpty, get, map, join, has } from "lodash";
+
 import { Query } from "@/services/query";
+
 import Parameter from "./Parameter";
 
 class QueryBasedDropdownParameter extends Parameter {

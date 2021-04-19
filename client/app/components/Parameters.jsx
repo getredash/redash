@@ -1,14 +1,16 @@
-import { size, filter, forEach, extend } from "lodash";
 import React from "react";
+import { size, filter, forEach, extend } from "lodash";
 import PropTypes from "prop-types";
 import { SortableContainer, SortableElement, DragHandle } from "@redash/viz/lib/components/sortable";
-import location from "@/services/location";
-import { Parameter, createParameter } from "@/services/parameters";
+
+import { toHuman } from "@/lib/utils";
 import ParameterApplyButton from "@/components/ParameterApplyButton";
 import ParameterValueInput from "@/components/ParameterValueInput";
 import PlainButton from "@/components/PlainButton";
+import location from "@/services/location";
+import { Parameter, createParameter } from "@/services/parameters";
+
 import EditParameterSettingsDialog from "./EditParameterSettingsDialog";
-import { toHuman } from "@/lib/utils";
 
 import "./Parameters.less";
 

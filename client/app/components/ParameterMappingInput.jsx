@@ -1,7 +1,7 @@
 /* eslint-disable react/no-multi-comp */
 
-import { isString, extend, each, has, map, includes, findIndex, find, fromPairs, clone, isEmpty } from "lodash";
 import React, { Fragment } from "react";
+import { isString, extend, each, has, map, includes, findIndex, find, fromPairs, clone, isEmpty } from "lodash";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import Select from "antd/lib/select";
@@ -12,16 +12,16 @@ import Tag from "antd/lib/tag";
 import Input from "antd/lib/input";
 import Radio from "antd/lib/radio";
 import Form from "antd/lib/form";
-import Tooltip from "@/components/Tooltip";
-import ParameterValueInput from "@/components/ParameterValueInput";
-import { ParameterMappingType } from "@/services/widget";
-import { Parameter, cloneParameter } from "@/services/parameters";
-import HelpTrigger from "@/components/HelpTrigger";
-
 import QuestionCircleFilledIcon from "@ant-design/icons/QuestionCircleFilled";
 import EditOutlinedIcon from "@ant-design/icons/EditOutlined";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import CheckOutlinedIcon from "@ant-design/icons/CheckOutlined";
+
+import Tooltip from "@/components/Tooltip";
+import ParameterValueInput from "@/components/ParameterValueInput";
+import HelpTrigger from "@/components/HelpTrigger";
+import { ParameterMappingType } from "@/services/widget";
+import { Parameter, cloneParameter } from "@/services/parameters";
 
 import "./ParameterMappingInput.less";
 

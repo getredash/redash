@@ -2,7 +2,9 @@ import React from "react";
 import Checkbox from "antd/lib/checkbox";
 import Form from "antd/lib/form";
 import Skeleton from "antd/lib/skeleton";
+
 import DynamicComponent from "@/components/DynamicComponent";
+
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 export default function PlotlySettings(props) {

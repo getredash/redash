@@ -1,9 +1,10 @@
-import { isArray } from "lodash";
 import React from "react";
+import { isArray } from "lodash";
 import PropTypes from "prop-types";
 import DatePicker from "antd/lib/date-picker";
-import { clientConfig } from "@/services/auth";
+
 import { Moment } from "@/components/proptypes";
+import { clientConfig } from "@/services/auth";
 
 const { RangePicker } = DatePicker;
 

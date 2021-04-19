@@ -5,9 +5,10 @@ import { isEmpty } from "lodash";
 import Dropdown from "antd/lib/dropdown";
 import Modal from "antd/lib/modal";
 import Menu from "antd/lib/menu";
-import recordEvent from "@/services/recordEvent";
+
 import { Moment } from "@/components/proptypes";
 import PlainButton from "@/components/PlainButton";
+import recordEvent from "@/services/recordEvent";
 
 import "./Widget.less";
 

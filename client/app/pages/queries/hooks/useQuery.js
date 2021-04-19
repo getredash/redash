@@ -1,7 +1,9 @@
-import { isEmpty } from "lodash";
 import { useState, useMemo } from "react";
-import useUpdateQuery from "./useUpdateQuery";
+import { isEmpty } from "lodash";
+
 import navigateTo from "@/components/ApplicationArea/navigateTo";
+
+import useUpdateQuery from "./useUpdateQuery";
 
 export default function useQuery(originalQuery) {
   const [query, setQuery] = useState(originalQuery);

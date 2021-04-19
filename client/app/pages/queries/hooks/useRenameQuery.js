@@ -1,7 +1,9 @@
 import { useCallback } from "react";
-import useUpdateQuery from "./useUpdateQuery";
+
 import recordEvent from "@/services/recordEvent";
 import { clientConfig } from "@/services/auth";
+
+import useUpdateQuery from "./useUpdateQuery";
 
 export default function useRenameQuery(query, onChange) {
   const updateQuery = useUpdateQuery(query, onChange);

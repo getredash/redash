@@ -1,8 +1,9 @@
-import { map, trim, uniq, compact } from "lodash";
 import React, { useState, useEffect } from "react";
+import { map, trim, uniq, compact } from "lodash";
 import PropTypes from "prop-types";
 import Select from "antd/lib/select";
 import Modal from "antd/lib/modal";
+
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 
 function EditTagsDialog({ dialog, tags, getAvailableTags }) {

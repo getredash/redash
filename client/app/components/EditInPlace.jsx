@@ -1,5 +1,5 @@
-import { trim } from "lodash";
 import React from "react";
+import { trim } from "lodash";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import Input from "antd/lib/input";

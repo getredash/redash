@@ -1,8 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
-import Tooltip from "@/components/Tooltip";
 import CopyOutlinedIcon from "@ant-design/icons/CopyOutlined";
+
+import Tooltip from "@/components/Tooltip";
 import "./CodeBlock.less";
 
 export default class CodeBlock extends React.Component {

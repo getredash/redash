@@ -1,12 +1,13 @@
-import { isFunction, map, filter, extend, omit, identity, range, isEmpty } from "lodash";
 import React from "react";
+import { isFunction, map, filter, extend, omit, identity, range, isEmpty } from "lodash";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import Table from "antd/lib/table";
 import Skeleton from "antd/lib/skeleton";
+
+import { durationHumanize, formatDate, formatDateTime } from "@/lib/utils";
 import FavoritesControl from "@/components/FavoritesControl";
 import TimeAgo from "@/components/TimeAgo";
-import { durationHumanize, formatDate, formatDateTime } from "@/lib/utils";
 
 // `this` refers to previous function in the chain (`Columns.***`).
 // Adds `sorter: true` field to column definition

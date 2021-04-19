@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+
 import PlainButton from "@/components/PlainButton";
 
 export default class FavoritesControl extends React.Component {

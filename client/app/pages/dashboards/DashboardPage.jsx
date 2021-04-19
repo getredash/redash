@@ -1,10 +1,12 @@
-import { isEmpty, map } from "lodash";
 import React, { useState, useEffect } from "react";
+import { isEmpty, map } from "lodash";
 import PropTypes from "prop-types";
 import cx from "classnames";
 
 import Button from "antd/lib/button";
 import Checkbox from "antd/lib/checkbox";
+
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import DynamicComponent from "@/components/DynamicComponent";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
@@ -17,7 +19,6 @@ import resizeObserver from "@/services/resizeObserver";
 import routes from "@/services/routes";
 import location from "@/services/location";
 import url from "@/services/url";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 import useDashboard from "./hooks/useDashboard";
 import DashboardHeader from "./components/DashboardHeader";

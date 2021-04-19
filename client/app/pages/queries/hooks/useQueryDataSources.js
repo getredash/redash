@@ -1,5 +1,6 @@
-import { filter, find, toString } from "lodash";
 import { useState, useMemo, useEffect } from "react";
+import { filter, find, toString } from "lodash";
+
 import DataSource from "@/services/data-source";
 
 export default function useQueryDataSources(query) {

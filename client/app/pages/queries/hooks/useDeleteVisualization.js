@@ -1,8 +1,9 @@
-import { extend, filter } from "lodash";
 import { useCallback } from "react";
+import { extend, filter } from "lodash";
+
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import Visualization from "@/services/visualization";
 import notification from "@/services/notification";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 export default function useDeleteVisualization(query, onChange) {
   const handleChange = useImmutableCallback(onChange);

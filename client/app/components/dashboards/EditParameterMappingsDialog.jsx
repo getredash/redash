@@ -1,7 +1,8 @@
-import { isMatch, map, find, sortBy } from "lodash";
 import React from "react";
+import { isMatch, map, find, sortBy } from "lodash";
 import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
+
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import {
   MappingType,

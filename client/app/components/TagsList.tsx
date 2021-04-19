@@ -1,10 +1,11 @@
-import { map, includes, difference } from "lodash";
 import React, { useState, useCallback, useEffect } from "react";
+import { map, includes, difference } from "lodash";
 import Badge from "antd/lib/badge";
 import Menu from "antd/lib/menu";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
-import getTags from "@/services/getTags";
+
 import PlainButton from "@/components/PlainButton";
+import getTags from "@/services/getTags";
 
 import "./TagsList.less";
 

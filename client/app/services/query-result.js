@@ -1,9 +1,10 @@
 import debug from "debug";
 import moment from "moment";
+import { isString, uniqBy, each, isNumber, includes, extend, forOwn, get } from "lodash";
+
 import { axios } from "@/services/axios";
 import { QueryResultError } from "@/services/query";
 import { Auth } from "@/services/auth";
-import { isString, uniqBy, each, isNumber, includes, extend, forOwn, get } from "lodash";
 
 const logger = debug("redash:services:QueryResult");
 const filterTypes = ["filter", "multi-filter", "multiFilter"];

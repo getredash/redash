@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+
 import routes from "@/services/routes";
+
 import Router from "./Router";
 import handleNavigationIntent from "./handleNavigationIntent";
 import ErrorMessage from "./ErrorMessage";

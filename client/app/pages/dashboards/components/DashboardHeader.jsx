@@ -7,6 +7,8 @@ import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import Modal from "antd/lib/modal";
+
+import { durationHumanize } from "@/lib/utils";
 import Tooltip from "@/components/Tooltip";
 import FavoritesControl from "@/components/FavoritesControl";
 import EditInPlace from "@/components/EditInPlace";
@@ -15,7 +17,7 @@ import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
 import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
 import { policy } from "@/services/policy";
-import { durationHumanize } from "@/lib/utils";
+
 import { DashboardStatusEnum } from "../hooks/useDashboard";
 
 import "./DashboardHeader.less";

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import ErrorBoundary, { ErrorBoundaryContext } from "@redash/viz/lib/components/ErrorBoundary";
+
+import DynamicComponent from "@/components/DynamicComponent";
 import { Auth } from "@/services/auth";
 import { policy } from "@/services/policy";
 import { CurrentRoute } from "@/services/routes";
 import organizationStatus from "@/services/organizationStatus";
-import DynamicComponent from "@/components/DynamicComponent";
+
 import ApplicationLayout from "./ApplicationLayout";
 import ErrorMessage from "./ErrorMessage";
 

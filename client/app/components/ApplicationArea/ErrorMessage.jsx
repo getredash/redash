@@ -1,5 +1,5 @@
-import { get, isObject } from "lodash";
 import React from "react";
+import { get, isObject } from "lodash";
 import PropTypes from "prop-types";
 
 import "./ErrorMessage.less";

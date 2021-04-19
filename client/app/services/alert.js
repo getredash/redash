@@ -1,5 +1,6 @@
-import { axios } from "@/services/axios";
 import { merge } from "lodash";
+
+import { axios } from "@/services/axios";
 
 // backwards compatibility
 const normalizeCondition = {

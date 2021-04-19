@@ -1,10 +1,12 @@
-import { isEmpty, join } from "lodash";
 import React from "react";
+import { isEmpty, join } from "lodash";
 import Form from "antd/lib/form";
 import Select from "antd/lib/select";
 import Alert from "antd/lib/alert";
+
 import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
+
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 export default function GoogleLoginSettings(props) {

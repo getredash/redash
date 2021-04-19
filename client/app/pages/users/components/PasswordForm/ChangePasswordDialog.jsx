@@ -1,8 +1,9 @@
-import { isFunction, get } from "lodash";
 import React from "react";
+import { isFunction, get } from "lodash";
 import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
+
 import { UserProfile } from "@/components/proptypes";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import User from "@/services/user";

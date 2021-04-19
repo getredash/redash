@@ -3,7 +3,9 @@ import Form from "antd/lib/form";
 import Input from "antd/lib/input";
 import Skeleton from "antd/lib/skeleton";
 import Radio from "antd/lib/radio";
+
 import DynamicComponent from "@/components/DynamicComponent";
+
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 export default function SAMLSettings(props) {

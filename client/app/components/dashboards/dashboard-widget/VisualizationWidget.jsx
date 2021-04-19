@@ -3,10 +3,9 @@ import PropTypes from "prop-types";
 import { compact, isEmpty, invoke, map } from "lodash";
 import { markdown } from "markdown";
 import cx from "classnames";
-import Menu from "antd/lib/menu";
 import HtmlContent from "@redash/viz/lib/components/HtmlContent";
-import { currentUser } from "@/services/auth";
-import recordEvent from "@/services/recordEvent";
+import Menu from "antd/lib/menu";
+
 import { formatDateTime } from "@/lib/utils";
 import Link from "@/components/Link";
 import Parameters from "@/components/Parameters";
@@ -19,6 +18,8 @@ import PlainButton from "@/components/PlainButton";
 import ExpandedWidgetDialog from "@/components/dashboards/ExpandedWidgetDialog";
 import EditParameterMappingsDialog from "@/components/dashboards/EditParameterMappingsDialog";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
+import { currentUser } from "@/services/auth";
+import recordEvent from "@/services/recordEvent";
 
 import Widget from "./Widget";
 

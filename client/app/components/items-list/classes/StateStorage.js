@@ -1,6 +1,8 @@
 import { defaults } from "lodash";
+
 import { clientConfig } from "@/services/auth";
 import location from "@/services/location";
+
 import { parse as parseOrderBy, compile as compileOrderBy } from "./Sorter";
 
 export class StateStorage {

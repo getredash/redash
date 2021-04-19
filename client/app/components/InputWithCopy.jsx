@@ -1,7 +1,9 @@
 import React from "react";
 import Input from "antd/lib/input";
 import CopyOutlinedIcon from "@ant-design/icons/CopyOutlined";
+
 import Tooltip from "@/components/Tooltip";
+
 import PlainButton from "./PlainButton";
 
 export default class InputWithCopy extends React.Component {

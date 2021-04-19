@@ -1,8 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { includes } from "lodash";
-import { getDynamicDateRangeFromString } from "@/services/parameters/DateRangeParameter";
+
 import DynamicDateRangePicker from "@/components/dynamic-parameters/DynamicDateRangePicker";
+import { getDynamicDateRangeFromString } from "@/services/parameters/DateRangeParameter";
 
 const DYNAMIC_DATE_OPTIONS = [
   {

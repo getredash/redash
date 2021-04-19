@@ -1,4 +1,5 @@
 import { isFunction, identity, map, extend } from "lodash";
+
 import Paginator from "./Paginator";
 import Sorter from "./Sorter";
 import { PlainListFetcher, PaginatedListFetcher } from "./ItemsFetcher";

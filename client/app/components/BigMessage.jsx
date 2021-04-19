@@ -1,7 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useUniqueId } from "@/lib/hooks/useUniqueId";
 import cx from "classnames";
+
+import { useUniqueId } from "@/lib/hooks/useUniqueId";
 
 function BigMessage({ message, icon, children, className }) {
   const messageId = useUniqueId("bm-message");

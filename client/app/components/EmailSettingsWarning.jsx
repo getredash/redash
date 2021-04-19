@@ -1,10 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { clientConfig, currentUser } from "@/services/auth";
-import Tooltip from "@/components/Tooltip";
 import Alert from "antd/lib/alert";
-import HelpTrigger from "@/components/HelpTrigger";
+
 import { useUniqueId } from "@/lib/hooks/useUniqueId";
+import Tooltip from "@/components/Tooltip";
+import HelpTrigger from "@/components/HelpTrigger";
+import { clientConfig, currentUser } from "@/services/auth";
 
 export default function EmailSettingsWarning({ featureName, className, mode, adminOnly }) {
   const messageDescriptionId = useUniqueId("sr-mail-description");

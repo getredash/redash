@@ -5,9 +5,9 @@ import Divider from "antd/lib/divider";
 
 import * as Sidebar from "@/components/items-list/components/Sidebar";
 import { ControllerType } from "@/components/items-list/ItemsList";
-import DeleteGroupButton from "./DeleteGroupButton";
-
 import { currentUser } from "@/services/auth";
+
+import DeleteGroupButton from "./DeleteGroupButton";
 
 export default function DetailsPageSidebar({
   controller,

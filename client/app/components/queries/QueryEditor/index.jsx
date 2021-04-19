@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState, useCallback, useImperativeHandle } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
-import { AceEditor, snippetsModule, updateSchemaCompleter } from "./ace";
+
 import { srNotify } from "@/lib/accessibility";
 import { SchemaItemType } from "@/components/queries/SchemaBrowser";
 import resizeObserver from "@/services/resizeObserver";
 import QuerySnippet from "@/services/query-snippet";
+
+import { AceEditor, snippetsModule, updateSchemaCompleter } from "./ace";
 
 import QueryEditorControls from "./QueryEditorControls";
 import "./index.less";

@@ -1,14 +1,15 @@
+import React, { useState, useEffect, useCallback } from "react";
 import { toString } from "lodash";
 import { markdown } from "markdown";
-import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
+import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
-import Tooltip from "@/components/Tooltip";
 import Divider from "antd/lib/divider";
+
+import Tooltip from "@/components/Tooltip";
 import Link from "@/components/Link";
-import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import notification from "@/services/notification";
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmailSettingsWarning from "@/components/EmailSettingsWarning";
 import DynamicComponent from "@/components/DynamicComponent";
@@ -10,7 +11,6 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import User from "@/services/user";
 import { currentUser } from "@/services/auth";
 import routes from "@/services/routes";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 import EditableUserProfile from "./components/EditableUserProfile";
 import ReadOnlyUserProfile from "./components/ReadOnlyUserProfile";

@@ -1,14 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
 import WarningTwoTone from "@ant-design/icons/WarningTwoTone";
-import TimeAgo from "@/components/TimeAgo";
-import Tooltip from "@/components/Tooltip";
-import useAddToDashboardDialog from "../hooks/useAddToDashboardDialog";
-import useEmbedDialog from "../hooks/useEmbedDialog";
-import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
-import EditVisualizationButton from "@/components/EditVisualizationButton";
+
 import useQueryResultData from "@/lib/useQueryResultData";
 import { durationHumanize, pluralize, prettySize } from "@/lib/utils";
+import TimeAgo from "@/components/TimeAgo";
+import Tooltip from "@/components/Tooltip";
+import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
+import EditVisualizationButton from "@/components/EditVisualizationButton";
+
+import useAddToDashboardDialog from "../hooks/useAddToDashboardDialog";
+import useEmbedDialog from "../hooks/useEmbedDialog";
 
 import "./QueryExecutionMetadata.less";
 

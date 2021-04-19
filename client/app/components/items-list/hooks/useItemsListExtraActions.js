@@ -1,6 +1,7 @@
-import { filter, includes, intersection } from "lodash";
 import React, { useState, useMemo, useEffect, useCallback } from "react";
+import { filter, includes, intersection } from "lodash";
 import Checkbox from "antd/lib/checkbox";
+
 import { Columns } from "../components/ItemsTable";
 
 export default function useItemsListExtraActions(controller, listColumns, ExtraActionsComponent) {

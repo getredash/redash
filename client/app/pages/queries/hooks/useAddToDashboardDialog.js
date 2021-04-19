@@ -1,5 +1,6 @@
-import { find } from "lodash";
 import { useCallback } from "react";
+import { find } from "lodash";
+
 import AddToDashboardDialog from "@/components/queries/AddToDashboardDialog";
 
 export default function useAddToDashboardDialog(query) {

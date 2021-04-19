@@ -1,5 +1,5 @@
-import { head, includes, trim, template, values } from "lodash";
 import React from "react";
+import { head, includes, trim, template, values } from "lodash";
 import PropTypes from "prop-types";
 
 import LoadingState from "@/components/items-list/components/LoadingState";

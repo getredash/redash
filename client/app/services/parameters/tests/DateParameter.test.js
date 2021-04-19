@@ -1,6 +1,7 @@
+import moment from "moment";
+
 import { createParameter } from "..";
 import { getDynamicDateFromString } from "../DateParameter";
-import moment from "moment";
 
 describe("DateParameter", () => {
   let type = "date";

@@ -1,7 +1,8 @@
-import { noop, extend, pick } from "lodash";
 import { useCallback, useState } from "react";
+import { noop, extend, pick } from "lodash";
 import url from "url";
 import qs from "query-string";
+
 import { Query } from "@/services/query";
 
 function keepCurrentUrlParams(targetUrl) {

@@ -1,5 +1,6 @@
-import { has } from "lodash";
 import { useEffect, useState } from "react";
+import { has } from "lodash";
+
 import location from "@/services/location";
 
 export default function useFullscreenHandler() {

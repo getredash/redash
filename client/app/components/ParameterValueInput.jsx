@@ -1,11 +1,13 @@
-import { isEqual, isEmpty, map } from "lodash";
 import React from "react";
+import { isEqual, isEmpty, map } from "lodash";
 import PropTypes from "prop-types";
-import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
 import Input from "antd/lib/input";
 import InputNumber from "antd/lib/input-number";
+
+import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
 import DateParameter from "@/components/dynamic-parameters/DateParameter";
 import DateRangeParameter from "@/components/dynamic-parameters/DateRangeParameter";
+
 import QueryBasedParameterInput from "./QueryBasedParameterInput";
 
 import "./ParameterValueInput.less";

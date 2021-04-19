@@ -1,6 +1,7 @@
-import { map } from "lodash";
 import React from "react";
+import { map } from "lodash";
 import Modal from "antd/lib/modal";
+
 import { Auth } from "@/services/auth";
 
 const SESSION_RESTORED_MESSAGE = "redash_session_restored";

@@ -1,14 +1,15 @@
-import { find } from "lodash";
 import React, { useState, useEffect } from "react";
+import { find } from "lodash";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";
-import { Query } from "@/services/query";
-import PlainButton from "@/components/PlainButton";
-import notification from "@/services/notification";
-import { QueryTagsControl } from "@/components/tags-control/TagsControl";
+
 import useSearchResults from "@/lib/hooks/useSearchResults";
+import PlainButton from "@/components/PlainButton";
+import { QueryTagsControl } from "@/components/tags-control/TagsControl";
+import { Query } from "@/services/query";
+import notification from "@/services/notification";
 
 const { Option } = Select;
 function search(term) {

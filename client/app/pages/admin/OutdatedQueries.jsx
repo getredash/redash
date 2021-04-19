@@ -1,7 +1,8 @@
-import { map } from "lodash";
 import React from "react";
+import { map } from "lodash";
 
 import Switch from "antd/lib/switch";
+
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
 import Paginator from "@/components/Paginator";

@@ -1,6 +1,6 @@
 import React from "react";
-import AntTooltip, { TooltipProps } from "antd/lib/tooltip";
 import { isNil } from "lodash";
+import AntTooltip, { TooltipProps } from "antd/lib/tooltip";
 
 export default function Tooltip({ title, ...restProps }: TooltipProps) {
   const liveTitle = !isNil(title) ? (

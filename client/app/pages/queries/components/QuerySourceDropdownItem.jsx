@@ -1,5 +1,6 @@
-import PropTypes from "prop-types";
 import React from "react";
+import PropTypes from "prop-types";
+
 import { registerComponent } from "@/components/DynamicComponent";
 import { QuerySourceTypeIcon } from "@/pages/queries/components/QuerySourceTypeIcon";
 

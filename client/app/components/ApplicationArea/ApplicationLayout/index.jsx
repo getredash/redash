@@ -1,6 +1,8 @@
 import React, { useRef, useCallback } from "react";
 import PropTypes from "prop-types";
+
 import DynamicComponent from "@/components/DynamicComponent";
+
 import DesktopNavbar from "./DesktopNavbar";
 import MobileNavbar from "./MobileNavbar";
 

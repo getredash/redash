@@ -1,7 +1,9 @@
 import React, { useCallback } from "react";
+
 import HelpTrigger from "@/components/HelpTrigger";
 import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
+
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 import PasswordLoginSettings from "./PasswordLoginSettings";

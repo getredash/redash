@@ -1,8 +1,9 @@
-import { isNaN, max, min } from "lodash";
 import { useEffect, useState, useMemo } from "react";
+import { isNaN, max, min } from "lodash";
+
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import location from "@/services/location";
 import { policy } from "@/services/policy";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 function getLimitedRefreshRate(refreshRate) {
   const allowedIntervals = policy.getDashboardRefreshIntervals();

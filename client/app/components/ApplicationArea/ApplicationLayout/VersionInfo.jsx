@@ -1,4 +1,5 @@
 import React from "react";
+
 import Link from "@/components/Link";
 import { clientConfig, currentUser } from "@/services/auth";
 import frontendVersion from "@/version.json";

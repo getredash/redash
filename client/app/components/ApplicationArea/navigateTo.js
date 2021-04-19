@@ -1,5 +1,6 @@
 import location from "@/services/location";
 import url from "@/services/url";
+
 import { stripBase } from "./Router";
 
 // When `replace` is set to `true` - it will just replace current URL

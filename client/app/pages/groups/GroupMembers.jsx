@@ -1,5 +1,5 @@
-import { includes, map } from "lodash";
 import React from "react";
+import { includes, map } from "lodash";
 import Button from "antd/lib/button";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";

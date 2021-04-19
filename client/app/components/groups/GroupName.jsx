@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+
 import EditInPlace from "@/components/EditInPlace";
 import { currentUser } from "@/services/auth";
 import Group from "@/services/group";

@@ -1,5 +1,5 @@
-import { isFunction, isString, isUndefined } from "lodash";
 import React from "react";
+import { isFunction, isString, isUndefined } from "lodash";
 import PropTypes from "prop-types";
 
 const componentsRegistry = new Map();

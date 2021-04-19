@@ -1,16 +1,18 @@
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { isNil, map, filter, some, includes, get } from "lodash";
 import cx from "classnames";
-import React, { useState, useCallback, useMemo, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
-import Input from "antd/lib/input";
-import Button from "antd/lib/button";
 import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
 import List from "react-virtualized/dist/commonjs/List";
+import Input from "antd/lib/input";
+import Button from "antd/lib/button";
+
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import PlainButton from "@/components/PlainButton";
 import Tooltip from "@/components/Tooltip";
 import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
+
 import LoadingState from "../items-list/components/LoadingState";
 
 const SchemaItemColumnType = PropTypes.shape({

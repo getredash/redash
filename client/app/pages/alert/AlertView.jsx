@@ -2,15 +2,18 @@ import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 
+import Form from "antd/lib/form";
+import Button from "antd/lib/button";
+import AntAlert from "antd/lib/alert";
+import * as Grid from "antd/lib/grid";
+
 import Link from "@/components/Link";
 import TimeAgo from "@/components/TimeAgo";
 import { Alert as AlertType } from "@/components/proptypes";
 
-import Form from "antd/lib/form";
-import Button from "antd/lib/button";
 import Tooltip from "@/components/Tooltip";
-import AntAlert from "antd/lib/alert";
-import * as Grid from "antd/lib/grid";
+
+import DynamicComponent from "@/components/DynamicComponent";
 
 import Title from "./components/Title";
 import Criteria from "./components/Criteria";
@@ -19,7 +22,6 @@ import Query from "./components/Query";
 import AlertDestinations from "./components/AlertDestinations";
 import HorizontalFormItem from "./components/HorizontalFormItem";
 import { STATE_CLASS } from "../alerts/AlertsList";
-import DynamicComponent from "@/components/DynamicComponent";
 
 function AlertState({ state, lastTriggered }) {
   return (

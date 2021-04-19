@@ -1,12 +1,13 @@
-import { startsWith, get, some, mapValues } from "lodash";
 import React from "react";
+import { startsWith, get, some, mapValues } from "lodash";
 import PropTypes from "prop-types";
 import cx from "classnames";
-import Tooltip from "@/components/Tooltip";
 import Drawer from "antd/lib/drawer";
+import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
+
+import Tooltip from "@/components/Tooltip";
 import Link from "@/components/Link";
 import PlainButton from "@/components/PlainButton";
-import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import BigMessage from "@/components/BigMessage";
 import DynamicComponent, { registerComponent } from "@/components/DynamicComponent";
 

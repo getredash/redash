@@ -1,5 +1,5 @@
-import { isFunction, noop } from "lodash";
 import { useRef, useCallback } from "react";
+import { isFunction, noop } from "lodash";
 
 // This hook wraps a potentially changeable function object and always returns the same
 // function so it's safe to use it with other hooks: wrapper function stays the same,

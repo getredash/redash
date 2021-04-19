@@ -1,5 +1,6 @@
-import { find } from "lodash";
 import { useCallback } from "react";
+import { find } from "lodash";
+
 import EmbedQueryDialog from "@/components/queries/EmbedQueryDialog";
 
 export default function useEmbedDialog(query) {

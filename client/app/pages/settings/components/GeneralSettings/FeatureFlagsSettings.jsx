@@ -3,7 +3,9 @@ import Checkbox from "antd/lib/checkbox";
 import Form from "antd/lib/form";
 import Row from "antd/lib/row";
 import Skeleton from "antd/lib/skeleton";
+
 import DynamicComponent from "@/components/DynamicComponent";
+
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 export default function FeatureFlagsSettings(props) {

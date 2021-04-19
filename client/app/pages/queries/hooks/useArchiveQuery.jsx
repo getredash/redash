@@ -1,9 +1,10 @@
-import { extend } from "lodash";
 import React, { useCallback } from "react";
+import { extend } from "lodash";
 import Modal from "antd/lib/modal";
+
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import { Query } from "@/services/query";
 import notification from "@/services/notification";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 function confirmArchive() {
   return new Promise((resolve, reject) => {

@@ -1,7 +1,8 @@
-import { isString } from "lodash";
 import React from "react";
+import { isString } from "lodash";
 import PropTypes from "prop-types";
 import Alert from "antd/lib/alert";
+
 import DynamicComponent from "@/components/DynamicComponent";
 import InputWithCopy from "@/components/InputWithCopy";
 import { UserProfile } from "@/components/proptypes";

@@ -1,5 +1,6 @@
-import { axios } from "@/services/axios";
 import { extend, map } from "lodash";
+
+import { axios } from "@/services/axios";
 
 class QuerySnippet {
   constructor(querySnippet) {

@@ -1,8 +1,9 @@
-import { isString } from "lodash";
 import React from "react";
+import { isString } from "lodash";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
+
 import Tooltip from "@/components/Tooltip";
 import notification from "@/services/notification";
 import Group from "@/services/group";

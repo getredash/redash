@@ -1,4 +1,5 @@
 import { Query } from "@/services/query";
+
 import * as queryFormat from "./queryFormat";
 
 describe("QueryFormat.formatQuery", () => {

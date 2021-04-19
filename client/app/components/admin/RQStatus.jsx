@@ -1,11 +1,12 @@
-import { map } from "lodash";
 import React from "react";
+import { map } from "lodash";
 import PropTypes from "prop-types";
 
 import Badge from "antd/lib/badge";
 import Card from "antd/lib/card";
 import Spin from "antd/lib/spin";
 import Table from "antd/lib/table";
+
 import { Columns } from "@/components/items-list/components/ItemsTable";
 
 // CounterCard

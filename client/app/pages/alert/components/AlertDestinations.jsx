@@ -1,23 +1,23 @@
-import { without, find, includes, map, toLower } from "lodash";
 import React from "react";
+import { without, find, includes, map, toLower } from "lodash";
 import PropTypes from "prop-types";
 
-import Link from "@/components/Link";
 import Button from "antd/lib/button";
+import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
+import Switch from "antd/lib/switch";
+
+import Link from "@/components/Link";
 import SelectItemsDialog from "@/components/SelectItemsDialog";
 import { Destination as DestinationType, UserProfile as UserType } from "@/components/proptypes";
 
-import DestinationService, { IMG_ROOT } from "@/services/destination";
-import AlertSubscription from "@/services/alert-subscription";
-import { clientConfig, currentUser } from "@/services/auth";
-import notification from "@/services/notification";
 import ListItemAddon from "@/components/groups/ListItemAddon";
 import EmailSettingsWarning from "@/components/EmailSettingsWarning";
 import PlainButton from "@/components/PlainButton";
 import Tooltip from "@/components/Tooltip";
-
-import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
-import Switch from "antd/lib/switch";
+import DestinationService, { IMG_ROOT } from "@/services/destination";
+import AlertSubscription from "@/services/alert-subscription";
+import { clientConfig, currentUser } from "@/services/auth";
+import notification from "@/services/notification";
 
 import "./AlertDestinations.less";
 

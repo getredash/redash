@@ -1,9 +1,10 @@
-import { isNil, isObject, extend, keys, map, omit, pick, uniq, get } from "lodash";
 import React, { useCallback } from "react";
+import { isNil, isObject, extend, keys, map, omit, pick, uniq, get } from "lodash";
 import Modal from "antd/lib/modal";
+
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import { Query } from "@/services/query";
 import notification from "@/services/notification";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import { policy } from "@/services/policy";
 
 class SaveQueryError extends Error {

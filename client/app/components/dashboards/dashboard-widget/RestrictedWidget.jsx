@@ -1,4 +1,5 @@
 import React from "react";
+
 import Widget from "./Widget";
 
 function RestrictedWidget(props) {

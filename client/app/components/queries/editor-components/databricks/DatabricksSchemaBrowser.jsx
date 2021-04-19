@@ -6,9 +6,11 @@ import Button from "antd/lib/button";
 import SyncOutlinedIcon from "@ant-design/icons/SyncOutlined";
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";
+
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import Tooltip from "@/components/Tooltip";
 import { SchemaList, applyFilterOnSchema } from "@/components/queries/SchemaBrowser";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
+
 import useDatabricksSchema from "./useDatabricksSchema";
 
 import "./DatabricksSchemaBrowser.less";

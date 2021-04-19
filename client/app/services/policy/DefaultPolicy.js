@@ -1,4 +1,5 @@
 import { get, isArray } from "lodash";
+
 import { currentUser, clientConfig } from "@/services/auth";
 
 /* eslint-disable class-methods-use-this */

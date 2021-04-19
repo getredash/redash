@@ -1,10 +1,11 @@
-import { isEqual, map, find, fromPairs } from "lodash";
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import { isEqual, map, find, fromPairs } from "lodash";
 import PropTypes from "prop-types";
+import { VisualizationType } from "@redash/viz/lib";
+
 import useQueryResultData from "@/lib/useQueryResultData";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import Filters, { FiltersType, filterData } from "@/components/Filters";
-import { VisualizationType } from "@redash/viz/lib";
 import { Renderer } from "@/components/visualizations/visualizationComponents";
 
 function combineFilters(localFilters, globalFilters) {

@@ -1,8 +1,9 @@
+import React from "react";
 import { isArray, indexOf, get, map, includes, every, some, toNumber } from "lodash";
 import moment from "moment";
-import React from "react";
 import PropTypes from "prop-types";
 import Select from "antd/lib/select";
+
 import { formatColumnValue } from "@/lib/utils";
 
 const ALL_VALUES = "###Redash::Filters::SelectAll###";

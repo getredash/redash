@@ -1,7 +1,8 @@
-import { trim } from "lodash";
 import React, { useState } from "react";
+import { trim } from "lodash";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
+
 import DynamicComponent from "@/components/DynamicComponent";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";

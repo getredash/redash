@@ -3,14 +3,15 @@ import PropTypes from "prop-types";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Button from "antd/lib/button";
-import PlainButton from "@/components/PlainButton";
-import { clientConfig } from "@/services/auth";
 
 import PlusCircleFilledIcon from "@ant-design/icons/PlusCircleFilled";
 import ShareAltOutlinedIcon from "@ant-design/icons/ShareAltOutlined";
 import FileOutlinedIcon from "@ant-design/icons/FileOutlined";
 import FileExcelOutlinedIcon from "@ant-design/icons/FileExcelOutlined";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
+
+import PlainButton from "@/components/PlainButton";
+import { clientConfig } from "@/services/auth";
 
 import QueryResultsLink from "./QueryResultsLink";
 

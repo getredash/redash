@@ -1,22 +1,23 @@
-import { isEqual, extend, map, sortBy, findIndex, filter, pick, omit } from "lodash";
 import React, { useState, useMemo, useRef, useEffect } from "react";
+import { isEqual, extend, map, sortBy, findIndex, filter, pick, omit } from "lodash";
 import PropTypes from "prop-types";
-import Modal from "antd/lib/modal";
-import Select from "antd/lib/select";
-import Input from "antd/lib/input";
-import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import Filters, { filterData } from "@/components/Filters";
-import notification from "@/services/notification";
-import Visualization from "@/services/visualization";
-import recordEvent from "@/services/recordEvent";
-import useQueryResultData from "@/lib/useQueryResultData";
 import {
   registeredVisualizations,
   getDefaultVisualization,
   newVisualization,
   VisualizationType,
 } from "@redash/viz/lib";
+import Modal from "antd/lib/modal";
+import Select from "antd/lib/select";
+import Input from "antd/lib/input";
+
+import useQueryResultData from "@/lib/useQueryResultData";
+import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import Filters, { filterData } from "@/components/Filters";
 import { Renderer, Editor } from "@/components/visualizations/visualizationComponents";
+import notification from "@/services/notification";
+import Visualization from "@/services/visualization";
+import recordEvent from "@/services/recordEvent";
 
 import "./EditVisualizationDialog.less";
 

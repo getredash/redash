@@ -1,11 +1,13 @@
-import { isArray, intersection } from "lodash";
 import { useCallback } from "react";
+import { isArray, intersection } from "lodash";
+
 import ScheduleDialog from "@/components/queries/ScheduleDialog";
 import { clientConfig } from "@/services/auth";
 import { policy } from "@/services/policy";
+import recordEvent from "@/services/recordEvent";
+
 import useUpdateQuery from "./useUpdateQuery";
 import useQueryFlags from "./useQueryFlags";
-import recordEvent from "@/services/recordEvent";
 
 export default function useEditScheduleDialog(query, onChange) {
   // We won't use flags that depend on data source

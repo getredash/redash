@@ -1,4 +1,5 @@
 import { toString, isEmpty } from "lodash";
+
 import Parameter from "./Parameter";
 
 class TextParameter extends Parameter {

@@ -1,12 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import Form from "antd/lib/form";
+import Button from "antd/lib/button";
+
 import HelpTrigger from "@/components/HelpTrigger";
 import DynamicComponent from "@/components/DynamicComponent";
 import { Alert as AlertType } from "@/components/proptypes";
-
-import Form from "antd/lib/form";
-import Button from "antd/lib/button";
 
 import Title from "./components/Title";
 import Criteria from "./components/Criteria";

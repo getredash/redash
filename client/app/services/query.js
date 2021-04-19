@@ -1,7 +1,6 @@
 import moment from "moment";
 import debug from "debug";
 import Mustache from "mustache";
-import { axios } from "@/services/axios";
 import {
   zipObject,
   isEmpty,
@@ -19,12 +18,14 @@ import {
   clone,
   find,
 } from "lodash";
+
+import localOptions from "@/lib/localOptions";
+import { axios } from "@/services/axios";
 import location from "@/services/location";
 
 import { Parameter, createParameter } from "./parameters";
 import { currentUser } from "./auth";
 import QueryResult from "./query-result";
-import localOptions from "@/lib/localOptions";
 
 Mustache.escape = identity; // do not html-escape values
 

@@ -1,6 +1,6 @@
 /* eslint-disable import/named */
-import { isString, isObject, filter, sortBy } from "lodash";
 import React from "react";
+import { isString, isObject, filter, sortBy } from "lodash";
 import { Context, Route as UniversalRouterRoute } from "universal-router";
 import pathToRegexp from "path-to-regexp";
 

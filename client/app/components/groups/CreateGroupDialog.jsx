@@ -1,6 +1,7 @@
 import React from "react";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
+
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 
 class CreateGroupDialog extends React.Component {

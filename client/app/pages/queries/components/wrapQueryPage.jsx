@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import { Query } from "@/services/query";
-import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 export default function wrapQueryPage(WrappedComponent) {
   function QueryPageWrapper({ queryId, onError, ...props }) {

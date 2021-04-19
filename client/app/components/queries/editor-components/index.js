@@ -1,5 +1,6 @@
 import SchemaBrowser from "@/components/queries/SchemaBrowser";
 import QueryEditor from "@/components/queries/QueryEditor";
+
 import DatabricksSchemaBrowser from "./databricks/DatabricksSchemaBrowser";
 
 import { registerEditorComponent, getEditorComponents, QueryEditorComponents } from "./editorComponents";

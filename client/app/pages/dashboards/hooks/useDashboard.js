@@ -1,5 +1,10 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { isEmpty, includes, compact, map, has, pick, keys, extend, every, get } from "lodash";
+
+import AddWidgetDialog from "@/components/dashboards/AddWidgetDialog";
+import TextboxDialog from "@/components/dashboards/TextboxDialog";
+import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
+import { editableMappingsToParameterMappings, synchronizeWidgetTitles } from "@/components/ParameterMappingInput";
 import notification from "@/services/notification";
 import location from "@/services/location";
 import url from "@/services/url";
@@ -7,15 +12,12 @@ import { Dashboard, collectDashboardFilters } from "@/services/dashboard";
 import { currentUser } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
 import { QueryResultError } from "@/services/query";
-import AddWidgetDialog from "@/components/dashboards/AddWidgetDialog";
-import TextboxDialog from "@/components/dashboards/TextboxDialog";
-import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
-import { editableMappingsToParameterMappings, synchronizeWidgetTitles } from "@/components/ParameterMappingInput";
+import { policy } from "@/services/policy";
+
 import ShareDashboardDialog from "../components/ShareDashboardDialog";
 import useFullscreenHandler from "../../../lib/hooks/useFullscreenHandler";
 import useRefreshRateHandler from "./useRefreshRateHandler";
 import useEditModeHandler from "./useEditModeHandler";
-import { policy } from "@/services/policy";
 
 export { DashboardStatusEnum } from "./useEditModeHandler";
 

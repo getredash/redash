@@ -1,6 +1,7 @@
+import moment from "moment";
+
 import { createParameter } from "..";
 import { getDynamicDateRangeFromString } from "../DateRangeParameter";
-import moment from "moment";
 
 describe("DateRangeParameter", () => {
   let type = "date-range";

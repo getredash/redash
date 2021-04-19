@@ -1,9 +1,10 @@
-import { omit, debounce } from "lodash";
 import React from "react";
+import { omit, debounce } from "lodash";
 import PropTypes from "prop-types";
 import hoistNonReactStatics from "hoist-non-react-statics";
-import { clientConfig } from "@/services/auth";
 import { AxiosError } from "axios";
+
+import { clientConfig } from "@/services/auth";
 
 export interface PaginationOptions {
   page?: number;

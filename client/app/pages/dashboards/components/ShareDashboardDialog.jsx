@@ -1,15 +1,16 @@
-import { replace } from "lodash";
 import React from "react";
-import { axios } from "@/services/axios";
+import { replace } from "lodash";
 import PropTypes from "prop-types";
 import Switch from "antd/lib/switch";
 import Modal from "antd/lib/modal";
 import Form from "antd/lib/form";
 import Alert from "antd/lib/alert";
-import notification from "@/services/notification";
+
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import InputWithCopy from "@/components/InputWithCopy";
 import HelpTrigger from "@/components/HelpTrigger";
+import { axios } from "@/services/axios";
+import notification from "@/services/notification";
 
 const API_SHARE_URL = "api/dashboards/{id}/share";
 

@@ -1,17 +1,18 @@
-import { isString } from "lodash";
 import React, { useState, useEffect } from "react";
+import { isString } from "lodash";
 import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import List from "antd/lib/list";
+import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
+
+import useSearchResults from "@/lib/hooks/useSearchResults";
 import Link from "@/components/Link";
 import PlainButton from "@/components/PlainButton";
-import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import { Dashboard } from "@/services/dashboard";
 import notification from "@/services/notification";
-import useSearchResults from "@/lib/hooks/useSearchResults";
 
 import "./add-to-dashboard-dialog.less";
 

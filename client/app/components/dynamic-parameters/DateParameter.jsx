@@ -1,7 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { getDynamicDateFromString } from "@/services/parameters/DateParameter";
+
 import DynamicDatePicker from "@/components/dynamic-parameters/DynamicDatePicker";
+import { getDynamicDateFromString } from "@/services/parameters/DateParameter";
 
 const DYNAMIC_DATE_OPTIONS = [
   {

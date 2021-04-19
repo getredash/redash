@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+
 import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
 
 export default function usePermissionsEditorDialog(query) {

@@ -1,14 +1,15 @@
-import { isFunction, map, filter, fromPairs, noop } from "lodash";
 import React, { useEffect } from "react";
+import { isFunction, map, filter, fromPairs, noop } from "lodash";
 import PropTypes from "prop-types";
-import Tooltip from "@/components/Tooltip";
 import Button from "antd/lib/button";
 import Select from "antd/lib/select";
+
+import AutoLimitCheckbox from "@/components/queries/QueryEditor/AutoLimitCheckbox";
+import Tooltip from "@/components/Tooltip";
 import KeyboardShortcuts, { humanReadableShortcut } from "@/services/KeyboardShortcuts";
 
 import AutocompleteToggle from "./AutocompleteToggle";
 import "./QueryEditorControls.less";
-import AutoLimitCheckbox from "@/components/queries/QueryEditor/AutoLimitCheckbox";
 
 export function ButtonTooltip({ title, shortcut, ...props }) {
   shortcut = humanReadableShortcut(shortcut, 1); // show only primary shortcut

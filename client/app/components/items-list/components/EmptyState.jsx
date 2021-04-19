@@ -1,4 +1,5 @@
 import React from "react";
+
 import BigMessage from "@/components/BigMessage";
 
 // Default "list empty" message for list pages

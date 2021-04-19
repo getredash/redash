@@ -3,13 +3,13 @@ import PropTypes from "prop-types";
 import { head, isEmpty, isNull, isUndefined } from "lodash";
 import Mustache from "mustache";
 
-import HelpTrigger from "@/components/HelpTrigger";
-import { Alert as AlertType, Query as QueryType } from "@/components/proptypes";
-
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";
 import Modal from "antd/lib/modal";
 import Switch from "antd/lib/switch";
+
+import { Alert as AlertType, Query as QueryType } from "@/components/proptypes";
+import HelpTrigger from "@/components/HelpTrigger";
 
 import "./NotificationTemplate.less";
 

@@ -1,7 +1,8 @@
-import { isFunction, has } from "lodash";
 import React from "react";
+import { isFunction, has } from "lodash";
 import PropTypes from "prop-types";
 import cx from "classnames";
+
 import { Moment } from "@/components/proptypes";
 import TimeAgo from "@/components/TimeAgo";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";

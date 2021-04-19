@@ -1,16 +1,17 @@
-import { filter, find, isEmpty, size } from "lodash";
 import React, { useState, useCallback, useEffect } from "react";
+import { filter, find, isEmpty, size } from "lodash";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import List from "antd/lib/list";
 import Button from "antd/lib/button";
+
+import useSearchResults from "@/lib/hooks/useSearchResults";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import BigMessage from "@/components/BigMessage";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import notification from "@/services/notification";
-import useSearchResults from "@/lib/hooks/useSearchResults";
 
 import "./SelectItemsDialog.less";
 

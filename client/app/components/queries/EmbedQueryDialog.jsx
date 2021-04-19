@@ -6,9 +6,10 @@ import Checkbox from "antd/lib/checkbox";
 import Form from "antd/lib/form";
 import InputNumber from "antd/lib/input-number";
 import Modal from "antd/lib/modal";
+
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import { clientConfig } from "@/services/auth";
 import CodeBlock from "@/components/CodeBlock";
+import { clientConfig } from "@/services/auth";
 import "./EmbedQueryDialog.less";
 
 class EmbedQueryDialog extends React.Component {

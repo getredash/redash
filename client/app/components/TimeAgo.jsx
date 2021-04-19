@@ -1,10 +1,11 @@
+import React, { useEffect, useMemo, useState } from "react";
 import moment from "moment";
 import { isNil } from "lodash";
-import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
+
 import { Moment } from "@/components/proptypes";
-import { clientConfig } from "@/services/auth";
 import Tooltip from "@/components/Tooltip";
+import { clientConfig } from "@/services/auth";
 
 function toMoment(value) {
   value = !isNil(value) ? moment(value) : null;

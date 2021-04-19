@@ -1,4 +1,5 @@
 import { isString } from "lodash";
+
 import navigateTo from "./navigateTo";
 
 export default function handleNavigationIntent(event) {

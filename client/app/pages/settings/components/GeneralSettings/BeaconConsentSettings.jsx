@@ -2,8 +2,10 @@ import React from "react";
 import Form from "antd/lib/form";
 import Checkbox from "antd/lib/checkbox";
 import Skeleton from "antd/lib/skeleton";
+
 import HelpTrigger from "@/components/HelpTrigger";
 import DynamicComponent from "@/components/DynamicComponent";
+
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
 
 export default function BeaconConsentSettings(props) {

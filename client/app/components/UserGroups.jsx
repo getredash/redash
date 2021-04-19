@@ -1,7 +1,8 @@
-import { map } from "lodash";
 import React from "react";
+import { map } from "lodash";
 import PropTypes from "prop-types";
 import Tag from "antd/lib/tag";
+
 import Link from "@/components/Link";
 
 import "./UserGroups.less";

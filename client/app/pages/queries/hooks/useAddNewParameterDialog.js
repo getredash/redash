@@ -1,7 +1,8 @@
-import { map } from "lodash";
 import { useCallback } from "react";
-import EditParameterSettingsDialog from "@/components/EditParameterSettingsDialog";
+import { map } from "lodash";
+
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
+import EditParameterSettingsDialog from "@/components/EditParameterSettingsDialog";
 
 export default function useAddNewParameterDialog(query, onParameterAdded) {
   const handleParameterAdded = useImmutableCallback(onParameterAdded);

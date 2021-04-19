@@ -1,5 +1,4 @@
 import moment from "moment";
-import { axios } from "@/services/axios";
 import {
   each,
   pick,
@@ -16,10 +15,13 @@ import {
   size,
   includes,
 } from "lodash";
+import { registeredVisualizations } from "@redash/viz/lib";
+
+import { axios } from "@/services/axios";
 import location from "@/services/location";
 import { cloneParameter } from "@/services/parameters";
 import dashboardGridOptions from "@/config/dashboard-grid-options";
-import { registeredVisualizations } from "@redash/viz/lib";
+
 import { Query } from "./query";
 
 export const WidgetTypeEnum = {

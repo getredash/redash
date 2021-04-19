@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { maxBy } from "lodash";
 import AntdSelect, { SelectProps, LabeledValue } from "antd/lib/select";
+
 import { calculateTextWidth } from "@/lib/calculateTextWidth";
 
 const MIN_LEN_FOR_VIRTUAL_SCROLL = 400;
