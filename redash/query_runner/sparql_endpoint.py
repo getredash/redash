@@ -23,21 +23,18 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+
 class SPARQLEndpointQueryRunner(BaseQueryRunner):
     """Use SPARQL Endpoint as redash data source"""
 
     # These environment keys are used by cmempy
-    KNOWN_CONFIG_KEYS = (
-        "SPARQL_BASE_URI",
-        "SSL_VERIFY"
-    )
+    KNOWN_CONFIG_KEYS = ("SPARQL_BASE_URI", "SSL_VERIFY")
 
     # These variables hold secret data and should NOT be logged
     KNOWN_SECRET_KEYS = ()
 
     # This allows for an easy connection test
     noop_query = "SELECT ?noop WHERE {BIND('noop' as ?noop)}"
-
 
     def __init__(self, configuration):
         """init the class and configuration"""
@@ -119,7 +116,7 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
         return "sparql_endpoint"
 
     def remove_comments(self, string):
-        return string[string.index('*/')+2:].strip()
+        return string[string.index("*/") + 2 :].strip()
 
     def run_query(self, query, user):
         """send a query to a sparql endpoint"""
@@ -135,9 +132,11 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
         self._setup_environment()
         try:
             endpoint = self.configuration.get("SPARQL_BASE_URI")
-            r = requests.get(endpoint,
-                             params=dict(query=query_text),
-                             headers=dict(Accept='application/json'))
+            r = requests.get(
+                endpoint,
+                params=dict(query=query_text),
+                headers=dict(Accept="application/json"),
+            )
             data = self._transform_sparql_results(r.text)
         except Exception as error:
             logger.info("Error: {}".format(error))
@@ -169,13 +168,11 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
                     "type": "boolean",
                     "title": "Verify SSL certificates for API requests",
                     "default": True,
-                }
+                },
             },
             "required": ["SPARQL_BASE_URI"],
             "secret": [],
-            "extra_options": [
-                "SSL_VERIFY"
-            ],
+            "extra_options": ["SSL_VERIFY"],
         }
 
     def get_schema(self, get_stats=False):
@@ -194,12 +191,13 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
         """Get a list of readable graph FROM clause strings."""
         self._setup_environment()
         endpoint = self.configuration.get("SPARQL_BASE_URI")
-        query_text = 'SELECT DISTINCT ?g WHERE {GRAPH ?g {?s ?p ?o}}'
-        r = requests.get(endpoint,
-                         params=dict(query=query_text),
-                         headers=dict(Accept='application/json')).json()
-        graph_iris = [g.get('g').get('value')
-                      for g in r.get('results').get('bindings')]
+        query_text = "SELECT DISTINCT ?g WHERE {GRAPH ?g {?s ?p ?o}}"
+        r = requests.get(
+            endpoint,
+            params=dict(query=query_text),
+            headers=dict(Accept="application/json"),
+        ).json()
+        graph_iris = [g.get("g").get("value") for g in r.get("results").get("bindings")]
         graphs = []
         for graph in graph_iris:
             graphs.append("FROM <{}>".format(graph))
