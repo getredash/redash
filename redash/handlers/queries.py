@@ -26,7 +26,7 @@ from redash.permissions import (
     require_permission,
     view_only,
 )
-from redash.utils import collect_parameters_from_request, JSONEncoder, json_dumps, json_loads, parse_human_time
+from redash.utils import collect_parameters_from_request, JSONEncoder, json_dumps, json_loads, parse_human_time,generate_token
 from redash.serializers import QuerySerializer
 from redash.models.parameterized_query import ParameterizedQuery
 
@@ -277,6 +277,10 @@ class QueryListResource(BaseQueryListResource):
                 query_def["query_text"] = json_dumps(query_data)
                 
         query_def["user"] = self.current_user
+
+        if  "description" not in query_def:
+            query_def["description"]= generate_token(6)     
+
         query_def["data_source"] = data_source
         query_def["org"] = self.current_org
         query_def["is_draft"] = True
@@ -393,7 +397,7 @@ class QueryResource(BaseResource):
 
             query_def["query_text"] = query_def.pop("query")
 
-            if query.data_source.type == 'mongodb' or query.data_source.type == 'dyotelemetrydb' or query.data_source.type == 'dyohubmanagerdb' or data_source.type == 'assetdb':
+            if query.data_source.type == 'mongodb' or query.data_source.type == 'dyotelemetrydb' or query.data_source.type == 'dyohubmanagerdb' or query.data_source.type == 'assetdb':
 
                 try:
                     query_data = self.parse_query_json(query_def["query_text"])
@@ -428,6 +432,9 @@ class QueryResource(BaseResource):
             )
             require_access(data_source, self.current_user, not_view_only)
 
+        if query.description is None:
+            query_def["description"] = generate_token(6) 
+            
         query_def["last_modified_by"] = self.current_user
         query_def["changed_by"] = self.current_user
         # SQLAlchemy handles the case where a concurrent transaction beats us

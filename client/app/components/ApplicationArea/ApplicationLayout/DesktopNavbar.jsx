@@ -16,7 +16,7 @@ import PlusOutlinedIcon from "@ant-design/icons/PlusOutlined";
 //import QuestionCircleOutlinedIcon from "@ant-design/icons/QuestionCircleOutlined";
 import SettingOutlinedIcon from "@ant-design/icons/SettingOutlined";
 
-//import VersionInfo from "./VersionInfo";
+import VersionInfo from "./VersionInfo";
 import "./DesktopNavbar.less";
 
 function NavbarSection({ children, ...props }) {

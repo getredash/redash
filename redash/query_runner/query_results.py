@@ -25,17 +25,17 @@ class CreateTableError(Exception):
 
 
 def extract_query_ids(query):
-    queries = re.findall(r"(?:join|from)\s+query_(\d+)", query, re.IGNORECASE)
-    return [int(q) for q in queries]
+    queries = re.findall(r"(?:join|from)\s+query_(\w+)", query, re.IGNORECASE)
+    return [str(q) for q in queries]
 
 
 def extract_cached_query_ids(query):
-    queries = re.findall(r"(?:join|from)\s+cached_query_(\d+)", query, re.IGNORECASE)
-    return [int(q) for q in queries]
+    queries = re.findall(r"(?:join|from)\s+cached_query_(\w+)", query, re.IGNORECASE)
+    return [str(q) for q in queries]
 
 
 def _load_query(user, query_id):
-    query = models.Query.get_by_id(query_id)
+    query = models.Query.get_by_alias_name_and_org_id(query_id,user.org_id)
 
     if user.org_id != query.org_id:
         raise PermissionError("Query id {} not found.".format(query.id))
@@ -67,7 +67,7 @@ def get_query_results(user, query_id, bring_from_cache):
     return results
 
 
-def create_tables_from_query_ids(user, connection, query_ids, cached_query_ids=[]):
+def create_tables_from_query_ids(user, connection, query_ids, cached_query_ids=[]):    
     for query_id in set(cached_query_ids):
         results = get_query_results(user, query_id, True)
         table_name = "cached_query_{query_id}".format(query_id=query_id)
@@ -131,9 +131,11 @@ class Results(BaseQueryRunner):
 
     def run_query(self, query, user):
         connection = sqlite3.connect(":memory:")
-
+        logger.debug("query is "+ query)
         query_ids = extract_query_ids(query)
-        cached_query_ids = extract_cached_query_ids(query)
+        logger.debug("query id"+ str(query_ids))
+      
+        cached_query_ids = extract_cached_query_ids(query)      
         create_tables_from_query_ids(user, connection, query_ids, cached_query_ids)
 
         cursor = connection.cursor()

@@ -758,6 +758,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return cls.query.filter(cls.id == _id).one()
 
     @classmethod
+    def get_by_alias_name_and_org_id(cls, _name,_orgid):
+        print("query: "+_name+" Orgid "+ str(_orgid))        
+        return  cls.query.filter(cls.description == _name , cls.org_id == _orgid ).one()
+    @classmethod
     def all_groups_for_query_ids(cls, query_ids):
         query = """SELECT group_id, view_only
                    FROM queries
@@ -801,12 +805,11 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             "tags",
         ]
         kwargs = {a: getattr(self, a) for a in forked_list}
-
+        kwargs["description"] = generate_token(6)
         # Query.create will add default TABLE visualization, so use constructor to create bare copy of query
         forked_query = Query(
             name="Copy of (#{}) {}".format(self.id, self.name), user=user, **kwargs
         )
-
         for v in sorted(self.visualizations, key=lambda v: v.id):
             forked_v = v.copy()
             forked_v["query_rel"] = forked_query
@@ -1070,10 +1073,10 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
 def generate_slug(ctx):
     slug = utils.slugify(ctx.current_parameters["name"])
-    tries = 1
-    while Dashboard.query.filter(Dashboard.slug == slug).first() is not None:
-        slug = utils.slugify(ctx.current_parameters["name"]) + "_" + str(tries)
-        tries += 1
+    # tries = 1
+    # while Dashboard.query.filter(Dashboard.slug == slug, Dashboard.org == ctx.current_parameters["org"]).first() is not None:
+    #     slug = utils.slugify(ctx.current_parameters["name"]) + "_" + str(tries)
+    #     tries += 1
     return slug
 
 

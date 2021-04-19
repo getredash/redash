@@ -158,6 +158,9 @@ export default function QueryPageHeader({
           </div>
         </div>
         <div className="query-tags">
+        <span className="m-l-5 label label-tag">Query Alias : {query.description}</span>
+        </div>
+        <div className="query-tags">
           <QueryTagsControl
             tags={query.tags}
             isDraft={queryFlags.isDraft}
@@ -168,6 +171,7 @@ export default function QueryPageHeader({
             tagsExtra={tagsExtra}
           />
         </div>
+       
       </div>
       <div className="header-actions">
         {headerExtra}

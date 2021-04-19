@@ -16,6 +16,7 @@ from redash.permissions import (
     is_admin_or_owner,
     require_permission_or_owner,
     require_admin,
+    require_super_admin,
 )
 from redash.handlers.base import (
     BaseResource,
@@ -182,6 +183,23 @@ class UserInviteResource(BaseResource):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         return invite_user(self.current_org, self.current_user, user)
 
+class UserGetAllBySuperAdimnResource(BaseResource):
+    @require_super_admin
+    def post(self):
+        users = models.User.get_all_admin_users()
+        response = {}
+        for user in users:
+           d =  user.to_dict(with_api_key=True)
+           response[user.id] = d
+        self.record_event(
+            {
+                "action": "list",
+                "object_id": "admin/users",
+                "object_type": "users",
+            }
+        )
+
+        return sorted(list(response.values()), key=lambda d: d["name"].lower())
 
 class UserResetPasswordResource(BaseResource):
     @require_admin

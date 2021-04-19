@@ -79,6 +79,7 @@ from redash.handlers.settings import OrganizationSettings
 from redash.handlers.users import (
     UserDisableResource,
     UserInviteResource,
+    UserGetAllBySuperAdimnResource,
     UserListResource,
     UserRegenerateApiKeyResource,
     UserResetPasswordResource,
@@ -285,6 +286,9 @@ api.add_org_resource(UserListResource, "/api/users", endpoint="users")
 api.add_org_resource(UserResource, "/api/users/<user_id>", endpoint="user")
 api.add_org_resource(
     UserInviteResource, "/api/users/<user_id>/invite", endpoint="user_invite"
+)
+api.add_org_resource(
+    UserGetAllBySuperAdimnResource, "/api/users/getall/bysuperadmin", endpoint="user_getall"
 )
 api.add_org_resource(
     UserResetPasswordResource,

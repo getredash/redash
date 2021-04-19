@@ -12,6 +12,7 @@ import InputWithCopy from "@/components/InputWithCopy";
 import HelpTrigger from "@/components/HelpTrigger";
 
 const API_SHARE_URL = "api/dashboards/{id}/share";
+const UPDATE_DASHBAORD_URL = "api/dashboards/{id}";
 
 class ShareDashboardDialog extends React.Component {
   static propTypes = {
@@ -35,6 +36,7 @@ class ShareDashboardDialog extends React.Component {
     };
 
     this.apiUrl = replace(API_SHARE_URL, "{id}", dashboard.id);
+    this.dashboardUpdateUrl=replace(UPDATE_DASHBAORD_URL, "{id}", dashboard.id);
     this.enabled = this.props.hasOnlySafeQueries || dashboard.publicAccessEnabled;
   }
 
@@ -92,7 +94,29 @@ class ShareDashboardDialog extends React.Component {
       this.disableAccess();
     }
   };
+  onChangeShareWith = checked => {
+    const { dashboard } = this.props;
+    this.setState({ saving: true });
+    dashboard.options.ShareWithAssociates = checked;
 
+    axios
+      .post(this.dashboardUpdateUrl,{options:{'shareWithAssociates':checked}})
+      .then(() => {
+        if(checked){
+          notification.success("Dashboard shared successfully");
+
+        }else{
+        notification.success("Dashboard share disabled");
+
+        }
+      })
+      .catch(() => {
+        notification.error("Dashboard share failed");
+      })
+      .finally(() => {
+        this.setState({ saving: false });
+      });
+  };
   render() {
     const { dialog, dashboard } = this.props;
 
@@ -114,6 +138,15 @@ class ShareDashboardDialog extends React.Component {
               loading={this.state.saving}
               disabled={!this.enabled}
               data-test="PublicAccessEnabled"
+            />
+          </Form.Item>
+          <Form.Item label="Share with Partners" {...this.formItemProps}>
+            <Switch
+              checked={dashboard.options.shareWithAssociates}
+              onChange={this.onChangeShareWith}
+              loading={this.state.saving}
+              disabled={!this.enabled}
+              data-test="SharewithPartners"
             />
           </Form.Item>
           {dashboard.public_url && (

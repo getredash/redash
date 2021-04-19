@@ -151,6 +151,7 @@ class User(
             "disabled_at": self.disabled_at,
             "is_disabled": self.is_disabled,
             "active_at": self.active_at,
+            "org_slug":self.org.slug,
             "is_invitation_pending": self.is_invitation_pending,
             "is_email_verified": self.is_email_verified,
         }
@@ -191,6 +192,10 @@ class User(
     @classmethod
     def get_by_org(cls, org):
         return cls.query.filter(cls.org == org)
+
+    @classmethod
+    def get_all_admin_users(cls):
+        return cls.query.filter(cls.name == "admin")
 
     @classmethod
     def get_by_id(cls, _id):
