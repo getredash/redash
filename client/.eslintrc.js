@@ -52,6 +52,52 @@ module.exports = {
         ],
       },
     ],
+    "import/order": [
+      "error",
+      {
+        groups: ["builtin", "external", "internal", ["parent", "sibling", "index"], "unknown"],
+        "newlines-between": "ignore", // should follow best practices
+        pathGroups: [
+          // Uncomment to move all React imports to the top
+          {
+            pattern: "react",
+            group: "external",
+            position: "before",
+          },
+          {
+            pattern: "*(antd|@ant-design)/**",
+            group: "external",
+            position: "after",
+          },
+          {
+            pattern: "extensions/**",
+            group: "internal",
+            position: "before",
+          },
+          {
+            pattern: "@/lib/**",
+            group: "internal",
+            position: "before",
+          },
+          {
+            pattern: "@/components/**",
+            group: "internal",
+            position: "before",
+          },
+          {
+            pattern: "@/services/**",
+            group: "internal",
+            position: "before",
+          },
+          {
+            pattern: "@/**",
+            group: "internal",
+            position: "before",
+          },
+        ],
+        pathGroupsExcludedImportTypes: ["builtin"],
+      },
+    ],
   },
   overrides: [
     {
