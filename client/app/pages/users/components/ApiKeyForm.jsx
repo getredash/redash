@@ -5,6 +5,7 @@ import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
 
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
+import { useUniqueId } from "@/lib/hooks/useUniqueId";
 import DynamicComponent from "@/components/DynamicComponent";
 import InputWithCopy from "@/components/InputWithCopy";
 import { UserProfile } from "@/components/proptypes";
@@ -15,6 +16,7 @@ export default function ApiKeyForm(props) {
 
   const [loading, setLoading] = useState(false);
   const handleChange = useImmutableCallback(onChange);
+  const apiKeyInputId = useUniqueId("apiKey");
 
   const regenerateApiKey = useCallback(() => {
     const doRegenerate = () => {
@@ -45,7 +47,7 @@ export default function ApiKeyForm(props) {
       <Form layout="vertical">
         <hr />
         <Form.Item label="API Key" className="m-b-10">
-          <InputWithCopy id="apiKey" className="hide-in-percy" value={user.apiKey} data-test="ApiKey" readOnly />
+          <InputWithCopy id={apiKeyInputId} className="hide-in-percy" value={user.apiKey} data-test="ApiKey" readOnly />
         </Form.Item>
         <Button className="w-100" onClick={regenerateApiKey} loading={loading} data-test="RegenerateApiKey">
           Regenerate

@@ -213,3 +213,29 @@ class TestGlueSchema(TestCase):
             assert query_runner.get_schema() == [
                 {"columns": ["region"], "name": "test1.csv"}
             ]
+
+    def test_no_storage_descriptor_table(self):
+        """
+        For some reason, not all Glue tables contain a "StorageDescriptor" entry.
+        """
+        query_runner = Athena({'glue': True, 'region': 'mars-east-1'})
+
+        self.stubber.add_response('get_databases', {'DatabaseList': [{'Name': 'test1'}]}, {})
+        self.stubber.add_response(
+            'get_tables',
+            {
+                'TableList': [
+                    {
+                        'Name': 'no_storage_descriptor_table',
+                        'PartitionKeys': [],
+                        'TableType': 'EXTERNAL_TABLE',
+                        'Parameters': {
+                            'EXTERNAL': 'TRUE'
+                        },
+                    }
+                ]
+            },
+            {'DatabaseName': 'test1'},
+        )
+        with self.stubber:
+            assert query_runner.get_schema() == []

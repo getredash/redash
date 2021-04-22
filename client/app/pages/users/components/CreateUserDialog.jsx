@@ -6,6 +6,7 @@ import Alert from "antd/lib/alert";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import recordEvent from "@/services/recordEvent";
+import { useUniqueId } from "@/lib/hooks/useUniqueId";
 
 const formFields = [
   { required: true, name: "name", title: "Name", type: "text", autoFocus: true },
@@ -19,6 +20,7 @@ function CreateUserDialog({ dialog }) {
   }, []);
 
   const handleSubmit = useCallback(values => dialog.close(values).catch(setError), [dialog]);
+  const formId = useUniqueId("userForm");
 
   return (
     <Modal
@@ -33,7 +35,7 @@ function CreateUserDialog({ dialog }) {
           {...dialog.props.okButtonProps}
           htmlType="submit"
           type="primary"
-          form="userForm"
+          form={formId}
           data-test="SaveUserButton">
           Create
         </Button>,
@@ -41,7 +43,7 @@ function CreateUserDialog({ dialog }) {
       wrapProps={{
         "data-test": "CreateUserDialog",
       }}>
-      <DynamicForm id="userForm" fields={formFields} onSubmit={handleSubmit} hideSubmitButton />
+      <DynamicForm id={formId} fields={formFields} onSubmit={handleSubmit} hideSubmitButton />
       {error && <Alert message={error.message} type="error" showIcon data-test="CreateUserErrorAlert" />}
     </Modal>
   );
