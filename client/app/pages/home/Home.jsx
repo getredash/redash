@@ -7,6 +7,7 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import EmptyState, { EmptyStateHelpMessage } from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
 import BeaconConsent from "@/components/BeaconConsent";
+import PlainButton from "@/components/PlainButton";
 
 import { axios } from "@/services/axios";
 import recordEvent from "@/services/recordEvent";
@@ -55,9 +56,9 @@ function EmailNotVerifiedAlert() {
         <>
           We have sent an email with a confirmation link to your email address. Please follow the link to verify your
           email address.{" "}
-          <a className="clickable" onClick={verifyEmail}>
+          <PlainButton type="link" onClick={verifyEmail}>
             Resend email
-          </a>
+          </PlainButton>
           .
         </>
       }

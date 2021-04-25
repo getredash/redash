@@ -32,8 +32,8 @@ function showRestoreSessionPrompt(loginUrl, onSuccess) {
     content: "Your session has expired. Please login to continue.",
     okText: (
       <React.Fragment>
-        <i className="fa fa-external-link m-r-5" />
-        Login
+        Login <i className="fa fa-external-link m-r-5" aria-hidden="true" />
+        <span className="sr-only">(opens in a new tab)</span>
       </React.Fragment>
     ),
     centered: true,

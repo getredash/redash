@@ -5,9 +5,9 @@ import Typography from "antd/lib/typography";
 import "./Switch.less";
 
 type OwnProps = {
-    id?: string;
-    disabled?: boolean;
-    children?: React.ReactNode;
+  id?: string;
+  disabled?: boolean;
+  children?: React.ReactNode;
 };
 
 type Props = OwnProps & typeof Switch.defaultProps;

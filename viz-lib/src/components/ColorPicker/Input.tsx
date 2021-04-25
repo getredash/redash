@@ -33,13 +33,15 @@ function validateColor(value: any, callback: any, prefix = "#") {
 }
 
 type OwnProps = {
-    color?: string;
-    presetColors?: string[] | {
+  color?: string;
+  presetColors?:
+    | string[]
+    | {
         [key: string]: string;
-    };
-    presetColumns?: number;
-    onChange?: (...args: any[]) => any;
-    onPressEnter?: (...args: any[]) => any;
+      };
+  presetColumns?: number;
+  onChange?: (...args: any[]) => any;
+  onPressEnter?: (...args: any[]) => any;
 };
 
 type Props = OwnProps & typeof Input.defaultProps;

@@ -4,8 +4,8 @@ import cx from "classnames";
 import "./Section.less";
 
 type OwnSectionTitleProps = {
-    className?: string;
-    children?: React.ReactNode;
+  className?: string;
+  children?: React.ReactNode;
 };
 
 type SectionTitleProps = OwnSectionTitleProps & typeof SectionTitle.defaultProps;
@@ -29,8 +29,8 @@ SectionTitle.defaultProps = {
 };
 
 type OwnSectionProps = {
-    className?: string;
-    children?: React.ReactNode;
+  className?: string;
+  children?: React.ReactNode;
 };
 
 type SectionProps = OwnSectionProps & typeof Section.defaultProps;

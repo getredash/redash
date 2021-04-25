@@ -6,7 +6,7 @@ import { QuerySourceTypeIcon } from "@/pages/queries/components/QuerySourceTypeI
 export function QuerySourceDropdownItem({ dataSource, children }) {
   return (
     <React.Fragment>
-      <QuerySourceTypeIcon type={dataSource.type} alt={dataSource.name} />
+      <QuerySourceTypeIcon type={dataSource.type} aria-label={dataSource.name} title={dataSource.name} />
       {children ? children : <span>{dataSource.name}</span>}
     </React.Fragment>
   );

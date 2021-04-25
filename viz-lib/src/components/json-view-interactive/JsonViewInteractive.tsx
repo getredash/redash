@@ -6,13 +6,7 @@ import cx from "classnames";
 
 import "./json-view-interactive.less";
 
-function JsonBlock({
-  value,
-  children,
-  openingBrace,
-  closingBrace,
-  withKeys
-}: any) {
+function JsonBlock({ value, children, openingBrace, closingBrace, withKeys }: any) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const objectKeys = keys(value);
@@ -61,10 +55,7 @@ function JsonBlock({
   );
 }
 
-function JsonValue({
-  value,
-  children
-}: any) {
+function JsonValue({ value, children }: any) {
   if (value === null || value === false || value === true || isFinite(value)) {
     return (
       <span className="jvi-value jvi-primitive">
@@ -101,7 +92,7 @@ function JsonValue({
 }
 
 type OwnJsonViewInteractiveProps = {
-    value?: any;
+  value?: any;
 };
 
 type JsonViewInteractiveProps = OwnJsonViewInteractiveProps & typeof JsonViewInteractive.defaultProps;

@@ -16,39 +16,39 @@ import tableVisualization from "./table";
 import wordCloudVisualization from "./word-cloud";
 
 type VisualizationConfig = {
-    type: string;
-    name: string;
-    getOptions: (...args: any[]) => any;
-    isDefault?: boolean;
-    isDeprecated?: boolean;
-    Renderer: (...args: any[]) => any;
-    Editor?: (...args: any[]) => any;
-    autoHeight?: boolean;
-    defaultRows?: number;
-    defaultColumns?: number;
-    minRows?: number;
-    maxRows?: number;
-    minColumns?: number;
-    maxColumns?: number;
+  type: string;
+  name: string;
+  getOptions: (...args: any[]) => any;
+  isDefault?: boolean;
+  isDeprecated?: boolean;
+  Renderer: (...args: any[]) => any;
+  Editor?: (...args: any[]) => any;
+  autoHeight?: boolean;
+  defaultRows?: number;
+  defaultColumns?: number;
+  minRows?: number;
+  maxRows?: number;
+  minColumns?: number;
+  maxColumns?: number;
 };
 
 // @ts-expect-error ts-migrate(2322) FIXME: Type 'Requireable<InferProps<{ type: Validator<str... Remove this comment to see the full error message
 const VisualizationConfig: PropTypes.Requireable<VisualizationConfig> = PropTypes.shape({
-    type: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    getOptions: PropTypes.func.isRequired,
-    isDefault: PropTypes.bool,
-    isDeprecated: PropTypes.bool,
-    Renderer: PropTypes.func.isRequired,
-    Editor: PropTypes.func,
-    // other config options
-    autoHeight: PropTypes.bool,
-    defaultRows: PropTypes.number,
-    defaultColumns: PropTypes.number,
-    minRows: PropTypes.number,
-    maxRows: PropTypes.number,
-    minColumns: PropTypes.number,
-    maxColumns: PropTypes.number,
+  type: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  getOptions: PropTypes.func.isRequired,
+  isDefault: PropTypes.bool,
+  isDeprecated: PropTypes.bool,
+  Renderer: PropTypes.func.isRequired,
+  Editor: PropTypes.func,
+  // other config options
+  autoHeight: PropTypes.bool,
+  defaultRows: PropTypes.number,
+  defaultColumns: PropTypes.number,
+  minRows: PropTypes.number,
+  maxRows: PropTypes.number,
+  minColumns: PropTypes.number,
+  maxColumns: PropTypes.number,
 });
 
 const registeredVisualizations = {};

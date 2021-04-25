@@ -23,11 +23,7 @@ function getCounterScale(container: any) {
   return Number(isFinite(scale) ? scale : 1).toFixed(2); // keep only two decimal places
 }
 
-export default function Renderer({
-  data,
-  options,
-  visualizationName
-}: any) {
+export default function Renderer({ data, options, visualizationName }: any) {
   const [scale, setScale] = useState("1.00");
   const [container, setContainer] = useState(null);
 

@@ -14,8 +14,9 @@ class TestRefreshQuery(BaseTestCase):
         """
         query1 = self.factory.create_query(options={"apply_auto_limit": True})
         query2 = self.factory.create_query(
-            query_text="select 42;", data_source=self.factory.create_data_source(),
-            options={"apply_auto_limit": True}
+            query_text="select 42;",
+            data_source=self.factory.create_data_source(),
+            options={"apply_auto_limit": True},
         )
         oq = staticmethod(lambda: [query1, query2])
         with patch(ENQUEUE_QUERY) as add_job_mock, patch.object(
@@ -30,14 +31,14 @@ class TestRefreshQuery(BaseTestCase):
                         query1.data_source,
                         query1.user_id,
                         scheduled_query=query1,
-                        metadata=ANY,
+                        metadata={"query_id": query1.id, "Username": "Scheduled"},
                     ),
                     call(
                         "select 42 LIMIT 1000",
                         query2.data_source,
                         query2.user_id,
                         scheduled_query=query2,
-                        metadata=ANY,
+                        metadata={"query_id": query2.id, "Username": "Scheduled"},
                     ),
                 ],
                 any_order=True,
@@ -51,7 +52,9 @@ class TestRefreshQuery(BaseTestCase):
         ds = self.factory.create_data_source(
             group=self.factory.org.default_group, type="prometheus"
         )
-        query1 = self.factory.create_query(data_source=ds, options={"apply_auto_limit": True})
+        query1 = self.factory.create_query(
+            data_source=ds, options={"apply_auto_limit": True}
+        )
         query2 = self.factory.create_query(
             query_text="select 42;", data_source=ds, options={"apply_auto_limit": True}
         )
@@ -68,14 +71,14 @@ class TestRefreshQuery(BaseTestCase):
                         query1.data_source,
                         query1.user_id,
                         scheduled_query=query1,
-                        metadata=ANY,
-                        ),
+                        metadata={"query_id": query1.id, "Username": "Scheduled"},
+                    ),
                     call(
                         query2.query_text,
                         query2.data_source,
                         query2.user_id,
                         scheduled_query=query2,
-                        metadata=ANY,
+                        metadata={"query_id": query2.id, "Username": "Scheduled"},
                     ),
                 ],
                 any_order=True,
@@ -106,7 +109,9 @@ class TestRefreshQuery(BaseTestCase):
                     metadata=ANY,
                 )
 
-    def test_doesnt_enqueue_outdated_queries_for_paused_data_source_for_non_sqlquery(self):
+    def test_doesnt_enqueue_outdated_queries_for_paused_data_source_for_non_sqlquery(
+        self,
+    ):
         """
         refresh_queries() does not launch execution tasks for queries whose
         data source is paused.
@@ -114,7 +119,9 @@ class TestRefreshQuery(BaseTestCase):
         ds = self.factory.create_data_source(
             group=self.factory.org.default_group, type="prometheus"
         )
-        query = self.factory.create_query(data_source=ds, options={"apply_auto_limit": True})
+        query = self.factory.create_query(
+            data_source=ds, options={"apply_auto_limit": True}
+        )
         oq = staticmethod(lambda: [query])
         query.data_source.pause()
         with patch.object(Query, "outdated_queries", oq):
@@ -132,7 +139,7 @@ class TestRefreshQuery(BaseTestCase):
                     query.user_id,
                     scheduled_query=query,
                     metadata=ANY,
-                    )
+                )
 
     def test_enqueues_parameterized_queries_for_sqlquery(self):
         """
@@ -150,7 +157,7 @@ class TestRefreshQuery(BaseTestCase):
                         "title": "n",
                     }
                 ],
-                "apply_auto_limit": True
+                "apply_auto_limit": True,
             },
         )
         oq = staticmethod(lambda: [query])
@@ -185,8 +192,7 @@ class TestRefreshQuery(BaseTestCase):
                         "title": "n",
                     }
                 ],
-                "apply_auto_limit": True
-
+                "apply_auto_limit": True,
             },
             data_source=ds,
         )
@@ -219,7 +225,7 @@ class TestRefreshQuery(BaseTestCase):
                         "title": "n",
                     }
                 ],
-                "apply_auto_limit": True
+                "apply_auto_limit": True,
             },
         )
         oq = staticmethod(lambda: [query])
@@ -230,7 +236,7 @@ class TestRefreshQuery(BaseTestCase):
             add_job_mock.assert_not_called()
 
     def test_doesnt_enqueue_parameterized_queries_with_dropdown_queries_that_are_detached_from_data_source(
-        self
+        self,
     ):
         """
         Scheduled queries with a dropdown parameter which points to a query that is detached from its data source are skipped.
@@ -247,7 +253,7 @@ class TestRefreshQuery(BaseTestCase):
                         "title": "n",
                     }
                 ],
-                "apply_auto_limit": True
+                "apply_auto_limit": True,
             },
         )
 

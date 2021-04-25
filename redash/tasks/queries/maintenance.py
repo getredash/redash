@@ -78,7 +78,9 @@ class RefreshQueriesError(Exception):
 
 def _apply_auto_limit(query_text, query):
     should_apply_auto_limit = query.options.get("apply_auto_limit", False)
-    return query.data_source.query_runner.apply_auto_limit(query_text, should_apply_auto_limit)
+    return query.data_source.query_runner.apply_auto_limit(
+        query_text, should_apply_auto_limit
+    )
 
 
 def refresh_queries():
@@ -96,7 +98,7 @@ def refresh_queries():
                 query.data_source,
                 query.user_id,
                 scheduled_query=query,
-                metadata={"Query ID": query.id, "Username": "Scheduled"},
+                metadata={"query_id": query.id, "Username": "Scheduled"},
             )
             enqueued.append(query)
         except Exception as e:

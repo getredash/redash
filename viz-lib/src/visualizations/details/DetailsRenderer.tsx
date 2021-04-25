@@ -24,9 +24,7 @@ function renderValue(value: any, type: any) {
   return "" + value;
 }
 
-export default function DetailsRenderer({
-  data
-}: any) {
+export default function DetailsRenderer({ data }: any) {
   const [page, setPage] = useState(0);
 
   if (!data || !data.rows || data.rows.length === 0) {

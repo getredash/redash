@@ -5,11 +5,13 @@ import { validateColor, getColorName } from "./utils";
 import "./label.less";
 
 type OwnProps = {
-    className?: string;
-    color?: string;
-    presetColors?: string[] | {
+  className?: string;
+  color?: string;
+  presetColors?:
+    | string[]
+    | {
         [key: string]: string;
-    };
+      };
 };
 
 type Props = OwnProps & typeof Label.defaultProps;
