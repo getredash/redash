@@ -304,6 +304,7 @@ ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get(
 RATELIMIT_ENABLED = parse_boolean(os.environ.get("REDASH_RATELIMIT_ENABLED", "true"))
 THROTTLE_LOGIN_PATTERN = os.environ.get("REDASH_THROTTLE_LOGIN_PATTERN", "50/hour")
 LIMITER_STORAGE = os.environ.get("REDASH_LIMITER_STORAGE", REDIS_URL)
+THROTTLE_PASS_RESET_PATTERN = os.environ.get("REDASH_THROTTLE_PASS_RESET_PATTERN", "10/hour")
 
 # CORS settings for the Query Result API (and possibly future external APIs).
 # In most cases all you need to do is set REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
