@@ -1,6 +1,7 @@
 import React from "react";
 import Button, { ButtonProps as AntdButtonProps } from "antd/lib/button";
 import { ExternalIconText, IconTextProps } from "./IconText";
+import { isLocalURL } from "@/lib/urlUtils";
 
 function DefaultLinkComponent({ children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   return <a {...props}>{children}</a>;
@@ -10,17 +11,30 @@ Link.Component = DefaultLinkComponent;
 
 interface LinkProps extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "role" | "type"> {
   href: string;
-  target?: never; // use external link
-}
-function Link({ children, ...props }: LinkProps) {
-  return <Link.Component {...props}>{children}</Link.Component>;
+  target?: never;
 }
 
-function ExternalLink(props: LinkProps & Partial<IconTextProps>) {
+type ExternalLinkProps = LinkProps & { children: React.ReactText };
+
+function ExternalLink(props: ExternalLinkProps) {
   return <ExternalIconText wrapper={Link.Component} target="_blank" rel="noopener noreferrer" {...props} />;
 }
+function Link(props: LinkProps) {
+  const areChildrenText = typeof props.children === "object";
+  const isURLExternal = !isLocalURL(props.href);
 
-Link.External = ExternalLink;
+  if (isURLExternal && !areChildrenText) {
+    console.warn(
+      "External link was rendered as regular link. Please provide `ReactText` as children to render as external."
+    );
+  }
+
+  return isURLExternal && areChildrenText ? (
+    <ExternalLink {...(props as ExternalLinkProps)} />
+  ) : (
+    <Link.Component {...props} />
+  );
+}
 
 // Ant Button will render an <a> if href is present.
 function DefaultButtonLinkComponent(props: ButtonProps) {
