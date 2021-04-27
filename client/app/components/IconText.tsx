@@ -11,17 +11,15 @@ export function IconText<WrapperProps>({
   icon,
   alt,
   children,
-  wrapper = "span",
+  wrapper: Wrapper = "span",
   ...props
 }: IconTextProps<WrapperProps>) {
-  return React.createElement(
-    wrapper,
-    props as WrapperProps,
-    <>
+  return (
+    <Wrapper {...(props as WrapperProps)}>
       {children}
       {children && " "}
       {icon} <span className="sr-only">{alt}</span>
-    </>
+    </Wrapper>
   );
 }
 
