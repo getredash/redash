@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import Tooltip from "@/components/Tooltip";
 import Drawer from "antd/lib/drawer";
-import Link from "@/components/Link";
+import Link, { ExternalIconLink } from "@/components/Link";
 import PlainButton from "@/components/PlainButton";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import BigMessage from "@/components/BigMessage";
@@ -197,7 +197,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
               <div className="drawer-menu">
                 {url && (
                   <Tooltip title="Open page in a new window" placement="left">
-                    <Link.External href={url} />
+                    <ExternalIconLink href={url} />
                   </Tooltip>
                 )}
                 <Tooltip title="Close" placement="bottom">
