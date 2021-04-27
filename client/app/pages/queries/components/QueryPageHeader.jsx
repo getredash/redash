@@ -10,7 +10,7 @@ import Link from "@/components/Link";
 import EditInPlace from "@/components/EditInPlace";
 import FavoritesControl from "@/components/FavoritesControl";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
-import { WithExternalIcon } from "@/components/WithIcon";
+import { ExternalIconText } from "@/components/IconText";
 import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
 import useQueryFlags from "../hooks/useQueryFlags";
@@ -89,7 +89,7 @@ export default function QueryPageHeader({
         {
           fork: {
             isEnabled: !queryFlags.isNew && queryFlags.canFork && !isDuplicating,
-            title: <WithExternalIcon>Fork</WithExternalIcon>,
+            title: <ExternalIconText>Fork</ExternalIconText>,
             onClick: duplicateQuery,
           },
         },

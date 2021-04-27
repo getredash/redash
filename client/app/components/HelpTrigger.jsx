@@ -9,7 +9,7 @@ import PlainButton from "@/components/PlainButton";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import BigMessage from "@/components/BigMessage";
 import DynamicComponent, { registerComponent } from "@/components/DynamicComponent";
-import { WithExternalIcon } from "@/components/WithIcon";
+import { ExternalIconText } from "@/components/IconText";
 
 import "./HelpTrigger.less";
 
@@ -172,7 +172,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
               this.props.showTooltip ? (
                 <>
                   {tooltip}
-                  {shouldRenderAsLink && <WithExternalIcon style={{ marginLeft: 5 }} />}
+                  {shouldRenderAsLink && <ExternalIconText style={{ marginLeft: 5 }} />}
                 </>
               ) : null
             }>

@@ -17,7 +17,7 @@ import Timer from "@/components/Timer";
 import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
 import VisualizationName from "@/components/visualizations/VisualizationName";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
-import { WithExternalIcon } from "@/components/WithIcon";
+import { ExternalIconText } from "@/components/IconText";
 
 import FileOutlinedIcon from "@ant-design/icons/FileOutlined";
 import FileExcelOutlinedIcon from "@ant-design/icons/FileExcelOutlined";
@@ -121,7 +121,7 @@ function VisualizationEmbedFooter({
         <span className="hidden-print">
           <Tooltip title="Open in Redash">
             <Link.Button className="icon-button" href={queryUrl} target="_blank">
-              <WithExternalIcon alt="Open in Redash" />
+              <ExternalIconText alt="Open in Redash" />
             </Link.Button>
           </Tooltip>
           {!query.hasParameters() && (

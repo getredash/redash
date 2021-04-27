@@ -1,6 +1,6 @@
 import React from "react";
 import Button, { ButtonProps as AntdButtonProps } from "antd/lib/button";
-import { withIcon, WithIconProps } from "./WithIcon";
+import { ExternalIconText, IconTextProps } from "./IconText";
 
 function DefaultLinkComponent({ children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   return <a {...props}>{children}</a>;
@@ -16,14 +16,8 @@ function Link({ children, ...props }: LinkProps) {
   return <Link.Component {...props}>{children}</Link.Component>;
 }
 
-function ExternalLink({
-  icon = <i className="fa fa-external-link" aria-hidden="true" />,
-  alt = "(opens in a new tab)",
-  ...props
-}: LinkProps & Partial<WithIconProps>) {
-  const WithIcon = withIcon(Link as typeof Link.Component);
-
-  return <WithIcon target="_blank" rel="noopener noreferrer" icon={icon} alt={alt} {...props} />;
+function ExternalLink(props: LinkProps & Partial<IconTextProps>) {
+  return <ExternalIconText wrapper={Link.Component} target="_blank" rel="noopener noreferrer" {...props} />;
 }
 
 Link.External = ExternalLink;

@@ -1,7 +1,7 @@
 import { map } from "lodash";
 import React from "react";
 import Modal from "antd/lib/modal";
-import { WithExternalIcon } from "@/components/WithIcon";
+import { ExternalIconText } from "@/components/IconText";
 import { Auth } from "@/services/auth";
 
 const SESSION_RESTORED_MESSAGE = "redash_session_restored";
@@ -31,7 +31,7 @@ function showRestoreSessionPrompt(loginUrl, onSuccess) {
 
   Modal.warning({
     content: "Your session has expired. Please login to continue.",
-    okText: <WithExternalIcon alt="(go to page)">Login</WithExternalIcon>,
+    okText: <ExternalIconText alt="(go to page)">Login</ExternalIconText>,
     centered: true,
     mask: true,
     maskClosable: false,
