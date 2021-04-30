@@ -66,8 +66,12 @@ class Mysql(BaseSQLQueryRunner):
                 "passwd": {"type": "string", "title": "Password"},
                 "db": {"type": "string", "title": "Database name"},
                 "port": {"type": "number", "default": 3306},
+                "initial_query": {
+                    "type": "string",
+                    "title": "Initial sql query"
+                }
             },
-            "order": ["host", "port", "user", "passwd", "db"],
+            "order": ["host", "port", "user", "passwd", "db", "initial_query"],
             "required": ["db"],
             "secret": ["passwd"],
         }
@@ -120,7 +124,24 @@ class Mysql(BaseSQLQueryRunner):
 
         connection = MySQLdb.connect(**params)
 
+        self._run_initial_query(connection)
+
         return connection
+
+    def _run_initial_query(self, connection):
+        """Executes an optional initial query to e.g. change the transaction isolation level."""
+
+        initial_query = self.configuration.get('initial_query', '')
+
+        if initial_query:
+            cursor = connection.cursor()
+            try:
+                cursor.execute(initial_query)
+            except MySQLdb.Error as e:
+                raise Exception("Could not execute initial query: " + e.args[1])
+            finally:
+                if cursor:
+                    cursor.close()
 
     def _get_tables(self, schema):
         query = """
