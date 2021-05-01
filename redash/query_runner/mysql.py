@@ -67,7 +67,7 @@ class Mysql(BaseSQLQueryRunner):
                 "db": {"type": "string", "title": "Database name"},
                 "port": {"type": "number", "default": 3306},
                 "initial_query": {
-                    "type": "string",
+                    "type": "textarea",
                     "title": "Initial sql query"
                 }
             },
