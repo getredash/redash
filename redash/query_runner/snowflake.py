@@ -73,7 +73,11 @@ class Snowflake(BaseQueryRunner):
         if self.configuration.__contains__("host"):
             host = self.configuration.get("host")
         else:
-            host = "{}.{}.snowflakecomputing.com".format(account, region)
+            if region:
+                host = "{}.{}.snowflakecomputing.com".format(account, region)
+            else:
+                host = "{}.snowflakecomputing.com".format(account, region)
+
 
         connection = snowflake.connector.connect(
             user = self.configuration["user"],
