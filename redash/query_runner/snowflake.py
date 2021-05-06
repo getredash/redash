@@ -39,16 +39,19 @@ class Snowflake(BaseQueryRunner):
             "type": "object",
             "properties": {
                 "account": {"type": "string"},
+                "region": {"type": "string", "default": "us-west"},
                 "user": {"type": "string"},
                 "password": {"type": "string"},
                 "warehouse": {"type": "string"},
                 "database": {"type": "string"},
-                "region": {"type": "string", "default": "us-west"},
                 "host": {"type": "string"},
             },
-            "order": ["account", "user", "password", "warehouse", "database", "region", "host"],
+            "order": ["account", "region", "user", "password", "warehouse", "database", "host"],
             "required": ["user", "password", "account", "database", "warehouse"],
             "secret": ["password"],
+            "extra_options": [
+                "host",
+            ],
         }
 
     @classmethod
@@ -76,7 +79,7 @@ class Snowflake(BaseQueryRunner):
             if region:
                 host = "{}.{}.snowflakecomputing.com".format(account, region)
             else:
-                host = "{}.snowflakecomputing.com".format(account, region)
+                host = "{}.snowflakecomputing.com".format(account)
 
 
         connection = snowflake.connector.connect(
