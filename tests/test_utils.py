@@ -8,7 +8,7 @@ from redash.utils import (
     filter_none,
     json_dumps,
     generate_token,
-    reder_template,
+    render_template,
 )
 
 
