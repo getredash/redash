@@ -88,7 +88,7 @@ def enqueue_query(
                         "data_source_id": data_source.id,
                         "org_id": data_source.org_id,
                         "scheduled": scheduled_query_id is not None,
-                        "query_id": metadata.get("Query ID"),
+                        "query_id": metadata.get("query_id"),
                         "user_id": user_id,
                     },
                 }
@@ -151,7 +151,7 @@ class QueryExecutor(object):
         self.data_source_id = data_source_id
         self.metadata = metadata
         self.data_source = self._load_data_source()
-        self.user = _resolve_user(user_id, is_api_key, metadata.get("Query ID"))
+        self.user = _resolve_user(user_id, is_api_key, metadata.get("query_id"))
 
         # Close DB connection to prevent holding a connection for a long time while the query is executing.
         models.db.session.close()
@@ -250,7 +250,7 @@ class QueryExecutor(object):
             self.data_source.id,
             self.job.id,
             self.metadata.get("Queue", "unknown"),
-            self.metadata.get("Query ID", "unknown"),
+            self.metadata.get("query_id", "unknown"),
             self.metadata.get("Username", "unknown"),
         )
 

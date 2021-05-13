@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 import sys
 import time
 from base64 import b64decode
@@ -13,15 +14,18 @@ from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
+
 try:
-    import apiclient.errors
-    from apiclient.discovery import build
-    from apiclient.errors import HttpError
+
+    from googleapiclient.discovery import build
+    from googleapiclient.errors import HttpError
     from oauth2client.service_account import ServiceAccountCredentials
 
     enabled = True
 except ImportError:
     enabled = False
+
+BIGQUERY_SCHEMA_PROJECT_ID = os.environ.get('BIGQUERY_SCHEMA_PROJECT_ID', None)
 
 types_map = {
     "INTEGER": TYPE_INTEGER,
@@ -252,12 +256,16 @@ class BigQuery(BaseQueryRunner):
         return {"name": table_name, "columns": columns}
 
     def _get_columns_schema_column(self, column):
+        logger.info(column)
         columns = []
         if column["type"] == "RECORD":
             for field in column["fields"]:
-                columns.append("{}.{}".format(column["name"], field["name"]))
+                columns.append("{}.{}".format(column["name"], field["name"] + " (" + field["type"] + ")"))
         else:
-            columns.append(column["name"])
+            c = column["name"] + " (" + column["type"] + ")"
+            if column.get("policyTags", None):
+                c = c + " <PII>"
+            columns.append(c)
 
         return columns
 
@@ -266,7 +274,7 @@ class BigQuery(BaseQueryRunner):
             return []
 
         service = self._get_bigquery_service()
-        project_id = self._get_project_id()
+        project_id = BIGQUERY_SCHEMA_PROJECT_ID if BIGQUERY_SCHEMA_PROJECT_ID else self._get_project_id()
         datasets = service.datasets().list(projectId=project_id).execute()
         schema = []
         for dataset in datasets.get("datasets", []):
@@ -301,7 +309,7 @@ class BigQuery(BaseQueryRunner):
                     )
                     .execute()
                 )
-
+        logger.info(schema)
         return schema
 
     def run_query(self, query, user):
@@ -327,7 +335,8 @@ class BigQuery(BaseQueryRunner):
             error = None
 
             json_data = json_dumps(data, ignore_nan=True)
-        except apiclient.errors.HttpError as e:
+        except HttpError as e:
+            logger.debug(e)
             json_data = None
             if e.resp.status == 400:
                 error = json_loads(e.content)["error"]["message"]
@@ -344,6 +353,5 @@ class BigQuery(BaseQueryRunner):
             raise
 
         return json_data, error
-
 
 register(BigQuery)
