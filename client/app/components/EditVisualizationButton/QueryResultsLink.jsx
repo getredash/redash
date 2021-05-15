@@ -19,7 +19,7 @@ export default function QueryResultsLink(props) {
   }
 
   function onClick() {
-    recordEvent("view", "query_result", resultId, {file_type: fileType});
+    recordEvent("view", "query_result", resultId, { file_type: fileType });
   }
 
   return (
