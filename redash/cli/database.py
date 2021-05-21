@@ -33,8 +33,9 @@ def _wait_for_db_connection(db):
 def is_db_empty():
     from redash.models import db
 
-    table_names = sqlalchemy.inspect(db.get_engine()).get_table_names()
-    return len(table_names) == 0
+    extant_tables = set(sqlalchemy.inspect(db.get_engine()).get_table_names())
+    redash_tables = set(db.metadata.tables)
+    return len(redash_tables.intersection(extant_tables)) == 0
 
 
 def load_extensions(db):
@@ -48,11 +49,11 @@ def create_tables():
     """Create the database tables."""
     from redash.models import db
 
-    _wait_for_db_connection(db)
-
-    # We need to make sure we run this only if the DB is empty, because otherwise calling
-    # stamp() will stamp it with the latest migration value and migrations won't run.
     if is_db_empty():
+        _wait_for_db_connection(db)
+
+        # We need to make sure we run this only if the DB is empty, because otherwise calling
+        # stamp() will stamp it with the latest migration value and migrations won't run.
         load_extensions(db)
 
         # To create triggers for searchable models, we need to call configure_mappers().
@@ -61,6 +62,8 @@ def create_tables():
 
         # Need to mark current DB as up to date
         stamp()
+    else:
+        print("existing redash tables detected, exiting")
 
 
 @manager.command(name="drop_tables")
