@@ -50,15 +50,15 @@ def create_tables():
 
     # We need to make sure we run this only if the DB is empty, because otherwise calling
     # stamp() will stamp it with the latest migration value and migrations won't run.
-    if is_db_empty():
-        load_extensions(db)
 
-        # To create triggers for searchable models, we need to call configure_mappers().
-        sqlalchemy.orm.configure_mappers()
-        db.create_all()
+    load_extensions(db)
 
-        # Need to mark current DB as up to date
-        stamp()
+    # To create triggers for searchable models, we need to call configure_mappers().
+    sqlalchemy.orm.configure_mappers()
+    db.create_all()
+
+    # Need to mark current DB as up to date
+    stamp()
 
 
 @manager.command()
