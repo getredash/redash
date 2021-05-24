@@ -1,6 +1,8 @@
 import functools
+import os
 
 from flask_sqlalchemy import BaseQuery, SQLAlchemy
+from sqlalchemy import MetaData
 from sqlalchemy.orm import object_session
 from sqlalchemy.pool import NullPool
 from sqlalchemy_searchable import make_searchable, vectorizer, SearchQueryMixin
@@ -26,8 +28,12 @@ class RedashSQLAlchemy(SQLAlchemy):
             # Remove options NullPool does not support:
             options.pop("max_overflow", None)
 
+md = None
+if os.environ.get('REDASH_NAMESPACE'):
+   md = MetaData(schema=os.environ['REDASH_NAMESPACE'])
 
-db = RedashSQLAlchemy(session_options={"expire_on_commit": False})
+db = RedashSQLAlchemy(session_options={"expire_on_commit": False}, metadata=md)
+
 # Make sure the SQLAlchemy mappers are all properly configured first.
 # This is required by SQLAlchemy-Searchable as it adds DDL listeners
 # on the configuration phase of models.
