@@ -50,6 +50,18 @@ def create_tables():
     from redash.models import db
 
     if is_db_empty():
+        if settings.SQLALCHEMY_DATABASE_SCHEMA:
+            from sqlalchemy import DDL
+            from sqlalchemy import event
+
+            event.listen(
+                db.metadata,
+                "before_create",
+                DDL(
+                    f"CREATE SCHEMA IF NOT EXISTS {settings.SQLALCHEMY_DATABASE_SCHEMA}"
+                ),
+            )
+
         _wait_for_db_connection(db)
 
         # We need to make sure we run this only if the DB is empty, because otherwise calling

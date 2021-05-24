@@ -38,6 +38,8 @@ SQLALCHEMY_ENABLE_POOL_PRE_PING = parse_boolean(os.environ.get("SQLALCHEMY_ENABL
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ECHO = False
 
+SQLALCHEMY_DATABASE_SCHEMA = os.environ.get("SQLALCHEMY_DB_SCHEMA", "redash")
+
 RQ_REDIS_URL = os.environ.get("RQ_REDIS_URL", _REDIS_URL)
 
 # The following enables periodic job (every 5 minutes) of removing unused query results.

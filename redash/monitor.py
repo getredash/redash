@@ -5,6 +5,7 @@ from rq.registry import StartedJobRegistry
 
 from redash import __version__, redis_connection, rq_redis_connection, settings
 from redash.models import Dashboard, Query, QueryResult, Widget, db
+from redash.utils import get_schema
 
 
 def get_redis_status():
@@ -31,11 +32,16 @@ def get_queues_status():
 
 
 def get_db_sizes():
+    schema = get_schema()
+    query_results = "query_results"
+    if schema:
+        query_results = ".".join([schema, query_results])
+
     database_metrics = []
     queries = [
         [
             "Query Results Size",
-            "select pg_total_relation_size('query_results') as size from (select 1) as a",
+            f"select pg_total_relation_size('{query_results}') as size from (select 1) as a",
         ],
         ["Redash DB Size", "select pg_database_size(current_database()) as size"],
     ]

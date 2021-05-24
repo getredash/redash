@@ -19,6 +19,7 @@ x-redash-environment: &redash-environment
   REDASH_MAIL_SERVER: "email"
   REDASH_MAIL_PORT: 1025
   REDASH_ENFORCE_CSRF: "true"
+  SQLALCHEMY_DATABASE_SCHEMA: "redash"
   REDASH_GUNICORN_TIMEOUT: 60
   # Set secret keys in the .env file
 services:
