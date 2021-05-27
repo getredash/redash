@@ -1,6 +1,5 @@
 try:
     import snowflake.connector
-
     enabled = True
 except ImportError:
     enabled = False
@@ -40,15 +39,19 @@ class Snowflake(BaseQueryRunner):
             "type": "object",
             "properties": {
                 "account": {"type": "string"},
+                "region": {"type": "string", "default": "us-west"},
                 "user": {"type": "string"},
                 "password": {"type": "string"},
                 "warehouse": {"type": "string"},
                 "database": {"type": "string"},
-                "region": {"type": "string", "default": "us-west"},
+                "host": {"type": "string"},
             },
-            "order": ["account", "user", "password", "warehouse", "database", "region"],
+            "order": ["account", "region", "user", "password", "warehouse", "database", "host"],
             "required": ["user", "password", "account", "database", "warehouse"],
             "secret": ["password"],
+            "extra_options": [
+                "host",
+            ],
         }
 
     @classmethod
@@ -64,16 +67,27 @@ class Snowflake(BaseQueryRunner):
 
     def _get_connection(self):
         region = self.configuration.get("region")
+        account = self.configuration["account"]
 
         # for us-west we don't need to pass a region (and if we do, it fails to connect)
         if region == "us-west":
             region = None
 
+        if self.configuration.__contains__("host"):
+            host = self.configuration.get("host")
+        else:
+            if region:
+                host = "{}.{}.snowflakecomputing.com".format(account, region)
+            else:
+                host = "{}.snowflakecomputing.com".format(account)
+
+
         connection = snowflake.connector.connect(
-            user=self.configuration["user"],
-            password=self.configuration["password"],
-            account=self.configuration["account"],
-            region=region,
+            user = self.configuration["user"],
+            password = self.configuration["password"],
+            account = account,
+            region = region,
+            host = host
         )
 
         return connection

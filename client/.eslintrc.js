@@ -5,10 +5,11 @@ module.exports = {
     "react-app",
     "plugin:compat/recommended",
     "prettier",
+    "plugin:jsx-a11y/recommended",
     // Remove any typescript-eslint rules that would conflict with prettier
     "prettier/@typescript-eslint",
   ],
-  plugins: ["jest", "compat", "no-only-tests", "@typescript-eslint"],
+  plugins: ["jest", "compat", "no-only-tests", "@typescript-eslint", "jsx-a11y"],
   settings: {
     "import/resolver": "webpack",
   },
@@ -19,7 +20,19 @@ module.exports = {
   rules: {
     // allow debugger during development
     "no-debugger": process.env.NODE_ENV === "production" ? 2 : 0,
-    "jsx-a11y/anchor-is-valid": "off",
+    "jsx-a11y/anchor-is-valid": [
+      // TMP
+      "off",
+      {
+        components: ["Link"],
+        aspects: ["noHref", "invalidHref", "preferButton"],
+      },
+    ],
+    "jsx-a11y/no-redundant-roles": "error",
+    "jsx-a11y/no-autofocus": "off",
+    "jsx-a11y/click-events-have-key-events": "off", // TMP
+    "jsx-a11y/no-static-element-interactions": "off", // TMP
+    "jsx-a11y/no-noninteractive-element-interactions": "off", // TMP
     "no-console": ["warn", { allow: ["warn", "error"] }],
     "no-restricted-imports": [
       "error",

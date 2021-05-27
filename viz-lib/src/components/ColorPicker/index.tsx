@@ -17,23 +17,48 @@ import { validateColor } from "./utils";
 import "./index.less";
 
 type OwnProps = {
-    color?: string;
-    placement?: "top" | "left" | "right" | "bottom" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
-    presetColors?: string[] | {
+  color?: string;
+  placement?:
+    | "top"
+    | "left"
+    | "right"
+    | "bottom"
+    | "topLeft"
+    | "topRight"
+    | "bottomLeft"
+    | "bottomRight"
+    | "leftTop"
+    | "leftBottom"
+    | "rightTop"
+    | "rightBottom";
+  presetColors?:
+    | string[]
+    | {
         [key: string]: string;
-    };
-    presetColumns?: number;
-    interactive?: boolean;
-    triggerProps?: any;
-    children?: React.ReactNode;
-    addonBefore?: React.ReactNode;
-    addonAfter?: React.ReactNode;
-    onChange?: (...args: any[]) => any;
+      };
+  presetColumns?: number;
+  interactive?: boolean;
+  triggerProps?: any;
+  children?: React.ReactNode;
+  addonBefore?: React.ReactNode;
+  addonAfter?: React.ReactNode;
+  onChange?: (...args: any[]) => any;
 };
 
 type Props = OwnProps & typeof ColorPicker.defaultProps;
 
-export default function ColorPicker({ color, placement, presetColors, presetColumns, interactive, children, onChange, triggerProps, addonBefore, addonAfter, }: Props) {
+export default function ColorPicker({
+  color,
+  placement,
+  presetColors,
+  presetColumns,
+  interactive,
+  children,
+  onChange,
+  triggerProps,
+  addonBefore,
+  addonAfter,
+}: Props) {
   const [visible, setVisible] = useState(false);
   const validatedColor = useMemo(() => validateColor(color), [color]);
   const [currentColor, setCurrentColor] = useState("");

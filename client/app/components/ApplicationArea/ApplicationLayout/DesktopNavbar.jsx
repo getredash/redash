@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { first, includes } from "lodash";
 import Menu from "antd/lib/menu";
 import Link from "@/components/Link";
+import PlainButton from "@/components/PlainButton";
 import HelpTrigger from "@/components/HelpTrigger";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import { useCurrentRoute } from "@/components/ApplicationArea/Router";
@@ -15,8 +16,8 @@ import AlertOutlinedIcon from "@ant-design/icons/AlertOutlined";
 import PlusOutlinedIcon from "@ant-design/icons/PlusOutlined";
 import QuestionCircleOutlinedIcon from "@ant-design/icons/QuestionCircleOutlined";
 import SettingOutlinedIcon from "@ant-design/icons/SettingOutlined";
-
 import VersionInfo from "./VersionInfo";
+
 import "./DesktopNavbar.less";
 
 function NavbarSection({ children, ...props }) {
@@ -71,9 +72,9 @@ export default function DesktopNavbar() {
   const canCreateAlert = currentUser.hasPermission("list_alerts");
 
   return (
-    <div className="desktop-navbar">
+    <nav className="desktop-navbar">
       <NavbarSection className="desktop-navbar-logo">
-        <div>
+        <div role="menuitem">
           <Link href="./">
             <img src={logoUrl} alt="Redash" />
           </Link>
@@ -84,7 +85,7 @@ export default function DesktopNavbar() {
         {currentUser.hasPermission("list_dashboards") && (
           <Menu.Item key="dashboards" className={activeState.dashboards ? "navbar-active-item" : null}>
             <Link href="dashboards">
-              <DesktopOutlinedIcon />
+              <DesktopOutlinedIcon aria-label="Dashboard navigation button" />
               <span className="desktop-navbar-label">Dashboards</span>
             </Link>
           </Menu.Item>
@@ -92,7 +93,7 @@ export default function DesktopNavbar() {
         {currentUser.hasPermission("view_query") && (
           <Menu.Item key="queries" className={activeState.queries ? "navbar-active-item" : null}>
             <Link href="queries">
-              <CodeOutlinedIcon />
+              <CodeOutlinedIcon aria-label="Queries navigation button" />
               <span className="desktop-navbar-label">Queries</span>
             </Link>
           </Menu.Item>
@@ -100,7 +101,7 @@ export default function DesktopNavbar() {
         {currentUser.hasPermission("list_alerts") && (
           <Menu.Item key="alerts" className={activeState.alerts ? "navbar-active-item" : null}>
             <Link href="alerts">
-              <AlertOutlinedIcon />
+              <AlertOutlinedIcon aria-label="Alerts navigation button" />
               <span className="desktop-navbar-label">Alerts</span>
             </Link>
           </Menu.Item>
@@ -113,6 +114,7 @@ export default function DesktopNavbar() {
             key="create"
             popupClassName="desktop-navbar-submenu"
             data-test="CreateButton"
+            tabIndex={0}
             title={
               <React.Fragment>
                 <PlusOutlinedIcon />
@@ -128,9 +130,9 @@ export default function DesktopNavbar() {
             )}
             {canCreateDashboard && (
               <Menu.Item key="new-dashboard">
-                <a data-test="CreateDashboardMenuItem" onMouseUp={() => CreateDashboardDialog.showModal()}>
+                <PlainButton data-test="CreateDashboardMenuItem" onClick={() => CreateDashboardDialog.showModal()}>
                   New Dashboard
-                </a>
+                </PlainButton>
               </Menu.Item>
             )}
             {canCreateAlert && (
@@ -146,7 +148,7 @@ export default function DesktopNavbar() {
 
       <NavbarSection>
         <Menu.Item key="help">
-          <HelpTrigger showTooltip={false} type="HOME">
+          <HelpTrigger showTooltip={false} type="HOME" tabIndex={0}>
             <QuestionCircleOutlinedIcon />
             <span className="desktop-navbar-label">Help</span>
           </HelpTrigger>
@@ -165,6 +167,7 @@ export default function DesktopNavbar() {
         <Menu.SubMenu
           key="profile"
           popupClassName="desktop-navbar-submenu"
+          tabIndex={0}
           title={
             <span data-test="ProfileDropdown" className="desktop-navbar-profile-menu-title">
               <img className="profile__image_thumb" src={currentUser.profile_image_url} alt={currentUser.name} />
@@ -180,16 +183,16 @@ export default function DesktopNavbar() {
           )}
           <Menu.Divider />
           <Menu.Item key="logout">
-            <a data-test="LogOutButton" onClick={() => Auth.logout()}>
+            <PlainButton data-test="LogOutButton" onClick={() => Auth.logout()}>
               Log out
-            </a>
+            </PlainButton>
           </Menu.Item>
           <Menu.Divider />
-          <Menu.Item key="version" disabled className="version-info">
+          <Menu.Item key="version" role="presentation" disabled className="version-info">
             <VersionInfo />
           </Menu.Item>
         </Menu.SubMenu>
       </NavbarSection>
-    </div>
+    </nav>
   );
 }

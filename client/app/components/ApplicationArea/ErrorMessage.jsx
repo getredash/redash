@@ -49,7 +49,7 @@ export default function ErrorMessage({ error, message }) {
     <div className="error-message-container" data-test="ErrorMessage" role="alert">
       <div className="error-state bg-white tiled">
         <div className="error-state__icon">
-          <i className="zmdi zmdi-alert-circle-o" />
+          <i className="zmdi zmdi-alert-circle-o" aria-hidden="true" />
         </div>
         <div className="error-state__details">
           <DynamicComponent

@@ -79,11 +79,7 @@ function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateS
   return result;
 }
 
-export default function SeriesSettings({
-  options,
-  data,
-  onOptionsChange
-}: any) {
+export default function SeriesSettings({ options, data, onOptionsChange }: any) {
   const series = useMemo(
     () =>
       map(

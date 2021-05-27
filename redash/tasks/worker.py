@@ -75,7 +75,7 @@ class HardLimitingWorker(HerokuWorker):
     """
 
     grace_period = 15
-    queue_class = CancellableQueue
+    queue_class = RedashQueue
     job_class = CancellableJob
 
     def stop_executing_job(self, job):

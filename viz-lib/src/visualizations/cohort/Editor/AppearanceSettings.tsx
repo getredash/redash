@@ -3,10 +3,7 @@ import { useDebouncedCallback } from "use-debounce";
 import { Section, Input, Checkbox, ContextHelp } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
-export default function AppearanceSettings({
-  options,
-  onOptionsChange
-}: any) {
+export default function AppearanceSettings({ options, onOptionsChange }: any) {
   const [debouncedOnOptionsChange] = useDebouncedCallback(onOptionsChange, 200);
 
   return (

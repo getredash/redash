@@ -6,10 +6,7 @@ import "./renderer.less";
 
 import Cornelius from "./Cornelius";
 
-export default function Renderer({
-  data,
-  options
-}: any) {
+export default function Renderer({ data, options }: any) {
   const { data: cohortData, initialDate } = useMemo(() => prepareData(data, options), [data, options]);
 
   const corneliusOptions = useMemo(

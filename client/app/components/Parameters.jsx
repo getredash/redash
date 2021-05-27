@@ -6,6 +6,7 @@ import location from "@/services/location";
 import { Parameter, createParameter } from "@/services/parameters";
 import ParameterApplyButton from "@/components/ParameterApplyButton";
 import ParameterValueInput from "@/components/ParameterValueInput";
+import PlainButton from "@/components/PlainButton";
 import EditParameterSettingsDialog from "./EditParameterSettingsDialog";
 import { toHuman } from "@/lib/utils";
 
@@ -127,13 +128,14 @@ export default class Parameters extends React.Component {
         <div className="parameter-heading">
           <label>{param.title || toHuman(param.name)}</label>
           {editable && (
-            <button
+            <PlainButton
               className="btn btn-default btn-xs m-l-5"
+              aria-label="Edit"
               onClick={() => this.showParameterSettings(param, index)}
               data-test={`ParameterSettings-${param.name}`}
               type="button">
-              <i className="fa fa-cog" />
-            </button>
+              <i className="fa fa-cog" aria-hidden="true" />
+            </PlainButton>
           )}
         </div>
         <ParameterValueInput

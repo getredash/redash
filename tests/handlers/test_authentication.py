@@ -120,6 +120,16 @@ class TestLogin(BaseTestCase):
         response = self.get_request("/login", org=self.factory.org)
         self.assertEqual(response.status_code, 429)
 
+    def test_throttle_password_reset(self):
+        limiter.enabled = True
+        # Extract the limit from settings (ex: '10/hour')
+        limit = settings.THROTTLE_PASS_RESET_PATTERN.split("/")[0]
+        for _ in range(0, int(limit)):
+            self.get_request("/forgot", org=self.factory.org)
+
+        response = self.get_request("/forgot", org=self.factory.org)
+        self.assertEqual(response.status_code, 429)
+
 
 class TestSession(BaseTestCase):
     # really simple test just to trigger this route

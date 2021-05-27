@@ -7,11 +7,7 @@ function getColumns(column: any, unusedColumns: any) {
   return filter([column, ...unusedColumns], v => !isNil(v));
 }
 
-export default function GeneralSettings({
-  options,
-  data,
-  onOptionsChange
-}: any) {
+export default function GeneralSettings({ options, data, onOptionsChange }: any) {
   const unusedColumns = useMemo(
     () =>
       difference(
@@ -34,7 +30,7 @@ export default function GeneralSettings({
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={col} data-test={"Map.Editor.LatitudeColumnName." + col}>
               {col}
-            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             </Select.Option>
           ))}
         </Select>
@@ -51,7 +47,7 @@ export default function GeneralSettings({
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={col} data-test={"Map.Editor.LongitudeColumnName." + col}>
               {col}
-            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             </Select.Option>
           ))}
         </Select>
@@ -70,7 +66,7 @@ export default function GeneralSettings({
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={col} data-test={"Map.Editor.GroupBy." + col}>
               {col}
-            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             </Select.Option>
           ))}
         </Select>

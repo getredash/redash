@@ -29,7 +29,8 @@ class DataSourceTypeListResource(BaseResource):
     @require_admin
     def get(self):
         return [
-            q.to_dict() for q in sorted(query_runners.values(), key=lambda q: q.name())
+            q.to_dict()
+            for q in sorted(query_runners.values(), key=lambda q: q.name().lower())
         ]
 
 

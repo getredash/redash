@@ -6,7 +6,7 @@ export default {
   name: "Boxplot (Deprecated)",
   isDeprecated: true,
   getOptions: (options: any) => ({
-    ...options
+    ...options,
   }),
   Renderer,
   Editor,

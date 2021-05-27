@@ -8,11 +8,7 @@ import initChoropleth from "./initChoropleth";
 import { prepareData } from "./utils";
 import "./renderer.less";
 
-export default function Renderer({
-  data,
-  options,
-  onOptionsChange
-}: any) {
+export default function Renderer({ data, options, onOptionsChange }: any) {
   const [container, setContainer] = useState(null);
   const [geoJson] = useLoadGeoJson(options.mapType);
   const onBoundsChangeRef = useRef();

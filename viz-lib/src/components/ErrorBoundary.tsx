@@ -16,7 +16,7 @@ export const ErrorBoundaryContext = React.createContext({
 });
 
 type OwnErrorMessageProps = {
-    children?: React.ReactNode;
+  children?: React.ReactNode;
 };
 
 type ErrorMessageProps = OwnErrorMessageProps & typeof ErrorMessage.defaultProps;
@@ -30,7 +30,7 @@ ErrorMessage.defaultProps = {
 };
 
 type OwnErrorBoundaryProps = {
-    renderError?: (...args: any[]) => any;
+  renderError?: (...args: any[]) => any;
 };
 
 type ErrorBoundaryState = any;
@@ -38,7 +38,6 @@ type ErrorBoundaryState = any;
 type ErrorBoundaryProps = OwnErrorBoundaryProps & typeof ErrorBoundary.defaultProps;
 
 export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-
   static defaultProps = {
     children: null,
     renderError: null,
