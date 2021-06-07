@@ -23,6 +23,10 @@ db_url_escaped = current_app.config.get("SQLALCHEMY_DATABASE_URI").replace("%", 
 config.set_main_option("sqlalchemy.url", db_url_escaped)
 target_metadata = current_app.extensions["migrate"].db.metadata
 
+schema = current_app.config.get("SQLALCHEMY_DATABASE_SCHEMA")
+if schema:
+    target_metadata.schema = schema
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")

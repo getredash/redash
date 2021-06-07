@@ -30,9 +30,10 @@ def _wait_for_db_connection(db):
 
 def is_db_empty():
     from redash.models import db
+
     extant_tables = set(sqlalchemy.inspect(db.get_engine()).get_table_names())
     redash_tables = set(db.metadata.tables)
-    return len(redash_tables.intersection(extant_tables)) != 0
+    return len(redash_tables.intersection(extant_tables)) == 0
 
 
 def load_extensions(db):
@@ -47,6 +48,18 @@ def create_tables():
     from redash.models import db
 
     if is_db_empty():
+        if settings.SQLALCHEMY_DATABASE_SCHEMA:
+            from sqlalchemy import DDL
+            from sqlalchemy import event
+
+            event.listen(
+                db.metadata,
+                "before_create",
+                DDL(
+                    f"CREATE SCHEMA IF NOT EXISTS {settings.SQLALCHEMY_DATABASE_SCHEMA}"
+                ),
+            )
+
         _wait_for_db_connection(db)
 
         # We need to make sure we run this only if the DB is empty, because otherwise calling
@@ -60,7 +73,7 @@ def create_tables():
         # Need to mark current DB as up to date
         stamp()
     else:
-        print('existing redash tables detected, exiting')
+        print("existing redash tables detected, exiting")
 
 
 @manager.command()
