@@ -1,9 +1,8 @@
 import io
 import csv
-import xlsxwriter
+from pyexcelerate import Workbook
 from funcy import rpartial, project
 from dateutil.parser import isoparse as parse_date
-from redash.utils import json_loads, UnicodeWriter
 from redash.query_runner import TYPE_BOOLEAN, TYPE_DATE, TYPE_DATETIME
 from redash.authentication.org_resolving import current_org
 
@@ -102,22 +101,22 @@ def serialize_query_result_to_dsv(query_result, delimiter):
 def serialize_query_result_to_xlsx(query_result):
     output = io.BytesIO()
 
+    wb_data = []
     query_data = query_result.data
-    book = xlsxwriter.Workbook(output, {"constant_memory": True})
-    sheet = book.add_worksheet("result")
 
-    column_names = []
-    for c, col in enumerate(query_data["columns"]):
-        sheet.write(0, c, col["name"])
-        column_names.append(col["name"])
+    column_names = [col['name'] for col in query_data['columns']]
+    wb_data.append(column_names)
 
-    for r, row in enumerate(query_data["rows"]):
-        for c, name in enumerate(column_names):
-            v = row.get(name)
-            if isinstance(v, (dict, list)):
-                v = str(v)
-            sheet.write(r + 1, c, v)
+    for row in query_data['rows']:
+        row_data = [
+            str(row.get(name))
+            if isinstance(row.get(name), (dict, list)) else row.get(name)
+            for name in column_names
+        ]
+        wb_data.append(row_data)
 
-    book.close()
+    wb = Workbook()
+    wb.new_sheet("result", data=wb_data)
+    wb.save(output)
 
     return output.getvalue()
