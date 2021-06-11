@@ -3,6 +3,7 @@ import os
 import signal
 import time
 from redash import statsd_client
+from sys import platform
 from rq import Queue as BaseQueue, get_current_job
 from rq import Worker as BaseWorker
 from rq.worker import HerokuWorker # HerokuWorker implements graceful shutdown on SIGTERM
