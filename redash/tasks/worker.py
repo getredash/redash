@@ -4,12 +4,19 @@ import signal
 import time
 from redash import statsd_client
 from rq import Queue as BaseQueue, get_current_job
+from rq import Worker as BaseWorker
 from rq.worker import HerokuWorker # HerokuWorker implements graceful shutdown on SIGTERM
 from rq.utils import utcnow
 from rq.timeouts import UnixSignalDeathPenalty, HorseMonitorTimeoutException
 from rq.job import Job as BaseJob, JobStatus
 
-
+# HerokuWorker does not work in OSX https://github.com/getredash/redash/issues/5413
+def get_worker_base_class():
+    if platform == "darwin":
+        return BaseWorker
+    else:
+        return HerokuWorker
+    
 class CancellableJob(BaseJob):
     def cancel(self, pipeline=None):
         self.meta["cancelled"] = True
