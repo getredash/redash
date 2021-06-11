@@ -9,6 +9,7 @@ from rq.job import JobStatus
 from rq.timeouts import HorseMonitorTimeoutException, UnixSignalDeathPenalty
 import time
 from redash import statsd_client
+from sys import platform
 from rq import Queue as BaseQueue, get_current_job
 from rq.worker import HerokuWorker # HerokuWorker implements graceful shutdown on SIGTERM
 from rq.utils import utcnow
