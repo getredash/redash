@@ -49,6 +49,15 @@ class Slack(BaseDestination):
 
         payload = {"attachments": [{"text": text, "color": color, "fields": fields}]}
 
+        if options.get("username"):
+            payload["username"] = options.get("username")
+        if options.get("icon_emoji"):
+            payload["icon_emoji"] = options.get("icon_emoji")
+        if options.get("icon_url"):
+            payload["icon_url"] = options.get("icon_url")
+        if options.get("channel"):
+            payload["channel"] = options.get("channel")
+
         try:
             resp = requests.post(options.get("url"), data=json_dumps(payload), timeout=5.0)
             logging.warning(resp.text)
