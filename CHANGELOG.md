@@ -78,6 +78,8 @@ Following that, force a recreation of your containers with `docker-compose up --
 - Python:
   - Feature: Custom built-ins are now supported
   - Fix: Query runner was not compatible with Python 3
+- Snowflake:
+  - Data source now accepts a custom host address (for use with proxies)
 - TreasureData:
   - API key field is now handled as secret
 - Yandex:
