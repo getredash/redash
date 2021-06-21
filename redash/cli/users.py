@@ -147,8 +147,12 @@ def create_root(email, name, google_auth=False, password=None, organization="def
 
     user = models.User.query.filter(models.User.email == email).first()
     if user is not None:
-        print("User [%s] is already exists." % email)
-        exit(1)
+        # for collisions, always use the newest user password
+        if not google_auth:
+            user.hash_password(password)
+            models.db.session.add(user)
+            models.db.session.commit()
+        return
 
     org_slug = organization
     org = models.Organization.query.filter(models.Organization.slug == org_slug).first()
