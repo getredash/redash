@@ -15,9 +15,11 @@ import Timer from "@/components/Timer";
 import { Moment } from "@/components/proptypes";
 import QueryLink from "@/components/QueryLink";
 import { FiltersType } from "@/components/Filters";
+import PlainButton from "@/components/PlainButton";
 import ExpandedWidgetDialog from "@/components/dashboards/ExpandedWidgetDialog";
 import EditParameterMappingsDialog from "@/components/dashboards/EditParameterMappingsDialog";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
+
 import Widget from "./Widget";
 
 function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit }) {
@@ -158,7 +160,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
     <>
       <span>
         {!isPublic && !!widgetQueryResult && (
-          <a
+          <PlainButton
             className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
             onClick={() => refreshWidget(1)}
             data-test="RefreshButton">
@@ -167,7 +169,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
               {refreshClickButtonId === 1 ? "Refreshing, please wait. " : "Press to refresh. "}
             </span>{" "}
             <TimeAgo date={updatedAt} />
-          </a>
+          </PlainButton>
         )}
         <span className="visible-print">
           <i className="zmdi zmdi-time-restore" aria-hidden="true" /> {formatDateTime(updatedAt)}
@@ -180,18 +182,18 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
       </span>
       <span>
         {!isPublic && (
-          <a
+          <PlainButton
             className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh"
             onClick={() => refreshWidget(2)}>
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 2 })} aria-hidden="true" />
             <span className="sr-only">
               {refreshClickButtonId === 2 ? "Refreshing, please wait." : "Press to refresh."}
             </span>
-          </a>
+          </PlainButton>
         )}
-        <a className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh" onClick={onExpand}>
+        <PlainButton className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh" onClick={onExpand}>
           <i className="zmdi zmdi-fullscreen" aria-hidden="true" />
-        </a>
+        </PlainButton>
       </span>
     </>
   ) : null;

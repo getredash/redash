@@ -4,11 +4,11 @@ import { Section, Input } from "@/components/visualizations/editor";
 import { createBooleanFormatter } from "@/lib/value-format";
 
 type Props = {
-    column: {
-        name: string;
-        booleanValues?: string[];
-    };
-    onChange: (...args: any[]) => any;
+  column: {
+    name: string;
+    booleanValues?: string[];
+  };
+  onChange: (...args: any[]) => any;
 };
 
 function Editor({ column, onChange }: Props) {
@@ -65,9 +65,7 @@ export default function initBooleanColumn(column: any) {
     };
   }
 
-  function BooleanColumn({
-    row
-  }: any) {
+  function BooleanColumn({ row }: any) {
     // eslint-disable-line react/prop-types
     const { text } = prepareData(row);
     return text;

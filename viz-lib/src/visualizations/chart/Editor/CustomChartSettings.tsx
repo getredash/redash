@@ -10,10 +10,7 @@ const defaultCustomCode = trimStart(`
 // Plotly examples and docs: https://plot.ly/javascript/
 `);
 
-export default function CustomChartSettings({
-  options,
-  onOptionsChange
-}: any) {
+export default function CustomChartSettings({ options, onOptionsChange }: any) {
   return (
     <React.Fragment>
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}

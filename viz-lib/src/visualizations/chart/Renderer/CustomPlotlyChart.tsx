@@ -6,10 +6,7 @@ import resizeObserver from "@/services/resizeObserver";
 import getChartData from "../getChartData";
 import { Plotly, prepareCustomChartData, createCustomChartRenderer } from "../plotly";
 
-export default function CustomPlotlyChart({
-  options,
-  data
-}: any) {
+export default function CustomPlotlyChart({ options, data }: any) {
   const [container, setContainer] = useState(null);
 
   const renderCustomChart = useMemo(() => createCustomChartRenderer(options.customCode, options.enableConsoleLogs), [

@@ -4,10 +4,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 
 import AxisSettings from "./AxisSettings";
 
-export default function XAxisSettings({
-  options,
-  onOptionsChange
-}: any) {
+export default function XAxisSettings({ options, onOptionsChange }: any) {
   return (
     <React.Fragment>
       <AxisSettings

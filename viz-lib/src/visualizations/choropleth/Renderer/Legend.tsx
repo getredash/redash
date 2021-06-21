@@ -3,11 +3,11 @@ import React from "react";
 import ColorPicker from "@/components/ColorPicker";
 
 type OwnProps = {
-    items?: {
-        color: string;
-        text: string;
-    }[];
-    alignText?: "left" | "center" | "right";
+  items?: {
+    color: string;
+    text: string;
+  }[];
+  alignText?: "left" | "center" | "right";
 };
 
 type Props = OwnProps & typeof Legend.defaultProps;

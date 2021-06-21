@@ -120,7 +120,12 @@ function SelectItemsDialog({
       }>
       <div className="d-flex align-items-center m-b-10">
         <div className="flex-fill">
-          <Input.Search onChange={event => search(event.target.value)} placeholder={inputPlaceholder} autoFocus />
+          <Input.Search
+            onChange={event => search(event.target.value)}
+            placeholder={inputPlaceholder}
+            aria-label={inputPlaceholder}
+            autoFocus
+          />
         </div>
         {renderStagedItem && (
           <div className="w-50 m-l-20">

@@ -90,10 +90,7 @@ function formatTimeLabel(options: any, offset: any) {
     .format(options.timeLabelFormat);
 }
 
-function CorneliusHeader({
-  options,
-  maxRowLength
-}: any) {
+function CorneliusHeader({ options, maxRowLength }: any) {
   // eslint-disable-line react/prop-types
   const cells = [];
   for (let i = 1; i < maxRowLength; i += 1) {
@@ -113,12 +110,7 @@ function CorneliusHeader({
   );
 }
 
-function CorneliusRow({
-  options,
-  data,
-  index,
-  maxRowLength
-}: any) {
+function CorneliusRow({ options, data, index, maxRowLength }: any) {
   // eslint-disable-line react/prop-types
   const baseValue = data[0] || 0;
 
@@ -177,28 +169,28 @@ function CorneliusRow({
 }
 
 type OwnCorneliusProps = {
-    data?: number[][];
-    options?: {
-        initialDate: any; // TODO: PropTypes.instanceOf(Date)
-        timeInterval?: "daily" | "weekly" | "monthly" | "yearly";
-        noValuePlaceholder?: string;
-        rawNumberOnHover?: boolean;
-        displayAbsoluteValues?: boolean;
-        initialIntervalNumber?: number;
-        maxColumns?: number;
-        title?: string;
-        timeColumnTitle?: string;
-        peopleColumnTitle?: string;
-        stageColumnTitle?: string;
-        numberFormat?: string;
-        percentFormat?: string;
-        timeLabelFormat?: string;
-        colors?: {
-            min?: string;
-            max?: string;
-            steps?: number;
-        };
+  data?: number[][];
+  options?: {
+    initialDate: any; // TODO: PropTypes.instanceOf(Date)
+    timeInterval?: "daily" | "weekly" | "monthly" | "yearly";
+    noValuePlaceholder?: string;
+    rawNumberOnHover?: boolean;
+    displayAbsoluteValues?: boolean;
+    initialIntervalNumber?: number;
+    maxColumns?: number;
+    title?: string;
+    timeColumnTitle?: string;
+    peopleColumnTitle?: string;
+    stageColumnTitle?: string;
+    numberFormat?: string;
+    percentFormat?: string;
+    timeLabelFormat?: string;
+    colors?: {
+      min?: string;
+      max?: string;
+      steps?: number;
     };
+  };
 };
 
 type CorneliusProps = OwnCorneliusProps & typeof Cornelius.defaultProps;

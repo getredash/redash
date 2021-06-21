@@ -3,6 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import Link from "@/components/Link";
+import Button from "antd/lib/button";
 import SelectItemsDialog from "@/components/SelectItemsDialog";
 import { Destination as DestinationType, UserProfile as UserType } from "@/components/proptypes";
 
@@ -12,11 +13,11 @@ import { clientConfig, currentUser } from "@/services/auth";
 import notification from "@/services/notification";
 import ListItemAddon from "@/components/groups/ListItemAddon";
 import EmailSettingsWarning from "@/components/EmailSettingsWarning";
+import PlainButton from "@/components/PlainButton";
+import Tooltip from "@/components/Tooltip";
 
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
-import Tooltip from "antd/lib/tooltip";
 import Switch from "antd/lib/switch";
-import Button from "antd/lib/button";
 
 import "./AlertDestinations.less";
 
@@ -46,7 +47,10 @@ function ListItem({ destination: { name, type }, user, unsubscribe }) {
       )}
       {canUnsubscribe && (
         <Tooltip title="Remove" mouseEnterDelay={0.5}>
-          <CloseOutlinedIcon className="remove-button" onClick={unsubscribe} />
+          <PlainButton className="remove-button" onClick={unsubscribe}>
+            {/* TODO: lacks visual feedback */}
+            <CloseOutlinedIcon />
+          </PlainButton>
         </Tooltip>
       )}
     </li>

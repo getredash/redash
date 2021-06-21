@@ -144,7 +144,7 @@ class BigQuery(BaseQueryRunner):
         http = httplib2.Http(timeout=settings.BIGQUERY_HTTP_TIMEOUT)
         http = creds.authorize(http)
 
-        return build("bigquery", "v2", http=http)
+        return build("bigquery", "v2", http=http, cache_discovery=False)
 
     def _get_project_id(self):
         return self.configuration["projectId"]

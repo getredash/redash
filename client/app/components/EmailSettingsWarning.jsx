@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { clientConfig, currentUser } from "@/services/auth";
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 import Alert from "antd/lib/alert";
 import HelpTrigger from "@/components/HelpTrigger";
 import { useUniqueId } from "@/lib/hooks/useUniqueId";
@@ -27,6 +27,7 @@ export default function EmailSettingsWarning({ featureName, className, mode, adm
   if (mode === "icon") {
     return (
       <Tooltip title={message} placement="topRight" arrowPointAtCenter>
+        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
         <span className={className} aria-label="Mail alert" aria-describedby={messageDescriptionId} tabIndex={0}>
           <i className={"fa fa-exclamation-triangle"} aria-hidden="true" />
         </span>

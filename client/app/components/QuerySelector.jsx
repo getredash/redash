@@ -5,6 +5,7 @@ import cx from "classnames";
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";
 import { Query } from "@/services/query";
+import PlainButton from "@/components/PlainButton";
 import notification from "@/services/notification";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import useSearchResults from "@/lib/hooks/useSearchResults";
@@ -80,21 +81,23 @@ export default function QuerySelector(props) {
     return (
       <ul className="list-group">
         {searchResults.map(q => (
-          <a
+          <PlainButton
             className={cx("query-selector-result", "list-group-item", { inactive: q.is_draft })}
             key={q.id}
             role="listitem"
             onClick={() => selectQuery(q.id)}
             data-test={`QueryId${q.id}`}>
             {q.name} <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className="inline-tags-control" />
-          </a>
+          </PlainButton>
         ))}
       </ul>
     );
   }
 
   if (props.disabled) {
-    return <Input value={selectedQuery && selectedQuery.name} placeholder={placeholder} disabled />;
+    return (
+      <Input value={selectedQuery && selectedQuery.name} aria-label="Tied query" placeholder={placeholder} disabled />
+    );
   }
 
   if (props.type === "select") {
@@ -141,11 +144,12 @@ export default function QuerySelector(props) {
   return (
     <span data-test="QuerySelector">
       {selectedQuery ? (
-        <Input value={selectedQuery.name} suffix={clearIcon} readOnly />
+        <Input value={selectedQuery.name} aria-label="Tied query" suffix={clearIcon} readOnly />
       ) : (
         <Input
           placeholder={placeholder}
           value={searchTerm}
+          aria-label="Tied query"
           onChange={e => setSearchTerm(e.target.value)}
           suffix={spinIcon}
         />

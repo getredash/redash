@@ -6,7 +6,7 @@ import QuerySelector from "@/components/QuerySelector";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
 import { Query as QueryType } from "@/components/proptypes";
 
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 
 import WarningFilledIcon from "@ant-design/icons/WarningFilled";
 import QuestionCircleTwoToneIcon from "@ant-design/icons/QuestionCircleTwoTone";
@@ -27,7 +27,7 @@ export default function QueryFormItem({ query, queryResult, onChange, editMode }
       <small>
         <WarningFilledIcon className="warning-icon-danger" /> This query has no <i>refresh schedule</i>.{" "}
         <Tooltip title="A query schedule is not necessary but is highly recommended for alerts. An Alert without a query schedule will only send notifications if a user in your organization manually executes this query.">
-          <a>
+          <a role="presentation">
             Why it&apos;s recommended <QuestionCircleTwoToneIcon />
           </a>
         </Tooltip>

@@ -8,10 +8,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 import useLoadGeoJson from "../hooks/useLoadGeoJson";
 import { getGeoJsonBounds } from "./utils";
 
-export default function BoundsSettings({
-  options,
-  onOptionsChange
-}: any) {
+export default function BoundsSettings({ options, onOptionsChange }: any) {
   // Bounds may be changed in editor or on preview (by drag/zoom map).
   // Changes from preview does not come frequently (only when user release mouse button),
   // but changes from editor should be debounced.

@@ -1,6 +1,6 @@
 {
   "name": "@redash/viz",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Redash visualizations",
   "main": "dist/redash-visualizations.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "watch:webpack": "webpack --watch",
     "watch": "npm-run-all --parallel watch:*",
     "version": "npm run build",
-    "prettier": "prettier --write 'src/**/*.{js,jsx}'",
+    "prettier": "prettier --write 'src/**/*.{ts,tsx}'",
     "test": "jest",
     "test:watch": "jest --watch"
   },
