@@ -5,6 +5,7 @@ import time
 from datetime import timedelta
 from urllib.parse import urlsplit, urlunsplit
 
+from flask import safe_join, send_file
 from flask import jsonify, redirect, request, url_for, session
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
 from redash import models, settings
@@ -241,6 +242,12 @@ def logout_and_redirect_to_index():
     return redirect(index_url)
 
 
+def custom_unauthorized_handler():
+    full_path = safe_join(settings.STATIC_ASSETS_PATH, "unauthorized.html")
+    response = send_file(full_path, **dict(cache_timeout=0, conditional=True))
+
+    return response
+
 def init_app(app):
     from redash.authentication import (
         google_oauth,
@@ -252,6 +259,7 @@ def init_app(app):
     login_manager.init_app(app)
     login_manager.anonymous_user = models.AnonymousUser
     login_manager.REMEMBER_COOKIE_DURATION = settings.REMEMBER_COOKIE_DURATION
+    login_manager.unauthorized_handler(custom_unauthorized_handler)
 
     @app.before_request
     def extend_session():
