@@ -15,6 +15,8 @@ from redash.settings.organization import settings as org_settings
 from redash.tasks import record_event
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import Unauthorized
+from werkzeug.urls import url_parse
+from flask_login import login_url as make_login_url
 
 login_manager = LoginManager()
 logger = logging.getLogger("authentication")
@@ -243,10 +245,14 @@ def logout_and_redirect_to_index():
 
 
 def custom_unauthorized_handler():
-    full_path = safe_join(settings.STATIC_ASSETS_PATH, "unauthorized.html")
-    response = send_file(full_path, **dict(cache_timeout=0, conditional=True))
-
-    return response
+    url = request.referrer
+    if url and url_parse(url).host == "admin.masterworks.io":
+        full_path = safe_join(settings.STATIC_ASSETS_PATH, "unauthorized.html")
+        response = send_file(full_path, **dict(cache_timeout=0, conditional=True))
+        return response
+    else:
+        redirect_url = make_login_url("redash.login", next_url=request.url)
+        return redirect(redirect_url)
 
 def init_app(app):
     from redash.authentication import (
