@@ -41,8 +41,10 @@ jobs:
         run: |
           docker build \
             --file Dockerfile \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:redash_$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:redash_10 .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:redash_$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:redash_10
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
       - name: Logout of Amazon ECR
         if: always()
