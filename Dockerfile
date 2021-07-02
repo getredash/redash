@@ -57,7 +57,7 @@ RUN apt-get update && \
     libsasl2-dev \
     unzip \
     libsasl2-modules-gssapi-mit && \
-  # MSSQL ODBC Driver:  
+  # MSSQL ODBC Driver:
   curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
   curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
   apt-get update && \
@@ -65,13 +65,14 @@ RUN apt-get update && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
-#ARG databricks_odbc_driver_url=https://databricks.com/wp-content/uploads/2.6.10.1010-2/SimbaSparkODBC-2.6.10.1010-2-Debian-64bit.zip
-#ADD $databricks_odbc_driver_url /tmp/simba_odbc.zip
-#RUN unzip /tmp/simba_odbc.zip -d /tmp/ \
-#  && dpkg -i /tmp/SimbaSparkODBC-*/*.deb \
-#  && echo "[Simba]\nDriver = /opt/simba/spark/lib/64/libsparkodbc_sb64.so" >> /etc/odbcinst.ini \
-#  && rm /tmp/simba_odbc.zip \
-#  && rm -rf /tmp/SimbaSparkODBC*
+ARG databricks_odbc_driver_url=https://databricks.com/wp-content/uploads/2.6.10.1010-2/SimbaSparkODBC-2.6.10.1010-2-Debian-64bit.zip
+RUN wget --quiet $databricks_odbc_driver_url -O /tmp/simba_odbc.zip \
+  && chmod 600 /tmp/simba_odbc.zip \
+  && unzip /tmp/simba_odbc.zip -d /tmp/ \
+  && dpkg -i /tmp/SimbaSparkODBC-*/*.deb \
+  && echo "[Simba]\nDriver = /opt/simba/spark/lib/64/libsparkodbc_sb64.so" >> /etc/odbcinst.ini \
+  && rm /tmp/simba_odbc.zip \
+  && rm -rf /tmp/SimbaSparkODBC*
 
 WORKDIR /app
 
@@ -79,14 +80,18 @@ WORKDIR /app
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
 
-# Use legacy resolver to work around broken build due to resolver changes in pip
-ENV PIP_USE_DEPRECATED=legacy-resolver
+# rollback pip version to avoid legacy resolver problem
+RUN pip install pip==20.2.4;
 
-# We first copy only the requirements file, to avoid rebuilding on every file
-# change.
-COPY requirements.txt requirements_bundles.txt requirements_dev.txt requirements_all_ds.txt ./
-RUN if [ "x$skip_dev_deps" = "x" ] ; then pip install -r requirements.txt -r requirements_dev.txt; else pip install -r requirements.txt; fi
+# We first copy only the requirements file, to avoid rebuilding on every file change.
+COPY requirements_all_ds.txt ./
 RUN if [ "x$skip_ds_deps" = "x" ] ; then pip install -r requirements_all_ds.txt ; else echo "Skipping pip install -r requirements_all_ds.txt" ; fi
+
+COPY requirements_bundles.txt requirements_dev.txt ./
+RUN if [ "x$skip_dev_deps" = "x" ] ; then pip install -r requirements_dev.txt ; fi
+
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
 
 COPY . /app
 COPY --from=frontend-builder /frontend/client/dist /app/client/dist
