@@ -116,9 +116,16 @@ export default function Renderer({ options, data }: any) {
     return null;
   }
 
+  const rowSelection = {
+    onChange: (selectedRowKeys: Record<string, any>, selectedRows: Record<string, any>[]) => {
+      console.log(`selected keys: ${selectedRowKeys}`, "selected row: ", selectedRows);
+    },
+  };
+
   return (
     <div className="table-visualization-container">
       <Table
+        rowSelection={{ type: "checkbox", ...rowSelection }}
         className="table-fixed-header"
         data-percy="show-scrollbars"
         data-test="TableVisualization"
