@@ -1,4 +1,4 @@
-import { filter, map, get, initial, last, reduce, extend, trim, result } from "lodash";
+import { filter, map, get, initial, last, reduce, extend, trim } from "lodash";
 import React, { useMemo, useState, useEffect } from "react";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
@@ -84,6 +84,7 @@ SearchInput.defaultProps = {
 export default function Renderer({ options, data }: any) {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState([]);
+  const [selectedRows, setSelectedRows] = useState({});
 
   const searchColumns = useMemo(() => filter(options.columns, "allowSearch"), [options.columns]);
 
@@ -154,14 +155,23 @@ export default function Renderer({ options, data }: any) {
     return result;
   }
 
+  // function Link({ row }: any) {
+  //   // @ts-expect-error ts-migrate(2339) FIXME: Property 'text' does not exist on type '{}'.
+  //   // eslint-disable-line react/prop-types
+  //   const { text, ...props } = prepareData(row);
+  //   return <a {...props}>link to dashboard</a>;
+  // }
+
   const rowSelection = {
     onChange: (selectedRowKeys: Record<string, any>, selectedRows: Record<string, any>[]) => {
       console.log(`selected keys: ${selectedRowKeys}`, "selected row: ", selectedRows);
       selectedRows.forEach(row => {
-        prepareData(row.record);
+        setSelectedRows(row.record);
       });
     },
   };
+
+  const { ...props } = prepareData(selectedRows);
 
   return (
     <div className="table-visualization-container">
@@ -183,6 +193,7 @@ export default function Renderer({ options, data }: any) {
         }}
         showSorterTooltip={false}
       />
+      <a {...props}>Link to chart</a>
     </div>
   );
 }
