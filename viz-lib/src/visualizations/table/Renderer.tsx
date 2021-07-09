@@ -1,4 +1,4 @@
-import { filter, map, get, initial, last, reduce, extend, trim } from "lodash";
+import { filter, map, get, initial, last, reduce, extend, trim, result } from "lodash";
 import React, { useMemo, useState, useEffect } from "react";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
@@ -85,10 +85,6 @@ export default function Renderer({ options, data }: any) {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState([]);
 
-  console.log("options: ", options);
-
-  console.log("data: ", data);
-
   const searchColumns = useMemo(() => filter(options.columns, "allowSearch"), [options.columns]);
 
   const tableColumns = useMemo(() => {
@@ -121,10 +117,16 @@ export default function Renderer({ options, data }: any) {
     return null;
   }
 
-  function prepareData(row: any, { column }: any) {
-    row = extend({ "@": row["cell_id"] }, row);
+  function prepareData(row: any) {
+    let column: any = {};
 
-    console.log("prepare row: ", row);
+    options.columns.forEach((newColumn: any) => {
+      if (newColumn.name === "cell_id") {
+        console.log("cell id column: ", newColumn);
+        column = newColumn;
+      }
+    });
+    row = extend({ "@": row[column.name] }, row);
 
     const href = trim(formatSimpleTemplate(column.linkUrlTemplate, row));
     if (href === "") {
@@ -147,8 +149,7 @@ export default function Renderer({ options, data }: any) {
       // @ts-expect-error ts-migrate(2339) FIXME: Property 'target' does not exist on type '{ href: ... Remove this comment to see the full error message
       result.target = "_blank";
     }
-
-    console.log("prepare result: ", result);
+    console.log("prepare data result: ", result);
 
     return result;
   }
@@ -157,8 +158,7 @@ export default function Renderer({ options, data }: any) {
     onChange: (selectedRowKeys: Record<string, any>, selectedRows: Record<string, any>[]) => {
       console.log(`selected keys: ${selectedRowKeys}`, "selected row: ", selectedRows);
       selectedRows.forEach(row => {
-        // prepareData(row);
-        console.log("row: ", row.record.cell_id);
+        prepareData(row.record);
       });
     },
   };
