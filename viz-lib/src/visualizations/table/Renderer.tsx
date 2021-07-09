@@ -1,10 +1,11 @@
-import { filter, map, get, initial, last, reduce } from "lodash";
+import { filter, map, get, initial, last, reduce, extend, trim } from "lodash";
 import React, { useMemo, useState, useEffect } from "react";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
 import InfoCircleFilledIcon from "@ant-design/icons/InfoCircleFilled";
 import Popover from "antd/lib/popover";
 import { RendererPropTypes } from "@/visualizations/prop-types";
+import { formatSimpleTemplate } from "@/lib/value-format";
 
 import { prepareColumns, initRows, filterRows, sortRows } from "./utils";
 
@@ -84,6 +85,10 @@ export default function Renderer({ options, data }: any) {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState([]);
 
+  console.log("options: ", options);
+
+  console.log("data: ", data);
+
   const searchColumns = useMemo(() => filter(options.columns, "allowSearch"), [options.columns]);
 
   const tableColumns = useMemo(() => {
@@ -116,9 +121,45 @@ export default function Renderer({ options, data }: any) {
     return null;
   }
 
+  function prepareData(row: any, { column }: any) {
+    row = extend({ "@": row["cell_id"] }, row);
+
+    console.log("prepare row: ", row);
+
+    const href = trim(formatSimpleTemplate(column.linkUrlTemplate, row));
+    if (href === "") {
+      return {};
+    }
+
+    const title = trim(formatSimpleTemplate(column.linkTitleTemplate, row));
+    const text = trim(formatSimpleTemplate(column.linkTextTemplate, row));
+
+    const result = {
+      href,
+      text: text !== "" ? text : href,
+    };
+
+    if (title !== "") {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'title' does not exist on type '{ href: s... Remove this comment to see the full error message
+      result.title = title;
+    }
+    if (column.linkOpenInNewTab) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'target' does not exist on type '{ href: ... Remove this comment to see the full error message
+      result.target = "_blank";
+    }
+
+    console.log("prepare result: ", result);
+
+    return result;
+  }
+
   const rowSelection = {
     onChange: (selectedRowKeys: Record<string, any>, selectedRows: Record<string, any>[]) => {
       console.log(`selected keys: ${selectedRowKeys}`, "selected row: ", selectedRows);
+      selectedRows.forEach(row => {
+        // prepareData(row);
+        console.log("row: ", row.record.cell_id);
+      });
     },
   };
 

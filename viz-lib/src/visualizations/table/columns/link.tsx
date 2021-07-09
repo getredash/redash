@@ -111,6 +111,7 @@ export default function initLinkColumn(column: any) {
   }
 
   function LinkColumn({ row }: any) {
+    console.log("link column: ", row);
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'text' does not exist on type '{}'.
     // eslint-disable-line react/prop-types
     const { text, ...props } = prepareData(row);
