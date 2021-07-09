@@ -84,7 +84,7 @@ SearchInput.defaultProps = {
 export default function Renderer({ options, data }: any) {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState([]);
-  const [selectedRows, setSelectedRows] = useState({});
+  const [selectedRows, setSelectedRows] = useState<any>({});
 
   const searchColumns = useMemo(() => filter(options.columns, "allowSearch"), [options.columns]);
 
@@ -123,11 +123,12 @@ export default function Renderer({ options, data }: any) {
 
     options.columns.forEach((newColumn: any) => {
       if (newColumn.name === "cell_id") {
-        console.log("cell id column: ", newColumn);
         column = newColumn;
       }
     });
     row = extend({ "@": row[column.name] }, row);
+
+    console.log("preparing row: ", row);
 
     const href = trim(formatSimpleTemplate(column.linkUrlTemplate, row));
     if (href === "") {
@@ -155,13 +156,6 @@ export default function Renderer({ options, data }: any) {
     return result;
   }
 
-  // function Link({ row }: any) {
-  //   // @ts-expect-error ts-migrate(2339) FIXME: Property 'text' does not exist on type '{}'.
-  //   // eslint-disable-line react/prop-types
-  //   const { text, ...props } = prepareData(row);
-  //   return <a {...props}>link to dashboard</a>;
-  // }
-
   const rowSelection = {
     onChange: (selectedRowKeys: Record<string, any>, selectedRows: Record<string, any>[]) => {
       console.log(`selected keys: ${selectedRowKeys}`, "selected row: ", selectedRows);
@@ -170,6 +164,8 @@ export default function Renderer({ options, data }: any) {
       });
     },
   };
+
+  console.log("selected rows: ", selectedRows);
 
   const { ...props } = prepareData(selectedRows);
 
