@@ -161,8 +161,6 @@ export default function Renderer({ options, data }: any) {
     },
   };
 
-  console.log("selected rows: ", selectedData);
-
   const { ...props } = prepareData(selectedData);
 
   return (
