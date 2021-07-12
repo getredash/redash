@@ -90,7 +90,7 @@ export function formatSimpleTemplate(str: any, data: any) {
   }
   return str.replace(/{{\s*([^\s]+?)\s*}}/g, (match, prop) => {
     if (hasOwnProperty.call(data, prop) && !isUndefined(data[prop])) {
-      return data[prop];
+      return typeof data[prop] === "string" ? data[prop] : JSON.stringify(data[prop]);
     }
     return match;
   });

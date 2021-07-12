@@ -120,25 +120,23 @@ export default function Renderer({ options, data }: any) {
 
   function prepareData(rows: any) {
     let column: any = {};
-    let row = { rows: rows };
+    let prepared = { rows: rows };
 
     options.columns.forEach((newColumn: any) => {
-      if (newColumn.name === "cell_id") {
+      if (newColumn.linkUrlTemplate !== "{{ @ }}") {
         column = newColumn;
       }
     });
 
-    // TODO: We might want to create an object with the array of rows being the selection made and iterate over it to get the name of each row and extend as @ in the object
-    row = extend({ "@": row.rows.map((rows: any) => rows[column.name]) }, row);
-    console.log("prepared row: ", row);
+    prepared = extend({ "@": prepared.rows.map((rows: any) => rows[column.name]) }, prepared);
 
-    const href = trim(formatSimpleTemplate(column.linkUrlTemplate, row));
+    const href = trim(formatSimpleTemplate(column.linkUrlTemplate, prepared));
     if (href === "") {
       return {};
     }
 
-    const title = trim(formatSimpleTemplate(column.linkTitleTemplate, row));
-    const text = trim(formatSimpleTemplate(column.linkTextTemplate, row));
+    const title = trim(formatSimpleTemplate(column.linkTitleTemplate, prepared));
+    const text = trim(formatSimpleTemplate(column.linkTextTemplate, prepared));
 
     const result = {
       href,
@@ -153,14 +151,12 @@ export default function Renderer({ options, data }: any) {
       // @ts-expect-error ts-migrate(2339) FIXME: Property 'target' does not exist on type '{ href: ... Remove this comment to see the full error message
       result.target = "_blank";
     }
-    console.log("prepare data result: ", result);
 
     return result;
   }
 
   const rowSelection = {
     onChange: (selectedRowKeys: Record<string, any>, selectedRows: Record<string, any>[]) => {
-      console.log(`selected keys: ${selectedRowKeys}`, "selected row: ", selectedRows);
       setSelectedData([...selectedRows.map(row => row.record)]);
     },
   };
