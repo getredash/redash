@@ -84,7 +84,7 @@ SearchInput.defaultProps = {
 export default function Renderer({ options, data }: any) {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState([]);
-  const [selectedRows, setSelectedRows] = useState<any>({});
+  const [selectedData, setSelectedData] = useState<any>([]);
 
   const searchColumns = useMemo(() => filter(options.columns, "allowSearch"), [options.columns]);
 
@@ -118,17 +118,19 @@ export default function Renderer({ options, data }: any) {
     return null;
   }
 
-  function prepareData(row: any) {
+  function prepareData(rows: any) {
     let column: any = {};
+    let row = { rows: rows };
 
     options.columns.forEach((newColumn: any) => {
       if (newColumn.name === "cell_id") {
         column = newColumn;
       }
     });
-    row = extend({ "@": row[column.name] }, row);
 
-    console.log("preparing row: ", row);
+    // TODO: We might want to create an object with the array of rows being the selection made and iterate over it to get the name of each row and extend as @ in the object
+    row = extend({ "@": row.rows.map((rows: any) => rows[column.name]) }, row);
+    console.log("prepared row: ", row);
 
     const href = trim(formatSimpleTemplate(column.linkUrlTemplate, row));
     if (href === "") {
@@ -159,15 +161,13 @@ export default function Renderer({ options, data }: any) {
   const rowSelection = {
     onChange: (selectedRowKeys: Record<string, any>, selectedRows: Record<string, any>[]) => {
       console.log(`selected keys: ${selectedRowKeys}`, "selected row: ", selectedRows);
-      selectedRows.forEach(row => {
-        setSelectedRows(row.record);
-      });
+      setSelectedData([...selectedRows.map(row => row.record)]);
     },
   };
 
-  console.log("selected rows: ", selectedRows);
+  console.log("selected rows: ", selectedData);
 
-  const { ...props } = prepareData(selectedRows);
+  const { ...props } = prepareData(selectedData);
 
   return (
     <div className="table-visualization-container">
