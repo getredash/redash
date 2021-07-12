@@ -1,10 +1,11 @@
-import { filter, map, get, initial, last, reduce } from "lodash";
+import { filter, map, get, initial, last, reduce, extend, trim } from "lodash";
 import React, { useMemo, useState, useEffect } from "react";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
 import InfoCircleFilledIcon from "@ant-design/icons/InfoCircleFilled";
 import Popover from "antd/lib/popover";
 import { RendererPropTypes } from "@/visualizations/prop-types";
+import { formatSimpleTemplate } from "@/lib/value-format";
 
 import { prepareColumns, initRows, filterRows, sortRows } from "./utils";
 
@@ -83,6 +84,7 @@ SearchInput.defaultProps = {
 export default function Renderer({ options, data }: any) {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState([]);
+  const [selectedData, setSelectedData] = useState<any>([]);
 
   const searchColumns = useMemo(() => filter(options.columns, "allowSearch"), [options.columns]);
 
@@ -116,9 +118,55 @@ export default function Renderer({ options, data }: any) {
     return null;
   }
 
+  function prepareData(rows: any) {
+    let column: any = {};
+    let prepared = { rows: rows };
+
+    options.columns.forEach((newColumn: any) => {
+      if (newColumn.linkUrlTemplate !== "{{ @ }}") {
+        column = newColumn;
+      }
+    });
+
+    prepared = extend({ "@": prepared.rows.map((rows: any) => rows[column.name]) }, prepared);
+
+    const href = trim(formatSimpleTemplate(column.linkUrlTemplate, prepared));
+    if (href === "") {
+      return {};
+    }
+
+    const title = trim(formatSimpleTemplate(column.linkTitleTemplate, prepared));
+    const text = trim(formatSimpleTemplate(column.linkTextTemplate, prepared));
+
+    const result = {
+      href,
+      text: text !== "" ? text : href,
+    };
+
+    if (title !== "") {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'title' does not exist on type '{ href: s... Remove this comment to see the full error message
+      result.title = title;
+    }
+    if (column.linkOpenInNewTab) {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'target' does not exist on type '{ href: ... Remove this comment to see the full error message
+      result.target = "_blank";
+    }
+
+    return result;
+  }
+
+  const rowSelection = {
+    onChange: (selectedRowKeys: Record<string, any>, selectedRows: Record<string, any>[]) => {
+      setSelectedData([...selectedRows.map(row => row.record)]);
+    },
+  };
+
+  const { ...props } = prepareData(selectedData);
+
   return (
     <div className="table-visualization-container">
       <Table
+        rowSelection={{ type: "checkbox", ...rowSelection }}
         className="table-fixed-header"
         data-percy="show-scrollbars"
         data-test="TableVisualization"
@@ -135,6 +183,7 @@ export default function Renderer({ options, data }: any) {
         }}
         showSorterTooltip={false}
       />
+      <a {...props}>Link to chart</a>
     </div>
   );
 }
