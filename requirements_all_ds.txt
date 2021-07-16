@@ -37,3 +37,4 @@ python-rapidjson==0.8.0
 pyodbc==4.0.28
 trino~=0.305
 cmem-cmempy==21.2.3
+neo4j==4.2.1
