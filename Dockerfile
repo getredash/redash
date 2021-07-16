@@ -57,7 +57,7 @@ RUN apt-get update && \
     libsasl2-dev \
     unzip \
     libsasl2-modules-gssapi-mit && \
-  # MSSQL ODBC Driver:  
+  # MSSQL ODBC Driver:
   curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
   curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
   apt-get update && \
@@ -97,6 +97,10 @@ COPY . /app
 COPY --from=frontend-builder /frontend/client/dist /app/client/dist
 RUN chown -R redash /app
 USER redash
+
+# Add Yandex CA.crt
+RUN wget "https://storage.yandexcloud.net/cloud-certs/CA.pem" -O /usr/local/share/ca-certificates/YandexInternalRootCA.crt && update-ca-certificates
+
 
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
 CMD ["server"]
