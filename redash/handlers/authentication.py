@@ -148,6 +148,7 @@ def verify(token, org_slug=None):
 
 
 @routes.route(org_scoped_rule("/forgot"), methods=["GET", "POST"])
+@limiter.limit(settings.THROTTLE_PASS_RESET_PATTERN)
 def forgot_password(org_slug=None):
     if not current_org.get_setting("auth_password_login_enabled"):
         abort(404)

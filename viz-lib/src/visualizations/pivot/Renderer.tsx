@@ -28,18 +28,11 @@ const VALID_OPTIONS = [
   "rendererOptions",
 ];
 
-function formatRows({
-  rows,
-  columns
-}: any) {
+function formatRows({ rows, columns }: any) {
   return map(rows, row => mapValues(row, (value, key) => formatColumnValue(value, find(columns, { name: key }).type)));
 }
 
-export default function Renderer({
-  data,
-  options,
-  onOptionsChange
-}: any) {
+export default function Renderer({ data, options, onOptionsChange }: any) {
   const [config, setConfig] = useState({ ...options });
   const dataRows = useMemo(() => formatRows(data), [data]);
 

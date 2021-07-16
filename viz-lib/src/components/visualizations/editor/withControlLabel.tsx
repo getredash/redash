@@ -7,11 +7,11 @@ import Typography from "antd/lib/typography";
 import "./control-label.less";
 
 type OwnProps = {
-    layout?: "vertical" | "horizontal";
-    label?: React.ReactNode;
-    labelProps?: any;
-    disabled?: boolean;
-    children?: React.ReactNode;
+  layout?: "vertical" | "horizontal";
+  label?: React.ReactNode;
+  labelProps?: any;
+  disabled?: boolean;
+  children?: React.ReactNode;
 };
 
 type Props = OwnProps & typeof ControlLabel.defaultProps;
@@ -58,15 +58,7 @@ ControlLabel.defaultProps = {
 
 export default function withControlLabel(WrappedControl: any) {
   // eslint-disable-next-line react/prop-types
-  function ControlWrapper({
-    className,
-    id,
-    layout,
-    label,
-    labelProps,
-    disabled,
-    ...props
-  }: any) {
+  function ControlWrapper({ className, id, layout, label, labelProps, disabled, ...props }: any) {
     const fallbackId = useMemo(
       () =>
         `visualization-editor-control-${Math.random()

@@ -23,7 +23,7 @@ export default function PasswordLinkAlert(props) {
             <p>
               The mail server is not configured, please send the following link to <b>{user.name}</b>:
             </p>
-            <InputWithCopy value={absoluteUrl(passwordLink)} readOnly />
+            <InputWithCopy value={absoluteUrl(passwordLink)} aria-label="Password link" readOnly />
           </React.Fragment>
         }
         type="warning"

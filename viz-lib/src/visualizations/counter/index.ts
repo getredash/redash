@@ -17,7 +17,7 @@ export default {
   name: "Counter",
   getOptions: (options: any) => ({
     ...DEFAULT_OPTIONS,
-    ...options
+    ...options,
   }),
   Renderer,
   Editor,

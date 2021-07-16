@@ -11,9 +11,7 @@ const DEFAULT_OPTIONS = {
   percentFormat: "0[.]00%",
 };
 
-export default function getOptions(options: any, {
-  columns
-}: any) {
+export default function getOptions(options: any, { columns }: any) {
   options = merge({}, DEFAULT_OPTIONS, options);
 
   // Validate

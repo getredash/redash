@@ -125,9 +125,7 @@ function getColumnsOptions(columns: any, visualizationColumns: any) {
   return _.sortBy(options, "order");
 }
 
-export default function getOptions(options: any, {
-  columns
-}: any) {
+export default function getOptions(options: any, { columns }: any) {
   options = { ...DEFAULT_OPTIONS, ...options };
   options.columns = _.map(getColumnsOptions(columns, options.columns), col => ({
     ...getDefaultFormatOptions(col),

@@ -47,7 +47,7 @@ function AddWidgetContainer({ dashboardConfiguration, className, ...props }) {
   return (
     <div className={cx("add-widget-container", className)} {...props}>
       <h2>
-        <i className="zmdi zmdi-widgets" />
+        <i className="zmdi zmdi-widgets" aria-hidden="true" />
         <span className="hidden-xs hidden-sm">
           Widgets are individual query visualizations or text boxes you can place on your dashboard in various
           arrangements.

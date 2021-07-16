@@ -1,4 +1,4 @@
-@import "~@/components/ApplicationArea/ApplicationLayout/index.less";
+@import (reference, less) "~@/components/ApplicationArea/ApplicationLayout/index.less";
 
 .dashboard-header {
   display: flex;
@@ -50,13 +50,16 @@
     margin: 3px 5px 0 5px;
   }
 
-  .tags-control a {
+  .tags-control > .label-tag {
     opacity: 0;
     transition: opacity 0.2s ease-in-out;
   }
 
-  &:hover {
-    .tags-control a {
+  &:hover,
+  &:focus,
+  &:active,
+  &:focus-within {
+    .tags-control > .label-tag {
       opacity: 1;
     }
   }

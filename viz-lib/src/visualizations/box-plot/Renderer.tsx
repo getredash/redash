@@ -29,10 +29,7 @@ function calcIqr(k: any) {
   };
 }
 
-function render(container: any, data: any, {
-  xAxisLabel,
-  yAxisLabel
-}: any) {
+function render(container: any, data: any, { xAxisLabel, yAxisLabel }: any) {
   container = d3.select(container);
 
   const containerBounds = container.node().getBoundingClientRect();
@@ -188,10 +185,7 @@ function render(container: any, data: any, {
     .call(chart);
 }
 
-export default function Renderer({
-  data,
-  options
-}: any) {
+export default function Renderer({ data, options }: any) {
   const [container, setContainer] = useState(null);
 
   useEffect(() => {

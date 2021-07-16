@@ -16,9 +16,7 @@ export default function initJsonColumn(column: any) {
     return { text, value: undefined };
   }
 
-  function JsonColumn({
-    row
-  }: any) {
+  function JsonColumn({ row }: any) {
     // eslint-disable-line react/prop-types
     const { text, value } = prepareData(row);
     if (isUndefined(value)) {

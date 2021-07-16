@@ -76,13 +76,19 @@ export default class AlertNew extends React.Component {
               )}
               <HorizontalFormItem>
                 <Button type="primary" onClick={this.save} disabled={!query} className="btn-create-alert">
-                  {saving && <i className="fa fa-spinner fa-pulse m-r-5" />}
+                  {saving && (
+                    <span role="status" aria-live="polite" aria-relevant="additions removals">
+                      <i className="fa fa-spinner fa-pulse m-r-5" aria-hidden="true" />
+                      <span className="sr-only">Saving...</span>
+                    </span>
+                  )}
                   Create Alert
                 </Button>
               </HorizontalFormItem>
             </Form>
             <HelpTrigger className="f-13" type="ALERT_SETUP">
-              Setup Instructions <i className="fa fa-question-circle" />
+              Setup Instructions <i className="fa fa-question-circle" aria-hidden="true" />
+              <span className="sr-only">(help)</span>
             </HelpTrigger>
           </div>
         </div>

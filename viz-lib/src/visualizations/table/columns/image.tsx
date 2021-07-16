@@ -5,14 +5,14 @@ import { Section, Input, ControlLabel, ContextHelp } from "@/components/visualiz
 import { formatSimpleTemplate } from "@/lib/value-format";
 
 type Props = {
-    column: {
-        name: string;
-        imageUrlTemplate?: string;
-        imageWidth?: string;
-        imageHeight?: string;
-        imageTitleTemplate?: string;
-    };
-    onChange: (...args: any[]) => any;
+  column: {
+    name: string;
+    imageUrlTemplate?: string;
+    imageWidth?: string;
+    imageHeight?: string;
+    imageTitleTemplate?: string;
+  };
+  onChange: (...args: any[]) => any;
 };
 
 function Editor({ column, onChange }: Props) {
@@ -129,9 +129,7 @@ export default function initImageColumn(column: any) {
     return result;
   }
 
-  function ImageColumn({
-    row
-  }: any) {
+  function ImageColumn({ row }: any) {
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'text' does not exist on type '{}'.
     // eslint-disable-line react/prop-types
     const { text, ...props } = prepareData(row);

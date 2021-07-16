@@ -25,10 +25,7 @@ const ColorSchemes = [
   "Custom...",
 ];
 
-export default function HeatmapColorsSettings({
-  options,
-  onOptionsChange
-}: any) {
+export default function HeatmapColorsSettings({ options, onOptionsChange }: any) {
   return (
     <React.Fragment>
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
@@ -44,7 +41,7 @@ export default function HeatmapColorsSettings({
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={scheme} value={scheme} data-test={`Chart.Colors.Heatmap.ColorScheme.${scheme}`}>
               {scheme}
-            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             </Select.Option>
           ))}
         </Select>
