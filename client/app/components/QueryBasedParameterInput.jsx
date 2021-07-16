@@ -79,6 +79,57 @@ export default class QueryBasedParameterInput extends React.Component {
   render() {
     const { className, mode, onSelect, queryId, value, ...otherProps } = this.props;
     const { loading, options } = this.state;
+
+    const mockData = [
+      {
+        cell_id: "CALCE_CX2-16_prism_LCO_25C_0-100_0.5/0.5C_a",
+        max: 2016,
+        cathode: "LCO",
+        anode: "graphite",
+        ah: 1.35,
+        form_factor: "prismatic",
+        temp: 25,
+        soc_max: 100,
+        soc_min: 0,
+        dod: 100,
+        crate_c: 0.5,
+        crate_d: 0.5,
+        source: "calce",
+      },
+      {
+        cell_id: "CALCE_CX2-38_prism_LCO_25C_0-100_0.5/0.5C_h",
+        max: 1961,
+        cathode: "LCO",
+        anode: "graphite",
+        ah: 1.35,
+        form_factor: "prismatic",
+        temp: 25,
+        soc_max: 100,
+        soc_min: 0,
+        dod: 100,
+        crate_c: 0.5,
+        crate_d: 0.5,
+        source: "calce",
+      },
+    ];
+
+    const filterResults = options => {
+      console.log(options);
+      let optionName;
+
+      options.forEach(option => {
+        optionName = option.name;
+      });
+
+      if (mockData.includes(optionName)) {
+        console.log("includes option");
+        return true;
+      } else {
+        console.log("does not includes option");
+        return false;
+      }
+    };
+
     return (
       <span>
         <SelectWithVirtualScroll
@@ -92,6 +143,7 @@ export default class QueryBasedParameterInput extends React.Component {
           showSearch
           showArrow
           notFoundContent={isEmpty(options) ? "No options available" : null}
+          filterOption={filterResults(options)}
           {...otherProps}
         />
       </span>
