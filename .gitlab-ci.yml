@@ -1,0 +1,26 @@
+stages:
+  - build
+  - push
+
+build:
+  stage: build
+  script:
+    - docker build -t redash:$CI_COMMIT_SHORT_SHA .
+    - docker tag redash:$CI_COMMIT_SHORT_SHA $CONTAINER_REGISTRY/redash:$CI_COMMIT_SHORT_SHA
+    - docker push $CONTAINER_REGISTRY/redash:$CI_COMMIT_SHORT_SHA
+  variables:
+    DOCKER_BUILDKIT: 1
+
+push_branch:
+  stage: push
+  script:
+    - docker tag redash:$CI_COMMIT_SHORT_SHA $CONTAINER_REGISTRY/redash:$CI_COMMIT_BRANCH
+    - docker push $CONTAINER_REGISTRY/redash:$CI_COMMIT_BRANCH
+
+push_latest:
+  stage: push
+  script:
+    - docker tag redash:$CI_COMMIT_SHORT_SHA $CONTAINER_REGISTRY/redash:latest
+    - docker push $CONTAINER_REGISTRY/redash:latest
+  only:
+    - master
