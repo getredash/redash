@@ -113,23 +113,6 @@ export default class QueryBasedParameterInput extends React.Component {
       },
     ];
 
-    const filterResults = options => {
-      console.log(options);
-      let optionName;
-
-      options.forEach(option => {
-        optionName = option.name;
-      });
-
-      if (mockData.includes(optionName)) {
-        console.log("includes option");
-        return true;
-      } else {
-        console.log("does not includes option");
-        return false;
-      }
-    };
-
     return (
       <span>
         <SelectWithVirtualScroll
@@ -143,7 +126,6 @@ export default class QueryBasedParameterInput extends React.Component {
           showSearch
           showArrow
           notFoundContent={isEmpty(options) ? "No options available" : null}
-          filterOption={filterResults(options)}
           {...otherProps}
         />
       </span>
