@@ -69,6 +69,8 @@ class QueryBasedDropdownParameter extends Parameter {
   loadDropdownValues() {
     if (this.parentQueryId) {
       return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId }).then(response => {
+        const results = QueryResult.getById(this.parentQueryId, "262");
+        console.log("results: ", results);
         const filtered = response.filter(row => !row.value.includes("prismatic"));
         return Promise.resolve(filtered);
       });
