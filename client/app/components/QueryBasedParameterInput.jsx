@@ -80,39 +80,6 @@ export default class QueryBasedParameterInput extends React.Component {
     const { className, mode, onSelect, queryId, value, ...otherProps } = this.props;
     const { loading, options } = this.state;
 
-    const mockData = [
-      {
-        cell_id: "CALCE_CX2-16_prism_LCO_25C_0-100_0.5/0.5C_a",
-        max: 2016,
-        cathode: "LCO",
-        anode: "graphite",
-        ah: 1.35,
-        form_factor: "prismatic",
-        temp: 25,
-        soc_max: 100,
-        soc_min: 0,
-        dod: 100,
-        crate_c: 0.5,
-        crate_d: 0.5,
-        source: "calce",
-      },
-      {
-        cell_id: "CALCE_CX2-38_prism_LCO_25C_0-100_0.5/0.5C_h",
-        max: 1961,
-        cathode: "LCO",
-        anode: "graphite",
-        ah: 1.35,
-        form_factor: "prismatic",
-        temp: 25,
-        soc_max: 100,
-        soc_min: 0,
-        dod: 100,
-        crate_c: 0.5,
-        crate_d: 0.5,
-        source: "calce",
-      },
-    ];
-
     return (
       <span>
         <SelectWithVirtualScroll
