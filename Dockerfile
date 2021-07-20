@@ -1,5 +1,7 @@
 FROM node:14 as frontend-builder
 
+RUN npm install --global --force yarn@1.22.10
+
 # Controls whether to build the frontend assets
 ARG skip_frontend_build
 
@@ -17,7 +19,7 @@ COPY --chown=redash viz-lib /frontend/viz-lib
 ARG code_coverage
 ENV BABEL_ENV=${code_coverage:+test}
 
-RUN if [ "x$skip_frontend_build" = "x" ] ; then npm install yarn@1.22.10 -g; yarn --frozen-lockfile; fi
+RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile; fi
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/

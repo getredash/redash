@@ -27,7 +27,8 @@
     "test": "run-s type-check jest",
     "test:watch": "jest --watch",
     "cypress": "node client/cypress/cypress.js",
-    "postinstall": "(cd viz-lib && yarn --frozen-lockfile && yarn build:babel)"
+    "preinstall": "cd viz-lib && yarn link --link-folder ../.yarn",
+    "postinstall": "(cd viz-lib && yarn --frozen-lockfile && yarn build:babel) && yarn link --link-folder ./.yarn @redash/viz"
   },
   "repository": {
     "type": "git",

@@ -10,7 +10,7 @@ build-docker-image-job: &build-docker-image-job
     - run: sudo apt install python3-pip
     - run: sudo pip3 install -r requirements_bundles.txt
     - run: .circleci/update_version
-    - run: sudo npm install --global --force yarn
+    - run: sudo npm install --global --force yarn@1.22.10
     - run: yarn bundle
     - run: .circleci/docker_build
 jobs:
@@ -66,8 +66,8 @@ jobs:
     steps:
       - checkout
       - run: mkdir -p /tmp/test-results/eslint
-      - run: sudo npm install --global --force yarn
-      - run: yarn --frozen-lockfile
+      - run: sudo npm install --global --force yarn@1.22.10
+      - run: yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
       - run: yarn lint:ci
       - store_test_results:
           path: /tmp/test-results
@@ -82,8 +82,8 @@ jobs:
       - run: sudo apt update
       - run: sudo apt install python3-pip
       - run: sudo pip3 install -r requirements_bundles.txt
-      - run: sudo npm install --global --force yarn
-      - run: yarn --frozen-lockfile
+      - run: sudo npm install --global --force yarn@1.22.10
+      - run: yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
       - run: yarn bundle
       - run:
           name: Run App Tests
@@ -113,11 +113,10 @@ jobs:
               echo 'export CODE_COVERAGE=true' >> $BASH_ENV
               source $BASH_ENV
             fi
-      - run: sudo npm install --global --force yarn
+      - run: sudo npm install --global --force yarn@1.22.10
       - run:
           name: Install frontend dependencies
-          command: |
-            yarn --frozen-lockfile
+          command: yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
       - run:
           name: Setup Redash server
           command: |
