@@ -1,10 +1,11 @@
 [build]
   base    = "client"
   publish = "client/dist"
-  command = "npm ci && npm run build"
+  command = "yarn --frozen-lockfile && yarn build"
 
 [build.environment]
-  NODE_VERSION = "12.18.4"
+  NODE_VERSION = "14.16.1"
+  YARN_VERSION = "1.22.10"
   CYPRESS_INSTALL_BINARY = "0"
   PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "1"
 
