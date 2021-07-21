@@ -648,7 +648,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         for query in queries:
             try:
-                if query.schedule["until"]:
+                if "until" in query.schedule:
                     schedule_until = pytz.utc.localize(
                         datetime.datetime.strptime(query.schedule["until"], "%Y-%m-%d")
                     )
