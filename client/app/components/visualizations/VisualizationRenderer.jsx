@@ -43,7 +43,6 @@ export default function VisualizationRenderer(props) {
   const data = useQueryResultData(props.queryResult);
   store.dispatch(getQueryAction(data.rows));
   const queryData = useSelector(state => state.QueryData.Data);
-  console.log(queryData);
 
   const [filters, setFilters] = useState(() => combineFilters(data.filters, props.filters)); // lazy initialization
   const filtersRef = useRef();

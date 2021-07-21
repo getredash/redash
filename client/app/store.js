@@ -9,7 +9,7 @@ const querySlice = createSlice({
   initialState: queryData,
   reducers: {
     getQueryData: (state, { payload }) => {
-      state.Data = payload.data;
+      state.Data = payload;
     },
   },
 });
