@@ -68,7 +68,19 @@ class QueryBasedParameterInput extends React.Component {
       this.setState({ loading: true });
 
       let options = await this.props.parameter.loadDropdownValues();
-      options = options.filter(row => !row.value.includes("prismatic"));
+
+      queryResult.forEach(result => {
+        for (let key in result) {
+          options = options.filter(option => !option.value.includes(result[key]));
+        }
+      });
+
+      console.log(newOptions);
+      // queryResult.forEach(result => {
+      //   for (let key in result) {
+      //     options = options.filter(row => !row.value.includes(result[key]));
+      //   }
+      // });
       console.log(queryResult);
 
       // stale queryId check
