@@ -1,5 +1,8 @@
 name: Push
-on: push
+on: 
+  push:
+    branches:
+      - "production"
 
 env:
   ECR_REPOSITORY: images
