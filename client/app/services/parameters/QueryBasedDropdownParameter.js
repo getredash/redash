@@ -1,8 +1,6 @@
 import { isNull, isUndefined, isArray, isEmpty, get, map, join, has } from "lodash";
 import { Query } from "@/services/query";
 import Parameter from "./Parameter";
-// import QueryResult from "../query-result";
-// import useQueryResultData from "@/lib/useQueryResultData";
 
 class QueryBasedDropdownParameter extends Parameter {
   constructor(parameter, parentQueryId) {
@@ -69,16 +67,12 @@ class QueryBasedDropdownParameter extends Parameter {
 
   loadDropdownValues() {
     if (this.parentQueryId) {
-      return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId }).then(response => {
-        // const results = QueryResult.getById(this.parentQueryId, "262");
-        // console.log("results: ", results.query_result.data);
-        // const filtered = response.filter(row => !row.value.includes("prismatic"));
-        return Promise.resolve(response);
-      });
+      return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId }).catch(() =>
+        Promise.resolve([])
+      );
     }
 
-    return Query.asDropdown({ id: this.queryId })
-    .catch(Promise.resolve([]));
+    return Query.asDropdown({ id: this.queryId }).catch(Promise.resolve([]));
   }
 }
 
