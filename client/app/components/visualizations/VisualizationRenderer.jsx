@@ -6,6 +6,8 @@ import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import Filters, { FiltersType, filterData } from "@/components/Filters";
 import { VisualizationType } from "@redash/viz/lib";
 import { Renderer } from "@/components/visualizations/visualizationComponents";
+import { getQueryAction, store } from "@/store";
+import { useSelector } from "react-redux";
 
 function combineFilters(localFilters, globalFilters) {
   // tiny optimization - to avoid unnecessary updates
@@ -37,7 +39,12 @@ function areFiltersEqual(a, b) {
 }
 
 export default function VisualizationRenderer(props) {
+  // Using Redux to set data but object is returning as an empty object || undefined
   const data = useQueryResultData(props.queryResult);
+  store.dispatch(getQueryAction(data.rows));
+  const queryData = useSelector(state => state.QueryData.Data);
+  console.log(queryData);
+
   const [filters, setFilters] = useState(() => combineFilters(data.filters, props.filters)); // lazy initialization
   const filtersRef = useRef();
   filtersRef.current = filters;
