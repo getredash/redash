@@ -648,9 +648,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         for query in queries:
             try:
-                if query.schedule.get("disabled"):
-                    continue
-
                 if query.schedule["until"]:
                     schedule_until = pytz.utc.localize(
                         datetime.datetime.strptime(query.schedule["until"], "%Y-%m-%d")
@@ -681,6 +678,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                     "Could not determine if query %d is outdated due to %s. The schedule for this query has been disabled."
                     % (query.id, repr(e))
                 )
+                print(message)
                 logging.info(message)
                 sentry.capture_exception(
                     type(e)(message).with_traceback(e.__traceback__)
