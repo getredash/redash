@@ -165,6 +165,7 @@ export default function Renderer({ options, data }: any) {
 
   return (
     <div className="table-visualization-container">
+      <button className="ant-btn-primary ant-btn"><a className="link" {...props}>Charts</a></button>
       <Table
         rowSelection={{ type: "checkbox", ...rowSelection }}
         className="table-fixed-header"
@@ -183,7 +184,6 @@ export default function Renderer({ options, data }: any) {
         }}
         showSorterTooltip={false}
       />
-      <a {...props}>Link to chart</a>
     </div>
   );
 }
