@@ -33,7 +33,7 @@ const DEFAULT_OPTIONS = {
   },
   popup: {
     enabled: true,
-    template: "Country: <b>{{ @@name_long }} ({{ @@iso_a2 }})</b>\n<br>\nValue: <b>{{ @@value }}</b>",
+    template: "Country/Region: <b>{{ @@name_long }} ({{ @@iso_a2 }})</b>\n<br>\nValue: <b>{{ @@value }}</b>",
   },
 };
 
