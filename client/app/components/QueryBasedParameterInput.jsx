@@ -2,6 +2,8 @@ import { find, isArray, get, first, map, intersection, isEqual, isEmpty } from "
 import React from "react";
 import PropTypes from "prop-types";
 import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
+import QueryResult from "@/services/query-result";
+import useQueryResultData from "@/lib/useQueryResultData";
 
 export default class QueryBasedParameterInput extends React.Component {
   static propTypes = {
@@ -62,7 +64,11 @@ export default class QueryBasedParameterInput extends React.Component {
   async _loadOptions(queryId) {
     if (queryId && queryId !== this.state.queryId) {
       this.setState({ loading: true });
-      const options = await this.props.parameter.loadDropdownValues();
+      const results = useQueryResultData(QueryResult.getById("12", "262"));
+      console.log(results);
+      let options = await this.props.parameter.loadDropdownValues();
+      // options = options.filter(row => !row.value.includes("prismatic"));
+      // console.log(options);
 
       // stale queryId check
       if (this.props.queryId === queryId) {
