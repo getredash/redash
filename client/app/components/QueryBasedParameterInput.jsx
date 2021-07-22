@@ -70,7 +70,17 @@ class QueryBasedParameterInput extends React.Component {
 
       let options = await this.props.parameter.loadDropdownValues();
       const arr = [];
-      if (queryResult?.length >= 1) {
+      const visualArr = [];
+
+      // Pushing type of visualization to visualArr
+      this.props.widgets.forEach(widget => {
+        if (widget.visualization && !visualArr.includes(widget.visualization.type)) {
+          visualArr.push(widget.visualization.type);
+        }
+      });
+
+      // Check if there is a query result and the visualArr has a selection table. If so then filter out dropdown options.
+      if (queryResult?.length >= 1 && visualArr.includes("SELECTION_TABLE")) {
         queryResult.forEach(obj => {
           if (!arr.includes(obj[this.props.parameter.title])) {
             arr.push(obj[this.props.parameter.title]);

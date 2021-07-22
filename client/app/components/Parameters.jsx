@@ -122,7 +122,7 @@ export default class Parameters extends React.Component {
   };
 
   renderParameter(param, index) {
-    const { editable } = this.props;
+    const { editable, widgets } = this.props;
     return (
       <div key={param.name} className="di-block" data-test={`ParameterName-${param.name}`}>
         <div className="parameter-heading">
@@ -142,6 +142,7 @@ export default class Parameters extends React.Component {
           type={param.type}
           value={param.normalizedValue}
           parameter={param}
+          widgets={widgets}
           enumOptions={param.enumOptions}
           queryId={param.queryId}
           onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
