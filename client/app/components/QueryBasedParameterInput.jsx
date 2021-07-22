@@ -2,13 +2,15 @@ import { find, isArray, get, first, map, intersection, isEqual, isEmpty } from "
 import React from "react";
 import PropTypes from "prop-types";
 import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
+import { connect } from "react-redux";
 
-export default class QueryBasedParameterInput extends React.Component {
+class QueryBasedParameterInput extends React.Component {
   static propTypes = {
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     mode: PropTypes.oneOf(["default", "multiple"]),
     queryId: PropTypes.number,
+    queryResult: PropTypes.any,
     onSelect: PropTypes.func,
     className: PropTypes.string,
   };
@@ -18,6 +20,7 @@ export default class QueryBasedParameterInput extends React.Component {
     mode: "default",
     parameter: null,
     queryId: null,
+    queryResult: null,
     onSelect: () => {},
     className: "",
   };
@@ -41,6 +44,7 @@ export default class QueryBasedParameterInput extends React.Component {
     }
     if (this.props.value !== prevProps.value) {
       this.setValue(this.props.value);
+      this._loadOptions(this.props.queryId, this.props.queryResult);
     }
   }
 
@@ -59,11 +63,18 @@ export default class QueryBasedParameterInput extends React.Component {
     return value;
   }
 
-  async _loadOptions(queryId) {
-    if (queryId && queryId !== this.state.queryId) {
+  async _loadOptions(queryId, queryResult) {
+    if (queryResult?.length >= 1 && queryId && queryId !== this.state.queryId) {
       this.setState({ loading: true });
-      const options = await this.props.parameter.loadDropdownValues();
 
+      let options = await this.props.parameter.loadDropdownValues();
+        const arr = []
+        queryResult.forEach(obj => {
+          if(!arr.includes( obj[this.props.parameter.title])){
+            arr.push( obj[this.props.parameter.title].toString())
+          }
+        })
+        options = options.filter(option => arr.includes(option.value.toString()))
       // stale queryId check
       if (this.props.queryId === queryId) {
         this.setState({ options, loading: false }, () => {
@@ -77,8 +88,9 @@ export default class QueryBasedParameterInput extends React.Component {
   }
 
   render() {
-    const { className, mode, onSelect, queryId, value, ...otherProps } = this.props;
+    const { className, mode, onSelect, queryId, value, queryResult, ...otherProps } = this.props;
     const { loading, options } = this.state;
+
     return (
       <span>
         <SelectWithVirtualScroll
@@ -98,3 +110,10 @@ export default class QueryBasedParameterInput extends React.Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  const { QueryData } = state;
+  return { queryResult: QueryData.Data };
+}
+
+export default connect(mapStateToProps)(QueryBasedParameterInput);

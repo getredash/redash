@@ -46,6 +46,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.2.1",
     "@redash/viz": "file:viz-lib",
+    "@reduxjs/toolkit": "^1.6.1",
     "ace-builds": "^1.4.12",
     "antd": "^4.4.3",
     "axios": "^0.21.1",
@@ -71,6 +72,7 @@
     "react-ace": "^9.1.1",
     "react-dom": "^16.14.0",
     "react-grid-layout": "^0.18.2",
+    "react-redux": "^7.2.4",
     "react-resizable": "^1.10.1",
     "react-virtualized": "^9.21.2",
     "sql-formatter": "git+https://github.com/getredash/sql-formatter.git",
