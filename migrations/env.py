@@ -75,6 +75,7 @@ def run_migrations_online():
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
+    engine.execution_options(schema_translate_map={None: schema})
 
     connection = engine.connect()
     context.configure(

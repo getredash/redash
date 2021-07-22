@@ -8,7 +8,7 @@ from sqlalchemy_searchable import make_searchable, vectorizer, SearchQueryMixin
 from sqlalchemy.dialects import postgresql
 
 from redash import settings
-from redash.utils import json_dumps
+from redash.utils import json_dumps, get_schema
 
 
 class RedashSQLAlchemy(SQLAlchemy):
@@ -27,11 +27,18 @@ class RedashSQLAlchemy(SQLAlchemy):
             # Remove options NullPool does not support:
             options.pop("max_overflow", None)
 
+
 md = None
 if settings.SQLALCHEMY_DATABASE_SCHEMA:
-   md = MetaData(schema=settings.SQLALCHEMY_DATABASE_SCHEMA)
+    md = MetaData(schema=settings.SQLALCHEMY_DATABASE_SCHEMA)
 
-db = RedashSQLAlchemy(session_options={"expire_on_commit": False}, metadata=md)
+db = RedashSQLAlchemy(
+    session_options={"expire_on_commit": False},
+    engine_options={
+        "execution_options": {"schema_translate_map": {None: get_schema()}}
+    },
+    metadata=md,
+)
 
 # Make sure the SQLAlchemy mappers are all properly configured first.
 # This is required by SQLAlchemy-Searchable as it adds DDL listeners
