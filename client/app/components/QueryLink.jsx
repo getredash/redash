@@ -10,7 +10,7 @@ function QueryLink({ query, visualization, readOnly }) {
   const getUrl = () => {
     let hash = null;
     if (visualization) {
-      if (visualization.type === "TABLE") {
+      if (visualization.type === "TABLE" || visualization.type === 'SELECTION_TABLE') {
         // link to hard-coded table tab instead of the (hidden) visualization tab
         hash = "table";
       } else {

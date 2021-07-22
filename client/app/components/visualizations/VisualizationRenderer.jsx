@@ -80,7 +80,7 @@ export default function VisualizationRenderer(props) {
   let options = { ...visualization.options };
 
   // define pagination size based on context for Table visualization
-  if (visualization.type === "TABLE") {
+  if (visualization.type === "TABLE" || visualization.type === "SELECTION_TABLE") {
     options.paginationSize = props.context === "widget" ? "small" : "default";
   }
 
