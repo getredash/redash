@@ -3,6 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
 import { connect } from "react-redux";
+import { getQueryAction } from "@/store";
 
 class QueryBasedParameterInput extends React.Component {
   static propTypes = {
@@ -68,13 +69,13 @@ class QueryBasedParameterInput extends React.Component {
       this.setState({ loading: true });
 
       let options = await this.props.parameter.loadDropdownValues();
-        const arr = []
-        queryResult.forEach(obj => {
-          if(!arr.includes( obj[this.props.parameter.title])){
-            arr.push( obj[this.props.parameter.title].toString())
-          }
-        })
-        options = options.filter(option => arr.includes(option.value.toString()))
+      const arr = [];
+      queryResult.forEach(obj => {
+        if (!arr.includes(obj[this.props.parameter.title])) {
+          arr.push(obj[this.props.parameter.title].toString());
+        }
+      });
+      options = options.filter(option => arr.includes(option.value.toString()));
       // stale queryId check
       if (this.props.queryId === queryId) {
         this.setState({ options, loading: false }, () => {
@@ -116,4 +117,10 @@ function mapStateToProps(state) {
   return { queryResult: QueryData.Data };
 }
 
-export default connect(mapStateToProps)(QueryBasedParameterInput);
+const mapDispatchToProps = () => {
+  return {
+    getqueryaction: getQueryAction(),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(QueryBasedParameterInput);

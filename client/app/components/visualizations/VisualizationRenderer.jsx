@@ -42,7 +42,7 @@ export default function VisualizationRenderer(props) {
   // Using Redux to set data but object is returning as an empty object || undefined
   const data = useQueryResultData(props.queryResult);
   store.dispatch(getQueryAction(data.rows));
-  const queryData = useSelector(state => state.QueryData.Data);
+  // const queryData = useSelector(state => state.QueryData.Data);
 
   const [filters, setFilters] = useState(() => combineFilters(data.filters, props.filters)); // lazy initialization
   const filtersRef = useRef();
