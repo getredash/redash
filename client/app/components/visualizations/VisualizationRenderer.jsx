@@ -41,8 +41,6 @@ function areFiltersEqual(a, b) {
 export default function VisualizationRenderer(props) {
   // Using Redux to set data but object is returning as an empty object || undefined
   const data = useQueryResultData(props.queryResult);
-  store.dispatch(getQueryAction(data.rows));
-  // const queryData = useSelector(state => state.QueryData.Data);
 
   const [filters, setFilters] = useState(() => combineFilters(data.filters, props.filters)); // lazy initialization
   const filtersRef = useRef();
@@ -55,9 +53,12 @@ export default function VisualizationRenderer(props) {
     }
   });
 
+  const dispatch = dataRows => store.dispatch(getQueryAction(dataRows));
+
   // Reset local filters when query results updated
   useEffect(() => {
     handleFiltersChange(combineFilters(data.filters, props.filters));
+    dispatch(data.rows);
   }, [data.filters, props.filters, handleFiltersChange]);
 
   // Update local filters when global filters changed.
