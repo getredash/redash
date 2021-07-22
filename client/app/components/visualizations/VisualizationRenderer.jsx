@@ -56,7 +56,7 @@ export default function VisualizationRenderer(props) {
   useEffect(() => {
     handleFiltersChange(combineFilters(data.filters, props.filters));
     dispatch(data.rows);
-  }, [data.filters, props.filters, handleFiltersChange]);
+  }, [data.filters, data.rows, props.filters, handleFiltersChange]);
 
   // Update local filters when global filters changed.
   // For correct behavior need to watch only `props.filters` here,
