@@ -384,7 +384,7 @@ class Redshift(PostgreSQL):
         # https://docs.aws.amazon.com/redshift/latest/dg/r_HAS_SCHEMA_PRIVILEGE.html
         # https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_EXTERNAL_SCHEMAS.html
         # https://docs.aws.amazon.com/redshift/latest/dg/r_HAS_TABLE_PRIVILEGE.html
-        schemas_to_exclude = self.configuration.get('exclude_schemas').split(',')
+        schemas_to_exclude = self.configuration.get('exclude_schemas', 'pg_internal,pg_catalog,information_schema,pg_temp_%').split(',')
         full_schemas_to_exclude = '\',\''.join([schema for schema in schemas_to_exclude if '%' not in schema])
         pattern_schemas_to_exclude = '\' AND table_schema NOT LIKE \''.join([schema for schema in schemas_to_exclude if ' %' in schema])
         query = """
