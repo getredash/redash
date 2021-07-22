@@ -65,17 +65,20 @@ class QueryBasedParameterInput extends React.Component {
   }
 
   async _loadOptions(queryId, queryResult) {
-    if (queryResult?.length >= 1 && queryId && queryId !== this.state.queryId) {
+    if (queryId && queryId !== this.state.queryId) {
       this.setState({ loading: true });
 
       let options = await this.props.parameter.loadDropdownValues();
       const arr = [];
-      queryResult.forEach(obj => {
-        if (!arr.includes(obj[this.props.parameter.title])) {
-          arr.push(obj[this.props.parameter.title].toString());
-        }
-      });
-      options = options.filter(option => arr.includes(option.value.toString()));
+      if (queryResult?.length >= 1) {
+        queryResult.forEach(obj => {
+          if (!arr.includes(obj[this.props.parameter.title])) {
+            arr.push(obj[this.props.parameter.title]);
+          }
+        });
+        options = options.filter(option => arr.includes(option.name));
+      }
+
       // stale queryId check
       if (this.props.queryId === queryId) {
         this.setState({ options, loading: false }, () => {
