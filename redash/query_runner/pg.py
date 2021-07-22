@@ -341,6 +341,11 @@ class Redshift(PostgreSQL):
                     "title": "Query Group for Scheduled Queries",
                     "default": "default",
                 },
+                "exclude_schemas": {
+                    "type": "string",
+                    "title": "Exclude schemas from scanning tables",
+                    "default": "pg_internal,pg_catalog,information_schema,pg_temp_%",
+                },
             },
             "order": [
                 "host",
@@ -349,6 +354,7 @@ class Redshift(PostgreSQL):
                 "password",
                 "dbname",
                 "sslmode",
+                "exclude_schemas",
                 "adhoc_query_group",
                 "scheduled_query_group",
             ],
@@ -378,6 +384,9 @@ class Redshift(PostgreSQL):
         # https://docs.aws.amazon.com/redshift/latest/dg/r_HAS_SCHEMA_PRIVILEGE.html
         # https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_EXTERNAL_SCHEMAS.html
         # https://docs.aws.amazon.com/redshift/latest/dg/r_HAS_TABLE_PRIVILEGE.html
+        schemas_to_exclude = self.configuration.get('exclude_schemas').split(',')
+        full_schemas_to_exclude = '\',\''.join([schema for schema in schemas_to_exclude if '%' not in schema])
+        pattern_schemas_to_exclude = '\' AND table_schema NOT LIKE \''.join([schema for schema in schemas_to_exclude if ' %' in schema])
         query = """
         WITH tables AS (
             SELECT DISTINCT table_name,
@@ -385,8 +394,8 @@ class Redshift(PostgreSQL):
                             column_name,
                             ordinal_position AS pos
             FROM svv_columns
-            WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
-            AND table_schema NOT LIKE 'pg_temp_%'
+            WHERE table_schema NOT IN ('{full_schemas_to_exclude}')
+            AND table_schema NOT LIKE '{pattern_schemas_to_exclude}'
         )
         SELECT table_name, table_schema, column_name
         FROM tables
@@ -397,7 +406,10 @@ class Redshift(PostgreSQL):
                 HAS_TABLE_PRIVILEGE('"' || table_schema || '"."' || table_name || '"', 'SELECT')
             )
         ORDER BY table_name, pos
-        """
+        """.format(
+            full_schemas_to_exclude=full_schemas_to_exclude,
+            pattern_schemas_to_exclude=pattern_schemas_to_exclude
+        )
 
         self._get_definitions(schema, query)
 
@@ -460,6 +472,11 @@ class RedshiftIAM(Redshift):
                     "title": "Query Group for Scheduled Queries",
                     "default": "default",
                 },
+                "exclude_schemas": {
+                    "type": "string",
+                    "title": "Exclude schemas from scanning tables",
+                    "default": "pg_internal,pg_catalog,information_schema,pg_temp_%",
+                },
             },
             "order": [
                 "rolename",
@@ -472,6 +489,7 @@ class RedshiftIAM(Redshift):
                 "user",
                 "dbname",
                 "sslmode",
+                "exclude_schemas",
                 "adhoc_query_group",
                 "scheduled_query_group",
             ],
