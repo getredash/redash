@@ -64,47 +64,17 @@ class QueryBasedParameterInput extends React.Component {
   }
 
   async _loadOptions(queryId, queryResult) {
-    if (queryId && queryId !== this.state.queryId) {
+    if (queryResult?.length >= 1 && queryId && queryId !== this.state.queryId) {
       this.setState({ loading: true });
 
       let options = await this.props.parameter.loadDropdownValues();
-
-      if (queryResult?.length >= 1) {
-        options.forEach(option => {
-          const newOptions = [];
-          queryResult.map(result => {
-            for (let key in result) {
-              const resultString = result[key];
-              if (!resultString.includes(option.name)) {
-                newOptions.push(option);
-              }
-            }
-          });
-
-          return newOptions;
-        });
-      }
-
-      // console.log(options);
-
-      // await queryResult.forEach(result => {
-      //   let filteredOptions = [];
-      //   for (let key in result) {
-      //     filteredOptions = options.filter(option => {
-      //       return option.value === result[key] ? option : null;
-      //     });
-      //     // options = options.filter(option => option.value.includes(result[key]));
-      //   }
-      //   return filteredOptions;
-      // });
-
-      // options = filteredOptions;
-      // queryResult.forEach(result => {
-      //   for (let key in result) {
-      //     options = options.filter(row => !row.value.includes(result[key]));
-      //   }
-      // });
-
+        const arr = []
+        queryResult.forEach(obj => {
+          if(!arr.includes( obj[this.props.parameter.title])){
+            arr.push( obj[this.props.parameter.title].toString())
+          }
+        })
+        options = options.filter(option => arr.includes(option.value.toString()))
       // stale queryId check
       if (this.props.queryId === queryId) {
         this.setState({ options, loading: false }, () => {
