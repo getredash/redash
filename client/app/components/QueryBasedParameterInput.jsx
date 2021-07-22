@@ -3,6 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
 import { connect } from "react-redux";
+import { getQueryAction } from "@/store";
 
 class QueryBasedParameterInput extends React.Component {
   static propTypes = {
@@ -64,17 +65,30 @@ class QueryBasedParameterInput extends React.Component {
   }
 
   async _loadOptions(queryId, queryResult) {
-    if (queryResult?.length >= 1 && queryId && queryId !== this.state.queryId) {
+    if (queryId && queryId !== this.state.queryId) {
       this.setState({ loading: true });
 
       let options = await this.props.parameter.loadDropdownValues();
-        const arr = []
+      const arr = [];
+      const visualArr = [];
+
+      // Pushing type of visualization to visualArr
+      this.props.widgets.forEach(widget => {
+        if (widget.visualization && !visualArr.includes(widget.visualization.type)) {
+          visualArr.push(widget.visualization.type);
+        }
+      });
+
+      // Check if there is a query result and the visualArr has a selection table. If so then filter out dropdown options.
+      if (queryResult?.length >= 1 && visualArr.includes("SELECTION_TABLE")) {
         queryResult.forEach(obj => {
-          if(!arr.includes( obj[this.props.parameter.title])){
-            arr.push( obj[this.props.parameter.title].toString())
+          if (!arr.includes(obj[this.props.parameter.title])) {
+            arr.push(obj[this.props.parameter.title]);
           }
-        })
-        options = options.filter(option => arr.includes(option.value.toString()))
+        });
+        options = options.filter(option => arr.includes(option.name));
+      }
+
       // stale queryId check
       if (this.props.queryId === queryId) {
         this.setState({ options, loading: false }, () => {
@@ -116,4 +130,10 @@ function mapStateToProps(state) {
   return { queryResult: QueryData.Data };
 }
 
-export default connect(mapStateToProps)(QueryBasedParameterInput);
+const mapDispatchToProps = () => {
+  return {
+    getqueryaction: getQueryAction(),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(QueryBasedParameterInput);

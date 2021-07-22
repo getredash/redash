@@ -113,13 +113,14 @@ class ParameterValueInput extends React.Component {
   }
 
   renderQueryBasedInput() {
-    const { queryId, parameter } = this.props;
+    const { queryId, parameter, widgets } = this.props;
     const { value } = this.state;
     return (
       <QueryBasedParameterInput
         className={this.props.className}
         mode={parameter.multiValuesOptions ? "multiple" : "default"}
         parameter={parameter}
+        widgets={widgets}
         value={value}
         queryId={queryId}
         onSelect={this.onSelect}

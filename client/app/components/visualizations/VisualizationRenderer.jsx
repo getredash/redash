@@ -7,7 +7,6 @@ import Filters, { FiltersType, filterData } from "@/components/Filters";
 import { VisualizationType } from "@redash/viz/lib";
 import { Renderer } from "@/components/visualizations/visualizationComponents";
 import { getQueryAction, store } from "@/store";
-import { useSelector } from "react-redux";
 
 function combineFilters(localFilters, globalFilters) {
   // tiny optimization - to avoid unnecessary updates
@@ -39,11 +38,7 @@ function areFiltersEqual(a, b) {
 }
 
 export default function VisualizationRenderer(props) {
-  // Using Redux to set data but object is returning as an empty object || undefined
   const data = useQueryResultData(props.queryResult);
-  store.dispatch(getQueryAction(data.rows));
-  const queryData = useSelector(state => state.QueryData.Data);
-
   const [filters, setFilters] = useState(() => combineFilters(data.filters, props.filters)); // lazy initialization
   const filtersRef = useRef();
   filtersRef.current = filters;
@@ -55,10 +50,13 @@ export default function VisualizationRenderer(props) {
     }
   });
 
+  const dispatch = dataRows => store.dispatch(getQueryAction(dataRows));
+
   // Reset local filters when query results updated
   useEffect(() => {
     handleFiltersChange(combineFilters(data.filters, props.filters));
-  }, [data.filters, props.filters, handleFiltersChange]);
+    dispatch(data.rows);
+  }, [data.filters, data.rows, props.filters, handleFiltersChange]);
 
   // Update local filters when global filters changed.
   // For correct behavior need to watch only `props.filters` here,

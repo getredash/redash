@@ -132,6 +132,7 @@ function DashboardComponent(props) {
         <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
           <Parameters
             parameters={globalParameters}
+            widgets={dashboard.widgets}
             onValuesChange={refreshDashboard}
             sortable={editingLayout}
             onParametersEdit={onParametersEdit}
