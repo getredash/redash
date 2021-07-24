@@ -55,8 +55,11 @@ export default function VisualizationRenderer(props) {
   // Reset local filters when query results updated
   useEffect(() => {
     handleFiltersChange(combineFilters(data.filters, props.filters));
+  }, [data.filters, props.filters, handleFiltersChange]);
+
+  useEffect(() => {
     dispatch(data.rows);
-  }, [data.filters, data.rows, props.filters, handleFiltersChange]);
+  }, [data.rows]);
 
   // Update local filters when global filters changed.
   // For correct behavior need to watch only `props.filters` here,

@@ -11,6 +11,8 @@ import EditParameterSettingsDialog from "./EditParameterSettingsDialog";
 import { toHuman } from "@/lib/utils";
 
 import "./Parameters.less";
+import { connect } from "react-redux";
+import { getQueryAction } from "@/store";
 
 function updateUrl(parameters) {
   const params = extend({}, location.search);
@@ -20,7 +22,7 @@ function updateUrl(parameters) {
   location.setSearch(params, true);
 }
 
-export default class Parameters extends React.Component {
+class Parameters extends React.Component {
   static propTypes = {
     parameters: PropTypes.arrayOf(PropTypes.instanceOf(Parameter)),
     editable: PropTypes.bool,
@@ -30,6 +32,7 @@ export default class Parameters extends React.Component {
     onPendingValuesChange: PropTypes.func,
     onParametersEdit: PropTypes.func,
     appendSortableToParent: PropTypes.bool,
+    queryResult: PropTypes.any,
   };
 
   static defaultProps = {
@@ -41,6 +44,7 @@ export default class Parameters extends React.Component {
     onPendingValuesChange: () => {},
     onParametersEdit: () => {},
     appendSortableToParent: true,
+    queryResult: null,
   };
 
   constructor(props) {
@@ -53,7 +57,7 @@ export default class Parameters extends React.Component {
   }
 
   componentDidUpdate = prevProps => {
-    const { parameters, disableUrlUpdate } = this.props;
+    const { parameters, disableUrlUpdate, queryResult } = this.props;
     const parametersChanged = prevProps.parameters !== parameters;
     const disableUrlUpdateChanged = prevProps.disableUrlUpdate !== disableUrlUpdate;
     if (parametersChanged) {
@@ -72,7 +76,7 @@ export default class Parameters extends React.Component {
     }
   };
 
-  setPendingValue = (param, value, isDirty) => {
+  setPendingValue = (param, value, isDirty, queryResult) => {
     const { onPendingValuesChange } = this.props;
     this.setState(({ parameters }) => {
       if (isDirty) {
@@ -98,7 +102,8 @@ export default class Parameters extends React.Component {
 
   applyChanges = () => {
     const { onValuesChange, disableUrlUpdate } = this.props;
-    this.setState(({ parameters }) => {
+    this.setState(({ parameters, queryResult }) => {
+      console.log(queryResult);
       const parametersWithPendingValues = parameters.filter(p => p.hasPendingValue);
       forEach(parameters, p => p.applyPendingValue());
       if (!disableUrlUpdate) {
@@ -122,7 +127,7 @@ export default class Parameters extends React.Component {
   };
 
   renderParameter(param, index) {
-    const { editable, widgets } = this.props;
+    const { editable, widgets, queryResult } = this.props;
     return (
       <div key={param.name} className="di-block" data-test={`ParameterName-${param.name}`}>
         <div className="parameter-heading">
@@ -145,7 +150,7 @@ export default class Parameters extends React.Component {
           widgets={widgets}
           enumOptions={param.enumOptions}
           queryId={param.queryId}
-          onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
+          onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty, queryResult)}
         />
       </div>
     );
@@ -186,3 +191,16 @@ export default class Parameters extends React.Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  const { QueryData } = state;
+  return { queryResult: QueryData.Data };
+}
+
+const mapDispatchToProps = () => {
+  return {
+    getqueryaction: getQueryAction(),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Parameters);

@@ -7,7 +7,8 @@ import InputNumber from "antd/lib/input-number";
 import DateParameter from "@/components/dynamic-parameters/DateParameter";
 import DateRangeParameter from "@/components/dynamic-parameters/DateRangeParameter";
 import QueryBasedParameterInput from "./QueryBasedParameterInput";
-
+import { connect } from "react-redux";
+import { getQueryAction } from "@/store";
 import "./ParameterValueInput.less";
 
 const multipleValuesProps = {
@@ -22,6 +23,7 @@ class ParameterValueInput extends React.Component {
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     enumOptions: PropTypes.string,
     queryId: PropTypes.number,
+    queryResult: PropTypes.any,
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     onSelect: PropTypes.func,
     className: PropTypes.string,
@@ -32,6 +34,7 @@ class ParameterValueInput extends React.Component {
     value: null,
     enumOptions: "",
     queryId: null,
+    queryResult: null,
     parameter: null,
     onSelect: () => {},
     className: "",
@@ -46,17 +49,31 @@ class ParameterValueInput extends React.Component {
   }
 
   componentDidUpdate = prevProps => {
-    const { value, parameter } = this.props;
+    const { value, parameter, queryResult } = this.props;
     // if value prop updated, reset dirty state
     if (prevProps.value !== value || prevProps.parameter !== parameter) {
       this.setState({
         value: parameter.hasPendingValue ? parameter.pendingValue : value,
         isDirty: parameter.hasPendingValue,
+        queryResult: queryResult,
       });
     }
   };
 
   onSelect = value => {
+    const { parameter } = this.props;
+    const { queryResult } = this.state;
+    const arr = [];
+
+    if (queryResult.length >= 1) {
+      queryResult.forEach(result => {
+        if (!arr.includes(result[parameter.title])) {
+          arr.push(result[parameter.title]);
+        }
+      });
+      value = value.filter(selection => arr.includes(selection));
+    }
+
     const isDirty = !isEqual(value, this.props.value);
     this.setState({ value, isDirty });
     this.props.onSelect(value, isDirty);
@@ -194,4 +211,15 @@ class ParameterValueInput extends React.Component {
   }
 }
 
-export default ParameterValueInput;
+function mapStateToProps(state) {
+  const { QueryData } = state;
+  return { queryResult: QueryData.Data };
+}
+
+const mapDispatchToProps = () => {
+  return {
+    getqueryaction: getQueryAction(),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ParameterValueInput);
