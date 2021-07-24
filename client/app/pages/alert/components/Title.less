@@ -1,0 +1,32 @@
+.alert-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  margin-bottom: 5px;
+
+  & > div {
+    padding: 5px 0;
+  }
+
+  .alert-title {
+    flex: 1 1;
+
+    h3 {
+      margin: 0 15px 0 0;
+
+      @media (max-width: 767px) {
+        font-size: 18px;
+      }
+    }
+  }
+
+  .alert-actions {
+    display: flex;
+    flex-wrap: nowrap;
+
+    @media (max-width: 515px) {
+      flex-basis: 100%;
+    }
+  }
+}

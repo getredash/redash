@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Visualizations -> Chart -> Editor -> Data Labels Settings Changes data labels format 1`] = `
+Object {
+  "textFormat": "{{ @@x }} :: {{ @@y }} / {{ @@yPercent }}",
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> Data Labels Settings Changes date/time format 1`] = `
+Object {
+  "dateTimeFormat": "YYYY MMM DD",
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> Data Labels Settings Changes number format 1`] = `
+Object {
+  "numberFormat": "0.00",
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> Data Labels Settings Changes percent values format 1`] = `
+Object {
+  "percentFormat": "0.0%",
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> Data Labels Settings Sets Show Data Labels option 1`] = `
+Object {
+  "showDataLabels": true,
+}
+`;

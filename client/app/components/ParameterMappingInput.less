@@ -1,0 +1,84 @@
+@import (reference, less) "~@/assets/less/ant"; // for ant @vars
+
+.parameters-mapping-list {
+  .keyword {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    code {
+      white-space: nowrap; // so the curly braces don't line break
+    }
+  }
+
+  // Ant <Tag> overrides
+  .tag {
+    margin: 0;
+    pointer-events: none; // unclickable
+
+    &:empty {
+      display: none;
+    }
+  }
+}
+
+.parameter-mapping-editor {
+  width: 390px;
+
+  .radio {
+    display: block;
+    height: 30px;
+    line-height: 30px;
+  }
+
+  .form-item {
+    margin-bottom: 10px;
+  }
+
+  header {
+    padding: 0 16px 10px;
+    margin: 0 -16px 20px;
+    border-bottom: @border-width-base @border-style-base @border-color-split;
+    font-size: @font-size-lg;
+    font-weight: 500;
+    color: @heading-color;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  footer {
+    border-top: @border-width-base @border-style-base @border-color-split;
+    padding: 10px 16px 0;
+    margin: 0 -16px;
+    text-align: right;
+
+    button {
+      margin-left: 8px;
+    }
+  }
+}
+
+.parameter-mapping-title {
+  .text {
+    margin-right: 3px;
+  }
+
+  &.disabled,
+  .fa {
+    color: #a4a4a4;
+  }
+
+  .fa-eye-slash {
+    margin-left: 1px;
+  }
+}
+
+.parameter-mapping-title-editor {
+  input {
+    width: 100px;
+  }
+
+  button {
+    margin-left: 2px;
+  }
+}

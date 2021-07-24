@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import urllib
 import argparse
 import os
@@ -27,7 +27,7 @@ def run(cmd, cwd=None):
 
 
 def confirm(question):
-    reply = str(raw_input(question + ' (y/n): ')).lower().strip()
+    reply = str(input(question + ' (y/n): ')).lower().strip()
 
     if reply[0] == 'y':
         return True

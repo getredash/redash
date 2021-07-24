@@ -1,4 +1,4 @@
-const PREFIX = 'localOptions:';
+const PREFIX = "localOptions:";
 
 function get(key, defaultValue = undefined) {
   const fullKey = PREFIX + key;

@@ -1,0 +1,10 @@
+.ant-form-horizontal--labels-left {
+  .ant-form-item-label {
+    text-align: left;
+    white-space: normal;
+
+    > label::after {
+      content: none; // Do not show ":" next to label when they are aligned on left side
+    }
+  }
+}

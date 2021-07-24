@@ -1,17 +1,14 @@
-function Destination($resource) {
-  const actions = {
-    get: { method: 'GET', cache: false, isArray: false },
-    query: { method: 'GET', cache: false, isArray: true },
-  };
+import { axios } from "@/services/axios";
 
-  const DestinationResource = $resource('api/destinations/:id', { id: '@id' }, actions);
+export const IMG_ROOT = "static/images/destinations";
 
-  return DestinationResource;
-}
+const Destination = {
+  query: () => axios.get("api/destinations"),
+  get: ({ id }) => axios.get(`api/destinations/${id}`),
+  types: () => axios.get("api/destinations/types"),
+  create: data => axios.post(`api/destinations`, data),
+  save: data => axios.post(`api/destinations/${data.id}`, data),
+  delete: ({ id }) => axios.delete(`api/destinations/${id}`),
+};
 
-export default function init(ngModule) {
-  ngModule.factory('Destination', Destination);
-}
-
-init.init = true;
-
+export default Destination;

@@ -1,16 +1,23 @@
-# -*- coding: utf-8 -*-
-
 import re
 import logging
 from collections import OrderedDict
 from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN
+from redash.query_runner import (
+    TYPE_STRING,
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_INTEGER,
+    TYPE_FLOAT,
+    TYPE_BOOLEAN,
+)
 from redash.utils import json_dumps
+
 logger = logging.getLogger(__name__)
 
 try:
-    from simple_salesforce import Salesforce as SimpleSalesforce
-    from simple_salesforce.api import SalesforceError, DEFAULT_API_VERSION
+    from simple_salesforce import Salesforce as SimpleSalesforce, SalesforceError
+    from simple_salesforce.api import DEFAULT_API_VERSION
+
     enabled = True
 except ImportError as e:
     enabled = False
@@ -41,7 +48,7 @@ TYPES_MAP = dict(
     combobox=TYPE_STRING,
     calculated=TYPE_STRING,
     anyType=TYPE_STRING,
-    address=TYPE_STRING
+    address=TYPE_STRING,
 )
 
 # Query Runner for Salesforce SOQL Queries
@@ -50,41 +57,29 @@ TYPES_MAP = dict(
 
 
 class Salesforce(BaseQueryRunner):
+    should_annotate_query = False
 
     @classmethod
     def enabled(cls):
         return enabled
 
     @classmethod
-    def annotate_query(cls):
-        return False
-
-    @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
             "properties": {
-                "username": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "token": {
-                    "type": "string",
-                    "title": "Security Token"
-                },
-                "sandbox": {
-                    "type": "boolean"
-                },
+                "username": {"type": "string"},
+                "password": {"type": "string"},
+                "token": {"type": "string", "title": "Security Token"},
+                "sandbox": {"type": "boolean"},
                 "api_version": {
                     "type": "string",
                     "title": "Salesforce API Version",
-                    "default": DEFAULT_API_VERSION
-                }
+                    "default": DEFAULT_API_VERSION,
+                },
             },
             "required": ["username", "password", "token"],
-            "secret": ["password", "token"]
+            "secret": ["password", "token"],
         }
 
     def test_connection(self):
@@ -94,23 +89,25 @@ class Salesforce(BaseQueryRunner):
         pass
 
     def _get_sf(self):
-        sf = SimpleSalesforce(username=self.configuration['username'],
-                              password=self.configuration['password'],
-                              security_token=self.configuration['token'],
-                              sandbox=self.configuration.get('sandbox', False),
-                              version=self.configuration.get('api_version', DEFAULT_API_VERSION),
-                              client_id='Redash')
+        sf = SimpleSalesforce(
+            username=self.configuration["username"],
+            password=self.configuration["password"],
+            security_token=self.configuration["token"],
+            sandbox=self.configuration.get("sandbox", False),
+            version=self.configuration.get("api_version", DEFAULT_API_VERSION),
+            client_id="Redash",
+        )
         return sf
 
     def _clean_value(self, value):
-        if isinstance(value, OrderedDict) and 'records' in value:
-            value = value['records']
+        if isinstance(value, OrderedDict) and "records" in value:
+            value = value["records"]
             for row in value:
-                row.pop('attributes', None)
+                row.pop("attributes", None)
         return value
 
     def _get_value(self, dct, dots):
-        for key in dots.split('.'):
+        for key in dots.split("."):
             if dct is not None and key in dct:
                 dct = dct.get(key)
             else:
@@ -118,20 +115,20 @@ class Salesforce(BaseQueryRunner):
         return dct
 
     def _get_column_name(self, key, parents=[]):
-        return '.'.join(parents + [key])
+        return ".".join(parents + [key])
 
     def _build_columns(self, sf, child, parents=[]):
-        child_type = child['attributes']['type']
+        child_type = child["attributes"]["type"]
         child_desc = sf.__getattr__(child_type).describe()
-        child_type_map = dict((f['name'], f['type'])for f in child_desc['fields'])
+        child_type_map = dict((f["name"], f["type"]) for f in child_desc["fields"])
         columns = []
         for key in child.keys():
-            if key != 'attributes':
-                if isinstance(child[key], OrderedDict) and 'attributes' in child[key]:
+            if key != "attributes":
+                if isinstance(child[key], OrderedDict) and "attributes" in child[key]:
                     columns.extend(self._build_columns(sf, child[key], parents + [key]))
                 else:
                     column_name = self._get_column_name(key, parents)
-                    key_type = child_type_map.get(key, 'string')
+                    key_type = child_type_map.get(key, "string")
                     column_type = TYPES_MAP.get(key_type, TYPE_STRING)
                     columns.append((column_name, column_type))
         return columns
@@ -139,7 +136,7 @@ class Salesforce(BaseQueryRunner):
     def _build_rows(self, columns, records):
         rows = []
         for record in records:
-            record.pop('attributes', None)
+            record.pop("attributes", None)
             row = dict()
             for column in columns:
                 key = column[0]
@@ -156,16 +153,16 @@ class Salesforce(BaseQueryRunner):
             rows = []
             sf = self._get_sf()
             response = sf.query_all(query)
-            records = response['records']
-            if response['totalSize'] > 0 and len(records) == 0:
-                columns = self.fetch_columns([('Count', TYPE_INTEGER)])
-                rows = [{'Count': response['totalSize']}]
+            records = response["records"]
+            if response["totalSize"] > 0 and len(records) == 0:
+                columns = self.fetch_columns([("Count", TYPE_INTEGER)])
+                rows = [{"Count": response["totalSize"]}]
             elif len(records) > 0:
                 cols = self._build_columns(sf, records[0])
                 rows = self._build_rows(cols, records)
                 columns = self.fetch_columns(cols)
             error = None
-            data = {'columns': columns, 'rows': rows}
+            data = {"columns": columns, "rows": rows}
             json_data = json_dumps(data)
         except SalesforceError as err:
             error = err.content
@@ -179,12 +176,16 @@ class Salesforce(BaseQueryRunner):
             raise Exception("Failed describing objects.")
 
         schema = {}
-        for sobject in response['sobjects']:
-            table_name = sobject['name']
-            if sobject['queryable'] is True and table_name not in schema:
-                desc = sf.__getattr__(sobject['name']).describe()
-                fields = desc['fields']
-                schema[table_name] = {'name': table_name, 'columns': [f['name'] for f in fields]}
-        return schema.values()
+        for sobject in response["sobjects"]:
+            table_name = sobject["name"]
+            if sobject["queryable"] is True and table_name not in schema:
+                desc = sf.__getattr__(sobject["name"]).describe()
+                fields = desc["fields"]
+                schema[table_name] = {
+                    "name": table_name,
+                    "columns": [f["name"] for f in fields],
+                }
+        return list(schema.values())
+
 
 register(Salesforce)

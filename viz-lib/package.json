@@ -1,0 +1,117 @@
+{
+  "name": "@redash/viz",
+  "version": "1.0.0",
+  "description": "Redash visualizations",
+  "main": "dist/redash-visualizations.js",
+  "scripts": {
+    "clean": "rm -rf lib dist",
+    "type-check": "tsc --noEmit",
+    "type-gen": "tsc --emitDeclarationOnly",
+    "build:babel:base": "babel src --out-dir lib --source-maps --ignore 'src/**/*.test.js' --copy-files --no-copy-ignored --extensions .ts,.tsx,.js,.jsx",
+    "build:babel": "npm run type-gen && npm run build:babel:base",
+    "build:webpack": "webpack",
+    "build": " NODE_ENV=production npm-run-all clean build:babel build:webpack",
+    "watch:babel": "npm run build:babel:base -- --watch",
+    "watch:webpack": "webpack --watch",
+    "watch": "npm-run-all --parallel watch:*",
+    "version": "npm run build",
+    "prettier": "prettier --write 'src/**/*.{ts,tsx}'",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/getredash/redash.git"
+  },
+  "author": "Redash",
+  "license": "BSD-2-Clause",
+  "peerDependencies": {
+    "antd": ">=4.0.0",
+    "@ant-design/icons": ">=4.0.0",
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/preset-env": "^7.9.0",
+    "@babel/preset-react": "^7.9.4",
+    "@babel/preset-typescript": "^7.12.7",
+    "@types/chroma-js": "^2.1.2",
+    "@types/d3": "^6.2.0",
+    "@types/d3-cloud": "^1.2.3",
+    "@types/debug": "^4.1.5",
+    "@types/dompurify": "^2.0.4",
+    "@types/enzyme": "^3.10.8",
+    "@types/jest": "^26.0.18",
+    "@types/leaflet": "^1.5.19",
+    "@types/numeral": "0.0.28",
+    "@types/plotly.js": "^1.54.4",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@types/tinycolor2": "^1.4.2",
+    "babel-loader": "^8.1.0",
+    "babel-plugin-istanbul": "^6.0.0",
+    "babel-plugin-module-resolver": "^4.0.0",
+    "css-loader": "^3.5.2",
+    "enzyme": "^3.8.0",
+    "enzyme-adapter-react-16": "^1.7.1",
+    "enzyme-to-json": "^3.3.5",
+    "file-loader": "^6.0.0",
+    "jest": "^24.1.0",
+    "less": "^3.11.1",
+    "less-loader": "^5.0.0",
+    "less-plugin-autoprefix": "^2.0.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^1.19.1",
+    "prop-types": "^15.7.2",
+    "style-loader": "^1.1.4",
+    "ts-migrate": "^0.1.10",
+    "typescript": "^4.1.2",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "files": [
+    "dist",
+    "lib"
+  ],
+  "dependencies": {
+    "axios": "^0.19.2",
+    "beautifymarker": "^1.0.7",
+    "chroma-js": "^1.3.6",
+    "classnames": "^2.2.6",
+    "d3": "^3.5.17",
+    "d3-cloud": "^1.2.4",
+    "debug": "^3.1.0",
+    "dompurify": "^2.0.7",
+    "font-awesome": "^4.7.0",
+    "hoist-non-react-statics": "^3.3.0",
+    "leaflet": "^1.2.0",
+    "leaflet-fullscreen": "^1.0.2",
+    "leaflet.markercluster": "^1.1.0",
+    "lodash": "^4.17.10",
+    "moment": "^2.19.3",
+    "numeral": "^2.0.6",
+    "plotly.js": "1.52.3",
+    "react-pivottable": "^0.9.0",
+    "react-sortable-hoc": "^1.10.1",
+    "tinycolor2": "^1.4.1",
+    "use-debounce": "^3.4.1",
+    "use-media": "^1.4.0"
+  },
+  "jest": {
+    "rootDir": "./src",
+    "setupFiles": [
+      "../__tests__/enzyme_setup.js",
+      "../__tests__/mocks.js"
+    ],
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)": "<rootDir>/$1",
+      "\\.(css|less)$": "identity-obj-proxy"
+    }
+  }
+}

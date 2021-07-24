@@ -1,0 +1,14 @@
+{% extends "layouts/signed_out.html" %}
+{% block title %}E-mail Verified{% endblock %}
+{% block head %}
+<meta http-equiv="refresh" content="5;URL='{{ next_url }}'" />
+{% endblock %}
+{% block content %}
+<div class="fixed-width-page">
+  <div class="bg-white tiled">
+      <div>
+          Thanks for verifying your email address. You will be redirected back to the app within a few seconds. <a href="{{ next_url }}">Click here</a> if you are not redirected.
+      </div>
+  </div>
+</div>
+{% endblock %}

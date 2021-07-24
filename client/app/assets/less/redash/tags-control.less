@@ -1,0 +1,20 @@
+.tags-control {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: flex-start;
+  line-height: 1em;
+
+  &.inline-tags-control {
+    display: inline-block;
+  }
+
+  .tag-separator {
+    margin: 4px 3px 0 0;
+  }
+
+  &.disabled {
+    opacity: 0.4;
+  }
+}

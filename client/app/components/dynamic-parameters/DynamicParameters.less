@@ -1,0 +1,53 @@
+@import (reference, less) "~@/assets/less/inc/variables";
+
+.date-range-parameter,
+.date-parameter {
+  position: relative;
+}
+
+.redash-datepicker {
+  padding-right: 35px !important;
+
+  &.date-range {
+    width: 294px;
+  }
+  &.datetime-range {
+    width: 352px;
+  }
+  &.datetime-range-with-seconds {
+    width: 382px;
+  }
+  &.dynamic-value {
+    width: 195px;
+  }
+
+  &.ant-picker-range .ant-picker-clear {
+    right: 35px !important;
+    background: transparent;
+  }
+
+  &.date-range-input {
+    transition: width 100ms ease-in-out;
+  }
+
+  &.dynamic-value {
+    & ::placeholder {
+      color: @input-color !important;
+    }
+
+    &.date-range-input {
+      .ant-picker-active-bar {
+        opacity: 0;
+      }
+
+      .ant-picker-separator,
+      .ant-picker-range-separator {
+        display: none;
+      }
+
+      .ant-picker-input:not(:first-child) {
+        width: 0;
+      }
+    }
+  }
+}

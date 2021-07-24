@@ -4,12 +4,14 @@ from redash.models import db, Query, Change, ChangeTrackingMixin
 
 
 def create_object(factory):
-    obj = Query(name='Query',
-                description='',
-                query_text='SELECT 1',
-                user=factory.user,
-                data_source=factory.data_source,
-                org=factory.org)
+    obj = Query(
+        name="Query",
+        description="",
+        query_text="SELECT 1",
+        user=factory.user,
+        data_source=factory.data_source,
+        org=factory.org,
+    )
 
     return obj
 
@@ -19,17 +21,19 @@ class TestChangesProperty(BaseTestCase):
         obj = create_object(self.factory)
 
         for change in Change.query.filter(Change.object == obj):
-            self.assertIsNone(change.change['previous'])
+            self.assertIsNone(change.change["previous"])
 
 
 class TestLogChange(BaseTestCase):
     def obj(self):
-        obj = Query(name='Query',
-                    description='',
-                    query_text='SELECT 1',
-                    user=self.factory.user,
-                    data_source=self.factory.data_source,
-                    org=self.factory.org)
+        obj = Query(
+            name="Query",
+            description="",
+            query_text="SELECT 1",
+            user=self.factory.user,
+            data_source=self.factory.data_source,
+            org=self.factory.org,
+        )
 
         return obj
 
@@ -54,8 +58,8 @@ class TestLogChange(BaseTestCase):
     def test_properly_log_modification(self):
         obj = create_object(self.factory)
         obj.record_changes(changed_by=self.factory.user)
-        obj.name = 'Query 2'
-        obj.description = 'description'
+        obj.name = "Query 2"
+        obj.description = "description"
         db.session.flush()
         obj.record_changes(changed_by=self.factory.user)
 
@@ -65,13 +69,18 @@ class TestLogChange(BaseTestCase):
         # TODO: https://github.com/getredash/redash/issues/1550
         # self.assertEqual(change.object_version, 2)
         self.assertEqual(change.object_version, obj.version)
-        self.assertIn('name', change.change)
-        self.assertIn('description', change.change)
+        self.assertIn("name", change.change)
+        self.assertIn("description", change.change)
 
     def test_logs_create_method(self):
-        q = Query(name='Query', description='', query_text='',
-                  user=self.factory.user, data_source=self.factory.data_source,
-                  org=self.factory.org)
+        q = Query(
+            name="Query",
+            description="",
+            query_text="",
+            user=self.factory.user,
+            data_source=self.factory.data_source,
+            org=self.factory.org,
+        )
         change = Change.last_change(q)
 
         self.assertIsNotNone(change)

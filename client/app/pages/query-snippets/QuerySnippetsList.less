@@ -1,0 +1,31 @@
+.snippet-content {
+  max-width: 500px;
+  max-height: 56px;
+  overflow: hidden;
+  white-space: pre-wrap;
+  /* autoprefixer: off */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.query-snippets-table {
+  table {
+    height: 1px;
+  }
+
+  .ant-table-row {
+    height: 100%;
+  }
+
+  .ant-table-cell {
+    height: 100%;
+
+    & > .table-main-title {
+      display: inline-flex;
+      align-items: center;
+      height: 100%;
+      width: 100%;
+    }
+  }
+}

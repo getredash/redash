@@ -17,20 +17,6 @@
     }
 }
 
-tags-list {
-  a {
-    line-height: 1.1;
-  }
-}
-
-.tags-list__name {
-  display: inline-block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 88%;
-  line-height: 1.3;
-}
-
 .max-character {
   .text-overflow();
 }
@@ -44,6 +30,11 @@ tags-list {
   .cr-alt {
       line-height: 100%;
       margin-top: 2px;
+  }
+
+  &.active, &.active:hover, &.active:focus {
+    background-color: #fff;
+    box-shadow: inset 3px 0px 0px @brand-primary;
   }
 }
 
@@ -75,4 +66,19 @@ tags-list {
     width: 38px;
     height: 38px;
     border-radius: 2px;
+}
+
+.ui-select-choices-row.disabled > span {
+  background-color: inherit !important;
+}
+
+.list-group-item.inactive,
+.ui-select-choices-row.disabled {
+  background-color: #eee !important;
+  border-color: transparent;
+  opacity: 0.5;
+  box-shadow: none;
+  color: #333;
+  pointer-events: none;
+  cursor: not-allowed;
 }
