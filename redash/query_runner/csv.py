@@ -1,9 +1,10 @@
-import json
 import logging
 import yaml
+import requests
+import io
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -16,13 +17,11 @@ except ImportError:
 
 
 class CSV(BaseQueryRunner):
-    @classmethod
-    def annotate_query(cls):
-        return False
+    should_annotate_query = False
 
     @classmethod
-    def type(cls):
-        return "csv"
+    def name(cls):
+        return "CSV"
 
     @classmethod
     def enabled(cls):
@@ -37,23 +36,27 @@ class CSV(BaseQueryRunner):
 
     def __init__(self, configuration):
         super(CSV, self).__init__(configuration)
-        self.syntax = "csv"
+        self.syntax = "yaml"
 
     def test_connection(self):
         pass
 
     def run_query(self, query, user):
         path = ""
+        ua = ""
         args = {}
         try:
             args = yaml.safe_load(query)
             path = args['url']
             args.pop('url', None)
+            ua = args['user-agent']
+            args.pop('user-agent', None)
         except:
             pass
         try:
-            workbook = pd.read_csv(path, **args)
-            
+            response = requests.get(url=path, headers={"User-agent": ua})
+            workbook = pd.read_csv(io.BytesIO(response.content),sep=",", **args)
+
             df = workbook.copy()
             data = {'columns': [], 'rows': []}
             conversions = [
@@ -75,7 +78,7 @@ class CSV(BaseQueryRunner):
                         break
             data['rows'] = df[labels].replace({np.nan: None}).to_dict(orient='records')
 
-            json_data = json.dumps(data, cls=JSONEncoder)
+            json_data = json_dumps(data)
             error = None
         except KeyboardInterrupt:
             error = "Query cancelled by user."
@@ -85,5 +88,8 @@ class CSV(BaseQueryRunner):
             json_data = None
 
         return json_data, error
+
+    def get_schema(self):
+        raise NotSupported()
 
 register(CSV)

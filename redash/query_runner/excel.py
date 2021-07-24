@@ -1,29 +1,23 @@
-import json
 import logging
 import yaml
+import requests
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
 try:
     import pandas as pd
     import xlrd
+    import openpyxl
     import numpy as np
     enabled = True
 except ImportError:
     enabled = False
 
-
 class Excel(BaseQueryRunner):
-    @classmethod
-    def annotate_query(cls):
-        return False
-
-    @classmethod
-    def type(cls):
-        return "excel"
+    should_annotate_query = False
 
     @classmethod
     def enabled(cls):
@@ -38,24 +32,28 @@ class Excel(BaseQueryRunner):
 
     def __init__(self, configuration):
         super(Excel, self).__init__(configuration)
-        self.syntax = "excel"
+        self.syntax = "yaml"
 
     def test_connection(self):
         pass
 
     def run_query(self, query, user):
         path = ""
+        ua = ""
         args = {}
         try:
             args = yaml.safe_load(query)
             path = args['url']
             args.pop('url', None)
+            ua = args['user-agent']
+            args.pop('user-agent', None)
         except:
             pass
 
         try:
-            workbook = pd.read_excel(path, **args)
-            
+            response = requests.get(url=path, headers={"User-agent": ua})
+            workbook = pd.read_excel(response.content, **args)
+
             df = workbook.copy()
             data = {'columns': [], 'rows': []}
             conversions = [
@@ -77,7 +75,7 @@ class Excel(BaseQueryRunner):
                         break
             data['rows'] = df[labels].replace({np.nan: None}).to_dict(orient='records')
 
-            json_data = json.dumps(data, cls=JSONEncoder)
+            json_data = json_dumps(data)
             error = None
         except KeyboardInterrupt:
             error = "Query cancelled by user."
@@ -87,5 +85,8 @@ class Excel(BaseQueryRunner):
             json_data = None
 
         return json_data, error
+
+    def get_schema(self):
+        raise NotSupported()
 
 register(Excel)
