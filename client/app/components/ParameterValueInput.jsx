@@ -61,19 +61,6 @@ class ParameterValueInput extends React.Component {
   };
 
   onSelect = value => {
-    const { parameter } = this.props;
-    const { queryResult } = this.state;
-    const arr = [];
-
-    if (queryResult.length >= 1) {
-      queryResult.forEach(result => {
-        if (!arr.includes(result[parameter.title])) {
-          arr.push(result[parameter.title]);
-        }
-      });
-      value = value.filter(selection => arr.includes(selection));
-    }
-
     const isDirty = !isEqual(value, this.props.value);
     this.setState({ value, isDirty });
     this.props.onSelect(value, isDirty);

@@ -1,16 +1,17 @@
-import { find, isArray, get, first, map, intersection, isEqual, isEmpty } from "lodash";
+import { find, isArray, get, first, map, intersection, isEqual, isEmpty, round } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
 import { connect } from "react-redux";
 import { getQueryAction } from "@/store";
 
-export default class QueryBasedParameterInput extends React.Component {
+class QueryBasedParameterInput extends React.Component {
   static propTypes = {
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     mode: PropTypes.oneOf(["default", "multiple"]),
     queryId: PropTypes.number,
+    queryResult: PropTypes.any,
     onSelect: PropTypes.func,
     className: PropTypes.string,
   };
@@ -20,6 +21,7 @@ export default class QueryBasedParameterInput extends React.Component {
     mode: "default",
     parameter: null,
     queryId: null,
+    queryResult: null,
     onSelect: () => {},
     className: "",
   };
@@ -48,9 +50,26 @@ export default class QueryBasedParameterInput extends React.Component {
 
   setValue(value) {
     const { options } = this.state;
+    const { queryResult, parameter } = this.props;
+
     if (this.props.mode === "multiple") {
       value = isArray(value) ? value : [value];
+      const arr = [];
+      console.log(value);
+      if (queryResult.length >= 1) {
+        queryResult.forEach(result => {
+          if (!arr.includes(result[parameter.title])) {
+            if (!arr.includes(result["soc_min" || "soc_max"] === 0 || 100)) {
+              arr.push(`${result[parameter.title]}.0`);
+            }
+            arr.push(result[parameter.title].toString());
+          }
+        });
+        value = value.filter(selection => arr.includes(selection));
+      }
+
       const optionValues = map(options, option => option.value);
+      console.log(optionValues, arr);
       const validValues = intersection(value, optionValues);
       this.setState({ value: validValues });
       return validValues;
@@ -102,3 +121,16 @@ export default class QueryBasedParameterInput extends React.Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  const { QueryData } = state;
+  return { queryResult: QueryData.Data };
+}
+
+const mapDispatchToProps = () => {
+  return {
+    getqueryaction: getQueryAction(),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(QueryBasedParameterInput);
