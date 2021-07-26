@@ -1,4 +1,4 @@
-FROM node:14 as frontend-builder
+FROM node:14.17 as frontend-builder
 
 RUN npm install --global --force yarn@1.22.10
 
@@ -19,7 +19,7 @@ COPY --chown=redash viz-lib /frontend/viz-lib
 ARG code_coverage
 ENV BABEL_ENV=${code_coverage:+test}
 
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --verbose; fi
+RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/

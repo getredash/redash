@@ -2,9 +2,10 @@ version: 2.0
 
 build-docker-image-job: &build-docker-image-job
   docker:
-    - image: circleci/node:14
+    - image: circleci/node:14.17
   steps:
-    - setup_remote_docker
+    - setup_remote_docker:
+        version: 19.03.13
     - checkout
     - run: sudo apt update
     - run: sudo apt install python3-pip
@@ -28,7 +29,8 @@ jobs:
     docker:
       - image: circleci/buildpack-deps:xenial
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 19.03.13
       - checkout
       - run:
           name: Build Docker Images
@@ -62,7 +64,7 @@ jobs:
       CYPRESS_INSTALL_BINARY: 0
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:14.17
     steps:
       - checkout
       - run: mkdir -p /tmp/test-results/eslint
@@ -76,7 +78,7 @@ jobs:
       CYPRESS_INSTALL_BINARY: 0
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:14.17
     steps:
       - checkout
       - run: sudo apt update
@@ -102,9 +104,10 @@ jobs:
       CYPRESS_INSTALL_BINARY: 0
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:14.17
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 19.03.13
       - checkout
       - run:
           name: Enable Code Coverage report for master branch
