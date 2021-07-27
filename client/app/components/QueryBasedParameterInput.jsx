@@ -55,7 +55,7 @@ class QueryBasedParameterInput extends React.Component {
     if (this.props.mode === "multiple") {
       value = isArray(value) ? value : [value];
       const arr = [];
-      if (queryResult.length >= 1) {
+      if (queryResult.length >= 1 && !parameter.hasPendingValue) {
         queryResult.forEach(result => {
           if (!arr.includes(result[parameter.title])) {
             // Specifically checking the options value and queryResult of battery data because they differ i.e 100 vs 100.0
@@ -66,19 +66,17 @@ class QueryBasedParameterInput extends React.Component {
             arr.push(`${result[parameter.title]}`);
           }
         });
-        value = value.filter(selection => {
-          console.log("value filtered:", !arr.includes(selection) ? selection : null);
-          return arr.includes(selection);
-        });
+        // value = value.filter(selection => {
+        //   console.log("value filtered:", !arr.includes(selection) ? selection : null);
+        //   return arr.includes(selection);
+        // });
+        value = arr;
       }
 
       const optionValues = map(options, option => option.value);
-      console.log("option values: ", optionValues, "value: ", value);
       const validValues = intersection(value, optionValues);
-      console.log("validValues", validValues);
-      this.setState({ value: value });
-      console.log(this.state.value);
-      return value;
+      this.setState({ value: validValues });
+      return validValues;
     }
     const found = find(options, option => option.value === this.props.value) !== undefined;
     value = found ? value : get(first(options), "value");
