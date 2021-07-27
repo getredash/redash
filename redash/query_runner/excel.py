@@ -2,6 +2,7 @@ import logging
 import yaml
 import requests
 
+from redash import settings
 from redash.query_runner import *
 from redash.utils import json_dumps
 
@@ -47,6 +48,9 @@ class Excel(BaseQueryRunner):
             args.pop('url', None)
             ua = args['user-agent']
             args.pop('user-agent', None)
+
+            if is_private_address(path) and settings.ENFORCE_PRIVATE_ADDRESS_BLOCK::
+                raise Exception("Can't query private addresses.")
         except:
             pass
 
