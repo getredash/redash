@@ -49,7 +49,7 @@ class Excel(BaseQueryRunner):
             ua = args['user-agent']
             args.pop('user-agent', None)
 
-            if is_private_address(path) and settings.ENFORCE_PRIVATE_ADDRESS_BLOCK::
+            if is_private_address(path) and settings.ENFORCE_PRIVATE_ADDRESS_BLOCK:
                 raise Exception("Can't query private addresses.")
         except:
             pass
