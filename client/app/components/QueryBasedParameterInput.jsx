@@ -55,24 +55,30 @@ class QueryBasedParameterInput extends React.Component {
     if (this.props.mode === "multiple") {
       value = isArray(value) ? value : [value];
       const arr = [];
-      console.log(value);
       if (queryResult.length >= 1) {
         queryResult.forEach(result => {
           if (!arr.includes(result[parameter.title])) {
-            if (!arr.includes(result["soc_min" || "soc_max"] === 0 || 100)) {
+            // Specifically checking the options value and queryResult of battery data because they differ i.e 100 vs 100.0
+            if (result["soc_min" || "soc_max"] === 0 || 100) {
               arr.push(`${result[parameter.title]}.0`);
             }
-            arr.push(result[parameter.title].toString());
+
+            arr.push(`${result[parameter.title]}`);
           }
         });
-        value = value.filter(selection => arr.includes(selection));
+        value = value.filter(selection => {
+          console.log("value filtered:", !arr.includes(selection) ? selection : null);
+          return arr.includes(selection);
+        });
       }
 
       const optionValues = map(options, option => option.value);
-      console.log(optionValues, arr);
+      console.log("option values: ", optionValues, "value: ", value);
       const validValues = intersection(value, optionValues);
-      this.setState({ value: validValues });
-      return validValues;
+      console.log("validValues", validValues);
+      this.setState({ value: value });
+      console.log(this.state.value);
+      return value;
     }
     const found = find(options, option => option.value === this.props.value) !== undefined;
     value = found ? value : get(first(options), "value");

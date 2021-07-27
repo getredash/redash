@@ -80,6 +80,24 @@ class Parameters extends React.Component {
     const { onPendingValuesChange } = this.props;
     this.setState(({ parameters }) => {
       if (isDirty) {
+        // const arr = [];
+
+        // // if (queryResult.length >= 1) {
+        // queryResult.forEach(result => {
+        //   if (!arr.includes(result[param.title])) {
+        //     // Specifically checking the options value and queryResult of battery data because they differ i.e 100 vs 100.0
+        //     if (result["soc_min" || "soc_max"] === 0 || 100) {
+        //       arr.push(`${result[param.title]}.0`);
+        //     }
+
+        //     arr.push(`${result[param.title]}`);
+        //   }
+        // });
+        // value = value.filter(selection => {
+        //   console.log(selection);
+        //   return arr.includes(selection);
+        // });
+        // }
         param.setPendingValue(value);
       } else {
         param.clearPendingValue();
@@ -102,8 +120,7 @@ class Parameters extends React.Component {
 
   applyChanges = () => {
     const { onValuesChange, disableUrlUpdate } = this.props;
-    this.setState(({ parameters, queryResult }) => {
-      console.log(queryResult);
+    this.setState(({ parameters }) => {
       const parametersWithPendingValues = parameters.filter(p => p.hasPendingValue);
       forEach(parameters, p => p.applyPendingValue());
       if (!disableUrlUpdate) {
