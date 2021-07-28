@@ -88,7 +88,9 @@ class User(
     _profile_image_url = Column("profile_image_url", db.String(320), nullable=True)
     password_hash = Column(db.String(128), nullable=True)
     group_ids = Column(
-        "groups", MutableList.as_mutable(postgresql.ARRAY(key_type("Group"))), nullable=True
+        "groups",
+        MutableList.as_mutable(postgresql.ARRAY(key_type("Group"))),
+        nullable=True,
     )
     api_key = Column(db.String(40), default=lambda: generate_token(40), unique=True)
 
@@ -240,7 +242,6 @@ class User(
 
     def update_group_assignments(self, group_names):
         groups = Group.find_by_name(self.org, group_names)
-        groups.append(self.org.default_group)
         self.group_ids = [g.id for g in groups]
         db.session.add(self)
         db.session.commit()

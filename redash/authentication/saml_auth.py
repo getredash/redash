@@ -129,7 +129,8 @@ def idp_initiated(org_slug=None):
 
     if "RedashGroups" in authn_response.ava:
         group_names = authn_response.ava.get("RedashGroups")
-        user.update_group_assignments(group_names)
+        if group_names:
+            user.update_group_assignments(group_names)
 
     url = url_for("redash.index", org_slug=org_slug)
 
