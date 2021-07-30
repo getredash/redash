@@ -414,6 +414,7 @@ default_destinations = [
     "redash.destinations.chatwork",
     "redash.destinations.pagerduty",
     "redash.destinations.hangoutschat",
+    "redash.destinations.lark",
 ]
 
 enabled_destinations = array_from_string(
