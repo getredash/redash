@@ -7,35 +7,36 @@
     "start": "npm-run-all --parallel watch:viz webpack-dev-server",
     "bundle": "bin/bundle-extensions",
     "clean": "rm -rf ./client/dist/",
-    "build:viz": "(cd viz-lib && npm run build:babel)",
-    "build": "npm run clean && npm run build:viz && NODE_ENV=production webpack",
-    "build:old-node-version": "npm run clean && NODE_ENV=production node --max-old-space-size=4096 node_modules/.bin/webpack",
+    "build:viz": "(cd viz-lib && yarn build:babel)",
+    "build": "yarn clean && yarn build:viz && NODE_ENV=production webpack",
+    "build:old-node-version": "yarn clean && NODE_ENV=production node --max-old-space-size=4096 node_modules/.bin/webpack",
     "watch:app": "webpack --watch --progress --colors -d",
-    "watch:viz": "(cd viz-lib && npm run watch:babel)",
+    "watch:viz": "(cd viz-lib && yarn watch:babel)",
     "watch": "npm-run-all --parallel watch:*",
     "webpack-dev-server": "webpack-dev-server",
-    "analyze": "npm run clean && BUNDLE_ANALYZER=on webpack",
-    "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
-    "lint": "npm run lint:base -- --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
-    "lint:fix": "npm run lint:base  -- --fix --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
+    "analyze": "yarn clean && BUNDLE_ANALYZER=on webpack",
+    "analyze:build": "yarn clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
+    "lint": "yarn lint:base --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
+    "lint:fix": "yarn lint:base  --fix --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
     "lint:base": "eslint --config ./client/.eslintrc.js --ignore-path ./client/.eslintignore",
-    "lint:ci": "npm run lint -- --max-warnings 0 --format junit --output-file /tmp/test-results/eslint/results.xml",
+    "lint:ci": "yarn lint --max-warnings 0 --format junit --output-file /tmp/test-results/eslint/results.xml",
     "prettier": "prettier --write 'client/app/**/*.{js,jsx,ts,tsx}' 'client/cypress/**/*.{js,jsx,ts,tsx}'",
     "type-check": "tsc --noEmit --project client/tsconfig.json",
-    "type-check:watch": "npm run type-check -- --watch",
+    "type-check:watch": "yarn type-check --watch",
     "jest": "TZ=Africa/Khartoum jest",
     "test": "run-s type-check jest",
     "test:watch": "jest --watch",
     "cypress": "node client/cypress/cypress.js",
-    "postinstall": "(cd viz-lib && npm ci && npm run build:babel)"
+    "preinstall": "cd viz-lib && yarn link --link-folder ../.yarn",
+    "postinstall": "(cd viz-lib && yarn --frozen-lockfile && yarn build:babel) && yarn link --link-folder ./.yarn @redash/viz"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/getredash/redash.git"
   },
   "engines": {
-    "node": "^12.0.0",
-    "npm": "^6.0.0"
+    "node": "^14.16.1",
+    "yarn": "^1.22.10"
   },
   "author": "Redash Contributors",
   "license": "BSD-2-Clause",
@@ -154,7 +155,7 @@
     "webpack-manifest-plugin": "^2.0.4"
   },
   "optionalDependencies": {
-    "fsevents": "^1.2.9"
+    "fsevents": "^2.3.2"
   },
   "jest": {
     "rootDir": "./client",
