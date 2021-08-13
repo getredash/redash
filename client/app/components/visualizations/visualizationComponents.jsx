@@ -8,6 +8,7 @@ import { clientConfig } from "@/services/auth";
 import countriesDataUrl from "@redash/viz/lib/visualizations/choropleth/maps/countries.geo.json";
 import usaDataUrl from "@redash/viz/lib/visualizations/choropleth/maps/usa-albers.geo.json";
 import subdivJapanDataUrl from "@redash/viz/lib/visualizations/choropleth/maps/japan.prefectures.geo.json";
+import subdivChinaDataUrl from "@redash/viz/lib/visualizations/choropleth/maps/china.province.geo.json";
 
 function wrapComponentWithSettings(WrappedComponent) {
   return function VisualizationComponent(props) {
@@ -51,6 +52,15 @@ function wrapComponentWithSettings(WrappedComponent) {
             type_en: "Type (EN)",
             region: "Region",
             region_code: "Region Code",
+          },
+        },
+        subdiv_china: {
+          name: "China/Province",
+          url: subdivChinaDataUrl,
+          fieldNames: {
+            name: "Name",
+            iso_3166_2: "ISO-3166-2",
+            adcode: "Adcode",
           },
         },
       },
