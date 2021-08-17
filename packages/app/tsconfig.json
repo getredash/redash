@@ -19,10 +19,10 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": "./",
     "paths": {
-      "@/*": ["./app/*"]
+      "@/*": ["./src/app/*"]
     },
     "skipLibCheck": true
   },
-  "include": ["app/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["dist"]
 }

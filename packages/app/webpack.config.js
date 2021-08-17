@@ -7,8 +7,6 @@ const ManifestPlugin = require("webpack-manifest-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
-  .BundleAnalyzerPlugin;
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 
 const path = require("path");
@@ -39,11 +37,11 @@ const baseHref = CONFIG.baseHref || "/";
 const staticPath = CONFIG.staticPath || "/static/";
 const htmlTitle = CONFIG.title || "Redash";
 
-const basePath = path.join(__dirname, "client");
-const appPath = path.join(__dirname, "client", "app");
+const basePath = path.join(__dirname);
+const appPath = path.join(__dirname, "src", "app");
 
 const extensionsRelativePath =
-  process.env.EXTENSIONS_DIRECTORY || path.join("client", "app", "extensions");
+  process.env.EXTENSIONS_DIRECTORY || path.join("src", "app", "extensions");
 const extensionPath = path.join(__dirname, extensionsRelativePath);
 
 // Function to apply configuration overrides (see scripts/README)
@@ -64,11 +62,11 @@ const config = {
   mode: isProduction ? "production" : "development",
   entry: {
     app: [
-      "./client/app/index.js",
-      "./client/app/assets/less/main.less",
-      "./client/app/assets/less/ant.less"
+      "./src/app/index.js",
+      "./src/app/assets/less/main.less",
+      "./src/app/assets/less/ant.less"
     ],
-    server: ["./client/app/assets/less/server.less"]
+    server: ["./src/app/assets/less/server.less"]
   },
   output: {
     path: path.join(basePath, "./dist"),
@@ -88,7 +86,7 @@ const config = {
     // bundle only default `moment` locale (`en`)
     new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
     new HtmlWebpackPlugin({
-      template: "./client/app/index.html",
+      template: "./src/app/index.html",
       filename: "index.html",
       excludeChunks: ["server"],
       release: process.env.BUILD_VERSION || "dev",
@@ -97,7 +95,7 @@ const config = {
       title: htmlTitle
     }),
     new HtmlWebpackPlugin({
-      template: "./client/app/multi_org.html",
+      template: "./src/app/multi_org.html",
       filename: "multi_org.html",
       excludeChunks: ["server"]
     }),
@@ -110,11 +108,11 @@ const config = {
       publicPath: ""
     }),
     new CopyWebpackPlugin([
-      { from: "client/app/assets/robots.txt" },
-      { from: "client/app/unsupported.html" },
-      { from: "client/app/unsupportedRedirect.js" },
-      { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
-      { from: "client/app/assets/fonts", to: "fonts/" }
+      { from: "src/app/assets/robots.txt" },
+      { from: "src/app/unsupported.html" },
+      { from: "src/app/unsupportedRedirect.js" },
+      { from: "src/app/assets/css/*.css", to: "styles/", flatten: true },
+      { from: "src/app/assets/fonts", to: "fonts/" }
     ]),
     isHotReloadingEnabled && new ReactRefreshWebpackPlugin({ overlay: false })
   ].filter(Boolean),
@@ -284,10 +282,6 @@ const config = {
 
 if (process.env.DEV_SERVER_HOST) {
   config.devServer.host = process.env.DEV_SERVER_HOST;
-}
-
-if (process.env.BUNDLE_ANALYZER) {
-  config.plugins.push(new BundleAnalyzerPlugin());
 }
 
 module.exports = maybeApplyOverrides(config);

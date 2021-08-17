@@ -10,7 +10,7 @@
     "build:babel:base": "babel src --out-dir lib --source-maps --ignore 'src/**/*.test.js' --copy-files --no-copy-ignored --extensions .ts,.tsx,.js,.jsx",
     "build:babel": "yarn type-gen && yarn build:babel:base",
     "build:webpack": "webpack",
-    "build": " NODE_ENV=production npm-run-all clean build:babel build:webpack",
+    "build": "NODE_ENV=production npm-run-all clean build:babel build:webpack",
     "watch:babel": "yarn build:babel:base --watch",
     "watch:webpack": "webpack --watch",
     "watch": "npm-run-all --parallel watch:*",
@@ -103,8 +103,8 @@
   "jest": {
     "rootDir": "./src",
     "setupFiles": [
-      "../__tests__/enzyme_setup.js",
-      "../__tests__/mocks.js"
+      "../jest/setupEnzyme.js",
+      "../jest/mocks.js"
     ],
     "snapshotSerializers": [
       "enzyme-to-json/serializer"

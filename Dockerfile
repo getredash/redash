@@ -12,8 +12,8 @@ RUN useradd -m -d /frontend redash
 USER redash
 
 WORKDIR /frontend
-COPY --chown=redash package.json yarn.lock .yarnrc /frontend/
-COPY --chown=redash viz-lib /frontend/viz-lib
+COPY --chown=redash yarn.lock .yarnrc packages/app/package.json /frontend/packages/app/
+COPY --chown=redash packages/viz /frontend/packages/viz
 
 # Controls whether to instrument code for coverage information
 ARG code_coverage
@@ -21,9 +21,8 @@ ENV BABEL_ENV=${code_coverage:+test}
 
 RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
 
-COPY --chown=redash client /frontend/client
-COPY --chown=redash webpack.config.js /frontend/
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn build; else mkdir -p /frontend/client/dist && touch /frontend/client/dist/multi_org.html && touch /frontend/client/dist/index.html; fi
+COPY --chown=redash packages/app /frontend/packages/app
+RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn build; else mkdir -p /frontend/packages/app/dist && touch /frontend/packages/app/dist/multi_org.html && touch /frontend/packages/app/dist/index.html; fi
 
 FROM python:3.7-slim
 
@@ -97,7 +96,7 @@ COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
 COPY . /app
-COPY --from=frontend-builder /frontend/client/dist /app/client/dist
+COPY --from=frontend-builder /frontend/packages/app/dist /app/client/dist
 RUN chown -R redash /app
 USER redash
 

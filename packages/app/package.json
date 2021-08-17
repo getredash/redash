@@ -1,38 +1,22 @@
 {
-  "name": "redash-monorepo",
-  "version": "1.0.0",
-  "description": "The frontend part of Redash.",
+  "name": "@redash/app",
+  "version": "9.0.0-beta",
+  "description": "Redash Web App UI",
   "main": "index.js",
-  "private": true,
-  "workspaces": [
-    "packages/*",
-    "client/cypress"
-  ],
   "scripts": {
-    "start": "yarn build:packages && yarn start:app",
-    "start:app": "npm-run-all --parallel watch:viz start:app",
-    "bundle": "bin/bundle-extensions",
-    "clean": "yarn clean:app && yarn clean:viz",
-    "clean:app": "yarn workspace @redash/app clean",
-    "clean:viz": "yarn workspace @redash/viz clean",
-    "build": "yarn build:viz && yarn build:app",
-    "build:app": "yarn clean:app && yarn workspace @redash/app build",
-    "build:viz": "yarn clean:viz && yarn workspace @redash/viz build:babel",
-    "watch:app": "webpack --watch --progress --colors -d",
-    "watch:viz": "(cd viz-lib && yarn watch:babel)",
-    "watch": "npm-run-all --parallel watch:*",
-    "webpack-dev-server": "webpack-dev-server",
-    "lint": "yarn lint:base --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
-    "lint:fix": "yarn lint:base  --fix --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
-    "lint:ci": "yarn workspace @redash/app lint:ci",
-    "prettier": "prettier --write 'client/app/**/*.{js,jsx,ts,tsx}' 'client/cypress/**/*.{js,jsx,ts,tsx}'",
-    "type-check": "yarn type-check:app && yarn type-check:viz",
-    "type-check:app": "yarn workspace @redash/app type-check",
-    "type-check:viz": "yarn workspace @redash/viz type-check",
+    "start": "webpack-dev-server",
+    "clean": "rm -rf dist",
+    "build": "yarn clean && NODE_ENV=production webpack",
+    "watch": "webpack --watch --progress --colors -d",
+    "lint": "yarn lint:base --ext .js --ext .jsx --ext .ts --ext .tsx ./src",
+    "lint:fix": "yarn lint:base  --fix --ext .js --ext .jsx --ext .ts --ext .tsx ./src",
+    "lint:base": "eslint --config ./.eslintrc.js --ignore-path ./.eslintignore",
+    "lint:ci": "yarn lint --max-warnings 0 --format junit --output-file /tmp/test-results/eslint/results.xml",
+    "prettier": "prettier --write 'src/app/**/*.{js,jsx,ts,tsx}'",
+    "type-check": "tsc --noEmit --project ./tsconfig.json",
     "jest": "TZ=Africa/Khartoum jest",
     "test": "yarn type-check && yarn jest",
-    "test:watch": "jest --watch",
-    "cypress": "node client/cypress/cypress.js"
+    "test:watch": "jest --watch"
   },
   "repository": {
     "type": "git",
@@ -48,7 +32,41 @@
     "url": "https://github.com/getredash/redash/issues"
   },
   "homepage": "https://redash.io/",
-  "dependencies": {},
+  "dependencies": {
+    "@ant-design/icons": "^4.2.1",
+    "@redash/viz": "0.1.1",
+    "ace-builds": "^1.4.12",
+    "antd": "^4.4.3",
+    "axios": "^0.21.1",
+    "axios-auth-refresh": "^3.0.0",
+    "bootstrap": "^3.3.7",
+    "classnames": "^2.2.6",
+    "d3": "^3.5.17",
+    "debug": "^3.1.0",
+    "dompurify": "^2.0.7",
+    "font-awesome": "^4.7.0",
+    "history": "^4.10.1",
+    "hoist-non-react-statics": "^3.3.0",
+    "markdown": "0.5.0",
+    "material-design-iconic-font": "^2.2.0",
+    "moment": "^2.19.3",
+    "mousetrap": "^1.6.1",
+    "mustache": "^2.3.0",
+    "numeral": "^2.0.6",
+    "path-to-regexp": "^3.1.0",
+    "prop-types": "^15.6.1",
+    "query-string": "^6.9.0",
+    "react": "^16.14.0",
+    "react-ace": "^9.1.1",
+    "react-dom": "^16.14.0",
+    "react-grid-layout": "^0.18.2",
+    "react-resizable": "^1.10.1",
+    "react-virtualized": "^9.21.2",
+    "sql-formatter": "git+https://github.com/getredash/sql-formatter.git",
+    "universal-router": "^8.3.0",
+    "use-debounce": "^3.1.0",
+    "use-media": "^1.4.0"
+  },
   "devDependencies": {
     "@babel/cli": "^7.10.4",
     "@babel/core": "^7.10.4",
@@ -127,10 +145,10 @@
     "fsevents": "^2.3.2"
   },
   "jest": {
-    "rootDir": "./client",
+    "rootDir": "./src",
     "setupFiles": [
-      "./packages/app/jest/setupEnzyme.js",
-      "./packages/app/jest/mocks.js"
+      "../jest/setupEnzyme.js",
+      "../jest/mocks.js"
     ],
     "snapshotSerializers": [
       "enzyme-to-json/serializer"
@@ -140,7 +158,7 @@
       "\\.(css|less)$": "identity-obj-proxy"
     },
     "testPathIgnorePatterns": [
-      "<rootDir>/app/__tests__/"
+      "<rootDir>/jest/"
     ]
   },
   "nyc": {
@@ -148,5 +166,20 @@
       "client/app/**",
       "viz-lib/**"
     ]
-  }
+  },
+  "//": "browserslist set to 'Async functions' compatibility",
+  "browserslist": [
+    "Edge >= 15",
+    "Firefox >= 52",
+    "Chrome >= 55",
+    "Safari >= 10.1",
+    "iOS >= 10.3",
+    "Opera >= 42",
+    "op_mob >= 46",
+    "android >= 67",
+    "and_chr >= 71",
+    "and_ff >= 64",
+    "and_uc >= 11.8",
+    "samsung >= 6.2"
+  ]
 }
