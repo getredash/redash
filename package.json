@@ -32,7 +32,10 @@
     "jest": "TZ=Africa/Khartoum jest",
     "test": "yarn type-check && yarn jest",
     "test:watch": "jest --watch",
-    "cypress": "node client/cypress/cypress.js"
+    "cy": "yarn workspace @redash/e2e cy",
+    "cy:open-ci": "yarn workspace @redash/e2e cy:open-ci",
+    "cy:run-ci": "yarn workspace @redash/e2e cy:run-ci",
+    "cy:ui": "yarn workspace @redash/e2e cy:ui"
   },
   "repository": {
     "type": "git",
@@ -57,11 +60,7 @@
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.10.4",
-    "@cypress/code-coverage": "^3.8.1",
-    "@percy/agent": "0.24.3",
-    "@percy/cypress": "^2.3.2",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.4.3",
-    "@testing-library/cypress": "^7.0.2",
     "@types/classnames": "^2.2.10",
     "@types/hoist-non-react-statics": "^3.3.1",
     "@types/lodash": "^4.14.157",
@@ -79,7 +78,6 @@
     "babel-plugin-transform-builtin-extend": "^1.1.2",
     "copy-webpack-plugin": "^4.5.3",
     "css-loader": "^0.28.7",
-    "cypress": "^5.3.0",
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.7.1",
     "enzyme-to-json": "^3.3.5",

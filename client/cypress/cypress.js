@@ -100,10 +100,10 @@ switch (command) {
     seedDatabase(seedData);
     break;
   case "run":
-    execSync("cypress run", { stdio: "inherit" });
+    execSync("cypress run --config-file=./cypress.json", { stdio: "inherit" });
     break;
   case "open":
-    execSync("cypress open", { stdio: "inherit" });
+    execSync("cypress open --config-file=./cypress.json", { stdio: "inherit" });
     break;
   case "run-ci":
     runCypressCI();
@@ -114,10 +114,10 @@ switch (command) {
   case "all":
     startServer();
     seedDatabase(seedData);
-    execSync("cypress run", { stdio: "inherit" });
+    execSync("cypress run --config-file=./cypress.json", { stdio: "inherit" });
     stopServer();
     break;
   default:
-    console.log("Usage: yarn cypress [build|start|db-seed|open|run|stop]");
+    console.log("Usage: yarn cy [build|start|db-seed|open|run|stop]");
     break;
 }

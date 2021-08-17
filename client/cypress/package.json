@@ -1,0 +1,18 @@
+{
+  "name": "@redash/e2e",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "cy": "node cypress.js",
+    "cy:open-ci": "yarn cy open --ci --target=\"https://localhost:${PORT:-5000}\"",
+    "cy:run-ci": "yarn cy run --ci --target=\"https://localhost:${PORT:-5000}\"",
+    "cy:ui": "yarn cy open"
+  },
+  "devDependencies": {
+    "@cypress/code-coverage": "^3.8.1",
+    "@percy/agent": "0.24.3",
+    "@percy/cypress": "^2.3.2",
+    "@testing-library/cypress": "^7.0.2",
+    "cypress": "^5.3.0"
+  }
+}
