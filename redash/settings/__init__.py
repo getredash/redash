@@ -93,6 +93,8 @@ SESSION_COOKIE_SECURE = parse_boolean(
 SESSION_COOKIE_HTTPONLY = parse_boolean(
     os.environ.get("REDASH_SESSION_COOKIE_HTTPONLY", "true")
 )
+SESSION_EXPIRY_TIME = int(os.environ.get("REDASH_SESSION_EXPIRY_TIME", 60 * 60 * 6))
+
 # Whether the session cookie is set to secure.
 REMEMBER_COOKIE_SECURE = parse_boolean(
     os.environ.get("REDASH_REMEMBER_COOKIE_SECURE") or str(COOKIES_SECURE)
@@ -100,6 +102,10 @@ REMEMBER_COOKIE_SECURE = parse_boolean(
 # Whether the remember cookie is set HttpOnly.
 REMEMBER_COOKIE_HTTPONLY = parse_boolean(
     os.environ.get("REDASH_REMEMBER_COOKIE_HTTPONLY", "true")
+)
+# The amount of time before the remember cookie expires.
+REMEMBER_COOKIE_DURATION = int(
+    os.environ.get("REDASH_REMEMBER_COOKIE_DURATION", 60 * 60 * 24 * 31)
 )
 
 # Doesn't set X-Frame-Options by default since it's highly dependent
@@ -304,6 +310,7 @@ ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get(
 RATELIMIT_ENABLED = parse_boolean(os.environ.get("REDASH_RATELIMIT_ENABLED", "true"))
 THROTTLE_LOGIN_PATTERN = os.environ.get("REDASH_THROTTLE_LOGIN_PATTERN", "50/hour")
 LIMITER_STORAGE = os.environ.get("REDASH_LIMITER_STORAGE", REDIS_URL)
+THROTTLE_PASS_RESET_PATTERN = os.environ.get("REDASH_THROTTLE_PASS_RESET_PATTERN", "10/hour")
 
 # CORS settings for the Query Result API (and possibly future external APIs).
 # In most cases all you need to do is set REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
@@ -335,6 +342,7 @@ default_query_runners = [
     "redash.query_runner.influx_db",
     "redash.query_runner.elasticsearch",
     "redash.query_runner.amazon_elasticsearch",
+    "redash.query_runner.trino",
     "redash.query_runner.presto",
     "redash.query_runner.databricks",
     "redash.query_runner.hive_ds",
@@ -371,6 +379,10 @@ default_query_runners = [
     "redash.query_runner.exasol",
     "redash.query_runner.cloudwatch",
     "redash.query_runner.cloudwatch_insights",
+    "redash.query_runner.corporate_memory",
+    "redash.query_runner.sparql_endpoint",
+    "redash.query_runner.excel",
+    "redash.query_runner.csv"
 ]
 
 enabled_query_runners = array_from_string(
@@ -515,3 +527,6 @@ ENFORCE_CSRF = parse_boolean(
 # Databricks
 
 CSRF_TIME_LIMIT = int(os.environ.get("REDASH_CSRF_TIME_LIMIT", 3600 * 6))
+
+# Email blocked domains, use delimiter comma to separated multiple domains
+BLOCKED_DOMAINS = set_from_string(os.environ.get("REDASH_BLOCKED_DOMAINS", "qq.com"))

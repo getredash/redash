@@ -1,6 +1,6 @@
 {
   "name": "@redash/viz",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Redash visualizations",
   "main": "dist/redash-visualizations.js",
   "scripts": {
@@ -8,14 +8,14 @@
     "type-check": "tsc --noEmit",
     "type-gen": "tsc --emitDeclarationOnly",
     "build:babel:base": "babel src --out-dir lib --source-maps --ignore 'src/**/*.test.js' --copy-files --no-copy-ignored --extensions .ts,.tsx,.js,.jsx",
-    "build:babel": "npm run type-gen && npm run build:babel:base",
+    "build:babel": "yarn type-gen && yarn build:babel:base",
     "build:webpack": "webpack",
     "build": " NODE_ENV=production npm-run-all clean build:babel build:webpack",
-    "watch:babel": "npm run build:babel:base -- --watch",
+    "watch:babel": "yarn build:babel:base --watch",
     "watch:webpack": "webpack --watch",
     "watch": "npm-run-all --parallel watch:*",
-    "version": "npm run build",
-    "prettier": "prettier --write 'src/**/*.{js,jsx}'",
+    "version": "yarn build",
+    "prettier": "prettier --write 'src/**/*.{ts,tsx}'",
     "test": "jest",
     "test:watch": "jest --watch"
   },
