@@ -5,7 +5,10 @@ const { execSync } = require("child_process");
 const { get, post } = require("request").defaults({ jar: true });
 const { seedData } = require("./seed-data");
 const fs = require("fs");
+const path = require("path");
 var Cookie = require("request-cookies").Cookie;
+
+const rootPath = path.join(__dirname, "../..");
 
 let cypressConfigBaseUrl;
 try {
@@ -13,19 +16,28 @@ try {
   cypressConfigBaseUrl = cypressConfig.baseUrl;
 } catch (e) {}
 
-const baseUrl = process.env.CYPRESS_baseUrl || cypressConfigBaseUrl || "http://localhost:5000";
+const baseUrl =
+  process.env.CYPRESS_baseUrl ||
+  cypressConfigBaseUrl ||
+  "http://localhost:5000";
 
 function seedDatabase(seedValues) {
   get(baseUrl + "/login", (_, { headers }) => {
     const request = seedValues.shift();
-    const data = request.type === "form" ? { formData: request.data } : { json: request.data };
+    const data =
+      request.type === "form"
+        ? { formData: request.data }
+        : { json: request.data };
 
     if (headers["set-cookie"]) {
       const cookies = headers["set-cookie"].map(cookie => new Cookie(cookie));
       const csrfCookie = find(cookies, { key: "csrf_token" });
       if (csrfCookie) {
         if (request.type === "form") {
-          data["formData"] = { ...data["formData"], csrf_token: csrfCookie.value };
+          data["formData"] = {
+            ...data["formData"],
+            csrf_token: csrfCookie.value
+          };
         } else {
           data["headers"] = { "X-CSRFToken": csrfCookie.value };
         }
@@ -44,18 +56,30 @@ function seedDatabase(seedValues) {
 
 function buildServer() {
   console.log("Building the server...");
-  execSync("docker-compose -p cypress build", { stdio: "inherit" });
+  execSync("docker-compose -p cypress build", {
+    stdio: "inherit",
+    cwd: rootPath
+  });
 }
 
 function startServer() {
   console.log("Starting the server...");
-  execSync("docker-compose -p cypress up -d", { stdio: "inherit" });
-  execSync("docker-compose -p cypress run server create_db", { stdio: "inherit" });
+  execSync("docker-compose -p cypress up -d", {
+    stdio: "inherit",
+    cwd: rootPath
+  });
+  execSync("docker-compose -p cypress run server create_db", {
+    stdio: "inherit",
+    cwd: rootPath
+  });
 }
 
 function stopServer() {
   console.log("Stopping the server...");
-  execSync("docker-compose -p cypress down", { stdio: "inherit" });
+  execSync("docker-compose -p cypress down", {
+    stdio: "inherit",
+    cwd: rootPath
+  });
 }
 
 function runCypressCI() {
@@ -63,10 +87,13 @@ function runCypressCI() {
     PERCY_TOKEN_ENCODED,
     CYPRESS_PROJECT_ID_ENCODED,
     CYPRESS_RECORD_KEY_ENCODED,
-    CIRCLE_REPOSITORY_URL,
+    CIRCLE_REPOSITORY_URL
   } = process.env;
 
-  if (CIRCLE_REPOSITORY_URL && CIRCLE_REPOSITORY_URL.includes("getredash/redash")) {
+  if (
+    CIRCLE_REPOSITORY_URL &&
+    CIRCLE_REPOSITORY_URL.includes("getredash/redash")
+  ) {
     if (PERCY_TOKEN_ENCODED) {
       process.env.PERCY_TOKEN = atob(`${PERCY_TOKEN_ENCODED}`);
     }
@@ -80,7 +107,7 @@ function runCypressCI() {
 
   execSync(
     "COMMIT_INFO_MESSAGE=$(git show -s --format=%s) docker-compose run --name cypress cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run --record",
-    { stdio: "inherit" }
+    { stdio: "inherit", cwd: rootPath }
   );
 }
 

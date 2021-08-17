@@ -12,7 +12,8 @@ RUN useradd -m -d /frontend redash
 USER redash
 
 WORKDIR /frontend
-COPY --chown=redash yarn.lock .yarnrc packages/app/package.json /frontend/packages/app/
+COPY --chown=redash package.json yarn.lock .yarnrc /frontend/
+COPY --chown=redash packages/app/package.json /frontend/packages/app/
 COPY --chown=redash packages/viz /frontend/packages/viz
 
 # Controls whether to instrument code for coverage information
@@ -24,7 +25,7 @@ RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network
 COPY --chown=redash packages/app /frontend/packages/app
 RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn build; else mkdir -p /frontend/packages/app/dist && touch /frontend/packages/app/dist/multi_org.html && touch /frontend/packages/app/dist/index.html; fi
 
-FROM python:3.7-slim
+FROM python:3.7-slim-buster
 
 EXPOSE 5000
 
