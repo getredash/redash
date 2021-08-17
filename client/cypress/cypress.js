@@ -13,19 +13,28 @@ try {
   cypressConfigBaseUrl = cypressConfig.baseUrl;
 } catch (e) {}
 
-const baseUrl = process.env.CYPRESS_baseUrl || cypressConfigBaseUrl || "http://localhost:5000";
+const baseUrl =
+  process.env.CYPRESS_baseUrl ||
+  cypressConfigBaseUrl ||
+  "http://localhost:5000";
 
 function seedDatabase(seedValues) {
   get(baseUrl + "/login", (_, { headers }) => {
     const request = seedValues.shift();
-    const data = request.type === "form" ? { formData: request.data } : { json: request.data };
+    const data =
+      request.type === "form"
+        ? { formData: request.data }
+        : { json: request.data };
 
     if (headers["set-cookie"]) {
       const cookies = headers["set-cookie"].map(cookie => new Cookie(cookie));
       const csrfCookie = find(cookies, { key: "csrf_token" });
       if (csrfCookie) {
         if (request.type === "form") {
-          data["formData"] = { ...data["formData"], csrf_token: csrfCookie.value };
+          data["formData"] = {
+            ...data["formData"],
+            csrf_token: csrfCookie.value
+          };
         } else {
           data["headers"] = { "X-CSRFToken": csrfCookie.value };
         }
@@ -50,7 +59,9 @@ function buildServer() {
 function startServer() {
   console.log("Starting the server...");
   execSync("docker-compose -p cypress up -d", { stdio: "inherit" });
-  execSync("docker-compose -p cypress run server create_db", { stdio: "inherit" });
+  execSync("docker-compose -p cypress run server create_db", {
+    stdio: "inherit"
+  });
 }
 
 function stopServer() {
@@ -63,10 +74,13 @@ function runCypressCI() {
     PERCY_TOKEN_ENCODED,
     CYPRESS_PROJECT_ID_ENCODED,
     CYPRESS_RECORD_KEY_ENCODED,
-    CIRCLE_REPOSITORY_URL,
+    CIRCLE_REPOSITORY_URL
   } = process.env;
 
-  if (CIRCLE_REPOSITORY_URL && CIRCLE_REPOSITORY_URL.includes("getredash/redash")) {
+  if (
+    CIRCLE_REPOSITORY_URL &&
+    CIRCLE_REPOSITORY_URL.includes("getredash/redash")
+  ) {
     if (PERCY_TOKEN_ENCODED) {
       process.env.PERCY_TOKEN = atob(`${PERCY_TOKEN_ENCODED}`);
     }
