@@ -35,20 +35,20 @@ backend-unit-tests: up test_db
 	docker-compose run --rm --name tests server tests
 
 frontend-unit-tests: bundle
-	CYPRESS_INSTALL_BINARY=0 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm ci
-	npm run bundle
-	npm test
+	CYPRESS_INSTALL_BINARY=0 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 yarn --frozen-lockfile
+	yarn bundle
+	yarn test
 
 test: lint backend-unit-tests frontend-unit-tests
 
 build: bundle
-	npm run build
+	yarn build
 
 watch: bundle
-	npm run watch
+	yarn watch
 
 start: bundle
-	npm run start
+	yarn start
 
 redis-cli:
 	docker-compose run --rm redis redis-cli -h redis
