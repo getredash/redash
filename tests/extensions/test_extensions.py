@@ -15,7 +15,7 @@ this_dir = Path(__file__).parent.resolve()
 app_dir = this_dir.parent.parent
 dummy_path = str(this_dir / dummy_extension)
 test_bundle = (
-    app_dir / "client" / "app" / "extensions" / "wide_footer" / "WideFooter.jsx"
+    app_dir / "packages" / "app" / "src" / "app" / "extensions" / "wide_footer" / "WideFooter.jsx"
 )
 
 
