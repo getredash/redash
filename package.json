@@ -131,23 +131,6 @@
   "optionalDependencies": {
     "fsevents": "^2.3.2"
   },
-  "jest": {
-    "rootDir": "./client",
-    "setupFiles": [
-      "./packages/app/jest/setupEnzyme.js",
-      "./packages/app/jest/mocks.js"
-    ],
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
-    ],
-    "moduleNameMapper": {
-      "^@/(.*)": "<rootDir>/app/$1",
-      "\\.(css|less)$": "identity-obj-proxy"
-    },
-    "testPathIgnorePatterns": [
-      "<rootDir>/app/__tests__/"
-    ]
-  },
   "nyc": {
     "include": [
       "client/app/**",
