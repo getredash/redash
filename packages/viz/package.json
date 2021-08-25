@@ -15,7 +15,8 @@
     "watch:webpack": "webpack --watch",
     "watch": "npm-run-all --parallel watch:*",
     "version": "yarn build",
-    "prettier": "prettier --write 'src/**/*.{ts,tsx}'",
+    "prettier:check": "prettier --check 'src/**/*.{ts,tsx}'",
+    "prettier:write": "prettier --write 'src/**/*.{ts,tsx}'",
     "test": "jest",
     "test:watch": "jest --watch"
   },
