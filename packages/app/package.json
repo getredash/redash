@@ -17,7 +17,7 @@
     "type-check": "tsc --noEmit",
     "jest": "TZ=Africa/Khartoum jest",
     "test": "yarn type-check && yarn jest",
-    "test:watch": "jest --watch"
+    "test:watch": "yarn jest --watch"
   },
   "repository": {
     "type": "git",

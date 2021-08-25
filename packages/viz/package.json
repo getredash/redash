@@ -17,8 +17,8 @@
     "version": "yarn build",
     "prettier:check": "prettier --check 'src/**/*.{ts,tsx}'",
     "prettier:write": "prettier --write 'src/**/*.{ts,tsx}'",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "yarn type-check && yarn jest",
+    "test:watch": "yarn jest --watch"
   },
   "repository": {
     "type": "git",

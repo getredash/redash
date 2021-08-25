@@ -87,12 +87,13 @@ jobs:
       - run: sudo npm install --global --force yarn@1.22.10
       - run: yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
       - run: yarn bundle
+      - run: yarn build:viz
       - run:
           name: Run App Tests
-          command: yarn test
+          command: yarn test:app
       - run:
           name: Run Visualizations Tests
-          command: (cd viz-lib && yarn test)
+          command: yarn test:viz
       - run: yarn lint
   frontend-e2e-tests:
     environment:
