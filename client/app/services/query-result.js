@@ -148,10 +148,8 @@ class QueryResult {
           if (isNumber(v)) {
             newType = "float";
           } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {
-            row[k] = moment.utc(v);
             newType = "datetime";
           } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
-            row[k] = moment.utc(v);
             newType = "date";
           } else if (typeof v === "object" && v !== null) {
             row[k] = JSON.stringify(v);
@@ -174,6 +172,11 @@ class QueryResult {
         if (columnTypes[column.name]) {
           if (column.type == null || column.type === "string") {
             column.type = columnTypes[column.name];
+          }
+          if (columnTypes[column.name] == "datetime" || columnTypes[column.name] == "date") {
+            each(this.query_result.data.rows, row => {
+              row[column.name] = moment.utc(row[column.name]);
+            });
           }
         }
       });
