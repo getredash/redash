@@ -179,6 +179,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
             <label htmlFor={vizTypeId}>Visualization Type</label>
             <Select
               data-test="VisualizationType"
+              virtual={false}
               id={vizTypeId}
               className="w-100"
               disabled={!isNew}

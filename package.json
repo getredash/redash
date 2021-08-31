@@ -11,7 +11,7 @@
   "scripts": {
     "start": "yarn build && yarn start:app",
     "start:app": "yarn workspace @redash/app start",
-    "dev": "npm-run-all --parallel watch:viz start:app",
+    "dev": "npm-run-all --parallel watch:viz watch:app",
     "bundle": "bin/bundle-extensions",
     "clean": "yarn clean:app && yarn clean:viz",
     "clean:app": "yarn workspace @redash/app clean",
