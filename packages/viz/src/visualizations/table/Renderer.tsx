@@ -58,6 +58,7 @@ type OwnSearchInputProps = {
   onChange?: (...args: any[]) => any;
 };
 
+// @ts-expect-error TS2565: Property 'defaultProps' is used before being assigned.
 type SearchInputProps = OwnSearchInputProps & typeof SearchInput.defaultProps;
 
 // @ts-expect-error ts-migrate(2339) FIXME: Property 'searchColumns' does not exist on type 'S... Remove this comment to see the full error message

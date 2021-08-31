@@ -19,6 +19,7 @@ type OwnErrorMessageProps = {
   children?: React.ReactNode;
 };
 
+// @ts-expect-error TS2565: Property 'defaultProps' is used before being assigned.
 type ErrorMessageProps = OwnErrorMessageProps & typeof ErrorMessage.defaultProps;
 
 export function ErrorMessage({ children }: ErrorMessageProps) {

@@ -20,6 +20,7 @@ type OwnTemplateFormatHintProps = {
   geoJsonProperties?: string[];
 };
 
+// @ts-expect-error TS2565: Property 'defaultProps' is used before being assigned.
 type TemplateFormatHintProps = OwnTemplateFormatHintProps & typeof TemplateFormatHint.defaultProps;
 
 function TemplateFormatHint({ geoJsonProperties }: TemplateFormatHintProps) {

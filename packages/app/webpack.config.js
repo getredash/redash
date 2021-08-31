@@ -62,11 +62,11 @@ const config = {
   mode: isProduction ? "production" : "development",
   entry: {
     app: [
-      "./src/app/index.js",
-      "./src/app/assets/less/main.less",
-      "./src/app/assets/less/ant.less"
+      path.join(appPath, "index.js"),
+      path.join(appPath, "assets/less/main.less"),
+        path.join(appPath, "assets/less/ant.less")
     ],
-    server: ["./src/app/assets/less/server.less"]
+    server: [path.join(appPath, "assets/less/server.less")]
   },
   output: {
     path: path.join(basePath, "./dist"),
@@ -86,7 +86,7 @@ const config = {
     // bundle only default `moment` locale (`en`)
     new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
     new HtmlWebpackPlugin({
-      template: "./src/app/index.html",
+      template: path.join(appPath, "index.html"),
       filename: "index.html",
       excludeChunks: ["server"],
       release: process.env.BUILD_VERSION || "dev",
@@ -95,7 +95,7 @@ const config = {
       title: htmlTitle
     }),
     new HtmlWebpackPlugin({
-      template: "./src/app/multi_org.html",
+      template: path.join(appPath, "multi_org.html"),
       filename: "multi_org.html",
       excludeChunks: ["server"]
     }),

@@ -21,6 +21,7 @@ type OwnProps = {
   children?: React.ReactNode;
 };
 
+// @ts-expect-error TS2565: Property 'defaultProps' is used before being assigned.
 type Props = OwnProps & typeof SortableContainer.defaultProps;
 
 export function SortableContainer({ disabled, containerComponent, containerProps, children, ...wrapperProps }: Props) {

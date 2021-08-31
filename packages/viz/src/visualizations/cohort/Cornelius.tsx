@@ -193,6 +193,7 @@ type OwnCorneliusProps = {
   };
 };
 
+// @ts-expect-error TS2565: Property 'defaultProps' is used before being assigned.
 type CorneliusProps = OwnCorneliusProps & typeof Cornelius.defaultProps;
 
 export default function Cornelius({ data, options }: CorneliusProps) {

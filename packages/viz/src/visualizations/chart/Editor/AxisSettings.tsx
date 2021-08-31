@@ -26,6 +26,7 @@ type OwnProps = {
   onChange?: (...args: any[]) => any;
 };
 
+// @ts-expect-error TS2565: Property 'defaultProps' is used before being assigned.
 type Props = OwnProps & typeof AxisSettings.defaultProps;
 
 export default function AxisSettings({ id, options, features, onChange }: Props) {

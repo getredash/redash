@@ -8,6 +8,7 @@ type OwnSectionTitleProps = {
   children?: React.ReactNode;
 };
 
+// @ts-expect-error TS2565: Property 'defaultProps' is used before being assigned.
 type SectionTitleProps = OwnSectionTitleProps & typeof SectionTitle.defaultProps;
 
 // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
@@ -33,6 +34,7 @@ type OwnSectionProps = {
   children?: React.ReactNode;
 };
 
+// @ts-expect-error TS2565: Property 'defaultProps' is used before being assigned.
 type SectionProps = OwnSectionProps & typeof Section.defaultProps;
 
 // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.

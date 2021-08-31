@@ -14,6 +14,7 @@ type OwnProps = {
   className?: string;
 };
 
+// @ts-expect-error TS2565: Property 'defaultProps' is used before being assigned.
 type Props = OwnProps & typeof TextAlignmentSelect.defaultProps;
 
 // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.

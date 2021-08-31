@@ -10,6 +10,7 @@ type OwnContextHelpProps = {
   children?: React.ReactNode;
 };
 
+// @ts-expect-error TS2565: Property 'defaultProps' is used before being assigned.
 type ContextHelpProps = OwnContextHelpProps & typeof ContextHelp.defaultProps;
 
 export default function ContextHelp({ icon, children, ...props }: ContextHelpProps) {

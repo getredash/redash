@@ -11,6 +11,7 @@ type OwnProps = {
   children?: React.ReactNode;
 };
 
+// @ts-expect-error TS2565: Property 'defaultProps' is used before being assigned.
 type Props = OwnProps & typeof FunnelBar.defaultProps;
 
 export default function FunnelBar({ color, value, align, className, children }: Props) {

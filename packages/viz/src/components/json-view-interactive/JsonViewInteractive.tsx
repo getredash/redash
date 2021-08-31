@@ -95,6 +95,7 @@ type OwnJsonViewInteractiveProps = {
   value?: any;
 };
 
+// @ts-expect-error TS2565: Property 'defaultProps' is used before being assigned.
 type JsonViewInteractiveProps = OwnJsonViewInteractiveProps & typeof JsonViewInteractive.defaultProps;
 
 export default function JsonViewInteractive({ value }: JsonViewInteractiveProps) {

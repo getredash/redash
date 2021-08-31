@@ -14,6 +14,7 @@ type OwnProps = {
   children?: React.ReactNode;
 };
 
+// @ts-expect-error TS2565: Property 'defaultProps' is used before being assigned.
 type Props = OwnProps & typeof ControlLabel.defaultProps;
 
 export function ControlLabel({ layout, label, labelProps, disabled, children }: Props) {

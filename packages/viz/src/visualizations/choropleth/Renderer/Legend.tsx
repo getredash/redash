@@ -10,6 +10,7 @@ type OwnProps = {
   alignText?: "left" | "center" | "right";
 };
 
+// @ts-expect-error TS2565: Property 'defaultProps' is used before being assigned.
 type Props = OwnProps & typeof Legend.defaultProps;
 
 export default function Legend({ items, alignText }: Props) {
