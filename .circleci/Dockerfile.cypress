@@ -6,8 +6,9 @@ WORKDIR $APP
 COPY package.json yarn.lock .yarnrc $APP/
 COPY packages/app/package.json $APP/packages/app/
 COPY packages/viz $APP/packages/viz
+COPY client/cypress $APP/client/cypress
 RUN npm install yarn@1.22.10 -g && yarn --frozen-lockfile --network-concurrency 1 > /dev/null
 
 COPY . $APP
 
-RUN ./node_modules/.bin/cypress verify
+RUN yarn workspace @redash/e2e cypress:verify

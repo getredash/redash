@@ -69,11 +69,7 @@
     "use-media": "^1.4.0"
   },
   "devDependencies": {
-    "@cypress/code-coverage": "^3.8.1",
-    "@percy/agent": "0.24.3",
-    "@percy/cypress": "^2.3.2",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.4.3",
-    "@testing-library/cypress": "^7.0.2",
     "@types/classnames": "^2.2.10",
     "@types/hoist-non-react-statics": "^3.3.1",
     "@types/prop-types": "^15.7.3",
@@ -83,7 +79,6 @@
     "atob": "^2.1.2",
     "copy-webpack-plugin": "^4.5.3",
     "css-loader": "^0.28.7",
-    "cypress": "^5.3.0",
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.7.1",
     "enzyme-to-json": "^3.3.5",
@@ -125,12 +120,6 @@
       "^@/(.*)": "<rootDir>/app/$1",
       "\\.(css|less)$": "identity-obj-proxy"
     }
-  },
-  "nyc": {
-    "include": [
-      "client/app/**",
-      "viz-lib/**"
-    ]
   },
   "//": "browserslist set to 'Async functions' compatibility",
   "browserslist": [
