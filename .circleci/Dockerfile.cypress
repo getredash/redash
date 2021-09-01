@@ -11,4 +11,4 @@ RUN npm install yarn@1.22.10 -g && yarn --frozen-lockfile --network-concurrency 
 
 COPY . $APP
 
-RUN yarn workspace @redash/e2e cypress:verify
+RUN yarn workspace @redash/e2e cypress verify

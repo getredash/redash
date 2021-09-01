@@ -106,7 +106,7 @@ function runCypressCI() {
   }
 
   execSync(
-    "COMMIT_INFO_MESSAGE=$(git show -s --format=%s) docker-compose run --name cypress cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run --record",
+    "COMMIT_INFO_MESSAGE=$(git show -s --format=%s) docker-compose run --name cypress cypress yarn percy exec -t 300 -- yarn workspace @redash/e2e cypress run --record --config-file=./cypress.json",
     { stdio: "inherit", cwd: rootPath }
   );
 }
@@ -127,10 +127,16 @@ switch (command) {
     seedDatabase(seedData);
     break;
   case "run":
-    execSync("cypress run --config-file=./cypress.json", { stdio: "inherit" });
+    execSync("cypress run --config-file=./cypress.json", {
+      stdio: "inherit",
+      cwd: __dirname
+    });
     break;
   case "open":
-    execSync("cypress open --config-file=./cypress.json", { stdio: "inherit" });
+    execSync("cypress open --config-file=./cypress.json", {
+      stdio: "inherit",
+      cwd: __dirname
+    });
     break;
   case "run-ci":
     runCypressCI();
@@ -141,7 +147,10 @@ switch (command) {
   case "all":
     startServer();
     seedDatabase(seedData);
-    execSync("cypress run --config-file=./cypress.json", { stdio: "inherit" });
+    execSync("cypress run --config-file=./cypress.json", {
+      stdio: "inherit",
+      cwd: __dirname
+    });
     stopServer();
     break;
   default:

@@ -125,7 +125,7 @@ jobs:
           name: Setup Redash server
           command: |
             yarn cy build
-            yarn cy start -- --skip-db-seed
+            yarn cy start --skip-db-seed
             docker-compose run cypress yarn cy db-seed
       - run:
           name: Execute Cypress tests

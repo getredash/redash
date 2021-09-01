@@ -2,20 +2,17 @@
   "baseUrl": "http://localhost:5000",
   "video": true,
   "videoUploadOnPasses": false,
-  "trashAssetsBeforeRuns": false,
   "fixturesFolder": "fixtures",
   "integrationFolder": "integration",
   "pluginsFile": "plugins/index.js",
   "screenshotsFolder": "screenshots",
   "videosFolder": "videos",
-  "supportFile": "support",
-  "defaultCommandTimeout": 30000,
+  "supportFile": "support/index.js",
+  "defaultCommandTimeout": 20000,
   "requestTimeout": 15000,
   "viewportWidth": 1280,
   "viewportHeight": 1024,
-  "experimentalNetworkStubbing": true,
-  "retries": {
-    "runMode": 3,
-    "openMode": 0
+  "env": {
+    "coverage": false
   }
 }

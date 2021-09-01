@@ -64,7 +64,7 @@ const config = {
     app: [
       path.join(appPath, "index.js"),
       path.join(appPath, "assets/less/main.less"),
-        path.join(appPath, "assets/less/ant.less")
+      path.join(appPath, "assets/less/ant.less")
     ],
     server: [path.join(appPath, "assets/less/server.less")]
   },

@@ -6,8 +6,7 @@
     "cy": "node cypress.js",
     "cy:open-ci": "yarn cy open --ci --target=\"https://localhost:${PORT:-5000}\"",
     "cy:run-ci": "yarn cy run --ci --target=\"https://localhost:${PORT:-5000}\"",
-    "cy:ui": "yarn cy open",
-    "cypress:verify": "cypress verify"
+    "cy:ui": "yarn cy open"
   },
   "devDependencies": {
     "@cypress/code-coverage": "^3.8.1",
