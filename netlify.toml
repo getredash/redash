@@ -1,7 +1,7 @@
 [build]
-  base    = "packages/app"
-  publish = "packages/app/dist"
-  command = "cd ../.. && rm -r ./node_modules ./packages/app/node_modules ./packages/viz/node_modules ./client/cypress/node_modules && && yarn cache clean && yarn --frozen-lockfile --network-concurrency 1 && yarn build"
+  base    = ".netlify"
+  publish = ".netlify/packages/app/dist"
+  command = "./build"
 
 [build.environment]
   NODE_VERSION = "14.16.1"

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -e
+
+cp ../package.json ./package.json
+cp ../yarn.lock ./yarn.lock
+cp ../.yarnrc ./.yarnrc
+
+cp -r ../packages ./packages
+cp -r ../client ./client
+
+node --version
+yarn --version
+
+yarn cache clean
+yarn --frozen-lockfile --network-concurrency 1
+yarn build
