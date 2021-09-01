@@ -127,10 +127,10 @@ switch (command) {
     seedDatabase(seedData);
     break;
   case "run":
-    execSync("cypress run --config-file=./cypress.json", { stdio: "inherit" });
+    execSync("cypress run --config-file=./cypress.json", { stdio: "inherit", cwd: __dirname });
     break;
   case "open":
-    execSync("cypress open --config-file=./cypress.json", { stdio: "inherit" });
+    execSync("cypress open --config-file=./cypress.json", { stdio: "inherit", cwd: __dirname });
     break;
   case "run-ci":
     runCypressCI();
@@ -141,7 +141,7 @@ switch (command) {
   case "all":
     startServer();
     seedDatabase(seedData);
-    execSync("cypress run --config-file=./cypress.json", { stdio: "inherit" });
+    execSync("cypress run --config-file=./cypress.json", { stdio: "inherit", cwd: __dirname });
     stopServer();
     break;
   default:
