@@ -258,6 +258,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         try:
             cursor.execute(query)
+            logger.info("======query sql:======" + query)
             _wait(connection)
 
             if cursor.description is not None:
