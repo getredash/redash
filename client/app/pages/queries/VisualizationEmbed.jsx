@@ -14,12 +14,12 @@ import Parameters from "@/components/Parameters";
 import { Moment } from "@/components/proptypes";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
-import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
+// import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
 import VisualizationName from "@/components/visualizations/VisualizationName";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 
-import FileOutlinedIcon from "@ant-design/icons/FileOutlined";
-import FileExcelOutlinedIcon from "@ant-design/icons/FileExcelOutlined";
+// import FileOutlinedIcon from "@ant-design/icons/FileOutlined";
+// import FileExcelOutlinedIcon from "@ant-design/icons/FileExcelOutlined";
 
 import { VisualizationType } from "@redash/viz/lib";
 import HtmlContent from "@redash/viz/lib/components/HtmlContent";
@@ -67,7 +67,7 @@ function VisualizationEmbedFooter({
 }) {
   const downloadMenu = (
     <Menu>
-      <Menu.Item>
+      {/* <Menu.Item>
         <QueryResultsLink
           fileType="csv"
           query={query}
@@ -99,7 +99,7 @@ function VisualizationEmbedFooter({
           embed>
           <FileExcelOutlinedIcon /> Download as Excel File
         </QueryResultsLink>
-      </Menu.Item>
+      </Menu.Item> */}
     </Menu>
   );
 

@@ -4,15 +4,15 @@ import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Button from "antd/lib/button";
 import PlainButton from "@/components/PlainButton";
-import { clientConfig } from "@/services/auth";
+// import { clientConfig } from "@/services/auth";
 
 import PlusCircleFilledIcon from "@ant-design/icons/PlusCircleFilled";
-import ShareAltOutlinedIcon from "@ant-design/icons/ShareAltOutlined";
-import FileOutlinedIcon from "@ant-design/icons/FileOutlined";
-import FileExcelOutlinedIcon from "@ant-design/icons/FileExcelOutlined";
+// import ShareAltOutlinedIcon from "@ant-design/icons/ShareAltOutlined";
+// import FileOutlinedIcon from "@ant-design/icons/FileOutlined";
+// import FileExcelOutlinedIcon from "@ant-design/icons/FileExcelOutlined";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 
-import QueryResultsLink from "./QueryResultsLink";
+// import QueryResultsLink from "./QueryResultsLink";
 
 export default function QueryControlDropdown(props) {
   const menu = (
@@ -24,7 +24,7 @@ export default function QueryControlDropdown(props) {
           </PlainButton>
         </Menu.Item>
       )}
-      {!clientConfig.disablePublicUrls && !props.query.isNew() && (
+      {/* {!clientConfig.disablePublicUrls && !props.query.isNew() && (
         <Menu.Item>
           <PlainButton
             onClick={() => props.showEmbedDialog(props.query, props.selectedTab)}
@@ -32,8 +32,8 @@ export default function QueryControlDropdown(props) {
             <ShareAltOutlinedIcon /> Embed Elsewhere
           </PlainButton>
         </Menu.Item>
-      )}
-      <Menu.Item>
+      )} */}
+      {/* <Menu.Item>
         <QueryResultsLink
           fileType="csv"
           disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
@@ -65,7 +65,7 @@ export default function QueryControlDropdown(props) {
           apiKey={props.apiKey}>
           <FileExcelOutlinedIcon /> Download as Excel File
         </QueryResultsLink>
-      </Menu.Item>
+      </Menu.Item> */}
     </Menu>
   );
 
