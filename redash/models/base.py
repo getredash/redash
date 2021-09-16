@@ -9,6 +9,7 @@ from sqlalchemy.dialects import postgresql
 
 from redash import settings
 from redash.utils import json_dumps, get_schema
+from redash.stacklet.auth import get_db
 
 
 class RedashSQLAlchemy(SQLAlchemy):
@@ -17,6 +18,12 @@ class RedashSQLAlchemy(SQLAlchemy):
         if settings.SQLALCHEMY_ENABLE_POOL_PRE_PING:
             options.update(pool_pre_ping=True)
         super(RedashSQLAlchemy, self).apply_driver_hacks(app, info, options)
+
+    def create_engine(self, sa_url, engine_opts):
+        if sa_url.drivername.startswith("postgres"):
+            engine = get_db(sa_url)
+            return engine
+        super(RedashSQLAlchemy, self).create_engine(sa_url, engine_opts)
 
     def apply_pool_defaults(self, app, options):
         super(RedashSQLAlchemy, self).apply_pool_defaults(app, options)

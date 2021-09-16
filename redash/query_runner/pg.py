@@ -12,6 +12,8 @@ from psycopg2.extras import Range
 from redash.query_runner import *
 from redash.utils import JSONEncoder, json_dumps, json_loads
 
+from redash.stacklet.auth import inject_iam_auth
+
 logger = logging.getLogger(__name__)
 
 try:
@@ -236,6 +238,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         return list(schema.values())
 
+    @inject_iam_auth
     def _get_connection(self):
         self.ssl_config = _get_ssl_config(self.configuration)
         connection = psycopg2.connect(

@@ -70,11 +70,10 @@ def run_migrations_online():
                 directives[:] = []
                 logger.info("No changes in schema detected.")
 
-    engine = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    from redash.stacklet.auth import get_db
+    from redash import settings
+
+    engine = get_db(settings.SQLALCHEMY_DATABASE_URI)
     engine.execution_options(schema_translate_map={None: schema})
 
     connection = engine.connect()
