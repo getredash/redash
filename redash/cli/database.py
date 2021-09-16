@@ -32,8 +32,12 @@ def _wait_for_db_connection(db):
 
 def is_db_empty():
     from redash.models import db
+    from redash.stacklet.auth import get_env_db
 
-    extant_tables = set(sqlalchemy.inspect(db.get_engine()).get_table_names())
+    engine = get_env_db()
+    db._engine = engine
+
+    extant_tables = set(sqlalchemy.inspect(engine).get_table_names())
     redash_tables = set(db.metadata.tables)
     return len(redash_tables.intersection(extant_tables)) == 0
 

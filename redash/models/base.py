@@ -8,6 +8,7 @@ from sqlalchemy.pool import NullPool
 from sqlalchemy_searchable import SearchQueryMixin, make_searchable, vectorizer
 
 from redash import settings
+from redash.stacklet.auth import get_env_db
 from redash.utils import json_dumps, json_loads, get_schema
 
 
@@ -17,6 +18,12 @@ class RedashSQLAlchemy(SQLAlchemy):
         if settings.SQLALCHEMY_ENABLE_POOL_PRE_PING:
             options.update(pool_pre_ping=True)
         return super(RedashSQLAlchemy, self).apply_driver_hacks(app, info, options)
+
+    def create_engine(self, sa_url, engine_opts):
+        if sa_url.drivername.startswith("postgres"):
+            engine = get_env_db()
+            return engine
+        super(RedashSQLAlchemy, self).create_engine(sa_url, engine_opts)
 
     def apply_pool_defaults(self, app, options):
         super(RedashSQLAlchemy, self).apply_pool_defaults(app, options)
