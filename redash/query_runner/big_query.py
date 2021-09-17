@@ -139,7 +139,6 @@ class BigQuery(BaseQueryRunner):
             "secret": ["jsonKeyFile"],
         }
 
-
     def _get_bigquery_service(self):
         scope = [
             "https://www.googleapis.com/auth/bigquery",
@@ -245,7 +244,7 @@ class BigQuery(BaseQueryRunner):
         data = {
             "columns": columns,
             "rows": rows,
-            "metadata": {"data_scanned":  _get_total_bytes_processed_for_resp(query_reply)},
+            "metadata": {"data_scanned": _get_total_bytes_processed_for_resp(query_reply)},
         }
 
         return data
