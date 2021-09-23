@@ -84,9 +84,8 @@ def _get_query_results(jobs, project_id, location, job_id, start_index):
 
 
 def _get_total_bytes_processed_for_resp(bq_response):
-    # BigQuery hides the total bytes processed for queries
-    # to talbes with row-level access controls. Because of this
-    # the "totalBytesProcessed" field may or may not be defined on the response.
+    # BigQuery hides the total bytes processed for queries to tables with row-level access controls.
+    # For these queries the "totalBytesProcessed" field may not be defined in the response.
     return int(bq_response.get("totalBytesProcessed", "0"))
 
 
