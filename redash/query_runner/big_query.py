@@ -83,6 +83,12 @@ def _get_query_results(jobs, project_id, location, job_id, start_index):
     return query_reply
 
 
+def _get_total_bytes_processed_for_resp(bq_response):
+    # BigQuery hides the total bytes processed for queries to tables with row-level access controls.
+    # For these queries the "totalBytesProcessed" field may not be defined in the response.
+    return int(bq_response.get("totalBytesProcessed", "0"))
+
+
 class BigQuery(BaseQueryRunner):
     should_annotate_query = False
     noop_query = "SELECT 1"
@@ -162,7 +168,7 @@ class BigQuery(BaseQueryRunner):
             job_data["useLegacySql"] = False
 
         response = jobs.query(projectId=self._get_project_id(), body=job_data).execute()
-        return int(response["totalBytesProcessed"])
+        return _get_total_bytes_processed_for_resp(response)
 
     def _get_job_data(self, query):
         job_data = {"configuration": {"query": {"query": query}}}
@@ -237,7 +243,7 @@ class BigQuery(BaseQueryRunner):
         data = {
             "columns": columns,
             "rows": rows,
-            "metadata": {"data_scanned": int(query_reply["totalBytesProcessed"])},
+            "metadata": {"data_scanned": _get_total_bytes_processed_for_resp(query_reply)},
         }
 
         return data
