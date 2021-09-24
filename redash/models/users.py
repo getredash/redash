@@ -271,6 +271,10 @@ class Group(db.Model, BelongsToOrgMixin):
         "list_alerts",
         "list_data_sources",
     ]
+    ADMIN_PERMISSIONS = [
+        "admin",
+        "super_admin"
+    ]
 
     BUILTIN_GROUP = "builtin"
     REGULAR_GROUP = "regular"
