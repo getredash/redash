@@ -1,5 +1,6 @@
 import logging
 import time
+import regex
 
 import unicodedata
 from flask import make_response, request
@@ -131,7 +132,8 @@ def run_query(
 def get_download_filename(query_result, query, filetype):
     retrieved_at = query_result.retrieved_at.strftime("%Y_%m_%d")
     if query:
-        filename = to_filename(query.name) if query.name != "" else str(query.id)
+        query_name = regex.sub(r"\p{C}", "", query.name)
+        filename = to_filename(query_name) if query_name != "" else str(query.id)
     else:
         filename = str(query_result.id)
     return "{}_{}.{}".format(filename, retrieved_at, filetype)
