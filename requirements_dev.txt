@@ -12,3 +12,4 @@ ptvsd==4.3.2
 freezegun==0.3.12
 watchdog==0.9.0
 ptpython==3.0.17
+firebolt-sqlalchemy
