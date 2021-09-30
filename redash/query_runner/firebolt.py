@@ -64,7 +64,6 @@ class Firebolt(BaseQueryRunner):
 
 
     def get_schema(self, get_stats=False):
-
         query = """
         SELECT TABLE_SCHEMA,
                TABLE_NAME,
@@ -90,5 +89,6 @@ class Firebolt(BaseQueryRunner):
             schema[table_name]["columns"].append(row["column_name"])
 
         return list(schema.values())
+
 
 register(Firebolt)
