@@ -1,5 +1,13 @@
 # Change Log
 
+## v10.0.0 - 2021-10-01
+
+A few changes were merged during the V10 beta period.
+
+- New Data Source: CSV/Excel Files
+- Fix: Edit Source button disappeared for users without CanEdit permissions
+- We pinned our docker base image to Python3.7-slim-buster to avoid build issues
+
 ## v10.0.0-beta - 2021-06-16
 
 Just over a year since our last release, the V10 beta is ready. Since we never made a non-beta release of V9, we expect many users will upgrade directly from V8 -> V10. This will bring a lot of exciting features. Please check out the V9 beta release notes below to learn more.
