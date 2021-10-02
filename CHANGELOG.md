@@ -7,6 +7,7 @@ A few changes were merged during the V10 beta period.
 - New Data Source: CSV/Excel Files
 - Fix: Edit Source button disappeared for users without CanEdit permissions
 - We pinned our docker base image to Python3.7-slim-buster to avoid build issues
+- Fix: dashboard list pagination didn't work
 
 ## v10.0.0-beta - 2021-06-16
 
