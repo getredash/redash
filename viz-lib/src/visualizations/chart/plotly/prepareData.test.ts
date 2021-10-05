@@ -80,6 +80,12 @@ describe("Visualizations", () => {
           const series = cleanSeries(prepareData(input.data, input.options));
           expect(series).toEqual(output.series);
         });
+
+        test("sorted category values", () => {
+          const { input, output } = require("./fixtures/prepareData/bar/sorted-category");
+          const series = cleanSeries(prepareData(input.data, input.options));
+          expect(series).toEqual(output.series);
+        });
       });
 
       describe("lines & area", () => {

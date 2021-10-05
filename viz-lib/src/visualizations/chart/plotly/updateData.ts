@@ -1,6 +1,6 @@
 import { isNil, each, extend, filter, identity, includes, map, sortBy } from "lodash";
 import { createNumberFormatter, formatSimpleTemplate } from "@/lib/value-format";
-import { normalizeValue } from "./utils";
+import { normalizeValue, numericSorter } from "./utils";
 
 function shouldUseUnifiedXAxis(options: any) {
   return options.sortX && options.xAxis.type === "category" && options.globalSeriesType !== "box";
@@ -139,7 +139,7 @@ function getUnifiedXAxisValues(seriesList: any, sorted: any) {
   });
 
   const result = [...set];
-  return sorted ? sortBy(result, identity) : result;
+  return sorted ? sortBy(result, [numericSorter, identity]) : result;
 }
 
 function updateUnifiedXAxisValues(seriesList: any, options: any) {

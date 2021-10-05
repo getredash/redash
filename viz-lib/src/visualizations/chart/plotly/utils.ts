@@ -24,3 +24,11 @@ export function normalizeValue(value: any, axisType: any, dateTimeFormat = "YYYY
   }
   return value;
 }
+
+export function numericSorter(value: any) {
+  const parsed = Number(value);
+  if (isNaN(parsed)) {
+    return Infinity;
+  }
+  return parsed;
+}
