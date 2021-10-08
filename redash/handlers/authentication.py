@@ -38,9 +38,9 @@ def render_token_login_page(template, org_slug, token, invite):
         user = models.User.get_by_id_and_org(user_id, org)
     except NoResultFound:
         logger.exception(
-            "Bad user id in token. Token= , User id= %s, Org=%s",
-            user_id,
+            "Bad user id in token. Token=%s , User id= %s, Org=%s",
             token,
+            user_id,
             org_slug,
         )
         return (
@@ -148,6 +148,7 @@ def verify(token, org_slug=None):
 
 
 @routes.route(org_scoped_rule("/forgot"), methods=["GET", "POST"])
+@limiter.limit(settings.THROTTLE_PASS_RESET_PATTERN)
 def forgot_password(org_slug=None):
     if not current_org.get_setting("auth_password_login_enabled"):
         abort(404)

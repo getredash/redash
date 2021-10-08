@@ -93,7 +93,7 @@ class GroupsList extends React.Component {
         {currentUser.isAdmin && (
           <div className="m-b-15">
             <Button type="primary" onClick={this.createGroup}>
-              <i className="fa fa-plus m-r-5" />
+              <i className="fa fa-plus m-r-5" aria-hidden="true" />
               New Group
             </Button>
           </div>

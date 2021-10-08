@@ -127,11 +127,13 @@ body.fixed-layout {
   }
 }
 
-a.label-tag {
+.label-tag {
   background: fade(@redash-gray, 15%);
   color: darken(@redash-gray, 15%);
 
-  &:hover {
+  &:hover,
+  &:focus,
+  &:active {
     color: darken(@redash-gray, 15%);
     background: fade(@redash-gray, 25%);
   }
@@ -141,6 +143,7 @@ a.label-tag {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  position: relative;
 }
 
 .query-fullscreen {

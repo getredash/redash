@@ -14,10 +14,13 @@ PASSWORD_LOGIN_ENABLED = parse_boolean(
     os.environ.get("REDASH_PASSWORD_LOGIN_ENABLED", "true")
 )
 
+SAML_LOGIN_TYPE = os.environ.get("REDASH_SAML_AUTH_TYPE", "")
 SAML_METADATA_URL = os.environ.get("REDASH_SAML_METADATA_URL", "")
 SAML_ENTITY_ID = os.environ.get("REDASH_SAML_ENTITY_ID", "")
 SAML_NAMEID_FORMAT = os.environ.get("REDASH_SAML_NAMEID_FORMAT", "")
-SAML_LOGIN_ENABLED = SAML_METADATA_URL != ""
+SAML_SSO_URL = os.environ.get("REDASH_SAML_SSO_URL", "")
+SAML_X509_CERT = os.environ.get("REDASH_SAML_X509_CERT", "")
+SAML_LOGIN_ENABLED = SAML_SSO_URL != "" and SAML_METADATA_URL != ""
 
 DATE_FORMAT = os.environ.get("REDASH_DATE_FORMAT", "DD/MM/YY")
 TIME_FORMAT = os.environ.get("REDASH_TIME_FORMAT", "HH:mm")
@@ -52,9 +55,12 @@ settings = {
     "beacon_consent": None,
     "auth_password_login_enabled": PASSWORD_LOGIN_ENABLED,
     "auth_saml_enabled": SAML_LOGIN_ENABLED,
+    "auth_saml_type": SAML_LOGIN_TYPE,
     "auth_saml_entity_id": SAML_ENTITY_ID,
     "auth_saml_metadata_url": SAML_METADATA_URL,
     "auth_saml_nameid_format": SAML_NAMEID_FORMAT,
+    "auth_saml_sso_url": SAML_SSO_URL,
+    "auth_saml_x509_cert": SAML_X509_CERT,
     "date_format": DATE_FORMAT,
     "time_format": TIME_FORMAT,
     "integer_format": INTEGER_FORMAT,

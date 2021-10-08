@@ -9,7 +9,7 @@ from sqlalchemy.sql import select
 from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
 
 from redash import settings
-from redash.models.base import Column
+from redash.models.base import Column, key_type
 from redash.models.types import EncryptedConfiguration
 from redash.utils.configuration import ConfigurationContainer
 
@@ -27,7 +27,7 @@ def _wait_for_db_connection(db):
 
         retried = True
 
- 
+
 def is_db_empty():
     from redash.models import db
 
@@ -86,36 +86,40 @@ def reencrypt(old_secret, new_secret, show_sql):
         logging.basicConfig()
         logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
-    table_for_select = sqlalchemy.Table(
-        "data_sources",
-        sqlalchemy.MetaData(),
-        Column("id", db.Integer, primary_key=True),
-        Column(
-            "encrypted_options",
-            ConfigurationContainer.as_mutable(
-                EncryptedConfiguration(db.Text, old_secret, FernetEngine)
+    def _reencrypt_for_table(table_name, orm_name):
+        table_for_select = sqlalchemy.Table(
+            table_name,
+            sqlalchemy.MetaData(),
+            Column("id", key_type(orm_name), primary_key=True),
+            Column(
+                "encrypted_options",
+                ConfigurationContainer.as_mutable(
+                    EncryptedConfiguration(db.Text, old_secret, FernetEngine)
+                ),
             ),
-        ),
-    )
-    table_for_update = sqlalchemy.Table(
-        "data_sources",
-        sqlalchemy.MetaData(),
-        Column("id", db.Integer, primary_key=True),
-        Column(
-            "encrypted_options",
-            ConfigurationContainer.as_mutable(
-                EncryptedConfiguration(db.Text, new_secret, FernetEngine)
-            ),
-        ),
-    )
-
-    update = table_for_update.update()
-    data_sources = db.session.execute(select([table_for_select]))
-    for ds in data_sources:
-        stmt = update.where(table_for_update.c.id == ds["id"]).values(
-            encrypted_options=ds["encrypted_options"]
         )
-        db.session.execute(stmt)
+        table_for_update = sqlalchemy.Table(
+            table_name,
+            sqlalchemy.MetaData(),
+            Column("id", key_type(orm_name), primary_key=True),
+            Column(
+                "encrypted_options",
+                ConfigurationContainer.as_mutable(
+                    EncryptedConfiguration(db.Text, new_secret, FernetEngine)
+                ),
+            ),
+        )
 
-    data_sources.close()
-    db.session.commit()
+        update = table_for_update.update()
+        selected_items = db.session.execute(select([table_for_select]))
+        for item in selected_items:
+            stmt = update.where(table_for_update.c.id == item["id"]).values(
+                encrypted_options=item["encrypted_options"]
+            )
+            db.session.execute(stmt)
+
+        selected_items.close()
+        db.session.commit()
+
+    _reencrypt_for_table("data_sources", "DataSource")
+    _reencrypt_for_table("notification_destinations", "NotificationDestination")

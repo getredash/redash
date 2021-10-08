@@ -78,7 +78,9 @@ class RefreshQueriesError(Exception):
 
 def _apply_auto_limit(query_text, query):
     should_apply_auto_limit = query.options.get("apply_auto_limit", False)
-    return query.data_source.query_runner.apply_auto_limit(query_text, should_apply_auto_limit)
+    return query.data_source.query_runner.apply_auto_limit(
+        query_text, should_apply_auto_limit
+    )
 
 
 def refresh_queries():
@@ -96,7 +98,7 @@ def refresh_queries():
                 query.data_source,
                 query.user_id,
                 scheduled_query=query,
-                metadata={"Query ID": query.id, "Username": "Scheduled"},
+                metadata={"query_id": query.id, "Username": "Scheduled"},
             )
             enqueued.append(query)
         except Exception as e:
@@ -118,7 +120,7 @@ def refresh_queries():
 def cleanup_query_results():
     """
     Job to cleanup unused query results -- such that no query links to them anymore, and older than
-    settings.QUERY_RESULTS_MAX_AGE (a week by default, so it's less likely to be open in someone's browser and be used).
+    settings.QUERY_RESULTS_CLEANUP_MAX_AGE (a week by default, so it's less likely to be open in someone's browser and be used).
 
     Each time the job deletes only settings.QUERY_RESULTS_CLEANUP_COUNT (100 by default) query results so it won't choke
     the database in case of many such results.

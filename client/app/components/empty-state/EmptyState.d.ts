@@ -8,13 +8,21 @@ export interface StepItem<K> {
   node: React.ReactNode;
 }
 
+export interface EmptyStateHelpMessageProps {
+  helpTriggerType: string;
+}
+
+export declare const EmptyStateHelpMessage: React.FunctionComponent<EmptyStateHelpMessageProps>;
+
 export interface EmptyStateProps<K = unknown> {
   header?: string;
   icon?: string;
   description: string;
   illustration: string;
   illustrationPath?: string;
-  helpLink: string;
+  helpMessage?: React.ReactNode;
+  closable?: boolean;
+  onClose?: () => void;
 
   onboardingMode?: boolean;
   showAlertStep?: boolean;
@@ -33,8 +41,9 @@ export interface StepProps {
   show: boolean;
   completed: boolean;
   url?: string;
-  urlText?: string;
-  text: string;
+  urlTarget?: string;
+  urlText?: React.ReactNode;
+  text?: React.ReactNode;
   onClick?: () => void;
 }
 

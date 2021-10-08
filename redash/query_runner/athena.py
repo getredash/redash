@@ -180,6 +180,9 @@ class Athena(BaseQueryRunner):
                 iterator = table_paginator.paginate(DatabaseName=database["Name"])
                 for table in iterator.search("TableList[]"):
                     table_name = "%s.%s" % (database["Name"], table["Name"])
+                    if 'StorageDescriptor' not in table:
+                        logger.warning("Glue table doesn't have StorageDescriptor: %s", table_name)
+                        continue
                     if table_name not in schema:
                         column = [
                             columns["Name"]

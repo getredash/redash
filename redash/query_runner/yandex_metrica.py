@@ -89,6 +89,7 @@ class YandexMetrica(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {"token": {"type": "string", "title": "OAuth Token"}},
+            "secret": ["token"],
             "required": ["token"],
         }
 

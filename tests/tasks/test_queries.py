@@ -48,7 +48,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
             enqueue_query(
                 query.query_text,
@@ -56,7 +56,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
             enqueue_query(
                 query.query_text,
@@ -64,7 +64,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
 
         self.assertEqual(1, enqueue.call_count)
@@ -79,7 +79,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
 
             # "expire" the previous job
@@ -91,7 +91,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
 
         self.assertEqual(2, enqueue.call_count)
@@ -106,7 +106,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
 
             # "cancel" the previous job
@@ -123,7 +123,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
 
         self.assertEqual(2, enqueue.call_count)
@@ -139,7 +139,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 query,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
 
         _, kwargs = enqueue.call_args
@@ -155,7 +155,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 None,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
             enqueue_query(
                 query.query_text + "2",
@@ -163,7 +163,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 None,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
             enqueue_query(
                 query.query_text + "3",
@@ -171,7 +171,7 @@ class TestEnqueueTask(BaseTestCase):
                 query.user_id,
                 False,
                 None,
-                {"Username": "Arik", "Query ID": query.id},
+                {"Username": "Arik", "query_id": query.id},
             )
 
         self.assertEqual(3, enqueue.call_count)
@@ -201,7 +201,10 @@ class QueryExecutorTests(BaseTestCase):
         with patch.object(PostgreSQL, "run_query") as qr:
             qr.return_value = ([1, 2], None)
             result_id = execute_query(
-                "SELECT 1, 2", self.factory.data_source.id, {}, scheduled_query_id=q.id
+                "SELECT 1, 2",
+                self.factory.data_source.id,
+                {"query_id": q.id},
+                scheduled_query_id=q.id,
             )
             q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 0)
@@ -219,14 +222,20 @@ class QueryExecutorTests(BaseTestCase):
             qr.side_effect = ValueError("broken")
 
             result = execute_query(
-                "SELECT 1, 2", self.factory.data_source.id, {}, scheduled_query_id=q.id
+                "SELECT 1, 2",
+                self.factory.data_source.id,
+                {"query_id": q.id},
+                scheduled_query_id=q.id,
             )
             self.assertTrue(isinstance(result, QueryExecutionError))
             q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 1)
 
             result = execute_query(
-                "SELECT 1, 2", self.factory.data_source.id, {}, scheduled_query_id=q.id
+                "SELECT 1, 2",
+                self.factory.data_source.id,
+                {"query_id": q.id},
+                scheduled_query_id=q.id,
             )
             self.assertTrue(isinstance(result, QueryExecutionError))
             q = models.Query.get_by_id(q.id)
@@ -242,7 +251,10 @@ class QueryExecutorTests(BaseTestCase):
         with patch.object(PostgreSQL, "run_query") as qr:
             qr.side_effect = ValueError("broken")
             result = execute_query(
-                "SELECT 1, 2", self.factory.data_source.id, {}, scheduled_query_id=q.id
+                "SELECT 1, 2",
+                self.factory.data_source.id,
+                {"query_id": q.id},
+                scheduled_query_id=q.id,
             )
             self.assertTrue(isinstance(result, QueryExecutionError))
             q = models.Query.get_by_id(q.id)
@@ -251,7 +263,41 @@ class QueryExecutorTests(BaseTestCase):
         with patch.object(PostgreSQL, "run_query") as qr:
             qr.return_value = ([1, 2], None)
             execute_query(
-                "SELECT 1, 2", self.factory.data_source.id, {}, scheduled_query_id=q.id
+                "SELECT 1, 2",
+                self.factory.data_source.id,
+                {"query_id": q.id},
+                scheduled_query_id=q.id,
+            )
+            q = models.Query.get_by_id(q.id)
+            self.assertEqual(q.schedule_failures, 0)
+
+    def test_adhoc_success_after_scheduled_failure(self, _):
+        """
+        Query execution success resets the failure counter, even if it runs as an adhoc query.
+        """
+        q = self.factory.create_query(
+            query_text="SELECT 1, 2", schedule={"interval": 300}
+        )
+        with patch.object(PostgreSQL, "run_query") as qr:
+            qr.side_effect = ValueError("broken")
+            result = execute_query(
+                "SELECT 1, 2",
+                self.factory.data_source.id,
+                {"query_id": q.id},
+                scheduled_query_id=q.id,
+                user_id=self.factory.user.id,
+            )
+            self.assertTrue(isinstance(result, QueryExecutionError))
+            q = models.Query.get_by_id(q.id)
+            self.assertEqual(q.schedule_failures, 1)
+
+        with patch.object(PostgreSQL, "run_query") as qr:
+            qr.return_value = ([1, 2], None)
+            execute_query(
+                "SELECT 1, 2",
+                self.factory.data_source.id,
+                {"query_id": q.id},
+                user_id=self.factory.user.id,
             )
             q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 0)
