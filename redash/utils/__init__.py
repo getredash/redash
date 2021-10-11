@@ -216,14 +216,30 @@ def render_template(path, context):
 
 def query_is_select_no_limit(query):
     parsed_query = sqlparse.parse(query)[0]
+    first_keyword_idx = find_first_keyword_idx(parsed_query)
     last_keyword_idx = find_last_keyword_idx(parsed_query)
     # Either invalid query or query that is not select
-    if last_keyword_idx == -1 or parsed_query.tokens[0].value.upper() != "SELECT":
+    if (
+        first_keyword_idx == -1
+        or last_keyword_idx == -1
+        or parsed_query.tokens[first_keyword_idx].value.upper() != "SELECT"
+    ):
         return False
 
     no_limit = parsed_query.tokens[last_keyword_idx].value.upper() != "LIMIT" \
                and parsed_query.tokens[last_keyword_idx].value.upper() != "OFFSET"
     return no_limit
+
+
+def find_first_keyword_idx(parsed_query):
+    for i in reversed(range(len(parsed_query.tokens))):
+        ttype = parsed_query.tokens[i].ttype
+        if (
+            ttype in sqlparse.tokens.Keyword.DML
+            or ttype in sqlparse.tokens.Keyword.DDL
+        ):
+            return i
+    return -1
 
 
 def find_last_keyword_idx(parsed_query):

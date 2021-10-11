@@ -8,6 +8,14 @@ class TestQueryLimit(unittest.TestCase):
         query = "SELECT *"
         self.assertEqual(True, query_is_select_no_limit(query))
 
+    def test_check_query_with_with(self):
+        query = "WITH foo AS (SELECT * FROM bar) SELECT * FROM foo"
+        self.assertEqual(True, query_is_select_no_limit(query))
+
+    def test_check_query_with_comments(self):
+        query = "-- foo\nSELECT *"
+        self.assertEqual(True, query_is_select_no_limit(query))
+
     def test_check_query_limit_non_select(self):
         query = "Create Table (PersonID INT)"
         self.assertEqual(False, query_is_select_no_limit(query))
