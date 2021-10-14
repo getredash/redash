@@ -40,3 +40,4 @@ trino~=0.305
 cmem-cmempy==21.2.3
 xlrd==2.0.1
 openpyxl==3.0.7
+firebolt-sqlalchemy
