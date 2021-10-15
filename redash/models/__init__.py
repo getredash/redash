@@ -853,7 +853,13 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @property
     def dashboard_api_keys(self):
-        query = """SELECT api_keys.api_key
+        # The metadata already sets the search path to SQLALCHEMY_DATABASE_SCHEMA if it is set
+        # so strip off the `api_keys` schema prefix if we have an explict schema setting.
+        select = "SELECT api_keys.api_key"
+        if settings.SQLALCHEMY_DATABASE_SCHEMA:
+            select = "SELECT api_key"
+            db.session.execute(f"SET search_path to {settings.SQLALCHEMY_DATABASE_SCHEMA}")
+        query = f"""{select}
                    FROM api_keys
                    JOIN dashboards ON object_id = dashboards.id
                    JOIN widgets ON dashboards.id = widgets.dashboard_id
