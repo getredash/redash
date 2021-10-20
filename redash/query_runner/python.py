@@ -186,7 +186,7 @@ class Python(BaseQueryRunner):
         result["rows"].append(values)
 
     @staticmethod
-    def execute_query(data_source_name_or_id, query):
+    def execute_query(data_source_name_or_id, query, result_type=None):
         """Run query from specific data source.
 
         Parameters:
@@ -207,7 +207,13 @@ class Python(BaseQueryRunner):
             raise Exception(error)
 
         # TODO: allow avoiding the JSON dumps/loads in same process
-        return json_loads(data)
+        query_result = json_loads(data)
+
+        if result_type == "dataframe" and pandas_installed:
+            return pd.DataFrame(query_result["rows"])
+
+        return query_result
+
 
     @staticmethod
     def get_source_schema(data_source_name_or_id):
