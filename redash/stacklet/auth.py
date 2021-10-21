@@ -60,7 +60,11 @@ def get_db(dburi, dbcreds=None, disable_iam_auth=False):
         return engine
     elif dbcreds:
         creds = get_db_cred_secret(dbcreds)
-        url = url.set(username=creds.get("user"), password=creds.get("password"))
+        # In SQLAlchemy 1.4 the URL object becomes immutable and gets a set method.
+        url.username = creds.get("user")
+        url.password = creds.get("password")
+        # Here is the SQLAlchemy 1.4 way:
+        # url = url.set(username=creds.get("user"), password=creds.get("password"))
     engine = sqlalchemy.create_engine(url, **params)
     return engine
 

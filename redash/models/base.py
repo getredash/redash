@@ -9,7 +9,7 @@ from sqlalchemy.dialects import postgresql
 
 from redash import settings
 from redash.utils import json_dumps, get_schema
-from redash.stacklet.auth import get_db
+from redash.stacklet.auth import get_env_db
 
 
 class RedashSQLAlchemy(SQLAlchemy):
@@ -21,7 +21,7 @@ class RedashSQLAlchemy(SQLAlchemy):
 
     def create_engine(self, sa_url, engine_opts):
         if sa_url.drivername.startswith("postgres"):
-            engine = get_db(sa_url)
+            engine = get_env_db()
             return engine
         super(RedashSQLAlchemy, self).create_engine(sa_url, engine_opts)
 
