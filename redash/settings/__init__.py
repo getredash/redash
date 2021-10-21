@@ -382,7 +382,8 @@ default_query_runners = [
     "redash.query_runner.corporate_memory",
     "redash.query_runner.sparql_endpoint",
     "redash.query_runner.excel",
-    "redash.query_runner.csv"
+    "redash.query_runner.csv",
+    "redash.query_runner.firebolt"
 ]
 
 enabled_query_runners = array_from_string(
