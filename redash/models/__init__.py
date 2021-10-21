@@ -1120,7 +1120,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                 joinedload(Dashboard.user).load_only(
                     "id", "name", "_profile_image_url", "email"
                 )
-            )
+            ).distinct(Dashboard.created_at, Dashboard.slug)
             .outerjoin(Widget)
             .outerjoin(Visualization)
             .outerjoin(Query)
