@@ -282,20 +282,23 @@ class BigQuery(BaseQueryRunner):
         """
 
         schema = {}
+        queries = []
         for dataset in datasets.get("datasets", []):
             dataset_id = dataset["datasetReference"]["datasetId"]
             query = query_base.format(dataset_id=dataset_id)
+            queries.append(query)
 
-            results, error = self.run_query(query, None)
-            if error is not None:
-                raise Exception("Failed getting schema.")
+        query = '\nUNION ALL\n'.join(queries)
+        results, error = self.run_query(query, None)
+        if error is not None:
+            raise Exception("Failed getting schema.")
 
-            results = json_loads(results)
-            for row in results["rows"]:
-                table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
-                if table_name not in schema:
-                    schema[table_name] = {"name": table_name, "columns": []}
-                schema[table_name]["columns"].append(row["column_name"])
+        results = json_loads(results)
+        for row in results["rows"]:
+            table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
+            if table_name not in schema:
+                schema[table_name] = {"name": table_name, "columns": []}
+            schema[table_name]["columns"].append(row["column_name"])
 
         return list(schema.values())
 
