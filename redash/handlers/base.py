@@ -18,6 +18,17 @@ from redash.utils.query_order import sort_query
 routes = Blueprint("redash", __name__, template_folder=settings.fix_assets_path("templates"))
 
 
+def add_cors_headers(headers):
+    if "Origin" in request.headers:
+        origin = request.headers["Origin"]
+
+        if set(["*", origin]) & settings.ACCESS_CONTROL_ALLOW_ORIGIN:
+            headers["Access-Control-Allow-Origin"] = origin
+            headers["Access-Control-Allow-Credentials"] = str(
+                settings.ACCESS_CONTROL_ALLOW_CREDENTIALS
+            ).lower()
+
+
 class BaseResource(Resource):
     decorators = [login_required]
 

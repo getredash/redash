@@ -7,7 +7,7 @@ from flask_login import current_user
 from flask_restful import abort
 
 from redash import models, settings
-from redash.handlers.base import BaseResource, get_object_or_404, record_event
+from redash.handlers.base import BaseResource, get_object_or_404, record_event, add_cors_headers
 from redash.models.parameterized_query import (
     InvalidParameterError,
     ParameterizedQuery,
@@ -227,7 +227,7 @@ class QueryResultResource(BaseResource):
     @require_any_of_permission(("view_query", "execute_query"))
     def options(self, query_id=None, query_result_id=None, filetype="json"):
         headers = {}
-        self.add_cors_headers(headers)
+        add_cors_headers(headers)
 
         if settings.ACCESS_CONTROL_REQUEST_METHOD:
             headers["Access-Control-Request-Method"] = settings.ACCESS_CONTROL_REQUEST_METHOD
@@ -359,7 +359,7 @@ class QueryResultResource(BaseResource):
             response = response_builders[filetype](query_result)
 
             if len(settings.ACCESS_CONTROL_ALLOW_ORIGIN) > 0:
-                self.add_cors_headers(response.headers)
+                add_cors_headers(response.headers)
 
             if should_cache:
                 response.headers.add_header("Cache-Control", "private,max-age=%d" % ONE_YEAR)
