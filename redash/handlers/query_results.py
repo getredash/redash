@@ -7,7 +7,12 @@ from flask_login import current_user
 from flask_restful import abort
 from werkzeug.urls import url_quote
 from redash import models, settings
-from redash.handlers.base import BaseResource, get_object_or_404, record_event
+from redash.handlers.base import (
+    BaseResource,
+    get_object_or_404,
+    record_event,
+    add_cors_headers,
+)
 from redash.permissions import (
     has_access,
     not_view_only,
@@ -243,21 +248,10 @@ class QueryDropdownsResource(BaseResource):
 
 
 class QueryResultResource(BaseResource):
-    @staticmethod
-    def add_cors_headers(headers):
-        if "Origin" in request.headers:
-            origin = request.headers["Origin"]
-
-            if set(["*", origin]) & settings.ACCESS_CONTROL_ALLOW_ORIGIN:
-                headers["Access-Control-Allow-Origin"] = origin
-                headers["Access-Control-Allow-Credentials"] = str(
-                    settings.ACCESS_CONTROL_ALLOW_CREDENTIALS
-                ).lower()
-
     @require_any_of_permission(("view_query", "execute_query"))
     def options(self, query_id=None, query_result_id=None, filetype="json"):
         headers = {}
-        self.add_cors_headers(headers)
+        add_cors_headers(headers)
 
         if settings.ACCESS_CONTROL_REQUEST_METHOD:
             headers[
@@ -409,7 +403,7 @@ class QueryResultResource(BaseResource):
             response = response_builders[filetype](query_result)
 
             if len(settings.ACCESS_CONTROL_ALLOW_ORIGIN) > 0:
-                self.add_cors_headers(response.headers)
+                add_cors_headers(response.headers)
 
             if should_cache:
                 response.headers.add_header(

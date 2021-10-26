@@ -9,6 +9,7 @@ from redash.handlers.base import (
     paginate,
     filter_by_tags,
     order_results as _order_results,
+    add_cors_headers,
 )
 from redash.permissions import (
     can_modify,
@@ -88,6 +89,9 @@ class DashboardListResource(BaseResource):
             )
         else:
             self.record_event({"action": "list", "object_type": "dashboard"})
+
+        if len(settings.ACCESS_CONTROL_ALLOW_ORIGIN) > 0:
+            add_cors_headers(response.headers)
 
         return response
 
@@ -212,6 +216,9 @@ class DashboardResource(BaseResource):
         self.record_event(
             {"action": "view", "object_id": dashboard.id, "object_type": "dashboard"}
         )
+
+        if len(settings.ACCESS_CONTROL_ALLOW_ORIGIN) > 0:
+            add_cors_headers(response.headers)
 
         return response
 

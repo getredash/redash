@@ -20,6 +20,17 @@ routes = Blueprint(
 )
 
 
+def add_cors_headers(headers):
+    if "Origin" in request.headers:
+        origin = request.headers["Origin"]
+
+        if set(["*", origin]) & settings.ACCESS_CONTROL_ALLOW_ORIGIN:
+            headers["Access-Control-Allow-Origin"] = origin
+            headers["Access-Control-Allow-Credentials"] = str(
+                settings.ACCESS_CONTROL_ALLOW_CREDENTIALS
+            ).lower()
+
+
 class BaseResource(Resource):
     decorators = [login_required]
 
