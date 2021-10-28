@@ -79,7 +79,7 @@ RUN wget --quiet $databricks_odbc_driver_url -O /tmp/simba_odbc.zip \
 
 WORKDIR /app
 
-# Disalbe PIP Cache and Version Check
+# Disable PIP Cache and Version Check
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
 
