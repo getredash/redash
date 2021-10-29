@@ -2,7 +2,7 @@ from flask import request, url_for
 from funcy import project, partial
 
 from flask_restful import abort
-from redash import models
+from redash import models, settings
 from redash.handlers.base import (
     BaseResource,
     get_object_or_404,
