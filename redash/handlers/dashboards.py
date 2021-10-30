@@ -91,7 +91,8 @@ class DashboardListResource(BaseResource):
             self.record_event({"action": "list", "object_type": "dashboard"})
 
         if len(settings.ACCESS_CONTROL_ALLOW_ORIGIN) > 0:
-            add_cors_headers(response.headers)
+            response["headers"] = response.get("headers", {})
+            add_cors_headers(response.get("headers"))
 
         return response
 
@@ -218,7 +219,8 @@ class DashboardResource(BaseResource):
         )
 
         if len(settings.ACCESS_CONTROL_ALLOW_ORIGIN) > 0:
-            add_cors_headers(response.headers)
+            response["headers"] = response.get("headers", {})
+            add_cors_headers(response.get("headers"))
 
         return response
 
