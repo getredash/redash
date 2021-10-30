@@ -2,14 +2,13 @@ from flask import request, url_for
 from funcy import project, partial
 
 from flask_restful import abort
-from redash import models, settings
+from redash import models
 from redash.handlers.base import (
     BaseResource,
     get_object_or_404,
     paginate,
     filter_by_tags,
     order_results as _order_results,
-    add_cors_headers,
 )
 from redash.permissions import (
     can_modify,
@@ -89,10 +88,6 @@ class DashboardListResource(BaseResource):
             )
         else:
             self.record_event({"action": "list", "object_type": "dashboard"})
-
-        if len(settings.ACCESS_CONTROL_ALLOW_ORIGIN) > 0:
-            response["headers"] = response.get("headers", {})
-            add_cors_headers(response.get("headers"))
 
         return response
 
@@ -217,10 +212,6 @@ class DashboardResource(BaseResource):
         self.record_event(
             {"action": "view", "object_id": dashboard.id, "object_type": "dashboard"}
         )
-
-        if len(settings.ACCESS_CONTROL_ALLOW_ORIGIN) > 0:
-            response["headers"] = response.get("headers", {})
-            add_cors_headers(response.get("headers"))
 
         return response
 
