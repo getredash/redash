@@ -39,6 +39,7 @@ jsonschema==3.1.1
 RestrictedPython==5.0
 pysaml2==6.1.0
 pycrypto==2.6.1
+python-dotenv==0.19.2
 funcy==1.13
 sentry-sdk>=0.14.3,<0.15.0
 semver==2.8.1
