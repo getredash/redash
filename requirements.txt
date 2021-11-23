@@ -8,9 +8,6 @@ httplib2==0.14.0
 wtforms==2.2.1
 Flask-RESTful==0.3.7
 Flask-Login==0.4.1
-Flask-OAuthLib==0.9.5
-# pin this until https://github.com/lepture/flask-oauthlib/pull/388 is released
-requests-oauthlib>=0.6.2,<1.2.0
 Flask-SQLAlchemy==2.4.1
 Flask-Migrate==2.5.2
 flask-mail==0.9.1
@@ -67,3 +64,4 @@ werkzeug==0.16.1
 # Uncomment the requirement for ldap3 if using ldap.
 # It is not included by default because of the GPL license conflict.
 # ldap3==2.2.4
+Authlib==0.15.5
