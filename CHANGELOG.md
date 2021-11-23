@@ -1,5 +1,19 @@
 # Change Log
 
+## V10.1.0 - 2021-11-23
+
+This release includes patches for three security vulnerabilities:
+
+- Insecure default configuration affects installations where REDASH_COOKIE_SECRET is not set explicitly (CVE-2021-41192)
+- SSRF vulnerability affects installations that enabled URL-loading data sources (CVE-2021-43780)
+- Incorrect usage of state parameter in OAuth client code affects installations where Google Login is enabled (CVE-2021-43777)
+
+And a couple features that didn't merge in time for 10.0.0
+
+- Big Query: Speed up schema loading (#5632)
+- Add support for Firebolt data source (#5606)
+- Fix: Loading schema for Sqlite DB with "Order" column name fails (#5623)
+
 ## v10.0.0 - 2021-10-01
 
 A few changes were merged during the V10 beta period.
