@@ -24,7 +24,6 @@ jobs:
     environment:
       COMPOSE_FILE: .circleci/docker-compose.circle.yml
       COMPOSE_PROJECT_NAME: redash
-      REDASH_COOKIE_SECRET: 2H9gNG9obnAQ9qnR9BDTQUph6CbXKCzF
     docker:
       - image: circleci/buildpack-deps:xenial
     steps:
