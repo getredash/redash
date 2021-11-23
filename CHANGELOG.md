@@ -12,6 +12,7 @@ And a couple features that didn't merge in time for 10.0.0
 
 - Big Query: Speed up schema loading (#5632)
 - Add support for Firebolt data source (#5606)
+- Fix: Loading schema for Sqlite DB with "Order" column name fails (#5623)
 
 ## v10.0.0 - 2021-10-01
 
