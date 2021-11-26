@@ -52,7 +52,15 @@ class Snowflake(BaseQueryRunner):
                 },
                 "host": {"type": "string"},
             },
-            "order": ["account", "user", "password", "warehouse", "database", "region", "host"],
+            "order": [
+                "account",
+                "user",
+                "password",
+                "warehouse",
+                "database",
+                "region",
+                "host",
+            ],
             "required": ["user", "password", "account", "database", "warehouse"],
             "secret": ["password"],
             "extra_options": [
@@ -87,14 +95,12 @@ class Snowflake(BaseQueryRunner):
             else:
                 host = "{}.snowflakecomputing.com".format(account)
 
-
-
         connection = snowflake.connector.connect(
             user=self.configuration["user"],
             password=self.configuration["password"],
             account=account,
             region=region,
-            host = host,
+            host=host,
         )
 
         return connection
