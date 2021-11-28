@@ -50,7 +50,7 @@ RUN apt-get update && \
     # Postgres client
     libpq-dev \
     # ODBC support:
-    g++ unixodbc-dev unixodbc \
+    g++ unixodbc-dev \
     # for SAML
     xmlsec1 \
     # Additional packages required for data sources:
