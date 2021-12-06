@@ -72,7 +72,7 @@ export class Query {
       .utc()
       .hour(parts[0])
       .minute(parts[1])
-      .locale()
+      .local()
       .format("HH:mm");
   }
 
