@@ -13,7 +13,8 @@ from redash import settings, utils
 from redash.utils import json_loads, query_is_select_no_limit, add_limit_to_query
 from rq.timeouts import JobTimeoutException
 
-from redash.utils.requests_session import requests, requests_session
+from redash.utils.requests_session import requests_or_advocate, requests_session, UnacceptableAddressException
+
 
 logger = logging.getLogger(__name__)
 
@@ -236,12 +237,6 @@ class BaseSQLQueryRunner(BaseQueryRunner):
             return query_text
 
 
-def is_private_address(url):
-    hostname = urlparse(url).hostname
-    ip_address = socket.gethostbyname(hostname)
-    return ipaddress.ip_address(text_type(ip_address)).is_private
-
-
 class BaseHTTPQueryRunner(BaseQueryRunner):
     should_annotate_query = False
     response_error = "Endpoint returned unexpected status code"
@@ -285,8 +280,6 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
             return None
 
     def get_response(self, url, auth=None, http_method="get", **kwargs):
-        if is_private_address(url) and settings.ENFORCE_PRIVATE_ADDRESS_BLOCK:
-            raise Exception("Can't query private addresses.")
 
         # Get authentication values if not given
         if auth is None:
@@ -307,12 +300,15 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
             if response.status_code != 200:
                 error = "{} ({}).".format(self.response_error, response.status_code)
 
-        except requests.HTTPError as exc:
+        except requests_or_advocate.HTTPError as exc:
             logger.exception(exc)
             error = "Failed to execute query. " "Return Code: {} Reason: {}".format(
                 response.status_code, response.text
             )
-        except requests.RequestException as exc:
+        except UnacceptableAddressException as exc:
+            logger.exception(exc)
+            error = "Can't query private addresses."
+        except requests_or_advocate.RequestException as exc:
             # Catch all other requests exceptions and return the error.
             logger.exception(exc)
             error = str(exc)
