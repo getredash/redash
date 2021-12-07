@@ -80,6 +80,12 @@ const listColumns = [
     orderByField: "executed_at",
     width: "1%",
   }),
+  Columns.duration.sortable({
+    title: "Runtime",
+    field: "runtime",
+    orderByField: "runtime",
+    width: "1%",
+  }),
   Columns.custom.sortable((text, item) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
     title: "Refresh Schedule",
     field: "schedule",
