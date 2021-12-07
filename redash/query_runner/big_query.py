@@ -273,12 +273,12 @@ class BigQuery(BaseQueryRunner):
 
         datasets = service.datasets().list(projectId=project_id).execute()
         result.extend(datasets.get("datasets", []))
-        nextPageToken=datasets.get('nextPageToken', None)
+        nextPageToken = datasets.get('nextPageToken', None)
 
         while nextPageToken is not None:
             datasets = service.datasets().list(projectId=project_id, pageToken=nextPageToken).execute()
             result.extend(datasets.get("datasets", []))
-            nextPageToken=datasets.get('nextPageToken', None)
+            nextPageToken = datasets.get('nextPageToken', None)
 
         return result
 
