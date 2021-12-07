@@ -174,7 +174,7 @@ class User(
             return self._profile_image_url
 
         email_md5 = hashlib.md5(self.email.lower().encode()).hexdigest()
-        return "https://www.gravatar.com/avatar/{}?s=40&d=identicon".format(email_md5)
+        return "https://cdn.v2ex.com/gravatar/{}?s=40&d=identicon".format(email_md5)
 
     @property
     def permissions(self):
