@@ -29,6 +29,13 @@ export default function useQueryExecute(query) {
     error: null,
   });
 
+  // 判断是否有传递参数
+  var flag = true
+  if(query.hasParameters() && JSON.stringify(location.search) === '{}'){
+    console.log("Not request query result.")
+    flag = false
+  }
+
   const queryResultInExecution = useRef(null);
   // Clear executing queryResult when component is unmounted to avoid errors
   useEffect(() => {
@@ -116,7 +123,10 @@ export default function useQueryExecute(query) {
     // TODO: this belongs on the query page?
     // loadedInitialResults can be removed if so
     if (queryRef.current.hasResult() || queryRef.current.paramsRequired()) {
-      executeQuery(getMaxAge());
+      // 只有当有传递参数时
+      if (flag){
+        executeQuery(getMaxAge());
+      }
     } else {
       setExecutionState({ loadedInitialResults: true });
     }
