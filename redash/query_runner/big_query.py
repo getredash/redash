@@ -83,6 +83,12 @@ def _get_query_results(jobs, project_id, location, job_id, start_index):
     return query_reply
 
 
+def _get_total_bytes_processed_for_resp(bq_response):
+    # BigQuery hides the total bytes processed for queries to tables with row-level access controls.
+    # For these queries the "totalBytesProcessed" field may not be defined in the response.
+    return int(bq_response.get("totalBytesProcessed", "0"))
+
+
 class BigQuery(BaseQueryRunner):
     should_annotate_query = False
     noop_query = "SELECT 1"
@@ -162,7 +168,7 @@ class BigQuery(BaseQueryRunner):
             job_data["useLegacySql"] = False
 
         response = jobs.query(projectId=self._get_project_id(), body=job_data).execute()
-        return int(response["totalBytesProcessed"])
+        return _get_total_bytes_processed_for_resp(response)
 
     def _get_job_data(self, query):
         job_data = {"configuration": {"query": {"query": query}}}
@@ -237,7 +243,7 @@ class BigQuery(BaseQueryRunner):
         data = {
             "columns": columns,
             "rows": rows,
-            "metadata": {"data_scanned": int(query_reply["totalBytesProcessed"])},
+            "metadata": {"data_scanned": _get_total_bytes_processed_for_resp(query_reply)},
         }
 
         return data
@@ -268,41 +274,33 @@ class BigQuery(BaseQueryRunner):
         service = self._get_bigquery_service()
         project_id = self._get_project_id()
         datasets = service.datasets().list(projectId=project_id).execute()
-        schema = []
+
+        query_base = """
+        SELECT table_schema, table_name, column_name
+        FROM `{dataset_id}`.INFORMATION_SCHEMA.COLUMNS
+        WHERE table_schema NOT IN ('information_schema')
+        """
+
+        schema = {}
+        queries = []
         for dataset in datasets.get("datasets", []):
             dataset_id = dataset["datasetReference"]["datasetId"]
-            tables = (
-                service.tables()
-                .list(projectId=project_id, datasetId=dataset_id)
-                .execute()
-            )
-            while True:
-                for table in tables.get("tables", []):
-                    table_data = (
-                        service.tables()
-                        .get(
-                            projectId=project_id,
-                            datasetId=dataset_id,
-                            tableId=table["tableReference"]["tableId"],
-                        )
-                        .execute()
-                    )
-                    table_schema = self._get_columns_schema(table_data)
-                    schema.append(table_schema)
+            query = query_base.format(dataset_id=dataset_id)
+            queries.append(query)
 
-                next_token = tables.get("nextPageToken", None)
-                if next_token is None:
-                    break
+        query = '\nUNION ALL\n'.join(queries)
+        results, error = self.run_query(query, None)
+        if error is not None:
+            raise Exception("Failed getting schema.")
 
-                tables = (
-                    service.tables()
-                    .list(
-                        projectId=project_id, datasetId=dataset_id, pageToken=next_token
-                    )
-                    .execute()
-                )
+        results = json_loads(results)
+        for row in results["rows"]:
+            table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
+            if table_name not in schema:
+                schema[table_name] = {"name": table_name, "columns": []}
+            schema[table_name]["columns"].append(row["column_name"])
 
-        return schema
+        return list(schema.values())
 
     def run_query(self, query, user):
         logger.debug("BigQuery got query: %s", query)

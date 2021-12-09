@@ -8,6 +8,8 @@ x-redash-service: &redash-service
       skip_frontend_build: "true"
   volumes:
     - .:/app
+  env_file:
+    - .env
 x-redash-environment: &redash-environment
   REDASH_LOG_LEVEL: "INFO"
   REDASH_REDIS_URL: "redis://redis:6379/0"

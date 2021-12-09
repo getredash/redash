@@ -50,3 +50,32 @@ class TestDashboardsByUser(BaseTestCase):
         # not using self.assertIn/NotIn because otherwise this fails :O
         self.assertTrue(d in dashboards)
         self.assertFalse(d2 in dashboards)
+
+
+    def test_returns_correct_number_of_dashboards(self):
+        # Solving https://github.com/getredash/redash/issues/5466
+        
+        usr = self.factory.create_user()
+
+        ds1 = self.factory.create_data_source()
+        ds2 = self.factory.create_data_source()
+
+        qry1 = self.factory.create_query(data_source=ds1, user=usr)
+        qry2 = self.factory.create_query(data_source=ds2, user=usr)
+
+        viz1 = self.factory.create_visualization(query_rel=qry1, )
+        viz2 = self.factory.create_visualization(query_rel=qry2, )
+
+        def create_dashboard():
+            dash = self.factory.create_dashboard(name="boy howdy", user=usr)
+            self.factory.create_widget(dashboard=dash, visualization=viz1)
+            self.factory.create_widget(dashboard=dash, visualization=viz2)
+
+            return dash
+
+        d1 = create_dashboard()
+        d2 = create_dashboard()
+        
+        results = Dashboard.all(self.factory.org, usr.group_ids, usr.id)
+
+        self.assertEqual(2, results.count(), "The incorrect number of dashboards were returned")

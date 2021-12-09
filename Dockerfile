@@ -1,4 +1,6 @@
-FROM node:12 as frontend-builder
+FROM node:14.17 as frontend-builder
+
+RUN npm install --global --force yarn@1.22.10
 
 # Controls whether to build the frontend assets
 ARG skip_frontend_build
@@ -10,19 +12,20 @@ RUN useradd -m -d /frontend redash
 USER redash
 
 WORKDIR /frontend
-COPY --chown=redash package.json package-lock.json /frontend/
+COPY --chown=redash package.json yarn.lock .yarnrc /frontend/
 COPY --chown=redash viz-lib /frontend/viz-lib
 
 # Controls whether to instrument code for coverage information
 ARG code_coverage
 ENV BABEL_ENV=${code_coverage:+test}
 
-RUN if [ "x$skip_frontend_build" = "x" ] ; then npm ci --unsafe-perm; fi
+RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
-RUN if [ "x$skip_frontend_build" = "x" ] ; then npm run build; else mkdir -p /frontend/client/dist && touch /frontend/client/dist/multi_org.html && touch /frontend/client/dist/index.html; fi
-FROM python:3.7-slim
+RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn build; else mkdir -p /frontend/client/dist && touch /frontend/client/dist/multi_org.html && touch /frontend/client/dist/index.html; fi
+
+FROM python:3.7-slim-buster
 
 EXPOSE 5000
 
@@ -57,7 +60,7 @@ RUN apt-get update && \
     libsasl2-dev \
     unzip \
     libsasl2-modules-gssapi-mit && \
-  # MSSQL ODBC Driver:  
+  # MSSQL ODBC Driver:
   curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
   curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
   apt-get update && \
@@ -76,7 +79,7 @@ RUN wget --quiet $databricks_odbc_driver_url -O /tmp/simba_odbc.zip \
 
 WORKDIR /app
 
-# Disalbe PIP Cache and Version Check
+# Disable PIP Cache and Version Check
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
 
