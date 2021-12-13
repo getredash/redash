@@ -30,6 +30,10 @@ export default function prepareData(data: any, options: any) {
         result.color = colorScale(name);
       }
 
+      if (options.connectMarkers === true && isNil(result.colorTrack)) {
+        result.colorTrack = colorScale(name);
+      }
+
       return result;
     })
   );

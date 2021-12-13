@@ -115,6 +115,16 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
         </Checkbox>
       </Section>
 
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
+      <Section>
+        <Checkbox
+          data-test="Map.Editor.ConnectMarkers"
+          defaultChecked={options.connectMarkers}
+          onChange={event => onOptionsChange({ connectMarkers: event.target.checked })}>
+          Connect Markers
+        </Checkbox>
+      </Section>
+
       {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
       <Section>
         <Checkbox

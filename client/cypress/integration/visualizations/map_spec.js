@@ -73,6 +73,7 @@ describe("Map (Markers)", () => {
     cy.clickThrough(`
       VisualizationEditor.Tabs.Style
       Map.Editor.ClusterMarkers
+      Map.Editor.ConnectMarkers
       Map.Editor.CustomizeMarkers
     `);
 
