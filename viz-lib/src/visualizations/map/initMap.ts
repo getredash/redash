@@ -107,6 +107,14 @@ function createMarkerClusterGroup(color: any) {
   });
 }
 
+function createLinesLayer(points: any) {
+  const result: Array<any> = [];
+  each(points, ({ lat, lon, row }) => {
+    result.push([lat, lon]);
+  });
+  return result;
+}
+
 function createMarkersLayer(options: any, { color, points }: any) {
   const { classify, clusterMarkers, customizeMarkers } = options;
 
@@ -199,6 +207,15 @@ export default function initMap(container: any) {
       const layer = createMarkersLayer(options, group);
       _markerLayers.addLayer(layer);
       _layersControls.addOverlay(layer, group.name);
+
+      if (options.connectMarkers === true) {
+        console.log('groupe.colorTrack', group.colorTrack);
+        const layerLines = L.polyline(createLinesLayer(group.points)).setStyle({
+          color: group.colorTrack
+        });
+        _markerLayers.addLayer(layerLines);
+        _layersControls.addOverlay(layerLines, group.name + " track");
+      }
     });
 
     // hide layers control if it is empty

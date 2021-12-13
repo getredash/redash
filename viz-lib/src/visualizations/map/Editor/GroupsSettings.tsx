@@ -9,7 +9,12 @@ import prepareData from "../prepareData";
 
 export default function GroupsSettings({ options, data, onOptionsChange }: any) {
   const groups = useMemo(
-    () => map(prepareData(data, options), ({ name }) => ({ name, color: (options.groups[name] || {}).color || null })),
+    () => map(prepareData(data, options), ({ name }) => (
+      {
+        name,
+        color: (options.groups[name] || {}).color || null,
+        colorTrack: (options.groups[name] || {}).colorTrack || null
+      })),
     [data, options]
   );
 
@@ -63,8 +68,38 @@ export default function GroupsSettings({ options, data, onOptionsChange }: any) 
       ),
     },
   ];
+  if (options.connectMarkers === true) {
+    columns.push(
+      {
+        title: "Track Color",
+        dataIndex: "colorTrack",
+        width: "1%",
+        render: (unused: any, item: any) => (
+          //{!isConnectMarkersAllowed && (
+          <ColorPicker
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
+            interactive
+            // @ts-expect-error ts-migrate(2322) FIXME: Type '{ "Indian Red": string; "Green 2": string; "... Remove this comment to see the full error message
+            presetColors={colors}
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
+            placement="topRight"
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
+            color={item.colorTrack}
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
+            triggerProps={{ "data-test": "Map.Editor.Groups." + item.name + ".ColorTrack" }}
+            // @ts-expect-error ts-migrate(2322) FIXME: Type '(value: any) => void' is not assignable to t... Remove this comment to see the full error message
+            onChange={(value: any) => { updateGroupOption(item.name, "colorTrack", value); }
+            }
+            // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'never'.
+            //{options[item.name].colorTrack}
+            addonAfter={<ColorPicker.Label color="red" presetColors={colors} />}
+          />
+          //)}
+        ),
+      });
+  }
 
-  return <Table columns={columns} dataSource={groups} rowKey="name" showHeader={false} pagination={false} />;
+  return <Table columns={columns} dataSource={groups} rowKey="name" pagination={false} />;
 }
 
 GroupsSettings.propTypes = EditorPropTypes;

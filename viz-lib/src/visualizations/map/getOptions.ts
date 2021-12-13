@@ -8,6 +8,7 @@ export interface MapOptionsType {
   groups: Record<string, any>;
   mapTileUrl: string;
   clusterMarkers: boolean;
+  connectMarkers: boolean;
   customizeMarkers: boolean;
   iconShape: LeafletBaseIconType;
   iconFont: LeafletBaseIconType;
@@ -32,6 +33,7 @@ const DEFAULT_OPTIONS: MapOptionsType = {
   groups: {},
   mapTileUrl: "//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   clusterMarkers: true,
+  connectMarkers: true,
   customizeMarkers: false,
   iconShape: "marker",
   iconFont: "circle",
