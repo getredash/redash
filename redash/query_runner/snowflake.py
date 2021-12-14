@@ -1,5 +1,6 @@
 try:
     import snowflake.connector
+
     enabled = True
 except ImportError:
     enabled = False
@@ -46,7 +47,15 @@ class Snowflake(BaseQueryRunner):
                 "database": {"type": "string"},
                 "host": {"type": "string"},
             },
-            "order": ["account", "region", "user", "password", "warehouse", "database", "host"],
+            "order": [
+                "account",
+                "region",
+                "user",
+                "password",
+                "warehouse",
+                "database",
+                "host",
+            ],
             "required": ["user", "password", "account", "database", "warehouse"],
             "secret": ["password"],
             "extra_options": [
@@ -70,7 +79,7 @@ class Snowflake(BaseQueryRunner):
         account = self.configuration["account"]
 
         # for us-west we don't need to pass a region (and if we do, it fails to connect)
-        if region == "us-west":
+        if "us-west" in region:
             region = None
 
         if self.configuration.__contains__("host"):
@@ -81,13 +90,12 @@ class Snowflake(BaseQueryRunner):
             else:
                 host = "{}.snowflakecomputing.com".format(account)
 
-
         connection = snowflake.connector.connect(
-            user = self.configuration["user"],
-            password = self.configuration["password"],
-            account = account,
-            region = region,
-            host = host
+            user=self.configuration["user"],
+            password=self.configuration["password"],
+            account=account,
+            region=region,
+            host=host,
         )
 
         return connection
@@ -96,7 +104,9 @@ class Snowflake(BaseQueryRunner):
         columns = self.fetch_columns(
             [(i[0], self.determine_type(i[1], i[5])) for i in cursor.description]
         )
-        rows = [dict(zip((column["name"] for column in columns), row)) for row in cursor]
+        rows = [
+            dict(zip((column["name"] for column in columns), row)) for row in cursor
+        ]
 
         data = {"columns": columns, "rows": rows}
         return data
