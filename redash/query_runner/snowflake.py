@@ -79,7 +79,7 @@ class Snowflake(BaseQueryRunner):
         account = self.configuration["account"]
 
         # for us-west we don't need to pass a region (and if we do, it fails to connect)
-        if "us-west" in region:
+        if region is not None and "us-west" in region:
             region = None
 
         if self.configuration.__contains__("host"):
