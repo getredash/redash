@@ -225,6 +225,16 @@
     }
   }
 
+  &-tbody > tr&-row {
+    &:hover,
+    &:focus,
+    &:focus-within {
+      & > td {
+        background: @table-row-hover-bg;
+      }
+    }
+  }
+
   // Custom styles
 
   &-headerless &-tbody > tr:first-child > td {
@@ -391,6 +401,18 @@
         left: 0;
       }
     }
+
+    &:focus,
+    &:focus-within {
+      color: @menu-highlight-color;
+    }
+  }
+}
+
+.@{dropdown-prefix-cls}-menu-item {
+  &:focus,
+  &:focus-within {
+    background-color: @item-hover-bg;
   }
 }
 

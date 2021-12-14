@@ -4,10 +4,7 @@ import { Section, Select, InputNumber, ColorPicker } from "@/components/visualiz
 import { EditorPropTypes } from "@/visualizations/prop-types";
 import ColorPalette from "../ColorPalette";
 
-export default function ColorsSettings({
-  options,
-  onOptionsChange
-}: any) {
+export default function ColorsSettings({ options, onOptionsChange }: any) {
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
 
   return (
@@ -23,17 +20,17 @@ export default function ColorsSettings({
           {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option value="q" data-test="Choropleth.Editor.ClusteringMode.q">
             quantile
-          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           </Select.Option>
           {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option value="e" data-test="Choropleth.Editor.ClusteringMode.e">
             equidistant
-          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           </Select.Option>
           {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option value="k" data-test="Choropleth.Editor.ClusteringMode.k">
             k-means
-          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           </Select.Option>
         </Select>
       </Section>

@@ -6,11 +6,11 @@ import Tooltip from "antd/lib/tooltip";
 import "./swatch.less";
 
 type OwnProps = {
-    className?: string;
-    style?: any;
-    title?: string;
-    color?: string;
-    size?: number;
+  className?: string;
+  style?: any;
+  title?: string;
+  color?: string;
+  size?: number;
 };
 
 type Props = OwnProps & typeof Swatch.defaultProps;

@@ -136,7 +136,12 @@ class ParameterValueInput extends React.Component {
     const normalize = val => (isNaN(val) ? undefined : val);
 
     return (
-      <InputNumber className={className} value={normalize(value)} onChange={val => this.onSelect(normalize(val))} />
+      <InputNumber
+        className={className}
+        value={normalize(value)}
+        aria-label="Parameter number value"
+        onChange={val => this.onSelect(normalize(val))}
+      />
     );
   }
 
@@ -148,6 +153,7 @@ class ParameterValueInput extends React.Component {
       <Input
         className={className}
         value={value}
+        aria-label="Parameter text value"
         data-test="TextParamInput"
         onChange={e => this.onSelect(e.target.value)}
       />

@@ -7,14 +7,14 @@ import { Section, Select, Input, Checkbox, TextAlignmentSelect } from "@/compone
 import ColumnTypes from "../columns";
 
 type OwnProps = {
-    column: {
-        name: string;
-        title?: string;
-        visible?: boolean;
-        alignContent?: "left" | "center" | "right";
-        displayAs?: any; // TODO: PropTypes.oneOf(keys(ColumnTypes))
-    };
-    onChange?: (...args: any[]) => any;
+  column: {
+    name: string;
+    title?: string;
+    visible?: boolean;
+    alignContent?: "left" | "center" | "right";
+    displayAs?: any; // TODO: PropTypes.oneOf(keys(ColumnTypes))
+  };
+  onChange?: (...args: any[]) => any;
 };
 
 type Props = OwnProps & typeof ColumnEditor.defaultProps;
@@ -84,7 +84,7 @@ export default function ColumnEditor({ column, onChange }: Props) {
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={key} data-test={`Table.Column.${column.name}.DisplayAs.${key}`}>
               {friendlyName}
-            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             </Select.Option>
           ))}
         </Select>

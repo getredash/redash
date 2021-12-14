@@ -154,7 +154,7 @@ class UsersList extends React.Component {
                 <p>
                   The mail server is not configured, please send the following link to <b>{user.name}</b>:
                 </p>
-                <InputWithCopy value={absoluteUrl(user.invite_link)} readOnly />
+                <InputWithCopy value={absoluteUrl(user.invite_link)} aria-label="Invite link" readOnly />
               </React.Fragment>
             ),
           });
@@ -197,7 +197,7 @@ class UsersList extends React.Component {
     return (
       <div className="m-b-15">
         <Button type="primary" disabled={!policy.isCreateUserEnabled()} onClick={this.showCreateUserDialog}>
-          <i className="fa fa-plus m-r-5" />
+          <i className="fa fa-plus m-r-5" aria-hidden="true" />
           New User
         </Button>
         <DynamicComponent name="UsersListExtra" />
@@ -212,7 +212,11 @@ class UsersList extends React.Component {
         {this.renderPageHeader()}
         <Layout>
           <Layout.Sidebar className="m-b-0">
-            <Sidebar.SearchInput value={controller.searchTerm} onChange={controller.updateSearch} />
+            <Sidebar.SearchInput
+              value={controller.searchTerm}
+              onChange={controller.updateSearch}
+              label="Search users"
+            />
             <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
           </Layout.Sidebar>
           <Layout.Content>

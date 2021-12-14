@@ -11,6 +11,7 @@ import Divider from "antd/lib/divider";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import QuerySelector from "@/components/QuerySelector";
 import { Query } from "@/services/query";
+import { useUniqueId } from "@/lib/hooks/useUniqueId";
 
 const { Option } = Select;
 const formItemProps = { labelCol: { span: 6 }, wrapperCol: { span: 16 } };
@@ -111,6 +112,8 @@ function EditParameterSettingsDialog(props) {
     props.dialog.close(param);
   }
 
+  const paramFormId = useUniqueId("paramForm");
+
   return (
     <Modal
       {...props.dialog.props}
@@ -125,12 +128,12 @@ function EditParameterSettingsDialog(props) {
           htmlType="submit"
           disabled={!isFulfilled()}
           type="primary"
-          form="paramForm"
+          form={paramFormId}
           data-test="SaveParameterSettings">
           {isNew ? "Add Parameter" : "OK"}
         </Button>,
       ]}>
-      <Form layout="horizontal" onFinish={onConfirm} id="paramForm">
+      <Form layout="horizontal" onFinish={onConfirm} id={paramFormId}>
         {isNew && (
           <NameInput
             name={param.name}

@@ -3,12 +3,7 @@ import React from "react";
 import { Section, Select, Input, InputNumber, Switch } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
-export default function GeneralSettings({
-  options,
-  data,
-  visualizationName,
-  onOptionsChange
-}: any) {
+export default function GeneralSettings({ options, data, visualizationName, onOptionsChange }: any) {
   return (
     <React.Fragment>
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
@@ -36,7 +31,7 @@ export default function GeneralSettings({
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={col.name} data-test={"Counter.General.ValueColumn." + col.name}>
               {col.name}
-            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             </Select.Option>
           ))}
         </Select>
@@ -68,7 +63,7 @@ export default function GeneralSettings({
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={col.name} data-test={"Counter.General.TargetValueColumn." + col.name}>
               {col.name}
-            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             </Select.Option>
           ))}
         </Select>

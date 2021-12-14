@@ -11,6 +11,7 @@ import CreateSourceDialog from "@/components/CreateSourceDialog";
 import DynamicComponent, { registerComponent } from "@/components/DynamicComponent";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import PlainButton from "@/components/PlainButton";
 
 import DataSource, { IMG_ROOT } from "@/services/data-source";
 import { policy } from "@/services/policy";
@@ -29,9 +30,9 @@ export function DataSourcesListComponent({ dataSources, onClickCreate }) {
       There are no data sources yet.
       {policy.isCreateDataSourceEnabled() && (
         <div className="m-t-5">
-          <a className="clickable" onClick={onClickCreate} data-test="CreateDataSourceLink">
+          <PlainButton type="link" onClick={onClickCreate} data-test="CreateDataSourceLink">
             Click here
-          </a>{" "}
+          </PlainButton>{" "}
           to add one.
         </div>
       )}
@@ -138,7 +139,7 @@ class DataSourcesList extends React.Component {
       <div>
         <div className="m-b-15">
           <Button {...newDataSourceProps}>
-            <i className="fa fa-plus m-r-5" />
+            <i className="fa fa-plus m-r-5" aria-hidden="true" />
             New Data Source
           </Button>
           <DynamicComponent name="DataSourcesListExtra" />

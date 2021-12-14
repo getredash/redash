@@ -29,7 +29,7 @@ class Sqlite(BaseSQLQueryRunner):
 
     def _get_tables(self, schema):
         query_table = "select tbl_name from sqlite_master where type='table'"
-        query_columns = "PRAGMA table_info(%s)"
+        query_columns = "PRAGMA table_info(\"%s\")"
 
         results, error = self.run_query(query_table, None)
 

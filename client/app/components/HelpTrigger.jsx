@@ -2,9 +2,10 @@ import { startsWith, get, some, mapValues } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 import Drawer from "antd/lib/drawer";
 import Link from "@/components/Link";
+import PlainButton from "@/components/PlainButton";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import BigMessage from "@/components/BigMessage";
 import DynamicComponent, { registerComponent } from "@/components/DynamicComponent";
@@ -68,7 +69,7 @@ const HelpTriggerDefaultProps = {
   className: null,
   showTooltip: true,
   renderAsLink: false,
-  children: <i className="fa fa-question-circle" />,
+  children: <i className="fa fa-question-circle" aria-hidden="true" />,
 };
 
 export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName = null) {
@@ -170,7 +171,13 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
               this.props.showTooltip ? (
                 <>
                   {tooltip}
-                  {shouldRenderAsLink && <i className="fa fa-external-link" style={{ marginLeft: 5 }} />}
+                  {shouldRenderAsLink && (
+                    <>
+                      {" "}
+                      <i className="fa fa-external-link" style={{ marginLeft: 5 }} aria-hidden="true" />
+                      <span className="sr-only">(opens in a new tab)</span>
+                    </>
+                  )}
                 </>
               ) : null
             }>
@@ -197,14 +204,15 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
                   <Tooltip title="Open page in a new window" placement="left">
                     {/* eslint-disable-next-line react/jsx-no-target-blank */}
                     <Link href={url} target="_blank">
-                      <i className="fa fa-external-link" />
+                      <i className="fa fa-external-link" aria-hidden="true" />
+                      <span className="sr-only">(opens in a new tab)</span>
                     </Link>
                   </Tooltip>
                 )}
                 <Tooltip title="Close" placement="bottom">
-                  <a onClick={this.closeDrawer}>
+                  <PlainButton onClick={this.closeDrawer}>
                     <CloseOutlinedIcon />
-                  </a>
+                  </PlainButton>
                 </Tooltip>
               </div>
 

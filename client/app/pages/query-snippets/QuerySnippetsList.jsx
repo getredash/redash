@@ -15,6 +15,7 @@ import { StateStorage } from "@/components/items-list/classes/StateStorage";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import PlainButton from "@/components/PlainButton";
 
 import QuerySnippet from "@/services/query-snippet";
 import { currentUser } from "@/services/auth";
@@ -34,11 +35,9 @@ class QuerySnippetsList extends React.Component {
   listColumns = [
     Columns.custom.sortable(
       (text, querySnippet) => (
-        <div>
-          <a className="table-main-title clickable" onClick={() => this.showSnippetDialog(querySnippet)}>
-            {querySnippet.trigger}
-          </a>
-        </div>
+        <PlainButton type="link" className="table-main-title" onClick={() => this.showSnippetDialog(querySnippet)}>
+          {querySnippet.trigger}
+        </PlainButton>
       ),
       {
         title: "Trigger",
@@ -147,7 +146,7 @@ class QuerySnippetsList extends React.Component {
             type="primary"
             onClick={() => this.showSnippetDialog()}
             disabled={!policy.isCreateQuerySnippetEnabled()}>
-            <i className="fa fa-plus m-r-5" />
+            <i className="fa fa-plus m-r-5" aria-hidden="true" />
             New Query Snippet
           </Button>
         </div>
@@ -158,16 +157,16 @@ class QuerySnippetsList extends React.Component {
             There are no query snippets yet.
             {policy.isCreateQuerySnippetEnabled() && (
               <div className="m-t-5">
-                <a className="clickable" onClick={() => this.showSnippetDialog()}>
+                <PlainButton type="link" onClick={() => this.showSnippetDialog()}>
                   Click here
-                </a>{" "}
+                </PlainButton>{" "}
                 to add one.
               </div>
             )}
           </div>
         )}
         {controller.isLoaded && !controller.isEmpty && (
-          <div className="table-responsive">
+          <div className="table-responsive query-snippets-table">
             <ItemsTable
               items={controller.pageItems}
               columns={this.listColumns}

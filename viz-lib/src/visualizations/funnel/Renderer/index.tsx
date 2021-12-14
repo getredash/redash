@@ -14,10 +14,7 @@ function generateRowKeyPrefix() {
   return Math.trunc(Math.random() * Number.MAX_SAFE_INTEGER).toString(36) + ":";
 }
 
-export default function Renderer({
-  data,
-  options
-}: any) {
+export default function Renderer({ data, options }: any) {
   const funnelData = useMemo(() => prepareData(data.rows, options), [data, options]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const rowKeyPrefix = useMemo(() => generateRowKeyPrefix(), [funnelData]);
@@ -50,9 +47,11 @@ export default function Renderer({
         dataIndex: "step",
         width: "25%",
         className: "text-ellipsis",
-        render: (text: any) => <Tooltip title={text} mouseEnterDelay={0} mouseLeaveDelay={0}>
-          {text}
-        </Tooltip>,
+        render: (text: any) => (
+          <Tooltip title={text} mouseEnterDelay={0} mouseLeaveDelay={0}>
+            {text}
+          </Tooltip>
+        ),
       },
       {
         title: options.valueCol.displayAs,
@@ -78,10 +77,12 @@ export default function Renderer({
         dataIndex: "pctPrevious",
         width: "15%",
         align: "center",
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
-        render: (value: any) => <FunnelBar className="funnel-percent-column" value={(value / maxToPrevious) * 100.0}>
-          {formatPercentValue(value)}
-        </FunnelBar>,
+        render: (value: any) => (
+          // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
+          <FunnelBar className="funnel-percent-column" value={(value / maxToPrevious) * 100.0}>
+            {formatPercentValue(value)}
+          </FunnelBar>
+        ),
       },
     ];
   }, [options.stepCol.displayAs, options.valueCol.displayAs, funnelData, formatValue, formatPercentValue]);

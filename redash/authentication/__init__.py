@@ -2,9 +2,10 @@ import hashlib
 import hmac
 import logging
 import time
+from datetime import timedelta
 from urllib.parse import urlsplit, urlunsplit
 
-from flask import jsonify, redirect, request, url_for
+from flask import jsonify, redirect, request, url_for, session
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
 from redash import models, settings
 from redash.authentication import jwt_auth
@@ -68,7 +69,9 @@ def request_loader(request):
         user = api_key_load_user_from_request(request)
     else:
         logger.warning(
-            "Unknown authentication type ({}). Using default (HMAC).".format(settings.AUTH_TYPE)
+            "Unknown authentication type ({}). Using default (HMAC).".format(
+                settings.AUTH_TYPE
+            )
         )
         user = hmac_load_user_from_request(request)
 
@@ -214,7 +217,9 @@ def log_user_logged_in(app, user):
 @login_manager.unauthorized_handler
 def redirect_to_login():
     if "/api/" in request.path:
-        response = jsonify({"message": "Couldn't find resource. Please login and try again."})
+        response = jsonify(
+            {"message": "Couldn't find resource. Please login and try again."}
+        )
         response.status_code = 404
         return response
 
@@ -238,21 +243,33 @@ def logout_and_redirect_to_index():
 
 def init_app(app):
     from redash.authentication import (
-        google_oauth,
         saml_auth,
         remote_user_auth,
         ldap_auth,
     )
 
+    from redash.authentication.google_oauth import create_google_oauth_blueprint
+
     login_manager.init_app(app)
     login_manager.anonymous_user = models.AnonymousUser
+    login_manager.REMEMBER_COOKIE_DURATION = settings.REMEMBER_COOKIE_DURATION
+
+    @app.before_request
+    def extend_session():
+        session.permanent = True
+        app.permanent_session_lifetime = timedelta(seconds=settings.SESSION_EXPIRY_TIME)
 
     google_oauth.init_app(app)
 
     from redash.security import csrf
 
-    for auth in [google_oauth, saml_auth, remote_user_auth, ldap_auth]:
-        blueprint = auth.blueprint
+    # Authlib's flask oauth client requires a Flask app to initialize
+    for blueprint in [
+        create_google_oauth_blueprint(app),
+        saml_auth.blueprint,
+        remote_user_auth.blueprint,
+        ldap_auth.blueprint,
+    ]:
         csrf.exempt(blueprint)
         app.register_blueprint(blueprint)
 

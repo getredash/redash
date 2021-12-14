@@ -65,7 +65,7 @@ export function createBooleanFormatter(values: any) {
       };
     } else if (values.length === 1) {
       // Only `true`
-      return (value: any) => value ? values[0] : "";
+      return (value: any) => (value ? values[0] : "");
     }
   }
   return (value: any) => {
@@ -79,7 +79,7 @@ export function createBooleanFormatter(values: any) {
 export function createNumberFormatter(format: any) {
   if (isString(format) && format !== "") {
     const n = numeral(0); // cache `numeral` instance
-    return (value: any) => value === null || value === "" ? "" : n.set(value).format(format);
+    return (value: any) => (value === null || value === "" ? "" : n.set(value).format(format));
   }
   return (value: any) => toString(value);
 }

@@ -43,6 +43,7 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 - DB2 by IBM
 - Druid
 - Elasticsearch
+- Firebolt
 - Google Analytics
 - Google BigQuery
 - Google Spreadsheets
@@ -73,6 +74,7 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 - Shell Scripts
 - Snowflake
 - SQLite
+- TiDB
 - TreasureData
 - Vertica
 - Yandex AppMetrrica

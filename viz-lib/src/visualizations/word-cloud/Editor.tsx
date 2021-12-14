@@ -4,11 +4,7 @@ import * as Grid from "antd/lib/grid";
 import { Section, Select, InputNumber, ControlLabel } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
-export default function Editor({
-  options,
-  data,
-  onOptionsChange
-}: any) {
+export default function Editor({ options, data, onOptionsChange }: any) {
   const optionsChanged = (newOptions: any) => {
     onOptionsChange(merge({}, options, newOptions));
   };
@@ -26,7 +22,7 @@ export default function Editor({
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={name} data-test={"WordCloud.WordsColumn." + name}>
               {name}
-            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             </Select.Option>
           ))}
         </Select>
@@ -41,13 +37,13 @@ export default function Editor({
           {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option key="none" value="">
             <i>(count word frequencies automatically)</i>
-          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           </Select.Option>
           {map(data.columns, ({ name }) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={"column-" + name} value={name} data-test={"WordCloud.FrequenciesColumn." + name}>
               {name}
-            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             </Select.Option>
           ))}
         </Select>

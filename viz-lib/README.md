@@ -10,7 +10,7 @@ Required libraries:
 
 - react (`>=16.8.0`)
 - react-dom (`>=16.8.0`)
-- antd (`>=3.19.0 < 4`)
+- antd (`>=4.0.0`)
 
 Using npm:
 
