@@ -259,8 +259,6 @@ def init_app(app):
         session.permanent = True
         app.permanent_session_lifetime = timedelta(seconds=settings.SESSION_EXPIRY_TIME)
 
-    google_oauth.init_app(app)
-
     from redash.security import csrf
 
     # Authlib's flask oauth client requires a Flask app to initialize
