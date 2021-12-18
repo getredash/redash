@@ -44,7 +44,7 @@ funcy==1.13
 sentry-sdk>=0.14.3,<0.15.0
 semver==2.8.1
 xlsxwriter==1.2.2
-pystache==0.5.4
+pystache==0.6.0
 parsedatetime==2.4
 PyJWT==1.7.1
 cryptography==2.8
