@@ -67,6 +67,16 @@ class SqlServer(BaseSQLQueryRunner):
     def type(cls):
         return "mssql"
 
+    # Override the base class's host property to alias 'server'. 
+    # Host is used when ssh tunneling (it's set to the tunnel)
+    @property
+    def host(self):
+        return self.configuration.get("server")
+
+    @host.setter
+    def host(self, host):
+        self.configuration["server"] = host
+
     def _get_tables(self, schema):
         query = """
         SELECT table_schema, table_name, column_name
