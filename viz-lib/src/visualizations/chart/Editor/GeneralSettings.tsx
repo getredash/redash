@@ -349,7 +349,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           data-test="Chart.DataLabels.ShowDataLabels"
           defaultChecked={options.enableLink}
           onChange={event => onOptionsChange({ enableLink: event.target.checked })}>
-          Enable click
+          Enable click events
         </Checkbox>
       </Section>
 
