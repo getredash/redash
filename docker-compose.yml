@@ -4,16 +4,17 @@ version: "2.2"
 x-redash-service: &redash-service
   build:
     context: .
-    args:
-      skip_frontend_build: "true"
-  volumes:
-    - .:/app
+#    args:
+#      skip_frontend_build: ""
+#  volumes:
+#    - .:/app
   env_file:
     - .env
 x-redash-environment: &redash-environment
   REDASH_LOG_LEVEL: "INFO"
-  REDASH_REDIS_URL: "redis://redis:6379/0"
-  REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+  REDASH_REDIS_URL: "redis://127.0.0.1:6379/0"
+  REDASH_DATABASE_URL: "postgresql://redash@127.0.0.1:5432/redash"
+  #REDASH_DATABASE_URL: "postgresql://UserName:PassWorld@Host:Port/DataBaseName"
   REDASH_RATELIMIT_ENABLED: "false"
   REDASH_MAIL_DEFAULT_SENDER: "redash@example.com"
   REDASH_MAIL_SERVER: "email"
@@ -23,6 +24,7 @@ services:
   server:
     <<: *redash-service
     command: dev_server
+    network_mode: "host"
     depends_on:
       - postgres
       - redis
@@ -35,6 +37,7 @@ services:
   scheduler:
     <<: *redash-service
     command: dev_scheduler
+    network_mode: "host"
     depends_on:
       - server
     environment:
@@ -42,6 +45,7 @@ services:
   worker:
     <<: *redash-service
     command: dev_worker
+    network_mode: "host"
     depends_on:
       - server
     environment:
@@ -49,20 +53,29 @@ services:
       PYTHONUNBUFFERED: 0
   redis:
     image: redis:3-alpine
+    network_mode: "host"
+    ports:
+      - "6379:6379"
     restart: unless-stopped
   postgres:
-    image: postgres:9.5-alpine
+    image: postgres:9.5.14
     # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
     # improvement on my personal machine). We should consider moving this into a dedicated Docker Compose configuration for
     # tests.
+    network_mode: "host"
     ports:
       - "15432:5432"
-    command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
+#    command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
     restart: unless-stopped
     environment:
-      POSTGRES_HOST_AUTH_METHOD: "trust"
+      - POSTGRES_USER=redash
+      - POSTGRES_DB=redash
+      - POSTGRES_PASSWORD=mysecretpassword
+    volumes:
+      - ${PG_DATA_MOUNT}:/var/lib/postgresql/data
   email:
     image: djfarrelly/maildev
+    network_mode: "host"
     ports:
       - "1080:80"
     restart: unless-stopped
