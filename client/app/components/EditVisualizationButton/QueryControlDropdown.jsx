@@ -5,6 +5,7 @@ import Menu from "antd/lib/menu";
 import Button from "antd/lib/button";
 import PlainButton from "@/components/PlainButton";
 import { clientConfig } from "@/services/auth";
+import { currentUser } from "@/services/auth";
 
 import PlusCircleFilledIcon from "@ant-design/icons/PlusCircleFilled";
 import ShareAltOutlinedIcon from "@ant-design/icons/ShareAltOutlined";
@@ -15,6 +16,8 @@ import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import QueryResultsLink from "./QueryResultsLink";
 
 export default function QueryControlDropdown(props) {
+  const isAdmin = currentUser.hasPermission("admin");
+
   const menu = (
     <Menu>
       {!props.query.isNew() && (!props.query.is_draft || !props.query.is_archived) && (
@@ -33,39 +36,45 @@ export default function QueryControlDropdown(props) {
           </PlainButton>
         </Menu.Item>
       )}
-      <Menu.Item>
-        <QueryResultsLink
-          fileType="csv"
-          disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
-          query={props.query}
-          queryResult={props.queryResult}
-          embed={props.embed}
-          apiKey={props.apiKey}>
-          <FileOutlinedIcon /> Download as CSV File
-        </QueryResultsLink>
-      </Menu.Item>
-      <Menu.Item>
-        <QueryResultsLink
-          fileType="tsv"
-          disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
-          query={props.query}
-          queryResult={props.queryResult}
-          embed={props.embed}
-          apiKey={props.apiKey}>
-          <FileOutlinedIcon /> Download as TSV File
-        </QueryResultsLink>
-      </Menu.Item>
-      <Menu.Item>
-        <QueryResultsLink
-          fileType="xlsx"
-          disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
-          query={props.query}
-          queryResult={props.queryResult}
-          embed={props.embed}
-          apiKey={props.apiKey}>
-          <FileExcelOutlinedIcon /> Download as Excel File
-        </QueryResultsLink>
-      </Menu.Item>
+      {isAdmin && (
+        <Menu.Item>
+          <QueryResultsLink
+            fileType="csv"
+            disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
+            query={props.query}
+            queryResult={props.queryResult}
+            embed={props.embed}
+            apiKey={props.apiKey}>
+            <FileOutlinedIcon /> Download as CSV File
+          </QueryResultsLink>
+        </Menu.Item>
+      )}
+      {isAdmin && (
+        <Menu.Item>
+          <QueryResultsLink
+            fileType="tsv"
+            disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
+            query={props.query}
+            queryResult={props.queryResult}
+            embed={props.embed}
+            apiKey={props.apiKey}>
+            <FileOutlinedIcon /> Download as TSV File
+          </QueryResultsLink>
+        </Menu.Item>
+      )}
+      {isAdmin && (
+        <Menu.Item>
+          <QueryResultsLink
+            fileType="xlsx"
+            disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
+            query={props.query}
+            queryResult={props.queryResult}
+            embed={props.embed}
+            apiKey={props.apiKey}>
+            <FileExcelOutlinedIcon /> Download as Excel File
+          </QueryResultsLink>
+        </Menu.Item>
+      )}
     </Menu>
   );
 

@@ -28,6 +28,8 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
   const widgetQueryResult = widget.getQueryResult();
   const isQueryResultEmpty = !widgetQueryResult || !widgetQueryResult.isEmpty || widgetQueryResult.isEmpty();
 
+
+  if (currentUser.hasPermission("admin")) {
   const downloadLink = fileType => widgetQueryResult.getLink(widget.getQuery().id, fileType);
   const downloadName = fileType => widgetQueryResult.getName(widget.getQuery().name, fileType);
   return compact([
@@ -70,6 +72,7 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
       </Menu.Item>
     ),
   ]);
+  }
 }
 
 function RefreshIndicator({ refreshStartedAt }) {
