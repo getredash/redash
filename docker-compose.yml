@@ -41,8 +41,8 @@ services:
       - server
     environment:
       <<: *redash-environment
-    restart: unless-stopped  
-  worker:
+    restart: unless-stopped
+  worker_scheduled_queries:
     <<: *redash-service
     command: dev_worker
     network_mode: "host"
@@ -51,7 +51,20 @@ services:
     environment:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
-    restart: unless-stopped  
+      QUEUES: scheduled_queries
+    restart: unless-stopped
+  worker_queries:
+    <<: *redash-service
+    command: dev_worker
+    network_mode: "host"
+    depends_on:
+      - server
+    environment:
+      <<: *redash-environment
+      QUEUES: queries,schemas
+      WORKERS_COUNT: 4
+      PYTHONUNBUFFERED: 0
+    restart: unless-stopped
   redis:
     image: redis:3-alpine
     network_mode: "host"
@@ -71,6 +84,6 @@ services:
     environment:
       - POSTGRES_USER=redash
       - POSTGRES_DB=redash
-      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_PASSWORD=${PG_PASS}
     volumes:
       - ${PG_DATA_MOUNT}:/var/lib/postgresql/data
