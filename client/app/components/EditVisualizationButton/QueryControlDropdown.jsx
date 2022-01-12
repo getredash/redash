@@ -16,7 +16,7 @@ import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import QueryResultsLink from "./QueryResultsLink";
 
 export default function QueryControlDropdown(props) {
-  const isAdmin = currentUser.hasPermission("admin");
+  const isAdmin = currentUser.hasPermission("admin") || currentUser.hasPermission("download_artifacts");
 
   const menu = (
     <Menu>
