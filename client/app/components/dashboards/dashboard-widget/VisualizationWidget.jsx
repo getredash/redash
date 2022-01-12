@@ -28,8 +28,7 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
   const widgetQueryResult = widget.getQueryResult();
   const isQueryResultEmpty = !widgetQueryResult || !widgetQueryResult.isEmpty || widgetQueryResult.isEmpty();
 
-
-  if (currentUser.hasPermission("admin")) {
+  if (currentUser.hasPermission("admin") || currentUser.hasPermission("download_artifacts")) {
   const downloadLink = fileType => widgetQueryResult.getLink(widget.getQuery().id, fileType);
   const downloadName = fileType => widgetQueryResult.getName(widget.getQuery().name, fileType);
   return compact([

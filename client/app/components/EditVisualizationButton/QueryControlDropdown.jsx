@@ -16,7 +16,7 @@ import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import QueryResultsLink from "./QueryResultsLink";
 
 export default function QueryControlDropdown(props) {
-  const isAdmin = currentUser.hasPermission("admin");
+  const canDownloadArtifacts = currentUser.hasPermission("admin") || currentUser.hasPermission("download_artifacts");
 
   const menu = (
     <Menu>
@@ -36,7 +36,7 @@ export default function QueryControlDropdown(props) {
           </PlainButton>
         </Menu.Item>
       )}
-      {isAdmin && (
+      {canDownloadArtifacts && (
         <Menu.Item>
           <QueryResultsLink
             fileType="csv"
@@ -49,7 +49,7 @@ export default function QueryControlDropdown(props) {
           </QueryResultsLink>
         </Menu.Item>
       )}
-      {isAdmin && (
+      {canDownloadArtifacts && (
         <Menu.Item>
           <QueryResultsLink
             fileType="tsv"
@@ -62,7 +62,7 @@ export default function QueryControlDropdown(props) {
           </QueryResultsLink>
         </Menu.Item>
       )}
-      {isAdmin && (
+      {canDownloadArtifacts && (
         <Menu.Item>
           <QueryResultsLink
             fileType="xlsx"
