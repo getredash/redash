@@ -69,7 +69,7 @@ describe("Query Filters", () => {
 
     it("filters rows in a Table Visualization", () => {
       // Defaults to All Options Selected
-      
+
       expectSelectedOptionsToHaveMembers(["a", "b", "c"]);
       expectTableToHaveLength(11);
       expectFirstColumnToHaveMembers(["a", "a", "a", "a", "b", "b", "b", "c", "c", "c", "c"]);
