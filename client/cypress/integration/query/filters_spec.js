@@ -69,6 +69,7 @@ describe("Query Filters", () => {
 
     it("filters rows in a Table Visualization", () => {
       // Defaults to All Options Selected
+      
       expectSelectedOptionsToHaveMembers(["a", "b", "c"]);
       expectTableToHaveLength(11);
       expectFirstColumnToHaveMembers(["a", "a", "a", "a", "b", "b", "b", "c", "c", "c", "c"]);
@@ -84,6 +85,7 @@ describe("Query Filters", () => {
       cy.getByTestId("TableVisualization").should("not.exist");
 
       // Single Option selected
+
       cy.getByTestId("FilterName-stage1::multi-filter")
         .find(".ant-select-selector")
         .click();
