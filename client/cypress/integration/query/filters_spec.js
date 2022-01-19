@@ -89,7 +89,7 @@ describe("Query Filters", () => {
       cy.getByTestId("FilterName-stage1::multi-filter")
         .find(".ant-select-selector")
         .click();
-      cy.contains(".ant-select-item-option-content", "a").click();
+      cy.contains(".ant-select-item-option-grouped > .ant-select-item-option-content", "a").click();
       cy.getByTestId("FilterName-stage1::multi-filter").click(); // close dropdown
 
       expectSelectedOptionsToHaveMembers(["a"]);
