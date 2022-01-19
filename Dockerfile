@@ -38,7 +38,7 @@ RUN useradd --create-home redash
 
 # Ubuntu packages
 RUN apt-get update && \
-  apt-get install -y \
+  apt-get install -y --no-install-recommends \
     curl \
     gnupg \
     build-essential \
@@ -46,7 +46,6 @@ RUN apt-get update && \
     libffi-dev \
     sudo \
     git-core \
-    wget \
     # Postgres client
     libpq-dev \
     # ODBC support:
