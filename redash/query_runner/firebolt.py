@@ -22,12 +22,12 @@ class Firebolt(BaseQueryRunner):
             "properties": {
                 "api_endpoint": {"type": "string", "default": DEFAULT_API_URL},
                 "engine_name": {"type": "string"},
-                "database": {"type": "string"},
-                "username": {"type": "string"},
+                "DB": {"type": "string"},
+                "user": {"type": "string"},
                 "password": {"type": "string"},
             },
-            "order": ["api_endpoint", "engine_name", "user", "password", "database"],
-            "required": ["user","password", "engine_name", "database"],
+            "order": ["user", "password", "api_endpoint", "engine_name", "DB"],
+            "required": ["user", "password", "engine_name", "DB"],
             "secret": ["password"],
         }
 
@@ -37,11 +37,11 @@ class Firebolt(BaseQueryRunner):
 
     def run_query(self, query, user):
         connection = connect(
-            api_endpoint=self.configuration["api_endpoint"],
-            engine_name=self.configuration["engine_name"],
-            username=(self.configuration.get("username") or None),
+            api_endpoint=(self.configuration.get("api_endpoint") or DEFAULT_API_URL),
+            engine_name=(self.configuration.get("engine_name") or None),
+            username=(self.configuration.get("user") or None),
             password=(self.configuration.get("password") or None),
-            database=(self.configuration.get("database") or None),
+            database=(self.configuration.get("DB") or None),
         )
 
         cursor = connection.cursor()
