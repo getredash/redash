@@ -37,9 +37,15 @@ class Firebolt(BaseQueryRunner):
 
     def run_query(self, query, user):
         connection = connect(
+<<<<<<< HEAD
             api_endpoint=(self.configuration.get("api_endpoint") or DEFAULT_API_URL),
             engine_name=(self.configuration.get("engine_name") or None),
             username=(self.configuration.get("user") or None),
+=======
+            api_endpoint=(self.configuration.get("api_endpoint") or None),
+            engine_name=(self.configuration.get("engine_name") or None),
+            username=(self.configuration.get("username") or None),
+>>>>>>> 1c9c07557482d94482ec4aca4e773e7565c9ff18
             password=(self.configuration.get("password") or None),
             database=(self.configuration.get("DB") or None),
         )
