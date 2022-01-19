@@ -20,6 +20,7 @@ SAML_ENTITY_ID = os.environ.get("REDASH_SAML_ENTITY_ID", "")
 SAML_NAMEID_FORMAT = os.environ.get("REDASH_SAML_NAMEID_FORMAT", "")
 SAML_SSO_URL = os.environ.get("REDASH_SAML_SSO_URL", "")
 SAML_X509_CERT = os.environ.get("REDASH_SAML_X509_CERT", "")
+SAML_SP_SETTINGS = os.environ.get("REDASH_SAML_SP_SETTINGS", "")
 SAML_LOGIN_ENABLED = SAML_SSO_URL != "" and SAML_METADATA_URL != ""
 
 DATE_FORMAT = os.environ.get("REDASH_DATE_FORMAT", "DD/MM/YY")
@@ -61,6 +62,7 @@ settings = {
     "auth_saml_nameid_format": SAML_NAMEID_FORMAT,
     "auth_saml_sso_url": SAML_SSO_URL,
     "auth_saml_x509_cert": SAML_X509_CERT,
+    "auth_saml_sp_settings": SAML_SP_SETTINGS,
     "date_format": DATE_FORMAT,
     "time_format": TIME_FORMAT,
     "integer_format": INTEGER_FORMAT,
