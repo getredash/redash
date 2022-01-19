@@ -36,7 +36,7 @@ jobs:
           name: Build Docker Images
           command: |
             set -x
-            docker-compose build --build-arg skip_ds_deps=true --build-arg skip_frontend_build=true
+            COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build --build-arg skip_ds_deps=true --build-arg skip_frontend_build=true
             docker-compose up -d
             sleep 10
       - run:
