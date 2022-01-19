@@ -1,9 +1,10 @@
 try:
-    from firebolt_db.firebolt_connector import Connection
+    from firebolt.db import connect
     enabled = True
 except ImportError:
     enabled = False
 
+from firebolt.client import DEFAULT_API_URL
 from redash.query_runner import BaseQueryRunner, register
 from redash.query_runner import TYPE_STRING, TYPE_INTEGER, TYPE_BOOLEAN
 from redash.utils import json_dumps, json_loads
@@ -19,14 +20,14 @@ class Firebolt(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "host": {"type": "string", "default": "localhost"},
-                "port": {"type": "string", "default": 8123},
-                "DB": {"type": "string"},
-                "user": {"type": "string"},
+                "api_endpoint": {"type": "string", "default": DEFAULT_API_URL},
+                "engine_name": {"type": "string"},
+                "database": {"type": "string"},
+                "username": {"type": "string"},
                 "password": {"type": "string"},
             },
-            "order": ["host", "port", "user", "password", "DB"],
-            "required": ["user","password"],
+            "order": ["api_endpoint", "engine_name", "user", "password", "database"],
+            "required": ["user","password", "engine_name", "database"],
             "secret": ["password"],
         }
 
@@ -35,12 +36,12 @@ class Firebolt(BaseQueryRunner):
         return enabled
 
     def run_query(self, query, user):
-        connection = Connection(
-            host=self.configuration["host"],
-            port=self.configuration["port"],
-            username=(self.configuration.get("user") or None),
+        connection = connect(
+            api_endpoint=self.configuration["api_endpoint"],
+            engine_name=self.configuration["engine_name"],
+            username=(self.configuration.get("username") or None),
             password=(self.configuration.get("password") or None),
-            db_name=(self.configuration.get("DB") or None),
+            database=(self.configuration.get("database") or None),
         )
 
         cursor = connection.cursor()
