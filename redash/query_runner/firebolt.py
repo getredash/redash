@@ -1,10 +1,10 @@
 try:
     from firebolt.db import connect
+    from firebolt.client import DEFAULT_API_URL
     enabled = True
 except ImportError:
     enabled = False
 
-from firebolt.client import DEFAULT_API_URL
 from redash.query_runner import BaseQueryRunner, register
 from redash.query_runner import TYPE_STRING, TYPE_INTEGER, TYPE_BOOLEAN
 from redash.utils import json_dumps, json_loads
