@@ -1,5 +1,5 @@
 from unittest import TestCase
-from redash.query_runner.databricks import split_sql_statements
+from redash.query_runner import split_sql_statements
 
 
 class TestSplitMultipleSQLStatements(TestCase):
