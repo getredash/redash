@@ -8,6 +8,14 @@ from redash.serializers import serialize_alert
 
 class MicrosoftTeamsWebhook(BaseDestination):
     @classmethod
+    def name(cls):
+        return "Microsoft Teams Webhook"
+
+    @classmethod
+    def type(cls):
+        return "microsoft_teams_webhook"
+
+    @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
@@ -26,8 +34,6 @@ class MicrosoftTeamsWebhook(BaseDestination):
         :type app: redash.Redash
         """
         try:
-            logging.info("Notifying Microsoft Teams Webhook")
-            logging.info("%s/queries/%s" % (host, query.id))
             data = {
                 "@type": "MessageCard",
                 "@context": "http://schema.org/extensions",
