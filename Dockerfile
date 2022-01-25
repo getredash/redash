@@ -25,7 +25,7 @@ COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
 RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn build; else mkdir -p /frontend/client/dist && touch /frontend/client/dist/multi_org.html && touch /frontend/client/dist/index.html; fi
 
-FROM python:3.7-slim-bullseye
+FROM ubuntu:20.04
 
 EXPOSE 5000
 
@@ -38,7 +38,7 @@ RUN useradd --create-home redash
 
 # Ubuntu packages
 RUN apt-get update && \
-  apt-get install -y \
+  DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y \
     curl \
     gnupg \
     build-essential \
@@ -60,10 +60,12 @@ RUN apt-get update && \
     libsasl2-dev \
     unzip \
     unixodbc \
-    libsasl2-modules-gssapi-mit && \
+    libsasl2-modules-gssapi-mit \
+    python3-pip \
+  && \
   # MSSQL ODBC Driver:
   curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-  curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+  curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
   apt-get update && \
   ACCEPT_EULA=Y apt-get install -y msodbcsql17 && \
   apt-get clean && \
@@ -97,6 +99,8 @@ RUN if [ "x$skip_dev_deps" = "x" ] ; then pip install -r requirements_dev.txt ; 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 RUN pip install numpy scipy pandas requests pytz imageio statsmodels
+
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 COPY . /app
 COPY --from=frontend-builder /frontend/client/dist /app/client/dist

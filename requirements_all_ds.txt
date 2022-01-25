@@ -22,12 +22,12 @@ memsql==3.0.0
 atsd_client==3.0.5
 simple_salesforce==0.74.3
 PyAthena>=1.5.0
-pymapd==0.19.0
+# pymapd==0.26.0
 qds-sdk>=1.9.6
 ibm-db>=2.0.9
 pydruid==0.5.7
 requests_aws_sign==0.1.5
-snowflake-connector-python==2.7.1
+snowflake-connector-python==2.7.3
 phoenixdb==0.7
 # certifi is needed to support MongoDB and SSL:
 certifi>=2019.9.11
@@ -40,4 +40,5 @@ trino~=0.305
 cmem-cmempy==21.2.3
 xlrd==2.0.1
 openpyxl==3.0.7
-firebolt-sqlalchemy
+# firebolt-sqlalchemy
+pyarrow>=6.0.0,<6.1.0
