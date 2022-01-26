@@ -20,7 +20,7 @@ class MicrosoftTeamsWebhook(BaseDestination):
         return {
             "type": "object",
             "properties": {
-                "url": {"type": "string"},
+                "url": {"type": "string", "title": "Microsoft Teams Webhook URL"},
             },
             "required": ["url"],
         }
