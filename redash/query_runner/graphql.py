@@ -1,9 +1,11 @@
 import logging
+import requests
 
 import datetime
 from funcy import compact, project
 
 from redash.utils.requests_session import requests_or_advocate, UnacceptableAddressException
+from redash.query_runner.json_ds import parse_json
 
 from redash.utils import json_dumps
 from redash.query_runner import (
@@ -16,6 +18,11 @@ from redash.query_runner import (
     TYPE_STRING,
 )
 
+logger = logging.getLogger(__name__)
+
+
+class QueryParseError(Exception):
+    pass
 
 class GraphQL(BaseHTTPQueryRunner):
 
@@ -50,20 +57,22 @@ class GraphQL(BaseHTTPQueryRunner):
     def test_connection(self):
         pass
 
-    def _send_query(self, data, stream=False):
+    def _send_query(self, data):
         url = self.configuration.get("url", "http://127.0.0.1/")
         try:
             verify = self.configuration.get("verify", True)
+            headers = {
+              'Content-Type': 'application/json'
+            }
             r = requests.post(
                 url,
-                data=data.encode("utf-8","ignore"),
-                stream=stream,
+                data=json_dumps({"query": data}),
                 timeout=self.configuration.get("timeout", 30),
                 verify=verify,
+                headers=headers
             )
             if r.status_code != 200:
                 raise Exception(r.text)
-            # logging.warning(r.json())
             return r.json()
         except requests.RequestException as e:
             if e.response:
@@ -75,16 +84,13 @@ class GraphQL(BaseHTTPQueryRunner):
             raise Exception("Connection error to: {} {}.".format(url, details))
 
     def run_query(self, query, user):
-        if not isinstance(query, dict):
-            raise QueryParseError(
-                "Query should be a GraphQL query."
-            )
+        ## TODO: query validation
+
         result = self._send_query(query)
+        logger.info("%s" % result)
 
-        if error is not None:
-            return None, error
 
-        data = json_dumps(parse_json(response.json(), path, fields))
+        data = json_dumps(parse_json(result, "data", []))
 
         if data:
             return data, None
