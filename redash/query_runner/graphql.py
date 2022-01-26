@@ -44,7 +44,7 @@ class GraphQL(BaseHTTPQueryRunner):
         }
 
     def __init__(self, configuration):
-        super(JSON, self).__init__(configuration)
+        super(GraphQL, self).__init__(configuration)
         self.syntax = "text"
 
     def test_connection(self):
