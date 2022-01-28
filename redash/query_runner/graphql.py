@@ -1,21 +1,12 @@
 import logging
 import requests
 
-import datetime
-from funcy import compact, project
-
-from redash.utils.requests_session import requests_or_advocate, UnacceptableAddressException
 from redash.query_runner.json_ds import parse_json
 
 from redash.utils import json_dumps
 from redash.query_runner import (
     BaseHTTPQueryRunner,
     register,
-    TYPE_BOOLEAN,
-    TYPE_DATETIME,
-    TYPE_FLOAT,
-    TYPE_INTEGER,
-    TYPE_STRING,
 )
 
 logger = logging.getLogger(__name__)
@@ -24,6 +15,7 @@ logger = logging.getLogger(__name__)
 class QueryParseError(Exception):
     pass
 
+
 class GraphQL(BaseHTTPQueryRunner):
 
     @classmethod
@@ -31,7 +23,7 @@ class GraphQL(BaseHTTPQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "url": {"type": "string", "default": "http://127.0.0.1:8123"},
+                "url": {"type": "string", "default": "http://127.0.0.1/"},
                 "token": {"type": "string"},
                 "timeout": {
                     "type": "number",
@@ -84,11 +76,10 @@ class GraphQL(BaseHTTPQueryRunner):
             raise Exception("Connection error to: {} {}.".format(url, details))
 
     def run_query(self, query, user):
-        ## TODO: query validation
+        # TODO: query validation
 
         result = self._send_query(query)
         logger.info("%s" % result)
-
 
         data = json_dumps(parse_json(result, "data", []))
 
