@@ -1,9 +1,9 @@
 import logging
-import requests
-
-from redash.query_runner.json_ds import parse_json
+import gql
+from gql.transport.requests import RequestsHTTPTransport
 
 from redash.utils import json_dumps
+from redash.query_runner.json_ds import parse_json
 from redash.query_runner import (
     BaseHTTPQueryRunner,
     register,
@@ -17,7 +17,6 @@ class QueryParseError(Exception):
 
 
 class GraphQL(BaseHTTPQueryRunner):
-
     @classmethod
     def configuration_schema(cls):
         return {
@@ -51,37 +50,18 @@ class GraphQL(BaseHTTPQueryRunner):
 
     def _send_query(self, data):
         url = self.configuration.get("url", "http://127.0.0.1/")
-        try:
-            verify = self.configuration.get("verify", True)
-            headers = {
-              'Content-Type': 'application/json'
-            }
-            r = requests.post(
-                url,
-                data=json_dumps({"query": data}),
-                timeout=self.configuration.get("timeout", 30),
-                verify=verify,
-                headers=headers
-            )
-            if r.status_code != 200:
-                raise Exception(r.text)
-            return r.json()
-        except requests.RequestException as e:
-            if e.response:
-                details = "({}, Status Code: {})".format(
-                    e.__class__.__name__, e.response.status_code
-                )
-            else:
-                details = "({})".format(e.__class__.__name__)
-            raise Exception("Connection error to: {} {}.".format(url, details))
+        verify = self.configuration.get("verify", True)
+        transport = RequestsHTTPTransport(url=url, verify=verify)
+        client = gql.Client(transport=transport, fetch_schema_from_transport=True)
+        query = gql.gql(data)
+        r = client.execute(query)
+        return r
 
     def run_query(self, query, user):
-        # TODO: query validation
-
         result = self._send_query(query)
         logger.info("%s" % result)
 
-        data = json_dumps(parse_json(result, "data", []))
+        data = json_dumps(parse_json(result, None, []))
 
         if data:
             return data, None
