@@ -170,7 +170,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         <Section>
           <Select
             label="Aggregation of points with same x"
-            defaultValue={DefaultAggregationFunctionName}
+            defaultValue={options.yAgg ?? DefaultAggregationFunctionName}
             onChange={(value: any) => onOptionsChange({ yAgg: value })}>
             {values(AggregationFunctionName).map(val => (
               // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
