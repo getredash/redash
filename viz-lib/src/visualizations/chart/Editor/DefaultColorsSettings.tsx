@@ -67,7 +67,6 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
     },
   ];
 
-  // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean[]' is not assignable to type 'object... Remove this comment to see the full error message
   return <Table showHeader={false} dataSource={series} columns={columns} pagination={false} />;
 }
 

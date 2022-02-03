@@ -1,4 +1,4 @@
-import { isArray, map, mapValues, includes, some, each, difference, toNumber } from "lodash";
+import { isArray, map, mapValues, includes, some, each, difference, toNumber, values } from "lodash";
 import React, { useMemo } from "react";
 import { Section, Select, Checkbox, InputNumber } from "@/components/visualizations/editor";
 import { UpdateOptionsStrategy } from "@/components/visualizations/editor/createTabbedEditor";
@@ -6,6 +6,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 
 import ChartTypeSelect from "./ChartTypeSelect";
 import ColumnMappingSelect from "./ColumnMappingSelect";
+import { AggregationFunctionName, DefaultAggregationFunctionName } from "../getChartData";
 
 function getAvailableColumnMappingTypes(options: any) {
   const result = ["x", "y"];
@@ -163,6 +164,24 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           onChange={handleColumnMappingChange}
         />
       ))}
+
+      {!includes(["custom", "heatmap", "bubble", "scatter"], options.globalSeriesType) && (
+        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
+        <Section>
+          <Select
+            label="Aggregation of points with same x"
+            defaultValue={DefaultAggregationFunctionName}
+            onChange={(value: any) => onOptionsChange({ yAgg: value })}>
+            {values(AggregationFunctionName).map(val => (
+              // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
+              <Select.Option key={val} value={val}>
+                {val}
+                {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+              </Select.Option>
+            ))}
+          </Select>
+        </Section>
+      )}
 
       {includes(["bubble"], options.globalSeriesType) && (
         <React.Fragment>

@@ -94,7 +94,6 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
     ({ oldIndex, newIndex }) => {
       const seriesOptions = [...series];
       seriesOptions.splice(newIndex, 0, ...seriesOptions.splice(oldIndex, 1));
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'key' does not exist on type 'Boolean'.
       onOptionsChange({ seriesOptions: fromPairs(map(seriesOptions, ({ key }, zIndex) => [key, { zIndex }])) });
     },
     [onOptionsChange, series]
@@ -134,7 +133,6 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
       }}>
       {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
       <Table
-        // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean[]' is not assignable to type 'object... Remove this comment to see the full error message
         dataSource={series}
         columns={columns}
         components={{
