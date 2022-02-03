@@ -21,7 +21,7 @@ export enum AggregationFunctionName {
   P05 = "P05",
   P95 = "P95",
 }
-export const DefaultAggregationFunctionName = AggregationFunctionName.FIRST;
+export const DefaultAggregationFunctionName = AggregationFunctionName.SUM;
 
 const safeSum = (yvals: (number | string)[]): number | string => {
   let result: number | string = 0;
