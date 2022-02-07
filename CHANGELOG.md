@@ -1,5 +1,28 @@
 # Change Log
 
+## V10.1.0 - 2021-11-23
+
+This release includes patches for three security vulnerabilities:
+
+- Insecure default configuration affects installations where REDASH_COOKIE_SECRET is not set explicitly (CVE-2021-41192)
+- SSRF vulnerability affects installations that enabled URL-loading data sources (CVE-2021-43780)
+- Incorrect usage of state parameter in OAuth client code affects installations where Google Login is enabled (CVE-2021-43777)
+
+And a couple features that didn't merge in time for 10.0.0
+
+- Big Query: Speed up schema loading (#5632)
+- Add support for Firebolt data source (#5606)
+- Fix: Loading schema for Sqlite DB with "Order" column name fails (#5623)
+
+## v10.0.0 - 2021-10-01
+
+A few changes were merged during the V10 beta period.
+
+- New Data Source: CSV/Excel Files
+- Fix: Edit Source button disappeared for users without CanEdit permissions
+- We pinned our docker base image to Python3.7-slim-buster to avoid build issues
+- Fix: dashboard list pagination didn't work
+
 ## v10.0.0-beta - 2021-06-16
 
 Just over a year since our last release, the V10 beta is ready. Since we never made a non-beta release of V9, we expect many users will upgrade directly from V8 -> V10. This will bring a lot of exciting features. Please check out the V9 beta release notes below to learn more.
