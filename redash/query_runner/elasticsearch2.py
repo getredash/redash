@@ -86,8 +86,11 @@ class ElasticSearch2(BaseHTTPQueryRunner):
         for index_name in mappings_data:
             mappings[index_name] = {}
             index_mappings = mappings_data[index_name]
-            for m in index_mappings.get("mappings",{}):
-                _parse_properties('', index_mappings['mappings'][m]['properties'])
+            try:
+                for m in index_mappings.get("mappings", {}):
+                    _parse_properties('', index_mappings['mappings'][m]['properties'])
+            except KeyError:
+                _parse_properties('', index_mappings['mappings']['properties'])
 
         return mappings
 
