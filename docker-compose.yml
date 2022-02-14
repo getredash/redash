@@ -63,7 +63,7 @@ services:
     environment:
       POSTGRES_HOST_AUTH_METHOD: "trust"
   email:
-    image: djfarrelly/maildev
+    image: maildev/maildev
     ports:
       - "1080:80"
     restart: unless-stopped
