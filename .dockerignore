@@ -13,3 +13,7 @@ venv/
 /.github/
 /netlify.toml
 /setup/
+docker-compose.yml
+.dockerignore
+node_modules
+data

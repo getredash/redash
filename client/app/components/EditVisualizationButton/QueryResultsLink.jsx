@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Link from "@/components/Link";
+import recordEvent from "@/services/recordEvent";
 
 export default function QueryResultsLink(props) {
   let href = "";
@@ -17,8 +18,17 @@ export default function QueryResultsLink(props) {
     }
   }
 
+  function captureDownloadEvent(href) {
+    recordEvent("download_data", "query", query.id,
+      { "result_id": resultId,  "file_type" : fileType});
+  }
+
   return (
-    <Link target="_blank" rel="noopener noreferrer" disabled={props.disabled} href={href} download>
+    // <Link target="_blank" rel="noopener noreferrer" disabled={props.disabled} href={href} download>
+    //   {props.children}
+    // </Link>
+    <Link target="_blank" rel="noopener noreferrer" onClick={() => captureDownloadEvent(href)}
+          disabled={props.disabled} href={href} download>
       {props.children}
     </Link>
   );
