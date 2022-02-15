@@ -60,7 +60,7 @@ def record_event(org, user, options):
     if "timestamp" not in options:
         options["timestamp"] = int(time.time())
 
-    record_event_task.delay(options)
+    record_event_task(options)
 
 
 def require_fields(req, fields):
