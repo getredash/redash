@@ -165,7 +165,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         />
       ))}
 
-      {!includes(["custom", "heatmap", "bubble", "scatter"], options.globalSeriesType) && (
+      {!includes(["custom", "heatmap", "bubble", "scatter", "box"], options.globalSeriesType) && (
         // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Select

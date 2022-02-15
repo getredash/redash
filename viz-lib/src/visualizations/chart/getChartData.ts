@@ -1,4 +1,5 @@
 import { sort } from "d3";
+import _ from "lodash";
 import { isNil, isObject, each, forOwn, sortBy, values, groupBy, min, max } from "lodash";
 
 interface Series {
@@ -16,6 +17,7 @@ export enum AggregationFunctionName {
   MAX = "MAX",
   MIN = "MIN",
   COUNT = "COUNT",
+  COUNTDISTINCT = "COUNTDISTINCT",
   P25 = "P25",
   P75 = "P75",
   P05 = "P05",
@@ -48,6 +50,7 @@ const AGGREGATION_FUNCTIONS: Record<AggregationFunctionName, AggregationFunction
   FIRST: yvals => yvals[0],
   MEAN: yvals => safeDiv(safeSum(yvals), yvals.length),
   COUNT: yvals => yvals.length,
+  COUNTDISTINCT: yvals => _.uniq(yvals).length,
   MEDIAN: yvals => percentile(yvals, 0.5),
   SUM: yvals => safeSum(yvals),
   MIN: yvals => min(yvals)!,
@@ -161,11 +164,15 @@ export default function getChartData(data: any, options: any) {
     }
   });
 
-  const aggregationFunction: AggregationFunction =
-    AGGREGATION_FUNCTIONS[options.yAgg as AggregationFunctionName] ??
-    AGGREGATION_FUNCTIONS[DefaultAggregationFunctionName]!;
   return sortBy(
     values(series).map(series => {
+      if (_.includes(["custom", "heatmap", "bubble", "scatter", "box"], options.globalSeriesType)) {
+        return series;
+      }
+      const aggregationFunction: AggregationFunction =
+        AGGREGATION_FUNCTIONS[options.yAgg as AggregationFunctionName] ??
+        AGGREGATION_FUNCTIONS[DefaultAggregationFunctionName]!;
+
       const data = values(groupBy(series!.data, point => point.x)).map(points => ({
         ...points[0],
         y: aggregationFunction(points.map(p => p.y)),
