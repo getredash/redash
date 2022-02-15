@@ -1,6 +1,6 @@
 import { sort } from "d3";
 import _ from "lodash";
-import { isNil, isObject, each, forOwn, sortBy, values, groupBy, min, max } from "lodash";
+import { isNil, isObject, each, forOwn, sortBy, values, groupBy, min, max, compact } from "lodash";
 
 interface Series {
   name: string;
@@ -47,18 +47,18 @@ const percentile = (vals: (number | string)[], percentile: number): number | str
   return vals[Math.floor(vals.length * percentile)];
 };
 const AGGREGATION_FUNCTIONS: Record<AggregationFunctionName, AggregationFunction> = {
-  FIRST: yvals => yvals[0],
-  MEAN: yvals => safeDiv(safeSum(yvals), yvals.length),
-  COUNT: yvals => yvals.length,
-  COUNTDISTINCT: yvals => _.uniq(yvals).length,
-  MEDIAN: yvals => percentile(yvals, 0.5),
-  SUM: yvals => safeSum(yvals),
-  MIN: yvals => min(yvals)!,
-  MAX: yvals => max(yvals)!,
-  P25: yvals => percentile(yvals, 0.25),
-  P75: yvals => percentile(yvals, 0.75),
-  P05: yvals => percentile(yvals, 0.05),
-  P95: yvals => percentile(yvals, 0.95),
+  FIRST: (yvals) => yvals[0],
+  MEAN: (yvals) => safeDiv(safeSum(yvals), yvals.length),
+  COUNT: (yvals) => yvals.length,
+  COUNTDISTINCT: (yvals) => _.uniq(yvals).length,
+  MEDIAN: (yvals) => percentile(yvals, 0.5),
+  SUM: (yvals) => safeSum(yvals),
+  MIN: (yvals) => min(yvals)!,
+  MAX: (yvals) => max(yvals)!,
+  P25: (yvals) => percentile(yvals, 0.25),
+  P75: (yvals) => percentile(yvals, 0.75),
+  P05: (yvals) => percentile(yvals, 0.05),
+  P95: (yvals) => percentile(yvals, 0.95),
 };
 
 function addPointToSeries(point: any, seriesCollection: SeriesCollection, seriesName: string) {
@@ -82,7 +82,7 @@ export default function getChartData(data: any, options: any) {
   const series: SeriesCollection = {};
 
   const mappings = options.columnMapping;
-  each(data, row => {
+  each(data, (row) => {
     let point = { $raw: row };
     let seriesName = null;
     let xValue = 0;
@@ -165,20 +165,22 @@ export default function getChartData(data: any, options: any) {
   });
 
   return sortBy(
-    values(series).map(series => {
-      if (_.includes(["custom", "heatmap", "bubble", "scatter", "box"], options.globalSeriesType)) {
-        return series;
-      }
-      const aggregationFunction: AggregationFunction =
-        AGGREGATION_FUNCTIONS[options.yAgg as AggregationFunctionName] ??
-        AGGREGATION_FUNCTIONS[DefaultAggregationFunctionName]!;
+    compact(
+      values(series).map((series) => {
+        if (_.includes(["custom", "heatmap", "bubble", "scatter", "box"], options.globalSeriesType)) {
+          return series;
+        }
+        const aggregationFunction: AggregationFunction =
+          AGGREGATION_FUNCTIONS[options.yAgg as AggregationFunctionName] ??
+          AGGREGATION_FUNCTIONS[DefaultAggregationFunctionName]!;
 
-      const data = values(groupBy(series!.data, point => point.x)).map(points => ({
-        ...points[0],
-        y: aggregationFunction(points.map(p => p.y)),
-      }));
-      return { ...series, data };
-    }),
+        const data = values(groupBy(series!.data, (point) => point.x)).map((points) => ({
+          ...points[0],
+          y: aggregationFunction(points.map((p) => p.y)),
+        }));
+        return { ...series, data };
+      })
+    ) as Series[],
     ({ name }) => {
       if (isObject(options.seriesOptions[name])) {
         return options.seriesOptions[name].zIndex || 0;
