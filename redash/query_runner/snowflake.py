@@ -40,20 +40,25 @@ class Snowflake(BaseQueryRunner):
             "type": "object",
             "properties": {
                 "account": {"type": "string"},
-                "region": {"type": "string", "default": "us-west"},
                 "user": {"type": "string"},
                 "password": {"type": "string"},
                 "warehouse": {"type": "string"},
                 "database": {"type": "string"},
+                "region": {"type": "string", "default": "us-west"},
+                "lower_case_columns": {
+                    "type": "boolean",
+                    "title": "Lower Case Column Names in Results",
+                    "default": False,
+                },
                 "host": {"type": "string"},
             },
             "order": [
                 "account",
-                "region",
                 "user",
                 "password",
                 "warehouse",
                 "database",
+                "region",
                 "host",
             ],
             "required": ["user", "password", "account", "database", "warehouse"],
@@ -100,9 +105,18 @@ class Snowflake(BaseQueryRunner):
 
         return connection
 
+    def _column_name(self, column_name):
+        if self.configuration.get("lower_case_columns", False):
+            return column_name.lower()
+
+        return column_name
+
     def _parse_results(self, cursor):
         columns = self.fetch_columns(
-            [(i[0], self.determine_type(i[1], i[5])) for i in cursor.description]
+            [
+                (self._column_name(i[0]), self.determine_type(i[1], i[5]))
+                for i in cursor.description
+            ]
         )
         rows = [
             dict(zip((column["name"] for column in columns), row)) for row in cursor

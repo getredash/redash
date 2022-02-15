@@ -166,7 +166,7 @@ class JSON(BaseHTTPQueryRunner):
 
 
         method = query.get("method", "get")
-        request_options = project(query, ("params", "headers", "data", "auth", "json"))
+        request_options = project(query, ("params", "headers", "data", "auth", "json", "verify"))
 
         fields = query.get("fields")
         path = query.get("path")

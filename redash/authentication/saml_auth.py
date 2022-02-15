@@ -29,6 +29,7 @@ def get_saml_client(org):
     sso_url = org.get_setting("auth_saml_sso_url")
     x509_cert = org.get_setting("auth_saml_x509_cert")
     metadata_url = org.get_setting("auth_saml_metadata_url")
+    sp_settings = org.get_setting("auth_saml_sp_settings")
 
     if settings.SAML_SCHEME_OVERRIDE:
         acs_url = url_for(
@@ -87,6 +88,10 @@ def get_saml_client(org):
 
     if acs_url is not None and acs_url != "":
         saml_settings["entityid"] = acs_url
+
+    if sp_settings:
+        import json
+        saml_settings["service"]["sp"].update(json.loads(sp_settings))
 
     sp_config = Saml2Config()
     sp_config.load(saml_settings)

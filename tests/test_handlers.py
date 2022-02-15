@@ -230,6 +230,22 @@ class TestLogin(BaseTestCase):
             self.assertEqual(rv.status_code, 302)
             self.assertFalse(login_user_mock.called)
 
+    def test_correct_user_and_password_when_password_login_disabled(self):
+        user = self.factory.user
+        user.hash_password("password")
+
+        self.db.session.add(user)
+        self.db.session.commit()
+
+        self.factory.org.set_setting("auth_password_login_enabled", False)
+
+        with patch("redash.handlers.authentication.login_user") as login_user_mock:
+            rv = self.client.post(
+                "/default/login", data={"email": user.email, "password": "password"}
+            )
+            self.assertEqual(rv.status_code, 200)
+            self.assertIn("Password login is not enabled for your organization", str(rv.data))
+
 
 class TestLogout(BaseTestCase):
     def test_logout_when_not_loggedin(self):
