@@ -38,8 +38,6 @@ class ResultSet(object):
 
 def parse_count(data):
     nested_data = data.get("data").get("actor").get("account").get("nrql").get("results")[0]
-    logger.info(f"Data details, data: {data} -- data type: {type(data)}")
-    logger.info(f"Nested dictionay data: {nested_data} -- Nested Data Type: {type(nested_data)}")
     key_name = list(nested_data.keys())[0]
     data_count = list(nested_data.values())[0]
     results = ResultSet()
@@ -50,7 +48,6 @@ def parse_count(data):
 class NewRelicGQL(BaseHTTPQueryRunner):
     should_annotate_query = False
     response_error = "NewRelic returned unexpected status code"
-
 
     @classmethod
     def configuration_schema(cls):
@@ -70,11 +67,9 @@ class NewRelicGQL(BaseHTTPQueryRunner):
             ]
         }
 
-
     @classmethod
     def name(cls):
         return "NewRelic (GraphQL)"
-
 
     def test_connection(self):
         nr_account_id = str("{}".format(self.configuration["nr_account_id"]))
@@ -84,6 +79,7 @@ class NewRelicGQL(BaseHTTPQueryRunner):
             response = self.run_query(query=json.dumps(testQuery), user="test")
         except Exception as err:
             logger.info(f"Raised Exception: {err}")
+            response = None
         if response is None:
             raise Exception("Failed describing objects.")
         pass
