@@ -68,3 +68,4 @@ tabulate==0.8.7
 # ldap3==2.2.4
 Authlib==0.15.5
 advocate==1.0.0
+krippendorff==0.5.1
