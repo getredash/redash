@@ -98,6 +98,7 @@ RUN pip install -r requirements.txt
 
 COPY --chown=redash . /app
 COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist
+RUN chown redash /app
 USER redash
 
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
