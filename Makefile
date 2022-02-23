@@ -55,9 +55,3 @@ redis-cli:
 
 bash:
 	docker-compose run --rm server bash
-
-rebuild:
-	docker-compose build server
-	docker-compose build worker
-	docker-compose restart server
-	docker-compose restart worker

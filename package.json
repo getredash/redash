@@ -35,7 +35,7 @@
     "url": "git+https://github.com/getredash/redash.git"
   },
   "engines": {
-    "node": "^17.3.1",
+    "node": "^14.16.1",
     "yarn": "^1.22.10"
   },
   "author": "Redash Contributors",
