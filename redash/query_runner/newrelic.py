@@ -36,6 +36,38 @@ class ResultSet(object):
         self.rows = self.rows + set.rows
 
 
+def pct_change(current, previous):
+    diff = current - previous
+    change = 0
+    try:
+        if diff > 0:
+            change = (diff / current) * 100
+        elif diff < 0:
+            diff = previous - current
+            change = -((diff / current) * 100)
+    except ZeroDivisionError:
+        return float("inf")
+    return float("{:.2f}".format(change))
+
+
+def parse_comparision(data):
+    nested_data = data.get("data").get("actor").get("account").get("nrql").get("results")
+    results = ResultSet()
+    data_dict = {}
+    for rows in nested_data:
+        try:
+            data_dict[rows["comparison"]] = rows["count"]
+        except (KeyError, IndexError) as err:
+            logger.error(f"Error adding data to dictionary, err: {err}")
+
+    if len(data_dict) >= 1:
+        logger.info(f"Data Dictionary: {data_dict}")
+        data_dict['change'] = pct_change(data_dict.get('current'), data_dict.get('previous'))
+
+    results.add_row(data_dict)
+    return results
+
+
 def parse_count(data):
     nested_data = data.get("data").get("actor").get("account").get("nrql").get("results")[0]
     key_name = list(nested_data.keys())[0]
@@ -109,6 +141,9 @@ class NewRelicGQL(BaseHTTPQueryRunner):
 
         if query_type == "count":
             results = parse_count(data)
+
+        if query_type == "comparison":
+            results = parse_comparision(data)
 
         return results.to_json(), None
 

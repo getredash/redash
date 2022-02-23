@@ -73,6 +73,7 @@ export function getCounterData(rows: any, options: any, visualizationName: any) 
   if (rowsCount > 0 || options.countRow) {
     const counterColName = options.counterColName;
     const targetColName = options.targetColName;
+    const percentColName = options.percentColName;
 
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterLabel' does not exist on type '{}... Remove this comment to see the full error message
     result.counterLabel = options.counterLabel || visualizationName;
@@ -108,10 +109,26 @@ export function getCounterData(rows: any, options: any, visualizationName: any) 
       result.targetValue = null;
     }
 
+    if (percentColName) {
+      const percentRowNumber = getRowNumber(options.percentRowNumber, rowsCount);
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'percentValue' does not exist on type '{}'... Remove this comment to see the full error message
+      result.percentValue = rows[percentRowNumber][percentColName];
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
+      if (Number.isFinite(result.percentValue)) {
+        // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
+        const percentDelta = result.percentValue;
+      }
+    } else {
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
+      result.percentValue = null;
+    }
+
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValueTooltip' does not exist on t... Remove this comment to see the full error message
     result.counterValueTooltip = formatTooltip(result.counterValue, options.tooltipFormat);
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValueTooltip' does not exist on ty... Remove this comment to see the full error message
     result.targetValueTooltip = formatTooltip(result.targetValue, options.tooltipFormat);
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'percentValueTooltip' does not exist on ty... Remove this comment to see the full error message
+    result.percentValueTooltip = formatTooltip(result.percentValue, options.tooltipFormat);
 
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
     result.counterValue = formatValue(result.counterValue, options);
