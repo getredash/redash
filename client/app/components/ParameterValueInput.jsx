@@ -122,6 +122,7 @@ class ParameterValueInput extends React.Component {
         parameter={parameter}
         value={value}
         queryId={queryId}
+        allowClear={true}
         onSelect={this.onSelect}
         style={{ minWidth: 60 }}
         {...multipleValuesProps}
