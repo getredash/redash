@@ -59,18 +59,26 @@ export default function Renderer({ data, options, visualizationName }: any) {
     targetValueTooltip,
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterLabel' does not exist on type '{}... Remove this comment to see the full error message
     counterLabel,
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'percentValue' does not exist on type '{}... Remove this comment to see the full error message
+    percentValue,
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'percentValueTooltip' does not exist on ty... Remove this comment to see the full error message
+    percentValueTooltip
   } = getCounterData(data.rows, options, visualizationName);
   return (
     <div
-      className={cx("counter-visualization-container", {
-        "trend-positive": showTrend && trendPositive,
-        "trend-negative": showTrend && !trendPositive,
-      })}>
+      className={cx("counter-visualization-container",
+      {"trend-positive": showTrend && trendPositive, "trend-negative": showTrend && !trendPositive,}
+      )}>
       {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<null>>' is not assig... Remove this comment to see the full error message */}
       <div className="counter-visualization-content" ref={setContainer}>
         <div style={getCounterStyles(scale)}>
           <div className="counter-visualization-value" title={counterValueTooltip}>
             {counterValue}
+            {percentValue && (
+                <div className="counter-visualization-value counter-visualization-percent" title={percentValueTooltip}>
+                {percentValue}%
+                </div>
+            )}
           </div>
           {targetValue && (
             <div className="counter-visualization-target" title={targetValueTooltip}>

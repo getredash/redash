@@ -82,6 +82,37 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
+        <Select
+          layout="horizontal"
+          label="Percent Change Column Name"
+          data-test="Counter.General.PercentChangeColumn"
+          defaultValue={options.percentColName}
+          onChange={(percentColName: any) => onOptionsChange({ percentColName })}>
+          {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+          <Select.Option value="">No %change value</Select.Option>
+          {map(data.columns, col => (
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
+            <Select.Option key={col.name} data-test={"Counter.General.PercentChangeColumn." + col.name}>
+              {col.name}
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            </Select.Option>
+          ))}
+        </Select>
+      </Section>
+
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
+      <Section>
+        <InputNumber
+          layout="horizontal"
+          label="Percent Change Row Number"
+          data-test="Counter.General.PercentChangeRowNumber"
+          defaultValue={options.percentRowNumber}
+          onChange={(percentRowNumber: any) => onOptionsChange({ percentRowNumber })}
+        />
+      </Section>
+
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
+      <Section>
         {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
         <Switch
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
