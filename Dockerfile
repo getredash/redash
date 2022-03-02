@@ -96,9 +96,9 @@ RUN if [ "x$skip_dev_deps" = "x" ] ; then pip install -r requirements_dev.txt ; 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
-COPY . /app
-COPY --from=frontend-builder /frontend/client/dist /app/client/dist
-RUN chown -R redash /app
+COPY --chown=redash . /app
+COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist
+RUN chown redash /app
 USER redash
 
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
