@@ -16,6 +16,8 @@ describe("Visualizations -> Counter -> Utils", () => {
         counterLabel: "Visualisation Name",
         counterValue: "",
         targetValue: null,
+        percentValue: null,
+        percentValueTooltip: "",
         counterValueTooltip: "",
         targetValueTooltip: "",
       },
