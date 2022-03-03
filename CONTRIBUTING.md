@@ -18,6 +18,11 @@ The following is a set of guidelines for contributing to Redash. These are guide
 
 - [Release Method](#release-method)
 - [Code of Conduct](#code-of-conduct)
+
+---
+:star: If you're already here and love the project, please make sure to press the Star button. :star:
+
+---
 ## Quick Links:
 
 - [Feature Requests](https://discuss.redash.io/c/feature-requests)
@@ -25,9 +30,6 @@ The following is a set of guidelines for contributing to Redash. These are guide
 - [Blog](https://blog.redash.io/)
 - [Twitter](https://twitter.com/getredash)
 
----
-:star: If you're already here and love the project, please make sure to press the Star button. :star:
----
 
 ## How can I contribute?
 
