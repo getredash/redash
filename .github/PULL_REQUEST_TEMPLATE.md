@@ -15,6 +15,7 @@
 - [ ] Unit tests (pytest, jest)
 - [ ] E2E Tests (Cypress)
 - [ ] Manually
+- [ ] N/A
 
 <!-- If Manually, please describe. -->
 
