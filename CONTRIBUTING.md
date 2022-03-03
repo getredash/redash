@@ -30,7 +30,7 @@ The following is a set of guidelines for contributing to Redash. These are guide
 ---
 ## How can I contribute?
 
-### Reporting Bugs
+## Reporting Bugs
 
 When creating a new bug report, please make sure to:
 
@@ -38,18 +38,18 @@ When creating a new bug report, please make sure to:
 - If you are not sure if your issue is really a bug or just some configuration/setup problem, please start a discussion in [the support forum](https://discuss.redash.io/c/support) first. Unless you can provide clear steps to reproduce, it's probably better to start with a thread in the forum and later to open an issue.
 - If you still decide to open an issue, please review the template and guidelines and include as much details as possible.
 
-### Suggesting Enhancements / Feature Requests
+## Suggesting Enhancements / Feature Requests
 
 If you would like to suggest an enhancement or ask for a new feature:
 
 - Please check [the forum](https://discuss.redash.io/c/feature-requests/5) for existing threads about what you want to suggest/ask. If there is, feel free to upvote it to signal interest or add your comments.
 - If there is no open thread, you're welcome to start one to have a discussion about what you want to suggest. Try to provide as much details and context as possible and include information about *the problem you want to solve* rather only *your proposed solution*.
 
-### Pull Requests
+## Pull Requests
 
 **Code contributions are welcomed**. For big changes or significant features, it's usually better to reach out first and discuss what you want to implement and how (we recommend reading: [Pull Request First](https://medium.com/practical-blend/pull-request-first-f6bb667a9b6#.ozlqxvj36)). This is to make sure that what you want to implement is aligned with our goals for the project and that no one else is already working on it.
 
-#### Criteria for Review / Merging
+### Criteria for Review / Merging
 
 When you open your pull request, please follow this repository’s PR template carefully:
 
@@ -63,7 +63,7 @@ When you open your pull request, please follow this repository’s PR template c
   - Python: we use [Black](https://github.com/psf/black) to auto format the code.
   - Javascript: we use [Prettier](https://github.com/prettier/prettier) to auto-format the code.
 
-#### Initial Review (1 week)
+### Initial Review (1 week)
 
 During this phase, a team member will apply the “Team Review” label if a pull request meets our criteria or a “Needs More Information” label if not. If more information is required, the team member will comment which criteria have not been met.
 
@@ -73,17 +73,17 @@ Stale pull requests that remain untouched in “Needs More Information” for mo
 
 If a team member closes your pull request, you may reopen it after you have made the changes requested during initial review. After you make these changes, remove the “Needs More Information” label. This again resets the timer for another initial review.
 
-#### Full Review (2 weeks)
+### Full Review (2 weeks)
 
 After the “Team Review” label is applied, a member of the core team will review the PR within 2 weeks. 
 
 Reviews will approve, request changes, or ask questions to discuss areas of uncertainty. After you’ve responded, a member of the team will re-review within one week.
 
-#### Merging (1 week)
+### Merging (1 week)
 
 After your pull request has been approved, a member of the core team will merge the pull request within a week.
 
-### Documentation
+## Documentation
 
 The project's documentation can be found at [https://redash.io/help/](https://redash.io/help/). The [documentation sources](https://github.com/getredash/website/tree/master/src/pages/kb) are hosted on GitHub. To contribute edits / new pages, you can use GitHub's interface. Click the "Edit on GitHub" link on the documentation page to quickly open the edit interface.
 
