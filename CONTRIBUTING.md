@@ -53,7 +53,7 @@ If you would like to suggest an enhancement or ask for a new feature:
 
 #### Intro
 
-- **Code contributions are welcomed**. For big changes or significant features, it's usually better to reach out first and discuss what you want to implement and how (we recommend reading: [Pull Request First](https://medium.com/practical-blend/pull-request-first-f6bb667a9b6#.ozlqxvj36)). This is to make sure that what you want to implement is aligned with our goals for the project and that no one else is already working on it.
+**Code contributions are welcomed**. For big changes or significant features, it's usually better to reach out first and discuss what you want to implement and how (we recommend reading: [Pull Request First](https://medium.com/practical-blend/pull-request-first-f6bb667a9b6#.ozlqxvj36)). This is to make sure that what you want to implement is aligned with our goals for the project and that no one else is already working on it.
 
 #### Criteria for Review / Merging
 
