@@ -4,11 +4,12 @@
 - [ ] Refactor
 - [ ] Feature
 - [ ] Bug Fix
-- [ ] New Query Runner (Data Source) <!-- In this case, please specify which version(s) you expect are compatible. -->
+- [ ] New Query Runner (Data Source) 
 - [ ] New Alert Destination
 - [ ] Other
 
 ## Description
+<!-- In case of adding / modifying a query runner, please specify which version(s) you expect are compatible. -->
 
 ## How is this tested?
 
