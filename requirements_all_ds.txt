@@ -42,5 +42,3 @@ xlrd==2.0.1
 openpyxl==3.0.7
 firebolt-sqlalchemy
 pandas==1.3.4
-gql==3.0.0
-requests-toolbelt==0.9.1
