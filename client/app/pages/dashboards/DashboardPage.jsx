@@ -36,7 +36,7 @@ function DashboardSettings({ dashboardConfiguration }) {
       </Checkbox>
       <Checkbox
         checked={!!dashboard.options.dashboard_public_refresh_enabled || true}
-        onChange={({ target }) => updateDashboard({ options: { dashboard_public_refresh_enabled: target.checked }})}
+        onChange={({ target }) => updateDashboard({ options: { dashboard_public_refresh_enabled: target.checked } })}
         data-test="DashboardPublicRefreshCheckbox">
         Allow Other Users to Refresh Dashboard
       </Checkbox>

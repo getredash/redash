@@ -352,7 +352,7 @@ class VisualizationWidget extends React.Component {
           <VisualizationWidgetFooter
             widget={widget}
             isPublic={isPublic}
-	    canRefresh={canRefresh}
+            canRefresh={canRefresh}
             onRefresh={onRefresh}
             onExpand={this.expandWidget}
           />
