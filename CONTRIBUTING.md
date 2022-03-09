@@ -22,10 +22,10 @@ The following is a set of guidelines for contributing to Redash. These are guide
 
 ## Quick Links:
 
+- [User Forum](https://discuss.redash.io/)
 - [Feature Requests](https://discuss.redash.io/c/feature-requests)
 - [Documentation](https://redash.io/help/)
-- [Blog](https://blog.redash.io/)
-- [Twitter](https://twitter.com/getredash)
+
 
 ---
 ## How can I contribute?
