@@ -144,7 +144,7 @@ VisualizationWidgetHeader.defaultProps = {
   parameters: [],
 };
 
-function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
+function VisualizationWidgetFooter({ widget, isPublic, canRefresh, onRefresh, onExpand }) {
   const widgetQueryResult = widget.getQueryResult();
   const updatedAt = invoke(widgetQueryResult, "getUpdatedAt");
   const [refreshClickButtonId, setRefreshClickButtonId] = useState();
@@ -159,7 +159,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
   return widgetQueryResult ? (
     <>
       <span>
-        {!isPublic && !!widgetQueryResult && (
+        {!isPublic && canRefresh && !!widgetQueryResult && (
           <PlainButton
             className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
             onClick={() => refreshWidget(1)}
@@ -181,7 +181,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
         )}
       </span>
       <span>
-        {!isPublic && (
+        {!isPublic && canRefresh && (
           <PlainButton
             className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh"
             onClick={() => refreshWidget(2)}>
@@ -202,6 +202,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
 VisualizationWidgetFooter.propTypes = {
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   isPublic: PropTypes.bool,
+  canRefresh: PropTypes.bool,
   onRefresh: PropTypes.func.isRequired,
   onExpand: PropTypes.func.isRequired,
 };
@@ -317,10 +318,11 @@ class VisualizationWidget extends React.Component {
   }
 
   render() {
-    const { widget, isLoading, isPublic, canEdit, isEditing, onRefresh } = this.props;
+    const { widget, dashboard, isLoading, isPublic, canEdit, isEditing, onRefresh } = this.props;
     const { localParameters } = this.state;
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = isLoading && !!(widgetQueryResult && widgetQueryResult.getStatus());
+    const canRefresh = canEdit || dashboard.options.dashboard_public_refresh_enabled;
     const onParametersEdit = parameters => {
       const paramOrder = map(parameters, "name");
       widget.options.paramOrder = paramOrder;
@@ -350,6 +352,7 @@ class VisualizationWidget extends React.Component {
           <VisualizationWidgetFooter
             widget={widget}
             isPublic={isPublic}
+	    canRefresh={canRefresh}
             onRefresh={onRefresh}
             onExpand={this.expandWidget}
           />

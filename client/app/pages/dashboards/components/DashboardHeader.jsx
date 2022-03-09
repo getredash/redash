@@ -177,7 +177,7 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
     showShareDashboardDialog,
   } = dashboardConfiguration;
   const showPublishButton = dashboard.is_draft;
-  const showRefreshButton = true;
+  const showRefreshButton = canEditDashboard || dashboard.options.dashboard_public_refresh_enabled;
   const showFullscreenButton = !dashboard.is_draft;
   const canShareDashboard = canEditDashboard && !dashboard.is_draft;
   const showShareButton = !clientConfig.disablePublicUrls && (dashboard.publicAccessEnabled || canShareDashboard);
