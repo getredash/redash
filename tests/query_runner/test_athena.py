@@ -1,5 +1,5 @@
 """
-Some test cases around the Glue catalog.
+Some test cases around the Athena/Glue catalog.
 """
 from unittest import TestCase
 
@@ -10,11 +10,11 @@ from botocore.stub import Stubber
 from redash.query_runner.athena import Athena
 
 
-class TestGlueSchema(TestCase):
+class TestAthenaSchema(TestCase):
     def setUp(self):
 
         client = botocore.session.get_session().create_client(
-            "glue",
+            "athena",
             region_name="mars-east-1",
             aws_access_key_id="foo",
             aws_secret_access_key="bar",
@@ -30,51 +30,27 @@ class TestGlueSchema(TestCase):
 
     def test_external_table(self):
         """Unpartitioned table crawled through a JDBC connection"""
-        query_runner = Athena({"glue": True, "region": "mars-east-1"})
+        query_runner = Athena({"schema_from_api": True, "region": "mars-east-1"})
 
         self.stubber.add_response(
-            "get_databases", {"DatabaseList": [{"Name": "test1"}]}, {}
+            "list_databases",
+            {"DatabaseList": [{"Name": "test1"}]},
+            {"CatalogName": "AwsDataCatalog"},
         )
         self.stubber.add_response(
-            "get_tables",
+            "list_table_metadata",
             {
-                "TableList": [
+                "TableMetadataList": [
                     {
                         "Name": "jdbc_table",
-                        "StorageDescriptor": {
-                            "Columns": [{"Name": "row_id", "Type": "int"}],
-                            "Location": "Database.Schema.Table",
-                            "Compressed": False,
-                            "NumberOfBuckets": -1,
-                            "SerdeInfo": {"Parameters": {}},
-                            "BucketColumns": [],
-                            "SortColumns": [],
-                            "Parameters": {
-                                "CrawlerSchemaDeserializerVersion": "1.0",
-                                "CrawlerSchemaSerializerVersion": "1.0",
-                                "UPDATED_BY_CRAWLER": "jdbc",
-                                "classification": "sqlserver",
-                                "compressionType": "none",
-                                "connectionName": "jdbctest",
-                                "typeOfData": "view",
-                            },
-                            "StoredAsSubDirectories": False,
-                        },
-                        "PartitionKeys": [],
                         "TableType": "EXTERNAL_TABLE",
-                        "Parameters": {
-                            "CrawlerSchemaDeserializerVersion": "1.0",
-                            "CrawlerSchemaSerializerVersion": "1.0",
-                            "UPDATED_BY_CRAWLER": "jdbc",
-                            "classification": "sqlserver",
-                            "compressionType": "none",
-                            "connectionName": "jdbctest",
-                            "typeOfData": "view",
-                        },
+                        "Columns": [{"Name": "row_id", "Type": "int", "Comment": ""}],
+                        "PartitionKeys": [],
+                        "Parameters": {},
                     }
                 ]
             },
-            {"DatabaseName": "test1"},
+            {"CatalogName": "AwsDataCatalog", "DatabaseName": "test1"},
         )
         with self.stubber:
             assert query_runner.get_schema() == [
@@ -83,51 +59,30 @@ class TestGlueSchema(TestCase):
 
     def test_partitioned_table(self):
         """
-        Partitioned table as created by a GlueContext
+        Partitioned table
         """
 
-        query_runner = Athena({"glue": True, "region": "mars-east-1"})
+        query_runner = Athena({"schema_from_api": True, "region": "mars-east-1"})
 
         self.stubber.add_response(
-            "get_databases", {"DatabaseList": [{"Name": "test1"}]}, {}
+            "list_databases",
+            {"DatabaseList": [{"Name": "test1"}]},
+            {"CatalogName": "AwsDataCatalog"},
         )
         self.stubber.add_response(
-            "get_tables",
+            "list_table_metadata",
             {
-                "TableList": [
+                "TableMetadataList": [
                     {
                         "Name": "partitioned_table",
-                        "StorageDescriptor": {
-                            "Columns": [{"Name": "sk", "Type": "int"}],
-                            "Location": "s3://bucket/prefix",
-                            "InputFormat": "org.apache.hadoop.mapred.TextInputFormat",
-                            "OutputFormat": "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
-                            "Compressed": False,
-                            "NumberOfBuckets": -1,
-                            "SerdeInfo": {
-                                "SerializationLibrary": "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe",
-                                "Parameters": {"serialization.format": "1"},
-                            },
-                            "BucketColumns": [],
-                            "SortColumns": [],
-                            "Parameters": {},
-                            "SkewedInfo": {
-                                "SkewedColumnNames": [],
-                                "SkewedColumnValues": [],
-                                "SkewedColumnValueLocationMaps": {},
-                            },
-                            "StoredAsSubDirectories": False,
-                        },
-                        "PartitionKeys": [{"Name": "category", "Type": "int"}],
                         "TableType": "EXTERNAL_TABLE",
-                        "Parameters": {
-                            "EXTERNAL": "TRUE",
-                            "transient_lastDdlTime": "1537505313",
-                        },
+                        "Columns": [{"Name": "sk", "Type": "int"}],
+                        "PartitionKeys": [{"Name": "category", "Type": "int"}],
+                        "Parameters": {},
                     }
                 ]
             },
-            {"DatabaseName": "test1"},
+            {"CatalogName": "AwsDataCatalog", "DatabaseName": "test1"},
         )
         with self.stubber:
             assert query_runner.get_schema() == [
@@ -135,35 +90,27 @@ class TestGlueSchema(TestCase):
             ]
 
     def test_view(self):
-        query_runner = Athena({"glue": True, "region": "mars-east-1"})
+        query_runner = Athena({"schema_from_api": True, "region": "mars-east-1"})
 
         self.stubber.add_response(
-            "get_databases", {"DatabaseList": [{"Name": "test1"}]}, {}
+            "list_databases",
+            {"DatabaseList": [{"Name": "test1"}]},
+            {"CatalogName": "AwsDataCatalog"},
         )
         self.stubber.add_response(
-            "get_tables",
+            "list_table_metadata",
             {
-                "TableList": [
+                "TableMetadataList": [
                     {
                         "Name": "view",
-                        "StorageDescriptor": {
-                            "Columns": [{"Name": "sk", "Type": "int"}],
-                            "Location": "",
-                            "Compressed": False,
-                            "NumberOfBuckets": 0,
-                            "SerdeInfo": {},
-                            "SortColumns": [],
-                            "StoredAsSubDirectories": False,
-                        },
+                        "Columns": [{"Name": "sk", "Type": "int"}],
                         "PartitionKeys": [],
-                        "ViewOriginalText": "/* Presto View: ... */",
-                        "ViewExpandedText": "/* Presto View */",
                         "TableType": "VIRTUAL_VIEW",
                         "Parameters": {"comment": "Presto View", "presto_view": "true"},
                     }
                 ]
             },
-            {"DatabaseName": "test1"},
+            {"CatalogName": "AwsDataCatalog", "DatabaseName": "test1"},
         )
         with self.stubber:
             assert query_runner.get_schema() == [
@@ -172,70 +119,95 @@ class TestGlueSchema(TestCase):
 
     def test_dodgy_table_does_not_break_schema_listing(self):
         """
-        For some reason, not all Glue tables contain a "PartitionKeys" entry.
+        For some reason, not all Glue/Athena tables contain a "PartitionKeys" entry.
 
         This may be a Athena Catalog to Glue catalog migration issue.
         """
-        query_runner = Athena({"glue": True, "region": "mars-east-1"})
-
+        query_runner = Athena({"schema_from_api": True, "region": "mars-east-1"})
         self.stubber.add_response(
-            "get_databases", {"DatabaseList": [{"Name": "test1"}]}, {}
+            "list_databases",
+            {"DatabaseList": [{"Name": "test1"}]},
+            {"CatalogName": "AwsDataCatalog"},
         )
         self.stubber.add_response(
-            "get_tables",
+            "list_table_metadata",
             {
-                "TableList": [
+                "TableMetadataList": [
                     {
                         "Name": "csv",
-                        "StorageDescriptor": {
-                            "Columns": [{"Name": "region", "Type": "string"}],
-                            "Location": "s3://bucket/files/",
-                            "InputFormat": "org.apache.hadoop.mapred.TextInputFormat",
-                            "Compressed": False,
-                            "NumberOfBuckets": 0,
-                            "SerdeInfo": {
-                                "SerializationLibrary": "org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe",
-                                "Parameters": {
-                                    "field.delim": "|",
-                                    "skip.header.line.count": "1",
-                                },
-                            },
-                            "SortColumns": [],
-                            "StoredAsSubDirectories": False,
-                        },
+                        "Columns": [{"Name": "region", "Type": "string"}],
                         "Parameters": {"classification": "csv"},
                     }
                 ]
             },
-            {"DatabaseName": "test1"},
+            {"CatalogName": "AwsDataCatalog", "DatabaseName": "test1"},
         )
         with self.stubber:
             assert query_runner.get_schema() == [
                 {"columns": ["region"], "name": "test1.csv"}
             ]
 
-    def test_no_storage_descriptor_table(self):
+    def test_no_columns_table(self):
         """
-        For some reason, not all Glue tables contain a "StorageDescriptor" entry.
+        For some reason, not all Athena/Glue tables contain a "StorageDescriptor.Columns" entry.
         """
-        query_runner = Athena({'glue': True, 'region': 'mars-east-1'})
+        query_runner = Athena({"schema_from_api": True, "region": "mars-east-1"})
 
-        self.stubber.add_response('get_databases', {'DatabaseList': [{'Name': 'test1'}]}, {})
         self.stubber.add_response(
-            'get_tables',
+            "list_databases",
+            {"DatabaseList": [{"Name": "test1"}]},
+            {"CatalogName": "AwsDataCatalog"},
+        )
+        self.stubber.add_response(
+            "list_table_metadata",
             {
-                'TableList': [
+                "TableMetadataList": [
                     {
-                        'Name': 'no_storage_descriptor_table',
-                        'PartitionKeys': [],
-                        'TableType': 'EXTERNAL_TABLE',
-                        'Parameters': {
-                            'EXTERNAL': 'TRUE'
-                        },
+                        "Name": "no_column_table",
+                        "PartitionKeys": [],
+                        "TableType": "EXTERNAL_TABLE",
+                        "Parameters": {"EXTERNAL": "TRUE"},
                     }
                 ]
             },
-            {'DatabaseName': 'test1'},
+            {"CatalogName": "AwsDataCatalog", "DatabaseName": "test1"},
         )
         with self.stubber:
             assert query_runner.get_schema() == []
+
+    def test_non_default_catalog_table(self):
+        """
+        Not default (AwsDataCatalog) catalog
+        """
+        query_runner = Athena(
+            {
+                "schema_from_api": True,
+                "region": "mars-east-1",
+                "athena_data_source_name": "another",
+            }
+        )
+
+        self.stubber.add_response(
+            "list_databases",
+            {"DatabaseList": [{"Name": "test1"}]},
+            {"CatalogName": "another"},
+        )
+        self.stubber.add_response(
+            "list_table_metadata",
+            {
+                "TableMetadataList": [
+                    {
+                        "Name": "table1",
+                        "Columns": [{"Name": "id", "Type": "int"}],
+                        "PartitionKeys": [{"Name": "dt", "Type": "string"}],
+                        "TableType": "EXTERNAL_TABLE",
+                        "Parameters": {"EXTERNAL": "TRUE"},
+                    }
+                ]
+            },
+            {"CatalogName": "another", "DatabaseName": "test1"},
+        )
+        with self.stubber:
+            assert query_runner.get_schema() == [
+                {"columns": ["id", "dt"], "name": "another.test1.table1"}
+            ]

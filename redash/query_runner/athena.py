@@ -71,7 +71,7 @@ class Athena(BaseQueryRunner):
                     "title": "Schema Name",
                     "default": "default",
                 },
-                "glue": {"type": "boolean", "title": "Use Glue Data Catalog"},
+                "schema_from_api": {"type": "boolean", "title": "Use Athena API for get_schema"},
                 "work_group": {
                     "type": "string",
                     "title": "Athena Work Group",
@@ -82,9 +82,14 @@ class Athena(BaseQueryRunner):
                     "title": "Athena cost per Tb scanned (USD)",
                     "default": 5,
                 },
+                "athena_data_source_name": {
+                    "type": "string",
+                    "title": "Athena Data Source Name",
+                    "default": "AwsDataCatalog",
+                },
             },
             "required": ["region", "s3_staging_dir"],
-            "extra_options": ["glue", "cost_per_tb"],
+            "extra_options": ["glue", "cost_per_tb", "athena_data_source_name"],
             "order": [
                 "region",
                 "s3_staging_dir",
@@ -168,25 +173,28 @@ class Athena(BaseQueryRunner):
                 "region_name": self.configuration["region"],
             }
 
-    def __get_schema_from_glue(self):
-        client = boto3.client("glue", **self._get_iam_credentials())
+    def __get_schema_from_api(self, catalog_name="AwsDataCatalog"):
+        client = boto3.client("athena", **self._get_iam_credentials())
         schema = {}
 
-        database_paginator = client.get_paginator("get_databases")
-        table_paginator = client.get_paginator("get_tables")
+        database_paginator = client.get_paginator("list_databases")
+        table_paginator = client.get_paginator("list_table_metadata")
 
-        for databases in database_paginator.paginate():
+        for databases in database_paginator.paginate(CatalogName=catalog_name):
             for database in databases["DatabaseList"]:
-                iterator = table_paginator.paginate(DatabaseName=database["Name"])
-                for table in iterator.search("TableList[]"):
-                    table_name = "%s.%s" % (database["Name"], table["Name"])
-                    if 'StorageDescriptor' not in table:
-                        logger.warning("Glue table doesn't have StorageDescriptor: %s", table_name)
+                iterator = table_paginator.paginate(CatalogName=catalog_name,
+                                                    DatabaseName=database["Name"])
+                for table in iterator.search("TableMetadataList[]"):
+                    table_name = "{0}.{1}".format(database["Name"], table["Name"])
+                    if catalog_name != "AwsDataCatalog":
+                        table_name = "{0}.{1}".format(catalog_name, table_name)
+                    if 'Columns' not in table:
+                        logger.warning("Athena table doesn't have Columns: %s", table_name)
                         continue
                     if table_name not in schema:
                         column = [
                             columns["Name"]
-                            for columns in table["StorageDescriptor"]["Columns"]
+                            for columns in table["Columns"]
                         ]
                         schema[table_name] = {"name": table_name, "columns": column}
                         for partition in table.get("PartitionKeys", []):
@@ -194,15 +202,18 @@ class Athena(BaseQueryRunner):
         return list(schema.values())
 
     def get_schema(self, get_stats=False):
-        if self.configuration.get("glue", False):
-            return self.__get_schema_from_glue()
+        catalog_name = self.configuration.get(
+            "athena_data_source_name", "AwsDataCatalog")
+
+        if self.configuration.get("schema_from_api", False):
+            return self.__get_schema_from_api(catalog_name)
 
         schema = {}
         query = """
         SELECT table_schema, table_name, column_name
-        FROM information_schema.columns
+        FROM {0}.information_schema.columns
         WHERE table_schema NOT IN ('information_schema')
-        """
+        """.format(catalog_name)
 
         results, error = self.run_query(query, None)
         if error is not None:
@@ -211,6 +222,8 @@ class Athena(BaseQueryRunner):
         results = json_loads(results)
         for row in results["rows"]:
             table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
+            if catalog_name != "AwsDataCatalog":
+                table_name = "{0}.{1}".format(catalog_name, table_name)
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
             schema[table_name]["columns"].append(row["column_name"])
