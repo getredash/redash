@@ -26,12 +26,11 @@ class CreateTableError(Exception):
     pass
 
 def extract_query_params(query):
-    return re.findall(r"(?:join|from)\s+query_(\d+)_{([^}]+)}", query, re.IGNORECASE)
+    return re.findall(r"(?:join|from)\s+param_query_(\d+)_{([^}]+)}", query, re.IGNORECASE)
 
 def extract_query_ids(query):
-    queries = re.findall(r"(?:join|from)\s+query_(\d+)[^_]", query, re.IGNORECASE)
+    queries = re.findall(r"(?:join|from)\s+query_(\d+)", query, re.IGNORECASE)
     return [int(q) for q in queries]
-
 
 def extract_cached_query_ids(query):
     queries = re.findall(r"(?:join|from)\s+cached_query_(\d+)", query, re.IGNORECASE)
@@ -160,7 +159,7 @@ class Results(BaseQueryRunner):
         if (query_params is not None):
             for params in query_params:
                 table_hash = hashlib.md5("query_{query}_{hash}".format(query=params[0], hash=params[1]).encode()).hexdigest()
-                key = "query_{query_id}_{{{param_string}}}".format(query_id=params[0],param_string=params[1])
+                key = "param_query_{query_id}_{{{param_string}}}".format(query_id=params[0],param_string=params[1])
                 value = "query_{query_id}_{param_hash}".format(query_id=params[0],param_hash=table_hash)
                 query = query.replace(key, value)
 
