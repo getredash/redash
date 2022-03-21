@@ -133,6 +133,10 @@ class Snowflake(BaseQueryRunner):
             cursor.execute("USE WAREHOUSE {}".format(self.configuration["warehouse"]))
             cursor.execute("USE {}".format(self.configuration["database"]))
 
+            user_id = "redash" if user is None else user.email
+
+            query += "-- REDASH USER: " + user_id
+
             cursor.execute(query)
 
             data = self._parse_results(cursor)
