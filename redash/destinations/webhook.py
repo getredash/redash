@@ -33,8 +33,14 @@ class Webhook(BaseDestination):
                 "url_base": host,
             }
 
-            data["alert"]["description"] = alert.custom_body
-            data["alert"]["title"] = alert.custom_subject
+            destination_url = options.get("url")
+
+            if 'webhook.office.com' in destination_url:
+                data = {'text' : alert.custom_body,
+                        'title' : alert.custom_subject}
+            else:
+                data["alert"]["description"] = alert.custom_body
+                data["alert"]["title"] = alert.custom_subject
 
             headers = {"Content-Type": "application/json"}
             auth = (
@@ -43,7 +49,7 @@ class Webhook(BaseDestination):
                 else None
             )
             resp = requests.post(
-                options.get("url"),
+                destination_url,
                 data=json_dumps(data),
                 auth=auth,
                 headers=headers,
