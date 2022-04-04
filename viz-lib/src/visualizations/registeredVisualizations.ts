@@ -14,6 +14,7 @@ import sankeyVisualization from "./sankey";
 import sunburstVisualization from "./sunburst";
 import tableVisualization from "./table";
 import wordCloudVisualization from "./word-cloud";
+import treeTableVisualization from "./treetable";
 
 type VisualizationConfig = {
   type: string;
@@ -91,6 +92,7 @@ each(
     sunburstVisualization,
     tableVisualization,
     wordCloudVisualization,
+    treeTableVisualization,
   ]),
   registerVisualization
 );

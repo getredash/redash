@@ -1,0 +1,166 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Visualizations -> Table -> Editor -> Columns Settings Changes column alignment 1`] = `
+Object {
+  "columns": Array [
+    Object {
+      "alignContent": "right",
+      "allowHTML": true,
+      "allowSearch": false,
+      "booleanValues": Array [
+        "false",
+        "true",
+      ],
+      "dateTimeFormat": undefined,
+      "displayAs": "string",
+      "highlightLinks": false,
+      "imageHeight": "",
+      "imageTitleTemplate": "{{ @ }}",
+      "imageUrlTemplate": "{{ @ }}",
+      "imageWidth": "",
+      "linkOpenInNewTab": true,
+      "linkTextTemplate": "{{ @ }}",
+      "linkTitleTemplate": "{{ @ }}",
+      "linkUrlTemplate": "{{ @ }}",
+      "name": "a",
+      "numberFormat": undefined,
+      "order": 100000,
+      "title": "a",
+      "type": "string",
+      "visible": true,
+    },
+  ],
+}
+`;
+
+exports[`Visualizations -> Table -> Editor -> Columns Settings Changes column display type 1`] = `
+Object {
+  "columns": Array [
+    Object {
+      "alignContent": "left",
+      "allowHTML": true,
+      "allowSearch": false,
+      "booleanValues": Array [
+        "false",
+        "true",
+      ],
+      "dateTimeFormat": undefined,
+      "displayAs": "number",
+      "highlightLinks": false,
+      "imageHeight": "",
+      "imageTitleTemplate": "{{ @ }}",
+      "imageUrlTemplate": "{{ @ }}",
+      "imageWidth": "",
+      "linkOpenInNewTab": true,
+      "linkTextTemplate": "{{ @ }}",
+      "linkTitleTemplate": "{{ @ }}",
+      "linkUrlTemplate": "{{ @ }}",
+      "name": "a",
+      "numberFormat": undefined,
+      "order": 100000,
+      "title": "a",
+      "type": "string",
+      "visible": true,
+    },
+  ],
+}
+`;
+
+exports[`Visualizations -> Table -> Editor -> Columns Settings Changes column title 1`] = `
+Object {
+  "columns": Array [
+    Object {
+      "alignContent": "left",
+      "allowHTML": true,
+      "allowSearch": false,
+      "booleanValues": Array [
+        "false",
+        "true",
+      ],
+      "dateTimeFormat": undefined,
+      "displayAs": "string",
+      "highlightLinks": false,
+      "imageHeight": "",
+      "imageTitleTemplate": "{{ @ }}",
+      "imageUrlTemplate": "{{ @ }}",
+      "imageWidth": "",
+      "linkOpenInNewTab": true,
+      "linkTextTemplate": "{{ @ }}",
+      "linkTitleTemplate": "{{ @ }}",
+      "linkUrlTemplate": "{{ @ }}",
+      "name": "a",
+      "numberFormat": undefined,
+      "order": 100000,
+      "title": "test",
+      "type": "string",
+      "visible": true,
+    },
+  ],
+}
+`;
+
+exports[`Visualizations -> Table -> Editor -> Columns Settings Enables search by column data 1`] = `
+Object {
+  "columns": Array [
+    Object {
+      "alignContent": "left",
+      "allowHTML": true,
+      "allowSearch": true,
+      "booleanValues": Array [
+        "false",
+        "true",
+      ],
+      "dateTimeFormat": undefined,
+      "displayAs": "string",
+      "highlightLinks": false,
+      "imageHeight": "",
+      "imageTitleTemplate": "{{ @ }}",
+      "imageUrlTemplate": "{{ @ }}",
+      "imageWidth": "",
+      "linkOpenInNewTab": true,
+      "linkTextTemplate": "{{ @ }}",
+      "linkTitleTemplate": "{{ @ }}",
+      "linkUrlTemplate": "{{ @ }}",
+      "name": "a",
+      "numberFormat": undefined,
+      "order": 100000,
+      "title": "a",
+      "type": "string",
+      "visible": true,
+    },
+  ],
+}
+`;
+
+exports[`Visualizations -> Table -> Editor -> Columns Settings Toggles column visibility 1`] = `
+Object {
+  "columns": Array [
+    Object {
+      "alignContent": "left",
+      "allowHTML": true,
+      "allowSearch": false,
+      "booleanValues": Array [
+        "false",
+        "true",
+      ],
+      "dateTimeFormat": undefined,
+      "displayAs": "string",
+      "highlightLinks": false,
+      "imageHeight": "",
+      "imageTitleTemplate": "{{ @ }}",
+      "imageUrlTemplate": "{{ @ }}",
+      "imageWidth": "",
+      "linkOpenInNewTab": true,
+      "linkTextTemplate": "{{ @ }}",
+      "linkTitleTemplate": "{{ @ }}",
+      "linkUrlTemplate": "{{ @ }}",
+      "name": "a",
+      "numberFormat": undefined,
+      "order": 100000,
+      "title": "a",
+      "type": "string",
+      "visible": false,
+    },
+  ],
+}
+`;
