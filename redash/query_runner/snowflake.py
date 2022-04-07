@@ -125,7 +125,7 @@ class Snowflake(BaseQueryRunner):
         data = {"columns": columns, "rows": rows}
         return data
 
-    def run_query(self, query, user):
+    def run_query(self, query, user , query_id = None):
         connection = self._get_connection()
         cursor = connection.cursor()
 
@@ -135,7 +135,7 @@ class Snowflake(BaseQueryRunner):
 
             user_id = "redash" if user is None else user.email
 
-            query += "-- REDASH USER: " + user_id
+            query += "-- REDASH USER: " + user_id + "QUERY ID: " + query_id
 
             cursor.execute(query)
 
