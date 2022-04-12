@@ -221,15 +221,21 @@ class MongoDB(BaseQueryRunner):
         # document written.
         collection_is_a_view = self._is_collection_a_view(db, collection_name)
         documents_sample = []
-        if collection_is_a_view:
-            for d in db[collection_name].find().limit(2):
-                documents_sample.append(d)
-        else:
-            for d in db[collection_name].find().sort([("$natural", 1)]).limit(1):
-                documents_sample.append(d)
+        try:
+            if collection_is_a_view:
+                for d in db[collection_name].find().limit(2):
+                    documents_sample.append(d)
+            else:
+                for d in db[collection_name].find().sort([("$natural", 1)]).limit(1):
+                    documents_sample.append(d)
 
-            for d in db[collection_name].find().sort([("$natural", -1)]).limit(1):
-                documents_sample.append(d)
+                for d in db[collection_name].find().sort([("$natural", -1)]).limit(1):
+                    documents_sample.append(d)
+        except Exception as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            logger.error(message)
+            return []
         columns = []
         for d in documents_sample:
             self._merge_property_names(columns, d)
@@ -242,10 +248,11 @@ class MongoDB(BaseQueryRunner):
             if collection_name.startswith("system."):
                 continue
             columns = self._get_collection_fields(db, collection_name)
-            schema[collection_name] = {
-                "name": collection_name,
-                "columns": sorted(columns),
-            }
+            if columns:
+                schema[collection_name] = {
+                    "name": collection_name,
+                    "columns": sorted(columns),
+                }
 
         return list(schema.values())
 
