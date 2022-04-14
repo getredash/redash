@@ -152,7 +152,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
     def create_with_group(cls, *args, **kwargs):
         data_source = cls(*args, **kwargs)
         data_source_group = DataSourceGroup(
-            data_source=data_source, group=data_source.org.default_group
+            data_source=data_source, group=data_source.org.admin_group
         )
         db.session.add_all([data_source, data_source_group])
         return data_source
