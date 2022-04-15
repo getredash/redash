@@ -90,7 +90,9 @@ export function formatSimpleTemplate(str: any, data: any) {
   }
   return str.replace(/{{\s*([^\s]+?)\s*}}/g, (match, prop) => {
     const propUpper = prop.toUpperCase();
-    if (hasOwnProperty.call(data, propUpper) && !isUndefined(data[propUpper])) {
+    if (hasOwnProperty.call(data, prop) && !isUndefined(data[prop])) {
+      return data[prop];
+    } else if (hasOwnProperty.call(data, propUpper) && !isUndefined(data[propUpper])) {
       return data[propUpper];
     }
     return match;
