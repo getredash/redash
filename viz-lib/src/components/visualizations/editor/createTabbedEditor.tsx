@@ -22,6 +22,10 @@ type OwnProps = {
   }[];
 };
 
+TabbedEditor.defaultProps = {
+  tabs: [],
+};
+
 type Props = OwnProps & typeof TabbedEditor.defaultProps;
 
 // @ts-expect-error ts-migrate(2339) FIXME: Property 'options' does not exist on type 'Props'.
@@ -45,10 +49,6 @@ export function TabbedEditor({ tabs, options, data, onOptionsChange, ...restProp
     </Tabs>
   );
 }
-
-TabbedEditor.defaultProps = {
-  tabs: [],
-};
 
 export default function createTabbedEditor(tabs: any) {
   return function TabbedEditorWrapper(props: any) {

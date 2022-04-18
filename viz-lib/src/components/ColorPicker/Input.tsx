@@ -44,6 +44,14 @@ type OwnProps = {
   onPressEnter?: (...args: any[]) => any;
 };
 
+Input.defaultProps = {
+  color: "#FFFFFF",
+  presetColors: null,
+  presetColumns: 8,
+  onChange: () => {},
+  onPressEnter: () => {},
+};
+
 type Props = OwnProps & typeof Input.defaultProps;
 
 export default function Input({ color, presetColors, presetColumns, onChange, onPressEnter }: Props) {
@@ -87,11 +95,3 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
     </React.Fragment>
   );
 }
-
-Input.defaultProps = {
-  color: "#FFFFFF",
-  presetColors: null,
-  presetColumns: 8,
-  onChange: () => {},
-  onPressEnter: () => {},
-};

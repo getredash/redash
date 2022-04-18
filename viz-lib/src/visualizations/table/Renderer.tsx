@@ -58,6 +58,10 @@ type OwnSearchInputProps = {
   onChange?: (...args: any[]) => any;
 };
 
+SearchInput.defaultProps = {
+  onChange: () => {},
+};
+
 type SearchInputProps = OwnSearchInputProps & typeof SearchInput.defaultProps;
 
 // @ts-expect-error ts-migrate(2339) FIXME: Property 'searchColumns' does not exist on type 'S... Remove this comment to see the full error message
@@ -75,10 +79,6 @@ function SearchInput({ searchColumns, ...props }: SearchInputProps) {
     />
   );
 }
-
-SearchInput.defaultProps = {
-  onChange: () => {},
-};
 
 export default function Renderer({ options, data }: any) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -122,7 +122,6 @@ export default function Renderer({ options, data }: any) {
         className="table-fixed-header"
         data-percy="show-scrollbars"
         data-test="TableVisualization"
-        // @ts-expect-error ts-migrate(2322) FIXME: Type '{ key: any; dataIndex: string; align: any; s... Remove this comment to see the full error message
         columns={tableColumns}
         dataSource={preparedRows}
         pagination={{

@@ -95,6 +95,11 @@ type OwnJsonViewInteractiveProps = {
   value?: any;
 };
 
+JsonViewInteractive.defaultProps = {
+  // `null` will be rendered as "null" because it is a valid JSON value, so use `undefined` for no value
+  value: undefined,
+};
+
 type JsonViewInteractiveProps = OwnJsonViewInteractiveProps & typeof JsonViewInteractive.defaultProps;
 
 export default function JsonViewInteractive({ value }: JsonViewInteractiveProps) {
@@ -104,8 +109,3 @@ export default function JsonViewInteractive({ value }: JsonViewInteractiveProps)
     </span>
   );
 }
-
-JsonViewInteractive.defaultProps = {
-  // `null` will be rendered as "null" because it is a valid JSON value, so use `undefined` for no value
-  value: undefined,
-};

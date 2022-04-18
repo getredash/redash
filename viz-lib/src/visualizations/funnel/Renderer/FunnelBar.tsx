@@ -11,6 +11,14 @@ type OwnProps = {
   children?: React.ReactNode;
 };
 
+FunnelBar.defaultProps = {
+  color: "#dadada",
+  value: 0.0,
+  align: "left",
+  className: null,
+  children: null,
+};
+
 type Props = OwnProps & typeof FunnelBar.defaultProps;
 
 export default function FunnelBar({ color, value, align, className, children }: Props) {
@@ -21,11 +29,3 @@ export default function FunnelBar({ color, value, align, className, children }: 
     </div>
   );
 }
-
-FunnelBar.defaultProps = {
-  color: "#dadada",
-  value: 0.0,
-  align: "left",
-  className: null,
-  children: null,
-};

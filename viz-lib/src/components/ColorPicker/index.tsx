@@ -45,6 +45,19 @@ type OwnProps = {
   onChange?: (...args: any[]) => any;
 };
 
+ColorPicker.defaultProps = {
+  color: "#FFFFFF",
+  placement: "top",
+  presetColors: null,
+  presetColumns: 8,
+  interactive: false,
+  triggerProps: {},
+  children: null,
+  addonBefore: null,
+  addonAfter: null,
+  onChange: () => {},
+};
+
 type Props = OwnProps & typeof ColorPicker.defaultProps;
 
 export default function ColorPicker({
@@ -154,19 +167,6 @@ export default function ColorPicker({
     </span>
   );
 }
-
-ColorPicker.defaultProps = {
-  color: "#FFFFFF",
-  placement: "top",
-  presetColors: null,
-  presetColumns: 8,
-  interactive: false,
-  triggerProps: {},
-  children: null,
-  addonBefore: null,
-  addonAfter: null,
-  onChange: () => {},
-};
 
 ColorPicker.Input = ColorInput;
 ColorPicker.Swatch = Swatch;

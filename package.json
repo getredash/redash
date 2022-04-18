@@ -145,7 +145,7 @@
     "request": "^2.88.0",
     "request-cookies": "^1.1.0",
     "style-loader": "^2.0.0",
-    "typescript": "^4.1.2",
+    "typescript": "^4.6.3",
     "url-loader": "^1.1.2",
     "webpack": "^4.44.2",
     "webpack-build-notifier": "^0.1.30",
@@ -183,7 +183,7 @@
   "//": "browserslist set to 'Async functions' compatibility",
   "browserslist": [
     "Edge >= 15",
-    "Firefox >= 52",
+    "Firefox >= 60",
     "Chrome >= 55",
     "Safari >= 10.1",
     "iOS >= 10.3",

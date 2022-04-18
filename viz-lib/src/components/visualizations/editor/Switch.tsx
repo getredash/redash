@@ -10,6 +10,12 @@ type OwnProps = {
   children?: React.ReactNode;
 };
 
+Switch.defaultProps = {
+  id: null,
+  disabled: false,
+  children: null,
+};
+
 type Props = OwnProps & typeof Switch.defaultProps;
 
 // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
@@ -36,9 +42,3 @@ export default function Switch({ id, children, disabled, ...props }: Props) {
 
   return <AntSwitch {...props} />;
 }
-
-Switch.defaultProps = {
-  id: null,
-  disabled: false,
-  children: null,
-};

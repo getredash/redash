@@ -21,6 +21,13 @@ type OwnProps = {
   children?: React.ReactNode;
 };
 
+SortableContainer.defaultProps = {
+  disabled: false,
+  containerComponent: "div",
+  containerProps: {},
+  children: null,
+};
+
 type Props = OwnProps & typeof SortableContainer.defaultProps;
 
 export function SortableContainer({ disabled, containerComponent, containerProps, children, ...wrapperProps }: Props) {
@@ -88,10 +95,3 @@ export function SortableContainer({ disabled, containerComponent, containerProps
     </SortableContainerWrapper>
   );
 }
-
-SortableContainer.defaultProps = {
-  disabled: false,
-  containerComponent: "div",
-  containerProps: {},
-  children: null,
-};

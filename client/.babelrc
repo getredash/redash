@@ -4,7 +4,7 @@
       "@babel/preset-env",
       {
         "exclude": ["@babel/plugin-transform-async-to-generator", "@babel/plugin-transform-arrow-functions"],
-        "corejs": "2",
+        "corejs": "3",
         "useBuiltIns": "usage"
       }
     ],

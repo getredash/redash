@@ -14,6 +14,10 @@ type OwnProps = {
   className?: string;
 };
 
+TextAlignmentSelect.defaultProps = {
+  className: null,
+};
+
 type Props = OwnProps & typeof TextAlignmentSelect.defaultProps;
 
 // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
@@ -41,7 +45,3 @@ export default function TextAlignmentSelect({ className, ...props }: Props) {
     </div>
   );
 }
-
-TextAlignmentSelect.defaultProps = {
-  className: null,
-};

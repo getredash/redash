@@ -74,11 +74,11 @@ export default function DesktopNavbar() {
   return (
     <nav className="desktop-navbar">
       <NavbarSection className="desktop-navbar-logo">
-        <div role="menuitem">
+        <Menu.Item key="logo">
           <Link href="./">
             <img src={logoUrl} alt="Redash" />
           </Link>
-        </div>
+        </Menu.Item>
       </NavbarSection>
 
       <NavbarSection>
@@ -165,7 +165,7 @@ export default function DesktopNavbar() {
 
       <NavbarSection className="desktop-navbar-profile-menu">
         <Menu.SubMenu
-          key="profile"
+          key="profile-menu"
           popupClassName="desktop-navbar-submenu"
           tabIndex={0}
           title={

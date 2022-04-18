@@ -26,6 +26,11 @@ type OwnProps = {
   onChange?: (...args: any[]) => any;
 };
 
+AxisSettings.defaultProps = {
+  features: {},
+  onChange: () => {},
+};
+
 type Props = OwnProps & typeof AxisSettings.defaultProps;
 
 export default function AxisSettings({ id, options, features, onChange }: Props) {
@@ -118,8 +123,3 @@ export default function AxisSettings({ id, options, features, onChange }: Props)
     </React.Fragment>
   );
 }
-
-AxisSettings.defaultProps = {
-  features: {},
-  onChange: () => {},
-};

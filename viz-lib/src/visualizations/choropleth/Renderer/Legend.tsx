@@ -10,6 +10,11 @@ type OwnProps = {
   alignText?: "left" | "center" | "right";
 };
 
+Legend.defaultProps = {
+  items: [],
+  alignText: "left",
+};
+
 type Props = OwnProps & typeof Legend.defaultProps;
 
 export default function Legend({ items, alignText }: Props) {
@@ -25,8 +30,3 @@ export default function Legend({ items, alignText }: Props) {
     </div>
   );
 }
-
-Legend.defaultProps = {
-  items: [],
-  alignText: "left",
-};

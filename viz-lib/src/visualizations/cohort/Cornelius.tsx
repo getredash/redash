@@ -193,6 +193,11 @@ type OwnCorneliusProps = {
   };
 };
 
+Cornelius.defaultProps = {
+  data: [],
+  options: {},
+};
+
 type CorneliusProps = OwnCorneliusProps & typeof Cornelius.defaultProps;
 
 export default function Cornelius({ data, options }: CorneliusProps) {
@@ -230,8 +235,3 @@ export default function Cornelius({ data, options }: CorneliusProps) {
     </div>
   );
 }
-
-Cornelius.defaultProps = {
-  data: [],
-  options: {},
-};

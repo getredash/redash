@@ -24,6 +24,13 @@ type OwnProps = {
   onChange?: (...args: any[]) => any;
 };
 
+ColumnMappingSelect.defaultProps = {
+  value: null,
+  availableColumns: [],
+  type: null,
+  onChange: () => {},
+};
+
 type Props = OwnProps & typeof ColumnMappingSelect.defaultProps;
 
 export default function ColumnMappingSelect({ value, availableColumns, type, onChange, areAxesSwapped }: Props) {
@@ -56,12 +63,5 @@ export default function ColumnMappingSelect({ value, availableColumns, type, onC
     </Section>
   );
 }
-
-ColumnMappingSelect.defaultProps = {
-  value: null,
-  availableColumns: [],
-  type: null,
-  onChange: () => {},
-};
 
 ColumnMappingSelect.MappingTypes = MappingTypes;

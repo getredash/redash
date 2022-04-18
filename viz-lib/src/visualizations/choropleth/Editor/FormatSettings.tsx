@@ -20,6 +20,10 @@ type OwnTemplateFormatHintProps = {
   geoJsonProperties?: string[];
 };
 
+TemplateFormatHint.defaultProps = {
+  geoJsonProperties: [],
+};
+
 type TemplateFormatHintProps = OwnTemplateFormatHintProps & typeof TemplateFormatHint.defaultProps;
 
 function TemplateFormatHint({ geoJsonProperties }: TemplateFormatHintProps) {
@@ -49,10 +53,6 @@ function TemplateFormatHint({ geoJsonProperties }: TemplateFormatHintProps) {
     </ContextHelp>
   );
 }
-
-TemplateFormatHint.defaultProps = {
-  geoJsonProperties: [],
-};
 
 export default function GeneralSettings({ options, onOptionsChange }: any) {
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);

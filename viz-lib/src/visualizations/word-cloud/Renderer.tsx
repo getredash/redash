@@ -104,7 +104,6 @@ function createLayout() {
   const fontFamily = window.getComputedStyle(document.body).fontFamily;
 
   return (
-    // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
     cloud()
       // make the area large enough to contain even very long words; word cloud will be placed in the center of the area
       // TODO: dimensions probably should be larger, but `d3-cloud` has some performance issues related to these values
@@ -113,7 +112,8 @@ function createLayout() {
       .font(fontFamily)
       // @ts-expect-error ts-migrate(2339) FIXME: Property 'angle' does not exist on type 'Word'.
       .rotate(d => d.angle)
-      .fontSize(d => d.size)
+      // @ts-expect-error ts-migrate(2339) FIXME: Property 'value' does not exist on type 'Word'.
+      .fontSize(d => d?.size ?? Math.sqrt(d.value))
       .random(() => 0.5)
   ); // do not place words randomly - use compact layout
 }
