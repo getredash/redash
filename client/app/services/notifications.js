@@ -5,7 +5,7 @@ import redashIconUrl from "@/assets/images/redash_icon_small.png";
 
 const logger = debug("redash:notifications");
 
-const Notification = (function (W) {
+const Notification = (function(W) {
   return W.Notification || null;
 })(window);
 
