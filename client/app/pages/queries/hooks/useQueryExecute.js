@@ -30,10 +30,10 @@ export default function useQueryExecute(query) {
   });
 
   // 判断是否有传递参数
-  var flag = true
-  if(query.hasParameters() && JSON.stringify(location.search) === '{}'){
-    console.log("Not request query result.")
-    flag = false
+  var flag = true;
+  if (query.hasParameters() && JSON.stringify(location.search) === "{}") {
+    console.log("Not request query result.");
+    flag = false;
   }
 
   const queryResultInExecution = useRef(null);
@@ -124,7 +124,7 @@ export default function useQueryExecute(query) {
     // loadedInitialResults can be removed if so
     if (queryRef.current.hasResult() || queryRef.current.paramsRequired()) {
       // 只有当有传递参数时
-      if (flag){
+      if (flag) {
         executeQuery(getMaxAge());
       }
     } else {

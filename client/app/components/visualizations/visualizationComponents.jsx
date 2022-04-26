@@ -61,7 +61,7 @@ function wrapComponentWithSettings(WrappedComponent) {
             name: "Name",
             iso_3166_2: "ISO-3166-2",
             adcode: "Adcode",
-            name_en: "Name (EN)"
+            name_en: "Name (EN)",
           },
         },
       },
