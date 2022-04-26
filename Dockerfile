@@ -25,7 +25,7 @@ COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
 RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn build; else mkdir -p /frontend/client/dist && touch /frontend/client/dist/multi_org.html && touch /frontend/client/dist/index.html; fi
 
-FROM python:3.7-slim-buster
+FROM --platform=linux/amd64 python:3.7-slim-buster
 
 EXPOSE 5000
 
@@ -96,9 +96,9 @@ RUN if [ "x$skip_dev_deps" = "x" ] ; then pip install -r requirements_dev.txt ; 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
-COPY . /app
-COPY --from=frontend-builder /frontend/client/dist /app/client/dist
-RUN chown -R redash /app
+COPY --chown=redash . /app
+COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist
+RUN chown redash /app
 USER redash
 
 ENTRYPOINT ["/app/bin/docker-entrypoint"]

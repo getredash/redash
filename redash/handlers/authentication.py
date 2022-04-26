@@ -198,7 +198,8 @@ def login(org_slug=None):
     if current_user.is_authenticated:
         return redirect(next_path)
 
-    if request.method == "POST":
+
+    if request.method == "POST" and current_org.get_setting("auth_password_login_enabled"):
         try:
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(request.form["email"], org)
@@ -214,6 +215,10 @@ def login(org_slug=None):
                 flash("Wrong email or password.")
         except NoResultFound:
             flash("Wrong email or password.")
+    elif request.method == "POST" and not current_org.get_setting("auth_password_login_enabled"):
+        flash("Password login is not enabled for your organization.")
+
+
 
     google_auth_url = get_google_auth_url(next_path)
 

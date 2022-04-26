@@ -267,13 +267,27 @@ class BigQuery(BaseQueryRunner):
 
         return columns
 
+    def _get_project_datasets(self, project_id):
+        result = []
+        service = self._get_bigquery_service()
+
+        datasets = service.datasets().list(projectId=project_id).execute()
+        result.extend(datasets.get("datasets", []))
+        nextPageToken = datasets.get('nextPageToken', None)
+
+        while nextPageToken is not None:
+            datasets = service.datasets().list(projectId=project_id, pageToken=nextPageToken).execute()
+            result.extend(datasets.get("datasets", []))
+            nextPageToken = datasets.get('nextPageToken', None)
+
+        return result
+
     def get_schema(self, get_stats=False):
         if not self.configuration.get("loadSchema", False):
             return []
 
-        service = self._get_bigquery_service()
         project_id = self._get_project_id()
-        datasets = service.datasets().list(projectId=project_id).execute()
+        datasets = self._get_project_datasets(project_id)
 
         query_base = """
         SELECT table_schema, table_name, column_name
@@ -283,7 +297,7 @@ class BigQuery(BaseQueryRunner):
 
         schema = {}
         queries = []
-        for dataset in datasets.get("datasets", []):
+        for dataset in datasets:
             dataset_id = dataset["datasetReference"]["datasetId"]
             query = query_base.format(dataset_id=dataset_id)
             queries.append(query)
