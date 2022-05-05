@@ -201,7 +201,8 @@ class DashboardGrid extends React.Component {
       const item = find(layout, { i: widgetId.toString() });
       if (item) {
         // update widget height
-        item.h = Math.ceil((newHeight + cfg.margins) / cfg.rowHeight);
+        // if widget set auto-height, the height should be accurate
+        item.h = (newHeight + cfg.margins) / cfg.rowHeight;
       }
 
       return { layouts: { [MULTI]: layout } };
