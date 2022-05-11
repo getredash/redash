@@ -346,9 +346,9 @@ class Python(BaseQueryRunner):
             result = self._script_locals["result"]
             result["log"] = self._custom_print.lines
             if 'rows' not in result:
-                results['rows'] = []
+                result['rows'] = []
             if 'columns' not in result:
-                results['columns'] = []
+                result['columns'] = []
             json_data = json_dumps(result)
         except Exception as e:
             error = str(type(e)) + " " + str(e)
