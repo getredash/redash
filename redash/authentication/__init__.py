@@ -1,11 +1,12 @@
 import hashlib
 import hmac
+import json
 import logging
 import time
 from datetime import timedelta
 from urllib.parse import urlsplit, urlunsplit
 
-from flask import jsonify, redirect, request, session, url_for
+from flask import redirect, request, session, url_for
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import Unauthorized
@@ -173,28 +174,46 @@ def jwt_token_load_user_from_request(request):
     else:
         return None
 
-    if jwt_token:
-        payload, token_is_valid = jwt_auth.verify_jwt_token(
+    if not jwt_token:
+        return None
+
+    try:
+        payload, identity, valid_token = jwt_auth.verify_jwt_token(
             jwt_token,
             expected_issuer=org_settings["auth_jwt_auth_issuer"],
-            expected_audience=org_settings["auth_jwt_auth_audience"],
+            expected_audience=org_settings["auth_jwt_auth_audience"] or None,
+            expected_client_id=org_settings["auth_jwt_auth_client_id"] or None,
             algorithms=org_settings["auth_jwt_auth_algorithms"],
             public_certs_url=org_settings["auth_jwt_auth_public_certs_url"],
         )
-        if not token_is_valid:
-            raise Unauthorized("Invalid JWT token")
+    except Exception as e:
+        raise Unauthorized("Invalid auth token: {}".format(e)) from e
 
-    if not payload:
-        return
+    if not valid_token:
+        return None
 
-    if "email" not in payload:
-        logger.info("No email field in token, refusing to login")
-        return
+    # it might actually be a username or something, but it doesn't actually matter
+    email = identity
 
     try:
-        user = models.User.get_by_email_and_org(payload["email"], org)
+        user = models.User.get_by_email_and_org(email, org)
     except models.NoResultFound:
-        user = create_and_login_user(current_org, payload["email"], payload["email"])
+        user = create_and_login_user(current_org, email, email)
+
+    if "stacklet:permissions" in payload:
+        try:
+            permissions = json.loads(payload["stacklet:permissions"])
+        except json.JSONDecodeError as e:
+            logger.exception("Error parsing stacklet:permissions: %s", e)
+        else:
+            user_groups = {group.name
+                           for group in models.Group.all(org)
+                           if group.id in user.group_ids}
+            if ["system", "write"] in permissions:
+                user_groups.add("admin")
+            else:
+                user_groups.discard("admin")
+            user.update_group_assignments(user_groups)
 
     return user
 
@@ -219,7 +238,10 @@ def redirect_to_login():
     if is_xhr or "/api/" in request.path:
         return {"message": "Couldn't find resource. Please login and try again."}, 404
 
-    login_url = get_login_url(next=request.url, external=False)
+    if org_settings["auth_jwt_login_enabled"] and org_settings["auth_jwt_auth_login_url"]:
+        login_url = org_settings["auth_jwt_auth_login_url"]
+    else:
+        login_url = get_login_url(next=request.url, external=False)
 
     return redirect(login_url)
 
