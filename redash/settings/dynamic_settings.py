@@ -36,7 +36,7 @@ def ssh_tunnel_auth():
     to extract the public key), or a `paramiko.pkey.PKey` instance holding your **public** key.
     """
     return {
-        # 'ssh_pkey': 'path_to_private_key', # or instance of `paramiko.pkey.PKey`
+        'ssh_pkey': '/app/redash/keys/immersa-redash-ssh', # or instance of `paramiko.pkey.PKey`
         # 'ssh_private_key_password': 'optional_passphrase_of_private_key',
     }
 
