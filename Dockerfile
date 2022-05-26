@@ -38,7 +38,7 @@ RUN useradd --create-home redash
 
 # Ubuntu packages
 RUN apt-get update && \
-  apt-get install -y \
+  apt-get install -y --no-install-recommends \
     curl \
     gnupg \
     build-essential \
@@ -46,7 +46,6 @@ RUN apt-get update && \
     libffi-dev \
     sudo \
     git-core \
-    wget \
     # Postgres client
     libpq-dev \
     # ODBC support:
@@ -60,26 +59,30 @@ RUN apt-get update && \
     libsasl2-dev \
     unzip \
     libsasl2-modules-gssapi-mit && \
-  # MSSQL ODBC Driver:
-  curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-  curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
-  apt-get update && \
-  ACCEPT_EULA=Y apt-get install -y msodbcsql17 && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
+    apt-get clean && \
+     rm -rf /var/lib/apt/lists/*
 
+
+ARG TARGETPLATFORM
 ARG databricks_odbc_driver_url=https://databricks.com/wp-content/uploads/2.6.10.1010-2/SimbaSparkODBC-2.6.10.1010-2-Debian-64bit.zip
-RUN wget --quiet $databricks_odbc_driver_url -O /tmp/simba_odbc.zip \
-  && chmod 600 /tmp/simba_odbc.zip \
-  && unzip /tmp/simba_odbc.zip -d /tmp/ \
-  && dpkg -i /tmp/SimbaSparkODBC-*/*.deb \
-  && echo "[Simba]\nDriver = /opt/simba/spark/lib/64/libsparkodbc_sb64.so" >> /etc/odbcinst.ini \
-  && rm /tmp/simba_odbc.zip \
-  && rm -rf /tmp/SimbaSparkODBC*
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install  -y --no-install-recommends msodbcsql17 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl "$databricks_odbc_driver_url" --output /tmp/simba_odbc.zip \
+    && chmod 600 /tmp/simba_odbc.zip \
+    && unzip /tmp/simba_odbc.zip -d /tmp/ \
+    && dpkg -i /tmp/SimbaSparkODBC-*/*.deb \
+    && printf "[Simba]\nDriver = /opt/simba/spark/lib/64/libsparkodbc_sb64.so" >> /etc/odbcinst.ini \
+    && rm /tmp/simba_odbc.zip \
+    && rm -rf /tmp/SimbaSparkODBC*; fi
 
 WORKDIR /app
 
-# Disalbe PIP Cache and Version Check
+# Disable PIP Cache and Version Check
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
 
@@ -96,9 +99,9 @@ RUN if [ "x$skip_dev_deps" = "x" ] ; then pip install -r requirements_dev.txt ; 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
-COPY . /app
-COPY --from=frontend-builder /frontend/client/dist /app/client/dist
-RUN chown -R redash /app
+COPY --chown=redash . /app
+COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist
+RUN chown redash /app
 USER redash
 
 ENTRYPOINT ["/app/bin/docker-entrypoint"]

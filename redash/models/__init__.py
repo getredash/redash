@@ -1118,9 +1118,9 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         query = (
             Dashboard.query.options(
                 joinedload(Dashboard.user).load_only(
-                    "id", "name", "_profile_image_url", "email"
+                    "id", "name", "details", "email"
                 )
-            ).distinct(Dashboard.created_at, Dashboard.slug)
+            ).distinct(cls.lowercase_name, Dashboard.created_at, Dashboard.slug)
             .outerjoin(Widget)
             .outerjoin(Visualization)
             .outerjoin(Query)

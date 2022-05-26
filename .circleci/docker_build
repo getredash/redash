@@ -2,6 +2,9 @@
 VERSION=$(jq -r .version package.json)
 VERSION_TAG=$VERSION.b$CIRCLE_BUILD_NUM
 
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+
 docker login -u $DOCKER_USER -p $DOCKER_PASS
 
 if [ $CIRCLE_BRANCH = master ] || [ $CIRCLE_BRANCH = preview-image ]

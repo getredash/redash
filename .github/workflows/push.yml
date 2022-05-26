@@ -1,5 +1,5 @@
 name: Push
-on: 
+on:
   push:
     branches:
       - "production"
@@ -21,7 +21,7 @@ jobs:
 
       - uses: actions/setup-node@v2-beta
         with:
-          node-version: "12"
+          node-version: "14"
 
       - name: Set extra environment variables
         run: echo "BRANCH_REF_SLUG=$(./infratools/bin/slugify "$GIT_REF")" >> $GITHUB_ENV
@@ -45,9 +45,9 @@ jobs:
           docker build \
             --file Dockerfile \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:redash_$IMAGE_TAG \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:redash_10 .
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:redash_11 .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:redash_$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:redash_10
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:redash_11
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
       - name: Logout of Amazon ECR
         if: always()

@@ -1,8 +1,8 @@
 import logging
 import yaml
-import requests
 
-from redash import settings
+from redash.utils.requests_session import requests_or_advocate, UnacceptableAddressException
+
 from redash.query_runner import *
 from redash.utils import json_dumps
 
@@ -49,13 +49,11 @@ class Excel(BaseQueryRunner):
             ua = args['user-agent']
             args.pop('user-agent', None)
 
-            if is_private_address(path) and settings.ENFORCE_PRIVATE_ADDRESS_BLOCK:
-                raise Exception("Can't query private addresses.")
         except:
             pass
 
         try:
-            response = requests.get(url=path, headers={"User-agent": ua})
+            response = requests_or_advocate.get(url=path, headers={"User-agent": ua})
             workbook = pd.read_excel(response.content, **args)
 
             df = workbook.copy()
@@ -83,6 +81,9 @@ class Excel(BaseQueryRunner):
             error = None
         except KeyboardInterrupt:
             error = "Query cancelled by user."
+            json_data = None
+        except UnacceptableAddressException:
+            error = "Can't query private addresses."
             json_data = None
         except Exception as e:
             error = "Error reading {0}. {1}".format(path, str(e))
