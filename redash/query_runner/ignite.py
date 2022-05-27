@@ -26,15 +26,16 @@ except ImportError:
         enabled = IgniteServerType.NONE
 
 types_map = {
-    1: TYPE_STRING,
-    2: TYPE_STRING,
-    # Type #3 supposed to be an integer, but in some cases decimals are returned
-    # with this type. To be on safe side, marking it as float.
-    3: TYPE_FLOAT,
-    4: TYPE_DATETIME,
-    5: TYPE_FLOAT,
+    'java.lang.String': TYPE_STRING,
+    'java.lang.Float': TYPE_FLOAT,
+    'java.lang.Double': TYPE_FLOAT,
+    'java.sql.Date': TYPE_DATETIME,
+    'java.lang.Long': TYPE_INTEGER,
+    'java.lang.Integer': TYPE_INTEGER,
+    'java.lang.Short': TYPE_INTEGER,
+    'java.lang.Boolean': TYPE_BOOLEAN,
+    'java.lang.Decimal': TYPE_FLOAT,
 }
-
 
 class Ignite(BaseSQLQueryRunner):
     should_annotate_query = False
@@ -79,7 +80,7 @@ class Ignite(BaseSQLQueryRunner):
 
     def _get_tables(self, schema):
         query = """
-        SELECT schema_name, table_name, column_name
+        SELECT schema_name, table_name, column_name, type
         FROM SYS.TABLE_COLUMNS
         WHERE schema_name NOT IN ('SYS') and column_name not in ('_KEY','_VAL');
         """
@@ -100,7 +101,11 @@ class Ignite(BaseSQLQueryRunner):
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
 
-            schema[table_name]["columns"].append(row["COLUMN_NAME"])
+            col_type = TYPE_STRING
+            if row["TYPE"] in types_map:
+               col_type = types_map[row["TYPE"]]
+
+            schema[table_name]["columns"].append({ "name":row["COLUMN_NAME"], "type":col_type })
 
         return list(schema.values())
 
