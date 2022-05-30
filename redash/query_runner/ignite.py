@@ -33,7 +33,7 @@ class Ignite(BaseSQLQueryRunner):
                 "password": {"type": "string"},
                 "server": {"type": "string", "default": "127.0.0.1"},
                 "port": {"type": "number", "default": 10800},
-#                 "tls" :
+                "tls" : {"type":"boolean", "default":False, "title":"Use SSL/TLS connection."},
                 "schema": {"type": "string", "title": "Schema Name", "default":"PUBLIC"},
                 "gridgain": { "type":"boolean", "title": "Use GridGain libraries", "default": False },
             },
@@ -88,6 +88,7 @@ class Ignite(BaseSQLQueryRunner):
             user = self.configuration.get("user", None)
             password = self.configuration.get("password", None)
             port = self.configuration.get("port", 10800)
+            tls = self.configuration.get("tls", False)
             schema = self.configuration.get("schema", "PUBLIC")
             gridgain = self.configuration.get("gridgain", False)
 
@@ -96,7 +97,7 @@ class Ignite(BaseSQLQueryRunner):
             else:
                 from pyignite import Client
 
-            connection = Client(username=user, password=password, use_ssl=False)
+            connection = Client(username=user, password=password, use_ssl=tls)
             connection.connect(server, port)
 
             cursor = connection.sql(query, include_field_names=True)
