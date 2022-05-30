@@ -85,8 +85,8 @@ class Ignite(BaseSQLQueryRunner):
 
         try:
             server = self.configuration.get("server", "127.0.0.1")
-            user = self.configuration.get("user", "")
-            password = self.configuration.get("password", "")
+            user = self.configuration.get("user", None)
+            password = self.configuration.get("password", None)
             port = self.configuration.get("port", 10800)
             schema = self.configuration.get("schema", "PUBLIC")
             gridgain = self.configuration.get("gridgain", False)
@@ -96,7 +96,7 @@ class Ignite(BaseSQLQueryRunner):
             else:
                 from pyignite import Client
 
-            connection = Client()
+            connection = Client(username=user, password=password, use_ssl=False)
             connection.connect(server, port)
 
             cursor = connection.sql(query, include_field_names=True)
