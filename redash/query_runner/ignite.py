@@ -8,23 +8,6 @@ from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
-class IgniteServerType(Enum):
-    NONE = 0
-    IGNITE = 1
-    GRIDGAIN = 3
-
-try:
-    from pygridgain import Client
-
-    enabled = IgniteServerType.GRIDGAIN
-except ImportError:
-    try:
-        import pyignite
-
-        enabled = IgniteServerType.IGNITE
-    except ImportError:
-        enabled = IgniteServerType.NONE
-
 types_map = {
     'java.lang.String': TYPE_STRING,
     'java.lang.Float': TYPE_FLOAT,
@@ -57,18 +40,6 @@ class Ignite(BaseSQLQueryRunner):
             "required": ["server"],
             "secret": ["password"],
         }
-
-    @classmethod
-    def enabled(cls):
-      try:
-        from pygridgain import Client
-        return True
-      except ImportError:
-        try:
-          import pyignite
-          return True
-        except ImportError:
-          return False
 
     @classmethod
     def name(cls):
@@ -118,6 +89,12 @@ class Ignite(BaseSQLQueryRunner):
             password = self.configuration.get("password", "")
             port = self.configuration.get("port", 10800)
             schema = self.configuration.get("schema", "PUBLIC")
+            gridgain = self.configuration.get("gridgain", False)
+
+            if gridgain:
+                from pygridgain import Client
+            else:
+                from pyignite import Client
 
             connection = Client()
             connection.connect(server, port)
