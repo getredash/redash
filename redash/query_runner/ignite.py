@@ -33,8 +33,11 @@ class Ignite(BaseSQLQueryRunner):
                 "password": {"type": "string"},
                 "server": {"type": "string", "default": "127.0.0.1"},
                 "port": {"type": "number", "default": 10800},
-                "tls" : {"type":"boolean", "default":False, "title":"Use SSL/TLS connection."},
+                "tls" : {"type":"boolean", "default":False, "title":"Use SSL/TLS connection"},
                 "schema": {"type": "string", "title": "Schema Name", "default":"PUBLIC"},
+                "distributed_joins": {"type": "boolean", "title": "Allow distributed joins", "default":False},
+                "enforce_join_order": {"type": "boolean", "title": "Enforce join order", "default":False},
+                "lazy": {"type": "boolean", "title": "Lazy query execution", "default":True},
                 "gridgain": { "type":"boolean", "title": "Use GridGain libraries", "default": False },
             },
             "required": ["server"],
@@ -89,6 +92,9 @@ class Ignite(BaseSQLQueryRunner):
             password = self.configuration.get("password", None)
             port = self.configuration.get("port", 10800)
             tls = self.configuration.get("tls", False)
+            distributed_joins = self.configuration.get("distributed_joins", False)
+            enforce_join_order = self.configuration.get("enforce_join_order", False)
+            lazy = self.configuration.get("lazy", True)
             schema = self.configuration.get("schema", "PUBLIC")
             gridgain = self.configuration.get("gridgain", False)
 
@@ -100,7 +106,9 @@ class Ignite(BaseSQLQueryRunner):
             connection = Client(username=user, password=password, use_ssl=tls)
             connection.connect(server, port)
 
-            cursor = connection.sql(query, include_field_names=True)
+            cursor = connection.sql(query, include_field_names=True,
+                    distributed_joins=distributed_joins, enforce_join_order=enforce_join_order,
+                    lazy=lazy)
             logger.debug("Ignite running query: %s", query)
 
             column_names = next(cursor)
