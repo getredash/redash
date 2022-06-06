@@ -68,8 +68,7 @@ steps:
           helm repo add redash https://getredash.github.io/contrib-helm-chart/
         - helm repo update
         - helm repo list
-        - >-
-          helm upgrade -i $CF_REPO_NAME redash/redash --version $CHART_VERSION --set image.tag="$CF_REVISION" --namespace $CF_REPO_NAME --atomic --wait --debug --timeout 600s
+        - helm upgrade -i $CF_REPO_NAME redash/redash --version $CHART_VERSION --set image.tag="$CF_REVISION" --namespace $CF_REPO_NAME --atomic --wait --debug --timeout 600s
     when:
       condition:
         all:
@@ -105,14 +104,10 @@ steps:
         all:
           myCondition: helm_deploy.result == 'failure'
   post_deployment:
-    title: Post deployments tasks
-    stage: after-deployment
-    steps:
-      unlock_deployment:
-        title: Unlock deployment
-        type: monday/infra_api
-        arguments:
-          ENVIRONMENT: ${{ENVIRONMENT}}
-          METHOD_TYPE: POST
-          METHOD_NAME: locker/unlock
-          REGION: ${{REGION}}
+    title: Unlock deployment
+    type: monday/infra_api
+    arguments:
+      ENVIRONMENT: ${{ENVIRONMENT}}
+      METHOD_TYPE: POST
+      METHOD_NAME: locker/unlock
+      REGION: ${{REGION}}
