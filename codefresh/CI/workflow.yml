@@ -3,7 +3,6 @@ version: '1.0'
 stages:
   - clone
   - build
-  - test
   - wait-when-pr
   - staging
   - wait-before-prod
@@ -89,44 +88,42 @@ steps:
         all:
           build: build.result == 'success'
 
-  deploy_staging:
-    type: parallel
-    title: Deploy staging
-    stage: staging
-    steps:
-      staging_use1:
-        title: Deploy staging use1
-        type: codefresh-run
-        arguments:
-          PIPELINE_ID: redash/CD
-          TRIGGER_ID: run-stage-use1
-          BRANCH: '${{CF_BRANCH}}'
-          SHA: '${{CF_REVISION}}'
-          ENABLE_NOTIFICATIONS: true
-          FOLLOW_LOGS: false
-    when:
-      condition:
-        all:
-          isPR: '"${{PR}}" != "true"'
-          testsResult: test.result == 'success'
-
-
-  push_tag:
-    title: Push latest docker tag
-    type: push
-    candidate: '${{build}}'
-    tag: latest
-    stage: after-deployment
-    when:
-      condition:
-        all:
-          myCondition: deploy_staging.result == 'success'
-
-  notify_deployment_finished_to_channel:
-    stage: after-deployment
-    title: Notify deploy has finished to slack channel
-    type: monday/notify-deployment-finished-to-channel:0.0.34
-    when:
-      condition:
-        all:
-          after_slack_notifications: push_tag.result == 'success'
+#  deploy_staging:
+#    type: parallel
+#    title: Deploy staging
+#    stage: staging
+#    steps:
+#      staging_use1:
+#        title: Deploy staging use1
+#        type: codefresh-run
+#        arguments:
+#          PIPELINE_ID: redash/CD
+#          TRIGGER_ID: run-stage-use1
+#          BRANCH: '${{CF_BRANCH}}'
+#          SHA: '${{CF_REVISION}}'
+#          ENABLE_NOTIFICATIONS: true
+#          FOLLOW_LOGS: false
+#    when:
+#      condition:
+#        all:
+#          isPR: '"${{PR}}" != "true"'
+#
+#  push_tag:
+#    title: Push latest docker tag
+#    type: push
+#    candidate: '${{build}}'
+#    tag: latest
+#    stage: after-deployment
+#    when:
+#      condition:
+#        all:
+#          myCondition: deploy_staging.result == 'success'
+#
+#  notify_deployment_finished_to_channel:
+#    stage: after-deployment
+#    title: Notify deploy has finished to slack channel
+#    type: monday/notify-deployment-finished-to-channel:0.0.34
+#    when:
+#      condition:
+#        all:
+#          after_slack_notifications: push_tag.result == 'success'
