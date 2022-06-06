@@ -5,7 +5,6 @@ try:
 except ImportError:
     enabled = False
 
-
 from redash.query_runner import BaseQueryRunner, register
 from redash.query_runner import (
     TYPE_STRING,
@@ -125,7 +124,7 @@ class Snowflake(BaseQueryRunner):
         data = {"columns": columns, "rows": rows}
         return data
 
-    def run_query(self, query, user , query_id = None):
+    def run_query(self, query, user, query_id=None):
         connection = self._get_connection()
         cursor = connection.cursor()
 
@@ -134,8 +133,8 @@ class Snowflake(BaseQueryRunner):
             cursor.execute("USE {}".format(self.configuration["database"]))
 
             user_id = "redash" if user is None else user.email
-
-            query += "-- REDASH USER: " + user_id + "QUERY ID: " + query_id
+            query_id = str(query_id) if query_id else ''
+            query += "-- REDASH USER: " + user_id + "QUERY ID: " +  query_id
 
             cursor.execute(query)
 
