@@ -116,17 +116,3 @@ steps:
           METHOD_TYPE: POST
           METHOD_NAME: locker/unlock
           REGION: ${{REGION}}
-
-  fail_pipeline_on_failure:
-    title: 'Fail pipeline on deploy failure'
-    type: 'freestyle'
-    stage: 'after-deployment'
-    image: 'busybox:stable'
-    registry_context: nexus
-    commands:
-      - 'exit 1'
-    when:
-      condition:
-        all:
-          first: post_deployment.result == 'success'
-          second: helm_deploy.result == 'failure'
