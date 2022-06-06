@@ -3,10 +3,7 @@ version: '1.0'
 stages:
   - clone
   - build
-  - wait-when-pr
   - staging
-  - wait-before-prod
-  - production
   - after-deployment
 
 steps:
@@ -28,21 +25,6 @@ steps:
       - echo "image exists"
       - cf_export build=302157828541.dkr.ecr.us-east-1.amazonaws.com/${{CF_REPO_NAME}}:${{CF_REVISION}}
 
-  notify_on_build_start:
-    title: Notify on build start
-    type: monday/infra_api
-    stage: build
-    arguments:
-      ENVIRONMENT: ${{ENVIRONMENT}}
-      METHOD_TYPE: PUT
-      METHOD_NAME: metrics
-      METHOD_BODY: '{ "status":"start", "scope":"build" }'
-      METHOD_QUERY_PARAMS: metricType=build
-    when:
-      condition:
-        all:
-          clone: clone.result == 'success'
-          doesImageExist: test_if_image_exists.result == 'failure'
   build:
     title: Building Docker image
     type: build
@@ -58,72 +40,33 @@ steps:
         all:
           doesImageExist: test_if_image_exists.result == 'failure'
 
-  notify_on_build_fail:
-    title: Notify on build fail
-    type: monday/infra_api
-    stage: build
-    arguments:
-      ENVIRONMENT: ${{ENVIRONMENT}}
-      METHOD_TYPE: PUT
-      METHOD_NAME: metrics
-      METHOD_BODY: '{ "status":"failed", "scope":"build" }'
-      METHOD_QUERY_PARAMS: metricType=build
+  deploy_staging:
+    type: parallel
+    title: Deploy staging
+    stage: staging
+    steps:
+      staging_use1:
+        title: Deploy staging use1
+        type: codefresh-run
+        arguments:
+          PIPELINE_ID: redash/CD
+          TRIGGER_ID: run-stage-use1
+          BRANCH: '${{CF_BRANCH}}'
+          SHA: '${{CF_REVISION}}'
+          ENABLE_NOTIFICATIONS: true
+          FOLLOW_LOGS: false
     when:
       condition:
         all:
-          build: build.result == 'failure'
+          isPR: '"${{PR}}" != "true"'
 
-  notify_on_build_success:
-    title: Notify on build success
-    type: monday/infra_api
-    stage: build
-    arguments:
-      ENVIRONMENT: ${{ENVIRONMENT}}
-      METHOD_TYPE: PUT
-      METHOD_NAME: metrics
-      METHOD_BODY: '{ "status":"success", "scope":"build" }'
-      METHOD_QUERY_PARAMS: metricType=build
+  push_tag:
+    title: Push latest docker tag
+    type: push
+    candidate: '${{build}}'
+    tag: latest
+    stage: after-deployment
     when:
       condition:
         all:
-          build: build.result == 'success'
-
-#  deploy_staging:
-#    type: parallel
-#    title: Deploy staging
-#    stage: staging
-#    steps:
-#      staging_use1:
-#        title: Deploy staging use1
-#        type: codefresh-run
-#        arguments:
-#          PIPELINE_ID: redash/CD
-#          TRIGGER_ID: run-stage-use1
-#          BRANCH: '${{CF_BRANCH}}'
-#          SHA: '${{CF_REVISION}}'
-#          ENABLE_NOTIFICATIONS: true
-#          FOLLOW_LOGS: false
-#    when:
-#      condition:
-#        all:
-#          isPR: '"${{PR}}" != "true"'
-#
-#  push_tag:
-#    title: Push latest docker tag
-#    type: push
-#    candidate: '${{build}}'
-#    tag: latest
-#    stage: after-deployment
-#    when:
-#      condition:
-#        all:
-#          myCondition: deploy_staging.result == 'success'
-#
-#  notify_deployment_finished_to_channel:
-#    stage: after-deployment
-#    title: Notify deploy has finished to slack channel
-#    type: monday/notify-deployment-finished-to-channel:0.0.34
-#    when:
-#      condition:
-#        all:
-#          after_slack_notifications: push_tag.result == 'success'
+          myCondition: deploy_staging.result == 'success'

@@ -1,0 +1,133 @@
+version: '1.0'
+# Stages can help you organize your steps in stages
+stages:
+  - clone
+  - helm-diff
+  - lock
+  - deploy
+  - after-deployment
+
+steps:
+  clone:
+    title: Cloning repository
+    type: git-clone
+    repo: 'DaPulse/${{CF_REPO_NAME}}'
+    revision: '${{CF_REVISION}}'
+    git: Dapulse-OAuth2
+    stage: clone
+  check_lock_status:
+    title: 'Is locked? [infra-api]'
+    stage: lock
+    type: monday/infra_api
+    arguments:
+      ENVIRONMENT: ${{ENVIRONMENT}}
+      METHOD_TYPE: GET
+      METHOD_NAME: locker/islocked
+      REGION: ${{REGION}}
+  lock_deployment:
+    title: 'Lock ${{ENVIRONMENT}}'
+    type: monday/infra_api
+    stage: lock
+    arguments:
+      ENVIRONMENT: ${{ENVIRONMENT}}
+      METHOD_TYPE: POST
+      METHOD_NAME: locker/lock
+      REGION: ${{REGION}}
+      METHOD_BODY: '{"reason": "Deploying CI/CD"}'
+    when:
+      condition:
+        all:
+          myCondition: check_lock_status.result == 'success'
+  notify_on_deploy_start:
+    title: Notify on deploy start
+    type: monday/infra_api
+    stage: deploy
+    arguments:
+      ENVIRONMENT: ${{ENVIRONMENT}}
+      METHOD_TYPE: PUT
+      REGION: ${{REGION}}
+      METHOD_NAME: metrics
+      METHOD_BODY: '{ "status":"start", "scope":"deploy" }'
+      METHOD_QUERY_PARAMS: metricType=deploy
+    when:
+      condition:
+        all:
+          myCondition: lock_deployment.result == 'success'
+  helm_deploy:
+    type: helm
+    stage: deploy
+    title: 'deploy ${{ENVIRONMENT}}'
+    working_directory: '${{clone}}'
+    fail_fast: false
+    arguments:
+      action: auth
+      skip_cf_stable_helm_repo: true
+      helm_version: 3.2.1
+      kube_context: ${{KUBE_CTX}}
+      commands:
+        - >-
+          helm repo add redash https://getredash.github.io/contrib-helm-chart/
+        - helm repo update
+        - helm repo list
+        - >-
+          helm upgrade -i $CF_REPO_NAME redash/redash --version $CHART_VERSION --set image.tag="$CF_REVISION" --namespace $CF_REPO_NAME --atomic --wait --debug --timeout 600s
+    when:
+      condition:
+        all:
+          myCondition: lock_deployment.result == 'success'
+  notify_on_deploy_success:
+    title: Notify on deploy success
+    type: monday/infra_api
+    stage: deploy
+    arguments:
+      ENVIRONMENT: ${{ENVIRONMENT}}
+      METHOD_TYPE: PUT
+      REGION: ${{REGION}}
+      METHOD_NAME: metrics
+      METHOD_BODY: '{ "status":"success", "scope":"deploy" }'
+      METHOD_QUERY_PARAMS: metricType=deploy
+    when:
+      condition:
+        all:
+          myCondition: helm_deploy.result == 'success'
+  notify_on_deploy_failed:
+    title: Notify on deploy failed
+    type: monday/infra_api
+    stage: deploy
+    arguments:
+      ENVIRONMENT: ${{ENVIRONMENT}}
+      METHOD_TYPE: PUT
+      REGION: ${{REGION}}
+      METHOD_NAME: metrics
+      METHOD_BODY: '{ "status":"failed", "scope":"deploy" }'
+      METHOD_QUERY_PARAMS: metricType=deploy
+    when:
+      condition:
+        all:
+          myCondition: helm_deploy.result == 'failure'
+  post_deployment:
+    title: Post deployments tasks
+    stage: after-deployment
+    steps:
+      unlock_deployment:
+        title: Unlock deployment
+        type: monday/infra_api
+        arguments:
+          ENVIRONMENT: ${{ENVIRONMENT}}
+          METHOD_TYPE: POST
+          METHOD_NAME: locker/unlock
+          REGION: ${{REGION}}
+
+  fail_pipeline_on_failure:
+    title: 'Fail pipeline on deploy failure'
+    type: 'freestyle'
+    stage: 'after-deployment'
+    image: 'busybox:stable'
+    registry_context: nexus
+    commands:
+      - 'exit 1'
+    when:
+      condition:
+        all:
+          first: post_deployment.result == 'success'
+          second: helm_deploy.result == 'failure'
