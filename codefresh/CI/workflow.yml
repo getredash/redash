@@ -32,8 +32,7 @@ steps:
     working_directory: '${{clone}}'
     tag: '${{CF_REVISION}}'
     dockerfile: Dockerfile
-    registry_contexts:
-      - aws-sandbox-use1
+    registry: aws-sandbox-use1
     stage: build
     when:
       condition:
