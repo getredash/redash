@@ -20,15 +20,15 @@ steps:
     title: 'Testing if image already exists'
     stage: 'build'
     fail_fast: false
-    image: 302157828541.dkr.ecr.us-east-1.amazonaws.com/${{CF_REPO_NAME}}:${{CF_REVISION}}
+    image: 302157828541.dkr.ecr.us-east-1.amazonaws.com/bigbrain-redash:${{CF_REVISION}}
     commands:
       - echo "image exists"
-      - cf_export build=302157828541.dkr.ecr.us-east-1.amazonaws.com/${{CF_REPO_NAME}}:${{CF_REVISION}}
+      - cf_export build=302157828541.dkr.ecr.us-east-1.amazonaws.com/bigbrain-redash:${{CF_REVISION}}
 
   build:
     title: Building Docker image
     type: build
-    image_name: '${{CF_REPO_NAME}}'
+    image_name: bigbrain-redash
     working_directory: '${{clone}}'
     tag: '${{CF_REVISION}}'
     dockerfile: Dockerfile
