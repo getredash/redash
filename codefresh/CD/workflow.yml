@@ -2,7 +2,6 @@ version: '1.0'
 # Stages can help you organize your steps in stages
 stages:
   - clone
-  - helm-diff
   - lock
   - deploy
   - after-deployment
