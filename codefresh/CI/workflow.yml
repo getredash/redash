@@ -1,0 +1,72 @@
+version: '1.0'
+# Stages can help you organize your steps in stages
+stages:
+  - clone
+  - build
+  - staging
+  - after-deployment
+
+steps:
+  clone:
+    title: Cloning repository
+    type: git-clone
+    repo: 'DaPulse/${{CF_REPO_NAME}}'
+    revision: '${{CF_REVISION}}'
+    git: Dapulse-OAuth2
+    stage: clone
+
+  test_if_image_exists:
+    type: freestyle
+    title: 'Testing if image already exists'
+    stage: 'build'
+    fail_fast: false
+    image: 302157828541.dkr.ecr.us-east-1.amazonaws.com/${{CF_REPO_NAME}}:${{CF_REVISION}}
+    commands:
+      - echo "image exists"
+      - cf_export build=302157828541.dkr.ecr.us-east-1.amazonaws.com/${{CF_REPO_NAME}}:${{CF_REVISION}}
+
+  build:
+    title: Building Docker image
+    type: build
+    image_name: '${{CF_REPO_NAME}}'
+    working_directory: '${{clone}}'
+    tag: '${{CF_REVISION}}'
+    dockerfile: Dockerfile
+    registry_contexts:
+      - aws-sandbox-use1
+    stage: build
+    when:
+      condition:
+        all:
+          doesImageExist: test_if_image_exists.result == 'failure'
+
+  deploy_staging:
+    type: parallel
+    title: Deploy staging
+    stage: staging
+    steps:
+      staging_use1:
+        title: Deploy staging use1
+        type: codefresh-run
+        arguments:
+          PIPELINE_ID: redash/CD
+          TRIGGER_ID: run-stage-use1
+          BRANCH: '${{CF_BRANCH}}'
+          SHA: '${{CF_REVISION}}'
+          ENABLE_NOTIFICATIONS: true
+          FOLLOW_LOGS: false
+    when:
+      condition:
+        all:
+          isPR: '"${{PR}}" != "true"'
+
+  push_tag:
+    title: Push latest docker tag
+    type: push
+    candidate: '${{build}}'
+    tag: latest
+    stage: after-deployment
+    when:
+      condition:
+        all:
+          myCondition: deploy_staging.result == 'success'
