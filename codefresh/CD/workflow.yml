@@ -68,7 +68,7 @@ steps:
           helm repo add redash https://getredash.github.io/contrib-helm-chart/
         - helm repo update
         - helm repo list
-        - helm upgrade -i $CF_REPO_NAME redash/redash --version $CHART_VERSION --set image.tag="$CF_REVISION" --namespace $CF_REPO_NAME --atomic --wait --debug --timeout 600s
+        - helm upgrade -i $CF_REPO_NAME redash/redash -f helm_values/$ENVIRONMENT/$REGION_SHORT.yaml --version $CHART_VERSION --set image.tag="$CF_REVISION" --namespace $CF_REPO_NAME --atomic --wait --debug --timeout 600s
     when:
       condition:
         all:
