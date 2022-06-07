@@ -26,6 +26,10 @@ spec:
           value: 3.0.0
         - key: KUBE_CTX
           value: stage-use1-bigbrain-k8s
+        - key: ENVIRONMENT
+          value: staging
+        - key: REGION_SHORT
+          value: use1
 
   stages: []
   variables: []
