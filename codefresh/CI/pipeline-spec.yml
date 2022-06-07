@@ -27,9 +27,6 @@ spec:
       context: Dapulse-OAuth2
       contexts:
         - sandbox
-      variables:
-        - key: PR
-          value: TRUE
   stages: []
   variables: []
   contexts: []

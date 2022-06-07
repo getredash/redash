@@ -21,6 +21,11 @@ spec:
       context: Dapulse-OAuth2
       contexts:
         - sandbox
+      variables:
+        - key: CHART_VERSION
+          value: 3.0.0
+        - key: KUBE_CTX
+          value: stage-use1-bigbrain-k8s
 
   stages: []
   variables: []
