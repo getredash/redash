@@ -8,7 +8,7 @@ stages:
   - after-deployment
 
 steps:
-  post_deployment:
+  pre_deployment:
     title: Unlock deployment
     type: monday/infra_api
     stage: testing
