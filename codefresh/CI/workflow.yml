@@ -64,6 +64,7 @@ steps:
     type: push
     candidate: '${{build}}'
     tag: latest
+    registry: '${{registry}}'
     stage: after-deployment
     when:
       condition:

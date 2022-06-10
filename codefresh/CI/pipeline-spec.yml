@@ -6,7 +6,7 @@ metadata:
   project: redash
 spec:
   triggers:
-    - name: pr
+    - name: staging
       type: git
       repo: DaPulse/redash
       events:
@@ -27,6 +27,9 @@ spec:
       context: Dapulse-OAuth2
       contexts:
         - sandbox
+      variables:
+        - key: registry
+          value: "aws-sandbox-use1"
   stages: []
   variables: []
   contexts: []
