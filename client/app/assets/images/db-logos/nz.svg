@@ -1,0 +1,24 @@
+<svg id="NetezzaPerformanceServer" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="linear-gradient" x1="-8205.25" y1="496.25" x2="-8187.75" y2="513.75" gradientTransform="translate(8217.5 -481.5)" gradientUnits="userSpaceOnUse">
+      <stop offset="0.3" stop-opacity="0"/>
+      <stop offset="0.9"/>
+    </linearGradient>
+    <mask id="mask" x="0" y="0" width="32" height="32" maskUnits="userSpaceOnUse">
+      <g>
+        <path d="M30,16A14,14,0,1,1,16,2,14.015,14.015,0,0,1,30,16ZM4,16A12,12,0,1,0,16,4,12.013,12.013,0,0,0,4,16Z" style="fill: #fff"/>
+        <rect x="13.5" y="13.5" width="15" height="20" transform="translate(-2.5 44.5) rotate(-90)" style="fill: url(#linear-gradient)"/>
+      </g>
+    </mask>
+    <linearGradient id="linear-gradient-2" y1="32" x2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0.1" stop-color="#42be65"/>
+      <stop offset="0.9" stop-color="#007d79"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <g style="mask: url(#mask)">
+      <rect width="32" height="32" style="fill: url(#linear-gradient-2)"/>
+    </g>
+    <polygon points="19 10 19 19.25 13.5 10 11 10 11 22 13 22 13 12.75 18.5 22 21 22 21 10 19 10" style="fill: #001d6c"/>
+  </g>
+</svg>
