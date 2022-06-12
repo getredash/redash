@@ -7,6 +7,28 @@ metadata:
 spec:
   triggers:
     - name: run-stage-use1
+      description: redash
+      type: git
+      repo: DaPulse/redash
+      events:
+        - push.heads
+      pullRequestAllowForkEvents: false
+      commentRegex: /.*/gi
+      branchRegex: /.*/gi
+      branchRegexInput: regex
+      provider: github
+      disabled: true
+      options:
+        noCache: false
+        noCfCache: false
+        resetVolume: false
+      context: Dapulse-OAuth2
+      contexts:
+        - sandbox
+        - env-stage-use1-bigbrain
+
+    - name: run-prod-use1
+      description: redash
       type: git
       repo: DaPulse/redash
       events:
@@ -17,22 +39,20 @@ spec:
       branchRegexInput: multiselect
       provider: github
       disabled: true
+      options:
+        noCache: false
+        noCfCache: false
+        resetVolume: false
       verified: true
       context: Dapulse-OAuth2
       contexts:
-        - sandbox
-      variables:
-        - key: CHART_VERSION
-          value: 3.0.0
-        - key: KUBE_CTX
-          value: stage-use1-bigbrain-k8s
-        - key: ENVIRONMENT
-          value: staging
-        - key: REGION_SHORT
-          value: use1
+        - production-bigbrain
+        - env-prod-use1-bigbrain
 
   stages: []
-  variables: []
+  variables:
+    - key: CHART_VERSION
+      value: 3.0.0
   contexts: []
   terminationPolicy: []
   externalResources: []

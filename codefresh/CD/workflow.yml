@@ -68,7 +68,13 @@ steps:
           helm repo add redash https://getredash.github.io/contrib-helm-chart/
         - helm repo update
         - helm repo list
-        - helm upgrade -i $CF_REPO_NAME redash/redash -f helm_values/$ENVIRONMENT/$REGION_SHORT.yaml --version $CHART_VERSION --set image.tag="$CF_REVISION" --namespace $CF_REPO_NAME --atomic --wait --debug --timeout 600s
+        - >-
+          helm upgrade -i $CF_REPO_NAME redash/redash
+          -f helm_values/$ENVIRONMENT/$REGION_SHORT.yaml
+          --version $CHART_VERSION
+          --set image.tag="$CF_REVISION"
+          --namespace $CF_REPO_NAME
+          --atomic --wait --debug --timeout 600s --create-namespace
     when:
       condition:
         all:
@@ -104,11 +110,51 @@ steps:
         all:
           myCondition: helm_deploy.result == 'failure'
   post_deployment:
-    title: Unlock deployment
-    type: monday/infra_api
+    type: parallel
+    title: Post deployments tasks
     stage: after-deployment
-    arguments:
-      ENVIRONMENT: ${{ENVIRONMENT}}
-      METHOD_TYPE: POST
-      METHOD_NAME: locker/unlock
-      REGION: ${{REGION}}
+    steps:
+      unlock_deployment:
+        title: Unlock ${{ENVIRONMENT}}
+        type: monday/infra_api
+        arguments:
+          ENVIRONMENT: ${{ENVIRONMENT}}
+          METHOD_TYPE: POST
+          METHOD_NAME: locker/unlock
+          REGION: ${{REGION}}
+      report_to_coralogix:
+        title: Report deployment to Coralogix
+        type: monday/report_to_coralogix
+        arguments:
+          ENVIRONMENT: ${{ENVIRONMENT}}
+          REGION: ${{REGION}}
+          APPLICATION: '${{CF_REPO_NAME}}'
+        when:
+          condition:
+            all:
+              myCondition: helm_deploy.result == 'success'
+      report_to_newrelic:
+        title: Report deployment to NewRelic
+        type: monday/report_to_newrelic
+        arguments:
+          ENVIRONMENT: ${{ENVIRONMENT}}
+          REGION: ${{REGION}}
+          NEW_RELIC_APPLICATION_ID: '${{NEW_RELIC_APPLICATION_ID}}'
+        when:
+          condition:
+            all:
+              myCondition: helm_deploy.result == 'success'
+              isVarExists: 'includes("${{NEW_RELIC_APPLICATION_ID}}", "{{NEW_RELIC_APPLICATION_ID}}") == false'
+
+  fail_pipeline_on_failure:
+    title: 'Fail pipeline on deploy failure'
+    type: 'freestyle'
+    stage: 'after-deployment'
+    image: 'busybox:stable'
+    commands:
+      - 'exit 1'
+    when:
+      condition:
+        all:
+          first: post_deployment.result == 'success'
+          second: helm_deploy.result == 'failure'
