@@ -10,5 +10,5 @@ postgresql:
 global:
   storageClass: gp2
 image:
-  repository: 302157828541.dkr.ecr.us-east-1.amazonaws.com/redash
+  repository: 281555170401.dkr.ecr.us-east-1.amazonaws.com/redash
   tag: latest
