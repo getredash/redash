@@ -17,6 +17,27 @@ spec:
       branchRegex: /.*/gi
       branchRegexInput: regex
       provider: github
+      disabled: true
+      options:
+        keepPVCsForPendingApproval: true
+        noCache: false
+        noCfCache: false
+        resetVolume: false
+      verified: true
+      context: Dapulse-OAuth2
+      contexts:
+        - sandbox
+    - name: pr
+      type: git
+      repo: DaPulse/redash
+      events:
+        - pullrequest.opened
+        - pullrequest.synchronize
+      pullRequestAllowForkEvents: false
+      commentRegex: /.*/gi
+      branchRegex: /.*/gi
+      branchRegexInput: regex
+      provider: github
       disabled: false
       options:
         keepPVCsForPendingApproval: true
@@ -28,10 +49,30 @@ spec:
       contexts:
         - sandbox
       variables:
-        - key: registry
-          value: "aws-sandbox-use1"
+        - key: PR
+          value: TRUE
+    - name: production
+      type: git
+      repo: DaPulse/redash
+      events:
+        - push.heads
+      pullRequestAllowForkEvents: false
+      commentRegex: /.*/gi
+      branchRegex: /^((master)$).*/gi
+      branchRegexInput: multiselect
+      provider: github
+      disabled: false
+      options:
+        keepPVCsForPendingApproval: true
+        noCache: false
+        noCfCache: false
+        resetVolume: false
+      verified: true
+      context: Dapulse-OAuth2
+      contexts:
+        - sandbox
+
   stages: []
-  variables: []
   contexts: []
   terminationPolicy: []
   externalResources: []

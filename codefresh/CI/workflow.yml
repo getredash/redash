@@ -20,25 +20,98 @@ steps:
     title: 'Testing if image already exists'
     stage: 'build'
     fail_fast: false
-    image: 302157828541.dkr.ecr.us-east-1.amazonaws.com/bigbrain-redash:${{CF_REVISION}}
+    image: 281555170401.dkr.ecr.us-east-1.amazonaws.com/${{CF_REPO_NAME}}:${{CF_REVISION}}
     commands:
       - echo "image exists"
-      - cf_export build=302157828541.dkr.ecr.us-east-1.amazonaws.com/bigbrain-redash:${{CF_REVISION}}
+      - cf_export build=281555170401.dkr.ecr.us-east-1.amazonaws.com/${{CF_REPO_NAME}}:${{CF_REVISION}}
 
+  notify_on_build_start:
+    title: Notify on build start
+    type: monday/infra_api
+    stage: build
+    arguments:
+      ENVIRONMENT: ${{ENVIRONMENT}}
+      METHOD_TYPE: PUT
+      METHOD_NAME: metrics
+      METHOD_BODY: '{ "status":"start", "scope":"build" }'
+      METHOD_QUERY_PARAMS: metricType=build
+    when:
+      condition:
+        all:
+          clone: clone.result == 'success'
+          doesImageExist: test_if_image_exists.result == 'failure'
   build:
     title: Building Docker image
     type: build
-    image_name: bigbrain-redash
+    image_name: '${{CF_REPO_NAME}}'
     working_directory: '${{clone}}'
     tag: '${{CF_REVISION}}'
     dockerfile: Dockerfile
-    registry: aws-sandbox-use1
+    registry: 'aws-bi-use1'
     stage: build
     when:
       condition:
         all:
           doesImageExist: test_if_image_exists.result == 'failure'
 
+  notify_on_build_fail:
+    title: Notify on build fail
+    type: monday/infra_api
+    stage: build
+    arguments:
+      ENVIRONMENT: ${{ENVIRONMENT}}
+      METHOD_TYPE: PUT
+      METHOD_NAME: metrics
+      METHOD_BODY: '{ "status":"failed", "scope":"build" }'
+      METHOD_QUERY_PARAMS: metricType=build
+    when:
+      condition:
+        all:
+          myCondition: build.result == 'failure'
+
+  notify_on_build_success:
+    title: Notify on build success
+    type: monday/infra_api
+    stage: build
+    arguments:
+      ENVIRONMENT: ${{ENVIRONMENT}}
+      METHOD_TYPE: PUT
+      METHOD_NAME: metrics
+      METHOD_BODY: '{ "status":"success", "scope":"build" }'
+      METHOD_QUERY_PARAMS: metricType=build
+    when:
+      condition:
+        all:
+          myCondition: build.result == 'success'
+
+  approve:
+    title: 'Approve Before Staging'
+    stage: 'wait-when-pr'
+    type: 'pending-approval'
+    timeout:
+      timeUnit: 'minutes'
+      duration: 15
+      finalState: denied
+    fail_fast: false
+    when:
+      condition:
+        all:
+          isMaster: '"${{CF_BRANCH}}" != "master"'
+          isPR: '"${{PR}}" != "true"'
+
+  approve_value:
+    title: Approval export value
+    type: freestyle
+    image: 'busybox:stable'
+    working_directory: '${{clone}}'
+    commands:
+      - cf_export STAGING_APPROVED=true
+    stage: wait-when-pr
+    when:
+      steps:
+        - name: approve
+          'on':
+            - approved
   deploy_staging:
     type: parallel
     title: Deploy staging
@@ -56,17 +129,54 @@ steps:
           FOLLOW_LOGS: false
     when:
       condition:
-        all:
-          isPR: '"${{PR}}" != "true"'
+        any:
+          isMaster: "'${{CF_BRANCH}}' == 'master'"
+          isApproved: 'includes("${{STAGING_APPROVED}}", "{{STAGING_APPROVED}}") == false'
 
+  approve_prod:
+    type: pending-approval
+    title: Approve Before Production
+    description: Step description
+    timeout:
+      timeUnit: 'minutes'
+      duration: 45
+      finalState: denied
+    fail_fast: false
+    stage: wait-before-prod
+    when:
+      condition:
+        all:
+          isMaster: "'${{CF_BRANCH}}' == 'master'"
+          myCondition: deploy_staging.result == 'success'
+
+  production:
+    type: parallel
+    title: Deploy production
+    stage: production
+    steps:
+      production_use1:
+        title: Deploy production use1
+        type: codefresh-run
+        arguments:
+          PIPELINE_ID: redash/CD
+          TRIGGER_ID: run-prod-use1
+          BRANCH: '${{CF_BRANCH}}'
+          SHA: '${{CF_REVISION}}'
+          ENABLE_NOTIFICATIONS: true
+          FOLLOW_LOGS: false
+    when:
+      steps:
+        - name: approve_prod
+          'on':
+            - approved
   push_tag:
     title: Push latest docker tag
     type: push
     candidate: '${{build}}'
     tag: latest
-    registry: '${{registry}}'
+    registry: 'aws-bi-use1'
     stage: after-deployment
     when:
       condition:
         all:
-          myCondition: deploy_staging.result == 'success'
+          myCondition: production.result == 'success'
