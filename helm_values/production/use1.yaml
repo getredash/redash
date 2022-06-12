@@ -1,0 +1,14 @@
+externalPostgreSQLSecret:
+  name: postgresql-connection-string
+  key: REDASH_DATABASE_URL
+redash:
+  existingSecret: redash
+redis:
+  existingSecret: redash-redis
+postgresql:
+  enabled: false
+global:
+  storageClass: gp2
+image:
+  repository: 281555170401.dkr.ecr.us-east-1.amazonaws.com/redash
+  tag: latest
