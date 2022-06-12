@@ -29,9 +29,35 @@ try:
         nzpy.core.NzTypeVarFixedChar : TYPE_STRING, 
         nzpy.core.NzTypeNumeric : TYPE_FLOAT, 
     }
+    
+    _cat_types = {
+        16: TYPE_BOOLEAN,  # boolean
+        17: TYPE_STRING,   # bytea
+        19: TYPE_STRING,  # name type
+        20: TYPE_INTEGER, # int8
+        21: TYPE_INTEGER,  # int2
+        23: TYPE_INTEGER,  # int4
+        25: TYPE_STRING,  # TEXT type
+        26: TYPE_INTEGER,  # oid
+        28: TYPE_INTEGER,  # xid
+        700: TYPE_FLOAT,  # float4
+        701: TYPE_FLOAT,  # float8
+        705: TYPE_STRING,  # unknown
+        829: TYPE_STRING,  # MACADDR type
+        1042: TYPE_STRING,  # CHAR type
+        1043: TYPE_STRING,  # VARCHAR type
+        1082: TYPE_DATE,  # date
+        1083: TYPE_DATETIME,
+        1114: TYPE_DATETIME,  # timestamp w/ tz
+        1184: TYPE_DATETIME,
+        1700: TYPE_FLOAT,  # NUMERIC
+        2275: TYPE_STRING,  # cstring
+        2950: TYPE_STRING  # uuid
+    }
 except:
     _enabled = False
     _nztypes = {}
+    _cat_types = {}
 
 class Netezza(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
@@ -98,9 +124,22 @@ class Netezza(BaseSQLQueryRunner):
         global _enabled
         return _enabled
 
-    def type_map(self, typid):
-        global _nztypes
-        return _nztypes.get(typid)
+    def type_map(self, typid, func):
+        global _nztypes, _cat_types
+        typ = _nztypes.get(typid)
+        if typ is None:
+            return _cat_types.get(typid)
+        # check for conflicts
+        if typid == nzpy.core.NzTypeVarChar:
+            return TYPE_BOOLEAN if 'bool' in func.__name__ else typ
+
+        if typid == nzpy.core.NzTypeInt2:
+            return TYPE_STRING if 'text' in func.__name__ else typ
+
+        if typid in (nzpy.core.NzTypeVarFixedChar, nzpy.core.NzTypeVarBinary,
+                     nzpy.core.NzTypeNVarChar):
+            return TYPE_INTEGER if 'int' in func.__name__ else typ
+        return typ
 
     def run_query(self, query, user):
         json_data, error = None, None
@@ -108,7 +147,8 @@ class Netezza(BaseSQLQueryRunner):
             with self.connection.cursor() as cursor:
                 cursor.execute(query)
                 columns = self.fetch_columns(
-                    [(i[0], self.type_map(i[1])) for i in cursor.description]
+                    [(val[0], self.type_map(val[1], cursor.ps['row_desc'][i]['func']))
+                        for i, val in enumerate(cursor.description)]
                 )
                 rows = [
                     dict(zip((column["name"] for column in columns), row))
