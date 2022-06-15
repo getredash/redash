@@ -3,6 +3,8 @@ import logging
 import traceback
 import json
 
+from matplotlib.pyplot import table
+
 from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
 
@@ -114,9 +116,9 @@ class Netezza(BaseSQLQueryRunner):
         with self.connection.cursor() as cursor:
             cursor.execute(qry)
             for table_name, column_name, data_type in cursor:
-                schema.setdefault(table_name, 
-                                  {"name" : table_name, "columns":[]})["columns"].append(
-                    {"name":column_name, "type": data_type})
+                if table_name not in schema:
+                    schema[table_name] = {"name": table_name, "columns": []}
+                schema[table_name]["columns"].append({"name": column_name, "type": data_type})
             return list(schema.values())
 
     @classmethod
