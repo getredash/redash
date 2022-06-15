@@ -3,8 +3,6 @@ import logging
 import traceback
 import json
 
-from matplotlib.pyplot import table
-
 from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
 
