@@ -98,7 +98,7 @@ class Netezza(BaseSQLQueryRunner):
             )
         return self._conn
 
-    def get_schema(self):
+    def get_schema(self, get_stats=False):
         qry = '''
         select
             table_schema || '.' || table_name as table_name,
@@ -146,10 +146,12 @@ class Netezza(BaseSQLQueryRunner):
         try:
             with self.connection.cursor() as cursor:
                 cursor.execute(query)
-                columns = self.fetch_columns(
-                    [(val[0], self.type_map(val[1], cursor.ps['row_desc'][i]['func']))
-                        for i, val in enumerate(cursor.description)]
-                )
+                if cursor.description is None:
+                    columns = {"columns":[], "rows":[]}
+                else:
+                    columns = self.fetch_columns(
+                        [(val[0], self.type_map(val[1], cursor.ps['row_desc'][i]['func']))
+                            for i, val in enumerate(cursor.description)])
                 rows = [
                     dict(zip((column["name"] for column in columns), row))
                     for row in cursor
