@@ -11,7 +11,7 @@ RUN if [ "x$skip_frontend_build" = "x" ] ; then npm ci --unsafe-perm; fi
 COPY client /frontend/client
 COPY webpack.config.js /frontend/
 RUN if [ "x$skip_frontend_build" = "x" ] ; then npm run build; else mkdir -p /frontend/client/dist && touch /frontend/client/dist/multi_org.html && touch /frontend/client/dist/index.html; fi
-FROM python:3.7-slim
+FROM python:3.7-slim-buster
 
 EXPOSE 5000
 
@@ -25,27 +25,27 @@ RUN useradd --create-home redash
 # Ubuntu packages
 RUN apt-get update && \
   apt-get install -y \
-    curl \
-    gnupg \
-    build-essential \
-    pwgen \
-    libffi-dev \
-    sudo \
-    git-core \
-    wget \
-    # Postgres client
-    libpq-dev \
-    # ODBC support:
-    g++ unixodbc-dev \
-    # for SAML
-    xmlsec1 \
-    # Additional packages required for data sources:
-    libssl-dev \
-    default-libmysqlclient-dev \
-    freetds-dev \
-    libsasl2-dev \
-    unzip \
-    libsasl2-modules-gssapi-mit && \
+  curl \
+  gnupg \
+  build-essential \
+  pwgen \
+  libffi-dev \
+  sudo \
+  git-core \
+  wget \
+  # Postgres client
+  libpq-dev \
+  # ODBC support:
+  g++ unixodbc-dev \
+  # for SAML
+  xmlsec1 \
+  # Additional packages required for data sources:
+  libssl-dev \
+  default-libmysqlclient-dev \
+  freetds-dev \
+  libsasl2-dev \
+  unzip \
+  libsasl2-modules-gssapi-mit && \
   # MSSQL ODBC Driver:  
   curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
   curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
