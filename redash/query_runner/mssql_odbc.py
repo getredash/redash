@@ -68,6 +68,10 @@ class SQLServerODBC(BaseSQLQueryRunner):
     @classmethod
     def type(cls):
         return "mssql_odbc"
+    
+    @property
+    def supports_auto_limit(self):
+        return False
 
     def _get_tables(self, schema):
         query = """
