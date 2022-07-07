@@ -18,6 +18,7 @@ x-redash-environment: &redash-environment
   REDASH_MAIL_DEFAULT_SENDER: "redash@example.com"
   REDASH_MAIL_SERVER: "email"
   REDASH_ENFORCE_CSRF: "true"
+  REDASH_GUNICORN_TIMEOUT: 60
   # Set secret keys in the .env file
 services:
   server:
