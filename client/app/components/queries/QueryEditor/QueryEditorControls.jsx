@@ -9,6 +9,7 @@ import KeyboardShortcuts, { humanReadableShortcut } from "@/services/KeyboardSho
 import AutocompleteToggle from "./AutocompleteToggle";
 import "./QueryEditorControls.less";
 import AutoLimitCheckbox from "@/components/queries/QueryEditor/AutoLimitCheckbox";
+import LongQueryCheckbox from "./LongQueryCheckbox";
 
 export function ButtonTooltip({ title, shortcut, ...props }) {
   shortcut = humanReadableShortcut(shortcut, 1); // show only primary shortcut
@@ -40,6 +41,7 @@ export default function EditorControl({
   executeButtonProps,
   autocompleteToggleProps,
   autoLimitCheckboxProps,
+  longQueryCheckboxProps,
   dataSourceSelectorProps,
 }) {
   useEffect(() => {
@@ -87,6 +89,7 @@ export default function EditorControl({
         />
       )}
       {autoLimitCheckboxProps !== false && <AutoLimitCheckbox {...autoLimitCheckboxProps} />}
+      {longQueryCheckboxProps !== false && <LongQueryCheckbox {...longQueryCheckboxProps} />}
       {dataSourceSelectorProps === false && <span className="query-editor-controls-spacer" />}
       {dataSourceSelectorProps !== false && (
         <Select
@@ -160,6 +163,10 @@ EditorControl.propTypes = {
     PropTypes.bool, // `false` to hide
     PropTypes.shape(AutoLimitCheckbox.propTypes),
   ]),
+  longQueryCheckboxProps: PropTypes.oneOfType([
+    PropTypes.bool, // `false` to hide
+    PropTypes.shape(LongQueryCheckbox.propTypes),
+  ]),
   dataSourceSelectorProps: PropTypes.oneOfType([
     PropTypes.bool, // `false` to hide
     PropTypes.shape({
@@ -183,5 +190,6 @@ EditorControl.defaultProps = {
   executeButtonProps: false,
   autocompleteToggleProps: false,
   autoLimitCheckboxProps: false,
+  longQueryCheckboxProps: false,
   dataSourceSelectorProps: false,
 };

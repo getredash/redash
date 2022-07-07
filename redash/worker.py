@@ -18,7 +18,7 @@ from redash.tasks.worker import Queue as RedashQueue
 
 
 default_operational_queues = ["periodic", "emails", "default"]
-default_query_queues = ["scheduled_queries", "queries", "schemas"]
+default_query_queues = ["scheduled_queries", "queries", "schemas", "long_queries"]
 default_queues = default_operational_queues + default_query_queues
 
 
