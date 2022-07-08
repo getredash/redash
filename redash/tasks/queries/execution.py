@@ -28,7 +28,7 @@ def _unlock(query_hash, data_source_id):
 
 
 def enqueue_query(
-    query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}
+    query, data_source, user_id, is_api_key=False, scheduled_query=None, is_long_query=False, metadata={}
 ):
     query_hash = gen_query_hash(query)
     logger.info("Inserting job for %s with metadata=%s", query_hash, metadata)
@@ -75,12 +75,18 @@ def enqueue_query(
                 if scheduled_query:
                     queue_name = data_source.scheduled_queue_name
                     scheduled_query_id = scheduled_query.id
+                    
+                # Only ad-hoc queries are divided into long queries and short queries
                 else:
-                    queue_name = data_source.queue_name
-                    scheduled_query_id = None
+                    if is_long_query:
+                        queue_name = settings.ADHOC_LONG_QUERY_QUEUE_NAME
+                        scheduled_query_id = None
+                    else:
+                        queue_name = data_source.queue_name
+                        scheduled_query_id = None
 
                 time_limit = settings.dynamic_settings.query_time_limit(
-                    scheduled_query, user_id, data_source.org_id
+                    scheduled_query, is_long_query, user_id, data_source.org_id
                 )
                 metadata["Queue"] = queue_name
 

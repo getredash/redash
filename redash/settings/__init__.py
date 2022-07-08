@@ -255,6 +255,12 @@ SCHEDULED_QUERY_TIME_LIMIT = int(
 # Time limit (in seconds) for adhoc queries. Set this to -1 to execute without a time limit.
 ADHOC_QUERY_TIME_LIMIT = int(os.environ.get("REDASH_ADHOC_QUERY_TIME_LIMIT", -1))
 
+# Time limit (in seconds) for long adhoc queries. Set this to -1 to execute without a time limit.
+ADHOC_LONG_QUERY_TIME_LIMIT = int(os.environ.get("REDASH_ADHOC_LONG_QUERY_TIME_LIMIT", -1))
+
+# Name of the long query queue. Defaults to long_queries
+ADHOC_LONG_QUERY_QUEUE_NAME = os.environ.get("REDASH_ADHOC_LONG_QUERY_QUEUE_NAME", "long_queries")
+
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 12))
 JOB_DEFAULT_FAILURE_TTL = int(
     os.environ.get("REDASH_JOB_DEFAULT_FAILURE_TTL", 7 * 24 * 60 * 60)
