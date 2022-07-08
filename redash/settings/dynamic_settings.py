@@ -6,11 +6,10 @@ def query_time_limit(is_scheduled, is_long_query, user_id, org_id):
 
     if is_scheduled:
         return settings.SCHEDULED_QUERY_TIME_LIMIT
+    elif is_long_query:
+        return settings.ADHOC_LONG_QUERY_TIME_LIMIT
     else:
-        if is_long_query:
-            return settings.ADHOC_LONG_QUERY_TIME_LIMIT
-        else:
-            return settings.ADHOC_QUERY_TIME_LIMIT
+        return settings.ADHOC_QUERY_TIME_LIMIT
 
 
 def periodic_jobs():
