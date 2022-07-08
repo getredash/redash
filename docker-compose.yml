@@ -12,8 +12,8 @@ x-redash-service: &redash-service
     - .env
 x-redash-environment: &redash-environment
   REDASH_LOG_LEVEL: "INFO"
-  REDASH_REDIS_URL: "redis://127.0.0.1:6379/0"
-  REDASH_DATABASE_URL: "postgresql://redash@127.0.0.1:5432/redash"
+  REDASH_REDIS_URL: "redis://redis:6379/0"
+  REDASH_DATABASE_URL: "postgresql://redash:${PG_PASS}@postgres:5432/redash"
   #REDASH_DATABASE_URL: "postgresql://UserName:PassWorld@Host:Port/DataBaseName"
   REDASH_RATELIMIT_ENABLED: "false"
   REDASH_ENFORCE_CSRF: "true"
@@ -22,7 +22,8 @@ services:
   server:
     <<: *redash-service
     command: dev_server
-    network_mode: "host"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - postgres
       - redis
@@ -36,7 +37,8 @@ services:
   scheduler:
     <<: *redash-service
     command: dev_scheduler
-    network_mode: "host"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - server
     environment:
@@ -45,7 +47,8 @@ services:
   worker_scheduled_queries:
     <<: *redash-service
     command: dev_worker
-    network_mode: "host"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - server
     environment:
@@ -56,7 +59,8 @@ services:
   worker_queries:
     <<: *redash-service
     command: dev_worker
-    network_mode: "host"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - server
     environment:
@@ -65,9 +69,34 @@ services:
       WORKERS_COUNT: 4
       PYTHONUNBUFFERED: 0
     restart: unless-stopped
+  worker_long_queries:
+    <<: *redash-service
+    command: dev_worker
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - server
+    environment:
+      <<: *redash-environment
+      QUEUES: long_queries
+      PYTHONUNBUFFERED: 0
+    restart: unless-stopped
+  worker_operational:
+    <<: *redash-service
+    command: dev_worker
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - server
+    environment:
+      <<: *redash-environment
+      QUEUES: periodic,emails,default
+      PYTHONUNBUFFERED: 0
+    restart: unless-stopped
   redis:
     image: redis:5.0.14
-    network_mode: "host"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "6379:6379"
     restart: unless-stopped
@@ -76,7 +105,8 @@ services:
     # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
     # improvement on my personal machine). We should consider moving this into a dedicated Docker Compose configuration for
     # tests.
-    network_mode: "host"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "15432:5432"
 #    command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
