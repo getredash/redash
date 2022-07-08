@@ -42,4 +42,6 @@ xlrd==2.0.1
 openpyxl==3.0.7
 firebolt-sdk
 pandas==1.3.4
+nzpy>=1.15
+nzalchemy
 python-arango==6.1.0
