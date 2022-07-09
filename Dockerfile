@@ -91,7 +91,8 @@ RUN pip install pip==20.2.4;
 
 # We first copy only the requirements file, to avoid rebuilding on every file change.
 COPY requirements_all_ds.txt ./
-RUN if [ "x$skip_ds_deps" = "x" ] ; then pip install -r requirements_all_ds.txt ; else echo "Skipping pip install -r requirements_all_ds.txt" ; fi
+RUN if [ "x$skip_ds_deps" = "x" ] ; then cat requirements_all_ds.txt | sed -e '/^\s*#.*$/d' -e '/^\s*$/d' | xargs -n 1 pip install || true ; else echo "Skipping pip install -r requirements_all_ds.txt" ; fi
+
 
 COPY requirements_dev.txt ./
 RUN if [ "x$skip_dev_deps" = "x" ] ; then pip install -r requirements_dev.txt ; fi
