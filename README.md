@@ -52,6 +52,7 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 - Apache Hive
 - Apache Impala
 - InfluxDB
+- IBM Netezza Performance Server
 - JIRA
 - JSON
 - Apache Kylin
