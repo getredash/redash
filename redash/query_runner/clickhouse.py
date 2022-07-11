@@ -6,7 +6,7 @@ from uuid import uuid4
 import requests
 
 from redash.query_runner import *
-from redash.query_runner.databricks import split_sql_statements
+from redash.query_runner import split_sql_statements
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
@@ -123,8 +123,8 @@ class ClickHouse(BaseSQLQueryRunner):
             if r.status_code != 200:
                 raise Exception(r.text)
 
-            # In some foreseen requests response body can be empty - i.e. in temporary table creation requests.
-            # Execution scenario in that case is like if regular query requested and no matching rows found.
+            # In certain situations the response body can be empty even if the query was successful, for example
+            # when creating temporary tables.
             if not r.text:
                 return {}
 
@@ -207,12 +207,12 @@ class ClickHouse(BaseSQLQueryRunner):
             return json_data, error
 
         try:
-            # If just one query was given then no need in session creation
+            # If just one query was given no session is needed
             if len(queries) == 1:
                 results = self._clickhouse_query(queries[0])
             else:
-                # Session is created otherwise. Parameter session_check has to be false for the first query
-                # and true for all consequent queries.
+                # If more than one query was given, a session is needed. Parameter session_check must be false
+                # for the first query
                 session_id = "redash_{}".format(uuid4().hex)
 
                 results = self._clickhouse_query(
