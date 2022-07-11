@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+
 # Replace this method with your own implementation in case you want to limit the time limit on certain queries or users.
 def query_time_limit(is_scheduled, user_id, org_id):
     from redash import settings
@@ -8,6 +9,15 @@ def query_time_limit(is_scheduled, user_id, org_id):
         return settings.SCHEDULED_QUERY_TIME_LIMIT
     else:
         return settings.ADHOC_QUERY_TIME_LIMIT
+
+
+def query_retry_intervals(is_scheduled):
+    from redash import settings
+
+    if is_scheduled:
+        return settings.SCHEDULED_QUERY_RETRY_INTERVALS
+    else:
+        return settings.ADHOC_QUERY_RETRY_INTERVALS
 
 
 def periodic_jobs():
@@ -58,6 +68,6 @@ def database_key_definitions(default):
 
     return definitions
 
-# Since you can define custom primary key types using `database_key_definitions`, you may want to load certain extensions when creating the database. 
+# Since you can define custom primary key types using `database_key_definitions`, you may want to load certain extensions when creating the database.
 # To do so, simply add the name of the extension you'd like to load to this list.
 database_extensions = []

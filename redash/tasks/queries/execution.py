@@ -1,6 +1,8 @@
 import signal
 import time
+from typing import List
 import redis
+import dataclasses
 
 from rq import get_current_job
 from rq.job import JobStatus
@@ -25,6 +27,12 @@ def _job_lock_id(query_hash, data_source_id):
 
 def _unlock(query_hash, data_source_id):
     redis_connection.delete(_job_lock_id(query_hash, data_source_id))
+
+
+@dataclasses.dataclass
+class Retry:
+    max: int
+    intervals: List[int]
 
 
 def enqueue_query(
@@ -82,6 +90,12 @@ def enqueue_query(
                 time_limit = settings.dynamic_settings.query_time_limit(
                     scheduled_query, user_id, data_source.org_id
                 )
+                intervals = settings.dynamic_settings.query_retry_intervals(scheduled_query)
+                if intervals:
+                    retry = Retry(max=len(intervals), intervals=intervals)
+                else:
+                    retry = None
+
                 metadata["Queue"] = queue_name
 
                 queue = Queue(queue_name)
@@ -91,6 +105,7 @@ def enqueue_query(
                     "is_api_key": is_api_key,
                     "job_timeout": time_limit,
                     "failure_ttl": settings.JOB_DEFAULT_FAILURE_TTL,
+                    "retry": retry,
                     "meta": {
                         "data_source_id": data_source.id,
                         "org_id": data_source.org_id,
