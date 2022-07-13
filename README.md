@@ -35,7 +35,7 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 - Amazon CloudWatch / Insights
 - Amazon DynamoDB
 - Amazon Redshift
-- ArrangoDB
+- ArangoDB
 - Axibase Time Series Database
 - Apache Cassandra
 - ClickHouse
