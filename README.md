@@ -32,17 +32,25 @@ Redash features:
 Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help/data-sources/supported-data-sources). It can also be extended to support more. Below is a list of built-in sources:
 
 - Amazon Athena
+- Amazon CloudWatch / Insights
 - Amazon DynamoDB
 - Amazon Redshift
+- ArangoDB
 - Axibase Time Series Database
 - Apache Cassandra
 - ClickHouse
 - CockroachDB
+- Couchbase
 - CSV
-- Databricks (Apache Spark)
+- Databricks
 - DB2 by IBM
+- Dgraph
+- Apache Drill
 - Apache Druid
+- Eccenca Corporate Memory
 - Elasticsearch
+- Exasol
+- Microsoft Excel
 - Firebolt
 - Google Analytics
 - Google BigQuery
@@ -52,17 +60,20 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 - Apache Hive
 - Apache Impala
 - InfluxDB
-- JIRA
+- IBM Netezza Performance Server
+- JIRA (JQL)
 - JSON
 - Apache Kylin
 - OmniSciDB (Formerly MapD)
 - MemSQL
 - Microsoft Azure Data Warehouse / Synapse
 - Microsoft Azure SQL Database
+- Microsoft Azure Data Explorer / Kusto
 - Microsoft SQL Server
 - MongoDB
 - MySQL
 - Oracle
+- Apache Phoenix
 - PostgreSQL
 - Presto
 - Prometheus
@@ -73,9 +84,12 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 - ScyllaDB
 - Shell Scripts
 - Snowflake
+- SPARQL
 - SQLite
 - TiDB
 - TreasureData
+- Trino
+- Uptycs
 - Vertica
 - Yandex AppMetrrica
 - Yandex Metrica
