@@ -72,6 +72,13 @@ def grant_admin(email, organization="default"):
     help="user uses Google Auth to login",
 )
 @option(
+    "--azure",
+    "azure_auth",
+    is_flag=True,
+    default=False,
+    help="user uses Azure AD Auth to login",
+)
+@option(
     "--password",
     "password",
     default=None,
@@ -89,6 +96,7 @@ def create(
     groups,
     is_admin=False,
     google_auth=False,
+    azure_auth=False,
     password=None,
     organization="default",
 ):
@@ -98,14 +106,15 @@ def create(
     print("Creating user (%s, %s) in organization %s..." % (email, name, organization))
     print("Admin: %r" % is_admin)
     print("Login with Google Auth: %r\n" % google_auth)
+    print("Login with Azure Auth: %r\n" % azure_auth)
 
     org = models.Organization.get_by_slug(organization)
     groups = build_groups(org, groups, is_admin)
 
     user = models.User(org=org, email=email, name=name, group_ids=groups)
-    if not password and not google_auth:
+    if not password and not google_auth and not azure_auth:
         password = prompt("Password", hide_input=True, confirmation_prompt=True)
-    if not google_auth:
+    if not google_auth and not azure_auth:
         user.hash_password(password)
 
     try:
@@ -133,13 +142,20 @@ def create(
     help="user uses Google Auth to login",
 )
 @option(
+    "--azure",
+    "azure_auth",
+    is_flag=True,
+    default=False,
+    help="user uses Azure AD Auth to login",
+)
+@option(
     "--password",
     "password",
     default=None,
     help="Password for root user who don't use Google Auth "
     "(leave blank for prompt).",
 )
-def create_root(email, name, google_auth=False, password=None, organization="default"):
+def create_root(email, name, google_auth=False, azure_auth=False, password=None, organization="default"):
     """
     Create root user.
     """
@@ -148,6 +164,7 @@ def create_root(email, name, google_auth=False, password=None, organization="def
         % (email, name, organization)
     )
     print("Login with Google Auth: %r\n" % google_auth)
+    print("Login with Azure Auth: %r\n" % azure_auth)
 
     user = models.User.query.filter(models.User.email == email).first()
     if user is not None:
@@ -183,7 +200,7 @@ def create_root(email, name, google_auth=False, password=None, organization="def
         name=name,
         group_ids=[admin_group.id, default_group.id],
     )
-    if not google_auth:
+    if not google_auth and not azure_auth:
         user.hash_password(password)
 
     try:

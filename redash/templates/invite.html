@@ -27,7 +27,14 @@
         Login with Google
       </a>
     {% endif %}
-
+    
+    {% if show_azure_openid %}
+      <a href="{{ azure_auth_url }}" class="login-button btn btn-default btn-block">
+        <img src="/static/images/microsoft_logo.svg">
+        Sign in with Microsoft work or school account
+      </a>
+    {% endif %}
+    
     {% if show_saml_login %}
       <a href="{{ url_for('saml_auth.sp_initiated', org_slug=org_slug) }}" class="login-button btn btn-default btn-block">SAML Login</a>
     {% endif %}
@@ -40,7 +47,7 @@
       <a href="{{ url_for('ldap_auth.login') }}" class="login-button btn btn-default btn-block">LDAP/SSO Login</a>
     {% endif %}
 
-    {% if show_google_openid or show_saml_login or show_remote_user_login or show_ldap_login %}
+    {% if show_google_openid or show_azure_openid or show_saml_login or show_remote_user_login or show_ldap_login %}
       <hr>
     {% endif %}
 
