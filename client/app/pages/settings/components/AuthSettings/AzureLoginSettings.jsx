@@ -11,11 +11,7 @@ export default function AzureLoginSettings(props) {
   const { values, onChange } = props;
 
   if (!clientConfig.azureLoginEnabled) {
-    return (
-      <p>
-        azure login enabled {clientConfig.azureLoginEnabled}
-      </p>
-    );
+    return null;
   }
 
   return (
