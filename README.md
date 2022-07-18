@@ -75,6 +75,7 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 - MySQL
 - Oracle
 - Apache Phoenix
+- Apache Pinot
 - PostgreSQL
 - Presto
 - Prometheus

@@ -349,6 +349,7 @@ default_query_runners = [
     "redash.query_runner.amazon_elasticsearch",
     "redash.query_runner.trino",
     "redash.query_runner.presto",
+    "redash.query_runner.pinot",
     "redash.query_runner.databricks",
     "redash.query_runner.hive_ds",
     "redash.query_runner.impala_ds",
