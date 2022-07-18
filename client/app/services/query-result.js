@@ -439,11 +439,19 @@ class QueryResult {
     return `${queryName.replace(/ /g, "_") + moment(this.getUpdatedAt()).format("_YYYY_MM_DD")}.${fileType}`;
   }
 
-  static getByQueryId(id, parameters, applyAutoLimit, maxAge) {
+  static getByQueryId(id, parameters, applyAutoLimit, applyLongQuery, maxAge) {
     const queryResult = new QueryResult();
 
     axios
-      .post(`api/queries/${id}/results`, { id, parameters, apply_auto_limit: applyAutoLimit, max_age: maxAge })
+      .post(
+        `api/queries/${id}/results`,
+        {
+          id,
+          parameters,
+          apply_auto_limit: applyAutoLimit,
+          apply_long_query: applyLongQuery,
+          max_age: maxAge
+        })
       .then(response => {
         queryResult.update(response);
 
@@ -458,7 +466,7 @@ class QueryResult {
     return queryResult;
   }
 
-  static get(dataSourceId, query, parameters, applyAutoLimit, maxAge, queryId) {
+  static get(dataSourceId, query, parameters, applyAutoLimit, applyLongQuery, maxAge, queryId) {
     const queryResult = new QueryResult();
 
     const params = {
@@ -466,6 +474,7 @@ class QueryResult {
       parameters,
       query,
       apply_auto_limit: applyAutoLimit,
+      apply_long_query: applyLongQuery,
       max_age: maxAge,
     };
 

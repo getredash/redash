@@ -1,11 +1,13 @@
 from collections import defaultdict
 
 # Replace this method with your own implementation in case you want to limit the time limit on certain queries or users.
-def query_time_limit(is_scheduled, user_id, org_id):
+def query_time_limit(is_scheduled, is_long_query, user_id, org_id):
     from redash import settings
 
     if is_scheduled:
         return settings.SCHEDULED_QUERY_TIME_LIMIT
+    elif is_long_query:
+        return settings.ADHOC_LONG_QUERY_TIME_LIMIT
     else:
         return settings.ADHOC_QUERY_TIME_LIMIT
 

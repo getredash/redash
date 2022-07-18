@@ -52,6 +52,7 @@ export class Query {
       this.options = {};
     }
     this.options.apply_auto_limit = !!this.options.apply_auto_limit;
+    this.options.apply_long_query = !!this.options.apply_long_query;
 
     if (!isArray(this.options.parameters)) {
       this.options.parameters = [];
@@ -133,7 +134,13 @@ export class Query {
 
   getQueryResult(maxAge) {
     const execute = () =>
-      QueryResult.getByQueryId(this.id, this.getParameters().getExecutionValues(), this.getAutoLimit(), maxAge);
+      QueryResult.getByQueryId(
+        this.id,
+        this.getParameters().getExecutionValues(),
+        this.getAutoLimit(),
+        this.getLongQuery(),
+        maxAge
+      );
     return this.prepareQueryResultExecution(execute, maxAge);
   }
 
@@ -145,7 +152,14 @@ export class Query {
 
     const parameters = this.getParameters().getExecutionValues({ joinListValues: true });
     const execute = () =>
-      QueryResult.get(this.data_source_id, queryText, parameters, this.getAutoLimit(), maxAge, this.id);
+      QueryResult.get(
+        this.data_source_id,
+        queryText, parameters,
+        this.getAutoLimit(),
+        this.getLongQuery(),
+        maxAge,
+        this.id
+      );
     return this.prepareQueryResultExecution(execute, maxAge);
   }
 
@@ -190,6 +204,10 @@ export class Query {
 
   getAutoLimit() {
     return this.options.apply_auto_limit;
+  }
+
+  getLongQuery() {
+    return this.options.apply_long_query;
   }
 
   getParametersDefs(update = true) {
@@ -402,7 +420,10 @@ QueryService.newQuery = function newQuery() {
     name: "New Query",
     schedule: null,
     user: currentUser,
-    options: { apply_auto_limit: localOptions.get("applyAutoLimit", true) },
+    options: {
+      apply_auto_limit: localOptions.get("applyAutoLimit", true),
+      apply_long_query: localOptions.get("applyLongQuery", false)
+    },
     tags: [],
     can_edit: true,
   });

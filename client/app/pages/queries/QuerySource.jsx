@@ -42,6 +42,7 @@ import useDeleteVisualization from "./hooks/useDeleteVisualization";
 import useUpdateQuery from "./hooks/useUpdateQuery";
 import useUpdateQueryDescription from "./hooks/useUpdateQueryDescription";
 import useUnsavedChangesAlert from "./hooks/useUnsavedChangesAlert";
+import useLongQueryFlags from "./hooks/useLongQueryFlags";
 
 import "./components/QuerySourceDropdown"; // register QuerySourceDropdown
 import "./QuerySource.less";
@@ -80,6 +81,7 @@ function QuerySource(props) {
   const editorRef = useRef(null);
   const [autocompleteAvailable, autocompleteEnabled, toggleAutocomplete] = useAutocompleteFlags(schema);
   const [autoLimitAvailable, autoLimitChecked, setAutoLimit] = useAutoLimitFlags(dataSource, query, setQuery);
+  const [longQueryAvailable, longQueryChecked, setLongQuery] = useLongQueryFlags(dataSource, query, setQuery);
 
   const [handleQueryEditorChange] = useDebouncedCallback(queryText => {
     setQuery(extend(query.clone(), { query: queryText }));
@@ -313,6 +315,11 @@ function QuerySource(props) {
                         available: autoLimitAvailable,
                         checked: autoLimitChecked,
                         onChange: setAutoLimit,
+                      }}
+                      longQueryCheckboxProps={{
+                        available: longQueryAvailable,
+                        checked: longQueryChecked,
+                        onChange: setLongQuery,
                       }}
                       dataSourceSelectorProps={
                         dataSource
