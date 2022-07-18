@@ -15,9 +15,9 @@ export default function AuthSettings(props) {
     changes => {
       const allSettings = { ...values, ...changes };
       const allAuthMethodsDisabled =
-        !clientConfig.googleLoginEnabled && 
-        !clientConfig.azureLoginEnabled && 
-        !clientConfig.ldapLoginEnabled && 
+        !clientConfig.googleLoginEnabled &&
+        !clientConfig.azureLoginEnabled &&
+        !clientConfig.ldapLoginEnabled &&
         !allSettings.auth_saml_enabled;
       if (allAuthMethodsDisabled) {
         changes = { ...changes, auth_password_login_enabled: true };
