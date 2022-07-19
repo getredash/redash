@@ -2,6 +2,7 @@
 from redash.handlers.base import BaseResource
 from redash.tasks.worker import Queue
 from redash.permissions import require_permission
+from redash import models
 
 class QueueJobListResource(BaseResource):
     @require_permission("view_query")
@@ -13,9 +14,15 @@ class QueueJobListResource(BaseResource):
         """
         
         def extract_data(job):
+            data = job.meta
+            
+            user = models.User.get_by_id(data["user_id"]).to_dict()
+            data_source = models.DataSource.get_by_id(data["data_source_id"]).to_dict()
+            
             return {
-                **job.meta,
-                "enqueued_at": job.enqueued_at
+                "user": user["name"],
+                "enqueued_at": job.enqueued_at,
+                "data_source": data_source["name"]
             }
         
         queue = Queue(queue_name)
