@@ -76,7 +76,8 @@ function Queues() {
         return (<Button
           shape="circle"
           type="link"
-          href={`/queries/${e["query_id"]}/`}>
+          href={`/queries/${e["query_id"]}`}
+          target="_blank">
             {e["query_name"]}
         </Button>
         )
