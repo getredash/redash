@@ -4,7 +4,6 @@ import Button from 'antd/lib/button'
 import Col from 'antd/lib/col';
 import Row from 'antd/lib/row';
 import Checkbox from 'antd/lib/checkbox'
-import ArrowUpOutlined from '@ant-design/icons/ArrowUpOutlined'
 
 import React, { useEffect, useState } from "react";
 
@@ -71,14 +70,16 @@ function Queues() {
     },
     {
       title: 'Query',
-      dataIndex: 'query_id',
-      key: 'query_id',
+      dataIndex: 'query',
+      key: 'query',
       render: e => {
-        return <Button
+        return (<Button
           shape="circle"
-          icon={<ArrowUpOutlined rotate={45}/>}
-          href={`/queries/${e}/`}
-        />
+          type="link"
+          href={`/queries/${e["query_id"]}/`}>
+            {e["query_name"]}
+        </Button>
+        )
       }
     }
   ]
@@ -103,7 +104,7 @@ function Queues() {
       <div className="container">
         <PageHeader title="Queues" actions={
           <Row align='middle'>
-            <Col flex={1}>
+            <Col span={12}>
 
               <Checkbox
                 style={{
@@ -111,21 +112,22 @@ function Queues() {
                 }}
                 onClick={() => setOnlyMyQueries(!onlyMyQueries)}
               >
-                My queries
+                My queries only
               </Checkbox>
             </Col>
-            <Col flex={1}>
+            <Col span={12}>
               <Button
                 type="primary"
                 style={{
-                  "margin": "auto 10px"
+                  "margin": "auto 10px",
+                  "width": "100%"
                 }}
                 onClick={e => fetchJobData(option, onlyMyQueries)}
               >
                 Refresh
               </Button>
             </Col>
-            <Col flex={3}>
+            <Col span={24}>
               <Select
                 className="w-100"
                 defaultValue={option}

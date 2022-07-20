@@ -19,12 +19,16 @@ class QueueJobListResource(BaseResource):
             
             user = models.User.get_by_id(data["user_id"]).to_dict()
             data_source = models.DataSource.get_by_id(data["data_source_id"]).to_dict()
+            query_name = models.Query.get_by_id(data["query_id"]).name
             
             return {
                 "order": idx + 1,
                 "user": user["name"],
                 "user_id": data["user_id"],
-                "query_id": data["query_id"],
+                "query": {
+                    "query_id": data["query_id"],
+                    "query_name": query_name, 
+                },
                 "data_source": data_source["name"],
                 "enqueued_at": job.enqueued_at
             }
