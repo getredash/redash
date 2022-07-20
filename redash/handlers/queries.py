@@ -388,7 +388,7 @@ class QueryResource(BaseResource):
 
         return QuerySerializer(query, with_visualizations=True).serialize()
 
-    @require_permission("view_query")
+    @require_permission("edit_query")
     def get(self, query_id):
         """
         Retrieve a query.
