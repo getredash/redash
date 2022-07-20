@@ -44,6 +44,7 @@ PYTHON_TYPES_MAPPING = {
 class BaseElasticSearch(BaseQueryRunner):
     should_annotate_query = False
     DEBUG_ENABLED = False
+    deprecated=True
 
     @classmethod
     def configuration_schema(cls):

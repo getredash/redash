@@ -31,6 +31,10 @@ class ElasticSearch2(BaseHTTPQueryRunner):
 
     should_annotate_query = False
 
+    @classmethod
+    def name(cls):
+        return "ElasticSearch"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.syntax = 'json'
@@ -250,6 +254,15 @@ class OpenDistroSQLElasticSearch(ElasticSearch2):
         sql_query_url = '/_opendistro/_sql'
         return sql_query, sql_query_url, None
 
+    @classmethod
+    def name(cls):
+        return cls.__name__
+
+    @classmethod
+    def type(cls):
+        return "elasticsearch2_OpenDistroSQLElasticSearch"
+
+
 
 class XPackSQLElasticSearch(ElasticSearch2):
 
@@ -289,6 +302,15 @@ class XPackSQLElasticSearch(ElasticSearch2):
             rv['rows'].append(result_row)
 
         return rv
+
+    @classmethod
+    def name(cls):
+        return cls.__name__
+    
+    @classmethod
+    def type(cls):
+        return "elasticsearch2_XPackSQLElasticSearch"
+
 
 
 register(ElasticSearch2)
