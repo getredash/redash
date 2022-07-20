@@ -3,7 +3,10 @@ import Table from 'antd/lib/table';
 import Button from 'antd/lib/button'
 import Col from 'antd/lib/col';
 import Row from 'antd/lib/row';
-import React, { useState } from "react";
+import Checkbox from 'antd/lib/checkbox'
+import ArrowUpOutlined from '@ant-design/icons/ArrowUpOutlined'
+
+import React, { useEffect, useState } from "react";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
@@ -46,6 +49,11 @@ function Queues() {
 
   const columns = [
     {
+      title: 'Order',
+      dataIndex: 'order',
+      key: 'order'
+    },
+    {
       title: 'User',
       dataIndex: 'user',
       key: 'user',
@@ -60,35 +68,74 @@ function Queues() {
       dataIndex: 'enqueued_at',
       key: 'enqueued_at',
       render: e => renderTimeEnqueue(e)
+    },
+    {
+      title: 'Query',
+      dataIndex: 'query_id',
+      key: 'query_id',
+      render: e => {
+        return <Button
+          shape="circle"
+          icon={<ArrowUpOutlined rotate={45}/>}
+          href={`/queries/${e}/`}
+        />
+      }
     }
   ]
 
-  const [option, setOption] = useState("Queues")
+  const [option, setOption] = useState("long_queries")
   const [dataSource, setDataSource] = useState([])
+  const [onlyMyQueries, setOnlyMyQueries] = useState(false)
 
 
-  const fetchJobData = async (event) => {
+  const fetchJobData = async (event, onlyMyQueries) => {
 
-    let jobs = await axios.get(`/api/queue/${event}`)
+    let jobs = await axios.get(`/api/queue/${event}?onlyMy=${onlyMyQueries}`)
     setDataSource(jobs);
   }
+
+  useEffect(() => {
+    fetchJobData(option, onlyMyQueries);
+  }, [option, onlyMyQueries]);
 
   return (
     <div className="page-queries-list">
       <div className="container">
         <PageHeader title="Queues" actions={
-          <Row>
+          <Row align='middle'>
             <Col flex={1}>
-              <Button type="primary" onClick={e => fetchJobData(option)}>Refresh</Button>
+
+              <Checkbox
+                style={{
+                  "margin": "auto 10px"
+                }}
+                onClick={() => setOnlyMyQueries(!onlyMyQueries)}
+              >
+                My queries
+              </Checkbox>
+            </Col>
+            <Col flex={1}>
+              <Button
+                type="primary"
+                style={{
+                  "margin": "auto 10px"
+                }}
+                onClick={e => fetchJobData(option, onlyMyQueries)}
+              >
+                Refresh
+              </Button>
             </Col>
             <Col flex={3}>
               <Select
                 className="w-100"
-                defaultValue="Choose a queue..."
+                defaultValue={option}
                 optionLabelProp={option}
+                style={{
+                  "margin": "10px 10px",
+                  "padding": "10px auto"
+                }}
                 onSelect={event => {
                   setOption(event);
-                  fetchJobData(event);
                 }
                 }
               >
