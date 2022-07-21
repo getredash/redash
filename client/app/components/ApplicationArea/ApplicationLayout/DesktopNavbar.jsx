@@ -11,6 +11,7 @@ import settingsMenu from "@/services/settingsMenu";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
 import DesktopOutlinedIcon from "@ant-design/icons/DesktopOutlined";
+import UnorderedListOutlined from "@ant-design/icons/UnorderedListOutlined";
 import CodeOutlinedIcon from "@ant-design/icons/CodeOutlined";
 import AlertOutlinedIcon from "@ant-design/icons/AlertOutlined";
 import PlusOutlinedIcon from "@ant-design/icons/PlusOutlined";
@@ -57,6 +58,7 @@ function useNavbarActiveState() {
       ),
       dataSources: includes(["DataSources.List"], currentRoute.id),
       alerts: includes(["Alerts.List", "Alerts.New", "Alerts.View", "Alerts.Edit"], currentRoute.id),
+      queues: includes(["Queues"], currentRoute.id),
     }),
     [currentRoute.id]
   );
@@ -95,6 +97,14 @@ export default function DesktopNavbar() {
             <Link href="queries">
               <CodeOutlinedIcon aria-label="Queries navigation button" />
               <span className="desktop-navbar-label">Queries</span>
+            </Link>
+          </Menu.Item>
+        )}
+        {currentUser.hasPermission("view_query") && (
+          <Menu.Item key="queues" className={activeState.queues ? "navbar-active-item" : null}>
+            <Link href="queues">
+              <UnorderedListOutlined aria-label="Enqueued queries" />
+              <span className="desktop-navbar-label">Queues</span>
             </Link>
           </Menu.Item>
         )}

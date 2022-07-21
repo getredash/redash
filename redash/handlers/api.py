@@ -88,6 +88,9 @@ from redash.handlers.visualizations import (
     VisualizationListResource,
     VisualizationResource,
 )
+from redash.handlers.queues import (
+    QueueJobListResource
+)
 from redash.handlers.widgets import WidgetListResource, WidgetResource
 from redash.utils import json_dumps
 
@@ -274,6 +277,13 @@ api.add_org_resource(
     "/api/queries/<query_id>/results/<query_result_id>.<filetype>",
     endpoint="query_result",
 )
+
+api.add_org_resource(
+    QueueJobListResource,
+    "/api/queue/<queue_name>",
+    endpoint="queue_job_list",
+)
+
 api.add_org_resource(
     JobResource,
     "/api/jobs/<job_id>",

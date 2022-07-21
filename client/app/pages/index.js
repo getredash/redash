@@ -26,6 +26,8 @@ import "./queries/QuerySource";
 import "./queries/QueryView";
 import "./queries/VisualizationEmbed";
 
+import "./queues/Queues";
+
 import "./query-snippets/QuerySnippetsList";
 
 import "./settings/OrganizationSettings";
