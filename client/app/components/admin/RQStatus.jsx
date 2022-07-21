@@ -6,7 +6,10 @@ import Badge from "antd/lib/badge";
 import Card from "antd/lib/card";
 import Spin from "antd/lib/spin";
 import Table from "antd/lib/table";
+import Button from 'antd/lib/button'
+import ThunderboltTwoTone from '@ant-design/icons/ThunderboltTwoTone'
 import { Columns } from "@/components/items-list/components/ItemsTable";
+import { axios } from "@/services/axios";
 
 // CounterCard
 
@@ -34,14 +37,55 @@ CounterCard.defaultProps = {
 // Tables
 
 const queryJobsColumns = [
-  { title: "Queue", dataIndex: "origin" },
-  { title: "Query ID", dataIndex: ["meta", "query_id"] },
-  { title: "Org ID", dataIndex: ["meta", "org_id"] },
-  { title: "Data Source ID", dataIndex: ["meta", "data_source_id"] },
-  { title: "User ID", dataIndex: ["meta", "user_id"] },
+  {
+    title: "Queue",
+    dataIndex: "origin"
+  },
+  {
+    title: "Query",
+    dataIndex: "query",
+    render: q => {
+      return (
+        <Button
+          shape="circle"
+          type="link"
+          href={`/queries/${q["id"]}/`}
+          target="_blank">
+          {q["name"]}
+        </Button>
+      )
+    }
+  },
+  {
+    title: "Org",
+    dataIndex: ["org", "name"]
+  },
+  {
+    title: "Data Source",
+    dataIndex: ["data_source", "name"]
+  },
+  {
+    title: "User",
+    dataIndex: ["user", "name"]
+  },
   Columns.custom(scheduled => scheduled.toString(), { title: "Scheduled", dataIndex: ["meta", "scheduled"] }),
   Columns.timeAgo({ title: "Start Time", dataIndex: "started_at" }),
   Columns.timeAgo({ title: "Enqueue Time", dataIndex: "enqueued_at" }),
+  {
+    title: "Kill Job",
+    dataIndex: "id",
+    render: j => {
+      return <Button
+        shape="circle"
+        size="large"
+        icon={<ThunderboltTwoTone twoToneColor="#f32013"/>}
+        onClick={e => {
+          axios.delete(`/api/jobs/${j}`)
+        }}
+      />
+    }
+
+  }
 ];
 
 const otherJobsColumns = [
