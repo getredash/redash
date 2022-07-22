@@ -13,7 +13,7 @@ x-redash-service: &redash-service
 x-redash-environment: &redash-environment
   REDASH_LOG_LEVEL: "INFO"
   REDASH_REDIS_URL: "redis://redis:6379/0"
-  REDASH_DATABASE_URL: "postgresql://redash@postgres:5432/redash"
+  REDASH_DATABASE_URL: "postgresql://redash:${PG_PASS}@postgres:5432/redash"
   REDASH_RATELIMIT_ENABLED: "false"
   REDASH_ENFORCE_CSRF: "true"
   # Set secret keys in the .env file
@@ -40,6 +40,8 @@ services:
       - "host.docker.internal:host-gateway"
     depends_on:
       - server
+      - redis
+      - postgres
     environment:
       <<: *redash-environment
     restart: unless-stopped
@@ -58,7 +60,6 @@ services:
   worker_queries_1:
     <<: *redash-service
     command: dev_worker
-    network_mode: "host"
     depends_on:
       - server
     environment:
@@ -146,6 +147,8 @@ services:
       - "host.docker.internal:host-gateway"
     depends_on:
       - server
+      - redis
+      - postgres
     environment:
       <<: *redash-environment
       QUEUES: periodic,emails,default
