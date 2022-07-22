@@ -13,8 +13,7 @@ x-redash-service: &redash-service
 x-redash-environment: &redash-environment
   REDASH_LOG_LEVEL: "INFO"
   REDASH_REDIS_URL: "redis://redis:6379/0"
-  REDASH_DATABASE_URL: "postgresql://redash:${PG_PASS}@postgres:5432/redash"
-  #REDASH_DATABASE_URL: "postgresql://UserName:PassWorld@Host:Port/DataBaseName"
+  REDASH_DATABASE_URL: "postgresql://redash@postgres:5432/redash"
   REDASH_RATELIMIT_ENABLED: "false"
   REDASH_ENFORCE_CSRF: "true"
   # Set secret keys in the .env file
@@ -56,7 +55,67 @@ services:
       PYTHONUNBUFFERED: 0
       QUEUES: scheduled_queries
     restart: unless-stopped
-  worker_queries:
+  worker_queries_1:
+    <<: *redash-service
+    command: dev_worker
+    network_mode: "host"
+    depends_on:
+      - server
+    environment:
+      <<: *redash-environment
+      QUEUES: queries,schemas
+      WORKERS_COUNT: ${WORKERS_COUNT}
+      PYTHONUNBUFFERED: 0
+    restart: unless-stopped
+  worker_queries_2:
+    <<: *redash-service
+    command: dev_worker
+    network_mode: "host"
+    depends_on:
+      - server
+    environment:
+      <<: *redash-environment
+      QUEUES: queries,schemas
+      WORKERS_COUNT: ${WORKERS_COUNT}
+      PYTHONUNBUFFERED: 0
+    restart: unless-stopped
+  worker_queries_3:
+    <<: *redash-service
+    command: dev_worker
+    network_mode: "host"
+    depends_on:
+      - server
+    environment:
+      <<: *redash-environment
+      QUEUES: queries,schemas
+      WORKERS_COUNT: ${WORKERS_COUNT}
+      PYTHONUNBUFFERED: 0
+    restart: unless-stopped
+  worker_queries_4:
+    <<: *redash-service
+    command: dev_worker
+    network_mode: "host"
+    depends_on:
+      - server
+    environment:
+      <<: *redash-environment
+      QUEUES: queries,schemas
+      WORKERS_COUNT: ${WORKERS_COUNT}
+      PYTHONUNBUFFERED: 0
+    restart: unless-stopped
+  worker_queries_5:
+    <<: *redash-service
+    command: dev_worker
+    network_mode: "host"
+    depends_on:
+      - server
+    environment:
+      <<: *redash-environment
+      QUEUES: queries,schemas
+      WORKERS_COUNT: ${WORKERS_COUNT}
+      PYTHONUNBUFFERED: 0
+    restart: unless-stopped
+  worker_long_queries_1:
     <<: *redash-service
     command: dev_worker
     extra_hosts:
@@ -65,11 +124,10 @@ services:
       - server
     environment:
       <<: *redash-environment
-      QUEUES: queries,schemas
-      WORKERS_COUNT: 4
+      QUEUES: long_queries
       PYTHONUNBUFFERED: 0
     restart: unless-stopped
-  worker_long_queries:
+  worker_long_queries_2:
     <<: *redash-service
     command: dev_worker
     extra_hosts:
