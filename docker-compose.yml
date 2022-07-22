@@ -71,7 +71,6 @@ services:
   worker_queries_2:
     <<: *redash-service
     command: dev_worker
-    network_mode: "host"
     depends_on:
       - server
     environment:
@@ -83,7 +82,6 @@ services:
   worker_queries_3:
     <<: *redash-service
     command: dev_worker
-    network_mode: "host"
     depends_on:
       - server
     environment:
@@ -95,7 +93,6 @@ services:
   worker_queries_4:
     <<: *redash-service
     command: dev_worker
-    network_mode: "host"
     depends_on:
       - server
     environment:
@@ -107,7 +104,6 @@ services:
   worker_queries_5:
     <<: *redash-service
     command: dev_worker
-    network_mode: "host"
     depends_on:
       - server
     environment:
