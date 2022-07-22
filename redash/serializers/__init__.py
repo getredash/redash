@@ -317,7 +317,7 @@ def serialize_job(job):
     result = query_result_id = None
 
     if job.is_cancelled:
-        error = "Query cancelled by user."
+        error = "Query cancelled. Contact an admin if this was not done by you."
         status = 4
     elif isinstance(job.result, Exception):
         error = str(job.result)

@@ -8,6 +8,7 @@ from redash.utils import json_loads
 from rq import Queue, Worker
 from rq.job import Job
 from rq.registry import StartedJobRegistry
+from redash import models
 
 
 def get_redis_status():
@@ -79,6 +80,22 @@ def fetch_jobs(job_ids):
             "enqueued_at": job.enqueued_at,
             "started_at": job.started_at,
             "meta": job.meta,
+            "data_source": {
+               "name": models.DataSource.get_by_id(job.meta["data_source_id"]).to_dict()["name"],
+               "id": job.meta["data_source_id"]
+            },
+            "query": {
+                "name": models.Query.get_by_id(job.meta["query_id"]).name,
+                "id": job.meta["query_id"]
+            },
+            "user":{
+                "name": models.User.get_by_id(job.meta["user_id"]).to_dict()["name"],
+                "id": job.meta["user_id"]
+            },
+            "org": {
+                "name": models.Organization.get_by_id(job.meta["org_id"]).name,
+                "id": job.meta["org_id"]
+            }
         }
         for job in Job.fetch_many(job_ids, connection=rq_redis_connection)
         if job is not None
