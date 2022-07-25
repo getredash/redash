@@ -46,11 +46,28 @@ function Queues() {
     return secondsToHms(timeElapsed)
   }
 
+  const sorterFunc = (a, b) => {
+    if(a.queue.length === b.queue.length){
+      return Number(a.order) - Number(b.order);
+    }
+
+    return a.queue.length - b.queue.length;
+  }
+
   const columns = [
+    {
+      title: 'Queue',
+      dataIndex: 'queue',
+      key: 'queue',
+      sorter: sorterFunc,
+      sortDirections: ['ascend'],
+    },
     {
       title: 'Order',
       dataIndex: 'order',
-      key: 'order'
+      key: 'order',
+      sorter: (a, b) => Number(a.order) - Number(b.order),
+      sortDirections: ['ascend', 'descend'],
     },
     {
       title: 'User',
@@ -78,22 +95,31 @@ function Queues() {
           type="link"
           href={`/queries/${e["query_id"]}`}
           target="_blank">
-            {e["query_name"]}
+          {e["query_name"]}
         </Button>
         )
       }
     }
   ]
 
-  const [option, setOption] = useState("long_queries")
+  const [option, setOption] = useState(["long_queries", "queries"])
   const [dataSource, setDataSource] = useState([])
   const [onlyMyQueries, setOnlyMyQueries] = useState(false)
 
 
   const fetchJobData = async (event, onlyMyQueries) => {
 
-    let jobs = await axios.get(`/api/queue/${event}?onlyMy=${onlyMyQueries}`)
-    setDataSource(jobs);
+    let jobs = await axios.get(`/api/queue`, {
+      params: {
+        queues: event,
+        onlyMyQueries: onlyMyQueries
+      }
+    })
+
+    if (typeof(jobs) == "string")
+      setDataSource([]);
+    else
+      setDataSource(jobs);
   }
 
   useEffect(() => {
@@ -129,25 +155,25 @@ function Queues() {
               </Button>
             </Col>
             <Col span={24}>
-              <Select
-                className="w-100"
-                defaultValue={option}
-                optionLabelProp={option}
-                style={{
-                  "margin": "10px 10px",
-                  "padding": "10px auto"
-                }}
-                onSelect={event => {
-                  setOption(event);
-                }
-                }
-              >
+                <Select
+                  mode="multiple"
+                  className="w-100"
+                  allowClear
+                  style={{
+                    width: '100%',
+                    "margin": "10px 10px",
+                    "padding": "10px auto"
+                  }}
+                  placeholder="Please select"
+                  defaultValue={option}
+                  onChange={event => setOption(event)}
+                >
                 {
                   _queues.map(queue_name => (
-                    <Select.Option key={`queue-${queue_name}`} value={queue_name} />
+                    <Select.Option key={queue_name} >{queue_name}</Select.Option>
                   ))
                 }
-              </Select>
+                </Select>
             </Col>
           </Row>
         }

@@ -280,7 +280,7 @@ api.add_org_resource(
 
 api.add_org_resource(
     QueueJobListResource,
-    "/api/queue/<queue_name>",
+    "/api/queue",
     endpoint="queue_job_list",
 )
 
