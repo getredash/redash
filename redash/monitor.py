@@ -72,7 +72,7 @@ def rq_job_ids():
 
 
 def fetch_jobs(job_ids):
-    return [
+    return_obj = [
         {
             "id": job.id,
             "name": job.func_name,
@@ -100,6 +100,10 @@ def fetch_jobs(job_ids):
         for job in Job.fetch_many(job_ids, connection=rq_redis_connection)
         if job is not None
     ]
+    
+    models.db.session.commit()
+    
+    return return_obj
 
 
 def rq_queues():
