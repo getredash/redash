@@ -65,6 +65,7 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 - JSON
 - Apache Kylin
 - OmniSciDB (Formerly MapD)
+- MariaDB
 - MemSQL
 - Microsoft Azure Data Warehouse / Synapse
 - Microsoft Azure SQL Database
