@@ -246,6 +246,7 @@ class QueryExecutor(object):
         self.metadata["Job ID"] = self.job.id
         self.metadata["Query Hash"] = self.query_hash
         self.metadata["Scheduled"] = self.is_scheduled_query
+        self.metadata["Username"] = self.metadata.get("Username", "unknown")
 
         return query_runner.annotate_query(self.query, self.metadata)
 
