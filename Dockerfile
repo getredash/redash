@@ -72,7 +72,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
     && ACCEPT_EULA=Y apt-get install  -y --no-install-recommends msodbcsql17 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && curl "$databricks_odbc_driver_url" --output /tmp/simba_odbc.zip \
+    && curl "$databricks_odbc_driver_url" --location --output /tmp/simba_odbc.zip \
     && chmod 600 /tmp/simba_odbc.zip \
     && unzip /tmp/simba_odbc.zip -d /tmp/ \
     && dpkg -i /tmp/SimbaSparkODBC-*/*.deb \
