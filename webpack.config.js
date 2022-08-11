@@ -118,6 +118,7 @@ const config = {
         { from: "client/app/assets/robots.txt" },
         { from: "client/app/unsupported.html" },
         { from: "client/app/unsupportedRedirect.js" },
+        { from: "client/app/segment.js" },
         { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
         { from: "client/app/assets/fonts", to: "fonts/" }
       ],
