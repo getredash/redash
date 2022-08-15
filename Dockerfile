@@ -19,13 +19,16 @@ COPY --chown=redash viz-lib /frontend/viz-lib
 ARG code_coverage
 ENV BABEL_ENV=${code_coverage:+test}
 
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
+# Create cache folder for yarn
+RUN mkdir -p /tmp/yarn-cache
+
+RUN if [ "x$skip_frontend_build" = "x" ] ; then YARN_CACHE_FOLDER=/tmp/yarn-cache yarn cache clean; yarn --frozen-lockfile --network-concurrency 1 ; fi
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn build; else mkdir -p /frontend/client/dist && touch /frontend/client/dist/multi_org.html && touch /frontend/client/dist/index.html; fi
+RUN if [ "x$skip_frontend_build" = "x" ] ; then YARN_CACHE_FOLDER=/tmp/yarn-cache  yarn build; else mkdir -p /frontend/client/dist && touch /frontend/client/dist/multi_org.html && touch /frontend/client/dist/index.html; fi
 
-FROM python:3.7-slim-buster
+FROM python:3.8-slim-buster
 
 EXPOSE 5000
 
@@ -37,10 +40,11 @@ ARG skip_dev_deps
 RUN useradd --create-home redash
 
 # Ubuntu packages
-RUN apt-get update && \
-  apt-get install -y --no-install-recommends \
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
     curl \
     gnupg \
+		cmake \
     build-essential \
     pwgen \
     libffi-dev \
@@ -58,8 +62,8 @@ RUN apt-get update && \
     freetds-dev \
     libsasl2-dev \
     unzip \
-    libsasl2-modules-gssapi-mit && \
-    apt-get clean && \
+    libsasl2-modules-gssapi-mit
+RUN apt-get clean && \
      rm -rf /var/lib/apt/lists/*
 
 
@@ -72,7 +76,8 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
     && ACCEPT_EULA=Y apt-get install  -y --no-install-recommends msodbcsql17 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && curl "$databricks_odbc_driver_url" --output /tmp/simba_odbc.zip \
+		&& curl -SL "$databricks_odbc_driver_url" --output /tmp/simba_odbc.zip \
+		&& ls -l /tmp/* \
     && chmod 600 /tmp/simba_odbc.zip \
     && unzip /tmp/simba_odbc.zip -d /tmp/ \
     && dpkg -i /tmp/SimbaSparkODBC-*/*.deb \
@@ -89,6 +94,9 @@ ENV PIP_NO_CACHE_DIR=1
 # rollback pip version to avoid legacy resolver problem
 RUN pip install pip==20.2.4;
 
+# Installing Cython as it's prerequisite
+RUN pip install Cython
+
 # We first copy only the requirements file, to avoid rebuilding on every file change.
 COPY requirements_all_ds.txt ./
 RUN if [ "x$skip_ds_deps" = "x" ] ; then pip install -r requirements_all_ds.txt ; else echo "Skipping pip install -r requirements_all_ds.txt" ; fi
@@ -98,6 +106,10 @@ RUN if [ "x$skip_dev_deps" = "x" ] ; then pip install -r requirements_dev.txt ; 
 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
+
+# Add custom python packages here
+RUN python -m pip install scipy && \
+    python -m pip install --upgrade pyzmq
 
 COPY --chown=redash . /app
 COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist
