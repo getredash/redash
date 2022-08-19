@@ -57,6 +57,8 @@ class QueueJobListResource(BaseResource):
                 
             global_queue.append(queued_jobs_meta)
             
+        models.db.session.commit()  
+                      
         global_queue = reduce(iconcat, global_queue, [])
                 
         return global_queue
