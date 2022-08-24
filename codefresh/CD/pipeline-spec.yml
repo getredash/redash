@@ -22,13 +22,14 @@ spec:
         noCache: false
         noCfCache: false
         resetVolume: false
+      verified: true
       context: Dapulse-OAuth2
       contexts:
+        - chartmuseum-sandbox-config
         - sandbox
         - env-stage-use1-bigbrain
 
     - name: run-prod-use1
-      description: redash
       type: git
       repo: DaPulse/redash
       events:
@@ -46,6 +47,7 @@ spec:
       verified: true
       context: Dapulse-OAuth2
       contexts:
+        - chartmuseum-prod-config
         - production-bigbrain
         - env-prod-use1-bigbrain
 
@@ -62,7 +64,7 @@ spec:
     path: ./codefresh/CD/workflow.yml
     context: Dapulse-OAuth2
   runtimeEnvironment:
-    name: eks_codefresh-hybrid-prod/codefresh
+    name: prod-use1-codefresh-golem/codefresh
     cpu: 2000m
     memory: 4000Mi
     dindStorage: nullGi

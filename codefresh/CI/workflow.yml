@@ -3,7 +3,10 @@ version: '1.0'
 stages:
   - clone
   - build
+  - wait-when-pr
   - staging
+#  - wait-before-prod
+#  - production
   - after-deployment
 
 steps:
@@ -133,50 +136,50 @@ steps:
           isMaster: "'${{CF_BRANCH}}' == 'master'"
           isApproved: 'includes("${{STAGING_APPROVED}}", "{{STAGING_APPROVED}}") == false'
 
-  approve_prod:
-    type: pending-approval
-    title: Approve Before Production
-    description: Step description
-    timeout:
-      timeUnit: 'minutes'
-      duration: 45
-      finalState: denied
-    fail_fast: false
-    stage: wait-before-prod
-    when:
-      condition:
-        all:
-          isMaster: "'${{CF_BRANCH}}' == 'master'"
-          myCondition: deploy_staging.result == 'success'
+#  approve_prod:
+#    type: pending-approval
+#    title: Approve Before Production
+#    description: Step description
+#    timeout:
+#      timeUnit: 'minutes'
+#      duration: 15
+#      finalState: denied
+#    fail_fast: false
+#    stage: wait-before-prod
+#    when:
+#      condition:
+#        all:
+#          isMaster: "'${{CF_BRANCH}}' == 'master'"
+#          myCondition: deploy_staging.result == 'success'
 
-  production:
-    type: parallel
-    title: Deploy production
-    stage: production
-    steps:
-      production_use1:
-        title: Deploy production use1
-        type: codefresh-run
-        arguments:
-          PIPELINE_ID: redash/CD
-          TRIGGER_ID: run-prod-use1
-          BRANCH: '${{CF_BRANCH}}'
-          SHA: '${{CF_REVISION}}'
-          ENABLE_NOTIFICATIONS: true
-          FOLLOW_LOGS: false
-    when:
-      steps:
-        - name: approve_prod
-          'on':
-            - approved
-  push_tag:
-    title: Push latest docker tag
-    type: push
-    candidate: '${{build}}'
-    tag: latest
-    registry: 'aws-bi-use1'
-    stage: after-deployment
-    when:
-      condition:
-        all:
-          myCondition: production.result == 'success'
+#  production:
+#    type: parallel
+#    title: Deploy production
+#    stage: production
+#    steps:
+#      production_use1:
+#        title: Deploy production use1
+#        type: codefresh-run
+#        arguments:
+#          PIPELINE_ID: redash/CD
+#          TRIGGER_ID: run-prod-use1
+#          BRANCH: '${{CF_BRANCH}}'
+#          SHA: '${{CF_REVISION}}'
+#          ENABLE_NOTIFICATIONS: true
+#          FOLLOW_LOGS: false
+#    when:
+#      steps:
+#        - name: approve_prod
+#          'on':
+#            - approved
+#  push_tag:
+#    title: Push latest docker tag
+#    type: push
+#    candidate: '${{build}}'
+#    tag: latest
+#    registry: 'aws-bi-use1'
+#    stage: after-deployment
+#    when:
+#      condition:
+#        all:
+#          myCondition: production.result == 'success'

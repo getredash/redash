@@ -2,7 +2,7 @@ version: '1.0'
 # Stages can help you organize your steps in stages
 stages:
   - clone
-  - lock
+  - helm-diff
   - deploy
   - after-deployment
 
@@ -14,29 +14,30 @@ steps:
     revision: '${{CF_REVISION}}'
     git: Dapulse-OAuth2
     stage: clone
-  check_lock_status:
-    title: 'Is locked? [infra-api]'
-    stage: lock
-    type: monday/infra_api
+  helm_diff:
+    type: helm
+    title: Helm diff
+    stage: helm-diff
+    working_directory: '${{clone}}'
     arguments:
-      ENVIRONMENT: ${{ENVIRONMENT}}
-      METHOD_TYPE: GET
-      METHOD_NAME: locker/islocked
-      REGION: ${{REGION}}
-  lock_deployment:
-    title: 'Lock ${{ENVIRONMENT}}'
-    type: monday/infra_api
-    stage: lock
-    arguments:
-      ENVIRONMENT: ${{ENVIRONMENT}}
-      METHOD_TYPE: POST
-      METHOD_NAME: locker/lock
-      REGION: ${{REGION}}
-      METHOD_BODY: '{"reason": "Deploying CI/CD"}'
-    when:
-      condition:
-        all:
-          myCondition: check_lock_status.result == 'success'
+      action: auth
+      skip_cf_stable_helm_repo: true
+      helm_version: 3.2.1
+      kube_context: ${{KUBE_CTX}}
+      commands:
+        - source /opt/bin/release_chart
+        - 'helm plugin install https://github.com/databus23/helm-diff'
+        - >-
+          helm repo add chartmuseum
+          https://"$HELMREPO_USERNAME":"$HELMREPO_PASSWORD"@$CHARTMUSEUM_HOST
+        - helm repo update
+        - helm repo list
+        - helm search repo $CF_REPO_NAME
+        - helm ls -n $CF_REPO_NAME
+        - >-
+          helm diff upgrade $CF_REPO_NAME chartmuseum/$CF_REPO_NAME -f
+          helm_values/$ENVIRONMENT/$REGION_SHORT.yaml --set
+          deployment.image.tag="$CF_REVISION" --namespace $CF_REPO_NAME --allow-unreleased
   notify_on_deploy_start:
     title: Notify on deploy start
     type: monday/infra_api
@@ -48,10 +49,6 @@ steps:
       METHOD_NAME: metrics
       METHOD_BODY: '{ "status":"start", "scope":"deploy" }'
       METHOD_QUERY_PARAMS: metricType=deploy
-    when:
-      condition:
-        all:
-          myCondition: lock_deployment.result == 'success'
   helm_deploy:
     type: helm
     stage: deploy
@@ -65,20 +62,15 @@ steps:
       kube_context: ${{KUBE_CTX}}
       commands:
         - >-
-          helm repo add redash https://getredash.github.io/contrib-helm-chart/
+          helm repo add chartmuseum
+          https://"$HELMREPO_USERNAME":"$HELMREPO_PASSWORD"@$CHARTMUSEUM_HOST
         - helm repo update
         - helm repo list
+        - helm search repo $CF_REPO_NAME
+        - helm ls -n $CF_REPO_NAME
         - >-
-          helm upgrade -i $CF_REPO_NAME redash/redash
-          -f helm_values/$ENVIRONMENT/$REGION_SHORT.yaml
-          --version $CHART_VERSION
-          --set image.tag="$CF_REVISION"
-          --namespace $CF_REPO_NAME
-          --atomic --wait --debug --timeout 600s --create-namespace
-    when:
-      condition:
-        all:
-          myCondition: lock_deployment.result == 'success'
+          helm upgrade -i $CF_REPO_NAME chartmuseum/$CF_REPO_NAME -f
+          helm_values/$ENVIRONMENT/$REGION_SHORT.yaml --set image.tag="$CF_REVISION" --namespace $CF_REPO_NAME --atomic --wait --debug --create-namespace
   notify_on_deploy_success:
     title: Notify on deploy success
     type: monday/infra_api
@@ -114,14 +106,6 @@ steps:
     title: Post deployments tasks
     stage: after-deployment
     steps:
-      unlock_deployment:
-        title: Unlock ${{ENVIRONMENT}}
-        type: monday/infra_api
-        arguments:
-          ENVIRONMENT: ${{ENVIRONMENT}}
-          METHOD_TYPE: POST
-          METHOD_NAME: locker/unlock
-          REGION: ${{REGION}}
       report_to_coralogix:
         title: Report deployment to Coralogix
         type: monday/report_to_coralogix
