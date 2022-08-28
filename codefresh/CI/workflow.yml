@@ -7,7 +7,7 @@ stages:
   - staging
 #  - wait-before-prod
 #  - production
-  - after-deployment
+#  - after-deployment
 
 steps:
   clone:
