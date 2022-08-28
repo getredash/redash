@@ -37,7 +37,7 @@ steps:
         - >-
           helm diff upgrade $CF_REPO_NAME chartmuseum/$CF_REPO_NAME -f
           helm_values/$ENVIRONMENT/$REGION_SHORT.yaml --set
-          deployment.image.tag="$CF_REVISION" --namespace $CF_REPO_NAME --allow-unreleased
+          image.tag="$CF_REVISION" --namespace $CF_REPO_NAME --allow-unreleased
   notify_on_deploy_start:
     title: Notify on deploy start
     type: monday/infra_api
