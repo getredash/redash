@@ -1,0 +1,31 @@
+externalPostgreSQLSecret:
+  name: postgresql-connection-string
+  key: REDASH_DATABASE_URL
+redash:
+  existingSecret: redash
+  samlMetadataUrl: https://monday.okta.com/app/exkkboqkoqzyriYoK357/sso/saml/metadata
+  samlEntityId: https://monday.okta.com/app/monday_redashk8s_1/exkkboqkoqzyriYoK357/sso/saml
+  samlNameidFormat: urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress
+redis:
+  existingSecret: redash-redis
+postgresql:
+  enabled: false
+global:
+  storageClass: gp2
+image:
+  repository: 281555170401.dkr.ecr.us-east-1.amazonaws.com/redash
+
+adhocWorker:
+  replicaCount: 1
+
+genericWorker:
+  replicaCount: 1
+
+scheduledWorker:
+  replicaCount: 1
+
+scheduler:
+  replicaCount: 1
+
+server:
+  replicaCount: 1

@@ -1,0 +1,71 @@
+version: '1.0'
+
+kind: pipeline
+metadata:
+  name: redash/CD
+  project: redash
+spec:
+  triggers:
+    - name: run-stage-use1
+      description: redash
+      type: git
+      repo: DaPulse/redash
+      events:
+        - push.heads
+      pullRequestAllowForkEvents: false
+      commentRegex: /.*/gi
+      branchRegex: /.*/gi
+      branchRegexInput: regex
+      provider: github
+      disabled: true
+      options:
+        noCache: false
+        noCfCache: false
+        resetVolume: false
+      verified: true
+      context: Dapulse-OAuth2
+      contexts:
+        - chartmuseum-sandbox-config
+        - sandbox
+        - env-stage-use1-bigbrain
+
+    - name: run-prod-use1
+      type: git
+      repo: DaPulse/redash
+      events:
+        - push.heads
+      pullRequestAllowForkEvents: false
+      commentRegex: /.*/gi
+      branchRegex: /^((master)$).*/gi
+      branchRegexInput: multiselect
+      provider: github
+      disabled: true
+      options:
+        noCache: false
+        noCfCache: false
+        resetVolume: false
+      verified: true
+      context: Dapulse-OAuth2
+      contexts:
+        - chartmuseum-prod-config
+        - production-bigbrain
+        - env-prod-use1-bigbrain
+
+  stages: []
+  variables:
+    - key: CHART_VERSION
+      value: 3.0.0
+  contexts: []
+  terminationPolicy: []
+  externalResources: []
+  specTemplate:
+    location: git
+    repo: DaPulse/redash
+    path: ./codefresh/CD/workflow.yml
+    context: Dapulse-OAuth2
+  runtimeEnvironment:
+    name: prod-use1-codefresh-golem/codefresh
+    cpu: 2000m
+    memory: 4000Mi
+    dindStorage: nullGi
+  steps: {}

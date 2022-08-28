@@ -1,0 +1,27 @@
+name: PR Check
+
+on:
+  pull_request:
+    types: ['opened', 'edited', 'reopened', 'synchronize']
+
+jobs:
+  title:
+    name: Item link (audit)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check for link to monday item url in PR description
+        uses: neofinancial/ticket-check-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          titleFormat: '%title%'
+          bodyURLRegex: 'https:\/\/[\w\d-_\.]+\.monday\.com\/boards\/\d+(?:\/\w+\/\d+)?\/pulses\/(?<ticketNumber>\d+)'
+      - name: Comment if no Item
+        uses: mshick/add-pr-comment@v1
+        if: ${{ failure() }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          message: |
+            **PR Check failed:** Please add monday.com item link to description of this PR! :arrow_up:
+          allow-repeats: false
