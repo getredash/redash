@@ -29,7 +29,6 @@ PINOT_TYPES_MAPPING = {
 
 class Pinot(BaseQueryRunner):
     noop_query = "SELECT 1"
-    controller_uri = "http://localhost:9000"
     username = None
     password = None
 
@@ -38,10 +37,10 @@ class Pinot(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "brokerHost": {"type": "string", "default": "localhost"},
+                "brokerHost": {"type": "string", "default": ""},
                 "brokerPort": {"type": "number", "default": 8099},
                 "brokerScheme": {"type": "string", "default": "http"},
-                "controllerURI": {"type": "string", "default": "http://localhost:9000"},
+                "controllerURI": {"type": "string", "default": ""},
                 "username": {"type": "string"},
                 "password": {"type": "string"},
             },
@@ -87,7 +86,7 @@ class Pinot(BaseQueryRunner):
             data = {"columns": columns, "rows": rows}
             error = None
             json_data = json_dumps(data)
-            logger.debug("Pinot execute query [%s], and resp: %s", query, json_data)
+            logger.debug("Pinot execute query [%s]", query)
         finally:
             connection.close()
 
@@ -125,10 +124,10 @@ class Pinot(BaseQueryRunner):
         r = requests.get(url, headers={"Accept": "application/json"}, auth= HTTPBasicAuth(self.username, self.password))
         try:
             result = r.json()
-            logger.debug("get_metadata_from_controller from path %s: %s", path, result)
+            logger.debug("get_metadata_from_controller from path %s", path)
         except ValueError as e:
             raise pinotdb.exceptions.DatabaseError(
-                "Got invalid json response from " f"{self.controller_uri}:{path}: {r.text}"
+                f"Got invalid json response from {self.controller_uri}:{path}: {r.text}"
             ) from e
         return result
 
