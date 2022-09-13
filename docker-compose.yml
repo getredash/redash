@@ -62,6 +62,8 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_HOST_AUTH_METHOD: "trust"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
   email:
     image: djfarrelly/maildev
     ports:
