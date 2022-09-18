@@ -45,7 +45,7 @@ def _query_restrictions(query):
     # get rid of prefix like bigbrain. or final.
     query = re.sub('bigbrain.', '', re.sub('final.', '', re.sub('raw.', '', query)))
     occurrences = re.findall(" from events ", query) + re.findall(" join events ", query)
-    print("num of occurrences : ", len(occurrences))
+    # print("num of occurrences : ", len(occurrences))
     if len(occurrences) > 1:
         return False, f'Querying events table multiple times is forbidden.The query contains {len(occurrences)} occurrences of the table events.'
 
