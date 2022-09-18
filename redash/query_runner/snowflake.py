@@ -153,9 +153,9 @@ class Snowflake(BaseQueryRunner):
         connection = self._get_connection()
         cursor = connection.cursor()
 
-        condition, message = _query_restrictions(query)
+        passed, message = _query_restrictions(query)
 
-        if not condition:
+        if not passed:
             return None, message
 
         try:
