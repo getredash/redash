@@ -34,8 +34,9 @@ TYPES_MAP = {
 def _query_restrictions(query):
     query_without_comments = ''
     for line in query.split('\n'):
-        if line.startswith('--'):
-            continue  # skip comments
+        line = line.strip()
+        if line.find('--') != -1:
+            line = line[:line.find('--')]
         query_without_comments += ' ' + line  # creates one line query
     query = query_without_comments
     query = query.lower()
@@ -44,7 +45,7 @@ def _query_restrictions(query):
     # get rid of prefix like bigbrain. or final.
     query = re.sub('bigbrain.', '', re.sub('final.', '', re.sub('raw.', '', query)))
     occurrences = re.findall(" from events ", query) + re.findall(" join events ", query)
-    # print("num of occurrences : ", len(occurrences))
+    print("num of occurrences : ", len(occurrences))
     if len(occurrences) > 1:
         return False, f'Querying events table multiple times is forbidden.The query contains {len(occurrences)} occurrences of the table events.'
 
@@ -52,7 +53,7 @@ def _query_restrictions(query):
         if query.find("create_at") + query.find("ingestion_time") == -2:
             return False, 'Querying events table should always be with time constraint (by created_at for ' \
                           'FINAL.events & ingestion_time for RAW.events) '
-        return True, ''
+    return True, ''
 
 
 class Snowflake(BaseQueryRunner):
