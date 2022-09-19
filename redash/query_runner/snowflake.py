@@ -157,7 +157,7 @@ class Snowflake(BaseQueryRunner):
         passed, message = _query_restrictions(query)
 
         if not passed:
-            return None, message
+            return {}, message
 
         try:
             cursor.execute("USE WAREHOUSE {}".format(self.configuration["warehouse"]))
