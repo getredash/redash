@@ -50,7 +50,7 @@ def _query_restrictions(query):
         return False, f'Querying events table multiple times is forbidden.The query contains {len(occurrences)} occurrences of the table events.'
 
     if occurrences:
-        if query.find("create_at") + query.find("ingestion_time") == -2:
+        if query.find("created_at") + query.find("ingestion_time") == -2:
             return False, 'Querying events table should always be with time constraint (by created_at for ' \
                           'FINAL.events & ingestion_time for RAW.events) '
     return True, ''
