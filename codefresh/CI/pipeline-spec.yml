@@ -4,6 +4,9 @@ kind: pipeline
 metadata:
   name: redash/CI
   project: redash
+  labels:
+    tags:
+      - bi-engineering
 spec:
   triggers:
     - name: staging

@@ -4,6 +4,9 @@ kind: pipeline
 metadata:
   name: redash/CD
   project: redash
+  labels:
+    tags:
+      - bi-engineering
 spec:
   triggers:
     - name: run-stage-use1
