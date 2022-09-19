@@ -165,7 +165,7 @@ class Snowflake(BaseQueryRunner):
 
             user_id = "redash" if user is None else user.email
             query_id = str(query_id) if query_id else ''
-            query += "-- REDASH USER: " + user_id + " QUERY ID: " + query_id
+            query += '-- {"REDASH USER": "' + user_id + '"  , "QUERY ID": "' + query_id + '"}'
 
             cursor.execute(query)
 
