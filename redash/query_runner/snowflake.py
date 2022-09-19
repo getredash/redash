@@ -53,7 +53,7 @@ def _query_restrictions(query):
         if query.find("created_at") + query.find("ingestion_time") == -2:
             return False, 'Querying events table should always be with time constraint (by created_at for ' \
                           'FINAL.events & ingestion_time for RAW.events) '
-    return True, ''
+    return True, None
 
 
 class Snowflake(BaseQueryRunner):
@@ -154,10 +154,10 @@ class Snowflake(BaseQueryRunner):
         connection = self._get_connection()
         cursor = connection.cursor()
 
-        passed, error = _query_restrictions(query)
+        passed, msg = _query_restrictions(query)
 
         if not passed:
-            return {}, error
+            return {}, msg
 
         try:
             cursor.execute("USE WAREHOUSE {}".format(self.configuration["warehouse"]))
