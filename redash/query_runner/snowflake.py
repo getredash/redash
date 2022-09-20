@@ -42,6 +42,8 @@ def _query_restrictions(query):
     query = query.lower()
     # replace multiple spaces with one space
     query = re.sub(' +', ' ', query)
+    # remove /* */ comments
+    query = re.sub('\/\*.*\*\/', '', query)
     # get rid of prefix like bigbrain. or final.
     query = re.sub('bigbrain.', '', re.sub('final.', '', re.sub('raw.', '', query)))
     occurrences = re.findall(" from events ", query) + re.findall(" join events ", query)
