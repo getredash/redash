@@ -47,7 +47,7 @@ def _query_restrictions(query):
     occurrences = re.findall(" from events ", query) + re.findall(" join events ", query)
     # print("num of occurrences : ", len(occurrences))
     if len(occurrences) > 1:
-        return False, f'Querying events table multiple times is forbidden.The query contains {len(occurrences)} occurrences of the table events.'
+        return False, f'Querying events table multiple times is forbidden.The query contains {len(occurrences)} occurrences of the table events. '
 
     if occurrences:
         if query.find("created_at") + query.find("ingestion_time") == -2:
@@ -157,7 +157,8 @@ class Snowflake(BaseQueryRunner):
         passed, message = _query_restrictions(query)
 
         if not passed:
-            return {}, message
+            # return {}, message
+            raise Exception(message)
 
         try:
             cursor.execute("USE WAREHOUSE {}".format(self.configuration["warehouse"]))
