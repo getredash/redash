@@ -150,7 +150,7 @@ class Snowflake(BaseQueryRunner):
         data = {"columns": columns, "rows": rows}
         return data
 
-    def run_query(self, query, user, query_id=None):
+    def run_query(self, query, user, query_id=None, apply_restrictions_to_query=False):
         connection = self._get_connection()
         cursor = connection.cursor()
 
@@ -158,7 +158,6 @@ class Snowflake(BaseQueryRunner):
 
         if not passed:
             return None, error
-            # raise Exception(error)
 
         try:
             cursor.execute("USE WAREHOUSE {}".format(self.configuration["warehouse"]))

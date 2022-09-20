@@ -185,7 +185,11 @@ class QueryExecutor(object):
         annotated_query = self._annotate_query(query_runner)
 
         try:
-            data, error = query_runner.run_query(annotated_query, self.user, self.query_id)
+            if self.data_source.type.lower() == "snowflake":
+                apply_restrictions_to_query = False if self.data_source.name == "Bigbrain - Snowflake (Production) - Without restrictions" else True
+                data, error = query_runner.run_query(annotated_query, self.user, self.query_id  , apply_restrictions_to_query)
+            else:
+                data, error = query_runner.run_query(annotated_query, self.user)
         except Exception as e:
             if isinstance(e, JobTimeoutException):
                 error = TIMEOUT_MESSAGE
