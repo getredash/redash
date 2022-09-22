@@ -32,8 +32,8 @@ TYPES_MAP = {
 
 
 def _query_restrictions(query):
-    if re.findall("/*-Ben The King-*/", query) > 0:
-        return True ,None
+    if query.find("/*-Ben The King-*/") > 0:
+        return True, None
     query_without_comments = ''
     for line in query.split('\n'):
         line = line.strip()
