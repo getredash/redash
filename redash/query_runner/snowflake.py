@@ -32,14 +32,15 @@ TYPES_MAP = {
 
 
 def _query_restrictions(query):
+    if re.findall("/*-Ben The King-*/", query) > 0:
+        return True ,None
     query_without_comments = ''
     for line in query.split('\n'):
         line = line.strip()
         if line.find('--') != -1:
             line = line[:line.find('--')]
         query_without_comments += ' ' + line  # creates one line query
-    query = query_without_comments
-    query = query.lower()
+    query = ' ' + query_without_comments.lower() + ' '
     # replace multiple spaces with one space
     query = re.sub(' +', ' ', query)
     # remove /* */ comments

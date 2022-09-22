@@ -186,9 +186,7 @@ class QueryExecutor(object):
 
         try:
             if self.data_source.type.lower() == "snowflake":
-                apply_restrictions_to_query = False if self.data_source.name == "Bigbrain - Snowflake (Production) - Without restrictions" else True
-                data, error = query_runner.run_query(annotated_query, self.user, self.query_id,
-                                                     apply_restrictions_to_query)
+                data, error = query_runner.run_query(annotated_query, self.user, self.query_id)
             else:
                 data, error = query_runner.run_query(annotated_query, self.user)
         except Exception as e:
