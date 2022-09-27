@@ -34,10 +34,9 @@ ARG skip_dev_deps
 
 RUN useradd --create-home redash
 
-RUN apt update -y && apt upgrade -y && apt autoremove -y
 
 # Ubuntu packages
-RUN apt-get update && \
+RUN apt-get update && apt-get upgrade -y && apt-get autoremove -y && \
   apt-get install -y \
     curl \
     gnupg \
