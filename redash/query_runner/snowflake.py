@@ -32,7 +32,7 @@ TYPES_MAP = {
 
 
 def _query_restrictions(query):
-    if query.find("/*-Ben The King-*/") > 0:
+    if query.find("/*laspha*/") > 0:
         return True, None
     query_without_comments = ''
     for line in query.split('\n'):
