@@ -1,4 +1,4 @@
-from redash import models, settings
+from redash import models
 from tests import BaseTestCase
 from mock import patch
 
@@ -228,6 +228,14 @@ class TestUserListGet(BaseTestCase):
             ],
         )
 
+    def test_returns_400_with_invalid_disabled(self):
+        rv = self.make_request("get", "/api/users?disabled=something")
+        self.assertEqual(rv.status_code, 400)
+
+    def test_returns_400_with_invalid_pending(self):
+        rv = self.make_request("get", "/api/users?pending=something")
+        self.assertEqual(rv.status_code, 400)
+
 
 class TestUserResourceGet(BaseTestCase):
     def test_returns_api_key_for_your_own_user(self):
@@ -276,9 +284,7 @@ class TestUserResourcePost(BaseTestCase):
     def test_marks_email_as_not_verified_when_changed(self, _):
         user = self.factory.user
         user.is_email_verified = True
-        rv = self.make_request(
-            "post", "/api/users/{}".format(user.id), data={"email": "donald@trump.biz"}
-        )
+        self.make_request("post", "/api/users/{}".format(user.id), data={"email": "donald@trump.biz"})
         self.assertFalse(user.is_email_verified)
 
     @patch("redash.settings.email_server_is_configured", return_value=False)
@@ -287,9 +293,7 @@ class TestUserResourcePost(BaseTestCase):
     ):
         user = self.factory.user
         user.is_email_verified = True
-        rv = self.make_request(
-            "post", "/api/users/{}".format(user.id), data={"email": "donald@trump.biz"}
-        )
+        self.make_request("post", "/api/users/{}".format(user.id), data={"email": "donald@trump.biz"})
         self.assertTrue(user.is_email_verified)
 
     def test_returns_200_for_admin_changing_other_user(self):
