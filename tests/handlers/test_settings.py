@@ -62,7 +62,7 @@ class TestOrganizationSettings(BaseTestCase):
             user=admin,
         )
         updated_org = Organization.get_by_slug(self.factory.org.slug)
-        self.assertEqual(updated_org.azure_apps_domains, domains)
+        self.assertEqual(updated_org.azure_apps_roles, roles)
 
     def test_get_returns_google_appas_domains(self):
         admin = self.factory.create_admin()
