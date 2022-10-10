@@ -36,6 +36,23 @@ export default function AzureLoginSettings(props) {
           />
         )}
       </Form.Item>
+      <Form.Item label="Allowed Roles (case sensitive)">
+        <Select
+          mode="tags"
+          value={values.auth_azure_roles}
+          onChange={value => onChange({ auth_azure_roles: value })}
+        />
+        {!isEmpty(values.auth_azure_roles) && (
+          <Alert
+            message={
+              <p>
+                Restrict access to users assigned the <strong>{join(values.auth_azure_roles, ", ")}</strong> role.
+              </p>
+            }
+            className="m-t-16"
+          />
+        )}
+      </Form.Item>
     </DynamicComponent>
   );
 }

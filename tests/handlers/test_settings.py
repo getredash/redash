@@ -52,6 +52,18 @@ class TestOrganizationSettings(BaseTestCase):
         updated_org = Organization.get_by_slug(self.factory.org.slug)
         self.assertEqual(updated_org.azure_apps_domains, domains)
 
+    def test_updates_azure_roles(self):
+        admin = self.factory.create_admin()
+        roles = ["admin"]
+        rv = self.make_request(
+            "post",
+            "/api/settings/organization",
+            data={"auth_azure_roles": roles},
+            user=admin,
+        )
+        updated_org = Organization.get_by_slug(self.factory.org.slug)
+        self.assertEqual(updated_org.azure_apps_domains, domains)
+
     def test_get_returns_google_appas_domains(self):
         admin = self.factory.create_admin()
         domains = ["example.com"]
@@ -60,10 +72,18 @@ class TestOrganizationSettings(BaseTestCase):
         rv = self.make_request("get", "/api/settings/organization", user=admin)
         self.assertEqual(rv.json["settings"]["auth_google_apps_domains"], domains)
 
-    def test_get_returns_azure_appas_domains(self):
+    def test_get_returns_azure_app_domains(self):
         admin = self.factory.create_admin()
         domains = ["example.com"]
         admin.org.settings[Organization.SETTING_AZURE_APPS_DOMAINS] = domains
 
         rv = self.make_request("get", "/api/settings/organization", user=admin)
         self.assertEqual(rv.json["settings"]["auth_azure_apps_domains"], domains)
+
+    def test_get_returns_azure_roles(self):
+        admin = self.factory.create_admin()
+        roles = ["admin"]
+        admin.org.settings[Organization.SETTING_AZURE_ROLES] = domains
+
+        rv = self.make_request("get", "/api/settings/organization", user=admin)
+        self.assertEqual(rv.json["settings"]["auth_azure_roles"], roles)

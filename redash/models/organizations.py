@@ -13,6 +13,7 @@ from .users import User, Group
 class Organization(TimestampMixin, db.Model):
     SETTING_GOOGLE_APPS_DOMAINS = "google_apps_domains"
     SETTING_AZURE_APPS_DOMAINS = "azure_apps_domains"
+    SETTING_AZURE_ROLES = "azure_roles"
     SETTING_IS_PUBLIC = "is_public"
 
     id = primary_key("Organization")
@@ -48,6 +49,10 @@ class Organization(TimestampMixin, db.Model):
     @property
     def azure_apps_domains(self):
         return self.settings.get(self.SETTING_AZURE_APPS_DOMAINS, [])
+
+    @property
+    def azure_roles(self):
+        return self.settings.get(self.SETTING_AZURE_ROLES, [])
 
     @property
     def is_public(self):

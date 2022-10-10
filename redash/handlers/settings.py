@@ -22,6 +22,7 @@ def get_settings_with_defaults(defaults, org):
 
     settings["auth_google_apps_domains"] = org.google_apps_domains
     settings["auth_azure_apps_domains"] = org.azure_apps_domains
+    settings["auth_azure_roles"] = org.azure_roles
 
     return settings
 
@@ -48,6 +49,9 @@ class OrganizationSettings(BaseResource):
             elif k == "auth_azure_apps_domains":
                 previous_values[k] = self.current_org.azure_apps_domains
                 self.current_org.settings[Organization.SETTING_AZURE_APPS_DOMAINS] = v
+            elif k == "auth_azure_roles":
+                previous_values[k] = self.current_org.azure_roles
+                self.current_org.settings[Organization.SETTING_AZURE_ROLES] = v
             else:
                 previous_values[k] = self.current_org.get_setting(
                     k, raise_on_missing=False
