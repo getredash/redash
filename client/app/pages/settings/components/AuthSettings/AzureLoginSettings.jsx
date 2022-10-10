@@ -37,11 +37,7 @@ export default function AzureLoginSettings(props) {
         )}
       </Form.Item>
       <Form.Item label="Allowed Roles (case sensitive)">
-        <Select
-          mode="tags"
-          value={values.auth_azure_roles}
-          onChange={value => onChange({ auth_azure_roles: value })}
-        />
+        <Select mode="tags" value={values.auth_azure_roles} onChange={value => onChange({ auth_azure_roles: value })} />
         {!isEmpty(values.auth_azure_roles) && (
           <Alert
             message={
