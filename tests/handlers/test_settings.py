@@ -83,7 +83,7 @@ class TestOrganizationSettings(BaseTestCase):
     def test_get_returns_azure_roles(self):
         admin = self.factory.create_admin()
         roles = ["admin"]
-        admin.org.settings[Organization.SETTING_AZURE_ROLES] = domains
+        admin.org.settings[Organization.SETTING_AZURE_ROLES] = roles
 
         rv = self.make_request("get", "/api/settings/organization", user=admin)
         self.assertEqual(rv.json["settings"]["auth_azure_roles"], roles)
