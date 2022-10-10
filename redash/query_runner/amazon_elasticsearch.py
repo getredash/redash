@@ -1,4 +1,4 @@
-from .elasticsearch import ElasticSearch
+from .elasticsearch2 import ElasticSearch2
 from . import register
 
 try:
@@ -10,7 +10,7 @@ except ImportError:
     enabled = False
 
 
-class AmazonElasticsearchService(ElasticSearch):
+class AmazonElasticsearchService(ElasticSearch2):
     @classmethod
     def name(cls):
         return "Amazon Elasticsearch Service"

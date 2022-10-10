@@ -5,7 +5,7 @@ x-redash-service: &redash-service
   build:
     context: .
     args:
-      skip_frontend_build: "true"
+      skip_frontend_build: "true"  # set to empty string to build
   volumes:
     - .:/app
   env_file:
