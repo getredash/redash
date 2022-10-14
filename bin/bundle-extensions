@@ -65,7 +65,7 @@ def load_bundles():
 
     """
     bundles = odict()
-    for entry_point in importlib_metadata.entry_points().get("redash.bundles", []):
+    for entry_point in importlib_metadata.entry_points(group="redash.bundles"):
         logger.info('Loading Redash bundle "%s".', entry_point.name)
         module = entry_point_module(entry_point)
         # Try to get a list of bundle files
