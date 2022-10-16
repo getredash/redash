@@ -246,7 +246,7 @@ def logout_and_redirect_to_index():
 
 def custom_unauthorized_handler():
     url = request.referrer
-    if url and url_parse(url).host == "admin.masterworks.io":
+    if url and url_parse(url).host == "admin.masterworks.com":
         full_path = safe_join(settings.STATIC_ASSETS_PATH, "unauthorized.html")
         response = send_file(full_path, **dict(cache_timeout=0, conditional=True))
         return response
