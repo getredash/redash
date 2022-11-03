@@ -52,7 +52,7 @@ export class Query {
       this.options = {};
     }
     this.options.apply_auto_limit = !!this.options.apply_auto_limit;
-    this.options.apply_long_query = !!this.options.apply_long_query;
+    this.options.apply_long_query = false;
 
     if (!isArray(this.options.parameters)) {
       this.options.parameters = [];
