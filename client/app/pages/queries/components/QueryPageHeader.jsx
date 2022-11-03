@@ -120,14 +120,7 @@ export default function QueryPageHeader({
             title: "Unpublish",
             onClick: unpublishQuery,
           },
-        },
-        {
-          showAPIKey: {
-            isAvailable: !clientConfig.disablePublicUrls && !queryFlags.isNew,
-            title: "Show API Key",
-            onClick: openApiKeyDialog,
-          },
-        },
+        }
       ]),
     [
       queryFlags.isNew,
@@ -142,7 +135,6 @@ export default function QueryPageHeader({
       isDesktop,
       publishQuery,
       unpublishQuery,
-      openApiKeyDialog,
     ]
   );
 
