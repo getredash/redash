@@ -120,7 +120,15 @@ export default function QueryPageHeader({
             title: "Unpublish",
             onClick: unpublishQuery,
           },
-        }
+        },
+        // DATA-552 - Disabled Show API Key button
+        // {
+        //   showAPIKey: {
+        //     isAvailable: !clientConfig.disablePublicUrls && !queryFlags.isNew,
+        //     title: "Show API Key",
+        //     onClick: openApiKeyDialog,
+        //   },
+        // },
       ]),
     [
       queryFlags.isNew,
@@ -135,6 +143,8 @@ export default function QueryPageHeader({
       isDesktop,
       publishQuery,
       unpublishQuery,
+      // DATA-552 - Disabled Show API Key button
+      // openApiKeyDialog,
     ]
   );
 

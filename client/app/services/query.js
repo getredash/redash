@@ -52,7 +52,7 @@ export class Query {
       this.options = {};
     }
     this.options.apply_auto_limit = !!this.options.apply_auto_limit;
-    this.options.apply_long_query = false;
+    this.options.apply_long_query = !!this.options.apply_long_query;
 
     if (!isArray(this.options.parameters)) {
       this.options.parameters = [];
@@ -422,7 +422,7 @@ QueryService.newQuery = function newQuery() {
     user: currentUser,
     options: {
       apply_auto_limit: localOptions.get("applyAutoLimit", true),
-      apply_long_query: localOptions.get("applyLongQuery", false)
+      apply_long_query: false
     },
     tags: [],
     can_edit: true,
