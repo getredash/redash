@@ -55,3 +55,6 @@ redis-cli:
 
 bash:
 	docker-compose run --rm server bash
+
+careem_build:
+	docker build -t careem/redash . && docker push careem/redash

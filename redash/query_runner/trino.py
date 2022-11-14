@@ -40,7 +40,7 @@ TRINO_TYPES_MAPPING = {
 
 class Trino(BaseQueryRunner):
     noop_query = "SELECT 1"
-    should_annotate_query = False
+    should_annotate_query = True
 
     @classmethod
     def configuration_schema(cls):
@@ -80,7 +80,7 @@ class Trino(BaseQueryRunner):
         query = """
             SELECT table_schema, table_name, column_name
             FROM information_schema.columns
-            WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+            WHERE table_schema == 'prod_dwh'
         """
         results, error = self.run_query(query, None)
 
@@ -112,6 +112,7 @@ class Trino(BaseQueryRunner):
             host=self.configuration.get("host", ""),
             port=self.configuration.get("port", 8080),
             catalog=self.configuration.get("catalog", "hive"),
+            http_headers={trino.constants.HEADER_CLIENT_INFO: str(user)},
             schema=self.configuration.get("schema", "default"),
             user=self.configuration.get("username"),
             auth=auth
