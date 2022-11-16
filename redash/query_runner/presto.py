@@ -72,7 +72,7 @@ class Presto(BaseQueryRunner):
         query = """
         SELECT table_schema, table_name, column_name
         FROM information_schema.columns
-        WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+        WHERE table_schema = 'prod_dwh'
         """
 
         results, error = self.run_query(query, None)
@@ -100,6 +100,7 @@ class Presto(BaseQueryRunner):
             username=self.configuration.get("username", "redash"),
             password=(self.configuration.get("password") or None),
             catalog=self.configuration.get("catalog", "hive"),
+            http_headers={"X-Presto-Client-Info": str(user)},
             schema=self.configuration.get("schema", "default"),
         )
 

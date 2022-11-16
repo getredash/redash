@@ -80,7 +80,7 @@ class Trino(BaseQueryRunner):
         query = """
             SELECT table_schema, table_name, column_name
             FROM information_schema.columns
-            WHERE table_schema == 'prod_dwh'
+            WHERE table_schema = 'prod_dwh'
         """
         results, error = self.run_query(query, None)
 
