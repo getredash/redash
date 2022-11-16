@@ -19,7 +19,7 @@ COPY --chown=redash viz-lib /frontend/viz-lib
 ARG code_coverage
 ENV BABEL_ENV=${code_coverage:+test}
 
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
+RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn install --network-timeout 1000000 && yarn cache clean && yarn --frozen-lockfile --network-concurrency 1; fi
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/

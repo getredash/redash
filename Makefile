@@ -62,8 +62,11 @@ build_stg:
 	docker push 848569320300.dkr.ecr.eu-west-1.amazonaws.com/careem-redash:stg
 
 build_prod:
-	docker build -t careem-redash . &&\
+	docker build --network=host -t careem-redash . &&\
 	docker tag careem-redash 848569320300.dkr.ecr.eu-west-1.amazonaws.com/careem-redash:prod &&\
-	docker tag careem-redash 848569320300.dkr.ecr.eu-west-1.amazonaws.com/careem-redash:stg &&\
 	docker push 848569320300.dkr.ecr.eu-west-1.amazonaws.com/careem-redash:prod &&\
+	docker tag careem-redash 848569320300.dkr.ecr.eu-west-1.amazonaws.com/careem-redash:stg &&\
 	docker push 848569320300.dkr.ecr.eu-west-1.amazonaws.com/careem-redash:stg
+
+build_karl:
+	docker build -t karllchris/redash-stg .
