@@ -100,7 +100,6 @@ class Presto(BaseQueryRunner):
             username=self.configuration.get("username", "redash"),
             password=(self.configuration.get("password") or None),
             catalog=self.configuration.get("catalog", "hive"),
-            http_headers={"X-Presto-Client-Info": str(user)},
             schema=self.configuration.get("schema", "default"),
         )
 
