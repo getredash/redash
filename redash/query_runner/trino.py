@@ -83,25 +83,47 @@ class Trino(BaseQueryRunner):
         return "trino"
 
     def get_schema(self, get_stats=False):
-        query = """
-            SELECT table_schema, table_name, column_name
-            FROM information_schema.columns
-            WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
-        """
-        results, error = self.run_query(query, None)
+        if not self.configuration.get("catalog"):
+            catalog_prefixes = [""]
+        else:
+            query = f"""
+                SHOW CATALOGS
+            """
+            results, error = self.run_query(query, None)
 
-        if error is not None:
-            self._handle_run_query_error(error)
+            if error is not None:
+                raise Exception("Failed getting catalogs.")
 
-        results = json_loads(results)
+            results = json_loads(results)
+
+            catalog_prefixes = []
+            for row in results:
+                catalog = row["Catalog"]
+                if '.' in catalog:
+                    catalog = f'"{catalog}"'
+                catalog_prefixes.append(f'{catalog}.')
+
         schema = {}
-        for row in results["rows"]:
-            table_name = f'{row["table_schema"]}.{row["table_name"]}'
+        for catalog_prefix in catalog_prefixes:
+            query = f"""
+                SELECT table_schema, table_name, column_name
+                FROM {catalog_prefix}information_schema.columns
+                WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+            """
+            results, error = self.run_query(query, None)
 
-            if table_name not in schema:
-                schema[table_name] = {"name": table_name, "columns": []}
+            if error is not None:
+                raise Exception("Failed getting schema.")
 
-            schema[table_name]["columns"].append(row["column_name"])
+            results = json_loads(results)
+
+            for row in results["rows"]:
+                table_name = f'{catalog_prefix}{row["table_schema"]}.{row["table_name"]}'
+
+                if table_name not in schema:
+                    schema[table_name] = {"name": table_name, "columns": []}
+
+                schema[table_name]["columns"].append(row["column_name"])
 
         return list(schema.values())
 
