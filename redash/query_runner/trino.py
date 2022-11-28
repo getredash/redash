@@ -112,7 +112,7 @@ class Trino(BaseQueryRunner):
             host=self.configuration.get("host", ""),
             port=self.configuration.get("port", 8080),
             catalog=self.configuration.get("catalog", "hive"),
-            http_headers={trino.constants.HEADER_CLIENT_INFO: str(user)},
+            http_headers={trino.constants.HEADER_CLIENT_INFO: str(user), trino.constants.HEADER_CLIENT_TAGS: str(self.gen_query_hash(query))},
             schema=self.configuration.get("schema", "default"),
             user=self.configuration.get("username"),
             auth=auth
