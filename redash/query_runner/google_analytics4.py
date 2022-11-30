@@ -1,4 +1,5 @@
 import logging
+import requests
 from base64 import b64decode
 from redash.query_runner import BaseQueryRunner
 
@@ -9,14 +10,13 @@ import datetime
 logger = logging.getLogger(__name__)
 
 try:
-    from google.analytics.data_v1beta import BetaAnalyticsDataClient, GetMetadataRequest
-    from google.analytics.data_v1beta.types import DateRange
-    from google.analytics.data_v1beta.types import Dimension
-    from google.analytics.data_v1beta.types import Metric
-    from google.analytics.data_v1beta.types import RunReportRequest
+    from oauth2client.service_account import ServiceAccountCredentials
+    from apiclient.discovery import build
+    from apiclient.errors import HttpError
+    import httplib2
 
     enabled = True
-except ImportError:
+except ImportError as e:
     enabled = False
 
 types_conv = dict(
@@ -27,43 +27,46 @@ types_conv = dict(
     DATETIME=TYPE_DATETIME,
 )
 
+ga_report_endpoint = "https://analyticsdata.googleapis.com/v1beta/properties/{propertyId}:runReport"
+ga_metadata_endpoint = "https://analyticsdata.googleapis.com/v1beta/properties/{propertyId}/metadata"
+
 
 def parse_ga_response(response):
     columns = []
-    for h in response.dimension_headers:
+    for h in response['dimensionHeaders']:
         data_type = None
-        if h.name == "date":
+        if h['name'] == "date":
             data_type = "DATE"
         columns.append(
             {
-                "name": h.name,
-                "friendly_name": h.name,
+                "name": h['name'],
+                "friendly_name": h['name'],
                 "type": types_conv.get(data_type, "string"),
             }
         )
 
-    for h in response.metric_headers:
+    for h in response['metricHeaders']:
         data_type = None
-        if h.name == "date":
+        if h['name'] == "date":
             data_type = "DATE"
         columns.append(
             {
-                "name": h.name,
-                "friendly_name": h.name,
+                "name": h['name'],
+                "friendly_name": h['name'],
                 "type": types_conv.get(data_type, "string"),
             }
         )
 
     rows = []
-    for r in response.rows:
+    for r in response['rows']:
         counter = 0
         d = {}
-        for item in r.dimension_values:
+        for item in r['dimensionValues']:
             column_name = columns[counter]["name"]
             column_type = [col for col in columns if col["name"] == column_name][0][
                 "type"
             ]
-            value = item.value
+            value = item['value']
 
             if column_type == TYPE_DATE:
                 value = datetime.datetime.strptime(value, "%Y%m%d")
@@ -80,13 +83,12 @@ def parse_ga_response(response):
             d[column_name] = value
             counter = counter + 1
 
-
-        for item in r.metric_values:
+        for item in r['metricValues']:
             column_name = columns[counter]["name"]
             column_type = [col for col in columns if col["name"] == column_name][0][
                 "type"
             ]
-            value = item.value
+            value = item['value']
 
             if column_type == TYPE_DATE:
                 value = datetime.datetime.strptime(value, "%Y%m%d")
@@ -128,50 +130,47 @@ class GoogleAnalytics4(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
+                "propertyId": {
+                    "type": "number",
+                    "title": "Property Id"
+                },
                 "jsonKeyFile": {
                     "type": "string",
                     "title": "JSON Key File"
                 }
             },
-            "required": ["jsonKeyFile"],
+            "required": ["propertyId", "jsonKeyFile"],
             "secret": ["jsonKeyFile"],
         }
 
-    def _get_analytics_client(self):
+    def _get_access_token(self):
         key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
-        return BetaAnalyticsDataClient.from_service_account_info(key)
+
+        scope = ["https://www.googleapis.com/auth/analytics.readonly"]
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
+
+        build("analyticsdata", "v1beta", http=creds.authorize(httplib2.Http()))
+
+        return creds.access_token
 
     def run_query(self, query, user):
-        client = self._get_analytics_client()
-
+        access_token = self._get_access_token()
         params = json_loads(query)
-        propertyId = params.get("propertyId", None)
 
-        dimensions = []
-        metrics = []
-        date_ranges = []
+        property_id = self.configuration["propertyId"]
 
-        for key in params.keys():
-            if key == "dimensions":
-                for item in params[key]:
-                    dimensions.append(Dimension(name=item["name"]))
-            elif key == "metrics":
-                for item in params[key]:
-                    metrics.append(Metric(name=item["name"]))
-            elif key == "dateRanges":
-                for item in params[key]:
-                    date_ranges.append(DateRange(start_date=item["startDate"], end_date=item["endDate"]))
+        headers = {
+            'Content-Type': "application/json",
+            'Authorization': f"Bearer {access_token}"
+        }
 
-        request = RunReportRequest(
-            property=f"properties/{propertyId}",
-            dimensions=dimensions,
-            metrics=metrics,
-            date_ranges=date_ranges,
-        )
+        url = ga_report_endpoint.replace("{propertyId}", str(property_id))
+        r = requests.post(url, json=params, headers=headers)
+        r.raise_for_status()
 
-        response = client.run_report(request)
+        raw_result = r.json()
 
-        data = parse_ga_response(response)
+        data = parse_ga_response(raw_result)
 
         error = None
         json_data = json_dumps(data)
@@ -180,11 +179,18 @@ class GoogleAnalytics4(BaseQueryRunner):
 
     def test_connection(self):
         try:
-            client = self._get_analytics_client()
-            request = GetMetadataRequest(
-                    name="properties/0/metadata"
-                )
-            client.get_metadata(request)
+            access_token = self._get_access_token()
+            property_id = self.configuration["propertyId"]
+
+            url = ga_metadata_endpoint.replace("{propertyId}", str(property_id))
+
+            headers = {
+                'Content-Type': "application/json",
+                'Authorization': f"Bearer {access_token}"
+            }
+
+            r = requests.get(url, headers=headers)
+            r.raise_for_status()
         except Exception as e:
             raise Exception(e)
 
