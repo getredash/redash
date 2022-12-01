@@ -21,6 +21,7 @@ import useRenameQuery from "../hooks/useRenameQuery";
 import useDuplicateQuery from "../hooks/useDuplicateQuery";
 import useApiKeyDialog from "../hooks/useApiKeyDialog";
 import usePermissionsEditorDialog from "../hooks/usePermissionsEditorDialog";
+import { currentUser } from "@/services/auth";
 
 import "./QueryPageHeader.less";
 
@@ -122,13 +123,14 @@ export default function QueryPageHeader({
           },
         },
         // DATA-552 - Disabled Show API Key button
-        // {
-        //   showAPIKey: {
-        //     isAvailable: !clientConfig.disablePublicUrls && !queryFlags.isNew,
-        //     title: "Show API Key",
-        //     onClick: openApiKeyDialog,
-        //   },
-        // },
+        // DATA-598 - Allow admins to see the button
+        {
+          showAPIKey: {
+            isAvailable: !clientConfig.disablePublicUrls && !queryFlags.isNew && currentUser.hasPermission("admin") ,
+            title: "Show API Key",
+            onClick: openApiKeyDialog,
+          },
+        },
       ]),
     [
       queryFlags.isNew,
@@ -144,7 +146,8 @@ export default function QueryPageHeader({
       publishQuery,
       unpublishQuery,
       // DATA-552 - Disabled Show API Key button
-      // openApiKeyDialog,
+      // DATA-598 - Allow admins to see the button
+      openApiKeyDialog,
     ]
   );
 
