@@ -482,6 +482,7 @@ VERSION_CHECK = parse_boolean(os.environ.get("REDASH_VERSION_CHECK", "true"))
 FEATURE_DISABLE_REFRESH_QUERIES = parse_boolean(
     os.environ.get("REDASH_FEATURE_DISABLE_REFRESH_QUERIES", "false")
 )
+
 FEATURE_SHOW_QUERY_RESULTS_COUNT = parse_boolean(
     os.environ.get("REDASH_FEATURE_SHOW_QUERY_RESULTS_COUNT", "true")
 )
@@ -491,6 +492,7 @@ FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS = parse_boolean(
 FEATURE_AUTO_PUBLISH_NAMED_QUERIES = parse_boolean(
     os.environ.get("REDASH_FEATURE_AUTO_PUBLISH_NAMED_QUERIES", "true")
 )
+FEATURE_VIEW_DRAFT_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_VIEW_UNPUBLISH_QUERIES", "false"))
 FEATURE_EXTENDED_ALERT_OPTIONS = parse_boolean(
     os.environ.get("REDASH_FEATURE_EXTENDED_ALERT_OPTIONS", "false")
 )

@@ -19,6 +19,7 @@ x-redash-environment: &redash-environment
   REDASH_MAIL_SERVER: "email"
   REDASH_ENFORCE_CSRF: "true"
   REDASH_GUNICORN_TIMEOUT: 60
+  REDASH_FEATURE_VIEW_UNPUBLISH_QUERIES: "false"
   # Set secret keys in the .env file
 services:
   server:
