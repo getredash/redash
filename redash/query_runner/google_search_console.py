@@ -73,9 +73,6 @@ def parse_ga_response(response, dimensions):
                 d[column_name] = value
         rows.append(d)
 
-    rtr = {"columns": columns, "rows": rows}
-    logger.info(rtr)
-
     return {"columns": columns, "rows": rows}
 
 
