@@ -34,6 +34,25 @@ def show_google_apps_domains():
     )
 
 
+@manager.command()
+@argument("name")
+@option(
+    "--slug",
+    "slug",
+    default="default",
+    help="The slug the organization belongs to (leave blank for " "'default').",
+)
+def create(name, slug="default"):
+    print("Creating organization (%s)..." % (name))
+
+    try:
+        models.db.session.add(models.Organization(name=name, slug="default", settings={}))
+        models.db.session.commit()
+    except Exception as e:
+        print("Failed create organization: %s" % e)
+        exit(1)
+
+
 @manager.command(name="list")
 def list_command():
     """List all organizations"""
