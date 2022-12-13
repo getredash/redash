@@ -41,6 +41,17 @@
       </div>
 
       <div class="form-group">
+        <label for="table-editor-{{ column.name }}-width">
+          Fix Width
+          <span class="m-l-5"
+          uib-popover-html="'请输入数字+%'"
+          popover-trigger="'click outsideClick'"><i class="fa fa-question-circle"></i></span>
+        </label>
+        <input class="form-control" ng-model="column.width" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+          id="table-editor-{{ column.name }}-width">
+      </div>
+
+      <div class="form-group">
         <label class="ui-sortable-bypass"><input type="checkbox" ng-model="column.allowSearch"> Use for search</label>
       </div>
 

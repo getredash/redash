@@ -40,6 +40,7 @@ function getDefaultColumnsOptions(columns) {
     // `string` cell options
     allowHTML: true,
     highlightLinks: false,
+    width: col.width + '%',
   }));
 }
 
