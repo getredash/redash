@@ -113,10 +113,14 @@ def reencrypt(old_secret, new_secret, show_sql):
                 stmt = update.where(table_for_update.c.id == item["id"]).values(
                     encrypted_options=item["encrypted_options"]
                 )
-                db.session.execute(stmt)
             except InvalidToken:
                 logging.error(
                     f'Invalid Decryption Key for id {item["id"]} in table {table_for_select}'
+                )
+            else:
+                db.session.execute(stmt)
+                logging.info(
+                    f'Successfully updated encryption for id {item["id"]} in table {table_for_select}'
                 )
 
         selected_items.close()
