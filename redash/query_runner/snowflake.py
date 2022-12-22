@@ -173,7 +173,7 @@ class Snowflake(BaseQueryRunner):
         results, error = self._run_query_without_warehouse(query)
 
         if error is not None:
-            raise Exception("Failed getting schema.")
+            self._handle_run_query_error(error)
 
         schema = {}
         for row in results["rows"]:

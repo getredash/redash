@@ -305,7 +305,7 @@ class BigQuery(BaseQueryRunner):
         query = '\nUNION ALL\n'.join(queries)
         results, error = self.run_query(query, None)
         if error is not None:
-            raise Exception("Failed getting schema.")
+            self._handle_run_query_error(error)
 
         results = json_loads(results)
         for row in results["rows"]:
@@ -341,7 +341,7 @@ class BigQuery(BaseQueryRunner):
             json_data = json_dumps(data, ignore_nan=True)
         except apiclient.errors.HttpError as e:
             json_data = None
-            if e.resp.status == 400:
+            if e.resp.status in [400, 404]:
                 error = json_loads(e.content)["error"]["message"]
             else:
                 error = e.content
