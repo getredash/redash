@@ -86,7 +86,7 @@ def get_schema(data_source_id, refresh):
             }
         }
     except Exception as e:
-        return {"error": {"code": 2, "message": f"Error retrieving schema: {e}"}}
+        return {"error": {"code": 2, "message": "Error retrieving schema", "details": str(e)}}
 
 
 def sync_user_details():
