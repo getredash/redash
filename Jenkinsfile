@@ -8,13 +8,8 @@ pipeline {
         }
     }
 
-    parameters {
-
-        choice(
-                name: 'ENV_NAME',
-                choices: ["qa", "prod"],
-                description: "(Only if DEPLOY is selected) Define which environment to deploy"
-        )
+    environment {
+        ENV_NAME = "${JENKINS_URL.contains("qa") ? "qa" : "prod"}"
     }
 
     options {
@@ -30,7 +25,6 @@ pipeline {
         steps {
                 // Set variables if not defined
                 script {
-                    if (env.ENV_NAME == null) env.ENV_NAME = "qa"
                     if (env.VERSION == null) env.VERSION = "latest"
                     env.TF_VAR_app_version = env.VERSION == "latest" ? GIT_COMMIT.take(7) : env.VERSION.trim()
                     env.TF_VAR_service_name = "bi-redashv10"
