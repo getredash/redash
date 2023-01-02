@@ -50,13 +50,10 @@ pipeline {
                   env.REGISTRY = "${env.aws_account_id}.dkr.ecr.${env.aws_default_region}.amazonaws.com"
                   env.IMAGE = "${env.REGISTRY}/${env.ECS_SERVICE}"
                   sh 'printenv'
-                  dir("docker") {
-                    sh "ls"
-                    sh "docker build . -t ${IMAGE}:${TF_VAR_app_version}"
-                    echo "** Pushing docker image"
-                    sh "docker push ${IMAGE}:${TF_VAR_app_version}"
-                  }
-
+                  sh "ls"
+                  sh "docker build . -t ${IMAGE}:${TF_VAR_app_version}"
+                  echo "** Pushing docker image"
+                  sh "docker push ${IMAGE}:${TF_VAR_app_version}"
                 }
             }
         }
