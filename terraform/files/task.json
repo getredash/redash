@@ -1,0 +1,97 @@
+[
+  {
+    "name": "bootstrap",
+    "image": "${webapp_image}",
+    "cpu": ${webapp_cpu},
+    "memoryReservation": ${webapp_memory},
+    "command": ["create_db"],
+    "links": ["redis:redis"],
+    "essential": false,
+    "secrets": ${secrets},
+    "environment": ${environment_variables_webapp},
+    "logConfiguration": {
+      "logDriver": ${log_driver},
+      "options": ${bootstrap_log_options}
+    }
+  },
+  {
+    "name": "webapp",
+    "image": "${webapp_image}",
+    "cpu": ${webapp_cpu},
+    "memoryReservation": ${webapp_memory},
+    "command": ["server"],
+    "links": ["redis:redis"],
+    "essential": true,
+    "secrets": ${secrets},
+    "environment": ${environment_variables_webapp},
+    "dependsOn": [{"containerName": "bootstrap","condition": "COMPLETE"}],
+    "logConfiguration": {
+      "logDriver": ${log_driver},
+      "options": ${webapp_log_options}
+    }
+  },
+    {
+      "name": "worker",
+      "image": "${worker_image}",
+      "cpu": ${worker_cpu},
+      "memoryReservation": ${worker_memory},
+      "command": ["worker"],
+      "essential": true,
+      "secrets": ${secrets},
+      "environment": ${environment_variables_worker},
+      "dependsOn": [{"containerName": "bootstrap","condition": "COMPLETE"}],
+      "links": ["redis:redis"],
+      "logConfiguration": {
+        "logDriver": ${log_driver},
+        "options": ${worker_log_options}
+      }
+    },
+    {
+      "name": "scheduler",
+      "image": "${scheduler_image}",
+      "cpu": ${scheduler_cpu},
+      "memoryReservation": ${scheduler_memory},
+      "command": ["scheduler"],
+      "links": ["redis:redis"],
+      "essential": true,
+      "secrets": ${secrets},
+      "environment": ${environment_variables_scheduler},
+      "dependsOn": [{"containerName": "bootstrap","condition": "COMPLETE"}],
+      "logConfiguration": {
+        "logDriver": ${log_driver},
+        "options": ${scheduler_log_options}
+      }
+    },
+  {
+    "name": "nginx",
+    "image": "${nginx_image}",
+    "cpu": ${nginx_cpu},
+    "memoryReservation": ${nginx_memory},
+    "environment": ${environment_variables_nginx},
+    "dependsOn": [{"containerName": "bootstrap","condition": "COMPLETE"}],
+    "links": ["webapp:webapp"],
+    "portMappings": [
+      {
+        "hostPort": 0,
+        "containerPort": ${nginx_port},
+        "protocol": "tcp"
+      }
+    ],
+  "essential": true,
+  "logConfiguration": {
+    "logDriver": ${log_driver},
+    "options": ${nginx_log_options}
+    }
+  },
+  {
+    "name": "redis",
+    "image": "redis:5-alpine",
+    "cpu": ${redis_cpu},
+    "memoryReservation": ${redis_memory},
+    "essential": true,
+    "logConfiguration": {
+    "logDriver": ${log_driver},
+    "options": ${redis_log_options}
+    }
+  }
+]

@@ -1,0 +1,15 @@
+name: AUTO1 Code Compliance Check
+on: [push, pull_request]
+
+jobs:
+  code_compliance_check:
+    runs-on: code-compliance
+    steps:
+      - name: Check Jira Reference on Commit(s)
+        uses: auto1-oss/commit-message-checker@v1
+        with:
+          flags: gm
+          pattern: "[A-Z]+-[0-9]+.+$"
+          error: "commit message does not contain Jira Ticket (i.e: JIR-1234..)"
+          checkAllCommitMessages: true
+          accessToken: ${{ secrets.GITHUB_TOKEN }}
