@@ -38,7 +38,8 @@ pipeline {
                     env.RELEASE_VERSION = env.RELEASE_VERSION?.trim()
                 }
                 // loaded from shared library
-                loadTfVars()
+
+                //loadTfVars()
             }
         }
 
