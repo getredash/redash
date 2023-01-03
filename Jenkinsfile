@@ -52,14 +52,15 @@ pipeline {
             }
         }
 
-        // stage('Plan terraform') {
-        //     steps {
-        //         // loaded from shared library
-        //         passTfEnv('INFO_VERSION', "${TF_VAR_app_version}")
-        //         passTfEnv('BUILD', "${BUILD_NUMBER}")
-        //         planTerraform13()
-        //     }
-        // }
+        stage('Plan terraform') {
+            steps {
+                // loaded from shared library
+                passTfEnv('INFO_VERSION', "${TF_VAR_app_version}")
+                passTfEnv('BUILD', "${BUILD_NUMBER}")
+                planTerraform13()
+            }
+        }
+        
         //
         // stage('Apply terraform') {
         //     steps {
