@@ -128,6 +128,7 @@ class Snowflake(BaseQueryRunner):
     def run_query(self, query, user):
         connection = self._get_connection()
         cursor = connection.cursor()
+        cursor_list = []
 
         try:
             cursor.execute("USE WAREHOUSE {}".format(self.configuration["warehouse"]))
