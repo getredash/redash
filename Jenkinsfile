@@ -51,13 +51,15 @@ pipeline {
                   echo "** Pushing docker image"
                   sh "docker push ${IMAGE}:${TF_VAR_app_version}"
 
-                  REDASH_NGINX_IMAGE_CHECK=`docker pull \$REGISTRY/\${ECS_SERVICE}/redash-nginx:latest > /dev/null && echo "success" || echo "failed"`
+                  sh('''
+                    REDASH_NGINX_IMAGE_CHECK=`docker pull \$REGISTRY/\${ECS_SERVICE}/redash-nginx:latest > /dev/null && echo "success" || echo "failed"`
                     if [ "${REDASH_NGINX_IMAGE_CHECK}" = "failed" ] ; then
                     	echo "** Building nginx docker image"
                     	docker build --pull --force-rm -t \$REGISTRY/\${GIT_REPO_NAME}/redash-nginx:latest -f Dockerfile_nginx
                     	echo "Pushing docker image"
                     	docker push \$REGISTRY/\${ECS_SERVICE}/redash-nginx:latest
                     fi
+                  ''')
                 }
             }
         }

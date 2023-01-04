@@ -4,7 +4,6 @@ locals {
     prod = "-"
   }
 
-  # ${data.terraform_remote_state.rds.outputs.dns}
   database_url = {
     qa   = data.vault_generic_secret.redash.data["database_url"]
     prod = "-"
