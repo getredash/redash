@@ -55,7 +55,7 @@ pipeline {
                     REDASH_NGINX_IMAGE_CHECK=`docker pull \$REGISTRY/\${ECS_SERVICE}/redash-nginx:latest > /dev/null && echo "success" || echo "failed"`
                     if [ "${REDASH_NGINX_IMAGE_CHECK}" = "failed" ] ; then
                     	echo "** Building nginx docker image"
-                    	docker build --pull --force-rm -t \$REGISTRY/\${ECS_SERVICE}/redash-nginx:latest -f Dockerfile_nginx
+                    	docker build --pull --force-rm -t \$REGISTRY/\${ECS_SERVICE}/redash-nginx:latest -f Dockerfile_nginx .
                     	echo "Pushing docker image"
                     	docker push \$REGISTRY/\${ECS_SERVICE}/redash-nginx:latest
                     fi
