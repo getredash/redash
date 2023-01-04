@@ -1,5 +1,5 @@
 module "ref-doc" {
-  source                = "git@github.com:wkda/ops-tf-module-redash.gitref=master"
+  source                = "git@github.com:wkda/ops-tf-module-redash.git?ref=master"
   name                  = var.service_name
   env                   = terraform.workspace
   dns_zone_name         = var.aws_route53_zone
