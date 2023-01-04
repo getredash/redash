@@ -18,10 +18,6 @@ data "aws_ecs_cluster" "redash_cluster" {
   cluster_name = var.cluster
 }
 
-provider "vault" {
-  address = var.vault_address
-}
-
 data "vault_generic_secret" "redash" {
   path = local.vault_secret_path[terraform.workspace]
 }
