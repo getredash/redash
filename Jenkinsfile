@@ -42,6 +42,7 @@ pipeline {
             steps {
                 // loaded from shared library
                 createECRRepo("bi-redashv10")
+                createECRRepo("bi-redashv10/redash-nginx")
                 script {
                   env.REGISTRY = "${env.aws_account_id}.dkr.ecr.${env.aws_default_region}.amazonaws.com"
                   env.IMAGE = "${env.REGISTRY}/${env.ECS_SERVICE}"
