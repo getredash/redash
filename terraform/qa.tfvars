@@ -11,5 +11,5 @@ alb_http_listener_arn  = "arn:aws:elasticloadbalancing:eu-west-1:803461158102:li
 alb_https_listener_arn = "arn:aws:elasticloadbalancing:eu-west-1:803461158102:listener/app/eu-bi-qa-ecs-deploy/98d95a821e559524/2abae5f9b75aade0"
 dns_record_name        = "redashv10"
 aws_route53_zone       = "qa.bi.auto1.team"
-alb_arn                = "arn:aws:elasticloadbalancing:eu-west-1:271503599932:loadbalancer/app/eu-bi-qa-ecs-deploy/555afe71943224d5"
+alb_arn                = "arn:aws:elasticloadbalancing:eu-west-1:803461158102:loadbalancer/app/eu-bi-qa-ecs-deploy/98d95a821e559524"
 route53_zone_id        = "Z3U0X9KUQSJQIW"

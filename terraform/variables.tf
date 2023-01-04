@@ -11,9 +11,8 @@ variable "dns_record_name" {}
 variable "aws_route53_zone" {}
 variable "alb_arn" {}
 variable "route53_zone_id" {}
-variable "environment_variables" {}
 variable "app_version" {}
 variable "image_url" {}
 variable "nginx_image_url" {}
-variable "capacity_provider" {}
 variable "vault_address" {}
+# variable "capacity_provider" {}

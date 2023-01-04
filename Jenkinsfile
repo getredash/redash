@@ -10,7 +10,7 @@ pipeline {
 
     environment {
         ENV_NAME = "${JENKINS_URL.contains("qa") ? "qa" : "prod"}"
-        VAULT_ADDR = "${JENKINS_URL.contains("qa") ? "https://vault.qa.auto1.team " : "https://vault.prod.auto1.team"}"
+        VAULT_ADDR = "${JENKINS_URL.contains("qa") ? "https://vault.qa.auto1.team" : "https://vault.prod.auto1.team"}"
     }
 
     options {
