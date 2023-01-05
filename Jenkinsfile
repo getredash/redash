@@ -76,27 +76,29 @@ pipeline {
             }
         }
 
-        //
-        // stage('Apply terraform') {
-        //     steps {
-        //         sh('''#!/bin/bash -ex
-        //         cd terraform
-        //         terraform13 apply ecs-deploy.plan
-        //         echo "Cleanup"
-        //         git checkout -- .
-        //         rm -v ecs-deploy.plan
-        //         ''')
-        //     }
-        // }
 
-        // stage('ECS wait for deploy') {
-        //     steps {
-        //         sh('''
-        //             #!/bin/bash
-        //             aws ecs wait services-stable --region ${AWS_DEFAULT_REGION} --cluster ${CLUSTER} --services ${ECS_SERVICE}
-        //         ''')
-        //     }
-        // }
+        stage('Apply terraform') {
+            steps {
+                withCredentials([string(credentialsId: 'REDASHV10_VAULT_TOKEN', variable: 'VAULT_TOKEN')]) {
+                  sh('''#!/bin/bash -ex
+                  cd terraform
+                  terraform13 apply ecs-deploy.plan
+                  echo "Cleanup"
+                  git checkout -- .
+                  rm -v ecs-deploy.plan
+                  ''')
+                }
+            }
+        }
+
+        stage('ECS wait for deploy') {
+            steps {
+                sh('''
+                    #!/bin/bash
+                    aws ecs wait services-stable --region ${AWS_DEFAULT_REGION} --cluster ${CLUSTER} --services ${ECS_SERVICE}
+                ''')
+            }
+        }
 
     }
 
