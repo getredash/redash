@@ -9,15 +9,16 @@ module "ref-doc" {
   service_desired_count = var.instance_count
 
   ecs_task_settings = {
-    webapp_image      = var.image_url
-    worker_image      = var.image_url
-    scheduler_image   = var.image_url
-    nginx_image       = "${var.nginx_image_url}:latest"
-    database_url      = local.database_url[terraform.workspace]
-    redis_url         = local.redis_url[terraform.workspace]
-    email_user        = data.vault_generic_secret.redash.data["email_user"]
-    email_sender_addr = "data@auto1.team"
-    # worker_threads_count = local.worker_threads_count[terraform.workspace]
+    webapp_image         = var.image_url
+    worker_image         = var.image_url
+    scheduler_image      = var.image_url
+    nginx_image          = "${var.nginx_image_url}:latest"
+    database_secretmanager_path         = local.database_url[terraform.workspace]
+    redis_url            = local.redis_url[terraform.workspace]
+    email_user           = data.vault_generic_secret.redash.data["email_user"]
+    email_sender_addr    = "data@auto1.team"
+    worker_threads_count = local.worker_threads_count[terraform.workspace]
+    database_secretmanager_path =
 
   }
 
