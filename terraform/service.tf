@@ -22,9 +22,9 @@ module "ref-doc" {
   }
 
   ecs_task_secrets = {
-    database_url         = local.database_url[terraform.workspace]
-    webapp_cookie_secret = local.webapp_cookie_secret[terraform.workspace]
-    email_password       = local.email_password[terraform.workspace]
+    database_secretmanager_path = local.database_url[terraform.workspace]
+    webapp_cookie_secret        = local.webapp_cookie_secret[terraform.workspace]
+    email_password              = local.email_password[terraform.workspace]
   }
 
   lb_settings = {
