@@ -70,6 +70,7 @@ pipeline {
                 // loaded from shared library
                 passTfEnv('INFO_VERSION', "${TF_VAR_app_version}")
                 passTfEnv('BUILD', "${BUILD_NUMBER}")
+                sh "sed -i 's/IMAGE_TAG/${TF_VAR_app_version}/g' terraform/${ENV_NAME}.tfvars"
                 withCredentials([string(credentialsId: 'REDASHV10_VAULT_TOKEN', variable: 'VAULT_TOKEN')]) {
                   planTerraform13()
                 }

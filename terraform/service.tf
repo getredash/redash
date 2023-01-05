@@ -12,7 +12,7 @@ module "ref-doc" {
     webapp_image                = var.image_url
     worker_image                = var.image_url
     scheduler_image             = var.image_url
-    nginx_image                 = "${var.nginx_image_url}:latest"
+    nginx_image                 = var.nginx_image_url
     database_secretmanager_path = local.database_url[terraform.workspace]
     redis_url                   = local.redis_url[terraform.workspace]
     email_user                  = data.vault_generic_secret.redash.data["email_user"]
