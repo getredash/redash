@@ -15,4 +15,4 @@ variable "app_version" {}
 variable "image_url" {}
 variable "nginx_image_url" {}
 variable "vault_address" {}
-# variable "capacity_provider" {}
+variable "capacity_provider" {}
