@@ -5,7 +5,7 @@ locals {
   }
 
   database_url = {
-    qa   = "${data.vault_generic_secret.redash.data["database_url"]}"
+    qa   = data.vault_generic_secret.redash.data["database_url"]
     prod = "-"
 
   }
@@ -16,12 +16,12 @@ locals {
   }
 
   webapp_cookie_secret = {
-    qa   = "${data.vault_generic_secret.redash.data["webapp_cookie_secret"]}"
+    qa   = data.vault_generic_secret.redash.data["webapp_cookie_secret"]
     prod = "-"
   }
 
   email_password = {
-    qa   = "${data.vault_generic_secret.redash.data["email_password"]}"
+    qa   = data.vault_generic_secret.redash.data["email_password"]
     prod = "-"
   }
 

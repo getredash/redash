@@ -3,7 +3,7 @@ data "aws_lb" "alb" {
   arn = var.alb_arn
 }
 
-resource "aws_route53_record" "dbt_docs" {
+resource "aws_route53_record" "redashv10" {
   zone_id = var.route53_zone_id
   name    = "${var.dns_record_name}.${var.aws_route53_zone}"
   type    = "A"
