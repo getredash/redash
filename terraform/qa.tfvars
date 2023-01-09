@@ -1,5 +1,5 @@
 aws_account_id         = "803461158102"
-image_url              = "803461158102.dkr.ecr.eu-west-1.amazonaws.com/bi-redashv10:IMAGE_TAG"
+image_url              = "803461158102.dkr.ecr.eu-west-1.amazonaws.com/bi-redashv10"
 nginx_image_url        = "803461158102.dkr.ecr.eu-west-1.amazonaws.com/bi-redashv10/redash-nginx:latest"
 terraform_bucket       = "bi-terraform-app-states"
 aws_default_region     = "eu-west-1"
