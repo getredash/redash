@@ -21,12 +21,22 @@ x-redash-environment: &redash-environment
   REDASH_GUNICORN_TIMEOUT: 60
   # Set secret keys in the .env file
 services:
+  bootstrap:
+    <<: *redash-service
+    command: create_db
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      <<: *redash-environment
+      PYTHONUNBUFFERED: 0
   server:
     <<: *redash-service
     command: server
     depends_on:
       - postgres
       - redis
+      - bootstrap
     ports:
       - "9000:5000"
       - "5678:5678"
@@ -38,6 +48,7 @@ services:
     command: scheduler
     depends_on:
       - server
+      - bootstrap
     environment:
       <<: *redash-environment
   scheduled_worker:
@@ -52,6 +63,7 @@ services:
     command: worker
     depends_on:
       - server
+      - bootstrap
     environment:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
