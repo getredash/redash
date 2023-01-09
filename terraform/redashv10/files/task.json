@@ -158,6 +158,7 @@
         "tag": "docker/${service_name}-webapp",
         "labels": "${service_name}-webapp"
       }
+    }
   },
   {
     "name": "worker",
