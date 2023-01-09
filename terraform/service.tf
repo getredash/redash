@@ -11,7 +11,13 @@ module "ref-doc" {
   ecs_task_settings = {
     webapp_image                = var.image_url
     worker_image                = var.image_url
+    webapp_cpu                  = 1024
+    webapp_memory               = 2048
+    worker_cpu                  = 1024
+    worker_memory               = 2048
     scheduler_image             = var.image_url
+    scheduler_cpu               = 1024
+    scheduler_memory            = 2048
     nginx_image                 = var.nginx_image_url
     database_secretmanager_path = local.database_url[terraform.workspace]
     redis_url                   = local.redis_url[terraform.workspace]
@@ -30,5 +36,8 @@ module "ref-doc" {
   lb_settings = {
     http_listener_arn  = var.alb_http_listener_arn
     https_listener_arn = var.alb_https_listener_arn
+
+    health_check_path    = "/status.json"
+    health_check_matcher = "200-499"
   }
 }
