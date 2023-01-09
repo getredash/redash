@@ -68,6 +68,8 @@ locals {
   webapp_image            = lookup(var.ecs_task_settings, "webapp_image")
   webapp_cpu              = lookup(var.ecs_task_settings, "webapp_cpu", 32)
   webapp_memory           = lookup(var.ecs_task_settings, "webapp_memory", 256)
+  bootstrap_cpu           = lookup(var.ecs_task_settings, "bootstrap_cpu", 32)
+  bootstrap_memory        = lookup(var.ecs_task_settings, "bootstrap_memory", 128)
   webapp_threads_count    = lookup(var.ecs_task_settings, "webapp_threads_count", 1)
   worker_image            = lookup(var.ecs_task_settings, "worker_image")
   worker_cpu              = lookup(var.ecs_task_settings, "worker_cpu", 32)

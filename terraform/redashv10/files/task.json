@@ -2,6 +2,10 @@
   {
      "name": "bootstrap",
      "image": "${webapp_image}",
+     "cpu": ${bootstrap_cpu
+     },
+     "memoryReservation": ${bootstrap_memory
+     },
      "command": ["create_db"],
      "essential": false,
      "secrets": [

@@ -12,6 +12,8 @@ data "template_file" "this" {
     webapp_cpu           = local.webapp_cpu
     webapp_memory        = local.webapp_memory
     webapp_threads_count = local.webapp_threads_count
+    bootstrap_memory     = local.bootstrap_memory
+    bootstrap_cpu        = local.bootstrap_cpu
 
     worker_image         = local.worker_image
     worker_cpu           = local.worker_cpu
