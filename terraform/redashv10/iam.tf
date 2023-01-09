@@ -16,7 +16,7 @@ data "aws_iam_policy_document" "secrets" {
 }
 
 resource "aws_iam_policy" "secrets" {
-  name   = "ecs-task_${var.service_name}-secrets"
+  name   = "ecs-task_${var.name}-secrets"
   path   = "/services/${terraform.workspace}/"
   policy = data.aws_iam_policy_document.secrets.json
 }
@@ -45,7 +45,7 @@ data "aws_iam_policy_document" "execution_assume-role" {
 }
 
 resource "aws_iam_role" "execution" {
-  name               = "ecs-task_${var.service_name}-execution"
+  name               = "ecs-task_${var.name}-execution"
   path               = "/services/${terraform.workspace}/"
   assume_role_policy = data.aws_iam_policy_document.execution_assume-role.json
 }

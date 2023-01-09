@@ -1,5 +1,3 @@
-
-
 data "aws_ecs_cluster" "this" {
   cluster_name = var.ecs_cluster_name
 }
@@ -8,7 +6,7 @@ data "template_file" "this" {
   template = file("${path.module}/files/task.json")
 
   vars = {
-    service_name         = var.service_name
+    service_name         = var.name
     dns_name             = local.service_dns_name
     webapp_image         = local.webapp_image
     webapp_cpu           = local.webapp_cpu
@@ -43,13 +41,13 @@ data "template_file" "this" {
 }
 
 resource "aws_ecs_task_definition" "this" {
-  family                = var.service_name
+  family                = var.name
   container_definitions = data.template_file.this.rendered
   execution_role_arn    = aws_iam_role.execution.arn
 }
 
 resource "aws_lb_target_group" "this" {
-  name                 = var.service_name
+  name                 = var.name
   port                 = local.nginx_port
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
@@ -103,7 +101,7 @@ resource "aws_lb_listener_rule" "https" {
 }
 
 resource "aws_ecs_service" "this" {
-  name                               = var.service_name
+  name                               = var.name
   cluster                            = data.aws_ecs_cluster.this.arn
   task_definition                    = aws_ecs_task_definition.this.arn
   desired_count                      = var.service_desired_count
