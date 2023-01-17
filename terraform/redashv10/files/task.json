@@ -1,0 +1,371 @@
+[
+  {
+     "name": "bootstrap",
+     "image": "${webapp_image}",
+     "cpu": ${bootstrap_cpu
+     },
+     "memoryReservation": ${bootstrap_memory
+     },
+     "command": ["create_db"],
+     "essential": false,
+     "secrets": [
+       {
+         "name": "REDASH_COOKIE_SECRET",
+         "valueFrom": "${webapp_cookie_secret_arn}"
+       },
+       {
+         "name": "REDASH_DATABASE_URL",
+         "valueFrom": "${database_url_arn}"
+       },
+       {
+         "name": "REDASH_MAIL_PASSWORD",
+         "valueFrom": "${email_password_arn}"
+       }
+     ],
+     "environment": [
+       {
+         "name": "REDASH_LOG_LEVEL",
+         "value": "INFO"
+       },
+       {
+         "name": "REDASH_WEB_WORKERS",
+         "value": "${webapp_threads_count}"
+       },
+       {
+         "name": "REDASH_REDIS_URL",
+         "value": "${redis_url}"
+       },
+       {
+         "name": "REDASH_MAIL_SERVER",
+         "value": "email-smtp.eu-west-1.amazonaws.com"
+       },
+       {
+         "name": "REDASH_MAIL_PORT",
+         "value": "587"
+       },
+       {
+         "name": "REDASH_MAIL_USE_TLS",
+         "value": "True"
+       },
+       {
+         "name": "REDASH_MAIL_USE_SSL",
+         "value": "False"
+       },
+       {
+         "name": "REDASH_MAIL_USERNAME",
+         "value": "${email_user}"
+       },
+       {
+         "name": "REDASH_MAIL_DEFAULT_SENDER",
+         "value": "${email_sender_addr}"
+       },
+       {
+         "name": "REDASH_HOST",
+         "value": "https://${dns_name}"
+       },
+       {
+         "name": "REDASH_THROTTLE_LOGIN_PATTERN",
+         "value": "4/second"
+       },
+       {
+         "name": "PYTHONUNBUFFERED",
+         "value": "0"
+       }
+     ],
+     "logConfiguration": {
+       "logDriver": "syslog",
+       "options": {
+         "tag": "docker/${service_name}-bootstrap",
+         "labels": "${service_name}-bootstrap"
+       }
+     }
+   },
+  {
+    "name": "server",
+    "image": "${webapp_image}",
+    "cpu": ${webapp_cpu
+    },
+    "memoryReservation": ${webapp_memory
+    },
+    "command": [
+      "server"
+    ],
+    "essential": true,
+    "secrets": [
+      {
+        "name": "REDASH_COOKIE_SECRET",
+        "valueFrom": "${webapp_cookie_secret_arn}"
+      },
+      {
+        "name": "REDASH_DATABASE_URL",
+        "valueFrom": "${database_url_arn}"
+      },
+      {
+        "name": "REDASH_MAIL_PASSWORD",
+        "valueFrom": "${email_password_arn}"
+      }
+    ],
+    "environment": [
+      {
+        "name": "REDASH_LOG_LEVEL",
+        "value": "INFO"
+      },
+      {
+        "name": "REDASH_WEB_WORKERS",
+        "value": "${webapp_threads_count}"
+      },
+      {
+        "name": "REDASH_REDIS_URL",
+        "value": "${redis_url}"
+      },
+      {
+        "name": "REDASH_MAIL_SERVER",
+        "value": "email-smtp.eu-west-1.amazonaws.com"
+      },
+      {
+        "name": "REDASH_MAIL_PORT",
+        "value": "587"
+      },
+      {
+        "name": "REDASH_MAIL_USE_TLS",
+        "value": "True"
+      },
+      {
+        "name": "REDASH_MAIL_USE_SSL",
+        "value": "False"
+      },
+      {
+        "name": "REDASH_MAIL_USERNAME",
+        "value": "${email_user}"
+      },
+      {
+        "name": "REDASH_MAIL_DEFAULT_SENDER",
+        "value": "${email_sender_addr}"
+      },
+      {
+        "name": "REDASH_HOST",
+        "value": "https://${dns_name}"
+      },
+      {
+        "name": "REDASH_THROTTLE_LOGIN_PATTERN",
+        "value": "4/second"
+      },
+      {
+        "name": "PYTHONUNBUFFERED",
+        "value": "0"
+      }
+    ],
+    "dependsOn": [{"containerName": "bootstrap","condition": "COMPLETE"}],
+    "logConfiguration": {
+      "logDriver": "syslog",
+      "options": {
+        "tag": "docker/${service_name}-webapp",
+        "labels": "${service_name}-webapp"
+      }
+    }
+  },
+  {
+    "name": "worker",
+    "image": "${worker_image}",
+    "cpu": ${worker_cpu
+    },
+    "memoryReservation": ${worker_memory
+    },
+    "command": [
+      "worker"
+    ],
+    "essential": true,
+    "secrets": [
+      {
+        "name": "REDASH_COOKIE_SECRET",
+        "valueFrom": "${webapp_cookie_secret_arn}"
+      },
+      {
+        "name": "REDASH_DATABASE_URL",
+        "valueFrom": "${database_url_arn}"
+      },
+      {
+        "name": "REDASH_MAIL_PASSWORD",
+        "valueFrom": "${email_password_arn}"
+      }
+    ],
+    "environment": [
+      {
+        "name": "REDASH_LOG_LEVEL",
+        "value": "INFO"
+      },
+      {
+        "name": "QUERIES",
+        "value": "queries,scheduled_queries,celery"
+      },
+      {
+        "name": "WORKERS_COUNT",
+        "value": "${worker_threads_count}"
+      },
+      {
+        "name": "REDASH_REDIS_URL",
+        "value": "${redis_url}"
+      },
+      {
+        "name": "REDASH_MAIL_SERVER",
+        "value": "email-smtp.eu-west-1.amazonaws.com"
+      },
+      {
+        "name": "REDASH_MAIL_PORT",
+        "value": "587"
+      },
+      {
+        "name": "REDASH_MAIL_USE_TLS",
+        "value": "True"
+      },
+      {
+        "name": "REDASH_MAIL_USE_SSL",
+        "value": "False"
+      },
+      {
+        "name": "REDASH_MAIL_USERNAME",
+        "value": "${email_user}"
+      },
+      {
+        "name": "REDASH_MAIL_DEFAULT_SENDER",
+        "value": "${email_sender_addr}"
+      },
+      {
+        "name": "REDASH_HOST",
+        "value": "${dns_name}"
+      },
+      {
+        "name": "REDASH_THROTTLE_LOGIN_PATTERN",
+        "value": "4/second"
+      },
+      {
+        "name": "PYTHONUNBUFFERED",
+        "value": "0"
+      }
+    ],
+    "dependsOn": [{"containerName": "bootstrap","condition": "COMPLETE"}],
+    "logConfiguration": {
+      "logDriver": "syslog",
+      "options": {
+        "tag": "docker/${service_name}-worker",
+        "labels": "${service_name}-worker"
+      }
+    }
+  },
+  {
+    "name": "scheduler",
+    "image": "${scheduler_image}",
+    "cpu": ${scheduler_cpu
+    },
+    "memoryReservation": ${scheduler_memory
+    },
+    "command": [
+      "scheduler"
+    ],
+    "essential": true,
+    "secrets": [
+      {
+        "name": "REDASH_COOKIE_SECRET",
+        "valueFrom": "${webapp_cookie_secret_arn}"
+      },
+      {
+        "name": "REDASH_DATABASE_URL",
+        "valueFrom": "${database_url_arn}"
+      },
+      {
+        "name": "REDASH_MAIL_PASSWORD",
+        "valueFrom": "${email_password_arn}"
+      }
+    ],
+    "environment": [
+      {
+        "name": "REDASH_LOG_LEVEL",
+        "value": "INFO"
+      },
+      {
+        "name": "QUERIES",
+        "value": "queries,scheduled_queries,celery"
+      },
+      {
+        "name": "WORKERS_COUNT",
+        "value": "${scheduler_threads_count}"
+      },
+      {
+        "name": "REDASH_REDIS_URL",
+        "value": "${redis_url}"
+      },
+      {
+        "name": "REDASH_MAIL_SERVER",
+        "value": "email-smtp.eu-west-1.amazonaws.com"
+      },
+      {
+        "name": "REDASH_MAIL_PORT",
+        "value": "587"
+      },
+      {
+        "name": "REDASH_MAIL_USE_TLS",
+        "value": "True"
+      },
+      {
+        "name": "REDASH_MAIL_USE_SSL",
+        "value": "False"
+      },
+      {
+        "name": "REDASH_MAIL_USERNAME",
+        "value": "${email_user}"
+      },
+      {
+        "name": "REDASH_MAIL_DEFAULT_SENDER",
+        "value": "${email_sender_addr}"
+      },
+      {
+        "name": "REDASH_HOST",
+        "value": "${dns_name}"
+      },
+      {
+        "name": "REDASH_THROTTLE_LOGIN_PATTERN",
+        "value": "4/second"
+      },
+      {
+        "name": "PYTHONUNBUFFERED",
+        "value": "0"
+      }
+    ],
+    "dependsOn": [{"containerName": "bootstrap","condition": "COMPLETE"}],
+    "logConfiguration": {
+      "logDriver": "syslog",
+      "options": {
+        "tag": "docker/${service_name}-scheduler",
+        "labels": "${service_name}-scheduler"
+      }
+    }
+  },
+  {
+    "name": "nginx",
+    "image": "${nginx_image}",
+    "cpu": ${nginx_cpu
+    },
+    "memoryReservation": ${nginx_memory
+    },
+    "links": [
+      "server:redash"
+    ],
+    "portMappings": [
+      {
+        "hostPort": 0,
+        "containerPort": ${nginx_port
+        },
+        "protocol": "tcp"
+      }
+    ],
+    "essential": true,
+    "dependsOn": [{"containerName": "bootstrap","condition": "COMPLETE"}],
+    "logConfiguration": {
+      "logDriver": "syslog",
+      "options": {
+        "tag": "docker/${service_name}-nginx",
+        "labels": "${service_name}-nginx"
+      }
+    }
+  }
+]

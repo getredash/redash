@@ -1,0 +1,10 @@
+# AUTO1 CODEOWNERS File
+#
+# CODEOWNERS defines which user(s)/team(s) maintains specific
+# part of code base. Please refer to the official documetation
+# for details: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Deployed by: Devops <devops@auto1.com>.
+# Powered by: `ops-repomanager`.
+
+.github/*     @auto1-bi/data-engineering

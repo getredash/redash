@@ -21,38 +21,59 @@ x-redash-environment: &redash-environment
   REDASH_GUNICORN_TIMEOUT: 60
   # Set secret keys in the .env file
 services:
-  server:
+  bootstrap:
     <<: *redash-service
-    command: dev_server
+    command: create_db
     depends_on:
       - postgres
       - redis
+    environment:
+      <<: *redash-environment
+      PYTHONUNBUFFERED: 0
+  server:
+    <<: *redash-service
+    command: server
+    depends_on:
+      - postgres
+      - redis
+      - bootstrap
     ports:
-      - "5000:5000"
+      - "9000:5000"
       - "5678:5678"
     environment:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
   scheduler:
     <<: *redash-service
-    command: dev_scheduler
+    command: scheduler
     depends_on:
       - server
+      - bootstrap
     environment:
       <<: *redash-environment
+  scheduled_worker:
+    <<: *redash-service
+    command: worker
+    environment:
+      <<: *redash-environment
+      QUEUES: "scheduled_queries,schemas"
+      WORKERS_COUNT: 1
   worker:
     <<: *redash-service
-    command: dev_worker
+    command: worker
     depends_on:
       - server
+      - bootstrap
     environment:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
+      QUEUES: "queries"
+      WORKERS_COUNT: 2
   redis:
-    image: redis:3-alpine
-    restart: unless-stopped
+    image: redis:5.0-alpine
+    restart: always
   postgres:
-    image: postgres:9.5-alpine
+    image: postgres:9.6-alpine
     # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
     # improvement on my personal machine). We should consider moving this into a dedicated Docker Compose configuration for
     # tests.
@@ -67,3 +88,12 @@ services:
     ports:
       - "1080:80"
     restart: unless-stopped
+  nginx:
+    image: redash/nginx:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    links:
+      - server:redash
+    restart: always
