@@ -66,6 +66,17 @@ export default function QueryControlDropdown(props) {
           <FileExcelOutlinedIcon /> Download as Excel File
         </QueryResultsLink>
       </Menu.Item>
+      <Menu.Item>
+        <QueryResultsLink
+          fileType="parquet"
+          disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
+          query={props.query}
+          queryResult={props.queryResult}
+          embed={props.embed}
+          apiKey={props.apiKey}>
+          <FileExcelOutlinedIcon /> Download as Parquet File
+        </QueryResultsLink>
+      </Menu.Item>
     </Menu>
   );
 

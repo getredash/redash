@@ -19,6 +19,7 @@ from .query_result import (
     serialize_query_result,
     serialize_query_result_to_dsv,
     serialize_query_result_to_xlsx,
+    serialize_query_result_to_parquet,
 )
 
 

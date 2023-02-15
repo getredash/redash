@@ -1,11 +1,22 @@
-import io
 import csv
+import io
+
+import pyarrow
+import pyarrow.parquet
 import xlsxwriter
-from funcy import rpartial, project
 from dateutil.parser import isoparse as parse_date
-from redash.utils import json_loads, UnicodeWriter
-from redash.query_runner import TYPE_BOOLEAN, TYPE_DATE, TYPE_DATETIME
+from funcy import project, rpartial
+
 from redash.authentication.org_resolving import current_org
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+)
+from redash.utils import UnicodeWriter, json_loads
 
 
 def _convert_format(fmt):
@@ -86,7 +97,9 @@ def serialize_query_result_to_dsv(query_result, delimiter):
 
     fieldnames, special_columns = _get_column_lists(query_data["columns"] or [])
 
-    writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=fieldnames, delimiter=delimiter)
+    writer = csv.DictWriter(
+        s, extrasaction="ignore", fieldnames=fieldnames, delimiter=delimiter
+    )
     writer.writeheader()
 
     for row in query_data["rows"]:
@@ -119,5 +132,51 @@ def serialize_query_result_to_xlsx(query_result):
             sheet.write(r + 1, c, v)
 
     book.close()
+
+    return output.getvalue()
+
+
+def serialize_query_result_to_parquet(query_result):
+    output = io.BytesIO()
+    query_data = query_result.data
+    conversions = [
+        {"pandas_type": pyarrow.bool_, "redash_type": TYPE_BOOLEAN},
+        {
+            # "pyarrow_type": pyarrow.date64,
+            "pyarrow_type": pyarrow.string,
+            "redash_type": TYPE_DATE,
+            # "to_redash": lambda x: x.strftime("%Y-%m-%d %H:%M:%S"),
+            # "to_pyarrow": lambda x: x,
+        },
+        {
+            # "pyarrow_type": pyarrow.timestamp,
+            "pyarrow_type": pyarrow.string,
+            "redash_type": TYPE_DATETIME,
+            # "to_redash": lambda x: x.strftime("%Y-%m-%d %H:%M:%S"),
+            # "to_pyarrow": lambda x: x,
+        },
+        {"pyarrow_type": pyarrow.float64, "redash_type": TYPE_FLOAT},
+        {"pyarrow_type": pyarrow.int64, "redash_type": TYPE_INTEGER},
+        {"pyarrow_type": pyarrow.string, "redash_type": TYPE_STRING},
+    ]
+
+    fields = []
+
+    for column in query_data["columns"]:
+        for conversion in conversions:
+            if column["type"] == conversion["redash_type"]:
+                fields.append(pyarrow.field(column["name"], conversion["pyarrow_type"]))
+                break
+
+    table = pyarrow.Table.from_pylist(query_data["rows"])
+    print(table)
+    with pyarrow.parquet.ParquetWriter(
+        where=output,
+        schema=pyarrow.schema(
+            fields,
+            # metadata={"friendly_name": "id"},
+        ),
+    ) as writer:
+        writer.write_table(table)
 
     return output.getvalue()

@@ -58,6 +58,15 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
         "Download as Excel File"
       )}
     </Menu.Item>,
+        <Menu.Item key="download_parquet" disabled={isQueryResultEmpty}>
+        {!isQueryResultEmpty ? (
+          <Link href={downloadLink("parquet")} download={downloadName("parquet")} target="_self">
+            Download as Parquet File
+          </Link>
+        ) : (
+          "Download as Parquet File"
+        )}
+      </Menu.Item>,
     (canViewQuery || canEditParameters) && <Menu.Divider key="divider" />,
     canViewQuery && (
       <Menu.Item key="view_query">

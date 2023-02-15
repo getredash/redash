@@ -100,6 +100,17 @@ function VisualizationEmbedFooter({
           <FileExcelOutlinedIcon /> Download as Excel File
         </QueryResultsLink>
       </Menu.Item>
+      <Menu.Item>
+        <QueryResultsLink
+          fileType="parquet"
+          query={query}
+          queryResult={queryResults}
+          apiKey={apiKey}
+          disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
+          embed>
+          <FileExcelOutlinedIcon /> Download as Parquet File
+        </QueryResultsLink>
+      </Menu.Item>
     </Menu>
   );
 

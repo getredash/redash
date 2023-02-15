@@ -1,40 +1,42 @@
 import logging
 import time
-
 import unicodedata
+
 from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
 from werkzeug.urls import url_quote
+
 from redash import models, settings
 from redash.handlers.base import BaseResource, get_object_or_404, record_event
+from redash.models.parameterized_query import (
+    InvalidParameterError,
+    ParameterizedQuery,
+    QueryDetachedFromDataSourceError,
+    dropdown_values,
+)
 from redash.permissions import (
     has_access,
     not_view_only,
     require_access,
-    require_permission,
     require_any_of_permission,
+    require_permission,
     view_only,
+)
+from redash.serializers import (
+    serialize_job,
+    serialize_query_result,
+    serialize_query_result_to_dsv,
+    serialize_query_result_to_parquet,
+    serialize_query_result_to_xlsx,
 )
 from redash.tasks import Job
 from redash.tasks.queries import enqueue_query
 from redash.utils import (
     collect_parameters_from_request,
     json_dumps,
-    utcnow,
     to_filename,
-)
-from redash.models.parameterized_query import (
-    ParameterizedQuery,
-    InvalidParameterError,
-    QueryDetachedFromDataSourceError,
-    dropdown_values,
-)
-from redash.serializers import (
-    serialize_query_result,
-    serialize_query_result_to_dsv,
-    serialize_query_result_to_xlsx,
-    serialize_job,
+    utcnow,
 )
 
 
@@ -402,6 +404,7 @@ class QueryResultResource(BaseResource):
                 "xlsx": self.make_excel_response,
                 "csv": self.make_csv_response,
                 "tsv": self.make_tsv_response,
+                "parquet": self.make_parquet_response,
             }
             response = response_builders[filetype](query_result)
 
@@ -449,6 +452,16 @@ class QueryResultResource(BaseResource):
             "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         }
         return make_response(serialize_query_result_to_xlsx(query_result), 200, headers)
+
+    @staticmethod
+    def make_parquet_response(query_result):
+        headers = {
+            # https://issues.apache.org/jira/browse/PARQUET-1889
+            "Content-Type": "application/parquet",
+        }
+        return make_response(
+            serialize_query_result_to_parquet(query_result), 200, headers
+        )
 
 
 class JobResource(BaseResource):
