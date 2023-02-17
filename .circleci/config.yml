@@ -9,10 +9,8 @@ build-docker-image-job: &build-docker-image-job
     - checkout
     - run: sudo apt update
     - run: sudo apt install python3-pip
-    - run: sudo pip3 install -r requirements_bundles.txt
     - run: .circleci/update_version
     - run: sudo npm install --global --force yarn@1.22.10
-    - run: yarn bundle
     - run: .circleci/docker_build
 jobs:
   backend-lint:
@@ -83,10 +81,8 @@ jobs:
       - checkout
       - run: sudo apt update
       - run: sudo apt install python3-pip
-      - run: sudo pip3 install -r requirements_bundles.txt
       - run: sudo npm install --global --force yarn@1.22.10
       - run: yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
-      - run: yarn bundle
       - run:
           name: Run App Tests
           command: yarn test
