@@ -21,7 +21,7 @@ cassandra-driver==3.21.0
 memsql==3.0.0
 atsd_client==3.0.5
 simple_salesforce==0.74.3
-PyAthena>=1.5.0
+PyAthena>=1.5.0,<=1.11.5
 pymapd==0.19.0
 qds-sdk>=1.9.6
 ibm-db>=2.0.9
