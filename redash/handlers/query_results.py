@@ -342,9 +342,6 @@ class QueryResultResource(BaseResource):
         # should check for query parameters and shouldn't cache the result).
         should_cache = query_result_id is not None
 
-        parameter_values = collect_parameters_from_request(request.args)
-        max_age = int(request.args.get("maxAge", 0))
-
         query_result = None
         query = None
 

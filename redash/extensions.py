@@ -27,7 +27,7 @@ def entry_point_loader(group_name, mapping, logger=None, *args, **kwargs):
     if logger is None:
         logger = extension_logger
 
-    for entry_point in entry_points().get(group_name, []):
+    for entry_point in entry_points(group=group_name):
         logger.info('Loading entry point "%s".', entry_point.name)
         try:
             # Then try to load the entry point (import and getattr)

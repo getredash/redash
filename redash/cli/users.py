@@ -265,7 +265,7 @@ def password(email, password, organization=None):
     "--groups",
     "groups",
     default=None,
-    help="Comma seperated list of groups (leave blank for default).",
+    help="Comma separated list of groups (leave blank for default).",
 )
 def invite(email, name, inviter_email, groups, is_admin=False, organization="default"):
     """

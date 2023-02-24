@@ -65,7 +65,18 @@ def load_bundles():
 
     """
     bundles = odict()
-    for entry_point in importlib_metadata.entry_points().get("redash.bundles", []):
+    # HACK:
+    #   bin/bundle-extensions is tested in different versions.
+    #   circleci frontend-unit-tests: python 3.5 and importlib-metadata-2.1.3
+    #   circleci backend-unit-tests: python 3.7 and importlib-metadata-5.0.0
+    if importlib_metadata.version("importlib_metadata") >= "5.0.0":
+        bundles_entry_points = importlib_metadata.entry_points(group="redash.bundles")
+    else:
+        bundles_entry_points = importlib_metadata.entry_points().get(
+            "redash.bundles", []
+        )
+
+    for entry_point in bundles_entry_points:
         logger.info('Loading Redash bundle "%s".', entry_point.name)
         module = entry_point_module(entry_point)
         # Try to get a list of bundle files
