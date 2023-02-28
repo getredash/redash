@@ -83,7 +83,7 @@ class Athena(BaseQueryRunner):
                     "default": 5,
                 },
             },
-            "required": ["region", "s3_staging_dir"],
+            "required": ["region"],
             "extra_options": ["glue", "cost_per_tb"],
             "order": [
                 "region",
@@ -219,7 +219,7 @@ class Athena(BaseQueryRunner):
 
     def run_query(self, query, user):
         cursor = pyathena.connect(
-            s3_staging_dir=self.configuration["s3_staging_dir"],
+            s3_staging_dir=self.configuration.get("s3_staging_dir", None),
             schema_name=self.configuration.get("schema", "default"),
             encryption_option=self.configuration.get("encryption_option", None),
             kms_key=self.configuration.get("kms_key", None),
