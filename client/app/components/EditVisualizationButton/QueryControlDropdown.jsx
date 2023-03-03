@@ -74,7 +74,7 @@ export default function QueryControlDropdown(props) {
           queryResult={props.queryResult}
           embed={props.embed}
           apiKey={props.apiKey}>
-          <FileExcelOutlinedIcon /> Download as Parquet File
+          <FileOutlinedIcon /> Download as Parquet File
         </QueryResultsLink>
       </Menu.Item>
     </Menu>

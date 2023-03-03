@@ -457,7 +457,7 @@ class QueryResultResource(BaseResource):
     def make_parquet_response(query_result):
         headers = {
             # https://issues.apache.org/jira/browse/PARQUET-1889
-            "Content-Type": "application/parquet",
+            # "Content-Type": "application/parquet"
         }
         return make_response(
             serialize_query_result_to_parquet(query_result), 200, headers
