@@ -1,23 +1,21 @@
 version: '1.0'
 # Stages can help you organize your steps in stages
 stages:
-    - clone
-    - build
-    - test
-    - wait-when-pr
-    - staging
-    - wait-before-prod
-    - production
-    - after-deployment
+  - clone
+  - build
+  - wait-when-pr
+  - staging
+  - production
+  - after-deployment
 
 steps:
-    clone:
-        title: Cloning repository
-        type: git-clone
-        repo: 'DaPulse/${{CF_REPO_NAME}}'
-        revision: '${{CF_REVISION}}'
-        git: Dapulse-OAuth2
-        stage: clone
+  clone:
+    title: Cloning repository
+    type: git-clone
+    repo: 'DaPulse/${{CF_REPO_NAME}}'
+    revision: '${{CF_REVISION}}'
+    git: Dapulse-OAuth2
+    stage: clone
 
   test_if_image_exists:
     type: freestyle
@@ -29,165 +27,150 @@ steps:
       - echo "image exists"
       - cf_export build=281555170401.dkr.ecr.us-east-1.amazonaws.com/${{CF_REPO_NAME}}:${{CF_REVISION}}
 
-    notify_on_build_start:
-        title: Notify on build start
-        type: monday/infra_api
-        stage: build
+  notify_on_build_start:
+    title: Notify on build start
+    type: monday/infra_api
+    stage: build
+    arguments:
+      ENVIRONMENT: ${{ENVIRONMENT}}
+      METHOD_TYPE: PUT
+      METHOD_NAME: metrics
+      METHOD_BODY: '{ "status":"start", "scope":"build" }'
+      METHOD_QUERY_PARAMS: metricType=build
+    when:
+      condition:
+        all:
+          clone: clone.result == 'success'
+          doesImageExist: test_if_image_exists.result == 'failure'
+  build:
+    title: Building Docker image
+    type: build
+    image_name: '${{CF_REPO_NAME}}'
+    working_directory: '${{clone}}'
+    tag: '${{CF_REVISION}}'
+    dockerfile: Dockerfile
+    registry: 'aws-bi-use1'
+    stage: build
+    when:
+      condition:
+        all:
+          doesImageExist: test_if_image_exists.result == 'failure'
+
+  notify_on_build_fail:
+    title: Notify on build fail
+    type: monday/infra_api
+    stage: build
+    arguments:
+      ENVIRONMENT: ${{ENVIRONMENT}}
+      METHOD_TYPE: PUT
+      METHOD_NAME: metrics
+      METHOD_BODY: '{ "status":"failed", "scope":"build" }'
+      METHOD_QUERY_PARAMS: metricType=build
+    when:
+      condition:
+        all:
+          myCondition: build.result == 'failure'
+
+  notify_on_build_success:
+    title: Notify on build success
+    type: monday/infra_api
+    stage: build
+    arguments:
+      ENVIRONMENT: ${{ENVIRONMENT}}
+      METHOD_TYPE: PUT
+      METHOD_NAME: metrics
+      METHOD_BODY: '{ "status":"success", "scope":"build" }'
+      METHOD_QUERY_PARAMS: metricType=build
+    when:
+      condition:
+        all:
+          myCondition: build.result == 'success'
+
+  approve:
+    title: 'Approve Before Staging'
+    stage: wait-when-pr
+    type: 'pending-approval'
+    timeout:
+      timeUnit: 'minutes'
+      duration: 15
+      finalState: denied
+    fail_fast: false
+    when:
+      condition:
+        all:
+          isMaster: '"${{CF_BRANCH}}" != "master"'
+          isPR: '"${{PR}}" != "true"'
+
+  approve_value:
+    title: Approval export value
+    type: freestyle
+    image: 'busybox:stable'
+    working_directory: '${{clone}}'
+    commands:
+      - cf_export STAGING_APPROVED=true
+    stage: wait-when-pr
+    when:
+      steps:
+        - name: approve
+          'on':
+            - approved
+  deploy_staging:
+    type: parallel
+    title: Deploy staging
+    stage: staging
+    steps:
+      staging_argo:
+        title: Deploy staging using argocd
+        type: codefresh-run
         arguments:
-            ENVIRONMENT: ${{ENVIRONMENT}}
-            METHOD_TYPE: PUT
-            METHOD_NAME: metrics
-            METHOD_BODY: '{ "status":"start", "scope":"build" }'
-            METHOD_QUERY_PARAMS: metricType=build
-        when:
-            condition:
-                all:
-                    clone: clone.result == 'success'
-                    doesImageExist: test_if_image_exists.result == 'failure'
+          PIPELINE_ID: infra-core/argocd
+          TRIGGER_ID: staging-bigbrain
+          BRANCH: master
+          ENABLE_NOTIFICATIONS: true
+          FOLLOW_LOGS: false
+          VARIABLE:
+            - REPO_NAME=${{CF_REPO_NAME}}
+            - REVISION=${{CF_REVISION}}
+            - BUILD_ID=${{CF_BUILD_ID}}
+    when:
+      condition:
+        any:
+          isMaster: "'${{CF_BRANCH}}' == 'master'"
+          isApproved: 'includes("${{STAGING_APPROVED}}", "{{STAGING_APPROVED}}") == false'
 
-    build:
-        title: 'Building Docker image'
-        type: 'build'
-        image_name: ${{CF_REPO_NAME}}
-        working_directory: '${{clone}}'
-        tag: '${{CF_REVISION}}'
-        dockerfile: 'Dockerfile'
-        registry: 'aws-bi-use1'
-        # disable_push: true
-        build_arguments:
-            - NPM_TOKEN=${{NPM_TOKEN}}
-            - NODE_UBUNTU_MONDAY_IMAGE=dapulse/node:14.19.1
-        stage: 'build'
-
-    notify_on_build_fail:
-        title: Notify on build fail
-        type: monday/infra_api
-        stage: 'build'
+  production:
+    type: parallel
+    title: Deploy production
+    stage: production
+    steps:
+      production_argo:
+        type: codefresh-run
+        title: 'Deploy production using ArgoCD'
         arguments:
-            ENVIRONMENT: $ENVIRONMENT
-            METHOD_TYPE: PUT
-            METHOD_NAME: metrics
-            METHOD_BODY: '{ "status":"failed", "scope":"build" }'
-            METHOD_QUERY_PARAMS: metricType=build
-        when:
-            condition:
-                all:
-                    myCondition: build.result == 'failure'
+          PIPELINE_ID: infra-core/argocd
+          TRIGGER_ID: production-bigbrain
+          BRANCH: master
+          ENABLE_NOTIFICATIONS: true
+          FOLLOW_LOGS: false
+          VARIABLE:
+            - REPO_NAME=${{CF_REPO_NAME}}
+            - REVISION=${{CF_REVISION}}
+            - BUILD_ID=${{CF_BUILD_ID}}
+    when:
+      condition:
+        all:
+          isMaster: "'${{CF_BRANCH}}' == 'master'"
+          myCondition: deploy_staging.result == 'success'
 
-    notify_on_build_success:
-        title: Notify on build success
-        type: monday/infra_api
-        stage: 'build'
-        arguments:
-            ENVIRONMENT: $ENVIRONMENT
-            METHOD_TYPE: PUT
-            METHOD_NAME: metrics
-            METHOD_BODY: '{ "status":"success", "scope":"build" }'
-            METHOD_QUERY_PARAMS: metricType=build
-        when:
-            condition:
-                all:
-                    myCondition: build.result == 'success'
 
-    approve:
-        title: 'Approve Before Staging'
-        stage: 'wait-when-pr'
-        type: 'pending-approval'
-        timeout:
-            timeUnit: 'minutes'
-            duration: 15
-            finalState: denied
-        fail_fast: false
-        when:
-            condition:
-                all:
-                    isMaster: '"${{CF_BRANCH}}" != "master"'
-                    isPR: '"${{PR}}" != "true"'
-
-    approve_value:
-        title: Approval export value
-        type: freestyle
-        image: 'busybox:stable'
-        working_directory: '${{clone}}'
-        commands:
-            - cf_export STAGING_APPROVED=true
-        stage: wait-when-pr
-        when:
-            steps:
-                - name: approve
-                  'on':
-                      - approved
-    deploy_staging:
-        type: parallel
-        title: Deploy staging
-        stage: staging
-        steps:
-            staging_argo:
-                title: Deploy staging using argocd
-                type: codefresh-run
-                arguments:
-                    PIPELINE_ID: infra-core/argocd
-                    TRIGGER_ID: staging-bigbrain
-                    BRANCH: master
-                    ENABLE_NOTIFICATIONS: true
-                    FOLLOW_LOGS: false
-                    VARIABLE:
-                        - REPO_NAME=${{CF_REPO_NAME}}
-                        - REVISION=${{CF_REVISION}}
-                        - BUILD_ID=${{CF_BUILD_ID}}
-        when:
-            condition:
-                any:
-                    isMaster: "'${{CF_BRANCH}}' == 'master'"
-                    isApproved: 'includes("${{STAGING_APPROVED}}", "{{STAGING_APPROVED}}") == false'
-
-    approve_prod:
-        type: pending-approval
-        title: Approve Before Production
-        description: Step description
-        timeout:
-            timeUnit: 'minutes'
-            duration: 90
-            finalState: denied
-        fail_fast: false
-        stage: wait-before-prod
-        when:
-            condition:
-                all:
-                    isMaster: "'${{CF_BRANCH}}' == 'master'"
-                    myCondition: deploy_staging.result == 'success'
-
-    production:
-        type: parallel
-        title: Deploy production
-        stage: production
-        steps:
-            production_argo:
-                type: codefresh-run
-                title: 'Deploy production using ArgoCD'
-                arguments:
-                    PIPELINE_ID: infra-core/argocd
-                    TRIGGER_ID: production-bigbrain
-                    BRANCH: master
-                    ENABLE_NOTIFICATIONS: true
-                    FOLLOW_LOGS: false
-                    VARIABLE:
-                        - REPO_NAME=${{CF_REPO_NAME}}
-                        - REVISION=${{CF_REVISION}}
-                        - BUILD_ID=${{CF_BUILD_ID}}
-        when:
-            steps:
-                - name: approve_prod
-                  'on':
-                      - approved
-    push_tag:
-        title: Push latest docker tag
-        type: push
-        candidate: '${{build}}'
-        tag: latest
-        registry: 'aws-bi-use1'
-        stage: after-deployment
-        when:
-            condition:
-                all:
-                    myCondition: production.result == 'success'
+  push_tag:
+    title: Push latest docker tag
+    type: push
+    candidate: '${{build}}'
+    tag: latest
+    registry: 'aws-bi-use1'
+    stage: after-deployment
+    when:
+      condition:
+        all:
+          myCondition: production.result == 'success'
