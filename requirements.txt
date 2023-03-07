@@ -34,6 +34,7 @@ SQLAlchemy-Utils==0.34.2
 sqlparse==0.3.0
 statsd==3.3.0
 gunicorn==19.9.0
+greenlet==0.4.16
 rq==1.1.0
 rq-scheduler==0.9.1
 jsonschema==3.1.1

@@ -16,6 +16,7 @@ from .queries import (
     cleanup_schema_metadata,
     refresh_samples,
     update_sample,
+    remove_ghost_locks,
 )
 from .alerts import check_alerts_for_query
 from .failure_report import send_aggregated_errors
