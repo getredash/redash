@@ -52,6 +52,7 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 - Exasol
 - Microsoft Excel
 - Firebolt
+- Databend
 - Google Analytics
 - Google BigQuery
 - Google Spreadsheets
