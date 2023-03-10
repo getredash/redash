@@ -247,7 +247,11 @@ SEND_FAILURE_EMAIL_INTERVAL = int(os.environ.get("REDASH_SEND_FAILURE_EMAIL_INTE
 MAX_FAILURE_REPORTS_PER_QUERY = int(os.environ.get("REDASH_MAX_FAILURE_REPORTS_PER_QUERY", 100))
 
 ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get(
-    "REDASH_ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE", "({state}) {alert_name}"
+    "REDASH_ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE", "Alert: {alert_name} changed status to {state}"
+)
+
+REDASH_ALERTS_DEFAULT_MAIL_BODY_TEMPLATE_FILE = os.environ.get(
+    "REDASH_ALERTS_DEFAULT_MAIL_BODY_TEMPLATE_FILE", fix_assets_path("templates/emails/alert.html")
 )
 
 # How many requests are allowed per IP to the login page before
