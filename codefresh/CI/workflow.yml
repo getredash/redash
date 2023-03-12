@@ -132,6 +132,7 @@ steps:
             - REPO_NAME=${{CF_REPO_NAME}}
             - REVISION=${{CF_REVISION}}
             - BUILD_ID=${{CF_BUILD_ID}}
+            - CHECK_LOCK="false"
     when:
       condition:
         any:
@@ -156,6 +157,7 @@ steps:
             - REPO_NAME=${{CF_REPO_NAME}}
             - REVISION=${{CF_REVISION}}
             - BUILD_ID=${{CF_BUILD_ID}}
+            - CHECK_LOCK="false"
     when:
       condition:
         all:
