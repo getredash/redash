@@ -177,19 +177,17 @@ class Snowflake(BaseQueryRunner):
 
     def run_query(self, query, user):
         connection = self._get_connection()
-        cursor = connection.cursor()
 
         try:
-            cursor.execute("USE WAREHOUSE {}".format(self.configuration["warehouse"]))
-            cursor.execute("USE {}".format(self.configuration["database"]))
 
-            cursor.execute(query)
+            cursor_list = connection.execute_string("USE WAREHOUSE {}; USE {}; {}".format(
+                self.configuration["warehouse"], self.configuration["database"], query))
+            last_cursor = cursor_list[-1]
 
-            data = self._parse_results(cursor)
+            data = self._parse_results(last_cursor)
             error = None
             json_data = json_dumps(data)
         finally:
-            cursor.close()
             connection.close()
 
         return json_data, error
