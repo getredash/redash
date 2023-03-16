@@ -244,7 +244,7 @@ class MongoDB(BaseQueryRunner):
     def get_schema(self, get_stats=False):
         schema = {}
         db = self._get_db()
-        for collection_name in db.collection_names():
+        for collection_name in db.list_collection_names():
             if collection_name.startswith("system."):
                 continue
             columns = self._get_collection_fields(db, collection_name)
