@@ -1,10 +1,15 @@
 try:
     import snowflake.connector
+    import os
+    from cryptography.hazmat.backends import default_backend
+    from cryptography.hazmat.primitives.asymmetric import rsa
+    from cryptography.hazmat.primitives.asymmetric import dsa
+    from cryptography.hazmat.primitives import serialization
+    import logging
 
     enabled = True
 except ImportError:
     enabled = False
-
 
 from redash.query_runner import BaseQueryRunner, register
 from redash.query_runner import (
@@ -44,13 +49,20 @@ class Snowflake(BaseQueryRunner):
                 "password": {"type": "string"},
                 "warehouse": {"type": "string"},
                 "database": {"type": "string"},
+                "schema": {"type": "string"},
+                "role": {"type": "string"},
                 "region": {"type": "string", "default": "us-west"},
+                "host": {"type": "string"},
+                "use_private_key": {
+                    "type": "boolean",
+                    "title": "Use Private Key Combina (see compose file for path)",
+                    "default": True,
+                },
                 "lower_case_columns": {
                     "type": "boolean",
                     "title": "Lower Case Column Names in Results",
                     "default": False,
                 },
-                "host": {"type": "string"},
             },
             "order": [
                 "account",
@@ -58,10 +70,12 @@ class Snowflake(BaseQueryRunner):
                 "password",
                 "warehouse",
                 "database",
+                "schema",
+                "role",
                 "region",
                 "host",
             ],
-            "required": ["user", "password", "account", "database", "warehouse"],
+            "required": ["user", "account", "database", "warehouse"],
             "secret": ["password"],
             "extra_options": [
                 "host",
@@ -79,6 +93,21 @@ class Snowflake(BaseQueryRunner):
             return TYPE_FLOAT
         return t
 
+    @staticmethod
+    def _get_private_key_as_bytes():
+        with open("/app/rsa_key.p8", "rb") as key:
+            p_key = serialization.load_pem_private_key(
+                key.read(),
+                None,
+                backend=default_backend()
+            )
+
+        pkb = p_key.private_bytes(
+            encoding=serialization.Encoding.DER,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption())
+        return pkb
+
     def _get_connection(self):
         region = self.configuration.get("region")
         account = self.configuration["account"]
@@ -95,13 +124,34 @@ class Snowflake(BaseQueryRunner):
             else:
                 host = "{}.snowflakecomputing.com".format(account)
 
-        connection = snowflake.connector.connect(
-            user=self.configuration["user"],
-            password=self.configuration["password"],
-            account=account,
-            region=region,
-            host=host,
-        )
+        # Private key mounted to volume and user selected to use private key checkbox.
+        # See docker-compose.yml server volume.
+        connection_args = {
+            "user": self.configuration["user"],
+            "account": account,
+            "region": region,
+            "host": host,
+            "warehouse": self.configuration.get("warehouse"),
+            "database": self.configuration.get("database"),
+        }
+
+        if self.configuration.get("schema"):
+            connection_args["schema"] = self.configuration.get("schema")
+        if self.configuration.get("role"):
+            connection_args["role"] = self.configuration.get("role")
+
+        if self.configuration.get("use_private_key"):
+            logging.info("Initializing connection with private key")
+            connection_args["private_key"] = self._get_private_key_as_bytes()
+
+        else:
+            logging.info("Initializing connection with username and password :(")
+            if not self.configuration["password"]:
+                raise Exception("Password is required when not using private key.")
+
+            connection_args["password"] = self.configuration["password"]
+
+        connection = snowflake.connector.connect(**connection_args)
 
         return connection
 
@@ -127,19 +177,17 @@ class Snowflake(BaseQueryRunner):
 
     def run_query(self, query, user):
         connection = self._get_connection()
-        cursor = connection.cursor()
 
         try:
-            cursor.execute("USE WAREHOUSE {}".format(self.configuration["warehouse"]))
-            cursor.execute("USE {}".format(self.configuration["database"]))
 
-            cursor.execute(query)
+            cursor_list = connection.execute_string("USE WAREHOUSE {}; USE {}; {}".format(
+                self.configuration["warehouse"], self.configuration["database"], query))
+            last_cursor = cursor_list[-1]
 
-            data = self._parse_results(cursor)
+            data = self._parse_results(last_cursor)
             error = None
             json_data = json_dumps(data)
         finally:
-            cursor.close()
             connection.close()
 
         return json_data, error

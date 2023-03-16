@@ -33,6 +33,8 @@ services:
     environment:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
+    volumes:
+      - ./rsa_key.p8:/app/rsa_key.p8
   scheduler:
     <<: *redash-service
     command: dev_scheduler
