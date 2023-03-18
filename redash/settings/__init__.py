@@ -494,6 +494,10 @@ FEATURE_AUTO_PUBLISH_NAMED_QUERIES = parse_boolean(
 FEATURE_EXTENDED_ALERT_OPTIONS = parse_boolean(
     os.environ.get("REDASH_FEATURE_EXTENDED_ALERT_OPTIONS", "false")
 )
+# See https://github.com/getredash/redash/issues/3011
+FEATURE_ALLOW_JINJA = parse_boolean(
+    os.environ.get("FEATURE_ALLOW_JINJA", "false")
+)
 
 # BigQuery
 BIGQUERY_HTTP_TIMEOUT = int(os.environ.get("REDASH_BIGQUERY_HTTP_TIMEOUT", "600"))

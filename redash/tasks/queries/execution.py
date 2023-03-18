@@ -15,6 +15,8 @@ from redash.tasks.failure_report import track_failure
 from redash.utils import gen_query_hash, json_dumps, utcnow
 from redash.worker import get_job_logger
 
+from jinjasql import JinjaSql
+
 logger = get_job_logger(__name__)
 TIMEOUT_MESSAGE = "Query exceeded Redash query execution time limit."
 
@@ -177,6 +179,17 @@ class QueryExecutor(object):
     def run(self):
         signal.signal(signal.SIGINT, signal_handler)
         started_at = time.time()
+
+        # ---
+        logger.debug("---Executing FEATURE_ALLOW_JINJA:\n%s", settings.FEATURE_ALLOW_JINJA)
+        if settings.FEATURE_ALLOW_JINJA:
+            cleanQuery = self.query.replace('-- ', '')
+            logger.debug("Executing Clean:\n%s", cleanQuery)
+            j = JinjaSql()
+            jt, nothing = j.prepare_query(cleanQuery, "")
+            self.query = jt
+            logger.debug("Executing query:\n%s", self.query)
+        # ---
 
         logger.debug("Executing query:\n%s", self.query)
         self._log_progress("executing_query")
