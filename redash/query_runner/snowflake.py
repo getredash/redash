@@ -53,6 +53,9 @@ class Snowflake(BaseQueryRunner):
                 "role": {"type": "string"},
                 "region": {"type": "string", "default": "us-west"},
                 "host": {"type": "string"},
+                "private_key_file_name": {"type": "string",
+                                "title": "Private Key file name"
+                                },
                 "use_private_key": {
                     "type": "boolean",
                     "title": "Use Private Key Combina (see compose file for path)",
@@ -93,9 +96,12 @@ class Snowflake(BaseQueryRunner):
             return TYPE_FLOAT
         return t
 
-    @staticmethod
-    def _get_private_key_as_bytes():
-        with open("/app/rsa_key.p8", "rb") as key:
+    def _get_private_key_as_bytes(self):
+        private_key_file_name = self.configuration.get("private_key_file_name")
+        if not private_key_file_name:
+            raise Exception("Private key file name is required when using private key.")
+
+        with open("/app/private_keys/{}".format(private_key_file_name), "rb") as key:
             p_key = serialization.load_pem_private_key(
                 key.read(),
                 None,
