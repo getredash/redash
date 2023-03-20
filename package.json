@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "start": "npm-run-all --parallel watch:viz webpack-dev-server",
-    "bundle": "bin/bundle-extensions",
     "clean": "rm -rf ./client/dist/",
     "build:viz": "(cd viz-lib && yarn build:babel)",
     "build": "yarn clean && yarn build:viz && NODE_ENV=production webpack",
