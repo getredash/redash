@@ -390,6 +390,7 @@ default_query_runners = [
     "redash.query_runner.excel",
     "redash.query_runner.csv",
     "redash.query_runner.firebolt",
+    "redash.query_runner.databend",
     "redash.query_runner.nz",
     "redash.query_runner.arango"
 ]
