@@ -21,7 +21,7 @@ class Databend(BaseQueryRunner):
             "properties": {
                 "host": {"type": "string", "default": "localhost"},
                 "port": {"type": "int", "default": 8000},
-                "username": {"type": "string", "default": "root"},
+                "username": {"type": "string"},
                 "password": {"type": "string", "default": ""},
                 "database": {"type": "string"},
                 "secure": {"type": "string", "default": False},
