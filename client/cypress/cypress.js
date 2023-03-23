@@ -13,7 +13,7 @@ try {
   cypressConfigBaseUrl = cypressConfig.baseUrl;
 } catch (e) {}
 
-const baseUrl = process.env.CYPRESS_baseUrl || cypressConfigBaseUrl || "http://localhost:5000";
+const baseUrl = process.env.CYPRESS_baseUrl || cypressConfigBaseUrl || "http://localhost:5001";
 
 function seedDatabase(seedValues) {
   get(baseUrl + "/login", (_, { headers }) => {
