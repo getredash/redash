@@ -60,7 +60,7 @@ def change_permissions(group_id, permissions=None):
     try:
         group = models.Group.query.get(group_id)
     except NoResultFound:
-        print("User [%s] not found." % group_id)
+        print("Group [%s] not found." % group_id)
         exit(1)
 
     permissions = extract_permissions_string(permissions)
