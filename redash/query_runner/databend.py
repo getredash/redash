@@ -33,7 +33,7 @@ class Databend(BaseQueryRunner):
 
     @classmethod
     def name(cls):
-        return "databend"
+        return "Databend"
 
     @classmethod
     def type(cls):
