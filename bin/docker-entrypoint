@@ -37,7 +37,7 @@ server() {
 }
 
 create_db() {
-  exec /app/manage.py database create_tables
+  exec /app/manage.py database create-tables
 }
 
 help() {

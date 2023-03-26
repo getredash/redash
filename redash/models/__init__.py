@@ -355,7 +355,7 @@ class QueryResult(db.Model, QueryResultPersistence, BelongsToOrgMixin):
             cls.query.filter(
                 Query.id.is_(None), cls.retrieved_at < age_threshold
             ).outerjoin(Query)
-        ).options(load_only("id"))
+        ).options(load_only(Query.id))
 
     @classmethod
     def get_latest(cls, data_source, query, max_age=0):
@@ -563,7 +563,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             cls.query.options(
                 joinedload(Query.user),
                 joinedload(Query.latest_query_data).load_only(
-                    "runtime", "retrieved_at"
+                    QueryResult.runtime, QueryResult.retrieved_at
                 ),
             )
             .filter(cls.id.in_(query_ids))
@@ -635,7 +635,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def outdated_queries(cls):
         queries = (
             Query.query.options(
-                joinedload(Query.latest_query_data).load_only("retrieved_at")
+                joinedload(Query.latest_query_data).load_only(QueryResult.retrieved_at)
             )
             .filter(Query.schedule.isnot(None))
             .order_by(Query.id)
@@ -1158,13 +1158,13 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def all_tags(cls, org, user):
         dashboards = cls.all(org, user.group_ids, user.id)
 
-        tag_column = func.unnest(cls.tags).label("tag")
-        usage_count = func.count(1).label("usage_count")
+        tag_column = func.unnest(cls.tags).label(Query.tag)
+        usage_count = func.count(1).label(Query.usage_count)
 
         query = (
             db.session.query(tag_column, usage_count)
             .group_by(tag_column)
-            .filter(Dashboard.id.in_(dashboards.options(load_only("id"))))
+            .filter(Dashboard.id.in_(dashboards.options(load_only(Query.id))))
             .order_by(usage_count.desc())
         )
         return query

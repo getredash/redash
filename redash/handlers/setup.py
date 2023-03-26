@@ -7,7 +7,7 @@ from redash.handlers.base import routes
 from redash.models import Group, Organization, User, db
 from redash.tasks.general import subscribe
 from wtforms import BooleanField, Form, PasswordField, StringField, validators
-from wtforms.fields.html5 import EmailField
+from wtforms.fields import EmailField
 
 
 class SetupForm(Form):

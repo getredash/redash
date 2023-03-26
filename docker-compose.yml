@@ -52,7 +52,7 @@ services:
     image: redis:3-alpine
     restart: unless-stopped
   postgres:
-    image: postgres:9.5-alpine
+    image: postgres:15.2-alpine
     ports:
       - "15432:5432"
     # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3

@@ -216,7 +216,7 @@ def log_user_logged_in(app, user):
 
 @login_manager.unauthorized_handler
 def redirect_to_login():
-    if request.is_xhr or "/api/" in request.path:
+    if "/api/" in request.path:
         response = jsonify(
             {"message": "Couldn't find resource. Please login and try again."}
         )

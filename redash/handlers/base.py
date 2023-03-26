@@ -13,7 +13,7 @@ from redash.utils import json_dumps
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import cast
 from sqlalchemy.dialects import postgresql
-from sqlalchemy_utils import sort_query
+from sqlalchemy_utils.functions import sort_query
 
 routes = Blueprint(
     "redash", __name__, template_folder=settings.fix_assets_path("templates")

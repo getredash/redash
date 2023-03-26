@@ -6,6 +6,8 @@ from flask_migrate import stamp
 import sqlalchemy
 from sqlalchemy.exc import DatabaseError
 from sqlalchemy.sql import select
+from sqlalchemy import text
+
 from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
 
 from redash import settings
@@ -20,7 +22,8 @@ def _wait_for_db_connection(db):
     retried = False
     while not retried:
         try:
-            db.engine.execute("SELECT 1;")
+            with db.engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
             return
         except DatabaseError:
             time.sleep(30)

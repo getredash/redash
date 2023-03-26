@@ -1,7 +1,7 @@
 import click
 import simplejson
 from flask import current_app
-from flask.cli import FlaskGroup, run_command, with_appcontext
+from flask.cli import FlaskGroup, run_command, with_appcontext, pass_script_info
 from rq import Connection
 
 from redash import __version__, create_app, settings, rq_redis_connection
@@ -9,9 +9,8 @@ from redash.cli import data_sources, database, groups, organization, queries, us
 from redash.monitor import get_status
 
 
-def create(group):
+def create():
     app = current_app or create_app()
-    group.app = app
 
     @app.shell_context_processor
     def shell_context():
