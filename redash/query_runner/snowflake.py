@@ -1,6 +1,6 @@
 try:
     import snowflake.connector
-
+    import sqlparse
     enabled = True
 except ImportError:
     enabled = False
@@ -128,18 +128,22 @@ class Snowflake(BaseQueryRunner):
     def run_query(self, query, user):
         connection = self._get_connection()
         cursor = connection.cursor()
+        cursor_list = []
 
         try:
             cursor.execute("USE WAREHOUSE {}".format(self.configuration["warehouse"]))
             cursor.execute("USE {}".format(self.configuration["database"]))
 
-            cursor.execute(query)
+            query = sqlparse.format(query, strip_comments=True).strip()
+            cursor_list = connection.execute_string(query)
 
-            data = self._parse_results(cursor)
+            data = self._parse_results(cursor_list[-1])
             error = None
             json_data = json_dumps(data)
         finally:
             cursor.close()
+            for c in cursor_list:
+                c.close()
             connection.close()
 
         return json_data, error
