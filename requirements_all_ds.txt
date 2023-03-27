@@ -41,7 +41,7 @@ cmem-cmempy==21.2.3
 xlrd==2.0.1
 openpyxl==3.0.7
 firebolt-sdk
-databend-sqlalchemy
+databend-sqlalchemy==0.2.4
 pandas==1.3.4
 nzpy>=1.15
 nzalchemy
