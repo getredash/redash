@@ -22,7 +22,7 @@ worker() {
   exec supervisord -c worker.conf
 }
 
-worker_healthcheck() {
+workers_healthcheck() {
   WORKERS_COUNT=${WORKERS_COUNT}
   echo "Checking active workers count against $WORKERS_COUNT..."
   ACTIVE_WORKERS_COUNT=`echo $(rq info --url $REDASH_REDIS_URL -R | grep workers | grep -oP ^[0-9]+)`
@@ -89,9 +89,9 @@ case "$1" in
     shift
     worker
     ;;
-  worker_healthcheck)
+  workers_healthcheck)
     shift
-    worker_healthcheck
+    workers_healthcheck
     ;;
   server)
     shift
