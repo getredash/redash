@@ -167,7 +167,7 @@ def serialize_query_result_to_parquet(query_result):
         {
             "pyarrow_type": pyarrow.timestamp("s"),
             "redash_type": TYPE_DATETIME,
-            "redash_format": r"%Y-%m-%d %H:%M:%S",
+            "redash_format": r"%Y-%m-%dT%H:%M:%S",
             "redash_to_pyarrow": redash_datetime_to_pyarrow_timestamp,
         },
         {"pyarrow_type": pyarrow.float64(), "redash_type": TYPE_FLOAT},
