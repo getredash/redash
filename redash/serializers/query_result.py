@@ -20,8 +20,6 @@ from redash.query_runner import (
 )
 from redash.utils import UnicodeWriter, json_loads
 
-logging.getLogger(__name__)
-
 
 def _convert_format(fmt):
     return (
