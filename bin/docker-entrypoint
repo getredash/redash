@@ -26,7 +26,7 @@ workers_healthcheck() {
   WORKERS_COUNT=${WORKERS_COUNT}
   echo "Checking active workers count against $WORKERS_COUNT..."
   ACTIVE_WORKERS_COUNT=`echo $(rq info --url $REDASH_REDIS_URL -R | grep workers | grep -oP ^[0-9]+)`
-  if [ "$ACTIVE_WORKERS_COUNT" < "$WORKERS_COUNT"  ]; then
+  if [ "$ACTIVE_WORKERS_COUNT" -lt "$WORKERS_COUNT"  ]; then
     echo "$ACTIVE_WORKERS_COUNT workers are active, Exiting"
     exit 1
   else
