@@ -1,30 +1,3 @@
-FROM node:14.17 as frontend-builder
-
-RUN npm install --global --force yarn@1.22.10
-
-# Controls whether to build the frontend assets
-ARG skip_frontend_build
-
-ENV CYPRESS_INSTALL_BINARY=0
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
-
-RUN useradd -m -d /frontend redash
-USER redash
-
-WORKDIR /frontend
-COPY --chown=redash package.json yarn.lock .yarnrc /frontend/
-COPY --chown=redash viz-lib /frontend/viz-lib
-
-# Controls whether to instrument code for coverage information
-ARG code_coverage
-ENV BABEL_ENV=${code_coverage:+test}
-
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
-
-COPY --chown=redash client /frontend/client
-COPY --chown=redash webpack.config.js /frontend/
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn build; else mkdir -p /frontend/client/dist && touch /frontend/client/dist/multi_org.html && touch /frontend/client/dist/index.html; fi
-
 FROM python:3.7-slim-buster
 
 EXPOSE 5000
@@ -80,6 +53,11 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
   && rm /tmp/simba_odbc.zip \
   && rm -rf /tmp/SimbaSparkODBC*; fi
 
+#RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+#  export GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1 \
+#  && export GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1 \
+#  && export CASS_DRIVER_NO_CYTHON=1 ; fi
+
 WORKDIR /app
 
 # Disable PIP Cache and Version Check
@@ -100,7 +78,7 @@ COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
 COPY --chown=redash . /app
-COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist
+COPY --from=redash/redash:10.0.0.b50363 --chown=redash /app/client/dist /app/client/dist
 RUN chown redash /app
 USER redash
 
