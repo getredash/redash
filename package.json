@@ -76,7 +76,8 @@
     "sql-formatter": "git+https://github.com/getredash/sql-formatter.git",
     "universal-router": "^8.3.0",
     "use-debounce": "^3.1.0",
-    "use-media": "^1.4.0"
+    "use-media": "^1.4.0",
+    "js-cookie": "^2.2.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.4",
