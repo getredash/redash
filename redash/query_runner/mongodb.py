@@ -302,19 +302,20 @@ class MongoDB(BaseQueryRunner):
 
         cursor = None
         if q or (not q and not aggregate):
-            if s:
-                cursor = db[collection].find(q, f).sort(s)
-            else:
-                cursor = db[collection].find(q, f)
-
-            if "skip" in query_data:
-                cursor = cursor.skip(query_data["skip"])
-
-            if "limit" in query_data:
-                cursor = cursor.limit(query_data["limit"])
-
             if "count" in query_data:
-                cursor = len(list(cursor))
+                options = {opt: query_data[opt] for opt in ("skip", "limit") if opt in query_data}
+                cursor = db[collection].count_documents(q, **options)
+            else:
+                if s:
+                    cursor = db[collection].find(q, f).sort(s)
+                else:
+                    cursor = db[collection].find(q, f)
+
+                if "skip" in query_data:
+                    cursor = cursor.skip(query_data["skip"])
+
+                if "limit" in query_data:
+                    cursor = cursor.limit(query_data["limit"])
 
         elif aggregate:
             allow_disk_use = query_data.get("allowDiskUse", False)
