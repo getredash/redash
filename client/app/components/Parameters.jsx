@@ -1,4 +1,4 @@
-import { size, filter, forEach, extend } from "lodash";
+import { size, filter, forEach, extend, isEqual } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { SortableContainer, SortableElement, DragHandle } from "@redash/viz/lib/components/sortable";
@@ -54,7 +54,7 @@ export default class Parameters extends React.Component {
 
   componentDidUpdate = prevProps => {
     const { parameters, disableUrlUpdate } = this.props;
-    const parametersChanged = prevProps.parameters !== parameters;
+    const parametersChanged = !isEqual(prevProps.parameters, parameters);
     const disableUrlUpdateChanged = prevProps.disableUrlUpdate !== disableUrlUpdate;
     if (parametersChanged) {
       this.setState({ parameters });
