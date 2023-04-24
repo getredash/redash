@@ -1,4 +1,4 @@
-import { isEqual, isEmpty, map } from "lodash";
+import { isEqual, isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
@@ -40,6 +40,7 @@ class ParameterValueInput extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      reg: /\/\*(.*)\*\//i,
       value: props.parameter.hasPendingValue ? props.parameter.pendingValue : props.value,
       isDirty: props.parameter.hasPendingValue,
     };
@@ -103,7 +104,12 @@ class ParameterValueInput extends React.Component {
         mode={parameter.multiValuesOptions ? "multiple" : "default"}
         value={normalize(value)}
         onChange={this.onSelect}
-        options={map(enumOptionsArray, opt => ({ label: String(opt), value: opt }))}
+        options={enumOptionsArray.map((option) => {
+          let alias = option;
+          const groups = this.state.reg.exec(option);
+          if ((groups !== null) && (groups[1] !== null)) alias = groups[1];
+          return ({ label: alias, value: option });
+        })}
         showSearch
         showArrow
         notFoundContent={isEmpty(enumOptionsArray) ? "No options available" : null}
