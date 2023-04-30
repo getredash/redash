@@ -67,7 +67,7 @@ class Mysql(BaseSQLQueryRunner):
                 "db": {"type": "string", "title": "Database name"},
                 "port": {"type": "number", "default": 3306},
                 "connect_timeout": {"type": "number", "default": 60, "title": "Connection Timeout"},
-                "charset": {"type": "string", "default": "utf8"},
+                "charset": {"type": "string", "default": "utf8mb4", "title": "Character Set"},
                 "use_unicode": {"type": "boolean", "default": True},
             },
             "order": ["host", "port", "user", "passwd", "db", "connect_timeout", "charset", "use_unicode"],
