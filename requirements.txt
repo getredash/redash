@@ -1,4 +1,4 @@
-Flask==1.1.1
+Flask==2.3.2
 Jinja2==2.10.3
 itsdangerous==1.1.0
 black==19.10b0
