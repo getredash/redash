@@ -48,6 +48,7 @@
     "@redash/viz": "file:viz-lib",
     "ace-builds": "^1.4.12",
     "antd": "^4.4.3",
+    "antd-watermark": "^1.0.1",
     "axios": "^0.21.1",
     "axios-auth-refresh": "^3.0.0",
     "bootstrap": "^3.3.7",

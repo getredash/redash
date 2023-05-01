@@ -16,13 +16,23 @@ import recordEvent from "@/services/recordEvent";
 import resizeObserver from "@/services/resizeObserver";
 import routes from "@/services/routes";
 import location from "@/services/location";
+import { Auth } from "@/services/auth";
+
 import url from "@/services/url";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
+import Watermark from 'antd-watermark';
 
 import useDashboard from "./hooks/useDashboard";
 import DashboardHeader from "./components/DashboardHeader";
 
 import "./DashboardPage.less";
+
+const watermarkOptions = {
+  font: {
+    fontSize: 10
+  },
+  gap: [50, 50],
+};
 
 function DashboardSettings({ dashboardConfiguration }) {
   const { dashboard, updateDashboard } = dashboardConfiguration;
@@ -90,10 +100,19 @@ function DashboardComponent(props) {
 
   const [pageContainer, setPageContainer] = useState(null);
   const [bottomPanelStyles, setBottomPanelStyles] = useState({});
+  const [watermarkEnabled, setWatermarkEnabled] = useState(null);
+
   const onParametersEdit = parameters => {
     const paramOrder = map(parameters, "name");
     updateDashboard({ options: { globalParamOrder: paramOrder } });
   };
+
+  useEffect(() => {
+
+    Auth.loadSession().then(({ client_config }) => setWatermarkEnabled(client_config.watermarkEnabled));
+
+  }, [watermarkEnabled]);
+
 
   useEffect(() => {
     if (pageContainer) {
@@ -115,7 +134,23 @@ function DashboardComponent(props) {
       return unobserve;
     }
   }, [pageContainer, editingLayout]);
+  const dashboardGrid = (
+    <div id="dashboard-container">
 
+      <DashboardGrid
+        dashboard={dashboard}
+        widgets={dashboard.widgets}
+        filters={filters}
+        isEditing={editingLayout}
+        onLayoutChange={editingLayout ? saveDashboardLayout : () => { }}
+        onBreakpointChange={setGridDisabled}
+        onLoadWidget={loadWidget}
+        onRefreshWidget={refreshWidget}
+        onRemoveWidget={removeWidget}
+        onParameterMappingsChange={loadDashboard}
+      />
+
+    </div>);
   return (
     <div className="container" ref={setPageContainer} data-test={`DashboardId${dashboard.id}Container`}>
       <DashboardHeader
@@ -144,20 +179,18 @@ function DashboardComponent(props) {
         </div>
       )}
       {editingLayout && <DashboardSettings dashboardConfiguration={dashboardConfiguration} />}
-      <div id="dashboard-container">
-        <DashboardGrid
-          dashboard={dashboard}
-          widgets={dashboard.widgets}
-          filters={filters}
-          isEditing={editingLayout}
-          onLayoutChange={editingLayout ? saveDashboardLayout : () => {}}
-          onBreakpointChange={setGridDisabled}
-          onLoadWidget={loadWidget}
-          onRefreshWidget={refreshWidget}
-          onRemoveWidget={removeWidget}
-          onParameterMappingsChange={loadDashboard}
-        />
-      </div>
+
+      {
+        // watermark is enabled
+        watermarkEnabled && <Watermark content={[dashboard.user.name, dashboard.user.email]} {...watermarkOptions}>
+          {dashboardGrid}
+        </Watermark>
+      }
+      {
+        // watermark is disabled
+        !watermarkEnabled && dashboardGrid
+      }
+
       {editingLayout && (
         <AddWidgetContainer dashboardConfiguration={dashboardConfiguration} style={bottomPanelStyles} />
       )}
