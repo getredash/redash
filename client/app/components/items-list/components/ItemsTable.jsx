@@ -7,6 +7,7 @@ import Skeleton from "antd/lib/skeleton";
 import FavoritesControl from "@/components/FavoritesControl";
 import TimeAgo from "@/components/TimeAgo";
 import { durationHumanize, formatDate, formatDateTime } from "@/lib/utils";
+import avatarUrl from "@/assets/images/avatar.svg";
 
 // `this` refers to previous function in the chain (`Columns.***`).
 // Adds `sorter: true` field to column definition
@@ -35,6 +36,9 @@ export const Columns = {
             className="profile__image_thumb"
             alt={formatTitle(user.name, item)}
             title={formatTitle(user.name, item)}
+            onError={e => {
+              e.target.src = avatarUrl
+            }}
           />
         ),
       },
