@@ -6,6 +6,7 @@ import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-typ
 
 import PasswordLoginSettings from "./PasswordLoginSettings";
 import GoogleLoginSettings from "./GoogleLoginSettings";
+import OauthLoginSettings from "./OAuthLoginSettings";
 import SAMLSettings from "./SAMLSettings";
 
 export default function AuthSettings(props) {
