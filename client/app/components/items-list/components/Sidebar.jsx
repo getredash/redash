@@ -5,6 +5,7 @@ import Input from "antd/lib/input";
 import AntdMenu from "antd/lib/menu";
 import Link from "@/components/Link";
 import TagsList from "@/components/TagsList";
+import avatarUrl from "@/assets/images/avatar.svg";
 
 /*
     SearchInput
@@ -126,7 +127,11 @@ export function ProfileImage({ user }) {
   if (!isString(user.profile_image_url) || user.profile_image_url === "") {
     return null;
   }
-  return <img src={user.profile_image_url} className="profile__image--sidebar m-r-5" width="13" alt={user.name} />;
+  return <img src={user.profile_image_url} className="profile__image--sidebar m-r-5" width="13" alt={user.name}
+              onError={e => {
+                e.target.src = avatarUrl
+              }}
+  />;
 }
 
 ProfileImage.propTypes = {

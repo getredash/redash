@@ -8,12 +8,17 @@ import SchedulePhrase from "@/components/queries/SchedulePhrase";
 import { IMG_ROOT } from "@/services/data-source";
 
 import "./QueryMetadata.less";
+import avatarUrl from "@/assets/images/avatar.svg";
 
 export default function QueryMetadata({ query, dataSource, layout, onEditSchedule }) {
   return (
     <div className={`query-metadata query-metadata-${layout}`}>
       <div className="query-metadata-item">
-        <img className="profile__image_thumb" src={query.user.profile_image_url} alt="Avatar" />
+        <img className="profile__image_thumb" src={query.user.profile_image_url} alt="Avatar"
+             onError={e => {
+               e.target.src = avatarUrl
+             }}
+        />
         <div className="query-metadata-property">
           <strong className={cx("query-metadata-label", { "text-muted": query.user.is_disabled })}>
             {query.user.name}
@@ -27,7 +32,11 @@ export default function QueryMetadata({ query, dataSource, layout, onEditSchedul
         </div>
       </div>
       <div className="query-metadata-item">
-        <img className="profile__image_thumb" src={query.last_modified_by.profile_image_url} alt="Avatar" />
+        <img className="profile__image_thumb" src={query.last_modified_by.profile_image_url} alt="Avatar"
+             onError={e => {
+               e.target.src = avatarUrl
+             }}
+        />
         <div className="query-metadata-property">
           <strong className={cx("query-metadata-label", { "text-muted": query.last_modified_by.is_disabled })}>
             {query.last_modified_by.name}

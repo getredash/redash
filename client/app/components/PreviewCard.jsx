@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import Link from "@/components/Link";
+import avatarUrl from "@/assets/images/avatar.svg";
 
 // PreviewCard
 
@@ -14,6 +15,9 @@ export function PreviewCard({ imageUrl, roundedImage, title, body, children, cla
         height="32"
         className={classNames({ "profile__image--settings": roundedImage }, "m-r-5")}
         alt="Logo/Avatar"
+        onError={e => {
+          e.target.src = avatarUrl
+        }}
       />
       <div className="flex-fill">
         <div>{title}</div>

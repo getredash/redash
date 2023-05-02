@@ -18,6 +18,7 @@ import { policy } from "@/services/policy";
 import recordEvent from "@/services/recordEvent";
 import { durationHumanize } from "@/lib/utils";
 import { DashboardStatusEnum } from "../hooks/useDashboard";
+import avatarUrl from "@/assets/images/avatar.svg";
 
 import "./DashboardHeader.less";
 
@@ -44,7 +45,11 @@ function DashboardPageTitle({ dashboardConfiguration }) {
           />
         </h3>
         <Tooltip title={dashboard.user.name} placement="bottom">
-          <img src={dashboard.user.profile_image_url} className="profile-image" alt={dashboard.user.name} />
+          <img src={dashboard.user.profile_image_url} className="profile-image"
+               onError={e => {
+                 e.target.src = avatarUrl
+               }}
+               alt={dashboard.user.name} />
         </Tooltip>
       </div>
       <DashboardTagsControl
