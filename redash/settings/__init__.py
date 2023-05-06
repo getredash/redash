@@ -397,7 +397,8 @@ default_query_runners = [
     "redash.query_runner.csv",
     "redash.query_runner.databend",
     "redash.query_runner.nz",
-    "redash.query_runner.arango"
+    "redash.query_runner.arango",
+    "redash.query_runner.graphql_ds"
 ]
 
 enabled_query_runners = array_from_string(
