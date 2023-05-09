@@ -27,7 +27,7 @@ export default function QueryControlDropdown(props) {
           </PlainButton>
         </Menu.Item>
       )}
-      {!clientConfig.disablePublicUrls && !props.query.isNew() && (
+      {!clientConfig.disablePublicUrls && !props.query.isNew() && canDownloadArtifacts && (
         <Menu.Item>
           <PlainButton
             onClick={() => props.showEmbedDialog(props.query, props.selectedTab)}
