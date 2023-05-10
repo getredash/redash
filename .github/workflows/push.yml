@@ -48,7 +48,7 @@ jobs:
             -t $ECR_REGISTRY/$ECR_REPOSITORY:redash_11 .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:redash_$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:redash_11
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
       - name: Logout of Amazon ECR
         if: always()
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
