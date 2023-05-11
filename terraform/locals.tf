@@ -44,7 +44,7 @@ locals {
 
   worker_cpu = {
     qa   = 1024
-    prod = 6144
+    prod = 3090
   }
   worker_memory = {
     qa   = 2048
