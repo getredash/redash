@@ -78,19 +78,19 @@ pipeline {
         }
 
 
-        // stage('Apply terraform') {
-        //     steps {
-        //         withCredentials([string(credentialsId: 'REDASHV10_VAULT_TOKEN', variable: 'VAULT_TOKEN')]) {
-        //           sh('''#!/bin/bash -ex
-        //           cd terraform
-        //           terraform13 apply ecs-deploy.plan
-        //           echo "Cleanup"
-        //           git checkout -- .
-        //           rm -v ecs-deploy.plan
-        //           ''')
-        //         }
-        //     }
-        // }
+        stage('Apply terraform') {
+            steps {
+                withCredentials([string(credentialsId: 'REDASHV10_VAULT_TOKEN', variable: 'VAULT_TOKEN')]) {
+                  sh('''#!/bin/bash -ex
+                  cd terraform
+                  terraform13 apply ecs-deploy.plan
+                  echo "Cleanup"
+                  git checkout -- .
+                  rm -v ecs-deploy.plan
+                  ''')
+                }
+            }
+        }
 
         stage('ECS wait for deploy') {
             steps {
