@@ -46,6 +46,7 @@ resource "aws_ecs_task_definition" "this" {
   family                = var.name
   container_definitions = data.template_file.this.rendered
   execution_role_arn    = aws_iam_role.execution.arn
+
 }
 
 resource "aws_lb_target_group" "this" {

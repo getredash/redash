@@ -1,34 +1,90 @@
 locals {
   vault_secret_path = {
     qa   = "secret/bi/apps/redashv10"
-    prod = "-"
+    prod = "secret/bi/apps/redashv10"
   }
 
   database_url = {
     qa   = data.vault_generic_secret.redash.data["database_url"]
-    prod = "-"
+    prod = data.vault_generic_secret.redash.data["database_url"]
 
   }
   redis_url = {
     qa   = "redis://redash-bi.qa.ecache.bi-qa.wkda:6379"
-    prod = "-"
+    prod = "redis://redash-bi.prod.ecache.bi-prod.wkda:6379"
 
   }
 
   webapp_cookie_secret = {
     qa   = data.vault_generic_secret.redash.data["webapp_cookie_secret"]
-    prod = "-"
+    prod = data.vault_generic_secret.redash.data["webapp_cookie_secret"]
   }
 
   email_password = {
     qa   = data.vault_generic_secret.redash.data["email_password"]
-    prod = "-"
+    prod = data.vault_generic_secret.redash.data["email_password"]
   }
 
   worker_threads_count = {
     qa   = 1
-    prod = 3
+    prod = 15
   }
+
+  scheduler_threads_count = {
+    qa   = 1
+    prod = 4
+  }
+
+  webapp_threads_count = {
+    qa   = 1
+    prod = 4
+  }
+
+
+
+  worker_cpu = {
+    qa   = 1024
+    prod = 6144
+  }
+  worker_memory = {
+    qa   = 2048
+    prod = 20000
+  }
+
+  scheduler_cpu = {
+    qa   = 1024
+    prod = 1230
+  }
+  scheduler_memory = {
+    qa   = 2048
+    prod = 2048
+  }
+
+  webapp_cpu = {
+    qa   = 1024
+    prod = 2048
+  }
+  webapp_memory = {
+    qa   = 2048
+    prod = 4096
+  }
+
+  nginx_cpu = {
+    qa   = 32
+    prod = 512
+  }
+  nginx_memory = {
+    qa   = 256
+    prod = 1024
+  }
+
+
+
+
+
+
+
+
 
   # capacity_provider_strategy = {
   #   qa = [

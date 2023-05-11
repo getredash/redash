@@ -63,6 +63,10 @@ variable "deployment_controller" {
   default = []
 }
 
+variable "placement_constraints_instance_type" {
+  default = ""
+}
+
 locals {
   service_dns_name        = "${var.dns_record_name}.${var.dns_zone_name}"
   webapp_image            = lookup(var.ecs_task_settings, "webapp_image")
@@ -91,13 +95,14 @@ locals {
   database_url_arn         = aws_ssm_parameter.secrets["database_secretmanager_path"].arn
   email_password_arn       = aws_ssm_parameter.secrets["email_password"].arn
 
-  deregistration_delay             = lookup(var.lb_settings, "deregistration_delay", 60)
-  health_check_path                = lookup(var.lb_settings, "health_check_path", "/")
-  health_check_healthy_threshold   = lookup(var.lb_settings, "health_check_healthy_threshold", 3)
-  health_check_unhealthy_threshold = lookup(var.lb_settings, "health_check_unhealthy_threshold", 2)
-  health_check_timeout             = lookup(var.lb_settings, "health_check_timeout", 5)
-  health_check_interval            = lookup(var.lb_settings, "health_check_interval", 30)
-  health_check_matcher             = lookup(var.lb_settings, "health_check_matcher", "200")
-  http_listener_arn                = lookup(var.lb_settings, "http_listener_arn", "")
-  https_listener_arn               = lookup(var.lb_settings, "https_listener_arn", "")
+  deregistration_delay                = lookup(var.lb_settings, "deregistration_delay", 60)
+  health_check_path                   = lookup(var.lb_settings, "health_check_path", "/")
+  health_check_healthy_threshold      = lookup(var.lb_settings, "health_check_healthy_threshold", 3)
+  health_check_unhealthy_threshold    = lookup(var.lb_settings, "health_check_unhealthy_threshold", 2)
+  health_check_timeout                = lookup(var.lb_settings, "health_check_timeout", 5)
+  health_check_interval               = lookup(var.lb_settings, "health_check_interval", 30)
+  health_check_matcher                = lookup(var.lb_settings, "health_check_matcher", "200")
+  http_listener_arn                   = lookup(var.lb_settings, "http_listener_arn", "")
+  https_listener_arn                  = lookup(var.lb_settings, "https_listener_arn", "")
+  placement_constraints_instance_type = var.placement_constraints_instance_type
 }
