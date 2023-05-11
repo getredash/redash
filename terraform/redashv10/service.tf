@@ -18,7 +18,7 @@ data "template_file" "this" {
     worker_image         = local.worker_image
     worker_cpu           = local.worker_cpu
     worker_memory        = local.worker_memory
-    worker_threads_count = local.webapp_threads_count
+    worker_threads_count = local.worker_threads_count
 
     scheduler_image         = local.scheduler_image
     scheduler_cpu           = local.scheduler_cpu

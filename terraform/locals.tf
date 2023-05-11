@@ -62,7 +62,7 @@ locals {
 
   webapp_cpu = {
     qa   = 1024
-    prod = 1024
+    prod = 1230
   }
   webapp_memory = {
     qa   = 2048
@@ -71,7 +71,7 @@ locals {
 
   nginx_cpu = {
     qa   = 32
-    prod = 128
+    prod = 512
   }
   nginx_memory = {
     qa   = 256
