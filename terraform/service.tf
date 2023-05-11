@@ -7,6 +7,7 @@ module "ref-doc" {
   vpc_id                = var.vpc_id
   ecs_cluster_name      = data.aws_ecs_cluster.redash_cluster.id
   service_desired_count = var.instance_count
+  capacity_provider     = local.capacity_provider_strategy
 
   ecs_task_settings = {
     webapp_image                = var.image_url

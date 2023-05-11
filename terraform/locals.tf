@@ -78,19 +78,19 @@ locals {
     prod = 1024
   }
 
-  # capacity_provider_strategy = {
-  #   qa = [
-  #     {
-  #       base              = 0
-  #       capacity_provider = data.terraform_remote_state.ecs.outputs.cluster_name
-  #       weight            = 100
-  #     }
-  #   ]
-  #   prod = [
-  #     {
-  #       base              = 0
-  #       capacity_provider = "eu-bi-prod-asg-apps-2"
-  #       weight            = 100
-  #   }]
-  # }
+  capacity_provider_strategy = {
+    qa = [
+      {
+        base              = 0
+        capacity_provider = data.terraform_remote_state.ecs.outputs.cluster_name
+        weight            = 100
+      }
+    ]
+    prod = [
+      {
+        base              = 0
+        capacity_provider = data.aws_ecs_cluster.cluster_name
+        weight            = 100
+    }]
+  }
 }
