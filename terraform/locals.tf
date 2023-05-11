@@ -82,14 +82,14 @@ locals {
     qa = [
       {
         base              = 0
-        capacity_provider = data.terraform_remote_state.ecs.outputs.cluster_name
+        capacity_provider = var.capacity_provider
         weight            = 100
       }
     ]
     prod = [
       {
         base              = 0
-        capacity_provider = data.aws_ecs_cluster.cluster_name
+        capacity_provider = var.capacity_provider
         weight            = 100
     }]
   }
