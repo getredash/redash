@@ -44,7 +44,7 @@ locals {
 
   worker_cpu = {
     qa   = 1024
-    prod = 3090
+    prod = 1024
   }
   worker_memory = {
     qa   = 2048
@@ -77,14 +77,6 @@ locals {
     qa   = 256
     prod = 1024
   }
-
-
-
-
-
-
-
-
 
   # capacity_provider_strategy = {
   #   qa = [

@@ -26,6 +26,8 @@ module "ref-doc" {
     email_user                  = data.vault_generic_secret.redash.data["email_user"]
     email_sender_addr           = "data@auto1.team"
     worker_threads_count        = local.worker_threads_count[terraform.workspace]
+    scheduler_threads_count     = local.scheduler_threads_count[terraform.workspace]
+    webapp_threads_count        = local.webapp_threads_count[terraform.workspace]
 
   }
 
