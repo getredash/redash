@@ -27,7 +27,7 @@ locals {
 
   worker_threads_count = {
     qa   = 1
-    prod = 15
+    prod = 12
   }
 
   scheduler_threads_count = {
@@ -43,7 +43,7 @@ locals {
 
 
   worker_cpu = {
-    qa   = 1024
+    qa   = 3072
     prod = 1024
   }
   worker_memory = {
@@ -65,7 +65,7 @@ locals {
     prod = 1230
   }
   webapp_memory = {
-    qa   = 2048
+    qa   = 1024
     prod = 4096
   }
 
