@@ -44,6 +44,9 @@ jobs:
           name: List Enabled Query Runners
           command: docker-compose run --rm redash manage ds list_types
       - run:
+          name: List Installed Python Packages
+          command: docker-compose run --rm redash pip freeze
+      - run:
           name: Run Tests
           command: docker-compose run --name tests redash tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
       - run:
