@@ -1,6 +1,7 @@
 import logging
 import sys
 import uuid
+import datetime
 from enum import Enum
 
 from redash.query_runner import *
@@ -84,6 +85,16 @@ class Ignite(BaseSQLQueryRunner):
 
         return list(schema.values())
 
+    def normalise_column(self,col):
+      # if it's a datetime, just return the milliseconds
+      if type(col) is tuple and len(col) == 2 and type(col[0]) is datetime.datetime and type(col[1]) is int:
+        return col[0]
+      else:
+        return col
+
+    def normalise_row(self,row):
+      return [self.normalise_column(col) for col in row]
+
     def run_query(self, query, user):
         connection = None
 
@@ -114,7 +125,7 @@ class Ignite(BaseSQLQueryRunner):
 
             column_names = next(cursor)
             columns = [{ 'name':col, 'friendly_name':col.lower() } for col in column_names]
-            rows = [ dict(zip(column_names, row)) for row in cursor ]
+            rows = [ dict(zip(column_names, self.normalise_row(row))) for row in cursor ]
             json_data = json_dumps({ "columns" : columns, "rows": rows })
             error = None
 
