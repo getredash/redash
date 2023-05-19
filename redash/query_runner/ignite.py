@@ -13,6 +13,7 @@ types_map = {
     'java.lang.Float': TYPE_FLOAT,
     'java.lang.Double': TYPE_FLOAT,
     'java.sql.Date': TYPE_DATETIME,
+    'java.sql.Timestamp': TYPE_DATETIME,
     'java.lang.Long': TYPE_INTEGER,
     'java.lang.Integer': TYPE_INTEGER,
     'java.lang.Short': TYPE_INTEGER,
