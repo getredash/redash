@@ -33,8 +33,7 @@ class Ignite(BaseSQLQueryRunner):
             "properties": {
                 "user": {"type": "string"},
                 "password": {"type": "string"},
-                "server": {"type": "string", "default": "127.0.0.1"},
-                "port": {"type": "number", "default": 10800},
+                "server": {"type": "string", "default": "127.0.0.1:10800"},
                 "tls" : {"type":"boolean", "default":False, "title":"Use SSL/TLS connection"},
                 "schema": {"type": "string", "title": "Schema Name", "default":"PUBLIC"},
                 "distributed_joins": {"type": "boolean", "title": "Allow distributed joins", "default":False},
@@ -95,14 +94,26 @@ class Ignite(BaseSQLQueryRunner):
     def normalise_row(self,row):
       return [self.normalise_column(col) for col in row]
 
+    def server_to_connection(self, s):
+      st = s.split(':')
+      if len(st) == 1:
+        server = s
+        port = 10800
+      elif len(st) == 2:
+        server = st[0]
+        port = int(st[1])
+      else:
+        server = 'unknown'
+        port = 10800
+      return (server,port)
+
     def run_query(self, query, user):
         connection = None
 
         try:
-            server = self.configuration.get("server", "127.0.0.1")
+            server = self.configuration.get("server", "127.0.0.1:10800")
             user = self.configuration.get("user", None)
             password = self.configuration.get("password", None)
-            port = self.configuration.get("port", 10800)
             tls = self.configuration.get("tls", False)
             distributed_joins = self.configuration.get("distributed_joins", False)
             enforce_join_order = self.configuration.get("enforce_join_order", False)
@@ -116,7 +127,7 @@ class Ignite(BaseSQLQueryRunner):
                 from pyignite import Client
 
             connection = Client(username=user, password=password, use_ssl=tls)
-            connection.connect(server, port)
+            connection.connect([self.server_to_connection(s) for s in server.split(',')])
 
             cursor = connection.sql(query, include_field_names=True,
                     distributed_joins=distributed_joins, enforce_join_order=enforce_join_order,
