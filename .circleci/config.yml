@@ -2,7 +2,7 @@ version: 2.0
 
 build-docker-image-job: &build-docker-image-job
   docker:
-    - image: circleci/node:14.17
+    - image: circleci/node:14.17-bullseye
   steps:
     - setup_remote_docker:
         version: 19.03.13
@@ -44,6 +44,9 @@ jobs:
           name: List Enabled Query Runners
           command: docker-compose run --rm redash manage ds list_types
       - run:
+          name: List Installed Python Packages
+          command: docker-compose run --rm redash pip freeze
+      - run:
           name: Run Tests
           command: docker-compose run --name tests redash tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
       - run:
@@ -62,7 +65,7 @@ jobs:
       CYPRESS_INSTALL_BINARY: 0
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
     docker:
-      - image: circleci/node:14.17
+      - image: circleci/node:14.17-bullseye
     steps:
       - checkout
       - run: mkdir -p /tmp/test-results/eslint
@@ -76,7 +79,7 @@ jobs:
       CYPRESS_INSTALL_BINARY: 0
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
     docker:
-      - image: circleci/node:14.17
+      - image: circleci/node:14.17-bullseye
     steps:
       - checkout
       - run: sudo apt update
@@ -100,7 +103,7 @@ jobs:
       CYPRESS_INSTALL_BINARY: 0
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
     docker:
-      - image: circleci/node:14.17
+      - image: circleci/node:14.17-bullseye
     steps:
       - setup_remote_docker:
           version: 19.03.13

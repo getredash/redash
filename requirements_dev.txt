@@ -6,6 +6,7 @@ mock==3.0.5
 # PyMongo and Athena dependencies are needed for some of the unit tests:
 # (this is not perfect and we should resolve this in a different way)
 pymongo[srv,tls]==3.9.0
+boto3>=1.10.0,<1.11.0
 botocore>=1.13,<1.14.0
 PyAthena>=1.5.0,<=1.11.5
 ptvsd==4.3.2
