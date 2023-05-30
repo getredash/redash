@@ -8,6 +8,9 @@ from funcy import project
 from flask_login import current_user
 from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
+import geolite2
+import maxminddb
+from user_agents import parse as parse_ua
 
 from redash import models
 from redash.permissions import has_access, view_only
@@ -339,3 +342,68 @@ def serialize_job(job):
             "query_result_id": query_result_id,
         }
     }
+
+
+def get_location(ip):
+    if ip is None:
+        return "Unknown"
+
+    with maxminddb.open_database(geolite2.geolite2_database()) as reader:
+        try:
+            match = reader.get(ip)
+            return match["country"]["names"]["en"]
+        except Exception:
+            return "Unknown"
+
+
+def event_details(event):
+    details = {}
+    if event.object_type == "data_source" and event.action == "execute_query":
+        details["query"] = event.additional_properties["query"]
+        details["data_source"] = event.object_id
+    elif event.object_type == "page" and event.action == "view":
+        details["page"] = event.object_id
+    else:
+        details["object_id"] = event.object_id
+        details["object_type"] = event.object_type
+
+    return details
+
+
+def serialize_event(event):
+    d = {
+        "org_id": event.org_id,
+        "user_id": event.user_id,
+        "action": event.action,
+        "object_type": event.object_type,
+        "object_id": event.object_id,
+        "created_at": event.created_at,
+    }
+
+    if event.user_id:
+        d["user_name"] = event.additional_properties.get(
+            "user_name", "User {}".format(event.user_id)
+        )
+
+    if not event.user_id:
+        d["user_name"] = event.additional_properties.get("api_key", "Unknown")
+
+    d["browser"] = str(parse_ua(event.additional_properties.get("user_agent", "")))
+    d["location"] = get_location(event.additional_properties.get("ip"))
+    d["details"] = event_details(event)
+
+    return d
+
+
+class EventSerializer(Serializer):
+    def __init__(self, object_or_list):
+        self.object_or_list = object_or_list
+
+    def serialize(self):
+        if isinstance(self.object_or_list, models.Event):
+            result = serialize_event(self.object_or_list)
+        else:
+            result = [
+                serialize_event(obj) for obj in self.object_or_list
+            ]
+        return result
