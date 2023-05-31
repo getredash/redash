@@ -176,6 +176,14 @@ function QuerySource(props) {
     [query, queryFlags.canExecute, areParametersDirty, isQueryExecuting, isDirty, selectedText, executeQuery]
   );
 
+  const doAuth = useCallback(
+    () => {
+      let tabName = 'duplicatedQueryTab' + Math.random().toString();
+      window.open('/bqauthorize', tabName);
+    },
+    []
+  );
+
   const [isQuerySaving, setIsQuerySaving] = useState(false);
 
   const doSaveQuery = useCallback(() => {
@@ -296,6 +304,14 @@ function QuerySource(props) {
                           loading: isQuerySaving,
                         }
                       }
+                      authButtonProps={{
+                        title: "BigQuery Authorization",
+                        disabled: false,
+                        onClick: doAuth,
+                        text: (
+                          <span>{"Auth"}</span>
+                        ),
+                      }}
                       executeButtonProps={{
                         disabled: !queryFlags.canExecute || isQueryExecuting || areParametersDirty,
                         shortcut: "mod+enter, alt+enter, ctrl+enter, shift+enter",
@@ -319,6 +335,7 @@ function QuerySource(props) {
                           ? {
                               disabled: !queryFlags.canEdit,
                               value: dataSource.id,
+                              type: dataSource.type,
                               onChange: handleDataSourceChange,
                               options: map(dataSources, ds => ({ value: ds.id, label: ds.name })),
                             }

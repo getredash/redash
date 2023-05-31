@@ -63,10 +63,14 @@ def send_mail(to, subject, html, text):
 
 
 @job("queries", timeout=30, ttl=90)
-def test_connection(data_source_id):
+def test_connection(data_source_id, user_id):
     try:
         data_source = models.DataSource.get_by_id(data_source_id)
-        data_source.query_runner.test_connection()
+        user = models.User.get_by_id(user_id)
+        if data_source.is_bigquery:
+            data_source.query_runner.test_connection(user)
+        else:
+            data_source.query_runner.test_connection()
     except Exception as e:
         return e
     else:

@@ -1,7 +1,7 @@
 Flask==1.1.1
 Jinja2==2.10.3
 itsdangerous==1.1.0
-click==6.7
+click==8.1.3
 MarkupSafe==1.1.1
 pyOpenSSL==19.0.0
 httplib2==0.14.0
@@ -9,6 +9,8 @@ wtforms==2.2.1
 Flask-RESTful==0.3.7
 Flask-Login==0.4.1
 Flask-SQLAlchemy==2.4.1
+Flask-OAuthLib==0.9.5
+requests-oauthlib==1.1.0
 Flask-Migrate==2.5.2
 flask-mail==0.9.1
 flask-talisman==0.7.0

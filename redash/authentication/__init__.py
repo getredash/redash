@@ -246,6 +246,7 @@ def init_app(app):
         saml_auth,
         remote_user_auth,
         ldap_auth,
+        bigquery_oauth2
     )
 
     from redash.authentication.google_oauth import create_google_oauth_blueprint
@@ -262,7 +263,7 @@ def init_app(app):
     from redash.security import csrf
 
     # Authlib's flask oauth client requires a Flask app to initialize
-    for blueprint in [create_google_oauth_blueprint(app), saml_auth.blueprint, remote_user_auth.blueprint, ldap_auth.blueprint, ]:
+    for blueprint in [create_google_oauth_blueprint(app), saml_auth.blueprint, remote_user_auth.blueprint, ldap_auth.blueprint, bigquery_oauth2.blueprint, ]:
         csrf.exempt(blueprint)
         app.register_blueprint(blueprint)
 

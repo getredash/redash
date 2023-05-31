@@ -5,6 +5,7 @@ import time
 from functools import reduce
 from operator import or_
 
+from cryptography.fernet import Fernet
 from flask import current_app as app, url_for, request_started
 from flask_login import current_user, AnonymousUserMixin, UserMixin
 from passlib.apps import custom_app_context as pwd_context
@@ -14,7 +15,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy_utils import EmailType
 from sqlalchemy_utils.models import generic_repr
 
-from redash import redis_connection
+from redash import redis_connection, settings
 from redash.utils import generate_token, utcnow, dt_from_timestamp
 
 from .base import db, Column, GFKBase, key_type, primary_key
@@ -110,7 +111,9 @@ class User(
     is_email_verified = json_cast_property(
         db.Boolean(True), "details", "is_email_verified", default=True
     )
-
+    
+    credentials = Column(MutableDict.as_mutable(postgresql.JSON), nullable=True, server_default='{}', default={})
+    
     __tablename__ = "users"
     __table_args__ = (db.Index("users_org_id_email", "org_id", "email", unique=True),)
 
@@ -155,6 +158,7 @@ class User(
             "active_at": self.active_at,
             "is_invitation_pending": self.is_invitation_pending,
             "is_email_verified": self.is_email_verified,
+            "credentials": self.credentials,
         }
 
         if self.password_hash is None:
@@ -169,6 +173,23 @@ class User(
 
     def is_api_user(self):
         return False
+
+    def update_credentials(self, token, cred):
+        key = settings.FERNET_SECRET_KEY
+        fernet = Fernet(key)
+        data = cred.encode()
+        # encrypted data has to be decoded before storing to db.
+        # Otherwise garbage value gets stored to DB. This issue does not occur in redash v8
+        self.credentials[token] = fernet.encrypt(data).decode()
+        db.session.commit()
+
+    def fetch_credentials(self, token):
+        key = settings.FERNET_SECRET_KEY
+        fernet = Fernet(key)
+        encrypted_decoded_cred = self.credentials[token]
+        data = encrypted_decoded_cred.encode()
+        cred = fernet.decrypt(data)
+        return cred
 
     @property
     def profile_image_url(self):
@@ -315,6 +336,10 @@ class Group(db.Model, BelongsToOrgMixin):
         result = cls.query.filter(cls.org == org, cls.name.in_(group_names))
         return list(result)
 
+    @classmethod
+    def update_credentials(self, cred):
+        self.credentials = cred
+        db.session.commit()
 
 @generic_repr(
     "id", "object_type", "object_id", "access_type", "grantor_id", "grantee_id"

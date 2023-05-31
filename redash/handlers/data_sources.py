@@ -257,7 +257,7 @@ class DataSourceTestResource(BaseResource):
 
         response = {}
 
-        job = test_connection.delay(data_source.id)
+        job = test_connection.delay(data_source.id, self.current_user.id)
         while not (job.is_finished or job.is_failed):
             time.sleep(1)
             job.refresh()

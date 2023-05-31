@@ -7,7 +7,7 @@ from base64 import b64decode
 import httplib2
 import requests
 
-from redash import settings
+from redash import settings, models
 from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
 
@@ -18,7 +18,7 @@ try:
     from apiclient.discovery import build
     from apiclient.errors import HttpError
     from oauth2client.service_account import ServiceAccountCredentials
-
+    from oauth2client.client import AccessTokenCredentials
     enabled = True
 except ImportError:
     enabled = False
@@ -103,7 +103,6 @@ class BigQuery(BaseQueryRunner):
             "type": "object",
             "properties": {
                 "projectId": {"type": "string", "title": "Project ID"},
-                "jsonKeyFile": {"type": "string", "title": "JSON Key File"},
                 "totalMBytesProcessedLimit": {
                     "type": "number",
                     "title": "Scanned Data Limit (MB)",
@@ -124,10 +123,9 @@ class BigQuery(BaseQueryRunner):
                     "title": "Maximum Billing Tier",
                 },
             },
-            "required": ["jsonKeyFile", "projectId"],
+            "required": ["projectId"],
             "order": [
                 "projectId",
-                "jsonKeyFile",
                 "loadSchema",
                 "useStandardSql",
                 "location",
@@ -135,18 +133,91 @@ class BigQuery(BaseQueryRunner):
                 "maximumBillingTier",
                 "userDefinedFunctionResourceUri",
             ],
-            "secret": ["jsonKeyFile"],
         }
 
-    def _get_bigquery_service(self):
-        scope = [
-            "https://www.googleapis.com/auth/bigquery",
-            "https://www.googleapis.com/auth/drive",
-        ]
+    def _get_token_using_service_account(self):
+        scopes = ["https://www.googleapis.com/auth/bigquery"]
+        try:
+            return ServiceAccountCredentials.from_json_keyfile_name(settings.REDASH_SERVICE_ACCOUNT_PATH, scopes)
+        except ValueError:
+            creds = ServiceAccountCredentials.from_stream(settings.REDASH_SERVICE_ACCOUNT_PATH)
+            creds.scopes = scopes
+            return creds
 
-        key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
+    def _get_token_using_user_oauth_saved_creds(self, user):
+        refresh_token = user.fetch_credentials('bq_oauth_refresh_token')
 
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
+        params = {
+            "grant_type": "refresh_token",
+            "client_id": settings.GOOGLE_CLIENT_ID,
+            "client_secret": settings.GOOGLE_CLIENT_SECRET,
+            "refresh_token": refresh_token
+        }
+        authorization_url = "https://www.googleapis.com/oauth2/v4/token"
+        r = requests.post(authorization_url, data=params)
+
+        if r.ok:
+            tok = r.json()['access_token']
+        else:
+            message = """BigQuery authorization did not succeed for user: {}, try clicking on the `Auth` button.
+            status: {} message: {}""".format(user.email, r.status_code, str(r.text))
+            raise Exception(message)
+
+        return AccessTokenCredentials(tok, 'my-user-agent/1.0')
+
+    def get_generic_user_group_id(self, user):
+        """
+        :param user: The user who calls this method
+        :return: -1 if no generic user group exists or user is None otherwise return the group id
+        """
+
+        groups = models.Group.find_by_name(models.Organization.get_by_id(user.org_id),
+                                           [settings.REDASH_GENERIC_USER_GROUP])
+        if not groups:
+            return -1
+        return groups[0].id
+
+    def _get_bigquery_service(self, user, is_scheduled=False):
+
+        if user is None:
+            # refresh schema has called
+            creds = self._get_token_using_service_account()
+        else:
+            project_id = self.configuration["projectId"]
+            generic_user_group_id = self.get_generic_user_group_id(user)
+
+            if generic_user_group_id in list(user.group_ids):
+                # use service account credentials for generic accounts, that is used by calling services
+                # to make api calls to redash.
+                creds = self._get_token_using_service_account()
+                logger.warn("Using service account credentials for generic account: %s, project_id: %s",
+                            user.email, project_id)
+            elif is_scheduled:
+                if 'bq_oauth_refresh_token' not in user.credentials:
+                    # user has not authenticated use service account.
+                    creds = self._get_token_using_service_account()
+                    logger.warn("Using service account credentials for user: %s, project_id: %s, is_scheduled: %s",
+                                user.email, project_id, is_scheduled)
+                else:
+                    try:
+                        # user has authenticated
+                        creds = self._get_token_using_user_oauth_saved_creds(user)
+                    except Exception:
+                        # user has authenticated but creds may have expired or permission changed in INFOSEC
+                        # why it might occur: https://developers.google.com/identity/protocols/oauth2#expiration
+                        # we will log an error here, but continue to facilitate query execution with service account.
+                        logger.exception("BigQuery scheduled query execution failed due to user: %s oauth credentials, "
+                                         "attempting to execute query using service account", user.email)
+                        creds = self._get_token_using_service_account()
+            else:
+                # user is using web UI to execute the query.
+                if 'bq_oauth_refresh_token' not in user.credentials:
+                    message = """User has not authenticated with oAuth.
+                        Please click the 'Auth' button in the query editor page while selecting bigquery data source to complete the authentication."""
+                    raise Exception(message)
+
+                creds = self._get_token_using_user_oauth_saved_creds(user)
+
         http = httplib2.Http(timeout=settings.BIGQUERY_HTTP_TIMEOUT)
         http = creds.authorize(http)
 
@@ -282,7 +353,7 @@ class BigQuery(BaseQueryRunner):
 
         return result
 
-    def get_schema(self, get_stats=False):
+    def get_schema(self, get_stats=False, user=None):
         if not self.configuration.get("loadSchema", False):
             return []
 
@@ -303,7 +374,7 @@ class BigQuery(BaseQueryRunner):
             queries.append(query)
 
         query = '\nUNION ALL\n'.join(queries)
-        results, error = self.run_query(query, None)
+        results, error = self.run_query(query, user, False)
         if error is not None:
             self._handle_run_query_error(error)
 
@@ -316,10 +387,10 @@ class BigQuery(BaseQueryRunner):
 
         return list(schema.values())
 
-    def run_query(self, query, user):
+    def run_query(self, query, user, is_scheduled=False):
         logger.debug("BigQuery got query: %s", query)
 
-        bigquery_service = self._get_bigquery_service()
+        bigquery_service = self._get_bigquery_service(user, is_scheduled)
         jobs = bigquery_service.jobs()
 
         try:

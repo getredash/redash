@@ -184,6 +184,10 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
         return res
 
+    @property
+    def is_bigquery(self):
+        return self.type == 'bigquery'
+    
     def get_cached_schema(self):
         cache = redis_connection.get(self._schema_key)
         return json_loads(cache) if cache else None

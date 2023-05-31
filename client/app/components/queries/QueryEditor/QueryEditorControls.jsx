@@ -37,6 +37,7 @@ export default function EditorControl({
   addParameterButtonProps,
   formatButtonProps,
   saveButtonProps,
+  authButtonProps,
   executeButtonProps,
   autocompleteToggleProps,
   autoLimitCheckboxProps,
@@ -101,6 +102,18 @@ export default function EditorControl({
           ))}
         </Select>
       )}
+      {dataSourceSelectorProps !== false && dataSourceSelectorProps.type === 'bigquery' && (
+        <ButtonTooltip title={authButtonProps.title}>
+          <Button
+            className="query-editor-controls-button m-l-5"
+            disabled={authButtonProps.disabled}
+            onClick={authButtonProps.onClick}
+            data-test="BigQuery Authorization">
+            <span className="zmdi zmdi-key" />
+            {authButtonProps.text}
+          </Button>
+        </ButtonTooltip>
+      )}
       {saveButtonProps !== false && (
         <ButtonTooltip title={saveButtonProps.title} shortcut={saveButtonProps.shortcut}>
           <Button
@@ -147,6 +160,7 @@ EditorControl.propTypes = {
   addParameterButtonProps: ButtonPropsPropType,
   formatButtonProps: ButtonPropsPropType,
   saveButtonProps: ButtonPropsPropType,
+  authButtonProps: ButtonPropsPropType,
   executeButtonProps: ButtonPropsPropType,
   autocompleteToggleProps: PropTypes.oneOfType([
     PropTypes.bool, // `false` to hide
@@ -179,6 +193,7 @@ EditorControl.propTypes = {
 EditorControl.defaultProps = {
   addParameterButtonProps: false,
   formatButtonProps: false,
+  authButtonProps: false,
   saveButtonProps: false,
   executeButtonProps: false,
   autocompleteToggleProps: false,

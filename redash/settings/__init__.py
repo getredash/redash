@@ -72,6 +72,14 @@ if SECRET_KEY is None:
 # The secret key to use when encrypting data source options
 DATASOURCE_SECRET_KEY = os.environ.get("REDASH_SECRET_KEY", SECRET_KEY)
 
+#The secret key to use when encrypting and decrypting big query user credentials
+FERNET_SECRET_KEY = os.environ.get('REDASH_FERNET_KEY')
+
+#This contains path to service account credentials
+REDASH_SERVICE_ACCOUNT_PATH = os.environ.get('REDASH_SERVICE_ACCOUNT_PATH')
+#This contains generic user group name
+REDASH_GENERIC_USER_GROUP = os.environ.get('REDASH_GENERIC_USER_GROUP')
+
 # Whether and how to redirect non-HTTP requests to HTTPS. Disabled by default.
 ENFORCE_HTTPS = parse_boolean(os.environ.get("REDASH_ENFORCE_HTTPS", "false"))
 ENFORCE_HTTPS_PERMANENT = parse_boolean(

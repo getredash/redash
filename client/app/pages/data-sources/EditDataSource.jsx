@@ -14,6 +14,8 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import DataSource, { IMG_ROOT } from "@/services/data-source";
 import notification from "@/services/notification";
 import routes from "@/services/routes";
+import { currentUser } from '@/services/auth';
+import { axios } from "@/services/axios";
 
 class EditDataSource extends React.Component {
   static propTypes = {
@@ -80,7 +82,8 @@ class EditDataSource extends React.Component {
 
   testConnection = callback => {
     const { dataSource } = this.state;
-    DataSource.test({ id: dataSource.id })
+    const runTest = () => {
+      DataSource.test({ id: dataSource.id })
       .then(httpResponse => {
         if (httpResponse.ok) {
           notification.success("Success");
@@ -97,7 +100,26 @@ class EditDataSource extends React.Component {
         );
         callback();
       });
-  };
+    };
+  
+    if (dataSource.type === 'bigquery') {
+      axios
+        .get(`api/users/${currentUser.id}`)
+        .then(cred => cred.credentials)
+        .then(
+          (credentials) => {
+            if ("bq_oauth_refresh_token" in credentials) {
+                runTest();
+            }
+            else {
+                window.location.pathname = `/bqauthorize`;
+                window.open(window.location.href);
+            }
+          }
+        );
+    } else {
+      runTest();
+    }};
 
   renderForm() {
     const { dataSource, type } = this.state;

@@ -48,7 +48,7 @@ def _load_query(user, query_id):
     return query
 
 
-def get_query_results(user, query_id, bring_from_cache):
+def get_query_results(user, query_id, bring_from_cache, is_scheduled=False):
     query = _load_query(user, query_id)
     if bring_from_cache:
         if query.latest_query_data_id is not None:
@@ -56,25 +56,27 @@ def get_query_results(user, query_id, bring_from_cache):
         else:
             raise Exception("No cached result available for query {}.".format(query.id))
     else:
-        results, error = query.data_source.query_runner.run_query(
-            query.query_text, user
-        )
+        if query.data_source.is_bigquery:
+            logger.info("Executing an inner BigQuery query with schedule status: %s", is_scheduled)
+            results, error = query.data_source.query_runner.run_query(
+                query.query_text, user, is_scheduled)
+        else:
+            results, error = query.data_source.query_runner.run_query(
+                query.query_text, user)
         if error:
             raise Exception("Failed loading results for query id {}.".format(query.id))
         else:
             results = json_loads(results)
-
     return results
 
-
-def create_tables_from_query_ids(user, connection, query_ids, cached_query_ids=[]):
+def create_tables_from_query_ids(user, connection, query_ids, cached_query_ids=[], is_scheduled=False):
     for query_id in set(cached_query_ids):
-        results = get_query_results(user, query_id, True)
+        results = get_query_results(user, query_id, True, is_scheduled)
         table_name = "cached_query_{query_id}".format(query_id=query_id)
         create_table(connection, table_name, results)
 
     for query_id in set(query_ids):
-        results = get_query_results(user, query_id, False)
+        results = get_query_results(user, query_id, False, is_scheduled)
         table_name = "query_{query_id}".format(query_id=query_id)
         create_table(connection, table_name, results)
 
@@ -129,12 +131,12 @@ class Results(BaseQueryRunner):
     def name(cls):
         return "Query Results"
 
-    def run_query(self, query, user):
+    def run_query(self, query, user, is_scheduled=False):
         connection = sqlite3.connect(":memory:")
 
         query_ids = extract_query_ids(query)
         cached_query_ids = extract_cached_query_ids(query)
-        create_tables_from_query_ids(user, connection, query_ids, cached_query_ids)
+        create_tables_from_query_ids(user, connection, query_ids, cached_query_ids, is_scheduled)
 
         cursor = connection.cursor()
 
