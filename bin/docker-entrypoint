@@ -4,7 +4,7 @@ set -e
 scheduler() {
   echo "Starting RQ scheduler..."
 
-  exec /app/manage.py rq scheduler
+  exec supervisord -c scheduler.conf
 }
 
 dev_scheduler() {
