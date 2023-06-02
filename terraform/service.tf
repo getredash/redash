@@ -25,7 +25,7 @@ module "ref-doc" {
     database_secretmanager_path = local.database_url[terraform.workspace]
     redis_url                   = local.redis_url[terraform.workspace]
     email_user                  = data.vault_generic_secret.redash.data["email_user"]
-    email_sender_addr           = "data@auto1.team"
+    email_sender_addr           = "data+redash@auto1.com"
     worker_threads_count        = local.worker_threads_count[terraform.workspace]
     scheduler_threads_count     = local.scheduler_threads_count[terraform.workspace]
     webapp_threads_count        = local.webapp_threads_count[terraform.workspace]
