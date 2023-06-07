@@ -24,15 +24,30 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
     [options, data]
   );
 
+  if (options.thresholdValue) {
+    // Adding Threshold to colors by default
+    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '{ key: string; color: any; }' is not assignable to parameter of type 'boolean'.
+    series.push({
+      key: "threshold",
+      color: options.thresholdColor,
+    });
+  }
+
   const updateSeriesOption = useCallback(
     (key, prop, value) => {
-      onOptionsChange({
-        seriesOptions: {
-          [key]: {
-            [prop]: value,
+      if (key === "threshold") {
+        onOptionsChange({
+          thresholdColor: value
+        });
+      } else {
+        onOptionsChange({
+          seriesOptions: {
+            [key]: {
+              [prop]: value,
+            },
           },
-        },
-      });
+        });
+      }
     },
     [onOptionsChange]
   );

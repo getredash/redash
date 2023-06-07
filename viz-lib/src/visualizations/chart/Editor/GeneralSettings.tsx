@@ -105,6 +105,31 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
     onOptionsChange({ columnMapping }, UpdateOptionsStrategy.shallowMerge);
   }
 
+  function arePropertiesSame(arr: any, property: string) {
+    if (arr.length === 0) {
+      return true; // If the array is empty, all properties are considered the same
+    }
+
+    const firstValue = arr[0][property]; // Get the property value of the first object
+
+    for (let i = 1; i < arr.length; i++) {
+      if (arr[i][property] !== firstValue) {
+        return false; // If any subsequent property value is different, return false
+      }
+    }
+
+    return true; // If all property values are the same, return true
+  }
+
+  function handleColumnThresholdValueChange(column: any) {
+    if (arePropertiesSame(data.rows, column) && Number(data.rows[0][column])) {
+      onOptionsChange({
+        thresholdColumnName: column,
+        thresholdValue: Number(data.rows[0][column])
+      });
+    }
+  }
+
   function handleLegendPlacementChange(value: any) {
     if (value === "hidden") {
       onOptionsChange({ legend: { enabled: false } });
@@ -147,6 +172,25 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           </Checkbox>
         </Section>
       )}
+
+      { /* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */ }
+      <Section>
+        <Select
+          label="Threshold"
+          value={options.thresholdColumnName}
+          allowClear
+          showSearch
+          placeholder="Choose Threshold Column"
+          onChange={handleColumnThresholdValueChange}>
+          {map(data.columns, column => (
+            // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
+            <Select.Option key={column.friendly_name} value={column.name}>
+              {column.name}
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            </Select.Option>
+          ))}
+        </Select>
+      </Section>
 
       {map(mappedColumns, (value, type) => (
         <ColumnMappingSelect

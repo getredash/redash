@@ -107,6 +107,7 @@ function prepareBoxLayout(layout: any, options: any, data: any) {
 }
 
 export default function prepareLayout(element: any, options: any, data: any) {
+  const { thresholdValue, thresholdType, thresholdColor } = options;
   const layout = {
     margin: { l: 10, r: 10, b: 5, t: 20, pad: 4 },
     // plot size should be at least 5x5px
@@ -121,6 +122,25 @@ export default function prepareLayout(element: any, options: any, data: any) {
       namelength: -1,
     },
   };
+
+  if (thresholdValue) {
+    // @ts-expect-error ts-migrate(2339) Property 'shapes' does not exist on type '{ margin: { l: number; r: number; b: number; t: number; pad: number; }; width: number; height: number; autosize: boolean; showlegend: any; legend: { traceorder: any; }; hoverlabel: { namelength: number; }; }'
+    layout.shapes = [
+      {
+        type: 'line',
+        xref: 'paper',
+        x0: 1,
+        y0: thresholdValue,
+        x1: 0,
+        y1: thresholdValue,
+        line: {
+          color: thresholdColor || 'rgb(0, 255, 0)', // Setting default color to green
+          width: 4,
+          dash: thresholdType,
+        }
+      }
+    ]
+  }
 
   switch (options.globalSeriesType) {
     case "pie":
