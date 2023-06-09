@@ -1,6 +1,6 @@
 #!/bin/sh
 
-remote_address="ec2-3-67-41-59.eu-central-1.compute.amazonaws.com"
+remote_address="ec2-3-66-216-60.eu-central-1.compute.amazonaws.com"
 image_name="kevinand11/redash:latest"
 
 docker build --platform linux/amd64 -t $image_name .
