@@ -27,3 +27,5 @@ npm-debug.log
 
 client/cypress/screenshots
 client/cypress/videos
+
+deploy-keys.pem
