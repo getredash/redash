@@ -1,4 +1,4 @@
-import { size, filter, forEach, extend } from "lodash";
+import { size, filter, forEach, extend,isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { SortableContainer, SortableElement, DragHandle } from "@redash/viz/lib/components/sortable";
@@ -44,36 +44,31 @@ export default class Parameters extends React.Component {
   };
 
   toCamelCase = str => {
-    if (!str || str.length === 0) {
+    if (isEmpty(str)) {
       return "";
     }
     return str.replace(/\s+/g, "").toLowerCase();
   };
 
-  constructor(props) {
-    super(props);
-    
-    this.parameters = props.parameters;
-    if (!props.disableUrlUpdate) {
+  constructor({ parameters, disableUrlUpdate }) {
+    super();
+    this.parameters = parameters;
+    if (!disableUrlUpdate) {
       updateUrl(this.parameters);
     }
-    
     const hideRegex = /hide_filter=([^&]+)/g;
     const matches = window.location.search.matchAll(hideRegex);
     const hideValues = Array.from(matches, match => match[1]);
-    
     if (hideValues.length > 0) {
       this.parameters = this.parameters.map(param => {
-        for (let i = 0; i <= hideValues.length; i++) {
-          if (this.toCamelCase(hideValues[i]) === this.toCamelCase(param.name)) {
-            return { ...param, hidden: true };
-          }
+        if (hideValues.some(value => this.toCamelCase(value) === this.toCamelCase(param.name))) {
+          return { ...param, hidden: true };
         }
         return param;
       });
     }
   }
-
+  
   componentDidUpdate = prevProps => {
     const { parameters, disableUrlUpdate } = this.props;
     const parametersChanged = prevProps.parameters !== parameters;
@@ -146,7 +141,6 @@ export default class Parameters extends React.Component {
   renderParameter(param, index) {
     const { editable } = this.props;
     if (param.hidden) {
-      // 如果该参数被隐藏，则不进行渲染
       return null;
     }
     return (
