@@ -46,30 +46,26 @@ export default class Parameters extends React.Component {
   toCamelCase = str => {
     if (isEmpty(str)) {
       return "";
+
     }
     return str.replace(/\s+/g, "").toLowerCase();
   };
 
-  constructor({ parameters, disableUrlUpdate }) {
-    super();
-    this.parameters = parameters;
+  constructor(props) {
+    super(props);
+    const { parameters, disableUrlUpdate } = props;
+    this.state = { parameters };
     if (!disableUrlUpdate) {
-      updateUrl(this.parameters);
+      updateUrl(parameters);
     }
     const hideRegex = /hide_filter=([^&]+)/g;
     const matches = window.location.search.matchAll(hideRegex);
-    const hideValues = Array.from(matches, match => match[1]);
-    if (hideValues.length > 0) {
-      this.parameters = this.parameters.map(param => {
-        if (hideValues.some(value => this.toCamelCase(value) === this.toCamelCase(param.name))) {
-          return { ...param, hidden: true };
-        }
-        return param;
-      });
-    }
+    this.hideValues = Array.from(matches, match => match[1]);
   }
+
   
-  componentDidUpdate = prevProps => {
+  componentDidUpdate(prevProps) {
+
     const { parameters, disableUrlUpdate } = this.props;
     const parametersChanged = prevProps.parameters !== parameters;
     const disableUrlUpdateChanged = prevProps.disableUrlUpdate !== disableUrlUpdate;
@@ -139,6 +135,9 @@ export default class Parameters extends React.Component {
   };
 
   renderParameter(param, index) {
+    if (this.hideValues.some(value => this.toCamelCase(value) === this.toCamelCase(param.name))) {
+      return null;
+    }
     const { editable } = this.props;
     if (param.hidden) {
       return null;
@@ -190,7 +189,9 @@ export default class Parameters extends React.Component {
           className: "parameter-container",
           onKeyDown: dirtyParamCount ? this.handleKeyDown : null,
         }}>
-        {this.parameters.map((param, index) => (
+
+        {parameters && parameters.map((param, index) => (
+
           <SortableElement key={param.name} index={index}>
             <div
               className="parameter-block"
