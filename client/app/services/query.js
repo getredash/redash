@@ -130,7 +130,15 @@ export class Query {
 
     return this.queryResult;
   }
-
+  getCost(selectedQueryText) {
+    const queryText = selectedQueryText || this.query;
+    if (!queryText) {
+      return;
+    }
+    const parameters = this.getParameters().getExecutionValues({ joinListValues: true });
+    return axios.post(`api/bigquery_result_price`,
+      { data_source_id: this.data_source_id, parameters, query: queryText });
+  }
   getQueryResult(maxAge) {
     const execute = () =>
       QueryResult.getByQueryId(this.id, this.getParameters().getExecutionValues(), this.getAutoLimit(), maxAge);

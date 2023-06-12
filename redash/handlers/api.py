@@ -70,6 +70,7 @@ from redash.handlers.query_results import (
     QueryDropdownsResource,
     QueryResultListResource,
     QueryResultResource,
+    QueryBigQueryResultPrice,
 )
 from redash.handlers.query_snippets import (
     QuerySnippetListResource,
@@ -254,6 +255,9 @@ api.add_org_resource(
 
 api.add_org_resource(
     QueryResultListResource, "/api/query_results", endpoint="query_results"
+)
+api.add_org_resource(
+    QueryBigQueryResultPrice, '/api/bigquery_result_price', endpoint='bigquery_price'
 )
 api.add_org_resource(
     QueryResultDropdownResource,

@@ -2,6 +2,7 @@ import logging
 import time
 
 import unicodedata
+from redash.query_runner.big_query import BigQuery
 from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
@@ -136,6 +137,51 @@ def get_download_filename(query_result, query, filetype):
         filename = str(query_result.id)
     return "{}_{}.{}".format(filename, retrieved_at, filetype)
 
+class QueryBigQueryResultPrice(BaseResource):
+    @require_permission('execute_query')
+    def post(self):
+        """
+        Get the pricing of Bigquery before running the actual query
+        """
+        params = request.get_json(force=True)
+
+        data_source_id = params.get('data_source_id')
+        if data_source_id:
+            data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
+        else:
+            return 'Please select data source to run this query.', 400
+
+        if data_source.type != 'bigquery':
+            return 'This feature is only available in BigQuery.', 400
+
+        query = params['query']
+        parameters = params.get('parameters', collect_parameters_from_request(request.args))
+
+        parameterized_query = ParameterizedQuery(query)
+
+        try:
+            parameterized_query.apply(parameters)
+        except InvalidParameterError as e:
+            abort(400, message=e.message)
+
+        if parameterized_query.missing_params:
+            return error_response(u'Missing parameter value for: {}'
+                                  .format(u", ".join(parameterized_query.missing_params)))
+
+        if not has_access(data_source.groups, self.current_user, not_view_only):
+            return 'You do not have permission to run queries with this data source.', 403
+
+        big_query = BigQuery(data_source.options)
+
+        data, error = big_query.get_mbs_processed(parameterized_query.text, self.current_user)
+
+        if error is not None:
+            if error.get('error'):
+                return error['error'].get('message'), error['error'].get('code')
+            else:
+                return error, 400
+
+        return data
 
 def content_disposition_filenames(attachment_filename):
     if not isinstance(attachment_filename, str):

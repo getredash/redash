@@ -176,6 +176,28 @@ function QuerySource(props) {
     [query, queryFlags.canExecute, areParametersDirty, isQueryExecuting, isDirty, selectedText, executeQuery]
   );
 
+  const doCost = useCallback(
+    (skipParametersDirtyFlag = false) => {
+      if (!queryFlags.canExecute || (!skipParametersDirtyFlag && (areParametersDirty || isQueryExecuting))) {
+        return;
+      }
+      query.getCost(selectedText)
+      .then((response) => {
+        let processedData = '';
+        if (response.processedMBs > 1024) {
+          processedData = (response.processedMBs / 1024).toFixed(2) + ' GB';
+        } else {
+          processedData = response.processedMBs + ' MB';
+        }
+        notification.success(`This query will process ${processedData} and cost $${response.cost}`);
+      })
+      .catch((error) => {
+        notification.error(error.response.data);
+      });
+    },
+    [query, queryFlags.canExecute, areParametersDirty, isQueryExecuting, selectedText]
+  );
+
   const doAuth = useCallback(
     () => {
       let tabName = 'duplicatedQueryTab' + Math.random().toString();
@@ -310,6 +332,14 @@ function QuerySource(props) {
                         onClick: doAuth,
                         text: (
                           <span>{"Auth"}</span>
+                        ),
+                      }}
+                      costButtonProps={{
+                        title: "Cost on BigQuery",
+                        disabled: false,
+                        onClick: doCost,
+                        text: (
+                          <span className="hidden-xs">{selectedText === null ? "Cost" : "Cost of Selected"}</span>
                         ),
                       }}
                       executeButtonProps={{

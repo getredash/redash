@@ -63,6 +63,9 @@ INVITATION_TOKEN_MAX_AGE = int(
     os.environ.get("REDASH_INVITATION_TOKEN_MAX_AGE", 60 * 60 * 24 * 7)
 )
 
+# This contains bigquery cost in dollars per TB scan
+REDASH_BIGQUERY_COST_IN_DOLLARS_PER_TB = float(os.environ.get('REDASH_BIGQUERY_COST_IN_DOLLARS_PER_TB', 6))
+
 # The secret key to use in the Flask app for various cryptographic features
 SECRET_KEY = os.environ.get("REDASH_COOKIE_SECRET")
 

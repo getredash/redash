@@ -338,6 +338,21 @@ class BigQuery(BaseQueryRunner):
 
         return columns
 
+    def get_mbs_processed(self, query, user):
+        bigquery_service = self._get_bigquery_service(user)
+        jobs = bigquery_service.jobs()
+
+        try:
+            processed_mb = self._get_total_bytes_processed(jobs, query) / 1048576.0
+            cost = (processed_mb / 1048576.0) * settings.REDASH_BIGQUERY_COST_IN_DOLLARS_PER_TB
+            error = None
+            json_data = {'processedMBs': round(processed_mb, 1), 'cost': round(cost, 3)}
+        except apiclient.errors.HttpError as e:
+            json_data = None
+            error = json_loads(e.content)
+
+        return json_data, error
+
     def _get_project_datasets(self, project_id):
         result = []
         service = self._get_bigquery_service()

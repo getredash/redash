@@ -38,6 +38,7 @@ export default function EditorControl({
   formatButtonProps,
   saveButtonProps,
   authButtonProps,
+  costButtonProps,
   executeButtonProps,
   autocompleteToggleProps,
   autoLimitCheckboxProps,
@@ -108,9 +109,23 @@ export default function EditorControl({
             className="query-editor-controls-button m-l-5"
             disabled={authButtonProps.disabled}
             onClick={authButtonProps.onClick}
-            data-test="BigQuery Authorization">
+            data-test="AuthButton">
             <span className="zmdi zmdi-key" />
             {authButtonProps.text}
+          </Button>
+        </ButtonTooltip>
+      )}
+      {dataSourceSelectorProps !== false && dataSourceSelectorProps.type === 'bigquery' && (
+        <ButtonTooltip title={costButtonProps.title}>
+          <Button
+            className="query-editor-controls-button m-l-5"
+            type="primary"
+            style={{ background: "green", borderColor: "white"}}
+            disabled={costButtonProps.disabled}
+            onClick={costButtonProps.onClick}
+            data-test="CostButton">
+            <span className="zmdi zmdi-money" />
+            {costButtonProps.text}
           </Button>
         </ButtonTooltip>
       )}
@@ -194,6 +209,7 @@ EditorControl.defaultProps = {
   addParameterButtonProps: false,
   formatButtonProps: false,
   authButtonProps: false,
+  costButtonProps: false,
   saveButtonProps: false,
   executeButtonProps: false,
   autocompleteToggleProps: false,
