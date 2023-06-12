@@ -46,6 +46,7 @@ export default class Parameters extends React.Component {
   toCamelCase = str => {
     if (isEmpty(str)) {
       return "";
+
     }
     return str.replace(/\s+/g, "").toLowerCase();
   };
@@ -64,6 +65,7 @@ export default class Parameters extends React.Component {
 
   
   componentDidUpdate(prevProps) {
+
     const { parameters, disableUrlUpdate } = this.props;
     const parametersChanged = prevProps.parameters !== parameters;
     const disableUrlUpdateChanged = prevProps.disableUrlUpdate !== disableUrlUpdate;
@@ -137,6 +139,9 @@ export default class Parameters extends React.Component {
       return null;
     }
     const { editable } = this.props;
+    if (param.hidden) {
+      return null;
+    }
     return (
       <div key={param.name} className="di-block" data-test={`ParameterName-${param.name}`}>
         <div className="parameter-heading">
@@ -166,9 +171,8 @@ export default class Parameters extends React.Component {
   }
 
   render() {
-    const { parameters } = this.state;
     const { sortable, appendSortableToParent } = this.props;
-    const dirtyParamCount = size(filter(parameters, "hasPendingValue"));
+    const dirtyParamCount = size(filter(this.parameters, "hasPendingValue"));
 
     return (
       <SortableContainer
@@ -185,7 +189,9 @@ export default class Parameters extends React.Component {
           className: "parameter-container",
           onKeyDown: dirtyParamCount ? this.handleKeyDown : null,
         }}>
+
         {parameters && parameters.map((param, index) => (
+
           <SortableElement key={param.name} index={index}>
             <div
               className="parameter-block"
