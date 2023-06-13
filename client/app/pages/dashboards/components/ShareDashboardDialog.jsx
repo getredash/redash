@@ -108,18 +108,15 @@ class ShareDashboardDialog extends React.Component {
             </Form.Item>
           )}
 
-          {this.enabled && (
-            <Form.Item label="Allow public access" {...this.formItemProps}>
-              <Switch
-                checked={dashboard.publicAccessEnabled}
-                onChange={this.onChange}
-                loading={this.state.saving}
-		            disabled={!this.enabled}
-                data-test="PublicAccessEnabled"
-              />
-            </Form.Item>
-          )}
-
+          <Form.Item label="Allow public access" {...this.formItemProps}>
+            <Switch
+              checked={dashboard.publicAccessEnabled}
+              onChange={this.onChange}
+              loading={this.state.saving}
+              disabled={!this.enabled}
+              data-test="PublicAccessEnabled"
+            />
+          </Form.Item>
           {dashboard.public_url && (
             <>
               <Form.Item>
