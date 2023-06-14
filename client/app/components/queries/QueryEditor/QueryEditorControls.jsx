@@ -103,7 +103,7 @@ export default function EditorControl({
           ))}
         </Select>
       )}
-      {dataSourceSelectorProps !== false && dataSourceSelectorProps.type === 'bigquery' && (
+      {dataSourceSelectorProps !== false && dataSourceSelectorProps.type === "bigquery" && (
         <ButtonTooltip title={authButtonProps.title}>
           <Button
             className="query-editor-controls-button m-l-5"
@@ -115,12 +115,12 @@ export default function EditorControl({
           </Button>
         </ButtonTooltip>
       )}
-      {dataSourceSelectorProps !== false && dataSourceSelectorProps.type === 'bigquery' && (
+      {dataSourceSelectorProps !== false && dataSourceSelectorProps.type === "bigquery" && (
         <ButtonTooltip title={costButtonProps.title}>
           <Button
             className="query-editor-controls-button m-l-5"
             type="primary"
-            style={{ background: "green", borderColor: "white"}}
+            style={{ background: "green", borderColor: "white" }}
             disabled={costButtonProps.disabled}
             onClick={costButtonProps.onClick}
             data-test="CostButton">

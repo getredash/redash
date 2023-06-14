@@ -14,7 +14,7 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import DataSource, { IMG_ROOT } from "@/services/data-source";
 import notification from "@/services/notification";
 import routes from "@/services/routes";
-import { currentUser } from '@/services/auth';
+import { currentUser } from "@/services/auth";
 import { axios } from "@/services/axios";
 
 class EditDataSource extends React.Component {
@@ -84,42 +84,40 @@ class EditDataSource extends React.Component {
     const { dataSource } = this.state;
     const runTest = () => {
       DataSource.test({ id: dataSource.id })
-      .then(httpResponse => {
-        if (httpResponse.ok) {
-          notification.success("Success");
-        } else {
-          notification.error("Connection Test Failed:", httpResponse.message, { duration: 10 });
-        }
-        callback();
-      })
-      .catch(() => {
-        notification.error(
-          "Connection Test Failed:",
-          "Unknown error occurred while performing connection test. Please try again later.",
-          { duration: 10 }
-        );
-        callback();
-      });
+        .then(httpResponse => {
+          if (httpResponse.ok) {
+            notification.success("Success");
+          } else {
+            notification.error("Connection Test Failed:", httpResponse.message, { duration: 10 });
+          }
+          callback();
+        })
+        .catch(() => {
+          notification.error(
+            "Connection Test Failed:",
+            "Unknown error occurred while performing connection test. Please try again later.",
+            { duration: 10 }
+          );
+          callback();
+        });
     };
-  
-    if (dataSource.type === 'bigquery') {
+
+    if (dataSource.type === "bigquery") {
       axios
         .get(`api/users/${currentUser.id}`)
         .then(cred => cred.credentials)
-        .then(
-          (credentials) => {
-            if ("bq_oauth_refresh_token" in credentials) {
-                runTest();
-            }
-            else {
-                window.location.pathname = `/bqauthorize`;
-                window.open(window.location.href);
-            }
+        .then(credentials => {
+          if ("bq_oauth_refresh_token" in credentials) {
+            runTest();
+          } else {
+            window.location.pathname = `/bqauthorize`;
+            window.open(window.location.href);
           }
-        );
+        });
     } else {
       runTest();
-    }};
+    }
+  };
 
   renderForm() {
     const { dataSource, type } = this.state;
