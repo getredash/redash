@@ -33,6 +33,7 @@ export default function PlotlyChart({ options, data }: PlotlyChartProps) {
       let isDestroyed = false;
 
       const chartData = getChartData(data.rows, options);
+      console.log('options', options)
       const _chart = initChart(container, options, chartData, visualizationsSettings, (error: any) => {
         // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
         errorHandlerRef.current.handleError(error);
