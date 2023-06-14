@@ -4,9 +4,10 @@
   .widget-actions {
     display: flex;
     position: absolute;
-    top: 0;
+    top: 17px;
     right: 0;
     z-index: 1;
+    color: #6a7290;
 
     .action {
       font-size: 24px;
@@ -16,12 +17,13 @@
       padding: 4px 10px 3px;
 
       &:focus {
-        background-color: rgba(0, 0, 0, 0.1);
+        background-color: transparent;
+        color: #b045e6;
       }
 
       &:hover {
         background-color: transparent;
-        color: @blue;
+        color: #d8a2f3;
       }
 
       &:active {
@@ -196,9 +198,10 @@
       }
 
       .query-link {
-        color: fade(@redash-black, 80%);
-        font-size: 15px;
-        font-weight: 500;
+        color: rgb(53, 59, 79);
+        font-size: 18px;
+        font-weight: 300;
+        line-height: 22px;
 
         &:not(.visualization-name) {
           color: fade(@redash-black, 50%);
@@ -218,7 +221,7 @@
   }
 
   .t-header.widget {
-    padding: 15px;
+    padding: 24px 24px 10px 24px;
   }
 
   &:hover,
@@ -254,12 +257,16 @@
 
     a,
     .plain-button {
-      color: fade(@redash-black, 65%);
+      color: #6a7290;
 
       &:hover,
       &:focus {
-        color: fade(@redash-black, 95%);
+        color: #d8a2f3;
       }
+    }
+
+    .plain-button.ant-dropdown-open {
+      color: #b045e6;
     }
   }
 }
