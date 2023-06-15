@@ -1,4 +1,4 @@
-import { extend, find, includes, isEmpty, map } from "lodash";
+import { extend, isEmpty, map } from "lodash";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
@@ -48,7 +48,12 @@ import "./QuerySource.less";
 
 function chooseDataSourceId(dataSourceIds, availableDataSources) {
   availableDataSources = map(availableDataSources, ds => ds.id);
-  return find(dataSourceIds, id => includes(availableDataSources, id)) || null;
+  for (let i = 0; i < dataSourceIds.length; i++) {
+    if (availableDataSources.indexOf(parseInt(dataSourceIds[i]))!==-1) {
+      return dataSourceIds[i];
+    }
+  }
+  return null;
 }
 
 function QuerySource(props) {
