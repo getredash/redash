@@ -109,8 +109,7 @@ function placeLegendAuto(plotlyElement: any, layout: any) {
 export default function updateChartSize(plotlyElement: any, layout: any, options: any) {
   // update layout size to plot container
   // plot size should be at least 5x5px
-  const CONTAINER_PADDING = 48;
-  layout.width = Math.max(5, Math.floor(plotlyElement.offsetWidth - CONTAINER_PADDING));
+  layout.width = Math.max(5, Math.floor(plotlyElement.offsetWidth));
   layout.height = Math.max(5, Math.floor(plotlyElement.offsetHeight));
 
   const [previousWidth, previousHeight] = plotlyElement.__previousSize || [];

@@ -111,12 +111,10 @@ function prepareBoxLayout(layout: any, options: any, data: any) {
 }
 
 export default function prepareLayout(element: any, options: any, data: any) {
-  const CONTAINER_PADDING = 48;
-
   const layout = {
     margin: { l: 0, r: 0, b: 10, t: 20 },
     // plot size should be at least 5x5px
-    width: Math.max(5, Math.floor(element.offsetWidth - CONTAINER_PADDING)),
+    width: Math.max(5, Math.floor(element.offsetWidth)),
     height: Math.max(5, Math.floor(element.offsetHeight)),
     autosize: false,
     showlegend: options.legend.enabled,
