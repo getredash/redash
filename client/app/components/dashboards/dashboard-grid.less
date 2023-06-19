@@ -1,3 +1,5 @@
+@import (reference, less) "~@/assets/less/inc/variables";
+
 .dashboard-wrapper {
   flex-grow: 1;
   margin-bottom: 70px;
@@ -19,7 +21,7 @@
     margin: 0;
     padding: 0;
     border-radius: 16px;
-    background-color: #fbfdff;
+    background-color: @white-100;
     box-shadow: none !important;
   }
 
@@ -194,7 +196,7 @@
 
 .animate-spin {
   animation: spin 1s linear infinite !important;
-  color: #b045e6;
+  color: @primary-500;
 }
 .widget-main {
   display: flex;
