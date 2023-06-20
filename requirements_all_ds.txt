@@ -10,8 +10,6 @@ pymongo[tls,srv]==3.9.0
 vertica-python==0.9.5
 td-client==1.0.0
 pymssql==2.1.5
-dql==0.5.26
-dynamo3==0.4.10
 boto3>=1.10.0,<1.11.0
 botocore>=1.13,<1.14.0
 sasl>=0.1.3
