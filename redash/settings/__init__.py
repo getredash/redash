@@ -424,6 +424,7 @@ default_destinations = [
     "redash.destinations.email",
     "redash.destinations.slack",
     "redash.destinations.webhook",
+    "redash.destinations.discord",
     "redash.destinations.hipchat",
     "redash.destinations.mattermost",
     "redash.destinations.chatwork",
