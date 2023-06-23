@@ -1,8 +1,11 @@
 import datetime
 import socket
+import time
+import logging
+
 from itertools import chain
 
-from click import argument
+from click import argument, Abort
 from flask.cli import AppGroup
 from rq import Connection
 from rq.worker import WorkerStatus
@@ -22,12 +25,28 @@ from redash.worker import default_queues
 
 manager = AppGroup(help="RQ management commands.")
 
+log = logging.getLogger(__name__)
+
 
 @manager.command()
 def scheduler():
     jobs = periodic_job_definitions()
     schedule_periodic_jobs(jobs)
-    rq_scheduler.run()
+    for attempt in range(6):
+        try:
+            rq_scheduler.run()
+            break
+        except ValueError as e:
+            if str(e) != "There's already an active RQ scheduler":
+                raise
+            # Sometimes the old scheduler task takes a bit to go away.
+            # Retry at 5 second intervals for a total of 30s.
+            log.info("Waiting for existing RQ scheduler...")
+            time.sleep(5)
+            continue
+    else:
+        log.error("Timed out waiting for existing RQ scheduler")
+        raise Abort()
 
 
 class SchedulerHealthcheck(base.BaseCheck):
