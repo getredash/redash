@@ -1,7 +1,9 @@
-from tests import BaseTestCase
-from mock import patch
+import json
+from unittest import mock
 
+from redash.destinations.discord import Discord
 from redash.models import NotificationDestination
+from tests import BaseTestCase
 from redash.destinations.slack import Slack
 
 
@@ -97,3 +99,67 @@ class TestDestinationResource(BaseTestCase):
         d = NotificationDestination.query.get(d.id)
         self.assertEqual(d.name, data["name"])
         self.assertEqual(d.options["url"], data["options"]["url"])
+
+
+def test_discord_notify_calls_requests_post():
+    alert = mock.Mock(spec_set=["id", "name", "options", "render_template"])
+    alert.id = 1
+    alert.name = "Test Alert"
+    alert.options = {
+        "custom_subject": "Test custom subject",
+        "custom_body": "Test custom body",
+    }
+    alert.render_template = mock.Mock(return_value={"Rendered": "template"})
+    query = mock.Mock()
+    query.id = 1
+
+    user = mock.Mock()
+    app = mock.Mock()
+    host = "https://localhost:5000"
+    options = {
+        "url": "https://discordapp.com/api/webhooks/test"
+    }
+
+    new_state = "triggered"
+    destination = Discord(options)
+
+    with mock.patch('redash.destinations.discord.requests.post') as mock_post:
+        mock_response = mock.Mock()
+        mock_response.status_code = 204
+        mock_post.return_value = mock_response
+
+        destination.notify(alert, query, user, new_state, app, host, options)
+
+        expected_payload = {
+            "content": "Test custom subject",
+            "embeds": [
+                {
+                    "color": "12597547",
+                    "fields": [
+                        {
+                            "name": "Query",
+                            "value": f"{host}/queries/{query.id}",
+                            "inline": True
+                        },
+                        {
+                            "name": "Alert",
+                            "value": f"{host}/alerts/{alert.id}",
+                            "inline": True
+                        },
+                        {
+                            "name": "Description",
+                            "value": "Test custom body"
+                        }
+                    ]
+                }
+            ]
+        }
+
+        mock_post.assert_called_once_with(
+            "https://discordapp.com/api/webhooks/test",
+            data=json.dumps(expected_payload),
+            headers={"Content-Type": "application/json"},
+            timeout=5.0
+        )
+
+        assert mock_response.status_code == 204

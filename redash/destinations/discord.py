@@ -12,8 +12,7 @@ class Discord(BaseDestination):
         return {
             "type": "object",
             "properties": {
-                "url": {"type": "string", "title": "Discord Webhook URL"},
-                "name": {"type": "string", "title": "Discord Bot Name"}
+                "url": {"type": "string", "title": "Discord Webhook URL"}
             },
             "secret": ["url"],
         }
@@ -40,11 +39,11 @@ class Discord(BaseDestination):
                 "inline": True,
             },
         ]
-        if alert.custom_body:
-            fields.append({"name": "Description", "value": alert.custom_body})
+        if alert.options.get("custom_body"):
+            fields.append({"name": "Description", "value": alert.options["custom_body"]})
         if new_state == "triggered":
-            if alert.custom_subject:
-                text = alert.custom_subject
+            if alert.options.get("custom_subject"):
+                text = alert.options["custom_subject"]
             else:
                 text = alert.name + " just triggered"
             color = "12597547"
@@ -52,7 +51,7 @@ class Discord(BaseDestination):
             text = alert.name + " went back to normal"
             color = "2600544"
 
-        payload = {"name": options.get("name"), "content": text, "embeds": [{"color": color, "fields": fields}]}
+        payload = {"content": text, "embeds": [{"color": color, "fields": fields}]}
         headers = {"Content-Type": "application/json"}
         try:
             resp = requests.post(
@@ -61,14 +60,16 @@ class Discord(BaseDestination):
                 headers=headers,
                 timeout=5.0,
             )
-            if resp.status_code != 200:
+            if resp.status_code != 200 and resp.status_code != 204:
                 logging.error(
                     "webhook send ERROR. status_code => {status}".format(
                         status=resp.status_code
                     )
                 )
-        except Exception:
-            logging.exception("webhook send ERROR.")
+            else:
+                logging.info(msg=f"webhook send SUCCESS")
+        except Exception as e:
+            logging.exception("webhook send ERROR: %s", e)
 
 
 register(Discord)
