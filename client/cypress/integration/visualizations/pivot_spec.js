@@ -100,11 +100,12 @@ describe("Pivot", () => {
         .type(" UNION ALL {enter}SELECT 'c' AS stage1, 'c5' AS stage2, 55 AS value");
 
       cy.getByTestId("SaveButton").click();
-      cy.getByTestId("ExecuteButton").click({ timeout: 10000 });
+      cy.getByTestId("ExecuteButton")
+        .should("be.enabled")
+        .click();
 
       // assert number of rows is 12
       cy.getByTestId("PivotTableVisualization").contains(".pvtGrandTotal", "12");
-      
     });
   });
 
