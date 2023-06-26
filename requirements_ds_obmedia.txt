@@ -1,0 +1,15 @@
+google-api-python-client==1.7.11
+protobuf==3.17.3
+gspread==3.1.0
+mysqlclient==2.1.1
+oauth2client==4.1.3
+boto3>=1.10.0,<1.11.0
+botocore>=1.13,<1.14.0
+sasl>=0.1.3
+requests_aws_sign==0.1.5
+snowflake-connector-python==3.0.4
+python-rapidjson==0.8.0
+pandas==1.3.4
+nzpy>=1.15
+nzalchemy
+pyarrow==10.0.0
