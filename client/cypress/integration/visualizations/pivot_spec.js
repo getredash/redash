@@ -101,7 +101,7 @@ describe("Pivot", () => {
 
       cy.getByTestId("SaveButton").click();
       cy.getByTestId("ExecuteButton")
-        .should("not.be.disabled")
+        .should("be.enabled")
         .click();
 
       // assert number of rows is 12
