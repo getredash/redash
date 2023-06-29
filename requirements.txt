@@ -1,6 +1,7 @@
 Flask==1.1.1
 Jinja2==2.10.3
 itsdangerous==1.1.0
+black==19.10b0
 click==6.7
 MarkupSafe==1.1.1
 pyOpenSSL==19.0.0
