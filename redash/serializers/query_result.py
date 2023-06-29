@@ -137,7 +137,6 @@ def serialize_query_result_to_xlsx(query_result):
 
     return output.getvalue()
 
-
 def serialize_query_result_to_parquet(query_result):
     output = io.BytesIO()
     query_data = query_result.data
@@ -148,11 +147,20 @@ def serialize_query_result_to_parquet(query_result):
         conversion: Optional[dict] = None,
     ) -> "pyarrow.Table":
         column_index: int = table.schema.get_field_index(field.name)
-        column_data = pyarrow.compute.strptime(
-            table.column(column_index),
-            format=conversion["redash_format"],
-            unit="s",
-        )
+        column_data = table.column(column_index)
+        
+        formats = conversion["redash_formats"]
+        for datetime_format in formats:
+            try:
+                column_data = pyarrow.compute.strptime(
+                    column_data,
+                    format=datetime_format,
+                    unit="s",
+                )
+                break
+            except pyarrow.lib.ArrowInvalid:
+                continue
+
         new_table = table.set_column(column_index, field.name, column_data)
         return new_table
 
@@ -161,13 +169,13 @@ def serialize_query_result_to_parquet(query_result):
         {
             "pyarrow_type": pyarrow.date32(),
             "redash_type": TYPE_DATE,
-            "redash_format": r"%Y-%m-%d",
+            "redash_formats": [r"%Y-%m-%d"],
             "redash_to_pyarrow": redash_datetime_to_pyarrow_timestamp,
         },
         {
             "pyarrow_type": pyarrow.timestamp("s"),
             "redash_type": TYPE_DATETIME,
-            "redash_format": r"%Y-%m-%dT%H:%M:%S",
+            "redash_formats": [r"%Y-%m-%dT%H:%M:%S", r"%Y-%m-%d %H:%M:%S"],
             "redash_to_pyarrow": redash_datetime_to_pyarrow_timestamp,
         },
         {"pyarrow_type": pyarrow.float64(), "redash_type": TYPE_FLOAT},
@@ -195,8 +203,10 @@ def serialize_query_result_to_parquet(query_result):
                         conversion=conversion,
                     )
                 break
+
     target_schema = pyarrow.schema(fields)
     table = table.cast(target_schema=target_schema)
+
     with pyarrow.parquet.ParquetWriter(
         where=output,
         schema=target_schema,
@@ -204,3 +214,11 @@ def serialize_query_result_to_parquet(query_result):
         writer.write_table(table)
 
     return output.getvalue()
+
+
+
+
+
+
+
+
