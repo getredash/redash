@@ -15,7 +15,7 @@ jobs:
           fetch-depth: 1
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
+          python-version: '3.8'
       - run: sudo pip install flake8
       - run: ./bin/flake8_tests.sh
 
