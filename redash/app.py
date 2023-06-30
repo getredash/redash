@@ -23,15 +23,8 @@ class Redash(Flask):
 
 
 def create_app():
-    from . import (
-        authentication,
-        handlers,
-        limiter,
-        mail,
-        migrate,
-        security,
-        tasks,
-    )
+    from . import (authentication, handlers, limiter, mail, migrate, security,
+                   tasks)
     from .handlers.webpack import configure_webpack
     from .metrics import request as request_metrics
     from .models import db, users
@@ -42,7 +35,7 @@ def create_app():
     app = Redash()
 
     # Check and update the cached version for use by the client
-    app.before_first_request(reset_new_version_status)
+    reset_new_version_status()
 
     security.init_app(app)
     request_metrics.init_app(app)

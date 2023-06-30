@@ -6,9 +6,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models
 from redash.query_runner import (
-    get_configuration_schema_for_query_runner_type,
-    query_runners,
-)
+    get_configuration_schema_for_query_runner_type, query_runners)
 from redash.utils import json_loads
 from redash.utils.configuration import ConfigurationContainer
 
@@ -40,7 +38,7 @@ def list_command(organization=None):
         )
 
 
-@manager.command()
+@manager.command(name="list_types")
 def list_types():
     print("Enabled Query Runners:")
     types = sorted(query_runners.keys())
@@ -129,7 +127,7 @@ def new(name=None, type=None, options=None, organization="default"):
 
         for k, prop in schema["properties"].items():
             required = k in schema.get("required", [])
-            default_value = "<<DEFAULT_VALUE>>"
+            default_value = prop.get("default") or "<<DEFAULT_VALUE>>"
             if required:
                 default_value = None
 
@@ -154,7 +152,7 @@ def new(name=None, type=None, options=None, organization="default"):
 
     if not options.is_valid():
         print("Error: invalid configuration.")
-        exit()
+        exit(1)
 
     print(
         "Creating {} data source ({}) with options:\n{}".format(
