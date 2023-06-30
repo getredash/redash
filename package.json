@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "start": "npm-run-all --parallel watch:viz webpack-dev-server",
-    "bundle": "bin/bundle-extensions",
     "clean": "rm -rf ./client/dist/",
     "build:viz": "(cd viz-lib && yarn build:babel)",
     "build": "yarn clean && yarn build:viz && NODE_ENV=production webpack",
@@ -35,7 +34,7 @@
     "url": "git+https://github.com/getredash/redash.git"
   },
   "engines": {
-    "node": "^14.16.1",
+    "node": ">14.16.0 <17.0.0",
     "yarn": "^1.22.10"
   },
   "author": "Redash Contributors",

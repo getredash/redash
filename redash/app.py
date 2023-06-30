@@ -25,7 +25,6 @@ class Redash(Flask):
 def create_app():
     from . import (
         authentication,
-        extensions,
         handlers,
         limiter,
         mail,
@@ -54,7 +53,6 @@ def create_app():
     limiter.init_app(app)
     handlers.init_app(app)
     configure_webpack(app)
-    extensions.init_app(app)
     users.init_app(app)
     tasks.init_app(app)
 
