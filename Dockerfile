@@ -1,6 +1,6 @@
 FROM node:14.17 as frontend-builder
 
-RUN npm install --global --force yarn@1.22.10
+RUN npm install --global --force yarn@1.22.19
 
 # Controls whether to build the frontend assets
 ARG skip_frontend_build
