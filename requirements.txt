@@ -1,10 +1,11 @@
 Flask==1.1.1
 Jinja2==2.10.3
 itsdangerous==1.1.0
+black==19.10b0
 click==6.7
 MarkupSafe==1.1.1
 pyOpenSSL==19.0.0
-httplib2==0.14.0
+httplib2==0.18.1
 wtforms==2.2.1
 Flask-RESTful==0.3.7
 Flask-Login==0.4.1
@@ -22,7 +23,7 @@ python-dateutil==2.8.0
 pytz>=2019.3
 PyYAML==5.4
 redis==4.4.4
-requests==2.21.0
+requests==2.31.0
 SQLAlchemy==1.3.10
 # We can't upgrade SQLAlchemy-Searchable version as newer versions require PostgreSQL > 9.6, but we target older versions at the moment.
 SQLAlchemy-Searchable==0.10.6
@@ -31,14 +32,13 @@ pyparsing==2.3.0
 SQLAlchemy-Utils==0.34.2
 sqlparse==0.3.0
 statsd==3.3.0
-greenlet==0.4.16
+greenlet==1.1.2
 gunicorn==20.0.4
 rq==1.5.0
 rq-scheduler==0.9.1
 jsonschema==3.1.1
 RestrictedPython==5.0
 pysaml2==6.5.0
-pycrypto==2.6.1
 python-dotenv==0.19.2
 funcy==1.13
 sentry-sdk>=0.14.3,<0.15.0
@@ -47,14 +47,14 @@ xlsxwriter==1.2.2
 pystache==0.6.0
 parsedatetime==2.4
 PyJWT==1.7.1
-cryptography==2.8
+cryptography==3.4.8
 simplejson==3.16.0
 ua-parser==0.8.0
 user-agents==2.0
 maxminddb-geolite2==2018.703
 pypd==1.1.0
 disposable-email-domains>=0.0.52
-gevent==1.4.0
+gevent==21.12.0
 sshtunnel==0.1.5
 supervisor==4.1.0
 supervisor_checks==0.8.1
@@ -64,3 +64,4 @@ werkzeug==0.16.1
 # ldap3==2.2.4
 Authlib==0.15.5
 advocate==1.0.0
+urllib3==1.25.11
