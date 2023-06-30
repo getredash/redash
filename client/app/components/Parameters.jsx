@@ -54,11 +54,10 @@ export default class Parameters extends React.Component {
 
   componentDidUpdate = prevProps => {
     const { parameters, disableUrlUpdate } = this.props;
+    this.setState({ parameters });
+
     const parametersChanged = !isEqual(prevProps.parameters, parameters);
     const disableUrlUpdateChanged = prevProps.disableUrlUpdate !== disableUrlUpdate;
-    if (parametersChanged) {
-      this.setState({ parameters });
-    }
     if ((parametersChanged || disableUrlUpdateChanged) && !disableUrlUpdate) {
       updateUrl(parameters);
     }
