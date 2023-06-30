@@ -71,7 +71,7 @@ jobs:
           cache: 'yarn'
       - name: Install Dependencies
         run: |
-          npm install --global --force yarn@1.22.10
+          npm install --global --force yarn@1.22.19
           yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
       - name: Run Lint
         run: yarn lint:ci
@@ -94,7 +94,7 @@ jobs:
           cache: 'yarn'
       - name: Install Dependencies
         run: |
-          npm install --global --force yarn@1.22.10
+          npm install --global --force yarn@1.22.19
           yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
       - name: Run App Tests
         run: yarn test
@@ -127,7 +127,7 @@ jobs:
           echo "CODE_COVERAGE=true" >> $GITHUB_ENV
       - name: Install Dependencies
         run: |
-          npm install --global --force yarn@1.22.10
+          npm install --global --force yarn@1.22.19
           yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
       - name: Setup Redash Server
         run: |
