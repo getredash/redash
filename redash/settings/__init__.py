@@ -56,6 +56,14 @@ QUERY_RESULTS_CLEANUP_MAX_AGE = int(
     os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_MAX_AGE", "7")
 )
 
+QUERY_RESULTS_EXPIRED_TTL_ENABLED = parse_boolean(
+    os.environ.get("REDASH_QUERY_RESULTS_EXPIRED_TTL_ENABLED", "false")
+)
+# default set query results expired ttl 86400 seconds
+QUERY_RESULTS_EXPIRED_TTL = int(
+    os.environ.get("REDASH_QUERY_RESULTS_EXPIRED_TTL", "86400")
+)
+
 SCHEMAS_REFRESH_SCHEDULE = int(os.environ.get("REDASH_SCHEMAS_REFRESH_SCHEDULE", 30))
 
 AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "api_key")
