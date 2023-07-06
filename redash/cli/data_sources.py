@@ -6,7 +6,9 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models
 from redash.query_runner import (
-    get_configuration_schema_for_query_runner_type, query_runners)
+    get_configuration_schema_for_query_runner_type,
+    query_runners,
+)
 from redash.utils import json_loads
 from redash.utils.configuration import ConfigurationContainer
 
@@ -127,7 +129,7 @@ def new(name=None, type=None, options=None, organization="default"):
 
         for k, prop in schema["properties"].items():
             required = k in schema.get("required", [])
-            default_value = prop.get("default") or "<<DEFAULT_VALUE>>"
+            default_value = prop.get("default", "<<DEFAULT_VALUE>>")
             if required:
                 default_value = None
 

@@ -7,12 +7,16 @@ from mock import patch
 from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models, settings
-from redash.authentication import (api_key_load_user_from_request,
-                                   get_login_url, hmac_load_user_from_request,
-                                   sign)
-from redash.authentication.google_oauth import (create_and_login_user,
-                                                verify_profile)
-from redash.utils import utcnow
+from redash.authentication import (
+    api_key_load_user_from_request,
+    get_login_url,
+    hmac_load_user_from_request,
+    sign,
+)
+from redash.authentication.google_oauth import (
+    create_and_login_user,
+    verify_profile,
+)
 from tests import BaseTestCase
 
 

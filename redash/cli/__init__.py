@@ -5,8 +5,15 @@ from flask.cli import FlaskGroup, run_command, with_appcontext
 from rq import Connection
 
 from redash import __version__, create_app, rq_redis_connection, settings
-from redash.cli import (data_sources, database, groups, organization, queries,
-                        rq, users)
+from redash.cli import (
+    data_sources,
+    database,
+    groups,
+    organization,
+    queries,
+    rq,
+    users,
+)
 from redash.monitor import get_status
 
 
@@ -69,11 +76,7 @@ def send_test_mail(email=None):
     if email is None:
         email = settings.MAIL_DEFAULT_SENDER
 
-    mail.send(
-        Message(
-            subject="Test Message from Redash", recipients=[email], body="Test message."
-        )
-    )
+    mail.send(Message(subject="Test Message from Redash", recipients=[email], body="Test message."))
 
 
 @manager.command("shell")

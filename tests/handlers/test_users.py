@@ -1,4 +1,3 @@
-import pytest
 from mock import patch
 
 from redash import models
@@ -354,7 +353,6 @@ class TestUserResourcePost(BaseTestCase):
         rv = self.make_request("post", "/api/users", data=test_user, user=admin)
         self.assertEqual(rv.status_code, 400)
 
-    @pytest.mark.skip("TODO: fix")
     def test_changing_email_ends_any_other_sessions_of_current_user(self):
         with self.client as c:
             # visit profile page
@@ -369,10 +367,13 @@ class TestUserResourcePost(BaseTestCase):
                 data={"email": "john@doe.com"},
             )
 
+        with self.app.test_client() as c:
             # force the old `user_id`, simulating that the user is logged in from another browser
             with c.session_transaction() as sess:
                 sess["_user_id"] = previous
-            rv = self.get_request("/api/users/{}".format(self.factory.user.id))
+            rv = self.get_request(
+                "/api/users/{}".format(self.factory.user.id), client=c
+            )
 
             self.assertEqual(rv.status_code, 404)
 

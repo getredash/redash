@@ -109,11 +109,13 @@ class BaseTestCase(TestCase):
         )
         return response
 
-    def get_request(self, path, org=None, headers=None):
+    def get_request(self, path, org=None, headers=None, client=None):
         if org:
             path = "/{}{}".format(org.slug, path)
 
-        return self.client.get(path, headers=headers)
+        if client is None:
+            client = self.client
+        return client.get(path, headers=headers)
 
     def post_request(self, path, data=None, org=None, headers=None):
         if org:

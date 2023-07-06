@@ -10,12 +10,11 @@ from flask import request_started, url_for
 from flask_login import AnonymousUserMixin, UserMixin, current_user
 from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy.dialects import postgresql
-from sqlalchemy.exc import DBAPIError
 from sqlalchemy_utils import EmailType
 from sqlalchemy_utils.models import generic_repr
 
 from redash import redis_connection
-from redash.utils import dt_from_timestamp, generate_token, utcnow
+from redash.utils import dt_from_timestamp, generate_token
 
 from .base import Column, GFKBase, db, key_type, primary_key
 from .mixins import BelongsToOrgMixin, TimestampMixin
@@ -123,10 +122,6 @@ class User(
         if kwargs.get("email") is not None:
             kwargs["email"] = kwargs["email"].lower()
         super(User, self).__init__(*args, **kwargs)
-
-    @property
-    def is_active(self):
-        return not self.is_disabled
 
     @property
     def is_disabled(self):

@@ -219,11 +219,7 @@ def log_user_logged_in(app, user):
 def redirect_to_login():
     is_xhr = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     if is_xhr or "/api/" in request.path:
-        response = jsonify(
-            {"message": "Couldn't find resource. Please login and try again."}
-        )
-        response.status_code = 404
-        return response
+        return {"message": "Couldn't find resource. Please login and try again."}, 404
 
     login_url = get_login_url(next=request.url, external=False)
 
@@ -245,8 +241,9 @@ def logout_and_redirect_to_index():
 
 def init_app(app):
     from redash.authentication import ldap_auth, remote_user_auth, saml_auth
-    from redash.authentication.google_oauth import \
-        create_google_oauth_blueprint
+    from redash.authentication.google_oauth import (
+        create_google_oauth_blueprint,
+    )
 
     login_manager.init_app(app)
     login_manager.anonymous_user = models.AnonymousUser
