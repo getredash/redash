@@ -37,9 +37,9 @@ export default class Parameters extends React.Component {
     editable: false,
     sortable: false,
     disableUrlUpdate: false,
-    onValuesChange: () => { },
-    onPendingValuesChange: () => { },
-    onParametersEdit: () => { },
+    onValuesChange: () => {},
+    onPendingValuesChange: () => {},
+    onParametersEdit: () => {},
     appendSortableToParent: true,
   };
 
@@ -178,25 +178,25 @@ export default class Parameters extends React.Component {
         useDragHandle
         lockToContainerEdges
         helperClass="parameter-dragged"
-        helperContainer={containerEl =>
-          appendSortableToParent ? containerEl : document.body}
+        helperContainer={containerEl => (appendSortableToParent ? containerEl : document.body)}
         updateBeforeSortStart={this.onBeforeSortStart}
         onSortEnd={this.moveParameter}
         containerProps={{
           className: "parameter-container",
           onKeyDown: dirtyParamCount ? this.handleKeyDown : null,
         }}>
-        {parameters && parameters.map((param, index) => (
-          <SortableElement key={param.name} index={index}>
-            <div
-              className="parameter-block"
-              data-editable={sortable || null}
-              data-test={`ParameterBlock-${param.name}`}>
-              {sortable && <DragHandle data-test={`DragHandle-${param.name}`} />}
-              {this.renderParameter(param, index)}
-            </div>
-          </SortableElement>
-        ))}
+        {parameters &&
+          parameters.map((param, index) => (
+            <SortableElement key={param.name} index={index}>
+              <div
+                className="parameter-block"
+                data-editable={sortable || null}
+                data-test={`ParameterBlock-${param.name}`}>
+                {sortable && <DragHandle data-test={`DragHandle-${param.name}`} />}
+                {this.renderParameter(param, index)}
+              </div>
+            </SortableElement>
+          ))}
         <ParameterApplyButton onClick={this.applyChanges} paramCount={dirtyParamCount} />
       </SortableContainer>
     );
