@@ -1,8 +1,8 @@
 from sys import exit
 
-from sqlalchemy.orm.exc import NoResultFound
-from flask.cli import AppGroup
 from click import argument, option
+from flask.cli import AppGroup
+from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models
 
@@ -43,7 +43,7 @@ def create(name, permissions=None, organization="default"):
         exit(1)
 
 
-@manager.command()
+@manager.command(name="change_permissions")
 @argument("group_id")
 @option(
     "--permissions",
@@ -119,4 +119,7 @@ def list_command(organization=None):
 
         members = models.Group.members(group.id)
         user_names = [m.name for m in members]
-        print("Users: {}".format(", ".join(user_names)))
+        if user_names:
+            print("Users: {}".format(", ".join(user_names)))
+        else:
+            print("Users:")
