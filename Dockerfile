@@ -33,6 +33,8 @@ EXPOSE 5000
 ARG skip_ds_deps
 # Controls whether to install dev dependencies.
 ARG skip_dev_deps
+# Controls whether to install all dependencies for testing.
+ARG test_all_deps
 
 RUN useradd --create-home redash
 
@@ -98,6 +100,8 @@ RUN if [ "x$skip_dev_deps" = "x" ] ; then pip install -r requirements_dev.txt ; 
 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
+
+RUN if [ "x$test_all_deps" != "x" ] ; then pip3 install -r requirements.txt -r requirements_dev.txt -r requirements_all_ds.txt ; fi
 
 COPY --chown=redash . /app
 COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist
