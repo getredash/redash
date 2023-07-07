@@ -64,3 +64,4 @@ werkzeug==2.3.3
 Authlib==0.15.5
 advocate==1.0.0
 urllib3==1.25.11
+importlib-resources==5.13.0
