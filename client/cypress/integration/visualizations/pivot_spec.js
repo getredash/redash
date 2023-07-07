@@ -99,8 +99,14 @@ describe("Pivot", () => {
         .focus()
         .type(" UNION ALL {enter}SELECT 'c' AS stage1, 'c5' AS stage2, 55 AS value");
 
+      // wait for the query text change to propagate (it's debounced in QuerySource.jsx)
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(200);
+
       cy.getByTestId("SaveButton").click();
-      cy.getByTestId("ExecuteButton").click();
+      cy.getByTestId("ExecuteButton")
+        .should("be.enabled")
+        .click();
 
       // assert number of rows is 12
       cy.getByTestId("PivotTableVisualization").contains(".pvtGrandTotal", "12");

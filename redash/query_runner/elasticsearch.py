@@ -495,7 +495,7 @@ class ElasticSearch(BaseElasticSearch):
             )
 
             json_data = json_dumps({"columns": result_columns, "rows": result_rows})
-        except (KeyboardInterrupt, JobTimeoutException):
+        except (KeyboardInterrupt, JobTimeoutException) as e:
             logger.exception(e)
             raise
         except requests.HTTPError as e:

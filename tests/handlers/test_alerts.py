@@ -1,6 +1,5 @@
-from tests import BaseTestCase
-
 from redash.models import Alert, AlertSubscription, db
+from tests import BaseTestCase
 
 
 class TestAlertResourceGet(BaseTestCase):

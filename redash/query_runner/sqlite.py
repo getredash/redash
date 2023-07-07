@@ -43,7 +43,7 @@ class Sqlite(BaseSQLQueryRunner):
             schema[table_name] = {"name": table_name, "columns": []}
             results_table, error = self.run_query(query_columns % (table_name,), None)
             if error is not None:
-                raise Exception("Failed getting schema.")
+                self._handle_run_query_error(error)
 
             results_table = json_loads(results_table)
             for row_column in results_table["rows"]:

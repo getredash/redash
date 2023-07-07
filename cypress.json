@@ -1,5 +1,5 @@
 {
-  "baseUrl": "http://localhost:5000",
+  "baseUrl": "http://localhost:5001",
   "video": true,
   "videoUploadOnPasses": false,
   "fixturesFolder": "client/cypress/fixtures",

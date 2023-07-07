@@ -9,7 +9,6 @@ from rq.decorators import job as rq_job
 
 from redash import (
     create_app,
-    extensions,
     settings,
     redis_connection,
     rq_redis_connection,

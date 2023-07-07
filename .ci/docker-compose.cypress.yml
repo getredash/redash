@@ -44,7 +44,7 @@ services:
     ipc: host
     build:
       context: ../
-      dockerfile: .circleci/Dockerfile.cypress
+      dockerfile: .ci/Dockerfile.cypress
     depends_on:
       - server
       - worker
