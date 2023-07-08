@@ -6,7 +6,7 @@ except ImportError:
     enabled = False
 
 
-from redash.query_runner import BaseQueryRunner, register
+from redash.query_runner import BaseSQLQueryRunner, register
 from redash.query_runner import (
     TYPE_STRING,
     TYPE_DATE,
@@ -31,7 +31,7 @@ TYPES_MAP = {
 }
 
 
-class Snowflake(BaseQueryRunner):
+class Snowflake(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
     @classmethod
