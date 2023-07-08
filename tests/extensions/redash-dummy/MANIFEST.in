@@ -1,2 +1,0 @@
-include README.md
-recursive-include redash_dummy *.jsx

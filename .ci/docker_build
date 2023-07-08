@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 VERSION=$(jq -r .version package.json)
 VERSION_TAG=$VERSION.b$CIRCLE_BUILD_NUM
 

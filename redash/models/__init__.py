@@ -361,6 +361,9 @@ class QueryResult(db.Model, QueryResultPersistence, BelongsToOrgMixin):
     def get_latest(cls, data_source, query, max_age=0):
         query_hash = gen_query_hash(query)
 
+        if max_age == -1 and settings.QUERY_RESULTS_EXPIRED_TTL_ENABLED:
+            max_age = settings.QUERY_RESULTS_EXPIRED_TTL
+
         if max_age == -1:
             query = cls.query.filter(
                 cls.query_hash == query_hash, cls.data_source == data_source
