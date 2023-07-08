@@ -42,7 +42,7 @@ def create_app():
     app = Redash()
 
     # Check and update the cached version for use by the client
-    app.before_first_request(reset_new_version_status)
+    reset_new_version_status()
 
     security.init_app(app)
     request_metrics.init_app(app)

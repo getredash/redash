@@ -2,8 +2,8 @@ from sys import exit
 
 from click import BOOL, argument, option, prompt
 from flask.cli import AppGroup
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models
 from redash.handlers.users import invite_user
@@ -26,7 +26,7 @@ def build_groups(org, groups, is_admin):
     return groups
 
 
-@manager.command()
+@manager.command(name="grant_admin")
 @argument("email")
 @option(
     "--org",
@@ -116,7 +116,7 @@ def create(
         exit(1)
 
 
-@manager.command()
+@manager.command(name="create_root")
 @argument("email")
 @argument("name")
 @option(
@@ -155,9 +155,7 @@ def create_root(email, name, google_auth=False, password=None, organization="def
         exit(1)
 
     org_slug = organization
-    org = models.Organization.query.filter(
-        models.Organization.slug == org_slug
-    ).first()
+    org = models.Organization.query.filter(models.Organization.slug == org_slug).first()
     if org is None:
         org = models.Organization(name=org_slug, slug=org_slug, settings={})
 
