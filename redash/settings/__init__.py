@@ -56,6 +56,14 @@ QUERY_RESULTS_CLEANUP_MAX_AGE = int(
     os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_MAX_AGE", "7")
 )
 
+QUERY_RESULTS_EXPIRED_TTL_ENABLED = parse_boolean(
+    os.environ.get("REDASH_QUERY_RESULTS_EXPIRED_TTL_ENABLED", "false")
+)
+# default set query results expired ttl 86400 seconds
+QUERY_RESULTS_EXPIRED_TTL = int(
+    os.environ.get("REDASH_QUERY_RESULTS_EXPIRED_TTL", "86400")
+)
+
 SCHEMAS_REFRESH_SCHEDULE = int(os.environ.get("REDASH_SCHEMAS_REFRESH_SCHEDULE", 30))
 
 AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "api_key")
@@ -163,7 +171,7 @@ REFERRER_POLICY = os.environ.get(
 # an empty value.
 # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Feature-Policy
 # for more information.
-FEATURE_POLICY = os.environ.get("REDASH_REFERRER_POLICY", "")
+FEATURE_POLICY = os.environ.get("REDASH_FEATURE_POLICY", "")
 
 MULTI_ORG = parse_boolean(os.environ.get("REDASH_MULTI_ORG", "false"))
 
@@ -359,11 +367,9 @@ default_query_runners = [
     "redash.query_runner.rockset",
     "redash.query_runner.treasuredata",
     "redash.query_runner.sqlite",
-    "redash.query_runner.dynamodb_sql",
     "redash.query_runner.mssql",
     "redash.query_runner.mssql_odbc",
     "redash.query_runner.memsql_ds",
-    "redash.query_runner.mapd",
     "redash.query_runner.jql",
     "redash.query_runner.google_analytics",
     "redash.query_runner.axibase_tsd",
@@ -389,7 +395,6 @@ default_query_runners = [
     "redash.query_runner.sparql_endpoint",
     "redash.query_runner.excel",
     "redash.query_runner.csv",
-    "redash.query_runner.firebolt",
     "redash.query_runner.databend",
     "redash.query_runner.nz",
     "redash.query_runner.arango"

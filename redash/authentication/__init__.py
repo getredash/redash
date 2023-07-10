@@ -5,15 +5,16 @@ import time
 from datetime import timedelta
 from urllib.parse import urlsplit, urlunsplit
 
-from flask import jsonify, redirect, request, url_for, session
+from flask import jsonify, redirect, request, session, url_for
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
+from sqlalchemy.orm.exc import NoResultFound
+from werkzeug.exceptions import Unauthorized
+
 from redash import models, settings
 from redash.authentication import jwt_auth
 from redash.authentication.org_resolving import current_org
 from redash.settings.organization import settings as org_settings
 from redash.tasks import record_event
-from sqlalchemy.orm.exc import NoResultFound
-from werkzeug.exceptions import Unauthorized
 
 login_manager = LoginManager()
 logger = logging.getLogger("authentication")
@@ -216,12 +217,9 @@ def log_user_logged_in(app, user):
 
 @login_manager.unauthorized_handler
 def redirect_to_login():
-    if request.is_xhr or "/api/" in request.path:
-        response = jsonify(
-            {"message": "Couldn't find resource. Please login and try again."}
-        )
-        response.status_code = 404
-        return response
+    is_xhr = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    if is_xhr or "/api/" in request.path:
+        return {"message": "Couldn't find resource. Please login and try again."}, 404
 
     login_url = get_login_url(next=request.url, external=False)
 
@@ -242,13 +240,10 @@ def logout_and_redirect_to_index():
 
 
 def init_app(app):
-    from redash.authentication import (
-        saml_auth,
-        remote_user_auth,
-        ldap_auth,
+    from redash.authentication import ldap_auth, remote_user_auth, saml_auth
+    from redash.authentication.google_oauth import (
+        create_google_oauth_blueprint,
     )
-
-    from redash.authentication.google_oauth import create_google_oauth_blueprint
 
     login_manager.init_app(app)
     login_manager.anonymous_user = models.AnonymousUser
@@ -262,7 +257,12 @@ def init_app(app):
     from redash.security import csrf
 
     # Authlib's flask oauth client requires a Flask app to initialize
-    for blueprint in [create_google_oauth_blueprint(app), saml_auth.blueprint, remote_user_auth.blueprint, ldap_auth.blueprint, ]:
+    for blueprint in [
+        create_google_oauth_blueprint(app),
+        saml_auth.blueprint,
+        remote_user_auth.blueprint,
+        ldap_auth.blueprint,
+    ]:
         csrf.exempt(blueprint)
         app.register_blueprint(blueprint)
 

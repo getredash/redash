@@ -1,9 +1,9 @@
 from flask_login import current_user
 from funcy import project
 from mock import patch
-from tests import BaseTestCase, authenticated_user
 
 from redash import models, settings
+from tests import BaseTestCase, authenticated_user
 
 
 class AuthenticationTestMixin(object):
@@ -22,7 +22,7 @@ class TestAuthentication(BaseTestCase):
     def test_responds_with_success_for_signed_in_user(self):
         with self.client as c:
             with c.session_transaction() as sess:
-                sess["user_id"] = self.factory.user.get_id()
+                sess["_user_id"] = self.factory.user.get_id()
             rv = self.client.get("/default/")
 
             self.assertEqual(200, rv.status_code)
@@ -34,7 +34,7 @@ class TestAuthentication(BaseTestCase):
     def test_redirects_for_invalid_session_identifier(self):
         with self.client as c:
             with c.session_transaction() as sess:
-                sess["user_id"] = 100
+                sess["_user_id"] = 100
             rv = self.client.get("/default/")
 
             self.assertEqual(302, rv.status_code)
@@ -186,7 +186,7 @@ class TestLogin(BaseTestCase):
                 data={"email": user.email, "password": "password"},
             )
             self.assertEqual(rv.status_code, 302)
-            self.assertEqual(rv.location, "http://localhost/test")
+            self.assertEqual(rv.location, "/test")
             login_user_mock.assert_called_with(user, remember=False)
 
     def test_submit_incorrect_user(self):
@@ -244,7 +244,9 @@ class TestLogin(BaseTestCase):
                 "/default/login", data={"email": user.email, "password": "password"}
             )
             self.assertEqual(rv.status_code, 200)
-            self.assertIn("Password login is not enabled for your organization", str(rv.data))
+            self.assertIn(
+                "Password login is not enabled for your organization", str(rv.data)
+            )
 
 
 class TestLogout(BaseTestCase):
