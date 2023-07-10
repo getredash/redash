@@ -16,7 +16,7 @@ services:
       REDASH_DATABASE_URL: "postgresql://postgres:FmTKs5vX52ufKR1rd8tn4MoSP7zvCJwb@postgres/postgres"
       REDASH_COOKIE_SECRET: "2H9gNG9obnAQ9qnR9BDTQUph6CbXKCzF"
   redis:
-    image: redis:3.0-alpine
+    image: redis:7-alpine
     restart: unless-stopped
   postgres:
     image: pgautoupgrade/pgautoupgrade:dev
