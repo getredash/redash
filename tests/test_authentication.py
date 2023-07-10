@@ -4,6 +4,8 @@ import time
 
 from flask import request
 from mock import patch
+from sqlalchemy.orm.exc import NoResultFound
+
 from redash import models, settings
 from redash.authentication import (
     api_key_load_user_from_request,
@@ -11,9 +13,10 @@ from redash.authentication import (
     hmac_load_user_from_request,
     sign,
 )
-from redash.authentication.google_oauth import create_and_login_user, verify_profile
-from redash.utils import utcnow
-from sqlalchemy.orm.exc import NoResultFound
+from redash.authentication.google_oauth import (
+    create_and_login_user,
+    verify_profile,
+)
 from tests import BaseTestCase
 
 
@@ -264,9 +267,7 @@ class TestRedirectToUrlAfterLoggingIn(BaseTestCase):
             data={"email": self.user.email, "password": self.password},
             org=self.factory.org,
         )
-        self.assertEqual(
-            response.location, "http://localhost/{}/".format(self.user.org.slug)
-        )
+        self.assertEqual(response.location, "/{}/".format(self.user.org.slug))
 
     def test_simple_path_in_next_param(self):
         response = self.post_request(
@@ -274,7 +275,7 @@ class TestRedirectToUrlAfterLoggingIn(BaseTestCase):
             data={"email": self.user.email, "password": self.password},
             org=self.factory.org,
         )
-        self.assertEqual(response.location, "http://localhost/default/queries")
+        self.assertEqual(response.location, "queries")
 
     def test_starts_scheme_url_in_next_param(self):
         response = self.post_request(
@@ -282,7 +283,7 @@ class TestRedirectToUrlAfterLoggingIn(BaseTestCase):
             data={"email": self.user.email, "password": self.password},
             org=self.factory.org,
         )
-        self.assertEqual(response.location, "http://localhost/default/")
+        self.assertEqual(response.location, "./")
 
     def test_without_scheme_url_in_next_param(self):
         response = self.post_request(
@@ -290,7 +291,7 @@ class TestRedirectToUrlAfterLoggingIn(BaseTestCase):
             data={"email": self.user.email, "password": self.password},
             org=self.factory.org,
         )
-        self.assertEqual(response.location, "http://localhost/default/")
+        self.assertEqual(response.location, "./")
 
     def test_without_scheme_with_path_url_in_next_param(self):
         response = self.post_request(
@@ -298,7 +299,7 @@ class TestRedirectToUrlAfterLoggingIn(BaseTestCase):
             data={"email": self.user.email, "password": self.password},
             org=self.factory.org,
         )
-        self.assertEqual(response.location, "http://localhost/queries")
+        self.assertEqual(response.location, "/queries")
 
 
 class TestRemoteUserAuth(BaseTestCase):

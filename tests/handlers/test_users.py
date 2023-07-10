@@ -1,6 +1,7 @@
-from redash import models, settings
-from tests import BaseTestCase
 from mock import patch
+
+from redash import models
+from tests import BaseTestCase
 
 
 class TestUserListResourcePost(BaseTestCase):
@@ -357,7 +358,7 @@ class TestUserResourcePost(BaseTestCase):
             # visit profile page
             self.make_request("get", "/api/users/{}".format(self.factory.user.id))
             with c.session_transaction() as sess:
-                previous = sess["user_id"]
+                previous = sess["_user_id"]
 
             # change e-mail address - this will result in a new `user_id` value inside the session
             self.make_request(
@@ -366,10 +367,13 @@ class TestUserResourcePost(BaseTestCase):
                 data={"email": "john@doe.com"},
             )
 
+        with self.app.test_client() as c:
             # force the old `user_id`, simulating that the user is logged in from another browser
             with c.session_transaction() as sess:
-                sess["user_id"] = previous
-            rv = self.get_request("/api/users/{}".format(self.factory.user.id))
+                sess["_user_id"] = previous
+            rv = self.get_request(
+                "/api/users/{}".format(self.factory.user.id), client=c
+            )
 
             self.assertEqual(rv.status_code, 404)
 
@@ -378,7 +382,7 @@ class TestUserResourcePost(BaseTestCase):
 
         with self.client as c:
             with c.session_transaction() as sess:
-                previous = sess["user_id"]
+                previous = sess["_user_id"]
 
         self.make_request(
             "post",
@@ -388,7 +392,7 @@ class TestUserResourcePost(BaseTestCase):
 
         with self.client as c:
             with c.session_transaction() as sess:
-                current = sess["user_id"]
+                current = sess["_user_id"]
 
         # make sure the session's `user_id` has changed to reflect the new identity, thus not logging the user out
         self.assertNotEqual(previous, current)

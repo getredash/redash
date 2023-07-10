@@ -15,7 +15,7 @@ try:
     from bson.timestamp import Timestamp
     from bson.decimal128 import Decimal128
     from bson.son import SON
-    from bson.json_util import object_hook as bson_object_hook
+    from bson.json_util import object_hook as bson_object_hook, JSONOptions
 
     enabled = True
 
@@ -67,7 +67,8 @@ def datetime_parser(dct):
     if "$oids" in dct:
         return parse_oids(dct["$oids"])
 
-    return bson_object_hook(dct)
+    opts = JSONOptions(tz_aware=True)
+    return bson_object_hook(dct, json_options=opts)
 
 
 def parse_query_json(query):
@@ -244,7 +245,7 @@ class MongoDB(BaseQueryRunner):
     def get_schema(self, get_stats=False):
         schema = {}
         db = self._get_db()
-        for collection_name in db.collection_names():
+        for collection_name in db.list_collection_names():
             if collection_name.startswith("system."):
                 continue
             columns = self._get_collection_fields(db, collection_name)
@@ -301,19 +302,20 @@ class MongoDB(BaseQueryRunner):
 
         cursor = None
         if q or (not q and not aggregate):
-            if s:
-                cursor = db[collection].find(q, f).sort(s)
-            else:
-                cursor = db[collection].find(q, f)
-
-            if "skip" in query_data:
-                cursor = cursor.skip(query_data["skip"])
-
-            if "limit" in query_data:
-                cursor = cursor.limit(query_data["limit"])
-
             if "count" in query_data:
-                cursor = cursor.count()
+                options = {opt: query_data[opt] for opt in ("skip", "limit") if opt in query_data}
+                cursor = db[collection].count_documents(q, **options)
+            else:
+                if s:
+                    cursor = db[collection].find(q, f).sort(s)
+                else:
+                    cursor = db[collection].find(q, f)
+
+                if "skip" in query_data:
+                    cursor = cursor.skip(query_data["skip"])
+
+                if "limit" in query_data:
+                    cursor = cursor.limit(query_data["limit"])
 
         elif aggregate:
             allow_disk_use = query_data.get("allowDiskUse", False)
