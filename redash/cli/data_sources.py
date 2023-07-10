@@ -1,6 +1,7 @@
 from sys import exit
 
 import click
+from click.types import convert_type
 from flask.cli import AppGroup
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -40,7 +41,7 @@ def list_command(organization=None):
         )
 
 
-@manager.command()
+@manager.command(name="list_types")
 def list_types():
     print("Enabled Query Runners:")
     types = sorted(query_runners.keys())
@@ -139,11 +140,19 @@ def new(name=None, type=None, options=None, organization="default"):
             else:
                 prompt = "{} (optional)".format(prompt)
 
+            _type = types[prop["type"]]
+
+            def value_proc(value):
+                if value == default_value:
+                    return default_value
+                return convert_type(_type, default_value)(value)
+
             value = click.prompt(
                 prompt,
                 default=default_value,
-                type=types[prop["type"]],
+                type=_type,
                 show_default=False,
+                value_proc=value_proc,
             )
             if value != default_value:
                 options_obj[k] = value
@@ -154,7 +163,7 @@ def new(name=None, type=None, options=None, organization="default"):
 
     if not options.is_valid():
         print("Error: invalid configuration.")
-        exit()
+        exit(1)
 
     print(
         "Creating {} data source ({}) with options:\n{}".format(

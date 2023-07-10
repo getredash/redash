@@ -68,7 +68,7 @@ class SQLServerODBC(BaseSQLQueryRunner):
     @classmethod
     def type(cls):
         return "mssql_odbc"
-    
+
     @property
     def supports_auto_limit(self):
         return False
@@ -86,7 +86,7 @@ class SQLServerODBC(BaseSQLQueryRunner):
         results, error = self.run_query(query, None)
 
         if error is not None:
-            raise Exception("Failed getting schema.")
+            self._handle_run_query_error(error)
 
         results = json_loads(results)
 

@@ -1,12 +1,13 @@
-import mock
 import textwrap
+
+import mock
 from click.testing import CliRunner
 
-from tests import BaseTestCase
-from redash.utils.configuration import ConfigurationContainer
-from redash.query_runner import query_runners
 from redash.cli import manager
 from redash.models import DataSource, Group, Organization, User, db
+from redash.query_runner import query_runners
+from redash.utils.configuration import ConfigurationContainer
+from tests import BaseTestCase
 
 
 class DataSourceCommandTests(BaseTestCase):
@@ -299,21 +300,21 @@ class GroupCommandTests(BaseTestCase):
         Type: builtin
         Organization: default
         Permissions: [admin,super_admin]
-        Users: 
+        Users:
         --------------------
         Id: 4
         Name: agroup
         Type: regular
         Organization: default
         Permissions: [list_dashboards]
-        Users: 
+        Users:
         --------------------
         Id: 5
         Name: bgroup
         Type: regular
         Organization: default
         Permissions: [list_dashboards]
-        Users: 
+        Users:
         --------------------
         Id: 2
         Name: default
@@ -327,7 +328,7 @@ class GroupCommandTests(BaseTestCase):
         Type: regular
         Organization: default
         Permissions: [list_dashboards]
-        Users: 
+        Users:
         """
         self.assertMultiLineEqual(result.output, textwrap.dedent(output).lstrip())
 

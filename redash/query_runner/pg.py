@@ -186,7 +186,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         results, error = self.run_query(query, None)
 
         if error is not None:
-            raise Exception("Failed getting schema.")
+            self._handle_run_query_error(error)
 
         results = json_loads(results)
 
@@ -220,7 +220,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         ON a.attrelid = c.oid
         AND a.attnum > 0
         AND NOT a.attisdropped
-        WHERE c.relkind IN ('m', 'f', 'p')
+        WHERE c.relkind IN ('m', 'f', 'p') AND has_table_privilege(s.nspname || '.' || c.relname, 'select')
 
         UNION
 
