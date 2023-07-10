@@ -1,4 +1,4 @@
-.PHONY: compose_build up test_db create_database clean down bundle tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
+.PHONY: compose_build up test_db create_database clean down tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
 
 compose_build:
 	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
@@ -22,9 +22,6 @@ clean:
 down:
 	docker-compose down
 
-bundle:
-	docker-compose run server bin/bundle-extensions
-
 tests:
 	docker-compose run server tests
 
@@ -34,20 +31,19 @@ lint:
 backend-unit-tests: up test_db
 	docker-compose run --rm --name tests server tests
 
-frontend-unit-tests: bundle
+frontend-unit-tests:
 	CYPRESS_INSTALL_BINARY=0 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 yarn --frozen-lockfile
-	yarn bundle
 	yarn test
 
 test: lint backend-unit-tests frontend-unit-tests
 
-build: bundle
+build: 
 	yarn build
 
-watch: bundle
+watch: 
 	yarn watch
 
-start: bundle
+start: 
 	yarn start
 
 redis-cli:

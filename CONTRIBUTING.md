@@ -22,8 +22,7 @@ The following is a set of guidelines for contributing to Redash. These are guide
 
 ## Quick Links:
 
-- [User Forum](https://discuss.redash.io/)
-- [Feature Requests](https://discuss.redash.io/c/feature-requests)
+- [User Forum](https://github.com/getredash/redash/discussions)
 - [Documentation](https://redash.io/help/)
 
 
@@ -35,14 +34,14 @@ The following is a set of guidelines for contributing to Redash. These are guide
 When creating a new bug report, please make sure to:
 
 - Search for existing issues first. If you find a previous report of your issue, please update the existing issue with additional information instead of creating a new one.
-- If you are not sure if your issue is really a bug or just some configuration/setup problem, please start a discussion in [the support forum](https://discuss.redash.io/c/support) first. Unless you can provide clear steps to reproduce, it's probably better to start with a thread in the forum and later to open an issue.
+- If you are not sure if your issue is really a bug or just some configuration/setup problem, please start a [Q&A discussion](https://github.com/getredash/redash/discussions/new?category=q-a) first. Unless you can provide clear steps to reproduce, it's probably better to start with a discussion and later to open an issue.
 - If you still decide to open an issue, please review the template and guidelines and include as much details as possible.
 
 ### Suggesting Enhancements / Feature Requests
 
 If you would like to suggest an enhancement or ask for a new feature:
 
-- Please check [the forum](https://discuss.redash.io/c/feature-requests/5) for existing threads about what you want to suggest/ask. If there is, feel free to upvote it to signal interest or add your comments.
+- Please check [the Ideas discussions](https://github.com/getredash/redash/discussions/categories/ideas) for existing threads about what you want to suggest/ask. If there is, feel free to upvote it to signal interest or add your comments.
 - If there is no open thread, you're welcome to start one to have a discussion about what you want to suggest. Try to provide as much details and context as possible and include information about *the problem you want to solve* rather only *your proposed solution*.
 
 ### Pull Requests

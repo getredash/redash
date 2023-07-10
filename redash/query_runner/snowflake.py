@@ -6,7 +6,7 @@ except ImportError:
     enabled = False
 
 
-from redash.query_runner import BaseQueryRunner, register
+from redash.query_runner import BaseSQLQueryRunner, register
 from redash.query_runner import (
     TYPE_STRING,
     TYPE_DATE,
@@ -31,7 +31,7 @@ TYPES_MAP = {
 }
 
 
-class Snowflake(BaseQueryRunner):
+class Snowflake(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
     @classmethod
@@ -173,7 +173,7 @@ class Snowflake(BaseQueryRunner):
         results, error = self._run_query_without_warehouse(query)
 
         if error is not None:
-            raise Exception("Failed getting schema.")
+            self._handle_run_query_error(error)
 
         schema = {}
         for row in results["rows"]:
