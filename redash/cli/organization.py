@@ -6,7 +6,7 @@ from redash import models
 manager = AppGroup(help="Organization management commands.")
 
 
-@manager.command()
+@manager.command(name="set_google_apps_domains")
 @argument("domains")
 def set_google_apps_domains(domains):
     """
@@ -24,7 +24,7 @@ def set_google_apps_domains(domains):
     )
 
 
-@manager.command()
+@manager.command(name="show_google_apps_domains")
 def show_google_apps_domains():
     organization = models.Organization.query.first()
     print(

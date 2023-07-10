@@ -1,0 +1,18 @@
+[project]
+requires-python = ">=3.8"
+
+[tool.black]
+target-version = ['py38']
+line-length = 119
+force-exclude = '''
+/(
+  migrations
+)/
+'''
+
+[tool.isort]
+py_version = 38
+multi_line_output = 3
+include_trailing_comma = true
+use_parentheses = true
+skip = "migrations"

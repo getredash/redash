@@ -41,7 +41,7 @@ def load_extensions(db):
             connection.execute(f'CREATE EXTENSION IF NOT EXISTS "{extension}";')
 
 
-@manager.command()
+@manager.command(name="create_tables")
 def create_tables():
     """Create the database tables."""
     from redash.models import db
@@ -61,7 +61,7 @@ def create_tables():
         stamp()
 
 
-@manager.command()
+@manager.command(name="drop_tables")
 def drop_tables():
     """Drop the database tables."""
     from redash.models import db
