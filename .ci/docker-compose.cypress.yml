@@ -65,7 +65,7 @@ services:
       CYPRESS_PROJECT_ID: ${CYPRESS_PROJECT_ID}
       CYPRESS_RECORD_KEY: ${CYPRESS_RECORD_KEY}
   redis:
-    image: redis:3.0-alpine
+    image: redis:7-alpine
     restart: unless-stopped
   postgres:
     image: pgautoupgrade/pgautoupgrade:dev
