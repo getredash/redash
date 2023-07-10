@@ -36,7 +36,7 @@ gunicorn==20.0.4
 rq==1.5.0
 rq-scheduler==0.10.0
 jsonschema==3.1.1
-RestrictedPython==5.0
+RestrictedPython==6.1
 pysaml2==6.5.2
 python-dotenv==0.19.2
 funcy==1.13
