@@ -52,7 +52,7 @@ services:
     image: redis:3-alpine
     restart: unless-stopped
   postgres:
-    image: postgres:9.5-alpine
+    image: pgautoupgrade/pgautoupgrade:dev
     ports:
       - "15432:5432"
     # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
