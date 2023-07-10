@@ -2,9 +2,11 @@ import datetime
 import importlib
 import logging
 import sys
+import pystache
+from funcy import distinct
 
 from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_dumps, json_loads, mustache_render
 from redash import models
 from RestrictedPython import compile_restricted
 from RestrictedPython.Guards import safe_builtins, guarded_iter_unpack_sequence, guarded_unpack_sequence
@@ -19,6 +21,29 @@ except ImportError:
 from RestrictedPython.transformer import IOPERATOR_TO_STR
 
 logger = logging.getLogger(__name__)
+
+def get_query(query_id):
+    try:
+        query = models.Query.get_by_id(query_id)
+    except models.NoResultFound:
+        raise Exception("Query id %s does not exist." % query_id)
+    return query
+
+def _collect_key_names(nodes):
+    keys = []
+    for node in nodes._parse_tree:
+        if isinstance(node, pystache.parser._EscapeNode):
+            keys.append(node.key)
+        elif isinstance(node, pystache.parser._SectionNode):
+            keys.append(node.key)
+            keys.extend(_collect_key_names(node.parsed))
+
+    return distinct(keys)
+
+def _collect_query_parameters(query):
+    nodes = pystache.parse(query)
+    keys = _collect_key_names(nodes)
+    return keys
 
 
 class CustomPrint(object):
@@ -248,10 +273,11 @@ class Python(BaseQueryRunner):
         Parameters:
         :query_id integer: ID of existing query
         """
-        try:
-            query = models.Query.get_by_id(query_id)
-        except models.NoResultFound:
-            raise Exception("Query id %s does not exist." % query_id)
+        # try:
+        #     query = models.Query.get_by_id(query_id)
+        # except models.NoResultFound:
+        #     raise Exception("Query id %s does not exist." % query_id)
+        query = get_query(query_id)
 
         if query.latest_query_data is None:
             raise Exception("Query does not have results yet.")
@@ -260,7 +286,29 @@ class Python(BaseQueryRunner):
             raise Exception("Query does not have results yet.")
 
         return query.latest_query_data.data
-
+    
+    @staticmethod
+    def execute_by_query_id(query_id, params=None):
+        """Run query from specific query_id.
+        Parameters:
+        :query_id int: Query id to run
+        :params dict: Params for bind to query
+        """
+        query = get_query(query_id)
+        query_text = query.query_text
+        query_params = set(_collect_query_parameters(query_text))
+        if params is None:
+            query_text = query.query_text
+            missing_params = set(query_params)
+        else:
+            query_text = mustache_render(query.query_text, params)
+            missing_params = set(query_params) - set(params.keys())
+        if len(missing_params) > 0:
+            raise Exception('Missing parameter value for: {}'.format(", ".join(missing_params)))
+        data, error = query.data_source.query_runner.run_query(query_text, None)
+        if error is not None:
+            raise Exception(error)
+        return json_loads(data)
     def dataframe_to_result(self, result, df):
 
         result["rows"] = df.to_dict("records")
@@ -322,6 +370,7 @@ class Python(BaseQueryRunner):
             restricted_globals["get_source_schema"] = self.get_source_schema
             restricted_globals["get_current_user"] = self.get_current_user
             restricted_globals["execute_query"] = self.execute_query
+            restricted_globals["execute_by_query_id"] = self.execute_by_query_id
             restricted_globals["add_result_column"] = self.add_result_column
             if pandas_installed:
                 restricted_globals["dataframe_to_result"] = self.dataframe_to_result
