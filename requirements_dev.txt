@@ -6,3 +6,4 @@ ptvsd==4.3.2
 freezegun==1.2.1
 watchdog==0.9.0
 ptpython==3.0.23
+pre-commit==3.3.3
