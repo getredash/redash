@@ -234,6 +234,13 @@ class BaseQueryRunner(object):
     def get_schema(self, get_stats=False):
         raise NotSupported()
 
+    def _handle_run_query_error(self, error):
+        if error is None:
+            return
+
+        logger.error(error)
+        raise Exception(f"Error during query execution. Reason: {error}")
+
     def _run_query_internal(self, query):
         results, error = self.run_query(query, None)
 

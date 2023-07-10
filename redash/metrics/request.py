@@ -9,7 +9,7 @@ from redash import statsd_client
 metrics_logger = logging.getLogger("metrics")
 
 
-def record_requets_start_time():
+def record_request_start_time():
     g.start_time = time.time()
 
 
@@ -53,6 +53,6 @@ def calculate_metrics_on_exception(error):
 
 
 def init_app(app):
-    app.before_request(record_requets_start_time)
+    app.before_request(record_request_start_time)
     app.after_request(calculate_metrics)
     app.teardown_request(calculate_metrics_on_exception)
