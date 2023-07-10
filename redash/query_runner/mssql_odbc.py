@@ -114,9 +114,9 @@ class SQLServerODBC(BaseSQLQueryRunner):
             port = self.configuration.get("port", 1433)
             charset = self.configuration.get("charset", "UTF-8")
 
-            connection_string_fmt = "DRIVER={{ODBC Driver 17 for SQL Server}};PORT={};SERVER={};DATABASE={};UID={};PWD={}"
+            connection_string_fmt = "DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={},{};DATABASE={};UID={};PWD={}"
             connection_string = connection_string_fmt.format(
-                port, server, db, user, password
+                server, port, db, user, password
             )
 
             if self.configuration.get("use_ssl", False):
