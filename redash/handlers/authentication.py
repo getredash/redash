@@ -38,9 +38,9 @@ def render_token_login_page(template, org_slug, token, invite):
         user = models.User.get_by_id_and_org(user_id, org)
     except NoResultFound:
         logger.exception(
-            "Bad user id in token. Token= , User id= %s, Org=%s",
-            user_id,
+            "Bad user id in token. Token=%s , User id= %s, Org=%s",
             token,
+            user_id,
             org_slug,
         )
         return (
@@ -198,7 +198,8 @@ def login(org_slug=None):
     if current_user.is_authenticated:
         return redirect(next_path)
 
-    if request.method == "POST":
+
+    if request.method == "POST" and current_org.get_setting("auth_password_login_enabled"):
         try:
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(request.form["email"], org)
@@ -214,6 +215,10 @@ def login(org_slug=None):
                 flash("Wrong email or password.")
         except NoResultFound:
             flash("Wrong email or password.")
+    elif request.method == "POST" and not current_org.get_setting("auth_password_login_enabled"):
+        flash("Password login is not enabled for your organization.")
+
+
 
     google_auth_url = get_google_auth_url(next_path)
 

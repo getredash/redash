@@ -53,6 +53,7 @@ class Impala(BaseSQLQueryRunner):
                 },
                 "database": {"type": "string"},
                 "use_ldap": {"type": "boolean"},
+                "use_ssl": {"type": "boolean"},
                 "ldap_user": {"type": "string"},
                 "ldap_password": {"type": "string"},
                 "timeout": {"type": "number"},

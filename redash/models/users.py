@@ -5,21 +5,20 @@ import time
 from functools import reduce
 from operator import or_
 
-from flask import current_app as app, url_for, request_started
-from flask_login import current_user, AnonymousUserMixin, UserMixin
+from flask import current_app as app
+from flask import request_started, url_for
+from flask_login import AnonymousUserMixin, UserMixin, current_user
 from passlib.apps import custom_app_context as pwd_context
-from sqlalchemy.exc import DBAPIError
 from sqlalchemy.dialects import postgresql
-
 from sqlalchemy_utils import EmailType
 from sqlalchemy_utils.models import generic_repr
 
 from redash import redis_connection
-from redash.utils import generate_token, utcnow, dt_from_timestamp
+from redash.utils import dt_from_timestamp, generate_token
 
-from .base import db, Column, GFKBase, key_type, primary_key
-from .mixins import TimestampMixin, BelongsToOrgMixin
-from .types import json_cast_property, MutableDict, MutableList
+from .base import Column, GFKBase, db, key_type, primary_key
+from .mixins import BelongsToOrgMixin, TimestampMixin
+from .types import MutableDict, MutableList, json_cast_property
 
 logger = logging.getLogger(__name__)
 
@@ -85,22 +84,26 @@ class User(
     org = db.relationship("Organization", backref=db.backref("users", lazy="dynamic"))
     name = Column(db.String(320))
     email = Column(EmailType)
-    _profile_image_url = Column("profile_image_url", db.String(320), nullable=True)
     password_hash = Column(db.String(128), nullable=True)
     group_ids = Column(
-        "groups", MutableList.as_mutable(postgresql.ARRAY(key_type("Group"))), nullable=True
+        "groups",
+        MutableList.as_mutable(postgresql.ARRAY(key_type("Group"))),
+        nullable=True,
     )
     api_key = Column(db.String(40), default=lambda: generate_token(40), unique=True)
 
     disabled_at = Column(db.DateTime(True), default=None, nullable=True)
     details = Column(
-        MutableDict.as_mutable(postgresql.JSON),
+        MutableDict.as_mutable(postgresql.JSONB),
         nullable=True,
         server_default="{}",
         default={},
     )
     active_at = json_cast_property(
         db.DateTime(True), "details", "active_at", default=None
+    )
+    _profile_image_url = json_cast_property(
+        db.Text(), "details", "profile_image_url", default=None
     )
     is_invitation_pending = json_cast_property(
         db.Boolean(True), "details", "is_invitation_pending", default=False

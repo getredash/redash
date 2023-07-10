@@ -1,10 +1,10 @@
 import functools
 
 from flask_sqlalchemy import BaseQuery, SQLAlchemy
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import object_session
 from sqlalchemy.pool import NullPool
-from sqlalchemy_searchable import make_searchable, vectorizer, SearchQueryMixin
-from sqlalchemy.dialects import postgresql
+from sqlalchemy_searchable import SearchQueryMixin, make_searchable, vectorizer
 
 from redash import settings
 from redash.utils import json_dumps
@@ -15,7 +15,7 @@ class RedashSQLAlchemy(SQLAlchemy):
         options.update(json_serializer=json_dumps)
         if settings.SQLALCHEMY_ENABLE_POOL_PRE_PING:
             options.update(pool_pre_ping=True)
-        super(RedashSQLAlchemy, self).apply_driver_hacks(app, info, options)
+        return super(RedashSQLAlchemy, self).apply_driver_hacks(app, info, options)
 
     def apply_pool_defaults(self, app, options):
         super(RedashSQLAlchemy, self).apply_pool_defaults(app, options)
@@ -25,6 +25,7 @@ class RedashSQLAlchemy(SQLAlchemy):
             options["poolclass"] = NullPool
             # Remove options NullPool does not support:
             options.pop("max_overflow", None)
+        return options
 
 
 db = RedashSQLAlchemy(session_options={"expire_on_commit": False})

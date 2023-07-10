@@ -33,6 +33,8 @@ logger = logging.getLogger(__name__)
 class Oracle(BaseSQLQueryRunner):
     should_annotate_query = False
     noop_query = "SELECT 1 FROM dual"
+    limit_query = " FETCH NEXT 1000 ROWS ONLY"
+    limit_keywords = [ "ROW", "ROWS", "ONLY", "TIES"]
 
     @classmethod
     def get_col_type(cls, col_type, scale):
@@ -83,7 +85,7 @@ class Oracle(BaseSQLQueryRunner):
         results, error = self.run_query(query, None)
 
         if error is not None:
-            raise Exception("Failed getting schema.")
+            self._handle_run_query_error(error)
 
         results = json_loads(results)
 

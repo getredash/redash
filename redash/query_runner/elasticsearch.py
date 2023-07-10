@@ -44,6 +44,7 @@ PYTHON_TYPES_MAPPING = {
 class BaseElasticSearch(BaseQueryRunner):
     should_annotate_query = False
     DEBUG_ENABLED = False
+    deprecated=True
 
     @classmethod
     def configuration_schema(cls):
@@ -494,7 +495,7 @@ class ElasticSearch(BaseElasticSearch):
             )
 
             json_data = json_dumps({"columns": result_columns, "rows": result_rows})
-        except (KeyboardInterrupt, JobTimeoutException):
+        except (KeyboardInterrupt, JobTimeoutException) as e:
             logger.exception(e)
             raise
         except requests.HTTPError as e:

@@ -47,6 +47,9 @@
         "range": null,
         "overlaying": "y",
         "side": "right"
+      },    
+      "hoverlabel": {
+        "namelength": -1
       }
     }
   }
