@@ -21,12 +21,10 @@ logger = logging.getLogger("authentication")
 
 
 def get_login_url(external=False, next="/"):
-    if settings.MULTI_ORG and current_org == None:
+    if settings.MULTI_ORG and current_org == None:  # noqa: E711
         login_url = "/"
     elif settings.MULTI_ORG:
-        login_url = url_for(
-            "redash.login", org_slug=current_org.slug, next=next, _external=external
-        )
+        login_url = url_for("redash.login", org_slug=current_org.slug, next=next, _external=external)
     else:
         login_url = url_for("redash.login", next=next, _external=external)
 
@@ -69,11 +67,7 @@ def request_loader(request):
     elif settings.AUTH_TYPE == "api_key":
         user = api_key_load_user_from_request(request)
     else:
-        logger.warning(
-            "Unknown authentication type ({}). Using default (HMAC).".format(
-                settings.AUTH_TYPE
-            )
-        )
+        logger.warning("Unknown authentication type ({}). Using default (HMAC).".format(settings.AUTH_TYPE))
         user = hmac_load_user_from_request(request)
 
     if org_settings["auth_jwt_login_enabled"] and user is None:
@@ -229,7 +223,7 @@ def redirect_to_login():
 def logout_and_redirect_to_index():
     logout_user()
 
-    if settings.MULTI_ORG and current_org == None:
+    if settings.MULTI_ORG and current_org == None:  # noqa: E711
         index_url = "/"
     elif settings.MULTI_ORG:
         index_url = url_for("redash.index", org_slug=current_org.slug, _external=False)

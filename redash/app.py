@@ -1,7 +1,7 @@
 from flask import Flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from . import settings
+from redash import settings
 
 
 class Redash(Flask):

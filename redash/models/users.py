@@ -76,9 +76,7 @@ class PermissionsCheckMixin(object):
 
 
 @generic_repr("id", "name", "email")
-class User(
-    TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin
-):
+class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin):
     id = primary_key("User")
     org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
     org = db.relationship("Organization", backref=db.backref("users", lazy="dynamic"))
@@ -99,18 +97,10 @@ class User(
         server_default="{}",
         default={},
     )
-    active_at = json_cast_property(
-        db.DateTime(True), "details", "active_at", default=None
-    )
-    _profile_image_url = json_cast_property(
-        db.Text(), "details", "profile_image_url", default=None
-    )
-    is_invitation_pending = json_cast_property(
-        db.Boolean(True), "details", "is_invitation_pending", default=False
-    )
-    is_email_verified = json_cast_property(
-        db.Boolean(True), "details", "is_email_verified", default=True
-    )
+    active_at = json_cast_property(db.DateTime(True), "details", "active_at", default=None)
+    _profile_image_url = json_cast_property(db.Text(), "details", "profile_image_url", default=None)
+    is_invitation_pending = json_cast_property(db.Boolean(True), "details", "is_invitation_pending", default=False)
+    is_email_verified = json_cast_property(db.Boolean(True), "details", "is_email_verified", default=True)
 
     __tablename__ = "users"
     __table_args__ = (db.Index("users_org_id_email", "org_id", "email", unique=True),)
@@ -182,14 +172,7 @@ class User(
     @property
     def permissions(self):
         # TODO: this should be cached.
-        return list(
-            itertools.chain(
-                *[
-                    g.permissions
-                    for g in Group.query.filter(Group.id.in_(self.group_ids))
-                ]
-            )
-        )
+        return list(itertools.chain(*[g.permissions for g in Group.query.filter(Group.id.in_(self.group_ids))]))
 
     @classmethod
     def get_by_org(cls, org):
@@ -227,9 +210,7 @@ class User(
         if pending:
             return base_query.filter(cls.is_invitation_pending.is_(True))
         else:
-            return base_query.filter(
-                cls.is_invitation_pending.isnot(True)
-            )  # check for both `false`/`null`
+            return base_query.filter(cls.is_invitation_pending.isnot(True))  # check for both `false`/`null`
 
     @classmethod
     def find_by_email(cls, email):
@@ -252,9 +233,7 @@ class User(
         return AccessPermission.exists(obj, access_type, grantee=self)
 
     def get_id(self):
-        identity = hashlib.md5(
-            "{},{}".format(self.email, self.password_hash).encode()
-        ).hexdigest()
+        identity = hashlib.md5("{},{}".format(self.email, self.password_hash).encode()).hexdigest()
         return "{0}-{1}".format(self.id, identity)
 
 
@@ -279,9 +258,7 @@ class Group(db.Model, BelongsToOrgMixin):
     REGULAR_GROUP = "regular"
 
     id = primary_key("Group")
-    data_sources = db.relationship(
-        "DataSourceGroup", back_populates="group", cascade="all"
-    )
+    data_sources = db.relationship("DataSourceGroup", back_populates="group", cascade="all")
     org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
     org = db.relationship("Organization", back_populates="groups")
     type = Column(db.String(255), default=REGULAR_GROUP)
@@ -317,9 +294,7 @@ class Group(db.Model, BelongsToOrgMixin):
         return list(result)
 
 
-@generic_repr(
-    "id", "object_type", "object_id", "access_type", "grantor_id", "grantee_id"
-)
+@generic_repr("id", "object_type", "object_id", "access_type", "grantor_id", "grantee_id")
 class AccessPermission(GFKBase, db.Model):
     id = primary_key("AccessPermission")
     # 'object' defined in GFKBase
@@ -368,9 +343,7 @@ class AccessPermission(GFKBase, db.Model):
 
     @classmethod
     def _query(cls, obj, access_type=None, grantee=None, grantor=None):
-        q = cls.query.filter(
-            cls.object_id == obj.id, cls.object_type == obj.__tablename__
-        )
+        q = cls.query.filter(cls.object_id == obj.id, cls.object_type == obj.__tablename__)
 
         if access_type:
             q = q.filter(AccessPermission.access_type == access_type)

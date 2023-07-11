@@ -3,10 +3,10 @@ from sqlalchemy_utils.models import generic_repr
 
 from redash.settings.organization import settings as org_settings
 
-from .base import db, Column, primary_key
+from .base import Column, db, primary_key
 from .mixins import TimestampMixin
 from .types import MutableDict, PseudoJSON
-from .users import User, Group
+from .users import Group, User
 
 
 @generic_repr("id", "name", "slug")
@@ -36,9 +36,7 @@ class Organization(TimestampMixin, db.Model):
 
     @property
     def default_group(self):
-        return self.groups.filter(
-            Group.name == "default", Group.type == Group.BUILTIN_GROUP
-        ).first()
+        return self.groups.filter(Group.name == "default", Group.type == Group.BUILTIN_GROUP).first()
 
     @property
     def google_apps_domains(self):
@@ -80,9 +78,7 @@ class Organization(TimestampMixin, db.Model):
 
     @property
     def admin_group(self):
-        return self.groups.filter(
-            Group.name == "admin", Group.type == Group.BUILTIN_GROUP
-        ).first()
+        return self.groups.filter(Group.name == "admin", Group.type == Group.BUILTIN_GROUP).first()
 
     def has_user(self, email):
         return self.users.filter(User.email == email).count() == 1

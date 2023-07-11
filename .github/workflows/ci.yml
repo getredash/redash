@@ -16,8 +16,10 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
-      - run: sudo pip install flake8
-      - run: ./bin/flake8_tests.sh
+      - run: sudo pip install flake8 black isort
+      - run: flake8 .
+      - run: black --check .
+      - run: isort --check-only --diff .
 
   backend-unit-tests:
     runs-on: ubuntu-22.04

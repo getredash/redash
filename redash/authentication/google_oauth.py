@@ -1,17 +1,16 @@
 import logging
+
 import requests
-from flask import redirect, url_for, Blueprint, flash, request, session
+from authlib.integrations.flask_client import OAuth
+from flask import Blueprint, flash, redirect, request, session, url_for
 
-
-from redash import models, settings
+from redash import models
 from redash.authentication import (
     create_and_login_user,
-    logout_and_redirect_to_index,
     get_next_path,
+    logout_and_redirect_to_index,
 )
 from redash.authentication.org_resolving import current_org
-
-from authlib.integrations.flask_client import OAuth
 
 
 def verify_profile(org, profile):
@@ -46,9 +45,7 @@ def create_google_oauth_blueprint(app):
 
     def get_user_profile(access_token):
         headers = {"Authorization": "OAuth {}".format(access_token)}
-        response = requests.get(
-            "https://www.googleapis.com/oauth2/v1/userinfo", headers=headers
-        )
+        response = requests.get("https://www.googleapis.com/oauth2/v1/userinfo", headers=headers)
 
         if response.status_code == 401:
             logger.warning("Failed getting user profile (response code 401).")
@@ -63,12 +60,9 @@ def create_google_oauth_blueprint(app):
 
     @blueprint.route("/oauth/google", endpoint="authorize")
     def login():
-
         redirect_uri = url_for(".callback", _external=True)
 
-        next_path = request.args.get(
-            "next", url_for("redash.index", org_slug=session.get("org_slug"))
-        )
+        next_path = request.args.get("next", url_for("redash.index", org_slug=session.get("org_slug")))
         logger.debug("Callback url: %s", redirect_uri)
         logger.debug("Next is: %s", next_path)
 
@@ -78,7 +72,6 @@ def create_google_oauth_blueprint(app):
 
     @blueprint.route("/oauth/google_callback", endpoint="callback")
     def authorized():
-
         logger.debug("Authorized user inbound")
 
         resp = oauth.google.authorize_access_token()
@@ -109,21 +102,15 @@ def create_google_oauth_blueprint(app):
                 profile["email"],
                 org,
             )
-            flash(
-                "Your Google Apps account ({}) isn't allowed.".format(profile["email"])
-            )
+            flash("Your Google Apps account ({}) isn't allowed.".format(profile["email"]))
             return redirect(url_for("redash.login", org_slug=org.slug))
 
         picture_url = "%s?sz=40" % profile["picture"]
-        user = create_and_login_user(
-            org, profile["name"], profile["email"], picture_url
-        )
+        user = create_and_login_user(org, profile["name"], profile["email"], picture_url)
         if user is None:
             return logout_and_redirect_to_index()
 
-        unsafe_next_path = session.get("next_url") or url_for(
-            "redash.index", org_slug=org.slug
-        )
+        unsafe_next_path = session.get("next_url") or url_for("redash.index", org_slug=org.slug)
         next_path = get_next_path(unsafe_next_path)
 
         return redirect(next_path)
