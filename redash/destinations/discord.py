@@ -26,7 +26,7 @@ class Discord(BaseDestination):
     def icon(cls):
         return "fa-discord"
 
-    def notify(self, alert, query, user, app, host, options):
+    def notify(self, alert, query, user, new_state, app, host, options):
         # Documentation: https://birdie0.github.io/discord-webhooks-guide/discord_webhook.html
         fields = [
             {
@@ -46,7 +46,7 @@ class Discord(BaseDestination):
         ]
         if alert.options.get("custom_body"):
             fields.append({"name": "Description", "value": alert.options["custom_body"]})
-        if alert.TRIGGERED_STATE == "triggered":
+        if new_state == alert.TRIGGERED_STATE:
             if alert.options.get("custom_subject"):
                 text = alert.options["custom_subject"]
             else:
