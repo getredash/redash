@@ -1,9 +1,9 @@
 import time
 
+import sqlalchemy
 from click import argument, option
 from flask.cli import AppGroup
 from flask_migrate import stamp
-import sqlalchemy
 from sqlalchemy.exc import DatabaseError
 from sqlalchemy.sql import select
 from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
@@ -93,9 +93,7 @@ def reencrypt(old_secret, new_secret, show_sql):
             Column("id", key_type(orm_name), primary_key=True),
             Column(
                 "encrypted_options",
-                ConfigurationContainer.as_mutable(
-                    EncryptedConfiguration(db.Text, old_secret, FernetEngine)
-                ),
+                ConfigurationContainer.as_mutable(EncryptedConfiguration(db.Text, old_secret, FernetEngine)),
             ),
         )
         table_for_update = sqlalchemy.Table(
@@ -104,9 +102,7 @@ def reencrypt(old_secret, new_secret, show_sql):
             Column("id", key_type(orm_name), primary_key=True),
             Column(
                 "encrypted_options",
-                ConfigurationContainer.as_mutable(
-                    EncryptedConfiguration(db.Text, new_secret, FernetEngine)
-                ),
+                ConfigurationContainer.as_mutable(EncryptedConfiguration(db.Text, new_secret, FernetEngine)),
             ),
         )
 

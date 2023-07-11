@@ -64,10 +64,7 @@ def change_permissions(group_id, permissions=None):
         exit(1)
 
     permissions = extract_permissions_string(permissions)
-    print(
-        "current permissions [%s] will be modify to [%s]"
-        % (",".join(group.permissions), ",".join(permissions))
-    )
+    print("current permissions [%s] will be modify to [%s]" % (",".join(group.permissions), ",".join(permissions)))
 
     group.permissions = permissions
 

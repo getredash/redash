@@ -34,11 +34,7 @@ def list_command(organization=None):
         if i > 0:
             print("-" * 20)
 
-        print(
-            "Id: {}\nName: {}\nType: {}\nOptions: {}".format(
-                ds.id, ds.name, ds.type, ds.options.to_json()
-            )
-        )
+        print("Id: {}\nName: {}\nType: {}\nOptions: {}".format(ds.id, ds.name, ds.type, ds.options.to_json()))
 
 
 @manager.command(name="list_types")
@@ -76,9 +72,7 @@ def test(name, organization="default"):
         data_source = models.DataSource.query.filter(
             models.DataSource.name == name, models.DataSource.org == org
         ).one()
-        print(
-            "Testing connection to data source: {} (id={})".format(name, data_source.id)
-        )
+        print("Testing connection to data source: {} (id={})".format(name, data_source.id))
         try:
             data_source.query_runner.test_connection()
         except Exception as e:
@@ -165,11 +159,7 @@ def new(name=None, type=None, options=None, organization="default"):
         print("Error: invalid configuration.")
         exit(1)
 
-    print(
-        "Creating {} data source ({}) with options:\n{}".format(
-            type, name, options.to_json()
-        )
-    )
+    print("Creating {} data source ({}) with options:\n{}".format(type, name, options.to_json()))
 
     data_source = models.DataSource.create_with_group(
         name=name,

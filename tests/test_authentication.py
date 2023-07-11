@@ -29,36 +29,34 @@ class TestApiKeyAuthentication(BaseTestCase):
         self.api_key = "10"
         self.query = self.factory.create_query(api_key=self.api_key)
         models.db.session.flush()
-        self.query_url = "/{}/api/queries/{}".format(
-            self.factory.org.slug, self.query.id
-        )
+        self.query_url = "/{}/api/queries/{}".format(self.factory.org.slug, self.query.id)
         self.queries_url = "/{}/api/queries".format(self.factory.org.slug)
 
     def test_no_api_key(self):
         with self.app.test_client() as c:
-            rv = c.get(self.query_url)
+            c.get(self.query_url)
             self.assertIsNone(api_key_load_user_from_request(request))
 
     def test_wrong_api_key(self):
         with self.app.test_client() as c:
-            rv = c.get(self.query_url, query_string={"api_key": "whatever"})
+            c.get(self.query_url, query_string={"api_key": "whatever"})
             self.assertIsNone(api_key_load_user_from_request(request))
 
     def test_correct_api_key(self):
         with self.app.test_client() as c:
-            rv = c.get(self.query_url, query_string={"api_key": self.api_key})
+            c.get(self.query_url, query_string={"api_key": self.api_key})
             self.assertIsNotNone(api_key_load_user_from_request(request))
 
     def test_no_query_id(self):
         with self.app.test_client() as c:
-            rv = c.get(self.queries_url, query_string={"api_key": self.api_key})
+            c.get(self.queries_url, query_string={"api_key": self.api_key})
             self.assertIsNone(api_key_load_user_from_request(request))
 
     def test_user_api_key(self):
         user = self.factory.create_user(api_key="user_key")
         models.db.session.flush()
         with self.app.test_client() as c:
-            rv = c.get(self.queries_url, query_string={"api_key": user.api_key})
+            c.get(self.queries_url, query_string={"api_key": user.api_key})
             self.assertEqual(user.id, api_key_load_user_from_request(request).id)
 
     def test_disabled_user_api_key(self):
@@ -66,19 +64,17 @@ class TestApiKeyAuthentication(BaseTestCase):
         user.disable()
         models.db.session.flush()
         with self.app.test_client() as c:
-            rv = c.get(self.queries_url, query_string={"api_key": user.api_key})
+            c.get(self.queries_url, query_string={"api_key": user.api_key})
             self.assertEqual(None, api_key_load_user_from_request(request))
 
     def test_api_key_header(self):
         with self.app.test_client() as c:
-            rv = c.get(
-                self.query_url, headers={"Authorization": "Key {}".format(self.api_key)}
-            )
+            c.get(self.query_url, headers={"Authorization": "Key {}".format(self.api_key)})
             self.assertIsNotNone(api_key_load_user_from_request(request))
 
     def test_api_key_header_with_wrong_key(self):
         with self.app.test_client() as c:
-            rv = c.get(self.query_url, headers={"Authorization": "Key oops"})
+            c.get(self.query_url, headers={"Authorization": "Key oops"})
             self.assertIsNone(api_key_load_user_from_request(request))
 
     def test_api_key_for_wrong_org(self):
@@ -109,12 +105,12 @@ class TestHMACAuthentication(BaseTestCase):
 
     def test_no_signature(self):
         with self.app.test_client() as c:
-            rv = c.get(self.path)
+            c.get(self.path)
             self.assertIsNone(hmac_load_user_from_request(request))
 
     def test_wrong_signature(self):
         with self.app.test_client() as c:
-            rv = c.get(
+            c.get(
                 self.path,
                 query_string={"signature": "whatever", "expires": self.expires},
             )
@@ -122,7 +118,7 @@ class TestHMACAuthentication(BaseTestCase):
 
     def test_correct_signature(self):
         with self.app.test_client() as c:
-            rv = c.get(
+            c.get(
                 self.path,
                 query_string={
                     "signature": self.signature(self.expires),
@@ -133,7 +129,7 @@ class TestHMACAuthentication(BaseTestCase):
 
     def test_no_query_id(self):
         with self.app.test_client() as c:
-            rv = c.get(
+            c.get(
                 "/{}/api/queries".format(self.query.org.slug),
                 query_string={"api_key": self.api_key},
             )
@@ -146,7 +142,7 @@ class TestHMACAuthentication(BaseTestCase):
 
         signature = sign(user.api_key, path, self.expires)
         with self.app.test_client() as c:
-            rv = c.get(
+            c.get(
                 path,
                 query_string={
                     "signature": signature,
@@ -208,16 +204,12 @@ class TestVerifyProfile(BaseTestCase):
 
     def test_domain_not_in_org_domains_list(self):
         profile = dict(email="arik@example.com")
-        self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = [
-            "example.org"
-        ]
+        self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = ["example.org"]
         self.assertFalse(verify_profile(self.factory.org, profile))
 
     def test_domain_in_org_domains_list(self):
         profile = dict(email="arik@example.com")
-        self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = [
-            "example.com"
-        ]
+        self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = ["example.com"]
         self.assertTrue(verify_profile(self.factory.org, profile))
 
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = [
@@ -235,23 +227,17 @@ class TestVerifyProfile(BaseTestCase):
     def test_user_not_in_domain_but_account_exists(self):
         profile = dict(email="arik@example.com")
         self.factory.create_user(email="arik@example.com")
-        self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = [
-            "example.org"
-        ]
+        self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = ["example.org"]
         self.assertTrue(verify_profile(self.factory.org, profile))
 
 
 class TestGetLoginUrl(BaseTestCase):
     def test_when_multi_org_enabled_and_org_exists(self):
         with self.app.test_request_context("/{}/".format(self.factory.org.slug)):
-            self.assertEqual(
-                get_login_url(next=None), "/{}/login".format(self.factory.org.slug)
-            )
+            self.assertEqual(get_login_url(next=None), "/{}/login".format(self.factory.org.slug))
 
     def test_when_multi_org_enabled_and_org_doesnt_exist(self):
-        with self.app.test_request_context(
-            "/{}_notexists/".format(self.factory.org.slug)
-        ):
+        with self.app.test_request_context("/{}_notexists/".format(self.factory.org.slug)):
             self.assertEqual(get_login_url(next=None), "/")
 
 
@@ -399,12 +385,8 @@ class TestUserForgotPassword(BaseTestCase):
     def test_user_should_receive_password_reset_link(self):
         user = self.factory.create_user()
 
-        with patch(
-            "redash.handlers.authentication.send_password_reset_email"
-        ) as send_password_reset_email_mock:
-            response = self.post_request(
-                "/forgot", org=user.org, data={"email": user.email}
-            )
+        with patch("redash.handlers.authentication.send_password_reset_email") as send_password_reset_email_mock:
+            response = self.post_request("/forgot", org=user.org, data={"email": user.email})
             self.assertEqual(response.status_code, 200)
             send_password_reset_email_mock.assert_called_with(user)
 
@@ -419,9 +401,7 @@ class TestUserForgotPassword(BaseTestCase):
         ) as send_password_reset_email_mock, patch(
             "redash.handlers.authentication.send_user_disabled_email"
         ) as send_user_disabled_email_mock:
-            response = self.post_request(
-                "/forgot", org=user.org, data={"email": user.email}
-            )
+            response = self.post_request("/forgot", org=user.org, data={"email": user.email})
             self.assertEqual(response.status_code, 200)
             send_password_reset_email_mock.assert_not_called()
             send_user_disabled_email_mock.assert_called_with(user)
