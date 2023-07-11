@@ -4,7 +4,7 @@ import sys
 
 import redis
 from flask_limiter import Limiter
-from flask_limiter.util import get_ipaddr
+from flask_limiter.util import get_remote_address
 from flask_mail import Mail
 from flask_migrate import Migrate
 from statsd import StatsClient
@@ -48,7 +48,7 @@ rq_redis_connection = redis.from_url(settings.RQ_REDIS_URL)
 mail = Mail()
 migrate = Migrate(compare_type=True)
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
-limiter = Limiter(key_func=get_ipaddr, storage_uri=settings.LIMITER_STORAGE)
+limiter = Limiter(key_func=get_remote_address, storage_uri=settings.LIMITER_STORAGE)
 
 import_query_runners(settings.QUERY_RUNNERS)
 import_destinations(settings.DESTINATIONS)

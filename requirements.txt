@@ -12,7 +12,7 @@ Flask-SQLAlchemy==2.5.1
 Flask-Migrate==2.5.2
 flask-mail==0.9.1
 flask-talisman==0.7.0
-Flask-Limiter==0.9.3
+Flask-Limiter==3.3.1
 Flask-WTF==1.1.1
 passlib==1.7.3
 aniso8601==8.0.0
