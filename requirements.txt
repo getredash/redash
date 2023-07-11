@@ -23,7 +23,7 @@ pytz>=2019.3
 PyYAML==5.4
 redis==4.4.4
 requests==2.31.0
-SQLAlchemy==1.3.10
+SQLAlchemy==1.3.24
 # We can't upgrade SQLAlchemy-Searchable version as newer versions require PostgreSQL > 9.6, but we target older versions at the moment.
 SQLAlchemy-Searchable==0.10.6
 # We need to pin the version of pyparsing, as newer versions break SQLAlchemy-Searchable-10.0.6 (newer versions no longer depend on it)
