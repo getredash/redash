@@ -1,5 +1,5 @@
-import time
 import logging
+import time
 
 import sqlalchemy
 from click import argument, option
@@ -114,14 +114,9 @@ def reencrypt(old_secret, new_secret, show_sql):
                     encrypted_options=item["encrypted_options"]
                 )
             except InvalidToken:
-                logging.error(
-                    f'Invalid Decryption Key for id {item["id"]} in table {table_for_select}'
-                )
+                logging.error(f'Invalid Decryption Key for id {item["id"]} in table {table_for_select}')
             else:
                 db.session.execute(stmt)
-                logging.info(
-                    f'Successfully updated encryption for id {item["id"]} in table {table_for_select}'
-                )
 
         selected_items.close()
         db.session.commit()
