@@ -2,8 +2,12 @@ import logging
 
 import requests
 
-from redash.destinations import *
+from redash.destinations import BaseDestination, register
 from redash.utils import json_dumps
+
+RED_ALERT_COLOR = "12597547"
+
+GREEN_ALERT_COLOR = "2600544"
 
 
 class Discord(BaseDestination):
@@ -15,13 +19,14 @@ class Discord(BaseDestination):
                 "url": {"type": "string", "title": "Discord Webhook URL"}
             },
             "secret": ["url"],
+            "required": ["url"],
         }
 
     @classmethod
     def icon(cls):
         return "fa-discord"
 
-    def notify(self, alert, query, user, new_state, app, host, options):
+    def notify(self, alert, query, user, app, host, options):
         # Documentation: https://birdie0.github.io/discord-webhooks-guide/discord_webhook.html
         fields = [
             {
@@ -41,15 +46,15 @@ class Discord(BaseDestination):
         ]
         if alert.options.get("custom_body"):
             fields.append({"name": "Description", "value": alert.options["custom_body"]})
-        if new_state == "triggered":
+        if alert.TRIGGERED_STATE == "triggered":
             if alert.options.get("custom_subject"):
                 text = alert.options["custom_subject"]
             else:
-                text = alert.name + " just triggered"
-            color = "12597547"
+                text = f"{alert.name} just triggered"
+            color = RED_ALERT_COLOR
         else:
-            text = alert.name + " went back to normal"
-            color = "2600544"
+            text = f"{alert.name} went back to normal"
+            color = GREEN_ALERT_COLOR
 
         payload = {"content": text, "embeds": [{"color": color, "fields": fields}]}
         headers = {"Content-Type": "application/json"}
@@ -66,8 +71,6 @@ class Discord(BaseDestination):
                         status=resp.status_code
                     )
                 )
-            else:
-                logging.info(msg=f"webhook send SUCCESS")
         except Exception as e:
             logging.exception("webhook send ERROR: %s", e)
 
