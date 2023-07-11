@@ -42,12 +42,14 @@ jobs:
       - name: List Enabled Query Runners
         run: docker-compose -p redash run --rm redash manage ds list_types
       - name: Run Tests
-        run: docker-compose -p redash run --name tests redash tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
+        run: docker-compose -p redash run --name tests redash tests --junitxml=junit.xml --cov-report=xml --cov=redash --cov-config=.coveragerc tests/
       - name: Copy Test Results
         run: |
           mkdir -p /tmp/test-results/unit-tests
           docker cp tests:/app/coverage.xml ./coverage.xml
           docker cp tests:/app/junit.xml /tmp/test-results/unit-tests/results.xml
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
       - name: Store Test Results
         uses: actions/upload-artifact@v3
         with:
