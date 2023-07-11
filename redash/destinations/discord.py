@@ -2,12 +2,16 @@ import logging
 
 import requests
 
+from redash.models import Alert
 from redash.destinations import BaseDestination, register
 from redash.utils import json_dumps
 
-RED_ALERT_COLOR = "12597547"
-
-GREEN_ALERT_COLOR = "2600544"
+colors = {
+    # Colors are in a Decimal format as Discord requires them to be Decimals for embeds
+    Alert.OK_STATE: "2600544",  # Green Decimal Code
+    Alert.TRIGGERED_STATE: "12597547",  # Red Decimal Code
+    Alert.UNKNOWN_STATE: "16776960",  # Yellow Decimal Code
+}
 
 
 class Discord(BaseDestination):
@@ -46,16 +50,15 @@ class Discord(BaseDestination):
         ]
         if alert.options.get("custom_body"):
             fields.append({"name": "Description", "value": alert.options["custom_body"]})
-        if new_state == alert.TRIGGERED_STATE:
+        if new_state == Alert.TRIGGERED_STATE:
             if alert.options.get("custom_subject"):
                 text = alert.options["custom_subject"]
             else:
                 text = f"{alert.name} just triggered"
-            color = RED_ALERT_COLOR
+            color = colors.get(new_state, "12597547")  # Red Decimal Code
         else:
             text = f"{alert.name} went back to normal"
-            color = GREEN_ALERT_COLOR
-
+            color = colors.get(new_state, "2600544")  # Green Decimal Code
         payload = {"content": text, "embeds": [{"color": color, "fields": fields}]}
         headers = {"Content-Type": "application/json"}
         try:
