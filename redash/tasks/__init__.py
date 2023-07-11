@@ -16,6 +16,7 @@ from .queries import (
 from .alerts import check_alerts_for_query
 from .failure_report import send_aggregated_errors
 from .worker import Worker, Queue, Job
+from .capacity import cleanup_waiting_lists
 from .schedule import rq_scheduler, schedule_periodic_jobs, periodic_job_definitions
 
 from redash import rq_redis_connection

@@ -1,6 +1,7 @@
 import signal
 import time
 import redis
+from uuid import uuid4
 
 from rq import get_current_job
 from rq.job import JobStatus
@@ -86,12 +87,14 @@ def enqueue_query(
 
                 queue = Queue(queue_name)
                 enqueue_kwargs = {
+                    "job_id": f"org:{data_source.org_id}:user:{user_id}:id:{uuid4()}",
                     "user_id": user_id,
                     "scheduled_query_id": scheduled_query_id,
                     "is_api_key": is_api_key,
                     "job_timeout": time_limit,
                     "failure_ttl": settings.JOB_DEFAULT_FAILURE_TTL,
                     "meta": {
+                        "is_query_execution": True,
                         "data_source_id": data_source.id,
                         "org_id": data_source.org_id,
                         "scheduled": scheduled_query_id is not None,
