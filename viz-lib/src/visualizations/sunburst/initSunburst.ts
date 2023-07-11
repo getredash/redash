@@ -7,7 +7,7 @@ import { has, map, keys, groupBy, sortBy, filter, find, compact, first, every, i
 
 const exitNode = "<<<Exit>>>";
 // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-const colors = d3.scale.category10();
+const colors = d3.scaleOrdinal(d3.schemeCategory10);
 
 // helper function colorMap - color gray if "end" is detected
 function colorMap(d: any) {
