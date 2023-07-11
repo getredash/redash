@@ -60,7 +60,7 @@
     "hoist-non-react-statics": "^3.3.0",
     "markdown": "0.5.0",
     "material-design-iconic-font": "^2.2.0",
-    "moment": "^2.19.3",
+    "moment": "^2.29.4",
     "mousetrap": "^1.6.1",
     "mustache": "^2.3.0",
     "numeral": "^2.0.6",
