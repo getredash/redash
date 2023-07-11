@@ -67,12 +67,12 @@ class Discord(BaseDestination):
             )
             if resp.status_code != 200 and resp.status_code != 204:
                 logging.error(
-                    "webhook send ERROR. status_code => {status}".format(
+                    "Discord send ERROR. status_code => {status}".format(
                         status=resp.status_code
                     )
                 )
         except Exception as e:
-            logging.exception("webhook send ERROR: %s", e)
+            logging.exception("Discord send ERROR: %s", e)
 
 
 register(Discord)
