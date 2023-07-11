@@ -282,6 +282,7 @@ def client_config():
         "pageSize": settings.PAGE_SIZE,
         "pageSizeOptions": settings.PAGE_SIZE_OPTIONS,
         "tableCellMaxJSONSize": settings.TABLE_CELL_MAX_JSON_SIZE,
+        'watermarkEnabled': current_org.get_setting('watermark_enabled') or settings.WATRMARK_ENABLED
     }
 
     client_config.update(defaults)

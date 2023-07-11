@@ -9,6 +9,7 @@ import { useCurrentRoute } from "@/components/ApplicationArea/Router";
 import { Auth, currentUser } from "@/services/auth";
 import settingsMenu from "@/services/settingsMenu";
 import logoUrl from "@/assets/images/redash_icon_small.png";
+import avatarUrl from "@/assets/images/avatar.svg";
 
 import DesktopOutlinedIcon from "@ant-design/icons/DesktopOutlined";
 import CodeOutlinedIcon from "@ant-design/icons/CodeOutlined";
@@ -170,7 +171,11 @@ export default function DesktopNavbar() {
           tabIndex={0}
           title={
             <span data-test="ProfileDropdown" className="desktop-navbar-profile-menu-title">
-              <img className="profile__image_thumb" src={currentUser.profile_image_url} alt={currentUser.name} />
+              <img className="profile__image_thumb" src={currentUser.profile_image_url}
+                onError={e => {
+                  e.target.src = avatarUrl
+                }}
+               alt={currentUser.name} />
             </span>
           }>
           <Menu.Item key="profile">
