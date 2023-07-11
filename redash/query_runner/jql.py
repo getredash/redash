@@ -74,7 +74,7 @@ def parse_issue(issue, field_mapping):
                     if len(listValues) > 0:
                         result[
                             field_mapping.get_dict_output_field_name(k, member_name)
-                        ] = ",".join(listValues)
+                        ] = ",".join(str(x) for x in listValues)
 
             else:
                 # otherwise support list values only for non-dict items
