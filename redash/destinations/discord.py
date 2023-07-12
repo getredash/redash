@@ -35,16 +35,12 @@ class Discord(BaseDestination):
         fields = [
             {
                 "name": "Query",
-                "value": "{host}/queries/{query_id}".format(
-                    host=host, query_id=query.id
-                ),
+                "value": "{host}/queries/{query.id}",
                 "inline": True,
             },
             {
                 "name": "Alert",
-                "value": "{host}/alerts/{alert_id}".format(
-                    host=host, alert_id=alert.id
-                ),
+                "value": "{host}/alerts/{alert.id}",
                 "inline": True,
             },
         ]
@@ -55,10 +51,9 @@ class Discord(BaseDestination):
                 text = alert.options["custom_subject"]
             else:
                 text = f"{alert.name} just triggered"
-            color = colors.get(new_state, "12597547")  # Red Decimal Code
         else:
             text = f"{alert.name} went back to normal"
-            color = colors.get(new_state, "2600544")  # Green Decimal Code
+        color = colors.get(new_state)
         payload = {"content": text, "embeds": [{"color": color, "fields": fields}]}
         headers = {"Content-Type": "application/json"}
         try:
@@ -70,9 +65,7 @@ class Discord(BaseDestination):
             )
             if resp.status_code != 200 and resp.status_code != 204:
                 logging.error(
-                    "Discord send ERROR. status_code => {status}".format(
-                        status=resp.status_code
-                    )
+                    "Discord send ERROR. status_code => {resp.status_code}"
                 )
         except Exception as e:
             logging.exception("Discord send ERROR: %s", e)
