@@ -1,14 +1,22 @@
 import datetime
 import logging
-import sys
 import time
 from base64 import b64decode
 
 import httplib2
-import requests
 
 from redash import settings
-from redash.query_runner import *
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseQueryRunner,
+    InterruptException,
+    JobTimeoutException,
+    register,
+)
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
@@ -16,7 +24,7 @@ logger = logging.getLogger(__name__)
 try:
     import apiclient.errors
     from apiclient.discovery import build
-    from apiclient.errors import HttpError
+    from apiclient.errors import HttpError  # noqa: F401
     from oauth2client.service_account import ServiceAccountCredentials
 
     enabled = True
@@ -52,9 +60,7 @@ def transform_row(row, fields):
     for column_index, cell in enumerate(row["f"]):
         field = fields[column_index]
         if field.get("mode") == "REPEATED":
-            cell_value = [
-                transform_cell(field["type"], item["v"]) for item in cell["v"]
-            ]
+            cell_value = [transform_cell(field["type"], item["v"]) for item in cell["v"]]
         else:
             cell_value = transform_cell(field["type"], cell["v"])
 
@@ -64,7 +70,7 @@ def transform_row(row, fields):
 
 
 def _load_key(filename):
-    f = file(filename, "rb")
+    f = open(filename, "rb")
     try:
         return f.read()
     finally:
@@ -180,17 +186,13 @@ class BigQuery(BaseQueryRunner):
             job_data["configuration"]["query"]["useLegacySql"] = False
 
         if self.configuration.get("userDefinedFunctionResourceUri"):
-            resource_uris = self.configuration["userDefinedFunctionResourceUri"].split(
-                ","
-            )
+            resource_uris = self.configuration["userDefinedFunctionResourceUri"].split(",")
             job_data["configuration"]["query"]["userDefinedFunctionResources"] = [
                 {"resourceUri": resource_uri} for resource_uri in resource_uris
             ]
 
         if "maximumBillingTier" in self.configuration:
-            job_data["configuration"]["query"][
-                "maximumBillingTier"
-            ] = self.configuration["maximumBillingTier"]
+            job_data["configuration"]["query"]["maximumBillingTier"] = self.configuration["maximumBillingTier"]
 
         return job_data
 
@@ -233,9 +235,7 @@ class BigQuery(BaseQueryRunner):
             {
                 "name": f["name"],
                 "friendly_name": f["name"],
-                "type": "string"
-                if f.get("mode") == "REPEATED"
-                else types_map.get(f["type"], "string"),
+                "type": "string" if f.get("mode") == "REPEATED" else types_map.get(f["type"], "string"),
             }
             for f in query_reply["schema"]["fields"]
         ]
@@ -273,12 +273,12 @@ class BigQuery(BaseQueryRunner):
 
         datasets = service.datasets().list(projectId=project_id).execute()
         result.extend(datasets.get("datasets", []))
-        nextPageToken = datasets.get('nextPageToken', None)
+        nextPageToken = datasets.get("nextPageToken", None)
 
         while nextPageToken is not None:
             datasets = service.datasets().list(projectId=project_id, pageToken=nextPageToken).execute()
             result.extend(datasets.get("datasets", []))
-            nextPageToken = datasets.get('nextPageToken', None)
+            nextPageToken = datasets.get("nextPageToken", None)
 
         return result
 
@@ -302,7 +302,7 @@ class BigQuery(BaseQueryRunner):
             query = query_base.format(dataset_id=dataset_id)
             queries.append(query)
 
-        query = '\nUNION ALL\n'.join(queries)
+        query = "\nUNION ALL\n".join(queries)
         results, error = self.run_query(query, None)
         if error is not None:
             self._handle_run_query_error(error)
@@ -325,14 +325,11 @@ class BigQuery(BaseQueryRunner):
         try:
             if "totalMBytesProcessedLimit" in self.configuration:
                 limitMB = self.configuration["totalMBytesProcessedLimit"]
-                processedMB = (
-                    self._get_total_bytes_processed(jobs, query) / 1000.0 / 1000.0
-                )
+                processedMB = self._get_total_bytes_processed(jobs, query) / 1000.0 / 1000.0
                 if limitMB < processedMB:
                     return (
                         None,
-                        "Larger than %d MBytes will be processed (%f MBytes)"
-                        % (limitMB, processedMB),
+                        "Larger than %d MBytes will be processed (%f MBytes)" % (limitMB, processedMB),
                     )
 
             data = self._get_query_result(jobs, query)

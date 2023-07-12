@@ -15,9 +15,7 @@ from redash.models import db
 from redash.tasks import record_event as record_event_task
 from redash.utils import json_dumps
 
-routes = Blueprint(
-    "redash", __name__, template_folder=settings.fix_assets_path("templates")
-)
+routes = Blueprint("redash", __name__, template_folder=settings.fix_assets_path("templates"))
 
 
 class BaseResource(Resource):
@@ -116,9 +114,7 @@ def json_response(response):
 def filter_by_tags(result_set, column):
     if request.args.getlist("tags"):
         tags = request.args.getlist("tags")
-        result_set = result_set.filter(
-            cast(column, postgresql.ARRAY(db.Text)).contains(tags)
-        )
+        result_set = result_set.filter(cast(column, postgresql.ARRAY(db.Text)).contains(tags))
     return result_set
 
 
