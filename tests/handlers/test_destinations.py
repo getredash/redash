@@ -2,7 +2,7 @@ import json
 from unittest import mock
 
 from redash.destinations.discord import Discord
-from redash.models import NotificationDestination
+from redash.models import NotificationDestination, Alert
 from tests import BaseTestCase
 from redash.destinations.slack import Slack
 
@@ -120,7 +120,7 @@ def test_discord_notify_calls_requests_post():
         "url": "https://discordapp.com/api/webhooks/test"
     }
 
-    new_state = "triggered"
+    new_state = Alert.TRIGGERED_STATE
     destination = Discord(options)
 
     with mock.patch('redash.destinations.discord.requests.post') as mock_post:
