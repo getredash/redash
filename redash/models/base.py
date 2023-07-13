@@ -36,7 +36,7 @@ db.configure_mappers()
 
 # listen to a few database events to set up functions, trigger updates
 # and indexes for the full text search
-make_searchable(options={"regconfig": "pg_catalog.simple"})
+#make_searchable(options={"regconfig": "pg_catalog.simple"})
 
 
 class SearchBaseQuery(BaseQuery, SearchQueryMixin):
