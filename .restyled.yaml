@@ -57,6 +57,9 @@ restylers:
       - migrations/versions
   - name: prettier
     image: restyled/restyler-prettier:v1.19.1-2
+    command:
+      - prettier
+      - --write
     include:
       - client/app/**/*.js
       - client/app/**/*.jsx

@@ -1,13 +1,17 @@
 import errno
 import os
 import signal
-import time
-from redash import statsd_client
-from rq import Queue as BaseQueue, get_current_job
-from rq.worker import HerokuWorker # HerokuWorker implements graceful shutdown on SIGTERM
+
+from rq import Queue as BaseQueue
+from rq.job import Job as BaseJob
+from rq.job import JobStatus
+from rq.timeouts import HorseMonitorTimeoutException, UnixSignalDeathPenalty
 from rq.utils import utcnow
-from rq.timeouts import UnixSignalDeathPenalty, HorseMonitorTimeoutException
-from rq.job import Job as BaseJob, JobStatus
+from rq.worker import (
+    HerokuWorker,  # HerokuWorker implements graceful shutdown on SIGTERM
+)
+
+from redash import statsd_client
 
 
 class CancellableJob(BaseJob):
@@ -110,9 +114,7 @@ class HardLimitingWorker(HerokuWorker):
         job.started_at = utcnow()
         while True:
             try:
-                with UnixSignalDeathPenalty(
-                    self.job_monitoring_interval, HorseMonitorTimeoutException
-                ):
+                with UnixSignalDeathPenalty(self.job_monitoring_interval, HorseMonitorTimeoutException):
                     retpid, ret_val = os.waitpid(self._horse_pid, 0)
                 break
             except HorseMonitorTimeoutException:
@@ -145,7 +147,6 @@ class HardLimitingWorker(HerokuWorker):
         if job_status is None:  # Job completed and its ttl has expired
             return
         if job_status not in [JobStatus.FINISHED, JobStatus.FAILED]:
-
             if not job.ended_at:
                 job.ended_at = utcnow()
 
@@ -153,7 +154,7 @@ class HardLimitingWorker(HerokuWorker):
             self.log.warning(
                 (
                     "Moving job to FailedJobRegistry "
-                    "(work-horse terminated unexpectedly; waitpid returned {})"
+                    "(work-horse terminated unexpectedly; waitpid returned {})"  # fmt: skip
                 ).format(ret_val)
             )
 
@@ -161,7 +162,7 @@ class HardLimitingWorker(HerokuWorker):
                 job,
                 queue=queue,
                 exc_string="Work-horse process was terminated unexpectedly "
-                "(waitpid returned %s)" % ret_val,
+                "(waitpid returned %s)" % ret_val,  # fmt: skip
             )
 
 

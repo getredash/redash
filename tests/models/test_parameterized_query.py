@@ -1,11 +1,12 @@
-from unittest import TestCase
-from mock import patch
 from collections import namedtuple
+from unittest import TestCase
+
 import pytest
+from mock import patch
 
 from redash.models.parameterized_query import (
-    ParameterizedQuery,
     InvalidParameterError,
+    ParameterizedQuery,
     QueryDetachedFromDataSourceError,
     dropdown_values,
 )
@@ -21,9 +22,7 @@ class TestParameterizedQuery(TestCase):
         self.assertEqual(set(["param", "table"]), query.missing_params)
 
     def test_finds_all_params(self):
-        query = ParameterizedQuery("SELECT {{param}} FROM {{table}}").apply(
-            {"param": "value", "table": "value"}
-        )
+        query = ParameterizedQuery("SELECT {{param}} FROM {{table}}").apply({"param": "value", "table": "value"})
         self.assertEqual(set([]), query.missing_params)
 
     def test_deduplicates_params(self):
@@ -216,9 +215,7 @@ class TestParameterizedQuery(TestCase):
         schema = [{"name": "bar", "type": "date-range"}]
         query = ParameterizedQuery("foo {{bar.start}} {{bar.end}}", schema)
 
-        query.apply(
-            {"bar": {"start": "2000-01-01 12:00:00", "end": "2000-12-31 12:00:00"}}
-        )
+        query.apply({"bar": {"start": "2000-01-01 12:00:00", "end": "2000-12-31 12:00:00"}})
 
         self.assertEqual("foo 2000-01-01 12:00:00 2000-12-31 12:00:00", query.text)
 
