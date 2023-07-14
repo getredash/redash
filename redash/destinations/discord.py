@@ -2,8 +2,8 @@ import logging
 
 import requests
 
-from redash.models import Alert
 from redash.destinations import BaseDestination, register
+from redash.models import Alert
 from redash.utils import json_dumps
 
 colors = {
@@ -19,9 +19,7 @@ class Discord(BaseDestination):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {
-                "url": {"type": "string", "title": "Discord Webhook URL"}
-            },
+            "properties": {"url": {"type": "string", "title": "Discord Webhook URL"}},
             "secret": ["url"],
             "required": ["url"],
         }
@@ -35,12 +33,12 @@ class Discord(BaseDestination):
         fields = [
             {
                 "name": "Query",
-                "value": "{host}/queries/{query.id}",
+                "value": f"{host}/queries/{query.id}",
                 "inline": True,
             },
             {
                 "name": "Alert",
-                "value": "{host}/alerts/{alert.id}",
+                "value": f"{host}/alerts/{alert.id}",
                 "inline": True,
             },
         ]
@@ -64,9 +62,7 @@ class Discord(BaseDestination):
                 timeout=5.0,
             )
             if resp.status_code != 200 and resp.status_code != 204:
-                logging.error(
-                    "Discord send ERROR. status_code => {resp.status_code}"
-                )
+                logging.error(f"Discord send ERROR. status_code => {resp.status_code}")
         except Exception as e:
             logging.exception("Discord send ERROR: %s", e)
 
