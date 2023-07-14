@@ -1,22 +1,29 @@
-import logging
-import requests
-from base64 import b64decode
-from redash.query_runner import BaseQueryRunner
-
-from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
 import datetime
+import logging
+from base64 import b64decode
+
+import requests
+
+from redash.query_runner import (
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseQueryRunner,
+    register,
+)
+from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
 try:
-    from oauth2client.service_account import ServiceAccountCredentials
-    from apiclient.discovery import build
-    from apiclient.errors import HttpError
     import httplib2
+    from apiclient.discovery import build
+    from oauth2client.service_account import ServiceAccountCredentials
 
     enabled = True
-except ImportError as e:
+except ImportError:
     enabled = False
 
 types_conv = dict(
@@ -31,78 +38,64 @@ ga_report_endpoint = "https://analyticsdata.googleapis.com/v1beta/properties/{pr
 ga_metadata_endpoint = "https://analyticsdata.googleapis.com/v1beta/properties/{propertyId}/metadata"
 
 
+def format_column_value(column_name, value, columns):
+    column_type = [col for col in columns if col["name"] == column_name][0]["type"]
+
+    if column_type == TYPE_DATE:
+        value = datetime.datetime.strptime(value, "%Y%m%d")
+    elif column_type == TYPE_DATETIME:
+        if len(value) == 10:
+            value = datetime.datetime.strptime(value, "%Y%m%d%H")
+        elif len(value) == 12:
+            value = datetime.datetime.strptime(value, "%Y%m%d%H%M")
+        else:
+            raise Exception("Unknown date/time format in results: '{}'".format(value))
+
+    return value
+
+
 def parse_ga_response(response):
     columns = []
-    for h in response['dimensionHeaders']:
+    for h in response["dimensionHeaders"]:
         data_type = None
-        if h['name'] == "date":
+        if h["name"] == "date":
             data_type = "DATE"
         columns.append(
             {
-                "name": h['name'],
-                "friendly_name": h['name'],
+                "name": h["name"],
+                "friendly_name": h["name"],
                 "type": types_conv.get(data_type, "string"),
             }
         )
 
-    for h in response['metricHeaders']:
+    for h in response["metricHeaders"]:
         data_type = None
-        if h['name'] == "date":
+        if h["name"] == "date":
             data_type = "DATE"
         columns.append(
             {
-                "name": h['name'],
-                "friendly_name": h['name'],
+                "name": h["name"],
+                "friendly_name": h["name"],
                 "type": types_conv.get(data_type, "string"),
             }
         )
 
     rows = []
-    for r in response['rows']:
+    for r in response["rows"]:
         counter = 0
         d = {}
-        for item in r['dimensionValues']:
+        for item in r["dimensionValues"]:
             column_name = columns[counter]["name"]
-            column_type = [col for col in columns if col["name"] == column_name][0][
-                "type"
-            ]
-            value = item['value']
+            value = item["value"]
 
-            if column_type == TYPE_DATE:
-                value = datetime.datetime.strptime(value, "%Y%m%d")
-            elif column_type == TYPE_DATETIME:
-                if len(value) == 10:
-                    value = datetime.datetime.strptime(value, "%Y%m%d%H")
-                elif len(value) == 12:
-                    value = datetime.datetime.strptime(value, "%Y%m%d%H%M")
-                else:
-                    raise Exception(
-                        "Unknown date/time format in results: '{}'".format(value)
-                    )
-
-            d[column_name] = value
+            d[column_name] = format_column_value(column_name, value, columns)
             counter = counter + 1
 
-        for item in r['metricValues']:
+        for item in r["metricValues"]:
             column_name = columns[counter]["name"]
-            column_type = [col for col in columns if col["name"] == column_name][0][
-                "type"
-            ]
-            value = item['value']
+            value = item["value"]
 
-            if column_type == TYPE_DATE:
-                value = datetime.datetime.strptime(value, "%Y%m%d")
-            elif column_type == TYPE_DATETIME:
-                if len(value) == 10:
-                    value = datetime.datetime.strptime(value, "%Y%m%d%H")
-                elif len(value) == 12:
-                    value = datetime.datetime.strptime(value, "%Y%m%d%H%M")
-                else:
-                    raise Exception(
-                        "Unknown date/time format in results: '{}'".format(value)
-                    )
-
-            d[column_name] = value
+            d[column_name] = format_column_value(column_name, value, columns)
             counter = counter + 1
 
         rows.append(d)
@@ -130,14 +123,8 @@ class GoogleAnalytics4(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "propertyId": {
-                    "type": "number",
-                    "title": "Property Id"
-                },
-                "jsonKeyFile": {
-                    "type": "string",
-                    "title": "JSON Key File"
-                }
+                "propertyId": {"type": "number", "title": "Property Id"},
+                "jsonKeyFile": {"type": "string", "title": "JSON Key File"},
             },
             "required": ["propertyId", "jsonKeyFile"],
             "secret": ["jsonKeyFile"],
@@ -159,10 +146,7 @@ class GoogleAnalytics4(BaseQueryRunner):
 
         property_id = self.configuration["propertyId"]
 
-        headers = {
-            'Content-Type': "application/json",
-            'Authorization': f"Bearer {access_token}"
-        }
+        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"}
 
         url = ga_report_endpoint.replace("{propertyId}", str(property_id))
         r = requests.post(url, json=params, headers=headers)
@@ -184,10 +168,7 @@ class GoogleAnalytics4(BaseQueryRunner):
 
             url = ga_metadata_endpoint.replace("{propertyId}", str(property_id))
 
-            headers = {
-                'Content-Type': "application/json",
-                'Authorization': f"Bearer {access_token}"
-            }
+            headers = {"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"}
 
             r = requests.get(url, headers=headers)
             r.raise_for_status()

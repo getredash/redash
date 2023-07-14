@@ -1,21 +1,28 @@
 import logging
 from base64 import b64decode
 from datetime import datetime
-from urllib.parse import parse_qs, urlparse
 
-from redash.query_runner import *
+from redash.query_runner import (
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseSQLQueryRunner,
+    register,
+)
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
 try:
-    from oauth2client.service_account import ServiceAccountCredentials
+    import httplib2
     from apiclient.discovery import build
     from apiclient.errors import HttpError
-    import httplib2
+    from oauth2client.service_account import ServiceAccountCredentials
 
     enabled = True
-except ImportError as e:
+except ImportError:
     enabled = False
 
 
@@ -44,15 +51,9 @@ def parse_ga_response(response, dimensions):
             }
         )
 
-    default_items = ['clicks', 'impressions', 'ctr', 'position']
+    default_items = ["clicks", "impressions", "ctr", "position"]
     for item in default_items:
-        columns.append(
-            {
-                "name": item,
-                "friendly_name": item,
-                "type": "number"
-            }
-        )
+        columns.append({"name": item, "friendly_name": item, "type": "number"})
 
     rows = []
     for r in response.get("rows", []):
@@ -66,9 +67,7 @@ def parse_ga_response(response, dimensions):
                     d[column_name] = val
             else:
                 column_name = k
-                column_type = [col for col in columns if col["name"] == column_name][0][
-                    "type"
-                ]
+                column_type = [col for col in columns if col["name"] == column_name][0]["type"]
                 value = get_formatted_value(column_type, value)
                 d[column_name] = value
         rows.append(d)
@@ -87,9 +86,7 @@ def get_formatted_value(column_type, value):
         elif len(value) == 12:
             value = datetime.strptime(value, "%Y%m%d%H%M")
         else:
-            raise Exception(
-                "Unknown date/time format in results: '{}'".format(value)
-            )
+            raise Exception("Unknown date/time format in results: '{}'".format(value))
     return value
 
 
@@ -113,14 +110,8 @@ class GoogleSearchConsole(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "siteURL": {
-                    "type": "string",
-                    "title": "Site URL"
-                },
-                "jsonKeyFile": {
-                    "type": "string",
-                    "title": "JSON Key File"
-                }
+                "siteURL": {"type": "string", "title": "Site URL"},
+                "jsonKeyFile": {"type": "string", "title": "JSON Key File"},
             },
             "required": ["jsonKeyFile"],
             "secret": ["jsonKeyFile"],
