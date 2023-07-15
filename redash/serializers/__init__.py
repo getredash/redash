@@ -52,14 +52,13 @@ def public_widget(widget):
 def public_dashboard(dashboard):
     dashboard_dict = project(
         serialize_dashboard(dashboard, with_favorite_state=False),
-        ("name", "layout", "dashboard_filters_enabled", "updated_at", "created_at"),
+        ("name", "layout", "dashboard_filters_enabled", "updated_at",
+         "created_at"),
     )
 
-    widget_list = (
-        models.Widget.query.filter(models.Widget.dashboard_id == dashboard.id)
-        .outerjoin(models.Visualization)
-        .outerjoin(models.Query)
-    )
+    widget_list = (models.Widget.query.filter(
+        models.Widget.dashboard_id == dashboard.id).outerjoin(
+            models.Visualization).outerjoin(models.Query))
 
     dashboard_dict["widgets"] = [public_widget(w) for w in widget_list]
     return dashboard_dict
@@ -70,6 +69,7 @@ class Serializer(object):
 
 
 class QuerySerializer(Serializer):
+
     def __init__(self, object_or_list, **kwargs):
         self.object_or_list = object_or_list
         self.options = kwargs
@@ -77,21 +77,18 @@ class QuerySerializer(Serializer):
     def serialize(self):
         if isinstance(self.object_or_list, models.Query):
             result = serialize_query(self.object_or_list, **self.options)
-            if (
-                self.options.get("with_favorite_state", True)
-                and not current_user.is_api_user()
-            ):
+            if (self.options.get("with_favorite_state", True)
+                    and not current_user.is_api_user()):
                 result["is_favorite"] = models.Favorite.is_favorite(
-                    current_user.id, self.object_or_list
-                )
+                    current_user.id, self.object_or_list)
         else:
             result = [
-                serialize_query(query, **self.options) for query in self.object_or_list
+                serialize_query(query, **self.options)
+                for query in self.object_or_list
             ]
             if self.options.get("with_favorite_state", True):
                 favorite_ids = models.Favorite.are_favorites(
-                    current_user.id, self.object_or_list
-                )
+                    current_user.id, self.object_or_list)
                 for query in result:
                     query["is_favorite"] = query["id"] in favorite_ids
 
@@ -131,11 +128,8 @@ def serialize_query(
         d["user_id"] = query.user_id
 
     if with_last_modified_by:
-        d["last_modified_by"] = (
-            query.last_modified_by.to_dict()
-            if query.last_modified_by is not None
-            else None
-        )
+        d["last_modified_by"] = (query.last_modified_by.to_dict() if
+                                 query.last_modified_by is not None else None)
     else:
         d["last_modified_by_id"] = query.last_modified_by_id
 
@@ -212,7 +206,10 @@ def serialize_alert(alert, full=True):
     return d
 
 
-def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=True):
+def serialize_dashboard(obj,
+                        with_widgets=False,
+                        user=None,
+                        with_favorite_state=True):
     layout = json_loads(obj.layout)
 
     widgets = []
@@ -221,7 +218,8 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
         for w in obj.widgets:
             if w.visualization_id is None:
                 widgets.append(serialize_widget(w))
-            elif user and has_access(w.visualization.query_rel, user, view_only):
+            elif user and has_access(w.visualization.query_rel, user,
+                                     view_only):
                 widgets.append(serialize_widget(w))
             else:
                 widget = project(
@@ -285,9 +283,8 @@ def serialize_job(job):
     error = ""
 
     if isinstance(job.result, Exception):
-        error_origin = (
-            "Data source" if isinstance(job.result, QueryExecutionError) else "System"
-        )
+        error_origin = ("Data source" if isinstance(
+            job.result, QueryExecutionError) else "System")
         error = str(job.result)
         status = 4
     elif job.is_cancelled:
@@ -295,11 +292,17 @@ def serialize_job(job):
 
     return {
         "job": {
-            "id": job.id,
-            "updated_at": updated_at,
-            "status": status,
-            "error_origin": error_origin,
-            "error": error,
-            "query_result_id": job.result if job.is_finished and not error else None,
+            "id":
+            job.id,
+            "updated_at":
+            updated_at,
+            "status":
+            status,
+            "error_origin":
+            error_origin,
+            "error":
+            error,
+            "query_result_id":
+            job.result if job.is_finished and not error else None,
         }
     }

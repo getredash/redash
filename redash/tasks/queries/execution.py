@@ -34,9 +34,12 @@ def _unlock(query_hash, data_source_id):
     redis_connection.delete(_job_lock_id(query_hash, data_source_id))
 
 
-def enqueue_query(
-    query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}
-):
+def enqueue_query(query,
+                  data_source,
+                  user_id,
+                  is_api_key=False,
+                  scheduled_query=None,
+                  metadata={}):
     query_hash = gen_query_hash(query)
     logging.info("Inserting job for %s with metadata=%s", query_hash, metadata)
     try_count = 0
@@ -61,7 +64,8 @@ def enqueue_query(
                         query_hash,
                         status,
                     )
-                    redis_connection.delete(_job_lock_id(query_hash, data_source.id))
+                    redis_connection.delete(
+                        _job_lock_id(query_hash, data_source.id))
                     job = None
 
             if not job:
@@ -75,8 +79,7 @@ def enqueue_query(
                     scheduled_query_id = None
 
                 time_limit = settings.dynamic_settings.query_time_limit(
-                    scheduled_query, user_id, data_source.org_id
-                )
+                    scheduled_query, user_id, data_source.org_id)
                 metadata["Queue"] = queue_name
 
                 queue = Queue(queue_name)
@@ -134,15 +137,16 @@ def _resolve_user(user_id, is_api_key, query_id):
 
 
 class QueryExecutor(object):
-    def __init__(
-        self, query, data_source_id, user_id, is_api_key, metadata, scheduled_query
-    ):
+
+    def __init__(self, query, data_source_id, user_id, is_api_key, metadata,
+                 scheduled_query):
         self.job = get_current_job()
         self.query = query
         self.data_source_id = data_source_id
         self.metadata = metadata
         self.data_source = self._load_data_source()
-        self.user = _resolve_user(user_id, is_api_key, metadata.get("Query ID"))
+        self.user = _resolve_user(user_id, is_api_key,
+                                  metadata.get("Query ID"))
 
         # Close DB connection to prevent holding a connection for a long time while the query is executing.
         models.db.session.close()
@@ -171,7 +175,8 @@ class QueryExecutor(object):
                 error = text_type(e)
 
             data = None
-            logging.warning("Unexpected error while running query:", exc_info=1)
+            logging.warning("Unexpected error while running query:",
+                            exc_info=1)
 
         run_time = time.time() - started_at
 
@@ -188,15 +193,13 @@ class QueryExecutor(object):
             result = QueryExecutionError(error)
             if self.scheduled_query is not None:
                 self.scheduled_query = models.db.session.merge(
-                    self.scheduled_query, load=False
-                )
+                    self.scheduled_query, load=False)
                 track_failure(self.scheduled_query, error)
             raise result
         else:
             if self.scheduled_query and self.scheduled_query.schedule_failures > 0:
                 self.scheduled_query = models.db.session.merge(
-                    self.scheduled_query, load=False
-                )
+                    self.scheduled_query, load=False)
                 self.scheduled_query.schedule_failures = 0
                 models.db.session.add(self.scheduled_query)
 
@@ -212,7 +215,8 @@ class QueryExecutor(object):
 
             updated_query_ids = models.Query.update_latest_result(query_result)
 
-            models.db.session.commit()  # make sure that alert sees the latest query result
+            models.db.session.commit(
+            )  # make sure that alert sees the latest query result
             self._log_progress("checking_alerts")
             for query_id in updated_query_ids:
                 check_alerts_for_query.delay(query_id)
@@ -244,7 +248,8 @@ class QueryExecutor(object):
         )
 
     def _load_data_source(self):
-        logger.info("job=execute_query state=load_ds ds_id=%d", self.data_source_id)
+        logger.info("job=execute_query state=load_ds ds_id=%d",
+                    self.data_source_id)
         return models.DataSource.query.get(self.data_source_id)
 
 
@@ -264,9 +269,8 @@ def execute_query(
         scheduled_query = None
 
     try:
-        return QueryExecutor(
-            query, data_source_id, user_id, is_api_key, metadata, scheduled_query
-        ).run()
+        return QueryExecutor(query, data_source_id, user_id, is_api_key,
+                             metadata, scheduled_query).run()
     except Exception as e:
         models.db.session.rollback()
         return e
