@@ -60,6 +60,8 @@ def parse_ga_response(response):
         data_type = None
         if h["name"] == "date":
             data_type = "DATE"
+        elif h["name"] == "dateHour":
+            data_type = "DATETIME"
         columns.append(
             {
                 "name": h["name"],
@@ -72,6 +74,8 @@ def parse_ga_response(response):
         data_type = None
         if h["name"] == "date":
             data_type = "DATE"
+        elif h["name"] == "dateHour":
+            data_type = "DATETIME"
         columns.append(
             {
                 "name": h["name"],

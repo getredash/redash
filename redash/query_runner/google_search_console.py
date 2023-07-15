@@ -40,7 +40,7 @@ def parse_ga_response(response, dimensions):
 
     for item in dimensions:
         if item == "date":
-            data_type = "DATE"
+            data_type = "date"
         else:
             data_type = "string"
         columns.append(
@@ -79,7 +79,7 @@ def get_formatted_value(column_type, value):
     if column_type == "number":
         value = round(value, 2)
     elif column_type == TYPE_DATE:
-        value = datetime.strptime(value, "%Y%m%d")
+        value = datetime.strptime(value, "%Y-%m-%d")
     elif column_type == TYPE_DATETIME:
         if len(value) == 10:
             value = datetime.strptime(value, "%Y%m%d%H")
