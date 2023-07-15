@@ -137,10 +137,7 @@ function QuerySource(props) {
       const selectedDataSourceId = parseInt(localStorage.getItem("lastSelectedDataSourceId")) || null;
 
       handleDataSourceChange(
-        chooseDataSourceId(
-          [query.data_source_id, selectedDataSourceId, firstDataSourceId],
-          dataSources
-        )
+        chooseDataSourceId([query.data_source_id, selectedDataSourceId, firstDataSourceId], dataSources)
       );
     }
   }, [query.data_source_id, queryFlags.isNew, dataSourcesLoaded, dataSources, handleDataSourceChange]);
