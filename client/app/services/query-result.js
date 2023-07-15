@@ -6,7 +6,7 @@ import {
   includes,
   isNumber,
   isString,
-  uniqBy
+  uniqBy,
 } from "lodash";
 import moment from "moment";
 
@@ -40,7 +40,7 @@ export function getColumnCleanName(column) {
 }
 
 function getColumnFriendlyName(column) {
-  return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a =>
+  return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, (a) =>
     a.toUpperCase()
   );
 }
@@ -58,14 +58,9 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
   const Job = $resource("api/jobs/:id", { id: "@id" });
   const JobWithApiKey = $resource("api/queries/:queryId/jobs/:id", {
     queryId: "@queryId",
-    id: "@id"
+    id: "@id",
   });
-  const statuses = {
-    1: "waiting",
-    2: "processing",
-    3: "done",
-    4: "failed"
-  };
+  const statuses = { 1: "waiting", 2: "processing", 3: "done", 4: "failed" };
 
   function handleErrorResponse(queryResult, response) {
     if (response.status === 403) {
@@ -79,8 +74,8 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
           error:
             response.data.message ||
             "unknown error occurred. Please try again later.",
-          status: 4
-        }
+          status: 4,
+        },
       });
     }
   }
@@ -114,7 +109,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
         // relaying on the column type set by the backend. This logic is prone
         // to errors, and better be removed. Kept for now, for backward
         // compatability.
-        each(this.query_result.data.rows, row => {
+        each(this.query_result.data.rows, (row) => {
           forOwn(row, (v, k) => {
             let newType = null;
             if (isNumber(v)) {
@@ -141,7 +136,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
           });
         });
 
-        each(this.query_result.data.columns, column => {
+        each(this.query_result.data.columns, (column) => {
           column.name = "" + column.name;
           if (columnTypes[column.name]) {
             if (column.type == null || column.type === "string") {
@@ -243,18 +238,18 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
 
     getColumnNames() {
       if (this.columnNames === undefined && this.query_result.data) {
-        this.columnNames = this.query_result.data.columns.map(v => v.name);
+        this.columnNames = this.query_result.data.columns.map((v) => v.name);
       }
 
       return this.columnNames;
     }
 
     getColumnCleanNames() {
-      return this.getColumnNames().map(col => getColumnCleanName(col));
+      return this.getColumnNames().map((col) => getColumnCleanName(col));
     }
 
     getColumnFriendlyNames() {
-      return this.getColumnNames().map(col => getColumnFriendlyName(col));
+      return this.getColumnNames().map((col) => getColumnFriendlyName(col));
     }
 
     getFilters() {
@@ -264,7 +259,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
 
       const filters = [];
 
-      this.getColumns().forEach(col => {
+      this.getColumns().forEach((col) => {
         const name = col.name;
         const type = name.split("::")[1] || name.split("__")[1];
         if (includes(filterTypes, type)) {
@@ -274,14 +269,14 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
             friendlyName: getColumnFriendlyName(name),
             column: col,
             values: [],
-            multiple: type === "multiFilter" || type === "multi-filter"
+            multiple: type === "multiFilter" || type === "multi-filter",
           };
           filters.push(filter);
         }
       }, this);
 
-      this.getRawData().forEach(row => {
-        filters.forEach(filter => {
+      this.getRawData().forEach((row) => {
+        filters.forEach((filter) => {
           filter.values.push(row[filter.name]);
           if (filter.values.length === 1) {
             if (filter.multiple) {
@@ -293,8 +288,8 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
         });
       });
 
-      filters.forEach(filter => {
-        filter.values = uniqBy(filter.values, v => {
+      filters.forEach((filter) => {
+        filter.values = uniqBy(filter.values, (v) => {
           if (moment.isMoment(v)) {
             return v.unix();
           }
@@ -315,12 +310,12 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       queryResult.isLoadingResult = true;
       QueryResultByQueryIdResource.get(
         { queryId, id },
-        response => {
+        (response) => {
           // Success handler
           queryResult.isLoadingResult = false;
           queryResult.update(response);
         },
-        error => {
+        (error) => {
           // Error handler
           queryResult.isLoadingResult = false;
           handleErrorResponse(queryResult, error);
@@ -337,10 +332,10 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
         { post: { method: "POST" } }
       ).post(
         { queryId, parameters },
-        response => {
+        (response) => {
           this.update(response);
         },
-        error => {
+        (error) => {
           handleErrorResponse(this, error);
         }
       );
@@ -350,11 +345,11 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       this.isLoadingResult = true;
       QueryResultResource.get(
         { id: this.job.query_result_id },
-        response => {
+        (response) => {
           this.update(response);
           this.isLoadingResult = false;
         },
-        error => {
+        (error) => {
           if (tryCount === undefined) {
             tryCount = 0;
           }
@@ -365,8 +360,8 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
               job: {
                 error:
                   "failed communicating with server. Please check your Internet connection and try again.",
-                status: 4
-              }
+                status: 4,
+              },
             });
             this.isLoadingResult = false;
           } else {
@@ -390,7 +385,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
 
       resource.get(
         params,
-        jobResponse => {
+        (jobResponse) => {
           this.update(jobResponse);
 
           if (
@@ -406,7 +401,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
             }, waitTime);
           }
         },
-        error => {
+        (error) => {
           logger("Connection error", error);
           // TODO: use QueryResultError, or better yet: exception/reject of
           // promise.
@@ -414,8 +409,8 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
             job: {
               error:
                 "failed communicating with server. Please check your Internet connection and try again.",
-              status: 4
-            }
+              status: 4,
+            },
           });
         }
       );
@@ -430,8 +425,10 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
     }
 
     getName(queryName, fileType) {
-      return `${queryName.replace(/ /g, "_") +
-        moment(this.getUpdatedAt()).format("_YYYY_MM_DD")}.${fileType}`;
+      return `${
+        queryName.replace(/ /g, "_") +
+        moment(this.getUpdatedAt()).format("_YYYY_MM_DD")
+      }.${fileType}`;
     }
 
     static getByQueryId(id, parameters, maxAge) {
@@ -442,19 +439,15 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
         { id: "@id" },
         { post: { method: "POST" } }
       ).post(
-        {
-          id,
-          parameters,
-          max_age: maxAge
-        },
-        response => {
+        { id, parameters, max_age: maxAge },
+        (response) => {
           queryResult.update(response);
 
           if ("job" in response) {
             queryResult.refreshStatus(id, parameters);
           }
         },
-        error => {
+        (error) => {
           handleErrorResponse(queryResult, error);
         }
       );
@@ -469,7 +462,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
         data_source_id: dataSourceId,
         parameters,
         query,
-        max_age: maxAge
+        max_age: maxAge,
       };
 
       if (queryId !== undefined) {
@@ -478,14 +471,14 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
 
       QueryResultResource.post(
         params,
-        response => {
+        (response) => {
           queryResult.update(response);
 
           if ("job" in response) {
             queryResult.refreshStatus(query, parameters);
           }
         },
-        error => {
+        (error) => {
           handleErrorResponse(queryResult, error);
         }
       );

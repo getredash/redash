@@ -22,7 +22,7 @@ import Widget from "./Widget";
 function visualizationWidgetMenuOptions({
   widget,
   canEditDashboard,
-  onParametersEdit
+  onParametersEdit,
 }) {
   const canViewQuery = currentUser.hasPermission("view_query");
   const canEditParameters =
@@ -33,9 +33,9 @@ function visualizationWidgetMenuOptions({
     !widgetQueryResult.isEmpty ||
     widgetQueryResult.isEmpty();
 
-  const downloadLink = fileType =>
+  const downloadLink = (fileType) =>
     widgetQueryResult.getLink(widget.getQuery().id, fileType);
-  const downloadName = fileType =>
+  const downloadName = (fileType) =>
     widgetQueryResult.getName(widget.getQuery().name, fileType);
   return compact([
     <Menu.Item key="download_csv" disabled={isQueryResultEmpty}>
@@ -76,7 +76,7 @@ function visualizationWidgetMenuOptions({
       <Menu.Item key="edit_parameters" onClick={onParametersEdit}>
         Edit Parameters
       </Menu.Item>
-    )
+    ),
   ]);
 }
 
@@ -98,7 +98,7 @@ function VisualizationWidgetHeader({
   widget,
   refreshStartedAt,
   parameters,
-  onParametersUpdate
+  onParametersUpdate,
 }) {
   const canViewQuery = currentUser.hasPermission("view_query");
 
@@ -135,13 +135,13 @@ VisualizationWidgetHeader.propTypes = {
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   refreshStartedAt: Moment,
   parameters: PropTypes.arrayOf(PropTypes.object),
-  onParametersUpdate: PropTypes.func
+  onParametersUpdate: PropTypes.func,
 };
 
 VisualizationWidgetHeader.defaultProps = {
   refreshStartedAt: null,
   onParametersUpdate: () => {},
-  parameters: []
+  parameters: [],
 };
 
 function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
@@ -149,7 +149,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
   const updatedAt = invoke(widgetQueryResult, "getUpdatedAt");
   const [refreshClickButtonId, setRefreshClickButtonId] = useState();
 
-  const refreshWidget = buttonId => {
+  const refreshWidget = (buttonId) => {
     if (!refreshClickButtonId) {
       setRefreshClickButtonId(buttonId);
       onRefresh().finally(() => setRefreshClickButtonId(null));
@@ -167,7 +167,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
           >
             <i
               className={cx("zmdi zmdi-refresh", {
-                "zmdi-hc-spin": refreshClickButtonId === 1
+                "zmdi-hc-spin": refreshClickButtonId === 1,
               })}
             />{" "}
             <TimeAgo date={updatedAt} />
@@ -191,7 +191,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
           >
             <i
               className={cx("zmdi zmdi-refresh", {
-                "zmdi-hc-spin": refreshClickButtonId === 2
+                "zmdi-hc-spin": refreshClickButtonId === 2,
               })}
             />
           </a>
@@ -211,7 +211,7 @@ VisualizationWidgetFooter.propTypes = {
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   isPublic: PropTypes.bool,
   onRefresh: PropTypes.func.isRequired,
-  onExpand: PropTypes.func.isRequired
+  onExpand: PropTypes.func.isRequired,
 };
 
 VisualizationWidgetFooter.defaultProps = { isPublic: false };
@@ -226,7 +226,7 @@ class VisualizationWidget extends React.Component {
     onLoad: PropTypes.func,
     onRefresh: PropTypes.func,
     onDelete: PropTypes.func,
-    onParameterMappingsChange: PropTypes.func
+    onParameterMappingsChange: PropTypes.func,
   };
 
   static defaultProps = {
@@ -236,7 +236,7 @@ class VisualizationWidget extends React.Component {
     onLoad: () => {},
     onRefresh: () => {},
     onDelete: () => {},
-    onParameterMappingsChange: () => {}
+    onParameterMappingsChange: () => {},
   };
 
   constructor(props) {
@@ -247,10 +247,10 @@ class VisualizationWidget extends React.Component {
   componentDidMount() {
     const { widget, onLoad } = this.props;
     recordEvent("view", "query", widget.visualization.query.id, {
-      dashboard: true
+      dashboard: true,
     });
     recordEvent("view", "visualization", widget.visualization.id, {
-      dashboard: true
+      dashboard: true,
     });
     onLoad();
   }
@@ -260,16 +260,12 @@ class VisualizationWidget extends React.Component {
   };
 
   editParameterMappings = () => {
-    const {
-      widget,
-      dashboard,
-      onRefresh,
-      onParameterMappingsChange
-    } = this.props;
+    const { widget, dashboard, onRefresh, onParameterMappingsChange } =
+      this.props;
     EditParameterMappingsDialog.showModal({
       dashboard,
-      widget
-    }).result.then(valuesChanged => {
+      widget,
+    }).result.then((valuesChanged) => {
       // refresh widget if any parameter value has been updated
       if (valuesChanged) {
         onRefresh();
@@ -331,7 +327,7 @@ class VisualizationWidget extends React.Component {
         menuOptions={visualizationWidgetMenuOptions({
           widget,
           canEditDashboard: canEdit,
-          onParametersEdit: this.editParameterMappings
+          onParametersEdit: this.editParameterMappings,
         })}
         header={
           <VisualizationWidgetHeader

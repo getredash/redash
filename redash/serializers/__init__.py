@@ -69,6 +69,7 @@ class Serializer(object):
 
 
 class QuerySerializer(Serializer):
+
     def __init__(self, object_or_list, **kwargs):
         self.object_or_list = object_or_list
         self.options = kwargs
@@ -95,11 +96,11 @@ class QuerySerializer(Serializer):
 
 
 def serialize_query(
-        query,
-        with_stats=False,
-        with_visualizations=False,
-        with_user=True,
-        with_last_modified_by=True,
+    query,
+    with_stats=False,
+    with_visualizations=False,
+    with_user=True,
+    with_last_modified_by=True,
 ):
     d = {
         "id": query.id,

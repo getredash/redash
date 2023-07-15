@@ -137,6 +137,7 @@ def _resolve_user(user_id, is_api_key, query_id):
 
 
 class QueryExecutor(object):
+
     def __init__(self, query, data_source_id, user_id, is_api_key, metadata,
                  scheduled_query):
         self.job = get_current_job()
@@ -255,12 +256,12 @@ class QueryExecutor(object):
 # user_id is added last as a keyword argument for backward compatability -- to support executing previously submitted
 # jobs before the upgrade to this version.
 def execute_query(
-        query,
-        data_source_id,
-        metadata,
-        user_id=None,
-        scheduled_query_id=None,
-        is_api_key=False,
+    query,
+    data_source_id,
+    metadata,
+    user_id=None,
+    scheduled_query_id=None,
+    is_api_key=False,
 ):
     if scheduled_query_id is not None:
         scheduled_query = models.Query.query.get(scheduled_query_id)

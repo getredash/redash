@@ -63,6 +63,7 @@ data = {
 
 
 class QueryResultSerializationTest(BaseTestCase):
+
     def test_serializes_all_keys_for_authenticated_users(self):
         query_result = self.factory.create_query_result(data=json_dumps({}))
         serialized = serialize_query_result(query_result, False)
@@ -77,6 +78,7 @@ class QueryResultSerializationTest(BaseTestCase):
 
 
 class JobSerializationTest(BaseTestCase):
+
     def test_sets_data_source_origin_for_query_runner_errors(self):
         job = Mock()
         job.get_status = Mock(return_value=JobStatus.FAILED)
@@ -95,6 +97,7 @@ class JobSerializationTest(BaseTestCase):
 
 
 class CsvSerializationTest(BaseTestCase):
+
     def get_csv_content(self):
         query_result = self.factory.create_query_result(data=json_dumps(data))
         return serialize_query_result_to_csv(query_result)
