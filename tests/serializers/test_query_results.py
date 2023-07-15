@@ -6,12 +6,10 @@ from mock import Mock
 from rq.job import JobStatus
 
 from redash import models
-from redash.serializers import serialize_job
-from redash.serializers import serialize_query_result
-from redash.serializers import serialize_query_result_to_csv
+from redash.serializers import (serialize_job, serialize_query_result,
+                                serialize_query_result_to_csv)
 from redash.tasks.queries.execution import QueryExecutionError
-from redash.utils import json_dumps
-from redash.utils import utcnow
+from redash.utils import json_dumps, utcnow
 from tests import BaseTestCase
 
 data = {

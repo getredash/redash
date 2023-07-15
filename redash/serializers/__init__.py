@@ -8,15 +8,15 @@ from funcy import project
 from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
 
-from .query_result import serialize_query_result
-from .query_result import serialize_query_result_to_csv
-from .query_result import serialize_query_result_to_xlsx
 from redash import models
 from redash.models.parameterized_query import ParameterizedQuery
-from redash.permissions import has_access
-from redash.permissions import view_only
+from redash.permissions import has_access, view_only
 from redash.tasks.queries.execution import QueryExecutionError
 from redash.utils import json_loads
+
+from .query_result import (serialize_query_result,
+                           serialize_query_result_to_csv,
+                           serialize_query_result_to_xlsx)
 
 
 def public_widget(widget):
