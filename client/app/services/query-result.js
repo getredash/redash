@@ -11,7 +11,7 @@ import {
 import moment from "moment";
 
 const logger = debug("redash:services:QueryResult");
-const filterTypes = ["filter", "multi-filter", "multiFilter"];
+const filterTypes = [ "filter", "multi-filter", "multiFilter" ];
 
 function getColumnNameWithoutType(column) {
   let typeSplit;
@@ -40,32 +40,20 @@ export function getColumnCleanName(column) {
 }
 
 function getColumnFriendlyName(column) {
-  return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a =>
-    a.toUpperCase()
-  );
+  return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g,
+                                                  a => a.toUpperCase());
 }
 
 function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
-  const QueryResultResource = $resource(
-    "api/query_results/:id",
-    { id: "@id" },
-    { post: { method: "POST" } }
-  );
-  const QueryResultByQueryIdResource = $resource(
-    "api/queries/:queryId/results/:id.json",
-    { queryId: "@queryId", id: "@id" }
-  );
-  const Job = $resource("api/jobs/:id", { id: "@id" });
-  const JobWithApiKey = $resource("api/queries/:queryId/jobs/:id", {
-    queryId: "@queryId",
-    id: "@id"
-  });
-  const statuses = {
-    1: "waiting",
-    2: "processing",
-    3: "done",
-    4: "failed"
-  };
+  const QueryResultResource = $resource("api/query_results/:id", {id : "@id"},
+                                        {post : {method : "POST"}});
+  const QueryResultByQueryIdResource =
+      $resource("api/queries/:queryId/results/:id.json",
+                {queryId : "@queryId", id : "@id"});
+  const Job = $resource("api/jobs/:id", {id : "@id"});
+  const JobWithApiKey = $resource("api/queries/:queryId/jobs/:id",
+                                  {queryId : "@queryId", id : "@id"});
+  const statuses = {1 : "waiting", 2 : "processing", 3 : "done", 4 : "failed"};
 
   function handleErrorResponse(queryResult, response) {
     if (response.status === 403) {
@@ -75,11 +63,10 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
     } else {
       logger("Unknown error", response);
       queryResult.update({
-        job: {
-          error:
-            response.data.message ||
-            "unknown error occurred. Please try again later.",
-          status: 4
+        job : {
+          error : response.data.message ||
+                      "unknown error occurred. Please try again later.",
+          status : 4
         }
       });
     }
@@ -169,9 +156,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       return id;
     }
 
-    cancelExecution() {
-      Job.delete({ id: this.job.id });
-    }
+    cancelExecution() { Job.delete({id : this.job.id}); }
 
     getStatus() {
       if (this.isLoadingResult) {
@@ -189,16 +174,11 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       return this.job.error;
     }
 
-    getErrorOrigin() {
-      return this.job.error_origin;
-    }
+    getErrorOrigin() { return this.job.error_origin; }
 
     getLog() {
-      if (
-        !this.query_result.data ||
-        !this.query_result.data.log ||
-        this.query_result.data.log.length === 0
-      ) {
+      if (!this.query_result.data || !this.query_result.data.log ||
+          this.query_result.data.log.length === 0) {
         return null;
       }
 
@@ -206,16 +186,11 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
     }
 
     getUpdatedAt() {
-      return (
-        this.query_result.retrieved_at ||
-        this.job.updated_at * 1000.0 ||
-        this.updatedAt
-      );
+      return (this.query_result.retrieved_at || this.job.updated_at * 1000.0 ||
+              this.updatedAt);
     }
 
-    getRuntime() {
-      return this.query_result.runtime;
-    }
+    getRuntime() { return this.query_result.runtime; }
 
     getRawData() {
       if (!this.query_result.data) {
@@ -229,9 +204,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       return this.query_result.data ? this.query_result.data.rows : null;
     }
 
-    isEmpty() {
-      return this.getData() === null || this.getData().length === 0;
-    }
+    isEmpty() { return this.getData() === null || this.getData().length === 0; }
 
     getColumns() {
       if (this.columns === undefined && this.query_result.data) {
@@ -271,10 +244,10 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
           // filter found
           const filter = {
             name,
-            friendlyName: getColumnFriendlyName(name),
-            column: col,
-            values: [],
-            multiple: type === "multiFilter" || type === "multi-filter"
+            friendlyName : getColumnFriendlyName(name),
+            column : col,
+            values : [],
+            multiple : type === "multiFilter" || type === "multi-filter"
           };
           filters.push(filter);
         }
@@ -285,7 +258,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
           filter.values.push(row[filter.name]);
           if (filter.values.length === 1) {
             if (filter.multiple) {
-              filter.current = [row[filter.name]];
+              filter.current = [ row[filter.name] ];
             } else {
               filter.current = row[filter.name];
             }
@@ -305,120 +278,102 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       return filters;
     }
 
-    toPromise() {
-      return this.deferred.promise;
-    }
+    toPromise() { return this.deferred.promise; }
 
     static getById(queryId, id) {
       const queryResult = new QueryResult();
 
       queryResult.isLoadingResult = true;
-      QueryResultByQueryIdResource.get(
-        { queryId, id },
-        response => {
-          // Success handler
-          queryResult.isLoadingResult = false;
-          queryResult.update(response);
-        },
-        error => {
-          // Error handler
-          queryResult.isLoadingResult = false;
-          handleErrorResponse(queryResult, error);
-        }
-      );
+      QueryResultByQueryIdResource.get({queryId, id},
+                                       response => {
+                                         // Success handler
+                                         queryResult.isLoadingResult = false;
+                                         queryResult.update(response);
+                                       },
+                                       error => {
+                                         // Error handler
+                                         queryResult.isLoadingResult = false;
+                                         handleErrorResponse(queryResult,
+                                                             error);
+                                       });
 
       return queryResult;
     }
 
     loadLatestCachedResult(queryId, parameters) {
-      $resource(
-        "api/queries/:id/results",
-        { id: "@queryId" },
-        { post: { method: "POST" } }
-      ).post(
-        { queryId, parameters },
-        response => {
-          this.update(response);
-        },
-        error => {
-          handleErrorResponse(this, error);
-        }
-      );
+      $resource("api/queries/:id/results", {id : "@queryId"},
+                {post : {method : "POST"}})
+          .post({queryId, parameters}, response => { this.update(response); },
+                error => { handleErrorResponse(this, error); });
     }
 
     loadResult(tryCount) {
       this.isLoadingResult = true;
       QueryResultResource.get(
-        { id: this.job.query_result_id },
-        response => {
-          this.update(response);
-          this.isLoadingResult = false;
-        },
-        error => {
-          if (tryCount === undefined) {
-            tryCount = 0;
-          }
-
-          if (tryCount > 3) {
-            logger("Connection error while trying to load result", error);
-            this.update({
-              job: {
-                error:
-                  "failed communicating with server. Please check your Internet connection and try again.",
-                status: 4
-              }
-            });
+          {id : this.job.query_result_id},
+          response => {
+            this.update(response);
             this.isLoadingResult = false;
-          } else {
-            $timeout(() => {
-              this.loadResult(tryCount + 1);
-            }, 1000 * Math.pow(2, tryCount));
-          }
-        }
-      );
+          },
+          error => {
+            if (tryCount === undefined) {
+              tryCount = 0;
+            }
+
+            if (tryCount > 3) {
+              logger("Connection error while trying to load result", error);
+              this.update({
+                job : {
+                  error :
+                      "failed communicating with server. Please check your Internet connection and try again.",
+                  status : 4
+                }
+              });
+              this.isLoadingResult = false;
+            } else {
+              $timeout(() => { this.loadResult(tryCount + 1); },
+                       1000 * Math.pow(2, tryCount));
+            }
+          });
     }
 
     refreshStatus(query, parameters, tryNumber = 1) {
       const resource = Auth.isAuthenticated() ? Job : JobWithApiKey;
       const loadResult = () =>
-        Auth.isAuthenticated()
-          ? this.loadResult()
-          : this.loadLatestCachedResult(query, parameters);
+          Auth.isAuthenticated()
+              ? this.loadResult()
+              : this.loadLatestCachedResult(query, parameters);
       const params = Auth.isAuthenticated()
-        ? { id: this.job.id }
-        : { queryId: query, id: this.job.id };
+                         ? {id : this.job.id}
+                         : {queryId : query, id : this.job.id};
 
       resource.get(
-        params,
-        jobResponse => {
-          this.update(jobResponse);
+          params,
+          jobResponse => {
+            this.update(jobResponse);
 
-          if (
-            this.getStatus() === "processing" &&
-            this.job.query_result_id &&
-            this.job.query_result_id !== "None"
-          ) {
-            loadResult();
-          } else if (this.getStatus() !== "failed") {
-            const waitTime = tryNumber > 10 ? 3000 : 500;
-            $timeout(() => {
-              this.refreshStatus(query, parameters, tryNumber + 1);
-            }, waitTime);
-          }
-        },
-        error => {
-          logger("Connection error", error);
-          // TODO: use QueryResultError, or better yet: exception/reject of
-          // promise.
-          this.update({
-            job: {
-              error:
-                "failed communicating with server. Please check your Internet connection and try again.",
-              status: 4
+            if (this.getStatus() === "processing" && this.job.query_result_id &&
+                this.job.query_result_id !== "None") {
+              loadResult();
+            } else if (this.getStatus() !== "failed") {
+              const waitTime = tryNumber > 10 ? 3000 : 500;
+              $timeout(() => {
+                this.refreshStatus(query, parameters, tryNumber + 1);
+              }, waitTime);
             }
+          },
+          error => {
+            logger("Connection error", error);
+            // TODO: use QueryResultError, or better yet: exception/reject of
+            // promise.
+            this.update({
+              job : {
+                error :
+                    "failed communicating with server. Please check your Internet connection and try again.",
+                status : 4
+              }
+            });
           });
-        }
-      );
     }
 
     getLink(queryId, fileType, apiKey) {
@@ -430,34 +385,25 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
     }
 
     getName(queryName, fileType) {
-      return `${queryName.replace(/ /g, "_") +
-        moment(this.getUpdatedAt()).format("_YYYY_MM_DD")}.${fileType}`;
+      return `${
+          queryName.replace(/ /g, "_") +
+          moment(this.getUpdatedAt()).format("_YYYY_MM_DD")}.${fileType}`;
     }
 
     static getByQueryId(id, parameters, maxAge) {
       const queryResult = new QueryResult();
 
-      $resource(
-        "api/queries/:id/results",
-        { id: "@id" },
-        { post: { method: "POST" } }
-      ).post(
-        {
-          id,
-          parameters,
-          max_age: maxAge
-        },
-        response => {
-          queryResult.update(response);
+      $resource("api/queries/:id/results", {id : "@id"},
+                {post : {method : "POST"}})
+          .post({id, parameters, max_age : maxAge},
+                response => {
+                  queryResult.update(response);
 
-          if ("job" in response) {
-            queryResult.refreshStatus(id, parameters);
-          }
-        },
-        error => {
-          handleErrorResponse(queryResult, error);
-        }
-      );
+                  if ("job" in response) {
+                    queryResult.refreshStatus(id, parameters);
+                  }
+                },
+                error => { handleErrorResponse(queryResult, error); });
 
       return queryResult;
     }
@@ -465,30 +411,23 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
     static get(dataSourceId, query, parameters, maxAge, queryId) {
       const queryResult = new QueryResult();
 
-      const params = {
-        data_source_id: dataSourceId,
-        parameters,
-        query,
-        max_age: maxAge
-      };
+      const params =
+          {data_source_id : dataSourceId, parameters, query, max_age : maxAge};
 
       if (queryId !== undefined) {
         params.query_id = queryId;
       }
 
       QueryResultResource.post(
-        params,
-        response => {
-          queryResult.update(response);
+          params,
+          response => {
+            queryResult.update(response);
 
-          if ("job" in response) {
-            queryResult.refreshStatus(query, parameters);
-          }
-        },
-        error => {
-          handleErrorResponse(queryResult, error);
-        }
-      );
+            if ("job" in response) {
+              queryResult.refreshStatus(query, parameters);
+            }
+          },
+          error => { handleErrorResponse(queryResult, error); });
 
       return queryResult;
     }
