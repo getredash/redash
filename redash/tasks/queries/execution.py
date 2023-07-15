@@ -8,13 +8,19 @@ from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
 from six import text_type
 
-from redash import models, redis_connection, settings
+from redash import models
+from redash import redis_connection
+from redash import settings
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import track_failure
-from redash.tasks.worker import Job, Queue
-from redash.utils import gen_query_hash, json_dumps, utcnow
-from redash.worker import celery, get_job_logger
+from redash.tasks.worker import Job
+from redash.tasks.worker import Queue
+from redash.utils import gen_query_hash
+from redash.utils import json_dumps
+from redash.utils import utcnow
+from redash.worker import celery
+from redash.worker import get_job_logger
 
 logger = get_job_logger(__name__)
 TIMEOUT_MESSAGE = "Query exceeded Redash query execution time limit."
