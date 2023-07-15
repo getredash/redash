@@ -34,7 +34,7 @@ const isDevelopment = !isProduction;
 const isHotReloadingEnabled =
   isDevelopment && process.env.HOT_RELOAD === "true";
 
-const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
+const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5001";
 const baseHref = CONFIG.baseHref || "/";
 const staticPath = CONFIG.staticPath || "/static/";
 const htmlTitle = CONFIG.title || "Redash";

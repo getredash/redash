@@ -1,9 +1,7 @@
-from redash.query_runner import BaseSQLQueryRunner, BaseQueryRunner
-from tests import BaseTestCase
-
+from redash.handlers.query_results import error_messages
 from redash.models import db
 from redash.utils import json_dumps
-from redash.handlers.query_results import error_messages
+from tests import BaseTestCase
 
 
 class TestQueryResultsCacheHeaders(BaseTestCase):
@@ -11,9 +9,7 @@ class TestQueryResultsCacheHeaders(BaseTestCase):
         query_result = self.factory.create_query_result()
         query = self.factory.create_query(latest_query_data=query_result)
 
-        rv = self.make_request(
-            "get", "/api/queries/{}/results/{}.json".format(query.id, query_result.id)
-        )
+        rv = self.make_request("get", "/api/queries/{}/results/{}.json".format(query.id, query_result.id))
         self.assertIn("Cache-Control", rv.headers)
 
     def test_doesnt_use_cache_headers_for_non_specific_result(self):
@@ -38,7 +34,7 @@ class TestQueryResultsContentDispositionHeaders(BaseTestCase):
         rv = self.make_request("get", "/api/queries/{}/results.json".format(query.id))
         # This is what gunicorn will do with it
         try:
-            rv.headers['Content-Disposition'].encode('ascii')
+            rv.headers["Content-Disposition"].encode("ascii")
         except Exception as e:
             self.fail(repr(e))
 
@@ -60,7 +56,7 @@ class TestQueryResultListAPI(BaseTestCase):
         self.assertEqual(query_result.id, rv.json["query_result"]["id"])
 
     def test_execute_new_query(self):
-        query_result = self.factory.create_query_result()
+        self.factory.create_query_result()
         query = self.factory.create_query()
 
         rv = self.make_request(
@@ -78,20 +74,14 @@ class TestQueryResultListAPI(BaseTestCase):
         self.assertIn("job", rv.json)
 
     def test_add_limit_change_query_sql(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, type="pg"
-        )
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, type="pg")
         query = self.factory.create_query(query_text="SELECT 2", data_source=ds)
-        query_result = self.factory.create_query_result(data_source=ds, query_hash=query.query_hash)
+        self.factory.create_query_result(data_source=ds, query_hash=query.query_hash)
 
         rv = self.make_request(
             "post",
             "/api/query_results",
-            data={
-                "data_source_id": ds.id,
-                "query": query.query_text,
-                "apply_auto_limit": True
-            },
+            data={"data_source_id": ds.id, "query": query.query_text, "apply_auto_limit": True},
         )
 
         self.assertEqual(rv.status_code, 200)
@@ -99,20 +89,14 @@ class TestQueryResultListAPI(BaseTestCase):
         self.assertIn("job", rv.json)
 
     def test_add_limit_no_change_for_nonsql(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, type="prometheus"
-        )
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, type="prometheus")
         query = self.factory.create_query(query_text="SELECT 5", data_source=ds)
         query_result = self.factory.create_query_result(data_source=ds, query_hash=query.query_hash)
 
         rv = self.make_request(
             "post",
             "/api/query_results",
-            data={
-                "data_source_id": ds.id,
-                "query": query.query_text,
-                "apply_auto_limit": True
-            },
+            data={"data_source_id": ds.id, "query": query.query_text, "apply_auto_limit": True},
         )
 
         self.assertEqual(rv.status_code, 200)
@@ -199,9 +183,7 @@ class TestQueryResultListAPI(BaseTestCase):
         self.assertIn("job", rv.json)
 
     def test_execute_without_data_source(self):
-        rv = self.make_request(
-            "post", "/api/query_results", data={"query": "SELECT 1", "max_age": 0}
-        )
+        rv = self.make_request("post", "/api/query_results", data={"query": "SELECT 1", "max_age": 0})
 
         self.assertEqual(rv.status_code, 401)
         self.assertDictEqual(rv.json, error_messages["select_data_source"][0])
@@ -216,18 +198,14 @@ class TestQueryResultAPI(BaseTestCase):
         self.assertEqual(rv.status_code, 403)
 
     def test_has_view_only_access_to_data_source(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, view_only=True
-        )
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
         query_result = self.factory.create_query_result(data_source=ds)
 
         rv = self.make_request("get", "/api/query_results/{}".format(query_result.id))
         self.assertEqual(rv.status_code, 200)
 
     def test_has_full_access_to_data_source(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, view_only=False
-        )
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
         query_result = self.factory.create_query_result(data_source=ds)
 
         rv = self.make_request("get", "/api/query_results/{}".format(query_result.id))
@@ -236,9 +214,7 @@ class TestQueryResultAPI(BaseTestCase):
     def test_execute_new_query(self):
         query = self.factory.create_query()
 
-        rv = self.make_request(
-            "post", "/api/queries/{}/results".format(query.id), data={"parameters": {}}
-        )
+        rv = self.make_request("post", "/api/queries/{}/results".format(query.id), data={"parameters": {}})
 
         self.assertEqual(rv.status_code, 200)
         self.assertIn("job", rv.json)
@@ -260,39 +236,23 @@ class TestQueryResultAPI(BaseTestCase):
         self.assertIn("job", rv.json)
 
     def test_prevents_execution_of_unsafe_queries_on_view_only_data_sources(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, view_only=True
-        )
-        query = self.factory.create_query(
-            data_source=ds, options={"parameters": [{"name": "foo", "type": "text"}]}
-        )
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        query = self.factory.create_query(data_source=ds, options={"parameters": [{"name": "foo", "type": "text"}]})
 
-        rv = self.make_request(
-            "post", "/api/queries/{}/results".format(query.id), data={"parameters": {}}
-        )
+        rv = self.make_request("post", "/api/queries/{}/results".format(query.id), data={"parameters": {}})
         self.assertEqual(rv.status_code, 403)
         self.assertDictEqual(rv.json, error_messages["unsafe_on_view_only"][0])
 
     def test_allows_execution_of_safe_queries_on_view_only_data_sources(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, view_only=True
-        )
-        query = self.factory.create_query(
-            data_source=ds, options={"parameters": [{"name": "foo", "type": "number"}]}
-        )
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        query = self.factory.create_query(data_source=ds, options={"parameters": [{"name": "foo", "type": "number"}]})
 
-        rv = self.make_request(
-            "post", "/api/queries/{}/results".format(query.id), data={"parameters": {}}
-        )
+        rv = self.make_request("post", "/api/queries/{}/results".format(query.id), data={"parameters": {}})
         self.assertEqual(rv.status_code, 200)
 
     def test_prevents_execution_of_unsafe_queries_using_api_key(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, view_only=True
-        )
-        query = self.factory.create_query(
-            data_source=ds, options={"parameters": [{"name": "foo", "type": "text"}]}
-        )
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        query = self.factory.create_query(data_source=ds, options={"parameters": [{"name": "foo", "type": "text"}]})
 
         data = {"parameters": {"foo": "bar"}}
         rv = self.make_request(
@@ -304,27 +264,19 @@ class TestQueryResultAPI(BaseTestCase):
         self.assertDictEqual(rv.json, error_messages["unsafe_when_shared"][0])
 
     def test_access_with_query_api_key(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, view_only=False
-        )
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
         query = self.factory.create_query()
-        query_result = self.factory.create_query_result(
-            data_source=ds, query_text=query.query_text
-        )
+        query_result = self.factory.create_query_result(data_source=ds, query_text=query.query_text)
 
         rv = self.make_request(
             "get",
-            "/api/queries/{}/results/{}.json?api_key={}".format(
-                query.id, query_result.id, query.api_key
-            ),
+            "/api/queries/{}/results/{}.json?api_key={}".format(query.id, query_result.id, query.api_key),
             user=False,
         )
         self.assertEqual(rv.status_code, 200)
 
     def test_access_with_query_api_key_without_query_result_id(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, view_only=False
-        )
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
         query = self.factory.create_query()
         query_result = self.factory.create_query_result(
             data_source=ds, query_text=query.query_text, query_hash=query.query_hash
@@ -339,43 +291,29 @@ class TestQueryResultAPI(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
 
     def test_query_api_key_and_different_query_result(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, view_only=False
-        )
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
         query = self.factory.create_query(query_text="SELECT 8")
-        query_result2 = self.factory.create_query_result(
-            data_source=ds, query_hash="something-different"
-        )
+        query_result2 = self.factory.create_query_result(data_source=ds, query_hash="something-different")
 
         rv = self.make_request(
             "get",
-            "/api/queries/{}/results/{}.json?api_key={}".format(
-                query.id, query_result2.id, query.api_key
-            ),
+            "/api/queries/{}/results/{}.json?api_key={}".format(query.id, query_result2.id, query.api_key),
             user=False,
         )
         self.assertEqual(rv.status_code, 404)
 
     def test_signed_in_user_and_different_query_result(self):
-        ds2 = self.factory.create_data_source(
-            group=self.factory.org.admin_group, view_only=False
-        )
+        ds2 = self.factory.create_data_source(group=self.factory.org.admin_group, view_only=False)
         query = self.factory.create_query(query_text="SELECT 8")
-        query_result2 = self.factory.create_query_result(
-            data_source=ds2, query_hash="something-different"
-        )
+        query_result2 = self.factory.create_query_result(data_source=ds2, query_hash="something-different")
 
-        rv = self.make_request(
-            "get", "/api/queries/{}/results/{}.json".format(query.id, query_result2.id)
-        )
+        rv = self.make_request("get", "/api/queries/{}/results/{}.json".format(query.id, query_result2.id))
         self.assertEqual(rv.status_code, 403)
 
 
 class TestQueryResultDropdownResource(BaseTestCase):
     def test_checks_for_access_to_the_query(self):
-        ds2 = self.factory.create_data_source(
-            group=self.factory.org.admin_group, view_only=False
-        )
+        ds2 = self.factory.create_data_source(group=self.factory.org.admin_group, view_only=False)
         query = self.factory.create_query(data_source=ds2)
 
         rv = self.make_request("get", "/api/queries/{}/dropdown".format(query.id))
@@ -386,9 +324,7 @@ class TestQueryResultDropdownResource(BaseTestCase):
 class TestQueryDropdownsResource(BaseTestCase):
     def test_prevents_access_if_unassociated_and_doesnt_have_access(self):
         query = self.factory.create_query()
-        ds2 = self.factory.create_data_source(
-            group=self.factory.org.admin_group, view_only=False
-        )
+        ds2 = self.factory.create_data_source(group=self.factory.org.admin_group, view_only=False)
         unrelated_dropdown_query = self.factory.create_query(data_source=ds2)
 
         # unrelated_dropdown_query has not been associated with query
@@ -396,9 +332,7 @@ class TestQueryDropdownsResource(BaseTestCase):
 
         rv = self.make_request(
             "get",
-            "/api/queries/{}/dropdowns/{}".format(
-                query.id, unrelated_dropdown_query.id
-            ),
+            "/api/queries/{}/dropdowns/{}".format(query.id, unrelated_dropdown_query.id),
         )
 
         self.assertEqual(rv.status_code, 403)
@@ -409,18 +343,14 @@ class TestQueryDropdownsResource(BaseTestCase):
         query_result = self.factory.create_query_result()
         data = {"rows": [], "columns": [{"name": "whatever"}]}
         query_result = self.factory.create_query_result(data=json_dumps(data))
-        unrelated_dropdown_query = self.factory.create_query(
-            latest_query_data=query_result
-        )
+        unrelated_dropdown_query = self.factory.create_query(latest_query_data=query_result)
 
         # unrelated_dropdown_query has not been associated with query
         # user has direct access to unrelated_dropdown_query
 
         rv = self.make_request(
             "get",
-            "/api/queries/{}/dropdowns/{}".format(
-                query.id, unrelated_dropdown_query.id
-            ),
+            "/api/queries/{}/dropdowns/{}".format(query.id, unrelated_dropdown_query.id),
         )
 
         self.assertEqual(rv.status_code, 200)
@@ -437,16 +367,12 @@ class TestQueryDropdownsResource(BaseTestCase):
         # dropdown_query has been associated with query
         # user has access to query
 
-        rv = self.make_request(
-            "get", "/api/queries/{}/dropdowns/{}".format(query.id, dropdown_query.id)
-        )
+        rv = self.make_request("get", "/api/queries/{}/dropdowns/{}".format(query.id, dropdown_query.id))
 
         self.assertEqual(rv.status_code, 200)
 
     def test_prevents_access_if_associated_and_doesnt_have_access_to_parent(self):
-        ds2 = self.factory.create_data_source(
-            group=self.factory.org.admin_group, view_only=False
-        )
+        ds2 = self.factory.create_data_source(group=self.factory.org.admin_group, view_only=False)
         dropdown_query = self.factory.create_query(data_source=ds2)
         options = {"parameters": [{"type": "query", "queryId": dropdown_query.id}]}
         query = self.factory.create_query(data_source=ds2, options=options)
@@ -454,9 +380,7 @@ class TestQueryDropdownsResource(BaseTestCase):
         # dropdown_query has been associated with query
         # user doesnt have access to either query
 
-        rv = self.make_request(
-            "get", "/api/queries/{}/dropdowns/{}".format(query.id, dropdown_query.id)
-        )
+        rv = self.make_request("get", "/api/queries/{}/dropdowns/{}".format(query.id, dropdown_query.id))
 
         self.assertEqual(rv.status_code, 403)
 
@@ -496,8 +420,12 @@ class TestJobResource(BaseTestCase):
 
         query = self.factory.create_query()
         job_id = self.make_request(
-            "post", f"/api/queries/{query.id}/results", data={"parameters": {}},
-        ).json["job"]["id"]
+            "post",
+            f"/api/queries/{query.id}/results",
+            data={"parameters": {}},
+        ).json[
+            "job"
+        ]["id"]
 
         status = self.make_request("get", f"/api/jobs/{job_id}").json["job"]["status"]
         self.assertEqual(status, QUEUED)

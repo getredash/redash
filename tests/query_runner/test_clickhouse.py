@@ -75,9 +75,7 @@ simple_query_response = {
 class TestClickHouse(TestCase):
     @patch("requests.post")
     def test_send_single_query(self, post_request):
-        query_runner = ClickHouse(
-            {"url": "http://clickhouse:8123", "dbname": "system", "timeout": 60}
-        )
+        query_runner = ClickHouse({"url": "http://clickhouse:8123", "dbname": "system", "timeout": 60})
 
         response = Mock()
         response.status_code = 200
@@ -116,9 +114,7 @@ class TestClickHouse(TestCase):
 
     @patch("requests.post")
     def test_send_multi_query(self, post_request):
-        query_runner = ClickHouse(
-            {"url": "http://clickhouse:8123", "dbname": "system", "timeout": 60}
-        )
+        query_runner = ClickHouse({"url": "http://clickhouse:8123", "dbname": "system", "timeout": 60})
 
         create_table_response = Mock()
         create_table_response.status_code = 200
@@ -175,13 +171,9 @@ FORMAT JSON""",
 FORMAT JSON""",
         )
 
-        self.assert_session_params(
-            kwargs, expected_check="1", expected_timeout=60, expected_id=session_id
-        )
+        self.assert_session_params(kwargs, expected_check="1", expected_timeout=60, expected_id=session_id)
 
-    def assert_session_params(
-        self, kwargs, expected_check, expected_timeout, expected_id=None
-    ):
+    def assert_session_params(self, kwargs, expected_check, expected_timeout, expected_id=None):
         self.assertEqual(kwargs["params"]["session_check"], expected_check)
         self.assertEqual(kwargs["params"]["session_timeout"], expected_timeout)
 

@@ -1,13 +1,12 @@
-import datetime
 import csv
 import io
 
+from redash.serializers import (
+    serialize_query_result,
+    serialize_query_result_to_dsv,
+)
+from redash.utils import json_dumps
 from tests import BaseTestCase
-
-from redash import models
-from redash.utils import utcnow, json_dumps
-from redash.serializers import serialize_query_result, serialize_query_result_to_dsv
-
 
 data = {
     "rows": [

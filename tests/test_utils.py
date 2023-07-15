@@ -6,11 +6,10 @@ from redash.utils import (
     build_url,
     collect_parameters_from_request,
     filter_none,
-    json_dumps,
     generate_token,
+    json_dumps,
     render_template,
 )
-
 
 DummyRequest = namedtuple("DummyRequest", ["host", "scheme"])
 
@@ -80,15 +79,24 @@ class TestGenerateToken(TestCase):
     def test_format(self):
         token = generate_token(40)
         self.assertRegex(token, r"[a-zA-Z0-9]{40}")
-        
+
+
 class TestRenderTemplate(TestCase):
     def test_render(self):
         app = create_app()
         with app.app_context():
-            d = {"failures": [{"id": 1, "name": "Failure Unit Test", "failed_at": "May 04, 2021 02:07PM UTC", "failure_reason": "", "failure_count": 1, "comment": None}]}
-            html, text = [
-                render_template("emails/failures.{}".format(f), d)
-                for f in ["html", "txt"]
-            ]
-            self.assertIn('Failure Unit Test',html)
-            self.assertIn('Failure Unit Test',text)
+            d = {
+                "failures": [
+                    {
+                        "id": 1,
+                        "name": "Failure Unit Test",
+                        "failed_at": "May 04, 2021 02:07PM UTC",
+                        "failure_reason": "",
+                        "failure_count": 1,
+                        "comment": None,
+                    }
+                ]
+            }
+            html, text = [render_template("emails/failures.{}".format(f), d) for f in ["html", "txt"]]
+            self.assertIn("Failure Unit Test", html)
+            self.assertIn("Failure Unit Test", text)
