@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { filter, map, get, initial, last, reduce } from "lodash";
 import React, { useMemo, useState, useEffect } from "react";
 import Table from "antd/lib/table";

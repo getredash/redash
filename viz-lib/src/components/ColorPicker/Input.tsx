@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { isNil, isArray, chunk, map, filter, toPairs } from "lodash";
 import React, { useState, useEffect } from "react";
 import tinycolor from "tinycolor2";

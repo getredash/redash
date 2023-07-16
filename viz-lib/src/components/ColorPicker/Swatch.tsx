@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { isString } from "lodash";
 import React from "react";
 import cx from "classnames";

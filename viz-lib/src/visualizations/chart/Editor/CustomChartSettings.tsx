@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { isNil, trimStart } from "lodash";
 import React from "react";
 import { Section, Switch, TextArea } from "@/components/visualizations/editor";

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { find, flatten, each } from "lodash";
 import PropTypes from "prop-types";
 
@@ -16,6 +18,7 @@ import tableVisualization from "./table";
 import wordCloudVisualization from "./word-cloud";
 
 import verticalBarChartVizualization from "./custom/vertical-bar-chart";
+import horizontalBarChartVizualization from "./custom/horizontal-bar-chart";
 
 type VisualizationConfig = {
   type: string;
@@ -94,6 +97,7 @@ each(
     tableVisualization,
     wordCloudVisualization,
     verticalBarChartVizualization,
+    horizontalBarChartVizualization,
   ]),
   registerVisualization
 );

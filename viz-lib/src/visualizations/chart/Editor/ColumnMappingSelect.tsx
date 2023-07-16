@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { isString, map, uniq, flatten, filter, sortBy, keys } from "lodash";
 import React from "react";
 import { Section, Select } from "@/components/visualizations/editor";

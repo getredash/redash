@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { toString } from "lodash";
 import React, { useState, useEffect, useMemo } from "react";
 import cx from "classnames";

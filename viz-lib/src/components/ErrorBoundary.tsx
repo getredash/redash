@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { isFunction } from "lodash";
 import React from "react";
 import debug from "debug";

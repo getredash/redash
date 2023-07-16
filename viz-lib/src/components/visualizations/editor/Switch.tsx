@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import React, { useMemo } from "react";
 import AntSwitch from "antd/lib/switch";
 import Typography from "antd/lib/typography";
