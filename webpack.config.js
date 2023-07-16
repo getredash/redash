@@ -143,6 +143,17 @@ const config = {
         ]
       },
       {
+        include: /node_modules\/chart\.js.*\.(t|j)s$/,
+        use: [
+          {
+            loader: "babel-loader",
+            options: {
+              plugins: ["@babel/plugin-proposal-class-properties"]
+            }
+          }
+        ]
+      },
+      {
         test: /\.html$/,
         exclude: [/node_modules/, /index\.html/, /multi_org\.html/],
         use: [
