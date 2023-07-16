@@ -3,6 +3,7 @@ from unittest import TestCase
 
 from redash.query_runner.google_analytics4 import (
     format_column_value,
+    get_formatted_column_json,
     parse_ga_response,
 )
 
@@ -70,6 +71,38 @@ class TestFormatColumnValue(TestCase):
 
         with self.assertRaisesRegex(Exception, "Unknown date/time format in results: '20230712103025'"):
             format_column_value(column_name, column_value, self.columns)
+
+
+class TestGetFormattedColumnJson(TestCase):
+    def test_date_column(self):
+        column_name = "date"
+        expected_response = {
+            "name": column_name,
+            "friendly_name": column_name,
+            "type": "date",
+        }
+
+        self.assertEquals(get_formatted_column_json(column_name), expected_response)
+
+    def test_date_hour_column(self):
+        column_name = "dateHour"
+        expected_response = {
+            "name": column_name,
+            "friendly_name": column_name,
+            "type": "datetime",
+        }
+
+        self.assertEquals(get_formatted_column_json(column_name), expected_response)
+
+    def test_other_string(self):
+        column_name = "city"
+        expected_response = {
+            "name": column_name,
+            "friendly_name": column_name,
+            "type": "string",
+        }
+
+        self.assertEquals(get_formatted_column_json(column_name), expected_response)
 
 
 class TestParseGaResponse(TestCase):

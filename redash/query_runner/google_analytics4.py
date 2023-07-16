@@ -54,35 +54,31 @@ def format_column_value(column_name, value, columns):
     return value
 
 
+def get_formatted_column_json(column_name):
+    data_type = None
+
+    if column_name == "date":
+        data_type = "DATE"
+    elif column_name == "dateHour":
+        data_type = "DATETIME"
+
+    result = {
+        "name": column_name,
+        "friendly_name": column_name,
+        "type": types_conv.get(data_type, "string"),
+    }
+
+    return result
+
+
 def parse_ga_response(response):
     columns = []
-    for h in response["dimensionHeaders"]:
-        data_type = None
-        if h["name"] == "date":
-            data_type = "DATE"
-        elif h["name"] == "dateHour":
-            data_type = "DATETIME"
-        columns.append(
-            {
-                "name": h["name"],
-                "friendly_name": h["name"],
-                "type": types_conv.get(data_type, "string"),
-            }
-        )
 
-    for h in response["metricHeaders"]:
-        data_type = None
-        if h["name"] == "date":
-            data_type = "DATE"
-        elif h["name"] == "dateHour":
-            data_type = "DATETIME"
-        columns.append(
-            {
-                "name": h["name"],
-                "friendly_name": h["name"],
-                "type": types_conv.get(data_type, "string"),
-            }
-        )
+    for dim_header in response["dimensionHeaders"]:
+        columns.append(get_formatted_column_json(dim_header["name"]))
+
+    for met_header in response["metricHeaders"]:
+        columns.append(get_formatted_column_json(met_header["name"]))
 
     rows = []
     for r in response["rows"]:
