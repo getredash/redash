@@ -59,6 +59,8 @@ module.exports = {
       lodash: "lodash",
       react: "react",
       "react-dom": "react-dom",
+      "chart.js": "chart.js",
+      "react-chartjs-2": "react-chartjs-2",
     },
     /^antd/i,
   ],
