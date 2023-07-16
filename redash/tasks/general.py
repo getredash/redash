@@ -1,14 +1,12 @@
 import requests
-from datetime import datetime
-
 from flask_mail import Message
-from rq import Connection, Queue
-from rq.registry import FailedJobRegistry
-from rq.job import Job
-from redash import mail, models, settings, rq_redis_connection
+
+from redash import mail, models, settings
 from redash.models import users
+from redash.query_runner import NotSupported
+from redash.tasks.worker import Queue
 from redash.version_check import run_version_check
-from redash.worker import job, get_job_logger
+from redash.worker import get_job_logger, job
 
 logger = get_job_logger(__name__)
 
@@ -63,29 +61,32 @@ def send_mail(to, subject, html, text):
         logger.exception("Failed sending message: %s", message.subject)
 
 
+@job("queries", timeout=30, ttl=90)
+def test_connection(data_source_id):
+    try:
+        data_source = models.DataSource.get_by_id(data_source_id)
+        data_source.query_runner.test_connection()
+    except Exception as e:
+        return e
+    else:
+        return True
+
+
+@job("schemas", queue_class=Queue, at_front=True, timeout=300, ttl=90)
+def get_schema(data_source_id, refresh):
+    try:
+        data_source = models.DataSource.get_by_id(data_source_id)
+        return data_source.get_schema(refresh)
+    except NotSupported:
+        return {
+            "error": {
+                "code": 1,
+                "message": "Data source type does not support retrieving schema",
+            }
+        }
+    except Exception as e:
+        return {"error": {"code": 2, "message": "Error retrieving schema", "details": str(e)}}
+
+
 def sync_user_details():
     users.sync_last_active_at()
-
-
-def purge_failed_jobs():
-    with Connection(rq_redis_connection):
-        for queue in Queue.all():
-            failed_job_ids = FailedJobRegistry(queue=queue).get_job_ids()
-            failed_jobs = Job.fetch_many(failed_job_ids, rq_redis_connection)
-            stale_jobs = [
-                job
-                for job in failed_jobs
-                if job
-                and (datetime.utcnow() - job.ended_at).seconds
-                > settings.JOB_DEFAULT_FAILURE_TTL
-            ]
-
-            for job in stale_jobs:
-                job.delete()
-
-            if stale_jobs:
-                logger.info(
-                    "Purged %d old failed jobs from the %s queue.",
-                    len(stale_jobs),
-                    queue.name,
-                )

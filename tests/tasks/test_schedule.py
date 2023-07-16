@@ -1,5 +1,6 @@
 from unittest import TestCase
-from mock import patch, ANY
+
+from mock import patch
 
 from redash.tasks.schedule import rq_scheduler, schedule_periodic_jobs
 
@@ -51,9 +52,7 @@ class TestSchedule(TestCase):
         def bar():
             pass
 
-        schedule_periodic_jobs(
-            [{"func": foo, "interval": 60}, {"func": bar, "interval": 90}]
-        )
+        schedule_periodic_jobs([{"func": foo, "interval": 60}, {"func": bar, "interval": 90}])
         schedule_periodic_jobs([{"func": foo, "interval": 60}])
 
         jobs = [job for job in rq_scheduler.get_jobs()]
@@ -62,3 +61,19 @@ class TestSchedule(TestCase):
         self.assertTrue(jobs[0].func_name.endswith("foo"))
         self.assertEqual(jobs[0].meta["interval"], 60)
 
+
+class TestSchedulerMetrics(TestCase):
+    def setUp(self):
+        for job in rq_scheduler.get_jobs():
+            rq_scheduler.cancel(job)
+            job.delete()
+
+    def test_scheduler_enqueue_job_metric(self):
+        def foo():
+            pass
+
+        schedule_periodic_jobs([{"func": foo, "interval": 60}])
+
+        with patch("statsd.StatsClient.incr") as incr:
+            rq_scheduler.enqueue_jobs()
+            incr.assert_called_once_with("rq.jobs.created.periodic")

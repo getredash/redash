@@ -1,0 +1,66 @@
+@import (reference, less) "~@/assets/less/ant";
+
+.databricks-schema-browser {
+  .schema-control {
+    .database-select-open .ant-input-group-addon {
+      background-color: #fff;
+
+      .ant-select-selection-item {
+        visibility: hidden;
+      }
+    }
+
+    .ant-input-wrapper {
+      table-layout: fixed; // antd uses display: table, so this is needed for % units
+
+      .ant-input-group-addon {
+        width: 40%;
+        padding: 0;
+        border-bottom-left-radius: 0;
+
+        .ant-select {
+          width: 100%;
+
+          .ant-select-selection-item {
+            text-align: left;
+          }
+
+          &.ant-select-focused .ant-select-selector {
+            color: inherit;
+          }
+        }
+      }
+
+      .ant-input {
+        border-bottom-right-radius: 0;
+      }
+    }
+  }
+
+  .schema-list-wrapper {
+    position: relative;
+    height: 100%;
+    border: 1px solid #eaeaea;
+    border-top: 0;
+    border-radius: 0 0 4px 4px;
+    margin-bottom: 20px;
+    padding-bottom: 32px;
+
+    .load-button {
+      display: flex;
+      justify-content: center;
+      position: absolute;
+      width: 100%;
+      bottom: 0;
+
+      .ant-btn {
+        color: @text-color;
+        padding: 0 10px;
+      }
+    }
+  }
+}
+
+.databricks-schema-browser-db-dropdown {
+  width: 50vw !important;
+}

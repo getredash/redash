@@ -1,5 +1,5 @@
 import React from "react";
-import { each, includes, isUndefined, isEmpty, map } from "lodash";
+import { each, includes, isUndefined, isEmpty, isNil, map, get, some } from "lodash";
 
 function orderedInputs(properties, order, targetOptions) {
   const inputs = new Array(order.length);
@@ -9,7 +9,7 @@ function orderedInputs(properties, order, targetOptions) {
       name: key,
       title: properties[key].title,
       type: properties[key].type,
-      placeholder: properties[key].default && properties[key].default.toString(),
+      placeholder: isNil(properties[key].default) ? null : properties[key].default.toString(),
       required: properties[key].required,
       extra: properties[key].extra,
       initialValue: targetOptions[key],
@@ -124,8 +124,18 @@ function getBase64(file) {
   });
 }
 
+function hasFilledExtraField(type, target) {
+  const extraOptions = get(type, "configuration_schema.extra_options", []);
+  return some(extraOptions, optionName => {
+    const defaultOptionValue = get(type, ["configuration_schema", "properties", optionName, "default"]);
+    const targetOptionValue = get(target, ["options", optionName]);
+    return !isNil(targetOptionValue) && targetOptionValue !== defaultOptionValue;
+  });
+}
+
 export default {
   getFields,
   updateTargetWithValues,
   getBase64,
+  hasFilledExtraField,
 };

@@ -1,7 +1,16 @@
 import logging
+import os
 
+from redash.query_runner import (
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseSQLQueryRunner,
+    JobTimeoutException,
+    register,
+)
 from redash.utils import json_dumps, json_loads
-from redash.query_runner import *
 
 try:
     import cx_Oracle
@@ -30,12 +39,19 @@ logger = logging.getLogger(__name__)
 
 
 class Oracle(BaseSQLQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1 FROM dual"
+    limit_query = " FETCH NEXT 1000 ROWS ONLY"
+    limit_keywords = ["ROW", "ROWS", "ONLY", "TIES"]
 
     @classmethod
     def get_col_type(cls, col_type, scale):
         if col_type == cx_Oracle.NUMBER:
-            return TYPE_FLOAT if scale > 0 else TYPE_INTEGER
+            if scale is None:
+                return TYPE_INTEGER
+            if scale > 0:
+                return TYPE_FLOAT
+            return TYPE_INTEGER
         else:
             return TYPES_MAP.get(col_type, None)
 
@@ -53,27 +69,16 @@ class Oracle(BaseSQLQueryRunner):
                 "host": {"type": "string"},
                 "port": {"type": "number"},
                 "servicename": {"type": "string", "title": "DSN Service Name"},
+                "encoding": {"type": "string"},
             },
             "required": ["servicename", "user", "password", "host", "port"],
+            "extra_options": ["encoding"],
             "secret": ["password"],
         }
 
     @classmethod
     def type(cls):
         return "oracle"
-
-    def __init__(self, configuration):
-        super(Oracle, self).__init__(configuration)
-
-        dsn = cx_Oracle.makedsn(
-            self.configuration["host"],
-            self.configuration["port"],
-            service_name=self.configuration["servicename"],
-        )
-
-        self.connection_string = "{}/{}@{}".format(
-            self.configuration["user"], self.configuration["password"], dsn
-        )
 
     def _get_tables(self, schema):
         query = """
@@ -88,12 +93,12 @@ class Oracle(BaseSQLQueryRunner):
         results, error = self.run_query(query, None)
 
         if error is not None:
-            raise Exception("Failed getting schema.")
+            self._handle_run_query_error(error)
 
         results = json_loads(results)
 
         for row in results["rows"]:
-            if row["OWNER"] != None:
+            if row["OWNER"] is not None:
                 table_name = "{}.{}".format(row["OWNER"], row["TABLE_NAME"])
             else:
                 table_name = row["TABLE_NAME"]
@@ -109,7 +114,7 @@ class Oracle(BaseSQLQueryRunner):
     def _convert_number(cls, value):
         try:
             return int(value)
-        except:
+        except BaseException:
             return value
 
     @classmethod
@@ -130,7 +135,20 @@ class Oracle(BaseSQLQueryRunner):
                 )
 
     def run_query(self, query, user):
-        connection = cx_Oracle.connect(self.connection_string)
+        if self.configuration.get("encoding"):
+            os.environ["NLS_LANG"] = self.configuration["encoding"]
+
+        dsn = cx_Oracle.makedsn(
+            self.configuration["host"],
+            self.configuration["port"],
+            service_name=self.configuration["servicename"],
+        )
+
+        connection = cx_Oracle.connect(
+            user=self.configuration["user"],
+            password=self.configuration["password"],
+            dsn=dsn,
+        )
         connection.outputtypehandler = Oracle.output_handler
 
         cursor = connection.cursor()
@@ -139,16 +157,8 @@ class Oracle(BaseSQLQueryRunner):
             cursor.execute(query)
             rows_count = cursor.rowcount
             if cursor.description is not None:
-                columns = self.fetch_columns(
-                    [
-                        (i[0], Oracle.get_col_type(i[1], i[5]))
-                        for i in cursor.description
-                    ]
-                )
-                rows = [
-                    dict(zip((column["name"] for column in columns), row))
-                    for row in cursor
-                ]
+                columns = self.fetch_columns([(i[0], Oracle.get_col_type(i[1], i[5])) for i in cursor.description])
+                rows = [dict(zip((c["name"] for c in columns), row)) for row in cursor]
                 data = {"columns": columns, "rows": rows}
                 error = None
                 json_data = json_dumps(data)
@@ -161,11 +171,11 @@ class Oracle(BaseSQLQueryRunner):
         except cx_Oracle.DatabaseError as err:
             error = "Query failed. {}.".format(str(err))
             json_data = None
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
-            error = "Query cancelled by user."
-            json_data = None
+            raise
         finally:
+            os.environ.pop("NLS_LANG", None)
             connection.close()
 
         return json_data, error

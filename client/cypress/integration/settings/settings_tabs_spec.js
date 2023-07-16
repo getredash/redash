@@ -1,17 +1,12 @@
-import { createUser } from "../../support/redash-api";
-
 describe("Settings Tabs", () => {
-  before(() => {
-    cy.login();
-    createUser({
-      name: "Example User",
-      email: "user@redash.io",
-      password: "password",
-    });
-  });
+  const regularUser = {
+    name: "Example User",
+    email: "user@redash.io",
+    password: "password",
+  };
 
   const userTabs = ["Users", "Groups", "Query Snippets", "Account"];
-  const adminTabs = ["Data Sources", "Alert Destinations", "Settings"];
+  const adminTabs = ["Data Sources", "Alert Destinations", "General"];
 
   const expectSettingsTabsToBe = expectedTabs =>
     cy.getByTestId("SettingsScreenItem").then($list => {
@@ -19,16 +14,45 @@ describe("Settings Tabs", () => {
       expect(listedPages).to.have.members(expectedTabs);
     });
 
-  it("shows all tabs for admins", () => {
-    cy.visit("/users");
-    expectSettingsTabsToBe([...userTabs, ...adminTabs]);
+  before(() => {
+    cy.login().then(() => cy.createUser(regularUser));
   });
 
-  it("hides unavailable tabs for users", () => {
-    cy.logout()
-      .then(() => cy.login("user@redash.io", "password"))
-      .then(() => cy.visit("/users"));
+  describe("For admin user", () => {
+    beforeEach(() => {
+      cy.logout();
+      cy.login();
+      cy.visit("/");
+    });
 
-    expectSettingsTabsToBe(userTabs);
+    it("settings link should lead to Data Sources settings", () => {
+      cy.getByTestId("SettingsLink")
+        .should("exist")
+        .should("have.attr", "href", "data_sources");
+    });
+
+    it("all tabs should be available", () => {
+      cy.getByTestId("SettingsLink").click();
+      expectSettingsTabsToBe([...userTabs, ...adminTabs]);
+    });
+  });
+
+  describe("For regular user", () => {
+    beforeEach(() => {
+      cy.logout();
+      cy.login(regularUser.email, regularUser.password);
+      cy.visit("/");
+    });
+
+    it("settings link should lead to Users settings", () => {
+      cy.getByTestId("SettingsLink")
+        .should("exist")
+        .should("have.attr", "href", "users");
+    });
+
+    it("limited set of settings tabs should be available", () => {
+      cy.getByTestId("SettingsLink").click();
+      expectSettingsTabsToBe(userTabs);
+    });
   });
 });

@@ -1,10 +1,18 @@
-from io import StringIO
-import logging
-import sys
-import uuid
 import csv
+import logging
+import uuid
 
-from redash.query_runner import *
+from redash.query_runner import (
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseQueryRunner,
+    InterruptException,
+    JobTimeoutException,
+    register,
+)
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
@@ -12,7 +20,7 @@ logger = logging.getLogger(__name__)
 try:
     import atsd_client
     from atsd_client.exceptions import SQLException
-    from atsd_client.services import SQLService, MetricsService
+    from atsd_client.services import MetricsService, SQLService
 
     enabled = True
 except ImportError:
@@ -155,10 +163,9 @@ class AxibaseTSD(BaseQueryRunner):
         except SQLException as e:
             json_data = None
             error = e.content
-        except (KeyboardInterrupt, InterruptException):
+        except (KeyboardInterrupt, InterruptException, JobTimeoutException):
             sql.cancel_query(query_id)
-            error = "Query cancelled by user."
-            json_data = None
+            raise
 
         return json_data, error
 
@@ -176,7 +183,7 @@ class AxibaseTSD(BaseQueryRunner):
             minInsertDate=self.configuration.get("min_insert_date", None),
             limit=self.configuration.get("limit", 5000),
         )
-        metrics_list = [i.name.encode("utf-8") for i in ml]
+        metrics_list = [i.name for i in ml]
         metrics_list.append("atsd_series")
         schema = {}
         default_columns = [

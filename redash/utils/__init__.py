@@ -1,27 +1,28 @@
+import binascii
 import codecs
-import io
 import csv
 import datetime
 import decimal
 import hashlib
+import io
 import os
 import random
 import re
 import uuid
-import binascii
 
 import pystache
 import pytz
 import simplejson
+import sqlparse
 from flask import current_app
 from funcy import select_values
-from redash import settings
 from sqlalchemy.orm.query import Query
+
+from redash import settings
 
 from .human_time import parse_human_time
 
-
-COMMENTS_REGEX = re.compile("/\*.*?\*/")
+COMMENTS_REGEX = re.compile(r"/\*.*?\*/")
 WRITER_ENCODING = os.environ.get("REDASH_CSV_WRITER_ENCODING", "utf-8")
 WRITER_ERRORS = os.environ.get("REDASH_CSV_WRITER_ERRORS", "strict")
 
@@ -45,7 +46,7 @@ def dt_from_timestamp(timestamp, tz_aware=True):
 
 
 def slugify(s):
-    return re.sub("[^a-z0-9_\-]+", "-", s.lower())
+    return re.sub(r"[^a-z0-9_\-]+", "-", s.lower())
 
 
 def gen_query_hash(sql):
@@ -114,6 +115,9 @@ def json_dumps(data, *args, **kwargs):
     simplejson.dumps function."""
     kwargs.setdefault("cls", JSONEncoder)
     kwargs.setdefault("encoding", None)
+    # Float value nan or inf in Python should be render to None or null in json.
+    # Using ignore_nan = False will make Python render nan as NaN, leading to parse error in front-end
+    kwargs.setdefault("ignore_nan", True)
     return simplejson.dumps(data, *args, **kwargs)
 
 
@@ -190,8 +194,8 @@ def filter_none(d):
 
 
 def to_filename(s):
-    s = re.sub('[<>:"\\\/|?*]+', " ", s, flags=re.UNICODE)
-    s = re.sub("\s+", "_", s, flags=re.UNICODE)
+    s = re.sub(r'[<>:"\\\/|?*]+', " ", s, flags=re.UNICODE)
+    s = re.sub(r"\s+", "_", s, flags=re.UNICODE)
     return s.strip("_")
 
 
@@ -204,8 +208,8 @@ def deprecated():
 
 
 def render_template(path, context):
-    """ Render a template with context, without loading the entire app context.
+    """Render a template with context, without loading the entire app context.
     Using Flask's `render_template` function requires the entire app context to load, which in turn triggers any
     function decorated with the `context_processor` decorator, which is not explicitly required for rendering purposes.
     """
-    current_app.jinja_env.get_template(path).render(**context)
+    return current_app.jinja_env.get_template(path).render(**context)

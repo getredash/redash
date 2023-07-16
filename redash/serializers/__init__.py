@@ -3,23 +3,20 @@ This will eventually replace all the `to_dict` methods of the different model
 classes we have. This will ensure cleaner code and better
 separation of concerns.
 """
-from funcy import project
-
 from flask_login import current_user
+from funcy import project
 from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
 
 from redash import models
-from redash.permissions import has_access, view_only
-from redash.utils import json_loads
 from redash.models.parameterized_query import ParameterizedQuery
-
-
-from .query_result import (
+from redash.permissions import has_access, view_only
+from redash.serializers.query_result import (
     serialize_query_result,
     serialize_query_result_to_dsv,
     serialize_query_result_to_xlsx,
 )
+from redash.utils import json_loads
 
 
 def public_widget(widget):
@@ -55,7 +52,7 @@ def public_widget(widget):
 def public_dashboard(dashboard):
     dashboard_dict = project(
         serialize_dashboard(dashboard, with_favorite_state=False),
-        ("name", "layout", "dashboard_filters_enabled", "updated_at", "created_at"),
+        ("name", "layout", "dashboard_filters_enabled", "updated_at", "created_at", "options"),
     )
 
     widget_list = (
@@ -80,21 +77,12 @@ class QuerySerializer(Serializer):
     def serialize(self):
         if isinstance(self.object_or_list, models.Query):
             result = serialize_query(self.object_or_list, **self.options)
-            if (
-                self.options.get("with_favorite_state", True)
-                and not current_user.is_api_user()
-            ):
-                result["is_favorite"] = models.Favorite.is_favorite(
-                    current_user.id, self.object_or_list
-                )
+            if self.options.get("with_favorite_state", True) and not current_user.is_api_user():
+                result["is_favorite"] = models.Favorite.is_favorite(current_user.id, self.object_or_list)
         else:
-            result = [
-                serialize_query(query, **self.options) for query in self.object_or_list
-            ]
+            result = [serialize_query(query, **self.options) for query in self.object_or_list]
             if self.options.get("with_favorite_state", True):
-                favorite_ids = models.Favorite.are_favorites(
-                    current_user.id, self.object_or_list
-                )
+                favorite_ids = models.Favorite.are_favorites(current_user.id, self.object_or_list)
                 for query in result:
                     query["is_favorite"] = query["id"] in favorite_ids
 
@@ -134,11 +122,7 @@ def serialize_query(
         d["user_id"] = query.user_id
 
     if with_last_modified_by:
-        d["last_modified_by"] = (
-            query.last_modified_by.to_dict()
-            if query.last_modified_by is not None
-            else None
-        )
+        d["last_modified_by"] = query.last_modified_by.to_dict() if query.last_modified_by is not None else None
     else:
         d["last_modified_by_id"] = query.last_modified_by_id
 
@@ -151,10 +135,7 @@ def serialize_query(
             d["runtime"] = None
 
     if with_visualizations:
-        d["visualizations"] = [
-            serialize_visualization(vis, with_query=False)
-            for vis in query.visualizations
-        ]
+        d["visualizations"] = [serialize_visualization(vis, with_query=False) for vis in query.visualizations]
 
     return d
 
@@ -245,27 +226,48 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
 
     d = {
         "id": obj.id,
-        "slug": obj.slug,
+        "slug": obj.name_as_slug,
         "name": obj.name,
         "user_id": obj.user_id,
-        # TODO: we should properly load the users
-        "user": obj.user.to_dict(),
+        "user": {
+            "id": obj.user.id,
+            "name": obj.user.name,
+            "email": obj.user.email,
+            "profile_image_url": obj.user.profile_image_url,
+        },
         "layout": layout,
         "dashboard_filters_enabled": obj.dashboard_filters_enabled,
         "widgets": widgets,
+        "options": obj.options,
         "is_archived": obj.is_archived,
         "is_draft": obj.is_draft,
         "tags": obj.tags or [],
-        # TODO: bulk load favorites
         "updated_at": obj.updated_at,
         "created_at": obj.created_at,
         "version": obj.version,
     }
 
-    if with_favorite_state:
-        d["is_favorite"] = models.Favorite.is_favorite(current_user.id, obj)
-
     return d
+
+
+class DashboardSerializer(Serializer):
+    def __init__(self, object_or_list, **kwargs):
+        self.object_or_list = object_or_list
+        self.options = kwargs
+
+    def serialize(self):
+        if isinstance(self.object_or_list, models.Dashboard):
+            result = serialize_dashboard(self.object_or_list, **self.options)
+            if self.options.get("with_favorite_state", True) and not current_user.is_api_user():
+                result["is_favorite"] = models.Favorite.is_favorite(current_user.id, self.object_or_list)
+        else:
+            result = [serialize_dashboard(obj, **self.options) for obj in self.object_or_list]
+            if self.options.get("with_favorite_state", True):
+                favorite_ids = models.Favorite.are_favorites(current_user.id, self.object_or_list)
+                for obj in result:
+                    obj["is_favorite"] = obj["id"] in favorite_ids
+
+        return result
 
 
 def serialize_job(job):
@@ -284,14 +286,20 @@ def serialize_job(job):
         updated_at = 0
 
     status = STATUSES[job_status]
+    result = query_result_id = None
 
-    if isinstance(job.result, Exception):
+    if job.is_cancelled:
+        error = "Query cancelled by user."
+        status = 4
+    elif isinstance(job.result, Exception):
         error = str(job.result)
         status = 4
-    elif job.is_cancelled:
-        error = "Query execution cancelled."
+    elif isinstance(job.result, dict) and "error" in job.result:
+        error = job.result["error"]
+        status = 4
     else:
         error = ""
+        result = query_result_id = job.result
 
     return {
         "job": {
@@ -299,6 +307,7 @@ def serialize_job(job):
             "updated_at": updated_at,
             "status": status,
             "error": error,
-            "query_result_id": job.result if job.is_finished and not error else None,
+            "result": result,
+            "query_result_id": query_result_id,
         }
     }

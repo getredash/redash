@@ -1,7 +1,5 @@
 /* global cy, Cypress */
 
-import { createQuery } from "../../support/redash-api";
-
 const { map } = Cypress._;
 
 const SQL = `
@@ -64,19 +62,17 @@ describe("Word Cloud", () => {
 
   beforeEach(() => {
     cy.login();
-    createQuery({ query: SQL }).then(({ id }) => {
+    cy.createQuery({ query: SQL }).then(({ id }) => {
       cy.visit(`queries/${id}/source`);
       cy.getByTestId("ExecuteButton").click();
     });
     cy.document().then(injectFont);
+    cy.getByTestId("NewVisualization").click();
+    cy.getByTestId("VisualizationType").selectAntdOption("VisualizationType.WORD_CLOUD");
   });
 
   it("creates visualization with automatic word frequencies", () => {
     cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.WORD_CLOUD
-
       WordCloud.WordsColumn
       WordCloud.WordsColumn.a
     `);
@@ -93,10 +89,6 @@ describe("Word Cloud", () => {
 
   it("creates visualization with word frequencies from another column", () => {
     cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.WORD_CLOUD
-
       WordCloud.WordsColumn
       WordCloud.WordsColumn.b
 
@@ -116,10 +108,6 @@ describe("Word Cloud", () => {
 
   it("creates visualization with word length and frequencies limits", () => {
     cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.WORD_CLOUD
-
       WordCloud.WordsColumn
       WordCloud.WordsColumn.b
 

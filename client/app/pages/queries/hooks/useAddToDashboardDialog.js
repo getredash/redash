@@ -6,7 +6,7 @@ export default function useAddToDashboardDialog(query) {
   return useCallback(
     visualizationId => {
       const visualization = find(query.visualizations, { id: visualizationId });
-      AddToDashboardDialog.showModal({ visualization }).result.catch(() => {}); // ignore dismiss
+      AddToDashboardDialog.showModal({ visualization });
     },
     [query.visualizations]
   );

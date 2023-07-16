@@ -1,12 +1,25 @@
-import os
 import logging
+import os
 import select
+from base64 import b64decode
+from tempfile import NamedTemporaryFile
 from uuid import uuid4
 
 import psycopg2
 from psycopg2.extras import Range
 
-from redash.query_runner import *
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseSQLQueryRunner,
+    InterruptException,
+    JobTimeoutException,
+    register,
+)
 from redash.utils import JSONEncoder, json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
@@ -69,9 +82,9 @@ def _wait(conn, timeout=None):
 
 def full_table_name(schema, name):
     if "." in name:
-        name = u'"{}"'.format(name)
+        name = '"{}"'.format(name)
 
-    return u"{}.{}".format(schema, name)
+    return "{}.{}".format(schema, name)
 
 
 def build_schema(query_result, schema):
@@ -101,7 +114,37 @@ def build_schema(query_result, schema):
         if table_name not in schema:
             schema[table_name] = {"name": table_name, "columns": []}
 
-        schema[table_name]["columns"].append(row["column_name"])
+        column = row["column_name"]
+        if row.get("data_type") is not None:
+            column = {"name": row["column_name"], "type": row["data_type"]}
+
+        schema[table_name]["columns"].append(column)
+
+
+def _create_cert_file(configuration, key, ssl_config):
+    file_key = key + "File"
+    if file_key in configuration:
+        with NamedTemporaryFile(mode="w", delete=False) as cert_file:
+            cert_bytes = b64decode(configuration[file_key])
+            cert_file.write(cert_bytes.decode("utf-8"))
+
+        ssl_config[key] = cert_file.name
+
+
+def _cleanup_ssl_certs(ssl_config):
+    for k, v in ssl_config.items():
+        if k != "sslmode":
+            os.remove(v)
+
+
+def _get_ssl_config(configuration):
+    ssl_config = {"sslmode": configuration.get("sslmode", "prefer")}
+
+    _create_cert_file(configuration, "sslrootcert", ssl_config)
+    _create_cert_file(configuration, "sslcert", ssl_config)
+    _create_cert_file(configuration, "sslkey", ssl_config)
+
+    return ssl_config
 
 
 class PostgreSQL(BaseSQLQueryRunner):
@@ -117,11 +160,32 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "host": {"type": "string", "default": "127.0.0.1"},
                 "port": {"type": "number", "default": 5432},
                 "dbname": {"type": "string", "title": "Database Name"},
-                "sslmode": {"type": "string", "title": "SSL Mode", "default": "prefer"},
+                "sslmode": {
+                    "type": "string",
+                    "title": "SSL Mode",
+                    "default": "prefer",
+                    "extendedEnum": [
+                        {"value": "disable", "name": "Disable"},
+                        {"value": "allow", "name": "Allow"},
+                        {"value": "prefer", "name": "Prefer"},
+                        {"value": "require", "name": "Require"},
+                        {"value": "verify-ca", "name": "Verify CA"},
+                        {"value": "verify-full", "name": "Verify Full"},
+                    ],
+                },
+                "sslrootcertFile": {"type": "string", "title": "SSL Root Certificate"},
+                "sslcertFile": {"type": "string", "title": "SSL Client Certificate"},
+                "sslkeyFile": {"type": "string", "title": "SSL Client Key"},
             },
             "order": ["host", "port", "user", "password"],
             "required": ["dbname"],
-            "secret": ["password"],
+            "secret": ["password", "sslrootcertFile", "sslcertFile", "sslkeyFile"],
+            "extra_options": [
+                "sslmode",
+                "sslrootcertFile",
+                "sslcertFile",
+                "sslkeyFile",
+            ],
         }
 
     @classmethod
@@ -132,7 +196,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         results, error = self.run_query(query, None)
 
         if error is not None:
-            raise Exception("Failed getting schema.")
+            self._handle_run_query_error(error)
 
         results = json_loads(results)
 
@@ -156,7 +220,8 @@ class PostgreSQL(BaseSQLQueryRunner):
         query = """
         SELECT s.nspname as table_schema,
                c.relname as table_name,
-               a.attname as column_name
+               a.attname as column_name,
+               null as data_type
         FROM pg_class c
         JOIN pg_namespace s
         ON c.relnamespace = s.oid
@@ -165,13 +230,14 @@ class PostgreSQL(BaseSQLQueryRunner):
         ON a.attrelid = c.oid
         AND a.attnum > 0
         AND NOT a.attisdropped
-        WHERE c.relkind IN ('m', 'f', 'p')
+        WHERE c.relkind IN ('m', 'f', 'p') AND has_table_privilege(s.nspname || '.' || c.relname, 'select')
 
         UNION
 
         SELECT table_schema,
                table_name,
-               column_name
+               column_name,
+               data_type
         FROM information_schema.columns
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
         """
@@ -181,14 +247,15 @@ class PostgreSQL(BaseSQLQueryRunner):
         return list(schema.values())
 
     def _get_connection(self):
+        self.ssl_config = _get_ssl_config(self.configuration)
         connection = psycopg2.connect(
             user=self.configuration.get("user"),
             password=self.configuration.get("password"),
             host=self.configuration.get("host"),
             port=self.configuration.get("port"),
             dbname=self.configuration.get("dbname"),
-            sslmode=self.configuration.get("sslmode"),
             async_=True,
+            **self.ssl_config,
         )
 
         return connection
@@ -204,13 +271,8 @@ class PostgreSQL(BaseSQLQueryRunner):
             _wait(connection)
 
             if cursor.description is not None:
-                columns = self.fetch_columns(
-                    [(i[0], types_map.get(i[1], None)) for i in cursor.description]
-                )
-                rows = [
-                    dict(zip((column["name"] for column in columns), row))
-                    for row in cursor
-                ]
+                columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
+                rows = [dict(zip((column["name"] for column in columns), row)) for row in cursor]
 
                 data = {"columns": columns, "rows": rows}
                 error = None
@@ -218,24 +280,23 @@ class PostgreSQL(BaseSQLQueryRunner):
             else:
                 error = "Query completed but it returned no data."
                 json_data = None
-        except (select.error, OSError) as e:
+        except (select.error, OSError):
             error = "Query interrupted. Please retry."
             json_data = None
         except psycopg2.DatabaseError as e:
             error = str(e)
             json_data = None
-        except (KeyboardInterrupt, InterruptException):
+        except (KeyboardInterrupt, InterruptException, JobTimeoutException):
             connection.cancel()
-            error = "Query cancelled by user."
-            json_data = None
+            raise
         finally:
             connection.close()
+            _cleanup_ssl_certs(self.ssl_config)
 
         return json_data, error
 
 
 class Redshift(PostgreSQL):
-
     @classmethod
     def type(cls):
         return "redshift"
@@ -245,10 +306,9 @@ class Redshift(PostgreSQL):
         return "Redshift"
 
     def _get_connection(self):
+        self.ssl_config = {}
 
-        sslrootcert_path = os.path.join(
-            os.path.dirname(__file__), "./files/redshift-ca-bundle.crt"
-        )
+        sslrootcert_path = os.path.join(os.path.dirname(__file__), "./files/redshift-ca-bundle.crt")
 
         connection = psycopg2.connect(
             user=self.configuration.get("user"),
@@ -329,6 +389,7 @@ class Redshift(PostgreSQL):
                             ordinal_position AS pos
             FROM svv_columns
             WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
+            AND table_schema NOT LIKE 'pg_temp_%'
         )
         SELECT table_name, table_schema, column_name
         FROM tables
@@ -345,8 +406,8 @@ class Redshift(PostgreSQL):
 
         return list(schema.values())
 
-class RedshiftIAM(Redshift):
 
+class RedshiftIAM(Redshift):
     @classmethod
     def type(cls):
         return "redshift_iam"
@@ -378,7 +439,10 @@ class RedshiftIAM(Redshift):
                 "rolename": {"type": "string", "title": "IAM Role Name"},
                 "aws_region": {"type": "string", "title": "AWS Region"},
                 "aws_access_key_id": {"type": "string", "title": "AWS Access Key ID"},
-                "aws_secret_access_key": {"type": "string", "title": "AWS Secret Access Key"},
+                "aws_secret_access_key": {
+                    "type": "string",
+                    "title": "AWS Secret Access Key",
+                },
                 "clusterid": {"type": "string", "title": "Redshift Cluster ID"},
                 "user": {"type": "string"},
                 "host": {"type": "string"},
@@ -415,46 +479,45 @@ class RedshiftIAM(Redshift):
         }
 
     def _get_connection(self):
-
-        sslrootcert_path = os.path.join(
-            os.path.dirname(__file__), "./files/redshift-ca-bundle.crt"
-        )
+        sslrootcert_path = os.path.join(os.path.dirname(__file__), "./files/redshift-ca-bundle.crt")
 
         login_method = self._login_method_selection()
 
-
         if login_method == "KEYS":
-            client = boto3.client("redshift",
-                                  region_name=self.configuration.get("aws_region"),
-                                  aws_access_key_id=self.configuration.get("aws_access_key_id"),
-                                  aws_secret_access_key=self.configuration.get("aws_secret_access_key"))
+            client = boto3.client(
+                "redshift",
+                region_name=self.configuration.get("aws_region"),
+                aws_access_key_id=self.configuration.get("aws_access_key_id"),
+                aws_secret_access_key=self.configuration.get("aws_secret_access_key"),
+            )
         elif login_method == "ROLE":
-            client = boto3.client("redshift",
-                                  region_name=self.configuration.get("aws_region"))
+            client = boto3.client("redshift", region_name=self.configuration.get("aws_region"))
         else:
             if login_method == "ASSUME_ROLE_KEYS":
-                assume_client = client = boto3.client('sts',
-                                                      region_name=self.configuration.get("aws_region"),
-                                                      aws_access_key_id=self.configuration.get("aws_access_key_id"),
-                                                      aws_secret_access_key=self.configuration.get(
-                                                          "aws_secret_access_key"))
+                assume_client = client = boto3.client(
+                    "sts",
+                    region_name=self.configuration.get("aws_region"),
+                    aws_access_key_id=self.configuration.get("aws_access_key_id"),
+                    aws_secret_access_key=self.configuration.get("aws_secret_access_key"),
+                )
             else:
-                assume_client = client = boto3.client('sts',
-                                                      region_name=self.configuration.get("aws_region"))
+                assume_client = client = boto3.client("sts", region_name=self.configuration.get("aws_region"))
             role_session = f"redash_{uuid4().hex}"
             session_keys = assume_client.assume_role(
-                RoleArn=self.configuration.get("rolename"),
-                RoleSessionName=role_session)["Credentials"]
-            client = boto3.client("redshift",
-                                  region_name=self.configuration.get("aws_region"),
-                                  aws_access_key_id=session_keys["AccessKeyId"],
-                                  aws_secret_access_key=session_keys["SecretAccessKey"],
-                                  aws_session_token=session_keys["SessionToken"]
-                                  )
+                RoleArn=self.configuration.get("rolename"), RoleSessionName=role_session
+            )["Credentials"]
+            client = boto3.client(
+                "redshift",
+                region_name=self.configuration.get("aws_region"),
+                aws_access_key_id=session_keys["AccessKeyId"],
+                aws_secret_access_key=session_keys["SecretAccessKey"],
+                aws_session_token=session_keys["SessionToken"],
+            )
         credentials = client.get_cluster_credentials(
             DbUser=self.configuration.get("user"),
             DbName=self.configuration.get("dbname"),
-            ClusterIdentifier=self.configuration.get("clusterid"))
+            ClusterIdentifier=self.configuration.get("clusterid"),
+        )
         db_user = credentials["DbUser"]
         db_password = credentials["DbPassword"]
         connection = psycopg2.connect(

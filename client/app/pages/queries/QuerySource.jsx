@@ -1,51 +1,52 @@
-import { isEmpty, find, map, extend, includes } from "lodash";
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import { extend, find, includes, isEmpty, map } from "lodash";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
+import cx from "classnames";
 import { useDebouncedCallback } from "use-debounce";
-import Select from "antd/lib/select";
+import useMedia from "use-media";
+import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";
 import EditInPlace from "@/components/EditInPlace";
-import EditVisualizationButton from "@/components/EditVisualizationButton";
-import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
-import QueryEditor from "@/components/queries/QueryEditor";
-import TimeAgo from "@/components/TimeAgo";
-import { durationHumanize, prettySize } from "@/lib/utils";
-import { Query } from "@/services/query";
+import DynamicComponent from "@/components/DynamicComponent";
 import recordEvent from "@/services/recordEvent";
+import { ExecutionStatus } from "@/services/query-result";
+import routes from "@/services/routes";
+import notification from "@/services/notification";
+import * as queryFormat from "@/lib/queryFormat";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryMetadata from "./components/QueryMetadata";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
-import SchemaBrowser from "./components/SchemaBrowser";
 import QuerySourceAlerts from "./components/QuerySourceAlerts";
+import wrapQueryPage from "./components/wrapQueryPage";
+import QueryExecutionMetadata from "./components/QueryExecutionMetadata";
 
+import { getEditorComponents } from "@/components/queries/editor-components";
 import useQuery from "./hooks/useQuery";
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 import useAutocompleteFlags from "./hooks/useAutocompleteFlags";
+import useAutoLimitFlags from "./hooks/useAutoLimitFlags";
 import useQueryExecute from "./hooks/useQueryExecute";
+import useQueryResultData from "@/lib/useQueryResultData";
 import useQueryDataSources from "./hooks/useQueryDataSources";
-import useDataSourceSchema from "./hooks/useDataSourceSchema";
 import useQueryFlags from "./hooks/useQueryFlags";
 import useQueryParameters from "./hooks/useQueryParameters";
-import useAddToDashboardDialog from "./hooks/useAddToDashboardDialog";
-import useEmbedDialog from "./hooks/useEmbedDialog";
 import useAddNewParameterDialog from "./hooks/useAddNewParameterDialog";
 import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useAddVisualizationDialog from "./hooks/useAddVisualizationDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
-import useFormatQuery from "./hooks/useFormatQuery";
 import useUpdateQuery from "./hooks/useUpdateQuery";
 import useUpdateQueryDescription from "./hooks/useUpdateQueryDescription";
 import useUnsavedChangesAlert from "./hooks/useUnsavedChangesAlert";
 
+import "./components/QuerySourceDropdown"; // register QuerySourceDropdown
 import "./QuerySource.less";
 
 function chooseDataSourceId(dataSourceIds, availableDataSources) {
-  dataSourceIds = map(dataSourceIds, v => parseInt(v, 10));
   availableDataSources = map(availableDataSources, ds => ds.id);
   return find(dataSourceIds, id => includes(availableDataSources, id)) || null;
 }
@@ -53,31 +54,39 @@ function chooseDataSourceId(dataSourceIds, availableDataSources) {
 function QuerySource(props) {
   const { query, setQuery, isDirty, saveQuery } = useQuery(props.query);
   const { dataSourcesLoaded, dataSources, dataSource } = useQueryDataSources(query);
-  const [schema, refreshSchema] = useDataSourceSchema(dataSource);
+  const [schema, setSchema] = useState([]);
   const queryFlags = useQueryFlags(query, dataSource);
   const [parameters, areParametersDirty, updateParametersDirtyFlag] = useQueryParameters(query);
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
+  const { QueryEditor, SchemaBrowser } = getEditorComponents(dataSource && dataSource.type);
+  const isMobile = !useMedia({ minWidth: 768 });
 
   useUnsavedChangesAlert(isDirty);
 
   const {
     queryResult,
-    queryResultData,
-    isQueryExecuting,
-    isExecutionCancelling,
+    isExecuting: isQueryExecuting,
+    executionStatus,
     executeQuery,
-    executeAdhocQuery,
-    cancelExecution,
+    error: executionError,
+    cancelCallback: cancelExecution,
+    isCancelling: isExecutionCancelling,
+    updatedAt,
+    loadedInitialResults,
   } = useQueryExecute(query);
+
+  const queryResultData = useQueryResultData(queryResult);
 
   const editorRef = useRef(null);
   const [autocompleteAvailable, autocompleteEnabled, toggleAutocomplete] = useAutocompleteFlags(schema);
+  const [autoLimitAvailable, autoLimitChecked, setAutoLimit] = useAutoLimitFlags(dataSource, query, setQuery);
 
   const [handleQueryEditorChange] = useDebouncedCallback(queryText => {
     setQuery(extend(query.clone(), { query: queryText }));
   }, 100);
 
   useEffect(() => {
+    // TODO: ignore new pages?
     recordEvent("view_source", "query", query.id);
   }, [query.id]);
 
@@ -87,7 +96,16 @@ function QuerySource(props) {
 
   const updateQuery = useUpdateQuery(query, setQuery);
   const updateQueryDescription = useUpdateQueryDescription(query, setQuery);
-  const formatQuery = useFormatQuery(query, dataSource ? dataSource.syntax : null, setQuery);
+  const querySyntax = dataSource ? dataSource.syntax || "sql" : null;
+  const isFormatQueryAvailable = queryFormat.isFormatQueryAvailable(querySyntax);
+  const formatQuery = () => {
+    try {
+      const formattedQueryText = queryFormat.formatQuery(query.query, querySyntax);
+      setQuery(extend(query.clone(), { query: formattedQueryText }));
+    } catch (err) {
+      notification.error(String(err));
+    }
+  };
 
   const handleDataSourceChange = useCallback(
     dataSourceId => {
@@ -116,17 +134,14 @@ function QuerySource(props) {
     // choose data source id for new queries
     if (dataSourcesLoaded && queryFlags.isNew) {
       const firstDataSourceId = dataSources.length > 0 ? dataSources[0].id : null;
+      const selectedDataSourceId = parseInt(localStorage.getItem("lastSelectedDataSourceId")) || null;
+
       handleDataSourceChange(
-        chooseDataSourceId(
-          [query.data_source_id, localStorage.getItem("lastSelectedDataSourceId"), firstDataSourceId],
-          dataSources
-        )
+        chooseDataSourceId([query.data_source_id, selectedDataSourceId, firstDataSourceId], dataSources)
       );
     }
   }, [query.data_source_id, queryFlags.isNew, dataSourcesLoaded, dataSources, handleDataSourceChange]);
 
-  const openAddToDashboardDialog = useAddToDashboardDialog(query);
-  const openEmbedDialog = useEmbedDialog(query);
   const editSchedule = useEditScheduleDialog(query, setQuery);
   const openAddNewParameterDialog = useAddNewParameterDialog(query, (newQuery, param) => {
     if (editorRef.current) {
@@ -150,20 +165,14 @@ function QuerySource(props) {
         return;
       }
       if (isDirty || !isEmpty(selectedText)) {
-        executeAdhocQuery(selectedText);
+        executeQuery(null, () => {
+          return query.getQueryResultByText(0, selectedText);
+        });
       } else {
         executeQuery();
       }
     },
-    [
-      queryFlags.canExecute,
-      areParametersDirty,
-      isQueryExecuting,
-      isDirty,
-      selectedText,
-      executeAdhocQuery,
-      executeQuery,
-    ]
+    [query, queryFlags.canExecute, areParametersDirty, isQueryExecuting, isDirty, selectedText, executeQuery]
   );
 
   const [isQuerySaving, setIsQuerySaving] = useState(false);
@@ -183,14 +192,15 @@ function QuerySource(props) {
   const deleteVisualization = useDeleteVisualization(query, setQuery);
 
   return (
-    <div className="query-page-wrapper">
+    <div className={cx("query-page-wrapper", { "query-fixed-layout": !isMobile })}>
       <QuerySourceAlerts query={query} dataSourcesAvailable={!dataSourcesLoaded || dataSources.length > 0} />
-      <div className="container">
+      <div className="container w-100 p-b-10">
         <QueryPageHeader
           query={query}
           dataSource={dataSource}
           sourceMode
           selectedVisualization={selectedVisualization}
+          headerExtra={<DynamicComponent name="QuerySource.HeaderExtra" query={query} />}
           onChange={setQuery}
         />
       </div>
@@ -199,33 +209,24 @@ function QuerySource(props) {
           <nav>
             {dataSourcesLoaded && (
               <div className="editor__left__data-source">
-                <Select
-                  className="w-100"
-                  data-test="SelectDataSource"
-                  placeholder="Choose data source..."
+                <DynamicComponent
+                  name={"QuerySourceDropdown"}
+                  dataSources={dataSources}
                   value={dataSource ? dataSource.id : undefined}
                   disabled={!queryFlags.canEdit || !dataSourcesLoaded || dataSources.length === 0}
                   loading={!dataSourcesLoaded}
-                  optionFilterProp="data-name"
-                  showSearch
-                  onChange={handleDataSourceChange}>
-                  {map(dataSources, ds => (
-                    <Select.Option
-                      key={`ds-${ds.id}`}
-                      value={ds.id}
-                      data-name={ds.name}
-                      data-test={`SelectDataSource${ds.id}`}>
-                      <img src={`/static/images/db-logos/${ds.type}.png`} width="20" alt={ds.name} />
-                      <span>{ds.name}</span>
-                    </Select.Option>
-                  ))}
-                </Select>
+                  onChange={handleDataSourceChange}
+                />
               </div>
             )}
             <div className="editor__left__schema">
               <SchemaBrowser
-                schema={schema}
-                onRefresh={() => refreshSchema(true)}
+                dataSource={dataSource}
+                options={query.options.schemaOptions}
+                onOptionsUpdate={schemaOptions =>
+                  setQuery(extend(query.clone(), { options: { ...query.options, schemaOptions } }))
+                }
+                onSchemaUpdate={setSchema}
                 onItemSelect={handleSchemaItemSelect}
               />
             </div>
@@ -274,8 +275,11 @@ function QuerySource(props) {
                         onClick: openAddNewParameterDialog,
                       }}
                       formatButtonProps={{
-                        title: "Format Query",
-                        shortcut: "mod+shift+f",
+                        title: isFormatQueryAvailable
+                          ? "Format Query"
+                          : "Query formatting is not supported for your Data Source syntax",
+                        disabled: !dataSource || !isFormatQueryAvailable,
+                        shortcut: isFormatQueryAvailable ? "mod+shift+f" : null,
                         onClick: formatQuery,
                       }}
                       saveButtonProps={
@@ -293,7 +297,7 @@ function QuerySource(props) {
                       }
                       executeButtonProps={{
                         disabled: !queryFlags.canExecute || isQueryExecuting || areParametersDirty,
-                        shortcut: "mod+enter, alt+enter",
+                        shortcut: "mod+enter, alt+enter, ctrl+enter, shift+enter",
                         onClick: doExecuteQuery,
                         text: (
                           <span className="hidden-xs">{selectedText === null ? "Execute" : "Execute Selected"}</span>
@@ -303,6 +307,11 @@ function QuerySource(props) {
                         available: autocompleteAvailable,
                         enabled: autocompleteEnabled,
                         onToggle: toggleAutocomplete,
+                      }}
+                      autoLimitCheckboxProps={{
+                        available: autoLimitAvailable,
+                        checked: autoLimitChecked,
+                        onChange: setAutoLimit,
                       }}
                       dataSourceSelectorProps={
                         dataSource
@@ -326,6 +335,7 @@ function QuerySource(props) {
                   <div className="query-parameters-wrapper">
                     <Parameters
                       editable={queryFlags.canEdit}
+                      sortable={queryFlags.canEdit}
                       disableUrlUpdate={queryFlags.isNew}
                       parameters={parameters}
                       onPendingValuesChange={() => updateParametersDirtyFlag()}
@@ -343,94 +353,65 @@ function QuerySource(props) {
                     />
                   </div>
                 )}
-                {queryResult && queryResultData.status !== "done" && (
+                {(executionError || isQueryExecuting) && (
                   <div className="query-alerts">
                     <QueryExecutionStatus
-                      status={queryResultData.status}
-                      updatedAt={queryResultData.updatedAt}
-                      error={queryResultData.error}
+                      status={executionStatus}
+                      updatedAt={updatedAt}
+                      error={executionError}
                       isCancelling={isExecutionCancelling}
                       onCancel={cancelExecution}
                     />
                   </div>
                 )}
 
-                {queryResultData.status === "done" && (
-                  <React.Fragment>
-                    {queryResultData.log.length > 0 && (
-                      <div className="query-results-log">
-                        <p>Log Information:</p>
-                        {map(queryResultData.log, (line, index) => (
-                          <p key={`log-line-${index}`} className="query-log-line">
-                            {line}
-                          </p>
-                        ))}
-                      </div>
-                    )}
+                <React.Fragment>
+                  {queryResultData.log.length > 0 && (
+                    <div className="query-results-log">
+                      <p>Log Information:</p>
+                      {map(queryResultData.log, (line, index) => (
+                        <p key={`log-line-${index}`} className="query-log-line">
+                          {line}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                  {loadedInitialResults && !(queryFlags.isNew && !queryResult) && (
                     <QueryVisualizationTabs
                       queryResult={queryResult}
                       visualizations={query.visualizations}
-                      showNewVisualizationButton={queryFlags.canEdit}
+                      showNewVisualizationButton={queryFlags.canEdit && queryResultData.status === ExecutionStatus.DONE}
                       canDeleteVisualizations={queryFlags.canEdit}
                       selectedTab={selectedVisualization}
                       onChangeTab={setSelectedVisualization}
                       onAddVisualization={addVisualization}
                       onDeleteVisualization={deleteVisualization}
+                      refreshButton={
+                        <Button
+                          type="primary"
+                          disabled={!queryFlags.canExecute || areParametersDirty}
+                          loading={isQueryExecuting}
+                          onClick={doExecuteQuery}>
+                          {!isQueryExecuting && <i className="zmdi zmdi-refresh m-r-5" aria-hidden="true" />}
+                          Refresh Now
+                        </Button>
+                      }
                     />
-                  </React.Fragment>
-                )}
+                  )}
+                </React.Fragment>
               </section>
             </div>
           </div>
-          {queryResultData.status === "done" && (
+          {queryResult && !queryResult.getError() && (
             <div className="bottom-controller-container">
-              <div className="bottom-controller">
-                {!queryFlags.isNew && queryFlags.canEdit && (
-                  <EditVisualizationButton
-                    openVisualizationEditor={editVisualization}
-                    selectedTab={selectedVisualization}
-                  />
-                )}
-                <QueryControlDropdown
-                  query={query}
-                  queryResult={queryResult}
-                  queryExecuting={isQueryExecuting}
-                  showEmbedDialog={openEmbedDialog}
-                  embed={false}
-                  apiKey={query.api_key}
-                  selectedTab={selectedVisualization}
-                  openAddToDashboardForm={openAddToDashboardDialog}
-                />
-
-                <span className="m-l-10 m-r-10">
-                  <span>
-                    <strong>{queryResultData.rows.length}</strong>
-                    {queryResultData.rows.length === 1 ? " row" : " rows"}
-                  </span>
-                  <span className="m-l-5">
-                    {!isQueryExecuting && (
-                      <React.Fragment>
-                        <strong>{durationHumanize(queryResultData.runtime)}</strong>
-                        <span className="hidden-xs"> runtime</span>
-                      </React.Fragment>
-                    )}
-                    {isQueryExecuting && <span>Running&hellip;</span>}
-                  </span>
-                  {queryResultData.metadata.data_scanned && (
-                    <span className="m-l-5">
-                      Data Scanned
-                      <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>
-                    </span>
-                  )}
-                </span>
-
-                <div>
-                  <span className="m-l-5">
-                    <span className="hidden-xs">Updated </span>
-                    <TimeAgo date={queryResultData.retrievedAt} placeholder="-" />
-                  </span>
-                </div>
-              </div>
+              <QueryExecutionMetadata
+                query={query}
+                queryResult={queryResult}
+                selectedVisualization={selectedVisualization}
+                isQueryExecuting={isQueryExecuting}
+                showEditVisualizationButton={!queryFlags.isNew && queryFlags.canEdit}
+                onEditVisualization={editVisualization}
+              />
             </div>
           )}
         </div>
@@ -443,21 +424,21 @@ QuerySource.propTypes = {
   query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-export default [
+const QuerySourcePage = wrapQueryPage(QuerySource);
+
+routes.register(
+  "Queries.New",
   routeWithUserSession({
     path: "/queries/new",
-    render: pageProps => <QuerySource {...pageProps} />,
-    resolve: {
-      query: () => Query.newQuery(),
-    },
+    render: pageProps => <QuerySourcePage {...pageProps} />,
     bodyClass: "fixed-layout",
-  }),
+  })
+);
+routes.register(
+  "Queries.Edit",
   routeWithUserSession({
-    path: "/queries/:queryId([0-9]+)/source",
-    render: pageProps => <QuerySource {...pageProps} />,
-    resolve: {
-      query: ({ queryId }) => Query.get({ id: queryId }),
-    },
+    path: "/queries/:queryId/source",
+    render: pageProps => <QuerySourcePage {...pageProps} />,
     bodyClass: "fixed-layout",
-  }),
-];
+  })
+);

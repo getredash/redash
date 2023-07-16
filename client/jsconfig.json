@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "baseUrl": "./",
-    "paths": {
-      "@/*": ["./app/*"]
-    }
-  },
-  "exclude": ["dist"]
-}

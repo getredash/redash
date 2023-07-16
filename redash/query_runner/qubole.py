@@ -1,17 +1,26 @@
-import time
-import requests
 import logging
+import time
 from io import StringIO
 
-from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING
+import requests
+
+from redash.query_runner import (
+    TYPE_STRING,
+    BaseQueryRunner,
+    JobTimeoutException,
+    register,
+)
 from redash.utils import json_dumps
 
 try:
-    import qds_sdk
+    import qds_sdk  # noqa: F401
+    from qds_sdk.commands import (
+        Command,
+        HiveCommand,
+        PrestoCommand,
+        SqlCommand,
+    )
     from qds_sdk.qubole import Qubole as qbol
-    from qds_sdk.commands import Command, HiveCommand
-    from qds_sdk.commands import SqlCommand, PrestoCommand
 
     enabled = True
 except ImportError:
@@ -62,9 +71,7 @@ class Qubole(BaseQueryRunner):
 
     def test_connection(self):
         headers = self._get_header()
-        r = requests.head(
-            "%s/api/latest/users" % self.configuration.get("endpoint"), headers=headers
-        )
+        r = requests.head("%s/api/latest/users" % self.configuration.get("endpoint"), headers=headers)
         r.status_code == 200
 
     def run_query(self, query, user):
@@ -79,13 +86,9 @@ class Qubole(BaseQueryRunner):
             if query_type == "quantum":
                 cmd = SqlCommand.create(query=query)
             elif query_type == "hive":
-                cmd = HiveCommand.create(
-                    query=query, label=self.configuration.get("cluster")
-                )
+                cmd = HiveCommand.create(query=query, label=self.configuration.get("cluster"))
             elif query_type == "presto":
-                cmd = PrestoCommand.create(
-                    query=query, label=self.configuration.get("cluster")
-                )
+                cmd = PrestoCommand.create(query=query, label=self.configuration.get("cluster"))
             else:
                 raise Exception(
                     "Invalid Query Type:%s.\
@@ -93,9 +96,7 @@ class Qubole(BaseQueryRunner):
                     % self.configuration.get("query_type")
                 )
 
-            logging.info(
-                "Qubole command created with Id: %s and Status: %s", cmd.id, cmd.status
-            )
+            logging.info("Qubole command created with Id: %s and Status: %s", cmd.id, cmd.status)
 
             while not Command.is_done(cmd.status):
                 time.sleep(qbol.poll_interval)
@@ -121,20 +122,14 @@ class Qubole(BaseQueryRunner):
                 fp.close()
 
                 data = results.split("\r\n")
-                columns = self.fetch_columns(
-                    [(i, TYPE_STRING) for i in data.pop(0).split("\t")]
-                )
-                rows = [
-                    dict(zip((column["name"] for column in columns), row.split("\t")))
-                    for row in data
-                ]
+                columns = self.fetch_columns([(i, TYPE_STRING) for i in data.pop(0).split("\t")])
+                rows = [dict(zip((column["name"] for column in columns), row.split("\t"))) for row in data]
 
             json_data = json_dumps({"columns": columns, "rows": rows})
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, JobTimeoutException):
             logging.info("Sending KILL signal to Qubole Command Id: %s", cmd.id)
             cmd.cancel()
-            error = "Query cancelled by user."
-            json_data = None
+            raise
 
         return json_data, error
 
@@ -143,8 +138,7 @@ class Qubole(BaseQueryRunner):
         try:
             headers = self._get_header()
             content = requests.get(
-                "%s/api/latest/hive?describe=true&per_page=10000"
-                % self.configuration.get("endpoint"),
+                "%s/api/latest/hive?describe=true&per_page=10000" % self.configuration.get("endpoint"),
                 headers=headers,
             )
             data = content.json()
@@ -161,9 +155,7 @@ class Qubole(BaseQueryRunner):
                     schemas[table_name] = {"name": table_name, "columns": columns}
 
         except Exception as e:
-            logging.error(
-                "Failed to get schema information from Qubole. Error {}".format(str(e))
-            )
+            logging.error("Failed to get schema information from Qubole. Error {}".format(str(e)))
 
         return list(schemas.values())
 

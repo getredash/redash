@@ -1,12 +1,18 @@
-import boto3
-import yaml
 import datetime
 import time
 
-from botocore.exceptions import ParamValidationError
+import yaml
 
 from redash.query_runner import BaseQueryRunner, register
 from redash.utils import json_dumps, parse_human_time
+
+try:
+    import boto3
+    from botocore.exceptions import ParamValidationError  # noqa: F401
+
+    enabled = True
+except ImportError:
+    enabled = False
 
 POLL_INTERVAL = 3
 TIMEOUT = 180
@@ -81,6 +87,10 @@ class CloudWatchInsights(BaseQueryRunner):
             "secret": ["aws_secret_key"],
         }
 
+    @classmethod
+    def enabled(cls):
+        return enabled
+
     def __init__(self, configuration):
         super(CloudWatchInsights, self).__init__(configuration)
         self.syntax = "yaml"
@@ -110,9 +120,7 @@ class CloudWatchInsights(BaseQueryRunner):
                 log_groups.append(
                     {
                         "name": group_name,
-                        "columns": [
-                            field["name"] for field in fields["logGroupFields"]
-                        ],
+                        "columns": [field["name"] for field in fields["logGroupFields"]],
                     }
                 )
 
@@ -131,11 +139,7 @@ class CloudWatchInsights(BaseQueryRunner):
                 data = parse_response(result)
                 break
             if result["status"] in ("Failed", "Timeout", "Unknown", "Cancelled"):
-                raise Exception(
-                    "CloudWatch Insights Query Execution Status: {}".format(
-                        result["status"]
-                    )
-                )
+                raise Exception("CloudWatch Insights Query Execution Status: {}".format(result["status"]))
             elif elapsed > TIMEOUT:
                 raise Exception("Request exceeded timeout.")
             else:

@@ -48,7 +48,6 @@ class TestPrometheus(TestCase):
         self.assertEqual(instant_rows, rows)
 
     def test_get_range_rows(self):
-
         range_rows = [
             {
                 "name": "example_metric_name",

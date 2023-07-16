@@ -9,7 +9,7 @@ const logger = debug("redash:services:QueryResult");
 const filterTypes = ["filter", "multi-filter", "multiFilter"];
 
 function defer() {
-  const result = {};
+  const result = { onStatusChange: status => {} };
   result.promise = new Promise((resolve, reject) => {
     result.resolve = resolve;
     result.reject = reject;
@@ -39,10 +39,6 @@ function getColumnNameWithoutType(column) {
   return parts[0];
 }
 
-export function getColumnCleanName(column) {
-  return getColumnNameWithoutType(column);
-}
-
 function getColumnFriendlyName(column) {
   return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 }
@@ -53,11 +49,19 @@ const QueryResultResource = {
   post: data => axios.post(createOrSaveUrl(data), data),
 };
 
+export const ExecutionStatus = {
+  WAITING: "waiting",
+  PROCESSING: "processing",
+  DONE: "done",
+  FAILED: "failed",
+  LOADING_RESULT: "loading-result",
+};
+
 const statuses = {
-  1: "waiting",
-  2: "processing",
-  3: "done",
-  4: "failed",
+  1: ExecutionStatus.WAITING,
+  2: ExecutionStatus.PROCESSING,
+  3: ExecutionStatus.DONE,
+  4: ExecutionStatus.FAILED,
 };
 
 function handleErrorResponse(queryResult, error) {
@@ -92,6 +96,23 @@ function handleErrorResponse(queryResult, error) {
   });
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function fetchDataFromJob(jobId, interval = 1000) {
+  return axios.get(`api/jobs/${jobId}`).then(data => {
+    const status = statuses[data.job.status];
+    if (status === ExecutionStatus.WAITING || status === ExecutionStatus.PROCESSING) {
+      return sleep(interval).then(() => fetchDataFromJob(data.job.id));
+    } else if (status === ExecutionStatus.DONE) {
+      return data.job.result;
+    } else if (status === ExecutionStatus.FAILED) {
+      return Promise.reject(data.job.error);
+    }
+  });
+}
+
 class QueryResult {
   constructor(props) {
     this.deferred = defer();
@@ -113,7 +134,8 @@ class QueryResult {
     extend(this, props);
 
     if ("query_result" in props) {
-      this.status = "done";
+      this.status = ExecutionStatus.DONE;
+      this.deferred.onStatusChange(ExecutionStatus.DONE);
 
       const columnTypes = {};
 
@@ -157,12 +179,14 @@ class QueryResult {
       });
 
       this.deferred.resolve(this);
-    } else if (this.job.status === 3) {
+    } else if (this.job.status === 3 || this.job.status === 2) {
+      this.deferred.onStatusChange(ExecutionStatus.PROCESSING);
       this.status = "processing";
     } else if (this.job.status === 4) {
       this.status = statuses[this.job.status];
       this.deferred.reject(new QueryResultError(this.job.error));
     } else {
+      this.deferred.onStatusChange(undefined);
       this.status = undefined;
     }
   }
@@ -181,7 +205,7 @@ class QueryResult {
 
   getStatus() {
     if (this.isLoadingResult) {
-      return "loading-result";
+      return ExecutionStatus.LOADING_RESULT;
     }
     return this.status || statuses[this.job.status];
   }
@@ -243,12 +267,12 @@ class QueryResult {
     return this.columnNames;
   }
 
-  getColumnCleanNames() {
-    return this.getColumnNames().map(col => getColumnCleanName(col));
-  }
-
   getColumnFriendlyNames() {
     return this.getColumnNames().map(col => getColumnFriendlyName(col));
+  }
+
+  getTruncated() {
+    return this.query_result.data ? this.query_result.data.truncated : null;
   }
 
   getFilters() {
@@ -294,12 +318,18 @@ class QueryResult {
         }
         return v;
       });
+      if (filter.values.length > 1 && filter.multiple) {
+        filter.current = filter.values.slice();
+      }
     });
 
     return filters;
   }
 
-  toPromise() {
+  toPromise(statusCallback) {
+    if (statusCallback) {
+      this.deferred.onStatusChange = statusCallback;
+    }
     return this.deferred.promise;
   }
 
@@ -307,6 +337,8 @@ class QueryResult {
     const queryResult = new QueryResult();
 
     queryResult.isLoadingResult = true;
+    queryResult.deferred.onStatusChange(ExecutionStatus.LOADING_RESULT);
+
     axios
       .get(`api/queries/${queryId}/results/${id}.json`)
       .then(response => {
@@ -336,6 +368,8 @@ class QueryResult {
 
   loadResult(tryCount) {
     this.isLoadingResult = true;
+    this.deferred.onStatusChange(ExecutionStatus.LOADING_RESULT);
+
     QueryResultResource.get({ id: this.job.query_result_id })
       .then(response => {
         this.update(response);
@@ -408,11 +442,11 @@ class QueryResult {
     return `${queryName.replace(/ /g, "_") + moment(this.getUpdatedAt()).format("_YYYY_MM_DD")}.${fileType}`;
   }
 
-  static getByQueryId(id, parameters, maxAge) {
+  static getByQueryId(id, parameters, applyAutoLimit, maxAge) {
     const queryResult = new QueryResult();
 
     axios
-      .post(`api/queries/${id}/results`, { id, parameters, max_age: maxAge })
+      .post(`api/queries/${id}/results`, { id, parameters, apply_auto_limit: applyAutoLimit, max_age: maxAge })
       .then(response => {
         queryResult.update(response);
 
@@ -427,13 +461,14 @@ class QueryResult {
     return queryResult;
   }
 
-  static get(dataSourceId, query, parameters, maxAge, queryId) {
+  static get(dataSourceId, query, parameters, applyAutoLimit, maxAge, queryId) {
     const queryResult = new QueryResult();
 
     const params = {
       data_source_id: dataSourceId,
       parameters,
       query,
+      apply_auto_limit: applyAutoLimit,
       max_age: maxAge,
     };
 

@@ -1,8 +1,10 @@
 import logging
-import sys
-import uuid
 
-from redash.query_runner import *
+from redash.query_runner import (
+    BaseSQLQueryRunner,
+    JobTimeoutException,
+    register,
+)
 from redash.query_runner.mssql import types_map
 from redash.utils import json_dumps, json_loads
 
@@ -25,24 +27,40 @@ class SQLServerODBC(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
+                "server": {"type": "string"},
+                "port": {"type": "number", "default": 1433},
                 "user": {"type": "string"},
                 "password": {"type": "string"},
-                "server": {"type": "string", "default": "127.0.0.1"},
-                "port": {"type": "number", "default": 1433},
+                "db": {"type": "string", "title": "Database Name"},
                 "charset": {
                     "type": "string",
                     "default": "UTF-8",
                     "title": "Character Set",
                 },
-                "db": {"type": "string", "title": "Database Name"},
-                "driver": {
-                    "type": "string",
-                    "title": "Driver Identifier",
-                    "default": "{ODBC Driver 13 for SQL Server}",
+                "use_ssl": {
+                    "type": "boolean",
+                    "title": "Use SSL",
+                    "default": False,
+                },
+                "verify_ssl": {
+                    "type": "boolean",
+                    "title": "Verify SSL certificate",
+                    "default": True,
                 },
             },
-            "required": ["db"],
+            "order": [
+                "server",
+                "port",
+                "user",
+                "password",
+                "db",
+                "charset",
+                "use_ssl",
+                "verify_ssl",
+            ],
+            "required": ["server", "user", "password", "db"],
             "secret": ["password"],
+            "extra_options": ["verify_ssl", "use_ssl"],
         }
 
     @classmethod
@@ -57,6 +75,10 @@ class SQLServerODBC(BaseSQLQueryRunner):
     def type(cls):
         return "mssql_odbc"
 
+    @property
+    def supports_auto_limit(self):
+        return False
+
     def _get_tables(self, schema):
         query = """
         SELECT table_schema, table_name, column_name
@@ -70,7 +92,7 @@ class SQLServerODBC(BaseSQLQueryRunner):
         results, error = self.run_query(query, None)
 
         if error is not None:
-            raise Exception("Failed getting schema.")
+            self._handle_run_query_error(error)
 
         results = json_loads(results)
 
@@ -91,20 +113,21 @@ class SQLServerODBC(BaseSQLQueryRunner):
         connection = None
 
         try:
-            server = self.configuration.get("server", "")
+            server = self.configuration.get("server")
             user = self.configuration.get("user", "")
             password = self.configuration.get("password", "")
             db = self.configuration["db"]
             port = self.configuration.get("port", 1433)
-            charset = self.configuration.get("charset", "UTF-8")
-            driver = self.configuration.get("driver", "{ODBC Driver 13 for SQL Server}")
 
-            connection_string_fmt = (
-                "DRIVER={};PORT={};SERVER={};DATABASE={};UID={};PWD={}"
-            )
-            connection_string = connection_string_fmt.format(
-                driver, port, server, db, user, password
-            )
+            connection_string_fmt = "DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={},{};DATABASE={};UID={};PWD={}"
+            connection_string = connection_string_fmt.format(server, port, db, user, password)
+
+            if self.configuration.get("use_ssl", False):
+                connection_string += ";Encrypt=YES"
+
+                if not self.configuration.get("verify_ssl"):
+                    connection_string += ";TrustServerCertificate=YES"
+
             connection = pyodbc.connect(connection_string)
             cursor = connection.cursor()
             logger.debug("SQLServerODBC running query: %s", query)
@@ -112,13 +135,8 @@ class SQLServerODBC(BaseSQLQueryRunner):
             data = cursor.fetchall()
 
             if cursor.description is not None:
-                columns = self.fetch_columns(
-                    [(i[0], types_map.get(i[1], None)) for i in cursor.description]
-                )
-                rows = [
-                    dict(zip((column["name"] for column in columns), row))
-                    for row in data
-                ]
+                columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
+                rows = [dict(zip((column["name"] for column in columns), row)) for row in data]
 
                 data = {"columns": columns, "rows": rows}
                 json_data = json_dumps(data)
@@ -136,10 +154,9 @@ class SQLServerODBC(BaseSQLQueryRunner):
                 # Connection errors are `args[0][1]`
                 error = e.args[0][1]
             json_data = None
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
-            error = "Query cancelled by user."
-            json_data = None
+            raise
         finally:
             if connection:
                 connection.close()

@@ -1,0 +1,172 @@
+@backgroundColor: #001529;
+@dividerColor: rgba(255, 255, 255, 0.5);
+@textColor: rgba(255, 255, 255, 0.75);
+@brandColor: #ff7964; // Redash logo color
+@activeItemColor: @brandColor;
+@iconSize: 26px;
+
+.desktop-navbar {
+  background: @backgroundColor;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 80px;
+  overflow: hidden;
+
+  &-spacer {
+    flex: 1 1 auto;
+  }
+
+  &-logo.ant-menu {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    text-align: center;
+
+    img {
+      height: 40px;
+      transition: all 270ms;
+    }
+  }
+
+  .help-trigger {
+    font: inherit;
+  }
+
+  .ant-menu {
+    .ant-menu-item,
+    .ant-menu-submenu {
+      font-weight: 500;
+      color: @textColor;
+
+      &.navbar-active-item {
+        box-shadow: inset 3px 0 0 @activeItemColor;
+
+        .anticon {
+          color: @activeItemColor;
+        }
+      }
+
+      &.ant-menu-submenu-open,
+      &.ant-menu-submenu-active,
+      &:hover,
+      &:active,
+      &:focus,
+      &:focus-within {
+        color: #fff;
+      }
+
+      .anticon {
+        font-size: @iconSize;
+        margin: 0;
+      }
+
+      .desktop-navbar-label {
+        margin-top: 4px;
+        font-size: 11px;
+      }
+
+      a,
+      span,
+      .anticon {
+        color: inherit;
+      }
+    }
+
+    .ant-menu-submenu-arrow {
+      display: none;
+    }
+
+    .ant-menu-item,
+    .ant-menu-submenu {
+      padding: 0;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .ant-menu-submenu-title {
+      width: 100%;
+      padding: 0;
+    }
+
+    a,
+    &.ant-menu-vertical > .ant-menu-submenu > .ant-menu-submenu-title,
+    .ant-menu-submenu-title {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: normal;
+      height: auto;
+      background: none;
+      color: inherit;
+    }
+  }
+
+  .desktop-navbar-profile-menu {
+    .desktop-navbar-profile-menu-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+
+      .profile__image_thumb {
+        margin: 0;
+        vertical-align: middle;
+        width: @iconSize;
+        height: @iconSize;
+      }
+    }
+  }
+}
+
+.desktop-navbar-submenu {
+  .ant-menu {
+    .ant-menu-item-divider {
+      background: @dividerColor;
+    }
+
+    .ant-menu-item {
+      font-weight: 500;
+      color: @textColor;
+
+      &:hover,
+      &:active,
+      &:focus,
+      &:focus-within {
+        color: #fff;
+      }
+
+      a,
+      span,
+      .anticon {
+        color: inherit;
+      }
+
+      .zmdi,
+      .fa {
+        margin-right: 5px;
+      }
+
+      &.version-info {
+        height: auto;
+        line-height: normal;
+        padding-top: 12px;
+        padding-bottom: 12px;
+
+        a {
+          color: rgba(255, 255, 255, 0.8);
+
+          &:hover,
+          &:active,
+          &:focus,
+          &:focus-within {
+            color: rgba(255, 255, 255, 1);
+          }
+        }
+      }
+    }
+  }
+}

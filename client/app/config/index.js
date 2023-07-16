@@ -1,23 +1,16 @@
-// This polyfill is needed to support PhantomJS which we use to generate PNGs from embeds.
-import "core-js/fn/typed/array-buffer";
+import moment from "moment";
+import { isFunction } from "lodash";
 
 // Ensure that this image will be available in assets folder
 import "@/assets/images/avatar.svg";
 
-import * as Pace from "pace-progress";
-import { isFunction } from "lodash";
-import url from "@/services/url";
+// Register visualizations
+import "@redash/viz/lib";
+
+// Register routes before registering extensions as they may want to override some
+import "@/pages";
 
 import "./antd-spinner";
-import moment from "moment";
-
-Pace.options.shouldHandlePushState = (prevUrl, newUrl) => {
-  // Show pace progress bar only if URL path changed; when query params
-  // or hash changed - ignore that history event
-  prevUrl = url.parse(prevUrl);
-  newUrl = url.parse(newUrl);
-  return prevUrl.pathname !== newUrl.pathname;
-};
 
 moment.updateLocale("en", {
   relativeTime: {
@@ -37,7 +30,14 @@ moment.updateLocale("en", {
   },
 });
 
-function registerAll(context) {
+function requireImages() {
+  // client/app/assets/images/<path> => /images/<path>
+  const ctx = require.context("@/assets/images/", true, /\.(png|jpe?g|gif|svg)$/);
+  ctx.keys().forEach(ctx);
+}
+
+function registerExtensions() {
+  const context = require.context("extensions", true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
   const modules = context
     .keys()
     .map(context)
@@ -49,22 +49,5 @@ function registerAll(context) {
     .map(f => f());
 }
 
-function requireImages() {
-  // client/app/assets/images/<path> => /images/<path>
-  const ctx = require.context("@/assets/images/", true, /\.(png|jpe?g|gif|svg)$/);
-  ctx.keys().forEach(ctx);
-}
-
-function registerExtensions() {
-  const context = require.context("extensions", true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
-  registerAll(context);
-}
-
-function registerVisualizations() {
-  const context = require.context("@/visualizations", true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
-  registerAll(context);
-}
-
 requireImages();
 registerExtensions();
-registerVisualizations();

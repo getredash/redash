@@ -1,10 +1,10 @@
 import logging
+
 import requests
 
-from redash.destinations import *
+from redash.destinations import BaseDestination, register
 from redash.models import Alert
-from redash.utils import json_dumps, deprecated
-
+from redash.utils import deprecated, json_dumps
 
 colors = {
     Alert.OK_STATE: "green",
@@ -25,6 +25,7 @@ class HipChat(BaseDestination):
                     "title": "HipChat Notification URL (get it from the Integrations page)",
                 }
             },
+            "secret": ["url"],
             "required": ["url"],
         }
 
@@ -46,14 +47,10 @@ class HipChat(BaseDestination):
 
             data = {"message": message, "color": colors.get(new_state, "green")}
             headers = {"Content-Type": "application/json"}
-            response = requests.post(
-                options["url"], data=json_dumps(data), headers=headers, timeout=5.0
-            )
+            response = requests.post(options["url"], data=json_dumps(data), headers=headers, timeout=5.0)
 
             if response.status_code != 204:
-                logging.error(
-                    "Bad status code received from HipChat: %d", response.status_code
-                )
+                logging.error("Bad status code received from HipChat: %d", response.status_code)
         except Exception:
             logging.exception("HipChat Send ERROR.")
 

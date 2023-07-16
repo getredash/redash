@@ -18,8 +18,21 @@ worker() {
 
   export WORKERS_COUNT=${WORKERS_COUNT:-2}
   export QUEUES=${QUEUES:-}
-  
-  supervisord -c worker.conf
+
+  exec supervisord -c worker.conf
+}
+
+workers_healthcheck() {
+  WORKERS_COUNT=${WORKERS_COUNT}
+  echo "Checking active workers count against $WORKERS_COUNT..."
+  ACTIVE_WORKERS_COUNT=`echo $(rq info --url $REDASH_REDIS_URL -R | grep workers | grep -oP ^[0-9]+)`
+  if [ "$ACTIVE_WORKERS_COUNT" -lt "$WORKERS_COUNT"  ]; then
+    echo "$ACTIVE_WORKERS_COUNT workers are active, Exiting"
+    exit 1
+  else
+    echo "$ACTIVE_WORKERS_COUNT workers are active"
+    exit 0
+  fi
 }
 
 dev_worker() {
@@ -32,15 +45,12 @@ server() {
   # Recycle gunicorn workers every n-th request. See http://docs.gunicorn.org/en/stable/settings.html#max-requests for more details.
   MAX_REQUESTS=${MAX_REQUESTS:-1000}
   MAX_REQUESTS_JITTER=${MAX_REQUESTS_JITTER:-100}
-  exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app --max-requests $MAX_REQUESTS --max-requests-jitter $MAX_REQUESTS_JITTER
+  TIMEOUT=${REDASH_GUNICORN_TIMEOUT:-60}
+  exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app --max-requests $MAX_REQUESTS --max-requests-jitter $MAX_REQUESTS_JITTER --timeout $TIMEOUT
 }
 
 create_db() {
   exec /app/manage.py database create_tables
-}
-
-rq_healthcheck() {
-  exec /app/manage.py rq healthcheck
 }
 
 help() {
@@ -54,7 +64,6 @@ help() {
   echo "dev_worker -- start a single RQ worker with code reloading"
   echo "scheduler -- start an rq-scheduler instance"
   echo "dev_scheduler -- start an rq-scheduler instance with code reloading"
-  echo "rq_healthcheck -- runs a RQ healthcheck that verifies that all local workers are active. Useful for Docker's HEALTHCHECK mechanism."
   echo ""
   echo "shell -- open shell"
   echo "dev_server -- start Flask development server with debugger and auto reload"
@@ -80,6 +89,10 @@ case "$1" in
     shift
     worker
     ;;
+  workers_healthcheck)
+    shift
+    workers_healthcheck
+    ;;
   server)
     shift
     server
@@ -96,9 +109,9 @@ case "$1" in
     shift
     dev_worker
     ;;
-  rq_healthcheck)
+  celery_healthcheck)
     shift
-    rq_healthcheck
+    echo "DEPRECATED: Celery has been replaced with RQ and now performs healthchecks autonomously as part of the 'worker' entrypoint."
     ;;
   dev_server)
     export FLASK_DEBUG=1
@@ -131,4 +144,3 @@ case "$1" in
     exec "$@"
     ;;
 esac
-
