@@ -7,7 +7,7 @@ import * as d3 from "d3";
 import useSize from "@react-hook/size";
 // import Skeleton from "react-loading-skeleton";
 
-import { formatNumber } from "./formatNumber";
+import { formatNumber } from "../shared/formatNumber";
 // import TwitterAccountProfile from "~/shared/components/TwitterAccountProfile";
 
 // import Modal from "../../Modal";
@@ -63,7 +63,7 @@ const TICKS_THRESHOLD = 100;
 // `;
 
 export default function Renderer({ options, data }: any) {
-  const page = 2;
+  const page = 0;
 
   const { rows } = data;
 
