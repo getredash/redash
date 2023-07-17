@@ -18,13 +18,13 @@ import { ExternalTooltipHandler } from "./ExternalTooltipHandler";
 const PER_PAGE = 10;
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, BarController);
-export type HorizontalBarChartVariant = "red-gradient" | "purple-gradient";
+export type HorizontalBarChartVariant = "redGradient" | "purpleGradient";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createGradient(ctx: any, area: ChartArea, variant?: HorizontalBarChartVariant, hovered = false) {
   const gradient = ctx.createLinearGradient(0, area.top, 0, area.bottom);
 
   if (!hovered) {
-    if (variant === "purple-gradient") {
+    if (variant === "purpleGradient") {
       gradient.addColorStop(0, "#F2E1FB");
       gradient.addColorStop(0.2, "#DFB5F5");
       gradient.addColorStop(0.4, "#CD88EF");
@@ -40,7 +40,7 @@ function createGradient(ctx: any, area: ChartArea, variant?: HorizontalBarChartV
       gradient.addColorStop(1, "#97294E");
     }
   } else {
-    if (variant === "purple-gradient") {
+    if (variant === "purpleGradient") {
       gradient.addColorStop(0, "#C0B2C7");
       gradient.addColorStop(1, "#2E0C3D");
     } else {
@@ -90,16 +90,18 @@ export default function Renderer({ data, options }: any) {
 
   const dataPage = data.rows.slice(PER_PAGE * page, PER_PAGE * (page + 1));
 
+  console.log(data);
+
   return (
     <SafeHorizontalBarChart
       data={dataPage}
-      variant={"red-gradient"}
+      variant={options.colorScheme}
       maxX={Math.max(...data.rows.map((d: any) => d.size))}
     />
   );
 }
 
-function SafeHorizontalBarChart({ data, maxX, variant = "red-gradient" }: any) {
+function SafeHorizontalBarChart({ data, maxX, variant = "redGradient" }: any) {
   const chartRef = useRef<ChartJS>(null);
   const [chartData, setChartData] = useState<ChartData<"bar">>({
     datasets: [],
@@ -107,8 +109,8 @@ function SafeHorizontalBarChart({ data, maxX, variant = "red-gradient" }: any) {
   const [activeElement, setActiveElement] = useState<number | null>(null);
   const [chartMouseOver, setChartMouseOver] = useState(false);
 
-  const labels = data.map((d: any) => d.name);
-  const values = data.map((d: any) => d.size);
+  const labels = data.map((d: any) => d.title);
+  const values = data.map((d: any) => d.price);
 
   useEffect(() => {
     const chart = chartRef.current;
@@ -168,7 +170,12 @@ function SafeHorizontalBarChart({ data, maxX, variant = "red-gradient" }: any) {
         indexAxis: "y" as const,
         maintainAspectRatio: false,
         responsive: true,
-
+        layout: {
+          padding: {
+            left: 24,
+            right: 24,
+          },
+        },
         elements: {
           bar: {
             borderWidth: 0,

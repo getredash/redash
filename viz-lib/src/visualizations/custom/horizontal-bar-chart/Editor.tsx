@@ -1,5 +1,7 @@
 import React from "react";
 
-export default function Editor({ options, data, onOptionsChange }: any) {
-  return <div>Editor</div>;
-}
+import createTabbedEditor from "@/components/visualizations/editor/createTabbedEditor";
+
+import ChartSettings from "./ChartSettings";
+
+export default createTabbedEditor([{ key: "Chart", title: "Chart", component: ChartSettings }]);
