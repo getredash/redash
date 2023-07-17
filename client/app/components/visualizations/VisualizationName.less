@@ -1,0 +1,14 @@
+.visualization-name:empty + span {
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.visualization-name {
+  &:after {
+    content: "−";
+    margin-left: 5px;
+  }
+
+  &:empty:after {
+    content: none;
+  }
+}

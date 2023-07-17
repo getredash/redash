@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Visualizations -> Chart -> Editor -> Series Settings Changes series axis 1`] = `
+Object {
+  "seriesOptions": Object {
+    "a": Object {
+      "yAxis": 1,
+    },
+  },
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> Series Settings Changes series label 1`] = `
+Object {
+  "seriesOptions": Object {
+    "a": Object {
+      "name": "test",
+    },
+  },
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> Series Settings Changes series type 1`] = `
+Object {
+  "seriesOptions": Object {
+    "a": Object {
+      "type": "area",
+    },
+  },
+}
+`;

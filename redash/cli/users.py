@@ -1,11 +1,9 @@
-from __future__ import print_function
 from sys import exit
 
 from click import BOOL, argument, option, prompt
 from flask.cli import AppGroup
-from six import string_types
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models
 from redash.handlers.users import invite_user
@@ -14,9 +12,9 @@ manager = AppGroup(help="Users management commands.")
 
 
 def build_groups(org, groups, is_admin):
-    if isinstance(groups, string_types):
-        groups = groups.split(',')
-        groups.remove('')  # in case it was empty string
+    if isinstance(groups, str):
+        groups = groups.split(",")
+        groups.remove("")  # in case it was empty string
         groups = [int(g) for g in groups]
 
     if groups is None:
@@ -28,12 +26,15 @@ def build_groups(org, groups, is_admin):
     return groups
 
 
-@manager.command()
-@argument('email')
-@option('--org', 'organization', default='default',
-        help="the organization the user belongs to, (leave blank for "
-        "'default').")
-def grant_admin(email, organization='default'):
+@manager.command(name="grant_admin")
+@argument("email")
+@option(
+    "--org",
+    "organization",
+    default="default",
+    help="the organization the user belongs to, (leave blank for " "'default').",
+)
+def grant_admin(email, organization="default"):
     """
     Grant admin access to user EMAIL.
     """
@@ -54,28 +55,47 @@ def grant_admin(email, organization='default'):
 
 
 @manager.command()
-@argument('email')
-@argument('name')
-@option('--org', 'organization', default='default',
-        help="The organization the user belongs to (leave blank for "
-        "'default').")
-@option('--admin', 'is_admin', is_flag=True, default=False,
-        help="set user as admin")
-@option('--google', 'google_auth', is_flag=True,
-        default=False, help="user uses Google Auth to login")
-@option('--password', 'password', default=None,
-        help="Password for users who don't use Google Auth "
-        "(leave blank for prompt).")
-@option('--groups', 'groups', default=None,
-        help="Comma separated list of groups (leave blank for "
-        "default).")
-def create(email, name, groups, is_admin=False, google_auth=False,
-           password=None, organization='default'):
+@argument("email")
+@argument("name")
+@option(
+    "--org",
+    "organization",
+    default="default",
+    help="The organization the user belongs to (leave blank for " "'default').",
+)
+@option("--admin", "is_admin", is_flag=True, default=False, help="set user as admin")
+@option(
+    "--google",
+    "google_auth",
+    is_flag=True,
+    default=False,
+    help="user uses Google Auth to login",
+)
+@option(
+    "--password",
+    "password",
+    default=None,
+    help="Password for users who don't use Google Auth " "(leave blank for prompt).",
+)
+@option(
+    "--groups",
+    "groups",
+    default=None,
+    help="Comma separated list of groups (leave blank for " "default).",
+)
+def create(
+    email,
+    name,
+    groups,
+    is_admin=False,
+    google_auth=False,
+    password=None,
+    organization="default",
+):
     """
     Create user EMAIL with display name NAME.
     """
-    print("Creating user (%s, %s) in organization %s..." % (email, name,
-                                                            organization))
+    print("Creating user (%s, %s) in organization %s..." % (email, name, organization))
     print("Admin: %r" % is_admin)
     print("Login with Google Auth: %r\n" % google_auth)
 
@@ -84,8 +104,7 @@ def create(email, name, groups, is_admin=False, google_auth=False,
 
     user = models.User(org=org, email=email, name=name, group_ids=groups)
     if not password and not google_auth:
-        password = prompt("Password", hide_input=True,
-                          confirmation_prompt=True)
+        password = prompt("Password", hide_input=True, confirmation_prompt=True)
     if not google_auth:
         user.hash_password(password)
 
@@ -93,21 +112,33 @@ def create(email, name, groups, is_admin=False, google_auth=False,
         models.db.session.add(user)
         models.db.session.commit()
     except Exception as e:
-        print("Failed creating user: %s" % e.message)
+        print("Failed creating user: %s" % e)
         exit(1)
 
 
-@manager.command()
-@argument('email')
-@argument('name')
-@option('--org', 'organization', default='default',
-        help="The organization the root user belongs to (leave blank for 'default').")
-@option('--google', 'google_auth', is_flag=True,
-        default=False, help="user uses Google Auth to login")
-@option('--password', 'password', default=None,
-        help="Password for root user who don't use Google Auth "
-        "(leave blank for prompt).")
-def create_root(email, name, google_auth=False, password=None, organization='default'):
+@manager.command(name="create_root")
+@argument("email")
+@argument("name")
+@option(
+    "--org",
+    "organization",
+    default="default",
+    help="The organization the root user belongs to (leave blank for 'default').",
+)
+@option(
+    "--google",
+    "google_auth",
+    is_flag=True,
+    default=False,
+    help="user uses Google Auth to login",
+)
+@option(
+    "--password",
+    "password",
+    default=None,
+    help="Password for root user who don't use Google Auth (leave blank for prompt).",
+)
+def create_root(email, name, google_auth=False, password=None, organization="default"):
     """
     Create root user.
     """
@@ -119,21 +150,33 @@ def create_root(email, name, google_auth=False, password=None, organization='def
         print("User [%s] is already exists." % email)
         exit(1)
 
-    slug = 'default'
-    default_org = models.Organization.query.filter(models.Organization.slug == slug).first()
-    if default_org is None:
-        default_org = models.Organization(name=organization, slug=slug, settings={})
+    org_slug = organization
+    org = models.Organization.query.filter(models.Organization.slug == org_slug).first()
+    if org is None:
+        org = models.Organization(name=org_slug, slug=org_slug, settings={})
 
-    admin_group = models.Group(name='admin', permissions=['admin', 'super_admin'],
-                               org=default_org, type=models.Group.BUILTIN_GROUP)
-    default_group = models.Group(name='default', permissions=models.Group.DEFAULT_PERMISSIONS,
-                                 org=default_org, type=models.Group.BUILTIN_GROUP)
+    admin_group = models.Group(
+        name="admin",
+        permissions=["admin", "super_admin"],
+        org=org,
+        type=models.Group.BUILTIN_GROUP,
+    )
+    default_group = models.Group(
+        name="default",
+        permissions=models.Group.DEFAULT_PERMISSIONS,
+        org=org,
+        type=models.Group.BUILTIN_GROUP,
+    )
 
-    models.db.session.add_all([default_org, admin_group, default_group])
+    models.db.session.add_all([org, admin_group, default_group])
     models.db.session.commit()
 
-    user = models.User(org=default_org, email=email, name=name,
-                       group_ids=[admin_group.id, default_group.id])
+    user = models.User(
+        org=org,
+        email=email,
+        name=name,
+        group_ids=[admin_group.id, default_group.id],
+    )
     if not google_auth:
         user.hash_password(password)
 
@@ -141,48 +184,47 @@ def create_root(email, name, google_auth=False, password=None, organization='def
         models.db.session.add(user)
         models.db.session.commit()
     except Exception as e:
-        print("Failed creating root user: %s" % e.message)
+        print("Failed creating root user: %s" % e)
         exit(1)
 
 
 @manager.command()
-@argument('email')
-@option('--org', 'organization', default=None,
-        help="The organization the user belongs to (leave blank for all"
-        " organizations).")
+@argument("email")
+@option(
+    "--org",
+    "organization",
+    default=None,
+    help="The organization the user belongs to (leave blank for all" " organizations).",
+)
 def delete(email, organization=None):
     """
     Delete user EMAIL.
     """
     if organization:
         org = models.Organization.get_by_slug(organization)
-        deleted_count = models.User.query.filter(
-            models.User.email == email,
-            models.User.org == org.id,
-        ).delete()
+        deleted_count = models.User.query.filter(models.User.email == email, models.User.org == org.id).delete()
     else:
-        deleted_count = models.User.query.filter(models.User.email == email).delete(
-            synchronize_session=False)
+        deleted_count = models.User.query.filter(models.User.email == email).delete(synchronize_session=False)
     models.db.session.commit()
     print("Deleted %d users." % deleted_count)
 
 
 @manager.command()
-@argument('email')
-@argument('password')
-@option('--org', 'organization', default=None,
-        help="The organization the user belongs to (leave blank for all "
-        "organizations).")
+@argument("email")
+@argument("password")
+@option(
+    "--org",
+    "organization",
+    default=None,
+    help="The organization the user belongs to (leave blank for all " "organizations).",
+)
 def password(email, password, organization=None):
     """
     Resets password for EMAIL to PASSWORD.
     """
     if organization:
         org = models.Organization.get_by_slug(organization)
-        user = models.User.query.filter(
-            models.User.email == email,
-            models.User.org == org,
-        ).first()
+        user = models.User.query.filter(models.User.email == email, models.User.org == org).first()
     else:
         user = models.User.query.filter(models.User.email == email).first()
 
@@ -197,17 +239,23 @@ def password(email, password, organization=None):
 
 
 @manager.command()
-@argument('email')
-@argument('name')
-@argument('inviter_email')
-@option('--org', 'organization', default='default',
-        help="The organization the user belongs to (leave blank for 'default')")
-@option('--admin', 'is_admin', type=BOOL, default=False,
-        help="set user as admin")
-@option('--groups', 'groups', default=None,
-        help="Comma seperated list of groups (leave blank for default).")
-def invite(email, name, inviter_email, groups, is_admin=False,
-           organization='default'):
+@argument("email")
+@argument("name")
+@argument("inviter_email")
+@option(
+    "--org",
+    "organization",
+    default="default",
+    help="The organization the user belongs to (leave blank for 'default')",
+)
+@option("--admin", "is_admin", type=BOOL, default=False, help="set user as admin")
+@option(
+    "--groups",
+    "groups",
+    default=None,
+    help="Comma separated list of groups (leave blank for default).",
+)
+def invite(email, name, inviter_email, groups, is_admin=False, organization="default"):
     """
     Sends an invitation to the given NAME and EMAIL from INVITER_EMAIL.
     """
@@ -222,7 +270,7 @@ def invite(email, name, inviter_email, groups, is_admin=False,
             invite_user(org, user_from, user)
             print("An invitation was sent to [%s] at [%s]." % (name, email))
         except IntegrityError as e:
-            if "email" in e.message:
+            if "email" in str(e):
                 print("Cannot invite. User already exists [%s]" % email)
             else:
                 print(e)
@@ -230,11 +278,14 @@ def invite(email, name, inviter_email, groups, is_admin=False,
         print("The inviter [%s] was not found." % inviter_email)
 
 
-@manager.command()
-@option('--org', 'organization', default=None,
-        help="The organization the user belongs to (leave blank for all"
-        " organizations)")
-def list(organization=None):
+@manager.command(name="list")
+@option(
+    "--org",
+    "organization",
+    default=None,
+    help="The organization the user belongs to (leave blank for all" " organizations)",
+)
+def list_command(organization=None):
     """List all users"""
     if organization:
         org = models.Organization.get_by_slug(organization)
@@ -245,8 +296,11 @@ def list(organization=None):
         if i > 0:
             print("-" * 20)
 
-        print("Id: {}\nName: {}\nEmail: {}\nOrganization: {}\nActive: {}".format(
-            user.id, user.name.encode('utf-8'), user.email, user.org.name, not(user.is_disabled)))
+        print(
+            "Id: {}\nName: {}\nEmail: {}\nOrganization: {}\nActive: {}".format(
+                user.id, user.name, user.email, user.org.name, not (user.is_disabled)
+            )
+        )
 
         groups = models.Group.query.filter(models.Group.id.in_(user.group_ids)).all()
         group_names = [group.name for group in groups]

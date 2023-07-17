@@ -1,19 +1,19 @@
-@import "variables";
+@import "./variables";
 
 @font-face {
-  font-family: '@{icomoon-font-family}';
-  src:  url('@{icomoon-font-path}/@{icomoon-font-family}.eot?ehpufm');
-  src:  url('@{icomoon-font-path}/@{icomoon-font-family}.eot?ehpufm#iefix') format('embedded-opentype'),
-    url('@{icomoon-font-path}/@{icomoon-font-family}.ttf?ehpufm') format('truetype'),
-    url('@{icomoon-font-path}/@{icomoon-font-family}.woff?ehpufm') format('woff'),
-    url('@{icomoon-font-path}/@{icomoon-font-family}.svg?ehpufm#@{icomoon-font-family}') format('svg');
+  font-family: "@{icomoon-font-family}";
+  src: url("@{icomoon-font-path}/@{icomoon-font-family}.eot?ehpufm");
+  src: url("@{icomoon-font-path}/@{icomoon-font-family}.eot?ehpufm#iefix") format("embedded-opentype"),
+    url("@{icomoon-font-path}/@{icomoon-font-family}.ttf?ehpufm") format("truetype"),
+    url("@{icomoon-font-path}/@{icomoon-font-family}.woff?ehpufm") format("woff"),
+    url("@{icomoon-font-path}/@{icomoon-font-family}.svg?ehpufm#@{icomoon-font-family}") format("svg");
   font-weight: normal;
   font-style: normal;
 }
 
 i.icon {
   /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: '@{icomoon-font-family}' !important;
+  font-family: "@{icomoon-font-family}" !important;
   speak: none;
   font-style: normal;
   font-weight: normal;
@@ -28,12 +28,11 @@ i.icon {
 
 .icon-flash-off {
   &:before {
-    content: @icon-flash-off; 
+    content: @icon-flash-off;
   }
 }
 .icon-flash {
   &:before {
-    content: @icon-flash; 
+    content: @icon-flash;
   }
 }
-

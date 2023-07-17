@@ -1,0 +1,40 @@
+{
+  "input": {
+    "options": {
+      "globalSeriesType": "column",
+      "legend": { "enabled": false, "traceorder": "normal" },
+      "xAxis": { "type": "-", "labels": { "enabled": true } },
+      "yAxis": [{ "type": "linear" }, { "type": "linear", "opposite": true }],
+      "series": { "stacking": null, "error_y": { "type": "data", "visible": true } }
+    },
+    "series": [{ "name": "a" }]
+  },
+  "output": {
+    "layout": {
+      "margin": { "l": 10, "r": 10, "b": 5, "t": 20, "pad": 4 },
+      "width": 400,
+      "height": 300,
+      "autosize": false,
+      "showlegend": false,
+      "legend": {
+        "traceorder": "normal"
+      },
+      "xaxis": {
+        "automargin": true,
+        "showticklabels": true,
+        "title": null,
+        "type": "-"
+      },
+      "yaxis": {
+        "automargin": true,
+        "title": null,
+        "type": "linear",
+        "autorange": true,
+        "range": null
+      },    
+      "hoverlabel": {
+        "namelength": -1
+      }
+    }
+  }
+}

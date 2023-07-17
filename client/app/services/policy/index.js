@@ -1,4 +1,4 @@
-import DefaultPolicy from './DefaultPolicy';
+import DefaultPolicy from "./DefaultPolicy";
 
 // eslint-disable-next-line import/no-mutable-exports
 export let policy = new DefaultPolicy();

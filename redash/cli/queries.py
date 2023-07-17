@@ -5,9 +5,9 @@ from sqlalchemy.orm.exc import NoResultFound
 manager = AppGroup(help="Queries management commands.")
 
 
-@manager.command()
-@argument('query_id')
-@argument('tag')
+@manager.command(name="add_tag")
+@argument("query_id")
+@argument("tag")
 def add_tag(query_id, tag):
     from redash import models
 
@@ -31,9 +31,9 @@ def add_tag(query_id, tag):
     print("Tag added.")
 
 
-@manager.command()
-@argument('query_id')
-@argument('tag')
+@manager.command(name="remove_tag")
+@argument("query_id")
+@argument("tag")
 def remove_tag(query_id, tag):
     from redash import models
 

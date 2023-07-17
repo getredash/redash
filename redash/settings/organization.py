@@ -1,5 +1,5 @@
-from __future__ import print_function
 import os
+
 from .helpers import parse_boolean
 
 if os.environ.get("REDASH_SAML_LOCAL_METADATA_PATH") is not None:
@@ -11,10 +11,17 @@ if os.environ.get("REDASH_SAML_LOCAL_METADATA_PATH") is not None:
 
 PASSWORD_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_PASSWORD_LOGIN_ENABLED", "true"))
 
+SAML_LOGIN_TYPE = os.environ.get("REDASH_SAML_AUTH_TYPE", "")
 SAML_METADATA_URL = os.environ.get("REDASH_SAML_METADATA_URL", "")
 SAML_ENTITY_ID = os.environ.get("REDASH_SAML_ENTITY_ID", "")
 SAML_NAMEID_FORMAT = os.environ.get("REDASH_SAML_NAMEID_FORMAT", "")
-SAML_LOGIN_ENABLED = SAML_METADATA_URL != ""
+SAML_SSO_URL = os.environ.get("REDASH_SAML_SSO_URL", "")
+SAML_X509_CERT = os.environ.get("REDASH_SAML_X509_CERT", "")
+SAML_SP_SETTINGS = os.environ.get("REDASH_SAML_SP_SETTINGS", "")
+if SAML_LOGIN_TYPE == "static":
+    SAML_LOGIN_ENABLED = SAML_SSO_URL != "" and SAML_METADATA_URL != ""
+else:
+    SAML_LOGIN_ENABLED = SAML_METADATA_URL != ""
 
 DATE_FORMAT = os.environ.get("REDASH_DATE_FORMAT", "DD/MM/YY")
 TIME_FORMAT = os.environ.get("REDASH_TIME_FORMAT", "HH:mm")
@@ -26,21 +33,28 @@ JWT_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_JWT_LOGIN_ENABLED", "fa
 JWT_AUTH_ISSUER = os.environ.get("REDASH_JWT_AUTH_ISSUER", "")
 JWT_AUTH_PUBLIC_CERTS_URL = os.environ.get("REDASH_JWT_AUTH_PUBLIC_CERTS_URL", "")
 JWT_AUTH_AUDIENCE = os.environ.get("REDASH_JWT_AUTH_AUDIENCE", "")
-JWT_AUTH_ALGORITHMS = os.environ.get("REDASH_JWT_AUTH_ALGORITHMS", "HS256,RS256,ES256").split(',')
+JWT_AUTH_ALGORITHMS = os.environ.get("REDASH_JWT_AUTH_ALGORITHMS", "HS256,RS256,ES256").split(",")
 JWT_AUTH_COOKIE_NAME = os.environ.get("REDASH_JWT_AUTH_COOKIE_NAME", "")
 JWT_AUTH_HEADER_NAME = os.environ.get("REDASH_JWT_AUTH_HEADER_NAME", "")
 
 FEATURE_SHOW_PERMISSIONS_CONTROL = parse_boolean(os.environ.get("REDASH_FEATURE_SHOW_PERMISSIONS_CONTROL", "false"))
 SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = parse_boolean(
-    os.environ.get('REDASH_SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES', 'false'))
+    os.environ.get("REDASH_SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES", "false")
+)
+HIDE_PLOTLY_MODE_BAR = parse_boolean(os.environ.get("HIDE_PLOTLY_MODE_BAR", "false"))
+DISABLE_PUBLIC_URLS = parse_boolean(os.environ.get("REDASH_DISABLE_PUBLIC_URLS", "false"))
 
 settings = {
     "beacon_consent": None,
     "auth_password_login_enabled": PASSWORD_LOGIN_ENABLED,
     "auth_saml_enabled": SAML_LOGIN_ENABLED,
+    "auth_saml_type": SAML_LOGIN_TYPE,
     "auth_saml_entity_id": SAML_ENTITY_ID,
     "auth_saml_metadata_url": SAML_METADATA_URL,
     "auth_saml_nameid_format": SAML_NAMEID_FORMAT,
+    "auth_saml_sso_url": SAML_SSO_URL,
+    "auth_saml_x509_cert": SAML_X509_CERT,
+    "auth_saml_sp_settings": SAML_SP_SETTINGS,
     "date_format": DATE_FORMAT,
     "time_format": TIME_FORMAT,
     "integer_format": INTEGER_FORMAT,
@@ -54,5 +68,7 @@ settings = {
     "auth_jwt_auth_cookie_name": JWT_AUTH_COOKIE_NAME,
     "auth_jwt_auth_header_name": JWT_AUTH_HEADER_NAME,
     "feature_show_permissions_control": FEATURE_SHOW_PERMISSIONS_CONTROL,
-    "send_email_on_failed_scheduled_queries": SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES
+    "send_email_on_failed_scheduled_queries": SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES,
+    "hide_plotly_mode_bar": HIDE_PLOTLY_MODE_BAR,
+    "disable_public_urls": DISABLE_PUBLIC_URLS,
 }

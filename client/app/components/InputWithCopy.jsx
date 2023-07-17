@@ -1,14 +1,15 @@
-import React from 'react';
-import Input from 'antd/lib/input';
-import Icon from 'antd/lib/icon';
-import Tooltip from 'antd/lib/tooltip';
+import React from "react";
+import Input from "antd/lib/input";
+import CopyOutlinedIcon from "@ant-design/icons/CopyOutlined";
+import Tooltip from "@/components/Tooltip";
+import PlainButton from "./PlainButton";
 
 export default class InputWithCopy extends React.Component {
   constructor(props) {
     super(props);
     this.state = { copied: null };
     this.ref = React.createRef();
-    this.copyFeatureSupported = document.queryCommandSupported('copy');
+    this.copyFeatureSupported = document.queryCommandSupported("copy");
     this.resetCopyState = null;
   }
 
@@ -24,14 +25,14 @@ export default class InputWithCopy extends React.Component {
 
     // copy
     try {
-      const success = document.execCommand('copy');
+      const success = document.execCommand("copy");
       if (!success) {
         throw new Error();
       }
-      this.setState({ copied: 'Copied!' });
+      this.setState({ copied: "Copied!" });
     } catch (err) {
       this.setState({
-        copied: 'Copy failed',
+        copied: "Copy failed",
       });
     }
 
@@ -41,17 +42,14 @@ export default class InputWithCopy extends React.Component {
 
   render() {
     const copyButton = (
-      <Tooltip title={this.state.copied || 'Copy'}>
-        <Icon
-          type="copy"
-          style={{ cursor: 'pointer' }}
-          onClick={this.copy}
-        />
+      <Tooltip title={this.state.copied || "Copy"}>
+        <PlainButton onClick={this.copy}>
+          {/* TODO: lacks visual feedback */}
+          <CopyOutlinedIcon />
+        </PlainButton>
       </Tooltip>
     );
 
-    return (
-      <Input {...this.props} ref={this.ref} addonAfter={this.copyFeatureSupported && copyButton} />
-    );
+    return <Input {...this.props} ref={this.ref} addonAfter={this.copyFeatureSupported && copyButton} />;
   }
 }

@@ -3,18 +3,43 @@ import importlib
 import logging
 import sys
 
-from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
-from redash import models
 from RestrictedPython import compile_restricted
-from RestrictedPython.Guards import safe_builtins
+from RestrictedPython.Guards import (
+    guarded_iter_unpack_sequence,
+    guarded_unpack_sequence,
+    safe_builtins,
+)
 
+from redash import models
+from redash.query_runner import (
+    SUPPORTED_COLUMN_TYPES,
+    TYPE_BOOLEAN,
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseQueryRunner,
+    register,
+)
+from redash.utils import json_dumps, json_loads
+
+try:
+    import numpy as np
+    import pandas as pd
+
+    pandas_installed = True
+except ImportError:
+    pandas_installed = False
+
+from RestrictedPython.transformer import IOPERATOR_TO_STR
 
 logger = logging.getLogger(__name__)
 
 
 class CustomPrint(object):
     """CustomPrint redirect "print" calls to be sent as "log" on the result object."""
+
     def __init__(self):
         self.enabled = True
         self.lines = []
@@ -31,33 +56,55 @@ class CustomPrint(object):
     def disable(self):
         self.enabled = False
 
-    def __call__(self):
+    def __call__(self, *args):
         return self
+
+    def _call_print(self, *objects, **kwargs):
+        print(*objects, file=self)
 
 
 class Python(BaseQueryRunner):
     should_annotate_query = False
 
     safe_builtins = (
-        'sorted', 'reversed', 'map', 'reduce', 'any', 'all',
-        'slice', 'filter', 'len', 'next', 'enumerate',
-        'sum', 'abs', 'min', 'max', 'round', 'cmp', 'divmod',
-        'str', 'unicode', 'int', 'float', 'complex',
-        'tuple', 'set', 'list', 'dict', 'bool',
+        "abs",
+        "all",
+        "any",
+        "bool",
+        "complex",
+        "dict",
+        "divmod",
+        "enumerate",
+        "filter",
+        "float",
+        "int",
+        "len",
+        "list",
+        "map",
+        "max",
+        "min",
+        "next",
+        "reversed",
+        "round",
+        "set",
+        "slice",
+        "sorted",
+        "str",
+        "sum",
+        "tuple",
     )
 
     @classmethod
     def configuration_schema(cls):
         return {
-            'type': 'object',
-            'properties': {
-                'allowedImportModules': {
-                    'type': 'string',
-                    'title': 'Modules to import prior to running the script'
+            "type": "object",
+            "properties": {
+                "allowedImportModules": {
+                    "type": "string",
+                    "title": "Modules to import prior to running the script",
                 },
-                'additionalModulesPaths': {
-                    'type': 'string'
-                }
+                "additionalModulesPaths": {"type": "string"},
+                "additionalBuiltins": {"type": "string"},
             },
         }
 
@@ -83,6 +130,11 @@ class Python(BaseQueryRunner):
             for p in self.configuration["additionalModulesPaths"].split(","):
                 if p not in sys.path:
                     sys.path.append(p)
+
+        if self.configuration.get("additionalBuiltins", None):
+            for b in self.configuration["additionalBuiltins"].split(","):
+                if b not in self.safe_builtins:
+                    self.safe_builtins += (b,)
 
     def custom_import(self, name, globals=None, locals=None, fromlist=(), level=0):
         if name in self._allowed_modules:
@@ -114,6 +166,14 @@ class Python(BaseQueryRunner):
         return iter(obj)
 
     @staticmethod
+    def custom_inplacevar(op, x, y):
+        if op not in IOPERATOR_TO_STR.values():
+            raise Exception("'{} is not supported inplace variable'".format(op))
+        glb = {"x": x, "y": y}
+        exec("x" + op + "y", glb)
+        return glb["x"]
+
+    @staticmethod
     def add_result_column(result, column_name, friendly_name, column_type):
         """Helper function to add columns inside a Python script running in Redash in an easier way
 
@@ -129,11 +189,7 @@ class Python(BaseQueryRunner):
         if "columns" not in result:
             result["columns"] = []
 
-        result["columns"].append({
-            "name": column_name,
-            "friendly_name": friendly_name,
-            "type": column_type
-        })
+        result["columns"].append({"name": column_name, "friendly_name": friendly_name, "type": column_type})
 
     @staticmethod
     def add_result_row(result, values):
@@ -149,7 +205,7 @@ class Python(BaseQueryRunner):
         result["rows"].append(values)
 
     @staticmethod
-    def execute_query(data_source_name_or_id, query):
+    def execute_query(data_source_name_or_id, query, result_type=None):
         """Run query from specific data source.
 
         Parameters:
@@ -170,7 +226,12 @@ class Python(BaseQueryRunner):
             raise Exception(error)
 
         # TODO: allow avoiding the JSON dumps/loads in same process
-        return json_loads(data)
+        query_result = json_loads(data)
+
+        if result_type == "dataframe" and pandas_installed:
+            return pd.DataFrame(query_result["rows"])
+
+        return query_result
 
     @staticmethod
     def get_source_schema(data_source_name_or_id):
@@ -207,7 +268,29 @@ class Python(BaseQueryRunner):
         if query.latest_query_data.data is None:
             raise Exception("Query does not have results yet.")
 
-        return json_loads(query.latest_query_data.data)
+        return query.latest_query_data.data
+
+    def dataframe_to_result(self, result, df):
+        result["rows"] = df.to_dict("records")
+
+        for column_name, column_type in df.dtypes.items():
+            if column_type == np.bool:
+                redash_type = TYPE_BOOLEAN
+            elif column_type == np.inexact:
+                redash_type = TYPE_FLOAT
+            elif column_type == np.integer:
+                redash_type = TYPE_INTEGER
+            elif column_type in (np.datetime64, np.dtype("<M8[ns]")):
+                if df.empty:
+                    redash_type = TYPE_DATETIME
+                elif len(df[column_name].head(1).astype(str).loc[0]) > 10:
+                    redash_type = TYPE_DATETIME
+                else:
+                    redash_type = TYPE_DATE
+            else:
+                redash_type = TYPE_STRING
+
+            self.add_result_column(result, column_name, column_name, redash_type)
 
     def get_current_user(self):
         return self._current_user.to_dict()
@@ -221,7 +304,7 @@ class Python(BaseQueryRunner):
         try:
             error = None
 
-            code = compile_restricted(query, '<string>', 'exec')
+            code = compile_restricted(query, "<string>", "exec")
 
             builtins = safe_builtins.copy()
             builtins["_write_"] = self.custom_write
@@ -233,6 +316,9 @@ class Python(BaseQueryRunner):
             builtins["_getitem_"] = self.custom_get_item
             builtins["_getiter_"] = self.custom_get_iter
             builtins["_print_"] = self._custom_print
+            builtins["_unpack_sequence_"] = guarded_unpack_sequence
+            builtins["_iter_unpack_sequence_"] = guarded_iter_unpack_sequence
+            builtins["_inplacevar_"] = self.custom_inplacevar
 
             # Layer in our own additional set of builtins that we have
             # considered safe.
@@ -245,6 +331,8 @@ class Python(BaseQueryRunner):
             restricted_globals["get_current_user"] = self.get_current_user
             restricted_globals["execute_query"] = self.execute_query
             restricted_globals["add_result_column"] = self.add_result_column
+            if pandas_installed:
+                restricted_globals["dataframe_to_result"] = self.dataframe_to_result
             restricted_globals["add_result_row"] = self.add_result_row
             restricted_globals["disable_print_log"] = self._custom_print.disable
             restricted_globals["enable_print_log"] = self._custom_print.enable
@@ -261,14 +349,11 @@ class Python(BaseQueryRunner):
             #       One option is to use ETA with Celery + timeouts on workers
             #       And replacement of worker process every X requests handled.
 
-            exec((code), restricted_globals, self._script_locals)
+            exec(code, restricted_globals, self._script_locals)
 
-            result = self._script_locals['result']
-            result['log'] = self._custom_print.lines
+            result = self._script_locals["result"]
+            result["log"] = self._custom_print.lines
             json_data = json_dumps(result)
-        except KeyboardInterrupt:
-            error = "Query cancelled by user."
-            json_data = None
         except Exception as e:
             error = str(type(e)) + " " + str(e)
             json_data = None

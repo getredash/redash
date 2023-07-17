@@ -1,12 +1,12 @@
-
-@import '../../assets/less/inc/variables';
+@import (reference, less) "~@/assets/less/inc/variables";
 
 .visual-card-list {
+  width: 100%;
   margin: -5px 0 0 -5px; // compensate for .visual-card spacing
 }
 
 .visual-card {
-  background: #FFFFFF;
+  background: #ffffff;
   border: 1px solid fade(@redash-gray, 15%);
   border-radius: 3px;
   margin: 5px;
@@ -21,7 +21,9 @@
   display: flex;
   align-items: center;
 
-  &:hover {
+  &:hover,
+  &:focus,
+  &:focus-within {
     box-shadow: rgba(102, 136, 153, 0.15) 0px 4px 9px -3px;
   }
 

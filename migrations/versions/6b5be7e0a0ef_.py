@@ -11,8 +11,8 @@ import sqlalchemy_searchable as ss
 
 
 # revision identifiers, used by Alembic.
-revision = '6b5be7e0a0ef'
-down_revision = '5ec5c84ba61e'
+revision = "6b5be7e0a0ef"
+down_revision = "5ec5c84ba61e"
 branch_labels = None
 depends_on = None
 
@@ -23,7 +23,7 @@ def upgrade():
     conn = op.get_bind()
 
     metadata = sa.MetaData(bind=conn)
-    queries = sa.Table('queries', metadata, autoload=True)
+    queries = sa.Table("queries", metadata, autoload=True)
 
     @ss.vectorizer(queries.c.id)
     def integer_vectorizer(column):
@@ -31,18 +31,22 @@ def upgrade():
 
     ss.sync_trigger(
         conn,
-        'queries',
-        'search_vector',
-        ['id', 'name', 'description', 'query'],
-        metadata=metadata
+        "queries",
+        "search_vector",
+        ["id", "name", "description", "query"],
+        metadata=metadata,
     )
 
 
 def downgrade():
     conn = op.get_bind()
-    ss.drop_trigger(conn, 'queries', 'search_vector')
-    op.drop_index('ix_queries_search_vector', table_name='queries')
-    op.create_index('ix_queries_search_vector', 'queries', ['search_vector'],
-                    unique=False, postgresql_using='gin')
-    ss.sync_trigger(conn, 'queries', 'search_vector',
-                    ['name', 'description', 'query'])
+    ss.drop_trigger(conn, "queries", "search_vector")
+    op.drop_index("ix_queries_search_vector", table_name="queries")
+    op.create_index(
+        "ix_queries_search_vector",
+        "queries",
+        ["search_vector"],
+        unique=False,
+        postgresql_using="gin",
+    )
+    ss.sync_trigger(conn, "queries", "search_vector", ["name", "description", "query"])

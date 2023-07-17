@@ -1,0 +1,112 @@
+@import (reference, less) "~@/components/ApplicationArea/ApplicationLayout/index.less";
+
+.dashboard-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  position: -webkit-sticky; // required for Safari
+  position: sticky;
+  background: #f6f7f9;
+  z-index: 99;
+  width: 100%;
+  top: 0;
+  padding-top: 10px;
+  margin-bottom: 10px;
+
+  & > div {
+    padding: 5px 0;
+  }
+
+  .title-with-tags {
+    flex: 1 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: -5px 0;
+
+    & > div {
+      padding: 5px 0;
+    }
+
+    h3 {
+      margin: 0;
+
+      @media (max-width: 767px) {
+        font-size: 18px;
+      }
+    }
+  }
+
+  @media @mobileBreakpoint {
+    & {
+      position: static;
+    }
+  }
+
+  .profile-image {
+    width: 16px;
+    height: 16px;
+    border-radius: 100%;
+    margin: 3px 5px 0 5px;
+  }
+
+  .tags-control > .label-tag {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  &:hover,
+  &:focus,
+  &:active,
+  &:focus-within {
+    .tags-control > .label-tag {
+      opacity: 1;
+    }
+  }
+
+  .dashboard-control {
+    .icon-button {
+      width: 32px;
+      padding: 0 10px;
+    }
+
+    .save-status {
+      vertical-align: middle;
+      margin-right: 7px;
+      font-size: 12px;
+      text-align: left;
+      display: inline-block;
+
+      &[data-saving] {
+        opacity: 0.6;
+        width: 45px;
+
+        &:after {
+          content: "";
+          animation: saving 2s linear infinite;
+        }
+      }
+
+      &[data-error] {
+        color: #f44336;
+      }
+    }
+
+    @media (max-width: 515px) {
+      flex-basis: 100%;
+    }
+  }
+
+  @keyframes saving {
+    0%,
+    100% {
+      content: ".";
+    }
+    33% {
+      content: "..";
+    }
+    66% {
+      content: "...";
+    }
+  }
+}

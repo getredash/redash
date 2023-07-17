@@ -1,11 +1,11 @@
-from celery.utils.log import get_task_logger
-from flask import current_app
 import datetime
-from redash.worker import celery
+
+from flask import current_app
+
 from redash import models, utils
+from redash.worker import get_job_logger, job
 
-
-logger = get_task_logger(__name__)
+logger = get_job_logger(__name__)
 
 
 def notify_subscriptions(alert, new_state):
@@ -13,7 +13,7 @@ def notify_subscriptions(alert, new_state):
     for subscription in alert.subscriptions:
         try:
             subscription.notify(alert, alert.query_rel, subscription.user, new_state, current_app, host)
-        except Exception as e:
+        except Exception:
             logger.exception("Error with processing destination")
 
 
@@ -25,7 +25,7 @@ def should_notify(alert, new_state):
     return new_state != alert.state or (alert.state == models.Alert.TRIGGERED_STATE and passed_rearm_threshold)
 
 
-@celery.task(name="redash.tasks.check_alerts_for_query", time_limit=300, soft_time_limit=240)
+@job("default", timeout=300)
 def check_alerts_for_query(query_id):
     logger.debug("Checking query %d for alerts", query_id)
 
@@ -45,6 +45,10 @@ def check_alerts_for_query(query_id):
 
             if old_state == models.Alert.UNKNOWN_STATE and new_state == models.Alert.OK_STATE:
                 logger.debug("Skipping notification (previous state was unknown and now it's ok).")
+                continue
+
+            if alert.muted:
+                logger.debug("Skipping notification (alert muted).")
                 continue
 
             notify_subscriptions(alert, new_state)

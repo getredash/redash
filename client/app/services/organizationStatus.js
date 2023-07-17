@@ -1,4 +1,4 @@
-import { $http } from '@/services/ng';
+import { axios } from "@/services/axios";
 
 class OrganizationStatus {
   constructor() {
@@ -6,7 +6,7 @@ class OrganizationStatus {
   }
 
   refresh() {
-    return $http.get('api/organization/status').then(({ data }) => {
+    return axios.get("api/organization/status").then(data => {
       this.objectCounters = data.object_counters;
       return this;
     });

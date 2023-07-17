@@ -1,48 +1,56 @@
 #!/bin/bash
 set -e
 
-worker() {
-  WORKERS_COUNT=${WORKERS_COUNT:-2}
-  QUEUES=${QUEUES:-queries,scheduled_queries,celery,schemas}
-  WORKER_EXTRA_OPTIONS=${WORKER_EXTRA_OPTIONS:-}
+scheduler() {
+  echo "Starting RQ scheduler..."
 
-  echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
-  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair $WORKER_EXTRA_OPTIONS
+  exec /app/manage.py rq scheduler
 }
 
-scheduler() {
-  WORKERS_COUNT=${WORKERS_COUNT:-1}
-  QUEUES=${QUEUES:-celery}
-  SCHEDULE_DB=${SCHEDULE_DB:-celerybeat-schedule}
+dev_scheduler() {
+  echo "Starting dev RQ scheduler..."
 
-  echo "Starting scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
+  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq scheduler
+}
 
-  exec /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
+worker() {
+  echo "Starting RQ worker..."
+
+  export WORKERS_COUNT=${WORKERS_COUNT:-2}
+  export QUEUES=${QUEUES:-}
+
+  exec supervisord -c worker.conf
+}
+
+workers_healthcheck() {
+  WORKERS_COUNT=${WORKERS_COUNT}
+  echo "Checking active workers count against $WORKERS_COUNT..."
+  ACTIVE_WORKERS_COUNT=`echo $(rq info --url $REDASH_REDIS_URL -R | grep workers | grep -oP ^[0-9]+)`
+  if [ "$ACTIVE_WORKERS_COUNT" -lt "$WORKERS_COUNT"  ]; then
+    echo "$ACTIVE_WORKERS_COUNT workers are active, Exiting"
+    exit 1
+  else
+    echo "$ACTIVE_WORKERS_COUNT workers are active"
+    exit 0
+  fi
 }
 
 dev_worker() {
-  WORKERS_COUNT=${WORKERS_COUNT:-2}
-  QUEUES=${QUEUES:-queries,scheduled_queries,celery,schemas}
-  SCHEDULE_DB=${SCHEDULE_DB:-celerybeat-schedule}
+  echo "Starting dev RQ worker..."
 
-  echo "Starting dev scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
-
-  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
+  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq worker $QUEUES
 }
 
 server() {
   # Recycle gunicorn workers every n-th request. See http://docs.gunicorn.org/en/stable/settings.html#max-requests for more details.
   MAX_REQUESTS=${MAX_REQUESTS:-1000}
   MAX_REQUESTS_JITTER=${MAX_REQUESTS_JITTER:-100}
-  exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app --max-requests $MAX_REQUESTS --max-requests-jitter $MAX_REQUESTS_JITTER
+  TIMEOUT=${REDASH_GUNICORN_TIMEOUT:-60}
+  exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app --max-requests $MAX_REQUESTS --max-requests-jitter $MAX_REQUESTS_JITTER --timeout $TIMEOUT
 }
 
 create_db() {
   exec /app/manage.py database create_tables
-}
-
-celery_healthcheck() {
-  exec /usr/local/bin/celery inspect ping --app=redash.worker -d celery@$HOSTNAME
 }
 
 help() {
@@ -52,10 +60,10 @@ help() {
   echo ""
 
   echo "server -- start Redash server (with gunicorn)"
-  echo "worker -- start Celery worker"
-  echo "scheduler -- start Celery worker with a beat (scheduler) process"
-  echo "dev_worker  -- start Celery worker with a beat (scheduler) process which picks up code changes and reloads"
-  echo "celery_healthcheck -- runs a Celery healthcheck. Useful for Docker's HEALTHCHECK mechanism."
+  echo "worker -- start a single RQ worker"
+  echo "dev_worker -- start a single RQ worker with code reloading"
+  echo "scheduler -- start an rq-scheduler instance"
+  echo "dev_scheduler -- start an rq-scheduler instance with code reloading"
   echo ""
   echo "shell -- open shell"
   echo "dev_server -- start Flask development server with debugger and auto reload"
@@ -81,6 +89,10 @@ case "$1" in
     shift
     worker
     ;;
+  workers_healthcheck)
+    shift
+    workers_healthcheck
+    ;;
   server)
     shift
     server
@@ -89,9 +101,17 @@ case "$1" in
     shift
     scheduler
     ;;
+  dev_scheduler)
+    shift
+    dev_scheduler
+    ;;
   dev_worker)
     shift
     dev_worker
+    ;;
+  celery_healthcheck)
+    shift
+    echo "DEPRECATED: Celery has been replaced with RQ and now performs healthchecks autonomously as part of the 'worker' entrypoint."
     ;;
   dev_server)
     export FLASK_DEBUG=1
@@ -124,4 +144,3 @@ case "$1" in
     exec "$@"
     ;;
 esac
-

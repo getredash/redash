@@ -1,43 +1,46 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { size, filter, forEach, extend } from 'lodash';
-import { react2angular } from 'react2angular';
-import { SortableContainer, SortableElement, DragHandle } from '@/components/sortable';
-import { $location } from '@/services/ng';
-import { Parameter } from '@/services/query';
-import ParameterApplyButton from '@/components/ParameterApplyButton';
-import ParameterValueInput from '@/components/ParameterValueInput';
-import EditParameterSettingsDialog from './EditParameterSettingsDialog';
-import { toHuman } from '@/filters';
+import { size, filter, forEach, extend } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import { SortableContainer, SortableElement, DragHandle } from "@redash/viz/lib/components/sortable";
+import location from "@/services/location";
+import { Parameter, createParameter } from "@/services/parameters";
+import ParameterApplyButton from "@/components/ParameterApplyButton";
+import ParameterValueInput from "@/components/ParameterValueInput";
+import PlainButton from "@/components/PlainButton";
+import EditParameterSettingsDialog from "./EditParameterSettingsDialog";
+import { toHuman } from "@/lib/utils";
 
-import './Parameters.less';
+import "./Parameters.less";
 
 function updateUrl(parameters) {
-  const params = extend({}, $location.search());
-  parameters.forEach((param) => {
+  const params = extend({}, location.search);
+  parameters.forEach(param => {
     extend(params, param.toUrlParams());
   });
-  Object.keys(params).forEach(key => params[key] == null && delete params[key]);
-  $location.search(params);
+  location.setSearch(params, true);
 }
 
-export class Parameters extends React.Component {
+export default class Parameters extends React.Component {
   static propTypes = {
     parameters: PropTypes.arrayOf(PropTypes.instanceOf(Parameter)),
     editable: PropTypes.bool,
+    sortable: PropTypes.bool,
     disableUrlUpdate: PropTypes.bool,
     onValuesChange: PropTypes.func,
     onPendingValuesChange: PropTypes.func,
     onParametersEdit: PropTypes.func,
+    appendSortableToParent: PropTypes.bool,
   };
 
   static defaultProps = {
     parameters: [],
     editable: false,
+    sortable: false,
     disableUrlUpdate: false,
     onValuesChange: () => {},
     onPendingValuesChange: () => {},
     onParametersEdit: () => {},
+    appendSortableToParent: true,
   };
 
   constructor(props) {
@@ -49,17 +52,19 @@ export class Parameters extends React.Component {
     }
   }
 
-  componentDidUpdate = (prevProps) => {
+  componentDidUpdate = prevProps => {
     const { parameters, disableUrlUpdate } = this.props;
-    if (prevProps.parameters !== parameters) {
+    const parametersChanged = prevProps.parameters !== parameters;
+    const disableUrlUpdateChanged = prevProps.disableUrlUpdate !== disableUrlUpdate;
+    if (parametersChanged) {
       this.setState({ parameters });
-      if (!disableUrlUpdate) {
-        updateUrl(parameters);
-      }
+    }
+    if ((parametersChanged || disableUrlUpdateChanged) && !disableUrlUpdate) {
+      updateUrl(parameters);
     }
   };
 
-  handleKeyDown = (e) => {
+  handleKeyDown = e => {
     // Cmd/Ctrl/Alt + Enter
     if (e.keyCode === 13 && (e.ctrlKey || e.metaKey || e.altKey)) {
       e.stopPropagation();
@@ -85,7 +90,7 @@ export class Parameters extends React.Component {
     if (oldIndex !== newIndex) {
       this.setState(({ parameters }) => {
         parameters.splice(newIndex, 0, parameters.splice(oldIndex, 1)[0]);
-        onParametersEdit();
+        onParametersEdit(parameters);
         return { parameters };
       });
     }
@@ -106,37 +111,31 @@ export class Parameters extends React.Component {
 
   showParameterSettings = (parameter, index) => {
     const { onParametersEdit } = this.props;
-    EditParameterSettingsDialog
-      .showModal({ parameter })
-      .result.then((updated) => {
-        this.setState(({ parameters }) => {
-          const updatedParameter = extend(parameter, updated);
-          parameters[index] = new Parameter(updatedParameter, updatedParameter.parentQueryId);
-          onParametersEdit();
-          return { parameters };
-        });
+    EditParameterSettingsDialog.showModal({ parameter }).onClose(updated => {
+      this.setState(({ parameters }) => {
+        const updatedParameter = extend(parameter, updated);
+        parameters[index] = createParameter(updatedParameter, updatedParameter.parentQueryId);
+        onParametersEdit(parameters);
+        return { parameters };
       });
+    });
   };
 
   renderParameter(param, index) {
     const { editable } = this.props;
     return (
-      <div
-        key={param.name}
-        className="di-block"
-        data-test={`ParameterName-${param.name}`}
-      >
+      <div key={param.name} className="di-block" data-test={`ParameterName-${param.name}`}>
         <div className="parameter-heading">
           <label>{param.title || toHuman(param.name)}</label>
           {editable && (
-            <button
+            <PlainButton
               className="btn btn-default btn-xs m-l-5"
+              aria-label="Edit"
               onClick={() => this.showParameterSettings(param, index)}
               data-test={`ParameterSettings-${param.name}`}
-              type="button"
-            >
-              <i className="fa fa-cog" />
-            </button>
+              type="button">
+              <i className="fa fa-cog" aria-hidden="true" />
+            </PlainButton>
           )}
         </div>
         <ParameterValueInput
@@ -145,7 +144,6 @@ export class Parameters extends React.Component {
           parameter={param}
           enumOptions={param.enumOptions}
           queryId={param.queryId}
-          allowMultipleValues={!!param.multiValuesOptions}
           onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
         />
       </div>
@@ -154,26 +152,30 @@ export class Parameters extends React.Component {
 
   render() {
     const { parameters } = this.state;
-    const { editable } = this.props;
-    const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
+    const { sortable, appendSortableToParent } = this.props;
+    const dirtyParamCount = size(filter(parameters, "hasPendingValue"));
+
     return (
       <SortableContainer
-        disabled={!editable}
+        disabled={!sortable}
         axis="xy"
         useDragHandle
         lockToContainerEdges
         helperClass="parameter-dragged"
+        helperContainer={containerEl => (appendSortableToParent ? containerEl : document.body)}
         updateBeforeSortStart={this.onBeforeSortStart}
         onSortEnd={this.moveParameter}
         containerProps={{
-          className: 'parameter-container',
+          className: "parameter-container",
           onKeyDown: dirtyParamCount ? this.handleKeyDown : null,
-        }}
-      >
+        }}>
         {parameters.map((param, index) => (
           <SortableElement key={param.name} index={index}>
-            <div className="parameter-block" data-editable={editable || null}>
-              {editable && <DragHandle data-test={`DragHandle-${param.name}`} />}
+            <div
+              className="parameter-block"
+              data-editable={sortable || null}
+              data-test={`ParameterBlock-${param.name}`}>
+              {sortable && <DragHandle data-test={`DragHandle-${param.name}`} />}
               {this.renderParameter(param, index)}
             </div>
           </SortableElement>
@@ -183,9 +185,3 @@ export class Parameters extends React.Component {
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component('parameters', react2angular(Parameters));
-}
-
-init.init = true;

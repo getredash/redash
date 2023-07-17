@@ -1,17 +1,16 @@
-from tests import BaseTestCase
 from collections import namedtuple
-from unittest import TestCase
-from redash.permissions import has_access
+
 from redash import models
+from redash.permissions import has_access
+from tests import BaseTestCase
 
-
-MockUser = namedtuple('MockUser', ['permissions', 'group_ids'])
+MockUser = namedtuple("MockUser", ["permissions", "group_ids"])
 view_only = True
 
 
 class TestHasAccess(BaseTestCase):
     def test_allows_admin_regardless_of_groups(self):
-        user = MockUser(['admin'], [])
+        user = MockUser(["admin"], [])
 
         self.assertTrue(has_access({}, user, view_only))
         self.assertTrue(has_access({}, user, not view_only))
