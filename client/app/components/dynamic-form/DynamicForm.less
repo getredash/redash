@@ -1,0 +1,35 @@
+@import (reference, less) "~@/assets/less/ant";
+
+@btn-extra-options-bg: fade(@redash-gray, 10%);
+@btn-extra-options-border: fade(@redash-gray, 15%);
+
+.dynamic-form {
+  .extra-options {
+    margin: 25px 0 10px;
+  }
+
+  .extra-options-button {
+    &,
+    &:focus,
+    &:hover {
+      height: 40px;
+      font-weight: 500;
+      background-color: @btn-extra-options-bg;
+      border-color: @btn-extra-options-border;
+      color: @btn-default-color;
+    }
+
+    &:focus,
+    &:hover {
+      background-color: fade(@btn-extra-options-bg, 15%);
+    }
+  }
+
+  .extra-options-content {
+    margin-top: 15px;
+
+    .ant-form-item:last-of-type {
+      margin-bottom: 0 !important;
+    }
+  }
+}

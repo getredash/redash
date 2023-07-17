@@ -1,3 +1,4 @@
 build/*.js
+dist
 config/*.js
 client/dist

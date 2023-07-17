@@ -7,10 +7,10 @@ about: Report reproducible software issues so we can improve
 
 We use GitHub only for bug reports 🐛
 
-Anything else should be posted to https://discuss.redash.io 👫
+Anything else should be a discussion: https://github.com/getredash/redash/discussions/ 👫
 
-🚨For support, help & questions use https://discuss.redash.io/c/support
-💡For feature requests & ideas use https://discuss.redash.io/c/feature-requests
+🚨For support, help & questions use https://github.com/getredash/redash/discussions/categories/q-a
+💡For feature requests & ideas use https://github.com/getredash/redash/discussions/categories/ideas
 
 **Found a security vulnerability?** Please email security@redash.io to report any security vulnerabilities. We will acknowledge receipt of your vulnerability and strive to send you regular updates about our progress. If you're curious about the status of your disclosure please feel free to email us again. If you want to encrypt your disclosure email, you can use this PGP key.
 

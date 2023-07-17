@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<div
+  className="col-md-4 col-md-offset-4 profile__container"
+>
+  <img
+    alt="profile"
+    className="profile__image"
+    src="http://www.images.com/llama.jpg"
+    width="40"
+  />
+  <h3
+    className="profile__h3"
+  >
+    John Doe
+  </h3>
+  <hr />
+  <dl
+    className="profile__dl"
+  >
+    <dt>
+      Name:
+    </dt>
+    <dd>
+      John Doe
+    </dd>
+    <dt>
+      Email:
+    </dt>
+    <dd>
+      john@doe.com
+    </dd>
+    <dt
+      className="m-b-5"
+    >
+      Groups:
+    </dt>
+    <dd>
+      Loading...
+    </dd>
+  </dl>
+</div>
+`;

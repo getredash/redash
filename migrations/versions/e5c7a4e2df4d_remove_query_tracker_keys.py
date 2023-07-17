@@ -12,15 +12,15 @@ from redash import redis_connection
 
 
 # revision identifiers, used by Alembic.
-revision = 'e5c7a4e2df4d'
-down_revision = '98af61feea92'
+revision = "e5c7a4e2df4d"
+down_revision = "98af61feea92"
 branch_labels = None
 depends_on = None
 
 
-DONE_LIST = 'query_task_trackers:done'
-WAITING_LIST = 'query_task_trackers:waiting'
-IN_PROGRESS_LIST = 'query_task_trackers:in_progress'
+DONE_LIST = "query_task_trackers:done"
+WAITING_LIST = "query_task_trackers:waiting"
+IN_PROGRESS_LIST = "query_task_trackers:in_progress"
 
 
 def prune(list_name, keep_count, max_keys=100):

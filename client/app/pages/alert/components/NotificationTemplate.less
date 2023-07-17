@@ -1,0 +1,36 @@
+.alert-template {
+  display: flex;
+  flex-direction: column;
+
+  input {
+      margin-bottom: 10px;
+  }
+
+  textarea {
+      margin-bottom: 0 !important;
+  }
+
+  input, textarea {
+      font-family: "Roboto Mono", monospace;
+      font-size: 12px;
+      letter-spacing: -0.4px  ;
+
+      &[disabled] {
+          color: inherit;
+          cursor: auto;
+      }
+  }
+
+  .alert-custom-template {
+      margin-top: 10px;
+      padding: 4px 10px 2px;
+      background: #fbfbfb;
+      border: 1px dashed #d9d9d9;
+      border-radius: 3px;
+      max-width: 500px;
+  }
+
+  .alert-template-preview {
+      margin: 0 0 0 5px !important;
+  }
+}
