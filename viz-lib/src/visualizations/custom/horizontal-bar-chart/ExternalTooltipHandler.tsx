@@ -25,6 +25,7 @@ const getOrCreateTooltip = (chart: {
 
     const table = document.createElement("table");
     table.style.margin = "0px";
+    table.style.background = "transparent";
     tableCon.style.maxWidth = "57.41px";
     tableCon.style.display = "flex";
     tableCon.style.flexDirection = "column";
@@ -68,12 +69,13 @@ export const ExternalTooltipHandler = (context: { chart: any; tooltip: any }) =>
 
     titleLines.forEach((title: string) => {
       const span = document.createElement("span");
-      span.style.background = "#AA00FF";
-      span.style.borderColor = "#AA00FF";
+      span.style.background = context.tooltip._tooltipItems[0].dataset.tooltipColor();
+      span.style.borderColor = context.tooltip._tooltipItems[0].dataset.tooltipColor();
+
       span.style.borderWidth = "2px";
       span.style.borderRadius = "50%";
-      span.style.height = "5.92px";
-      span.style.width = "5.92px";
+      span.style.height = "6px";
+      span.style.width = "6px";
       span.style.display = "inline-block";
 
       const tr = document.createElement("tr");
@@ -141,6 +143,7 @@ export const ExternalTooltipHandler = (context: { chart: any; tooltip: any }) =>
   tableCon.style.height = "18.85px";
   tableCon.style.backdropFilter = "blur(7.5px)";
   tableCon.style.boxShadow = "0px 17px 35px rgba(255, 57, 223, 0.15)";
+  tableCon.style.justifyContent = "center";
   tableCon.style.width = "fit-content";
   tableCon.style.marginLeft = "auto";
   tableCon.style.marginRight = "auto";

@@ -90,8 +90,6 @@ export default function Renderer({ data, options }: any) {
 
   const dataPage = data.rows.slice(PER_PAGE * page, PER_PAGE * (page + 1));
 
-  console.log(data);
-
   return (
     <SafeHorizontalBarChart
       data={dataPage}
@@ -146,6 +144,15 @@ function SafeHorizontalBarChart({ data, maxX, variant = "redGradient" }: any) {
             return createGradient(chart.ctx, chart.chartArea, variant, true);
           },
           hoverBorderWidth: 2,
+          tooltipColor: () => {
+            if (variant === "redGradient") {
+              return "#97294E";
+            }
+            if (variant === "purpleGradient") {
+              return "#7B1FA2";
+            }
+            return "#000000";
+          },
         },
       ],
     };
@@ -157,7 +164,7 @@ function SafeHorizontalBarChart({ data, maxX, variant = "redGradient" }: any) {
     <Chart
       type="bar"
       ref={chartRef}
-      style={{ maxWidth: "100%" }}
+      style={{ maxWidth: "100%", minHeight: "330px" }}
       width={"100%"}
       height={"100%"}
       onMouseEnter={() => setChartMouseOver(true)}
