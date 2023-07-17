@@ -36,12 +36,8 @@ class Email(BaseDestination):
         if alert.custom_body:
             html = alert.custom_body
         else:
-            html = """
-            Check <a href="{host}/alerts/{alert_id}">alert</a> / check
-            <a href="{host}/queries/{query_id}">query</a> </br>.
-            """.format(
-                host=host, alert_id=alert.id, query_id=query.id
-            )
+            with open(settings.REDASH_ALERTS_DEFAULT_MAIL_BODY_TEMPLATE_FILE, "r") as f:
+                html = alert.render_template(f.read())
         logging.debug("Notifying: %s", recipients)
 
         try:

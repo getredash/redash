@@ -72,6 +72,7 @@ from redash.utils import (
     json_dumps,
     json_loads,
     mustache_render,
+    mustache_render_escape,
     sentry,
 )
 from redash.utils.configuration import ConfigurationContainer
@@ -975,6 +976,10 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         else:
             result_value = None
 
+        result_table = []  # A two-dimensional array which can rendered as a table in Mustache
+        for row in data["rows"]:
+            result_table.append([row[col["name"]] for col in data["columns"]])
+
         context = {
             "ALERT_NAME": self.name,
             "ALERT_URL": "{host}/alerts/{alert_id}".format(host=host, alert_id=self.id),
@@ -986,8 +991,9 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
             "QUERY_RESULT_VALUE": result_value,
             "QUERY_RESULT_ROWS": data["rows"],
             "QUERY_RESULT_COLS": data["columns"],
+            "QUERY_RESULT_TABLE": result_table,
         }
-        return mustache_render(template, context)
+        return mustache_render_escape(template, context)
 
     @property
     def custom_body(self):

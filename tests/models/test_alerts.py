@@ -1,3 +1,4 @@
+import textwrap
 from unittest import TestCase
 
 from redash.models import OPERATORS, Alert, db, next_state
@@ -88,3 +89,71 @@ class TestNextState(TestCase):
     def test_boolean_value(self):
         self.assertEqual(Alert.TRIGGERED_STATE, next_state(OPERATORS.get("=="), False, "false"))
         self.assertEqual(Alert.TRIGGERED_STATE, next_state(OPERATORS.get("!="), False, "true"))
+
+
+class TestAlertRenderTemplate(BaseTestCase):
+    def create_alert(self, results, column="foo", value="5"):
+        result = self.factory.create_query_result(data=results)
+        query = self.factory.create_query(latest_query_data_id=result.id)
+        alert = self.factory.create_alert(query_rel=query, options={"op": "equals", "column": column, "value": value})
+        return alert
+
+    def test_render_custom_alert_template(self):
+        alert = self.create_alert(get_results(1))
+        custom_alert = """
+        <pre>
+        ALERT_STATUS        {{ALERT_STATUS}}
+        ALERT_CONDITION     {{ALERT_CONDITION}}
+        ALERT_THRESHOLD     {{ALERT_THRESHOLD}}
+        ALERT_NAME          {{ALERT_NAME}}
+        ALERT_URL           {{{ALERT_URL}}}
+        QUERY_NAME          {{QUERY_NAME}}
+        QUERY_URL           {{{QUERY_URL}}}
+        QUERY_RESULT_VALUE  {{QUERY_RESULT_VALUE}}
+        QUERY_RESULT_ROWS   {{{QUERY_RESULT_ROWS}}}
+        QUERY_RESULT_COLS   {{{QUERY_RESULT_COLS}}}
+        </pre>
+        """
+        expected = """
+        <pre>
+        ALERT_STATUS        UNKNOWN
+        ALERT_CONDITION     equals
+        ALERT_THRESHOLD     5
+        ALERT_NAME          %s
+        ALERT_URL           https:///default/alerts/%d
+        QUERY_NAME          Query
+        QUERY_URL           https:///default/queries/%d
+        QUERY_RESULT_VALUE  1
+        QUERY_RESULT_ROWS   [{'foo': 1}]
+        QUERY_RESULT_COLS   [{'name': 'foo', 'type': 'STRING'}]
+        </pre>
+        """ % (
+            alert.name,
+            alert.id,
+            alert.query_id,
+        )
+        result = alert.render_template(textwrap.dedent(custom_alert))
+        self.assertMultiLineEqual(result, textwrap.dedent(expected))
+
+    def test_render_custom_alert_template_query_table(self):
+        alert = self.create_alert(get_results(1))
+        custom_alert = """
+        <table>
+        {{#QUERY_RESULT_TABLE}}
+          <tr>
+            {{#.}}
+            <td>{{.}}</td>
+            {{/.}}
+          </tr>
+        {{/QUERY_RESULT_TABLE}}
+        </table>
+        """
+        expected = """
+        <table>
+          <tr>
+            <td>1</td>
+          </tr>
+        </table>
+        """
+        result = alert.render_template(textwrap.dedent(custom_alert))
+        self.assertMultiLineEqual(result, textwrap.dedent(expected))
