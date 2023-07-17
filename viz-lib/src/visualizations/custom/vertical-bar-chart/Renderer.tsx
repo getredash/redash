@@ -142,7 +142,7 @@ function SafeVerticalBarChart({ data, maxY }: any) {
     <div className="wrapper">
       <div className="container" ref={containerRef}>
         {tooltipData && <ChartTooltip tooltipData={tooltipData} />}
-        <svg ref={ref} width="100%" height="100%"></svg>
+        <svg ref={ref} width="100%" height="100%" style={{ minHeight: "280px" }}></svg>
         {/* <Modal
           size="medium"
           onClose={() => setTwitterModal(null)}
