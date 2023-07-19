@@ -19,6 +19,7 @@ import wordCloudVisualization from "./word-cloud";
 
 import verticalBarChartVizualization from "./custom/vertical-bar-chart";
 import horizontalBarChartVizualization from "./custom/horizontal-bar-chart";
+import pieChartVizualization from "./custom/pie-chart";
 
 type VisualizationConfig = {
   type: string;
@@ -98,6 +99,7 @@ each(
     wordCloudVisualization,
     verticalBarChartVizualization,
     horizontalBarChartVizualization,
+    pieChartVizualization,
   ]),
   registerVisualization
 );
