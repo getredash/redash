@@ -1,4 +1,4 @@
-FROM node:14.17 as frontend-builder
+FROM node:16.20.1 as frontend-builder
 
 RUN npm install --global --force yarn@1.22.19
 
