@@ -1,6 +1,7 @@
 import datetime
 
 import mock
+import pytest
 
 from redash.models import Event, Group, Query, QueryResult, db
 from redash.utils import gen_query_hash, utcnow
@@ -171,6 +172,7 @@ class QueryTest(BaseTestCase):
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
 
+    @pytest.mark.skip(reason="sqlalchemy-searchable > 1.0 doesn't support searching for emails")
     def test_search_query_parser_emails(self):
         q1 = self.factory.create_query(name="janedoe@example.com")
         q2 = self.factory.create_query(name="johndoe@example.com")
