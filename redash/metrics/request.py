@@ -35,16 +35,12 @@ def calculate_metrics(response):
         queries_duration,
     )
 
-    statsd_client.timing(
-        "requests.{}.{}".format(endpoint, request.method.lower()), request_duration
-    )
+    statsd_client.timing("requests.{}.{}".format(endpoint, request.method.lower()), request_duration)
 
     return response
 
 
-MockResponse = namedtuple(
-    "MockResponse", ["status_code", "content_type", "content_length"]
-)
+MockResponse = namedtuple("MockResponse", ["status_code", "content_type", "content_length"])
 
 
 def calculate_metrics_on_exception(error):

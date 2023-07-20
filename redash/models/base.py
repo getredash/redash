@@ -36,7 +36,7 @@ db.configure_mappers()
 
 # listen to a few database events to set up functions, trigger updates
 # and indexes for the full text search
-make_searchable(options={"regconfig": "pg_catalog.simple"})
+make_searchable(db.metadata, options={"regconfig": "pg_catalog.simple"})
 
 
 class SearchBaseQuery(BaseQuery, SearchQueryMixin):
@@ -85,11 +85,7 @@ class GFKBase(object):
             return self._object
         else:
             object_class = _gfk_types[self.object_type]
-            self._object = (
-                session.query(object_class)
-                .filter(object_class.id == self.object_id)
-                .first()
-            )
+            self._object = session.query(object_class).filter(object_class.id == self.object_id).first()
             return self._object
 
     @object.setter

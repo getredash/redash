@@ -10,8 +10,8 @@ from redash.utils import JSONEncoder, json_dumps, json_loads
 logger = logging.getLogger(__name__)
 
 try:
-    from cassandra.cluster import Cluster
     from cassandra.auth import PlainTextAuthProvider
+    from cassandra.cluster import Cluster
     from cassandra.util import sortedset
 
     enabled = True
@@ -20,12 +20,10 @@ except ImportError:
 
 
 def generate_ssl_options_dict(protocol, cert_path=None):
-    ssl_options = {
-        'ssl_version': getattr(ssl, protocol)
-    }
+    ssl_options = {"ssl_version": getattr(ssl, protocol)}
     if cert_path is not None:
-        ssl_options['ca_certs'] = cert_path
-        ssl_options['cert_reqs'] = ssl.CERT_REQUIRED
+        ssl_options["ca_certs"] = cert_path
+        ssl_options["cert_reqs"] = ssl.CERT_REQUIRED
     return ssl_options
 
 
@@ -60,10 +58,7 @@ class Cassandra(BaseQueryRunner):
                 },
                 "timeout": {"type": "number", "title": "Timeout", "default": 10},
                 "useSsl": {"type": "boolean", "title": "Use SSL", "default": False},
-                "sslCertificateFile": {
-                    "type": "string",
-                    "title": "SSL Certificate File"
-                },
+                "sslCertificateFile": {"type": "string", "title": "SSL Certificate File"},
                 "sslProtocol": {
                     "type": "string",
                     "title": "SSL Protocol",
@@ -127,9 +122,7 @@ class Cassandra(BaseQueryRunner):
     def run_query(self, query, user):
         connection = None
         cert_path = self._generate_cert_file()
-        if self.configuration.get("username", "") and self.configuration.get(
-            "password", ""
-        ):
+        if self.configuration.get("username", "") and self.configuration.get("password", ""):
             auth_provider = PlainTextAuthProvider(
                 username="{}".format(self.configuration.get("username", "")),
                 password="{}".format(self.configuration.get("password", "")),
@@ -169,7 +162,7 @@ class Cassandra(BaseQueryRunner):
     def _generate_cert_file(self):
         cert_encoded_bytes = self.configuration.get("sslCertificateFile", None)
         if cert_encoded_bytes:
-            with NamedTemporaryFile(mode='w', delete=False) as cert_file:
+            with NamedTemporaryFile(mode="w", delete=False) as cert_file:
                 cert_bytes = b64decode(cert_encoded_bytes)
                 cert_file.write(cert_bytes.decode("utf-8"))
             return cert_file.name
@@ -182,10 +175,7 @@ class Cassandra(BaseQueryRunner):
     def _get_ssl_options(self, cert_path):
         ssl_options = None
         if self.configuration.get("useSsl", False):
-            ssl_options = generate_ssl_options_dict(
-                protocol=self.configuration["sslProtocol"],
-                cert_path=cert_path
-            )
+            ssl_options = generate_ssl_options_dict(protocol=self.configuration["sslProtocol"], cert_path=cert_path)
         return ssl_options
 
 
