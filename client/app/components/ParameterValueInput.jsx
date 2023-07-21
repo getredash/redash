@@ -5,7 +5,7 @@ import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
 import DateParameter from '@/components/dynamic-parameters/DateParameter';
 import DateRangeParameter from '@/components/dynamic-parameters/DateRangeParameter';
-import { isEqual } from 'lodash';
+import { isEqual, trim } from 'lodash';
 import { QueryBasedParameterInput } from './QueryBasedParameterInput';
 
 import './ParameterValueInput.less';
@@ -59,7 +59,7 @@ class ParameterValueInput extends React.Component {
   }
 
   onSelect = (value) => {
-    const isDirty = !isEqual(value, this.props.value);
+    const isDirty = !isEqual(trim(value), trim(this.props.value));
     this.setState({ value, isDirty });
     this.props.onSelect(value, isDirty);
   }
@@ -140,13 +140,11 @@ class ParameterValueInput extends React.Component {
     const { className } = this.props;
     const { value } = this.state;
 
-    const normalize = val => (isNaN(val) ? undefined : val);
-
     return (
       <InputNumber
         className={className}
-        value={normalize(value)}
-        onChange={val => this.onSelect(normalize(val))}
+        value={value}
+        onChange={val => this.onSelect(val)}
       />
     );
   }
