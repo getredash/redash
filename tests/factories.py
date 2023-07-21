@@ -45,7 +45,7 @@ user_factory = ModelFactory(
     redash.models.User,
     name="John Doe",
     email=Sequence("test{}@example.com"),
-    password_hash=pwd_context.encrypt("test1234"),
+    password_hash=pwd_context.hash("test1234"),
     group_ids=[2],
     org_id=1,
 )
