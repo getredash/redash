@@ -60,5 +60,5 @@ werkzeug==2.3.3
 # ldap3==2.2.4
 Authlib==0.15.5
 advocate==1.0.0
-urllib3==1.25.11
+urllib3==1.26.5
 importlib-resources==5.13.0
