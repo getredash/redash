@@ -56,7 +56,11 @@ class RedashQueue(StatsdRecordingQueue, CancellableQueue):
     pass
 
 
+<<<<<<< HEAD
 class StatsdRecordingWorker(BaseWorker):
+=======
+class StatsdRecordingWorker(get_worker_base_class()):
+>>>>>>> 2fcd9465c (Update worker.py)
     """
     RQ Worker Mixin that overrides `execute_job` to increment/modify metrics via Statsd
     """
@@ -74,7 +78,11 @@ class StatsdRecordingWorker(BaseWorker):
                 statsd_client.incr("rq.jobs.failed.{}".format(queue.name))
 
 
+<<<<<<< HEAD
 class HardLimitingWorker(BaseWorker):
+=======
+class HardLimitingWorker(get_worker_base_class()):
+>>>>>>> 2fcd9465c (Update worker.py)
     """
     RQ's work horses enforce time limits by setting a timed alarm and stopping jobs
     when they reach their time limits. However, the work horse may be entirely blocked
