@@ -1,4 +1,6 @@
-import { createQuery } from '../../support/redash-api';
+import { createQuery, createDashboard, addWidget } from '../../support/redash-api';
+
+const { get } = Cypress._;
 
 describe('Parameter', () => {
   const expectDirtyStateChange = (edit) => {
@@ -17,6 +19,15 @@ describe('Parameter', () => {
       });
   };
 
+  const expectValueValidationError = (edit, expectedInvalidString = 'Required parameter') => {
+    cy.getByTestId('ParameterName-test-parameter')
+      .find('.ant-form-item-control')
+      .should('have.class', 'has-error')
+      .find('.ant-form-explain')
+      .should('contain.text', expectedInvalidString)
+      .should('not.have.class', 'show-help-enter'); // assures ant animation ended for screenshot
+  };
+
   beforeEach(() => {
     cy.login();
   });
@@ -28,7 +39,7 @@ describe('Parameter', () => {
         query: "SELECT '{{test-parameter}}' AS parameter",
         options: {
           parameters: [
-            { name: 'test-parameter', title: 'Test Parameter', type: 'text' },
+            { name: 'test-parameter', title: 'Test Parameter', type: 'text', value: 'text' },
           ],
         },
       };
@@ -56,6 +67,16 @@ describe('Parameter', () => {
           .type('Redash');
       });
     });
+
+    it('shows validation error when value is empty', () => {
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('input')
+        .clear();
+
+      cy.getByTestId('ParameterApplyButton').click();
+
+      expectValueValidationError();
+    });
   });
 
   describe('Number Parameter', () => {
@@ -65,7 +86,7 @@ describe('Parameter', () => {
         query: "SELECT '{{test-parameter}}' AS parameter",
         options: {
           parameters: [
-            { name: 'test-parameter', title: 'Test Parameter', type: 'number' },
+            { name: 'test-parameter', title: 'Test Parameter', type: 'number', value: 1 },
           ],
         },
       };
@@ -102,6 +123,16 @@ describe('Parameter', () => {
           .find('input')
           .type('{selectall}42');
       });
+    });
+
+    it('shows validation error when value is empty', () => {
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('input')
+        .clear();
+
+      cy.getByTestId('ParameterApplyButton').click();
+
+      expectValueValidationError();
     });
   });
 
@@ -177,6 +208,36 @@ describe('Parameter', () => {
         cy.contains('li.ant-select-dropdown-menu-item', 'value2')
           .click();
       });
+    });
+
+    it('shows validation error when empty', () => {
+      cy.getByTestId('ParameterSettings-test-parameter').click();
+      cy.getByTestId('EnumTextArea').clear();
+      cy.clickThrough(`
+        SaveParameterSettings
+        ExecuteButton
+      `);
+
+      expectValueValidationError();
+    });
+
+    it('shows validation error when multi-selection is empty', () => {
+      cy.clickThrough(`
+        ParameterSettings-test-parameter
+        AllowMultipleValuesCheckbox
+        QuotationSelect
+        DoubleQuotationMarkOption
+        SaveParameterSettings
+      `);
+
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('.ant-select-remove-icon')
+        .click();
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      expectValueValidationError();
     });
   });
 
@@ -306,6 +367,22 @@ describe('Parameter', () => {
     it('sets dirty state when edited', () => {
       expectDirtyStateChange(() => selectCalendarDate('15'));
     });
+
+    it('shows validation error when value is empty', () => {
+      selectCalendarDate('15');
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('.ant-calendar-picker-clear')
+        .click({ force: true });
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      expectValueValidationError();
+    });
   });
 
   describe('Date and Time Parameter', () => {
@@ -396,6 +473,32 @@ describe('Parameter', () => {
           .click();
       });
     });
+
+    it('shows validation error when value is empty', () => {
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('input')
+        .as('Input')
+        .click({ force: true });
+
+      cy.get('.ant-calendar-date-panel')
+        .contains('.ant-calendar-date', '15')
+        .click();
+
+      cy.get('.ant-calendar-ok-btn')
+        .click();
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('.ant-calendar-picker-clear')
+        .click({ force: true });
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      expectValueValidationError();
+    });
   });
 
   describe('Date Range Parameter', () => {
@@ -468,6 +571,122 @@ describe('Parameter', () => {
 
     it('sets dirty state when edited', () => {
       expectDirtyStateChange(() => selectCalendarDateRange('15', '20'));
+    });
+
+    it('shows validation error when value is empty', () => {
+      selectCalendarDateRange('15', '20');
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('.ant-calendar-picker-clear')
+        .click({ force: true });
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      expectValueValidationError();
+    });
+  });
+
+  describe('Inline feedback', () => {
+    beforeEach(function () {
+      const queryData = {
+        query: 'SELECT {{ test-parameter }}',
+        options: {
+          parameters: [
+            { name: 'test-parameter', title: 'Param', type: 'number', value: null },
+          ],
+        },
+      };
+
+      createQuery(queryData, false)
+        .then((query) => {
+          this.query = query;
+          this.vizId = get(query, 'visualizations.0.id');
+        });
+    });
+
+    it('shows validation error in query page', function () {
+      cy.visit(`/queries/${this.query.id}`);
+      expectValueValidationError();
+      cy.percySnapshot('Validation error in query page');
+    });
+
+    it('shows unsaved feedback in query page', function () {
+      cy.visit(`/queries/${this.query.id}/source`);
+
+      cy.getByTestId('QueryEditor')
+        .get('.ace_text-input')
+        .type(' {{ newparam }}', { force: true, parseSpecialCharSequences: false });
+
+      cy.getByTestId('ParameterName-newparam')
+        .find('.ant-form-item-control')
+        .should('have.class', 'has-warning')
+        .find('.ant-form-explain')
+        .as('Feedback');
+
+      cy.get('@Feedback')
+        .should('contain.text', 'Unsaved')
+        .should('not.have.class', 'show-help-appear'); // assures ant animation ended for screenshot
+
+      cy.percySnapshot('Unsaved feedback in query page');
+
+      cy.getByTestId('SaveButton').click();
+      cy.get('@Feedback').should('not.exist');
+    });
+
+    it('shows validation error in visualization embed', function () {
+      cy.visit(`/embed/query/${this.query.id}/visualization/${this.vizId}?api_key=${this.query.api_key}`);
+      expectValueValidationError();
+      cy.percySnapshot('Validation error in visualization embed');
+    });
+
+    it('shows validation error in widget-level parameter', function () {
+      createDashboard('Foo')
+        .then(({ slug, id }) => {
+          this.dashboardUrl = `/dashboard/${slug}`;
+          return addWidget(id, this.vizId, {
+            parameterMappings: {
+              'test-parameter': {
+                type: 'widget-level',
+                title: '',
+                name: 'test-parameter',
+                mapTo: 'test-parameter',
+                value: null,
+              },
+            },
+          });
+        })
+        .then(() => {
+          cy.visit(this.dashboardUrl);
+        });
+      expectValueValidationError();
+      cy.percySnapshot('Validation error in widget-level parameter');
+    });
+
+    it('shows validation error in dashboard-level parameter', function () {
+      createDashboard('Foo')
+        .then(({ slug, id }) => {
+          this.dashboardUrl = `/dashboard/${slug}`;
+          return addWidget(id, this.vizId, {
+            parameterMappings: {
+              'test-parameter': {
+                type: 'dashboard-level',
+                title: '',
+                name: 'test-parameter',
+                mapTo: 'test-parameter',
+                value: null,
+              },
+            },
+          });
+        })
+        .then(() => {
+          cy.visit(this.dashboardUrl);
+        });
+      expectValueValidationError();
+      cy.percySnapshot('Validation error in dashboard-level parameter');
     });
   });
 

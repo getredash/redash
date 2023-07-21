@@ -14,6 +14,7 @@ const VisualizationEmbed = {
     this.refreshQueryResults = () => {
       this.loading = true;
       this.error = null;
+      this.errorData = {};
       this.refreshStartedAt = moment();
       this.query
         .getQueryResultPromise()
@@ -24,6 +25,7 @@ const VisualizationEmbed = {
         .catch((error) => {
           this.loading = false;
           this.error = error.getError();
+          this.errorData = error.getErrorData();
         });
     };
 

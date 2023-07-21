@@ -179,6 +179,7 @@ function EditParameterSettingsDialog(props) {
         {param.type === 'enum' && (
           <Form.Item label="Values" help="Dropdown list values (newline delimited)" {...formItemProps}>
             <Input.TextArea
+              data-test="EnumTextArea"
               rows={3}
               value={param.enumOptions}
               onChange={e => setParam({ ...param, enumOptions: e.target.value })}

@@ -2,8 +2,8 @@ import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
 import {
-  zipObject, isEmpty, map, includes, union,
-  uniq, has, identity, extend, each, some,
+  zipObject, isEmpty, map, includes, union, isNil,
+  uniq, has, identity, extend, each, some, reject,
 } from 'lodash';
 
 import { Parameter } from './parameters';
@@ -35,13 +35,13 @@ class Parameters {
     this.initFromQueryString(queryString);
   }
 
-  parseQuery() {
+  parseQuery(queryText = this.query.query) {
     const fallback = () => map(this.query.options.parameters, i => i.name);
 
     let parameters = [];
-    if (this.query.query !== undefined) {
+    if (!isNil(queryText)) {
       try {
-        const parts = Mustache.parse(this.query.query);
+        const parts = Mustache.parse(queryText);
         parameters = uniq(collectParams(parts));
       } catch (e) {
         logger('Failed parsing parameters: ', e);
@@ -124,6 +124,11 @@ class Parameters {
     each(this.get(), p => p.applyPendingValue());
   }
 
+  getUnsavedParameters(queryText) {
+    const savedParameters = this.parseQuery(queryText);
+    return reject(this.get(), p => includes(savedParameters, p.name)).map(p => p.name);
+  }
+
   toUrlParams() {
     if (this.get().length === 0) {
       return '';
@@ -140,8 +145,9 @@ class Parameters {
 
 function QueryResultErrorFactory($q) {
   class QueryResultError {
-    constructor(errorMessage) {
+    constructor(errorMessage, errorData = {}) {
       this.errorMessage = errorMessage;
+      this.errorData = errorData;
       this.updatedAt = moment.utc();
     }
 
@@ -151,6 +157,10 @@ function QueryResultErrorFactory($q) {
 
     getError() {
       return this.errorMessage;
+    }
+
+    getErrorData() {
+      return this.errorData || undefined;
     }
 
     toPromise() {

@@ -3,7 +3,7 @@
 .parameter-block {
   display: inline-block;
   background: white;
-  padding: 0 12px 6px 0;
+  padding: 0 12px 17px 0;
   vertical-align: top;
   z-index: 1;
 
@@ -15,11 +15,30 @@
 
   .parameter-container.sortable-container & {
     margin: 4px 0 0 4px;
-    padding: 3px 6px 6px;
+    padding: 3px 6px 19px;
   }
 
   &.parameter-dragged {
     box-shadow:  0 4px 9px -3px rgba(102, 136, 153, 0.15);
+  }
+
+  .ant-form-item {
+    margin-bottom: 0 !important;
+  }
+
+  .ant-form-explain {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -20px;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ant-form-item-control {
+    line-height: normal;
   }
 }
 
