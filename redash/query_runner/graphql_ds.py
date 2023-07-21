@@ -1,21 +1,24 @@
-import logging
-import yaml
 import datetime
+import logging
+
+import yaml
 from funcy import compact
-from redash.utils import json_dumps
+
 from redash.query_runner import (
-    BaseHTTPQueryRunner,
-    register,
     TYPE_BOOLEAN,
     TYPE_DATETIME,
     TYPE_FLOAT,
     TYPE_INTEGER,
     TYPE_STRING,
+    BaseHTTPQueryRunner,
+    register,
 )
+from redash.utils import json_dumps
 
 
 class QueryParseError(Exception):
     pass
+
 
 def parse_query(query):
     # TODO: copy paste from Metrica query runner, we should extract this into a utility
@@ -30,6 +33,7 @@ def parse_query(query):
         error = str(e)
         raise QueryParseError(error)
 
+
 TYPES_MAP = {
     str: TYPE_STRING,
     bytes: TYPE_STRING,
@@ -39,6 +43,7 @@ TYPES_MAP = {
     datetime.datetime: TYPE_DATETIME,
 }
 
+
 def _get_column_by_name(columns, column_name):
     for c in columns:
         if "name" in c and c["name"] == column_name:
@@ -46,15 +51,15 @@ def _get_column_by_name(columns, column_name):
 
     return None
 
+
 def _get_type(value):
     return TYPES_MAP.get(type(value), TYPE_STRING)
 
 
 def add_column(columns, column_name, column_type):
     if _get_column_by_name(columns, column_name) is None:
-        columns.append(
-            {"name": column_name, "friendly_name": column_name, "type": column_type}
-        )
+        columns.append({"name": column_name, "friendly_name": column_name, "type": column_type})
+
 
 def _apply_path_search(response, path):
     if path is None:
@@ -70,6 +75,7 @@ def _apply_path_search(response, path):
             raise Exception("Couldn't find path {} in response.".format(path))
 
     return response
+
 
 def _normalize_json(data, path):
     data = _apply_path_search(data, path)
@@ -90,11 +96,13 @@ def _normalize_json(data, path):
 
     return data
 
+
 def _sort_columns_with_fields(columns, fields):
     if fields:
         columns = compact([_get_column_by_name(columns, field) for field in fields])
 
     return columns
+
 
 # TODO: merge the logic here with the one in MongoDB's queyr runner
 def parse_json(data, path, fields):
@@ -129,6 +137,7 @@ def parse_json(data, path, fields):
     columns = _sort_columns_with_fields(columns, fields)
 
     return {"rows": rows, "columns": columns}
+
 
 class GraphQL(BaseHTTPQueryRunner):
     @classmethod
@@ -191,5 +200,6 @@ class GraphQL(BaseHTTPQueryRunner):
             return json_data, None
         else:
             return None, "Got empty response from '{}'.".format(url)
+
 
 register(GraphQL)
