@@ -1,13 +1,9 @@
-from tests import BaseTestCase
-from mock import MagicMock, ANY
+from mock import ANY, MagicMock
 
 import redash.tasks.alerts
-from redash.tasks.alerts import (
-    check_alerts_for_query,
-    notify_subscriptions,
-    should_notify,
-)
 from redash.models import Alert
+from redash.tasks.alerts import check_alerts_for_query, notify_subscriptions
+from tests import BaseTestCase
 
 
 class TestCheckAlertsForQuery(BaseTestCase):

@@ -5,8 +5,16 @@ from uuid import uuid4
 
 import requests
 
-from redash.query_runner import *
-from redash.query_runner import split_sql_statements
+from redash.query_runner import (
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseSQLQueryRunner,
+    register,
+    split_sql_statements,
+)
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
@@ -131,9 +139,7 @@ class ClickHouse(BaseSQLQueryRunner):
             return r.json()
         except requests.RequestException as e:
             if e.response:
-                details = "({}, Status Code: {})".format(
-                    e.__class__.__name__, e.response.status_code
-                )
+                details = "({}, Status Code: {})".format(e.__class__.__name__, e.response.status_code)
             else:
                 details = "({})".format(e.__class__.__name__)
             raise Exception("Connection error to: {} {}.".format(url, details))
@@ -174,13 +180,9 @@ class ClickHouse(BaseSQLQueryRunner):
             if r["type"] in ("Int64", "UInt64", "Nullable(Int64)", "Nullable(UInt64)"):
                 columns_int64.append(column_name)
             else:
-                columns_totals[column_name] = (
-                    "Total" if column_type == TYPE_STRING else None
-                )
+                columns_totals[column_name] = "Total" if column_type == TYPE_STRING else None
 
-            columns.append(
-                {"name": column_name, "friendly_name": column_name, "type": column_type}
-            )
+            columns.append({"name": column_name, "friendly_name": column_name, "type": column_type})
 
         rows = response.get("data", [])
         for row in rows:
@@ -215,14 +217,10 @@ class ClickHouse(BaseSQLQueryRunner):
                 # for the first query
                 session_id = "redash_{}".format(uuid4().hex)
 
-                results = self._clickhouse_query(
-                    queries[0], session_id, session_check=False
-                )
+                results = self._clickhouse_query(queries[0], session_id, session_check=False)
 
                 for query in queries[1:]:
-                    results = self._clickhouse_query(
-                        query, session_id, session_check=True
-                    )
+                    results = self._clickhouse_query(query, session_id, session_check=True)
 
             data = json_dumps(results)
             error = None

@@ -17,21 +17,13 @@ def set_google_apps_domains(domains):
     organization.settings[k] = domains.split(",")
     models.db.session.add(organization)
     models.db.session.commit()
-    print(
-        "Updated list of allowed domains to: {}".format(
-            organization.google_apps_domains
-        )
-    )
+    print("Updated list of allowed domains to: {}".format(organization.google_apps_domains))
 
 
 @manager.command(name="show_google_apps_domains")
 def show_google_apps_domains():
     organization = models.Organization.query.first()
-    print(
-        "Current list of Google Apps domains: {}".format(
-            ", ".join(organization.google_apps_domains)
-        )
-    )
+    print("Current list of Google Apps domains: {}".format(", ".join(organization.google_apps_domains)))
 
 
 @manager.command(name="list")

@@ -72,9 +72,7 @@ class StatusTest(BaseTestCase):
     def test_returns_data_for_super_admin(self):
         admin = self.factory.create_admin()
         models.db.session.commit()
-        rv = self.make_request(
-            "get", "/status.json", org=False, user=admin, is_json=False
-        )
+        rv = self.make_request("get", "/status.json", org=False, user=admin, is_json=False)
         self.assertEqual(rv.status_code, 200)
 
     def test_returns_403_for_non_admin(self):
@@ -111,21 +109,15 @@ class TestLogin(BaseTestCase):
             settings.LDAP_LOGIN_ENABLED = True
             rv = self.client.get("/default/login")
             self.assertEqual(rv.status_code, 200)
-            self.assertIn(
-                "/{}/remote_user/login".format(self.factory.org.slug), rv.data.decode()
-            )
-            self.assertIn(
-                "/{}/ldap/login".format(self.factory.org.slug), rv.data.decode()
-            )
+            self.assertIn("/{}/remote_user/login".format(self.factory.org.slug), rv.data.decode())
+            self.assertIn("/{}/ldap/login".format(self.factory.org.slug), rv.data.decode())
         finally:
             settings.REMOTE_USER_LOGIN_ENABLED = old_remote_user_enabled
             settings.LDAP_LOGIN_ENABLED = old_ldap_login_enabled
 
     def test_submit_non_existing_user(self):
         with patch("redash.handlers.authentication.login_user") as login_user_mock:
-            rv = self.client.post(
-                "/default/login", data={"email": "arik", "password": "password"}
-            )
+            rv = self.client.post("/default/login", data={"email": "arik", "password": "password"})
             self.assertEqual(rv.status_code, 200)
             self.assertFalse(login_user_mock.called)
 
@@ -137,9 +129,7 @@ class TestLogin(BaseTestCase):
         self.db.session.commit()
 
         with patch("redash.handlers.authentication.login_user") as login_user_mock:
-            rv = self.client.post(
-                "/default/login", data={"email": user.email, "password": "password"}
-            )
+            rv = self.client.post("/default/login", data={"email": user.email, "password": "password"})
             self.assertEqual(rv.status_code, 302)
             login_user_mock.assert_called_with(user, remember=False)
 
@@ -191,9 +181,7 @@ class TestLogin(BaseTestCase):
 
     def test_submit_incorrect_user(self):
         with patch("redash.handlers.authentication.login_user") as login_user_mock:
-            rv = self.client.post(
-                "/default/login", data={"email": "non-existing", "password": "password"}
-            )
+            rv = self.client.post("/default/login", data={"email": "non-existing", "password": "password"})
             self.assertEqual(rv.status_code, 200)
             self.assertFalse(login_user_mock.called)
 
@@ -216,16 +204,12 @@ class TestLogin(BaseTestCase):
         user = self.factory.user
 
         with patch("redash.handlers.authentication.login_user") as login_user_mock:
-            rv = self.client.post(
-                "/default/login", data={"email": user.email, "password": ""}
-            )
+            rv = self.client.post("/default/login", data={"email": user.email, "password": ""})
             self.assertEqual(rv.status_code, 200)
             self.assertFalse(login_user_mock.called)
 
     def test_user_already_loggedin(self):
-        with authenticated_user(self.client), patch(
-            "redash.handlers.authentication.login_user"
-        ) as login_user_mock:
+        with authenticated_user(self.client), patch("redash.handlers.authentication.login_user") as login_user_mock:
             rv = self.client.get("/default/login")
             self.assertEqual(rv.status_code, 302)
             self.assertFalse(login_user_mock.called)
@@ -239,14 +223,10 @@ class TestLogin(BaseTestCase):
 
         self.factory.org.set_setting("auth_password_login_enabled", False)
 
-        with patch("redash.handlers.authentication.login_user") as login_user_mock:
-            rv = self.client.post(
-                "/default/login", data={"email": user.email, "password": "password"}
-            )
+        with patch("redash.handlers.authentication.login_user"):
+            rv = self.client.post("/default/login", data={"email": user.email, "password": "password"})
             self.assertEqual(rv.status_code, 200)
-            self.assertIn(
-                "Password login is not enabled for your organization", str(rv.data)
-            )
+            self.assertIn("Password login is not enabled for your organization", str(rv.data))
 
 
 class TestLogout(BaseTestCase):

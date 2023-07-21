@@ -1,8 +1,12 @@
-import mock
 from unittest import TestCase
 
-from redash.utils.requests_session import requests_or_advocate, ConfiguredSession
+import mock
+
 from redash.query_runner import BaseHTTPQueryRunner
+from redash.utils.requests_session import (
+    ConfiguredSession,
+    requests_or_advocate,
+)
 
 
 class RequiresAuthQueryRunner(BaseHTTPQueryRunner):
@@ -22,9 +26,7 @@ class TestBaseHTTPQueryRunner(TestCase):
         self.assertIn("password", schema["required"])
 
     def test_get_auth_with_values(self):
-        query_runner = BaseHTTPQueryRunner(
-            {"username": "username", "password": "password"}
-        )
+        query_runner = BaseHTTPQueryRunner({"username": "username", "password": "password"})
         self.assertEqual(query_runner.get_auth(), ("username", "password"))
 
     def test_get_auth_empty(self):
@@ -33,9 +35,7 @@ class TestBaseHTTPQueryRunner(TestCase):
 
     def test_get_auth_empty_requires_authentication(self):
         query_runner = RequiresAuthQueryRunner({})
-        self.assertRaisesRegex(
-            ValueError, "Username and Password required", query_runner.get_auth
-        )
+        self.assertRaisesRegex(ValueError, "Username and Password required", query_runner.get_auth)
 
     @mock.patch.object(ConfiguredSession, "request")
     def test_get_response_success(self, mock_get):
@@ -124,6 +124,4 @@ class TestBaseHTTPQueryRunner(TestCase):
 
         url = "https://example.com/"
         query_runner = BaseHTTPQueryRunner({})
-        self.assertRaisesRegex(
-            ValueError, exception_message, query_runner.get_response, url
-        )
+        self.assertRaisesRegex(ValueError, exception_message, query_runner.get_response, url)

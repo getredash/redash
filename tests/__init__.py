@@ -4,13 +4,9 @@ import os
 from contextlib import contextmanager
 from unittest import TestCase
 
-os.environ["REDASH_REDIS_URL"] = os.environ.get(
-    "REDASH_REDIS_URL", "redis://localhost:6379/0"
-).replace("/0", "/5")
+os.environ["REDASH_REDIS_URL"] = os.environ.get("REDASH_REDIS_URL", "redis://localhost:6379/0").replace("/0", "/5")
 # Use different url for RQ to avoid DB being cleaned up:
-os.environ["RQ_REDIS_URL"] = os.environ.get(
-    "REDASH_REDIS_URL", "redis://localhost:6379/0"
-).replace("/5", "/6")
+os.environ["RQ_REDIS_URL"] = os.environ.get("REDASH_REDIS_URL", "redis://localhost:6379/0").replace("/5", "/6")
 
 # Dummy values for oauth login
 os.environ["REDASH_GOOGLE_CLIENT_ID"] = "dummy"
@@ -22,11 +18,11 @@ os.environ["REDASH_RATELIMIT_ENABLED"] = "true"
 
 os.environ["REDASH_ENFORCE_CSRF"] = "false"
 
-from redash import limiter, redis_connection
-from redash.app import create_app
-from redash.models import db
-from redash.utils import json_dumps
-from tests.factories import Factory, user_factory
+from redash import limiter, redis_connection  # noqa: E402
+from redash.app import create_app  # noqa: E402
+from redash.models import db  # noqa: E402
+from redash.utils import json_dumps  # noqa: E402
+from tests.factories import Factory, user_factory  # noqa: E402
 
 logging.disable(logging.INFO)
 logging.getLogger("metrics").setLevel(logging.ERROR)
@@ -125,9 +121,7 @@ class BaseTestCase(TestCase):
 
     def assertResponseEqual(self, expected, actual):
         for k, v in expected.items():
-            if isinstance(v, datetime.datetime) or isinstance(
-                actual[k], datetime.datetime
-            ):
+            if isinstance(v, datetime.datetime) or isinstance(actual[k], datetime.datetime):
                 continue
 
             if isinstance(v, list):
