@@ -58,7 +58,7 @@ gevent==1.4.0
 sshtunnel==0.1.5
 supervisor==4.1.0
 supervisor_checks==0.8.1
-werkzeug==0.16.1
+werkzeug==2.2.3
 # Install the dependencies of the bin/bundle-extensions script here.
 # It has its own requirements file to simplify the frontend client build process
 -r requirements_bundles.txt
