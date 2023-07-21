@@ -45,7 +45,7 @@ parsedatetime==2.4
 PyJWT==2.4.0
 cryptography==40.0.2
 simplejson==3.16.0
-ua-parser==0.15.0
+ua-parser==0.18.0
 user-agents==2.0
 maxminddb-geolite2==2018.703
 pypd==1.1.0
