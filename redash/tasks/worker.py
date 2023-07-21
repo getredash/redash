@@ -12,14 +12,6 @@ import sys
 
 from redash import statsd_client
 from rq import Queue as BaseQueue, get_current_job
-<<<<<<< HEAD
-from rq.worker import HerokuWorker # HerokuWorker implements graceful shutdown on SIGTERM
-=======
-from rq.worker import (
-    HerokuWorker, # HerokuWorker implements graceful shutdown on SIGTERM
-    Worker
-)
->>>>>>> 9fef93bfa (fix)
 from rq.utils import utcnow
 from rq.worker import (
     HerokuWorker,  # HerokuWorker implements graceful shutdown on SIGTERM
@@ -65,15 +57,8 @@ class RedashQueue(StatsdRecordingQueue, CancellableQueue):
     pass
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 class StatsdRecordingWorker(BaseWorker):
-=======
-class StatsdRecordingWorker(get_worker_base_class()):
->>>>>>> 2fcd9465c (Update worker.py)
-=======
-class StatsdRecordingWorker(BaseWorker):
->>>>>>> 9fef93bfa (fix)
     """
     RQ Worker Mixin that overrides `execute_job` to increment/modify metrics via Statsd
     """
@@ -91,15 +76,7 @@ class StatsdRecordingWorker(BaseWorker):
                 statsd_client.incr("rq.jobs.failed.{}".format(queue.name))
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 class HardLimitingWorker(BaseWorker):
-=======
-class HardLimitingWorker(get_worker_base_class()):
->>>>>>> 2fcd9465c (Update worker.py)
-=======
-class HardLimitingWorker(BaseWorker):
->>>>>>> 9fef93bfa (fix)
     """
     RQ's work horses enforce time limits by setting a timed alarm and stopping jobs
     when they reach their time limits. However, the work horse may be entirely blocked
