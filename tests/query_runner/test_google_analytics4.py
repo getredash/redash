@@ -82,7 +82,7 @@ class TestGetFormattedColumnJson(TestCase):
             "type": "date",
         }
 
-        self.assertEquals(get_formatted_column_json(column_name), expected_response)
+        self.assertEqual(get_formatted_column_json(column_name), expected_response)
 
     def test_date_hour_column(self):
         column_name = "dateHour"
@@ -92,7 +92,7 @@ class TestGetFormattedColumnJson(TestCase):
             "type": "datetime",
         }
 
-        self.assertEquals(get_formatted_column_json(column_name), expected_response)
+        self.assertEqual(get_formatted_column_json(column_name), expected_response)
 
     def test_other_string(self):
         column_name = "city"
@@ -102,7 +102,7 @@ class TestGetFormattedColumnJson(TestCase):
             "type": "string",
         }
 
-        self.assertEquals(get_formatted_column_json(column_name), expected_response)
+        self.assertEqual(get_formatted_column_json(column_name), expected_response)
 
 
 class TestParseGaResponse(TestCase):
@@ -126,7 +126,7 @@ class TestParseGaResponse(TestCase):
 
         value = parse_ga_response(response)
 
-        self.assertEquals(value, expected_value)
+        self.assertEqual(value, expected_value)
 
     def test_parse_ga_response_with_date_hour(self):
         response = {
@@ -191,4 +191,4 @@ class TestParseGaResponse(TestCase):
         }
         value = parse_ga_response(response)
 
-        self.assertEquals(value, expected_value)
+        self.assertEqual(value, expected_value)
