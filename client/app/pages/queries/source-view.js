@@ -1,4 +1,4 @@
-import { map, debounce } from 'lodash';
+import { map, debounce, isEmpty, isEqual } from 'lodash';
 import template from './query.html';
 import EditParameterSettingsDialog from '@/components/EditParameterSettingsDialog';
 
@@ -109,6 +109,22 @@ function QuerySourceCtrl(
   $scope.$watch('query.query', (newQueryText) => {
     $scope.isDirty = newQueryText !== queryText;
   });
+
+  $scope.unsavedParameters = null;
+  $scope.getUnsavedParameters = () => {
+    if (!$scope.isDirty || !queryText) {
+      return null;
+    }
+    const unsavedParameters = $scope.query.$parameters.getUnsavedParameters(queryText);
+    if (isEmpty(unsavedParameters)) {
+      return null;
+    }
+    // avoiding Angular infdig (ANGULAR_REMOVE_ME)
+    if (!isEqual(unsavedParameters, $scope.unsavedParameters)) {
+      $scope.unsavedParameters = unsavedParameters;
+    }
+    return $scope.unsavedParameters;
+  };
 }
 
 export default function init(ngModule) {

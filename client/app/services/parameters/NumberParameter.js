@@ -1,4 +1,4 @@
-import { toNumber, isNull } from 'lodash';
+import { toNumber, trim } from 'lodash';
 import { Parameter } from '.';
 
 class NumberParameter extends Parameter {
@@ -9,11 +9,11 @@ class NumberParameter extends Parameter {
 
   // eslint-disable-next-line class-methods-use-this
   normalizeValue(value) {
-    if (isNull(value)) {
+    if (!trim(value)) {
       return null;
     }
     const normalizedValue = toNumber(value);
-    return !isNaN(normalizedValue) ? normalizedValue : null;
+    return !isNaN(normalizedValue) ? normalizedValue : value;
   }
 }
 

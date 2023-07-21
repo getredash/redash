@@ -93,8 +93,8 @@
     </label>
   </div>
 
-  <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.globalParameters.length > 0" data-test="DashboardParameters">
-    <parameters parameters="$ctrl.globalParameters" on-values-change="$ctrl.refreshDashboard"></parameters>
+  <div class="m-b-10 p-t-15 p-l-15 p-r-15 p-b-5 bg-white tiled" ng-if="$ctrl.globalParameters.length > 0" data-test="DashboardParameters">
+    <parameters parameters="$ctrl.globalParameters" query-result-error-data="$ctrl.dashboard.getQueryResultsErrorData()" on-values-change="$ctrl.refreshDashboard"></parameters>
   </div>
 
   <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.filters | notEmpty">
