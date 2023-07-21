@@ -4,9 +4,10 @@ from unittest import TestCase
 import pytest
 from mock import patch
 
-from redash.models.parameterized_query import (
-    InvalidParameterError, ParameterizedQuery,
-    QueryDetachedFromDataSourceError, dropdown_values)
+from redash.models.parameterized_query import dropdown_values
+from redash.models.parameterized_query import InvalidParameterError
+from redash.models.parameterized_query import ParameterizedQuery
+from redash.models.parameterized_query import QueryDetachedFromDataSourceError
 
 
 class TestParameterizedQuery(TestCase):

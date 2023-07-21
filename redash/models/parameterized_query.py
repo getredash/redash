@@ -3,11 +3,16 @@ from numbers import Number
 
 import pystache
 from dateutil.parser import parse
-from funcy import compact, distinct, lpluck
-from six import string_types, text_type
+from funcy import compact
+from funcy import distinct
+from funcy import lpluck
+from six import string_types
+from six import text_type
 
-from redash.permissions import require_access, view_only
-from redash.utils import json_loads, mustache_render
+from redash.permissions import require_access
+from redash.permissions import view_only
+from redash.utils import json_loads
+from redash.utils import mustache_render
 
 
 def _pluck_name_and_value(default_column, row):
