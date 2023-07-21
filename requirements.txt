@@ -37,7 +37,7 @@ RestrictedPython==6.1
 pysaml2==7.3.1
 python-dotenv==0.19.2
 funcy==1.13
-sentry-sdk>=0.14.3,<0.15.0
+sentry-sdk==1.28.1
 semver==2.8.1
 xlsxwriter==1.2.2
 pystache==0.6.0
@@ -60,5 +60,5 @@ werkzeug==2.3.3
 # ldap3==2.2.4
 Authlib==0.15.5
 advocate==1.0.0
-urllib3==1.26.5
+urllib3==1.26.16
 importlib-resources==5.13.0
