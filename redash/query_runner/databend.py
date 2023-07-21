@@ -1,13 +1,21 @@
 try:
-    from databend_sqlalchemy import connector
     import re
+
+    from databend_sqlalchemy import connector
 
     enabled = True
 except ImportError:
     enabled = False
 
-from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING, TYPE_INTEGER, TYPE_BOOLEAN, TYPE_FLOAT, TYPE_DATETIME, TYPE_DATE
+from redash.query_runner import (
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseQueryRunner,
+    register,
+)
 from redash.utils import json_dumps, json_loads
 
 
@@ -72,12 +80,8 @@ class Databend(BaseQueryRunner):
 
         try:
             cursor.execute(query)
-            columns = self.fetch_columns(
-                [(i[0], self._define_column_type(i[1])) for i in cursor.description]
-            )
-            rows = [
-                dict(zip((column["name"] for column in columns), row)) for row in cursor
-            ]
+            columns = self.fetch_columns([(i[0], self._define_column_type(i[1])) for i in cursor.description])
+            rows = [dict(zip((column["name"] for column in columns), row)) for row in cursor]
 
             data = {"columns": columns, "rows": rows}
             error = None

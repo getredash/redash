@@ -1,6 +1,17 @@
 import logging
 
-from redash.query_runner import *
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseQueryRunner,
+    InterruptException,
+    JobTimeoutException,
+    register,
+)
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
@@ -15,24 +26,19 @@ except ImportError:
 
 TRINO_TYPES_MAPPING = {
     "boolean": TYPE_BOOLEAN,
-
     "tinyint": TYPE_INTEGER,
     "smallint": TYPE_INTEGER,
     "integer": TYPE_INTEGER,
     "long": TYPE_INTEGER,
     "bigint": TYPE_INTEGER,
-
     "float": TYPE_FLOAT,
     "real": TYPE_FLOAT,
     "double": TYPE_FLOAT,
-
     "decimal": TYPE_INTEGER,
-
     "varchar": TYPE_STRING,
     "char": TYPE_STRING,
     "string": TYPE_STRING,
     "json": TYPE_STRING,
-
     "date": TYPE_DATE,
     "timestamp": TYPE_DATETIME,
 }
@@ -65,7 +71,7 @@ class Trino(BaseQueryRunner):
                 "schema",
             ],
             "required": ["host", "username"],
-            "secret": ["password"]
+            "secret": ["password"],
         }
 
     @classmethod
@@ -102,8 +108,7 @@ class Trino(BaseQueryRunner):
     def run_query(self, query, user):
         if self.configuration.get("password"):
             auth = trino.auth.BasicAuthentication(
-                username=self.configuration.get("username"),
-                password=self.configuration.get("password")
+                username=self.configuration.get("username"), password=self.configuration.get("password")
             )
         else:
             auth = trino.constants.DEFAULT_AUTH
@@ -114,7 +119,7 @@ class Trino(BaseQueryRunner):
             catalog=self.configuration.get("catalog", "hive"),
             schema=self.configuration.get("schema", "default"),
             user=self.configuration.get("username"),
-            auth=auth
+            auth=auth,
         )
 
         cursor = connection.cursor()
@@ -123,17 +128,9 @@ class Trino(BaseQueryRunner):
             cursor.execute(query)
             results = cursor.fetchall()
             description = cursor.description
-            columns = self.fetch_columns([
-                (c[0], TRINO_TYPES_MAPPING.get(c[1], None)) for c in description
-            ])
-            rows = [
-                dict(zip([c["name"] for c in columns], r))
-                for r in results
-            ]
-            data = {
-                "columns": columns,
-                "rows": rows
-            }
+            columns = self.fetch_columns([(c[0], TRINO_TYPES_MAPPING.get(c[1], None)) for c in description])
+            rows = [dict(zip([c["name"] for c in columns], r)) for r in results]
+            data = {"columns": columns, "rows": rows}
             json_data = json_dumps(data)
             error = None
         except DatabaseError as db:

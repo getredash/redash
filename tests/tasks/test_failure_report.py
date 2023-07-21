@@ -1,13 +1,14 @@
-from unittest import TestCase
-
+import dateutil
 import mock
 from freezegun import freeze_time
-import dateutil
 
+from redash import redis_connection, settings
+from redash.tasks.failure_report import (
+    key,
+    notify_of_failure,
+    send_failure_report,
+)
 from tests import BaseTestCase
-from redash import redis_connection, models, settings
-from redash.tasks.failure_report import notify_of_failure, send_failure_report, key
-from redash.utils import json_loads
 
 
 class TestSendAggregatedErrorsTask(BaseTestCase):
@@ -82,17 +83,9 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
 
         f1 = next(f for f in failures if f["failure_reason"] == "I'm a failure")
         self.assertEqual(2, f1["failure_count"])
-        f2 = next(
-            f
-            for f in failures
-            if f["failure_reason"] == "I'm a different type of failure"
-        )
+        f2 = next(f for f in failures if f["failure_reason"] == "I'm a different type of failure")
         self.assertEqual(1, f2["failure_count"])
-        f3 = next(
-            f
-            for f in failures
-            if f["failure_reason"] == "I'm a totally different query"
-        )
+        f3 = next(f for f in failures if f["failure_reason"] == "I'm a totally different query")
         self.assertEqual(1, f3["failure_count"])
 
     def test_shows_latest_failure_time(self):
