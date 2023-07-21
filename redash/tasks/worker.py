@@ -2,21 +2,18 @@ import errno
 import os
 import signal
 import sys
+import time
 
 from rq import Queue as BaseQueue
+from rq import get_current_job
 from rq.job import Job as BaseJob
 from rq.job import JobStatus
 from rq.timeouts import HorseMonitorTimeoutException, UnixSignalDeathPenalty
-import time
-import sys
-
-from redash import statsd_client
-from rq import Queue as BaseQueue, get_current_job
 from rq.utils import utcnow
 from rq.worker import (
     HerokuWorker,  # HerokuWorker implements graceful shutdown on SIGTERM
-    Worker
 )
+from rq.worker import Worker
 
 from redash import statsd_client
 
@@ -25,6 +22,7 @@ if sys.platform == "darwin":
     BaseWorker = Worker
 else:
     BaseWorker = HerokuWorker
+
 
 class CancellableJob(BaseJob):
     def cancel(self, pipeline=None):
@@ -55,7 +53,6 @@ class CancellableQueue(BaseQueue):
 
 class RedashQueue(StatsdRecordingQueue, CancellableQueue):
     pass
-
 
 
 class StatsdRecordingWorker(BaseWorker):
