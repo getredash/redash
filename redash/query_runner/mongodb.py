@@ -268,7 +268,7 @@ class MongoDB(BaseQueryRunner):
         try:
             query_data = parse_query_json(query)
         except ValueError as error:
-            return None, error.__str__()
+            return None, f"Invalid JSON format. {error.__str__()}"
 
         if "collection" not in query_data:
             return None, "'collection' must have a value to run a query"
