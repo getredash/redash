@@ -101,11 +101,12 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 
 * Issues: https://github.com/getredash/redash/issues
 * Discussion Forum: https://github.com/getredash/redash/discussions/
+* Development Discussion: https://discord.gg/tN5MdmfGBp
 
 ## Reporting Bugs and Contributing Code
 
 * Want to report a bug or request a feature? Please open [an issue](https://github.com/getredash/redash/issues/new).
-* Want to help us build **_Redash_**? Fork the project, edit in a [dev environment](https://redash.io/help-onpremise/dev/guide.html) and make a pull request. We need all the help we can get!
+* Want to help us build **_Redash_**? Fork the project, edit in a [dev environment](https://github.com/getredash/redash/wiki/Local-development-setup) and make a pull request. We need all the help we can get!
 
 ## Security
 

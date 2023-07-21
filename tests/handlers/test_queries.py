@@ -59,7 +59,7 @@ class TestQueryResourceGet(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(len(rv.json["results"]), 1)
 
-        rv = self.make_request("get", "/api/queries?q=better OR faster")
+        rv = self.make_request("get", "/api/queries?q=better or faster")
 
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(len(rv.json["results"]), 2)

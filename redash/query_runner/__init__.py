@@ -1,14 +1,10 @@
-import ipaddress
 import logging
-import socket
 from contextlib import ExitStack
 from functools import wraps
-from urllib.parse import urlparse
 
 import sqlparse
 from dateutil import parser
 from rq.timeouts import JobTimeoutException
-from six import text_type
 from sshtunnel import open_tunnel
 
 from redash import settings, utils
@@ -76,21 +72,21 @@ def split_sql_statements(query):
         return stmt
 
     def is_empty_statement(stmt):
-        strip_comments = sqlparse.filters.StripCommentsFilter()
-
         # copy statement object. `copy.deepcopy` fails to do this, so just re-parse it
         st = sqlparse.engine.FilterStack()
-        stmt = next(st.run(sqlparse.text_type(stmt)))
+        st.stmtprocess.append(sqlparse.filters.StripCommentsFilter())
+        stmt = next(st.run(str(stmt)), None)
+        if stmt is None:
+            return True
 
-        sql = sqlparse.text_type(strip_comments.process(stmt))
-        return sql.strip() == ""
+        return str(stmt).strip() == ""
 
     stack = sqlparse.engine.FilterStack()
 
     result = [stmt for stmt in stack.run(query)]
     result = [strip_trailing_comments(stmt) for stmt in result]
     result = [strip_trailing_semicolon(stmt) for stmt in result]
-    result = [sqlparse.text_type(stmt).strip() for stmt in result if not is_empty_statement(stmt)]
+    result = [str(stmt).strip() for stmt in result if not is_empty_statement(stmt)]
 
     if len(result) > 0:
         return result
