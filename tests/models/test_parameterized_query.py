@@ -49,7 +49,7 @@ class TestParameterizedQuery(TestCase):
         query = ParameterizedQuery("foo")
         with pytest.raises(InvalidParameterError) as excinfo:
             query.apply({"bar": None})
-        
+
         message, parameter_errors = excinfo.value.args
         self.assertEquals(message, 'Parameter "bar" is invalid.')
         self.assertEquals(len(parameter_errors), 1)
@@ -58,7 +58,7 @@ class TestParameterizedQuery(TestCase):
         query = ParameterizedQuery("foo")
         with pytest.raises(InvalidParameterError) as excinfo:
             query.apply({"bar": None, "baz": None})
-        
+
         message, parameter_errors = excinfo.value.args
         self.assertEquals(message, 'Parameters "bar", "baz" are invalid.')
         self.assertEquals(len(parameter_errors), 2)
@@ -83,7 +83,7 @@ class TestParameterizedQuery(TestCase):
         query = ParameterizedQuery("foo {{ spam }} {{ ham.start}} {{ eggs.start }}", schema)
         with pytest.raises(InvalidParameterError) as excinfo:
             query.apply(parameters)
-        
+
         _, parameter_errors = excinfo.value.args
         self.assertEquals(parameter_errors, {
             "bar": "Required parameter",
@@ -96,23 +96,23 @@ class TestParameterizedQuery(TestCase):
 
     def test_single_missing_parameter_error(self):
         query = ParameterizedQuery("foo {{ bar }}")
-        
+
         message, parameter_errors = query.missing_params_error
         self.assertEquals(message, 'Parameter "bar" is missing.')
         self.assertEquals(len(parameter_errors), 1)
 
     def test_multiple_missing_parameter_error(self):
         query = ParameterizedQuery("foo {{ bar }} {{ baz }}")
-        
+
         message, parameter_errors = query.missing_params_error
         self.assertEquals(message, 'Parameters "bar", "baz" are missing.')
         self.assertEquals(len(parameter_errors), 2)
 
     def test_missing_parameter_error_message(self):
         query = ParameterizedQuery("foo {{ bar }}")
-        
+
         _, parameter_errors = query.missing_params_error
-        self.assertEquals(parameter_errors, { "bar": "Missing parameter" })
+        self.assertEquals(parameter_errors, {"bar": "Missing parameter"})
 
     def test_ignores_parameters_not_in_schema(self):
         schema = [{"name": "bar", "type": "text"}]
