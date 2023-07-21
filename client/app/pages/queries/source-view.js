@@ -1,23 +1,22 @@
-import {debounce, isEmpty, isEqual, map} from 'lodash';
+import { debounce, isEmpty, isEqual, map } from "lodash";
 
-import template from './query.html';
-import EditParameterSettingsDialog from
-    '@/components/EditParameterSettingsDialog';
+import template from "./query.html";
+import EditParameterSettingsDialog from "@/components/EditParameterSettingsDialog";
 
 function QuerySourceCtrl(
-    Events,
-    $controller,
-    $scope,
-    $location,
-    $uibModal,
-    currentUser,
-    KeyboardShortcuts,
-    $rootScope,
+  Events,
+  $controller,
+  $scope,
+  $location,
+  $uibModal,
+  currentUser,
+  KeyboardShortcuts,
+  $rootScope
 ) {
   // extends QueryViewCtrl
-  $controller('QueryViewCtrl', {$scope});
+  $controller("QueryViewCtrl", { $scope });
 
-  Events.record('view_source', 'query', $scope.query.id);
+  Events.record("view_source", "query", $scope.query.id);
 
   const isNewQuery = !$scope.query.id;
   let queryText = $scope.query.query;
@@ -25,36 +24,40 @@ function QuerySourceCtrl(
 
   $scope.sourceMode = true;
   $scope.isDirty = false;
-  $scope.base_url =
-      `${$location.protocol()}://${$location.host()}:${$location.port()}`;
+  $scope.base_url = `${$location.protocol()}://${$location.host()}:${$location.port()}`;
   $scope.modKey = KeyboardShortcuts.modKey;
 
   // @override
-  Object.defineProperty($scope, 'showDataset', {
+  Object.defineProperty($scope, "showDataset", {
     get() {
-      return $scope.queryResult && $scope.queryResult.getStatus() === 'done';
+      return $scope.queryResult && $scope.queryResult.getStatus() === "done";
     },
   });
 
   const shortcuts = {
-    'mod+s' : function save() {
+    "mod+s": function save() {
       if ($scope.canEdit) {
         $scope.saveQuery();
       }
     },
-    'mod+p' : () => { $scope.addNewParameter(); },
+    "mod+p": () => {
+      $scope.addNewParameter();
+    },
   };
 
   KeyboardShortcuts.bind(shortcuts);
 
-  $scope.$on('$destroy', () => { KeyboardShortcuts.unbind(shortcuts); });
+  $scope.$on("$destroy", () => {
+    KeyboardShortcuts.unbind(shortcuts);
+  });
 
   $scope.canForkQuery = () =>
-      currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
+    currentUser.hasPermission("edit_query") && !$scope.dataSource.view_only;
 
-  $scope.updateQuery = debounce(
-      newQueryText =>
-          $scope.$apply(() => { $scope.query.query = newQueryText; }),
+  $scope.updateQuery = debounce((newQueryText) =>
+    $scope.$apply(() => {
+      $scope.query.query = newQueryText;
+    })
   );
 
   // @override
@@ -77,22 +80,23 @@ function QuerySourceCtrl(
   };
 
   $scope.addNewParameter = () => {
-    EditParameterSettingsDialog
-        .showModal({
-          parameter : {
-            title : null,
-            name : '',
-            type : 'text',
-            value : null,
-          },
-          existingParams : map($scope.query.getParameters().get(), p => p.name),
-        })
-        .result.then((param) => {
-          param = $scope.query.getParameters().add(param);
-          $rootScope.$broadcast('query-editor.command', 'paste',
-                                param.toQueryTextFragment());
-          $rootScope.$broadcast('query-editor.command', 'focus');
-        });
+    EditParameterSettingsDialog.showModal({
+      parameter: {
+        title: null,
+        name: "",
+        type: "text",
+        value: null,
+      },
+      existingParams: map($scope.query.getParameters().get(), (p) => p.name),
+    }).result.then((param) => {
+      param = $scope.query.getParameters().add(param);
+      $rootScope.$broadcast(
+        "query-editor.command",
+        "paste",
+        param.toQueryTextFragment()
+      );
+      $rootScope.$broadcast("query-editor.command", "focus");
+    });
   };
 
   $scope.onParametersUpdated = () => {
@@ -103,13 +107,13 @@ function QuerySourceCtrl(
     }
   };
 
-  $scope.listenForEditorCommand = f => $scope.$on('query-editor.command', f);
-  $scope.listenForResize = f =>
-      $scope.$parent.$on('angular-resizable.resizing', f);
+  $scope.listenForEditorCommand = (f) => $scope.$on("query-editor.command", f);
+  $scope.listenForResize = (f) =>
+    $scope.$parent.$on("angular-resizable.resizing", f);
 
-  $scope.$watch(
-      'query.query',
-      (newQueryText) => { $scope.isDirty = newQueryText !== queryText; });
+  $scope.$watch("query.query", (newQueryText) => {
+    $scope.isDirty = newQueryText !== queryText;
+  });
 
   $scope.unsavedParameters = null;
   $scope.getUnsavedParameters = () => {
@@ -117,7 +121,7 @@ function QuerySourceCtrl(
       return null;
     }
     const unsavedParameters =
-        $scope.query.$parameters.getUnsavedParameters(queryText);
+      $scope.query.$parameters.getUnsavedParameters(queryText);
     if (isEmpty(unsavedParameters)) {
       return null;
     }
@@ -130,37 +134,37 @@ function QuerySourceCtrl(
 }
 
 export default function init(ngModule) {
-  ngModule.controller('QuerySourceCtrl', QuerySourceCtrl);
+  ngModule.controller("QuerySourceCtrl", QuerySourceCtrl);
 
   return {
-    '/queries/new' : {
+    "/queries/new": {
       template,
-      layout : 'fixed',
-      controller : 'QuerySourceCtrl',
-      reloadOnSearch : false,
-      resolve : {
-        query : function newQuery(Query) {
-          'ngInject';
+      layout: "fixed",
+      controller: "QuerySourceCtrl",
+      reloadOnSearch: false,
+      resolve: {
+        query: function newQuery(Query) {
+          "ngInject";
 
           return Query.newQuery();
         },
         dataSources(DataSource) {
-          'ngInject';
+          "ngInject";
 
           return DataSource.query().$promise;
         },
       },
     },
-    '/queries/:queryId/source' : {
+    "/queries/:queryId/source": {
       template,
-      layout : 'fixed',
-      controller : 'QuerySourceCtrl',
-      reloadOnSearch : false,
-      resolve : {
-        query : (Query, $route) => {
-          'ngInject';
+      layout: "fixed",
+      controller: "QuerySourceCtrl",
+      reloadOnSearch: false,
+      resolve: {
+        query: (Query, $route) => {
+          "ngInject";
 
-          return Query.get({id : $route.current.params.queryId}).$promise;
+          return Query.get({ id: $route.current.params.queryId }).$promise;
         },
       },
     },

@@ -1,6 +1,6 @@
-import {isEmpty, toString, trim} from 'lodash';
+import { isEmpty, toString, trim } from "lodash";
 
-import {Parameter} from '.';
+import { Parameter } from ".";
 
 class TextParameter extends Parameter {
   constructor(parameter, parentQueryId) {

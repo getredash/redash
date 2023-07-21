@@ -1,4 +1,4 @@
-import debug from 'debug';
+import debug from "debug";
 import {
   each,
   extend,
@@ -13,25 +13,25 @@ import {
   union,
   uniq,
   zipObject,
-} from 'lodash';
-import moment from 'moment';
-import Mustache from 'mustache';
+} from "lodash";
+import moment from "moment";
+import Mustache from "mustache";
 
-import {Parameter} from './parameters';
+import { Parameter } from "./parameters";
 
 Mustache.escape = identity; // do not html-escape values
 
 export let Query = null; // eslint-disable-line import/no-mutable-exports
 
-const logger = debug('redash:services:query');
+const logger = debug("redash:services:query");
 
 function collectParams(parts) {
   let parameters = [];
 
   parts.forEach((part) => {
-    if (part[0] === 'name' || part[0] === '&') {
-      parameters.push(part[1].split('.')[0]);
-    } else if (part[0] === '#') {
+    if (part[0] === "name" || part[0] === "&") {
+      parameters.push(part[1].split(".")[0]);
+    } else if (part[0] === "#") {
       parameters = union(parameters, collectParams(part[4]));
     }
   });
@@ -47,7 +47,7 @@ class Parameters {
   }
 
   parseQuery(queryText = this.query.query) {
-    const fallback = () => map(this.query.options.parameters, i => i.name);
+    const fallback = () => map(this.query.options.parameters, (i) => i.name);
 
     let parameters = [];
     if (!isNil(queryText)) {
@@ -55,7 +55,7 @@ class Parameters {
         const parts = Mustache.parse(queryText);
         parameters = uniq(collectParams(parts));
       } catch (e) {
-        logger('Failed parsing parameters: ', e);
+        logger("Failed parsing parameters: ", e);
         // Return current parameters so we don't reset the list
         parameters = fallback();
       }
@@ -72,39 +72,44 @@ class Parameters {
     }
 
     this.cachedQueryText = this.query.query;
-    const parameterNames =
-        update ? this.parseQuery()
-               : map(this.query.options.parameters, p => p.name);
+    const parameterNames = update
+      ? this.parseQuery()
+      : map(this.query.options.parameters, (p) => p.name);
 
     this.query.options.parameters = this.query.options.parameters || [];
 
     const parametersMap = {};
-    this.query.options.parameters.forEach(
-        (param) => { parametersMap[param.name] = param; });
+    this.query.options.parameters.forEach((param) => {
+      parametersMap[param.name] = param;
+    });
 
     parameterNames.forEach((param) => {
       if (!has(parametersMap, param)) {
-        this.query.options.parameters.push(Parameter.create({
-          title : param,
-          name : param,
-          type : 'text',
-          value : null,
-          global : false,
-        }));
+        this.query.options.parameters.push(
+          Parameter.create({
+            title: param,
+            name: param,
+            type: "text",
+            value: null,
+            global: false,
+          })
+        );
       }
     });
 
-    const parameterExists = p => includes(parameterNames, p.name);
+    const parameterExists = (p) => includes(parameterNames, p.name);
     const parameters = this.query.options.parameters;
-    this.query.options.parameters =
-        parameters.filter(parameterExists)
-            .map(p => (p instanceof Parameter
-                           ? p
-                           : Parameter.create(p, this.query.id)));
+    this.query.options.parameters = parameters
+      .filter(parameterExists)
+      .map((p) =>
+        p instanceof Parameter ? p : Parameter.create(p, this.query.id)
+      );
   }
 
   initFromQueryString(query) {
-    this.get().forEach((param) => { param.fromUrlParams(query); });
+    this.get().forEach((param) => {
+      param.fromUrlParams(query);
+    });
   }
 
   get(update = true) {
@@ -113,42 +118,53 @@ class Parameters {
   }
 
   add(parameterDef) {
-    this.query.options.parameters =
-        this.query.options.parameters.filter(p => p.name !== parameterDef.name);
+    this.query.options.parameters = this.query.options.parameters.filter(
+      (p) => p.name !== parameterDef.name
+    );
     const param = Parameter.create(parameterDef);
     this.query.options.parameters.push(param);
     return param;
   }
 
-  isRequired() { return !isEmpty(this.get()); }
+  isRequired() {
+    return !isEmpty(this.get());
+  }
 
   getExecutionValues(extra = {}) {
     const params = this.get();
-    return zipObject(map(params, i => i.name),
-                     map(params, i => i.getExecutionValue(extra)));
+    return zipObject(
+      map(params, (i) => i.name),
+      map(params, (i) => i.getExecutionValue(extra))
+    );
   }
 
-  hasPendingValues() { return some(this.get(), p => p.hasPendingValue); }
+  hasPendingValues() {
+    return some(this.get(), (p) => p.hasPendingValue);
+  }
 
-  applyPendingValues() { each(this.get(), p => p.applyPendingValue()); }
+  applyPendingValues() {
+    each(this.get(), (p) => p.applyPendingValue());
+  }
 
   getUnsavedParameters(queryText) {
     const savedParameters = this.parseQuery(queryText);
-    return reject(this.get(), p => includes(savedParameters, p.name))
-        .map(p => p.name);
+    return reject(this.get(), (p) => includes(savedParameters, p.name)).map(
+      (p) => p.name
+    );
   }
 
   toUrlParams() {
     if (this.get().length === 0) {
-      return '';
+      return "";
     }
 
-    const params = Object.assign(...this.get().map(p => p.toUrlParams()));
-    Object.keys(params).forEach(key =>
-                                    params[key] == null && delete params[key]);
+    const params = Object.assign(...this.get().map((p) => p.toUrlParams()));
+    Object.keys(params).forEach(
+      (key) => params[key] == null && delete params[key]
+    );
     return Object.keys(params)
-        .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
-        .join('&');
+      .map((k) => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
+      .join("&");
   }
 }
 
@@ -160,197 +176,232 @@ function QueryResultErrorFactory($q) {
       this.updatedAt = moment.utc();
     }
 
-    getUpdatedAt() { return this.updatedAt; }
+    getUpdatedAt() {
+      return this.updatedAt;
+    }
 
-    getError() { return this.errorMessage; }
+    getError() {
+      return this.errorMessage;
+    }
 
-    getErrorData() { return this.errorData || undefined; }
+    getErrorData() {
+      return this.errorData || undefined;
+    }
 
-    toPromise() { return $q.reject(this); }
+    toPromise() {
+      return $q.reject(this);
+    }
 
     // eslint-disable-next-line class-methods-use-this
-    getStatus() { return 'failed'; }
+    getStatus() {
+      return "failed";
+    }
 
     // eslint-disable-next-line class-methods-use-this
-    getData() { return null; }
+    getData() {
+      return null;
+    }
 
     // eslint-disable-next-line class-methods-use-this
-    getLog() { return null; }
+    getLog() {
+      return null;
+    }
   }
 
   return QueryResultError;
 }
 
 function QueryResource(
-    $resource,
-    $http,
-    $location,
-    $q,
-    currentUser,
-    QueryResultError,
-    QueryResult,
+  $resource,
+  $http,
+  $location,
+  $q,
+  currentUser,
+  QueryResultError,
+  QueryResult
 ) {
   const QueryService = $resource(
-      'api/queries/:id',
-      {id : '@id'},
-      {
-        recent : {
-          method : 'get',
-          isArray : true,
-          url : 'api/queries/recent',
-        },
-        archive : {
-          method : 'get',
-          isArray : false,
-          url : 'api/queries/archive',
-        },
-        query : {
-          isArray : false,
-        },
-        myQueries : {
-          method : 'get',
-          isArray : false,
-          url : 'api/queries/my',
-        },
-        fork : {
-          method : 'post',
-          isArray : false,
-          url : 'api/queries/:id/fork',
-          params : {id : '@id'},
-        },
-        resultById : {
-          method : 'get',
-          isArray : false,
-          url : 'api/queries/:id/results.json',
-        },
-        asDropdown : {
-          method : 'get',
-          isArray : true,
-          url : 'api/queries/:id/dropdown',
-        },
-        associatedDropdown : {
-          method : 'get',
-          isArray : true,
-          url : 'api/queries/:queryId/dropdowns/:dropdownQueryId',
-        },
-        favorites : {
-          method : 'get',
-          isArray : false,
-          url : 'api/queries/favorites',
-        },
-        favorite : {
-          method : 'post',
-          isArray : false,
-          url : 'api/queries/:id/favorite',
-          transformRequest : [ () => '' ], // body not needed
-        },
-        unfavorite : {
-          method : 'delete',
-          isArray : false,
-          url : 'api/queries/:id/favorite',
-          transformRequest : [ () => '' ], // body not needed
-        },
+    "api/queries/:id",
+    { id: "@id" },
+    {
+      recent: {
+        method: "get",
+        isArray: true,
+        url: "api/queries/recent",
       },
+      archive: {
+        method: "get",
+        isArray: false,
+        url: "api/queries/archive",
+      },
+      query: {
+        isArray: false,
+      },
+      myQueries: {
+        method: "get",
+        isArray: false,
+        url: "api/queries/my",
+      },
+      fork: {
+        method: "post",
+        isArray: false,
+        url: "api/queries/:id/fork",
+        params: { id: "@id" },
+      },
+      resultById: {
+        method: "get",
+        isArray: false,
+        url: "api/queries/:id/results.json",
+      },
+      asDropdown: {
+        method: "get",
+        isArray: true,
+        url: "api/queries/:id/dropdown",
+      },
+      associatedDropdown: {
+        method: "get",
+        isArray: true,
+        url: "api/queries/:queryId/dropdowns/:dropdownQueryId",
+      },
+      favorites: {
+        method: "get",
+        isArray: false,
+        url: "api/queries/favorites",
+      },
+      favorite: {
+        method: "post",
+        isArray: false,
+        url: "api/queries/:id/favorite",
+        transformRequest: [() => ""], // body not needed
+      },
+      unfavorite: {
+        method: "delete",
+        isArray: false,
+        url: "api/queries/:id/favorite",
+        transformRequest: [() => ""], // body not needed
+      },
+    }
   );
 
   QueryService.newQuery = function newQuery() {
     return new QueryService({
-      query : '',
-      name : 'New Query',
-      schedule : null,
-      user : currentUser,
-      options : {},
+      query: "",
+      name: "New Query",
+      schedule: null,
+      user: currentUser,
+      options: {},
     });
   };
 
   QueryService.format = function formatQuery(syntax, query) {
-    if (syntax === 'json') {
+    if (syntax === "json") {
       try {
-        const formatted = JSON.stringify(JSON.parse(query), ' ', 4);
+        const formatted = JSON.stringify(JSON.parse(query), " ", 4);
         return $q.resolve(formatted);
       } catch (err) {
         return $q.reject(String(err));
       }
-    } else if (syntax === 'sql') {
-      return $http.post('api/queries/format', {query})
-          .then(response => response.data.query);
+    } else if (syntax === "sql") {
+      return $http
+        .post("api/queries/format", { query })
+        .then((response) => response.data.query);
     } else {
       return $q.reject(
-          'Query formatting is not supported for your data source syntax.');
+        "Query formatting is not supported for your data source syntax."
+      );
     }
   };
 
-  QueryService.prototype.getSourceLink =
-      function getSourceLink() { return `/queries/${this.id}/source`; };
+  QueryService.prototype.getSourceLink = function getSourceLink() {
+    return `/queries/${this.id}/source`;
+  };
 
-  QueryService.prototype.isNew =
-      function isNew() { return this.id === undefined; };
+  QueryService.prototype.isNew = function isNew() {
+    return this.id === undefined;
+  };
 
   QueryService.prototype.hasDailySchedule = function hasDailySchedule() {
     return this.schedule && this.schedule.match(/\d\d:\d\d/) !== null;
   };
 
   QueryService.prototype.scheduleInLocalTime = function scheduleInLocalTime() {
-    const parts = this.schedule.split(':');
-    return moment.utc().hour(parts[0]).minute(parts[1]).local().format('HH:mm');
+    const parts = this.schedule.split(":");
+    return moment.utc().hour(parts[0]).minute(parts[1]).local().format("HH:mm");
   };
 
   QueryService.prototype.hasResult = function hasResult() {
     return !!(this.latest_query_data || this.latest_query_data_id);
   };
 
-  QueryService.prototype.paramsRequired =
-      function paramsRequired() { return this.getParameters().isRequired(); };
-
-  QueryService.prototype.hasParameters =
-      function hasParameters() { return this.getParametersDefs().length > 0; };
-
-  QueryService.prototype.prepareQueryResultExecution =
-      function prepareQueryResultExecution(execute, maxAge) {
-    const parameters = this.getParameters();
-
-    if (parameters.isRequired()) {
-      // Need to clear latest results, to make sure we don't use results for
-      // different params.
-      this.latest_query_data = null;
-      this.latest_query_data_id = null;
-    }
-
-    if (this.latest_query_data && maxAge !== 0) {
-      if (!this.queryResult) {
-        this.queryResult = new QueryResult({
-          query_result : this.latest_query_data,
-        });
-      }
-    } else if (this.latest_query_data_id && maxAge !== 0) {
-      if (!this.queryResult) {
-        this.queryResult =
-            QueryResult.getById(this.id, this.latest_query_data_id);
-      }
-    } else {
-      this.queryResult = execute();
-    }
-
-    return this.queryResult;
+  QueryService.prototype.paramsRequired = function paramsRequired() {
+    return this.getParameters().isRequired();
   };
 
+  QueryService.prototype.hasParameters = function hasParameters() {
+    return this.getParametersDefs().length > 0;
+  };
+
+  QueryService.prototype.prepareQueryResultExecution =
+    function prepareQueryResultExecution(execute, maxAge) {
+      const parameters = this.getParameters();
+
+      if (parameters.isRequired()) {
+        // Need to clear latest results, to make sure we don't use results for
+        // different params.
+        this.latest_query_data = null;
+        this.latest_query_data_id = null;
+      }
+
+      if (this.latest_query_data && maxAge !== 0) {
+        if (!this.queryResult) {
+          this.queryResult = new QueryResult({
+            query_result: this.latest_query_data,
+          });
+        }
+      } else if (this.latest_query_data_id && maxAge !== 0) {
+        if (!this.queryResult) {
+          this.queryResult = QueryResult.getById(
+            this.id,
+            this.latest_query_data_id
+          );
+        }
+      } else {
+        this.queryResult = execute();
+      }
+
+      return this.queryResult;
+    };
+
   QueryService.prototype.getQueryResult = function getQueryResult(maxAge) {
-    const execute = () => QueryResult.getByQueryId(
-        this.id, this.getParameters().getExecutionValues(), maxAge);
+    const execute = () =>
+      QueryResult.getByQueryId(
+        this.id,
+        this.getParameters().getExecutionValues(),
+        maxAge
+      );
     return this.prepareQueryResultExecution(execute, maxAge);
   };
 
   QueryService.prototype.getQueryResultByText = function getQueryResultByText(
-      maxAge, selectedQueryText) {
+    maxAge,
+    selectedQueryText
+  ) {
     const queryText = selectedQueryText || this.query;
     if (!queryText) {
       return new QueryResultError("Can't execute empty query.");
     }
 
-    const parameters =
-        this.getParameters().getExecutionValues({joinListValues : true});
-    const execute = () => QueryResult.get(this.data_source_id, queryText,
-                                          parameters, maxAge, this.id);
+    const parameters = this.getParameters().getExecutionValues({
+      joinListValues: true,
+    });
+    const execute = () =>
+      QueryResult.get(
+        this.data_source_id,
+        queryText,
+        parameters,
+        maxAge,
+        this.id
+      );
     return this.prepareQueryResultExecution(execute, maxAge);
   };
 
@@ -358,22 +409,25 @@ function QueryResource(
     let url = `queries/${this.id}`;
 
     if (source) {
-      url += '/source';
+      url += "/source";
     }
 
     let params = {};
     if (this.getParameters().isRequired()) {
-      this.getParametersDefs().forEach(
-          (param) => { extend(params, param.toUrlParams()); });
+      this.getParametersDefs().forEach((param) => {
+        extend(params, param.toUrlParams());
+      });
     }
-    Object.keys(params).forEach(key =>
-                                    params[key] == null && delete params[key]);
-    params = map(params,
-                 (value, name) =>
-                     `${encodeURIComponent(name)}=${encodeURIComponent(value)}`)
-                 .join('&');
+    Object.keys(params).forEach(
+      (key) => params[key] == null && delete params[key]
+    );
+    params = map(
+      params,
+      (value, name) =>
+        `${encodeURIComponent(name)}=${encodeURIComponent(value)}`
+    ).join("&");
 
-    if (params !== '') {
+    if (params !== "") {
       url += `?${params}`;
     }
 
@@ -384,8 +438,10 @@ function QueryResource(
     return url;
   };
 
-  QueryService.prototype.getQueryResultPromise = function
-  getQueryResultPromise() { return this.getQueryResult().toPromise(); };
+  QueryService.prototype.getQueryResultPromise =
+    function getQueryResultPromise() {
+      return this.getQueryResult().toPromise();
+    };
 
   QueryService.prototype.getParameters = function getParameters() {
     if (!this.$parameters) {
@@ -396,16 +452,21 @@ function QueryResource(
   };
 
   QueryService.prototype.getParametersDefs = function getParametersDefs(
-      update = true) { return this.getParameters().get(update); };
+    update = true
+  ) {
+    return this.getParameters().get(update);
+  };
 
   return QueryService;
 }
 
 export default function init(ngModule) {
-  ngModule.factory('QueryResultError', QueryResultErrorFactory);
-  ngModule.factory('Query', QueryResource);
+  ngModule.factory("QueryResultError", QueryResultErrorFactory);
+  ngModule.factory("Query", QueryResource);
 
-  ngModule.run(($injector) => { Query = $injector.get('Query'); });
+  ngModule.run(($injector) => {
+    Query = $injector.get("Query");
+  });
 }
 
 init.init = true;
