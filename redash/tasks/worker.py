@@ -2,10 +2,8 @@ import errno
 import os
 import signal
 import sys
-import time
 
 from rq import Queue as BaseQueue
-from rq import get_current_job
 from rq.job import Job as BaseJob
 from rq.job import JobStatus
 from rq.timeouts import HorseMonitorTimeoutException, UnixSignalDeathPenalty
