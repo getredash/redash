@@ -1,12 +1,13 @@
-import pystache
 from functools import partial
 from numbers import Number
-from redash.utils import mustache_render, json_loads
-from redash.permissions import require_access, view_only
-from funcy import distinct, lpluck, compact
-from dateutil.parser import parse
 
+import pystache
+from dateutil.parser import parse
+from funcy import compact, distinct, lpluck
 from six import string_types, text_type
+
+from redash.permissions import require_access, view_only
+from redash.utils import json_loads, mustache_render
 
 
 def _pluck_name_and_value(default_column, row):

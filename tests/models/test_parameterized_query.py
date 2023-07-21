@@ -1,14 +1,12 @@
-from unittest import TestCase
-from mock import patch
 from collections import namedtuple
+from unittest import TestCase
+
 import pytest
+from mock import patch
 
 from redash.models.parameterized_query import (
-    ParameterizedQuery,
-    InvalidParameterError,
-    QueryDetachedFromDataSourceError,
-    dropdown_values,
-)
+    InvalidParameterError, ParameterizedQuery,
+    QueryDetachedFromDataSourceError, dropdown_values)
 
 
 class TestParameterizedQuery(TestCase):
