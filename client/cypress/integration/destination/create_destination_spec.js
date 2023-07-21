@@ -15,7 +15,7 @@ describe("Create Destination", () => {
 
     cy.getByTestId("PreviewItem")
       .then($previewItems => Cypress.$.map($previewItems, item => Cypress.$(item).attr("data-test-type")))
-      .then(availableTypes => expect(availableTypes).not.to.contain.members(this.deprecatedTypes));
+      .then(availableTypes => expect(availableTypes).not.to.contain.oneOf(this.deprecatedTypes));
 
     cy.getByTestId("CreateSourceDialog").should("contain", "Email");
     cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
