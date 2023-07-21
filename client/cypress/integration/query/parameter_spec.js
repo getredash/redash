@@ -614,6 +614,29 @@ describe('Parameter', () => {
       cy.percySnapshot('Validation error in query page');
     });
 
+    it('shows unsaved feedback in query page', function () {
+      cy.visit(`/queries/${this.query.id}/source`);
+
+      cy.getByTestId('QueryEditor')
+        .get('.ace_text-input')
+        .type(' {{ newparam }}', { force: true, parseSpecialCharSequences: false });
+
+      cy.getByTestId('ParameterName-newparam')
+        .find('.ant-form-item-control')
+        .should('have.class', 'has-warning')
+        .find('.ant-form-explain')
+        .as('Feedback');
+
+      cy.get('@Feedback')
+        .should('contain.text', 'Unsaved')
+        .should('not.have.class', 'show-help-appear'); // assures ant animation ended for screenshot
+
+      cy.percySnapshot('Unsaved feedback in query page');
+
+      cy.getByTestId('SaveButton').click();
+      cy.get('@Feedback').should('not.exist');
+    });
+
     it('shows validation error in visualization embed', function () {
       cy.visit(`/embed/query/${this.query.id}/visualization/${this.vizId}?api_key=${this.query.api_key}`);
       expectValueValidationError();
