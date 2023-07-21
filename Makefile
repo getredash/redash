@@ -25,6 +25,9 @@ down:
 env:
 	printf "REDASH_COOKIE_SECRET=`pwgen -1s 32`\nREDASH_SECRET_KEY=`pwgen -1s 32`\n" >> .env
 
+format:
+	pre-commit run --all-files
+
 tests:
 	docker-compose run server tests
 
