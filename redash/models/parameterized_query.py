@@ -30,8 +30,7 @@ def _load_result(query_id, org):
 
     if query.data_source:
         query_result = models.QueryResult.get_by_id_and_org(
-            query.latest_query_data_id, org
-        )
+            query.latest_query_data_id, org)
         return query_result.data
     else:
         raise QueryDetachedFromDataSourceError(query_id)
@@ -49,15 +48,14 @@ def join_parameter_list_values(parameters, schema):
     for key, value in parameters.items():
         if isinstance(value, list):
             definition = next(
-                (definition for definition in schema if definition["name"] == key), {}
-            )
+                (definition
+                 for definition in schema if definition["name"] == key), {})
             multi_values_options = definition.get("multiValuesOptions", {})
             separator = str(multi_values_options.get("separator", ","))
             prefix = str(multi_values_options.get("prefix", ""))
             suffix = str(multi_values_options.get("suffix", ""))
             updated_parameters[key] = separator.join(
-                [prefix + v + suffix for v in value]
-            )
+                [prefix + v + suffix for v in value])
         else:
             updated_parameters[key] = value
     return updated_parameters
@@ -120,7 +118,9 @@ def _is_date_range(obj):
 
 
 def _is_date_range_type(type):
-    return type in ["date-range", "datetime-range", "datetime-range-with-seconds"]
+    return type in [
+        "date-range", "datetime-range", "datetime-range-with-seconds"
+    ]
 
 
 def _is_tag_in_template(name, template):
@@ -130,11 +130,13 @@ def _is_tag_in_template(name, template):
 
 def _is_value_within_options(value, dropdown_options, allow_list=False):
     if isinstance(value, list):
-        return allow_list and set(map(text_type, value)).issubset(set(dropdown_options))
+        return allow_list and set(map(text_type, value)).issubset(
+            set(dropdown_options))
     return text_type(value) in dropdown_options
 
 
 class ParameterizedQuery(object):
+
     def __init__(self, template, schema=None, org=None):
         self.schema = schema or []
         self.org = org
@@ -147,19 +149,20 @@ class ParameterizedQuery(object):
         if self.schema:
             names_with_definition = lpluck("name", self.schema)
             parameters = {
-                k: v for (k, v) in parameters.items() if k in names_with_definition
+                k: v
+                for (k, v) in parameters.items() if k in names_with_definition
             }
 
         invalid_parameters = compact(
-            {k: self._invalid_message(k, v) for (k, v) in parameters.items()}
-        )
+            {k: self._invalid_message(k, v)
+             for (k, v) in parameters.items()})
         if invalid_parameters:
             raise InvalidParameterError(invalid_parameters)
         else:
             self.parameters.update(parameters)
             self.query = mustache_render(
-                self.template, join_parameter_list_values(parameters, self.schema)
-            )
+                self.template,
+                join_parameter_list_values(parameters, self.schema))
 
         return self
 
@@ -172,7 +175,8 @@ class ParameterizedQuery(object):
             return None
 
         definition = next(
-            (definition for definition in self.schema if definition["name"] == name),
+            (definition
+             for definition in self.schema if definition["name"] == name),
             None,
         )
 
@@ -181,31 +185,42 @@ class ParameterizedQuery(object):
 
         enum_options = definition.get("enumOptions")
         query_id = definition.get("queryId")
-        allow_multiple_values = isinstance(definition.get("multiValuesOptions"), dict)
+        allow_multiple_values = isinstance(
+            definition.get("multiValuesOptions"), dict)
 
         if isinstance(enum_options, string_types):
             enum_options = enum_options.split("\n")
 
         value_validators = {
-            "text": lambda value: isinstance(value, string_types),
-            "number": _is_number,
-            "enum": lambda value: _is_value_within_options(
-                value, enum_options, allow_multiple_values
-            ),
-            "query": lambda value: _is_value_within_options(
+            "text":
+            lambda value: isinstance(value, string_types),
+            "number":
+            _is_number,
+            "enum":
+            lambda value: _is_value_within_options(value, enum_options,
+                                                   allow_multiple_values),
+            "query":
+            lambda value: _is_value_within_options(
                 value,
                 [v["value"] for v in dropdown_values(query_id, self.org)],
                 allow_multiple_values,
             ),
-            "date": _is_date,
-            "datetime-local": _is_date,
-            "datetime-with-seconds": _is_date,
-            "date-range": _is_date_range,
-            "datetime-range": _is_date_range,
-            "datetime-range-with-seconds": _is_date_range,
+            "date":
+            _is_date,
+            "datetime-local":
+            _is_date,
+            "datetime-with-seconds":
+            _is_date,
+            "date-range":
+            _is_date_range,
+            "datetime-range":
+            _is_date_range,
+            "datetime-range-with-seconds":
+            _is_date_range,
         }
 
-        validate_value = value_validators.get(definition["type"], lambda x: False)
+        validate_value = value_validators.get(definition["type"],
+                                              lambda x: False)
 
         if not validate_value(value):
             return "Invalid value"
@@ -234,7 +249,9 @@ class ParameterizedQuery(object):
 
     @property
     def is_safe(self):
-        text_parameters = [param for param in self.schema if param["type"] == "text"]
+        text_parameters = [
+            param for param in self.schema if param["type"] == "text"
+        ]
         return not any(text_parameters)
 
     @property
@@ -248,15 +265,17 @@ class ParameterizedQuery(object):
         if not missing_params:
             return None
 
-        parameter_names = ", ".join(
-            '"{}"'.format(name) for name in sorted(missing_params)
-        )
+        parameter_names = ", ".join('"{}"'.format(name)
+                                    for name in sorted(missing_params))
         if len(missing_params) > 1:
             message = "Parameters {} are missing.".format(parameter_names)
         else:
             message = "Parameter {} is missing.".format(parameter_names)
 
-        parameter_errors = {name: "Missing parameter" for name in missing_params}
+        parameter_errors = {
+            name: "Missing parameter"
+            for name in missing_params
+        }
         return message, parameter_errors
 
     @property
@@ -265,10 +284,10 @@ class ParameterizedQuery(object):
 
 
 class InvalidParameterError(Exception):
+
     def __init__(self, parameter_errors):
         parameter_names = ", ".join(
-            '"{}"'.format(name) for name in sorted(parameter_errors.keys())
-        )
+            '"{}"'.format(name) for name in sorted(parameter_errors.keys()))
         if len(parameter_errors) > 1:
             message = "Parameters {} are invalid.".format(parameter_names)
         else:
@@ -281,6 +300,7 @@ class InvalidParameterError(Exception):
 
 
 class QueryDetachedFromDataSourceError(Exception):
+
     def __init__(self, query_id):
         self.query_id = query_id
         self.message = "This query is detached from any data source. Please select a different query."
