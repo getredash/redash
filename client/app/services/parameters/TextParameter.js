@@ -1,4 +1,4 @@
-import { toString, isEmpty } from 'lodash';
+import { toString, isEmpty, trim } from 'lodash';
 import { Parameter } from '.';
 
 class TextParameter extends Parameter {
@@ -14,6 +14,13 @@ class TextParameter extends Parameter {
       return null;
     }
     return normalizedValue;
+  }
+
+  getExecutionValue() {
+    if (!trim(this.value)) {
+      return null;
+    }
+    return this.value;
   }
 }
 
