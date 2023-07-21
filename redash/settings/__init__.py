@@ -356,7 +356,6 @@ default_destinations = [
     "redash.destinations.slack",
     "redash.destinations.webhook",
     "redash.destinations.discord",
-    "redash.destinations.hipchat",
     "redash.destinations.mattermost",
     "redash.destinations.chatwork",
     "redash.destinations.pagerduty",

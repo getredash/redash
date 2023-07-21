@@ -1405,7 +1405,7 @@ def init_db():
     default_org = Organization(name="Default", slug="default", settings={})
     admin_group = Group(
         name="admin",
-        permissions=["admin", "super_admin"],
+        permissions=Group.ADMIN_PERMISSIONS,
         org=default_org,
         type=Group.BUILTIN_GROUP,
     )

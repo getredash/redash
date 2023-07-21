@@ -250,6 +250,19 @@ class TestQueryResultAPI(BaseTestCase):
         rv = self.make_request("post", "/api/queries/{}/results".format(query.id), data={"parameters": {}})
         self.assertEqual(rv.status_code, 200)
 
+    def test_get_latest_query_result_with_apply_auto_limit(self):
+        query = self.factory.create_query(
+            options={"parameters": [{"name": "foo", "type": "number"}], "apply_auto_limit": True}
+        )
+        rv = self.make_request(
+            "post",
+            "/api/queries/{}/results".format(query.id),
+            data={"parameters": {}, "apply_auto_limit": True},
+        )
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn("job", rv.json)
+
     def test_prevents_execution_of_unsafe_queries_using_api_key(self):
         ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
         query = self.factory.create_query(data_source=ds, options={"parameters": [{"name": "foo", "type": "text"}]})
