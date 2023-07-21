@@ -1,5 +1,6 @@
-import { toNumber, trim } from 'lodash';
-import { Parameter } from '.';
+import { toNumber, trim } from "lodash";
+
+import { Parameter } from ".";
 
 class NumberParameter extends Parameter {
   constructor(parameter, parentQueryId) {

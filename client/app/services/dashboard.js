@@ -1,6 +1,7 @@
-import _ from 'lodash';
-import dashboardGridOptions from '@/config/dashboard-grid-options';
-import { Widget } from './widget';
+import dashboardGridOptions from "@/config/dashboard-grid-options";
+import _ from "lodash";
+
+import { Widget } from "./widget";
 
 export let Dashboard = null; // eslint-disable-line import/no-mutable-exports
 
@@ -25,7 +26,10 @@ export function collectDashboardFilters(dashboard, queryResults, urlParams) {
       if (!_.has(filters, queryFilter.name)) {
         filters[filter.name] = filter;
       } else {
-        filters[filter.name].values = _.union(filters[filter.name].values, filter.values);
+        filters[filter.name].values = _.union(
+          filters[filter.name].values,
+          filter.values
+        );
       }
     });
   });
@@ -36,15 +40,15 @@ export function collectDashboardFilters(dashboard, queryResults, urlParams) {
 function prepareWidgetsForDashboard(widgets) {
   // Default height for auto-height widgets.
   // Compute biggest widget size and choose between it and some magic number.
-  // This value should be big enough so auto-height widgets will not overlap other ones.
+  // This value should be big enough so auto-height widgets will not overlap
+  // other ones.
   const defaultWidgetSizeY =
     Math.max(
-      _
-        .chain(widgets)
-        .map(w => w.options.position.sizeY)
+      _.chain(widgets)
+        .map((w) => w.options.position.sizeY)
         .max()
         .value(),
-      20,
+      20
     ) + 5;
 
   // Fix layout:
@@ -52,14 +56,16 @@ function prepareWidgetsForDashboard(widgets) {
   // 2. update position of widgets in each row - place it right below
   //    biggest widget from previous row
   _.chain(widgets)
-    .sortBy(widget => widget.options.position.row)
-    .groupBy(widget => widget.options.position.row)
+    .sortBy((widget) => widget.options.position.row)
+    .groupBy((widget) => widget.options.position.row)
     .reduce((row, widgetsAtRow) => {
       let height = 1;
       _.each(widgetsAtRow, (widget) => {
         height = Math.max(
           height,
-          widget.options.position.autoHeight ? defaultWidgetSizeY : widget.options.position.sizeY,
+          widget.options.position.autoHeight
+            ? defaultWidgetSizeY
+            : widget.options.position.sizeY
         );
         widget.options.position.row = row;
         if (widget.options.position.sizeY < 1) {
@@ -71,18 +77,20 @@ function prepareWidgetsForDashboard(widgets) {
     .value();
 
   // Sort widgets by updated column and row value
-  widgets = _.sortBy(widgets, widget => widget.options.position.col);
-  widgets = _.sortBy(widgets, widget => widget.options.position.row);
+  widgets = _.sortBy(widgets, (widget) => widget.options.position.col);
+  widgets = _.sortBy(widgets, (widget) => widget.options.position.row);
 
   return widgets;
 }
 
 function calculateNewWidgetPosition(existingWidgets, newWidget) {
-  const width = _.extend({ sizeX: dashboardGridOptions.defaultSizeX }, _.extend({}, newWidget.options).position).sizeX;
+  const width = _.extend(
+    { sizeX: dashboardGridOptions.defaultSizeX },
+    _.extend({}, newWidget.options).position
+  ).sizeX;
 
   // Find first free row for each column
-  const bottomLine = _
-    .chain(existingWidgets)
+  const bottomLine = _.chain(existingWidgets)
     .map((w) => {
       const options = _.extend({}, w.options);
       const position = _.extend({ row: 0, sizeY: 0 }, options.position);
@@ -108,24 +116,24 @@ function calculateNewWidgetPosition(existingWidgets, newWidget) {
   // Go through columns, pick them by count necessary to hold new block,
   // and calculate bottom-most free row per group.
   // Choose group with the top-most free row (comparing to other groups)
-  return _
-    .chain(_.range(0, dashboardGridOptions.columns - width + 1))
-    .map(col => ({
+  return _.chain(_.range(0, dashboardGridOptions.columns - width + 1))
+    .map((col) => ({
       col,
-      row: _
-        .chain(bottomLine)
+      row: _.chain(bottomLine)
         .slice(col, col + width)
         .max()
         .value(),
     }))
-    .sortBy('row')
+    .sortBy("row")
     .first()
     .value();
 }
 
 function DashboardService($resource, $http, $location, currentUser) {
   function prepareDashboardWidgets(widgets) {
-    return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget)));
+    return prepareWidgetsForDashboard(
+      _.map(widgets, (widget) => new Widget(widget))
+    );
   }
 
   function transformSingle(dashboard) {
@@ -145,36 +153,36 @@ function DashboardService($resource, $http, $location, currentUser) {
   });
 
   const resource = $resource(
-    'api/dashboards/:slug',
-    { slug: '@slug' },
+    "api/dashboards/:slug",
+    { slug: "@slug" },
     {
-      get: { method: 'GET', transformResponse: transform },
-      save: { method: 'POST', transformResponse: transform },
-      query: { method: 'GET', isArray: false, transformResponse: transform },
+      get: { method: "GET", transformResponse: transform },
+      save: { method: "POST", transformResponse: transform },
+      query: { method: "GET", isArray: false, transformResponse: transform },
       recent: {
-        method: 'get',
+        method: "get",
         isArray: true,
-        url: 'api/dashboards/recent',
+        url: "api/dashboards/recent",
         transformResponse: transform,
       },
       favorites: {
-        method: 'get',
+        method: "get",
         isArray: false,
-        url: 'api/dashboards/favorites',
+        url: "api/dashboards/favorites",
       },
       favorite: {
-        method: 'post',
+        method: "post",
         isArray: false,
-        url: 'api/dashboards/:slug/favorite',
-        transformRequest: [() => ''], // body not needed
+        url: "api/dashboards/:slug/favorite",
+        transformRequest: [() => ""], // body not needed
       },
       unfavorite: {
-        method: 'delete',
+        method: "delete",
         isArray: false,
-        url: 'api/dashboards/:slug/favorite',
-        transformRequest: [() => ''], // body not needed
+        url: "api/dashboards/:slug/favorite",
+        transformRequest: [() => ""], // body not needed
       },
-    },
+    }
   );
 
   resource.prototype.canEdit = function canEdit() {
@@ -199,7 +207,8 @@ function DashboardService($resource, $http, $location, currentUser) {
               if (!globalParams[mapping.mapTo]) {
                 globalParams[mapping.mapTo] = param.clone();
                 globalParams[mapping.mapTo].name = mapping.mapTo;
-                globalParams[mapping.mapTo].title = mapping.title || param.title;
+                globalParams[mapping.mapTo].title =
+                  mapping.title || param.title;
                 globalParams[mapping.mapTo].locals = [];
               }
 
@@ -209,13 +218,18 @@ function DashboardService($resource, $http, $location, currentUser) {
           });
       }
     });
-    return _.values(_.each(globalParams, (param) => {
-      param.setValue(param.value); // apply global param value to all locals
-      param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
-    }));
+    return _.values(
+      _.each(globalParams, (param) => {
+        param.setValue(param.value); // apply global param value to all locals
+        param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
+      })
+    );
   };
 
-  resource.prototype.addWidget = function addWidget(textOrVisualization, options = {}) {
+  resource.prototype.addWidget = function addWidget(
+    textOrVisualization,
+    options = {}
+  ) {
     const props = {
       dashboard_id: this.id,
       options: {
@@ -223,7 +237,7 @@ function DashboardService($resource, $http, $location, currentUser) {
         isHidden: false,
         position: {},
       },
-      text: '',
+      text: "",
       visualization_id: null,
       visualization: null,
     };
@@ -250,46 +264,50 @@ function DashboardService($resource, $http, $location, currentUser) {
   };
 
   let currentQueryResultsErrorData; // swap for useMemo ANGULAR_REMOVE_ME
-  resource.prototype.getQueryResultsErrorData = function getQueryResultsErrorData() {
-    const dashboardErrors = _.map(this.widgets, (widget) => {
-      // get result
-      const result = widget.getQueryResult();
-      if (!result) {
-        return null;
+  resource.prototype.getQueryResultsErrorData =
+    function getQueryResultsErrorData() {
+      const dashboardErrors = _.map(this.widgets, (widget) => {
+        // get result
+        const result = widget.getQueryResult();
+        if (!result) {
+          return null;
+        }
+
+        // get error data
+        const errorData = result.getErrorData();
+        if (_.isEmpty(errorData)) {
+          return null;
+        }
+
+        // dashboard params only
+        const localParamNames = _.map(
+          widget.getLocalParameters(),
+          (p) => p.name
+        );
+        const filtered = _.omit(errorData.parameters, localParamNames);
+
+        return filtered;
+      });
+
+      const merged = _.assign({}, ...dashboardErrors);
+      const errorData = _.isEmpty(merged) ? null : { parameters: merged };
+
+      // avoiding Angular infdig (ANGULAR_REMOVE_ME)
+      if (!_.isEqual(currentQueryResultsErrorData, errorData)) {
+        currentQueryResultsErrorData = errorData;
       }
 
-      // get error data
-      const errorData = result.getErrorData();
-      if (_.isEmpty(errorData)) {
-        return null;
-      }
-
-      // dashboard params only
-      const localParamNames = _.map(widget.getLocalParameters(), p => p.name);
-      const filtered = _.omit(errorData.parameters, localParamNames);
-
-      return filtered;
-    });
-
-    const merged = _.assign({}, ...dashboardErrors);
-    const errorData = _.isEmpty(merged) ? null : { parameters: merged };
-
-    // avoiding Angular infdig (ANGULAR_REMOVE_ME)
-    if (!_.isEqual(currentQueryResultsErrorData, errorData)) {
-      currentQueryResultsErrorData = errorData;
-    }
-
-    return currentQueryResultsErrorData;
-  };
+      return currentQueryResultsErrorData;
+    };
 
   return resource;
 }
 
 export default function init(ngModule) {
-  ngModule.factory('Dashboard', DashboardService);
+  ngModule.factory("Dashboard", DashboardService);
 
   ngModule.run(($injector) => {
-    Dashboard = $injector.get('Dashboard');
+    Dashboard = $injector.get("Dashboard");
   });
 }
 
