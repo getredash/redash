@@ -1,6 +1,7 @@
 import logging
-import requests
 import textwrap
+
+import requests
 
 from redash.destinations import *
 
@@ -49,11 +50,7 @@ class Asana(BaseDestination):
             )
             logging.warning(resp.text)
             if resp.status_code != 201:
-                logging.error(
-                    "Asana send ERROR. status_code => {status}".format(
-                        status=resp.status_code
-                    )
-                )
+                logging.error("Asana send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception:
             logging.exception("Asana send ERROR.")
 
