@@ -1,8 +1,8 @@
-from redash.handlers.query_results import error_messages
+from redash.handlers.query_results import error_messages, run_query
 from redash.models import db
 from redash.utils import json_dumps
-from redash.handlers.query_results import error_messages, run_query
 from tests import BaseTestCase
+
 
 class TestRunQuery(BaseTestCase):
     def test_run_query_with_no_data_source(self):
