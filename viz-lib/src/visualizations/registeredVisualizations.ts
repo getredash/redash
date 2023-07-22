@@ -17,9 +17,9 @@ import sunburstVisualization from "./sunburst";
 import tableVisualization from "./table";
 import wordCloudVisualization from "./word-cloud";
 
-import verticalBarChartVizualization from "./custom/vertical-bar-chart";
-import horizontalBarChartVizualization from "./custom/horizontal-bar-chart";
-import pieChartVizualization from "./custom/pie-chart";
+import verticalBarChartVisualization from "./custom/vertical-bar-chart";
+import horizontalBarChartVisualization from "./custom/horizontal-bar-chart";
+import pieChartVisualization from "./custom/pie-chart";
 import listVisualization from "./custom/list";
 
 type VisualizationConfig = {
@@ -98,9 +98,9 @@ each(
     sunburstVisualization,
     tableVisualization,
     wordCloudVisualization,
-    verticalBarChartVizualization,
-    horizontalBarChartVizualization,
-    pieChartVizualization,
+    verticalBarChartVisualization,
+    horizontalBarChartVisualization,
+    pieChartVisualization,
     listVisualization,
   ]),
   registerVisualization
