@@ -4,18 +4,27 @@ import re
 
 from dateutil.parser import parse
 
-from redash.query_runner import *
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseQueryRunner,
+    register,
+)
 from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
 
 logger = logging.getLogger(__name__)
 
 try:
     import pymongo
-    from bson.objectid import ObjectId
-    from bson.timestamp import Timestamp
     from bson.decimal128 import Decimal128
+    from bson.json_util import JSONOptions
+    from bson.json_util import object_hook as bson_object_hook
+    from bson.objectid import ObjectId
     from bson.son import SON
-    from bson.json_util import object_hook as bson_object_hook, JSONOptions
+    from bson.timestamp import Timestamp
 
     enabled = True
 
@@ -44,7 +53,7 @@ class MongoDBJSONEncoder(JSONEncoder):
         return super(MongoDBJSONEncoder, self).default(o)
 
 
-date_regex = re.compile('ISODate\("(.*)"\)', re.IGNORECASE)
+date_regex = re.compile(r'ISODate\("(.*)"\)', re.IGNORECASE)
 
 
 def parse_oids(oids):
@@ -100,9 +109,7 @@ def parse_results(results):
                             {
                                 "name": column_name,
                                 "friendly_name": column_name,
-                                "type": TYPES_MAP.get(
-                                    type(row[key][inner_key]), TYPE_STRING
-                                ),
+                                "type": TYPES_MAP.get(type(row[key][inner_key]), TYPE_STRING),
                             }
                         )
 
@@ -166,10 +173,7 @@ class MongoDB(BaseQueryRunner):
         self.db_name = self.configuration["dbName"]
 
         self.is_replica_set = (
-            True
-            if "replicaSetName" in self.configuration
-            and self.configuration["replicaSetName"]
-            else False
+            True if "replicaSetName" in self.configuration and self.configuration["replicaSetName"] else False
         )
 
     def _get_db(self):
@@ -186,9 +190,7 @@ class MongoDB(BaseQueryRunner):
         if "password" in self.configuration:
             kwargs["password"] = self.configuration["password"]
 
-        db_connection = pymongo.MongoClient(
-            self.configuration["connectionString"], **kwargs
-        )
+        db_connection = pymongo.MongoClient(self.configuration["connectionString"], **kwargs)
 
         return db_connection[self.db_name]
 
@@ -257,18 +259,16 @@ class MongoDB(BaseQueryRunner):
 
         return list(schema.values())
 
-    def run_query(self, query, user):
+    def run_query(self, query, user):  # noqa: C901
         db = self._get_db()
 
-        logger.debug(
-            "mongodb connection string: %s", self.configuration["connectionString"]
-        )
+        logger.debug("mongodb connection string: %s", self.configuration["connectionString"])
         logger.debug("mongodb got query: %s", query)
 
         try:
             query_data = parse_query_json(query)
-        except ValueError:
-            return None, "Invalid query format. The query is not a valid JSON."
+        except ValueError as error:
+            return None, f"Invalid JSON format. {error.__str__()}"
 
         if "collection" not in query_data:
             return None, "'collection' must have a value to run a query"
@@ -332,9 +332,7 @@ class MongoDB(BaseQueryRunner):
                 cursor = r
 
         if "count" in query_data:
-            columns.append(
-                {"name": "count", "friendly_name": "count", "type": TYPE_INTEGER}
-            )
+            columns.append({"name": "count", "friendly_name": "count", "type": TYPE_INTEGER})
 
             rows.append({"count": cursor})
         else:

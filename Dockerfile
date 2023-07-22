@@ -1,4 +1,4 @@
-FROM node:14.17 as frontend-builder
+FROM node:16.20.1 as frontend-builder
 
 RUN npm install --global --force yarn@1.22.19
 
@@ -33,6 +33,8 @@ EXPOSE 5000
 ARG skip_ds_deps
 # Controls whether to install dev dependencies.
 ARG skip_dev_deps
+# Controls whether to install all dependencies for testing.
+ARG test_all_deps
 
 RUN useradd --create-home redash
 
@@ -86,18 +88,20 @@ WORKDIR /app
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
 
-# rollback pip version to avoid legacy resolver problem
-RUN pip install pip==20.2.4;
+RUN pip install pip==23.1.2;
 
 # We first copy only the requirements file, to avoid rebuilding on every file change.
 COPY requirements_all_ds.txt ./
-RUN if [ "x$skip_ds_deps" = "x" ] ; then pip install -r requirements_all_ds.txt ; else echo "Skipping pip install -r requirements_all_ds.txt" ; fi
+RUN if [ "x$skip_ds_deps" = "x" ] ; then cat requirements_all_ds.txt | sed -e '/^\s*#.*$/d' -e '/^\s*$/d' | xargs -n 1 pip install || true ; else echo "Skipping pip install -r requirements_all_ds.txt" ; fi
+
 
 COPY requirements_dev.txt ./
 RUN if [ "x$skip_dev_deps" = "x" ] ; then pip install -r requirements_dev.txt ; fi
 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
+
+RUN if [ "x$test_all_deps" != "x" ] ; then pip3 install -r requirements.txt -r requirements_dev.txt -r requirements_all_ds.txt ; fi
 
 COPY --chown=redash . /app
 COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist

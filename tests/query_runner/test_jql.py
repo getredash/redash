@@ -1,4 +1,5 @@
 from unittest import TestCase
+
 from redash.query_runner.jql import FieldMapping, parse_issue
 
 
@@ -7,9 +8,7 @@ class TestFieldMapping(TestCase):
         field_mapping = FieldMapping({})
 
         self.assertEqual(field_mapping.get_output_field_name("field1"), "field1")
-        self.assertEqual(
-            field_mapping.get_dict_output_field_name("field1", "member1"), None
-        )
+        self.assertEqual(field_mapping.get_dict_output_field_name("field1", "member1"), None)
         self.assertEqual(field_mapping.get_dict_members("field1"), [])
 
     def test_with_mappings(self):
@@ -22,9 +21,7 @@ class TestFieldMapping(TestCase):
         )
 
         self.assertEqual(field_mapping.get_output_field_name("field1"), "output_name_1")
-        self.assertEqual(
-            field_mapping.get_dict_output_field_name("field1", "member1"), None
-        )
+        self.assertEqual(field_mapping.get_dict_output_field_name("field1", "member1"), None)
         self.assertEqual(field_mapping.get_dict_members("field1"), [])
 
         self.assertEqual(field_mapping.get_output_field_name("field2"), "field2")
@@ -36,12 +33,8 @@ class TestFieldMapping(TestCase):
             field_mapping.get_dict_output_field_name("field2", "member2"),
             "output_name_3",
         )
-        self.assertEqual(
-            field_mapping.get_dict_output_field_name("field2", "member3"), None
-        )
-        self.assertEqual(
-            field_mapping.get_dict_members("field2"), ["member1", "member2"]
-        )
+        self.assertEqual(field_mapping.get_dict_output_field_name("field2", "member3"), None)
+        self.assertEqual(field_mapping.get_dict_members("field2"), ["member1", "member2"])
 
 
 class TestParseIssue(TestCase):

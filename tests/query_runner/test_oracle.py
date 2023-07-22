@@ -2,8 +2,8 @@ import unittest
 
 from redash.query_runner.oracle import Oracle
 
+
 class TestOracle(unittest.TestCase):
-    
     def setUp(self):
         self.query_runner = Oracle({})
 
@@ -26,5 +26,5 @@ class TestOracle(unittest.TestCase):
         self.assertEqual(origin_query_text, query_text)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

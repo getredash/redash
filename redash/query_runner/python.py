@@ -3,15 +3,31 @@ import importlib
 import logging
 import sys
 
-from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
-from redash import models
 from RestrictedPython import compile_restricted
-from RestrictedPython.Guards import safe_builtins, guarded_iter_unpack_sequence, guarded_unpack_sequence
+from RestrictedPython.Guards import (
+    guarded_iter_unpack_sequence,
+    guarded_unpack_sequence,
+    safe_builtins,
+)
+
+from redash import models
+from redash.query_runner import (
+    SUPPORTED_COLUMN_TYPES,
+    TYPE_BOOLEAN,
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseQueryRunner,
+    register,
+)
+from redash.utils import json_dumps, json_loads
 
 try:
-    import pandas as pd
     import numpy as np
+    import pandas as pd
+
     pandas_installed = True
 except ImportError:
     pandas_installed = False
@@ -31,9 +47,7 @@ class CustomPrint(object):
     def write(self, text):
         if self.enabled:
             if text and text.strip():
-                log_line = "[{0}] {1}".format(
-                    datetime.datetime.utcnow().isoformat(), text
-                )
+                log_line = "[{0}] {1}".format(datetime.datetime.utcnow().isoformat(), text)
                 self.lines.append(log_line)
 
     def enable(self):
@@ -120,7 +134,7 @@ class Python(BaseQueryRunner):
         if self.configuration.get("additionalBuiltins", None):
             for b in self.configuration["additionalBuiltins"].split(","):
                 if b not in self.safe_builtins:
-                    self.safe_builtins += (b, )
+                    self.safe_builtins += (b,)
 
     def custom_import(self, name, globals=None, locals=None, fromlist=(), level=0):
         if name in self._allowed_modules:
@@ -133,9 +147,7 @@ class Python(BaseQueryRunner):
 
             return m
 
-        raise Exception(
-            "'{0}' is not configured as a supported import module".format(name)
-        )
+        raise Exception("'{0}' is not configured as a supported import module".format(name))
 
     @staticmethod
     def custom_write(obj):
@@ -177,9 +189,7 @@ class Python(BaseQueryRunner):
         if "columns" not in result:
             result["columns"] = []
 
-        result["columns"].append(
-            {"name": column_name, "friendly_name": friendly_name, "type": column_type}
-        )
+        result["columns"].append({"name": column_name, "friendly_name": friendly_name, "type": column_type})
 
     @staticmethod
     def add_result_row(result, values):
@@ -223,7 +233,6 @@ class Python(BaseQueryRunner):
 
         return query_result
 
-
     @staticmethod
     def get_source_schema(data_source_name_or_id):
         """Get schema from specific data source.
@@ -262,7 +271,6 @@ class Python(BaseQueryRunner):
         return query.latest_query_data.data
 
     def dataframe_to_result(self, result, df):
-
         result["rows"] = df.to_dict("records")
 
         for column_name, column_type in df.dtypes.items():
@@ -272,7 +280,7 @@ class Python(BaseQueryRunner):
                 redash_type = TYPE_FLOAT
             elif column_type == np.integer:
                 redash_type = TYPE_INTEGER
-            elif column_type in (np.datetime64, np.dtype('<M8[ns]')):
+            elif column_type in (np.datetime64, np.dtype("<M8[ns]")):
                 if df.empty:
                     redash_type = TYPE_DATETIME
                 elif len(df[column_name].head(1).astype(str).loc[0]) > 10:
@@ -351,5 +359,6 @@ class Python(BaseQueryRunner):
             json_data = None
 
         return json_data, error
+
 
 register(Python)
