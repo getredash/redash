@@ -1,6 +1,21 @@
 import moment from "moment";
 import { axios } from "@/services/axios";
-import { each, pick, extend, isObject, truncate, keys, difference, filter, map, merge } from "lodash";
+import {
+  each,
+  pick,
+  extend,
+  isObject,
+  truncate,
+  keys,
+  difference,
+  filter,
+  map,
+  merge,
+  sortBy,
+  indexOf,
+  size,
+  includes,
+} from "lodash";
 import location from "@/services/location";
 import { cloneParameter } from "@/services/parameters";
 import dashboardGridOptions from "@/config/dashboard-grid-options";
@@ -143,18 +158,24 @@ class Widget {
       if (maxAge === undefined || force) {
         maxAge = force ? 0 : undefined;
       }
-      this.queryResult = this.getQuery().getQueryResult(maxAge);
 
-      this.queryResult
+      const queryResult = this.getQuery().getQueryResult(maxAge);
+      this.queryResult = queryResult;
+
+      queryResult
         .toPromise()
         .then(result => {
-          this.loading = false;
-          this.data = result;
+          if (this.queryResult === queryResult) {
+            this.loading = false;
+            this.data = result;
+          }
           return result;
         })
         .catch(error => {
-          this.loading = false;
-          this.data = error;
+          if (this.queryResult === queryResult) {
+            this.loading = false;
+            this.data = error;
+          }
           return error;
         });
     }
@@ -201,7 +222,7 @@ class Widget {
     const queryParams = location.search;
 
     const localTypes = [Widget.MappingType.WidgetLevel, Widget.MappingType.StaticValue];
-    return map(
+    const localParameters = map(
       filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0),
       param => {
         const mapping = mappings[param.name];
@@ -216,6 +237,13 @@ class Widget {
         }
         return result;
       }
+    );
+
+    // order widget params using paramOrder
+    return sortBy(localParameters, param =>
+      includes(this.options.paramOrder, param.name)
+        ? indexOf(this.options.paramOrder, param.name)
+        : size(this.options.paramOrder)
     );
   }
 

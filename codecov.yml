@@ -1,0 +1,6 @@
+comment:
+  layout: " diff, flags, files"
+  behavior: default
+  require_changes: false
+  require_base: true
+  require_head: true

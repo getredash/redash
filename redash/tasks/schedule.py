@@ -1,29 +1,35 @@
-from __future__ import absolute_import
-import logging
 import hashlib
 import json
+import logging
 from datetime import datetime, timedelta
 
 from rq.job import Job
 from rq_scheduler import Scheduler
 
-from redash import extensions, settings, rq_redis_connection
-from redash.tasks import (
-    sync_user_details,
-    refresh_queries,
-    empty_schedules,
-    refresh_schemas,
+from redash import rq_redis_connection, settings
+from redash.tasks.failure_report import send_aggregated_errors
+from redash.tasks.general import sync_user_details, version_check
+from redash.tasks.queries import (
     cleanup_query_results,
-    purge_failed_jobs,
-    version_check,
-    send_aggregated_errors,
+    empty_schedules,
+    refresh_queries,
+    refresh_schemas,
+    remove_ghost_locks,
 )
+from redash.tasks.worker import Queue
 
 logger = logging.getLogger(__name__)
 
-rq_scheduler = Scheduler(
-    connection=rq_redis_connection, queue_name="periodic", interval=5
-)
+
+class StatsdRecordingScheduler(Scheduler):
+    """
+    RQ Scheduler Mixin that uses Redash's custom RQ Queue class to increment/modify metrics via Statsd
+    """
+
+    queue_class = Queue
+
+
+rq_scheduler = StatsdRecordingScheduler(connection=rq_redis_connection, queue_name="periodic", interval=5)
 
 
 def job_id(kwargs):
@@ -50,7 +56,12 @@ def schedule(kwargs):
 
 def periodic_job_definitions():
     jobs = [
-        {"func": refresh_queries, "interval": 30, "result_ttl": 600},
+        {"func": refresh_queries, "timeout": 600, "interval": 30, "result_ttl": 600},
+        {
+            "func": remove_ghost_locks,
+            "interval": timedelta(minutes=1),
+            "result_ttl": 600,
+        },
         {"func": empty_schedules, "interval": timedelta(minutes=60)},
         {
             "func": refresh_schemas,
@@ -60,8 +71,8 @@ def periodic_job_definitions():
             "func": sync_user_details,
             "timeout": 60,
             "interval": timedelta(minutes=1),
+            "result_ttl": 600,
         },
-        {"func": purge_failed_jobs, "interval": timedelta(days=1)},
         {
             "func": send_aggregated_errors,
             "interval": timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL),
@@ -77,10 +88,6 @@ def periodic_job_definitions():
     # Add your own custom periodic jobs in your dynamic_settings module.
     jobs.extend(settings.dynamic_settings.periodic_jobs() or [])
 
-    # Add periodic jobs that are shipped as part of Redash extensions
-    extensions.load_periodic_jobs(logger)
-    jobs.extend(list(extensions.periodic_jobs.values()))
-
     return jobs
 
 
@@ -88,14 +95,11 @@ def schedule_periodic_jobs(jobs):
     job_definitions = [prep(job) for job in jobs]
 
     jobs_to_clean_up = Job.fetch_many(
-        set([job.id for job in rq_scheduler.get_jobs()])
-        - set([job_id(job) for job in job_definitions]),
+        set([job.id for job in rq_scheduler.get_jobs()]) - set([job_id(job) for job in job_definitions]),
         rq_redis_connection,
     )
 
-    jobs_to_schedule = [
-        job for job in job_definitions if job_id(job) not in rq_scheduler
-    ]
+    jobs_to_schedule = [job for job in job_definitions if job_id(job) not in rq_scheduler]
 
     for job in jobs_to_clean_up:
         logger.info("Removing %s (%s) from schedule.", job.id, job.func_name)

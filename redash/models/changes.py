@@ -1,16 +1,17 @@
 from sqlalchemy.inspection import inspect
 from sqlalchemy_utils.models import generic_repr
 
-from .base import GFKBase, db, Column
+from .base import Column, GFKBase, db, key_type, primary_key
 from .types import PseudoJSON
 
 
 @generic_repr("id", "object_type", "object_id", "created_at")
 class Change(GFKBase, db.Model):
-    id = Column(db.Integer, primary_key=True)
+    id = primary_key("Change")
     # 'object' defined in GFKBase
+    object_id = Column(key_type("Change"))
     object_version = Column(db.Integer, default=0)
-    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship("User", backref="changes")
     change = Column(PseudoJSON)
     created_at = Column(db.DateTime(True), default=db.func.now())
@@ -38,9 +39,7 @@ class Change(GFKBase, db.Model):
     @classmethod
     def last_change(cls, obj):
         return (
-            cls.query.filter(
-                cls.object_id == obj.id, cls.object_type == obj.__class__.__tablename__
-            )
+            cls.query.filter(cls.object_id == obj.id, cls.object_type == obj.__class__.__tablename__)
             .order_by(cls.object_version.desc())
             .first()
         )
@@ -57,7 +56,7 @@ class ChangeTrackingMixin(object):
     def prep_cleanvalues(self):
         self.__dict__["_clean_values"] = {}
         for attr in inspect(self.__class__).column_attrs:
-            col, = attr.columns
+            (col,) = attr.columns
             # 'query' is col name but not attr name
             self._clean_values[col.name] = None
 
@@ -65,7 +64,7 @@ class ChangeTrackingMixin(object):
         if self._clean_values is None:
             self.prep_cleanvalues()
         for attr in inspect(self.__class__).column_attrs:
-            col, = attr.columns
+            (col,) = attr.columns
             previous = getattr(self, attr.key, None)
             self._clean_values[col.name] = previous
 
@@ -76,7 +75,7 @@ class ChangeTrackingMixin(object):
         db.session.flush()
         changes = {}
         for attr in inspect(self.__class__).column_attrs:
-            col, = attr.columns
+            (col,) = attr.columns
             if attr.key not in self.skipped_fields:
                 changes[col.name] = {
                     "previous": self._clean_values[col.name],

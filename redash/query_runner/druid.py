@@ -5,8 +5,13 @@ try:
 except ImportError:
     enabled = False
 
-from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING, TYPE_INTEGER, TYPE_BOOLEAN
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseQueryRunner,
+    register,
+)
 from redash.utils import json_dumps, json_loads
 
 TYPES_MAP = {1: TYPE_STRING, 2: TYPE_INTEGER, 3: TYPE_BOOLEAN}
@@ -49,12 +54,8 @@ class Druid(BaseQueryRunner):
 
         try:
             cursor.execute(query)
-            columns = self.fetch_columns(
-                [(i[0], TYPES_MAP.get(i[1], None)) for i in cursor.description]
-            )
-            rows = [
-                dict(zip((column["name"] for column in columns), row)) for row in cursor
-            ]
+            columns = self.fetch_columns([(i[0], TYPES_MAP.get(i[1], None)) for i in cursor.description])
+            rows = [dict(zip((column["name"] for column in columns), row)) for row in cursor]
 
             data = {"columns": columns, "rows": rows}
             error = None
@@ -77,7 +78,7 @@ class Druid(BaseQueryRunner):
         results, error = self.run_query(query, None)
 
         if error is not None:
-            raise Exception("Failed getting schema.")
+            self._handle_run_query_error(error)
 
         schema = {}
         results = json_loads(results)

@@ -5,6 +5,8 @@ venv/
 .coveralls.yml
 .idea
 *.pyc
+.nyc_output
+coverage
 .coverage
 coverage.xml
 client/dist

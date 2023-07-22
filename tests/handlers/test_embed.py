@@ -1,5 +1,5 @@
-from tests import BaseTestCase
 from redash.models import db
+from tests import BaseTestCase
 
 
 class TestUnembedables(BaseTestCase):
@@ -47,15 +47,11 @@ class TestPublicDashboard(BaseTestCase):
         dashboard = self.factory.create_dashboard()
         api_key = self.factory.create_api_key(object=dashboard)
 
-        res = self.make_request(
-            "get", "/public/dashboards/{}".format(api_key.api_key), is_json=False
-        )
+        res = self.make_request("get", "/public/dashboards/{}".format(api_key.api_key), is_json=False)
         self.assertEqual(res.status_code, 200)
 
     def test_bad_token(self):
-        res = self.make_request(
-            "get", "/public/dashboards/bad-token", user=False, is_json=False
-        )
+        res = self.make_request("get", "/public/dashboards/bad-token", user=False, is_json=False)
         self.assertEqual(res.status_code, 302)
 
     def test_inactive_token(self):
@@ -94,15 +90,11 @@ class TestAPIPublicDashboard(BaseTestCase):
         dashboard = self.factory.create_dashboard()
         api_key = self.factory.create_api_key(object=dashboard)
 
-        res = self.make_request(
-            "get", "/api/dashboards/public/{}".format(api_key.api_key), is_json=False
-        )
+        res = self.make_request("get", "/api/dashboards/public/{}".format(api_key.api_key), is_json=False)
         self.assertEqual(res.status_code, 200)
 
     def test_bad_token(self):
-        res = self.make_request(
-            "get", "/api/dashboards/public/bad-token", user=False, is_json=False
-        )
+        res = self.make_request("get", "/api/dashboards/public/bad-token", user=False, is_json=False)
         self.assertEqual(res.status_code, 404)
 
     def test_inactive_token(self):

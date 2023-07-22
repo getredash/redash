@@ -1,0 +1,81 @@
+@mobileBreakpoint: ~"(max-width: 767px)";
+
+body #application-root {
+  @topMenuHeight: 49px;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+  padding-bottom: 0 !important;
+  height: 100vh;
+
+  .application-layout-side-menu {
+    height: 100vh;
+    position: relative;
+
+    @media @mobileBreakpoint {
+      display: none;
+    }
+  }
+
+  .application-layout-top-menu {
+    height: @topMenuHeight;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 1000;
+
+    @media @mobileBreakpoint {
+      display: block;
+    }
+  }
+
+  .application-layout-content {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+
+    flex: 1 1 auto;
+    padding-bottom: 15px;
+
+    @media @mobileBreakpoint {
+      margin-top: @topMenuHeight; // compensate for app header fixed position
+    }
+  }
+}
+
+body.fixed-layout #application-root {
+  .application-layout-content {
+    padding-bottom: 0;
+  }
+}
+
+body.headless #application-root {
+  .application-layout-side-menu,
+  .application-layout-top-menu {
+    display: none !important;
+  }
+
+  .application-layout-content {
+    margin-top: 0;
+  }
+}
+
+// Fixes for proper snapshots in Percy (move vertical scroll to body level
+// to capture entire page, otherwise it wll be cut by viewport)
+@media only percy {
+  body #application-root {
+    height: auto;
+
+    .application-layout-side-menu {
+      height: auto;
+    }
+
+    .application-layout-content {
+      overflow: visible;
+    }
+  }
+}

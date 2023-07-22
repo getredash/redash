@@ -15,11 +15,14 @@ import { StateStorage } from "@/components/items-list/classes/StateStorage";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import PlainButton from "@/components/PlainButton";
 
 import QuerySnippet from "@/services/query-snippet";
 import { currentUser } from "@/services/auth";
 import { policy } from "@/services/policy";
 import notification from "@/services/notification";
+import routes from "@/services/routes";
+
 import "./QuerySnippetsList.less";
 
 const canEditQuerySnippet = querySnippet => currentUser.isAdmin || currentUser.id === get(querySnippet, "user.id");
@@ -32,11 +35,9 @@ class QuerySnippetsList extends React.Component {
   listColumns = [
     Columns.custom.sortable(
       (text, querySnippet) => (
-        <div>
-          <a className="table-main-title clickable" onClick={() => this.showSnippetDialog(querySnippet)}>
-            {querySnippet.trigger}
-          </a>
-        </div>
+        <PlainButton type="link" className="table-main-title" onClick={() => this.showSnippetDialog(querySnippet)}>
+          {querySnippet.trigger}
+        </PlainButton>
       ),
       {
         title: "Trigger",
@@ -145,7 +146,7 @@ class QuerySnippetsList extends React.Component {
             type="primary"
             onClick={() => this.showSnippetDialog()}
             disabled={!policy.isCreateQuerySnippetEnabled()}>
-            <i className="fa fa-plus m-r-5" />
+            <i className="fa fa-plus m-r-5" aria-hidden="true" />
             New Query Snippet
           </Button>
         </div>
@@ -156,16 +157,16 @@ class QuerySnippetsList extends React.Component {
             There are no query snippets yet.
             {policy.isCreateQuerySnippetEnabled() && (
               <div className="m-t-5">
-                <a className="clickable" onClick={() => this.showSnippetDialog()}>
+                <PlainButton type="link" onClick={() => this.showSnippetDialog()}>
                   Click here
-                </a>{" "}
+                </PlainButton>{" "}
                 to add one.
               </div>
             )}
           </div>
         )}
         {controller.isLoaded && !controller.isEmpty && (
-          <div className="table-responsive">
+          <div className="table-responsive query-snippets-table">
             <ItemsTable
               items={controller.pageItems}
               columns={this.listColumns}
@@ -175,8 +176,10 @@ class QuerySnippetsList extends React.Component {
               toggleSorting={controller.toggleSorting}
             />
             <Paginator
+              showPageSizeSelect
               totalCount={controller.totalItemsCount}
-              itemsPerPage={controller.itemsPerPage}
+              pageSize={controller.itemsPerPage}
+              onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
               page={controller.page}
               onChange={page => controller.updatePagination({ page })}
             />
@@ -188,6 +191,7 @@ class QuerySnippetsList extends React.Component {
 }
 
 const QuerySnippetsListPage = wrapSettingsTab(
+  "QuerySnippets.List",
   {
     permission: "create_query",
     title: "Query Snippets",
@@ -210,15 +214,19 @@ const QuerySnippetsListPage = wrapSettingsTab(
   )
 );
 
-export default [
+routes.register(
+  "QuerySnippets.List",
   routeWithUserSession({
     path: "/query_snippets",
     title: "Query Snippets",
     render: pageProps => <QuerySnippetsListPage {...pageProps} currentPage="query_snippets" />,
-  }),
+  })
+);
+routes.register(
+  "QuerySnippets.NewOrEdit",
   routeWithUserSession({
-    path: "/query_snippets/:querySnippetId(new|[0-9]+)",
+    path: "/query_snippets/:querySnippetId",
     title: "Query Snippets",
     render: pageProps => <QuerySnippetsListPage {...pageProps} currentPage="query_snippets" isNewOrEditPage />,
-  }),
-];
+  })
+);

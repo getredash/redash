@@ -4,8 +4,9 @@ import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
-import Icon from "antd/lib/icon";
+import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import useMedia from "use-media";
+import Link from "@/components/Link";
 import EditInPlace from "@/components/EditInPlace";
 import FavoritesControl from "@/components/FavoritesControl";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
@@ -89,8 +90,8 @@ export default function QueryPageHeader({
             isEnabled: !queryFlags.isNew && queryFlags.canFork && !isDuplicating,
             title: (
               <React.Fragment>
-                Fork
-                <i className="fa fa-external-link m-l-5" />
+                Fork <i className="fa fa-external-link m-l-5" aria-hidden="true" />
+                <span className="sr-only">(opens in a new tab)</span>
               </React.Fragment>
             ),
             onClick: duplicateQuery,
@@ -115,14 +116,14 @@ export default function QueryPageHeader({
             onClick: publishQuery,
           },
           unpublish: {
-            isAvailable: !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isDraft,
+            isAvailable: !clientConfig.disablePublish && !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isDraft,
             title: "Unpublish",
             onClick: unpublishQuery,
           },
         },
         {
           showAPIKey: {
-            isAvailable: !queryFlags.isNew,
+            isAvailable: !clientConfig.disablePublicUrls && !queryFlags.isNew,
             title: "Show API Key",
             onClick: openApiKeyDialog,
           },
@@ -172,34 +173,34 @@ export default function QueryPageHeader({
         {headerExtra}
         {isDesktop && queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit && (
           <Button className="m-r-5" onClick={publishQuery}>
-            <i className="fa fa-paper-plane m-r-5" /> Publish
+            <i className="fa fa-paper-plane m-r-5" aria-hidden="true" /> Publish
           </Button>
         )}
 
         {!queryFlags.isNew && queryFlags.canViewSource && (
           <span>
             {!sourceMode && (
-              <Button className="m-r-5" href={query.getUrl(true, selectedVisualization)}>
+              <Link.Button className="m-r-5" href={query.getUrl(true, selectedVisualization)}>
                 <i className="fa fa-pencil-square-o" aria-hidden="true" />
                 <span className="m-l-5">Edit Source</span>
-              </Button>
+              </Link.Button>
             )}
             {sourceMode && (
-              <Button
+              <Link.Button
                 className="m-r-5"
                 href={query.getUrl(false, selectedVisualization)}
-                data-test="QueryPageShowDataOnly">
+                data-test="QueryPageShowResultOnly">
                 <i className="fa fa-table" aria-hidden="true" />
-                <span className="m-l-5">Show Data Only</span>
-              </Button>
+                <span className="m-l-5">Show Results Only</span>
+              </Link.Button>
             )}
           </span>
         )}
 
         {!queryFlags.isNew && (
           <Dropdown overlay={moreActionsMenu} trigger={["click"]}>
-            <Button>
-              <Icon type="ellipsis" rotate={90} />
+            <Button data-test="QueryPageHeaderMoreButton" aria-label="More actions">
+              <EllipsisOutlinedIcon rotate={90} aria-hidden="true" />
             </Button>
           </Dropdown>
         )}
@@ -210,7 +211,7 @@ export default function QueryPageHeader({
 
 QueryPageHeader.propTypes = {
   query: PropTypes.shape({
-    id: PropTypes.number,
+    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     name: PropTypes.string,
     tags: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,

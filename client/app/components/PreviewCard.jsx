@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
+import Link from "@/components/Link";
 
 // PreviewCard
 
@@ -42,7 +43,7 @@ PreviewCard.defaultProps = {
 // UserPreviewCard
 
 export function UserPreviewCard({ user, withLink, children, ...props }) {
-  const title = withLink ? <a href={"users/" + user.id}>{user.name}</a> : user.name;
+  const title = withLink ? <Link href={"users/" + user.id}>{user.name}</Link> : user.name;
   return (
     <PreviewCard {...props} imageUrl={user.profile_image_url} title={title} body={user.email}>
       {children}
@@ -68,8 +69,8 @@ UserPreviewCard.defaultProps = {
 // DataSourcePreviewCard
 
 export function DataSourcePreviewCard({ dataSource, withLink, children, ...props }) {
-  const imageUrl = `/static/images/db-logos/${dataSource.type}.png`;
-  const title = withLink ? <a href={"data_sources/" + dataSource.id}>{dataSource.name}</a> : dataSource.name;
+  const imageUrl = `static/images/db-logos/${dataSource.type}.png`;
+  const title = withLink ? <Link href={"data_sources/" + dataSource.id}>{dataSource.name}</Link> : dataSource.name;
   return (
     <PreviewCard {...props} imageUrl={imageUrl} title={title}>
       {children}

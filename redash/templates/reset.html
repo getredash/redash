@@ -13,6 +13,7 @@
       {% endif %}
     {% endwith %}
     <form role="form" method="post" name="invite">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <div class="form-group">
         <label for="password">Enter your new password:</label>
         <input type="password" class="form-control" id="password" name="password" placeholder="Password">

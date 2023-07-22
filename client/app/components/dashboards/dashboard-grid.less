@@ -48,10 +48,10 @@
       top: 0;
       left: 0;
       bottom: 85px;
-      right: 15px;
+      right: 0;
       background: linear-gradient(to bottom, transparent, transparent 2px, #f6f8f9 2px, #f6f8f9 5px),
         linear-gradient(to left, #b3babf, #b3babf 1px, transparent 1px, transparent);
-      background-size: calc((100vw - 15px) / 6) 5px;
+      background-size: calc((100% + 15px) / 6) 5px;
       background-position: -7px 1px;
     }
   }
@@ -93,6 +93,7 @@
 
     > .filters-wrapper {
       flex-grow: 0;
+      flex-shrink: 0;
     }
   }
 
@@ -112,15 +113,36 @@
     overflow: hidden;
   }
 
-  .counter-visualization-content {
-    position: absolute;
-    left: 10px;
-    top: 15px;
-    right: 10px;
-    bottom: 15px;
-    height: auto;
-    overflow: hidden;
-    padding: 0;
+  .counter-visualization-container {
+    height: 100%;
+
+    .counter-visualization-content {
+      position: absolute;
+      left: 10px;
+      top: 15px;
+      right: 10px;
+      bottom: 15px;
+      height: auto;
+      overflow: hidden;
+      padding: 0;
+    }
+  }
+}
+
+.query-fixed-layout {
+  .visualization-renderer > .visualization-renderer-wrapper {
+    .counter-visualization-container {
+      // counter is too large on Query pages, so let's add some constraints
+      max-width: 600px;
+      max-height: 400px;
+      // center it
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      margin: auto;
+    }
   }
 }
 

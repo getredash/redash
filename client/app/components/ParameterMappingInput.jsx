@@ -8,20 +8,22 @@ import Select from "antd/lib/select";
 import Table from "antd/lib/table";
 import Popover from "antd/lib/popover";
 import Button from "antd/lib/button";
-import Icon from "antd/lib/icon";
 import Tag from "antd/lib/tag";
 import Input from "antd/lib/input";
 import Radio from "antd/lib/radio";
 import Form from "antd/lib/form";
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 import ParameterValueInput from "@/components/ParameterValueInput";
 import { ParameterMappingType } from "@/services/widget";
 import { Parameter, cloneParameter } from "@/services/parameters";
 import HelpTrigger from "@/components/HelpTrigger";
 
-import "./ParameterMappingInput.less";
+import QuestionCircleFilledIcon from "@ant-design/icons/QuestionCircleFilled";
+import EditOutlinedIcon from "@ant-design/icons/EditOutlined";
+import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
+import CheckOutlinedIcon from "@ant-design/icons/CheckOutlined";
 
-const { Option } = Select;
+import "./ParameterMappingInput.less";
 
 export const MappingType = {
   DashboardAddNew: "dashboard-add-new",
@@ -181,7 +183,7 @@ export class ParameterMappingInput extends React.Component {
           Existing dashboard parameter{" "}
           {noExisting ? (
             <Tooltip title="There are no dashboard parameters corresponding to this data type">
-              <Icon type="question-circle" theme="filled" />
+              <QuestionCircleFilledIcon />
             </Tooltip>
           ) : null}
         </Radio>
@@ -199,24 +201,20 @@ export class ParameterMappingInput extends React.Component {
     const {
       mapping: { mapTo },
     } = this.props;
-    return <Input value={mapTo} onChange={e => this.updateParamMapping({ mapTo: e.target.value })} />;
+    return (
+      <Input
+        value={mapTo}
+        aria-label="Parameter name (key)"
+        onChange={e => this.updateParamMapping({ mapTo: e.target.value })}
+      />
+    );
   }
 
   renderDashboardMapToExisting() {
     const { mapping, existingParamNames } = this.props;
+    const options = map(existingParamNames, paramName => ({ label: paramName, value: paramName }));
 
-    return (
-      <Select
-        value={mapping.mapTo}
-        onChange={mapTo => this.updateParamMapping({ mapTo })}
-        dropdownMatchSelectWidth={false}>
-        {map(existingParamNames, name => (
-          <Option value={name} key={name}>
-            {name}
-          </Option>
-        ))}
-      </Select>
-    );
+    return <Select value={mapping.mapTo} onChange={mapTo => this.updateParamMapping({ mapTo })} options={options} />;
   }
 
   renderStaticValue() {
@@ -354,8 +352,8 @@ class MappingEditor extends React.Component {
         content={this.renderContent()}
         visible={visible}
         onVisibleChange={this.onVisibleChange}>
-        <Button size="small" type="dashed" data-test={`EditParamMappingButon-${mapping.param.name}`}>
-          <Icon type="edit" />
+        <Button size="small" type="dashed" data-test={`EditParamMappingButton-${mapping.param.name}`}>
+          <EditOutlinedIcon />
         </Button>
       </Popover>
     );
@@ -428,16 +426,17 @@ class TitleEditor extends React.Component {
           size="small"
           value={this.state.title}
           placeholder={paramTitle}
+          aria-label="Edit parameter title"
           onChange={this.onEditingTitleChange}
           onPressEnter={this.save}
           maxLength={100}
           autoFocus
         />
         <Button size="small" type="dashed" onClick={this.hide}>
-          <Icon type="close" />
+          <CloseOutlinedIcon />
         </Button>
         <Button size="small" type="dashed" onClick={this.save}>
-          <Icon type="check" />
+          <CheckOutlinedIcon />
         </Button>
       </div>
     );
@@ -448,7 +447,10 @@ class TitleEditor extends React.Component {
     if (mapping.type === MappingType.StaticValue) {
       return (
         <Tooltip placement="right" title="Titles for static values don't appear in widgets">
-          <i className="fa fa-eye-slash" />
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
+          <span tabIndex={0}>
+            <i className="fa fa-eye-slash" aria-hidden="true" />
+          </span>
         </Tooltip>
       );
     }
@@ -460,7 +462,7 @@ class TitleEditor extends React.Component {
         visible={this.state.showPopup}
         onVisibleChange={this.onPopupVisibleChange}>
         <Button size="small" type="dashed">
-          <Icon type="edit" />
+          <EditOutlinedIcon />
         </Button>
       </Popover>
     );

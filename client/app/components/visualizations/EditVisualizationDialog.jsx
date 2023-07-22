@@ -9,7 +9,8 @@ import Filters, { filterData } from "@/components/Filters";
 import notification from "@/services/notification";
 import Visualization from "@/services/visualization";
 import recordEvent from "@/services/recordEvent";
-import getQueryResultData from "@/lib/getQueryResultData";
+import useQueryResultData from "@/lib/useQueryResultData";
+import { useUniqueId } from "@/lib/hooks/useUniqueId";
 import {
   registeredVisualizations,
   getDefaultVisualization,
@@ -71,7 +72,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
 
   const isNew = !visualization;
 
-  const data = getQueryResultData(queryResult);
+  const data = useQueryResultData(queryResult);
   const [filters, setFilters] = useState(data.filters);
 
   const filteredData = useMemo(
@@ -156,6 +157,9 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
     ? filter(sortBy(registeredVisualizations, ["name"]), vis => !vis.isDeprecated)
     : pick(registeredVisualizations, [type]);
 
+  const vizTypeId = useUniqueId("visualization-type");
+  const vizNameId = useUniqueId("visualization-name");
+
   return (
     <Modal
       {...dialog.props}
@@ -172,10 +176,10 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
       <div className="edit-visualization-dialog">
         <div className="visualization-settings">
           <div className="m-b-15">
-            <label htmlFor="visualization-type">Visualization Type</label>
+            <label htmlFor={vizTypeId}>Visualization Type</label>
             <Select
               data-test="VisualizationType"
-              id="visualization-type"
+              id={vizTypeId}
               className="w-100"
               disabled={!isNew}
               value={type}
@@ -188,10 +192,10 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
             </Select>
           </div>
           <div className="m-b-15">
-            <label htmlFor="visualization-name">Visualization Name</label>
+            <label htmlFor={vizNameId}>Visualization Name</label>
             <Input
               data-test="VisualizationName"
-              id="visualization-name"
+              id={vizNameId}
               className="w-100"
               value={name}
               onChange={event => onNameChanged(event.target.value)}

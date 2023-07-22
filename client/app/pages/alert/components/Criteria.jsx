@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { head, includes, toString, isEmpty } from "lodash";
 
 import Input from "antd/lib/input";
-import Icon from "antd/lib/icon";
+import WarningFilledIcon from "@ant-design/icons/WarningFilled";
 import Select from "antd/lib/select";
 import Divider from "antd/lib/divider";
 
@@ -63,7 +63,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
   return (
     <div data-test="Criteria">
       <div className="input-title">
-        <span>Value column</span>
+        <span className="input-label">Value column</span>
         {editMode ? (
           <Select
             value={alertOptions.column}
@@ -79,7 +79,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         )}
       </div>
       <div className="input-title">
-        <span>Condition</span>
+        <span className="input-label">Condition</span>
         {editMode ? (
           <Select
             value={alertOptions.op}
@@ -117,19 +117,26 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         )}
       </div>
       <div className="input-title">
-        <span>Threshold</span>
+        <label className="input-label" htmlFor="threshold-criterion">
+          Threshold
+        </label>
         {editMode ? (
-          <Input style={{ width: 90 }} value={alertOptions.value} onChange={e => onChange({ value: e.target.value })} />
+          <Input
+            id="threshold-criterion"
+            style={{ width: 90 }}
+            value={alertOptions.value}
+            onChange={e => onChange({ value: e.target.value })}
+          />
         ) : (
           <DisabledInput minWidth={50}>{alertOptions.value}</DisabledInput>
         )}
       </div>
-      <div className="ant-form-explain">
+      <div className="ant-form-item-explain">
         {columnHint}
         <br />
         {invalidMessage && (
           <small>
-            <Icon type="warning" theme="filled" className="warning-icon-danger" /> {invalidMessage}
+            <WarningFilledIcon className="warning-icon-danger" /> {invalidMessage}
           </small>
         )}
       </div>
