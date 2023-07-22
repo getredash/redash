@@ -46,7 +46,7 @@ def create(name, slug="default"):
     print("Creating organization (%s)..." % (name))
 
     try:
-        models.db.session.add(models.Organization(name=name, slug="default", settings={}))
+        models.db.session.add(models.Organization(name=name, slug=slug, settings={}))
         models.db.session.commit()
     except Exception as e:
         print("Failed create organization: %s" % e)
