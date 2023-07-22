@@ -6,7 +6,7 @@ from tests import BaseTestCase
 
 class TestRunQuery(BaseTestCase):
     def test_run_query_with_no_data_source(self):
-        response, status = run_query(None, None, None, None)
+        response, status = run_query(None, None, None, None, None)
         self.assertDictEqual(response, error_messages["no_data_source"][0])
         self.assertEqual(status, error_messages["no_data_source"][1])
 
