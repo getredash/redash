@@ -353,6 +353,16 @@ class OrganizationCommandTests(BaseTestCase):
         """
         self.assertMultiLineEqual(result.output, textwrap.dedent(output).lstrip())
 
+    def test_create(self):
+        runner = CliRunner()
+        result = runner.invoke(manager, ["org", "create", "test", "--slug", "test"])
+        self.assertFalse(result.exception)
+        self.assertEqual(result.exit_code, 0)
+
+        ucount = Organization.query.count()
+
+        self.assertEqual(ucount, 2)
+
     def test_list(self):
         self.factory.create_org(name="test", slug="test_org")
         self.factory.create_org(name="Borg", slug="B_org")
