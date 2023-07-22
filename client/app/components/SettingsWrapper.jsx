@@ -1,13 +1,12 @@
 import React from "react";
 import Menu from "antd/lib/menu";
 import PageHeader from "@/components/PageHeader";
+import Link from "@/components/Link";
 import location from "@/services/location";
 import settingsMenu from "@/services/settingsMenu";
 
-function wrapSettingsTab(options, WrappedComponent) {
-  if (options) {
-    settingsMenu.add(options);
-  }
+function wrapSettingsTab(id, options, WrappedComponent) {
+  settingsMenu.add(id, options);
 
   return function SettingsTab(props) {
     const activeItem = settingsMenu.getActiveItem(location.path);
@@ -17,15 +16,13 @@ function wrapSettingsTab(options, WrappedComponent) {
           <PageHeader title="Settings" />
           <div className="bg-white tiled">
             <Menu selectedKeys={[activeItem && activeItem.title]} selectable={false} mode="horizontal">
-              {settingsMenu.items
-                .filter(item => item.isAvailable())
-                .map(item => (
-                  <Menu.Item key={item.title}>
-                    <a href={item.path} data-test="SettingsScreenItem">
-                      {item.title}
-                    </a>
-                  </Menu.Item>
-                ))}
+              {settingsMenu.getAvailableItems().map(item => (
+                <Menu.Item key={item.title}>
+                  <Link href={item.path} data-test="SettingsScreenItem">
+                    {item.title}
+                  </Link>
+                </Menu.Item>
+              ))}
             </Menu>
             <div className="p-15">
               <div>

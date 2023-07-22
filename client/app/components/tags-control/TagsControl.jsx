@@ -1,8 +1,9 @@
 import { map, trim } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 import EditTagsDialog from "./EditTagsDialog";
+import PlainButton from "@/components/PlainButton";
 
 export class TagsControl extends React.Component {
   static propTypes = {
@@ -12,6 +13,7 @@ export class TagsControl extends React.Component {
     onEdit: PropTypes.func,
     className: PropTypes.string,
     tagsExtra: PropTypes.node,
+    tagSeparator: PropTypes.node,
     children: PropTypes.node,
   };
 
@@ -22,6 +24,7 @@ export class TagsControl extends React.Component {
     onEdit: () => {},
     className: "",
     tagsExtra: null,
+    tagSeparator: null,
     children: null,
   };
 
@@ -32,30 +35,38 @@ export class TagsControl extends React.Component {
   renderEditButton() {
     const tags = map(this.props.tags, trim);
     return (
-      <a
+      <PlainButton
         className="label label-tag hidden-xs"
-        role="none"
         onClick={() => this.editTags(tags, this.props.getAvailableTags)}
         data-test="EditTagsButton">
         {tags.length === 0 && (
           <React.Fragment>
-            <i className="zmdi zmdi-plus m-r-5" />
+            <i className="zmdi zmdi-plus m-r-5" aria-hidden="true" />
             Add tag
           </React.Fragment>
         )}
-        {tags.length > 0 && <i className="zmdi zmdi-edit" />}
-      </a>
+        {tags.length > 0 && (
+          <>
+            <i className="zmdi zmdi-edit" aria-hidden="true" />
+            <span className="sr-only">Edit</span>
+          </>
+        )}
+      </PlainButton>
     );
   }
 
   render() {
+    const { tags, tagSeparator } = this.props;
     return (
       <div className={"tags-control " + this.props.className} data-test="TagsControl">
         {this.props.children}
-        {map(this.props.tags, tag => (
-          <span className="label label-tag" key={tag} title={tag} data-test="TagLabel">
-            {tag}
-          </span>
+        {map(tags, (tag, i) => (
+          <React.Fragment key={tag}>
+            {tagSeparator && i > 0 && <span className="tag-separator">{tagSeparator}</span>}
+            <span className="label label-tag" key={tag} title={tag} data-test="TagLabel">
+              {tag}
+            </span>
+          </React.Fragment>
         ))}
         {this.props.canEdit && this.renderEditButton()}
         {this.props.tagsExtra}

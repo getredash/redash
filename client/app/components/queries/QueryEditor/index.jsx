@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState, useCallback, useImperativeHandle }
 import PropTypes from "prop-types";
 import cx from "classnames";
 import { AceEditor, snippetsModule, updateSchemaCompleter } from "./ace";
+import { srNotify } from "@/lib/accessibility";
+import { SchemaItemType } from "@/components/queries/SchemaBrowser";
 import resizeObserver from "@/services/resizeObserver";
 import QuerySnippet from "@/services/query-snippet";
 
@@ -88,6 +90,25 @@ const QueryEditor = React.forwardRef(function(
     // Lineup only mac
     editor.commands.bindKey({ win: null, mac: "Ctrl+P" }, "golineup");
 
+    // Esc for exiting
+    editor.commands.bindKey({ win: "Esc", mac: "Esc" }, () => {
+      editor.blur();
+    });
+
+    let notificationCleanup = null;
+    editor.on("focus", () => {
+      notificationCleanup = srNotify({
+        text: "You've entered the SQL editor. To exit press the ESC key.",
+        politeness: "assertive",
+      });
+    });
+
+    editor.on("blur", () => {
+      if (notificationCleanup) {
+        notificationCleanup();
+      }
+    });
+
     // Reset Completer in case dot is pressed
     editor.commands.on("afterExec", e => {
       if (e.command.name === "insertstring" && e.args === "." && editor.completer) {
@@ -157,13 +178,7 @@ QueryEditor.propTypes = {
   syntax: PropTypes.string,
   value: PropTypes.string,
   autocompleteEnabled: PropTypes.bool,
-  schema: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      size: PropTypes.number,
-      columns: PropTypes.arrayOf(PropTypes.string).isRequired,
-    })
-  ),
+  schema: PropTypes.arrayOf(SchemaItemType),
   onChange: PropTypes.func,
   onSelectionChange: PropTypes.func,
 };

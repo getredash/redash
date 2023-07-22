@@ -1,6 +1,6 @@
 import { partition, flatMap, values } from "lodash";
 import React from "react";
-import { axios } from "@/services/axios";
+import moment from "moment";
 
 import Alert from "antd/lib/alert";
 import Tabs from "antd/lib/tabs";
@@ -9,9 +9,10 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import Layout from "@/components/admin/Layout";
 import { CounterCard, WorkersTable, QueuesTable, QueryJobsTable, OtherJobsTable } from "@/components/admin/RQStatus";
 
+import { axios } from "@/services/axios";
 import location from "@/services/location";
 import recordEvent from "@/services/recordEvent";
-import moment from "moment";
+import routes from "@/services/routes";
 
 class Jobs extends React.Component {
   state = {
@@ -127,8 +128,11 @@ class Jobs extends React.Component {
   }
 }
 
-export default routeWithUserSession({
-  path: "/admin/queries/jobs",
-  title: "RQ Status",
-  render: pageProps => <Jobs {...pageProps} />,
-});
+routes.register(
+  "Admin.Jobs",
+  routeWithUserSession({
+    path: "/admin/queries/jobs",
+    title: "RQ Status",
+    render: pageProps => <Jobs {...pageProps} />,
+  })
+);

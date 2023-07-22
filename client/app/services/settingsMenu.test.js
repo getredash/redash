@@ -11,8 +11,8 @@ const usersItem = {
   path: "users",
 };
 
-settingsMenu.add(dataSourcesItem);
-settingsMenu.add(usersItem);
+settingsMenu.add(null, dataSourcesItem);
+settingsMenu.add(null, usersItem);
 
 describe("SettingsMenu", () => {
   describe("isActive", () => {

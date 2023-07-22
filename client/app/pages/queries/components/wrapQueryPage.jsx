@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import { Query } from "@/services/query";
+import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 export default function wrapQueryPage(WrappedComponent) {
   function QueryPageWrapper({ queryId, onError, ...props }) {
     const [query, setQuery] = useState(null);
-    const onErrorRef = useRef();
-    onErrorRef.current = onError;
+
+    const handleError = useImmutableCallback(onError);
 
     useEffect(() => {
       let isCancelled = false;
@@ -18,12 +19,12 @@ export default function wrapQueryPage(WrappedComponent) {
             setQuery(result);
           }
         })
-        .catch(error => onErrorRef.current(error));
+        .catch(handleError);
 
       return () => {
         isCancelled = true;
       };
-    }, [queryId]);
+    }, [queryId, handleError]);
 
     if (!query) {
       return <LoadingState className="flex-fill" />;

@@ -1,4 +1,4 @@
-import { isFunction, isString } from "lodash";
+import { isFunction, isString, isUndefined } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
@@ -24,6 +24,7 @@ export function unregisterComponent(name) {
 export default class DynamicComponent extends React.Component {
   static propTypes = {
     name: PropTypes.string.isRequired,
+    fallback: PropTypes.node,
     children: PropTypes.node,
   };
 
@@ -40,10 +41,11 @@ export default class DynamicComponent extends React.Component {
   }
 
   render() {
-    const { name, children, ...props } = this.props;
+    const { name, children, fallback, ...props } = this.props;
     const RealComponent = componentsRegistry.get(name);
     if (!RealComponent) {
-      return children;
+      // return fallback if any, otherwise return children
+      return isUndefined(fallback) ? children : fallback;
     }
     return <RealComponent {...props}>{children}</RealComponent>;
   }

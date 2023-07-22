@@ -1,14 +1,13 @@
 /* global cy */
 
-import { createDashboard, addTextbox } from "../../support/redash-api";
 import { getWidgetTestId, editDashboard } from "../../support/dashboard";
 
 describe("Textbox", () => {
   beforeEach(function() {
     cy.login();
-    createDashboard("Foo Bar").then(({ slug, id }) => {
+    cy.createDashboard("Foo Bar").then(({ id }) => {
       this.dashboardId = id;
-      this.dashboardUrl = `/dashboard/${slug}`;
+      this.dashboardUrl = `/dashboards/${id}`;
     });
   });
 
@@ -31,7 +30,7 @@ describe("Textbox", () => {
   });
 
   it("removes textbox by X button", function() {
-    addTextbox(this.dashboardId, "Hello World!")
+    cy.addTextbox(this.dashboardId, "Hello World!")
       .then(getWidgetTestId)
       .then(elTestId => {
         cy.visit(this.dashboardUrl);
@@ -47,7 +46,7 @@ describe("Textbox", () => {
   });
 
   it("removes textbox by menu", function() {
-    addTextbox(this.dashboardId, "Hello World!")
+    cy.addTextbox(this.dashboardId, "Hello World!")
       .then(getWidgetTestId)
       .then(elTestId => {
         cy.visit(this.dashboardUrl);
@@ -65,11 +64,11 @@ describe("Textbox", () => {
 
   it("allows opening menu after removal", function() {
     let elTestId1;
-    addTextbox(this.dashboardId, "txb 1")
+    cy.addTextbox(this.dashboardId, "txb 1")
       .then(getWidgetTestId)
       .then(elTestId => {
         elTestId1 = elTestId;
-        return addTextbox(this.dashboardId, "txb 2").then(getWidgetTestId);
+        return cy.addTextbox(this.dashboardId, "txb 2").then(getWidgetTestId);
       })
       .then(elTestId2 => {
         cy.visit(this.dashboardUrl);
@@ -99,7 +98,7 @@ describe("Textbox", () => {
   });
 
   it("edits textbox", function() {
-    addTextbox(this.dashboardId, "Hello World!")
+    cy.addTextbox(this.dashboardId, "Hello World!")
       .then(getWidgetTestId)
       .then(elTestId => {
         cy.visit(this.dashboardUrl);
@@ -133,8 +132,8 @@ describe("Textbox", () => {
     const txb2Pos = { col: 1, row: 1, sizeX: 3, sizeY: 4 };
 
     cy.viewport(1215, 800);
-    addTextbox(id, "x", { position: txb1Pos })
-      .then(() => addTextbox(id, "x", { position: txb2Pos }))
+    cy.addTextbox(id, "x", { position: txb1Pos })
+      .then(() => cy.addTextbox(id, "x", { position: txb2Pos }))
       .then(getWidgetTestId)
       .then(elTestId => {
         cy.visit(this.dashboardUrl);
@@ -142,9 +141,9 @@ describe("Textbox", () => {
       })
       .should($el => {
         const { top, left } = $el.offset();
-        expect(top).to.eq(212);
-        expect(left).to.eq(215);
-        expect($el.width()).to.eq(585);
+        expect(top).to.eq(162);
+        expect(left).to.eq(282);
+        expect($el.width()).to.eq(545);
         expect($el.height()).to.eq(185);
       });
   });

@@ -1,7 +1,5 @@
 import moment from "moment";
-import * as Pace from "pace-progress";
 import { isFunction } from "lodash";
-import url from "@/services/url";
 
 // Ensure that this image will be available in assets folder
 import "@/assets/images/avatar.svg";
@@ -9,15 +7,10 @@ import "@/assets/images/avatar.svg";
 // Register visualizations
 import "@redash/viz/lib";
 
-import "./antd-spinner";
+// Register routes before registering extensions as they may want to override some
+import "@/pages";
 
-Pace.options.shouldHandlePushState = (prevUrl, newUrl) => {
-  // Show pace progress bar only if URL path changed; when query params
-  // or hash changed - ignore that history event
-  prevUrl = url.parse(prevUrl);
-  newUrl = url.parse(newUrl);
-  return prevUrl.pathname !== newUrl.pathname;
-};
+import "./antd-spinner";
 
 moment.updateLocale("en", {
   relativeTime: {

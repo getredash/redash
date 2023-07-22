@@ -1,5 +1,5 @@
 {
-  "baseUrl": "http://localhost:5000",
+  "baseUrl": "http://localhost:5001",
   "video": true,
   "videoUploadOnPasses": false,
   "fixturesFolder": "client/cypress/fixtures",
@@ -11,5 +11,8 @@
   "defaultCommandTimeout": 20000,
   "requestTimeout": 15000,
   "viewportWidth": 1280,
-  "viewportHeight": 1024
+  "viewportHeight": 1024,
+  "env": {
+    "coverage": false
+  }
 }

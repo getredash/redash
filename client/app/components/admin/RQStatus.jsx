@@ -35,11 +35,11 @@ CounterCard.defaultProps = {
 
 const queryJobsColumns = [
   { title: "Queue", dataIndex: "origin" },
-  { title: "Query ID", dataIndex: "meta.query_id" },
-  { title: "Org ID", dataIndex: "meta.org_id" },
-  { title: "Data Source ID", dataIndex: "meta.data_source_id" },
-  { title: "User ID", dataIndex: "meta.user_id" },
-  Columns.custom(scheduled => scheduled.toString(), { title: "Scheduled", dataIndex: "meta.scheduled" }),
+  { title: "Query ID", dataIndex: ["meta", "query_id"] },
+  { title: "Org ID", dataIndex: ["meta", "org_id"] },
+  { title: "Data Source ID", dataIndex: ["meta", "data_source_id"] },
+  { title: "User ID", dataIndex: ["meta", "user_id"] },
+  Columns.custom(scheduled => scheduled.toString(), { title: "Scheduled", dataIndex: ["meta", "scheduled"] }),
   Columns.timeAgo({ title: "Start Time", dataIndex: "started_at" }),
   Columns.timeAgo({ title: "Enqueue Time", dataIndex: "enqueued_at" }),
 ];
