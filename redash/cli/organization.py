@@ -26,7 +26,7 @@ def show_google_apps_domains():
     print("Current list of Google Apps domains: {}".format(", ".join(organization.google_apps_domains)))
 
 
-@manager.command(name='create')
+@manager.command(name="create")
 @argument("name")
 @option(
     "--slug",
