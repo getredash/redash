@@ -1,17 +1,17 @@
-import os
 import logging
+import os
 import re
 
 from dateutil import parser
 
 from redash.query_runner import (
-    BaseHTTPQueryRunner,
-    register,
-    TYPE_DATETIME,
-    TYPE_INTEGER,
-    TYPE_FLOAT,
     TYPE_BOOLEAN,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    BaseHTTPQueryRunner,
     guess_type,
+    register,
 )
 from redash.utils import json_dumps, json_loads
 
@@ -51,9 +51,7 @@ def parse_response(data):
     types = {}
 
     for c in cols:
-        columns.append(
-            {"name": c, "type": guess_type(first_row[c]), "friendly_name": c}
-        )
+        columns.append({"name": c, "type": guess_type(first_row[c]), "friendly_name": c})
 
     for col in columns:
         types[col["name"]] = col["type"]
@@ -96,9 +94,7 @@ class Drill(BaseHTTPQueryRunner):
 
         payload = {"queryType": "SQL", "query": query}
 
-        response, error = self.get_response(
-            drill_url, http_method="post", json=payload
-        )
+        response, error = self.get_response(drill_url, http_method="post", json=payload)
         if error is not None:
             return None, error
 
@@ -107,7 +103,6 @@ class Drill(BaseHTTPQueryRunner):
         return json_dumps(results), None
 
     def get_schema(self, get_stats=False):
-
         query = """
         SELECT DISTINCT
             TABLE_SCHEMA,
@@ -135,7 +130,7 @@ class Drill(BaseHTTPQueryRunner):
         results, error = self.run_query(query, None)
 
         if error is not None:
-            raise Exception("Failed getting schema.")
+            self._handle_run_query_error(error)
 
         results = json_loads(results)
 

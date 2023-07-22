@@ -1,13 +1,12 @@
 import requests
-from datetime import datetime
-
 from flask_mail import Message
+
 from redash import mail, models, settings
 from redash.models import users
-from redash.version_check import run_version_check
-from redash.worker import job, get_job_logger
-from redash.tasks.worker import Queue
 from redash.query_runner import NotSupported
+from redash.tasks.worker import Queue
+from redash.version_check import run_version_check
+from redash.worker import get_job_logger, job
 
 logger = get_job_logger(__name__)
 
@@ -85,8 +84,8 @@ def get_schema(data_source_id, refresh):
                 "message": "Data source type does not support retrieving schema",
             }
         }
-    except Exception:
-        return {"error": {"code": 2, "message": "Error retrieving schema."}}
+    except Exception as e:
+        return {"error": {"code": 2, "message": "Error retrieving schema", "details": str(e)}}
 
 
 def sync_user_details():

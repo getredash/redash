@@ -1,22 +1,22 @@
 import datetime
 import logging
 import os
-import sqlparse
+
+from redash import __version__, statsd_client
 from redash.query_runner import (
-    NotSupported,
-    register,
-    BaseSQLQueryRunner,
-    TYPE_STRING,
     TYPE_BOOLEAN,
     TYPE_DATE,
     TYPE_DATETIME,
-    TYPE_INTEGER,
     TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseSQLQueryRunner,
+    NotSupported,
+    register,
+    split_sql_statements,
 )
 from redash.settings import cast_int_or_default
 from redash.utils import json_dumps, json_loads
-from redash.query_runner import split_sql_statements
-from redash import __version__, settings, statsd_client
 
 try:
     import pyodbc
@@ -37,6 +37,7 @@ TYPES_MAP = {
 ROW_LIMIT = cast_int_or_default(os.environ.get("DATABRICKS_ROW_LIMIT"), 20000)
 
 logger = logging.getLogger(__name__)
+
 
 def _build_odbc_connection_string(**kwargs):
     return ";".join([f"{k}={v}" for k, v in kwargs.items()])
@@ -104,24 +105,13 @@ class Databricks(BaseSQLQueryRunner):
 
             if cursor.description is not None:
                 result_set = cursor.fetchmany(ROW_LIMIT)
-                columns = self.fetch_columns(
-                    [
-                        (i[0], TYPES_MAP.get(i[1], TYPE_STRING))
-                        for i in cursor.description
-                    ]
-                )
+                columns = self.fetch_columns([(i[0], TYPES_MAP.get(i[1], TYPE_STRING)) for i in cursor.description])
 
-                rows = [
-                    dict(zip((column["name"] for column in columns), row))
-                    for row in result_set
-                ]
+                rows = [dict(zip((column["name"] for column in columns), row)) for row in result_set]
 
                 data = {"columns": columns, "rows": rows}
 
-                if (
-                    len(result_set) >= ROW_LIMIT
-                    and cursor.fetchone() is not None
-                ):
+                if len(result_set) >= ROW_LIMIT and cursor.fetchone() is not None:
                     logger.warning("Truncated result set.")
                     statsd_client.incr("redash.query_runner.databricks.truncated")
                     data["truncated"] = True
@@ -154,7 +144,7 @@ class Databricks(BaseSQLQueryRunner):
         results, error = self.run_query(query, None)
 
         if error is not None:
-            raise Exception("Failed getting schema.")
+            self._handle_run_query_error(error)
 
         results = json_loads(results)
 

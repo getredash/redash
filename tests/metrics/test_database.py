@@ -1,4 +1,5 @@
-from mock import patch, ANY
+from mock import ANY, patch
+
 from tests import BaseTestCase
 
 
