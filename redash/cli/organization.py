@@ -1,4 +1,4 @@
-from click import argument
+from click import argument, option
 from flask.cli import AppGroup
 
 from redash import models
@@ -26,7 +26,7 @@ def show_google_apps_domains():
     print("Current list of Google Apps domains: {}".format(", ".join(organization.google_apps_domains)))
 
 
-@manager.command()
+@manager.command(name='create')
 @argument("name")
 @option(
     "--slug",
