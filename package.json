@@ -54,7 +54,7 @@
     "classnames": "^2.2.6",
     "d3": "^3.5.17",
     "debug": "^3.1.0",
-    "dompurify": "^2.0.7",
+    "dompurify": "^2.0.17",
     "font-awesome": "^4.7.0",
     "history": "^4.10.1",
     "hoist-non-react-statics": "^3.3.0",
