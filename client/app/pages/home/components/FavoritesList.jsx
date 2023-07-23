@@ -7,6 +7,7 @@ import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 
 import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";
+import { useTranslation } from "react-i18next";
 
 export function FavoriteList({ title, resource, itemUrl, emptyState }) {
   const [items, setItems] = useState([]);
@@ -53,13 +54,15 @@ FavoriteList.propTypes = {
 FavoriteList.defaultProps = { emptyState: null };
 
 export function DashboardAndQueryFavoritesList() {
+  const { t } = useTranslation();
+
   return (
     <div className="tile">
       <div className="t-body tb-padding">
         <div className="row home-favorites-list">
           <div className="col-sm-6 m-t-20">
             <FavoriteList
-              title="Favorite Dashboards"
+              title={t("Favorite Dashboards")}
               resource={Dashboard}
               itemUrl={dashboard => dashboard.url}
               emptyState={
