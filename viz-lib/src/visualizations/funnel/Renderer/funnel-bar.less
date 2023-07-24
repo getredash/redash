@@ -1,0 +1,32 @@
+.funnel-bar {
+  @height: 30px;
+
+  position: relative;
+  height: @height;
+  line-height: @height;
+
+  &-left {
+    text-align: left;
+  }
+  &-center {
+    text-align: center;
+  }
+  &-right {
+    text-align: right;
+  }
+
+  .funnel-bar-value {
+    display: inline-block;
+    vertical-align: top;
+    height: @height;
+  }
+
+  .funnel-bar-label {
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    position: absolute;
+    left: 0;
+    right: 0;
+  }
+}

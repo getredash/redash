@@ -1,5 +1,5 @@
-from tests import BaseTestCase
 from redash.models import ApiKey
+from tests import BaseTestCase
 
 
 class TestApiKeyGetByObject(BaseTestCase):
@@ -14,4 +14,3 @@ class TestApiKeyGetByObject(BaseTestCase):
 
         api_key = self.factory.create_api_key(object=dashboard)
         self.assertEqual(api_key, ApiKey.get_by_object(dashboard))
-

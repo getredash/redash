@@ -1,25 +1,21 @@
-import { toastr } from '@/services/ng';
+import notification from "@/services/notification";
 
-function addOnlineListener(toast) {
+function addOnlineListener(notificationKey) {
   function onlineStateHandler() {
-    toastr.remove(toast.toastId);
-    window.removeEventListener('online', onlineStateHandler);
+    notification.close(notificationKey);
+    window.removeEventListener("online", onlineStateHandler);
   }
-  window.addEventListener('online', onlineStateHandler);
+  window.addEventListener("online", onlineStateHandler);
 }
 
-export default function init(ngModule) {
-  ngModule.run(() => {
-    window.addEventListener('offline', () => {
-      const toast = toastr.warning('<div>Please check your Internet connection.</div>', '', {
-        allowHtml: true,
-        autoDismiss: false,
-        timeOut: false,
-        tapToDismiss: true,
+export default {
+  init() {
+    window.addEventListener("offline", () => {
+      notification.warning("Please check your Internet connection.", null, {
+        key: "connectionNotification",
+        duration: null,
       });
-      addOnlineListener(toast);
+      addOnlineListener("connectionNotification");
     });
-  });
-}
-
-init.init = true;
+  },
+};

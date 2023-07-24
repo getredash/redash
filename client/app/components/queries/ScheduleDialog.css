@@ -32,3 +32,8 @@
 a.schedule-phrase {
   cursor: pointer;
 }
+
+.utc {
+  opacity: 0.4;
+  margin-left: 10px;
+}

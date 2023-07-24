@@ -1,9 +1,10 @@
 import logging
-import json
+
 import jwt
 import requests
+import simplejson
 
-logger = logging.getLogger('jwt_auth')
+logger = logging.getLogger("jwt_auth")
 
 
 def get_public_keys(url):
@@ -18,10 +19,10 @@ def get_public_keys(url):
         r = requests.get(url)
         r.raise_for_status()
         data = r.json()
-        if 'keys' in data:
+        if "keys" in data:
             public_keys = []
-            for key_dict in data['keys']:
-                public_key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(key_dict))
+            for key_dict in data["keys"]:
+                public_key = jwt.algorithms.RSAAlgorithm.from_jwk(simplejson.dumps(key_dict))
                 public_keys.append(public_key)
 
             get_public_keys.key_cache[url] = public_keys
@@ -40,7 +41,7 @@ def verify_jwt_token(jwt_token, expected_issuer, expected_audience, algorithms, 
     # Loop through the keys since we can't pass the key set to the decoder
     keys = get_public_keys(public_certs_url)
 
-    key_id = jwt.get_unverified_header(jwt_token).get('kid', '')
+    key_id = jwt.get_unverified_header(jwt_token).get("kid", "")
     if key_id and isinstance(keys, dict):
         keys = [keys.get(key_id)]
 
@@ -49,15 +50,10 @@ def verify_jwt_token(jwt_token, expected_issuer, expected_audience, algorithms, 
     for key in keys:
         try:
             # decode returns the claims which has the email if you need it
-            payload = jwt.decode(
-                jwt_token,
-                key=key,
-                audience=expected_audience,
-                algorithms=algorithms
-            )
-            issuer = payload['iss']
+            payload = jwt.decode(jwt_token, key=key, audience=expected_audience, algorithms=algorithms)
+            issuer = payload["iss"]
             if issuer != expected_issuer:
-                raise Exception('Wrong issuer: {}'.format(issuer))
+                raise Exception("Wrong issuer: {}".format(issuer))
             valid_token = True
             break
         except Exception as e:

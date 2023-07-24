@@ -1,8 +1,7 @@
 import os
 import subprocess
-import sys
 
-from redash.query_runner import *
+from redash.query_runner import BaseQueryRunner, register
 
 
 def query_to_script_path(path, query):
@@ -29,9 +28,7 @@ def run_script(script, shell):
 
 
 class Script(BaseQueryRunner):
-    @classmethod
-    def annotate_query(cls):
-        return False
+    should_annotate_query = False
 
     @classmethod
     def enabled(cls):
@@ -40,18 +37,15 @@ class Script(BaseQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
-            'type': 'object',
-            'properties': {
-                'path': {
-                    'type': 'string',
-                    'title': 'Scripts path'
+            "type": "object",
+            "properties": {
+                "path": {"type": "string", "title": "Scripts path"},
+                "shell": {
+                    "type": "boolean",
+                    "title": "Execute command through the shell",
                 },
-                'shell': {
-                    'type': 'boolean',
-                    'title': 'Execute command through the shell'
-                }
             },
-            'required': ['path']
+            "required": ["path"],
         }
 
     @classmethod
@@ -75,13 +69,11 @@ class Script(BaseQueryRunner):
     def run_query(self, query, user):
         try:
             script = query_to_script_path(self.configuration["path"], query)
-            return run_script(script, self.configuration['shell'])
+            return run_script(script, self.configuration["shell"])
         except IOError as e:
-            return None, e.message
+            return None, str(e)
         except subprocess.CalledProcessError as e:
             return None, str(e)
-        except KeyboardInterrupt:
-            return None, "Query cancelled by user."
 
 
 register(Script)

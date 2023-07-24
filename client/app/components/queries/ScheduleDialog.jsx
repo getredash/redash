@@ -1,23 +1,53 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Modal from 'antd/lib/modal';
-import DatePicker from 'antd/lib/date-picker';
-import TimePicker from 'antd/lib/time-picker';
-import Select from 'antd/lib/select';
-import Radio from 'antd/lib/radio';
-import { capitalize, clone, isEqual } from 'lodash';
-import moment from 'moment';
-import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from '@/filters';
-import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import { RefreshScheduleType, RefreshScheduleDefault } from '../proptypes';
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import Modal from "antd/lib/modal";
+import DatePicker from "antd/lib/date-picker";
+import TimePicker from "antd/lib/time-picker";
+import Select from "antd/lib/select";
+import Radio from "antd/lib/radio";
+import { capitalize, clone, isEqual, omitBy, isNil, isEmpty } from "lodash";
+import moment from "moment";
+import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from "@/lib/utils";
+import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import { RefreshScheduleType, RefreshScheduleDefault, Moment } from "../proptypes";
 
-import './ScheduleDialog.css';
+import "./ScheduleDialog.css";
 
 const WEEKDAYS_SHORT = moment.weekdaysShort();
 const WEEKDAYS_FULL = moment.weekdays();
-const DATE_FORMAT = 'YYYY-MM-DD';
-const HOUR_FORMAT = 'HH:mm';
+const DATE_FORMAT = "YYYY-MM-DD";
+const HOUR_FORMAT = "HH:mm";
 const { Option, OptGroup } = Select;
+
+export function TimeEditor(props) {
+  const [time, setTime] = useState(props.defaultValue);
+  const showUtc = time && !time.isUTC();
+
+  function onChange(newTime) {
+    setTime(newTime);
+    props.onChange(newTime);
+  }
+
+  return (
+    <React.Fragment>
+      <TimePicker allowClear={false} value={time} format={HOUR_FORMAT} minuteStep={5} onChange={onChange} />
+      {showUtc && (
+        <span className="utc" data-testid="utc">
+          ({moment.utc(time).format(HOUR_FORMAT)} UTC)
+        </span>
+      )}
+    </React.Fragment>
+  );
+}
+
+TimeEditor.propTypes = {
+  defaultValue: Moment,
+  onChange: PropTypes.func.isRequired,
+};
+
+TimeEditor.defaultProps = {
+  defaultValue: null,
+};
 
 class ScheduleDialog extends React.Component {
   static propTypes = {
@@ -36,7 +66,7 @@ class ScheduleDialog extends React.Component {
     const newSchedule = clone(this.props.schedule || ScheduleDialog.defaultProps.schedule);
     const { time, interval: seconds, day_of_week: day } = newSchedule;
     const { interval } = secondsToInterval(seconds);
-    const [hour, minute] = time ? localizeTime(time).split(':') : [null, null];
+    const [hour, minute] = time ? localizeTime(time).split(":") : [null, null];
 
     return {
       hour,
@@ -52,7 +82,7 @@ class ScheduleDialog extends React.Component {
     const ret = {
       [IntervalEnum.NEVER]: [],
     };
-    this.props.refreshOptions.forEach((seconds) => {
+    this.props.refreshOptions.forEach(seconds => {
       const { count, interval } = secondsToInterval(seconds);
       if (!(interval in ret)) {
         ret[interval] = [];
@@ -60,7 +90,7 @@ class ScheduleDialog extends React.Component {
       ret[interval].push([count, seconds]);
     });
 
-    Object.defineProperty(this, 'intervals', { value: ret }); // memoize
+    Object.defineProperty(this, "intervals", { value: ret }); // memoize
 
     return ret;
   }
@@ -71,7 +101,7 @@ class ScheduleDialog extends React.Component {
     }));
   }
 
-  setTime = (time) => {
+  setTime = time => {
     this.newSchedule = {
       time: moment(time)
         .utc()
@@ -79,7 +109,7 @@ class ScheduleDialog extends React.Component {
     };
   };
 
-  setInterval = (newSeconds) => {
+  setInterval = newSeconds => {
     const { newSchedule } = this.state;
     const { interval: newInterval } = secondsToInterval(newSeconds);
 
@@ -98,8 +128,8 @@ class ScheduleDialog extends React.Component {
       (!this.state.minute || !this.state.hour)
     ) {
       newSchedule.time = moment()
-        .hour('00')
-        .minute('15')
+        .hour("00")
+        .minute("15")
         .utc()
         .format(HOUR_FORMAT);
     }
@@ -109,7 +139,7 @@ class ScheduleDialog extends React.Component {
 
     newSchedule.interval = newSeconds;
 
-    const [hour, minute] = newSchedule.time ? localizeTime(newSchedule.time).split(':') : [null, null];
+    const [hour, minute] = newSchedule.time ? localizeTime(newSchedule.time).split(":") : [null, null];
 
     this.setState({
       interval: newInterval,
@@ -126,7 +156,7 @@ class ScheduleDialog extends React.Component {
     this.newSchedule = { until: date };
   };
 
-  setWeekday = (e) => {
+  setWeekday = e => {
     const dayOfWeek = e.target.value;
     this.setState({ dayOfWeek });
     this.newSchedule = {
@@ -134,16 +164,21 @@ class ScheduleDialog extends React.Component {
     };
   };
 
-  setUntilToggle = (e) => {
+  setUntilToggle = e => {
     const date = e.target.value ? moment().format(DATE_FORMAT) : null;
     this.setScheduleUntil(null, date);
   };
 
   save() {
     const { newSchedule } = this.state;
+    const hasChanged = () => {
+      const newCompact = omitBy(newSchedule, isNil);
+      const oldCompact = omitBy(this.props.schedule, isNil);
+      return !isEqual(newCompact, oldCompact);
+    };
 
     // save if changed
-    if (!isEqual(newSchedule, this.props.schedule)) {
+    if (hasChanged()) {
       if (newSchedule.interval) {
         this.props.dialog.close(clone(newSchedule));
       } else {
@@ -172,15 +207,17 @@ class ScheduleDialog extends React.Component {
               <Option value={null} key="never">
                 Never
               </Option>
-              {Object.keys(this.intervals).map(int => (
-                <OptGroup label={capitalize(pluralize(int))} key={int}>
-                  {this.intervals[int].map(([cnt, secs]) => (
-                    <Option value={secs} key={cnt}>
-                      {durationHumanize(secs)}
-                    </Option>
-                  ))}
-                </OptGroup>
-              ))}
+              {Object.keys(this.intervals)
+                .filter(int => !isEmpty(this.intervals[int]))
+                .map(int => (
+                  <OptGroup label={capitalize(pluralize(int))} key={int}>
+                    {this.intervals[int].map(([cnt, secs]) => (
+                      <Option value={secs} key={`${int}-${cnt}`}>
+                        {durationHumanize(secs)}
+                      </Option>
+                    ))}
+                  </OptGroup>
+                ))}
             </Select>
           </div>
         </div>
@@ -188,17 +225,14 @@ class ScheduleDialog extends React.Component {
           <div className="schedule-component">
             <h5>On time</h5>
             <div data-testid="time">
-              <TimePicker
-                allowEmpty={false}
+              <TimeEditor
                 defaultValue={
                   hour
                     ? moment()
-                      .hour(hour)
-                      .minute(minute)
+                        .hour(hour)
+                        .minute(minute)
                     : null
                 }
-                format={HOUR_FORMAT}
-                minuteStep={5}
                 onChange={this.setTime}
               />
             </div>

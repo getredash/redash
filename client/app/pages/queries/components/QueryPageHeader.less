@@ -1,0 +1,60 @@
+.query-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  margin-top: 10px;
+
+  & > div {
+    padding: 5px 0;
+  }
+
+  .title-with-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    flex: 1 1;
+    margin: -5px 0;
+
+    & > div {
+      padding: 5px 0;
+    }
+
+    .page-title {
+      h3 {
+        margin: 0 10px 0 0 !important;
+
+        @media (max-width: 767px) {
+          font-size: 18px;
+        }
+      }
+    }
+  }
+
+  .query-tags {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .tags-control > .label-tag {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  &:hover,
+  &:focus,
+  &:active,
+  &:focus-within {
+    .tags-control > .label-tag {
+      opacity: 1;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    flex-wrap: nowrap;
+
+    @media (max-width: 515px) {
+      flex-basis: 100%;
+    }
+  }
+}

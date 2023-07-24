@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
-import { wrap } from 'lodash';
-import moment from 'moment';
+import PropTypes from "prop-types";
+import { wrap } from "lodash";
+import moment from "moment";
 
 export const DataSource = PropTypes.shape({
   syntax: PropTypes.string,
@@ -31,29 +31,6 @@ export const RefreshScheduleDefault = {
   until: null,
 };
 
-export const Field = PropTypes.shape({
-  name: PropTypes.string.isRequired,
-  title: PropTypes.string,
-  type: PropTypes.oneOf(['text', 'email', 'password', 'number', 'checkbox', 'file']).isRequired,
-  initialValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
-  required: PropTypes.bool,
-  readOnly: PropTypes.bool,
-  minLength: PropTypes.number,
-  placeholder: PropTypes.string,
-});
-
-export const Action = PropTypes.shape({
-  name: PropTypes.string.isRequired,
-  callback: PropTypes.func.isRequired,
-  type: PropTypes.string,
-  pullRight: PropTypes.bool,
-  disabledWhenDirty: PropTypes.bool,
-});
-
-export const AntdForm = PropTypes.shape({
-  validateFieldsAndScroll: PropTypes.func,
-});
-
 export const UserProfile = PropTypes.shape({
   id: PropTypes.number.isRequired,
   name: PropTypes.string.isRequired,
@@ -63,12 +40,60 @@ export const UserProfile = PropTypes.shape({
   isDisabled: PropTypes.bool,
 });
 
+export const Destination = PropTypes.shape({
+  id: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired,
+  icon: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+});
+
+export const Query = PropTypes.shape({
+  id: PropTypes.any.isRequired,
+  name: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  data_source_id: PropTypes.any.isRequired,
+  created_at: PropTypes.string.isRequired,
+  updated_at: PropTypes.string,
+  user: UserProfile,
+  query: PropTypes.string,
+  queryHash: PropTypes.string,
+  is_safe: PropTypes.bool.isRequired,
+  is_draft: PropTypes.bool.isRequired,
+  is_archived: PropTypes.bool.isRequired,
+  api_key: PropTypes.string.isRequired,
+});
+
+export const AlertOptions = PropTypes.shape({
+  column: PropTypes.string,
+  op: PropTypes.oneOf([">", ">=", "<", "<=", "==", "!="]),
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  custom_subject: PropTypes.string,
+  custom_body: PropTypes.string,
+});
+
+export const Alert = PropTypes.shape({
+  id: PropTypes.any,
+  name: PropTypes.string,
+  created_at: PropTypes.string,
+  last_triggered_at: PropTypes.string,
+  updated_at: PropTypes.string,
+  rearm: PropTypes.number,
+  state: PropTypes.oneOf(["ok", "triggered", "unknown"]),
+  user: UserProfile,
+  query: Query,
+  options: PropTypes.shape({
+    column: PropTypes.string,
+    op: PropTypes.string,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }).isRequired,
+});
+
 function checkMoment(isRequired, props, propName, componentName) {
   const value = props[propName];
-  const isRequiredValid = isRequired && (value !== null);
-  const isOptionalValid = !isRequired && ((value === null) || moment.isMoment(value));
+  const isRequiredValid = isRequired && value !== null && value !== undefined && moment.isMoment(value);
+  const isOptionalValid = !isRequired && (value === null || value === undefined || moment.isMoment(value));
   if (!isRequiredValid && !isOptionalValid) {
-    return new Error('Prop `' + propName + '` supplied to `' + componentName + '` should be a Moment.js instance.');
+    return new Error("Prop `" + propName + "` supplied to `" + componentName + "` should be a Moment.js instance.");
   }
 }
 

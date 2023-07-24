@@ -1,11 +1,9 @@
-pytest==3.2.3
-pytest-cov==2.5.1
-coverage==4.0.3
-mock==2.0.0
-
-# PyMongo and Athena dependencies are needed for some of the unit tests:
-# (this is not perfect and we should resolve this in a different way)
-pymongo[tls,srv]==3.6.1
-botocore==1.12.85
-PyAthena>=1.0.0
-ptvsd==4.2.3
+pytest==7.4.0
+pytest-cov==4.1.0
+coverage==7.2.7
+mock==5.0.2
+ptvsd==4.3.2
+freezegun==1.2.1
+watchdog==3.0.0
+ptpython==3.0.23
+pre-commit==3.3.3

@@ -1,14 +1,36 @@
-import { map } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import Modal from 'antd/lib/modal';
-import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
+import { isMatch, map, find, sortBy } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import Modal from "antd/lib/modal";
+import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import {
+  MappingType,
   ParameterMappingListInput,
   parameterMappingsToEditableMappings,
   editableMappingsToParameterMappings,
   synchronizeWidgetTitles,
-} from '@/components/ParameterMappingInput';
+} from "@/components/ParameterMappingInput";
+import notification from "@/services/notification";
+
+export function getParamValuesSnapshot(mappings, dashboardParameters) {
+  return map(
+    sortBy(mappings, m => m.name),
+    m => {
+      let param;
+      switch (m.type) {
+        case MappingType.StaticValue:
+          return [m.name, m.value];
+        case MappingType.WidgetLevel:
+          return [m.name, m.param.value];
+        case MappingType.DashboardAddNew:
+        case MappingType.DashboardMapToExisting:
+          param = find(dashboardParameters, p => p.name === m.mapTo);
+          return [m.name, param ? param.value : null];
+        // no default
+      }
+    }
+  );
+}
 
 class EditParameterMappingsDialog extends React.Component {
   static propTypes = {
@@ -17,25 +39,40 @@ class EditParameterMappingsDialog extends React.Component {
     dialog: DialogPropType.isRequired,
   };
 
+  originalParamValuesSnapshot = null;
+
   constructor(props) {
     super(props);
+
+    const parameterMappings = parameterMappingsToEditableMappings(
+      props.widget.options.parameterMappings,
+      props.widget.query.getParametersDefs(),
+      map(this.props.dashboard.getParametersDefs(), p => p.name)
+    );
+
+    this.originalParamValuesSnapshot = getParamValuesSnapshot(
+      parameterMappings,
+      this.props.dashboard.getParametersDefs()
+    );
+
     this.state = {
       saveInProgress: false,
-      parameterMappings: parameterMappingsToEditableMappings(
-        props.widget.options.parameterMappings,
-        props.widget.query.getParametersDefs(),
-        map(this.props.dashboard.getParametersDefs(), p => p.name),
-      ),
+      parameterMappings,
     };
   }
 
   saveWidget() {
-    const toastr = this.props.toastr; // eslint-disable-line react/prop-types
     const widget = this.props.widget;
 
     this.setState({ saveInProgress: true });
 
-    widget.options.parameterMappings = editableMappingsToParameterMappings(this.state.parameterMappings);
+    const newMappings = editableMappingsToParameterMappings(this.state.parameterMappings);
+    widget.options.parameterMappings = newMappings;
+
+    const valuesChanged = !isMatch(
+      this.originalParamValuesSnapshot,
+      getParamValuesSnapshot(this.state.parameterMappings, this.props.dashboard.getParametersDefs())
+    );
 
     const widgetsToSave = [
       widget,
@@ -44,10 +81,10 @@ class EditParameterMappingsDialog extends React.Component {
 
     Promise.all(map(widgetsToSave, w => w.save()))
       .then(() => {
-        this.props.dialog.close();
+        this.props.dialog.close(valuesChanged);
       })
       .catch(() => {
-        toastr.error('Widget cannot be updated');
+        notification.error("Widget cannot be updated");
       })
       .finally(() => {
         this.setState({ saveInProgress: false });
@@ -66,9 +103,8 @@ class EditParameterMappingsDialog extends React.Component {
         title="Parameters"
         onOk={() => this.saveWidget()}
         okButtonProps={{ loading: this.state.saveInProgress }}
-        width={700}
-      >
-        {(this.state.parameterMappings.length > 0) && (
+        width={700}>
+        {this.state.parameterMappings.length > 0 && (
           <ParameterMappingListInput
             mappings={this.state.parameterMappings}
             existingParams={this.props.dashboard.getParametersDefs()}

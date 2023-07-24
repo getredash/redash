@@ -1,0 +1,58 @@
+@import (reference, less) "~@/assets/less/ant";
+
+.tags-list {
+  .tags-list-title {
+    margin: 15px 5px 5px 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .tags-list-label {
+      display: block;
+      white-space: nowrap;
+      margin: 0;
+    }
+
+    a,
+    .plain-button {
+      display: block;
+      white-space: nowrap;
+      cursor: pointer;
+
+      .anticon {
+        font-size: 75%;
+        margin-right: 2px;
+      }
+    }
+  }
+
+  .ant-badge-count {
+    background-color: fade(@redash-gray, 10%);
+    color: fade(@redash-gray, 75%);
+  }
+
+  .ant-menu.ant-menu-inline {
+    border: none;
+
+    .ant-menu-item {
+      width: 100%;
+    }
+
+    .ant-menu-item-selected {
+      .ant-badge-count {
+        background-color: @primary-color;
+        color: white;
+      }
+    }
+
+    .ant-menu-item {
+      &:hover,
+      &:active,
+      &:focus,
+      &:focus-within {
+        color: @primary-color;
+        transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+      }
+    }
+  }
+}

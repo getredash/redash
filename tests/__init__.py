@@ -1,32 +1,36 @@
-import os
 import datetime
 import logging
-from unittest import TestCase
+import os
 from contextlib import contextmanager
+from unittest import TestCase
 
-os.environ['REDASH_REDIS_URL'] = os.environ.get('REDASH_REDIS_URL', "redis://localhost:6379/0").replace("/0", "/5")
-# Use different url for Celery to avoid DB being cleaned up:
-os.environ['REDASH_CELERY_BROKER'] = os.environ.get('REDASH_REDIS_URL', "redis://localhost:6379/0").replace("/5", "/6")
+os.environ["REDASH_REDIS_URL"] = os.environ.get("REDASH_REDIS_URL", "redis://localhost:6379/0").replace("/0", "/5")
+# Use different url for RQ to avoid DB being cleaned up:
+os.environ["RQ_REDIS_URL"] = os.environ.get("REDASH_REDIS_URL", "redis://localhost:6379/0").replace("/5", "/6")
 
 # Dummy values for oauth login
-os.environ['REDASH_GOOGLE_CLIENT_ID'] = "dummy"
-os.environ['REDASH_GOOGLE_CLIENT_SECRET'] = "dummy"
-os.environ['REDASH_MULTI_ORG'] = "true"
+os.environ["REDASH_GOOGLE_CLIENT_ID"] = "dummy"
+os.environ["REDASH_GOOGLE_CLIENT_SECRET"] = "dummy"
+os.environ["REDASH_MULTI_ORG"] = "true"
 
-from redash import create_app
-from redash import redis_connection
-from redash.models import db
-from redash.utils import json_dumps, json_loads
-from tests.factories import Factory, user_factory
+# Make sure rate limit is enabled
+os.environ["REDASH_RATELIMIT_ENABLED"] = "true"
 
+os.environ["REDASH_ENFORCE_CSRF"] = "false"
 
-logging.disable("INFO")
-logging.getLogger("metrics").setLevel("ERROR")
+from redash import limiter, redis_connection  # noqa: E402
+from redash.app import create_app  # noqa: E402
+from redash.models import db  # noqa: E402
+from redash.utils import json_dumps  # noqa: E402
+from tests.factories import Factory, user_factory  # noqa: E402
+
+logging.disable(logging.INFO)
+logging.getLogger("metrics").setLevel(logging.ERROR)
 
 
 def authenticate_request(c, user):
     with c.session_transaction() as sess:
-        sess['user_id'] = user.get_id()
+        sess["_user_id"] = user.get_id()
 
 
 @contextmanager
@@ -43,8 +47,8 @@ class BaseTestCase(TestCase):
     def setUp(self):
         self.app = create_app()
         self.db = db
-        self.app.config['TESTING'] = True
-        self.app.config['SERVER_NAME'] = 'localhost'
+        self.app.config["TESTING"] = True
+        limiter.enabled = False
         self.app_ctx = self.app.app_context()
         self.app_ctx.push()
         db.session.close()
@@ -59,8 +63,16 @@ class BaseTestCase(TestCase):
         self.app_ctx.pop()
         redis_connection.flushdb()
 
-    def make_request(self, method, path, org=None, user=None, data=None,
-                     is_json=True, follow_redirects=False):
+    def make_request(
+        self,
+        method,
+        path,
+        org=None,
+        user=None,
+        data=None,
+        is_json=True,
+        follow_redirects=False,
+    ):
         if user is None:
             user = self.factory.user
 
@@ -80,7 +92,7 @@ class BaseTestCase(TestCase):
             data = json_dumps(data)
 
         if is_json:
-            content_type = 'application/json'
+            content_type = "application/json"
         else:
             content_type = None
 
@@ -91,17 +103,15 @@ class BaseTestCase(TestCase):
             content_type=content_type,
             follow_redirects=follow_redirects,
         )
-
-        if response.data and is_json:
-            response.json = json_loads(response.data)
-
         return response
 
-    def get_request(self, path, org=None, headers=None):
+    def get_request(self, path, org=None, headers=None, client=None):
         if org:
             path = "/{}{}".format(org.slug, path)
 
-        return self.client.get(path, headers=headers)
+        if client is None:
+            client = self.client
+        return client.get(path, headers=headers)
 
     def post_request(self, path, data=None, org=None, headers=None):
         if org:
@@ -110,9 +120,8 @@ class BaseTestCase(TestCase):
         return self.client.post(path, data=data, headers=headers)
 
     def assertResponseEqual(self, expected, actual):
-        for k, v in expected.iteritems():
-            if isinstance(v, datetime.datetime) or isinstance(actual[k],
-                    datetime.datetime):
+        for k, v in expected.items():
+            if isinstance(v, datetime.datetime) or isinstance(actual[k], datetime.datetime):
                 continue
 
             if isinstance(v, list):
@@ -122,4 +131,8 @@ class BaseTestCase(TestCase):
                 self.assertResponseEqual(v, actual[k])
                 continue
 
-            self.assertEqual(v, actual[k], "{} not equal (expected: {}, actual: {}).".format(k, v, actual[k]))
+            self.assertEqual(
+                v,
+                actual[k],
+                "{} not equal (expected: {}, actual: {}).".format(k, v, actual[k]),
+            )

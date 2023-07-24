@@ -1,0 +1,27 @@
+@import (reference, less) "~@/assets/less/ant"; // for ant @vars
+
+@input-dirty: #fffce1;
+
+.parameter-input {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+
+  .@{ant-prefix}-input,
+  .@{ant-prefix}-input-number {
+    min-width: 100% !important;
+  }
+
+  .@{ant-prefix}-select {
+    width: 100%;
+  }
+
+  &[data-dirty] {
+    .@{ant-prefix}-input,
+    .@{ant-prefix}-input-number,
+    .@{ant-prefix}-select-selector,
+    .@{ant-prefix}-picker {
+      background-color: @input-dirty;
+    }
+  }
+}

@@ -13,17 +13,21 @@ from sqlalchemy.dialects import postgresql
 from redash import models
 
 # revision identifiers, used by Alembic.
-revision = 'a92d92aa678e'
-down_revision = 'e7004224f284'
+revision = "a92d92aa678e"
+down_revision = "e7004224f284"
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    op.add_column('dashboards', sa.Column('tags', postgresql.ARRAY(sa.Unicode()), nullable=True))
-    op.add_column('queries', sa.Column('tags', postgresql.ARRAY(sa.Unicode()), nullable=True))
+    op.add_column(
+        "dashboards", sa.Column("tags", postgresql.ARRAY(sa.Unicode()), nullable=True)
+    )
+    op.add_column(
+        "queries", sa.Column("tags", postgresql.ARRAY(sa.Unicode()), nullable=True)
+    )
 
 
 def downgrade():
-    op.drop_column('queries', 'tags')
-    op.drop_column('dashboards', 'tags')
+    op.drop_column("queries", "tags")
+    op.drop_column("dashboards", "tags")

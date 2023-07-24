@@ -1,0 +1,3 @@
+Hi {{ user.name }},
+
+You asked for a password reset email, but your Redash account is disabled and therefore can't reset the password. Please contact your Redash admin for enabling again your account.

@@ -1,39 +1,57 @@
-import { map } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
+import { isString, map, get, find } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
 
-import Button from 'antd/lib/button';
-import { Paginator } from '@/components/Paginator';
-import DynamicComponent from '@/components/DynamicComponent';
+import Button from "antd/lib/button";
+import Modal from "antd/lib/modal";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import Link from "@/components/Link";
+import Paginator from "@/components/Paginator";
+import DynamicComponent from "@/components/DynamicComponent";
+import { UserPreviewCard } from "@/components/PreviewCard";
+import InputWithCopy from "@/components/InputWithCopy";
 
-import { wrap as liveItemsList, createResourceFetcher, ControllerType } from '@/components/items-list/LiveItemsList';
-import LoadingState from '@/components/items-list/components/LoadingState';
-import EmptyState from '@/components/items-list/components/EmptyState';
-import * as Sidebar from '@/components/items-list/components/Sidebar';
-import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
+import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
+import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
+import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
 
-import settingsMenu from '@/services/settingsMenu';
-import { currentUser } from '@/services/auth';
-import { policy } from '@/services/policy';
-import { User } from '@/services/user';
-import navigateTo from '@/services/navigateTo';
-import { routesToAngularRoutes } from '@/lib/utils';
+import LoadingState from "@/components/items-list/components/LoadingState";
+import EmptyState from "@/components/items-list/components/EmptyState";
+import * as Sidebar from "@/components/items-list/components/Sidebar";
+import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
-function UsersListActions({ user, actions }) {
+import Layout from "@/components/layouts/ContentWithSidebar";
+import wrapSettingsTab from "@/components/SettingsWrapper";
+
+import { currentUser } from "@/services/auth";
+import { policy } from "@/services/policy";
+import User from "@/services/user";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
+import notification from "@/services/notification";
+import { absoluteUrl } from "@/services/utils";
+import routes from "@/services/routes";
+
+import CreateUserDialog from "./components/CreateUserDialog";
+
+function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
   if (user.id === currentUser.id) {
     return null;
   }
-  const { enableUser, disableUser, deleteUser } = actions;
   if (user.is_invitation_pending) {
     return (
-      <Button type="danger" className="w-100" onClick={event => deleteUser(event, user)}>Delete</Button>
+      <Button type="danger" className="w-100" onClick={event => deleteUser(event, user)}>
+        Delete
+      </Button>
     );
   }
   return user.is_disabled ? (
-    <Button type="primary" className="w-100" onClick={event => enableUser(event, user)}>Enable</Button>
+    <Button type="primary" className="w-100" onClick={event => enableUser(event, user)}>
+      Enable
+    </Button>
   ) : (
-    <Button className="w-100" onClick={event => disableUser(event, user)}>Disable</Button>
+    <Button className="w-100" onClick={event => disableUser(event, user)}>
+      Disable
+    </Button>
   );
 }
 
@@ -43,11 +61,9 @@ UsersListActions.propTypes = {
     is_invitation_pending: PropTypes.bool,
     is_disabled: PropTypes.bool,
   }).isRequired,
-  actions: PropTypes.shape({
-    enableUser: PropTypes.func,
-    disableUser: PropTypes.func,
-    deleteUser: PropTypes.func,
-  }).isRequired,
+  enableUser: PropTypes.func.isRequired,
+  disableUser: PropTypes.func.isRequired,
+  deleteUser: PropTypes.func.isRequired,
 };
 
 class UsersList extends React.Component {
@@ -57,62 +73,121 @@ class UsersList extends React.Component {
 
   sidebarMenu = [
     {
-      key: 'active',
-      href: 'users',
-      title: 'Active Users',
+      key: "active",
+      href: "users",
+      title: "Active Users",
     },
     {
-      key: 'pending',
-      href: 'users/pending',
-      title: 'Pending Invitations',
+      key: "pending",
+      href: "users/pending",
+      title: "Pending Invitations",
     },
     {
-      key: 'disabled',
-      href: 'users/disabled',
-      title: 'Disabled Users',
+      key: "disabled",
+      href: "users/disabled",
+      title: "Disabled Users",
       isAvailable: () => policy.canCreateUser(),
     },
   ];
 
   listColumns = [
-    Columns.custom.sortable((text, user) => (
-      <div className="d-flex align-items-center">
-        <img src={user.profile_image_url} height="32px" className="profile__image--settings m-r-5" alt={user.name} />
-        <div>
-          <a href={'users/' + user.id} className="{'text-muted': user.is_disabled}">{user.name}</a>
-          <div className="text-muted">{user.email}</div>
-        </div>
-      </div>
-    ), {
-      title: 'Name',
-      field: 'name',
+    Columns.custom.sortable((text, user) => <UserPreviewCard user={user} withLink />, {
+      title: "Name",
+      field: "name",
       width: null,
     }),
-    Columns.custom.sortable((text, user) => map(user.groups, group => (
-      <a key={'group' + group.id} className="label label-tag" href={'groups/' + group.id}>{group.name}</a>
-    )), {
-      title: 'Groups',
-      field: 'groups',
+    Columns.custom.sortable(
+      (text, user) =>
+        map(user.groups, group => (
+          <Link key={"group" + group.id} className="label label-tag" href={"groups/" + group.id}>
+            {group.name}
+          </Link>
+        )),
+      {
+        title: "Groups",
+        field: "groups",
+      }
+    ),
+    Columns.timeAgo.sortable({
+      title: "Joined",
+      field: "created_at",
+      className: "text-nowrap",
+      width: "1%",
     }),
     Columns.timeAgo.sortable({
-      title: 'Joined',
-      field: 'created_at',
-      className: 'text-nowrap',
-      width: '1%',
+      title: "Last Active At",
+      field: "active_at",
+      className: "text-nowrap",
+      width: "1%",
     }),
-    Columns.timeAgo.sortable({
-      title: 'Last Active At',
-      field: 'active_at',
-      className: 'text-nowrap',
-      width: '1%',
-    }),
-    Columns.custom((text, user) => <UsersListActions user={user} actions={this.props.controller.actions} />, {
-      width: '1%',
-      isAvailable: () => policy.canCreateUser(),
-    }),
+    Columns.custom(
+      (text, user) => (
+        <UsersListActions
+          user={user}
+          enableUser={this.enableUser}
+          disableUser={this.disableUser}
+          deleteUser={this.deleteUser}
+        />
+      ),
+      {
+        width: "1%",
+        isAvailable: () => policy.canCreateUser(),
+      }
+    ),
   ];
 
-  onTableRowClick = (event, item) => navigateTo('users/' + item.id);
+  componentDidMount() {
+    if (this.props.controller.params.isNewUserPage) {
+      this.showCreateUserDialog();
+    }
+  }
+
+  createUser = values =>
+    User.create(values)
+      .then(user => {
+        notification.success("Saved.");
+        if (user.invite_link) {
+          Modal.warning({
+            title: "Email not sent!",
+            content: (
+              <React.Fragment>
+                <p>
+                  The mail server is not configured, please send the following link to <b>{user.name}</b>:
+                </p>
+                <InputWithCopy value={absoluteUrl(user.invite_link)} aria-label="Invite link" readOnly />
+              </React.Fragment>
+            ),
+          });
+        }
+      })
+      .catch(error => {
+        const message = find([get(error, "response.data.message"), get(error, "message"), "Failed saving."], isString);
+        return Promise.reject(new Error(message));
+      });
+
+  showCreateUserDialog = () => {
+    if (policy.isCreateUserEnabled()) {
+      const goToUsersList = () => {
+        if (this.props.controller.params.isNewUserPage) {
+          navigateTo("users");
+        }
+      };
+      CreateUserDialog.showModal()
+        .onClose(values =>
+          this.createUser(values).then(() => {
+            this.props.controller.update();
+            goToUsersList();
+          })
+        )
+        .onDismiss(goToUsersList);
+    }
+  };
+
+  enableUser = (event, user) => User.enableUser(user).then(() => this.props.controller.update());
+
+  disableUser = (event, user) => User.disableUser(user).then(() => this.props.controller.update());
+
+  deleteUser = (event, user) => User.deleteUser(user).then(() => this.props.controller.update());
 
   // eslint-disable-next-line class-methods-use-this
   renderPageHeader() {
@@ -121,8 +196,8 @@ class UsersList extends React.Component {
     }
     return (
       <div className="m-b-15">
-        <Button type="primary" disabled={!policy.isCreateUserEnabled()} href="users/new">
-          <i className="fa fa-plus m-r-5" />
+        <Button type="primary" disabled={!policy.isCreateUserEnabled()} onClick={this.showCreateUserDialog}>
+          <i className="fa fa-plus m-r-5" aria-hidden="true" />
           New User
         </Button>
         <DynamicComponent name="UsersListExtra" />
@@ -130,137 +205,115 @@ class UsersList extends React.Component {
     );
   }
 
-  renderSidebar() {
-    const { controller } = this.props;
-    return (
-      <React.Fragment>
-        <Sidebar.SearchInput
-          value={controller.searchTerm}
-          onChange={controller.updateSearch}
-        />
-        <Sidebar.Menu items={this.sidebarMenu} selected={controller.currentPage} />
-        <Sidebar.PageSizeSelect
-          options={controller.pageSizeOptions}
-          value={controller.itemsPerPage}
-          onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-        />
-      </React.Fragment>
-    );
-  }
-
   render() {
-    const sidebar = this.renderSidebar();
     const { controller } = this.props;
     return (
       <React.Fragment>
         {this.renderPageHeader()}
-        <div className="row">
-          <div className="col-md-3 list-control-t">{sidebar}</div>
-          <div className="list-content col-md-9">
+        <Layout>
+          <Layout.Sidebar className="m-b-0">
+            <Sidebar.SearchInput
+              value={controller.searchTerm}
+              onChange={controller.updateSearch}
+              label="Search users"
+            />
+            <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
+          </Layout.Sidebar>
+          <Layout.Content>
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
-            {
-              controller.isLoaded && !controller.isEmpty && (
-                <div className="table-responsive">
-                  <ItemsTable
-                    items={controller.pageItems}
-                    columns={this.listColumns}
-                    onRowClick={this.onTableRowClick}
-                    context={this.actions}
-                    orderByField={controller.orderByField}
-                    orderByReverse={controller.orderByReverse}
-                    toggleSorting={controller.toggleSorting}
-                  />
-                  <Paginator
-                    totalCount={controller.totalItemsCount}
-                    itemsPerPage={controller.itemsPerPage}
-                    page={controller.page}
-                    onChange={page => controller.updatePagination({ page })}
-                  />
-                </div>
-              )
-            }
-          </div>
-          <div className="col-md-3 list-control-r-b">{sidebar}</div>
-        </div>
+            {controller.isLoaded && !controller.isEmpty && (
+              <div className="table-responsive" data-test="UserList">
+                <ItemsTable
+                  items={controller.pageItems}
+                  columns={this.listColumns}
+                  context={this.actions}
+                  orderByField={controller.orderByField}
+                  orderByReverse={controller.orderByReverse}
+                  toggleSorting={controller.toggleSorting}
+                />
+                <Paginator
+                  showPageSizeSelect
+                  totalCount={controller.totalItemsCount}
+                  pageSize={controller.itemsPerPage}
+                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                  page={controller.page}
+                  onChange={page => controller.updatePagination({ page })}
+                />
+              </div>
+            )}
+          </Layout.Content>
+        </Layout>
       </React.Fragment>
     );
   }
 }
 
-export default function init(ngModule) {
-  settingsMenu.add({
-    permission: 'list_users',
-    title: 'Users',
-    path: 'users',
-    isActive: path => path.startsWith('/users') && (path !== '/users/me'),
+const UsersListPage = wrapSettingsTab(
+  "Users.List",
+  {
+    permission: "list_users",
+    title: "Users",
+    path: "users",
+    isActive: path => path.startsWith("/users") && path !== "/users/me",
     order: 2,
-  });
+  },
+  itemsList(
+    UsersList,
+    () =>
+      new ResourceItemsSource({
+        getRequest(request, { params: { currentPage } }) {
+          switch (currentPage) {
+            case "active":
+              request.pending = false;
+              break;
+            case "pending":
+              request.pending = true;
+              break;
+            case "disabled":
+              request.disabled = true;
+              break;
+            // no default
+          }
+          return request;
+        },
+        getResource() {
+          return User.query.bind(User);
+        },
+      }),
+    () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
+  )
+);
 
-  ngModule.component('pageUsersList', react2angular(liveItemsList(UsersList, {
-    defaultOrderBy: '-created_at',
-    getRequest(request, { currentPage }) {
-      switch (currentPage) {
-        case 'active':
-          request.pending = false;
-          break;
-        case 'pending':
-          request.pending = true;
-          break;
-        case 'disabled':
-          request.disabled = true;
-          break;
-        // no default
-      }
-      return request;
-    },
-    doRequest: createResourceFetcher(
-      () => User.query.bind(User),
-      item => new User(item),
-    ),
-    actions: {
-      // `User` will become available later, so use wrappers
-      enableUser: (event, user) => {
-        // prevent default click action on table rows
-        event.preventDefault();
-        event.stopPropagation();
-        return User.enableUser(user);
-      },
-      disableUser: (event, user) => {
-        // prevent default click action on table rows
-        event.preventDefault();
-        event.stopPropagation();
-        return User.disableUser(user);
-      },
-      deleteUser: (event, user) => {
-        // prevent default click action on table rows
-        event.preventDefault();
-        event.stopPropagation();
-        return User.deleteUser(user);
-      },
-    },
-  })));
-
-  return routesToAngularRoutes([
-    {
-      path: '/users',
-      title: 'Users',
-      key: 'active',
-    },
-    {
-      path: '/users/pending',
-      title: 'Pending Invitations',
-      key: 'pending',
-    },
-    {
-      path: '/users/disabled',
-      title: 'Disabled Users',
-      key: 'disabled',
-    },
-  ], {
-    template: '<settings-screen><page-users-list current-page="$resolve.currentPage"></page-users-list></settings-screen>',
-    reloadOnSearch: false,
-  });
-}
-
-init.init = true;
+routes.register(
+  "Users.New",
+  routeWithUserSession({
+    path: "/users/new",
+    title: "Users",
+    render: pageProps => <UsersListPage {...pageProps} currentPage="active" isNewUserPage />,
+  })
+);
+routes.register(
+  "Users.List",
+  routeWithUserSession({
+    path: "/users",
+    title: "Users",
+    render: pageProps => <UsersListPage {...pageProps} currentPage="active" />,
+  })
+);
+routes.register(
+  "Users.Pending",
+  routeWithUserSession({
+    path: "/users/pending",
+    title: "Pending Invitations",
+    render: pageProps => <UsersListPage {...pageProps} currentPage="pending" />,
+  })
+);
+routes.register(
+  "Users.Disabled",
+  routeWithUserSession({
+    path: "/users/disabled",
+    title: "Disabled Users",
+    render: pageProps => <UsersListPage {...pageProps} currentPage="disabled" />,
+  })
+);

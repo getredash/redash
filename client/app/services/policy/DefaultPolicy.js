@@ -1,12 +1,11 @@
-import { isArray } from 'lodash';
-import { $q } from '@/services/ng';
-import { currentUser, clientConfig } from '@/services/auth';
+import { get, isArray } from "lodash";
+import { currentUser, clientConfig } from "@/services/auth";
 
 /* eslint-disable class-methods-use-this */
 
 export default class DefaultPolicy {
   refresh() {
-    return $q.resolve(this);
+    return Promise.resolve(this);
   }
 
   canCreateDataSource() {
@@ -17,12 +16,20 @@ export default class DefaultPolicy {
     return currentUser.isAdmin;
   }
 
+  canCreateDestination() {
+    return currentUser.isAdmin;
+  }
+
+  isCreateDestinationEnabled() {
+    return currentUser.isAdmin;
+  }
+
   canCreateDashboard() {
-    return currentUser.hasPermission('create_dashboard');
+    return currentUser.hasPermission("create_dashboard");
   }
 
   isCreateDashboardEnabled() {
-    return currentUser.hasPermission('create_dashboard');
+    return currentUser.hasPermission("create_dashboard");
   }
 
   canCreateAlert() {
@@ -37,6 +44,10 @@ export default class DefaultPolicy {
     return currentUser.isAdmin;
   }
 
+  isCreateQuerySnippetEnabled() {
+    return true;
+  }
+
   getDashboardRefreshIntervals() {
     const result = clientConfig.dashboardRefreshIntervals;
     return isArray(result) ? result : null;
@@ -45,5 +56,13 @@ export default class DefaultPolicy {
   getQueryRefreshIntervals() {
     const result = clientConfig.queryRefreshIntervals;
     return isArray(result) ? result : null;
+  }
+
+  canEdit(object) {
+    return get(object, "can_edit", false);
+  }
+
+  canRun() {
+    return true;
   }
 }

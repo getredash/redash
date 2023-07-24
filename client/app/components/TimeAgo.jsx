@@ -1,98 +1,56 @@
-import moment from 'moment';
-import { isNil } from 'lodash';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
-import { Moment } from '@/components/proptypes';
-import { clientConfig } from '@/services/auth';
+import moment from "moment";
+import { isNil } from "lodash";
+import React, { useEffect, useMemo, useState } from "react";
+import PropTypes from "prop-types";
+import { Moment } from "@/components/proptypes";
+import { clientConfig } from "@/services/auth";
+import Tooltip from "@/components/Tooltip";
 
-const autoUpdateList = new Set();
-
-function updateComponents() {
-  autoUpdateList.forEach(component => component.update());
-  setTimeout(updateComponents, 30 * 1000);
+function toMoment(value) {
+  value = !isNil(value) ? moment(value) : null;
+  return value && value.isValid() ? value : null;
 }
-updateComponents();
 
-export class TimeAgo extends React.PureComponent {
-  static propTypes = {
-    // `date` and `placeholder` used in `getDerivedStateFromProps`
-    // eslint-disable-next-line react/no-unused-prop-types
-    date: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number,
-      PropTypes.instanceOf(Date),
-      Moment,
-    ]),
-    // eslint-disable-next-line react/no-unused-prop-types
-    placeholder: PropTypes.string,
-    autoUpdate: PropTypes.bool,
-  };
+export default function TimeAgo({ date, placeholder, autoUpdate, variation }) {
+  const startDate = toMoment(date);
+  const [value, setValue] = useState(null);
+  const title = useMemo(() => (startDate ? startDate.format(clientConfig.dateTimeFormat) : null), [startDate]);
 
-  static defaultProps = {
-    date: null,
-    placeholder: '',
-    autoUpdate: true,
-  };
-
-  // Initial state, to get rid of React warning
-  state = {
-    title: null,
-    value: null,
-  };
-
-  static getDerivedStateFromProps({ date, placeholder }) {
-    // if `date` prop is not empty and a valid date/time - convert it to `moment`
-    date = !isNil(date) ? moment(date) : null;
-    date = date && date.isValid() ? date : null;
-
-    return {
-      value: date ? date.fromNow() : placeholder,
-      title: date ? date.format(clientConfig.dateTimeFormat) : '',
-    };
-  }
-
-  componentDidMount() {
-    autoUpdateList.add(this);
-    this.update(true);
-  }
-
-  componentWillUnmount() {
-    autoUpdateList.delete(this);
-  }
-
-  update(force = false) {
-    if (force || this.props.autoUpdate) {
-      this.setState(this.constructor.getDerivedStateFromProps(this.props));
+  useEffect(() => {
+    function update() {
+      setValue(startDate ? startDate.fromNow() : placeholder);
     }
-  }
+    update();
 
-  render() {
-    return <span title={this.state.title}>{this.state.value}</span>;
+    if (autoUpdate) {
+      const timer = setInterval(update, 30 * 1000);
+      return () => clearInterval(timer);
+    }
+  }, [autoUpdate, startDate, placeholder]);
+
+  if (variation === "timeAgoInTooltip") {
+    return (
+      <Tooltip title={value}>
+        <span data-test="TimeAgo">{title}</span>
+      </Tooltip>
+    );
   }
+  return (
+    <Tooltip title={title}>
+      <span data-test="TimeAgo">{value}</span>
+    </Tooltip>
+  );
 }
 
-export default function init(ngModule) {
-  ngModule.directive('amTimeAgo', () => ({
-    link($scope, element, attr) {
-      const modelName = attr.amTimeAgo;
-      $scope.$watch(modelName, (value) => {
-        ReactDOM.render(<TimeAgo date={value} />, element[0]);
-      });
-    },
-  }));
+TimeAgo.propTypes = {
+  date: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.instanceOf(Date), Moment]),
+  placeholder: PropTypes.string,
+  autoUpdate: PropTypes.bool,
+  variation: PropTypes.oneOf(["timeAgoInTooltip"]),
+};
 
-  ngModule.component('rdTimeAgo', {
-    bindings: {
-      value: '=',
-    },
-    controller($scope, $element) {
-      $scope.$watch('$ctrl.value', () => {
-        // Initial render will occur here as well
-        ReactDOM.render(<TimeAgo date={this.value} placeholder="-" />, $element[0]);
-      });
-    },
-  });
-}
-
-init.init = true;
+TimeAgo.defaultProps = {
+  date: null,
+  placeholder: "",
+  autoUpdate: true,
+};

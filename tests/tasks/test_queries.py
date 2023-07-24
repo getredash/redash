@@ -1,151 +1,291 @@
-from unittest import TestCase
-from collections import namedtuple
-import uuid
+from mock import Mock, patch
+from rq import Connection
+from rq.exceptions import NoSuchJobError
 
-import mock
-
-from tests import BaseTestCase
-from redash import redis_connection, models
+from redash import models, rq_redis_connection
 from redash.query_runner.pg import PostgreSQL
-from redash.tasks.queries import (QueryExecutionError, QueryTaskTracker,
-                                    enqueue_query, execute_query)
+from redash.tasks import Job
+from redash.tasks.queries.execution import (
+    QueryExecutionError,
+    enqueue_query,
+    execute_query,
+)
+from redash.utils import json_dumps
+from tests import BaseTestCase
 
 
-class TestPrune(TestCase):
-    def setUp(self):
-        self.list = "test_list"
-        redis_connection.delete(self.list)
-        self.keys = []
-        for score in range(0, 100):
-            key = 'k:{}'.format(score)
-            self.keys.append(key)
-            redis_connection.zadd(self.list, {key: score})
-            redis_connection.set(key, 1)
+def fetch_job(*args, **kwargs):
+    if any(args):
+        job_id = args[0] if isinstance(args[0], str) else args[0].id
+    else:
+        job_id = create_job().id
 
-    def test_does_nothing_when_below_threshold(self):
-        remove_count = QueryTaskTracker.prune(self.list, 100)
-        self.assertEqual(remove_count, 0)
-        self.assertEqual(redis_connection.zcard(self.list), 100)
+    result = Mock()
+    result.id = job_id
+    result.is_cancelled = False
 
-    def test_removes_oldest_items_first(self):
-        remove_count = QueryTaskTracker.prune(self.list, 50)
-        self.assertEqual(remove_count, 50)
-        self.assertEqual(redis_connection.zcard(self.list), 50)
-
-        self.assertEqual(redis_connection.zscore(self.list, 'k:99'), 99.0)
-        self.assertIsNone(redis_connection.zscore(self.list, 'k:1'))
-
-        for k in self.keys[0:50]:
-            self.assertFalse(redis_connection.exists(k))
+    return result
 
 
-FakeResult = namedtuple('FakeResult', 'id')
+def create_job(*args, **kwargs):
+    return Job(connection=rq_redis_connection)
 
 
-def gen_hash(*args, **kwargs):
-    return FakeResult(uuid.uuid4().hex)
-
-
+@patch("redash.tasks.queries.execution.Job.fetch", side_effect=fetch_job)
+@patch("redash.tasks.queries.execution.Queue.enqueue", side_effect=create_job)
 class TestEnqueueTask(BaseTestCase):
-    def test_multiple_enqueue_of_same_query(self):
+    def test_multiple_enqueue_of_same_query(self, enqueue, _):
         query = self.factory.create_query()
-        execute_query.apply_async = mock.MagicMock(side_effect=gen_hash)
 
-        enqueue_query(query.query_text, query.data_source, query.user_id, query, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query_text, query.data_source, query.user_id, query, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query_text, query.data_source, query.user_id, query, {'Username': 'Arik', 'Query ID': query.id})
+        with Connection(rq_redis_connection):
+            enqueue_query(
+                query.query_text,
+                query.data_source,
+                query.user_id,
+                False,
+                query,
+                {"Username": "Arik", "query_id": query.id},
+            )
+            enqueue_query(
+                query.query_text,
+                query.data_source,
+                query.user_id,
+                False,
+                query,
+                {"Username": "Arik", "query_id": query.id},
+            )
+            enqueue_query(
+                query.query_text,
+                query.data_source,
+                query.user_id,
+                False,
+                query,
+                {"Username": "Arik", "query_id": query.id},
+            )
 
-        self.assertEqual(1, execute_query.apply_async.call_count)
-        self.assertEqual(1, redis_connection.zcard(QueryTaskTracker.WAITING_LIST))
-        self.assertEqual(0, redis_connection.zcard(QueryTaskTracker.IN_PROGRESS_LIST))
-        self.assertEqual(0, redis_connection.zcard(QueryTaskTracker.DONE_LIST))
+        self.assertEqual(1, enqueue.call_count)
 
-    def test_multiple_enqueue_of_different_query(self):
+    def test_multiple_enqueue_of_expired_job(self, enqueue, fetch_job):
         query = self.factory.create_query()
-        execute_query.apply_async = mock.MagicMock(side_effect=gen_hash)
 
-        enqueue_query(query.query_text, query.data_source, query.user_id, None, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query_text + '2', query.data_source, query.user_id, None, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query_text + '3', query.data_source, query.user_id, None, {'Username': 'Arik', 'Query ID': query.id})
+        with Connection(rq_redis_connection):
+            enqueue_query(
+                query.query_text,
+                query.data_source,
+                query.user_id,
+                False,
+                query,
+                {"Username": "Arik", "query_id": query.id},
+            )
 
-        self.assertEqual(3, execute_query.apply_async.call_count)
-        self.assertEqual(3, redis_connection.zcard(QueryTaskTracker.WAITING_LIST))
-        self.assertEqual(0, redis_connection.zcard(QueryTaskTracker.IN_PROGRESS_LIST))
-        self.assertEqual(0, redis_connection.zcard(QueryTaskTracker.DONE_LIST))
+            # "expire" the previous job
+            fetch_job.side_effect = NoSuchJobError
+
+            enqueue_query(
+                query.query_text,
+                query.data_source,
+                query.user_id,
+                False,
+                query,
+                {"Username": "Arik", "query_id": query.id},
+            )
+
+        self.assertEqual(2, enqueue.call_count)
+
+    def test_reenqueue_during_job_cancellation(self, enqueue, my_fetch_job):
+        query = self.factory.create_query()
+
+        with Connection(rq_redis_connection):
+            enqueue_query(
+                query.query_text,
+                query.data_source,
+                query.user_id,
+                False,
+                query,
+                {"Username": "Arik", "query_id": query.id},
+            )
+
+            # "cancel" the previous job
+            def cancel_job(*args, **kwargs):
+                job = fetch_job(*args, **kwargs)
+                job.is_cancelled = True
+                return job
+
+            my_fetch_job.side_effect = cancel_job
+
+            enqueue_query(
+                query.query_text,
+                query.data_source,
+                query.user_id,
+                False,
+                query,
+                {"Username": "Arik", "query_id": query.id},
+            )
+
+        self.assertEqual(2, enqueue.call_count)
+
+    @patch("redash.settings.dynamic_settings.query_time_limit", return_value=60)
+    def test_limits_query_time(self, _, enqueue, __):
+        query = self.factory.create_query()
+
+        with Connection(rq_redis_connection):
+            enqueue_query(
+                query.query_text,
+                query.data_source,
+                query.user_id,
+                False,
+                query,
+                {"Username": "Arik", "query_id": query.id},
+            )
+
+        _, kwargs = enqueue.call_args
+        self.assertEqual(60, kwargs.get("job_timeout"))
+
+    def test_multiple_enqueue_of_different_query(self, enqueue, _):
+        query = self.factory.create_query()
+
+        with Connection(rq_redis_connection):
+            enqueue_query(
+                query.query_text,
+                query.data_source,
+                query.user_id,
+                False,
+                None,
+                {"Username": "Arik", "query_id": query.id},
+            )
+            enqueue_query(
+                query.query_text + "2",
+                query.data_source,
+                query.user_id,
+                False,
+                None,
+                {"Username": "Arik", "query_id": query.id},
+            )
+            enqueue_query(
+                query.query_text + "3",
+                query.data_source,
+                query.user_id,
+                False,
+                None,
+                {"Username": "Arik", "query_id": query.id},
+            )
+
+        self.assertEqual(3, enqueue.call_count)
 
 
+@patch("redash.tasks.queries.execution.get_current_job", side_effect=fetch_job)
 class QueryExecutorTests(BaseTestCase):
-
-    def test_success(self):
+    def test_success(self, _):
         """
         ``execute_query`` invokes the query runner and stores a query result.
         """
-        cm = mock.patch("celery.app.task.Context.delivery_info", {'routing_key': 'test'})
-        with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
-            qr.return_value = ([1, 2], None)
+        with patch.object(PostgreSQL, "run_query") as qr:
+            query_result_data = {"columns": [], "rows": []}
+            qr.return_value = (json_dumps(query_result_data), None)
             result_id = execute_query("SELECT 1, 2", self.factory.data_source.id, {})
             self.assertEqual(1, qr.call_count)
             result = models.QueryResult.query.get(result_id)
-            self.assertEqual(result.data, '{1,2}')
+            self.assertEqual(result.data, query_result_data)
 
-    def test_success_scheduled(self):
+    def test_success_scheduled(self, _):
         """
         Scheduled queries remember their latest results.
         """
-        cm = mock.patch("celery.app.task.Context.delivery_info",
-                        {'routing_key': 'test'})
         q = self.factory.create_query(query_text="SELECT 1, 2", schedule={"interval": 300})
-        with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
+        with patch.object(PostgreSQL, "run_query") as qr:
             qr.return_value = ([1, 2], None)
             result_id = execute_query(
                 "SELECT 1, 2",
-                self.factory.data_source.id, {},
-                scheduled_query_id=q.id)
+                self.factory.data_source.id,
+                {"query_id": q.id},
+                scheduled_query_id=q.id,
+            )
             q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 0)
             result = models.QueryResult.query.get(result_id)
             self.assertEqual(q.latest_query_data, result)
 
-    def test_failure_scheduled(self):
+    def test_failure_scheduled(self, _):
         """
         Scheduled queries that fail have their failure recorded.
         """
-        cm = mock.patch("celery.app.task.Context.delivery_info",
-                        {'routing_key': 'test'})
         q = self.factory.create_query(query_text="SELECT 1, 2", schedule={"interval": 300})
-        with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
+        with patch.object(PostgreSQL, "run_query") as qr:
             qr.side_effect = ValueError("broken")
-            with self.assertRaises(QueryExecutionError):
-                execute_query("SELECT 1, 2", self.factory.data_source.id, {},
-                              scheduled_query_id=q.id)
+
+            result = execute_query(
+                "SELECT 1, 2",
+                self.factory.data_source.id,
+                {"query_id": q.id},
+                scheduled_query_id=q.id,
+            )
+            self.assertTrue(isinstance(result, QueryExecutionError))
             q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 1)
-            with self.assertRaises(QueryExecutionError):
-                execute_query("SELECT 1, 2", self.factory.data_source.id, {},
-                              scheduled_query_id=q.id)
+
+            result = execute_query(
+                "SELECT 1, 2",
+                self.factory.data_source.id,
+                {"query_id": q.id},
+                scheduled_query_id=q.id,
+            )
+            self.assertTrue(isinstance(result, QueryExecutionError))
             q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 2)
 
-    def test_success_after_failure(self):
+    def test_success_after_failure(self, _):
         """
         Query execution success resets the failure counter.
         """
-        cm = mock.patch("celery.app.task.Context.delivery_info",
-                        {'routing_key': 'test'})
         q = self.factory.create_query(query_text="SELECT 1, 2", schedule={"interval": 300})
-        with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
+        with patch.object(PostgreSQL, "run_query") as qr:
             qr.side_effect = ValueError("broken")
-            with self.assertRaises(QueryExecutionError):
-                execute_query("SELECT 1, 2",
-                              self.factory.data_source.id, {},
-                              scheduled_query_id=q.id)
+            result = execute_query(
+                "SELECT 1, 2",
+                self.factory.data_source.id,
+                {"query_id": q.id},
+                scheduled_query_id=q.id,
+            )
+            self.assertTrue(isinstance(result, QueryExecutionError))
             q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 1)
 
-        with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
+        with patch.object(PostgreSQL, "run_query") as qr:
             qr.return_value = ([1, 2], None)
-            execute_query("SELECT 1, 2",
-                          self.factory.data_source.id, {},
-                          scheduled_query_id=q.id)
+            execute_query(
+                "SELECT 1, 2",
+                self.factory.data_source.id,
+                {"query_id": q.id},
+                scheduled_query_id=q.id,
+            )
+            q = models.Query.get_by_id(q.id)
+            self.assertEqual(q.schedule_failures, 0)
+
+    def test_adhoc_success_after_scheduled_failure(self, _):
+        """
+        Query execution success resets the failure counter, even if it runs as an adhoc query.
+        """
+        q = self.factory.create_query(query_text="SELECT 1, 2", schedule={"interval": 300})
+        with patch.object(PostgreSQL, "run_query") as qr:
+            qr.side_effect = ValueError("broken")
+            result = execute_query(
+                "SELECT 1, 2",
+                self.factory.data_source.id,
+                {"query_id": q.id},
+                scheduled_query_id=q.id,
+                user_id=self.factory.user.id,
+            )
+            self.assertTrue(isinstance(result, QueryExecutionError))
+            q = models.Query.get_by_id(q.id)
+            self.assertEqual(q.schedule_failures, 1)
+
+        with patch.object(PostgreSQL, "run_query") as qr:
+            qr.return_value = ([1, 2], None)
+            execute_query(
+                "SELECT 1, 2",
+                self.factory.data_source.id,
+                {"query_id": q.id},
+                user_id=self.factory.user.id,
+            )
             q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 0)
