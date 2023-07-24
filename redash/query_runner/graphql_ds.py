@@ -112,7 +112,7 @@ def flatten_dict(data, parent_key='', sep='_'):
             items.append((new_key, v))
     return dict(items)
 
-def parse_json(data, path, fields,block_number=None):
+def parse_json(data, path, fields):
     data = _normalize_json(data, path)
 
     rows = []
