@@ -92,7 +92,7 @@
     "lodash": "^4.17.10",
     "moment": "^2.19.3",
     "numeral": "^2.0.6",
-    "plotly.js": "1.52.3",
+    "plotly.js": "1.54.4",
     "react-pivottable": "^0.9.0",
     "react-sortable-hoc": "^1.10.1",
     "tinycolor2": "^1.4.1",
