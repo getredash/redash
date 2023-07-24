@@ -69,7 +69,7 @@ class Pinot(BaseQueryRunner):
         self.password = self.configuration.get("password") or None
 
     def run_query(self, query, user):
-        logger.debug("Running query %s with username: %s, password: %s", query, self.username, self.password)
+        logger.debug("Running query %s with username: %s", query, self.username)
         connection = pinotdb.connect(
             host=self.configuration["brokerHost"],
             port=self.configuration["brokerPort"],
