@@ -51,7 +51,7 @@
     "@types/react-dom": "^17.0.0",
     "@types/tinycolor2": "^1.4.2",
     "babel-loader": "^8.1.0",
-    "babel-plugin-istanbul": "^6.0.0",
+    "babel-plugin-istanbul": "^6.1.1",
     "babel-plugin-module-resolver": "^4.0.0",
     "css-loader": "^3.5.2",
     "enzyme": "^3.8.0",
