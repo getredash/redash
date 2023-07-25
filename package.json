@@ -86,7 +86,7 @@
     "@babel/preset-env": "^7.22.9",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.22.5",
-    "@cypress/code-coverage": "^3.8.1",
+    "@cypress/code-coverage": "^3.11.0",
     "@percy/agent": "0.24.3",
     "@percy/cypress": "2.3.4",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
