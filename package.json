@@ -106,7 +106,7 @@
     "babel-loader": "^8.0.5",
     "babel-plugin-istanbul": "^6.1.1",
     "babel-plugin-transform-builtin-extend": "^1.1.2",
-    "copy-webpack-plugin": "^5.1.2",
+    "copy-webpack-plugin": "^6.4.1",
     "css-loader": "^1.0.1",
     "cypress": "6.0.1",
     "enzyme": "^3.8.0",
