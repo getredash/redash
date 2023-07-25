@@ -79,13 +79,13 @@
     "use-media": "^1.4.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.10.4",
-    "@babel/core": "^7.10.4",
-    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/cli": "^7.22.9",
+    "@babel/core": "^7.22.9",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/plugin-transform-object-assign": "^7.2.0",
-    "@babel/preset-env": "^7.10.4",
+    "@babel/preset-env": "^7.22.9",
     "@babel/preset-react": "^7.0.0",
-    "@babel/preset-typescript": "^7.10.4",
+    "@babel/preset-typescript": "^7.22.5",
     "@cypress/code-coverage": "^3.8.1",
     "@percy/agent": "0.24.3",
     "@percy/cypress": "2.3.4",
