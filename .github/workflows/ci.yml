@@ -5,7 +5,7 @@ on:
       - master
   pull_request:
 env:
-  NODE_VERSION: 14.17
+  NODE_VERSION: 16.20.1
 jobs:
   backend-lint:
     runs-on: ubuntu-22.04
