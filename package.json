@@ -126,7 +126,7 @@
     "eslint-plugin-no-only-tests": "^2.4.0",
     "eslint-plugin-react": "^7.17.0",
     "eslint-plugin-react-hooks": "^1.7.0",
-    "file-loader": "^2.0.0",
+    "file-loader": "^6.2.0",
     "html-webpack-plugin": "^4.5.2",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.1.0",
