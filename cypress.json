@@ -4,7 +4,7 @@
   "videoUploadOnPasses": false,
   "fixturesFolder": "client/cypress/fixtures",
   "integrationFolder": "client/cypress/integration",
-  "pluginsFile": "client/cypress/plugins/index.js",
+  "pluginsFile": false,
   "screenshotsFolder": "client/cypress/screenshots",
   "videosFolder": "client/cypress/videos",
   "supportFile": "client/cypress/support/index.js",
