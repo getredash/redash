@@ -5,9 +5,10 @@ import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 import Divider from "antd/lib/divider";
-import HtmlContent from "@/components/HtmlContent";
+import Link from "@/components/Link";
+import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import notification from "@/services/notification";
 
@@ -40,11 +41,30 @@ function TextboxDialog({ dialog, isNew, ...props }) {
     });
   }, [dialog, isNew, text]);
 
+  const confirmDialogDismiss = useCallback(() => {
+    const originalText = props.text;
+    if (text !== originalText) {
+      Modal.confirm({
+        title: "Quit editing?",
+        content: "Changes you made so far will not be saved. Are you sure?",
+        okText: "Yes, quit",
+        okType: "danger",
+        onOk: () => dialog.dismiss(),
+        maskClosable: true,
+        autoFocusButton: null,
+        style: { top: 170 },
+      });
+    } else {
+      dialog.dismiss();
+    }
+  }, [dialog, text, props.text]);
+
   return (
     <Modal
       {...dialog.props}
       title={isNew ? "Add Textbox" : "Edit Textbox"}
       onOk={saveWidget}
+      onCancel={confirmDialogDismiss}
       okText={isNew ? "Add to Dashboard" : "Save"}
       width={500}
       wrapProps={{ "data-test": "TextboxDialog" }}>
@@ -53,15 +73,19 @@ function TextboxDialog({ dialog, isNew, ...props }) {
           className="resize-vertical"
           rows="5"
           value={text}
+          aria-label="Textbox widget content"
           onChange={handleInputChange}
           autoFocus
           placeholder="This is where you write some text"
         />
         <small>
           Supports basic{" "}
-          <a target="_blank" rel="noopener noreferrer" href="https://www.markdownguide.org/cheat-sheet/#basic-syntax">
+          <Link
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://www.markdownguide.org/cheat-sheet/#basic-syntax">
             <Tooltip title="Markdown guide opens in new window">Markdown</Tooltip>
-          </a>
+          </Link>
           .
         </small>
         {text && (

@@ -76,3 +76,9 @@ class TestPythonQueryRunner(TestCase):
                                     ' "rows": [{"col1": 1, "col2": "foo"},'
                                     ' {"col1": 2, "col2": "bar"}],'
                                     ' "log": []}')
+        
+        
+class TestPython(TestCase):
+    def test_sorted_safe_builtins(self):
+        src = list(Python.safe_builtins)
+        assert src == sorted(src), "Python safe_builtins package not sorted."

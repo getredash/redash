@@ -1,11 +1,15 @@
+import os
+
 import sentry_sdk
 from funcy import iffy
 from sentry_sdk.integrations.flask import FlaskIntegration
-from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 from sentry_sdk.integrations.rq import RqIntegration
-from redash import settings, __version__
+from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
+from redash import __version__, settings
+
+TRACES_SAMPLE_RATE = float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.0"))
 
 NON_REPORTED_EXCEPTIONS = ["QueryExecutionError"]
 
@@ -33,7 +37,8 @@ def init():
                 RedisIntegration(),
                 RqIntegration(),
             ],
+            traces_sample_rate=TRACES_SAMPLE_RATE,
         )
 
 
-capture_message = iffy(lambda _: settings.SENTRY_DSN, sentry_sdk.capture_message)
+capture_exception = iffy(lambda _: settings.SENTRY_DSN, sentry_sdk.capture_exception)

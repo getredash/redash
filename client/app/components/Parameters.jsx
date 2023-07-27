@@ -1,11 +1,12 @@
 import { size, filter, forEach, extend } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import { SortableContainer, SortableElement, DragHandle } from "@/components/sortable";
+import { SortableContainer, SortableElement, DragHandle } from "@redash/viz/lib/components/sortable";
 import location from "@/services/location";
 import { Parameter, createParameter } from "@/services/parameters";
 import ParameterApplyButton from "@/components/ParameterApplyButton";
 import ParameterValueInput from "@/components/ParameterValueInput";
+import PlainButton from "@/components/PlainButton";
 import EditParameterSettingsDialog from "./EditParameterSettingsDialog";
 import { toHuman } from "@/lib/utils";
 
@@ -23,19 +24,23 @@ export default class Parameters extends React.Component {
   static propTypes = {
     parameters: PropTypes.arrayOf(PropTypes.instanceOf(Parameter)),
     editable: PropTypes.bool,
+    sortable: PropTypes.bool,
     disableUrlUpdate: PropTypes.bool,
     onValuesChange: PropTypes.func,
     onPendingValuesChange: PropTypes.func,
     onParametersEdit: PropTypes.func,
+    appendSortableToParent: PropTypes.bool,
   };
 
   static defaultProps = {
     parameters: [],
     editable: false,
+    sortable: false,
     disableUrlUpdate: false,
     onValuesChange: () => {},
     onPendingValuesChange: () => {},
     onParametersEdit: () => {},
+    appendSortableToParent: true,
   };
 
   constructor(props) {
@@ -85,7 +90,7 @@ export default class Parameters extends React.Component {
     if (oldIndex !== newIndex) {
       this.setState(({ parameters }) => {
         parameters.splice(newIndex, 0, parameters.splice(oldIndex, 1)[0]);
-        onParametersEdit();
+        onParametersEdit(parameters);
         return { parameters };
       });
     }
@@ -110,7 +115,7 @@ export default class Parameters extends React.Component {
       this.setState(({ parameters }) => {
         const updatedParameter = extend(parameter, updated);
         parameters[index] = createParameter(updatedParameter, updatedParameter.parentQueryId);
-        onParametersEdit();
+        onParametersEdit(parameters);
         return { parameters };
       });
     });
@@ -123,13 +128,14 @@ export default class Parameters extends React.Component {
         <div className="parameter-heading">
           <label>{param.title || toHuman(param.name)}</label>
           {editable && (
-            <button
+            <PlainButton
               className="btn btn-default btn-xs m-l-5"
+              aria-label="Edit"
               onClick={() => this.showParameterSettings(param, index)}
               data-test={`ParameterSettings-${param.name}`}
               type="button">
-              <i className="fa fa-cog" />
-            </button>
+              <i className="fa fa-cog" aria-hidden="true" />
+            </PlainButton>
           )}
         </div>
         <ParameterValueInput
@@ -146,15 +152,17 @@ export default class Parameters extends React.Component {
 
   render() {
     const { parameters } = this.state;
-    const { editable } = this.props;
+    const { sortable, appendSortableToParent } = this.props;
     const dirtyParamCount = size(filter(parameters, "hasPendingValue"));
+
     return (
       <SortableContainer
-        disabled={!editable}
+        disabled={!sortable}
         axis="xy"
         useDragHandle
         lockToContainerEdges
         helperClass="parameter-dragged"
+        helperContainer={containerEl => (appendSortableToParent ? containerEl : document.body)}
         updateBeforeSortStart={this.onBeforeSortStart}
         onSortEnd={this.moveParameter}
         containerProps={{
@@ -163,8 +171,11 @@ export default class Parameters extends React.Component {
         }}>
         {parameters.map((param, index) => (
           <SortableElement key={param.name} index={index}>
-            <div className="parameter-block" data-editable={editable || null}>
-              {editable && <DragHandle data-test={`DragHandle-${param.name}`} />}
+            <div
+              className="parameter-block"
+              data-editable={sortable || null}
+              data-test={`ParameterBlock-${param.name}`}>
+              {sortable && <DragHandle data-test={`DragHandle-${param.name}`} />}
               {this.renderParameter(param, index)}
             </div>
           </SortableElement>

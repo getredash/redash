@@ -1,5 +1,5 @@
 import React from "react";
-import { each, includes, isUndefined, isEmpty, isNil, map } from "lodash";
+import { each, includes, isUndefined, isEmpty, isNil, map, get, some } from "lodash";
 
 function orderedInputs(properties, order, targetOptions) {
   const inputs = new Array(order.length);
@@ -124,8 +124,18 @@ function getBase64(file) {
   });
 }
 
+function hasFilledExtraField(type, target) {
+  const extraOptions = get(type, "configuration_schema.extra_options", []);
+  return some(extraOptions, optionName => {
+    const defaultOptionValue = get(type, ["configuration_schema", "properties", optionName, "default"]);
+    const targetOptionValue = get(target, ["options", optionName]);
+    return !isNil(targetOptionValue) && targetOptionValue !== defaultOptionValue;
+  });
+}
+
 export default {
   getFields,
   updateTargetWithValues,
   getBase64,
+  hasFilledExtraField,
 };
