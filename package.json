@@ -134,7 +134,7 @@
     "less-loader": "^5.0.0",
     "less-plugin-autoprefix": "^2.0.0",
     "lodash": "^4.17.21",
-    "mini-css-extract-plugin": "^0.4.4",
+    "mini-css-extract-plugin": "^1.6.2",
     "mockdate": "^2.0.2",
     "npm-run-all": "^4.1.5",
     "prettier": "^1.19.1",
