@@ -303,26 +303,31 @@ class Python(BaseQueryRunner):
         if index_to_col:
             df.reset_index(inplace=True)
 
-        result = {'columns': [], 'rows': []}
+        result = {"columns": [], "rows": []}
         conversions = [
-            {'pandas_type': np.integer, 'redash_type': 'integer'},
-            {'pandas_type': np.inexact, 'redash_type': 'float'},
-            {'pandas_type': np.datetime64, 'redash_type': 'datetime',
-             'to_redash': lambda x: x.strftime('%Y-%m-%d %H:%M:%S')},
-            {'pandas_type': np.bool_, 'redash_type': 'boolean'},
-            {'pandas_type': np.object, 'redash_type': 'string'}
+            {"pandas_type": np.integer, "redash_type": "integer"},
+            {"pandas_type": np.inexact, "redash_type": "float"},
+            {
+                "pandas_type": np.datetime64,
+                "redash_type": "datetime",
+                "to_redash": lambda x: x.strftime("%Y-%m-%d %H:%M:%S"),
+            },
+            {"pandas_type": np.bool_, "redash_type": "boolean"},
+            {"pandas_type": np.object, "redash_type": "string"},
         ]
         labels = []
         for dtype, label in zip(df.dtypes, df.columns):
             for conversion in conversions:
-                if issubclass(dtype.type, conversion['pandas_type']):
-                    result['columns'].append({'name': label, 'friendly_name': label, 'type': conversion['redash_type']})
+                if issubclass(dtype.type, conversion["pandas_type"]):
+                    result["columns"].append(
+                        {"name": label, "friendly_name": label, "type": conversion["redash_type"]}
+                    )
                     labels.append(label)
-                    func = conversion.get('to_redash')
+                    func = conversion.get("to_redash")
                     if func:
                         df[label] = df[label].apply(func)
                     break
-        result['rows'] = df[labels].replace({np.nan: None}).to_dict(orient='records')
+        result["rows"] = df[labels].replace({np.nan: None}).to_dict(orient="records")
         return result
 
     def run_query(self, query, user):
