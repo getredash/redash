@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<head>
+<style>
+span.status {
+  color: #fff;
+  border-radius: 2px;
+  padding: 3px 6px 4px;
+}
+span.UNKNOWN {
+  background-color: #ff9800;
+}
+span.TRIGGERED {
+  background-color: #f44336;
+}
+span.OK {
+  background-color: #4caf50;
+}
+
+body {
+  font-size: 13px;
+  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif;
+  color: #595959;
+}
+
+a {
+  color: #2196f3;
+}
+
+table {
+  width: 80%;
+}
+
+thead {
+  background: #fafafa;
+  white-space: nowrap;
+  text-align: left;
+}
+
+th, td {
+  padding: 7px 10px;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 6em;
+}
+</style>
+</head>
+
+<body>
+<p>
+  <span class="status {{{ALERT_STATUS}}}">STATUS: {{ALERT_STATUS}}</span>
+</p>
+
+<p>
+  CONDITION:
+  <code>
+  {{QUERY_RESULT_VALUE}} {{ALERT_CONDITION}} {{ALERT_THRESHOLD}}
+  </code>
+</p>
+
+<p>
+  QUERY:
+  <a href="{{QUERY_URL}}">{{QUERY_NAME}}</a>
+</p>
+
+<table>
+  <thead>
+    <tr>
+    {{#QUERY_RESULT_COLS}}
+    <th>{{friendly_name}}</th>
+    {{/QUERY_RESULT_COLS}}
+  </tr>
+  </thead>
+
+{{#QUERY_RESULT_TABLE}}
+  <tr>
+    {{#.}}
+    <td>{{.}}</td>
+    {{/.}}
+  </tr>
+{{/QUERY_RESULT_TABLE}}
+</table>
+
+<footer>
+</footer>
+
+</body>
+</html>

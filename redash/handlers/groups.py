@@ -1,9 +1,9 @@
-import time
 from flask import request
 from flask_restful import abort
+
 from redash import models
-from redash.permissions import require_admin, require_permission
 from redash.handlers.base import BaseResource, get_object_or_404
+from redash.permissions import require_admin, require_permission
 
 
 class GroupListResource(BaseResource):
@@ -14,9 +14,7 @@ class GroupListResource(BaseResource):
         models.db.session.add(group)
         models.db.session.commit()
 
-        self.record_event(
-            {"action": "create", "object_id": group.id, "object_type": "group"}
-        )
+        self.record_event({"action": "create", "object_id": group.id, "object_type": "group"})
 
         return group.to_dict()
 
@@ -24,13 +22,9 @@ class GroupListResource(BaseResource):
         if self.current_user.has_permission("admin"):
             groups = models.Group.all(self.current_org)
         else:
-            groups = models.Group.query.filter(
-                models.Group.id.in_(self.current_user.group_ids)
-            )
+            groups = models.Group.query.filter(models.Group.id.in_(self.current_user.group_ids))
 
-        self.record_event(
-            {"action": "list", "object_id": "groups", "object_type": "group"}
-        )
+        self.record_event({"action": "list", "object_id": "groups", "object_type": "group"})
 
         return [g.to_dict() for g in groups]
 
@@ -46,24 +40,17 @@ class GroupResource(BaseResource):
         group.name = request.json["name"]
         models.db.session.commit()
 
-        self.record_event(
-            {"action": "edit", "object_id": group.id, "object_type": "group"}
-        )
+        self.record_event({"action": "edit", "object_id": group.id, "object_type": "group"})
 
         return group.to_dict()
 
     def get(self, group_id):
-        if not (
-            self.current_user.has_permission("admin")
-            or int(group_id) in self.current_user.group_ids
-        ):
+        if not (self.current_user.has_permission("admin") or int(group_id) in self.current_user.group_ids):
             abort(403)
 
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
 
-        self.record_event(
-            {"action": "view", "object_id": group_id, "object_type": "group"}
-        )
+        self.record_event({"action": "view", "object_id": group_id, "object_type": "group"})
 
         return group.to_dict()
 
@@ -103,10 +90,7 @@ class GroupMemberListResource(BaseResource):
 
     @require_permission("list_users")
     def get(self, group_id):
-        if not (
-            self.current_user.has_permission("admin")
-            or int(group_id) in self.current_user.group_ids
-        ):
+        if not (self.current_user.has_permission("admin") or int(group_id) in self.current_user.group_ids):
             abort(403)
 
         members = models.Group.members(group_id)
@@ -140,9 +124,7 @@ class GroupDataSourceListResource(BaseResource):
     @require_admin
     def post(self, group_id):
         data_source_id = request.json["data_source_id"]
-        data_source = models.DataSource.get_by_id_and_org(
-            data_source_id, self.current_org
-        )
+        data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
 
         data_source_group = data_source.add_group(group)
@@ -161,18 +143,14 @@ class GroupDataSourceListResource(BaseResource):
 
     @require_admin
     def get(self, group_id):
-        group = get_object_or_404(
-            models.Group.get_by_id_and_org, group_id, self.current_org
-        )
+        group = get_object_or_404(models.Group.get_by_id_and_org, group_id, self.current_org)
 
         # TOOD: move to models
         data_sources = models.DataSource.query.join(models.DataSourceGroup).filter(
             models.DataSourceGroup.group == group
         )
 
-        self.record_event(
-            {"action": "list", "object_id": group_id, "object_type": "group"}
-        )
+        self.record_event({"action": "list", "object_id": group_id, "object_type": "group"})
 
         return [ds.to_dict(with_permissions_for=group) for ds in data_sources]
 
@@ -180,9 +158,7 @@ class GroupDataSourceListResource(BaseResource):
 class GroupDataSourceResource(BaseResource):
     @require_admin
     def post(self, group_id, data_source_id):
-        data_source = models.DataSource.get_by_id_and_org(
-            data_source_id, self.current_org
-        )
+        data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
         view_only = request.json["view_only"]
 
@@ -203,9 +179,7 @@ class GroupDataSourceResource(BaseResource):
 
     @require_admin
     def delete(self, group_id, data_source_id):
-        data_source = models.DataSource.get_by_id_and_org(
-            data_source_id, self.current_org
-        )
+        data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
 
         data_source.remove_group(group)

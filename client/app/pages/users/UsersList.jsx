@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import Link from "@/components/Link";
 import Paginator from "@/components/Paginator";
 import DynamicComponent from "@/components/DynamicComponent";
 import { UserPreviewCard } from "@/components/PreviewCard";
@@ -20,7 +21,6 @@ import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
 import Layout from "@/components/layouts/ContentWithSidebar";
-import CreateUserDialog from "@/components/users/CreateUserDialog";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 
 import { currentUser } from "@/services/auth";
@@ -29,6 +29,9 @@ import User from "@/services/user";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import { absoluteUrl } from "@/services/utils";
+import routes from "@/services/routes";
+
+import CreateUserDialog from "./components/CreateUserDialog";
 
 function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
   if (user.id === currentUser.id) {
@@ -96,9 +99,9 @@ class UsersList extends React.Component {
     Columns.custom.sortable(
       (text, user) =>
         map(user.groups, group => (
-          <a key={"group" + group.id} className="label label-tag" href={"groups/" + group.id}>
+          <Link key={"group" + group.id} className="label label-tag" href={"groups/" + group.id}>
             {group.name}
-          </a>
+          </Link>
         )),
       {
         title: "Groups",
@@ -151,7 +154,7 @@ class UsersList extends React.Component {
                 <p>
                   The mail server is not configured, please send the following link to <b>{user.name}</b>:
                 </p>
-                <InputWithCopy value={absoluteUrl(user.invite_link)} readOnly />
+                <InputWithCopy value={absoluteUrl(user.invite_link)} aria-label="Invite link" readOnly />
               </React.Fragment>
             ),
           });
@@ -194,7 +197,7 @@ class UsersList extends React.Component {
     return (
       <div className="m-b-15">
         <Button type="primary" disabled={!policy.isCreateUserEnabled()} onClick={this.showCreateUserDialog}>
-          <i className="fa fa-plus m-r-5" />
+          <i className="fa fa-plus m-r-5" aria-hidden="true" />
           New User
         </Button>
         <DynamicComponent name="UsersListExtra" />
@@ -209,14 +212,12 @@ class UsersList extends React.Component {
         {this.renderPageHeader()}
         <Layout>
           <Layout.Sidebar className="m-b-0">
-            <Sidebar.SearchInput value={controller.searchTerm} onChange={controller.updateSearch} />
-            <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
-            <Sidebar.PageSizeSelect
-              className="m-b-10"
-              options={controller.pageSizeOptions}
-              value={controller.itemsPerPage}
-              onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+            <Sidebar.SearchInput
+              value={controller.searchTerm}
+              onChange={controller.updateSearch}
+              label="Search users"
             />
+            <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
           </Layout.Sidebar>
           <Layout.Content>
             {!controller.isLoaded && <LoadingState className="" />}
@@ -232,8 +233,10 @@ class UsersList extends React.Component {
                   toggleSorting={controller.toggleSorting}
                 />
                 <Paginator
+                  showPageSizeSelect
                   totalCount={controller.totalItemsCount}
-                  itemsPerPage={controller.itemsPerPage}
+                  pageSize={controller.itemsPerPage}
+                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
                   page={controller.page}
                   onChange={page => controller.updatePagination({ page })}
                 />
@@ -247,6 +250,7 @@ class UsersList extends React.Component {
 }
 
 const UsersListPage = wrapSettingsTab(
+  "Users.List",
   {
     permission: "list_users",
     title: "Users",
@@ -281,25 +285,35 @@ const UsersListPage = wrapSettingsTab(
   )
 );
 
-export default [
+routes.register(
+  "Users.New",
   routeWithUserSession({
     path: "/users/new",
     title: "Users",
     render: pageProps => <UsersListPage {...pageProps} currentPage="active" isNewUserPage />,
-  }),
+  })
+);
+routes.register(
+  "Users.List",
   routeWithUserSession({
     path: "/users",
     title: "Users",
     render: pageProps => <UsersListPage {...pageProps} currentPage="active" />,
-  }),
+  })
+);
+routes.register(
+  "Users.Pending",
   routeWithUserSession({
     path: "/users/pending",
     title: "Pending Invitations",
     render: pageProps => <UsersListPage {...pageProps} currentPage="pending" />,
-  }),
+  })
+);
+routes.register(
+  "Users.Disabled",
   routeWithUserSession({
     path: "/users/disabled",
     title: "Disabled Users",
     render: pageProps => <UsersListPage {...pageProps} currentPage="disabled" />,
-  }),
-];
+  })
+);

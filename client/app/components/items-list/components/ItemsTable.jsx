@@ -1,8 +1,9 @@
-import { isFunction, map, filter, extend, omit, identity } from "lodash";
+import { isFunction, map, filter, extend, omit, identity, range, isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import Table from "antd/lib/table";
+import Skeleton from "antd/lib/skeleton";
 import FavoritesControl from "@/components/FavoritesControl";
 import TimeAgo from "@/components/TimeAgo";
 import { durationHumanize, formatDate, formatDateTime } from "@/lib/utils";
@@ -66,10 +67,10 @@ export const Columns = {
       overrides
     );
   },
-  timeAgo(overrides) {
+  timeAgo(overrides, timeAgoCustomProps = undefined) {
     return extend(
       {
-        render: value => <TimeAgo date={value} />,
+        render: value => <TimeAgo date={value} {...timeAgoCustomProps} />,
       },
       overrides
     );
@@ -109,6 +110,8 @@ export default class ItemsTable extends React.Component {
     orderByField: PropTypes.string,
     orderByReverse: PropTypes.bool,
     toggleSorting: PropTypes.func,
+    "data-test": PropTypes.string,
+    rowKey: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   };
 
   static defaultProps = {
@@ -141,7 +144,7 @@ export default class ItemsTable extends React.Component {
 
         return extend(omit(column, ["field", "orderByField", "render"]), {
           key: "column" + index,
-          dataIndex: "item[" + JSON.stringify(column.field) + "]",
+          dataIndex: ["item", column.field],
           defaultSortOrder: column.orderByField === orderByField ? orderByDirection : null,
           onHeaderCell,
           render,
@@ -150,9 +153,22 @@ export default class ItemsTable extends React.Component {
     );
   }
 
+  getRowKey = record => {
+    const { rowKey } = this.props;
+    if (rowKey) {
+      if (isFunction(rowKey)) {
+        return rowKey(record.item);
+      }
+      return record.item[rowKey];
+    }
+    return record.key;
+  };
+
   render() {
-    const columns = this.prepareColumns();
-    const rows = map(this.props.items, (item, index) => ({ key: "row" + index, item }));
+    const tableDataProps = {
+      columns: this.prepareColumns(),
+      dataSource: map(this.props.items, (item, index) => ({ key: "row" + index, item })),
+    };
 
     // Bind events only if `onRowClick` specified
     const onTableRow = isFunction(this.props.onRowClick)
@@ -164,17 +180,28 @@ export default class ItemsTable extends React.Component {
       : null;
 
     const { showHeader } = this.props;
+    if (this.props.loading) {
+      if (isEmpty(tableDataProps.dataSource)) {
+        tableDataProps.columns = tableDataProps.columns.map(column => ({
+          ...column,
+          sorter: false,
+          render: () => <Skeleton active paragraph={false} />,
+        }));
+        tableDataProps.dataSource = range(10).map(key => ({ key: `${key}` }));
+      } else {
+        tableDataProps.loading = { indicator: null };
+      }
+    }
 
     return (
       <Table
         className={classNames("table-data", { "ant-table-headerless": !showHeader })}
-        loading={this.props.loading}
-        columns={columns}
         showHeader={showHeader}
-        dataSource={rows}
-        rowKey={row => row.key}
+        rowKey={this.getRowKey}
         pagination={false}
         onRow={onTableRow}
+        data-test={this.props["data-test"]}
+        {...tableDataProps}
       />
     );
   }

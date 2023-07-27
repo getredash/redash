@@ -22,7 +22,7 @@ describe("Login", () => {
     cy.getByTestId("Password").type("password{enter}");
 
     cy.title().should("eq", "Redash");
-    cy.contains("Example Admin");
+    cy.get(`img.profile__image_thumb[alt="Example Admin"]`).should("exist");
 
     cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.percySnapshot("Homepage");

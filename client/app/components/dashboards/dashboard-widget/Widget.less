@@ -1,15 +1,8 @@
-@import '../../../assets/less/inc/variables';
-
-.tile .t-header .th-title a.query-link {
-  color: rgba(0, 0, 0, 0.5);
-}
-
-.th-title p.hidden-print {
-  margin-bottom: 0;
-}
+@import (reference, less) "~@/assets/less/inc/variables";
 
 .widget-wrapper {
   .widget-actions {
+    display: flex;
     position: absolute;
     top: 0;
     right: 0;
@@ -21,10 +14,19 @@
       line-height: 100%;
       display: block;
       padding: 4px 10px 3px;
-    }
 
-    .action:hover {
-      background-color: rgba(0, 0, 0, 0.1);
+      &:focus {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+
+      &:hover {
+        background-color: transparent;
+        color: @blue;
+      }
+
+      &:active {
+        filter: brightness(75%);
+      }
     }
   }
 
@@ -78,14 +80,11 @@
 }
 
 .editing-mode {
-  .widget-menu-regular {
-    display: none;
-  }
   .widget-menu-remove {
     display: block;
   }
 
-  a.query-link {
+  .query-link {
     pointer-events: none;
     cursor: move;
   }
@@ -151,7 +150,7 @@
     transition: all 100ms linear;
     transition-delay: 150ms;
     color: #bbbbbb;
-    background-color: rgba(255,255,255,.9);
+    background-color: rgba(255, 255, 255, 0.9);
     padding-left: 2px;
     padding-right: 1px;
     margin-right: -4px;
@@ -182,7 +181,8 @@
 }
 
 .tile {
-  .widget-menu-regular, .btn__refresh {
+  .widget-menu-regular,
+  .btn__refresh {
     opacity: 0 !important;
     transition: opacity 0.35s ease-in-out;
   }
@@ -191,10 +191,18 @@
     .th-title {
       padding-right: 23px; // no overlap on RefreshIndicator
 
-      a {
+      .hidden-print {
+        margin-bottom: 0;
+      }
+
+      .query-link {
         color: fade(@redash-black, 80%);
         font-size: 15px;
         font-weight: 500;
+
+        &:not(.visualization-name) {
+          color: fade(@redash-black, 50%);
+        }
       }
     }
 
@@ -213,8 +221,12 @@
     padding: 15px;
   }
 
-  &:hover {
-    .widget-menu-regular, .btn__refresh {
+  &:hover,
+  &:focus,
+  &:active,
+  &:focus-within {
+    .widget-menu-regular,
+    .btn__refresh {
       opacity: 1 !important;
       transition: opacity 0.35s ease-in-out;
     }
@@ -240,12 +252,12 @@
       }
     }
 
-
-
-    a {
+    a,
+    .plain-button {
       color: fade(@redash-black, 65%);
 
-      &:hover {
+      &:hover,
+      &:focus {
         color: fade(@redash-black, 95%);
       }
     }

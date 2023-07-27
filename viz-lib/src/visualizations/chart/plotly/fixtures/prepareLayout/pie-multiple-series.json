@@ -1,0 +1,53 @@
+{
+  "input": {
+    "options": {
+      "globalSeriesType": "pie",
+      "textFormat": "",
+      "legend": {
+        "traceorder": "normal"
+      }
+    },
+    "series": [{ "name": "a" }, { "name": "b" }, { "name": "c" }]
+  },
+  "output": {
+    "layout": {
+      "margin": { "l": 10, "r": 10, "b": 5, "t": 20, "pad": 4 },
+      "width": 400,
+      "height": 300,
+      "autosize": false,
+      "showlegend": true,
+      "legend": {
+        "traceorder": "normal"
+      },
+      "hoverlabel": {
+        "namelength": -1
+      },
+      "annotations": [
+        {
+          "x": 0.24,
+          "y": 0.485,
+          "xanchor": "center",
+          "yanchor": "top",
+          "text": "a",
+          "showarrow": false
+        },
+        {
+          "x": 0.74,
+          "y": 0.485,
+          "xanchor": "center",
+          "yanchor": "top",
+          "text": "b",
+          "showarrow": false
+        },
+        {
+          "x": 0.24,
+          "y": 0.985,
+          "xanchor": "center",
+          "yanchor": "top",
+          "text": "c",
+          "showarrow": false
+        }
+      ]
+    }
+  }
+}

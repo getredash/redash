@@ -6,7 +6,6 @@ from redash.query_runner.python import Python
 
 
 class TestPythonQueryRunner(TestCase):
-
     def setUp(self):
         self.python = Python({})
 
@@ -62,3 +61,9 @@ class TestPythonQueryRunner(TestCase):
                                     ' "rows": [{"col1": "foo", "col2": 100},'
                                     ' {"col1": "bar", "col2": 200}],'
                                     ' "log": ["[1901-12-21T00:00:00] test"]}')
+
+        
+class TestPython(TestCase):
+    def test_sorted_safe_builtins(self):
+        src = list(Python.safe_builtins)
+        assert src == sorted(src), "Python safe_builtins package not sorted."
