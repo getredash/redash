@@ -1,4 +1,5 @@
 import React from "react";
+import getData from "./getData";
 
 import "./Renderer.less";
 
@@ -23,15 +24,15 @@ function LocationCard({ index, name, value, thumbnail }: Country & { index: numb
 function SafeTopLocations({ items }: any) {
   return (
     <div className="list-container">
-      {items.map(({ title, rating, thumbnail }: any, i: any) => (
-        <LocationCard key={i} index={i + 1} name={title} value={rating} thumbnail={thumbnail} />
+      {items.map(({ x, y, thumbnail }: any, i: any) => (
+        <LocationCard key={i} index={i + 1} name={x} value={y} thumbnail={thumbnail} />
       ))}
     </div>
   );
 }
 
-export default function Renderer({ options, data }: any) {
-  const items = data.rows.slice(0, 9);
+export default function Renderer(input: any) {
+  const items = getData(input.data.rows, input.options);
 
   return <SafeTopLocations items={items} />;
 }
