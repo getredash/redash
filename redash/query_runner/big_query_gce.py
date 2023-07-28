@@ -63,7 +63,7 @@ class BigQueryGCE(BigQuery):
         return requests.get(
             "http://metadata/computeMetadata/v1/project/project-id",
             headers={"Metadata-Flavor": "Google"},
-        ).content
+        ).text
 
     def _get_bigquery_service(self):
         credentials = gce.AppAssertionCredentials(scope="https://www.googleapis.com/auth/bigquery")
