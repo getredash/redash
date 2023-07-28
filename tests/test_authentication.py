@@ -1,9 +1,13 @@
 import importlib
+import json
 import os
+import subprocess
 import time
 
+import jwcrypto.jwk
+import requests
 from flask import request
-from mock import patch
+from mock import Mock, patch
 from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models, settings
@@ -11,6 +15,8 @@ from redash.authentication import (
     api_key_load_user_from_request,
     get_login_url,
     hmac_load_user_from_request,
+    jwt_auth,
+    org_settings,
     sign,
 )
 from redash.authentication.google_oauth import (
@@ -405,3 +411,45 @@ class TestUserForgotPassword(BaseTestCase):
             self.assertEqual(response.status_code, 200)
             send_password_reset_email_mock.assert_not_called()
             send_user_disabled_email_mock.assert_called_with(user)
+
+
+class TestJWTAuthentication(BaseTestCase):
+    def setUp(self):
+        super(TestJWTAuthentication, self).setUp()
+        self.auth_audience = "My Org"
+        self.auth_issuer = "Admin"
+        self.token_name = "jwt-token"
+        self.rsa_private_key = "/tmp/jwtRS256.key"
+        self.rsa_public_key = "/tmp/jwtRS256.pem"
+
+        if not os.path.exists(self.rsa_public_key):
+            subprocess.check_output(["openssl", "genrsa", "-out", self.rsa_private_key, "4096"])
+            subprocess.check_output(
+                ["openssl", "rsa", "-pubout", "-in", self.rsa_private_key, "-out", self.rsa_public_key]
+            )
+
+        org_settings["auth_jwt_login_enabled"] = True
+        org_settings["auth_jwt_auth_public_certs_url"] = "file://{}".format(self.rsa_public_key)
+        org_settings["auth_jwt_auth_issuer"] = self.auth_issuer
+        org_settings["auth_jwt_auth_audience"] = self.auth_audience
+        org_settings["auth_jwt_auth_header_name"] = self.token_name
+
+    def tearDown(self):
+        org_settings["auth_jwt_login_enabled"] = False
+        org_settings["auth_jwt_auth_public_certs_url"] = ""
+        org_settings["auth_jwt_auth_issuer"] = ""
+        org_settings["auth_jwt_auth_audience"] = ""
+        org_settings["auth_jwt_auth_header_name"] = ""
+
+    @patch.object(requests, "get")
+    def test_jwk_decode(self, mock_get):
+        with open(self.rsa_public_key, "rb") as keyfile:
+            public_key = jwcrypto.jwk.JWK.from_pem(keyfile.read())
+            jwk_keys = {"keys": [json.loads(public_key.export())]}
+
+        mockresponse = Mock()
+        mockresponse.json = lambda: jwk_keys
+        mock_get.return_value = mockresponse
+
+        keys = jwt_auth.get_public_keys("http://localhost/key.jwt")
+        self.assertEqual(keys[0].key_size, 4096)

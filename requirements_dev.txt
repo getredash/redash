@@ -1,3 +1,4 @@
+jwcrypto==1.5.0
 pytest==7.4.0
 pytest-cov==4.1.0
 coverage==7.2.7
