@@ -1,6 +1,6 @@
 import debug from "debug";
 import dayjs from "dayjs";
-import utc from 'dayjs/plugin/utc';
+import utc from "dayjs/plugin/utc";
 import { axios } from "@/services/axios";
 import { QueryResultError } from "@/services/query";
 import { Auth } from "@/services/auth";

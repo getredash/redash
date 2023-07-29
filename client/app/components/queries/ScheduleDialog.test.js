@@ -1,7 +1,7 @@
 import React from "react";
 import { mount } from "enzyme";
 import dayjs from "dayjs";
-import utc from 'dayjs/plugin/utc';
+import utc from "dayjs/plugin/utc";
 import ScheduleDialog, { TimeEditor } from "./ScheduleDialog";
 import RefreshScheduleDefault from "../proptypes";
 dayjs.extend(utc);

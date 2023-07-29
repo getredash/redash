@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import dayjs from "dayjs";
-import utc from 'dayjs/plugin/utc';
+import utc from "dayjs/plugin/utc";
 import PropTypes from "prop-types";
 import { Dayjs } from "@/components/proptypes";
 dayjs.extend(utc);

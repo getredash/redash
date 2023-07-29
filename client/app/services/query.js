@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import utc from 'dayjs/plugin/utc';
+import utc from "dayjs/plugin/utc";
 import debug from "debug";
 import Mustache from "mustache";
 import { axios } from "@/services/axios";
