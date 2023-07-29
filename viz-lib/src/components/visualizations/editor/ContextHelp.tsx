@@ -46,7 +46,7 @@ function DateTimeFormatSpecs() {
   return (
     <HelpTriggerComponent
       title="Formatting Dates and Times"
-      href="https://momentjs.com/docs/#/displaying/format/"
+      href="https://day.js.org/docs/en/display/format"
       className="visualization-editor-context-help">
       {ContextHelp.defaultIcon}
     </HelpTriggerComponent>

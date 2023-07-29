@@ -4,7 +4,7 @@
  */
 
 import { isNil, isFinite, map, extend, min, max } from "lodash";
-import moment from "moment";
+import dayjs from "dayjs";
 import chroma from "chroma-js";
 import React, { useMemo } from "react";
 import Tooltip from "antd/lib/tooltip";
@@ -13,7 +13,7 @@ import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
 
 import "./cornelius.less";
 
-const momentInterval = {
+const dayjsInterval = {
   daily: "days",
   weekly: "weeks",
   monthly: "months",
@@ -53,7 +53,7 @@ const defaultOptions = {
 
 function prepareOptions(options: any) {
   options = extend({}, defaultOptions, options, {
-    initialDate: moment(options.initialDate),
+    initialDate: dayjs(options.initialDate),
     colors: extend({}, defaultOptions.colors, options.colors),
   });
 
@@ -83,7 +83,7 @@ function formatStageTitle(options: any, index: any) {
 
 function formatTimeLabel(options: any, offset: any) {
   // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-  const interval = momentInterval[options.timeInterval];
+  const interval = dayjsInterval[options.timeInterval];
   return options.initialDate
     .clone()
     .add(offset, interval)

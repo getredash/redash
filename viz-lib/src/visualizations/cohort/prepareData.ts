@@ -1,7 +1,7 @@
 import _ from "lodash";
-import moment from "moment";
+import dayjs from "dayjs";
 
-const momentInterval = {
+const dayjsInterval = {
   weekly: "weeks",
   daily: "days",
   monthly: "months",
@@ -11,7 +11,7 @@ function groupData(sortedData: any) {
   const result = {};
 
   _.each(sortedData, item => {
-    const date = moment(item.date);
+    const date = dayjs(item.date);
     const groupKey = date.valueOf();
     // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     result[groupKey] = result[groupKey] || {
@@ -31,7 +31,7 @@ function prepareDiagonalData(sortedData: any, options: any) {
   const grouped = groupData(sortedData);
   const firstStage = _.min(_.map(sortedData, i => i.stage));
   // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-  const stageCount = moment(_.last(grouped).date).diff(_.first(grouped).date, momentInterval[timeInterval]);
+  const stageCount = dayjs(_.last(grouped).date).diff(_.first(grouped).date, dayjsInterval[timeInterval]);
   let lastStage = firstStage + stageCount;
 
   let previousDate: any = null;
@@ -40,7 +40,7 @@ function prepareDiagonalData(sortedData: any, options: any) {
   _.each(grouped, group => {
     if (previousDate !== null) {
       // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-      let diff = Math.abs(previousDate.diff(group.date, momentInterval[timeInterval]));
+      let diff = Math.abs(previousDate.diff(group.date, dayjsInterval[timeInterval]));
       while (diff > 1) {
         const row = [0];
         for (let stage = firstStage; stage <= lastStage; stage += 1) {
@@ -85,7 +85,7 @@ function prepareSimpleData(sortedData: any, options: any) {
   _.each(grouped, group => {
     if (previousDate !== null) {
       // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-      let diff = Math.abs(previousDate.diff(group.date, momentInterval[timeInterval]));
+      let diff = Math.abs(previousDate.diff(group.date, dayjsInterval[timeInterval]));
       while (diff > 1) {
         data.push([0]);
         diff -= 1;
@@ -131,7 +131,7 @@ export default function prepareData(rawData: any, options: any) {
     value: parseFloat(item[options.valueColumn]),
   }));
   const sortedData = _.sortBy(rawData, r => r.date + r.stage);
-  const initialDate = moment(sortedData[0].date).toDate();
+  const initialDate = dayjs(sortedData[0].date).toDate();
 
   let data;
   switch (options.mode) {
