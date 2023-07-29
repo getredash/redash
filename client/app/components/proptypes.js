@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { wrap } from "lodash";
-import moment from "moment";
+import dayjs from "dayjs";
 
 export const DataSource = PropTypes.shape({
   syntax: PropTypes.string,
@@ -88,14 +88,14 @@ export const Alert = PropTypes.shape({
   }).isRequired,
 });
 
-function checkMoment(isRequired, props, propName, componentName) {
+function checkDayjs(isRequired, props, propName, componentName) {
   const value = props[propName];
-  const isRequiredValid = isRequired && value !== null && value !== undefined && moment.isMoment(value);
-  const isOptionalValid = !isRequired && (value === null || value === undefined || moment.isMoment(value));
+  const isRequiredValid = isRequired && value !== null && value !== undefined && dayjs.isDayjs(value);
+  const isOptionalValid = !isRequired && (value === null || value === undefined || dayjs.isDayjs(value));
   if (!isRequiredValid && !isOptionalValid) {
-    return new Error("Prop `" + propName + "` supplied to `" + componentName + "` should be a Moment.js instance.");
+    return new Error("Prop `" + propName + "` supplied to `" + componentName + "` should be a Day.js instance.");
   }
 }
 
-export const Moment = wrap(false, checkMoment);
-Moment.isRequired = wrap(true, checkMoment);
+export const Dayjs = wrap(false, checkDayjs);
+Dayjs.isRequired = wrap(true, checkDayjs);

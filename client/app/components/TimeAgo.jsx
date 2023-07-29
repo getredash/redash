@@ -1,18 +1,18 @@
-import moment from "moment";
+import dayjs from "dayjs";
 import { isNil } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
-import { Moment } from "@/components/proptypes";
+import { Dayjs } from "@/components/proptypes";
 import { clientConfig } from "@/services/auth";
 import Tooltip from "@/components/Tooltip";
 
-function toMoment(value) {
-  value = !isNil(value) ? moment(value) : null;
+function toDayjs(value) {
+  value = !isNil(value) ? dayjs(value) : null;
   return value && value.isValid() ? value : null;
 }
 
 export default function TimeAgo({ date, placeholder, autoUpdate, variation }) {
-  const startDate = toMoment(date);
+  const startDate = toDayjs(date);
   const [value, setValue] = useState(null);
   const title = useMemo(() => (startDate ? startDate.format(clientConfig.dateTimeFormat) : null), [startDate]);
 
@@ -43,7 +43,7 @@ export default function TimeAgo({ date, placeholder, autoUpdate, variation }) {
 }
 
 TimeAgo.propTypes = {
-  date: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.instanceOf(Date), Moment]),
+  date: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.instanceOf(Date), Dayjs]),
   placeholder: PropTypes.string,
   autoUpdate: PropTypes.bool,
   variation: PropTypes.oneOf(["timeAgoInTooltip"]),

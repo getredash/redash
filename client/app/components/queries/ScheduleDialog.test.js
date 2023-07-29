@@ -1,8 +1,10 @@
 import React from "react";
 import { mount } from "enzyme";
-import moment from "moment";
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
 import ScheduleDialog, { TimeEditor } from "./ScheduleDialog";
 import RefreshScheduleDefault from "../proptypes";
+dayjs.extend(utc);
 
 const defaultProps = {
   schedule: RefreshScheduleDefault,
@@ -99,7 +101,7 @@ describe("ScheduleDialog", () => {
     });
 
     describe("TimeEditor", () => {
-      const defaultValue = moment()
+      const defaultValue = dayjs()
         .hour(5)
         .minute(25); // 05:25
 
@@ -112,7 +114,7 @@ describe("ScheduleDialog", () => {
       });
 
       test("UTC time should not render", () => {
-        const utcValue = moment.utc(defaultValue);
+        const utcValue = dayjs.utc(defaultValue);
         const editor = mount(<TimeEditor defaultValue={utcValue} onChange={() => {}} />);
         const utc = findByTestID(editor, "utc");
 

@@ -1,7 +1,7 @@
 import { find, has } from "lodash";
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-import moment from "moment";
+import dayjs from "dayjs";
 import { markdown } from "markdown";
 
 import Button from "antd/lib/button";
@@ -11,7 +11,7 @@ import Tooltip from "@/components/Tooltip";
 import Link from "@/components/Link";
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
 import Parameters from "@/components/Parameters";
-import { Moment } from "@/components/proptypes";
+import { Dayjs } from "@/components/proptypes";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
 import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
@@ -142,7 +142,7 @@ VisualizationEmbedFooter.propTypes = {
   query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   queryResults: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   updatedAt: PropTypes.string,
-  refreshStartedAt: Moment,
+  refreshStartedAt: Dayjs,
   queryUrl: PropTypes.string,
   hideTimestamp: PropTypes.bool,
   apiKey: PropTypes.string,
@@ -183,7 +183,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
   const refreshQueryResults = useCallback(() => {
     if (query) {
       setError(null);
-      setRefreshStartedAt(moment());
+      setRefreshStartedAt(dayjs());
       query
         .getQueryResultPromise()
         .then(result => {

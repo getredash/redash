@@ -6,15 +6,24 @@ import TimePicker from "antd/lib/time-picker";
 import Select from "antd/lib/select";
 import Radio from "antd/lib/radio";
 import { capitalize, clone, isEqual, omitBy, isNil, isEmpty } from "lodash";
-import moment from "moment";
 import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from "@/lib/utils";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import { RefreshScheduleType, RefreshScheduleDefault, Moment } from "../proptypes";
-
+import { RefreshScheduleType, RefreshScheduleDefault, Dayjs } from "../proptypes";
 import "./ScheduleDialog.css";
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
+import localeData from 'dayjs/plugin/localeData';
+import updateLocale from 'dayjs/plugin/updateLocale';
+dayjs.extend(utc);
+dayjs.extend(localeData);
+dayjs.extend(updateLocale);
+dayjs.updateLocale('en', {
+  weekdaysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+});
 
-const WEEKDAYS_SHORT = moment.weekdaysShort();
-const WEEKDAYS_FULL = moment.weekdays();
+
+const WEEKDAYS_SHORT = dayjs.weekdaysShort();
+const WEEKDAYS_FULL = dayjs.weekdays();
 const DATE_FORMAT = "YYYY-MM-DD";
 const HOUR_FORMAT = "HH:mm";
 const { Option, OptGroup } = Select;
@@ -33,7 +42,7 @@ export function TimeEditor(props) {
       <TimePicker allowClear={false} value={time} format={HOUR_FORMAT} minuteStep={5} onChange={onChange} />
       {showUtc && (
         <span className="utc" data-testid="utc">
-          ({moment.utc(time).format(HOUR_FORMAT)} UTC)
+          ({dayjs.utc(time).format(HOUR_FORMAT)} UTC)
         </span>
       )}
     </React.Fragment>
@@ -41,7 +50,7 @@ export function TimeEditor(props) {
 }
 
 TimeEditor.propTypes = {
-  defaultValue: Moment,
+  defaultValue: Dayjs,
   onChange: PropTypes.func.isRequired,
 };
 
@@ -103,7 +112,7 @@ class ScheduleDialog extends React.Component {
 
   setTime = time => {
     this.newSchedule = {
-      time: moment(time)
+      time: dayjs(time)
         .utc()
         .format(HOUR_FORMAT),
     };
@@ -127,10 +136,10 @@ class ScheduleDialog extends React.Component {
       (newInterval === IntervalEnum.DAYS || newInterval === IntervalEnum.WEEKS) &&
       (!this.state.minute || !this.state.hour)
     ) {
-      newSchedule.time = moment()
+      newSchedule.time = dayjs()
+        .utc()
         .hour("00")
         .minute("15")
-        .utc()
         .format(HOUR_FORMAT);
     }
     if (newInterval === IntervalEnum.WEEKS && !this.state.dayOfWeek) {
@@ -165,7 +174,7 @@ class ScheduleDialog extends React.Component {
   };
 
   setUntilToggle = e => {
-    const date = e.target.value ? moment().format(DATE_FORMAT) : null;
+    const date = e.target.value ? dayjs().format(DATE_FORMAT) : null;
     this.setScheduleUntil(null, date);
   };
 
@@ -228,7 +237,7 @@ class ScheduleDialog extends React.Component {
               <TimeEditor
                 defaultValue={
                   hour
-                    ? moment()
+                    ? dayjs()
                         .hour(hour)
                         .minute(minute)
                     : null
@@ -264,7 +273,7 @@ class ScheduleDialog extends React.Component {
                 <DatePicker
                   size="small"
                   className="datepicker"
-                  value={moment(until)}
+                  value={dayjs(until)}
                   allowClear={false}
                   format={DATE_FORMAT}
                   onChange={this.setScheduleUntil}

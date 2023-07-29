@@ -1,4 +1,5 @@
-import moment from "moment";
+import dayjs from "dayjs";
+import updateLocale from 'dayjs/plugin/updateLocale';
 import { isFunction } from "lodash";
 
 // Ensure that this image will be available in assets folder
@@ -12,7 +13,8 @@ import "@/pages";
 
 import "./antd-spinner";
 
-moment.updateLocale("en", {
+dayjs.extend(updateLocale);
+dayjs.updateLocale("en", {
   relativeTime: {
     future: "%s",
     past: "%s",

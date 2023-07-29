@@ -1,5 +1,7 @@
-import moment from "moment";
+import dayjs from "dayjs";
 import { clientConfig } from "@/services/auth";
+import utc from 'dayjs/plugin/utc';
+dayjs.extend(utc);
 
 export const IntervalEnum = {
   NEVER: "Never",
@@ -25,7 +27,7 @@ function formatDateTimeValue(value, format) {
     return "";
   }
 
-  const parsed = moment(value);
+  const parsed = dayjs(value);
   if (!parsed.isValid()) {
     return "-";
   }
@@ -47,11 +49,11 @@ export function formatDate(value) {
 
 export function localizeTime(time) {
   const [hrs, mins] = time.split(":");
-  return moment
+  return dayjs
     .utc()
+    .local()
     .hour(hrs)
     .minute(mins)
-    .local()
     .format("HH:mm");
 }
 
@@ -191,7 +193,7 @@ export function join(arr) {
 }
 
 export function formatColumnValue(value, columnType = null) {
-  if (moment.isMoment(value)) {
+  if (dayjs.isDayjs(value)) {
     if (columnType === "date") {
       return formatDate(value);
     }

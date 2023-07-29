@@ -1,5 +1,5 @@
 import { isArray, indexOf, get, map, includes, every, some, toNumber } from "lodash";
-import moment from "moment";
+import dayjs from "dayjs";
 import React from "react";
 import PropTypes from "prop-types";
 import Select from "antd/lib/select";
@@ -52,7 +52,7 @@ export function filterData(rows, filters = []) {
         const rowValue = row[filter.name];
         const filterValues = isArray(filter.current) ? filter.current : [filter.current];
         return some(filterValues, filterValue => {
-          if (moment.isMoment(rowValue)) {
+          if (dayjs.isDayjs(rowValue)) {
             return rowValue.isSame(filterValue);
           }
           // We compare with either the value or the String representation of the value,

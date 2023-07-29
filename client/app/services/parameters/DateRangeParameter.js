@@ -1,5 +1,5 @@
 import { startsWith, has, includes, findKey, values, isObject, isArray } from "lodash";
-import moment from "moment";
+import dayjs from "dayjs";
 import PropTypes from "prop-types";
 import Parameter from "./Parameter";
 
@@ -13,47 +13,47 @@ const DYNAMIC_PREFIX = "d_";
 
 /**
  * Dynamic date range preset value with end set to current time
- * @param from {function(): moment.Moment}
- * @param now {function(): moment.Moment=} moment - defaults to now
- * @returns {function(withNow: boolean): [moment.Moment, moment.Moment|undefined]}
+ * @param from {function(): dayjs.Dayjs}
+ * @param now {function(): dayjs.Dayjs=} dayjs - defaults to now
+ * @returns {function(withNow: boolean): [dayjs.Dayjs, dayjs.Dayjs|undefined]}
  */
-const untilNow = (from, now = () => moment()) => (withNow = true) => [from(), withNow ? now() : undefined];
+const untilNow = (from, now = () => dayjs()) => (withNow = true) => [from(), withNow ? now() : undefined];
 
 const DYNAMIC_DATE_RANGES = {
   today: {
     name: "Today",
-    value: () => [moment().startOf("day"), moment().endOf("day")],
+    value: () => [dayjs().startOf("day"), dayjs().endOf("day")],
   },
   yesterday: {
     name: "Yesterday",
     value: () => [
-      moment()
+      dayjs()
         .subtract(1, "day")
         .startOf("day"),
-      moment()
+      dayjs()
         .subtract(1, "day")
         .endOf("day"),
     ],
   },
   this_week: {
     name: "This week",
-    value: () => [moment().startOf("week"), moment().endOf("week")],
+    value: () => [dayjs().startOf("week"), dayjs().endOf("week")],
   },
   this_month: {
     name: "This month",
-    value: () => [moment().startOf("month"), moment().endOf("month")],
+    value: () => [dayjs().startOf("month"), dayjs().endOf("month")],
   },
   this_year: {
     name: "This year",
-    value: () => [moment().startOf("year"), moment().endOf("year")],
+    value: () => [dayjs().startOf("year"), dayjs().endOf("year")],
   },
   last_week: {
     name: "Last week",
     value: () => [
-      moment()
+      dayjs()
         .subtract(1, "week")
         .startOf("week"),
-      moment()
+      dayjs()
         .subtract(1, "week")
         .endOf("week"),
     ],
@@ -61,10 +61,10 @@ const DYNAMIC_DATE_RANGES = {
   last_month: {
     name: "Last month",
     value: () => [
-      moment()
+      dayjs()
         .subtract(1, "month")
         .startOf("month"),
-      moment()
+      dayjs()
         .subtract(1, "month")
         .endOf("month"),
     ],
@@ -72,84 +72,84 @@ const DYNAMIC_DATE_RANGES = {
   last_year: {
     name: "Last year",
     value: () => [
-      moment()
+      dayjs()
         .subtract(1, "year")
         .startOf("year"),
-      moment()
+      dayjs()
         .subtract(1, "year")
         .endOf("year"),
     ],
   },
   last_hour: {
     name: "Last hour",
-    value: untilNow(() => moment().subtract(1, "hour")),
+    value: untilNow(() => dayjs().subtract(1, "hour")),
   },
   last_8_hours: {
     name: "Last 8 hours",
-    value: untilNow(() => moment().subtract(8, "hour")),
+    value: untilNow(() => dayjs().subtract(8, "hour")),
   },
   last_24_hours: {
     name: "Last 24 hours",
-    value: untilNow(() => moment().subtract(24, "hour")),
+    value: untilNow(() => dayjs().subtract(24, "hour")),
   },
   last_7_days: {
     name: "Last 7 days",
     value: untilNow(
       () =>
-        moment()
+        dayjs()
           .subtract(7, "days")
           .startOf("day"),
-      () => moment().endOf("day")
+      () => dayjs().endOf("day")
     ),
   },
   last_14_days: {
     name: "Last 14 days",
     value: untilNow(
       () =>
-        moment()
+        dayjs()
           .subtract(14, "days")
           .startOf("day"),
-      () => moment().endOf("day")
+      () => dayjs().endOf("day")
     ),
   },
   last_30_days: {
     name: "Last 30 days",
     value: untilNow(
       () =>
-        moment()
+        dayjs()
           .subtract(30, "days")
           .startOf("day"),
-      () => moment().endOf("day")
+      () => dayjs().endOf("day")
     ),
   },
   last_60_days: {
     name: "Last 60 days",
     value: untilNow(
       () =>
-        moment()
+        dayjs()
           .subtract(60, "days")
           .startOf("day"),
-      () => moment().endOf("day")
+      () => dayjs().endOf("day")
     ),
   },
   last_90_days: {
     name: "Last 90 days",
     value: untilNow(
       () =>
-        moment()
+        dayjs()
           .subtract(90, "days")
           .startOf("day"),
-      () => moment().endOf("day")
+      () => dayjs().endOf("day")
     ),
   },
   last_12_months: {
     name: "Last 12 months",
     value: untilNow(
       () =>
-        moment()
+        dayjs()
           .subtract(12, "months")
           .startOf("day"),
-      () => moment().endOf("day")
+      () => dayjs().endOf("day")
     ),
   },
 };
@@ -204,7 +204,7 @@ class DateRangeParameter extends Parameter {
     }
 
     if (isArray(value) && value.length === 2) {
-      value = [moment(value[0]), moment(value[1])];
+      value = [dayjs(value[0]), dayjs(value[1])];
       if (value[0].isValid() && value[1].isValid()) {
         return value;
       }

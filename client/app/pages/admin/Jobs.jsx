@@ -1,6 +1,7 @@
 import { partition, flatMap, values } from "lodash";
 import React from "react";
-import moment from "moment";
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
 
 import Alert from "antd/lib/alert";
 import Tabs from "antd/lib/tabs";
@@ -13,6 +14,7 @@ import { axios } from "@/services/axios";
 import location from "@/services/location";
 import recordEvent from "@/services/recordEvent";
 import routes from "@/services/routes";
+dayjs.extend(utc);
 
 class Jobs extends React.Component {
   state = {
@@ -66,8 +68,8 @@ class Jobs extends React.Component {
     const startedJobs = flatMap(values(queues), queue =>
       queue.started.map(job => ({
         ...job,
-        enqueued_at: moment.utc(job.enqueued_at),
-        started_at: moment.utc(job.started_at),
+        enqueued_at: dayjs.utc(job.enqueued_at),
+        started_at: dayjs.utc(job.started_at),
       }))
     );
 

@@ -1,4 +1,5 @@
-import moment from "moment";
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
 import debug from "debug";
 import Mustache from "mustache";
 import { axios } from "@/services/axios";
@@ -25,6 +26,8 @@ import { Parameter, createParameter } from "./parameters";
 import { currentUser } from "./auth";
 import QueryResult from "./query-result";
 import localOptions from "@/lib/localOptions";
+
+dayjs.extend(utc);
 
 Mustache.escape = identity; // do not html-escape values
 
@@ -68,11 +71,11 @@ export class Query {
 
   scheduleInLocalTime() {
     const parts = this.schedule.split(":");
-    return moment
+    return dayjs
       .utc()
+      .local()
       .hour(parts[0])
       .minute(parts[1])
-      .local()
       .format("HH:mm");
   }
 
@@ -343,7 +346,7 @@ class Parameters {
 export class QueryResultError {
   constructor(errorMessage) {
     this.errorMessage = errorMessage;
-    this.updatedAt = moment.utc();
+    this.updatedAt = dayjs.utc();
   }
 
   getUpdatedAt() {

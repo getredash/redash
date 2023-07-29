@@ -1,4 +1,4 @@
-import moment from "moment";
+import dayjs from "dayjs";
 import { axios } from "@/services/axios";
 import {
   each,
@@ -153,7 +153,7 @@ class Widget {
 
     if (force || this.queryResult === undefined) {
       this.loading = true;
-      this.refreshStartedAt = moment();
+      this.refreshStartedAt = dayjs();
 
       if (maxAge === undefined || force) {
         maxAge = force ? 0 : undefined;

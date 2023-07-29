@@ -2,7 +2,7 @@ import { isFunction, has } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
-import { Moment } from "@/components/proptypes";
+import { Dayjs } from "@/components/proptypes";
 import TimeAgo from "@/components/TimeAgo";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
 import { IMG_ROOT } from "@/services/data-source";
@@ -73,8 +73,8 @@ export default function QueryMetadata({ query, dataSource, layout, onEditSchedul
 QueryMetadata.propTypes = {
   layout: PropTypes.oneOf(["table", "horizontal"]),
   query: PropTypes.shape({
-    created_at: PropTypes.oneOfType([PropTypes.string, Moment]).isRequired,
-    updated_at: PropTypes.oneOfType([PropTypes.string, Moment]).isRequired,
+    created_at: PropTypes.oneOfType([PropTypes.string, Dayjs]).isRequired,
+    updated_at: PropTypes.oneOfType([PropTypes.string, Dayjs]).isRequired,
     user: PropTypes.shape({
       name: PropTypes.string.isRequired,
       profile_image_url: PropTypes.string.isRequired,
