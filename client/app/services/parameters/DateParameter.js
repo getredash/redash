@@ -1,7 +1,7 @@
 import { findKey, startsWith, has, includes, isNull, values } from "lodash";
-import moment from "moment";
 import PropTypes from "prop-types";
 import Parameter from "./Parameter";
+import dayjs from "dayjs";
 
 const DATETIME_FORMATS = {
   // eslint-disable-next-line quote-props
@@ -15,11 +15,11 @@ const DYNAMIC_PREFIX = "d_";
 const DYNAMIC_DATES = {
   now: {
     name: "Today/Now",
-    value: () => moment(),
+    value: () => dayjs(),
   },
   yesterday: {
     name: "Yesterday",
-    value: () => moment().subtract(1, "day"),
+    value: () => dayjs().subtract(1, "day"),
   },
 };
 
@@ -61,7 +61,7 @@ class DateParameter extends Parameter {
       return value;
     }
 
-    const normalizedValue = moment(value);
+    const normalizedValue = dayjs(value);
     return normalizedValue.isValid() ? normalizedValue : null;
   }
 
@@ -69,7 +69,7 @@ class DateParameter extends Parameter {
     const normalizedValue = this.normalizeValue(value);
     if (isDynamicDate(normalizedValue)) {
       this.value = DYNAMIC_PREFIX + findKey(DYNAMIC_DATES, normalizedValue);
-    } else if (moment.isMoment(normalizedValue)) {
+    } else if (dayjs.isDayjs(normalizedValue)) {
       this.value = normalizedValue.format(DATETIME_FORMATS[this.type]);
     } else {
       this.value = normalizedValue;
@@ -86,7 +86,7 @@ class DateParameter extends Parameter {
       return this.normalizedValue.value().format(DATETIME_FORMATS[this.type]);
     }
     if (isNull(this.value) && this.useCurrentDateTime) {
-      return moment().format(DATETIME_FORMATS[this.type]);
+      return dayjs().format(DATETIME_FORMATS[this.type]);
     }
     return this.value;
   }

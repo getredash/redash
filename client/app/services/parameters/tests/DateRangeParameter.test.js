@@ -1,6 +1,6 @@
 import { createParameter } from "..";
 import { getDynamicDateRangeFromString } from "../DateRangeParameter";
-import moment from "moment";
+import dayjs from "dayjs";
 
 describe("DateRangeParameter", () => {
   let type = "date-range";
@@ -44,8 +44,8 @@ describe("DateRangeParameter", () => {
   });
 
   describe("normalizeValue", () => {
-    test("recognizes dates from moment arrays", () => {
-      const normalizedValue = param.normalizeValue([moment("2019-10-05"), moment("2019-10-06")]);
+    test("recognizes dates from dayjs arrays", () => {
+      const normalizedValue = param.normalizeValue([dayjs("2019-10-05"), dayjs("2019-10-06")]);
       expect(normalizedValue).toHaveLength(2);
       expect(normalizedValue[0].format("YYYY-MM-DD")).toBe("2019-10-05");
       expect(normalizedValue[1].format("YYYY-MM-DD")).toBe("2019-10-06");

@@ -12,7 +12,7 @@ import Link from "@/components/Link";
 import Parameters from "@/components/Parameters";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
-import { Moment } from "@/components/proptypes";
+import { Dayjs } from "@/components/proptypes";
 import QueryLink from "@/components/QueryLink";
 import { FiltersType } from "@/components/Filters";
 import PlainButton from "@/components/PlainButton";
@@ -84,7 +84,7 @@ function RefreshIndicator({ refreshStartedAt }) {
   );
 }
 
-RefreshIndicator.propTypes = { refreshStartedAt: Moment };
+RefreshIndicator.propTypes = { refreshStartedAt: Dayjs };
 RefreshIndicator.defaultProps = { refreshStartedAt: null };
 
 function VisualizationWidgetHeader({
@@ -129,7 +129,7 @@ function VisualizationWidgetHeader({
 
 VisualizationWidgetHeader.propTypes = {
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  refreshStartedAt: Moment,
+  refreshStartedAt: Dayjs,
   parameters: PropTypes.arrayOf(PropTypes.object),
   isEditing: PropTypes.bool,
   onParametersUpdate: PropTypes.func,

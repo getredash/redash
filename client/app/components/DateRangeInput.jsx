@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import DatePicker from "antd/lib/date-picker";
 import { clientConfig } from "@/services/auth";
-import { Moment } from "@/components/proptypes";
+import { Dayjs } from "@/components/proptypes";
 
 const { RangePicker } = DatePicker;
 
@@ -29,8 +29,8 @@ const DateRangeInput = React.forwardRef(({ defaultValue, value, onSelect, classN
 });
 
 DateRangeInput.propTypes = {
-  defaultValue: PropTypes.arrayOf(Moment),
-  value: PropTypes.arrayOf(Moment),
+  defaultValue: PropTypes.arrayOf(Dayjs),
+  value: PropTypes.arrayOf(Dayjs),
   onSelect: PropTypes.func,
   className: PropTypes.string,
 };

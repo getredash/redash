@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import moment from "moment";
+import dayjs from "dayjs";
 import { includes, isArray, isObject } from "lodash";
 import { isDynamicDateRange } from "@/services/parameters/DateRangeParameter";
 import DateRangeInput from "@/components/DateRangeInput";
@@ -11,7 +11,7 @@ import DynamicButton from "@/components/dynamic-parameters/DynamicButton";
 import "./DynamicParameters.less";
 
 function isValidDateRangeValue(value) {
-  return isArray(value) && value.length === 2 && moment.isMoment(value[0]) && moment.isMoment(value[1]);
+  return isArray(value) && value.length === 2 && dayjs.isDayjs(value[0]) && dayjs.isDayjs(value[1]);
 }
 
 class DynamicDateRangePicker extends React.Component {
@@ -55,7 +55,7 @@ class DynamicDateRangePicker extends React.Component {
     if (dynamicValue === "static") {
       const parameterValue = parameter.getExecutionValue();
       if (isObject(parameterValue) && parameterValue.start && parameterValue.end) {
-        onSelect([moment(parameterValue.start), moment(parameterValue.end)]);
+        onSelect([dayjs(parameterValue.start), dayjs(parameterValue.end)]);
       } else {
         onSelect(null);
       }

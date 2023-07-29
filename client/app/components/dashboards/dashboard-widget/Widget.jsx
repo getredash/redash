@@ -6,7 +6,7 @@ import Dropdown from "antd/lib/dropdown";
 import Modal from "antd/lib/modal";
 import Menu from "antd/lib/menu";
 import recordEvent from "@/services/recordEvent";
-import { Moment } from "@/components/proptypes";
+import { Dayjs } from "@/components/proptypes";
 import PlainButton from "@/components/PlainButton";
 
 import "./Widget.less";
@@ -70,7 +70,7 @@ class Widget extends React.Component {
     footer: PropTypes.node,
     canEdit: PropTypes.bool,
     isPublic: PropTypes.bool,
-    refreshStartedAt: Moment,
+    refreshStartedAt: Dayjs,
     menuOptions: PropTypes.node,
     tileProps: PropTypes.object, // eslint-disable-line react/forbid-prop-types
     onDelete: PropTypes.func,

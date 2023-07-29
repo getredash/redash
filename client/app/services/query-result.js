@@ -1,9 +1,11 @@
 import debug from "debug";
-import moment from "moment";
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
 import { axios } from "@/services/axios";
 import { QueryResultError } from "@/services/query";
 import { Auth } from "@/services/auth";
 import { isString, uniqBy, each, isNumber, includes, extend, forOwn, get } from "lodash";
+dayjs.extend(utc);
 
 const logger = debug("redash:services:QueryResult");
 const filterTypes = ["filter", "multi-filter", "multiFilter"];
@@ -120,7 +122,7 @@ class QueryResult {
     this.query_result = {};
     this.status = "waiting";
 
-    this.updatedAt = moment();
+    this.updatedAt = dayjs();
 
     // extended status flags
     this.isLoadingResult = false;
@@ -148,10 +150,10 @@ class QueryResult {
           if (isNumber(v)) {
             newType = "float";
           } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {
-            row[k] = moment.utc(v);
+            row[k] = dayjs.utc(v);
             newType = "datetime";
           } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
-            row[k] = moment.utc(v);
+            row[k] = dayjs.utc(v);
             newType = "date";
           } else if (typeof v === "object" && v !== null) {
             row[k] = JSON.stringify(v);
@@ -313,7 +315,7 @@ class QueryResult {
 
     filters.forEach(filter => {
       filter.values = uniqBy(filter.values, v => {
-        if (moment.isMoment(v)) {
+        if (dayjs.isDayjs(v)) {
           return v.unix();
         }
         return v;
@@ -439,7 +441,7 @@ class QueryResult {
   }
 
   getName(queryName, fileType) {
-    return `${queryName.replace(/ /g, "_") + moment(this.getUpdatedAt()).format("_YYYY_MM_DD")}.${fileType}`;
+    return `${queryName.replace(/ /g, "_") + dayjs(this.getUpdatedAt()).format("_YYYY_MM_DD")}.${fileType}`;
   }
 
   static getByQueryId(id, parameters, applyAutoLimit, maxAge) {

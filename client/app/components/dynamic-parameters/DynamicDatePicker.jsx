@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import moment from "moment";
+import dayjs from "dayjs";
 import { includes } from "lodash";
 import { isDynamicDate } from "@/services/parameters/DateParameter";
 import DateInput from "@/components/DateInput";
@@ -51,7 +51,7 @@ class DynamicDatePicker extends React.Component {
     if (dynamicValue === "static") {
       const parameterValue = parameter.getExecutionValue();
       if (parameterValue) {
-        onSelect(moment(parameterValue));
+        onSelect(dayjs(parameterValue));
       } else {
         onSelect(null);
       }
@@ -77,7 +77,7 @@ class DynamicDatePicker extends React.Component {
       }
     }
 
-    if (moment.isMoment(value) || value === null) {
+    if (dayjs.isDayjs(value) || value === null) {
       additionalAttributes.value = value;
     }
 
