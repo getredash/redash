@@ -1,15 +1,45 @@
 /* global cy */
 
-import { createDashboard, createQuery } from "../../support/redash-api";
 import { editDashboard, shareDashboard, createQueryAndAddWidget } from "../../support/dashboard";
 
 describe("Dashboard Sharing", () => {
   beforeEach(function() {
     cy.login();
-    createDashboard("Foo Bar").then(({ slug, id }) => {
+    cy.createDashboard("Foo Bar").then(({ id }) => {
       this.dashboardId = id;
-      this.dashboardUrl = `/dashboard/${slug}`;
+      this.dashboardUrl = `/dashboards/${id}`;
     });
+    cy.updateOrgSettings({ disable_public_urls: false });
+  });
+
+  it("is unavailable when public urls feature is disabled", function() {
+    const queryData = {
+      query: "select 1",
+    };
+
+    const position = { autoHeight: false, sizeY: 6 };
+    createQueryAndAddWidget(this.dashboardId, queryData, { position })
+      .then(() => {
+        cy.visit(this.dashboardUrl);
+        return shareDashboard();
+      })
+      .then(secretAddress => {
+        // disable the feature
+        cy.updateOrgSettings({ disable_public_urls: true });
+
+        // check the feature is disabled
+        cy.visit(this.dashboardUrl);
+        cy.getByTestId("DashboardMoreButton").should("exist");
+        cy.getByTestId("OpenShareForm").should("not.exist");
+
+        cy.logout();
+        cy.visit(secretAddress);
+        cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
+        cy.getByTestId("TableVisualization").should("not.exist");
+
+        cy.login();
+        cy.updateOrgSettings({ disable_public_urls: false });
+      });
   });
 
   it("is possible if all queries are safe", function() {
@@ -23,7 +53,7 @@ describe("Dashboard Sharing", () => {
     };
 
     const dashboardUrl = this.dashboardUrl;
-    createQuery({ options }).then(({ id: queryId }) => {
+    cy.createQuery({ options }).then(({ id: queryId }) => {
       cy.visit(dashboardUrl);
       editDashboard();
       cy.getByTestId("AddWidgetButton").click();
@@ -148,7 +178,7 @@ describe("Dashboard Sharing", () => {
     };
 
     const dashboardUrl = this.dashboardUrl;
-    createQuery({ options }).then(({ id: queryId }) => {
+    cy.createQuery({ options }).then(({ id: queryId }) => {
       cy.visit(dashboardUrl);
       editDashboard();
       cy.getByTestId("AddWidgetButton").click();

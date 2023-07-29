@@ -6,7 +6,7 @@ export default function useEmbedDialog(query) {
   return useCallback(
     (unusedQuery, visualizationId) => {
       const visualization = find(query.visualizations, { id: visualizationId });
-      EmbedQueryDialog.showModal({ query, visualization }).result.catch(() => {}); // ignore dismiss
+      EmbedQueryDialog.showModal({ query, visualization });
     },
     [query]
   );

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { markdown } from "markdown";
 import Menu from "antd/lib/menu";
-import HtmlContent from "@/components/HtmlContent";
+import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import TextboxDialog from "@/components/dashboards/TextboxDialog";
 import Widget from "./Widget";
 
@@ -13,12 +13,11 @@ function TextboxWidget(props) {
   const editTextBox = () => {
     TextboxDialog.showModal({
       text: widget.text,
-      onConfirm: newText => {
-        widget.text = newText;
-        setText(newText);
-        return widget.save();
-      },
-    }).result.catch(() => {}); // ignore dismiss
+    }).onClose(newText => {
+      widget.text = newText;
+      setText(newText);
+      return widget.save();
+    });
   };
 
   const TextboxMenuOptions = [

@@ -2,19 +2,40 @@
 
 import "@percy/cypress"; // eslint-disable-line import/no-extraneous-dependencies, import/no-unresolved
 
+import "@testing-library/cypress/add-commands";
+
 const { each } = Cypress._;
 
-Cypress.Commands.add("login", (email = "admin@redash.io", password = "password") =>
-  cy.request({
-    url: "/login",
-    method: "POST",
-    form: true,
-    body: {
-      email,
-      password,
-    },
-  })
-);
+Cypress.Commands.add("login", (email = "admin@redash.io", password = "password") => {
+  let csrf;
+  cy.visit("/login");
+  cy.getCookie("csrf_token")
+    .then(cookie => {
+      if (cookie) {
+        csrf = cookie.value;
+      } else {
+        cy.visit("/login").then(() => {
+          cy.get('input[name="csrf_token"]')
+            .invoke("val")
+            .then(csrf_token => {
+              csrf = csrf_token;
+            });
+        });
+      }
+    })
+    .then(() => {
+      cy.request({
+        url: "/login",
+        method: "POST",
+        form: true,
+        body: {
+          email,
+          password,
+          csrf_token: csrf,
+        },
+      });
+    });
+});
 
 Cypress.Commands.add("logout", () => cy.visit("/logout"));
 Cypress.Commands.add("getByTestId", element => cy.get('[data-test="' + element + '"]'));
@@ -48,6 +69,14 @@ Cypress.Commands.add("clickThrough", (...args) => {
   });
 
   return undefined;
+});
+
+/**
+ * Selects ANTD selector option
+ */
+Cypress.Commands.add("selectAntdOption", { prevSubject: "element" }, (subject, testId) => {
+  cy.wrap(subject).click();
+  return cy.getByTestId(testId).click({ force: true });
 });
 
 Cypress.Commands.add("fillInputs", (elements, { wait = 0 } = {}) => {

@@ -42,7 +42,7 @@ Content.defaultProps = defaultProps;
 
 // Layout
 
-export default function Layout({ className, children, ...props }) {
+export default function Layout({ children, className = undefined, ...props }) {
   return (
     <div className={classNames("layout-with-sidebar", className)} {...props}>
       {children}

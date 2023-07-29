@@ -38,7 +38,7 @@
     {% endif %}
 
     <form role="form" method="post" name="login">
-      <input type="hidden" name="remember" value="on">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <div class="form-group">
         <label for="inputEmail">{{ username_prompt or 'Email' }}</label>
         <input type="text" class="form-control" id="inputEmail" name="email" value="{{email}}" data-test="Email">
@@ -46,6 +46,10 @@
       <div class="form-group">
         <label for="inputPassword">Password</label>
         <input type="password" class="form-control" id="inputPassword" name="password" data-test="Password">
+      </div>
+      <div class="form-group">
+        <input type="checkbox" id="inputRemember" name="remember" checked>
+        <label for="inputRemember">Remember me</label>
       </div>
 
       <button type="submit" class="btn btn-primary btn-block m-t-25">Log In</button>

@@ -1,11 +1,13 @@
 import React from "react";
 import PropTypes from "prop-types";
+import WarningTwoTone from "@ant-design/icons/WarningTwoTone";
 import TimeAgo from "@/components/TimeAgo";
+import Tooltip from "@/components/Tooltip";
 import useAddToDashboardDialog from "../hooks/useAddToDashboardDialog";
 import useEmbedDialog from "../hooks/useEmbedDialog";
 import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
 import EditVisualizationButton from "@/components/EditVisualizationButton";
-import getQueryResultData from "@/lib/getQueryResultData";
+import useQueryResultData from "@/lib/useQueryResultData";
 import { durationHumanize, pluralize, prettySize } from "@/lib/utils";
 
 import "./QueryExecutionMetadata.less";
@@ -19,7 +21,7 @@ export default function QueryExecutionMetadata({
   onEditVisualization,
   extraActions,
 }) {
-  const queryResultData = getQueryResultData(queryResult);
+  const queryResultData = useQueryResultData(queryResult);
   const openAddToDashboardDialog = useAddToDashboardDialog(query);
   const openEmbedDialog = useEmbedDialog(query);
   return (
@@ -42,6 +44,18 @@ export default function QueryExecutionMetadata({
       )}
       <span className="m-l-5 m-r-10">
         <span>
+          {queryResultData.truncated === true && (
+            <span className="m-r-5">
+              <Tooltip
+                title={
+                  "Result truncated to " +
+                  queryResultData.rows.length +
+                  " rows. Databricks may truncate query results that are unstably large."
+                }>
+                <WarningTwoTone twoToneColor="#FF9800" />
+              </Tooltip>
+            </span>
+          )}
           <strong>{queryResultData.rows.length}</strong> {pluralize("row", queryResultData.rows.length)}
         </span>
         <span className="m-l-5">

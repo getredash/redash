@@ -25,6 +25,7 @@ import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
 import Group from "@/services/group";
 import User from "@/services/user";
+import routes from "@/services/routes";
 
 class GroupMembers extends React.Component {
   static propTypes = {
@@ -125,15 +126,10 @@ class GroupMembers extends React.Component {
           </UserPreviewCard>
         ),
       }),
-      save: items => {
-        const promises = map(items, u => Group.addMember({ id: this.groupId }, { user_id: u.id }));
-        return Promise.all(promises);
-      },
-    })
-      .result.catch(() => {}) // ignore dismiss
-      .finally(() => {
-        this.props.controller.update();
-      });
+    }).onClose(items => {
+      const promises = map(items, u => Group.addMember({ id: this.groupId }, { user_id: u.id }));
+      return Promise.all(promises).then(() => this.props.controller.update());
+    });
   };
 
   render() {
@@ -159,7 +155,7 @@ class GroupMembers extends React.Component {
                 <p>There are no members in this group yet.</p>
                 {currentUser.isAdmin && (
                   <Button type="primary" onClick={this.addMembers}>
-                    <i className="fa fa-plus m-r-5" />
+                    <i className="fa fa-plus m-r-5" aria-hidden="true" />
                     Add Members
                   </Button>
                 )}
@@ -177,8 +173,10 @@ class GroupMembers extends React.Component {
                   toggleSorting={controller.toggleSorting}
                 />
                 <Paginator
+                  showPageSizeSelect
                   totalCount={controller.totalItemsCount}
-                  itemsPerPage={controller.itemsPerPage}
+                  pageSize={controller.itemsPerPage}
+                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
                   page={controller.page}
                   onChange={page => controller.updatePagination({ page })}
                 />
@@ -192,6 +190,7 @@ class GroupMembers extends React.Component {
 }
 
 const GroupMembersPage = wrapSettingsTab(
+  "Groups.Members",
   null,
   itemsList(
     GroupMembers,
@@ -209,8 +208,11 @@ const GroupMembersPage = wrapSettingsTab(
   )
 );
 
-export default routeWithUserSession({
-  path: "/groups/:groupId([0-9]+)",
-  title: "Group Members",
-  render: pageProps => <GroupMembersPage {...pageProps} currentPage="users" />,
-});
+routes.register(
+  "Groups.Members",
+  routeWithUserSession({
+    path: "/groups/:groupId",
+    title: "Group Members",
+    render: pageProps => <GroupMembersPage {...pageProps} currentPage="users" />,
+  })
+);

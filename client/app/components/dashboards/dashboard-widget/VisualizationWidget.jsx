@@ -1,22 +1,25 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { compact, isEmpty, invoke } from "lodash";
+import { compact, isEmpty, invoke, map } from "lodash";
 import { markdown } from "markdown";
 import cx from "classnames";
 import Menu from "antd/lib/menu";
+import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import { currentUser } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
 import { formatDateTime } from "@/lib/utils";
-import HtmlContent from "@/components/HtmlContent";
+import Link from "@/components/Link";
 import Parameters from "@/components/Parameters";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
 import { Moment } from "@/components/proptypes";
 import QueryLink from "@/components/QueryLink";
 import { FiltersType } from "@/components/Filters";
+import PlainButton from "@/components/PlainButton";
 import ExpandedWidgetDialog from "@/components/dashboards/ExpandedWidgetDialog";
 import EditParameterMappingsDialog from "@/components/dashboards/EditParameterMappingsDialog";
-import VisualizationRenderer from "@/visualizations/components/VisualizationRenderer";
+import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
+
 import Widget from "./Widget";
 
 function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit }) {
@@ -30,27 +33,27 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
   return compact([
     <Menu.Item key="download_csv" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
-        <a href={downloadLink("csv")} download={downloadName("csv")} target="_self">
+        <Link href={downloadLink("csv")} download={downloadName("csv")} target="_self">
           Download as CSV File
-        </a>
+        </Link>
       ) : (
         "Download as CSV File"
       )}
     </Menu.Item>,
     <Menu.Item key="download_tsv" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
-        <a href={downloadLink("tsv")} download={downloadName("tsv")} target="_self">
+        <Link href={downloadLink("tsv")} download={downloadName("tsv")} target="_self">
           Download as TSV File
-        </a>
+        </Link>
       ) : (
         "Download as TSV File"
       )}
     </Menu.Item>,
     <Menu.Item key="download_excel" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
-        <a href={downloadLink("xlsx")} download={downloadName("xlsx")} target="_self">
+        <Link href={downloadLink("xlsx")} download={downloadName("xlsx")} target="_self">
           Download as Excel File
-        </a>
+        </Link>
       ) : (
         "Download as Excel File"
       )}
@@ -58,7 +61,7 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
     (canViewQuery || canEditParameters) && <Menu.Divider key="divider" />,
     canViewQuery && (
       <Menu.Item key="view_query">
-        <a href={widget.getQuery().getUrl(true, widget.visualization.id)}>View Query</a>
+        <Link href={widget.getQuery().getUrl(true, widget.visualization.id)}>View Query</Link>
       </Menu.Item>
     ),
     canEditParameters && (
@@ -73,7 +76,8 @@ function RefreshIndicator({ refreshStartedAt }) {
   return (
     <div className="refresh-indicator">
       <div className="refresh-icon">
-        <i className="zmdi zmdi-refresh zmdi-hc-spin" />
+        <i className="zmdi zmdi-refresh zmdi-hc-spin" aria-hidden="true" />
+        <span className="sr-only">Refreshing...</span>
       </div>
       <Timer from={refreshStartedAt} />
     </div>
@@ -83,7 +87,14 @@ function RefreshIndicator({ refreshStartedAt }) {
 RefreshIndicator.propTypes = { refreshStartedAt: Moment };
 RefreshIndicator.defaultProps = { refreshStartedAt: null };
 
-function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onParametersUpdate }) {
+function VisualizationWidgetHeader({
+  widget,
+  refreshStartedAt,
+  parameters,
+  isEditing,
+  onParametersUpdate,
+  onParametersEdit,
+}) {
   const canViewQuery = currentUser.hasPermission("view_query");
 
   return (
@@ -94,14 +105,22 @@ function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onPar
           <p>
             <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
           </p>
-          <HtmlContent className="text-muted markdown query--description">
-            {markdown.toHTML(widget.getQuery().description || "")}
-          </HtmlContent>
+          {!isEmpty(widget.getQuery().description) && (
+            <HtmlContent className="text-muted markdown query--description">
+              {markdown.toHTML(widget.getQuery().description || "")}
+            </HtmlContent>
+          )}
         </div>
       </div>
       {!isEmpty(parameters) && (
         <div className="m-b-10">
-          <Parameters parameters={parameters} onValuesChange={onParametersUpdate} />
+          <Parameters
+            parameters={parameters}
+            sortable={isEditing}
+            appendSortableToParent={false}
+            onValuesChange={onParametersUpdate}
+            onParametersEdit={onParametersEdit}
+          />
         </div>
       )}
     </>
@@ -112,12 +131,16 @@ VisualizationWidgetHeader.propTypes = {
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   refreshStartedAt: Moment,
   parameters: PropTypes.arrayOf(PropTypes.object),
+  isEditing: PropTypes.bool,
   onParametersUpdate: PropTypes.func,
+  onParametersEdit: PropTypes.func,
 };
 
 VisualizationWidgetHeader.defaultProps = {
   refreshStartedAt: null,
   onParametersUpdate: () => {},
+  onParametersEdit: () => {},
+  isEditing: false,
   parameters: [],
 };
 
@@ -137,34 +160,40 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
     <>
       <span>
         {!isPublic && !!widgetQueryResult && (
-          <a
+          <PlainButton
             className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
             onClick={() => refreshWidget(1)}
             data-test="RefreshButton">
-            <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 1 })} />{" "}
+            <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 1 })} aria-hidden="true" />
+            <span className="sr-only">
+              {refreshClickButtonId === 1 ? "Refreshing, please wait. " : "Press to refresh. "}
+            </span>{" "}
             <TimeAgo date={updatedAt} />
-          </a>
+          </PlainButton>
         )}
         <span className="visible-print">
-          <i className="zmdi zmdi-time-restore" /> {formatDateTime(updatedAt)}
+          <i className="zmdi zmdi-time-restore" aria-hidden="true" /> {formatDateTime(updatedAt)}
         </span>
         {isPublic && (
           <span className="small hidden-print">
-            <i className="zmdi zmdi-time-restore" /> <TimeAgo date={updatedAt} />
+            <i className="zmdi zmdi-time-restore" aria-hidden="true" /> <TimeAgo date={updatedAt} />
           </span>
         )}
       </span>
       <span>
         {!isPublic && (
-          <a
+          <PlainButton
             className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh"
             onClick={() => refreshWidget(2)}>
-            <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 2 })} />
-          </a>
+            <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 2 })} aria-hidden="true" />
+            <span className="sr-only">
+              {refreshClickButtonId === 2 ? "Refreshing, please wait." : "Press to refresh."}
+            </span>
+          </PlainButton>
         )}
-        <a className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh" onClick={onExpand}>
-          <i className="zmdi zmdi-fullscreen" />
-        </a>
+        <PlainButton className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh" onClick={onExpand}>
+          <i className="zmdi zmdi-fullscreen" aria-hidden="true" />
+        </PlainButton>
       </span>
     </>
   ) : null;
@@ -185,7 +214,9 @@ class VisualizationWidget extends React.Component {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     filters: FiltersType,
     isPublic: PropTypes.bool,
+    isLoading: PropTypes.bool,
     canEdit: PropTypes.bool,
+    isEditing: PropTypes.bool,
     onLoad: PropTypes.func,
     onRefresh: PropTypes.func,
     onDelete: PropTypes.func,
@@ -195,7 +226,9 @@ class VisualizationWidget extends React.Component {
   static defaultProps = {
     filters: [],
     isPublic: false,
+    isLoading: false,
     canEdit: false,
+    isEditing: false,
     onLoad: () => {},
     onRefresh: () => {},
     onDelete: () => {},
@@ -204,7 +237,10 @@ class VisualizationWidget extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { localParameters: props.widget.getLocalParameters() };
+    this.state = {
+      localParameters: props.widget.getLocalParameters(),
+      localFilters: props.filters,
+    };
   }
 
   componentDidMount() {
@@ -214,8 +250,12 @@ class VisualizationWidget extends React.Component {
     onLoad();
   }
 
+  onLocalFiltersChange = localFilters => {
+    this.setState({ localFilters });
+  };
+
   expandWidget = () => {
-    ExpandedWidgetDialog.showModal({ widget: this.props.widget }).result.catch(() => {}); // ignore dismiss
+    ExpandedWidgetDialog.showModal({ widget: this.props.widget, filters: this.state.localFilters });
   };
 
   editParameterMappings = () => {
@@ -223,16 +263,14 @@ class VisualizationWidget extends React.Component {
     EditParameterMappingsDialog.showModal({
       dashboard,
       widget,
-    })
-      .result.then(valuesChanged => {
-        // refresh widget if any parameter value has been updated
-        if (valuesChanged) {
-          onRefresh();
-        }
-        onParameterMappingsChange();
-        this.setState({ localParameters: widget.getLocalParameters() });
-      })
-      .catch(() => {}); // ignore dismiss
+    }).onClose(valuesChanged => {
+      // refresh widget if any parameter value has been updated
+      if (valuesChanged) {
+        onRefresh();
+      }
+      onParameterMappingsChange();
+      this.setState({ localParameters: widget.getLocalParameters() });
+    });
   };
 
   renderVisualization() {
@@ -257,15 +295,21 @@ class VisualizationWidget extends React.Component {
               visualization={widget.visualization}
               queryResult={widgetQueryResult}
               filters={filters}
+              onFiltersChange={this.onLocalFiltersChange}
               context="widget"
             />
           </div>
         );
       default:
         return (
-          <div className="body-row-auto spinner-container">
+          <div
+            className="body-row-auto spinner-container"
+            role="status"
+            aria-live="polite"
+            aria-relevant="additions removals">
             <div className="spinner">
-              <i className="zmdi zmdi-refresh zmdi-hc-spin zmdi-hc-5x" />
+              <i className="zmdi zmdi-refresh zmdi-hc-spin zmdi-hc-5x" aria-hidden="true" />
+              <span className="sr-only">Loading...</span>
             </div>
           </div>
         );
@@ -273,10 +317,15 @@ class VisualizationWidget extends React.Component {
   }
 
   render() {
-    const { widget, isPublic, canEdit, onRefresh } = this.props;
+    const { widget, isLoading, isPublic, canEdit, isEditing, onRefresh } = this.props;
     const { localParameters } = this.state;
     const widgetQueryResult = widget.getQueryResult();
-    const isRefreshing = widget.loading && !!(widgetQueryResult && widgetQueryResult.getStatus());
+    const isRefreshing = isLoading && !!(widgetQueryResult && widgetQueryResult.getStatus());
+    const onParametersEdit = parameters => {
+      const paramOrder = map(parameters, "name");
+      widget.options.paramOrder = paramOrder;
+      widget.save("options", { paramOrder });
+    };
 
     return (
       <Widget
@@ -292,7 +341,9 @@ class VisualizationWidget extends React.Component {
             widget={widget}
             refreshStartedAt={isRefreshing ? widget.refreshStartedAt : null}
             parameters={localParameters}
+            isEditing={isEditing}
             onParametersUpdate={onRefresh}
+            onParametersEdit={onParametersEdit}
           />
         }
         footer={

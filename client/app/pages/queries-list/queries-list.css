@@ -2,3 +2,11 @@
 .search button {
   height: 35px;
 }
+
+
+/* same rule as for sidebar */
+@media (max-width: 990px) {
+  .page-queries-list .page-header-actions {
+    width: auto;
+  }
+}

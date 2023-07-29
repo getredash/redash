@@ -69,7 +69,7 @@ def upgrade():
                 schedule_json["interval"] = 86400
                 schedule_json["time"] = query.old_schedule
             else:
-                schedule_json["interval"] = query.old_schedule
+                schedule_json["interval"] = int(query.old_schedule)
 
         conn.execute(
             queries.update()

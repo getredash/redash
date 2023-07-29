@@ -4,7 +4,6 @@ from jsonschema import ValidationError
 
 from redash.utils.configuration import ConfigurationContainer
 
-
 configuration_schema = {
     "type": "object",
     "properties": {
@@ -27,9 +26,7 @@ class TestConfigurationToJson(TestCase):
 
     def test_raises_exception_when_no_schema_set(self):
         self.container.set_schema(None)
-        self.assertRaises(
-            RuntimeError, lambda: self.container.to_dict(mask_secrets=True)
-        )
+        self.assertRaises(RuntimeError, lambda: self.container.to_dict(mask_secrets=True))
 
     def test_returns_dict_with_masked_secrets(self):
         d = self.container.to_dict(mask_secrets=True)
@@ -62,9 +59,7 @@ class TestConfigurationUpdate(TestCase):
         self.assertDictEqual(self.container._config, new_config)
 
     def test_doesnt_leave_leftovers(self):
-        container = ConfigurationContainer(
-            {"a": 1, "b": "test", "e": 3}, configuration_schema
-        )
+        container = ConfigurationContainer({"a": 1, "b": "test", "e": 3}, configuration_schema)
         new_config = container.to_dict(mask_secrets=True)
         new_config.pop("e")
         container.update(new_config)

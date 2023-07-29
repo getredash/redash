@@ -1,9 +1,9 @@
-import { filter, map, includes } from "lodash";
+import { filter, map, includes, toLower } from "lodash";
 import React from "react";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
-import Icon from "antd/lib/icon";
+import DownOutlinedIcon from "@ant-design/icons/DownOutlined";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -28,6 +28,7 @@ import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
 import Group from "@/services/group";
 import DataSource from "@/services/data-source";
+import routes from "@/services/routes";
 
 class GroupDataSources extends React.Component {
   static propTypes = {
@@ -71,9 +72,9 @@ class GroupDataSources extends React.Component {
 
         return (
           <Dropdown trigger={["click"]} overlay={menu}>
-            <Button className="w-100">
+            <Button className="w-100" aria-label="Permissions">
               {datasource.view_only ? "View Only" : "Full Access"}
-              <Icon type="down" />
+              <DownOutlinedIcon aria-hidden="true" />
             </Button>
           </Dropdown>
         );
@@ -140,8 +141,8 @@ class GroupDataSources extends React.Component {
       inputPlaceholder: "Search data sources...",
       selectedItemsTitle: "New Data Sources",
       searchItems: searchTerm => {
-        searchTerm = searchTerm.toLowerCase();
-        return allDataSources.then(items => filter(items, ds => ds.name.toLowerCase().includes(searchTerm)));
+        searchTerm = toLower(searchTerm);
+        return allDataSources.then(items => filter(items, ds => includes(toLower(ds.name), searchTerm)));
       },
       renderItem: (item, { isSelected }) => {
         const alreadyInGroup = includes(alreadyAddedDataSources, item.id);
@@ -162,15 +163,10 @@ class GroupDataSources extends React.Component {
           </DataSourcePreviewCard>
         ),
       }),
-      save: items => {
-        const promises = map(items, ds => Group.addDataSource({ id: this.groupId }, { data_source_id: ds.id }));
-        return Promise.all(promises);
-      },
-    })
-      .result.catch(() => {}) // ignore dismiss
-      .finally(() => {
-        this.props.controller.update();
-      });
+    }).onClose(items => {
+      const promises = map(items, ds => Group.addDataSource({ id: this.groupId }, { data_source_id: ds.id }));
+      return Promise.all(promises).then(() => this.props.controller.update());
+    });
   };
 
   render() {
@@ -196,7 +192,7 @@ class GroupDataSources extends React.Component {
                 <p>There are no data sources in this group yet.</p>
                 {currentUser.isAdmin && (
                   <Button type="primary" onClick={this.addDataSources}>
-                    <i className="fa fa-plus m-r-5" />
+                    <i className="fa fa-plus m-r-5" aria-hidden="true" />
                     Add Data Sources
                   </Button>
                 )}
@@ -214,8 +210,10 @@ class GroupDataSources extends React.Component {
                   toggleSorting={controller.toggleSorting}
                 />
                 <Paginator
+                  showPageSizeSelect
                   totalCount={controller.totalItemsCount}
-                  itemsPerPage={controller.itemsPerPage}
+                  pageSize={controller.itemsPerPage}
+                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
                   page={controller.page}
                   onChange={page => controller.updatePagination({ page })}
                 />
@@ -229,6 +227,7 @@ class GroupDataSources extends React.Component {
 }
 
 const GroupDataSourcesPage = wrapSettingsTab(
+  "Groups.DataSources",
   null,
   itemsList(
     GroupDataSources,
@@ -246,8 +245,11 @@ const GroupDataSourcesPage = wrapSettingsTab(
   )
 );
 
-export default routeWithUserSession({
-  path: "/groups/:groupId([0-9]+)/data_sources",
-  title: "Group Data Sources",
-  render: pageProps => <GroupDataSourcesPage {...pageProps} currentPage="datasources" />,
-});
+routes.register(
+  "Groups.DataSources",
+  routeWithUserSession({
+    path: "/groups/:groupId/data_sources",
+    title: "Group Data Sources",
+    render: pageProps => <GroupDataSourcesPage {...pageProps} currentPage="datasources" />,
+  })
+);

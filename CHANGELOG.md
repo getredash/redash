@@ -1,5 +1,296 @@
 # Change Log
 
+## V10.1.0 - 2021-11-23
+
+This release includes patches for three security vulnerabilities:
+
+- Insecure default configuration affects installations where REDASH_COOKIE_SECRET is not set explicitly (CVE-2021-41192)
+- SSRF vulnerability affects installations that enabled URL-loading data sources (CVE-2021-43780)
+- Incorrect usage of state parameter in OAuth client code affects installations where Google Login is enabled (CVE-2021-43777)
+
+And a couple features that didn't merge in time for 10.0.0
+
+- Big Query: Speed up schema loading (#5632)
+- Add support for Firebolt data source (#5606)
+- Fix: Loading schema for Sqlite DB with "Order" column name fails (#5623)
+
+## v10.0.0 - 2021-10-01
+
+A few changes were merged during the V10 beta period.
+
+- New Data Source: CSV/Excel Files
+- Fix: Edit Source button disappeared for users without CanEdit permissions
+- We pinned our docker base image to Python3.7-slim-buster to avoid build issues
+- Fix: dashboard list pagination didn't work
+
+## v10.0.0-beta - 2021-06-16
+
+Just over a year since our last release, the V10 beta is ready. Since we never made a non-beta release of V9, we expect many users will upgrade directly from V8 -> V10. This will bring a lot of exciting features. Please check out the V9 beta release notes below to learn more.
+
+This V10 beta incorporates fixes for the feedback we received on the V9 beta along with a few long-requested features (horizontal bar charts!) and other changes to improve UX and reliability.
+
+This release was made possible by contributions from 35+ people (the Github API didn't let us pull handles this time around): Alex Kovar, Alexander Rusanov, Arik Fraimovich, Ben Amor, Christopher Grant, Đặng Minh Dũng, Daniel Lang, deecay, Elad Ossadon, Gabriel Dutra, iwakiriK, Jannis Leidel, Jerry, Jesse Whitehouse, Jiajie Zhong, Jim Sparkman, Jonathan Hult, Josh Bohde, Justin Talbot, koooge, Lei Ni, Levko Kravets, Lingkai Kong, max-voronov, Mike Nason, Nolan Nichols, Omer Lachish, Patrick Yang, peterlee, Rafael Wendel, Sebastian Tramp, simonschneider-db, Tim Gates, Tobias Macey, Vipul Mathur, and Vladislav Denisov
+
+Our special thanks to [Sohail Ahmed](https://pk.linkedin.com/in/sohail-ahmed-755776184) for reporting a vulnerability in our "forgot password" page (#5425)
+
+### Upgrading
+
+(This section is duplicated from the previous release - since many users will upgrade directly from V8 -> V10)
+
+Typically, if you are running your own instance of Redash and wish to upgrade, you would simply modify the Docker tag in your `docker-compose.yml` file. Since RQ has replaced Celery in this version, there are a couple extra modifications that need to be done in your `docker-compose.yml`:
+
+1. Under `services/scheduler/environment`, omit `QUEUES` and `WORKERS_COUNT` (and omit `environment` altogether if it is empty).
+2. Under `services`, add a new service for general RQ jobs:
+
+```yaml
+worker:
+  <<: *redash-service
+  command: worker
+  environment:
+    QUEUES: "periodic emails default"
+    WORKERS_COUNT: 1
+```
+
+Following that, force a recreation of your containers with `docker-compose up --force-recreate --build` and you should be good to go.
+### UX
+- Redash now uses a vertical navbar
+- Dashboard list now includes “My Dashboards” filter
+- Dashboard parameters can now be re-ordered
+- Queries can now be executed with Shift + Enter on all platforms.
+- Added New Dashboard/Query/Alert buttons to corresponding list pages
+- Dashboard text widgets now prompt to confirm before closing the text editor
+- A plus sign is now shown between tags used for search
+- On the queries list view “My Queries” has moved above “Archived”
+- Improved behavior for filtering by tags in list views
+- When a user’s session expires for inactivity, they are prompted to log-in with a pop-up so they don’t lose their place in the app
+- Numerous accessibility changes towards the a11y standard
+- Hide the “Create” menu button if current user doesn’t have permission to any data sources
+
+### Visualizations
+- Feature: Added support for horizontal box plots
+- Feature: Added support for horizontal bar charts
+- Feature: Added “Reverse” option for Chart visualization legend
+- Feature: Added option to align Chart Y-axes at zero
+- Feature: The table visualization header is now fixed when scrolling
+- Feature: Added USA map to choropleth visualization
+- Fix: Selected filters were reset when switching visualizations
+- Fix: Stacked bar chart showed the wrong Y-axis range in some cases
+- Fix: Bar chart with second y axis overlapped data series
+- Fix: Y-axis autoscale failed when min or max was set
+- Fix: Custom JS visualization was broken because of a typo
+- Fix: Too large visualization caused filters block to collapse
+- Fix: Sankey visualization looked inconsistent if the data source returned VARCHAR instead of numeric types
+
+### Structural Updates
+- Redash now prevents CSRF attacks
+- Migration to TypeScript
+- Upgrade to Antd version 4
+### Data Sources
+- New Data Sources: SPARQL Endpoint, Eccenca Corporate Memory, TrinoDB
+- Databricks
+  - Custom Schema Browser that allows switching between databases
+  - Option added to truncate large results
+  - Support for multiple-statement queries
+  - Schema browser can now use eventlet instead of RQ
+- MongoDB:
+  - Moved Username and Password out of the connection string so that password can be stored secretly
+- Oracle:
+  - Fix: Annotated queries always failed. Annotation is now disabled
+- Postgres/CockroachDB:
+  - SSL certfile/keyfile fields are now handled as secret
+- Python:
+  - Feature: Custom built-ins are now supported
+  - Fix: Query runner was not compatible with Python 3
+- Snowflake:
+  - Data source now accepts a custom host address (for use with proxies)
+- TreasureData:
+  - API key field is now handled as secret
+- Yandex:
+  - OAuth token field is now handled as secret
+
+### Alerts
+- Feature: Added ability to mute alerts without deleting them
+- Change: Non-email alert destination details are now obfuscated to avoid leaking sensitive information (webhook URLs, tokens etc.)
+- Fix: numerical comparisons failed if value from query was a string
+
+### Parameters
+- Added “Last 12 months” option for dynamic date ranges
+
+### Bug Fixes
+- Fix: Private addresses were not allowed even when enforcing was disabled 
+- Fix: Python query runner wasn’t updated for Python 3
+- Fix: Sorting queries by schedule returned the wrong order
+- Fix: Counter visualization was enormous in some cases
+- Fix: Dashboard URL will now change when the dashboard title changes
+- Fix: URL parameters were removed when forking a query
+- Fix: Create link on data sources page was broken
+- Fix: Queries could be reassigned to read-only data sources
+- Fix: Multi-select dropdown was very slow if there were 1k+ options
+- Fix: Search Input couldn’t be focused or updated while editing a dashboard
+- Fix: The CLI command for “status” did not work
+- Fix: The dashboard list screen displayed too few items under certain pagination configurations
+
+### Other
+- Added an environment variable to disable public sharing links for queries and dashboards
+- Alert destinations are now encrypted at the database
+- The base query runner now has stubs to implement result truncating for other data sources
+- Static SAML configuration and assertion encryption are now supported
+- Adds new component for adding extra actions to the query and dashboard pages
+- Non-admins with at least view_only permission on a dashboard can now make GET requests to the data source resource
+- Added a BLOCKED_DOMAINS setting to prevent sign-ups from emails at specific domains
+- Added a rate limit to the “forgot password” page
+- RQ workers will now shutdown gracefully for known error codes
+- Scheduled execution failure counter now resets following a successful ad hoc execution
+- Redash now deletes locks for cancelled queries
+- Upgraded Ace Editor from v6 to v9
+- Added a periodic job to remove ghost locks
+- Removed content width limit on all pages
+- Introduce a <Link> React component
+
+## v9.0.0-beta - 2020-06-11
+
+This release was long time in the making and has several major changes:
+
+- Our backend code was updated to support Python 3 and we no longer support Python 2. If you're using our Docker images, this should be a transparent change for you.
+- We replaced Celery with RQ for background jobs processing. This will require some setup updates -- see instructions below.
+- The frontend code is now 100% React and we removed all the Angular dependencies.
+
+This release was made possible by contributions from over 50 people: @ari-e, @ariarijp, @arihantsurana, @arikfr, @atharvai, @cemremengu, @chulucninh09, @citrin, @daniellangnet, @DavidHernandez, @deecay, @dmudro, @erans, @erels, @ezkl, @gabrieldutra, @gstaykov, @ialeinikov, @ikenji, @Jakdaw, @jezdez, @juanvasquezreyes, @koooge, @kravets-levko, @kykrueger, @leibowitz, @leosunmo, @lihan, @loganprice, @mickeey2525, @mnoorenberghe, @monicagangwar, @NicolasLM, @p-yang, @Ralnoc, @ranbena, @randyzwitch, @rauchy, @rxin, @saravananselvamohan, @satyamkrishna, @shinsuke-nara, @stefan-mees, @stevebuckingham, @susodapop, @taminif, @thewarpaint, @tsuyoshizawa, @uncletimmy3, @wengkham.
+
+### Upgrading
+
+Typically, if you are running your own instance of Redash and wish to upgrade, you would simply modify the Docker tag in your `docker-compose.yml` file. Since RQ has replaced Celery in this version, there are a couple extra modifications that need to be done in your `docker-compose.yml`:
+
+1. Under `services/scheduler/environment`, omit `QUEUES` and `WORKERS_COUNT` (and omit `environment` altogether if it is empty).
+2. Under `services`, add a new service for general RQ jobs:
+
+```yaml
+worker:
+  <<: *redash-service
+  command: worker
+  environment:
+    QUEUES: "periodic emails default"
+    WORKERS_COUNT: 1
+```
+
+Following that, force a recreation of your containers with `docker-compose up --force-recreate --build` and you should be good to go.
+
+### UX
+
+- Redesigned Query Results page:
+  - Completely new layout is easier to read for non-technical Redash users.
+  - Empty query results are clearly displayed. User is now prompted to edit or execute the query.
+- Mobile Experience Improvements:
+  - UI element spacing has been redesigned for clarity
+  - Admin pages now honor max-width. Tables scroll independent of the top menu.
+  - Large legends no longer shrink the visualization on small screens.
+  - Fix: it was sometimes impossible to scroll pages with dashboards because the visualizations captured every touch event.
+  - Fix: Visualizations on small screens would not always show horizontal scroll bars.
+- Dashboards can now be un-archived using the API.
+- Dashboard UI performance was improved.
+- List pages were changed to show a user's name instead of avatar.
+- Search-enabled tables now show a prompt for which columns will be searched.
+- In the visualization editor, the settings pane now scrolls independent of the visualization preview.
+- Tokens in the schema viewer now sort alphabetically.
+- Links to settings panes that require Admin privileges are now hidden from non-Admins.
+- The Admin page now remembers which tab you were viewing after a page reload.
+
+### Visualizations
+
+- Feature: Allow bubble size control with either coefficient or sizemode.
+- Feature: Table visualization now treats Unix timestamps in query results as timestamps.
+- Feature: It's now possible to provide a description to each Table column, appearing in UI as a tooltip.
+- Feature: Added tooltip and popover templating to the map with markers visualization.
+- Feature: Added an organization setting to hide the Plotly mode bar on all visualizations.
+- Feature: Cohort visualization now has appearance settings.
+- Feature: Add option to explicitly set Chart legend position.
+- Change: Deprecated visualizations are now hidden.
+- Change: Table settings editor now extends vertically instead of horizontally.
+- Change: The maximum table pagination is now 500.
+- Change: Pie chart labels maintain contrast against lighter slices.
+- Fix: Chart series switched places when picking Y axis.
+- Fix: Third column was not selectable for Bubble and Heatmap charts.
+- Fix: On the counter visualizations, the “count rows” option showed an empty string instead of 0.
+- Fix: Table visualization with column named "children" rendered +/- buttons.
+- Fix: Sankey visualization now correctly occupies all available area even with fewer stages.
+- Fix: Pie chart ignores series labels.
+
+### Data Sources
+
+- New Data Sources: Amazon Cloudwatch, Amazon CloudWatch Logs Insights, Azure Kusto, Exasol.
+- Athena:
+  - Added the option to specify a base cost in settings, displaying a price for each query when executed.
+- BigQuery:
+  - Fix: large jobs continued running after the user clicked “Cancel” query execution.
+- Cassandra:
+  - Updated driver to 3.21.0 which dramatically reduces Docker build times.
+  - SSL options are now available.
+- Clickhouse:
+  - You can now choose whether to verify the SSL certificate.
+- Databricks:
+  - Databricks now use an ODBC-based connector.
+  - Fix: Date column was coerced to DateTime in the front-end.
+- Druid:
+  - Added username and password authentication option.
+- Microsoft SQL Server
+  - Added support for ODBC connections via pyodbc. There are now two MSSQL data source types. One using TDS. The other is using ODBC.
+- MongoDB:
+  - Added support for running queries on secondary in replicaset mode.
+  - Fix: Connection test always succeeded.
+- Oracle:
+  - Fix: Connection would fail if username or password contained special characters.
+  - Fix: Comparisons would fail if scale was None.
+- RDS:
+  - Updated rds-combined-ca-bundle.pem to the latest CA.
+- Redshift:
+  - Added the ability to use IAM Roles and Users.
+  - Fix: Redshift was unable to have its schema refreshed.
+- Rockset:
+  - Fix: Allow Redash to load collections in all workspaces.
+- Snowflake:
+  - You can now refresh the snowflake schema without waking the cluster.
+  - Added support for all of Snowflake’s datetime types. Otherwise certain timestamps would only appear as strings in the front-end.
+- TreasureData:
+  - Fix: API calls would fail when setting a non-default region.
+
+### Alerts
+
+- Feature: Added ability to mute alerts without deleting them.
+- Fix: numerical comparisons failed if value from query was a string.
+
+### Parameters
+
+- Added Last x Days options for date range parameters.
+- Fix: Parameters added in empty queries were always added as text parameters
+
+### Bug Fixes
+
+- Fix: Alembic migration schema was preventing v4 users from upgrading. In v5 we started encrypting data source credentials in the database.
+- Fix: System admin dashboard would not show correct database size if non-default name was used.
+- Fix: refresh_queries job would break if any query had a bad schedule object.
+- Fix: Orgs with LDAP enabled couldn’t disable password login.
+- Fix: SSL mode was sometimes sent as an empty string to the database instead of omitted entirely.
+- Fix: When creating new Map visualization with clustering disabled, map would crash on save.
+- Fix: It was possible on the New Query page to click “Save” multiple times, causing multiple new query records to be created.
+- Fix: Visualization render errors on a dashboard would crash the entire page.
+- Fix: A scheduled execution failure would modify the query’s “updated_at” timestamp.
+- Fix: Parameter UI would wrap awkwardly during some drag operations.
+- Fix: In dashboard edit mode, users couldn’t modify widgets.
+- Fix: Frontend error when parsing a NaN float.
+
+### Other
+
+- Added TSV as a download format (in addition to CSV and Excel).
+- Added maildev settings (helps with automated settings).
+- Refine permissions usage in Redash to allow for guest users
+- The query results API now explicitly handles 404 errors.
+- Forked queries now retain the tags of the original query.
+- We now allow setting custom Sentry environments.
+- Started using Black linter for our Python source code
+- Added CLI command to re-encrypt data source details with new secret key.
+- Favorites list is now loaded on menu click instead of on page load.
+- Administrators can now allow connections to private IP addresses.
+
 ## v8.0.0 - 2019-10-27
 
 There were no changes in this release since `v8.0.0-beta.2`. This is just to mark a stable release.
@@ -8,23 +299,22 @@ There were no changes in this release since `v8.0.0-beta.2`. This is just to mar
 
 This is an update to the previous beta release, which includes:
 
-* Add options for users to share anonymous usage information with us (see [docs](https://redash.io/help/open-source/admin-guide/usage-data) for details).
-* Visualizations:
-    - Allow the user to decide how to handle null values in charts.
-* Upgrade Sentry-SDK to latest version.
-* Make horizontal table scroll visible in dashboard widgets without scrolling.
-* Data Sources:
-    * Add support for Azure Data Explorer (Kusto).
-    * MySQL: fix connections without SSL configuration failing.
-    * Amazon Redshift: option to set query group for adhoc/scheduled queries.
-    * Hive: make error message more friendly.
-    * Qubole: add support to run Quantum queries.
-* Display data source icon in query editor.
-* Fix: allow users with view only acces to use the queries in Query Results
-* Dashboard: when updating parameters refersh only widgets that use those parameters.
+- Add options for users to share anonymous usage information with us (see [docs](https://redash.io/help/open-source/admin-guide/usage-data) for details).
+- Visualizations:
+  - Allow the user to decide how to handle null values in charts.
+- Upgrade Sentry-SDK to latest version.
+- Make horizontal table scroll visible in dashboard widgets without scrolling.
+- Data Sources:
+  - Add support for Azure Data Explorer (Kusto).
+  - MySQL: fix connections without SSL configuration failing.
+  - Amazon Redshift: option to set query group for adhoc/scheduled queries.
+  - Hive: make error message more friendly.
+  - Qubole: add support to run Quantum queries.
+- Display data source icon in query editor.
+- Fix: allow users with view only acces to use the queries in Query Results
+- Dashboard: when updating parameters refersh only widgets that use those parameters.
 
 This release had contributions from 12 people: @arikfr, @cclauss, @gabrieldutra, @justinclift, @kravets-levko, @ranbena, @rauchy, @sandeepV2, @shinsuke-nara, @spacentropy, @sphenlee, @swfz.
-
 
 ## v8.0.0-beta - 2019-08-18
 
@@ -39,10 +329,10 @@ This release was made possible by contributions from over 40 people: @aidarbek, 
 ### Parameters
 
 - Parameter UI improvements:
-    - Support for multi-select in dropdown (and query dropdown) parameters.
-    - Support for dynamic values in date and date-range parameters.
-    - Search dropdown parameter values.
-    - New UX for applying parameter changes in queries and dashboards.
+  - Support for multi-select in dropdown (and query dropdown) parameters.
+  - Support for dynamic values in date and date-range parameters.
+  - Search dropdown parameter values.
+  - New UX for applying parameter changes in queries and dashboards.
 - Allow using Safe Parameters in visualization embeds and public dashboards. Safe Parameters are any parameter type except for the a text parameter (dropdowns are safe).
 
 ### Data Sources
@@ -52,19 +342,19 @@ This release was made possible by contributions from over 40 people: @aidarbek, 
 - Snowflake: update connector to latest version.
 - PostgreSQL: show only accessible tables in schema.
 - BigQuery:
-    - Correctly handle NaN values.
-    - Treat repeated fields as rrays.
-    - [BigQuery] Fix: in some queries there is no mode field
+  - Correctly handle NaN values.
+  - Treat repeated fields as rrays.
+  - [BigQuery] Fix: in some queries there is no mode field
 - DynamoDB:
-    - Support for Unicode in queries.
-    - Safe loading of schema.
+  - Support for Unicode in queries.
+  - Safe loading of schema.
 - Rockset: better handling of query errors.
 - Google Sheets:
-    - Support for Team Drive.
-    - Friendlier error message in case of an API error and more reliable test connection.
-- MySQL: 
-    - Support for calling Stored Procedures and better handling of query cancellation.
-    - Switch to using `mysqlclient` (a maintained fork of `Python-MySQL`).
+  - Support for Team Drive.
+  - Friendlier error message in case of an API error and more reliable test connection.
+- MySQL:
+  - Support for calling Stored Procedures and better handling of query cancellation.
+  - Switch to using `mysqlclient` (a maintained fork of `Python-MySQL`).
 - MongoDB: Support serializing Decimal128 values.
 - Presto: support for passwords in connection settings.
 - Amazon Athena: allow to specify custom work group.
@@ -75,15 +365,15 @@ This release was made possible by contributions from over 40 people: @aidarbek, 
 ### Visualizations
 
 - Charts:
-    - Fix: legend overlapping chart on small screens.
-    - Fix: Pie chart not rendering when series doesn't exist in options.
-    - Pie Chart: add option to set direction of slices.
+  - Fix: legend overlapping chart on small screens.
+  - Fix: Pie chart not rendering when series doesn't exist in options.
+  - Pie Chart: add option to set direction of slices.
 - WordCloud: rewritten to support new options (provide frequency in query, limits), scale when resizing, handle long words and more.
 - Pivot Table: support hiding totals.
 - Counters: apply formatting to target value.
 - Maps:
-    - Ability to customize marker icon and color.
-    - Customization options for Choropleth maps.
+  - Ability to customize marker icon and color.
+  - Customization options for Choropleth maps.
 - New Visualization: Details View.
 
 ### **UX**
