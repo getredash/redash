@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { map, mapValues, keyBy } from "lodash";
-import moment from "moment";
+import dayjs from "dayjs";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 import Descriptions from "antd/lib/descriptions";
@@ -15,7 +15,7 @@ function renderValue(value: any, type: any) {
   };
 
   if (type === "date" || type === "datetime") {
-    if (moment.isMoment(value)) {
+    if (dayjs.isDayjs(value)) {
       // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       return value.format(formats[type]);
     }

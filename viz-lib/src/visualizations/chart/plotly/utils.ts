@@ -1,5 +1,7 @@
 import { isUndefined } from "lodash";
-import moment from "moment";
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
+dayjs.extend(utc);
 // @ts-expect-error ts-migrate(7016) FIXME: Could not find a declaration file for module 'plot... Remove this comment to see the full error message
 import plotlyCleanNumber from "plotly.js/src/lib/clean_number";
 
@@ -16,10 +18,10 @@ export function getSeriesAxis(series: any, options: any) {
 }
 
 export function normalizeValue(value: any, axisType: any, dateTimeFormat = "YYYY-MM-DD HH:mm:ss") {
-  if (axisType === "datetime" && moment.utc(value).isValid()) {
-    value = moment.utc(value);
+  if (axisType === "datetime" && dayjs.utc(value).isValid()) {
+    value = dayjs.utc(value);
   }
-  if (moment.isMoment(value)) {
+  if (dayjs.isDayjs(value)) {
     return value.format(dateTimeFormat);
   }
   return value;

@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOMServer from "react-dom/server";
-import moment from "moment/moment";
+import dayjs from "dayjs";
 import numeral from "numeral";
 import { isString, isArray, isUndefined, isFinite, isNil, toString } from "lodash";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
@@ -32,21 +32,22 @@ export function createTextFormatter(highlightLinks: any) {
   return (value: any) => toString(value);
 }
 
-function toMoment(value: any) {
-  if (moment.isMoment(value)) {
+function toDayjs(value: any) {
+  if (dayjs.isDayjs(value)) {
     return value;
   }
   if (isFinite(value)) {
-    return moment(value);
+    return dayjs(value);
   }
   // same as default `moment(value)`, but avoid fallback to `new Date()`
-  return moment(toString(value), [moment.ISO_8601, moment.RFC_2822]);
+  return dayjs(toString(value));  // JC: Not sure how to represent the below line using Day.js :(
+  // return moment(toString(value), [moment.ISO_8601, moment.RFC_2822]);
 }
 
 export function createDateTimeFormatter(format: any) {
   if (isString(format) && format !== "") {
     return (value: any) => {
-      const wrapped = toMoment(value);
+      const wrapped = toDayjs(value);
       return wrapped.isValid() ? wrapped.format(format) : toString(value);
     };
   }

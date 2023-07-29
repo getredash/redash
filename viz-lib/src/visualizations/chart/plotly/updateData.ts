@@ -70,7 +70,7 @@ function updateSeriesText(seriesList: any, options: any) {
       const yValueIsAny = includes(["bubble", "scatter"], seriesOptions.type);
 
       // for `formatValue` we have to use original value of `x` and `y`: `item.x`/`item.y` contains value
-      // already processed with `normalizeValue`, and if they were `moment` instances - they are formatted
+      // already processed with `normalizeValue`, and if they were `dayjs` instances - they are formatted
       // using default (ISO) date/time format. Here we need to use custom date/time format, so we pass original value
       // to `formatValue` which will call `normalizeValue` again, but this time with different date/time format
       // (if needed)

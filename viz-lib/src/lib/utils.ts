@@ -1,4 +1,4 @@
-import moment from "moment";
+import dayjs from "dayjs";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 function formatDateTime(value: any) {
@@ -6,7 +6,7 @@ function formatDateTime(value: any) {
     return "";
   }
 
-  const parsed = moment(value);
+  const parsed = dayjs(value);
   if (!parsed.isValid()) {
     return "-";
   }
@@ -19,7 +19,7 @@ function formatDate(value: any) {
     return "";
   }
 
-  const parsed = moment(value);
+  const parsed = dayjs(value);
   if (!parsed.isValid()) {
     return "-";
   }
@@ -28,7 +28,7 @@ function formatDate(value: any) {
 }
 
 export function formatColumnValue(value: any, columnType = null) {
-  if (moment.isMoment(value)) {
+  if (dayjs.isDayjs(value)) {
     if (columnType === "date") {
       return formatDate(value);
     }

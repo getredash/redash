@@ -1,9 +1,9 @@
 import { map, maxBy, sortBy, toString } from "lodash";
-import moment from "moment";
+import dayjs from "dayjs";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
 function stepValueToString(value: any) {
-  if (moment.isMoment(value)) {
+  if (dayjs.isDayjs(value)) {
     const format = visualizationsSettings.dateTimeFormat || "DD/MM/YYYY HH:mm";
     return value.format(format);
   }
