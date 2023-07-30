@@ -1,13 +1,13 @@
 import logging
 
 from flask import abort, flash, redirect, render_template, request, url_for
-
 from flask_login import current_user, login_required, login_user, logout_user
+from itsdangerous import BadSignature, SignatureExpired
+from sqlalchemy.orm.exc import NoResultFound
+
 from redash import __version__, limiter, models, settings
 from redash.authentication import current_org, get_login_url, get_next_path
 from redash.authentication.account import (
-    BadSignature,
-    SignatureExpired,
     send_password_reset_email,
     send_user_disabled_email,
     send_verify_email,
@@ -16,16 +16,13 @@ from redash.authentication.account import (
 from redash.handlers import routes
 from redash.handlers.base import json_response, org_scoped_rule
 from redash.version_check import get_latest_version
-from sqlalchemy.orm.exc import NoResultFound
 
 logger = logging.getLogger(__name__)
 
 
 def get_google_auth_url(next_path):
     if settings.MULTI_ORG:
-        google_auth_url = url_for(
-            "google_oauth.authorize_org", next=next_path, org_slug=current_org.slug
-        )
+        google_auth_url = url_for("google_oauth.authorize_org", next=next_path, org_slug=current_org.slug)
     else:
         google_auth_url = url_for("google_oauth.authorize", next=next_path)
     return google_auth_url
@@ -38,9 +35,9 @@ def render_token_login_page(template, org_slug, token, invite):
         user = models.User.get_by_id_and_org(user_id, org)
     except NoResultFound:
         logger.exception(
-            "Bad user id in token. Token= , User id= %s, Org=%s",
-            user_id,
+            "Bad user id in token. Token=%s , User id= %s, Org=%s",
             token,
+            user_id,
             org_slug,
         )
         return (
@@ -65,8 +62,7 @@ def render_token_login_page(template, org_slug, token, invite):
             render_template(
                 "error.html",
                 error_message=(
-                    "This invitation has already been accepted. "
-                    "Please try resetting your password instead."
+                    "This invitation has already been accepted. Please try resetting your password instead."
                 ),
             ),
             400,
@@ -126,9 +122,7 @@ def verify(token, org_slug=None):
         org = current_org._get_current_object()
         user = models.User.get_by_id_and_org(user_id, org)
     except (BadSignature, NoResultFound):
-        logger.exception(
-            "Failed to verify email verification token: %s, org=%s", token, org_slug
-        )
+        logger.exception("Failed to verify email verification token: %s, org=%s", token, org_slug)
         return (
             render_template(
                 "error.html",
@@ -175,11 +169,7 @@ def verification_email(org_slug=None):
     if not current_user.is_email_verified:
         send_verify_email(current_user, current_org)
 
-    return json_response(
-        {
-            "message": "Please check your email inbox in order to verify your email address."
-        }
-    )
+    return json_response({"message": "Please check your email inbox in order to verify your email address."})
 
 
 @routes.route(org_scoped_rule("/login"), methods=["GET", "POST"])
@@ -187,9 +177,9 @@ def verification_email(org_slug=None):
 def login(org_slug=None):
     # We intentionally use == as otherwise it won't actually use the proxy. So weird :O
     # noinspection PyComparisonWithNone
-    if current_org == None and not settings.MULTI_ORG:
+    if current_org == None and not settings.MULTI_ORG:  # noqa: E711
         return redirect("/setup")
-    elif current_org == None:
+    elif current_org == None:  # noqa: E711
         return redirect("/")
 
     index_url = url_for("redash.index", org_slug=org_slug)
@@ -198,15 +188,11 @@ def login(org_slug=None):
     if current_user.is_authenticated:
         return redirect(next_path)
 
-    if request.method == "POST":
+    if request.method == "POST" and current_org.get_setting("auth_password_login_enabled"):
         try:
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(request.form["email"], org)
-            if (
-                user
-                and not user.is_disabled
-                and user.verify_password(request.form["password"])
-            ):
+            if user and not user.is_disabled and user.verify_password(request.form["password"]):
                 remember = "remember" in request.form
                 login_user(user, remember=remember)
                 return redirect(next_path)
@@ -214,6 +200,8 @@ def login(org_slug=None):
                 flash("Wrong email or password.")
         except NoResultFound:
             flash("Wrong email or password.")
+    elif request.method == "POST" and not current_org.get_setting("auth_password_login_enabled"):
+        flash("Password login is not enabled for your organization.")
 
     google_auth_url = get_google_auth_url(next_path)
 
@@ -275,20 +263,13 @@ def client_config():
     else:
         client_config = {}
 
-    if (
-        current_user.has_permission("admin")
-        and current_org.get_setting("beacon_consent") is None
-    ):
+    if current_user.has_permission("admin") and current_org.get_setting("beacon_consent") is None:
         client_config["showBeaconConsentMessage"] = True
 
     defaults = {
         "allowScriptsInUserInput": settings.ALLOW_SCRIPTS_IN_USER_INPUT,
-        "showPermissionsControl": current_org.get_setting(
-            "feature_show_permissions_control"
-        ),
-        "hidePlotlyModeBar": current_org.get_setting(
-            "hide_plotly_mode_bar"
-        ),
+        "showPermissionsControl": current_org.get_setting("feature_show_permissions_control"),
+        "hidePlotlyModeBar": current_org.get_setting("hide_plotly_mode_bar"),
         "disablePublicUrls": current_org.get_setting("disable_public_urls"),
         "allowCustomJSVisualizations": settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         "autoPublishNamedQueries": settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
@@ -325,9 +306,7 @@ def messages():
 
 @routes.route("/api/config", methods=["GET"])
 def config(org_slug=None):
-    return json_response(
-        {"org_slug": current_org.slug, "client_config": client_config()}
-    )
+    return json_response({"org_slug": current_org.slug, "client_config": client_config()})
 
 
 @routes.route(org_scoped_rule("/api/session"), methods=["GET"])

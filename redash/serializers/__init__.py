@@ -3,23 +3,20 @@ This will eventually replace all the `to_dict` methods of the different model
 classes we have. This will ensure cleaner code and better
 separation of concerns.
 """
-from funcy import project
-
 from flask_login import current_user
+from funcy import project
 from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
 
 from redash import models
-from redash.permissions import has_access, view_only
-from redash.utils import json_loads
 from redash.models.parameterized_query import ParameterizedQuery
-
-
-from .query_result import (
+from redash.permissions import has_access, view_only
+from redash.serializers.query_result import (
     serialize_query_result,
     serialize_query_result_to_dsv,
     serialize_query_result_to_xlsx,
 )
+from redash.utils import json_loads
 
 
 def public_widget(widget):
@@ -80,21 +77,12 @@ class QuerySerializer(Serializer):
     def serialize(self):
         if isinstance(self.object_or_list, models.Query):
             result = serialize_query(self.object_or_list, **self.options)
-            if (
-                self.options.get("with_favorite_state", True)
-                and not current_user.is_api_user()
-            ):
-                result["is_favorite"] = models.Favorite.is_favorite(
-                    current_user.id, self.object_or_list
-                )
+            if self.options.get("with_favorite_state", True) and not current_user.is_api_user():
+                result["is_favorite"] = models.Favorite.is_favorite(current_user.id, self.object_or_list)
         else:
-            result = [
-                serialize_query(query, **self.options) for query in self.object_or_list
-            ]
+            result = [serialize_query(query, **self.options) for query in self.object_or_list]
             if self.options.get("with_favorite_state", True):
-                favorite_ids = models.Favorite.are_favorites(
-                    current_user.id, self.object_or_list
-                )
+                favorite_ids = models.Favorite.are_favorites(current_user.id, self.object_or_list)
                 for query in result:
                     query["is_favorite"] = query["id"] in favorite_ids
 
@@ -134,11 +122,7 @@ def serialize_query(
         d["user_id"] = query.user_id
 
     if with_last_modified_by:
-        d["last_modified_by"] = (
-            query.last_modified_by.to_dict()
-            if query.last_modified_by is not None
-            else None
-        )
+        d["last_modified_by"] = query.last_modified_by.to_dict() if query.last_modified_by is not None else None
     else:
         d["last_modified_by_id"] = query.last_modified_by_id
 
@@ -151,10 +135,7 @@ def serialize_query(
             d["runtime"] = None
 
     if with_visualizations:
-        d["visualizations"] = [
-            serialize_visualization(vis, with_query=False)
-            for vis in query.visualizations
-        ]
+        d["visualizations"] = [serialize_visualization(vis, with_query=False) for vis in query.visualizations]
 
     return d
 
@@ -277,21 +258,12 @@ class DashboardSerializer(Serializer):
     def serialize(self):
         if isinstance(self.object_or_list, models.Dashboard):
             result = serialize_dashboard(self.object_or_list, **self.options)
-            if (
-                self.options.get("with_favorite_state", True)
-                and not current_user.is_api_user()
-            ):
-                result["is_favorite"] = models.Favorite.is_favorite(
-                    current_user.id, self.object_or_list
-                )
+            if self.options.get("with_favorite_state", True) and not current_user.is_api_user():
+                result["is_favorite"] = models.Favorite.is_favorite(current_user.id, self.object_or_list)
         else:
-            result = [
-                serialize_dashboard(obj, **self.options) for obj in self.object_or_list
-            ]
+            result = [serialize_dashboard(obj, **self.options) for obj in self.object_or_list]
             if self.options.get("with_favorite_state", True):
-                favorite_ids = models.Favorite.are_favorites(
-                    current_user.id, self.object_or_list
-                )
+                favorite_ids = models.Favorite.are_favorites(current_user.id, self.object_or_list)
                 for obj in result:
                     obj["is_favorite"] = obj["id"] in favorite_ids
 

@@ -34,7 +34,7 @@ const isDevelopment = !isProduction;
 const isHotReloadingEnabled =
   isDevelopment && process.env.HOT_RELOAD === "true";
 
-const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
+const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5001";
 const baseHref = CONFIG.baseHref || "/";
 const staticPath = CONFIG.staticPath || "/static/";
 const htmlTitle = CONFIG.title || "Redash";
@@ -109,13 +109,15 @@ const config = {
       fileName: "asset-manifest.json",
       publicPath: ""
     }),
-    new CopyWebpackPlugin([
-      { from: "client/app/assets/robots.txt" },
-      { from: "client/app/unsupported.html" },
-      { from: "client/app/unsupportedRedirect.js" },
-      { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
-      { from: "client/app/assets/fonts", to: "fonts/" }
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: "client/app/assets/robots.txt" },
+        { from: "client/app/unsupported.html" },
+        { from: "client/app/unsupportedRedirect.js" },
+        { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
+        { from: "client/app/assets/fonts", to: "fonts/" }
+      ],
+    }),
     isHotReloadingEnabled && new ReactRefreshWebpackPlugin({ overlay: false })
   ].filter(Boolean),
   optimization: {

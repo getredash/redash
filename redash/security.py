@@ -1,12 +1,11 @@
 import functools
-from flask import session, request
+
+from flask import request, session
 from flask_login import current_user
 from flask_talisman import talisman
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 
-
 from redash import settings
-
 
 talisman = talisman.Talisman()
 csrf = CSRFProtect()
@@ -18,9 +17,7 @@ def csp_allows_embeding(fn):
         return fn(*args, **kwargs)
 
     embedable_csp = talisman.content_security_policy + "frame-ancestors *;"
-    return talisman(content_security_policy=embedable_csp, frame_options=None)(
-        decorated
-    )
+    return talisman(content_security_policy=embedable_csp, frame_options=None)(decorated)
 
 
 def init_app(app):
@@ -35,6 +32,7 @@ def init_app(app):
         return response
 
     if settings.ENFORCE_CSRF:
+
         @app.before_request
         def check_csrf():
             # BEGIN workaround until https://github.com/lepture/flask-wtf/pull/419 is merged
@@ -42,7 +40,7 @@ def init_app(app):
                 return
 
             view = app.view_functions.get(request.endpoint)
-            dest = f'{view.__module__}.{view.__name__}'
+            dest = f"{view.__module__}.{view.__name__}"
 
             if dest in csrf._exempt_views:
                 return
