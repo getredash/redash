@@ -3,6 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
+import Link from "@/components/Link";
 import BigMessage from "@/components/BigMessage";
 import PageHeader from "@/components/PageHeader";
 import Parameters from "@/components/Parameters";
@@ -89,11 +90,11 @@ class PublicDashboardPage extends React.Component {
         )}
         <div id="footer">
           <div className="text-center">
-            <a href="https://redash.io">
+            <Link href="https://redash.io">
               <img alt="Redash Logo" src={logoUrl} width="38" />
-            </a>
+            </Link>
           </div>
-          Powered by <a href="https://redash.io/?ref=public-dashboard">Redash</a>
+          Powered by <Link href="https://redash.io/?ref=public-dashboard">Redash</Link>
         </div>
       </div>
     );

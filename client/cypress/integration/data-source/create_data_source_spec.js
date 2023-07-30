@@ -1,12 +1,25 @@
 describe("Create Data Source", () => {
   beforeEach(() => {
     cy.login();
-    cy.visit("/data_sources/new");
+  });
+
+  it("opens the creation dialog when clicking in the create link or button", () => {
+    cy.visit("/data_sources");
+    cy.server();
+    cy.route("**/api/data_sources", []); // force an empty response
+
+    ["CreateDataSourceButton", "CreateDataSourceLink"].forEach(createElementTestId => {
+      cy.getByTestId(createElementTestId).click();
+      cy.getByTestId("CreateSourceDialog").should("exist");
+      cy.getByTestId("CreateSourceCancelButton").click();
+      cy.getByTestId("CreateSourceDialog").should("not.exist");
+    });
   });
 
   it("renders the page and takes a screenshot", function() {
+    cy.visit("/data_sources/new");
     cy.server();
-    cy.route("api/data_sources/types").as("DataSourceTypesRequest");
+    cy.route("**/api/data_sources/types").as("DataSourceTypesRequest");
 
     cy.wait("@DataSourceTypesRequest")
       .then(({ response }) => response.body.filter(type => type.deprecated))
@@ -23,6 +36,7 @@ describe("Create Data Source", () => {
   });
 
   it("creates a new PostgreSQL data source", () => {
+    cy.visit("/data_sources/new");
     cy.getByTestId("SearchSource").type("PostgreSQL");
     cy.getByTestId("CreateSourceDialog")
       .contains("PostgreSQL")
@@ -33,7 +47,7 @@ describe("Create Data Source", () => {
     cy.getByTestId("User").type("postgres");
     cy.getByTestId("Password").type("postgres");
     cy.getByTestId("Database Name").type("postgres{enter}");
-    cy.getByTestId("CreateSourceButton").click();
+    cy.getByTestId("CreateSourceSaveButton").click({ force: true });
 
     cy.contains("Saved.");
   });

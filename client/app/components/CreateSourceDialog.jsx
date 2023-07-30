@@ -1,12 +1,13 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { isEmpty, toUpper, includes, get } from "lodash";
+import { isEmpty, toUpper, includes, get, uniqueId } from "lodash";
 import Button from "antd/lib/button";
 import List from "antd/lib/list";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import Steps from "antd/lib/steps";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import Link from "@/components/Link";
 import { PreviewCard } from "@/components/PreviewCard";
 import EmptyState from "@/components/items-list/components/EmptyState";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
@@ -43,6 +44,8 @@ class CreateSourceDialog extends React.Component {
     savingSource: false,
     currentStep: StepEnum.SELECT_TYPE,
   };
+
+  formId = uniqueId("sourceForm");
 
   selectType = selectedType => {
     this.setState({ selectedType, currentStep: StepEnum.CONFIGURE_IT });
@@ -81,6 +84,7 @@ class CreateSourceDialog extends React.Component {
       <div className="m-t-10">
         <Search
           placeholder="Search..."
+          aria-label="Search"
           onChange={e => this.setState({ searchText: e.target.value })}
           autoFocus
           data-test="SearchSource"
@@ -110,17 +114,18 @@ class CreateSourceDialog extends React.Component {
         <div className="text-right">
           {HELP_TRIGGER_TYPES[helpTriggerType] && (
             <HelpTrigger className="f-13" type={helpTriggerType}>
-              Setup Instructions <i className="fa fa-question-circle" />
+              Setup Instructions <i className="fa fa-question-circle" aria-hidden="true" />
+              <span className="sr-only">(help)</span>
             </HelpTrigger>
           )}
         </div>
-        <DynamicForm id="sourceForm" fields={fields} onSubmit={this.createSource} feedbackIcons hideSubmitButton />
+        <DynamicForm id={this.formId} fields={fields} onSubmit={this.createSource} feedbackIcons hideSubmitButton />
         {selectedType.type === "databricks" && (
           <small>
             By using the Databricks Data Source you agree to the Databricks JDBC/ODBC{" "}
-            <a href="https://databricks.com/spark/odbc-driver-download" target="_blank" rel="noopener noreferrer">
+            <Link href="https://databricks.com/spark/odbc-driver-download" target="_blank" rel="noopener noreferrer">
               Driver Download Terms and Conditions
-            </a>
+            </Link>
             .
           </small>
         )}
@@ -138,7 +143,7 @@ class CreateSourceDialog extends React.Component {
           roundedImage={false}
           data-test="PreviewItem"
           data-test-type={item.type}>
-          <i className="fa fa-angle-double-right" />
+          <i className="fa fa-angle-double-right" aria-hidden="true" />
         </PreviewCard>
       </List.Item>
     );
@@ -154,7 +159,7 @@ class CreateSourceDialog extends React.Component {
         footer={
           currentStep === StepEnum.SELECT_TYPE
             ? [
-                <Button key="cancel" onClick={() => dialog.dismiss()}>
+                <Button key="cancel" onClick={() => dialog.dismiss()} data-test="CreateSourceCancelButton">
                   Cancel
                 </Button>,
                 <Button key="submit" type="primary" disabled>
@@ -168,10 +173,10 @@ class CreateSourceDialog extends React.Component {
                 <Button
                   key="submit"
                   htmlType="submit"
-                  form="sourceForm"
+                  form={this.formId}
                   type="primary"
                   loading={savingSource}
-                  data-test="CreateSourceButton">
+                  data-test="CreateSourceSaveButton">
                   Create
                 </Button>,
               ]

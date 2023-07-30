@@ -1,17 +1,17 @@
 ---
 name: "\U0001F4A1Anything else"
-about: "For help, support, features & ideas - please use https://discuss.redash.io \U0001F46B "
+about: "For help, support, features & ideas - please use Discussions \U0001F46B "
 labels: "Support Question"
 ---
 
 We use GitHub only for bug reports 🐛
 
-Anything else should be posted to https://discuss.redash.io 👫
+Anything else should be a discussion: https://github.com/getredash/redash/discussions/ 👫
 
-🚨For support, help & questions use https://discuss.redash.io/c/support
-💡For feature requests & ideas use https://discuss.redash.io/c/feature-requests
+🚨For support, help & questions use https://github.com/getredash/redash/discussions/categories/q-a
+💡For feature requests & ideas use https://github.com/getredash/redash/discussions/categories/ideas
 
 Alternatively, check out these resources below. Thanks! 😁.
 
-- [Forum](https://disucss.redash.io)
+- [Discussions](https://github.com/getredash/redash/discussions/)
 - [Knowledge Base](https://redash.io/help)

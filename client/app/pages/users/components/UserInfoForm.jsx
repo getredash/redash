@@ -4,12 +4,12 @@ import PropTypes from "prop-types";
 import { UserProfile } from "@/components/proptypes";
 import DynamicComponent from "@/components/DynamicComponent";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
+import UserGroups from "@/components/UserGroups";
 
 import User from "@/services/user";
 import { currentUser } from "@/services/auth";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
-import UserGroups from "./UserGroups";
 import useUserGroups from "../hooks/useUserGroups";
 
 export default function UserInfoForm(props) {
@@ -61,7 +61,7 @@ export default function UserInfoForm(props) {
                 type: "select",
                 mode: "multiple",
                 options: map(allGroups, group => ({ name: group.name, value: group.id })),
-                initialValue: map(groups, group => group.id),
+                initialValue: user.groupIds,
                 loading: isLoadingGroups,
                 placeholder: isLoadingGroups ? "Loading..." : "",
               }
@@ -69,6 +69,7 @@ export default function UserInfoForm(props) {
                 name: "group_ids",
                 title: "Groups",
                 type: "content",
+                required: false,
                 content: isLoadingGroups ? "Loading..." : <UserGroups data-test="Groups" groups={groups} />,
               },
         ],

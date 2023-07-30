@@ -16,7 +16,6 @@
 @import "~antd/lib/pagination/style/index";
 @import "~antd/lib/table/style/index";
 @import "~antd/lib/popover/style/index";
-@import "~antd/lib/icon/style/index";
 @import "~antd/lib/tag/style/index";
 @import "~antd/lib/grid/style/index";
 @import "~antd/lib/switch/style/index";
@@ -31,6 +30,7 @@
 @import "~antd/lib/badge/style/index";
 @import "~antd/lib/card/style/index";
 @import "~antd/lib/spin/style/index";
+@import "~antd/lib/skeleton/style/index";
 @import "~antd/lib/tabs/style/index";
 @import "~antd/lib/notification/style/index";
 @import "~antd/lib/collapse/style/index";
@@ -225,6 +225,16 @@
     }
   }
 
+  &-tbody > tr&-row {
+    &:hover,
+    &:focus,
+    &:focus-within {
+      & > td {
+        background: @table-row-hover-bg;
+      }
+    }
+  }
+
   // Custom styles
 
   &-headerless &-tbody > tr:first-child > td {
@@ -391,6 +401,18 @@
         left: 0;
       }
     }
+
+    &:focus,
+    &:focus-within {
+      color: @menu-highlight-color;
+    }
+  }
+}
+
+.@{dropdown-prefix-cls}-menu-item {
+  &:focus,
+  &:focus-within {
+    background-color: @item-hover-bg;
   }
 }
 
@@ -400,4 +422,15 @@
 .@{checkbox-prefix-cls}-wrapper + span,
 .@{checkbox-prefix-cls} + span {
   padding-right: 0;
+}
+
+// make sure Multiple select has room for icons
+.@{select-prefix-cls}-multiple {
+  &.@{select-prefix-cls}-show-arrow,
+  &.@{select-prefix-cls}-show-search,
+  &.@{select-prefix-cls}-loading {
+    .@{select-prefix-cls}-selector {
+      padding-right: 30px;
+    }
+  }
 }
