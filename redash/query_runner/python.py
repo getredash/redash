@@ -213,7 +213,7 @@ class Python(BaseQueryRunner):
         :query string: Query to run
         """
         try:
-            if type(data_source_name_or_id) == int:
+            if isinstance(data_source_name_or_id, int):
                 data_source = models.DataSource.get_by_id(data_source_name_or_id)
             else:
                 data_source = models.DataSource.get_by_name(data_source_name_or_id)
@@ -241,7 +241,7 @@ class Python(BaseQueryRunner):
         :return:
         """
         try:
-            if type(data_source_name_or_id) == int:
+            if isinstance(data_source_name_or_id, int):
                 data_source = models.DataSource.get_by_id(data_source_name_or_id)
             else:
                 data_source = models.DataSource.get_by_name(data_source_name_or_id)
