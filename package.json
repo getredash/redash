@@ -9,7 +9,7 @@
     "build:viz": "(cd viz-lib && yarn build:babel)",
     "build": "yarn clean && yarn build:viz && NODE_ENV=production webpack",
     "build:old-node-version": "yarn clean && NODE_ENV=production node --max-old-space-size=4096 node_modules/.bin/webpack",
-    "watch:app": "webpack --watch --progress --colors -d",
+    "watch:app": "webpack watch --progress",
     "watch:viz": "(cd viz-lib && yarn watch:babel)",
     "watch": "npm-run-all --parallel watch:*",
     "webpack-dev-server": "webpack-dev-server",
