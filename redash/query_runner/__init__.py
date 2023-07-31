@@ -212,7 +212,7 @@ class BaseQueryRunner(object):
         raise NotImplementedError()
 
     def fetch_columns(self, columns):
-        column_names = []
+        column_names = set()
         duplicates_counter = 1
         new_columns = []
 
@@ -222,7 +222,7 @@ class BaseQueryRunner(object):
                 column_name = "{}{}".format(column_name, duplicates_counter)
                 duplicates_counter += 1
 
-            column_names.append(column_name)
+            column_names.add(column_name)
             new_columns.append({"name": column_name, "friendly_name": column_name, "type": col[1]})
 
         return new_columns
