@@ -21,6 +21,7 @@ import verticalBarChartVisualization from "./custom/vertical-bar-chart";
 import horizontalBarChartVisualization from "./custom/horizontal-bar-chart";
 import pieChartVisualization from "./custom/pie-chart";
 import listVisualization from "./custom/list";
+import multiLineChartVisualization from "./custom/multi-line-chart";
 
 type VisualizationConfig = {
   type: string;
@@ -102,6 +103,7 @@ each(
     horizontalBarChartVisualization,
     pieChartVisualization,
     listVisualization,
+    multiLineChartVisualization,
   ]),
   registerVisualization
 );

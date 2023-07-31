@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import getData from "./getData";
+import { Select } from "antd";
 
 import "./Renderer.less";
 
@@ -21,12 +22,29 @@ function LocationCard({ index, name, value, thumbnail }: Country & { index: numb
   );
 }
 
-function SafeTopLocations({ items }: any) {
+function SafeTopLocations({ items, columns }: any) {
+  const [selectedColumn, setSelectedColumn] = useState(columns[0]);
+
+  const row = items[selectedColumn].data;
+
+  const options = columns.map((column: any) => ({
+    value: column,
+    label: column,
+  }));
+
   return (
-    <div className="list-container">
-      {items.map(({ x, y, thumbnail }: any, i: any) => (
-        <LocationCard key={i} index={i + 1} name={x} value={y} thumbnail={thumbnail} />
-      ))}
+    <div className="list-wrapper">
+      <Select
+        options={options}
+        defaultValue={columns[0]}
+        style={{ width: 200, paddingLeft: 12 }}
+        onChange={v => setSelectedColumn(v)}
+      />
+      <div className="list-container">
+        {row.map(({ x, y, thumbnail }: any, i: any) => (
+          <LocationCard key={i} index={i + 1} name={x} value={y} thumbnail={thumbnail} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -34,5 +52,7 @@ function SafeTopLocations({ items }: any) {
 export default function Renderer(input: any) {
   const items = getData(input.data.rows, input.options);
 
-  return <SafeTopLocations items={items} />;
+  const columns = Object.keys(items);
+
+  return <SafeTopLocations items={items} columns={columns} />;
 }
