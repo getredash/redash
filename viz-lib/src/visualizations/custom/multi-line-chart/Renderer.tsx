@@ -10,16 +10,15 @@ import { Moment } from "moment";
 // import CloseIcon from "./cross-series-line-chart.svg";
 
 interface Datum {
-  contract: string;
-  date: Date;
+  x: Moment;
   y: number;
 }
 
 type TooltipData = {
   date: string;
   values: {
-    contract: string;
-    y: string;
+    x: Moment;
+    y: number;
     color: string;
   }[];
 };
@@ -67,10 +66,10 @@ function SeriesLineChart({ data, columns }: any) {
 
   const currentDataColumn = data[selectedColumn].data;
 
-  console.log(data);
-  console.log(currentDataColumn);
-
   // const row = data[selectedColumn].data || [];
+
+  console.log(columns);
+  console.log(columns.map);
 
   const options = columns.map((column: any) => ({
     value: column,
@@ -86,9 +85,19 @@ function SeriesLineChart({ data, columns }: any) {
     const { xScale, yScale } = createScales(width, height, currentDataColumn);
 
     createSeriesLineChartAxis(g, xScale, yScale, height);
-    const chartArea = createSeriesLineChart(g, xScale, yScale, width);
+    const chartArea = createSeriesLineChart(g, xScale, yScale, width, data);
     createSeriesLineChartGradients(g, width, height);
-    createSeriesLineChartCursor(tooltipRef, setTooltipData, chartArea, xScale, yScale, height);
+    createSeriesLineChartCursor(
+      tooltipRef,
+      setTooltipData,
+      chartArea,
+      xScale,
+      yScale,
+      height,
+      currentDataColumn,
+      data,
+      columns
+    );
 
     return () => {
       svg.selectAll("*").remove();
@@ -109,7 +118,7 @@ function SeriesLineChart({ data, columns }: any) {
   // };
 
   return (
-    <div className="chart-container">
+    <div className="multiline-chart-container">
       <div className="chart-controls">
         <div className="chart-title">Your audience</div>
 
@@ -159,6 +168,9 @@ function SeriesLineChart({ data, columns }: any) {
               <div className="chart-tooltip-value">{item.y}</div>
             </div>
           ))}
+        </div>
+        <div ref={containerRef}>
+          <svg className="mt-8" ref={ref} width="100%" height="350"></svg>
         </div>
       </div>
     </div>
@@ -252,27 +264,29 @@ function createSeriesLineChart(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
   xScale: d3.ScaleTime<number, number, never>,
   yScale: d3.ScaleLinear<number, number, never>,
-  width: number
+  width: number,
+  data: any
 ) {
   const chartArea = g.append("g");
   const createChartLine = d3
     .line<Datum>()
     .x(function(d) {
-      return xScale(d.date);
+      return xScale(d.x);
     })
     .y(function(d) {
       return yScale(d.y);
     });
 
-  dataNest.forEach(function(d, i) {
-    if (d.key === "primary") {
+  let i = 0;
+  for (const [columnName, columnData] of Object.entries(data)) {
+    if (columnName === "primary") {
       chartArea
         .append("path")
         .attr("stroke", "url(#line-primary)")
         .style("stroke-width", PRIMARY_LINE_WIDTH)
         .style("fill", "none")
         // @ts-ignore
-        .attr("d", createChartLine(d.value));
+        .attr("d", createChartLine(columnData.data));
     } else {
       const gradientId = createLineGradient(g, colors[i], `line-${i}`, width);
       chartArea
@@ -281,9 +295,11 @@ function createSeriesLineChart(
         .style("stroke-width", DEFAULT_LINE_WIDTH)
         .style("fill", "none")
         // @ts-ignore
-        .attr("d", createChartLine(d.value));
+        .attr("d", createChartLine(columnData.data));
     }
-  });
+
+    i++;
+  }
 
   return chartArea;
 }
@@ -324,12 +340,13 @@ function createSeriesLineChartCursor(
   chartArea: d3.Selection<SVGGElement, unknown, null, undefined>,
   xScale: d3.ScaleTime<number, number, never>,
   yScale: d3.ScaleLinear<number, number, never>,
-  height: number
+  height: number,
+  currentDataColumn: any,
+  data: any,
+  columns: any
 ) {
   const chartWidth = chartArea.node()?.getBBox().width;
   const chartHeight = chartArea.node()?.getBBox().height;
-
-  const dataSingle = dataNest[0].value;
 
   if (!chartWidth || !chartHeight) {
     return;
@@ -345,9 +362,9 @@ function createSeriesLineChartCursor(
     .attr("width", "1px")
     .attr("height", height);
 
-  const xAccessor = (d: Datum) => d.date;
+  const xAccessor = (d: Datum) => d.x;
 
-  const tooltipCircles = dataNest.map(function({ key }) {
+  const tooltipCircles = columns.map(function(key: any) {
     return (
       chartArea
         .append("image")
@@ -380,29 +397,29 @@ function createSeriesLineChartCursor(
     const getDistanceFromHoveredDate = (d: Datum) => Math.abs(xAccessor(d).valueOf() - hoveredDate.valueOf());
 
     const closestIndex = d3.leastIndex(
-      dataSingle,
+      currentDataColumn,
       (a, b) => getDistanceFromHoveredDate(a) - getDistanceFromHoveredDate(b)
     );
 
     if (!closestIndex) return;
 
-    const closestDataPoint = dataSingle[closestIndex];
+    const closestDataPoint = currentDataColumn[closestIndex];
     const closestXValue = xAccessor(closestDataPoint);
 
     xAxisLine.attr("x", xScale(closestXValue));
 
-    dataNest.forEach(function(_, i) {
+    columns.forEach(function(column, i) {
       tooltipCircles[i]
         .attr("x", xScale(closestXValue))
-        .attr("y", yScale(dataNest[i].value[closestIndex].y))
+        .attr("y", yScale(data[column].data[closestIndex].y))
         .style("opacity", 1);
     });
 
     const tooltipX = xScale(closestXValue) - parseInt(tooltip.style("width"), 10) / 2;
-    const tooltipValues = dataNest.map((d, i) => ({
-      contract: d.value[closestIndex].contract,
-      y: formatNumber(d.value[closestIndex].y),
-      color: d.value[closestIndex].contract === "primary" ? PRIMARY_COLOR : colors[i],
+    const tooltipValues = columns.map((column, i) => ({
+      contract: column,
+      y: formatNumber(data[column].data[closestIndex].y),
+      color: data[column].data[closestIndex].contract === "primary" ? PRIMARY_COLOR : colors[i],
     }));
 
     setTooltipData({
