@@ -138,8 +138,8 @@ class Oracle(BaseSQLQueryRunner):
         if self.configuration.get("encoding"):
             os.environ["NLS_LANG"] = self.configuration["encoding"]
 
-        # When type "_donotmakedsn" in the host self.configuration["servicename"] is used instead
-        if self.configuration["host"].lower() == "_donotmakedsn":
+        # To use a DSN Service Name instead, use the text string `_useservicename` in the host name field.
+        if self.configuration["host"].lower() == "_useservicename":
             dsn = self.configuration["servicename"]
         else:
             dsn = cx_Oracle.makedsn(
