@@ -264,7 +264,7 @@ class TestQueryListResourcePost(BaseTestCase):
         rv = self.make_request("post", "/api/queries", data=query_data)
 
         self.assertEqual(rv.status_code, 200)
-        self.assertDictContainsSubset(query_data, rv.json)
+        self.assertLessEqual(query_data.items(), rv.json.items())
         self.assertEqual(rv.json["user"]["id"], self.factory.user.id)
         self.assertIsNotNone(rv.json["api_key"])
         self.assertIsNotNone(rv.json["query_hash"])
