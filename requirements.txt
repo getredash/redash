@@ -43,7 +43,7 @@ xlsxwriter==1.2.2
 pystache==0.6.0
 parsedatetime==2.4
 PyJWT==2.4.0
-cryptography==40.0.2
+cryptography==41.0.2
 simplejson==3.16.0
 ua-parser==0.18.0
 user-agents==2.0
