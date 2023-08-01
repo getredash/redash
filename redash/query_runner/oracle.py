@@ -66,7 +66,7 @@ class Oracle(BaseSQLQueryRunner):
             "properties": {
                 "user": {"type": "string"},
                 "password": {"type": "string"},
-                "host": {"type": "string"},
+                "host": {"type": "string", "title": "Host (When type _donotmakedsn, DSN Service Name is used instead.)"},
                 "port": {"type": "number"},
                 "servicename": {"type": "string", "title": "DSN Service Name"},
                 "encoding": {"type": "string"},
