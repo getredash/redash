@@ -51,10 +51,14 @@ error_messages = {
     ),
     "no_permission": error_response("You do not have permission to run queries with this data source.", 403),
     "select_data_source": error_response("Please select data source to run this query.", 401),
+    "no_data_source": error_response("Target data source not available.", 401),
 }
 
 
 def run_query(query, parameters, data_source, query_id, should_apply_auto_limit, max_age=0):
+    if not data_source:
+        return error_messages["no_data_source"]
+
     if data_source.paused:
         if data_source.pause_reason:
             message = "{} is paused ({}). Please try later.".format(data_source.name, data_source.pause_reason)

@@ -187,6 +187,10 @@ def jwt_token_load_user_from_request(request):
     if not payload:
         return
 
+    if "email" not in payload:
+        logger.info("No email field in token, refusing to login")
+        return
+
     try:
         user = models.User.get_by_email_and_org(payload["email"], org)
     except models.NoResultFound:
