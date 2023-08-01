@@ -1,3 +1,5 @@
+@import (reference, less) "~@/assets/less/inc/variables";
+
 .dashboard-wrapper {
   flex-grow: 1;
   margin-bottom: 70px;
@@ -18,6 +20,9 @@
     overflow: hidden;
     margin: 0;
     padding: 0;
+    border-radius: 16px;
+    background-color: @white-100;
+    box-shadow: none !important;
   }
 
   .pivot-table-visualization-container > table,
@@ -181,4 +186,28 @@
       bottom: 5px;
     }
   }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite !important;
+  color: @primary-500;
+}
+.widget-main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding-inline: 24px;
+}
+.spinner-container {
+  display: flex;
+  flex: 1 1 0%;
+  align-items: center;
+  justify-content: center;
 }

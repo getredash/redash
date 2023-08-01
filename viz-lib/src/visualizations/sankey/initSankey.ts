@@ -100,7 +100,7 @@ function graph(data: ExtendedSankeyDataType["rows"]) {
   });
 
   // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-  const color = d3.scale.category20();
+  const color = d3.scale.category20().range(["#00BCD4", "#B045E6", "#EC407A", "#FFD600", "#0091EA"]);
 
   return {
     nodes: map(nodes, d => extend(d, { color: color(d.name.replace(/ .*/, "")) })),
