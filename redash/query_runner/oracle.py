@@ -138,6 +138,7 @@ class Oracle(BaseSQLQueryRunner):
         if self.configuration.get("encoding"):
             os.environ["NLS_LANG"] = self.configuration["encoding"]
 
+        # When type "_donotmakedsn" in the host self.configuration["servicename"] is used instead
         if self.configuration["host"].lower() == "_donotmakedsn":
             dsn = self.configuration["servicename"]
         else:
