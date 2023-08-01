@@ -138,11 +138,14 @@ class Oracle(BaseSQLQueryRunner):
         if self.configuration.get("encoding"):
             os.environ["NLS_LANG"] = self.configuration["encoding"]
 
-        dsn = cx_Oracle.makedsn(
-            self.configuration["host"],
-            self.configuration["port"],
-            service_name=self.configuration["servicename"],
-        )
+        if self.configuration["host"].lower() == "_donotmakedsn":
+            dsn = self.configuration["servicename"]
+        else:
+            dsn = cx_Oracle.makedsn(
+                self.configuration["host"],
+                self.configuration["port"],
+                service_name=self.configuration["servicename"],
+            )
 
         connection = cx_Oracle.connect(
             user=self.configuration["user"],
