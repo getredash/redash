@@ -1,8 +1,9 @@
 .multiline-chart-container {
   display: flex;
   flex-direction: column;
-  padding-top: 16px;
+  padding-top: 8px;
   padding: 24px;
+  padding-bottom: 8px;
   height: 100%;
 }
 
@@ -19,14 +20,22 @@
 }
 
 .bullet-item {
+  line-height: 1;
+  cursor: pointer;
   display: flex;
   font-size: 12px;
   font-weight: 500;
-  padding: 2px 4px;
-  border-radius: 9999px;
+  padding: 4px 8px;
+  border-radius: 4px;
   align-self: center;
   align-items: center;
   gap: 12px;
+}
+
+.bullet-button {
+  border: none;
+  outline: none;
+  background: transparent;
 }
 
 .tooltip-container {

@@ -9,8 +9,8 @@ import { Moment } from "moment";
 
 import "./Renderer.less";
 
-import ChartPinSVGImage from "./chart-pin.svg";
-import CloseIcon from "./cross-series-line-chart.svg";
+import ChartPin from "./ChartPin";
+import Cross from "./Cross";
 
 interface Datum {
   x: Moment;
@@ -65,7 +65,7 @@ function SeriesLineChart({ data, columns }: any) {
     values: [{ contract: "n/a", y: "0", color: "#FF0000" }],
   });
 
-  const [selectedColumns, setSelectedColumns] = useState([columns[0]]);
+  const [selectedOptions, setSelectedOptions] = useState([{ value: "primary", label: "primary" }]);
 
   const options = columns.map((column: any) => ({
     value: column,
@@ -75,10 +75,8 @@ function SeriesLineChart({ data, columns }: any) {
   // const [selected, setSelected] = useState<SelectOption[]>([]);
   // const contractLoadOptions = useDebouncedLoadOptions("contracts");
 
-  const handleSelectChange = (v: any) => {
-    const columns = v.map(i => i.value);
-    console.log(columns);
-    setSelectedColumns(columns);
+  const handleSelectChange = (selectedOptions: any) => {
+    setSelectedOptions(selectedOptions);
   };
 
   useEffect(() => {
@@ -86,6 +84,7 @@ function SeriesLineChart({ data, columns }: any) {
     const g = svg.append("g").attr("transform", `translate(0,${CHART_BOTTOM_MARGIN})`);
     const sampleData = data["primary"].data;
     const { xScale, yScale } = createScales(width, height, sampleData);
+    const selectedColumns = selectedOptions.map(i => i.value);
 
     createSeriesLineChartAxis(g, xScale, yScale, height);
     const chartArea = createSeriesLineChart(g, xScale, yScale, width, data, selectedColumns);
@@ -105,7 +104,7 @@ function SeriesLineChart({ data, columns }: any) {
     return () => {
       svg.selectAll("*").remove();
     };
-  }, [width, height, selectedColumns]);
+  }, [width, height, selectedOptions]);
 
   // const handleSelectChange = (values: MultiValue<SelectOption>) => {
   //   if (values.length <= MAX_SELECTED_OPTIONS) {
@@ -113,16 +112,13 @@ function SeriesLineChart({ data, columns }: any) {
   //   }
   // };
 
-  // const handleRemoveValue = (e: MouseEvent<HTMLButtonElement>) => {
-  //   const { name: buttonName } = e.currentTarget;
-  //   const removedValue = selected.find(val => val.name === buttonName);
-  //   if (!removedValue) return;
-  //   handleSelectChange(selected.filter(val => val.name !== buttonName));
-  // };
+  const handleRemoveValue = (e: MouseEvent<HTMLButtonElement>) => {
+    const { name: buttonName } = e.currentTarget;
+    const removedValue = selectedOptions.find(val => val.label === buttonName);
 
-  useEffect(() => {
-    console.log(selectedColumns);
-  }, [selectedColumns]);
+    if (!removedValue) return;
+    handleSelectChange(selectedOptions.filter(val => val.label !== buttonName));
+  };
 
   return (
     <div className="multiline-chart-container">
@@ -135,9 +131,12 @@ function SeriesLineChart({ data, columns }: any) {
 
         <Select
           isMulti
+          placeholder="Insert contract name"
           options={options}
-          defaultValue={{ value: "primary", label: "primary" }}
+          value={selectedOptions}
+          defaultValue={selectedOptions[0]}
           className="basic-multi-select"
+          controlShouldRenderValue={false}
           onChange={handleSelectChange}
         />
 
@@ -151,17 +150,20 @@ function SeriesLineChart({ data, columns }: any) {
           customizedOptions={ContractsAutocomplete}
           optionStyles={{ backgroundColor: "white !important" }}
         /> */}
-        {/* 
+
         <div className="bullets-container">
-          {selected.map((val, i) => (
-            <div className="bullet-item" key={i} style={{ backgroundColor: `${colors[i]}20`, color: colors[i] }}>
-              {val.name}
-              <button name={val.name} className="cursor-pointer" onClick={handleRemoveValue}>
-                <CloseIcon fill={colors[i]} />
-              </button>
-            </div>
-          ))}
-        </div> */}
+          {selectedOptions.map(
+            (val, i) =>
+              val.value !== "primary" && (
+                <div className="bullet-item" key={i} style={{ backgroundColor: `${colors[i]}20`, color: colors[i] }}>
+                  {val.label}
+                  <button name={val.label} className="bullet-button" onClick={handleRemoveValue}>
+                    <Cross fill={colors[i]} />
+                  </button>
+                </div>
+              )
+          )}
+        </div>
       </div>
       <div className="chart-wrapper">
         <div className="tooltip-container" ref={tooltipRef}>
@@ -284,9 +286,6 @@ function createSeriesLineChart(
     });
 
   selectedColumns.forEach((columnName, i) => {
-    console.log(data);
-    console.log(columnName);
-    console.log(data[columnName]);
     if (columnName === "primary") {
       chartArea
         .append("path")
@@ -371,20 +370,18 @@ function createSeriesLineChartCursor(
   const xAccessor = (d: Datum) => d.x;
 
   const tooltipCircles = columns.map(function(key: any) {
-    return (
-      chartArea
-        .append("image")
-        // .attr("xlink:href", ChartPinSVGImage)
-        .attr("width", key === "primary" ? PRIMARY_CONTRACT_PIN_SIZE : DEFAULT_CONTRACT_PIN_SIZE)
-        .attr("height", key === "primary" ? PRIMARY_CONTRACT_PIN_SIZE : DEFAULT_CONTRACT_PIN_SIZE)
-        .attr(
-          "transform",
-          key === "primary"
-            ? `translate(-${PRIMARY_CONTRACT_PIN_SIZE / 2}, -${(PRIMARY_CONTRACT_PIN_SIZE - PRIMARY_LINE_WIDTH) / 2})`
-            : `translate(-${DEFAULT_CONTRACT_PIN_SIZE / 2}, -${(DEFAULT_CONTRACT_PIN_SIZE - DEFAULT_LINE_WIDTH) / 2})`
-        )
-        .style("opacity", 0)
-    );
+    return chartArea
+      .append("image")
+      .attr("xlink:href", "/static/images/chart-pin.svg")
+      .attr("width", key === "primary" ? PRIMARY_CONTRACT_PIN_SIZE : DEFAULT_CONTRACT_PIN_SIZE)
+      .attr("height", key === "primary" ? PRIMARY_CONTRACT_PIN_SIZE : DEFAULT_CONTRACT_PIN_SIZE)
+      .attr(
+        "transform",
+        key === "primary"
+          ? `translate(-${PRIMARY_CONTRACT_PIN_SIZE / 2}, -${(PRIMARY_CONTRACT_PIN_SIZE - PRIMARY_LINE_WIDTH) / 2})`
+          : `translate(-${DEFAULT_CONTRACT_PIN_SIZE / 2}, -${(DEFAULT_CONTRACT_PIN_SIZE - DEFAULT_LINE_WIDTH) / 2})`
+      )
+      .style("opacity", 0);
   });
 
   const tooltip = d3.select(tooltipRef.current).style("opacity", "0");
