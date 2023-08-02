@@ -3,6 +3,7 @@ import os
 import re
 import subprocess
 import sys
+from urllib.parse import urlparse
 
 import requests
 import simplejson
@@ -13,7 +14,8 @@ repo = "getredash/redash"
 
 
 def _github_request(method, path, params=None, headers={}):
-    if not path.startswith("https://api.github.com"):
+    host = urlparse(path).hostname
+    if not host.endswith("https://api.github.com"):
         url = "https://api.github.com/{}".format(path)
     else:
         url = path
