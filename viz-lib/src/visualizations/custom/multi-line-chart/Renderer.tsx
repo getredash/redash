@@ -1,13 +1,16 @@
+// @ts-nocheck
 import React, { useEffect, useRef, useState, MouseEvent } from "react";
 import * as d3 from "d3";
 import useSize from "@react-hook/size";
-import { Select } from "antd";
+import Select from "react-select";
 
 import getData from "./getData";
 import { Moment } from "moment";
 
-// import ChartPinSVGImage from "./chart-pin.svg";
-// import CloseIcon from "./cross-series-line-chart.svg";
+import "./Renderer.less";
+
+import ChartPinSVGImage from "./chart-pin.svg";
+import CloseIcon from "./cross-series-line-chart.svg";
 
 interface Datum {
   x: Moment;
@@ -62,14 +65,7 @@ function SeriesLineChart({ data, columns }: any) {
     values: [{ contract: "n/a", y: "0", color: "#FF0000" }],
   });
 
-  const [selectedColumn, setSelectedColumn] = useState(columns[0]);
-
-  const currentDataColumn = data[selectedColumn].data;
-
-  // const row = data[selectedColumn].data || [];
-
-  console.log(columns);
-  console.log(columns.map);
+  const [selectedColumns, setSelectedColumns] = useState([columns[0]]);
 
   const options = columns.map((column: any) => ({
     value: column,
@@ -79,13 +75,20 @@ function SeriesLineChart({ data, columns }: any) {
   // const [selected, setSelected] = useState<SelectOption[]>([]);
   // const contractLoadOptions = useDebouncedLoadOptions("contracts");
 
+  const handleSelectChange = (v: any) => {
+    const columns = v.map(i => i.value);
+    console.log(columns);
+    setSelectedColumns(columns);
+  };
+
   useEffect(() => {
     const svg = d3.select(ref.current);
     const g = svg.append("g").attr("transform", `translate(0,${CHART_BOTTOM_MARGIN})`);
-    const { xScale, yScale } = createScales(width, height, currentDataColumn);
+    const sampleData = data["primary"].data;
+    const { xScale, yScale } = createScales(width, height, sampleData);
 
     createSeriesLineChartAxis(g, xScale, yScale, height);
-    const chartArea = createSeriesLineChart(g, xScale, yScale, width, data);
+    const chartArea = createSeriesLineChart(g, xScale, yScale, width, data, selectedColumns);
     createSeriesLineChartGradients(g, width, height);
     createSeriesLineChartCursor(
       tooltipRef,
@@ -94,7 +97,7 @@ function SeriesLineChart({ data, columns }: any) {
       xScale,
       yScale,
       height,
-      currentDataColumn,
+      sampleData,
       data,
       columns
     );
@@ -102,7 +105,7 @@ function SeriesLineChart({ data, columns }: any) {
     return () => {
       svg.selectAll("*").remove();
     };
-  }, [width, height]);
+  }, [width, height, selectedColumns]);
 
   // const handleSelectChange = (values: MultiValue<SelectOption>) => {
   //   if (values.length <= MAX_SELECTED_OPTIONS) {
@@ -117,6 +120,10 @@ function SeriesLineChart({ data, columns }: any) {
   //   handleSelectChange(selected.filter(val => val.name !== buttonName));
   // };
 
+  useEffect(() => {
+    console.log(selectedColumns);
+  }, [selectedColumns]);
+
   return (
     <div className="multiline-chart-container">
       <div className="chart-controls">
@@ -127,10 +134,11 @@ function SeriesLineChart({ data, columns }: any) {
         </div>
 
         <Select
+          isMulti
           options={options}
-          defaultValue={columns[0]}
-          style={{ width: 200, paddingLeft: 12 }}
-          onChange={v => setSelectedColumn(v)}
+          defaultValue={{ value: "primary", label: "primary" }}
+          className="basic-multi-select"
+          onChange={handleSelectChange}
         />
 
         {/* <ContractsSelect
@@ -155,11 +163,11 @@ function SeriesLineChart({ data, columns }: any) {
           ))}
         </div> */}
       </div>
-      <div className="relative mt-9">
+      <div className="chart-wrapper">
         <div className="tooltip-container" ref={tooltipRef}>
           <div className="chart-typography">{tooltipData.date}</div>
           {tooltipData.values.map((item, i) => (
-            <div key={i} className="flex items-center gap-1">
+            <div key={i} className="tooltip-item-wrapper">
               <div
                 className="tooltip-item"
                 // $isPrimary={item.contract === "primary"}
@@ -169,30 +177,27 @@ function SeriesLineChart({ data, columns }: any) {
             </div>
           ))}
         </div>
-        <div ref={containerRef}>
-          <svg className="mt-8" ref={ref} width="100%" height="350"></svg>
+        <div ref={containerRef} style={{ height: "100%" }}>
+          <svg className="mt-8" ref={ref} width="100%" height="100%"></svg>
         </div>
       </div>
     </div>
   );
 }
 
-function createScales(width: number, height: number, currentDataColumn: any) {
-  const xExtent = d3.extent(currentDataColumn, d => d.x);
+function createScales(width: number, height: number, sampleData: any) {
+  const xExtent = d3.extent(sampleData, d => d.x);
   const xScale = d3
     .scaleTime()
     .domain(xExtent)
     .range([0, width - AXIS_Y_LEFT_MARGIN]);
 
-  const yExtent = d3.extent(currentDataColumn, d => d.y);
+  const yExtent = d3.extent(sampleData, d => d.y);
   const yScale = d3
     .scaleLinear()
     .domain([0, yExtent[1]])
     .range([height - AXIS_X_BOTTOM_MARGIN, 0])
     .nice();
-
-  console.log(xExtent);
-  console.log(yExtent);
 
   return { xScale, yScale };
 }
@@ -265,7 +270,8 @@ function createSeriesLineChart(
   xScale: d3.ScaleTime<number, number, never>,
   yScale: d3.ScaleLinear<number, number, never>,
   width: number,
-  data: any
+  data: any,
+  selectedColumns: any
 ) {
   const chartArea = g.append("g");
   const createChartLine = d3
@@ -277,8 +283,10 @@ function createSeriesLineChart(
       return yScale(d.y);
     });
 
-  let i = 0;
-  for (const [columnName, columnData] of Object.entries(data)) {
+  selectedColumns.forEach((columnName, i) => {
+    console.log(data);
+    console.log(columnName);
+    console.log(data[columnName]);
     if (columnName === "primary") {
       chartArea
         .append("path")
@@ -286,7 +294,7 @@ function createSeriesLineChart(
         .style("stroke-width", PRIMARY_LINE_WIDTH)
         .style("fill", "none")
         // @ts-ignore
-        .attr("d", createChartLine(columnData.data));
+        .attr("d", createChartLine(data[columnName].data));
     } else {
       const gradientId = createLineGradient(g, colors[i], `line-${i}`, width);
       chartArea
@@ -295,11 +303,9 @@ function createSeriesLineChart(
         .style("stroke-width", DEFAULT_LINE_WIDTH)
         .style("fill", "none")
         // @ts-ignore
-        .attr("d", createChartLine(columnData.data));
+        .attr("d", createChartLine(data[columnName].data));
     }
-
-    i++;
-  }
+  });
 
   return chartArea;
 }
@@ -341,7 +347,7 @@ function createSeriesLineChartCursor(
   xScale: d3.ScaleTime<number, number, never>,
   yScale: d3.ScaleLinear<number, number, never>,
   height: number,
-  currentDataColumn: any,
+  sampleData: any,
   data: any,
   columns: any
 ) {
@@ -397,13 +403,13 @@ function createSeriesLineChartCursor(
     const getDistanceFromHoveredDate = (d: Datum) => Math.abs(xAccessor(d).valueOf() - hoveredDate.valueOf());
 
     const closestIndex = d3.leastIndex(
-      currentDataColumn,
+      sampleData,
       (a, b) => getDistanceFromHoveredDate(a) - getDistanceFromHoveredDate(b)
     );
 
     if (!closestIndex) return;
 
-    const closestDataPoint = currentDataColumn[closestIndex];
+    const closestDataPoint = sampleData[closestIndex];
     const closestXValue = xAccessor(closestDataPoint);
 
     xAxisLine.attr("x", xScale(closestXValue));

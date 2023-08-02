@@ -104,6 +104,7 @@
     "plotly.js": "1.52.3",
     "react-chartjs-2": "^5.2.0",
     "react-pivottable": "^0.9.0",
+    "react-select": "^5.7.4",
     "react-sortable-hoc": "^1.10.1",
     "tinycolor2": "^1.4.1",
     "use-debounce": "^3.4.1",
