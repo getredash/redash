@@ -160,10 +160,7 @@ const config = {
             loader: isProduction ? MiniCssExtractPlugin.loader : "style-loader"
           },
           {
-            loader: "css-loader",
-            options: {
-              minimize: process.env.NODE_ENV === "production"
-            }
+            loader: "css-loader"
           }
         ]
       },
@@ -174,10 +171,7 @@ const config = {
             loader: isProduction ? MiniCssExtractPlugin.loader : "style-loader"
           },
           {
-            loader: "css-loader",
-            options: {
-              minimize: isProduction
-            }
+            loader: "css-loader"
           },
           {
             loader: "less-loader",
