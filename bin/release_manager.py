@@ -15,7 +15,7 @@ repo = "getredash/redash"
 
 def _github_request(method, path, params=None, headers={}):
     host = urlparse(path).hostname
-    if not host.endswith("https://api.github.com"):
+    if not host.endswith("api.github.com"):
         url = "https://api.github.com/{}".format(path)
     else:
         url = path
