@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { clientConfig } from "@/services/auth";
-import utc from 'dayjs/plugin/utc';
+import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
 
 export const IntervalEnum = {
