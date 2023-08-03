@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import updateLocale from 'dayjs/plugin/updateLocale';
+import updateLocale from "dayjs/plugin/updateLocale";
 import { isFunction } from "lodash";
 
 // Ensure that this image will be available in assets folder

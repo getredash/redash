@@ -11,16 +11,15 @@ import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { RefreshScheduleType, RefreshScheduleDefault, Dayjs } from "../proptypes";
 import "./ScheduleDialog.css";
 import dayjs from "dayjs";
-import utc from 'dayjs/plugin/utc';
-import localeData from 'dayjs/plugin/localeData';
-import updateLocale from 'dayjs/plugin/updateLocale';
+import utc from "dayjs/plugin/utc";
+import localeData from "dayjs/plugin/localeData";
+import updateLocale from "dayjs/plugin/updateLocale";
 dayjs.extend(utc);
 dayjs.extend(localeData);
 dayjs.extend(updateLocale);
-dayjs.updateLocale('en', {
-  weekdaysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+dayjs.updateLocale("en", {
+  weekdaysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
 });
-
 
 const WEEKDAYS_SHORT = dayjs.weekdaysShort();
 const WEEKDAYS_FULL = dayjs.weekdays();

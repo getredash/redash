@@ -1,12 +1,12 @@
 import dayjs from "dayjs";
-import relativeTime from 'dayjs/plugin/relativeTime';
+import relativeTime from "dayjs/plugin/relativeTime";
 import { isNil } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { Dayjs } from "@/components/proptypes";
 import { clientConfig } from "@/services/auth";
 import Tooltip from "@/components/Tooltip";
-dayjs.extend(relativeTime)
+dayjs.extend(relativeTime);
 
 function toDayjs(value) {
   value = !isNil(value) ? dayjs(value) : null;
