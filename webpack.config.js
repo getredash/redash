@@ -10,6 +10,7 @@ const LessPluginAutoPrefix = require("less-plugin-autoprefix");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
+const AntdDayjsWebpackPlugin = require("antd-dayjs-webpack-plugin");
 
 const path = require("path");
 
@@ -116,6 +117,7 @@ const config = {
         { from: "client/app/assets/fonts", to: "fonts/" }
       ],
     }),
+    new AntdDayjsWebpackPlugin(),
     isHotReloadingEnabled && new ReactRefreshWebpackPlugin({ overlay: false })
   ].filter(Boolean),
   optimization: {
