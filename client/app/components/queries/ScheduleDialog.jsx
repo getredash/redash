@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import localeData from "dayjs/plugin/localeData";
+import updateLocale from "dayjs/plugin/updateLocale";
+import dayjsGenerateConfig from 'rc-picker/lib/generate/dayjs';
+import generatePicker from 'antd/es/date-picker/generatePicker';
 import Modal from "antd/lib/modal";
-import DatePicker from "antd/lib/date-picker";
 import TimePicker from "antd/lib/time-picker";
 import Select from "antd/lib/select";
 import Radio from "antd/lib/radio";
@@ -10,16 +15,13 @@ import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeT
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { RefreshScheduleType, RefreshScheduleDefault, Dayjs } from "../proptypes";
 import "./ScheduleDialog.css";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import localeData from "dayjs/plugin/localeData";
-import updateLocale from "dayjs/plugin/updateLocale";
 dayjs.extend(utc);
 dayjs.extend(localeData);
 dayjs.extend(updateLocale);
 dayjs.updateLocale("en", {
   weekdaysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
 });
+const DatePicker = generatePicker<Dayjs>(dayjsGenerateConfig);
 
 const WEEKDAYS_SHORT = dayjs.weekdaysShort();
 const WEEKDAYS_FULL = dayjs.weekdays();
