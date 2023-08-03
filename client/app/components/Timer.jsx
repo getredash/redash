@@ -11,7 +11,7 @@ export default function Timer({ from }) {
 
   useEffect(() => {
     function update() {
-      const diff = dayjs.now() - startTime;
+      const diff = dayjs() - startTime;
       const format = diff > 1000 * 60 * 60 ? "HH:mm:ss" : "mm:ss"; // no HH under an hour
       setValue(dayjs.utc(diff).format(format));
     }
