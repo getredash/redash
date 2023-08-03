@@ -4,8 +4,8 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import localeData from "dayjs/plugin/localeData";
 import updateLocale from "dayjs/plugin/updateLocale";
-import dayjsGenerateConfig from 'rc-picker/lib/generate/dayjs';
-import generatePicker from 'antd/es/date-picker/generatePicker';
+import dayjsGenerateConfig from "rc-picker/lib/generate/dayjs";
+import generatePicker from "antd/es/date-picker/generatePicker";
 import Modal from "antd/lib/modal";
 import TimePicker from "antd/lib/time-picker";
 import Select from "antd/lib/select";
@@ -21,7 +21,7 @@ dayjs.extend(updateLocale);
 dayjs.updateLocale("en", {
   weekdaysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
 });
-const DatePicker = generatePicker<Dayjs>(dayjsGenerateConfig);
+const DatePicker = generatePicker < Dayjs > dayjsGenerateConfig;
 
 const WEEKDAYS_SHORT = dayjs.weekdaysShort();
 const WEEKDAYS_FULL = dayjs.weekdays();
