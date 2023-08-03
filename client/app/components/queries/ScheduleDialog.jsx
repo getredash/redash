@@ -5,7 +5,7 @@ import utc from "dayjs/plugin/utc";
 import localeData from "dayjs/plugin/localeData";
 import updateLocale from "dayjs/plugin/updateLocale";
 import dayjsGenerateConfig from "rc-picker/lib/generate/dayjs";
-import generatePicker from "antd/es/date-picker/generatePicker";
+import generatePicker from "antd/lib/date-picker/generatePicker";
 import Modal from "antd/lib/modal";
 import TimePicker from "antd/lib/time-picker";
 import Select from "antd/lib/select";
