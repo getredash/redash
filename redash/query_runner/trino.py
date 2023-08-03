@@ -86,7 +86,7 @@ class Trino(BaseQueryRunner):
         if not self.configuration.get("catalog"):
             catalog_prefixes = [""]
         else:
-            query = f"""
+            query = """
                 SHOW CATALOGS
             """
             results, error = self.run_query(query, None)
@@ -99,9 +99,9 @@ class Trino(BaseQueryRunner):
             catalog_prefixes = []
             for row in results:
                 catalog = row["Catalog"]
-                if '.' in catalog:
+                if "." in catalog:
                     catalog = f'"{catalog}"'
-                catalog_prefixes.append(f'{catalog}.')
+                catalog_prefixes.append(f"{catalog}.")
 
         schema = {}
         for catalog_prefix in catalog_prefixes:
