@@ -66,7 +66,10 @@ class Oracle(BaseSQLQueryRunner):
             "properties": {
                 "user": {"type": "string"},
                 "password": {"type": "string"},
-                "host": {"type": "string"},
+                "host": {
+                    "type": "string",
+                    "title": "Host: To use a DSN Service Name instead, use the text string `_useservicename` in the host name field.",
+                },
                 "port": {"type": "number"},
                 "servicename": {"type": "string", "title": "DSN Service Name"},
                 "encoding": {"type": "string"},
@@ -138,11 +141,15 @@ class Oracle(BaseSQLQueryRunner):
         if self.configuration.get("encoding"):
             os.environ["NLS_LANG"] = self.configuration["encoding"]
 
-        dsn = cx_Oracle.makedsn(
-            self.configuration["host"],
-            self.configuration["port"],
-            service_name=self.configuration["servicename"],
-        )
+        # To use a DSN Service Name instead, use the text string `_useservicename` in the host name field.
+        if self.configuration["host"].lower() == "_useservicename":
+            dsn = self.configuration["servicename"]
+        else:
+            dsn = cx_Oracle.makedsn(
+                self.configuration["host"],
+                self.configuration["port"],
+                service_name=self.configuration["servicename"],
+            )
 
         connection = cx_Oracle.connect(
             user=self.configuration["user"],

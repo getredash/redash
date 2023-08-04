@@ -90,7 +90,7 @@ class ScheduledQueriesExecutions(object):
         self.executions = redis_connection.hgetall(self.KEY_NAME)
 
     def update(self, query_id):
-        redis_connection.hmset(self.KEY_NAME, {query_id: time.time()})
+        redis_connection.hset(self.KEY_NAME, mapping={query_id: time.time()})
 
     def get(self, query_id):
         timestamp = self.executions.get(str(query_id))
