@@ -94,7 +94,7 @@ def _get_column_by_name(columns, column_name):
 
 
 def _parse_dict(dic):
-    res = {} 
+    res = {}
     for key, value in dic.items():
         if isinstance(value, dict):
             for tmp_key, tmp_value in _parse_dict(value).items():
@@ -115,13 +115,12 @@ def parse_results(results):
         parsed_row = _parse_dict(row)
         for column_name, value in parsed_row.items():
             columns.append(
-               {
-                   "name": column_name,
-                   "friendly_name": column_name,
-                   "type": TYPES_MAP.get(
-                       type(value), TYPE_STRING
-                   ),
-               })
+                {
+                    "name": column_name,
+                    "friendly_name": column_name,
+                    "type": TYPES_MAP.get(type(value), TYPE_STRING),
+                }
+            )
 
         rows.append(parsed_row)
 
