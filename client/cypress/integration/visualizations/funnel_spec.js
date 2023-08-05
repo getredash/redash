@@ -32,10 +32,8 @@ describe("Funnel", () => {
   it("creates visualization", () => {
     cy.clickThrough(`
       NewVisualization
-      VisualizationType
-      VisualizationType.FUNNEL
     `);
-
+    cy.getByTestId("VisualizationType").selectAntdOption("VisualizationType.FUNNEL");
     cy.clickThrough(`
       VisualizationEditor.Tabs.General
 

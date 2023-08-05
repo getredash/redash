@@ -16,13 +16,13 @@ describe("Dashboard Tags", () => {
       .should("contain", "Add tag")
       .click();
 
-    typeInTagsSelectAndSave("tag1{enter}tag2{enter}tag3{enter}{esc}");
+    typeInTagsSelectAndSave("tag1{enter}tag2{enter}tag3{enter}");
 
     cy.wait("@DashboardSave");
     expectTagsToContain(["tag1", "tag2", "tag3"]);
 
     cy.getByTestId("EditTagsButton").click();
-    typeInTagsSelectAndSave("tag4{enter}{esc}");
+    typeInTagsSelectAndSave("tag4{enter}");
 
     cy.wait("@DashboardSave");
     cy.reload();

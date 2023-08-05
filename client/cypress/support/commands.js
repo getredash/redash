@@ -2,6 +2,8 @@
 
 import "@percy/cypress"; // eslint-disable-line import/no-extraneous-dependencies, import/no-unresolved
 
+import "@testing-library/cypress/add-commands";
+
 const { each } = Cypress._;
 
 Cypress.Commands.add("login", (email = "admin@redash.io", password = "password") => {
@@ -67,6 +69,14 @@ Cypress.Commands.add("clickThrough", (...args) => {
   });
 
   return undefined;
+});
+
+/**
+ * Selects ANTD selector option
+ */
+Cypress.Commands.add("selectAntdOption", { prevSubject: "element" }, (subject, testId) => {
+  cy.wrap(subject).click();
+  return cy.getByTestId(testId).click({ force: true });
 });
 
 Cypress.Commands.add("fillInputs", (elements, { wait = 0 } = {}) => {

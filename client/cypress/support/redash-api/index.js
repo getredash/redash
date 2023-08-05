@@ -165,3 +165,7 @@ Cypress.Commands.add("addDestinationSubscription", (alertId, destinationName) =>
       return body;
     });
 });
+
+Cypress.Commands.add("updateOrgSettings", settings => {
+  return post({ url: "api/settings/organization", body: settings }).then(({ body }) => body);
+});

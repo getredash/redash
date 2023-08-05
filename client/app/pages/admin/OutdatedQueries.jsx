@@ -1,8 +1,9 @@
-import { map } from "lodash";
+import { map, uniqueId } from "lodash";
 import React from "react";
 
 import Switch from "antd/lib/switch";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import Link from "@/components/Link";
 import Paginator from "@/components/Paginator";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
@@ -37,9 +38,9 @@ class OutdatedQueries extends React.Component {
     Columns.custom.sortable(
       (text, item) => (
         <React.Fragment>
-          <a className="table-main-title" href={"queries/" + item.id}>
+          <Link className="table-main-title" href={"queries/" + item.id}>
             {item.name}
-          </a>
+          </Link>
           <QueryTagsControl
             className="d-block"
             tags={item.tags}
@@ -69,6 +70,7 @@ class OutdatedQueries extends React.Component {
   };
 
   _updateTimer = null;
+  autoUpdateSwitchId = uniqueId("auto-update-switch");
 
   componentDidMount() {
     recordEvent("view", "page", "admin/queries/outdated");
@@ -92,11 +94,11 @@ class OutdatedQueries extends React.Component {
       <Layout activeTab={controller.params.currentPage}>
         <div className="m-15">
           <div>
-            <label htmlFor="auto-update-switch" className="m-0">
+            <label htmlFor={this.autoUpdateSwitchId} className="m-0">
               Auto update
             </label>
             <Switch
-              id="auto-update-switch"
+              id={this.autoUpdateSwitchId}
               className="m-l-10"
               checked={this.state.autoUpdate}
               onChange={autoUpdate => this.setState({ autoUpdate })}

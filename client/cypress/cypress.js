@@ -13,7 +13,7 @@ try {
   cypressConfigBaseUrl = cypressConfig.baseUrl;
 } catch (e) {}
 
-const baseUrl = process.env.CYPRESS_baseUrl || cypressConfigBaseUrl || "http://localhost:5000";
+const baseUrl = process.env.CYPRESS_baseUrl || cypressConfigBaseUrl || "http://localhost:5001";
 
 function seedDatabase(seedValues) {
   get(baseUrl + "/login", (_, { headers }) => {
@@ -44,9 +44,7 @@ function seedDatabase(seedValues) {
 
 function buildServer() {
   console.log("Building the server...");
-  execSync("docker-compose -p cypress build --build-arg skip_dev_deps=true --build-arg skip_ds_deps=true", {
-    stdio: "inherit",
-  });
+  execSync("docker-compose -p cypress build", { stdio: "inherit" });
 }
 
 function startServer() {
@@ -65,10 +63,10 @@ function runCypressCI() {
     PERCY_TOKEN_ENCODED,
     CYPRESS_PROJECT_ID_ENCODED,
     CYPRESS_RECORD_KEY_ENCODED,
-    CIRCLE_REPOSITORY_URL,
+    GITHUB_REPOSITORY,
   } = process.env;
 
-  if (CIRCLE_REPOSITORY_URL && CIRCLE_REPOSITORY_URL.includes("getredash/redash")) {
+  if (GITHUB_REPOSITORY === "getredash/redash") {
     if (PERCY_TOKEN_ENCODED) {
       process.env.PERCY_TOKEN = atob(`${PERCY_TOKEN_ENCODED}`);
     }
@@ -81,7 +79,7 @@ function runCypressCI() {
   }
 
   execSync(
-    "COMMIT_INFO_MESSAGE=$(git show -s --format=%s) docker-compose run cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run --record",
+    "COMMIT_INFO_MESSAGE=$(git show -s --format=%s) docker-compose run --name cypress cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run --record",
     { stdio: "inherit" }
   );
 }
@@ -120,6 +118,6 @@ switch (command) {
     stopServer();
     break;
   default:
-    console.log("Usage: npm run cypress [build|start|db-seed|open|run|stop]");
+    console.log("Usage: yarn cypress [build|start|db-seed|open|run|stop]");
     break;
 }

@@ -11,6 +11,7 @@ import Divider from "antd/lib/divider";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import QuerySelector from "@/components/QuerySelector";
 import { Query } from "@/services/query";
+import { useUniqueId } from "@/lib/hooks/useUniqueId";
 
 const { Option } = Select;
 const formItemProps = { labelCol: { span: 6 }, wrapperCol: { span: 16 } };
@@ -100,7 +101,7 @@ function EditParameterSettingsDialog(props) {
     return true;
   }
 
-  function onConfirm(e) {
+  function onConfirm() {
     // update title to default
     if (!param.title) {
       // forced to do this cause param won't update in time for save
@@ -109,9 +110,9 @@ function EditParameterSettingsDialog(props) {
     }
 
     props.dialog.close(param);
-
-    e.preventDefault(); // stops form redirect
   }
+
+  const paramFormId = useUniqueId("paramForm");
 
   return (
     <Modal
@@ -127,12 +128,12 @@ function EditParameterSettingsDialog(props) {
           htmlType="submit"
           disabled={!isFulfilled()}
           type="primary"
-          form="paramForm"
+          form={paramFormId}
           data-test="SaveParameterSettings">
           {isNew ? "Add Parameter" : "OK"}
         </Button>,
       ]}>
-      <Form layout="horizontal" onSubmit={onConfirm} id="paramForm">
+      <Form layout="horizontal" onFinish={onConfirm} id={paramFormId}>
         {isNew && (
           <NameInput
             name={param.name}
@@ -142,7 +143,7 @@ function EditParameterSettingsDialog(props) {
             type={param.type}
           />
         )}
-        <Form.Item label="Title" {...formItemProps}>
+        <Form.Item required label="Title" {...formItemProps}>
           <Input
             value={isNull(param.title) ? getDefaultTitle(param.name) : param.title}
             onChange={e => setParam({ ...param, title: e.target.value })}

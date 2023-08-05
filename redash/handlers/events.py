@@ -1,6 +1,6 @@
-from flask import request
 import geolite2
 import maxminddb
+from flask import request
 from user_agents import parse as parse_ua
 
 from redash.handlers.base import BaseResource, paginate
@@ -44,9 +44,7 @@ def serialize_event(event):
     }
 
     if event.user_id:
-        d["user_name"] = event.additional_properties.get(
-            "user_name", "User {}".format(event.user_id)
-        )
+        d["user_name"] = event.additional_properties.get("user_name", "User {}".format(event.user_id))
 
     if not event.user_id:
         d["user_name"] = event.additional_properties.get("api_key", "Unknown")

@@ -39,7 +39,7 @@ describe("Dashboard Filters", () => {
 
     cy.getByTestId("DashboardFilters").within(() => {
       cy.getByTestId("FilterName-stage1::filter")
-        .find(".ant-select-selection-selected-value")
+        .find(".ant-select-selection-item")
         .should("have.text", "a");
     });
 
@@ -52,7 +52,7 @@ describe("Dashboard Filters", () => {
         .click();
     });
 
-    cy.contains("li.ant-select-dropdown-menu-item:visible", "b").click();
+    cy.contains(".ant-select-item-option-content:visible", "b").click();
 
     cy.getByTestId(this.widget1TestId).within(() => {
       expectTableToHaveLength(3);
@@ -74,7 +74,7 @@ describe("Dashboard Filters", () => {
         .click();
     });
 
-    cy.contains("li.ant-select-dropdown-menu-item:visible", "c").click();
+    cy.contains(".ant-select-item-option-content:visible", "c").click();
 
     [this.widget1TestId, this.widget2TestId].forEach(widgetTestId =>
       cy.getByTestId(widgetTestId).within(() => {

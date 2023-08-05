@@ -31,53 +31,6 @@ export const RefreshScheduleDefault = {
   until: null,
 };
 
-export const Field = PropTypes.shape({
-  name: PropTypes.string.isRequired,
-  title: PropTypes.string,
-  type: PropTypes.oneOf([
-    "ace",
-    "text",
-    "textarea",
-    "email",
-    "password",
-    "number",
-    "checkbox",
-    "file",
-    "select",
-    "content",
-  ]).isRequired,
-  initialValue: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-    PropTypes.bool,
-    PropTypes.arrayOf(PropTypes.string),
-    PropTypes.arrayOf(PropTypes.number),
-  ]),
-  content: PropTypes.node,
-  mode: PropTypes.string,
-  required: PropTypes.bool,
-  extra: PropTypes.bool,
-  readOnly: PropTypes.bool,
-  autoFocus: PropTypes.bool,
-  minLength: PropTypes.number,
-  placeholder: PropTypes.string,
-  contentAfter: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-  loading: PropTypes.bool,
-  props: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-});
-
-export const Action = PropTypes.shape({
-  name: PropTypes.string.isRequired,
-  callback: PropTypes.func.isRequired,
-  type: PropTypes.string,
-  pullRight: PropTypes.bool,
-  disabledWhenDirty: PropTypes.bool,
-});
-
-export const AntdForm = PropTypes.shape({
-  validateFieldsAndScroll: PropTypes.func,
-});
-
 export const UserProfile = PropTypes.shape({
   id: PropTypes.number.isRequired,
   name: PropTypes.string.isRequired,

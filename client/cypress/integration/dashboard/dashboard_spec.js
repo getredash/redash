@@ -87,6 +87,7 @@ describe("Dashboard", () => {
     });
 
     beforeEach(function() {
+      cy.login();
       cy.visit(this.dashboardUrl);
       cy.viewport(800 + menuWidth, 800);
     });

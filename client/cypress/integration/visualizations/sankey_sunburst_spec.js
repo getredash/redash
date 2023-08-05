@@ -26,15 +26,14 @@ describe("Sankey and Sunburst", () => {
       cy.createQuery({ query: SQL }).then(({ id }) => {
         cy.visit(`queries/${id}/source`);
         cy.getByTestId("ExecuteButton").click();
+        cy.getByTestId("NewVisualization").click();
+        cy.getByTestId("VisualizationType").selectAntdOption("VisualizationType.SUNBURST_SEQUENCE");
       });
     });
 
     it("creates Sunburst", () => {
       const visualizationName = "Sunburst";
 
-      cy.getByTestId("NewVisualization").click();
-      cy.getByTestId("VisualizationType").click();
-      cy.getByTestId("VisualizationType.SUNBURST_SEQUENCE").click();
       cy.getByTestId("VisualizationName")
         .clear()
         .type(visualizationName);
@@ -53,9 +52,6 @@ describe("Sankey and Sunburst", () => {
     it("creates Sankey", () => {
       const visualizationName = "Sankey";
 
-      cy.getByTestId("NewVisualization").click();
-      cy.getByTestId("VisualizationType").click();
-      cy.getByTestId("VisualizationType.SANKEY").click();
       cy.getByTestId("VisualizationName")
         .clear()
         .type(visualizationName);

@@ -22,13 +22,13 @@ describe("Query Tags", () => {
       .should("contain", "Add tag")
       .click();
 
-    typeInTagsSelectAndSave("tag1{enter}tag2{enter}tag3{enter}{esc}");
+    typeInTagsSelectAndSave("tag1{enter}tag2{enter}tag3{enter}");
 
     cy.wait("@QuerySave");
     expectTagsToContain(["tag1", "tag2", "tag3"]);
 
     cy.getByTestId("EditTagsButton").click();
-    typeInTagsSelectAndSave("tag4{enter}{esc}");
+    typeInTagsSelectAndSave("tag4{enter}");
 
     cy.wait("@QuerySave");
     cy.reload();

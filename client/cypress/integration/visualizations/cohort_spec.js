@@ -26,15 +26,11 @@ describe("Cohort", () => {
       cy.visit(`queries/${id}/source`);
       cy.getByTestId("ExecuteButton").click();
     });
+    cy.getByTestId("NewVisualization").click();
+    cy.getByTestId("VisualizationType").selectAntdOption("VisualizationType.COHORT");
   });
 
   it("creates visualization", () => {
-    cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.COHORT
-    `);
-
     cy.clickThrough(`
       VisualizationEditor.Tabs.Options
       Cohort.TimeInterval
