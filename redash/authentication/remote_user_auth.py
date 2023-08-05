@@ -1,13 +1,15 @@
 import logging
-from flask import redirect, url_for, Blueprint, request
+
+from flask import Blueprint, redirect, request, url_for
+
+from redash import settings
 from redash.authentication import (
     create_and_login_user,
-    logout_and_redirect_to_index,
     get_next_path,
+    logout_and_redirect_to_index,
 )
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import org_scoped_rule
-from redash import settings
 
 logger = logging.getLogger("remote_user_auth")
 
@@ -20,9 +22,7 @@ def login(org_slug=None):
     next_path = get_next_path(unsafe_next_path)
 
     if not settings.REMOTE_USER_LOGIN_ENABLED:
-        logger.error(
-            "Cannot use remote user for login without being enabled in settings"
-        )
+        logger.error("Cannot use remote user for login without being enabled in settings")
         return redirect(url_for("redash.index", next=next_path, org_slug=org_slug))
 
     email = request.headers.get(settings.REMOTE_USER_HEADER)

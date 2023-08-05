@@ -1,21 +1,17 @@
-from unittest import TestCase
-import uuid
-
-from mock import patch, Mock
-
+from mock import Mock, patch
 from rq import Connection
 from rq.exceptions import NoSuchJobError
 
-from tests import BaseTestCase
-from redash import redis_connection, rq_redis_connection, models
-from redash.utils import json_dumps
+from redash import models, rq_redis_connection
 from redash.query_runner.pg import PostgreSQL
+from redash.tasks import Job
 from redash.tasks.queries.execution import (
     QueryExecutionError,
     enqueue_query,
     execute_query,
 )
-from redash.tasks import Job
+from redash.utils import json_dumps
+from tests import BaseTestCase
 
 
 def fetch_job(*args, **kwargs):
@@ -195,9 +191,7 @@ class QueryExecutorTests(BaseTestCase):
         """
         Scheduled queries remember their latest results.
         """
-        q = self.factory.create_query(
-            query_text="SELECT 1, 2", schedule={"interval": 300}
-        )
+        q = self.factory.create_query(query_text="SELECT 1, 2", schedule={"interval": 300})
         with patch.object(PostgreSQL, "run_query") as qr:
             qr.return_value = ([1, 2], None)
             result_id = execute_query(
@@ -215,9 +209,7 @@ class QueryExecutorTests(BaseTestCase):
         """
         Scheduled queries that fail have their failure recorded.
         """
-        q = self.factory.create_query(
-            query_text="SELECT 1, 2", schedule={"interval": 300}
-        )
+        q = self.factory.create_query(query_text="SELECT 1, 2", schedule={"interval": 300})
         with patch.object(PostgreSQL, "run_query") as qr:
             qr.side_effect = ValueError("broken")
 
@@ -245,9 +237,7 @@ class QueryExecutorTests(BaseTestCase):
         """
         Query execution success resets the failure counter.
         """
-        q = self.factory.create_query(
-            query_text="SELECT 1, 2", schedule={"interval": 300}
-        )
+        q = self.factory.create_query(query_text="SELECT 1, 2", schedule={"interval": 300})
         with patch.object(PostgreSQL, "run_query") as qr:
             qr.side_effect = ValueError("broken")
             result = execute_query(
@@ -275,9 +265,7 @@ class QueryExecutorTests(BaseTestCase):
         """
         Query execution success resets the failure counter, even if it runs as an adhoc query.
         """
-        q = self.factory.create_query(
-            query_text="SELECT 1, 2", schedule={"interval": 300}
-        )
+        q = self.factory.create_query(query_text="SELECT 1, 2", schedule={"interval": 300})
         with patch.object(PostgreSQL, "run_query") as qr:
             qr.side_effect = ValueError("broken")
             result = execute_query(
