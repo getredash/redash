@@ -1,3 +1,4 @@
+import os
 import unicodedata
 from urllib.parse import quote
 
@@ -35,6 +36,7 @@ from redash.utils import (
     to_filename,
 )
 
+WRITER_ENCODING = os.environ.get("REDASH_CSV_WRITER_ENCODING", "utf-8")
 
 def error_response(message, http_status=400):
     return {"job": {"status": 4, "error": message}}, http_status
@@ -380,8 +382,8 @@ class QueryResultResource(BaseResource):
 
     @staticmethod
     def make_csv_response(query_result):
-        headers = {"Content-Type": "text/csv; charset=UTF-8"}
-        return make_response(serialize_query_result_to_dsv(query_result, ","), 200, headers)
+        headers = {"Content-Type": f"text/csv; charset={WRITER_ENCODING.upper()}"}
+        return make_response(serialize_query_result_to_dsv(query_result, ",").encode(WRITER_ENCODING), 200, headers)
 
     @staticmethod
     def make_tsv_response(query_result):
