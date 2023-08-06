@@ -718,6 +718,38 @@ class TestQueryResultExcelResponse(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
 
 
+class TestQueryResultCSVResponse(BaseTestCase):
+    def _request_csv(self, data):
+        query = self.factory.create_query()
+        query_result = self.factory.create_query_result(data=data)
+        return self.make_request(
+            "get",
+            "/api/queries/{}/results/{}.csv".format(query.id, query_result.id),
+            is_json=False,
+        )
+
+    def test_renders_csv_as_utf8_by_default(self):
+        # 日本語(Nihongo) means Japanese.
+        data = {"rows": [{"name": "日本語"}], "columns": [{"name": "name"}]}
+
+        rv = self._request_csv(data)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.headers["Content-Type"], "text/csv; charset=UTF-8")
+        self.assertEqual(rv.data, "name\r\n日本語\r\n".encode("utf-8"))
+
+    def test_renders_csv_with_configured_encoding(self):
+        # 日本語(Nihongo) means Japanese.
+        data = {"rows": [{"name": "日本語"}], "columns": [{"name": "name"}]}
+
+        with patch("redash.settings.CSV_WRITER_ENCODING", "cp932"):
+            rv = self._request_csv(data)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.headers["Content-Type"], "text/csv; charset=CP932")
+        self.assertEqual(rv.data, "name\r\n日本語\r\n".encode("cp932"))
+
+
 class TestJobResource(BaseTestCase):
     def test_cancels_queued_queries(self):
         QUEUED = 1
