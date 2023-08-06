@@ -315,7 +315,7 @@ class BaseSQLQueryRunner(BaseQueryRunner):
             if self.query_is_select_no_limit(last_query):
                 queries[-1] = self.add_limit_to_query(last_query)
         return combine_sql_statements(queries)
-        
+
 
 class BaseHTTPQueryRunner(BaseQueryRunner):
     should_annotate_query = False
