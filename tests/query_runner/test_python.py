@@ -20,7 +20,12 @@ class TestPythonQueryRunner(TestCase):
     def test_empty_result(self):
         query_string = "result={}"
         result = self.python.run_query(query_string, "user")
-        self.assertEqual(result[0], '{"log": []}')
+        self.assertEqual(result[0], None)
+
+    def test_none_result(self):
+        query_string = "result=None"
+        result = self.python.run_query(query_string, "user")
+        self.assertEqual(result[0], None)
 
     def test_invalidate_result_type_string(self):
         query_string = "result='string'"
