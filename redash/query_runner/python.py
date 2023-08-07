@@ -298,6 +298,25 @@ class Python(BaseQueryRunner):
     def test_connection(self):
         pass
 
+    def validate_result(self, result):
+        """Validate the result after executing the query.
+
+        Parameters:
+        :result dict: The result dict.
+        """
+        if not result:
+            raise Exception("local variable `result` should not be empty.")
+        if not isinstance(result, dict):
+            raise Exception("local variable `result` should be of type `dict`.")
+        if "rows" not in result:
+            raise Exception("Missing `rows` field in `result` dict.")
+        if "columns" not in result:
+            raise Exception("Missing `columns` field in `result` dict.")
+        if not isinstance(result["rows"], list):
+            raise Exception("`rows` field should be of type `list`.")
+        if not isinstance(result["columns"], list):
+            raise Exception("`columns` field should be of type `list`.")
+
     def run_query(self, query, user):
         self._current_user = user
 
@@ -352,6 +371,7 @@ class Python(BaseQueryRunner):
             exec(code, restricted_globals, self._script_locals)
 
             result = self._script_locals["result"]
+            self.validate_result(result)
             result["log"] = self._custom_print.lines
             json_data = json_dumps(result)
         except Exception as e:
