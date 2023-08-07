@@ -215,6 +215,11 @@ def jwt_token_load_user_from_request(request):
                 user_groups.discard("admin")
             user.update_group_assignments(user_groups)
 
+    db_role = payload.get("stacklet:db_role") or None  # force None instead of empty string, JIC
+    if db_role != user.db_role:
+        user.db_role = db_role
+        models.db.session.commit()
+
     return user
 
 

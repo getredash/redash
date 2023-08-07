@@ -88,6 +88,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         nullable=True,
     )
     api_key = Column(db.String(40), default=lambda: generate_token(40), unique=True)
+    db_role = Column(db.String(128), nullable=True)
 
     disabled_at = Column(db.DateTime(True), default=None, nullable=True)
     details = Column(
@@ -154,6 +155,9 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
         if with_api_key:
             d["api_key"] = self.api_key
+
+        if self.db_role:
+            d["db_role"] = self.db_role
 
         return d
 

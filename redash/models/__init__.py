@@ -319,6 +319,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     data = Column(JSONText, nullable=True)
     runtime = Column(DOUBLE_PRECISION)
     retrieved_at = Column(db.DateTime(True))
+    db_role = Column(db.String(128), nullable=True)
 
     __tablename__ = "query_results"
 
@@ -334,6 +335,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             "data_source_id": self.data_source_id,
             "runtime": self.runtime,
             "retrieved_at": self.retrieved_at,
+            "db_role": self.db_role,
         }
 
     @classmethod
@@ -365,7 +367,9 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         return query.order_by(cls.retrieved_at.desc()).first()
 
     @classmethod
-    def store_result(cls, org, data_source, query_hash, query, data, run_time, retrieved_at):
+    def store_result(
+        cls, org, data_source, query_hash, query, data, run_time, retrieved_at, db_role
+    ):
         query_result = cls(
             org_id=org,
             query_hash=query_hash,
@@ -373,6 +377,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             runtime=run_time,
             data_source=data_source,
             retrieved_at=retrieved_at,
+            db_role=db_role,
             data=data,
         )
 
