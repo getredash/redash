@@ -1,4 +1,12 @@
 repos:
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.7.0
+    hooks:
+      - id: pyupgrade
+        args:
+          - --py38-plus
+          - --keep-runtime-typing
+        exclude: "migration/.*|.git|viz-lib|node_modules|migrations|bin/upgrade"
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
     hooks:
