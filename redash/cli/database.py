@@ -79,6 +79,23 @@ def create_tables():
         sqlalchemy.orm.configure_mappers()
         db.create_all()
 
+        db.session.execute("ALTER TABLE query_results ENABLE ROW LEVEL SECURITY")
+        db.session.execute(
+            """
+            CREATE POLICY all_visible ON query_results
+            USING (true);
+            """
+        )
+        db.session.execute(
+            """
+            CREATE POLICY limited_visibility ON query_results
+            AS RESTRICTIVE
+            FOR SELECT
+            TO limited_visibility
+            USING (current_user = db_role);
+            """
+        )
+
         # Need to mark current DB as up to date
         stamp()
     else:
