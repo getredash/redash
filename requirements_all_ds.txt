@@ -43,3 +43,4 @@ nzpy>=1.15
 nzalchemy
 python-arango==6.1.0
 pinotdb>=0.4.5
+duckdb>=0.8.0
