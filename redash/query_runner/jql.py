@@ -6,7 +6,7 @@ from redash.utils import json_dumps, json_loads
 
 
 # TODO: make this more general and move into __init__.py
-class ResultSet(object):
+class ResultSet:
     def __init__(self):
         self.columns = OrderedDict()
         self.rows = []
@@ -50,9 +50,9 @@ def parse_issue(issue, field_mapping):  # noqa: C901
             else:
                 # these special mapping rules are kept for backwards compatibility
                 if "key" in v:
-                    result["{}_key".format(output_name)] = v["key"]
+                    result[f"{output_name}_key"] = v["key"]
                 if "name" in v:
-                    result["{}_name".format(output_name)] = v["name"]
+                    result[f"{output_name}_name"] = v["name"]
 
                 if k in v:
                     result[output_name] = v[k]
@@ -156,7 +156,7 @@ class JiraJQL(BaseHTTPQueryRunner):
         return "JIRA (JQL)"
 
     def __init__(self, configuration):
-        super(JiraJQL, self).__init__(configuration)
+        super().__init__(configuration)
         self.syntax = "json"
 
     def run_query(self, query, user):

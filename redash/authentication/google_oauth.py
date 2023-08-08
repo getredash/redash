@@ -44,7 +44,7 @@ def create_google_oauth_blueprint(app):
     )
 
     def get_user_profile(access_token):
-        headers = {"Authorization": "OAuth {}".format(access_token)}
+        headers = {"Authorization": f"OAuth {access_token}"}
         response = requests.get("https://www.googleapis.com/oauth2/v1/userinfo", headers=headers)
 
         if response.status_code == 401:

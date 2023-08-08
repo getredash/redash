@@ -57,7 +57,7 @@ class Graphite(BaseQueryRunner):
         }
 
     def __init__(self, configuration):
-        super(Graphite, self).__init__(configuration)
+        super().__init__(configuration)
         self.syntax = "custom"
 
         if "username" in self.configuration and self.configuration["username"]:
@@ -75,10 +75,10 @@ class Graphite(BaseQueryRunner):
             verify=self.verify,
         )
         if r.status_code != 200:
-            raise Exception("Got invalid response from Graphite (http status code: {0}).".format(r.status_code))
+            raise Exception(f"Got invalid response from Graphite (http status code: {r.status_code}).")
 
     def run_query(self, query, user):
-        url = "%s%s" % (self.base_url, "&".join(query.split("\n")))
+        url = "{}{}".format(self.base_url, "&".join(query.split("\n")))
         error = None
         data = None
 

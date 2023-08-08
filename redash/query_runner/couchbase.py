@@ -47,7 +47,7 @@ def parse_results(results):
         for key in row:
             if isinstance(row[key], dict):
                 for inner_key in row[key]:
-                    column_name = "{}.{}".format(key, inner_key)
+                    column_name = f"{key}.{inner_key}"
                     if _get_column_by_name(columns, column_name) is None:
                         columns.append(
                             {
@@ -100,7 +100,7 @@ class Couchbase(BaseQueryRunner):
         }
 
     def __init__(self, configuration):
-        super(Couchbase, self).__init__(configuration)
+        super().__init__(configuration)
 
     @classmethod
     def enabled(cls):
@@ -139,7 +139,7 @@ class Couchbase(BaseQueryRunner):
             port = self.configuration.get("port", 8095)
             params = {"statement": query}
 
-            url = "%s://%s:%s/query/service" % (protocol, host, port)
+            url = f"{protocol}://{host}:{port}/query/service"
 
             r = requests.post(url, params=params, auth=(user, password))
             r.raise_for_status()

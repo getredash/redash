@@ -47,10 +47,10 @@ class MongoDBJSONEncoder(JSONEncoder):
         if isinstance(o, ObjectId):
             return str(o)
         elif isinstance(o, Timestamp):
-            return super(MongoDBJSONEncoder, self).default(o.as_datetime())
+            return super().default(o.as_datetime())
         elif isinstance(o, Decimal128):
             return o.to_decimal()
-        return super(MongoDBJSONEncoder, self).default(o)
+        return super().default(o)
 
 
 date_regex = re.compile(r'ISODate\("(.*)"\)', re.IGNORECASE)
@@ -103,7 +103,7 @@ def parse_results(results):
         for key in row:
             if isinstance(row[key], dict):
                 for inner_key in row[key]:
-                    column_name = "{}.{}".format(key, inner_key)
+                    column_name = f"{key}.{inner_key}"
                     if _get_column_by_name(columns, column_name) is None:
                         columns.append(
                             {
@@ -166,7 +166,7 @@ class MongoDB(BaseQueryRunner):
         return enabled
 
     def __init__(self, configuration):
-        super(MongoDB, self).__init__(configuration)
+        super().__init__(configuration)
 
         self.syntax = "json"
 

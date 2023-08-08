@@ -8,7 +8,7 @@ def query_to_script_path(path, query):
     if path != "*":
         script = os.path.join(path, query.split(" ")[0])
         if not os.path.exists(script):
-            raise IOError("Script '{}' not found in script directory".format(query))
+            raise OSError(f"Script '{query}' not found in script directory")
 
         return os.path.join(path, query).split(" ")
 
@@ -53,7 +53,7 @@ class Script(BaseQueryRunner):
         return "insecure_script"
 
     def __init__(self, configuration):
-        super(Script, self).__init__(configuration)
+        super().__init__(configuration)
 
         # If path is * allow any execution path
         if self.configuration["path"] == "*":
@@ -70,7 +70,7 @@ class Script(BaseQueryRunner):
         try:
             script = query_to_script_path(self.configuration["path"], query)
             return run_script(script, self.configuration["shell"])
-        except IOError as e:
+        except OSError as e:
             return None, str(e)
         except subprocess.CalledProcessError as e:
             return None, str(e)

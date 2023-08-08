@@ -6,7 +6,7 @@ class TestQuerySnippetResource(BaseTestCase):
     def test_get_snippet(self):
         snippet = self.factory.create_query_snippet()
 
-        rv = self.make_request("get", "/api/query_snippets/{}".format(snippet.id))
+        rv = self.make_request("get", f"/api/query_snippets/{snippet.id}")
 
         for field in ("snippet", "description", "trigger"):
             self.assertEqual(rv.json[field], getattr(snippet, field))
@@ -20,14 +20,14 @@ class TestQuerySnippetResource(BaseTestCase):
             "description": "updated description",
         }
 
-        rv = self.make_request("post", "/api/query_snippets/{}".format(snippet.id), data=data)
+        rv = self.make_request("post", f"/api/query_snippets/{snippet.id}", data=data)
 
         for field in ("snippet", "description", "trigger"):
             self.assertEqual(rv.json[field], data[field])
 
     def test_delete_snippet(self):
         snippet = self.factory.create_query_snippet()
-        self.make_request("delete", "/api/query_snippets/{}".format(snippet.id))
+        self.make_request("delete", f"/api/query_snippets/{snippet.id}")
 
         self.assertIsNone(QuerySnippet.query.get(snippet.id))
 

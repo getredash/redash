@@ -74,11 +74,7 @@ class HangoutsChat(BaseDestination):
                             {
                                 "textButton": {
                                     "text": "OPEN QUERY",
-                                    "onClick": {
-                                        "openLink": {
-                                            "url": "{host}/queries/{query_id}".format(host=host, query_id=query.id)
-                                        }
-                                    },
+                                    "onClick": {"openLink": {"url": f"{host}/queries/{query.id}"}},
                                 }
                             }
                         ]
@@ -88,7 +84,7 @@ class HangoutsChat(BaseDestination):
             headers = {"Content-Type": "application/json; charset=UTF-8"}
             resp = requests.post(options.get("url"), data=json_dumps(data), headers=headers, timeout=5.0)
             if resp.status_code != 200:
-                logging.error("webhook send ERROR. status_code => {status}".format(status=resp.status_code))
+                logging.error(f"webhook send ERROR. status_code => {resp.status_code}")
         except Exception:
             logging.exception("webhook send ERROR.")
 

@@ -17,21 +17,21 @@ def invite_token(user):
 
 def verify_link_for_user(user):
     token = invite_token(user)
-    verify_url = "{}/verify/{}".format(base_url(user.org), token)
+    verify_url = f"{base_url(user.org)}/verify/{token}"
 
     return verify_url
 
 
 def invite_link_for_user(user):
     token = invite_token(user)
-    invite_url = "{}/invite/{}".format(base_url(user.org), token)
+    invite_url = f"{base_url(user.org)}/invite/{token}"
 
     return invite_url
 
 
 def reset_link_for_user(user):
     token = invite_token(user)
-    invite_url = "{}/reset/{}".format(base_url(user.org), token)
+    invite_url = f"{base_url(user.org)}/reset/{token}"
 
     return invite_url
 
@@ -45,7 +45,7 @@ def send_verify_email(user, org):
     context = {"user": user, "verify_url": verify_link_for_user(user)}
     html_content = render_template("emails/verify.html", **context)
     text_content = render_template("emails/verify.txt", **context)
-    subject = "{}, please verify your email address".format(user.name)
+    subject = f"{user.name}, please verify your email address"
 
     send_mail.delay([user.email], subject, html_content, text_content)
 
@@ -54,7 +54,7 @@ def send_invite_email(inviter, invited, invite_url, org):
     context = dict(inviter=inviter, invited=invited, org=org, invite_url=invite_url)
     html_content = render_template("emails/invite.html", **context)
     text_content = render_template("emails/invite.txt", **context)
-    subject = "{} invited you to join Redash".format(inviter.name)
+    subject = f"{inviter.name} invited you to join Redash"
 
     send_mail.delay([invited.email], subject, html_content, text_content)
 

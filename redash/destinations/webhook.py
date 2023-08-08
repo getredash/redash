@@ -47,7 +47,7 @@ class Webhook(BaseDestination):
                 timeout=5.0,
             )
             if resp.status_code != 200:
-                logging.error("webhook send ERROR. status_code => {status}".format(status=resp.status_code))
+                logging.error(f"webhook send ERROR. status_code => {resp.status_code}")
         except Exception:
             logging.exception("webhook send ERROR.")
 

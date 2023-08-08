@@ -42,7 +42,7 @@ class AzureKusto(BaseQueryRunner):
     noop_query = "let noop = datatable (Noop:string)[1]; noop"
 
     def __init__(self, configuration):
-        super(AzureKusto, self).__init__(configuration)
+        super().__init__(configuration)
         self.syntax = "custom"
         self.client_request_properties = ClientRequestProperties()
         self.client_request_properties.application = "redash"

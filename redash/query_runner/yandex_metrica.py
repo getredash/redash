@@ -101,17 +101,17 @@ class YandexMetrica(BaseSQLQueryRunner):
         }
 
     def __init__(self, configuration):
-        super(YandexMetrica, self).__init__(configuration)
+        super().__init__(configuration)
         self.syntax = "yaml"
         self.url = "https://api-metrica.yandex.com"
         self.list_path = "counters"
 
     def _get_tables(self, schema):
-        counters = self._send_query("management/v1/{0}".format(self.list_path))
+        counters = self._send_query(f"management/v1/{self.list_path}")
 
         for row in counters[self.list_path]:
             owner = row.get("owner_login")
-            counter = "{0} | {1}".format(row.get("name", "Unknown"), row.get("id", "Unknown"))
+            counter = "{} | {}".format(row.get("name", "Unknown"), row.get("id", "Unknown"))
             if owner not in schema:
                 schema[owner] = {"name": owner, "columns": []}
 
@@ -120,13 +120,13 @@ class YandexMetrica(BaseSQLQueryRunner):
         return list(schema.values())
 
     def test_connection(self):
-        self._send_query("management/v1/{0}".format(self.list_path))
+        self._send_query(f"management/v1/{self.list_path}")
 
     def _send_query(self, path="stat/v1/data", **kwargs):
         token = kwargs.pop("oauth_token", self.configuration["token"])
         r = requests.get(
-            "{0}/{1}".format(self.url, path),
-            headers={"Authorization": "OAuth {}".format(token)},
+            f"{self.url}/{path}",
+            headers={"Authorization": f"OAuth {token}"},
             params=kwargs,
         )
         if r.status_code != 200:
@@ -174,7 +174,7 @@ class YandexAppMetrica(YandexMetrica):
         return "Yandex AppMetrica"
 
     def __init__(self, configuration):
-        super(YandexAppMetrica, self).__init__(configuration)
+        super().__init__(configuration)
         self.url = "https://api.appmetrica.yandex.com"
         self.list_path = "applications"
 

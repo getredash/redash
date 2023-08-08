@@ -47,7 +47,7 @@ _TYPE_MAPPINGS = {
 }
 
 
-class SimpleFormatter(object):
+class SimpleFormatter:
     def format(self, operation, parameters=None):
         return operation
 
@@ -144,7 +144,7 @@ class Athena(BaseQueryRunner):
 
     def annotate_query(self, query, metadata):
         if ANNOTATE_QUERY:
-            return super(Athena, self).annotate_query(query, metadata)
+            return super().annotate_query(query, metadata)
         return query
 
     @classmethod
@@ -184,7 +184,7 @@ class Athena(BaseQueryRunner):
             for database in databases["DatabaseList"]:
                 iterator = table_paginator.paginate(DatabaseName=database["Name"])
                 for table in iterator.search("TableList[]"):
-                    table_name = "%s.%s" % (database["Name"], table["Name"])
+                    table_name = "{}.{}".format(database["Name"], table["Name"])
                     if "StorageDescriptor" not in table:
                         logger.warning("Glue table doesn't have StorageDescriptor: %s", table_name)
                         continue
@@ -212,7 +212,7 @@ class Athena(BaseQueryRunner):
 
         results = json_loads(results)
         for row in results["rows"]:
-            table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
+            table_name = "{}.{}".format(row["table_schema"], row["table_name"])
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
             schema[table_name]["columns"].append(row["column_name"])

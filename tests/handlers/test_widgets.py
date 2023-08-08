@@ -59,7 +59,7 @@ class WidgetAPITest(BaseTestCase):
     def test_delete_widget(self):
         widget = self.factory.create_widget()
 
-        rv = self.make_request("delete", "/api/widgets/{0}".format(widget.id))
+        rv = self.make_request("delete", f"/api/widgets/{widget.id}")
 
         self.assertEqual(rv.status_code, 200)
         dashboard = models.Dashboard.get_by_slug_and_org(widget.dashboard.slug, widget.dashboard.org)

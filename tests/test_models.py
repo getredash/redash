@@ -41,7 +41,7 @@ class ShouldScheduleNextTest(TestCase):
         now = utcnow()
         yesterday = now - datetime.timedelta(days=1)
         scheduled_datetime = now - datetime.timedelta(hours=3)
-        scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
+        scheduled_time = f"{scheduled_datetime.hour:02d}:00"
         self.assertTrue(models.should_schedule_next(yesterday, now, "86400", scheduled_time))
 
     def test_exact_time_that_doesnt_need_reschedule(self):
@@ -61,7 +61,7 @@ class ShouldScheduleNextTest(TestCase):
         four_days_ago = now - datetime.timedelta(days=4)
         three_day_interval = "259200"
         scheduled_datetime = now - datetime.timedelta(hours=3)
-        scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
+        scheduled_time = f"{scheduled_datetime.hour:02d}:00"
         self.assertTrue(models.should_schedule_next(four_days_ago, now, three_day_interval, scheduled_time))
 
     def test_exact_time_every_x_days_that_doesnt_need_reschedule(self):
@@ -69,7 +69,7 @@ class ShouldScheduleNextTest(TestCase):
         four_days_ago = now - datetime.timedelta(days=2)
         three_day_interval = "259200"
         scheduled_datetime = now - datetime.timedelta(hours=3)
-        scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
+        scheduled_time = f"{scheduled_datetime.hour:02d}:00"
         self.assertFalse(models.should_schedule_next(four_days_ago, now, three_day_interval, scheduled_time))
 
     def test_exact_time_every_x_days_with_day_change(self):
@@ -96,7 +96,7 @@ class ShouldScheduleNextTest(TestCase):
         now = this_thursday - datetime.timedelta(days=1)
         three_week_interval = "1814400"
         scheduled_datetime = now - datetime.timedelta(hours=3)
-        scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
+        scheduled_time = f"{scheduled_datetime.hour:02d}:00"
         self.assertTrue(
             models.should_schedule_next(three_weeks_ago, now, three_week_interval, scheduled_time, "Tuesday")
         )
@@ -118,7 +118,7 @@ class ShouldScheduleNextTest(TestCase):
         now = this_tuesday + datetime.timedelta(days=1)
         three_week_interval = "1814400"
         scheduled_datetime = now - datetime.timedelta(hours=3)
-        scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
+        scheduled_time = f"{scheduled_datetime.hour:02d}:00"
         self.assertFalse(
             models.should_schedule_next(three_weeks_ago, now, three_week_interval, scheduled_time, "Thursday")
         )
@@ -490,7 +490,7 @@ class TestGroup(BaseTestCase):
 
 class TestQueryResultStoreResult(BaseTestCase):
     def setUp(self):
-        super(TestQueryResultStoreResult, self).setUp()
+        super().setUp()
         self.data_source = self.factory.data_source
         self.query = "SELECT 1"
         self.query_hash = gen_query_hash(self.query)
@@ -585,7 +585,7 @@ def _set_up_dashboard_test(d):
 
 class TestDashboardAll(BaseTestCase):
     def setUp(self):
-        super(TestDashboardAll, self).setUp()
+        super().setUp()
         _set_up_dashboard_test(self)
 
     def test_requires_group_or_user_id(self):

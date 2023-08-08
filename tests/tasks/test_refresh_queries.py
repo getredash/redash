@@ -1,4 +1,4 @@
-from mock import ANY, call, patch
+from unittest.mock import ANY, call, patch
 
 from redash.models import Query
 from redash.tasks.queries.maintenance import refresh_queries

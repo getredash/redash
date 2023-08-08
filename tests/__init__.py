@@ -80,7 +80,7 @@ class BaseTestCase(TestCase):
             org = self.factory.org
 
         if org is not False:
-            path = "/{}{}".format(org.slug, path)
+            path = f"/{org.slug}{path}"
 
         if user:
             authenticate_request(self.client, user)
@@ -107,7 +107,7 @@ class BaseTestCase(TestCase):
 
     def get_request(self, path, org=None, headers=None, client=None):
         if org:
-            path = "/{}{}".format(org.slug, path)
+            path = f"/{org.slug}{path}"
 
         if client is None:
             client = self.client
@@ -115,7 +115,7 @@ class BaseTestCase(TestCase):
 
     def post_request(self, path, data=None, org=None, headers=None):
         if org:
-            path = "/{}{}".format(org.slug, path)
+            path = f"/{org.slug}{path}"
 
         return self.client.post(path, data=data, headers=headers)
 
@@ -134,5 +134,5 @@ class BaseTestCase(TestCase):
             self.assertEqual(
                 v,
                 actual[k],
-                "{} not equal (expected: {}, actual: {}).".format(k, v, actual[k]),
+                f"{k} not equal (expected: {v}, actual: {actual[k]}).",
             )

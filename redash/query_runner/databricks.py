@@ -158,7 +158,7 @@ class Databricks(BaseSQLQueryRunner):
         cursor.tables(schema=database_name)
 
         for table in cursor:
-            table_name = "{}.{}".format(table[1], table[2])
+            table_name = f"{table[1]}.{table[2]}"
 
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
@@ -173,7 +173,7 @@ class Databricks(BaseSQLQueryRunner):
         cursor.tables(schema=database_name)
 
         for table in cursor:
-            table_name = "{}.{}".format(table[1], table[2])
+            table_name = f"{table[1]}.{table[2]}"
 
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
@@ -181,7 +181,7 @@ class Databricks(BaseSQLQueryRunner):
         cursor.columns(schema=database_name)
 
         for column in cursor:
-            table_name = "{}.{}".format(column[1], column[2])
+            table_name = f"{column[1]}.{column[2]}"
 
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}

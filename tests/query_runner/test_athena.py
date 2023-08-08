@@ -1,10 +1,9 @@
 """
 Some test cases around the Glue catalog.
 """
-from unittest import TestCase
+from unittest import TestCase, mock
 
 import botocore
-import mock
 from botocore.stub import Stubber
 
 from redash.query_runner.athena import Athena

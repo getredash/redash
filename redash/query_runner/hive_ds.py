@@ -96,7 +96,7 @@ class Hive(BaseSQLQueryRunner):
                 ]
 
                 if schema_name != "default":
-                    table_name = "{}.{}".format(schema_name, table_name)
+                    table_name = f"{schema_name}.{table_name}"
 
                 schema[table_name] = {"name": table_name, "columns": columns}
         return list(schema.values())
@@ -212,7 +212,7 @@ class HiveHttp(Hive):
         if port:
             port = ":" + str(port)
 
-        http_uri = "{}://{}{}{}".format(scheme, host, port, path)
+        http_uri = f"{scheme}://{host}{port}{path}"
 
         # create transport
         transport = THttpClient.THttpClient(http_uri)

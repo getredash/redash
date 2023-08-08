@@ -40,7 +40,7 @@ class CSV(BaseQueryRunner):
         }
 
     def __init__(self, configuration):
-        super(CSV, self).__init__(configuration)
+        super().__init__(configuration)
         self.syntax = "yaml"
 
     def test_connection(self):
@@ -105,7 +105,7 @@ class CSV(BaseQueryRunner):
             error = "Can't query private addresses."
             json_data = None
         except Exception as e:
-            error = "Error reading {0}. {1}".format(path, str(e))
+            error = f"Error reading {path}. {str(e)}"
             json_data = None
 
         return json_data, error

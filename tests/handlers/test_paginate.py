@@ -1,12 +1,12 @@
 from unittest import TestCase
+from unittest.mock import MagicMock
 
-from mock import MagicMock
 from werkzeug.exceptions import BadRequest
 
 from redash.handlers.base import paginate
 
 
-class DummyResults(object):
+class DummyResults:
     items = [i for i in range(25)]
 
 

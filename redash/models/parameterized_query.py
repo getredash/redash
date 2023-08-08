@@ -73,7 +73,7 @@ def _parameter_names(parameter_values):
     for key, value in parameter_values.items():
         if isinstance(value, dict):
             for inner_key in value.keys():
-                names.append("{}.{}".format(key, inner_key))
+                names.append(f"{key}.{inner_key}")
         else:
             names.append(key)
 
@@ -112,7 +112,7 @@ def _is_value_within_options(value, dropdown_options, allow_list=False):
     return str(value) in dropdown_options
 
 
-class ParameterizedQuery(object):
+class ParameterizedQuery:
     def __init__(self, template, schema=None, org=None):
         self.schema = schema or []
         self.org = org
@@ -188,13 +188,11 @@ class ParameterizedQuery(object):
 class InvalidParameterError(Exception):
     def __init__(self, parameters):
         parameter_names = ", ".join(parameters)
-        message = "The following parameter values are incompatible with their definitions: {}".format(parameter_names)
-        super(InvalidParameterError, self).__init__(message)
+        message = f"The following parameter values are incompatible with their definitions: {parameter_names}"
+        super().__init__(message)
 
 
 class QueryDetachedFromDataSourceError(Exception):
     def __init__(self, query_id):
         self.query_id = query_id
-        super(QueryDetachedFromDataSourceError, self).__init__(
-            "This query is detached from any data source. Please select a different query."
-        )
+        super().__init__("This query is detached from any data source. Please select a different query.")

@@ -61,7 +61,7 @@ def init_app(app):
     request_started.connect(update_user_active_at, app)
 
 
-class PermissionsCheckMixin(object):
+class PermissionsCheckMixin:
     def has_permission(self, permission):
         return self.has_permissions((permission,))
 
@@ -106,12 +106,12 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     __table_args__ = (db.Index("users_org_id_email", "org_id", "email", unique=True),)
 
     def __str__(self):
-        return "%s (%s)" % (self.name, self.email)
+        return f"{self.name} ({self.email})"
 
     def __init__(self, *args, **kwargs):
         if kwargs.get("email") is not None:
             kwargs["email"] = kwargs["email"].lower()
-        super(User, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @property
     def is_disabled(self):
@@ -167,7 +167,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
             return self._profile_image_url
 
         email_md5 = hashlib.md5(self.email.lower().encode()).hexdigest()
-        return "https://www.gravatar.com/avatar/{}?s=40&d=identicon".format(email_md5)
+        return f"https://www.gravatar.com/avatar/{email_md5}?s=40&d=identicon"
 
     @property
     def permissions(self):
@@ -200,7 +200,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
     @classmethod
     def search(cls, base_query, term):
-        term = "%{}%".format(term)
+        term = f"%{term}%"
         search_filter = or_(cls.name.ilike(term), cls.email.like(term))
 
         return base_query.filter(search_filter)
@@ -233,8 +233,8 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         return AccessPermission.exists(obj, access_type, grantee=self)
 
     def get_id(self):
-        identity = hashlib.md5("{},{}".format(self.email, self.password_hash).encode()).hexdigest()
-        return "{0}-{1}".format(self.id, identity)
+        identity = hashlib.md5(f"{self.email},{self.password_hash}".encode()).hexdigest()
+        return f"{self.id}-{identity}"
 
 
 @generic_repr("id", "name", "type", "org_id")
@@ -386,13 +386,13 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
             self.name = name
         else:
             self.id = api_key.api_key
-            self.name = "ApiKey: {}".format(api_key.id)
+            self.name = f"ApiKey: {api_key.id}"
             self.object = api_key.object
         self.group_ids = groups
         self.org = org
 
     def __repr__(self):
-        return "<{}>".format(self.name)
+        return f"<{self.name}>"
 
     def is_api_user(self):
         return True

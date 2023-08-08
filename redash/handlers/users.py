@@ -225,7 +225,7 @@ class UserResource(BaseResource):
                 try:
                     models.Group.get_by_id_and_org(group_id, self.current_org)
                 except NoResultFound:
-                    abort(400, message="Group id {} is invalid.".format(group_id))
+                    abort(400, message=f"Group id {group_id} is invalid.")
 
             if len(params["group_ids"]) == 0:
                 params.pop("group_ids")

@@ -80,7 +80,7 @@ from redash.utils.configuration import ConfigurationContainer
 logger = logging.getLogger(__name__)
 
 
-class ScheduledQueriesExecutions(object):
+class ScheduledQueriesExecutions:
     KEY_NAME = "sq:executed_at"
 
     def __init__(self):
@@ -211,7 +211,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
             try:
                 out_schema = self._sort_schema(schema)
             except Exception:
-                logging.exception("Error sorting schema columns for data_source {}".format(self.id))
+                logging.exception(f"Error sorting schema columns for data_source {self.id}")
                 out_schema = schema
             finally:
                 redis_connection.set(self._schema_key, json_dumps(out_schema))
@@ -226,11 +226,11 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     @property
     def _schema_key(self):
-        return "data_source:schema:{}".format(self.id)
+        return f"data_source:schema:{self.id}"
 
     @property
     def _pause_key(self):
-        return "ds:{}:pause".format(self.id)
+        return f"ds:{self.id}:pause"
 
     @property
     def paused(self):
@@ -282,7 +282,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
     @property
     def groups(self):
         groups = DataSourceGroup.query.filter(DataSourceGroup.data_source == self)
-        return dict([(group.group_id, group.view_only) for group in groups])
+        return {group.group_id: group.view_only for group in groups}
 
 
 @generic_repr("id", "data_source_id", "group_id", "view_only")
@@ -301,7 +301,7 @@ class DataSourceGroup(db.Model):
 DESERIALIZED_DATA_ATTR = "_deserialized_data"
 
 
-class DBPersistence(object):
+class DBPersistence:
     @property
     def data(self):
         if self._data is None:
@@ -634,7 +634,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                     query.schedule["day_of_week"],
                     query.schedule_failures,
                 ):
-                    key = "{}:{}".format(query.query_hash, query.data_source_id)
+                    key = f"{query.query_hash}:{query.data_source_id}"
                     outdated_queries[key] = query
             except Exception as e:
                 query.schedule["disabled"] = True
@@ -669,7 +669,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         if multi_byte_search:
             # Since tsvector doesn't work well with CJK languages, use `ilike` too
-            pattern = "%{}%".format(term)
+            pattern = f"%{term}%"
             return (
                 all_queries.filter(or_(cls.name.ilike(pattern), cls.description.ilike(pattern)))
                 .order_by(Query.id)
@@ -758,7 +758,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         kwargs = {a: getattr(self, a) for a in forked_list}
 
         # Query.create will add default TABLE visualization, so use constructor to create bare copy of query
-        forked_query = Query(name="Copy of (#{}) {}".format(self.id, self.name), user=user, **kwargs)
+        forked_query = Query(name=f"Copy of (#{self.id}) {self.name}", user=user, **kwargs)
 
         for v in sorted(self.visualizations, key=lambda v: v.id):
             forked_v = v.copy()
@@ -943,7 +943,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def get_by_id_and_org(cls, object_id, org):
-        return super(Alert, cls).get_by_id_and_org(object_id, org, Query)
+        return super().get_by_id_and_org(object_id, org, Query)
 
     def evaluate(self):
         data = self.query_rel.latest_query_data.data
@@ -982,12 +982,12 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
         context = {
             "ALERT_NAME": self.name,
-            "ALERT_URL": "{host}/alerts/{alert_id}".format(host=host, alert_id=self.id),
+            "ALERT_URL": f"{host}/alerts/{self.id}",
             "ALERT_STATUS": self.state.upper(),
             "ALERT_CONDITION": self.options["op"],
             "ALERT_THRESHOLD": self.options["value"],
             "QUERY_NAME": self.query_rel.name,
-            "QUERY_URL": "{host}/queries/{query_id}".format(host=host, query_id=self.query_rel.id),
+            "QUERY_URL": f"{host}/queries/{self.query_rel.id}",
             "QUERY_RESULT_VALUE": result_value,
             "QUERY_RESULT_ROWS": data["rows"],
             "QUERY_RESULT_COLS": data["columns"],
@@ -1047,7 +1047,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     __mapper_args__ = {"version_id_col": version}
 
     def __str__(self):
-        return "%s=%s" % (self.id, self.name)
+        return f"{self.id}={self.name}"
 
     @property
     def name_as_slug(self):
@@ -1076,11 +1076,11 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     @classmethod
     def search(cls, org, groups_ids, user_id, search_term):
         # TODO: switch to FTS
-        return cls.all(org, groups_ids, user_id).filter(cls.name.ilike("%{}%".format(search_term)))
+        return cls.all(org, groups_ids, user_id).filter(cls.name.ilike(f"%{search_term}%"))
 
     @classmethod
     def search_by_user(cls, term, user, limit=None):
-        return cls.by_user(user).filter(cls.name.ilike("%{}%".format(term))).limit(limit)
+        return cls.by_user(user).filter(cls.name.ilike(f"%{term}%")).limit(limit)
 
     @classmethod
     def all_tags(cls, org, user):
@@ -1144,11 +1144,11 @@ class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
     __tablename__ = "visualizations"
 
     def __str__(self):
-        return "%s %s" % (self.id, self.type)
+        return f"{self.id} {self.type}"
 
     @classmethod
     def get_by_id_and_org(cls, object_id, org):
-        return super(Visualization, cls).get_by_id_and_org(object_id, org, Query)
+        return super().get_by_id_and_org(object_id, org, Query)
 
     def copy(self):
         return {
@@ -1176,7 +1176,7 @@ class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def get_by_id_and_org(cls, object_id, org):
-        return super(Widget, cls).get_by_id_and_org(object_id, org, Dashboard)
+        return super().get_by_id_and_org(object_id, org, Dashboard)
 
 
 @generic_repr("id", "object_type", "object_id", "action", "user_id", "org_id", "created_at")
@@ -1195,7 +1195,7 @@ class Event(db.Model):
     __tablename__ = "events"
 
     def __str__(self):
-        return "%s,%s,%s,%s" % (
+        return "{},{},{},{}".format(
             self.user_id,
             self.action,
             self.object_type,

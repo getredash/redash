@@ -136,7 +136,7 @@ class Trino(BaseQueryRunner):
             error = None
         except DatabaseError as db:
             json_data = None
-            default_message = "Unspecified DatabaseError: {0}".format(str(db))
+            default_message = f"Unspecified DatabaseError: {str(db)}"
             if isinstance(db.args[0], dict):
                 message = db.args[0].get("failureInfo", {"message", None}).get("message")
             else:

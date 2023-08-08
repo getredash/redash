@@ -37,7 +37,7 @@ from RestrictedPython.transformer import IOPERATOR_TO_STR
 logger = logging.getLogger(__name__)
 
 
-class CustomPrint(object):
+class CustomPrint:
     """CustomPrint redirect "print" calls to be sent as "log" on the result object."""
 
     def __init__(self):
@@ -47,7 +47,7 @@ class CustomPrint(object):
     def write(self, text):
         if self.enabled:
             if text and text.strip():
-                log_line = "[{0}] {1}".format(datetime.datetime.utcnow().isoformat(), text)
+                log_line = f"[{datetime.datetime.utcnow().isoformat()}] {text}"
                 self.lines.append(log_line)
 
     def enable(self):
@@ -113,7 +113,7 @@ class Python(BaseQueryRunner):
         return True
 
     def __init__(self, configuration):
-        super(Python, self).__init__(configuration)
+        super().__init__(configuration)
 
         self.syntax = "python"
 
@@ -147,7 +147,7 @@ class Python(BaseQueryRunner):
 
             return m
 
-        raise Exception("'{0}' is not configured as a supported import module".format(name))
+        raise Exception(f"'{name}' is not configured as a supported import module")
 
     @staticmethod
     def custom_write(obj):
@@ -168,7 +168,7 @@ class Python(BaseQueryRunner):
     @staticmethod
     def custom_inplacevar(op, x, y):
         if op not in IOPERATOR_TO_STR.values():
-            raise Exception("'{} is not supported inplace variable'".format(op))
+            raise Exception(f"'{op} is not supported inplace variable'")
         glb = {"x": x, "y": y}
         exec("x" + op + "y", glb)
         return glb["x"]
@@ -184,7 +184,7 @@ class Python(BaseQueryRunner):
         :column_type string: Type of the column. Check supported data types for details.
         """
         if column_type not in SUPPORTED_COLUMN_TYPES:
-            raise Exception("'{0}' is not a supported column type".format(column_type))
+            raise Exception(f"'{column_type}' is not a supported column type")
 
         if "columns" not in result:
             result["columns"] = []

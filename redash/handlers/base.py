@@ -22,13 +22,13 @@ class BaseResource(Resource):
     decorators = [login_required]
 
     def __init__(self, *args, **kwargs):
-        super(BaseResource, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._user = None
 
     def dispatch_request(self, *args, **kwargs):
         kwargs.pop("org_slug", None)
 
-        return super(BaseResource, self).dispatch_request(*args, **kwargs)
+        return super().dispatch_request(*args, **kwargs)
 
     @property
     def current_user(self):
@@ -102,7 +102,7 @@ def paginate(query_set, page, page_size, serializer, **kwargs):
 
 def org_scoped_rule(rule):
     if settings.MULTI_ORG:
-        return "/<org_slug>{}".format(rule)
+        return f"/<org_slug>{rule}"
 
     return rule
 

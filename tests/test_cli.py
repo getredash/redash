@@ -1,6 +1,6 @@
 import textwrap
+from unittest import mock
 
-import mock
 from click.testing import CliRunner
 
 from redash.cli import manager
@@ -17,7 +17,7 @@ class DataSourceCommandTests(BaseTestCase):
         result = runner.invoke(
             manager,
             ["ds", "new"],
-            input="test\n%s\n\n\nexample.com\n\n\ntestdb\n" % (pg_i,),
+            input=f"test\n{pg_i}\n\n\nexample.com\n\n\ntestdb\n",
         )
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)

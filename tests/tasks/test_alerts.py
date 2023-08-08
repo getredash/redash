@@ -1,4 +1,4 @@
-from mock import ANY, MagicMock
+from unittest.mock import ANY, MagicMock
 
 import redash.tasks.alerts
 from redash.models import Alert

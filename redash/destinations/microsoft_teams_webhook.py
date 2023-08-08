@@ -79,9 +79,9 @@ class MicrosoftTeamsWebhook(BaseDestination):
         :type app: redash.Redash
         """
         try:
-            alert_url = "{host}/alerts/{alert_id}".format(host=host, alert_id=alert.id)
+            alert_url = f"{host}/alerts/{alert.id}"
 
-            query_url = "{host}/queries/{query_id}".format(host=host, query_id=query.id)
+            query_url = f"{host}/queries/{query.id}"
 
             message_template = options.get("message_template", MicrosoftTeamsWebhook.ALERTS_DEFAULT_MESSAGE_TEMPLATE)
 
@@ -106,7 +106,7 @@ class MicrosoftTeamsWebhook(BaseDestination):
                 timeout=5.0,
             )
             if resp.status_code != 200:
-                logging.error("MS Teams Webhook send ERROR. status_code => {status}".format(status=resp.status_code))
+                logging.error(f"MS Teams Webhook send ERROR. status_code => {resp.status_code}")
         except Exception:
             logging.exception("MS Teams Webhook send ERROR.")
 

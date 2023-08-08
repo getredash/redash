@@ -44,7 +44,7 @@ types_map = {
 }
 
 
-class Result(object):
+class Result:
     def __init__(self):
         pass
 

@@ -67,7 +67,7 @@ def request_loader(request):
     elif settings.AUTH_TYPE == "api_key":
         user = api_key_load_user_from_request(request)
     else:
-        logger.warning("Unknown authentication type ({}). Using default (HMAC).".format(settings.AUTH_TYPE))
+        logger.warning(f"Unknown authentication type ({settings.AUTH_TYPE}). Using default (HMAC).")
         user = hmac_load_user_from_request(request)
 
     if org_settings["auth_jwt_login_enabled"] and user is None:
@@ -99,7 +99,7 @@ def hmac_load_user_from_request(request):
                     query.api_key,
                     query.org,
                     list(query.groups.keys()),
-                    name="ApiKey: Query {}".format(query.id),
+                    name=f"ApiKey: Query {query.id}",
                 )
 
     return None
@@ -129,7 +129,7 @@ def get_user_from_api_key(api_key, query_id):
                         api_key,
                         query.org,
                         list(query.groups.keys()),
-                        name="ApiKey: Query {}".format(query.id),
+                        name=f"ApiKey: Query {query.id}",
                     )
 
     return user

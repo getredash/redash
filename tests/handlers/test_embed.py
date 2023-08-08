@@ -5,7 +5,7 @@ from tests import BaseTestCase
 class TestUnembedables(BaseTestCase):
     def test_not_embedable(self):
         query = self.factory.create_query()
-        res = self.make_request("get", "/api/queries/{0}".format(query.id))
+        res = self.make_request("get", f"/api/queries/{query.id}")
         self.assertEqual(res.status_code, 200)
         self.assertIn("frame-ancestors 'none'", res.headers["Content-Security-Policy"])
         self.assertEqual(res.headers["X-Frame-Options"], "deny")
@@ -19,7 +19,7 @@ class TestEmbedVisualization(BaseTestCase):
 
         res = self.make_request(
             "get",
-            "/embed/query/{}/visualization/{}".format(vis.query_rel.id, vis.id),
+            f"/embed/query/{vis.query_rel.id}/visualization/{vis.id}",
             is_json=False,
         )
         self.assertEqual(res.status_code, 200)
@@ -35,7 +35,7 @@ class TestPublicDashboard(BaseTestCase):
 
         res = self.make_request(
             "get",
-            "/public/dashboards/{}".format(api_key.api_key),
+            f"/public/dashboards/{api_key.api_key}",
             user=False,
             is_json=False,
         )
@@ -47,7 +47,7 @@ class TestPublicDashboard(BaseTestCase):
         dashboard = self.factory.create_dashboard()
         api_key = self.factory.create_api_key(object=dashboard)
 
-        res = self.make_request("get", "/public/dashboards/{}".format(api_key.api_key), is_json=False)
+        res = self.make_request("get", f"/public/dashboards/{api_key.api_key}", is_json=False)
         self.assertEqual(res.status_code, 200)
 
     def test_bad_token(self):
@@ -59,7 +59,7 @@ class TestPublicDashboard(BaseTestCase):
         api_key = self.factory.create_api_key(object=dashboard, active=False)
         res = self.make_request(
             "get",
-            "/public/dashboards/{}".format(api_key.api_key),
+            f"/public/dashboards/{api_key.api_key}",
             user=False,
             is_json=False,
         )
@@ -78,7 +78,7 @@ class TestAPIPublicDashboard(BaseTestCase):
 
         res = self.make_request(
             "get",
-            "/api/dashboards/public/{}".format(api_key.api_key),
+            f"/api/dashboards/public/{api_key.api_key}",
             user=False,
             is_json=False,
         )
@@ -90,7 +90,7 @@ class TestAPIPublicDashboard(BaseTestCase):
         dashboard = self.factory.create_dashboard()
         api_key = self.factory.create_api_key(object=dashboard)
 
-        res = self.make_request("get", "/api/dashboards/public/{}".format(api_key.api_key), is_json=False)
+        res = self.make_request("get", f"/api/dashboards/public/{api_key.api_key}", is_json=False)
         self.assertEqual(res.status_code, 200)
 
     def test_bad_token(self):
@@ -102,7 +102,7 @@ class TestAPIPublicDashboard(BaseTestCase):
         api_key = self.factory.create_api_key(object=dashboard, active=False)
         res = self.make_request(
             "get",
-            "/api/dashboards/public/{}".format(api_key.api_key),
+            f"/api/dashboards/public/{api_key.api_key}",
             user=False,
             is_json=False,
         )

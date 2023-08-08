@@ -7,7 +7,7 @@ class TestObjectPermissionsListGet(BaseTestCase):
     def test_returns_empty_list_when_no_permissions(self):
         query = self.factory.create_query()
         user = self.factory.user
-        rv = self.make_request("get", "/api/queries/{}/acl".format(query.id), user=user)
+        rv = self.make_request("get", f"/api/queries/{query.id}/acl", user=user)
 
         self.assertEqual(rv.status_code, 200)
         self.assertEqual({}, rv.json)
@@ -23,7 +23,7 @@ class TestObjectPermissionsListGet(BaseTestCase):
             grantee=self.factory.user,
         )
 
-        rv = self.make_request("get", "/api/queries/{}/acl".format(query.id), user=user)
+        rv = self.make_request("get", f"/api/queries/{query.id}/acl", user=user)
 
         self.assertEqual(rv.status_code, 200)
         self.assertIn("modify", rv.json)
@@ -32,7 +32,7 @@ class TestObjectPermissionsListGet(BaseTestCase):
     def test_returns_404_for_outside_of_organization_users(self):
         query = self.factory.create_query()
         user = self.factory.create_user(org=self.factory.create_org())
-        rv = self.make_request("get", "/api/queries/{}/acl".format(query.id), user=user)
+        rv = self.make_request("get", f"/api/queries/{query.id}/acl", user=user)
 
         self.assertEqual(rv.status_code, 404)
 
@@ -44,7 +44,7 @@ class TestObjectPermissionsListPost(BaseTestCase):
 
         data = {"access_type": ACCESS_TYPE_MODIFY, "user_id": other_user.id}
 
-        rv = self.make_request("post", "/api/queries/{}/acl".format(query.id), user=query.user, data=data)
+        rv = self.make_request("post", f"/api/queries/{query.id}/acl", user=query.user, data=data)
 
         self.assertEqual(200, rv.status_code)
         self.assertTrue(AccessPermission.exists(query, ACCESS_TYPE_MODIFY, other_user))
@@ -55,7 +55,7 @@ class TestObjectPermissionsListPost(BaseTestCase):
 
         data = {"access_type": ACCESS_TYPE_MODIFY, "user_id": other_user.id}
 
-        rv = self.make_request("post", "/api/queries/{}/acl".format(query.id), user=other_user, data=data)
+        rv = self.make_request("post", f"/api/queries/{query.id}/acl", user=other_user, data=data)
         self.assertEqual(403, rv.status_code)
 
     def test_returns_400_if_the_grantee_isnt_from_organization(self):
@@ -64,7 +64,7 @@ class TestObjectPermissionsListPost(BaseTestCase):
 
         data = {"access_type": ACCESS_TYPE_MODIFY, "user_id": other_user.id}
 
-        rv = self.make_request("post", "/api/queries/{}/acl".format(query.id), user=query.user, data=data)
+        rv = self.make_request("post", f"/api/queries/{query.id}/acl", user=query.user, data=data)
         self.assertEqual(400, rv.status_code)
 
     def test_returns_404_if_the_user_from_different_org(self):
@@ -73,7 +73,7 @@ class TestObjectPermissionsListPost(BaseTestCase):
 
         data = {"access_type": ACCESS_TYPE_MODIFY, "user_id": other_user.id}
 
-        rv = self.make_request("post", "/api/queries/{}/acl".format(query.id), user=other_user, data=data)
+        rv = self.make_request("post", f"/api/queries/{query.id}/acl", user=other_user, data=data)
         self.assertEqual(404, rv.status_code)
 
     def test_accepts_only_correct_access_types(self):
@@ -82,7 +82,7 @@ class TestObjectPermissionsListPost(BaseTestCase):
 
         data = {"access_type": "random string", "user_id": other_user.id}
 
-        rv = self.make_request("post", "/api/queries/{}/acl".format(query.id), user=query.user, data=data)
+        rv = self.make_request("post", f"/api/queries/{query.id}/acl", user=query.user, data=data)
 
         self.assertEqual(400, rv.status_code)
 
@@ -102,7 +102,7 @@ class TestObjectPermissionsListDelete(BaseTestCase):
             grantee=other_user,
         )
 
-        rv = self.make_request("delete", "/api/queries/{}/acl".format(query.id), user=user, data=data)
+        rv = self.make_request("delete", f"/api/queries/{query.id}/acl", user=user, data=data)
 
         self.assertEqual(rv.status_code, 200)
 
@@ -123,7 +123,7 @@ class TestObjectPermissionsListDelete(BaseTestCase):
 
         rv = self.make_request(
             "delete",
-            "/api/queries/{}/acl".format(query.id),
+            f"/api/queries/{query.id}/acl",
             user=self.factory.create_admin(),
             data=data,
         )
@@ -136,7 +136,7 @@ class TestObjectPermissionsListDelete(BaseTestCase):
         query = self.factory.create_query()
         user = self.factory.create_user(org=self.factory.create_org())
         data = {"access_type": ACCESS_TYPE_MODIFY, "user_id": user.id}
-        rv = self.make_request("delete", "/api/queries/{}/acl".format(query.id), user=user, data=data)
+        rv = self.make_request("delete", f"/api/queries/{query.id}/acl", user=user, data=data)
 
         self.assertEqual(rv.status_code, 404)
 
@@ -145,7 +145,7 @@ class TestObjectPermissionsListDelete(BaseTestCase):
         user = self.factory.create_user()
 
         data = {"access_type": ACCESS_TYPE_MODIFY, "user_id": user.id}
-        rv = self.make_request("delete", "/api/queries/{}/acl".format(query.id), user=user, data=data)
+        rv = self.make_request("delete", f"/api/queries/{query.id}/acl", user=user, data=data)
 
         self.assertEqual(rv.status_code, 403)
 
@@ -155,7 +155,7 @@ class TestObjectPermissionsListDelete(BaseTestCase):
 
         data = {"access_type": ACCESS_TYPE_MODIFY, "user_id": user.id}
 
-        rv = self.make_request("delete", "/api/queries/{}/acl".format(query.id), user=query.user, data=data)
+        rv = self.make_request("delete", f"/api/queries/{query.id}/acl", user=query.user, data=data)
 
         self.assertEqual(rv.status_code, 200)
 
@@ -174,7 +174,7 @@ class TestCheckPermissionsGet(BaseTestCase):
 
         rv = self.make_request(
             "get",
-            "/api/queries/{}/acl/{}".format(query.id, ACCESS_TYPE_MODIFY),
+            f"/api/queries/{query.id}/acl/{ACCESS_TYPE_MODIFY}",
             user=other_user,
         )
 
@@ -187,7 +187,7 @@ class TestCheckPermissionsGet(BaseTestCase):
 
         rv = self.make_request(
             "get",
-            "/api/queries/{}/acl/{}".format(query.id, ACCESS_TYPE_MODIFY),
+            f"/api/queries/{query.id}/acl/{ACCESS_TYPE_MODIFY}",
             user=other_user,
         )
 
@@ -200,7 +200,7 @@ class TestCheckPermissionsGet(BaseTestCase):
 
         rv = self.make_request(
             "get",
-            "/api/queries/{}/acl/{}".format(query.id, ACCESS_TYPE_MODIFY),
+            f"/api/queries/{query.id}/acl/{ACCESS_TYPE_MODIFY}",
             user=other_user,
         )
 

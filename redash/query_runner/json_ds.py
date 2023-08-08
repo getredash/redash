@@ -72,7 +72,7 @@ def _apply_path_search(response, path):
         if current_path in response:
             response = response[current_path]
         else:
-            raise Exception("Couldn't find path {} in response.".format(path))
+            raise Exception(f"Couldn't find path {path} in response.")
 
     return response
 
@@ -106,7 +106,7 @@ def parse_json(data, path, fields):
         for key in row:
             if isinstance(row[key], dict):
                 for inner_key in row[key]:
-                    column_name = "{}.{}".format(key, inner_key)
+                    column_name = f"{key}.{inner_key}"
                     if fields and key not in fields and column_name not in fields:
                         continue
 
@@ -144,7 +144,7 @@ class JSON(BaseHTTPQueryRunner):
         }
 
     def __init__(self, configuration):
-        super(JSON, self).__init__(configuration)
+        super().__init__(configuration)
         self.syntax = "yaml"
 
     def test_connection(self):

@@ -150,12 +150,12 @@ class Qubole(BaseQueryRunner):
                     columns = [f["name"] for f in table[table_name]["columns"]]
 
                     if schema != "default":
-                        table_name = "{}.{}".format(schema, table_name)
+                        table_name = f"{schema}.{table_name}"
 
                     schemas[table_name] = {"name": table_name, "columns": columns}
 
         except Exception as e:
-            logging.error("Failed to get schema information from Qubole. Error {}".format(str(e)))
+            logging.error(f"Failed to get schema information from Qubole. Error {str(e)}")
 
         return list(schemas.values())
 

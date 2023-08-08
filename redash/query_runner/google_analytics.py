@@ -78,7 +78,7 @@ def parse_ga_response(response):
                 elif len(value) == 12:
                     value = datetime.strptime(value, "%Y%m%d%H%M")
                 else:
-                    raise Exception("Unknown date/time format in results: '{}'".format(value))
+                    raise Exception(f"Unknown date/time format in results: '{value}'")
 
             d[column_name] = value
         rows.append(d)
@@ -111,7 +111,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
         }
 
     def __init__(self, configuration):
-        super(GoogleAnalytics, self).__init__(configuration)
+        super().__init__(configuration)
         self.syntax = "json"
 
     def _get_analytics_service(self):
@@ -138,7 +138,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
                 for property_ in properties:
                     if "defaultProfileId" in property_ and "name" in property_:
                         schema[account["name"]]["columns"].append(
-                            "{0} (ga:{1})".format(property_["name"], property_["defaultProfileId"])
+                            "{} (ga:{})".format(property_["name"], property_["defaultProfileId"])
                         )
 
         return list(schema.values())

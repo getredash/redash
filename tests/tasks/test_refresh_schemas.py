@@ -1,4 +1,4 @@
-from mock import patch
+from unittest.mock import patch
 
 from redash.tasks import refresh_schemas
 from tests import BaseTestCase

@@ -100,7 +100,7 @@ class JSONEncoder(simplejson.JSONEncoder):
         elif isinstance(o, bytes):
             result = binascii.hexlify(o).decode()
         else:
-            result = super(JSONEncoder, self).default(o)
+            result = super().default(o)
         return result
 
 
@@ -136,9 +136,9 @@ def build_url(request, host, path):
     if len(parts) > 1:
         port = parts[1]
         if (port, request.scheme) not in (("80", "http"), ("443", "https")):
-            host = "{}:{}".format(host, port)
+            host = f"{host}:{port}"
 
-    return "{}://{}{}".format(request.scheme, host, path)
+    return f"{request.scheme}://{host}{path}"
 
 
 class UnicodeWriter:
@@ -189,7 +189,7 @@ def collect_parameters_from_request(args):
 
 def base_url(org):
     if settings.MULTI_ORG:
-        return "https://{}/{}".format(settings.HOST, org.slug)
+        return f"https://{settings.HOST}/{org.slug}"
 
     return settings.HOST
 

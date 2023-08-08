@@ -110,7 +110,7 @@ class Phoenix(BaseQueryRunner):
             cursor.close()
         except Error as e:
             json_data = None
-            error = "code: {}, sql state:{}, message: {}".format(e.code, e.sqlstate, str(e))
+            error = f"code: {e.code}, sql state:{e.sqlstate}, message: {str(e)}"
         finally:
             if connection:
                 connection.close()

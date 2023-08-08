@@ -31,7 +31,7 @@ class CassandraJSONEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, sortedset):
             return list(o)
-        return super(CassandraJSONEncoder, self).default(o)
+        return super().default(o)
 
 
 class Cassandra(BaseQueryRunner):

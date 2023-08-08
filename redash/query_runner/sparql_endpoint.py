@@ -38,7 +38,7 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
 
     def __init__(self, configuration):
         """init the class and configuration"""
-        super(SPARQLEndpointQueryRunner, self).__init__(configuration)
+        super().__init__(configuration)
 
         self.configuration = configuration
 
@@ -55,9 +55,9 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
             if value is not None:
                 environ[key] = str(value)
                 if key in self.KNOWN_SECRET_KEYS:
-                    logger.info("{} set by config".format(key))
+                    logger.info(f"{key} set by config")
                 else:
-                    logger.info("{} set by config to {}".format(key, environ[key]))
+                    logger.info(f"{key} set by config to {environ[key]}")
 
     @staticmethod
     def _transform_sparql_results(results):
@@ -80,7 +80,7 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
             values and, in case they are all the same, choose something better than
             just string.
         """
-        logger.info("results are: {}".format(results))
+        logger.info(f"results are: {results}")
         # Not sure why we do not use the json package here but all other
         # query runner do it the same way :-)
         sparql_results = json_loads(results)
@@ -120,12 +120,12 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
 
     def run_query(self, query, user):
         """send a query to a sparql endpoint"""
-        logger.info("about to execute query (user='{}'): {}".format(user, query))
+        logger.info(f"about to execute query (user='{user}'): {query}")
         query_text = self.remove_comments(query)
         query = SparqlQuery(query_text)
         query_type = query.get_query_type()
         if query_type not in ["SELECT", None]:
-            raise ValueError("Queries of type {} can not be processed by redash.".format(query_type))
+            raise ValueError(f"Queries of type {query_type} can not be processed by redash.")
 
         self._setup_environment()
         try:
@@ -137,7 +137,7 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
             )
             data = self._transform_sparql_results(r.text)
         except Exception as error:
-            logger.info("Error: {}".format(error))
+            logger.info(f"Error: {error}")
             try:
                 # try to load Problem Details for HTTP API JSON
                 details = json.loads(error.response.text)
@@ -198,7 +198,7 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
         graph_iris = [g.get("g").get("value") for g in r.get("results").get("bindings")]
         graphs = []
         for graph in graph_iris:
-            graphs.append("FROM <{}>".format(graph))
+            graphs.append(f"FROM <{graph}>")
         return graphs
 
     @staticmethod

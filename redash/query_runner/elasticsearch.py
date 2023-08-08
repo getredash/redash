@@ -76,7 +76,7 @@ class BaseElasticSearch(BaseQueryRunner):
         return False
 
     def __init__(self, configuration):
-        super(BaseElasticSearch, self).__init__(configuration)
+        super().__init__(configuration)
         self.syntax = "json"
 
         if self.DEBUG_ENABLED:
@@ -111,7 +111,7 @@ class BaseElasticSearch(BaseQueryRunner):
             mappings = r.json()
         except requests.HTTPError as e:
             logger.exception(e)
-            error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text)
+            error = f"Failed to execute query. Return Code: {r.status_code}   Reason: {r.text}"
             mappings = None
         except requests.exceptions.RequestException as e:
             logger.exception(e)
@@ -157,7 +157,7 @@ class BaseElasticSearch(BaseQueryRunner):
             return result
 
         schema = {}
-        url = "{0}/_mappings".format(self.server_url)
+        url = f"{self.server_url}/_mappings"
         mappings, error = self._get_mappings(url)
 
         if mappings:
@@ -321,11 +321,11 @@ class BaseElasticSearch(BaseQueryRunner):
 
     def test_connection(self):
         try:
-            r = requests.get("{0}/_cluster/health".format(self.server_url), auth=self.auth)
+            r = requests.get(f"{self.server_url}/_cluster/health", auth=self.auth)
             r.raise_for_status()
         except requests.HTTPError as e:
             logger.exception(e)
-            raise Exception("Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text))
+            raise Exception(f"Failed to execute query. Return Code: {r.status_code}   Reason: {r.text}")
         except requests.exceptions.RequestException as e:
             logger.exception(e)
             raise Exception("Connection refused")
@@ -337,7 +337,7 @@ class Kibana(BaseElasticSearch):
         return True
 
     def _execute_simple_query(self, url, auth, _from, mappings, result_fields, result_columns, result_rows):
-        url += "&from={0}".format(_from)
+        url += f"&from={_from}"
         r = requests.get(url, auth=self.auth)
         r.raise_for_status()
 
@@ -347,7 +347,7 @@ class Kibana(BaseElasticSearch):
 
         total = raw_result["hits"]["total"]
         result_size = len(raw_result["hits"]["hits"])
-        logger.debug("Result Size: {0}  Total: {1}".format(result_size, total))
+        logger.debug(f"Result Size: {result_size}  Total: {total}")
 
         return raw_result["hits"]["total"]
 
@@ -369,20 +369,20 @@ class Kibana(BaseElasticSearch):
                 error = "Missing configuration key 'server'"
                 return None, error
 
-            url = "{0}/{1}/_search?".format(self.server_url, index_name)
-            mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
+            url = f"{self.server_url}/{index_name}/_search?"
+            mapping_url = f"{self.server_url}/{index_name}/_mapping"
 
             mappings, error = self._get_query_mappings(mapping_url)
             if error:
                 return None, error
 
             if sort:
-                url += "&sort={0}".format(urllib.parse.quote_plus(sort))
+                url += f"&sort={urllib.parse.quote_plus(sort)}"
 
-            url += "&q={0}".format(urllib.parse.quote_plus(query_data))
+            url += f"&q={urllib.parse.quote_plus(query_data)}"
 
-            logger.debug("Using URL: {0}".format(url))
-            logger.debug("Using Query: {0}".format(query_data))
+            logger.debug(f"Using URL: {url}")
+            logger.debug(f"Using Query: {query_data}")
 
             result_columns = []
             result_rows = []
@@ -391,7 +391,7 @@ class Kibana(BaseElasticSearch):
                 while True:
                     query_size = size if limit >= (_from + size) else (limit - _from)
                     self._execute_simple_query(
-                        url + "&size={0}".format(query_size),
+                        url + f"&size={query_size}",
                         self.auth,
                         _from,
                         mappings,
@@ -410,7 +410,7 @@ class Kibana(BaseElasticSearch):
         except requests.HTTPError as e:
             logger.exception(e)
             r = e.response
-            error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text)
+            error = f"Failed to execute query. Return Code: {r.status_code}   Reason: {r.text}"
             json_data = None
         except requests.exceptions.RequestException as e:
             logger.exception(e)
@@ -443,8 +443,8 @@ class ElasticSearch(BaseElasticSearch):
                 error = "Missing configuration key 'server'"
                 return None, error
 
-            url = "{0}/{1}/_search".format(self.server_url, index_name)
-            mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
+            url = f"{self.server_url}/{index_name}/_search"
+            mapping_url = f"{self.server_url}/{index_name}/_mapping"
 
             mappings, error = self._get_query_mappings(mapping_url)
             if error:
@@ -466,7 +466,7 @@ class ElasticSearch(BaseElasticSearch):
             raise
         except requests.HTTPError as e:
             logger.exception(e)
-            error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text)
+            error = f"Failed to execute query. Return Code: {r.status_code}   Reason: {r.text}"
             json_data = None
         except requests.exceptions.RequestException as e:
             logger.exception(e)

@@ -56,14 +56,14 @@ class TestDestinationListResource(BaseTestCase):
 class TestDestinationResource(BaseTestCase):
     def test_get(self):
         d = self.factory.create_destination()
-        rv = self.make_request("get", "/api/destinations/{}".format(d.id), user=self.factory.create_admin())
+        rv = self.make_request("get", f"/api/destinations/{d.id}", user=self.factory.create_admin())
         self.assertEqual(rv.status_code, 200)
 
     def test_delete(self):
         d = self.factory.create_destination()
         rv = self.make_request(
             "delete",
-            "/api/destinations/{}".format(d.id),
+            f"/api/destinations/{d.id}",
             user=self.factory.create_admin(),
         )
         self.assertEqual(rv.status_code, 204)
@@ -80,7 +80,7 @@ class TestDestinationResource(BaseTestCase):
         with self.app.app_context():
             rv = self.make_request(
                 "post",
-                "/api/destinations/{}".format(d.id),
+                f"/api/destinations/{d.id}",
                 user=self.factory.create_admin(),
                 data=data,
             )

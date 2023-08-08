@@ -82,7 +82,7 @@ class Exasol(BaseQueryRunner):
         }
 
     def _get_connection(self):
-        exahost = "%s:%s" % (
+        exahost = "{}:{}".format(
             self.configuration.get("host", None),
             self.configuration.get("port", 8563),
         )
@@ -134,7 +134,7 @@ class Exasol(BaseQueryRunner):
             result = {}
 
             for schema, table_name, column in statement:
-                table_name_with_schema = "%s.%s" % (schema, table_name)
+                table_name_with_schema = f"{schema}.{table_name}"
 
                 if table_name_with_schema not in result:
                     result[table_name_with_schema] = {

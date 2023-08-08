@@ -17,7 +17,7 @@ def set_google_apps_domains(domains):
     organization.settings[k] = domains.split(",")
     models.db.session.add(organization)
     models.db.session.commit()
-    print("Updated list of allowed domains to: {}".format(organization.google_apps_domains))
+    print(f"Updated list of allowed domains to: {organization.google_apps_domains}")
 
 
 @manager.command(name="show_google_apps_domains")
@@ -53,4 +53,4 @@ def list_command():
         if i > 0:
             print("-" * 20)
 
-        print("Id: {}\nName: {}\nSlug: {}".format(org.id, org.name, org.slug))
+        print(f"Id: {org.id}\nName: {org.name}\nSlug: {org.slug}")

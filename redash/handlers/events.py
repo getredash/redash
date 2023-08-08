@@ -44,7 +44,7 @@ def serialize_event(event):
     }
 
     if event.user_id:
-        d["user_name"] = event.additional_properties.get("user_name", "User {}".format(event.user_id))
+        d["user_name"] = event.additional_properties.get("user_name", f"User {event.user_id}")
 
     if not event.user_id:
         d["user_name"] = event.additional_properties.get("api_key", "Unknown")

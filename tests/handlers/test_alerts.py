@@ -6,7 +6,7 @@ class TestAlertResourceGet(BaseTestCase):
     def test_returns_200_if_allowed(self):
         alert = self.factory.create_alert()
 
-        rv = self.make_request("get", "/api/alerts/{}".format(alert.id))
+        rv = self.make_request("get", f"/api/alerts/{alert.id}")
         self.assertEqual(rv.status_code, 200)
 
     def test_returns_403_if_not_allowed(self):
@@ -14,7 +14,7 @@ class TestAlertResourceGet(BaseTestCase):
         query = self.factory.create_query(data_source=data_source)
         alert = self.factory.create_alert(query_rel=query)
         db.session.commit()
-        rv = self.make_request("get", "/api/alerts/{}".format(alert.id))
+        rv = self.make_request("get", f"/api/alerts/{alert.id}")
         self.assertEqual(rv.status_code, 403)
 
     def test_returns_404_if_admin_from_another_org(self):
@@ -25,7 +25,7 @@ class TestAlertResourceGet(BaseTestCase):
 
         rv = self.make_request(
             "get",
-            "/api/alerts/{}".format(alert.id),
+            f"/api/alerts/{alert.id}",
             org=second_org,
             user=second_org_admin,
         )
@@ -35,7 +35,7 @@ class TestAlertResourceGet(BaseTestCase):
 class TestAlertResourcePost(BaseTestCase):
     def test_updates_alert(self):
         alert = self.factory.create_alert()
-        rv = self.make_request("post", "/api/alerts/{}".format(alert.id), data={"name": "Testing"})
+        rv = self.make_request("post", f"/api/alerts/{alert.id}", data={"name": "Testing"})
         self.assertEqual(rv.status_code, 200)
 
 
@@ -44,7 +44,7 @@ class TestAlertResourceDelete(BaseTestCase):
         subscription = self.factory.create_alert_subscription()
         alert = subscription.alert
         db.session.commit()
-        rv = self.make_request("delete", "/api/alerts/{}".format(alert.id))
+        rv = self.make_request("delete", f"/api/alerts/{alert.id}")
         self.assertEqual(rv.status_code, 200)
 
         self.assertEqual(Alert.query.get(subscription.alert.id), None)
@@ -54,12 +54,12 @@ class TestAlertResourceDelete(BaseTestCase):
         alert = self.factory.create_alert()
 
         user = self.factory.create_user()
-        rv = self.make_request("delete", "/api/alerts/{}".format(alert.id), user=user)
+        rv = self.make_request("delete", f"/api/alerts/{alert.id}", user=user)
         self.assertEqual(rv.status_code, 403)
 
         rv = self.make_request(
             "delete",
-            "/api/alerts/{}".format(alert.id),
+            f"/api/alerts/{alert.id}",
             user=self.factory.create_admin(),
         )
         self.assertEqual(rv.status_code, 200)
@@ -69,7 +69,7 @@ class TestAlertResourceDelete(BaseTestCase):
 
         second_org = self.factory.create_org()
         second_org_admin = self.factory.create_admin(org=second_org)
-        rv = self.make_request("delete", "/api/alerts/{}".format(alert.id), user=second_org_admin)
+        rv = self.make_request("delete", f"/api/alerts/{alert.id}", user=second_org_admin)
         self.assertEqual(rv.status_code, 404)
 
 
@@ -142,7 +142,7 @@ class TestAlertSubscriptionListResourcePost(BaseTestCase):
 
         rv = self.make_request(
             "post",
-            "/api/alerts/{}/subscriptions".format(alert.id),
+            f"/api/alerts/{alert.id}/subscriptions",
             data=dict(destination_id=destination.id),
         )
         self.assertEqual(rv.status_code, 200)
@@ -156,7 +156,7 @@ class TestAlertSubscriptionListResourcePost(BaseTestCase):
 
         rv = self.make_request(
             "post",
-            "/api/alerts/{}/subscriptions".format(alert.id),
+            f"/api/alerts/{alert.id}/subscriptions",
             data=dict(destination_id=destination.id),
         )
         self.assertEqual(rv.status_code, 403)
@@ -167,7 +167,7 @@ class TestAlertSubscriptionListResourceGet(BaseTestCase):
     def test_returns_subscribers(self):
         alert = self.factory.create_alert()
 
-        rv = self.make_request("get", "/api/alerts/{}/subscriptions".format(alert.id))
+        rv = self.make_request("get", f"/api/alerts/{alert.id}/subscriptions")
         self.assertEqual(rv.status_code, 200)
 
     def test_doesnt_return_subscribers_when_not_allowed(self):
@@ -175,7 +175,7 @@ class TestAlertSubscriptionListResourceGet(BaseTestCase):
         query = self.factory.create_query(data_source=data_source)
         alert = self.factory.create_alert(query_rel=query)
 
-        rv = self.make_request("get", "/api/alerts/{}/subscriptions".format(alert.id))
+        rv = self.make_request("get", f"/api/alerts/{alert.id}/subscriptions")
         self.assertEqual(rv.status_code, 403)
 
 
@@ -184,7 +184,7 @@ class TestAlertSubscriptionresourceDelete(BaseTestCase):
         subscription = self.factory.create_alert_subscription()
         alert = subscription.alert
         user = subscription.user
-        path = "/api/alerts/{}/subscriptions/{}".format(alert.id, subscription.id)
+        path = f"/api/alerts/{alert.id}/subscriptions/{subscription.id}"
 
         other_user = self.factory.create_user()
 
@@ -198,6 +198,6 @@ class TestAlertSubscriptionresourceDelete(BaseTestCase):
         admin_user = self.factory.create_admin()
         db.session.add_all([subscription_two, admin_user])
         db.session.commit()
-        path = "/api/alerts/{}/subscriptions/{}".format(alert.id, subscription_two.id)
+        path = f"/api/alerts/{alert.id}/subscriptions/{subscription_two.id}"
         response = self.make_request("delete", path, user=admin_user)
         self.assertEqual(response.status_code, 200)

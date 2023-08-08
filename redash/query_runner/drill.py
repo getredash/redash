@@ -78,7 +78,7 @@ class Drill(BaseHTTPQueryRunner):
 
     @classmethod
     def configuration_schema(cls):
-        schema = super(Drill, cls).configuration_schema()
+        schema = super().configuration_schema()
         # Since Drill itself can act as aggregator of various datasources,
         # it can contain quite a lot of schemas in `INFORMATION_SCHEMA`
         # We added this to improve user experience and let users focus only on desired schemas.

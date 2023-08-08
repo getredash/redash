@@ -61,9 +61,9 @@ def run_query(query, parameters, data_source, query_id, should_apply_auto_limit,
 
     if data_source.paused:
         if data_source.pause_reason:
-            message = "{} is paused ({}). Please try later.".format(data_source.name, data_source.pause_reason)
+            message = f"{data_source.name} is paused ({data_source.pause_reason}). Please try later."
         else:
-            message = "{} is paused. Please try later.".format(data_source.name)
+            message = f"{data_source.name} is paused. Please try later."
 
         return error_response(message)
 
@@ -118,7 +118,7 @@ def get_download_filename(query_result, query, filetype):
         filename = to_filename(query.name) if query.name != "" else str(query.id)
     else:
         filename = str(query_result.id)
-    return "{}_{}.{}".format(filename, retrieved_at, filetype)
+    return f"{filename}_{retrieved_at}.{filetype}"
 
 
 def content_disposition_filenames(attachment_filename):
@@ -218,7 +218,7 @@ class QueryResultResource(BaseResource):
         if "Origin" in request.headers:
             origin = request.headers["Origin"]
 
-            if set(["*", origin]) & settings.ACCESS_CONTROL_ALLOW_ORIGIN:
+            if {"*", origin} & settings.ACCESS_CONTROL_ALLOW_ORIGIN:
                 headers["Access-Control-Allow-Origin"] = origin
                 headers["Access-Control-Allow-Credentials"] = str(settings.ACCESS_CONTROL_ALLOW_CREDENTIALS).lower()
 

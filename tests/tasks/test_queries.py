@@ -1,4 +1,5 @@
-from mock import Mock, patch
+from unittest.mock import Mock, patch
+
 from rq import Connection
 from rq.exceptions import NoSuchJobError
 

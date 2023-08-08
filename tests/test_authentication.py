@@ -3,12 +3,12 @@ import json
 import os
 import subprocess
 import time
+from unittest.mock import Mock, patch
 
 import jwcrypto.jwk
 import jwt
 import requests
 from flask import request
-from mock import Mock, patch
 from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models, settings
@@ -32,12 +32,12 @@ class TestApiKeyAuthentication(BaseTestCase):
     # This is a bad way to write these tests, but the way Flask works doesn't make it easy to write them properly...
     #
     def setUp(self):
-        super(TestApiKeyAuthentication, self).setUp()
+        super().setUp()
         self.api_key = "10"
         self.query = self.factory.create_query(api_key=self.api_key)
         models.db.session.flush()
-        self.query_url = "/{}/api/queries/{}".format(self.factory.org.slug, self.query.id)
-        self.queries_url = "/{}/api/queries".format(self.factory.org.slug)
+        self.query_url = f"/{self.factory.org.slug}/api/queries/{self.query.id}"
+        self.queries_url = f"/{self.factory.org.slug}/api/queries"
 
     def test_no_api_key(self):
         with self.app.test_client() as c:
@@ -76,7 +76,7 @@ class TestApiKeyAuthentication(BaseTestCase):
 
     def test_api_key_header(self):
         with self.app.test_client() as c:
-            c.get(self.query_url, headers={"Authorization": "Key {}".format(self.api_key)})
+            c.get(self.query_url, headers={"Authorization": f"Key {self.api_key}"})
             self.assertIsNotNone(api_key_load_user_from_request(request))
 
     def test_api_key_header_with_wrong_key(self):
@@ -90,7 +90,7 @@ class TestApiKeyAuthentication(BaseTestCase):
         with self.app.test_client() as c:
             rv = c.get(
                 self.query_url,
-                headers={"Authorization": "Key {}".format(other_user.api_key)},
+                headers={"Authorization": f"Key {other_user.api_key}"},
             )
             self.assertEqual(404, rv.status_code)
 
@@ -100,11 +100,11 @@ class TestHMACAuthentication(BaseTestCase):
     # This is a bad way to write these tests, but the way Flask works doesn't make it easy to write them properly...
     #
     def setUp(self):
-        super(TestHMACAuthentication, self).setUp()
+        super().setUp()
         self.api_key = "10"
         self.query = self.factory.create_query(api_key=self.api_key)
         models.db.session.flush()
-        self.path = "/{}/api/queries/{}".format(self.query.org.slug, self.query.id)
+        self.path = f"/{self.query.org.slug}/api/queries/{self.query.id}"
         self.expires = time.time() + 1800
 
     def signature(self, expires):
@@ -137,7 +137,7 @@ class TestHMACAuthentication(BaseTestCase):
     def test_no_query_id(self):
         with self.app.test_client() as c:
             c.get(
-                "/{}/api/queries".format(self.query.org.slug),
+                f"/{self.query.org.slug}/api/queries",
                 query_string={"api_key": self.api_key},
             )
             self.assertIsNone(hmac_load_user_from_request(request))
@@ -171,7 +171,7 @@ class TestSessionAuthentication(BaseTestCase):
 
         rv = self.make_request(
             "get",
-            "/api/queries/{}?api_key={}".format(query.id, query.api_key),
+            f"/api/queries/{query.id}?api_key={query.api_key}",
             user=other_user,
         )
         self.assertEqual(rv.status_code, 200)
@@ -240,17 +240,17 @@ class TestVerifyProfile(BaseTestCase):
 
 class TestGetLoginUrl(BaseTestCase):
     def test_when_multi_org_enabled_and_org_exists(self):
-        with self.app.test_request_context("/{}/".format(self.factory.org.slug)):
-            self.assertEqual(get_login_url(next=None), "/{}/login".format(self.factory.org.slug))
+        with self.app.test_request_context(f"/{self.factory.org.slug}/"):
+            self.assertEqual(get_login_url(next=None), f"/{self.factory.org.slug}/login")
 
     def test_when_multi_org_enabled_and_org_doesnt_exist(self):
-        with self.app.test_request_context("/{}_notexists/".format(self.factory.org.slug)):
+        with self.app.test_request_context(f"/{self.factory.org.slug}_notexists/"):
             self.assertEqual(get_login_url(next=None), "/")
 
 
 class TestRedirectToUrlAfterLoggingIn(BaseTestCase):
     def setUp(self):
-        super(TestRedirectToUrlAfterLoggingIn, self).setUp()
+        super().setUp()
         self.user = self.factory.user
         self.password = "test1234"
 
@@ -260,7 +260,7 @@ class TestRedirectToUrlAfterLoggingIn(BaseTestCase):
             data={"email": self.user.email, "password": self.password},
             org=self.factory.org,
         )
-        self.assertEqual(response.location, "/{}/".format(self.user.org.slug))
+        self.assertEqual(response.location, f"/{self.user.org.slug}/")
 
     def test_simple_path_in_next_param(self):
         response = self.post_request(
@@ -302,7 +302,7 @@ class TestRemoteUserAuth(BaseTestCase):
         # Apply default setting overrides to every test
         self.override_settings(None)
 
-        super(TestRemoteUserAuth, self).setUp()
+        super().setUp()
 
     def override_settings(self, overrides):
         """Override settings for testing purposes.
@@ -416,7 +416,7 @@ class TestUserForgotPassword(BaseTestCase):
 
 class TestJWTAuthentication(BaseTestCase):
     def setUp(self):
-        super(TestJWTAuthentication, self).setUp()
+        super().setUp()
         self.auth_audience = "My Org"
         self.auth_issuer = "Admin"
         self.token_name = "jwt-token"
@@ -430,7 +430,7 @@ class TestJWTAuthentication(BaseTestCase):
             )
 
         org_settings["auth_jwt_login_enabled"] = True
-        org_settings["auth_jwt_auth_public_certs_url"] = "file://{}".format(self.rsa_public_key)
+        org_settings["auth_jwt_auth_public_certs_url"] = f"file://{self.rsa_public_key}"
         org_settings["auth_jwt_auth_issuer"] = self.auth_issuer
         org_settings["auth_jwt_auth_audience"] = self.auth_audience
         org_settings["auth_jwt_auth_header_name"] = self.token_name

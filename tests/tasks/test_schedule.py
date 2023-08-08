@@ -1,6 +1,5 @@
 from unittest import TestCase
-
-from mock import patch
+from unittest.mock import patch
 
 from redash.tasks.schedule import rq_scheduler, schedule_periodic_jobs
 

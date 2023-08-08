@@ -1,6 +1,5 @@
 import datetime
-
-from mock import patch
+from unittest.mock import patch
 
 from redash.models import Query
 from redash.tasks import empty_schedules

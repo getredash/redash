@@ -67,7 +67,7 @@ class PostgreSQLJSONEncoder(JSONEncoder):
 
             return "".join(items)
 
-        return super(PostgreSQLJSONEncoder, self).default(o)
+        return super().default(o)
 
 
 def _wait(conn, timeout=None):
@@ -82,15 +82,15 @@ def _wait(conn, timeout=None):
                 select.select([conn.fileno()], [], [], timeout)
             else:
                 raise psycopg2.OperationalError("poll() returned %s" % state)
-        except select.error:
+        except OSError:
             raise psycopg2.OperationalError("select.error received")
 
 
 def full_table_name(schema, name):
     if "." in name:
-        name = '"{}"'.format(name)
+        name = f'"{name}"'
 
-    return "{}.{}".format(schema, name)
+    return f"{schema}.{name}"
 
 
 def build_schema(query_result, schema):
@@ -286,7 +286,7 @@ class PostgreSQL(BaseSQLQueryRunner):
             else:
                 error = "Query completed but it returned no data."
                 json_data = None
-        except (select.error, OSError):
+        except OSError:
             error = "Query interrupted. Please retry."
             json_data = None
         except psycopg2.DatabaseError as e:
@@ -366,7 +366,7 @@ class Redshift(PostgreSQL):
         }
 
     def annotate_query(self, query, metadata):
-        annotated = super(Redshift, self).annotate_query(query, metadata)
+        annotated = super().annotate_query(query, metadata)
 
         if metadata.get("Scheduled", False):
             query_group = self.configuration.get("scheduled_query_group")
@@ -374,8 +374,8 @@ class Redshift(PostgreSQL):
             query_group = self.configuration.get("adhoc_query_group")
 
         if query_group:
-            set_query_group = "set query_group to {};".format(query_group)
-            annotated = "{}\n{}".format(set_query_group, annotated)
+            set_query_group = f"set query_group to {query_group};"
+            annotated = f"{set_query_group}\n{annotated}"
 
         return annotated
 

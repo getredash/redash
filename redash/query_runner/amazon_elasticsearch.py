@@ -49,7 +49,7 @@ class AmazonElasticsearchService(ElasticSearch2):
         }
 
     def __init__(self, configuration):
-        super(AmazonElasticsearchService, self).__init__(configuration)
+        super().__init__(configuration)
 
         region = configuration["region"]
         cred = None

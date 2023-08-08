@@ -15,7 +15,7 @@ repo = "getredash/redash"
 
 def _github_request(method, path, params=None, headers={}):
     if urlparse(path).hostname != "api.github.com":
-        url = "https://api.github.com/{}".format(path)
+        url = f"https://api.github.com/{path}"
     else:
         url = path
 
@@ -31,12 +31,12 @@ def exception_from_error(message, response):
 
 
 def rc_tag_name(version):
-    return "v{}-rc".format(version)
+    return f"v{version}-rc"
 
 
 def get_rc_release(version):
     tag = rc_tag_name(version)
-    response = _github_request("get", "repos/{}/releases/tags/{}".format(repo, tag))
+    response = _github_request("get", f"repos/{repo}/releases/tags/{tag}")
 
     if response.status_code == 404:
         return None
@@ -51,12 +51,12 @@ def create_release(version, commit_sha):
 
     params = {
         "tag_name": tag,
-        "name": "{} - RC".format(version),
+        "name": f"{version} - RC",
         "target_commitish": commit_sha,
         "prerelease": True,
     }
 
-    response = _github_request("post", "repos/{}/releases".format(repo), params)
+    response = _github_request("post", f"repos/{repo}/releases", params)
 
     if response.status_code != 201:
         raise exception_from_error("Failed creating new release", response)
@@ -88,7 +88,7 @@ def remove_previous_builds(release):
 
 
 def get_changelog(commit_sha):
-    latest_release = _github_request("get", "repos/{}/releases/latest".format(repo))
+    latest_release = _github_request("get", f"repos/{repo}/releases/latest")
     if latest_release.status_code != 200:
         raise exception_from_error("Failed getting latest release", latest_release)
 
@@ -103,7 +103,7 @@ def get_changelog(commit_sha):
         "--grep",
         "Merge pull request",
         '--pretty=format:"%h|%s|%b|%p"',
-        "{}...{}".format(previous_sha, commit_sha),
+        f"{previous_sha}...{commit_sha}",
     ]
     log = subprocess.check_output(args)
     changes = ["Changes since {}:".format(latest_release["name"])]
@@ -116,13 +116,13 @@ def get_changelog(commit_sha):
 
         try:
             pull_request = re.match(r"Merge pull request #(\d+)", subject).groups()[0]
-            pull_request = " #{}".format(pull_request)
+            pull_request = f" #{pull_request}"
         except Exception:
             pull_request = ""
 
         author = subprocess.check_output(["git", "log", "-1", '--pretty=format:"%an"', parents.split(" ")[-1]])[1:-1]
 
-        changes.append("{}{}: {} ({})".format(sha, pull_request, body.strip(), author))
+        changes.append(f"{sha}{pull_request}: {body.strip()} ({author})")
 
     return "\n".join(changes)
 

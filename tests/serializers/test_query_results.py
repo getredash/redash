@@ -33,7 +33,7 @@ class QueryResultSerializationTest(BaseTestCase):
     def test_doesnt_serialize_sensitive_keys_for_unauthenticated_users(self):
         query_result = self.factory.create_query_result(data=json_dumps({}))
         serialized = serialize_query_result(query_result, True)
-        self.assertSetEqual(set(["data", "retrieved_at"]), set(serialized.keys()))
+        self.assertSetEqual({"data", "retrieved_at"}, set(serialized.keys()))
 
 
 class DsvSerializationTest(BaseTestCase):

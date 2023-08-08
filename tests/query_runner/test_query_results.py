@@ -1,7 +1,6 @@
 import sqlite3
-from unittest import TestCase
+from unittest import TestCase, mock
 
-import mock
 import pytest
 
 from redash.query_runner.query_results import (

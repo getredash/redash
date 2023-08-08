@@ -69,7 +69,7 @@ class ElasticSearch2(BaseHTTPQueryRunner):
         query = json_loads(query)
         index_name = query.pop("index", "")
         result_fields = query.pop("result_fields", None)
-        url = "/{}/_search".format(index_name)
+        url = f"/{index_name}/_search"
         return query, url, result_fields
 
     @classmethod

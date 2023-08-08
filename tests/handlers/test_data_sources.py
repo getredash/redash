@@ -9,7 +9,7 @@ class TestDataSourceGetSchema(BaseTestCase):
         other_user = self.factory.create_user(org=self.factory.create_org())
         response = self.make_request(
             "get",
-            "/api/data_sources/{}/schema".format(self.factory.data_source.id),
+            f"/api/data_sources/{self.factory.data_source.id}/schema",
             user=other_user,
         )
         self.assertEqual(response.status_code, 404)
@@ -17,7 +17,7 @@ class TestDataSourceGetSchema(BaseTestCase):
         other_admin = self.factory.create_admin(org=self.factory.create_org())
         response = self.make_request(
             "get",
-            "/api/data_sources/{}/schema".format(self.factory.data_source.id),
+            f"/api/data_sources/{self.factory.data_source.id}/schema",
             user=other_admin,
         )
         self.assertEqual(response.status_code, 404)
@@ -54,8 +54,8 @@ class DataSourceTypesTest(BaseTestCase):
 
 class TestDataSourceResourceGet(BaseTestCase):
     def setUp(self):
-        super(TestDataSourceResourceGet, self).setUp()
-        self.path = "/api/data_sources/{}".format(self.factory.data_source.id)
+        super().setUp()
+        self.path = f"/api/data_sources/{self.factory.data_source.id}"
 
     def test_returns_all_data_for_admins(self):
         admin = self.factory.create_admin()
@@ -69,7 +69,7 @@ class TestDataSourceResourceGet(BaseTestCase):
         data_source = self.factory.create_data_source(group=group, view_only=True)
         user = self.factory.create_user(group_ids=[group.id])
 
-        rv = self.make_request("get", "/api/data_sources/{}".format(data_source.id), user=user)
+        rv = self.make_request("get", f"/api/data_sources/{data_source.id}", user=user)
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(rv.json, {"view_only": True})
 
@@ -91,8 +91,8 @@ class TestDataSourceResourceGet(BaseTestCase):
 
 class TestDataSourceResourcePost(BaseTestCase):
     def setUp(self):
-        super(TestDataSourceResourcePost, self).setUp()
-        self.path = "/api/data_sources/{}".format(self.factory.data_source.id)
+        super().setUp()
+        self.path = f"/api/data_sources/{self.factory.data_source.id}"
 
     def test_returns_400_when_configuration_invalid(self):
         admin = self.factory.create_admin()
@@ -128,7 +128,7 @@ class TestDataSourceResourceDelete(BaseTestCase):
         data_source = self.factory.create_data_source()
         admin = self.factory.create_admin()
 
-        rv = self.make_request("delete", "/api/data_sources/{}".format(data_source.id), user=admin)
+        rv = self.make_request("delete", f"/api/data_sources/{data_source.id}", user=admin)
 
         self.assertEqual(204, rv.status_code)
         self.assertIsNone(DataSource.query.get(data_source.id))
@@ -174,7 +174,7 @@ class TestDataSourcePausePost(BaseTestCase):
         admin = self.factory.create_admin()
         rv = self.make_request(
             "post",
-            "/api/data_sources/{}/pause".format(self.factory.data_source.id),
+            f"/api/data_sources/{self.factory.data_source.id}/pause",
             user=admin,
         )
         self.assertEqual(rv.status_code, 200)
@@ -184,7 +184,7 @@ class TestDataSourcePausePost(BaseTestCase):
         admin = self.factory.create_admin()
         rv = self.make_request(
             "post",
-            "/api/data_sources/{}/pause".format(self.factory.data_source.id),
+            f"/api/data_sources/{self.factory.data_source.id}/pause",
             user=admin,
             data={"reason": "testing"},
         )
@@ -194,13 +194,13 @@ class TestDataSourcePausePost(BaseTestCase):
 
         rv = self.make_request(
             "post",
-            "/api/data_sources/{}/pause?reason=test".format(self.factory.data_source.id),
+            f"/api/data_sources/{self.factory.data_source.id}/pause?reason=test",
             user=admin,
         )
         self.assertEqual(DataSource.query.get(self.factory.data_source.id).pause_reason, "test")
 
     def test_requires_admin(self):
-        rv = self.make_request("post", "/api/data_sources/{}/pause".format(self.factory.data_source.id))
+        rv = self.make_request("post", f"/api/data_sources/{self.factory.data_source.id}/pause")
         self.assertEqual(rv.status_code, 403)
 
 
@@ -210,12 +210,12 @@ class TestDataSourcePauseDelete(BaseTestCase):
         self.factory.data_source.pause()
         rv = self.make_request(
             "delete",
-            "/api/data_sources/{}/pause".format(self.factory.data_source.id),
+            f"/api/data_sources/{self.factory.data_source.id}/pause",
             user=admin,
         )
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(DataSource.query.get(self.factory.data_source.id).paused, False)
 
     def test_requires_admin(self):
-        rv = self.make_request("delete", "/api/data_sources/{}/pause".format(self.factory.data_source.id))
+        rv = self.make_request("delete", f"/api/data_sources/{self.factory.data_source.id}/pause")
         self.assertEqual(rv.status_code, 403)

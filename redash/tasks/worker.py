@@ -41,7 +41,7 @@ class StatsdRecordingQueue(BaseQueue):
 
     def enqueue_job(self, *args, **kwargs):
         job = super().enqueue_job(*args, **kwargs)
-        statsd_client.incr("rq.jobs.created.{}".format(self.name))
+        statsd_client.incr(f"rq.jobs.created.{self.name}")
         return job
 
 
@@ -59,16 +59,16 @@ class StatsdRecordingWorker(BaseWorker):
     """
 
     def execute_job(self, job, queue):
-        statsd_client.incr("rq.jobs.running.{}".format(queue.name))
-        statsd_client.incr("rq.jobs.started.{}".format(queue.name))
+        statsd_client.incr(f"rq.jobs.running.{queue.name}")
+        statsd_client.incr(f"rq.jobs.started.{queue.name}")
         try:
             super().execute_job(job, queue)
         finally:
-            statsd_client.decr("rq.jobs.running.{}".format(queue.name))
+            statsd_client.decr(f"rq.jobs.running.{queue.name}")
             if job.get_status() == JobStatus.FINISHED:
-                statsd_client.incr("rq.jobs.finished.{}".format(queue.name))
+                statsd_client.incr(f"rq.jobs.finished.{queue.name}")
             else:
-                statsd_client.incr("rq.jobs.failed.{}".format(queue.name))
+                statsd_client.incr(f"rq.jobs.failed.{queue.name}")
 
 
 class HardLimitingWorker(BaseWorker):

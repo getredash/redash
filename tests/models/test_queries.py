@@ -1,6 +1,6 @@
 import datetime
+from unittest import mock
 
-import mock
 import pytest
 
 from redash.models import Event, Group, Query, QueryResult, db
@@ -417,7 +417,7 @@ class TestQueryFork(BaseTestCase):
 
 class TestQueryUpdateLatestResult(BaseTestCase):
     def setUp(self):
-        super(TestQueryUpdateLatestResult, self).setUp()
+        super().setUp()
         self.data_source = self.factory.data_source
         self.query = "SELECT 1"
         self.query_hash = gen_query_hash(self.query)

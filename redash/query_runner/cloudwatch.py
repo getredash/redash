@@ -75,7 +75,7 @@ class CloudWatch(BaseQueryRunner):
         return enabled
 
     def __init__(self, configuration):
-        super(CloudWatch, self).__init__(configuration)
+        super().__init__(configuration)
         self.syntax = "yaml"
 
     def test_connection(self):

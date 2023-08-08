@@ -27,7 +27,7 @@ class Sqlite(BaseSQLQueryRunner):
         return "sqlite"
 
     def __init__(self, configuration):
-        super(Sqlite, self).__init__(configuration)
+        super().__init__(configuration)
 
         self._dbpath = self.configuration["dbpath"]
 

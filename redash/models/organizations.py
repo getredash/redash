@@ -24,7 +24,7 @@ class Organization(TimestampMixin, db.Model):
     __tablename__ = "organizations"
 
     def __str__(self):
-        return "%s (%s)" % (self.name, self.id)
+        return f"{self.name} ({self.id})"
 
     @classmethod
     def get_by_slug(cls, slug):

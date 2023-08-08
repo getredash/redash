@@ -16,7 +16,7 @@ def configure_webpack(app):
             try:
                 with open(WEBPACK_MANIFEST_PATH) as fp:
                     assets = simplejson.load(fp)
-            except IOError:
+            except OSError:
                 app.logger.exception("Unable to load webpack manifest")
                 assets = {}
             app.extensions["webpack"]["assets"] = assets

@@ -11,7 +11,7 @@ class TestGroupDataSourceListResource(BaseTestCase):
         db.session.flush()
         response = self.make_request(
             "get",
-            "/api/groups/{}/data_sources".format(group.id),
+            f"/api/groups/{group.id}/data_sources",
             user=self.factory.create_admin(),
         )
         self.assertEqual(response.status_code, 404)
@@ -22,7 +22,7 @@ class TestGroupDataSourceListResource(BaseTestCase):
         db.session.flush()
         response = self.make_request(
             "get",
-            "/api/groups/{}/data_sources".format(group.id),
+            f"/api/groups/{group.id}/data_sources",
             user=self.factory.create_admin(),
         )
         self.assertEqual(response.status_code, 200)
@@ -67,7 +67,7 @@ class TestGroupResourcePost(BaseTestCase):
 
         response = self.make_request(
             "post",
-            "/api/groups/{}".format(self.factory.default_group.id),
+            f"/api/groups/{self.factory.default_group.id}",
             user=self.factory.create_admin(),
             data={"name": "Another Name"},
         )
@@ -80,12 +80,12 @@ class TestGroupResourceDelete(BaseTestCase):
     def test_allowed_only_to_admin(self):
         group = self.factory.create_group()
 
-        response = self.make_request("delete", "/api/groups/{}".format(group.id))
+        response = self.make_request("delete", f"/api/groups/{group.id}")
         self.assertEqual(response.status_code, 403)
 
         response = self.make_request(
             "delete",
-            "/api/groups/{}".format(group.id),
+            f"/api/groups/{group.id}",
             user=self.factory.create_admin(),
         )
         self.assertEqual(response.status_code, 200)
@@ -95,7 +95,7 @@ class TestGroupResourceDelete(BaseTestCase):
         for group in [self.factory.default_group, self.factory.admin_group]:
             response = self.make_request(
                 "delete",
-                "/api/groups/{}".format(group.id),
+                f"/api/groups/{group.id}",
                 user=self.factory.create_admin(),
             )
             self.assertEqual(response.status_code, 400)
@@ -106,7 +106,7 @@ class TestGroupResourceDelete(BaseTestCase):
 
         response = self.make_request(
             "delete",
-            "/api/groups/{}".format(group.id),
+            f"/api/groups/{group.id}",
             user=self.factory.create_admin(),
         )
 
@@ -117,9 +117,9 @@ class TestGroupResourceDelete(BaseTestCase):
 
 class TestGroupResourceGet(BaseTestCase):
     def test_returns_group(self):
-        rv = self.make_request("get", "/api/groups/{}".format(self.factory.default_group.id))
+        rv = self.make_request("get", f"/api/groups/{self.factory.default_group.id}")
         self.assertEqual(rv.status_code, 200)
 
     def test_doesnt_return_if_user_not_member_or_admin(self):
-        rv = self.make_request("get", "/api/groups/{}".format(self.factory.admin_group.id))
+        rv = self.make_request("get", f"/api/groups/{self.factory.admin_group.id}")
         self.assertEqual(rv.status_code, 403)

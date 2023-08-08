@@ -44,7 +44,7 @@ TYPE_STRING = "string"
 TYPE_DATETIME = "datetime"
 TYPE_DATE = "date"
 
-SUPPORTED_COLUMN_TYPES = set([TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN, TYPE_STRING, TYPE_DATETIME, TYPE_DATE])
+SUPPORTED_COLUMN_TYPES = {TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN, TYPE_STRING, TYPE_DATETIME, TYPE_DATE}
 
 
 def split_sql_statements(query):
@@ -113,7 +113,7 @@ class NotSupported(Exception):
     pass
 
 
-class BaseQueryRunner(object):
+class BaseQueryRunner:
     deprecated = False
     should_annotate_query = True
     noop_query = None
@@ -196,8 +196,8 @@ class BaseQueryRunner(object):
         if not self.should_annotate_query:
             return query
 
-        annotation = ", ".join(["{}: {}".format(k, v) for k, v in metadata.items()])
-        annotated_query = "/* {} */ {}".format(annotation, query)
+        annotation = ", ".join([f"{k}: {v}" for k, v in metadata.items()])
+        annotated_query = f"/* {annotation} */ {query}"
         return annotated_query
 
     def test_connection(self):
@@ -219,7 +219,7 @@ class BaseQueryRunner(object):
         for col in columns:
             column_name = col[0]
             if column_name in column_names:
-                column_name = "{}{}".format(column_name, duplicates_counter)
+                column_name = f"{column_name}{duplicates_counter}"
                 duplicates_counter += 1
 
             column_names.add(column_name)
@@ -377,7 +377,7 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
 
             # Any other responses (e.g. 2xx and 3xx):
             if response.status_code != 200:
-                error = "{} ({}).".format(self.response_error, response.status_code)
+                error = f"{self.response_error} ({response.status_code})."
 
         except requests_or_advocate.HTTPError as exc:
             logger.exception(exc)
@@ -494,7 +494,7 @@ def with_ssh_tunnel(query_runner, details):
                 }
                 server = stack.enter_context(open_tunnel(bastion_address, remote_bind_address=remote_address, **auth))
             except Exception as error:
-                raise type(error)("SSH tunnel: {}".format(str(error)))
+                raise type(error)(f"SSH tunnel: {str(error)}")
 
             with stack:
                 try:

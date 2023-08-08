@@ -86,7 +86,7 @@ def get_formatted_value(column_type, value):
         elif len(value) == 12:
             value = datetime.strptime(value, "%Y%m%d%H%M")
         else:
-            raise Exception("Unknown date/time format in results: '{}'".format(value))
+            raise Exception(f"Unknown date/time format in results: '{value}'")
     return value
 
 
@@ -118,7 +118,7 @@ class GoogleSearchConsole(BaseSQLQueryRunner):
         }
 
     def __init__(self, configuration):
-        super(GoogleSearchConsole, self).__init__(configuration)
+        super().__init__(configuration)
         self.syntax = "json"
 
     def _get_search_service(self):

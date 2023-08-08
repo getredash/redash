@@ -63,7 +63,7 @@ class Pinot(BaseQueryRunner):
         return enabled
 
     def __init__(self, configuration):
-        super(Pinot, self).__init__(configuration)
+        super().__init__(configuration)
         self.controller_uri = self.configuration.get("controllerURI")
         self.username = self.configuration.get("username") or None
         self.password = self.configuration.get("password") or None
@@ -103,7 +103,7 @@ class Pinot(BaseQueryRunner):
         schema = {}
         for schema_name in self.get_schema_names():
             for table_name in self.get_table_names():
-                schema_table_name = "{}.{}".format(schema_name, table_name)
+                schema_table_name = f"{schema_name}.{table_name}"
                 if table_name not in schema:
                     schema[schema_table_name] = {"name": schema_table_name, "columns": []}
                 table_schema = self.get_pinot_table_schema(table_name)

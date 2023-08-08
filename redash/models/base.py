@@ -15,10 +15,10 @@ class RedashSQLAlchemy(SQLAlchemy):
         options.update(json_serializer=json_dumps)
         if settings.SQLALCHEMY_ENABLE_POOL_PRE_PING:
             options.update(pool_pre_ping=True)
-        return super(RedashSQLAlchemy, self).apply_driver_hacks(app, info, options)
+        return super().apply_driver_hacks(app, info, options)
 
     def apply_pool_defaults(self, app, options):
-        super(RedashSQLAlchemy, self).apply_pool_defaults(app, options)
+        super().apply_pool_defaults(app, options)
         if settings.SQLALCHEMY_ENABLE_POOL_PRE_PING:
             options["pool_pre_ping"] = True
         if settings.SQLALCHEMY_DISABLE_POOL:
@@ -68,7 +68,7 @@ def gfk_type(cls):
     return cls
 
 
-class GFKBase(object):
+class GFKBase:
     """
     Compatibility with 'generic foreign key' approach Peewee used.
     """

@@ -95,7 +95,7 @@ def create(
     """
     Create user EMAIL with display name NAME.
     """
-    print("Creating user (%s, %s) in organization %s..." % (email, name, organization))
+    print(f"Creating user ({email}, {name}) in organization {organization}...")
     print("Admin: %r" % is_admin)
     print("Login with Google Auth: %r\n" % google_auth)
 
@@ -142,7 +142,7 @@ def create_root(email, name, google_auth=False, password=None, organization="def
     """
     Create root user.
     """
-    print("Creating root user (%s, %s) in organization %s..." % (email, name, organization))
+    print(f"Creating root user ({email}, {name}) in organization {organization}...")
     print("Login with Google Auth: %r\n" % google_auth)
 
     user = models.User.query.filter(models.User.email == email).first()
@@ -268,7 +268,7 @@ def invite(email, name, inviter_email, groups, is_admin=False, organization="def
         try:
             models.db.session.commit()
             invite_user(org, user_from, user)
-            print("An invitation was sent to [%s] at [%s]." % (name, email))
+            print(f"An invitation was sent to [{name}] at [{email}].")
         except IntegrityError as e:
             if "email" in str(e):
                 print("Cannot invite. User already exists [%s]" % email)

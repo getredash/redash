@@ -24,7 +24,7 @@ class TestDashboardListGetResource(BaseTestCase):
         rv = self.make_request("get", "/api/dashboards")
 
         assert len(rv.json["results"]) == 3
-        assert set([result["id"] for result in rv.json["results"]]) == set([d1.id, d2.id, d3.id])
+        assert {result["id"] for result in rv.json["results"]} == {d1.id, d2.id, d3.id}
 
     def test_filters_with_tags(self):
         d1 = self.factory.create_dashboard(tags=["test"])
@@ -33,7 +33,7 @@ class TestDashboardListGetResource(BaseTestCase):
 
         rv = self.make_request("get", "/api/dashboards?tags=test")
         assert len(rv.json["results"]) == 1
-        assert set([result["id"] for result in rv.json["results"]]) == set([d1.id])
+        assert {result["id"] for result in rv.json["results"]} == {d1.id}
 
     def test_search_term(self):
         d1 = self.factory.create_dashboard(name="Sales")
@@ -42,13 +42,13 @@ class TestDashboardListGetResource(BaseTestCase):
 
         rv = self.make_request("get", "/api/dashboards?q=sales")
         assert len(rv.json["results"]) == 2
-        assert set([result["id"] for result in rv.json["results"]]) == set([d1.id, d2.id])
+        assert {result["id"] for result in rv.json["results"]} == {d1.id, d2.id}
 
 
 class TestDashboardResourceGet(BaseTestCase):
     def test_get_dashboard(self):
         d1 = self.factory.create_dashboard()
-        rv = self.make_request("get", "/api/dashboards/{0}".format(d1.id))
+        rv = self.make_request("get", f"/api/dashboards/{d1.id}")
         self.assertEqual(rv.status_code, 200)
 
         expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
@@ -58,7 +58,7 @@ class TestDashboardResourceGet(BaseTestCase):
 
     def test_get_dashboard_with_slug(self):
         d1 = self.factory.create_dashboard()
-        rv = self.make_request("get", "/api/dashboards/{0}?legacy".format(d1.slug))
+        rv = self.make_request("get", f"/api/dashboards/{d1.slug}?legacy")
         self.assertEqual(rv.status_code, 200)
 
         expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
@@ -74,10 +74,10 @@ class TestDashboardResourceGet(BaseTestCase):
         vis = self.factory.create_visualization(query_rel=query)
         restricted_widget = self.factory.create_widget(visualization=vis, dashboard=dashboard)
         widget = self.factory.create_widget(dashboard=dashboard)
-        dashboard.layout = "[[{}, {}]]".format(widget.id, restricted_widget.id)
+        dashboard.layout = f"[[{widget.id}, {restricted_widget.id}]]"
         db.session.commit()
 
-        rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.id))
+        rv = self.make_request("get", f"/api/dashboards/{dashboard.id}")
         self.assertEqual(rv.status_code, 200)
         self.assertTrue(rv.json["widgets"][0]["restricted"])
         self.assertNotIn("restricted", rv.json["widgets"][1])
@@ -93,7 +93,7 @@ class TestDashboardResourcePost(BaseTestCase):
         new_name = "New Name"
         rv = self.make_request(
             "post",
-            "/api/dashboards/{0}".format(d.id),
+            f"/api/dashboards/{d.id}",
             data={"name": new_name, "layout": "[]"},
         )
         self.assertEqual(rv.status_code, 200)
@@ -106,7 +106,7 @@ class TestDashboardResourcePost(BaseTestCase):
         new_name = "New Name"
         rv = self.make_request(
             "post",
-            "/api/dashboards/{0}".format(d.id),
+            f"/api/dashboards/{d.id}",
             data={"name": new_name, "layout": "[]", "version": d.version - 1},
         )
 
@@ -119,7 +119,7 @@ class TestDashboardResourcePost(BaseTestCase):
         new_name = "New Name"
         rv = self.make_request(
             "post",
-            "/api/dashboards/{0}".format(d.id),
+            f"/api/dashboards/{d.id}",
             data={"name": new_name, "layout": "[]"},
         )
 
@@ -132,7 +132,7 @@ class TestDashboardResourcePost(BaseTestCase):
         new_name = "New Name"
         rv = self.make_request(
             "post",
-            "/api/dashboards/{0}".format(d.id),
+            f"/api/dashboards/{d.id}",
             data={"name": new_name, "layout": "[]", "version": d.version},
             user=user,
         )
@@ -142,7 +142,7 @@ class TestDashboardResourcePost(BaseTestCase):
 
         rv = self.make_request(
             "post",
-            "/api/dashboards/{0}".format(d.id),
+            f"/api/dashboards/{d.id}",
             data={"name": new_name, "layout": "[]", "version": d.version},
             user=user,
         )
@@ -155,7 +155,7 @@ class TestDashboardResourceDelete(BaseTestCase):
     def test_delete_dashboard(self):
         d = self.factory.create_dashboard()
 
-        rv = self.make_request("delete", "/api/dashboards/{0}".format(d.id))
+        rv = self.make_request("delete", f"/api/dashboards/{d.id}")
         self.assertEqual(rv.status_code, 200)
 
         d = Dashboard.get_by_id_and_org(d.id, d.org)
@@ -166,7 +166,7 @@ class TestDashboardShareResourcePost(BaseTestCase):
     def test_creates_api_key(self):
         dashboard = self.factory.create_dashboard()
 
-        res = self.make_request("post", "/api/dashboards/{}/share".format(dashboard.id))
+        res = self.make_request("post", f"/api/dashboards/{dashboard.id}/share")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.json["api_key"], ApiKey.get_by_object(dashboard).api_key)
 
@@ -174,12 +174,12 @@ class TestDashboardShareResourcePost(BaseTestCase):
         dashboard = self.factory.create_dashboard()
         user = self.factory.create_user()
 
-        res = self.make_request("post", "/api/dashboards/{}/share".format(dashboard.id), user=user)
+        res = self.make_request("post", f"/api/dashboards/{dashboard.id}/share", user=user)
         self.assertEqual(res.status_code, 403)
 
         user.group_ids.append(self.factory.org.admin_group.id)
 
-        res = self.make_request("post", "/api/dashboards/{}/share".format(dashboard.id), user=user)
+        res = self.make_request("post", f"/api/dashboards/{dashboard.id}/share", user=user)
         self.assertEqual(res.status_code, 200)
 
 
@@ -188,24 +188,24 @@ class TestDashboardShareResourceDelete(BaseTestCase):
         dashboard = self.factory.create_dashboard()
         ApiKey.create_for_object(dashboard, self.factory.user)
 
-        res = self.make_request("delete", "/api/dashboards/{}/share".format(dashboard.id))
+        res = self.make_request("delete", f"/api/dashboards/{dashboard.id}/share")
         self.assertEqual(res.status_code, 200)
         self.assertIsNone(ApiKey.get_by_object(dashboard))
 
     def test_ignores_when_no_api_key_exists(self):
         dashboard = self.factory.create_dashboard()
 
-        res = self.make_request("delete", "/api/dashboards/{}/share".format(dashboard.id))
+        res = self.make_request("delete", f"/api/dashboards/{dashboard.id}/share")
         self.assertEqual(res.status_code, 200)
 
     def test_requires_admin_or_owner(self):
         dashboard = self.factory.create_dashboard()
         user = self.factory.create_user()
 
-        res = self.make_request("delete", "/api/dashboards/{}/share".format(dashboard.id), user=user)
+        res = self.make_request("delete", f"/api/dashboards/{dashboard.id}/share", user=user)
         self.assertEqual(res.status_code, 403)
 
         user.group_ids.append(self.factory.org.admin_group.id)
 
-        res = self.make_request("delete", "/api/dashboards/{}/share".format(dashboard.id), user=user)
+        res = self.make_request("delete", f"/api/dashboards/{dashboard.id}/share", user=user)
         self.assertEqual(res.status_code, 200)

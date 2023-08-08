@@ -48,7 +48,7 @@ class Mattermost(BaseDestination):
             logging.warning(resp.text)
 
             if resp.status_code != 200:
-                logging.error("Mattermost webhook send ERROR. status_code => {status}".format(status=resp.status_code))
+                logging.error(f"Mattermost webhook send ERROR. status_code => {resp.status_code}")
         except Exception:
             logging.exception("Mattermost webhook send ERROR.")
 

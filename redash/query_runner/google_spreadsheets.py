@@ -41,10 +41,10 @@ def _get_columns_and_column_names(row):
 
     for i, column_name in enumerate(row):
         if not column_name:
-            column_name = "column_{}".format(xl_col_to_name(i))
+            column_name = f"column_{xl_col_to_name(i)}"
 
         if column_name in column_names:
-            column_name = "{}{}".format(column_name, duplicate_counter)
+            column_name = f"{column_name}{duplicate_counter}"
             duplicate_counter += 1
 
         column_names.append(column_name)
@@ -85,7 +85,7 @@ class WorksheetNotFoundError(Exception):
         message = "Worksheet number {} not found. Spreadsheet has {} worksheets. Note that the worksheet count is zero based.".format(
             worksheet_num, worksheet_count
         )
-        super(WorksheetNotFoundError, self).__init__(message)
+        super().__init__(message)
 
 
 def parse_query(query):
@@ -144,14 +144,14 @@ def parse_api_error(error):
 class TimeoutSession(Session):
     def request(self, *args, **kwargs):
         kwargs.setdefault("timeout", 300)
-        return super(TimeoutSession, self).request(*args, **kwargs)
+        return super().request(*args, **kwargs)
 
 
 class GoogleSpreadsheet(BaseQueryRunner):
     should_annotate_query = False
 
     def __init__(self, configuration):
-        super(GoogleSpreadsheet, self).__init__(configuration)
+        super().__init__(configuration)
         self.syntax = "custom"
 
     @classmethod
@@ -214,7 +214,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
         except gspread.SpreadsheetNotFound:
             return (
                 None,
-                "Spreadsheet ({}) not found. Make sure you used correct id.".format(key),
+                f"Spreadsheet ({key}) not found. Make sure you used correct id.",
             )
         except APIError as e:
             return None, parse_api_error(e)

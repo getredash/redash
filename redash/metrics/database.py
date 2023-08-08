@@ -48,7 +48,7 @@ def after_execute(conn, elt, multiparams, params, result):
 
     action = action.lower()
 
-    statsd_client.timing("db.{}.{}".format(name, action), duration)
+    statsd_client.timing(f"db.{name}.{action}", duration)
     metrics_logger.debug("table=%s query=%s duration=%.2f", name, action, duration)
 
     if has_request_context():

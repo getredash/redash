@@ -154,7 +154,7 @@ def remove_ghost_locks():
             redis_connection.delete(lock)
             count += 1
 
-    logger.info("Locks found: {}, Locks removed: {}".format(len(locks), count))
+    logger.info(f"Locks found: {len(locks)}, Locks removed: {count}")
 
 
 @job("schemas")

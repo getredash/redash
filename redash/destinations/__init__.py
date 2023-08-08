@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 __all__ = ["BaseDestination", "register", "get_destination", "import_destinations"]
 
 
-class BaseDestination(object):
+class BaseDestination:
     deprecated = False
 
     def __init__(self, configuration):

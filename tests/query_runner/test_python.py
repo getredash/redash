@@ -1,7 +1,5 @@
 from datetime import datetime
-from unittest import TestCase
-
-import mock
+from unittest import TestCase, mock
 
 from redash.query_runner.python import Python
 

@@ -125,7 +125,7 @@ class Prometheus(BaseQueryRunner):
             error = None
             query = query.strip()
             # for backward compatibility
-            query = "query={}".format(query) if not query.startswith("query=") else query
+            query = f"query={query}" if not query.startswith("query=") else query
 
             payload = parse_qs(query)
             query_type = "query_range" if "step" in payload.keys() else "query"
@@ -137,7 +137,7 @@ class Prometheus(BaseQueryRunner):
 
             convert_query_range(payload)
 
-            api_endpoint = base_url + "/api/v1/{}".format(query_type)
+            api_endpoint = base_url + f"/api/v1/{query_type}"
 
             response = requests.get(api_endpoint, params=payload)
             response.raise_for_status()

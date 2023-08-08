@@ -1,7 +1,6 @@
 import datetime
 from unittest import TestCase
-
-from mock import MagicMock
+from unittest.mock import MagicMock
 
 from redash.query_runner import TYPE_DATETIME, TYPE_FLOAT
 from redash.query_runner.google_spreadsheets import (

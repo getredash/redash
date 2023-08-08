@@ -20,7 +20,7 @@ TIMEOUT_MESSAGE = "Query exceeded Redash query execution time limit."
 
 
 def _job_lock_id(query_hash, data_source_id):
-    return "query_hash_job:%s:%s" % (data_source_id, query_hash)
+    return f"query_hash_job:{data_source_id}:{query_hash}"
 
 
 def _unlock(query_hash, data_source_id):
@@ -143,7 +143,7 @@ def _resolve_user(user_id, is_api_key, query_id):
         return None
 
 
-class QueryExecutor(object):
+class QueryExecutor:
     def __init__(self, query, data_source_id, user_id, is_api_key, metadata, is_scheduled_query):
         self.job = get_current_job()
         self.query = query

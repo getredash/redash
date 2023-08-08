@@ -16,8 +16,6 @@ from redash.utils import json_dumps, json_loads
 logger = logging.getLogger(__name__)
 
 try:
-    import select
-
     import ibm_db_dbi
 
     types_map = {
@@ -134,7 +132,7 @@ class DB2(BaseSQLQueryRunner):
             else:
                 error = "Query completed but it returned no data."
                 json_data = None
-        except (select.error, OSError):
+        except OSError:
             error = "Query interrupted. Please retry."
             json_data = None
         except ibm_db_dbi.DatabaseError as e:

@@ -49,7 +49,7 @@ def format_column_value(column_name, value, columns):
         elif len(value) == 12:
             value = datetime.datetime.strptime(value, "%Y%m%d%H%M")
         else:
-            raise Exception("Unknown date/time format in results: '{}'".format(value))
+            raise Exception(f"Unknown date/time format in results: '{value}'")
 
     return value
 

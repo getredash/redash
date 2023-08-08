@@ -50,7 +50,7 @@ def add_decode_responses_to_redis_url(url):
 
     query = "decode_responses=True"
     if parsed.query and "decode_responses" not in parsed.query:
-        query = "{}&{}".format(parsed.query, query)
+        query = f"{parsed.query}&{query}"
     elif "decode_responses" in parsed.query:
         query = parsed.query
 

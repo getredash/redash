@@ -92,9 +92,9 @@ class Snowflake(BaseSQLQueryRunner):
             host = self.configuration.get("host")
         else:
             if region:
-                host = "{}.{}.snowflakecomputing.com".format(account, region)
+                host = f"{account}.{region}.snowflakecomputing.com"
             else:
-                host = "{}.snowflakecomputing.com".format(account)
+                host = f"{account}.snowflakecomputing.com"
 
         connection = snowflake.connector.connect(
             user=self.configuration["user"],

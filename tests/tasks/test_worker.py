@@ -1,4 +1,5 @@
-from mock import call, patch
+from unittest.mock import call, patch
+
 from rq import Connection
 from rq.job import JobStatus
 

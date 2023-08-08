@@ -26,12 +26,12 @@ class Slack(BaseDestination):
         fields = [
             {
                 "title": "Query",
-                "value": "{host}/queries/{query_id}".format(host=host, query_id=query.id),
+                "value": f"{host}/queries/{query.id}",
                 "short": True,
             },
             {
                 "title": "Alert",
-                "value": "{host}/alerts/{alert_id}".format(host=host, alert_id=alert.id),
+                "value": f"{host}/alerts/{alert.id}",
                 "short": True,
             },
         ]
@@ -53,7 +53,7 @@ class Slack(BaseDestination):
             resp = requests.post(options.get("url"), data=json_dumps(payload), timeout=5.0)
             logging.warning(resp.text)
             if resp.status_code != 200:
-                logging.error("Slack send ERROR. status_code => {status}".format(status=resp.status_code))
+                logging.error(f"Slack send ERROR. status_code => {resp.status_code}")
         except Exception:
             logging.exception("Slack send ERROR.")
 

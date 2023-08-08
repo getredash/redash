@@ -40,8 +40,8 @@ class ChatWork(BaseDestination):
             if alert.custom_body:
                 message += alert.custom_body
             else:
-                alert_url = "{host}/alerts/{alert_id}".format(host=host, alert_id=alert.id)
-                query_url = "{host}/queries/{query_id}".format(host=host, query_id=query.id)
+                alert_url = f"{host}/alerts/{alert.id}"
+                query_url = f"{host}/queries/{query.id}"
                 message_template = options.get("message_template", ChatWork.ALERTS_DEFAULT_MESSAGE_TEMPLATE)
                 message += message_template.replace("\\n", "\n").format(
                     alert_name=alert.name,
@@ -56,7 +56,7 @@ class ChatWork(BaseDestination):
             resp = requests.post(url, headers=headers, data=payload, timeout=5.0)
             logging.warning(resp.text)
             if resp.status_code != 200:
-                logging.error("ChatWork send ERROR. status_code => {status}".format(status=resp.status_code))
+                logging.error(f"ChatWork send ERROR. status_code => {resp.status_code}")
         except Exception:
             logging.exception("ChatWork send ERROR.")
 

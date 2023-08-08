@@ -16,13 +16,13 @@ def reduce_item(reduced_item, key, value):
     # Reduction Condition 1
     if type(value) is list:
         for i, sub_item in enumerate(value):
-            reduce_item(reduced_item, "{}.{}".format(key, i), sub_item)
+            reduce_item(reduced_item, f"{key}.{i}", sub_item)
 
     # Reduction Condition 2
     elif type(value) is dict:
         sub_keys = value.keys()
         for sub_key in sub_keys:
-            reduce_item(reduced_item, "{}.{}".format(key, sub_key), value[sub_key])
+            reduce_item(reduced_item, f"{key}.{sub_key}", value[sub_key])
 
     # Base Condition
     else:

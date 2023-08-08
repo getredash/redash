@@ -1,5 +1,6 @@
+from unittest import mock
+
 import dateutil
-import mock
 from freezegun import freeze_time
 
 from redash import redis_connection, settings
@@ -13,7 +14,7 @@ from tests import BaseTestCase
 
 class TestSendAggregatedErrorsTask(BaseTestCase):
     def setUp(self):
-        super(TestSendAggregatedErrorsTask, self).setUp()
+        super().setUp()
         redis_connection.flushall()
         self.factory.org.set_setting("send_email_on_failed_scheduled_queries", True)
 

@@ -23,12 +23,10 @@ class Configuration(TypeDecorator):
 
 class EncryptedConfiguration(EncryptedType):
     def process_bind_param(self, value, dialect):
-        return super(EncryptedConfiguration, self).process_bind_param(value.to_json(), dialect)
+        return super().process_bind_param(value.to_json(), dialect)
 
     def process_result_value(self, value, dialect):
-        return ConfigurationContainer.from_json(
-            super(EncryptedConfiguration, self).process_result_value(value, dialect)
-        )
+        return ConfigurationContainer.from_json(super().process_result_value(value, dialect))
 
 
 # XXX replace PseudoJSON and MutableDict with real JSON field
@@ -101,11 +99,11 @@ class json_cast_property(index_property):
     """
 
     def __init__(self, cast_type, *args, **kwargs):
-        super(json_cast_property, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.cast_type = cast_type
 
     def expr(self, model):
-        expr = super(json_cast_property, self).expr(model)
+        expr = super().expr(model)
         return expr.astext.cast(self.cast_type)
 
 

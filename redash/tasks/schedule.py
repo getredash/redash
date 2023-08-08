@@ -95,7 +95,7 @@ def schedule_periodic_jobs(jobs):
     job_definitions = [prep(job) for job in jobs]
 
     jobs_to_clean_up = Job.fetch_many(
-        set([job.id for job in rq_scheduler.get_jobs()]) - set([job_id(job) for job in job_definitions]),
+        {job.id for job in rq_scheduler.get_jobs()} - {job_id(job) for job in job_definitions},
         rq_redis_connection,
     )
 

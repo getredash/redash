@@ -73,7 +73,7 @@ def verify_jwt_token(jwt_token, expected_issuer, expected_audience, algorithms, 
             payload = jwt.decode(jwt_token, key=key, audience=expected_audience, algorithms=algorithms)
             issuer = payload["iss"]
             if issuer != expected_issuer:
-                raise Exception("Wrong issuer: {}".format(issuer))
+                raise Exception(f"Wrong issuer: {issuer}")
             valid_token = True
             break
         except Exception as e:

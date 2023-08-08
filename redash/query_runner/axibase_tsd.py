@@ -129,8 +129,8 @@ class AxibaseTSD(BaseQueryRunner):
         }
 
     def __init__(self, configuration):
-        super(AxibaseTSD, self).__init__(configuration)
-        self.url = "{0}://{1}:{2}".format(
+        super().__init__(configuration)
+        self.url = "{}://{}:{}".format(
             self.configuration.get("protocol", "http"),
             self.configuration.get("hostname", "localhost"),
             self.configuration.get("port", 8088),
@@ -199,7 +199,7 @@ class AxibaseTSD(BaseQueryRunner):
         ]
         for table_name in metrics_list:
             schema[table_name] = {
-                "name": "'{}'".format(table_name),
+                "name": f"'{table_name}'",
                 "columns": default_columns,
             }
         values = list(schema.values())

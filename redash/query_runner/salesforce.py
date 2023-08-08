@@ -123,7 +123,7 @@ class Salesforce(BaseQueryRunner):
     def _build_columns(self, sf, child, parents=[]):
         child_type = child["attributes"]["type"]
         child_desc = sf.__getattr__(child_type).describe()
-        child_type_map = dict((f["name"], f["type"]) for f in child_desc["fields"])
+        child_type_map = {f["name"]: f["type"] for f in child_desc["fields"]}
         columns = []
         for key in child.keys():
             if key != "attributes":

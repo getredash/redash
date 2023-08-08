@@ -125,7 +125,7 @@ def idp_initiated(org_slug=None):
     authn_response.get_identity()
     user_info = authn_response.get_subject()
     email = user_info.text
-    name = "%s %s" % (
+    name = "{} {}".format(
         authn_response.ava["FirstName"][0],
         authn_response.ava["LastName"][0],
     )

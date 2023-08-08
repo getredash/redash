@@ -97,6 +97,6 @@ class TestRenderTemplate(TestCase):
                     }
                 ]
             }
-            html, text = [render_template("emails/failures.{}".format(f), d) for f in ["html", "txt"]]
+            html, text = (render_template(f"emails/failures.{f}", d) for f in ["html", "txt"])
             self.assertIn("Failure Unit Test", html)
             self.assertIn("Failure Unit Test", text)

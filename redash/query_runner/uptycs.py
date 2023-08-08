@@ -66,7 +66,7 @@ class Uptycs(BaseSQLQueryRunner):
         header = self.generate_header(self.configuration.get("key"), self.configuration.get("secret"))
 
         # URL form using API key file based on GLOBAL
-        url = "%s/public/api/customers/%s/query" % (
+        url = "{}/public/api/customers/{}/query".format(
             self.configuration.get("url"),
             self.configuration.get("customer_id"),
         )
@@ -105,7 +105,7 @@ class Uptycs(BaseSQLQueryRunner):
 
     def get_schema(self, get_stats=False):
         header = self.generate_header(self.configuration.get("key"), self.configuration.get("secret"))
-        url = "%s/public/api/customers/%s/schema/global" % (
+        url = "{}/public/api/customers/{}/schema/global".format(
             self.configuration.get("url"),
             self.configuration.get("customer_id"),
         )

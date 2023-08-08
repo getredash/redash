@@ -11,7 +11,7 @@ logger = get_job_logger(__name__)
 
 
 def key(user_id):
-    return "aggregated_failures:{}".format(user_id)
+    return f"aggregated_failures:{user_id}"
 
 
 def comment_for(failure):
@@ -55,10 +55,10 @@ def send_failure_report(user_id):
         }
 
         subject = f"Redash failed to execute {len(unique_errors.keys())} of your scheduled queries"
-        html, text = [
-            render_template("emails/failures.{}".format(f), context)
+        html, text = (
+            render_template(f"emails/failures.{f}", context)
             for f in ["html", "txt"]
-        ]  # fmt: skip
+        )  # fmt: skip
 
         send_mail.delay([user.email], subject, html, text)
 

@@ -1,7 +1,6 @@
 import datetime
 from unittest import TestCase
-
-from mock import patch
+from unittest.mock import patch
 
 from redash import models
 from redash.models import DBPersistence

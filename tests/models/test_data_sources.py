@@ -1,5 +1,5 @@
-import mock
-from mock import patch
+from unittest import mock
+from unittest.mock import patch
 
 from redash.models import DataSource, Query, QueryResult
 from redash.utils.configuration import ConfigurationContainer

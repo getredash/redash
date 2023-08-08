@@ -1,8 +1,8 @@
 import datetime
 from unittest import TestCase
+from unittest.mock import patch
 
 from freezegun import freeze_time
-from mock import patch
 from pytz import utc
 
 from redash.query_runner.mongodb import (

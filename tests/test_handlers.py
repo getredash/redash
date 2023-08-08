@@ -1,12 +1,13 @@
+from unittest.mock import patch
+
 from flask_login import current_user
 from funcy import project
-from mock import patch
 
 from redash import models, settings
 from tests import BaseTestCase, authenticated_user
 
 
-class AuthenticationTestMixin(object):
+class AuthenticationTestMixin:
     def test_returns_404_when_not_unauthenticated(self):
         for path in self.paths:
             rv = self.client.get(path)
@@ -55,7 +56,7 @@ class IndexTest(BaseTestCase):
             "/default/queries/1",
             "/default/admin/status",
         ]
-        super(IndexTest, self).setUp()
+        super().setUp()
 
     def test_redirect_to_login_when_not_authenticated(self):
         for path in self.paths:
@@ -87,12 +88,12 @@ class StatusTest(BaseTestCase):
 class JobAPITest(BaseTestCase, AuthenticationTestMixin):
     def setUp(self):
         self.paths = []
-        super(JobAPITest, self).setUp()
+        super().setUp()
 
 
 class TestLogin(BaseTestCase):
     def setUp(self):
-        super(TestLogin, self).setUp()
+        super().setUp()
         self.factory.org.set_setting("auth_password_login_enabled", True)
 
     def test_get_login_form(self):
@@ -109,8 +110,8 @@ class TestLogin(BaseTestCase):
             settings.LDAP_LOGIN_ENABLED = True
             rv = self.client.get("/default/login")
             self.assertEqual(rv.status_code, 200)
-            self.assertIn("/{}/remote_user/login".format(self.factory.org.slug), rv.data.decode())
-            self.assertIn("/{}/ldap/login".format(self.factory.org.slug), rv.data.decode())
+            self.assertIn(f"/{self.factory.org.slug}/remote_user/login", rv.data.decode())
+            self.assertIn(f"/{self.factory.org.slug}/ldap/login", rv.data.decode())
         finally:
             settings.REMOTE_USER_LOGIN_ENABLED = old_remote_user_enabled
             settings.LDAP_LOGIN_ENABLED = old_ldap_login_enabled
