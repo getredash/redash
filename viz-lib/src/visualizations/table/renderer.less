@@ -3,9 +3,24 @@
 .table-visualization-container {
   .ant-pagination.ant-table-pagination {
     float: none;
-    display: block;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     margin-bottom: 0;
+
+    .ant-pagination-item {
+      padding: 4px;
+      width: 32px;
+      height: 32px;
+      vertical-align: middle;
+    }
+
+    .ant-pagination-item-active {
+      border-radius: 10rem;
+      background-color: @primary;
+    }
   }
 
   .ant-table {
@@ -50,6 +65,14 @@
 
     tbody tr:last-child td {
       border-bottom: 0;
+    }
+
+    th, td {
+      border-bottom: 1px solid #CAD3E5 !important;
+    }
+
+    th:not(:first-child), td:not(:first-child) {
+      border-left: 1px solid #CAD3E5;
     }
 
     thead {
