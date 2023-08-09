@@ -48,7 +48,34 @@ class Duckdb(BaseSQLQueryRunner):
                 schema[table_name]["columns"].append(row_column["name"])
 
         return list(schema.values())
+    def get_schema(self, get_stats=False):
+        query = """
+        SELECT TABLE_NAME,
+               COLUMN_NAME,DATA_TYPE
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA <> 'INFORMATION_SCHEMA'
+        """
+        
+        results, error = self.run_query(query, None)
 
+        if error is not None:
+            self._handle_run_query_error(error)
+
+        schema = {}
+        results = json_loads(results)
+        for row in results["rows"]:
+            table_name = row.get("table_name")
+            table_name = table_name.upper()
+            data_type = row.get("data_type")
+            if table_name not in schema:
+                 
+                 schema[table_name] = {"name": table_name, "columns": []}
+            
+            column_name = row.get("column_name")
+
+            schema[table_name]["columns"].append(str(column_name+" ("+data_type+ " )"))
+        
+        return list(schema.values())
     def run_query(self, query, user):
         
         dbpath = self.configuration.get('dbpath',None)
