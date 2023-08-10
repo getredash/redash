@@ -1,3 +1,5 @@
+@import (reference, less) "~@/assets/less/inc/variables";
+
 *,
 button,
 input,
@@ -151,6 +153,15 @@ text.slicetext {
   max-width: 100%;
 }
 
+.markdown {
+  h3 {
+    font-size: 30px;
+    line-height: 40px;
+    font-weight: 400;
+    color: @gray-600;
+  }
+}
+
 .dropdown-menu > li > a:hover,
 .dropdown-menu > li > a:focus {
   background-color: fade(@redash-gray, 15%);
@@ -229,3 +240,5 @@ text.slicetext {
 .select-option-divider {
   margin: 10px 0 !important;
 }
+
+
