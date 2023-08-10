@@ -7,6 +7,7 @@ import { RendererPropTypes } from "@/visualizations/prop-types";
 import { getCounterData } from "./utils";
 
 import "./render.less";
+import { formatNumber } from '@/services/formatNumber';
 
 function getCounterStyles(scale: any) {
   return {
@@ -60,6 +61,10 @@ export default function Renderer({ data, options, visualizationName }: any) {
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterLabel' does not exist on type '{}... Remove this comment to see the full error message
     counterLabel,
   } = getCounterData(data.rows, options, visualizationName);
+
+
+  const format = (num: string) => formatNumber(Number(num.replace(/\,/g,'')));
+
   return (
     <div
       className={cx("counter-visualization-container", {
@@ -70,11 +75,11 @@ export default function Renderer({ data, options, visualizationName }: any) {
       <div className="counter-visualization-content" ref={setContainer}>
         <div style={getCounterStyles(scale)}>
           <div className="counter-visualization-value" title={counterValueTooltip}>
-            {counterValue}
+            {format(counterValue)}
           </div>
           {targetValue && (
             <div className="counter-visualization-target" title={targetValueTooltip}>
-              ({targetValue})
+              ({format(targetValue)})
             </div>
           )}
           <div className="counter-visualization-label">{counterLabel}</div>
