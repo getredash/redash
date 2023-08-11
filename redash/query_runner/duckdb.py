@@ -1,9 +1,16 @@
 import logging
+
 import duckdb
-from redash.query_runner import BaseSQLQueryRunner, register, JobTimeoutException
+
+from redash.query_runner import (
+    BaseSQLQueryRunner,
+    JobTimeoutException,
+    register,
+)
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
+
 
 class Duckdb(BaseSQLQueryRunner):
     noop_query = "PRAGMA show_tables"
@@ -23,11 +30,10 @@ class Duckdb(BaseSQLQueryRunner):
     def __init__(self, configuration):
         super(Duckdb, self).__init__(configuration)
         self._dbpath = self.configuration["dbpath"]
-        
-        
+
     def _get_tables(self, schema):
         query_table = "SHOW ALL TABLE"
-        query_columns = "PRAGMA table_info(\"%s\")"
+        query_columns = 'PRAGMA table_info("%s")'
 
         results, error = self.run_query(query_table, None)
 
@@ -48,6 +54,7 @@ class Duckdb(BaseSQLQueryRunner):
                 schema[table_name]["columns"].append(row_column["name"])
 
         return list(schema.values())
+
     def get_schema(self, get_stats=False):
         query = """
         SELECT TABLE_NAME,
@@ -55,7 +62,7 @@ class Duckdb(BaseSQLQueryRunner):
         FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_SCHEMA <> 'INFORMATION_SCHEMA'
         """
-        
+
         results, error = self.run_query(query, None)
 
         if error is not None:
@@ -68,17 +75,16 @@ class Duckdb(BaseSQLQueryRunner):
             table_name = table_name.upper()
             data_type = row.get("data_type")
             if table_name not in schema:
-                 
-                 schema[table_name] = {"name": table_name, "columns": []}
-            
+                schema[table_name] = {"name": table_name, "columns": []}
+
             column_name = row.get("column_name")
 
-            schema[table_name]["columns"].append(str(column_name+" ("+data_type+ " )"))
-        
+            schema[table_name]["columns"].append(str(column_name + " (" + data_type + " )"))
+
         return list(schema.values())
+
     def run_query(self, query, user):
-        
-        dbpath = self.configuration.get('dbpath',None)
+        dbpath = self.configuration.get("dbpath", None)
         connection = duckdb.connect(dbpath)
         cursor = connection.cursor()
         try:
@@ -86,14 +92,11 @@ class Duckdb(BaseSQLQueryRunner):
 
             if cursor.description is not None:
                 columns = self.fetch_columns([(i[0], None) for i in cursor.description])
-                rows = [
-                    dict(zip((column["name"] for column in columns), row))
-                    for row in cursor.fetchall()
-                ]
+                rows = [dict(zip((column["name"] for column in columns), row)) for row in cursor.fetchall()]
 
                 data = {"columns": columns, "rows": rows}
                 error = None
-                
+
                 json_data = json_dumps(data)
 
             else:
