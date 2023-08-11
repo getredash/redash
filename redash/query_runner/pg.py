@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import os
 import select
@@ -20,7 +21,7 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-
+from redash import settings
 from redash.stacklet.auth import inject_iam_auth
 
 logger = logging.getLogger(__name__)
@@ -251,12 +252,29 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         return list(schema.values())
 
+    def _gen_role_pass(self, role_name: str) -> str:
+        """
+        Generate a password for a given role using the datasource secret and role name.
+        """
+        secret = settings.DATASOURCE_SECRET_KEY
+        return hashlib.sha256(f"{secret}:{role_name}".encode("utf-8")).hexdigest()
+
     @inject_iam_auth
-    def _get_connection(self):
+    def _get_connection(self, user):
+        if getattr(user, "db_role", None):
+            auth_config = dict(
+                user=user.db_role,
+                password=self._gen_role_pass(user.db_role),
+            )
+        else:
+            auth_config = dict(
+                user=self.configuration.get("user"),
+                password=self.configuration.get("password"),
+            )
+        logger.info(f"Connecting to datasource as {auth_config['user']}")
         self.ssl_config = _get_ssl_config(self.configuration)
         connection = psycopg2.connect(
-            user=self.configuration.get("user"),
-            password=self.configuration.get("password"),
+            **auth_config,
             host=self.configuration.get("host"),
             port=self.configuration.get("port"),
             dbname=self.configuration.get("dbname"),
@@ -267,7 +285,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         return connection
 
     def run_query(self, query, user):
-        connection = self._get_connection()
+        connection = self._get_connection(user)
         _wait(connection, timeout=10)
 
         cursor = connection.cursor()

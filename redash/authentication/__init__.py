@@ -191,6 +191,9 @@ def jwt_token_load_user_from_request(request):
 
     if not valid_token:
         return None
+    
+    if payload.get("stacklet:db_role") == "limited_visibility":
+        raise Unauthorized("Unable to determine SSO identity")
 
     # it might actually be a username or something, but it doesn't actually matter
     email = identity
