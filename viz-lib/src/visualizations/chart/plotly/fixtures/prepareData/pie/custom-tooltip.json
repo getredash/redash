@@ -35,7 +35,7 @@
         "values": [10, 60, 100, 30],
         "labels": ["a1", "a2", "a3", "a4"],
         "type": "pie",
-        "hole": 0.4,
+        "hole": 0.9,
         "marker": {
           "colors": ["#356AFF", "#E92828", "#3BD973", "#604FE9"]
         },

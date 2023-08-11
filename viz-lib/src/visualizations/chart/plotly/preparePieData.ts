@@ -73,7 +73,7 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
     values,
     labels,
     type: "pie",
-    hole: 0.4,
+    hole: 0.9,
     marker: {
       colors: markerColors,
     },
