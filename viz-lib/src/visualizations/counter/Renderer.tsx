@@ -7,6 +7,7 @@ import { RendererPropTypes } from "@/visualizations/prop-types";
 import { getCounterData } from "./utils";
 
 import "./render.less";
+import NotEnoughData from '@/components/NotEnoughData';
 
 function getCounterStyles(scale: any) {
   return {
@@ -60,6 +61,9 @@ export default function Renderer({ data, options, visualizationName }: any) {
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterLabel' does not exist on type '{}... Remove this comment to see the full error message
     counterLabel,
   } = getCounterData(data.rows, options, visualizationName);
+
+  if(data?.rows?.length === 0 || !data?.rows ) return <NotEnoughData />
+
   return (
     <div
       className={cx("counter-visualization-container", {
