@@ -13,7 +13,7 @@ from redash.query_runner import (
 from redash.utils import json_dumps, json_loads
 
 try:
-    import cx_Oracle
+    import oracledb as cx_Oracle
 
     TYPES_MAP = {
         cx_Oracle.DATETIME: TYPE_DATETIME,
