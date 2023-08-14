@@ -107,6 +107,9 @@ export default function Renderer({ options, data }: any) {
     orderBy,
   ]);
 
+  const mainRows = useMemo(() => preparedRows.filter((r: any) => !r.record?.['redash-sticky']), [preparedRows])
+  const bottomRows = useMemo(() => preparedRows.filter((r: any) => r.record.id?.['redash-sticky']), [preparedRows])
+
   // If data or config columns change - reset sorting
   useEffect(() => {
     setOrderBy([]);
@@ -124,7 +127,7 @@ export default function Renderer({ options, data }: any) {
         data-test="TableVisualization"
         // @ts-expect-error ts-migrate(2322) FIXME: Type '{ key: any; dataIndex: string; align: any; s... Remove this comment to see the full error message
         columns={tableColumns}
-        dataSource={preparedRows}
+        dataSource={mainRows}
         pagination={{
           size: get(options, "paginationSize", ""),
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'TablePagi... Remove this comment to see the full error message
@@ -134,6 +137,27 @@ export default function Renderer({ options, data }: any) {
           showSizeChanger: false,
         }}
         showSorterTooltip={false}
+        summary={(pageData) => {
+          return (
+            <>
+              {
+                bottomRows.map((row, index) => (
+                  <Table.Summary.Row key={index}>
+                    {
+                      tableColumns.filter((col) => !!col.dataIndex).map((col, index) => (
+                        <Table.Summary.Cell key={index} index={index}>
+                          <span style={{ textAlign: col.align, display: 'block' }}>
+                            {row.record[col.key]?.toString()}
+                          </span>
+                        </Table.Summary.Cell>
+                      ))
+                    }
+                  </Table.Summary.Row>
+                ))
+              }
+            </>
+          );
+        }}
       />
     </div>
   );
