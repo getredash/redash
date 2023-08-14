@@ -139,7 +139,7 @@ export function prepareColumns(columns: any, searchInput: any, orderBy: any, onO
 }
 
 export function initRows(rows: any) {
-  return map(rows, (record, index) => ({ key: `record${index}`, record }));
+  return map(rows, (record, index) => ({ key: `record${index}`, record: { ...record, 'redash-sticky': [1, 5, 10, 15].includes(record.id) } }));
 }
 
 export function filterRows(rows: any, searchTerm: any, searchColumns: any) {

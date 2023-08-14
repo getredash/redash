@@ -7,6 +7,7 @@ import Popover from "antd/lib/popover";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 
 import { prepareColumns, initRows, filterRows, sortRows } from "./utils";
+import ColumnTypes from "./columns";
 
 import "./renderer.less";
 
@@ -108,7 +109,7 @@ export default function Renderer({ options, data }: any) {
   ]);
 
   const mainRows = useMemo(() => preparedRows.filter((r: any) => !r.record?.['redash-sticky']), [preparedRows])
-  const bottomRows = useMemo(() => preparedRows.filter((r: any) => r.record.id?.['redash-sticky']), [preparedRows])
+  const bottomRows = useMemo(() => preparedRows.filter((r: any) => r.record?.['redash-sticky']), [preparedRows])
 
   // If data or config columns change - reset sorting
   useEffect(() => {
@@ -144,13 +145,16 @@ export default function Renderer({ options, data }: any) {
                 bottomRows.map((row, index) => (
                   <Table.Summary.Row key={index}>
                     {
-                      tableColumns.filter((col) => !!col.dataIndex).map((col, index) => (
-                        <Table.Summary.Cell key={index} index={index}>
-                          <span style={{ textAlign: col.align, display: 'block' }}>
-                            {row.record[col.key]?.toString()}
-                          </span>
-                        </Table.Summary.Cell>
-                      ))
+                      tableColumns.map((col, index) => {
+                        const com = col.render(row, row)
+                        return (
+                          <Table.Summary.Cell key={index} index={index} className={com.props?.className ?? ''}>
+                            <span style={{ textAlign: col.align, display: 'block' }}>
+                              {com.children}
+                            </span>
+                          </Table.Summary.Cell>
+                        )
+                      })
                     }
                   </Table.Summary.Row>
                 ))
