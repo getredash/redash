@@ -176,7 +176,8 @@ class Oracle(BaseSQLQueryRunner):
                 json_data = json_dumps(data)
                 connection.commit()
         except cx_Oracle.DatabaseError as err:
-            error = "Query failed. {}.".format(str(err))
+            (err_args,) = err.args
+            error = "Query failed. {}.".format(str(err)) + " , Error Offset: {}.".format(str(err_args.offset))
             json_data = None
         except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
