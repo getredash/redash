@@ -1,8 +1,8 @@
+from .execution import enqueue_query, execute_query
 from .maintenance import (
-    refresh_queries,
-    refresh_schemas,
     cleanup_query_results,
     empty_schedules,
+    refresh_queries,
+    refresh_schemas,
     remove_ghost_locks,
 )
-from .execution import execute_query, enqueue_query

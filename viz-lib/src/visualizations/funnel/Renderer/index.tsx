@@ -79,7 +79,7 @@ export default function Renderer({ data, options }: any) {
         align: "center",
         render: (value: any) => (
           // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
-          <FunnelBar className="funnel-percent-column" value={(value / maxToPrevious) * 100.0}>
+          <FunnelBar className="funnel-percent-column" value={(value / maxToPrevious)}>
             {formatPercentValue(value)}
           </FunnelBar>
         ),

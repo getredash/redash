@@ -117,6 +117,9 @@ export default function prepareLayout(element: any, options: any, data: any) {
     legend: {
       traceorder: options.legend.traceorder,
     },
+    hoverlabel: {
+      namelength: -1,
+    },
   };
 
   switch (options.globalSeriesType) {

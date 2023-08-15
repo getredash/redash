@@ -1,7 +1,7 @@
 from sqlalchemy.inspection import inspect
 from sqlalchemy_utils.models import generic_repr
 
-from .base import GFKBase, db, Column, primary_key, key_type
+from .base import Column, GFKBase, db, key_type, primary_key
 from .types import PseudoJSON
 
 
@@ -39,9 +39,7 @@ class Change(GFKBase, db.Model):
     @classmethod
     def last_change(cls, obj):
         return (
-            cls.query.filter(
-                cls.object_id == obj.id, cls.object_type == obj.__class__.__tablename__
-            )
+            cls.query.filter(cls.object_id == obj.id, cls.object_type == obj.__class__.__tablename__)
             .order_by(cls.object_version.desc())
             .first()
         )
