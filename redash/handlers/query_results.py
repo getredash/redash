@@ -105,7 +105,7 @@ def run_query(query, parameters, data_source, query_id, should_apply_auto_limit,
             current_user.id,
             current_user.is_api_user(),
             metadata={
-                "Username": repr(current_user) if current_user.is_api_user() else current_user.email,
+                "Username": current_user.get_actual_user(),
                 "query_id": query_id,
             },
         )
