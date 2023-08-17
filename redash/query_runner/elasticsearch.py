@@ -49,7 +49,7 @@ PYTHON_TYPES_MAPPING = {
 }
 
 
-class BaseElasticsearch(BaseQueryRunner):
+class BaseElasticSearch(BaseQueryRunner):
     should_annotate_query = False
     DEBUG_ENABLED = False
     deprecated = True
@@ -76,7 +76,7 @@ class BaseElasticsearch(BaseQueryRunner):
         return False
 
     def __init__(self, configuration):
-        super(BaseElasticsearch, self).__init__(configuration)
+        super(BaseElasticSearch, self).__init__(configuration)
         self.syntax = "json"
 
         if self.DEBUG_ENABLED:
@@ -331,7 +331,7 @@ class BaseElasticsearch(BaseQueryRunner):
             raise Exception("Connection refused")
 
 
-class Kibana(BaseElasticsearch):
+class Kibana(BaseElasticSearch):
     @classmethod
     def enabled(cls):
         return True
@@ -403,7 +403,7 @@ class Kibana(BaseElasticsearch):
                     if _from >= limit:
                         break
             else:
-                # TODO: Handle complete Elasticsearch queries (JSON based sent over HTTP POST)
+                # TODO: Handle complete ElasticSearch queries (JSON based sent over HTTP POST)
                 raise Exception("Advanced queries are not supported")
 
             json_data = json_dumps({"columns": result_columns, "rows": result_rows})
@@ -420,7 +420,7 @@ class Kibana(BaseElasticsearch):
         return json_data, error
 
 
-class Elasticsearch(BaseElasticsearch):
+class ElasticSearch(BaseElasticSearch):
     @classmethod
     def enabled(cls):
         return True
@@ -477,4 +477,4 @@ class Elasticsearch(BaseElasticsearch):
 
 
 register(Kibana)
-register(Elasticsearch)
+register(ElasticSearch)

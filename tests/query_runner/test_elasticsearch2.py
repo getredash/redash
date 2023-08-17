@@ -1,12 +1,12 @@
 from unittest import TestCase
 
 from redash.query_runner.elasticsearch2 import (
-    Elasticsearch2,
+    ElasticSearch2,
     XPackSQLElasticsearch,
 )
 
 
-class TestElasticsearch(TestCase):
+class TestElasticSearch(TestCase):
     def test_parse_mappings(self):
         mapping_data = {
             "bank": {
@@ -29,7 +29,7 @@ class TestElasticsearch(TestCase):
                 "geo.long": "integer",
             }
         }
-        self.assertDictEqual(Elasticsearch2._parse_mappings(mapping_data), expected)
+        self.assertDictEqual(ElasticSearch2._parse_mappings(mapping_data), expected)
 
     def test_parse_aggregation(self):
         response = {
@@ -70,7 +70,7 @@ class TestElasticsearch(TestCase):
             ],
         }
         fields = ["group_by_state", "group_by_state.doc_count"]
-        self.assertDictEqual(Elasticsearch2._parse_results(fields, response), expected)
+        self.assertDictEqual(ElasticSearch2._parse_results(fields, response), expected)
 
     def test_parse_sub_aggregation(self):
         response = {
@@ -110,7 +110,7 @@ class TestElasticsearch(TestCase):
             ],
         }
         fields = ["group_by_state", "group_by_state.average_balance.value"]
-        self.assertDictEqual(Elasticsearch2._parse_results(fields, response), expected)
+        self.assertDictEqual(ElasticSearch2._parse_results(fields, response), expected)
 
 
 class TestXPackSQL(TestCase):
