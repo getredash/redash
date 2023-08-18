@@ -189,8 +189,8 @@ class Oracle(BaseSQLQueryRunner):
         except cx_Oracle.DatabaseError as err:
             (err_args,) = err.args
             line_num, column_num = Oracle.calculate_line_and_column(query, err_args.offset)
-            error = "Query failed. {}. Error Offset num: {}. Query failed at Line {}, Column {}.".format(
-                str(err), str(err_args.offset), str(line_num), str(column_num)
+            error = "Query failed. {}. Query failed at Line {}, Column {}.".format(
+                str(err), str(line_num), str(column_num)
             )
             json_data = None
         except (KeyboardInterrupt, JobTimeoutException):
