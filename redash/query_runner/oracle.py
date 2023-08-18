@@ -137,6 +137,17 @@ class Oracle(BaseSQLQueryRunner):
                     arraysize=cursor.arraysize,
                 )
 
+    @classmethod
+    def calculate_line_and_column(query, offset):
+        lines = query.split("\n")
+        total_offset = 0
+
+        for line_num, line in enumerate(lines, start=1):
+            total_offset += len(line) + 1  # Add 1 for the newline character
+            if total_offset > offset:
+                column_num = offset - (total_offset - len(line))
+                return str(line_num), str(column_num)
+
     def run_query(self, query, user):
         if self.configuration.get("encoding"):
             os.environ["NLS_LANG"] = self.configuration["encoding"]
@@ -177,7 +188,10 @@ class Oracle(BaseSQLQueryRunner):
                 connection.commit()
         except cx_Oracle.DatabaseError as err:
             (err_args,) = err.args
-            error = "Query failed. {}.".format(str(err)) + " , Error Offset num: {}.".format(str(err_args.offset))
+            line_num, column_num = Oracle.calculate_line_and_column(query, err_args.offset)
+            error = "Query failed. {}. Error Offset num: {}. Query failed at Line {}, Column {}.".format(
+                str(err), str(err_args.offset), line_num, column_num
+            )
             json_data = None
         except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
