@@ -146,7 +146,7 @@ class Oracle(BaseSQLQueryRunner):
             total_offset += len(line) + 1  # Add 1 for the newline character
             if total_offset > offset:
                 column_num = offset - (total_offset - len(line))
-                return str(line_num), str(column_num)
+                return line_num, column_num
 
     def run_query(self, query, user):
         if self.configuration.get("encoding"):
@@ -190,7 +190,7 @@ class Oracle(BaseSQLQueryRunner):
             (err_args,) = err.args
             line_num, column_num = Oracle.calculate_line_and_column(query, err_args.offset)
             error = "Query failed. {}. Error Offset num: {}. Query failed at Line {}, Column {}.".format(
-                str(err), str(err_args.offset), line_num, column_num
+                str(err), str(err_args.offset), str(line_num), str(column_num)
             )
             json_data = None
         except (KeyboardInterrupt, JobTimeoutException):
