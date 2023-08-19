@@ -176,7 +176,10 @@ class Oracle(BaseSQLQueryRunner):
                 json_data = json_dumps(data)
                 connection.commit()
         except cx_Oracle.DatabaseError as err:
-            error = "Query failed. {}.".format(str(err))
+            (err_args,) = err.args
+            line_number = query.count("\n", 0, err_args.offset) + 1
+            column_number = err_args.offset - query.rfind("\n", 0, err_args.offset) - 1
+            error = "Query failed at line {}, column {}: {}".format(str(line_number), str(column_number), str(err))
             json_data = None
         except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
