@@ -5,6 +5,7 @@ import { RendererPropTypes } from "@/visualizations/prop-types";
 import { SankeyDataType } from "./index";
 import initSankey, { ExtendedSankeyDataType } from "./initSankey";
 import "./renderer.less";
+import NotEnoughData from '@/components/NotEnoughData';
 
 export default function Renderer({ data }: { data: SankeyDataType }) {
   const [container, setContainer] = useState<null | HTMLDivElement>(null);
@@ -20,6 +21,8 @@ export default function Renderer({ data }: { data: SankeyDataType }) {
       return unwatch;
     }
   }, [container, render]);
+
+  if(data?.rows?.length === 0 || !data?.rows ) return <NotEnoughData />
 
   return <div className="sankey-visualization-container" ref={setContainer} />;
 }
