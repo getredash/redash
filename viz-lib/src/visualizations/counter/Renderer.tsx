@@ -7,6 +7,8 @@ import { RendererPropTypes } from "@/visualizations/prop-types";
 import { getCounterData } from "./utils";
 
 import "./render.less";
+
+import { formatNumber } from '@/services/formatNumber';
 import NotEnoughData from '@/components/NotEnoughData';
 
 function getCounterStyles(scale: any) {
@@ -23,6 +25,8 @@ function getCounterScale(container: any) {
   const scale = Math.min(container.offsetWidth / inner.offsetWidth, container.offsetHeight / inner.offsetHeight);
   return Number(isFinite(scale) ? scale : 1).toFixed(2); // keep only two decimal places
 }
+
+const format = (num: string) => formatNumber(Number(num.replace(/\,/g,'')));
 
 export default function Renderer({ data, options, visualizationName }: any) {
   const [scale, setScale] = useState("1.00");
@@ -74,11 +78,11 @@ export default function Renderer({ data, options, visualizationName }: any) {
       <div className="counter-visualization-content" ref={setContainer}>
         <div style={getCounterStyles(scale)}>
           <div className="counter-visualization-value" title={counterValueTooltip}>
-            {counterValue}
+            {format(counterValue)}
           </div>
           {targetValue && (
             <div className="counter-visualization-target" title={targetValueTooltip}>
-              ({targetValue})
+              ({format(targetValue)})
             </div>
           )}
           <div className="counter-visualization-label">{counterLabel}</div>
