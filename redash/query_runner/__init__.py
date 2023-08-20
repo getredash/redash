@@ -308,15 +308,13 @@ class BaseSQLQueryRunner(BaseQueryRunner):
         return str(parsed_query)
 
     def apply_auto_limit(self, query_text, should_apply_auto_limit):
+        queries = split_sql_statements(query_text)
         if should_apply_auto_limit:
-            queries = split_sql_statements(query_text)
             # we only check for last one in the list because it is the one that we show result
             last_query = queries[-1]
             if self.query_is_select_no_limit(last_query):
                 queries[-1] = self.add_limit_to_query(last_query)
-            return combine_sql_statements(queries)
-        else:
-            return query_text
+        return combine_sql_statements(queries)
 
 
 class BaseHTTPQueryRunner(BaseQueryRunner):
