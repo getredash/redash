@@ -9,6 +9,7 @@ import { RendererPropTypes } from "@/visualizations/prop-types";
 import { prepareColumns, initRows, filterRows, sortRows } from "./utils";
 
 import "./renderer.less";
+import NotEnoughData from '@/components/NotEnoughData';
 
 function joinColumns(array: any, separator = ", ") {
   return reduce(
@@ -113,7 +114,7 @@ export default function Renderer({ options, data }: any) {
   }, [options.columns, data.columns]);
 
   if (data.rows.length === 0) {
-    return null;
+    return <NotEnoughData />;
   }
 
   return (

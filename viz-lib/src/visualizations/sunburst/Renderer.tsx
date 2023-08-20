@@ -4,6 +4,7 @@ import { RendererPropTypes } from "@/visualizations/prop-types";
 
 import initSunburst from "./initSunburst";
 import "./renderer.less";
+import NotEnoughData from '@/components/NotEnoughData';
 
 export default function Renderer({ data }: any) {
   const [container, setContainer] = useState(null);
@@ -19,6 +20,9 @@ export default function Renderer({ data }: any) {
       return unwatch;
     }
   }, [container, render]);
+
+  if(data?.rows?.length === 0 || !data?.rows ) return <NotEnoughData />
+
 
   // @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<null>>' is not assig... Remove this comment to see the full error message
   return <div className="sunburst-visualization-container" ref={setContainer} />;
