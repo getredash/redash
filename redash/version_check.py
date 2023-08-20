@@ -1,11 +1,11 @@
 import logging
+
 import requests
 import semver
 
 from redash import __version__ as current_version
 from redash import redis_connection
-from redash.models import db, Organization
-from redash.utils import json_dumps
+from redash.models import Organization, db
 
 REDIS_KEY = "new_version_available"
 
@@ -48,20 +48,12 @@ def usage_data():
 
     data_sources_query = "SELECT type, count(0) FROM data_sources GROUP by 1"
     visualizations_query = "SELECT type, count(0) FROM visualizations GROUP by 1"
-    destinations_query = (
-        "SELECT type, count(0) FROM notification_destinations GROUP by 1"
-    )
+    destinations_query = "SELECT type, count(0) FROM notification_destinations GROUP by 1"
 
     data = {name: value for (name, value) in db.session.execute(counts_query)}
-    data["data_sources"] = {
-        name: value for (name, value) in db.session.execute(data_sources_query)
-    }
-    data["visualization_types"] = {
-        name: value for (name, value) in db.session.execute(visualizations_query)
-    }
-    data["destination_types"] = {
-        name: value for (name, value) in db.session.execute(destinations_query)
-    }
+    data["data_sources"] = {name: value for (name, value) in db.session.execute(data_sources_query)}
+    data["visualization_types"] = {name: value for (name, value) in db.session.execute(visualizations_query)}
+    data["destination_types"] = {name: value for (name, value) in db.session.execute(destinations_query)}
 
     return data
 
@@ -87,9 +79,7 @@ def run_version_check():
     except requests.RequestException:
         logging.exception("Failed checking for new version.")
     except (ValueError, KeyError):
-        logging.exception(
-            "Failed checking for new version (probably bad/non-JSON response)."
-        )
+        logging.exception("Failed checking for new version (probably bad/non-JSON response).")
 
 
 def reset_new_version_status():

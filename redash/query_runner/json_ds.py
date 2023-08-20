@@ -1,20 +1,19 @@
-import logging
-import yaml
 import datetime
+import logging
+
+import yaml
 from funcy import compact, project
 
-from redash.utils.requests_session import requests_or_advocate, UnacceptableAddressException
-
-from redash.utils import json_dumps
 from redash.query_runner import (
-    BaseHTTPQueryRunner,
-    register,
     TYPE_BOOLEAN,
     TYPE_DATETIME,
     TYPE_FLOAT,
     TYPE_INTEGER,
     TYPE_STRING,
+    BaseHTTPQueryRunner,
+    register,
 )
+from redash.utils import json_dumps
 
 
 class QueryParseError(Exception):
@@ -59,9 +58,7 @@ def _get_type(value):
 
 def add_column(columns, column_name, column_type):
     if _get_column_by_name(columns, column_name) is None:
-        columns.append(
-            {"name": column_name, "friendly_name": column_name, "type": column_type}
-        )
+        columns.append({"name": column_name, "friendly_name": column_name, "type": column_type})
 
 
 def _apply_path_search(response, path):
@@ -157,13 +154,10 @@ class JSON(BaseHTTPQueryRunner):
         query = parse_query(query)
 
         if not isinstance(query, dict):
-            raise QueryParseError(
-                "Query should be a YAML object describing the URL to query."
-            )
+            raise QueryParseError("Query should be a YAML object describing the URL to query.")
 
         if "url" not in query:
             raise QueryParseError("Query must include 'url' option.")
-
 
         method = query.get("method", "get")
         request_options = project(query, ("params", "headers", "data", "auth", "json", "verify"))
@@ -185,9 +179,7 @@ class JSON(BaseHTTPQueryRunner):
         if fields and not isinstance(fields, list):
             raise QueryParseError("'fields' needs to be a list.")
 
-        response, error = self.get_response(
-            query["url"], http_method=method, **request_options
-        )
+        response, error = self.get_response(query["url"], http_method=method, **request_options)
 
         if error is not None:
             return None, error

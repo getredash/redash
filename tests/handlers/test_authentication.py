@@ -1,11 +1,11 @@
 import time
 
 import mock
-from tests import BaseTestCase
 
-from redash import settings, limiter
+from redash import limiter, settings
 from redash.authentication.account import invite_token
 from redash.models import User
+from tests import BaseTestCase
 
 
 class TestResetPassword(BaseTestCase):
@@ -18,7 +18,6 @@ class TestResetPassword(BaseTestCase):
 
 class TestInvite(BaseTestCase):
     def test_expired_invite_token(self):
-
         with mock.patch("time.time") as patched_time:
             patched_time.return_value = time.time() - (7 * 24 * 3600) - 10
             token = invite_token(self.factory.user)
@@ -50,16 +49,12 @@ class TestInvite(BaseTestCase):
 class TestInvitePost(BaseTestCase):
     def test_empty_password(self):
         token = invite_token(self.factory.user)
-        response = self.post_request(
-            "/invite/{}".format(token), data={"password": ""}, org=self.factory.org
-        )
+        response = self.post_request("/invite/{}".format(token), data={"password": ""}, org=self.factory.org)
         self.assertEqual(response.status_code, 400)
 
     def test_invalid_password(self):
         token = invite_token(self.factory.user)
-        response = self.post_request(
-            "/invite/{}".format(token), data={"password": "1234"}, org=self.factory.org
-        )
+        response = self.post_request("/invite/{}".format(token), data={"password": "1234"}, org=self.factory.org)
         self.assertEqual(response.status_code, 400)
 
     def test_bad_token(self):
@@ -134,6 +129,4 @@ class TestLogin(BaseTestCase):
 class TestSession(BaseTestCase):
     # really simple test just to trigger this route
     def test_get(self):
-        self.make_request(
-            "get", "/default/api/session", user=self.factory.user, org=False
-        )
+        self.make_request("get", "/default/api/session", user=self.factory.user, org=False)

@@ -14,6 +14,18 @@ Object {
 }
 `;
 
+exports[`Visualizations -> Chart -> Editor -> X-Axis Settings Changes axis tick format 1`] = `
+Object {
+  "xAxis": Object {
+    "labels": Object {
+      "enabled": true,
+    },
+    "tickFormat": "%B",
+    "type": "-",
+  },
+}
+`;
+
 exports[`Visualizations -> Chart -> Editor -> X-Axis Settings Changes axis type 1`] = `
 Object {
   "xAxis": Object {

@@ -1,16 +1,16 @@
-from .elasticsearch import ElasticSearch
 from . import register
+from .elasticsearch2 import ElasticSearch2
 
 try:
+    from botocore import credentials, session
     from requests_aws_sign import AWSV4Sign
-    from botocore import session, credentials
 
     enabled = True
 except ImportError:
     enabled = False
 
 
-class AmazonElasticsearchService(ElasticSearch):
+class AmazonElasticsearchService(ElasticSearch2):
     @classmethod
     def name(cls):
         return "Amazon Elasticsearch Service"

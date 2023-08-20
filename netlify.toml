@@ -2,13 +2,13 @@
   base    = "client"
   publish = "client/dist"
   # Netlify doesn't seem to install Yarn even though NETLIFY_USE_YARN is set below
-  # command = "cd ../ && npm i -g yarn@1.22.10 && yarn --frozen-lockfile --force && cd viz-lib && yarn build:babel && cd .. && rm -r ./node_modules/@redash/viz && cp -r ./viz-lib/. ./node_modules/@redash/viz && yarn build && cd ./client"
-  command = "cd ../ && npm i -g yarn@1.22.10 && yarn cache clean && yarn --frozen-lockfile --network-concurrency 1 && yarn build && cd ./client"
+  # command = "cd ../ && npm i -g yarn@1.22.19 && yarn --frozen-lockfile --force && cd viz-lib && yarn build:babel && cd .. && rm -r ./node_modules/@redash/viz && cp -r ./viz-lib/. ./node_modules/@redash/viz && yarn build && cd ./client"
+  command = "cd ../ && yarn cache clean && yarn --frozen-lockfile --network-concurrency 1 && yarn build && cd ./client"
 
 [build.environment]
-  NODE_VERSION = "14.16.1"
+  NODE_VERSION = "16.20.1"
   NETLIFY_USE_YARN = "true"
-  YARN_VERSION = "1.22.10"
+  YARN_VERSION = "1.22.19"
   CYPRESS_INSTALL_BINARY = "0"
   PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "1"
 
