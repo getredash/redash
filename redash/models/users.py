@@ -256,6 +256,9 @@ class User(
         ).hexdigest()
         return "{0}-{1}".format(self.id, identity)
 
+    def get_actual_user(self):
+        return repr(self) if self.is_api_user() else self.email
+
 
 @generic_repr("id", "name", "type", "org_id")
 class Group(db.Model, BelongsToOrgMixin):
