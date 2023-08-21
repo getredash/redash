@@ -3,6 +3,10 @@ import sys
 import uuid
 import datetime
 from enum import Enum
+import importlib.util
+
+ignite_available = importlib.util.find_spec('pyignite') is not None
+gridgain_available = importlib.util.find_spec('pygridgain') is not None
 
 from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
@@ -39,7 +43,7 @@ class Ignite(BaseSQLQueryRunner):
                 "distributed_joins": {"type": "boolean", "title": "Allow distributed joins", "default":False},
                 "enforce_join_order": {"type": "boolean", "title": "Enforce join order", "default":False},
                 "lazy": {"type": "boolean", "title": "Lazy query execution", "default":True},
-                "gridgain": { "type":"boolean", "title": "Use GridGain libraries", "default": False },
+                "gridgain": { "type":"boolean", "title": "Use GridGain libraries", "default": gridgain_available },
             },
             "required": ["server"],
             "secret": ["password"],
@@ -52,6 +56,10 @@ class Ignite(BaseSQLQueryRunner):
     @classmethod
     def type(cls):
         return "ignite"
+
+    @classmethod
+    def enabled(cls):
+        return ignite_available or gridgain_available
 
     def _get_tables(self, schema):
         query = """
