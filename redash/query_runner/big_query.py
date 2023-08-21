@@ -168,10 +168,8 @@ class BigQuery(BaseQueryRunner):
 
     def _get_location(self):
         return self.configuration.get("location")
-    
     def _get_default_dataset(self):
         return self.configuration.get("defaultDataset")
-    
     def _get_total_bytes_processed(self, jobs, query):
         job_data = {"query": query, "dryRun": True}
 
