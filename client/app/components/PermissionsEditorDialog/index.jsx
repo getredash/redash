@@ -12,6 +12,7 @@ import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { toHuman } from "@/lib/utils";
 import HelpTrigger from "@/components/HelpTrigger";
 import { UserPreviewCard } from "@/components/PreviewCard";
+import PlainButton from "@/components/PlainButton";
 import notification from "@/services/notification";
 import User from "@/services/user";
 
@@ -183,12 +184,11 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
                   <Tag className="m-0">Author</Tag>
                 ) : (
                   <Tooltip title="Remove user permissions">
-                    <button // TODO: replace with button component
-                      style={{ all: "unset" }}
+                    <PlainButton
                       aria-label="Remove permissions"
                       onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}>
                       <i className="fa fa-remove clickable" aria-hidden="true" />
-                    </button>
+                    </PlainButton>
                   </Tooltip>
                 )}
               </UserPreviewCard>

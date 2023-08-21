@@ -10,10 +10,12 @@ import Modal from "antd/lib/modal";
 import Tooltip from "@/components/Tooltip";
 import FavoritesControl from "@/components/FavoritesControl";
 import EditInPlace from "@/components/EditInPlace";
+import PlainButton from "@/components/PlainButton";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
 import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
 import { policy } from "@/services/policy";
+import recordEvent from "@/services/recordEvent";
 import { durationHumanize } from "@/lib/utils";
 import { DashboardStatusEnum } from "../hooks/useDashboard";
 
@@ -138,20 +140,20 @@ function DashboardMoreOptionsButton({ dashboardConfiguration }) {
       overlay={
         <Menu data-test="DashboardMoreButtonMenu">
           <Menu.Item className={cx({ hidden: gridDisabled })}>
-            <a onClick={() => setEditingLayout(true)}>Edit</a>
+            <PlainButton onClick={() => setEditingLayout(true)}>Edit</PlainButton>
           </Menu.Item>
           {clientConfig.showPermissionsControl && isDashboardOwnerOrAdmin && (
             <Menu.Item>
-              <a onClick={managePermissions}>Manage Permissions</a>
+              <PlainButton onClick={managePermissions}>Manage Permissions</PlainButton>
             </Menu.Item>
           )}
           {!clientConfig.disablePublish && !dashboard.is_draft && (
             <Menu.Item>
-              <a onClick={togglePublished}>Unpublish</a>
+              <PlainButton onClick={togglePublished}>Unpublish</PlainButton>
             </Menu.Item>
           )}
           <Menu.Item>
-            <a onClick={archive}>Archive</a>
+            <PlainButton onClick={archive}>Archive</PlainButton>
           </Menu.Item>
         </Menu>
       }>
@@ -174,6 +176,7 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
     fullscreen,
     toggleFullscreen,
     showShareDashboardDialog,
+    updateDashboard,
   } = dashboardConfiguration;
   const showPublishButton = dashboard.is_draft;
   const showRefreshButton = true;
@@ -181,8 +184,14 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
   const canShareDashboard = canEditDashboard && !dashboard.is_draft;
   const showShareButton = !clientConfig.disablePublicUrls && (dashboard.publicAccessEnabled || canShareDashboard);
   const showMoreOptionsButton = canEditDashboard;
+
+  const unarchiveDashboard = () => {
+    recordEvent("unarchive", "dashboard", dashboard.id);
+    updateDashboard({ is_archived: false }, false);
+  };
   return (
     <div className="dashboard-control">
+      {dashboard.can_edit && dashboard.is_archived && <Button onClick={unarchiveDashboard}>Unarchive</Button>}
       {!dashboard.is_archived && (
         <span className="hidden-print">
           {showPublishButton && (

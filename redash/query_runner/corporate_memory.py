@@ -4,17 +4,22 @@ seeAlso: https://documentation.eccenca.com/
 seeAlso: https://eccenca.com/
 """
 
-import logging
 import json
+import logging
 from os import environ
 
 from redash.query_runner import BaseQueryRunner
 from redash.utils import json_dumps, json_loads
+
 from . import register
 
 try:
-    from cmem.cmempy.queries import SparqlQuery, QueryCatalog, QUERY_STRING
     from cmem.cmempy.dp.proxy.graph import get_graphs_list
+    from cmem.cmempy.queries import (  # noqa: F401
+        QUERY_STRING,
+        QueryCatalog,
+        SparqlQuery,
+    )
 
     enabled = True
 except ImportError:
@@ -151,9 +156,7 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
         # type of None means, there is an error in the query
         # so execution is at least tried on endpoint
         if query_type not in ["SELECT", None]:
-            raise ValueError(
-                "Queries of type {} can not be processed by redash.".format(query_type)
-            )
+            raise ValueError("Queries of type {} can not be processed by redash.".format(query_type))
 
         self._setup_environment()
         try:
