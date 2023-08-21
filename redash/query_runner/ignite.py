@@ -1,15 +1,22 @@
 import logging
-import sys
-import uuid
 import datetime
-from enum import Enum
 import importlib.util
+
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseSQLQueryRunner,
+    register,
+    JobTimeoutException,
+)
+from redash.utils import json_dumps, json_loads
 
 ignite_available = importlib.util.find_spec('pyignite') is not None
 gridgain_available = importlib.util.find_spec('pygridgain') is not None
 
-from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +33,7 @@ types_map = {
     'java.lang.Decimal': TYPE_FLOAT,
 }
 
+
 class Ignite(BaseSQLQueryRunner):
     should_annotate_query = False
     noop_query = "SELECT 1"
@@ -38,12 +46,12 @@ class Ignite(BaseSQLQueryRunner):
                 "user": {"type": "string"},
                 "password": {"type": "string"},
                 "server": {"type": "string", "default": "127.0.0.1:10800"},
-                "tls" : {"type":"boolean", "default":False, "title":"Use SSL/TLS connection"},
-                "schema": {"type": "string", "title": "Schema Name", "default":"PUBLIC"},
-                "distributed_joins": {"type": "boolean", "title": "Allow distributed joins", "default":False},
-                "enforce_join_order": {"type": "boolean", "title": "Enforce join order", "default":False},
-                "lazy": {"type": "boolean", "title": "Lazy query execution", "default":True},
-                "gridgain": { "type":"boolean", "title": "Use GridGain libraries", "default": gridgain_available },
+                "tls" : {"type": "boolean", "default": False, "title": "Use SSL/TLS connection"},
+                "schema": {"type": "string", "title": "Schema Name", "default": "PUBLIC"},
+                "distributed_joins": {"type": "boolean", "title": "Allow distributed joins", "default": False},
+                "enforce_join_order": {"type": "boolean", "title": "Enforce join order", "default": False},
+                "lazy": {"type": "boolean", "title": "Lazy query execution", "default": True},
+                "gridgain": {"type": "boolean", "title": "Use GridGain libraries", "default": gridgain_available},
             },
             "required": ["server"],
             "secret": ["password"],
@@ -51,7 +59,7 @@ class Ignite(BaseSQLQueryRunner):
 
     @classmethod
     def name(cls):
-       return "Apache Ignite"
+        return "Apache Ignite"
 
     @classmethod
     def type(cls):
@@ -86,34 +94,34 @@ class Ignite(BaseSQLQueryRunner):
 
             col_type = TYPE_STRING
             if row["TYPE"] in types_map:
-               col_type = types_map[row["TYPE"]]
+                col_type = types_map[row["TYPE"]]
 
-            schema[table_name]["columns"].append({ "name":row["COLUMN_NAME"], "type":col_type })
+            schema[table_name]["columns"].append({"name": row["COLUMN_NAME"], "type": col_type})
 
         return list(schema.values())
 
-    def normalise_column(self,col):
-      # if it's a datetime, just return the milliseconds
-      if type(col) is tuple and len(col) == 2 and type(col[0]) is datetime.datetime and type(col[1]) is int:
-        return col[0]
-      else:
-        return col
+    def normalise_column(self, col):
+        # if it's a datetime, just return the milliseconds
+        if type(col) is tuple and len(col) == 2 and type(col[0]) is datetime.datetime and type(col[1]) is int:
+            return col[0]
+        else:
+            return col
 
-    def normalise_row(self,row):
-      return [self.normalise_column(col) for col in row]
+    def normalise_row(self, row):
+        return [self.normalise_column(col) for col in row]
 
     def server_to_connection(self, s):
-      st = s.split(':')
-      if len(st) == 1:
-        server = s
-        port = 10800
-      elif len(st) == 2:
-        server = st[0]
-        port = int(st[1])
-      else:
-        server = 'unknown'
-        port = 10800
-      return (server,port)
+        st = s.split(':')
+        if len(st) == 1:
+            server = s
+            port = 10800
+        elif len(st) == 2:
+            server = st[0]
+            port = int(st[1])
+        else:
+            server = 'unknown'
+            port = 10800
+        return (server, port)
 
     def run_query(self, query, user):
         connection = None
@@ -126,7 +134,6 @@ class Ignite(BaseSQLQueryRunner):
             distributed_joins = self.configuration.get("distributed_joins", False)
             enforce_join_order = self.configuration.get("enforce_join_order", False)
             lazy = self.configuration.get("lazy", True)
-            schema = self.configuration.get("schema", "PUBLIC")
             gridgain = self.configuration.get("gridgain", False)
 
             if gridgain:
@@ -138,14 +145,14 @@ class Ignite(BaseSQLQueryRunner):
             connection.connect([self.server_to_connection(s) for s in server.split(',')])
 
             cursor = connection.sql(query, include_field_names=True,
-                    distributed_joins=distributed_joins, enforce_join_order=enforce_join_order,
-                    lazy=lazy)
+                                    distributed_joins=distributed_joins,
+                                    enforce_join_order=enforce_join_order, lazy=lazy)
             logger.debug("Ignite running query: %s", query)
 
             column_names = next(cursor)
-            columns = [{ 'name':col, 'friendly_name':col.lower() } for col in column_names]
-            rows = [ dict(zip(column_names, self.normalise_row(row))) for row in cursor ]
-            json_data = json_dumps({ "columns" : columns, "rows": rows })
+            columns = [{'name': col, 'friendly_name': col.lower()} for col in column_names]
+            rows = [dict(zip(column_names, self.normalise_row(row))) for row in cursor]
+            json_data = json_dumps({"columns": columns, "rows": rows})
             error = None
 
         except (KeyboardInterrupt, JobTimeoutException):
