@@ -29,7 +29,7 @@ export function QuerySourceDropdown(props) {
 
 QuerySourceDropdown.propTypes = {
   dataSources: PropTypes.any,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   disabled: PropTypes.bool,
   loading: PropTypes.bool,
   onChange: PropTypes.func,

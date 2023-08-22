@@ -1,26 +1,23 @@
-.edit-in-place span {
+.edit-in-place {
   white-space: pre-line;
+  display: inline-block;
 
   p {
     margin-bottom: 0;
   }
-}
 
-.edit-in-place span.editable {
-  display: inline-block;
-  cursor: pointer;
-}
+  .editable {
+    display: inline-block;
+    cursor: pointer;
 
-.edit-in-place span.editable:hover {
-  background: @redash-yellow;
-  border-radius: @redash-radius;
-}
+    &:hover {
+      background: @redash-yellow;
+      border-radius: @redash-radius;
+    }
+  }
 
-.edit-in-place.active input,
-.edit-in-place.active textarea {
-  display: inline-block;
-}
-
-.edit-in-place {
-  display: inline-block;
+  &.active input,
+  &.active textarea {
+    display: inline-block;
+  }
 }

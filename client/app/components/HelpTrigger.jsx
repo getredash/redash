@@ -2,9 +2,10 @@ import { startsWith, get, some, mapValues } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 import Drawer from "antd/lib/drawer";
 import Link from "@/components/Link";
+import PlainButton from "@/components/PlainButton";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import BigMessage from "@/components/BigMessage";
 import DynamicComponent, { registerComponent } from "@/components/DynamicComponent";
@@ -45,7 +46,7 @@ export const TYPES = mapValues(
     NUMBER_FORMAT_SPECS: ["/user-guide/visualizations/formatting-numbers", "Formatting Numbers"],
     GETTING_STARTED: ["/user-guide/getting-started", "Guide: Getting Started"],
     DASHBOARDS: ["/user-guide/dashboards", "Guide: Dashboards"],
-    QUERIES: ["/help/user-guide/querying", "Guide: Queries"],
+    QUERIES: ["/user-guide/querying", "Guide: Queries"],
     ALERTS: ["/user-guide/alerts", "Guide: Alerts"],
   },
   ([url, title]) => [DOMAIN + HELP_PATH + url, title]
@@ -68,7 +69,7 @@ const HelpTriggerDefaultProps = {
   className: null,
   showTooltip: true,
   renderAsLink: false,
-  children: <i className="fa fa-question-circle" />,
+  children: <i className="fa fa-question-circle" aria-hidden="true" />,
 };
 
 export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName = null) {
@@ -133,10 +134,14 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
       return helpTriggerType ? helpTriggerType[0] : this.props.href;
     };
 
-    openDrawer = () => {
-      this.setState({ visible: true });
-      // wait for drawer animation to complete so there's no animation jank
-      setTimeout(() => this.loadIframe(this.getUrl()), 300);
+    openDrawer = e => {
+      // keep "open in new tab" behavior
+      if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        this.setState({ visible: true });
+        // wait for drawer animation to complete so there's no animation jank
+        setTimeout(() => this.loadIframe(this.getUrl()), 300);
+      }
     };
 
     closeDrawer = event => {
@@ -166,19 +171,24 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
               this.props.showTooltip ? (
                 <>
                   {tooltip}
-                  {shouldRenderAsLink && <i className="fa fa-external-link" style={{ marginLeft: 5 }} />}
+                  {shouldRenderAsLink && (
+                    <>
+                      {" "}
+                      <i className="fa fa-external-link" style={{ marginLeft: 5 }} aria-hidden="true" />
+                      <span className="sr-only">(opens in a new tab)</span>
+                    </>
+                  )}
                 </>
               ) : null
             }>
-            {shouldRenderAsLink ? (
-              <Link href={url || this.getUrl()} className={className} rel="noopener noreferrer" target="_blank">
-                {this.props.children}
-              </Link>
-            ) : (
-              <a onClick={this.openDrawer} className={className}>
-                {this.props.children}
-              </a>
-            )}
+            <Link
+              href={url || this.getUrl()}
+              className={className}
+              rel="noopener noreferrer"
+              target="_blank"
+              onClick={shouldRenderAsLink ? () => {} : this.openDrawer}>
+              {this.props.children}
+            </Link>
           </Tooltip>
           <Drawer
             placement="right"
@@ -194,14 +204,15 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
                   <Tooltip title="Open page in a new window" placement="left">
                     {/* eslint-disable-next-line react/jsx-no-target-blank */}
                     <Link href={url} target="_blank">
-                      <i className="fa fa-external-link" />
+                      <i className="fa fa-external-link" aria-hidden="true" />
+                      <span className="sr-only">(opens in a new tab)</span>
                     </Link>
                   </Tooltip>
                 )}
                 <Tooltip title="Close" placement="bottom">
-                  <a onClick={this.closeDrawer}>
+                  <PlainButton onClick={this.closeDrawer}>
                     <CloseOutlinedIcon />
-                  </a>
+                  </PlainButton>
                 </Tooltip>
               </div>
 

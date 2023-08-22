@@ -35,6 +35,9 @@
         "type": "linear",
         "autorange": true,
         "range": null
+      },    
+      "hoverlabel": {
+        "namelength": -1
       }
     }
   }
