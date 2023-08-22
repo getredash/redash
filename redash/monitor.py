@@ -1,13 +1,10 @@
-from __future__ import absolute_import
-import itertools
 from funcy import flatten
-from sqlalchemy import union_all
-from redash import redis_connection, rq_redis_connection, __version__, settings
-from redash.models import db, DataSource, Query, QueryResult, Dashboard, Widget
-from redash.utils import json_loads
 from rq import Queue, Worker
 from rq.job import Job
 from rq.registry import StartedJobRegistry
+
+from redash import __version__, redis_connection, rq_redis_connection, settings
+from redash.models import Dashboard, Query, QueryResult, Widget, db
 
 
 def get_redis_status():
@@ -23,7 +20,7 @@ def get_object_counts():
     status["queries_count"] = Query.query.count()
     if settings.FEATURE_SHOW_QUERY_RESULTS_COUNT:
         status["query_results_count"] = QueryResult.query.count()
-        status["unused_query_results_count"] = QueryResult.unused().count()
+        status["unused_query_results_count"] = QueryResult.unused(settings.QUERY_RESULTS_CLEANUP_MAX_AGE).count()
     status["dashboards_count"] = Dashboard.query.count()
     status["widgets_count"] = Widget.query.count()
     return status

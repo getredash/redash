@@ -1,5 +1,6 @@
 from unittest import TestCase
-from redash.query_runner.databricks import split_sql_statements
+
+from redash.query_runner import split_sql_statements
 
 
 class TestSplitMultipleSQLStatements(TestCase):
@@ -33,8 +34,8 @@ select 2 as column, if(true, x, "y;z") from table2 as "alias ; 2"
                 """
 select 3 -- comment with ; semicolon
 from table3
-                """
-            ]
+                """,
+            ],
         )
 
     # - it should keep whitespaces
@@ -54,8 +55,8 @@ selECT   #TesT#
                 """
 INSERT LoReM
     IPSUM %^&*()
-                """
-            ]
+                """,
+            ],
         )
 
         self._assertSplitSql(
@@ -69,8 +70,8 @@ select now()
                 "set test_var = 'hello'",
                 "select ${test_var}, 123 from table",
                 "select 'qwerty' from ${test_var}",
-                "select now()"
-            ]
+                "select now()",
+            ],
         )
 
     # - it should keep all comments to semicolon after statement
@@ -96,7 +97,7 @@ SELECT x -- comment 2
 -- comment 5
 DELETE FROM table
                 """,
-            ]
+            ],
         )
 
     # - it should skip empty statements
@@ -115,11 +116,8 @@ SELECT * FROM table;
                 """
 SELECT * FROM table
                 """
-            ]
+            ],
         )
 
         # special case - if all statements were empty it should return the only empty statement
-        self._assertSplitSql(
-            ";; -- comment 1",
-            [""]
-        )
+        self._assertSplitSql(";; -- comment 1", [""])
