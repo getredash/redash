@@ -4,11 +4,11 @@ import { Section, Input, ContextHelp } from "@/components/visualizations/editor"
 import { createDateTimeFormatter } from "@/lib/value-format";
 
 type Props = {
-    column: {
-        name: string;
-        dateTimeFormat?: string;
-    };
-    onChange: (...args: any[]) => any;
+  column: {
+    name: string;
+    dateTimeFormat?: string;
+  };
+  onChange: (...args: any[]) => any;
 };
 
 function Editor({ column, onChange }: Props) {
@@ -41,9 +41,7 @@ export default function initDateTimeColumn(column: any) {
     };
   }
 
-  function DateTimeColumn({
-    row
-  }: any) {
+  function DateTimeColumn({ row }: any) {
     // eslint-disable-line react/prop-types
     const { text } = prepareData(row);
     return text;

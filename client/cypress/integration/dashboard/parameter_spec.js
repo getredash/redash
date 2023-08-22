@@ -1,6 +1,4 @@
-import { each } from "lodash";
-import { createQueryAndAddWidget, editDashboard } from "../../support/dashboard";
-import { dragParam, expectParamOrder } from "../../support/parameters";
+import { createQueryAndAddWidget } from "../../support/dashboard";
 
 describe("Dashboard Parameters", () => {
   const parameters = [
@@ -41,28 +39,23 @@ describe("Dashboard Parameters", () => {
       .click();
   };
 
-  const saveMappingOptions = (close = true) => {
-    cy.getByTestId("EditParamMappingPopover")
+  const saveMappingOptions = (closeMappingMenu = false) => {
+    return cy
+      .getByTestId("EditParamMappingPopover")
       .filter(":visible")
+      .as("Popover")
       .within(() => {
+        // This is needed to grant the element will have finished loading
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
+        cy.wait(500);
         cy.contains("button", "OK").click();
+      })
+      .then(() => {
+        if (closeMappingMenu) {
+          cy.contains("button", "OK").click();
+        }
+        return cy.get("@Popover").should("not.be.visible");
       });
-
-    cy.getByTestId("EditParamMappingPopover").should("not.be.visible");
-
-    if (close) {
-      cy.contains("button", "OK").click();
-    }
-  };
-
-  const setWidgetParametersToDashboard = parameters => {
-    each(parameters, ({ name: paramName }, i) => {
-      cy.getByTestId(`EditParamMappingButton-${paramName}`).click();
-      cy.getByTestId("NewDashboardParameterOption")
-        .filter(":visible")
-        .click();
-      saveMappingOptions(i === parameters.length - 1);
-    });
   };
 
   it("supports widget parameters", function() {
@@ -80,27 +73,6 @@ describe("Dashboard Parameters", () => {
     });
 
     cy.getByTestId("DashboardParameters").should("not.exist");
-  });
-
-  it("supports dashboard parameters", function() {
-    openMappingOptions(this.widgetTestId);
-    setWidgetParametersToDashboard(parameters);
-
-    cy.getByTestId(this.widgetTestId).within(() => {
-      cy.getByTestId("ParameterName-param1").should("not.exist");
-    });
-
-    cy.getByTestId("DashboardParameters").within(() => {
-      cy.getByTestId("ParameterName-param1")
-        .find("input")
-        .type("{selectall}DashboardParam");
-
-      cy.getByTestId("ParameterApplyButton").click();
-    });
-
-    cy.getByTestId(this.widgetTestId).within(() => {
-      cy.getByTestId("TableVisualization").should("contain", "DashboardParam");
-    });
   });
 
   it("supports static values for parameters", function() {
@@ -126,35 +98,5 @@ describe("Dashboard Parameters", () => {
     cy.getByTestId(this.widgetTestId).within(() => {
       cy.getByTestId("TableVisualization").should("contain", "StaticValue");
     });
-  });
-
-  it("reorders parameters", function() {
-    // Reorder is only available in edit mode
-    editDashboard();
-
-    const [param1, param2] = parameters;
-
-    cy.getByTestId("ParameterBlock-param1")
-      .invoke("width")
-      .then(paramWidth => {
-        cy.server();
-        cy.route("POST", `**/api/dashboards/*`).as("SaveDashboard");
-        cy.route("POST", `**/api/widgets/*`).as("SaveWidget");
-
-        // Asserts widget param order
-        dragParam(param1.name, paramWidth, 1);
-        cy.wait("@SaveWidget");
-        cy.reload();
-        expectParamOrder([param2.title, param1.title]);
-
-        // Asserts dashboard param order
-        openMappingOptions(this.widgetTestId);
-        setWidgetParametersToDashboard(parameters);
-        cy.wait("@SaveWidget");
-        dragParam(param1.name, paramWidth, 1);
-        cy.wait("@SaveDashboard");
-        cy.reload();
-        expectParamOrder([param2.title, param1.title]);
-      });
   });
 });

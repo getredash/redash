@@ -65,7 +65,6 @@ function getDefaultFormatOptions(column: any) {
     datetime: visualizationsSettings.dateTimeFormat || "DD/MM/YYYY HH:mm",
   };
   const numberFormat = {
-    // @ts-expect-error ts-migrate(2551) FIXME: Property 'integerFormat' does not exist on type '{... Remove this comment to see the full error message
     integer: visualizationsSettings.integerFormat || "0,0",
     float: visualizationsSettings.floatFormat || "0,0.00",
   };
@@ -125,9 +124,7 @@ function getColumnsOptions(columns: any, visualizationColumns: any) {
   return _.sortBy(options, "order");
 }
 
-export default function getOptions(options: any, {
-  columns
-}: any) {
+export default function getOptions(options: any, { columns }: any) {
   options = { ...DEFAULT_OPTIONS, ...options };
   options.columns = _.map(getColumnsOptions(columns, options.columns), col => ({
     ...getDefaultFormatOptions(col),

@@ -19,24 +19,22 @@ export default createTabbedEditor([
   {
     key: "General",
     title: "General",
-    component: (props: any) => <React.Fragment>
-      <GeneralSettings {...props} />
-      {isCustomChart(props.options) && <CustomChartSettings {...props} />}
-    </React.Fragment>,
+    component: (props: any) => (
+      <React.Fragment>
+        <GeneralSettings {...props} />
+        {isCustomChart(props.options) && <CustomChartSettings {...props} />}
+      </React.Fragment>
+    ),
   },
   {
     key: "XAxis",
-    title: ({
-      swappedAxes
-    }: any) => (!swappedAxes ? "X Axis" : "Y Axis"),
+    title: ({ swappedAxes }: any) => (!swappedAxes ? "X Axis" : "Y Axis"),
     component: XAxisSettings,
     isAvailable: (options: any) => !isCustomChart(options) && !isPieChart(options),
   },
   {
     key: "YAxis",
-    title: ({
-      swappedAxes
-    }: any) => (!swappedAxes ? "Y Axis" : "X Axis"),
+    title: ({ swappedAxes }: any) => (!swappedAxes ? "Y Axis" : "X Axis"),
     component: YAxisSettings,
     isAvailable: (options: any) => !isCustomChart(options) && !isPieChart(options),
   },

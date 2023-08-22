@@ -3,10 +3,10 @@ import { extend } from "lodash";
 import Tooltip from "antd/lib/tooltip";
 
 type HelpTriggerProps = {
-    title?: React.ReactNode;
-    href: string;
-    className?: string;
-    children?: React.ReactNode;
+  title?: React.ReactNode;
+  href: string;
+  className?: string;
+  children?: React.ReactNode;
 };
 
 function HelpTrigger({ title, href, className, children }: HelpTriggerProps) {
@@ -40,7 +40,7 @@ export const visualizationsSettings = {
   LinkComponent: Link,
   dateFormat: "DD/MM/YYYY",
   dateTimeFormat: "DD/MM/YYYY HH:mm",
-  integetFormat: "0,0",
+  integerFormat: "0,0",
   floatFormat: "0,0.00",
   booleanValues: ["false", "true"],
   tableCellMaxJSONSize: 50000,

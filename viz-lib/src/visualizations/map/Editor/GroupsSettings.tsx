@@ -7,11 +7,7 @@ import ColorPalette from "@/visualizations/ColorPalette";
 
 import prepareData from "../prepareData";
 
-export default function GroupsSettings({
-  options,
-  data,
-  onOptionsChange
-}: any) {
+export default function GroupsSettings({ options, data, onOptionsChange }: any) {
   const groups = useMemo(
     () => map(prepareData(data, options), ({ name }) => ({ name, color: (options.groups[name] || {}).color || null })),
     [data, options]

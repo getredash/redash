@@ -9,7 +9,7 @@ from redash import statsd_client
 metrics_logger = logging.getLogger("metrics")
 
 
-def record_requets_start_time():
+def record_request_start_time():
     g.start_time = time.time()
 
 
@@ -35,16 +35,12 @@ def calculate_metrics(response):
         queries_duration,
     )
 
-    statsd_client.timing(
-        "requests.{}.{}".format(endpoint, request.method.lower()), request_duration
-    )
+    statsd_client.timing("requests.{}.{}".format(endpoint, request.method.lower()), request_duration)
 
     return response
 
 
-MockResponse = namedtuple(
-    "MockResponse", ["status_code", "content_type", "content_length"]
-)
+MockResponse = namedtuple("MockResponse", ["status_code", "content_type", "content_length"])
 
 
 def calculate_metrics_on_exception(error):
@@ -53,6 +49,6 @@ def calculate_metrics_on_exception(error):
 
 
 def init_app(app):
-    app.before_request(record_requets_start_time)
+    app.before_request(record_request_start_time)
     app.after_request(calculate_metrics)
     app.teardown_request(calculate_metrics_on_exception)

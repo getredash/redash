@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { Moment } from "@/components/proptypes";
 import { clientConfig } from "@/services/auth";
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 
 function toMoment(value) {
   value = !isNil(value) ? moment(value) : null;

@@ -17,10 +17,7 @@ const { Text } = Typography;
 
 const SortableItem = sortableElement(Collapse.Panel);
 
-export default function ColumnsSettings({
-  options,
-  onOptionsChange
-}: any) {
+export default function ColumnsSettings({ options, onOptionsChange }: any) {
   function handleColumnChange(newColumn: any, event: any) {
     if (event) {
       event.stopPropagation();
@@ -29,10 +26,7 @@ export default function ColumnsSettings({
     onOptionsChange({ columns });
   }
 
-  function handleColumnsReorder({
-    oldIndex,
-    newIndex
-  }: any) {
+  function handleColumnsReorder({ oldIndex, newIndex }: any) {
     const columns = [...options.columns];
     columns.splice(newIndex, 0, ...columns.splice(oldIndex, 1));
     onOptionsChange({ columns });

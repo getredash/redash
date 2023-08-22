@@ -7,7 +7,7 @@ import registeredVisualizations from "@/visualizations/registeredVisualizations"
 ...EditorPropTypes
 */
 type Props = {
-    type: string;
+  type: string;
 } & typeof EditorPropTypes;
 
 export default function Editor({ type, options: optionsProp, data, ...otherProps }: Props) {

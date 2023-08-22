@@ -151,6 +151,7 @@ export default function DynamicForm({
   onSubmit,
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTouched, setIsTouched] = useState(false);
   const [showExtraFields, setShowExtraFields] = useState(defaultShowExtraFields);
   const [form] = Form.useForm();
   const extraFields = filter(fields, { extra: true });
@@ -163,9 +164,8 @@ export default function DynamicForm({
       onSubmit(
         values,
         msg => {
-          const { setFieldsValue, getFieldsValue } = form;
           setIsSubmitting(false);
-          setFieldsValue(getFieldsValue()); // reset form touched state
+          setIsTouched(false); // reset form touched state
           notification.success(msg);
         },
         msg => {
@@ -174,7 +174,7 @@ export default function DynamicForm({
         }
       );
     },
-    [form, fields, onSubmit]
+    [fields, onSubmit]
   );
 
   const handleFinishFailed = useCallback(
@@ -187,6 +187,9 @@ export default function DynamicForm({
   return (
     <Form
       form={form}
+      onFieldsChange={() => {
+        setIsTouched(true);
+      }}
       id={id}
       className="dynamic-form"
       layout="vertical"
@@ -201,7 +204,10 @@ export default function DynamicForm({
             className="extra-options-button"
             onClick={() => setShowExtraFields(currentShowExtraFields => !currentShowExtraFields)}>
             Additional Settings
-            <i className={cx("fa m-l-5", { "fa-caret-up": showExtraFields, "fa-caret-down": !showExtraFields })} />
+            <i
+              className={cx("fa m-l-5", { "fa-caret-up": showExtraFields, "fa-caret-down": !showExtraFields })}
+              aria-hidden="true"
+            />
           </Button>
           <Collapse collapsed={!showExtraFields} className="extra-options-content">
             <DynamicFormFields fields={extraFields} feedbackIcons={feedbackIcons} form={form} />
@@ -213,7 +219,7 @@ export default function DynamicForm({
           {saveText}
         </Button>
       )}
-      <DynamicFormActions actions={actions} isFormDirty={form.isFieldsTouched()} />
+      <DynamicFormActions actions={actions} isFormDirty={isTouched} />
     </Form>
   );
 }

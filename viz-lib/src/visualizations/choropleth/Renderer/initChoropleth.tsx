@@ -35,15 +35,7 @@ const CustomControl = L.Control.extend({
   },
 });
 
-function prepareLayer({
-  feature,
-  layer,
-  data,
-  options,
-  limits,
-  colors,
-  formatValue
-}: any) {
+function prepareLayer({ feature, layer, data, options, limits, colors, formatValue }: any) {
   const value = getValueForFeature(feature, data, options.targetField);
   const valueFormatted = formatValue(value);
   const featureData = prepareFeatureProperties(feature, valueFormatted, data, options.targetField);
