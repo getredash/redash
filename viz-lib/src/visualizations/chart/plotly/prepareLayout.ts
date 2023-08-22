@@ -21,6 +21,7 @@ function prepareXAxis(axisOptions: any, additionalOptions: any) {
     title: getAxisTitle(axisOptions),
     type: getAxisScaleType(axisOptions),
     automargin: true,
+    tickformat: axisOptions.tickFormat,
   };
 
   if (additionalOptions.sortX && axis.type === "category") {
@@ -48,6 +49,7 @@ function prepareYAxis(axisOptions: any) {
     automargin: true,
     autorange: true,
     range: null,
+    tickformat: axisOptions.tickFormat,
   };
 }
 
@@ -116,6 +118,9 @@ export default function prepareLayout(element: any, options: any, data: any) {
     showlegend: options.legend.enabled,
     legend: {
       traceorder: options.legend.traceorder,
+    },
+    hoverlabel: {
+      namelength: -1,
     },
   };
 

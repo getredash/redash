@@ -1,6 +1,15 @@
 import logging
 
-from redash.query_runner import *
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseSQLQueryRunner,
+    JobTimeoutException,
+    register,
+)
 from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
@@ -10,7 +19,7 @@ try:
     from impala.error import DatabaseError, RPCError
 
     enabled = True
-except ImportError as e:
+except ImportError:
     enabled = False
 
 COLUMN_NAME = 0
@@ -53,6 +62,7 @@ class Impala(BaseSQLQueryRunner):
                 },
                 "database": {"type": "string"},
                 "use_ldap": {"type": "boolean"},
+                "use_ssl": {"type": "boolean"},
                 "ldap_user": {"type": "string"},
                 "ldap_password": {"type": "string"},
                 "timeout": {"type": "number"},
@@ -67,21 +77,13 @@ class Impala(BaseSQLQueryRunner):
 
     def _get_tables(self, schema_dict):
         schemas_query = "show schemas;"
-        tables_query = "show tables in %s;"
-        columns_query = "show column stats %s.%s;"
+        tables_query = "show tables in `%s`;"
+        columns_query = "show column stats `%s`.`%s`;"
 
-        for schema_name in [
-            str(a["name"]) for a in self._run_query_internal(schemas_query)
-        ]:
-            for table_name in [
-                str(a["name"])
-                for a in self._run_query_internal(tables_query % schema_name)
-            ]:
+        for schema_name in [str(a["name"]) for a in self._run_query_internal(schemas_query)]:
+            for table_name in [str(a["name"]) for a in self._run_query_internal(tables_query % schema_name)]:
                 columns = [
-                    str(a["Column"])
-                    for a in self._run_query_internal(
-                        columns_query % (schema_name, table_name)
-                    )
+                    str(a["Column"]) for a in self._run_query_internal(columns_query % (schema_name, table_name))
                 ]
 
                 if schema_name != "default":
@@ -92,7 +94,6 @@ class Impala(BaseSQLQueryRunner):
         return list(schema_dict.values())
 
     def run_query(self, query, user):
-
         connection = None
         try:
             connection = connect(**self.configuration.to_dict())
