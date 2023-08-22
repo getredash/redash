@@ -29,7 +29,7 @@ class ChatWork(BaseDestination):
     def icon(cls):
         return "fa-comment"
 
-    def notify(self, alert, query, user, new_state, app, host, options):
+    def notify(self, alert, query, user, new_state, app, host, metadata, options):
         try:
             # Documentation: http://developer.chatwork.com/ja/endpoint_rooms.html#POST-rooms-room_id-messages
             url = "https://api.chatwork.com/v2/rooms/{room_id}/messages".format(room_id=options.get("room_id"))
