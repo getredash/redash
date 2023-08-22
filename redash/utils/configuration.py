@@ -1,5 +1,6 @@
-import jsonschema
 import copy
+
+import jsonschema
 from jsonschema import ValidationError
 from sqlalchemy.ext.mutable import Mutable
 
