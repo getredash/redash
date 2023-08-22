@@ -7,14 +7,12 @@ from redash.query_runner import TYPE_DATETIME, TYPE_FLOAT
 from redash.query_runner.google_spreadsheets import (
     TYPE_BOOLEAN,
     TYPE_STRING,
+    WorksheetNotFoundError,
+    WorksheetNotFoundByTitleError,
     _get_columns_and_column_names,
     _value_eval_list,
     is_url_key,
     parse_query,
-)
-from redash.query_runner.google_spreadsheets import (
-    WorksheetNotFoundError,
-    WorksheetNotFoundByTitleError,
     parse_spreadsheet,
     parse_worksheet,
 )
@@ -28,23 +26,17 @@ class TestValueEvalList(TestCase):
     def test_handles_boolean(self):
         values = ["true", "false", "True", "False", "TRUE", "FALSE"]
         converted_values = [True, False, True, False, True, False]
-        self.assertEqual(
-            converted_values, _value_eval_list(values, [TYPE_BOOLEAN] * len(values))
-        )
+        self.assertEqual(converted_values, _value_eval_list(values, [TYPE_BOOLEAN] * len(values)))
 
     def test_handles_empty_values(self):
         values = ["", None]
         converted_values = [None, None]
-        self.assertEqual(
-            converted_values, _value_eval_list(values, [TYPE_STRING, TYPE_STRING])
-        )
+        self.assertEqual(converted_values, _value_eval_list(values, [TYPE_STRING, TYPE_STRING]))
 
     def test_handles_float(self):
         values = ["3.14", "-273.15"]
         converted_values = [3.14, -273.15]
-        self.assertEqual(
-            converted_values, _value_eval_list(values, [TYPE_FLOAT, TYPE_FLOAT])
-        )
+        self.assertEqual(converted_values, _value_eval_list(values, [TYPE_FLOAT, TYPE_FLOAT]))
 
     def test_handles_datetime(self):
         values = ["2018-06-28", "2020-2-29"]
@@ -52,9 +44,7 @@ class TestValueEvalList(TestCase):
             datetime.datetime(2018, 6, 28, 0, 0),
             datetime.datetime(2020, 2, 29, 0, 0),
         ]
-        self.assertEqual(
-            converted_values, _value_eval_list(values, [TYPE_DATETIME, TYPE_DATETIME])
-        )
+        self.assertEqual(converted_values, _value_eval_list(values, [TYPE_DATETIME, TYPE_DATETIME]))
 
 
 class TestParseSpreadsheet(TestCase):

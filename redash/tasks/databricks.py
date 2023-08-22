@@ -1,9 +1,7 @@
-from rq.registry import FailedJobRegistry
 from redash import models, redis_connection
-from redash.worker import job
 from redash.tasks.worker import Queue
 from redash.utils import json_dumps
-
+from redash.worker import job
 
 DATABRICKS_REDIS_EXPIRATION_TIME = 3600
 
@@ -24,14 +22,13 @@ def get_databricks_databases(data_source_id, redis_key):
 def get_database_tables_with_columns(data_source_id, database_name, redis_key):
     try:
         data_source = models.DataSource.get_by_id(data_source_id)
-        tables = data_source.query_runner.get_database_tables_with_columns(
-            database_name
-        )
+        tables = data_source.query_runner.get_database_tables_with_columns(database_name)
         # check for tables since it doesn't return an error when the requested database doesn't exist
         if tables or redis_connection.exists(redis_key):
             redis_connection.set(redis_key, json_dumps(tables))
             redis_connection.expire(
-                redis_key, DATABRICKS_REDIS_EXPIRATION_TIME,
+                redis_key,
+                DATABRICKS_REDIS_EXPIRATION_TIME,
             )
         return {"schema": tables, "has_columns": True}
     except Exception:
@@ -42,9 +39,7 @@ def get_database_tables_with_columns(data_source_id, database_name, redis_key):
 def get_databricks_tables(data_source_id, database_name):
     try:
         data_source = models.DataSource.get_by_id(data_source_id)
-        tables = data_source.query_runner.get_database_tables_with_columns(
-            database_name
-        )
+        tables = data_source.query_runner.get_database_tables_with_columns(database_name)
         return {"schema": tables, "has_columns": False}
     except Exception:
         return {"error": {"code": 2, "message": "Error retrieving schema."}}

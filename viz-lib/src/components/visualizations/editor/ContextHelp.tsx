@@ -6,8 +6,8 @@ import { visualizationsSettings } from "@/visualizations/visualizationsSettings"
 import "./context-help.less";
 
 type OwnContextHelpProps = {
-    icon?: React.ReactNode;
-    children?: React.ReactNode;
+  icon?: React.ReactNode;
+  children?: React.ReactNode;
 };
 
 type ContextHelpProps = OwnContextHelpProps & typeof ContextHelp.defaultProps;
@@ -53,5 +53,18 @@ function DateTimeFormatSpecs() {
   );
 }
 
+function TickFormatSpecs() {
+  const { HelpTriggerComponent } = visualizationsSettings;
+  return (
+    <HelpTriggerComponent
+      title="Tick Formatting"
+      href="https://redash.io/help/user-guide/visualizations/formatting-axis"
+      className="visualization-editor-context-help">
+      {ContextHelp.defaultIcon}
+    </HelpTriggerComponent>
+  );
+}
+
 ContextHelp.NumberFormatSpecs = NumberFormatSpecs;
 ContextHelp.DateTimeFormatSpecs = DateTimeFormatSpecs;
+ContextHelp.TickFormatSpecs = TickFormatSpecs;

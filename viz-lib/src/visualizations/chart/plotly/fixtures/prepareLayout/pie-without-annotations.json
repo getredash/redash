@@ -19,6 +19,9 @@
       "legend": {
         "traceorder": "normal"
       },
+      "hoverlabel": {
+        "namelength": -1
+      },
       "annotations": []
     }
   }

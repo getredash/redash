@@ -4,10 +4,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 
 import AxisSettings from "./AxisSettings";
 
-export default function YAxisSettings({
-  options,
-  onOptionsChange
-}: any) {
+export default function YAxisSettings({ options, onOptionsChange }: any) {
   const [leftYAxis, rightYAxis] = options.yAxis;
 
   return (

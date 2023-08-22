@@ -60,6 +60,7 @@ function CreateDashboardDialog({ dialog }) {
           onChange={handleNameChange}
           onPressEnter={save}
           placeholder="Dashboard Name"
+          aria-label="Dashboard name"
           disabled={saveInProgress}
           autoFocus
         />

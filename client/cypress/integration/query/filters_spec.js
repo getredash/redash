@@ -68,19 +68,11 @@ describe("Query Filters", () => {
     }
 
     it("filters rows in a Table Visualization", () => {
-      expectSelectedOptionsToHaveMembers(["a"]);
-      expectTableToHaveLength(4);
-      expectFirstColumnToHaveMembers(["a", "a", "a", "a"]);
+      // Defaults to All Options Selected
 
-      cy.getByTestId("FilterName-stage1::multi-filter")
-        .find(".ant-select-selector")
-        .click();
-      cy.contains(".ant-select-item-option-content", "b").click();
-      cy.getByTestId("FilterName-stage1::multi-filter").click(); // close dropdown
-
-      expectSelectedOptionsToHaveMembers(["a", "b"]);
-      expectTableToHaveLength(7);
-      expectFirstColumnToHaveMembers(["a", "a", "a", "a", "b", "b", "b"]);
+      expectSelectedOptionsToHaveMembers(["a", "b", "c"]);
+      expectTableToHaveLength(11);
+      expectFirstColumnToHaveMembers(["a", "a", "a", "a", "b", "b", "b", "c", "c", "c", "c"]);
 
       // Clear Option
 
@@ -91,6 +83,30 @@ describe("Query Filters", () => {
       cy.getByTestId("FilterName-stage1::multi-filter").click(); // close dropdown
 
       cy.getByTestId("TableVisualization").should("not.exist");
+
+      // Single Option selected
+
+      cy.getByTestId("FilterName-stage1::multi-filter")
+        .find(".ant-select-selector")
+        .click();
+      cy.contains(".ant-select-item-option-grouped > .ant-select-item-option-content", "a").click();
+      cy.getByTestId("FilterName-stage1::multi-filter").click(); // close dropdown
+
+      expectSelectedOptionsToHaveMembers(["a"]);
+      expectTableToHaveLength(4);
+      expectFirstColumnToHaveMembers(["a", "a", "a", "a"]);
+
+      // Two Options selected
+
+      cy.getByTestId("FilterName-stage1::multi-filter")
+        .find(".ant-select-selector")
+        .click();
+      cy.contains(".ant-select-item-option-content", "b").click();
+      cy.getByTestId("FilterName-stage1::multi-filter").click(); // close dropdown
+
+      expectSelectedOptionsToHaveMembers(["a", "b"]);
+      expectTableToHaveLength(7);
+      expectFirstColumnToHaveMembers(["a", "a", "a", "a", "b", "b", "b"]);
 
       // Select All Option
 

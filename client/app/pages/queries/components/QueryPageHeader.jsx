@@ -90,8 +90,8 @@ export default function QueryPageHeader({
             isEnabled: !queryFlags.isNew && queryFlags.canFork && !isDuplicating,
             title: (
               <React.Fragment>
-                Fork
-                <i className="fa fa-external-link m-l-5" />
+                Fork <i className="fa fa-external-link m-l-5" aria-hidden="true" />
+                <span className="sr-only">(opens in a new tab)</span>
               </React.Fragment>
             ),
             onClick: duplicateQuery,
@@ -173,13 +173,13 @@ export default function QueryPageHeader({
         {headerExtra}
         {isDesktop && queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit && (
           <Button className="m-r-5" onClick={publishQuery}>
-            <i className="fa fa-paper-plane m-r-5" /> Publish
+            <i className="fa fa-paper-plane m-r-5" aria-hidden="true" /> Publish
           </Button>
         )}
 
         {!queryFlags.isNew && queryFlags.canViewSource && (
           <span>
-            {!sourceMode && queryFlags.canEdit && (
+            {!sourceMode && (
               <Link.Button className="m-r-5" href={query.getUrl(true, selectedVisualization)}>
                 <i className="fa fa-pencil-square-o" aria-hidden="true" />
                 <span className="m-l-5">Edit Source</span>
@@ -199,8 +199,8 @@ export default function QueryPageHeader({
 
         {!queryFlags.isNew && (
           <Dropdown overlay={moreActionsMenu} trigger={["click"]}>
-            <Button data-test="QueryPageHeaderMoreButton">
-              <EllipsisOutlinedIcon rotate={90} />
+            <Button data-test="QueryPageHeaderMoreButton" aria-label="More actions">
+              <EllipsisOutlinedIcon rotate={90} aria-hidden="true" />
             </Button>
           </Dropdown>
         )}

@@ -65,7 +65,7 @@ function prepareOptions(options: any) {
     getColorForValue: chroma
       .scale([options.colors.min, options.colors.max])
       .mode("hsl")
-      .domain([0, 100])
+      .domain([0, 1])
       .classes(options.colors.steps),
   });
 }
@@ -90,10 +90,7 @@ function formatTimeLabel(options: any, offset: any) {
     .format(options.timeLabelFormat);
 }
 
-function CorneliusHeader({
-  options,
-  maxRowLength
-}: any) {
+function CorneliusHeader({ options, maxRowLength }: any) {
   // eslint-disable-line react/prop-types
   const cells = [];
   for (let i = 1; i < maxRowLength; i += 1) {
@@ -113,19 +110,14 @@ function CorneliusHeader({
   );
 }
 
-function CorneliusRow({
-  options,
-  data,
-  index,
-  maxRowLength
-}: any) {
+function CorneliusRow({ options, data, index, maxRowLength }: any) {
   // eslint-disable-line react/prop-types
   const baseValue = data[0] || 0;
 
   const cells = [];
   for (let i = 1; i < maxRowLength; i += 1) {
     const value = data[i];
-    const percentageValue = isFinite(value / baseValue) ? (value / baseValue) * 100 : null;
+    const percentageValue = isFinite(value / baseValue) ? (value / baseValue) : null;
     const cellProps = { key: `col${i}` };
 
     if (isNil(percentageValue)) {
@@ -177,28 +169,28 @@ function CorneliusRow({
 }
 
 type OwnCorneliusProps = {
-    data?: number[][];
-    options?: {
-        initialDate: any; // TODO: PropTypes.instanceOf(Date)
-        timeInterval?: "daily" | "weekly" | "monthly" | "yearly";
-        noValuePlaceholder?: string;
-        rawNumberOnHover?: boolean;
-        displayAbsoluteValues?: boolean;
-        initialIntervalNumber?: number;
-        maxColumns?: number;
-        title?: string;
-        timeColumnTitle?: string;
-        peopleColumnTitle?: string;
-        stageColumnTitle?: string;
-        numberFormat?: string;
-        percentFormat?: string;
-        timeLabelFormat?: string;
-        colors?: {
-            min?: string;
-            max?: string;
-            steps?: number;
-        };
+  data?: number[][];
+  options?: {
+    initialDate: any; // TODO: PropTypes.instanceOf(Date)
+    timeInterval?: "daily" | "weekly" | "monthly" | "yearly";
+    noValuePlaceholder?: string;
+    rawNumberOnHover?: boolean;
+    displayAbsoluteValues?: boolean;
+    initialIntervalNumber?: number;
+    maxColumns?: number;
+    title?: string;
+    timeColumnTitle?: string;
+    peopleColumnTitle?: string;
+    stageColumnTitle?: string;
+    numberFormat?: string;
+    percentFormat?: string;
+    timeLabelFormat?: string;
+    colors?: {
+      min?: string;
+      max?: string;
+      steps?: number;
     };
+  };
 };
 
 type CorneliusProps = OwnCorneliusProps & typeof Cornelius.defaultProps;

@@ -10,6 +10,7 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import CreateSourceDialog from "@/components/CreateSourceDialog";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import PlainButton from "@/components/PlainButton";
 
 import Destination, { IMG_ROOT } from "@/services/destination";
 import { policy } from "@/services/policy";
@@ -97,9 +98,9 @@ class DestinationsList extends React.Component {
         There are no alert destinations yet.
         {policy.isCreateDestinationEnabled() && (
           <div className="m-t-5">
-            <a className="clickable" onClick={this.showCreateSourceDialog}>
+            <PlainButton type="link" onClick={this.showCreateSourceDialog}>
               Click here
-            </a>{" "}
+            </PlainButton>{" "}
             to add one.
           </div>
         )}
@@ -120,7 +121,7 @@ class DestinationsList extends React.Component {
       <div>
         <div className="m-b-15">
           <Button {...newDestinationProps}>
-            <i className="fa fa-plus m-r-5" />
+            <i className="fa fa-plus m-r-5" aria-hidden="true" />
             New Alert Destination
           </Button>
         </div>

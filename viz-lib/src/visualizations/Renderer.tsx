@@ -9,12 +9,20 @@ import registeredVisualizations from "@/visualizations/registeredVisualizations"
 ...RendererPropTypes
 */
 type Props = {
-    type: string;
-    addonBefore?: React.ReactNode;
-    addonAfter?: React.ReactNode;
+  type: string;
+  addonBefore?: React.ReactNode;
+  addonAfter?: React.ReactNode;
 } & typeof RendererPropTypes;
 
-export default function Renderer({ type, data, options: optionsProp, visualizationName, addonBefore, addonAfter, ...otherProps }: Props) {
+export default function Renderer({
+  type,
+  data,
+  options: optionsProp,
+  visualizationName,
+  addonBefore,
+  addonAfter,
+  ...otherProps
+}: Props) {
   const lastOptions = useRef();
   const errorHandlerRef = useRef();
 
