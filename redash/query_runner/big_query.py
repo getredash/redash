@@ -132,7 +132,11 @@ class BigQuery(BaseQueryRunner):
                     "type": "number",
                     "title": "Maximum Billing Tier",
                 },
-                "useQueryAnnotation": { "type": "boolean", "title": "Use Query Annotation", "default": False, },
+                "useQueryAnnotation": {
+                    "type": "boolean",
+                    "title": "Use Query Annotation",
+                    "default": False,
+                },
             },
             "required": ["jsonKeyFile", "projectId"],
             "order": [
