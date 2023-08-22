@@ -53,5 +53,18 @@ function DateTimeFormatSpecs() {
   );
 }
 
+function TickFormatSpecs() {
+  const { HelpTriggerComponent } = visualizationsSettings;
+  return (
+    <HelpTriggerComponent
+      title="Tick Formatting"
+      href="https://redash.io/help/user-guide/visualizations/formatting-axis"
+      className="visualization-editor-context-help">
+      {ContextHelp.defaultIcon}
+    </HelpTriggerComponent>
+  );
+}
+
 ContextHelp.NumberFormatSpecs = NumberFormatSpecs;
 ContextHelp.DateTimeFormatSpecs = DateTimeFormatSpecs;
+ContextHelp.TickFormatSpecs = TickFormatSpecs;

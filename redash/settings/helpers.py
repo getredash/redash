@@ -29,11 +29,13 @@ def parse_boolean(s):
     else:
         raise ValueError("Invalid boolean value %r" % s)
 
+
 def cast_int_or_default(val, default=None):
     try:
         return int(val)
     except (ValueError, TypeError):
         return default
+
 
 def int_or_none(value):
     if value is None:

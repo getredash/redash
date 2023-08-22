@@ -321,6 +321,9 @@ class QueryResult {
         }
         return v;
       });
+      if (filter.values.length > 1 && filter.multiple) {
+        filter.current = filter.values.slice();
+      }
     });
 
     return filters;
