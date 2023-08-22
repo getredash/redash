@@ -22,6 +22,19 @@ worker() {
   exec supervisord -c worker.conf
 }
 
+workers_healthcheck() {
+  WORKERS_COUNT=${WORKERS_COUNT}
+  echo "Checking active workers count against $WORKERS_COUNT..."
+  ACTIVE_WORKERS_COUNT=`echo $(rq info --url $REDASH_REDIS_URL -R | grep workers | grep -oP ^[0-9]+)`
+  if [ "$ACTIVE_WORKERS_COUNT" -lt "$WORKERS_COUNT"  ]; then
+    echo "$ACTIVE_WORKERS_COUNT workers are active, Exiting"
+    exit 1
+  else
+    echo "$ACTIVE_WORKERS_COUNT workers are active"
+    exit 0
+  fi
+}
+
 dev_worker() {
   echo "Starting dev RQ worker..."
 
@@ -32,7 +45,8 @@ server() {
   # Recycle gunicorn workers every n-th request. See http://docs.gunicorn.org/en/stable/settings.html#max-requests for more details.
   MAX_REQUESTS=${MAX_REQUESTS:-1000}
   MAX_REQUESTS_JITTER=${MAX_REQUESTS_JITTER:-100}
-  exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app --max-requests $MAX_REQUESTS --max-requests-jitter $MAX_REQUESTS_JITTER
+  TIMEOUT=${REDASH_GUNICORN_TIMEOUT:-60}
+  exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app --max-requests $MAX_REQUESTS --max-requests-jitter $MAX_REQUESTS_JITTER --timeout $TIMEOUT
 }
 
 create_db() {
@@ -74,6 +88,10 @@ case "$1" in
   worker)
     shift
     worker
+    ;;
+  workers_healthcheck)
+    shift
+    workers_healthcheck
     ;;
   server)
     shift

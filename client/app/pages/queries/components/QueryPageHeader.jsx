@@ -179,7 +179,7 @@ export default function QueryPageHeader({
 
         {!queryFlags.isNew && queryFlags.canViewSource && (
           <span>
-            {!sourceMode && queryFlags.canEdit && (
+            {!sourceMode && (
               <Link.Button className="m-r-5" href={query.getUrl(true, selectedVisualization)}>
                 <i className="fa fa-pencil-square-o" aria-hidden="true" />
                 <span className="m-l-5">Edit Source</span>
