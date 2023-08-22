@@ -123,6 +123,13 @@ class Ignite(BaseSQLQueryRunner):
             port = 10800
         return (server, port)
 
+    def _parse_results(self, c):
+        column_names = next(c)
+        columns = [{"name": col, "friendly_name": col.lower()} for col in column_names]
+        rows = [dict(zip(column_names, self.normalise_row(row))) for row in c]
+
+        return (columns, rows)
+
     def run_query(self, query, user):
         connection = None
 
@@ -153,10 +160,8 @@ class Ignite(BaseSQLQueryRunner):
             )
             logger.debug("Ignite running query: %s", query)
 
-            column_names = next(cursor)
-            columns = [{"name": col, "friendly_name": col.lower()} for col in column_names]
-            rows = [dict(zip(column_names, self.normalise_row(row))) for row in cursor]
-            json_data = json_dumps({"columns": columns, "rows": rows})
+            data = self._parse_results(cursor)
+            json_data = json_dumps({"columns": data[0], "rows": data[1]})
             error = None
 
         except (KeyboardInterrupt, JobTimeoutException):
