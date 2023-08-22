@@ -124,6 +124,8 @@ class Cassandra(BaseQueryRunner):
     def run_query(self, query, user):
         connection = None
         cert_path = self._generate_cert_file()
+        client_cert_path = self._generate_client_cert_file()
+        client_key_path = self._generate_client_key_file()
         sslProtocol = self.configuration.get("sslProtocol", ssl.PROTOCOL_TLSv1_2)
         if self.configuration.get("username", "") and self.configuration.get("password", ""):
             auth_provider = PlainTextAuthProvider(
@@ -137,13 +139,12 @@ class Cassandra(BaseQueryRunner):
                 protocol_version=self.configuration.get("protocol", 3),
                 ssl_options=self._get_ssl_options(cert_path),
             )
-        elif self.configuration.get("sslClientCertificateFile") 
-        and self.configuration.get("sslClientKeyFile"):
+        elif self.configuration.get("sslClientCertificateFile") and self.configuration.get("sslClientKeyFile"):
             sslProtocol = self.configuration.get("sslProtocol", ssl.PROTOCOL_TLSv1_2)
             cert_path = self._generate_cert_file()
-            connection = cluster.Cluster(
+            connection = Cluster(
                 [self.configuration.get("host", "")],
-                ssl_context=_get_ssl_context(sslProtocol, client_cert_path, client_key_path, cert_path),
+                ssl_context=self._get_ssl_context(sslProtocol, client_cert_path, client_key_path, cert_path),
             )
         else:
             connection = Cluster(
@@ -182,7 +183,7 @@ class Cassandra(BaseQueryRunner):
     def _generate_client_cert_file(self):
         cert_encoded_bytes = self.configuration.get("sslClientCertificateFile", None)
         if cert_encoded_bytes:
-            with NamedTemporaryFile(mode='w', delete=False) as client_cert_file:
+            with NamedTemporaryFile(mode="w", delete=False) as client_cert_file:
                 cert_bytes = b64decode(cert_encoded_bytes)
                 client_cert_file.write(cert_bytes.decode("utf-8"))
             return client_cert_file.name
@@ -191,7 +192,7 @@ class Cassandra(BaseQueryRunner):
     def _generate_client_key_file(self):
         cert_encoded_bytes = self.configuration.get("sslClientKeyFile", None)
         if cert_encoded_bytes:
-            with NamedTemporaryFile(mode='w', delete=False) as client_key_file:
+            with NamedTemporaryFile(mode="w", delete=False) as client_key_file:
                 cert_bytes = b64decode(cert_encoded_bytes)
                 client_key_file.write(cert_bytes.decode("utf-8"))
             return client_key_file.name
@@ -209,13 +210,10 @@ class Cassandra(BaseQueryRunner):
 
     def _get_ssl_context(self, sslProtocol, client_cert_path, client_key_path, cert_path):
         ssl_context = ssl.SSLContext(sslProtocol)
-        ssl_context.load_cert_chain(
-            client_cert_path,
-            client_key_path
-        )
+        ssl_context.load_cert_chain(client_cert_path, client_key_path)
         ssl_context.load_verify_locations(cert_path)
         ssl_context.verify_mode = ssl.CERT_REQUIRED
-        return ssl_options
+        return ssl_context
 
 
 class ScyllaDB(Cassandra):
