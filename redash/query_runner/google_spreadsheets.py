@@ -22,7 +22,8 @@ logger = logging.getLogger(__name__)
 
 try:
     import gspread
-    from gspread.exceptions import APIError, WorksheetNotFound as GSWorksheetNotFound
+    from gspread.exceptions import APIError
+    from gspread.exceptions import WorksheetNotFound as GSWorksheetNotFound
     from oauth2client.service_account import ServiceAccountCredentials
 
     enabled = True
@@ -91,16 +92,14 @@ class WorksheetNotFoundError(Exception):
 
 class WorksheetNotFoundByTitleError(Exception):
     def __init__(self, worksheet_title):
-        message = "Worksheet title '{}' not found.".format(
-            worksheet_title
-        )
+        message = "Worksheet title '{}' not found.".format(worksheet_title)
         super(WorksheetNotFoundByTitleError, self).__init__(message)
 
 
 def parse_query(query):
     values = query.split("|")
-    key = values[0] # key of the spreadsheet
-    worksheet_num_or_title = 0 # A default value for when a number of inputs is invalid
+    key = values[0]  # key of the spreadsheet
+    worksheet_num_or_title = 0  # A default value for when a number of inputs is invalid
     if len(values) == 2:
         s = values[1].strip()
         if len(s) > 0:
@@ -162,6 +161,7 @@ def parse_api_error(error):
 
     return message
 
+
 class SpreadsheetWrapper:
     def __init__(self, spreadsheet):
         self.spreadsheet = spreadsheet
@@ -177,6 +177,7 @@ class SpreadsheetWrapper:
             return self.spreadsheet.worksheet(title)
         except GSWorksheetNotFound:
             return None
+
 
 class TimeoutSession(Session):
     def request(self, *args, **kwargs):

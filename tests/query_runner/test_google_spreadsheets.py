@@ -7,8 +7,8 @@ from redash.query_runner import TYPE_DATETIME, TYPE_FLOAT
 from redash.query_runner.google_spreadsheets import (
     TYPE_BOOLEAN,
     TYPE_STRING,
-    WorksheetNotFoundError,
     WorksheetNotFoundByTitleError,
+    WorksheetNotFoundError,
     _get_columns_and_column_names,
     _value_eval_list,
     is_url_key,
@@ -120,28 +120,29 @@ class TestParseQuery(TestCase):
         self.assertEqual(("key", 0), parsed)
 
     def test_parse_query_title(self):
-        parsed = parse_query("key|\"\"")
+        parsed = parse_query('key|""')
         self.assertEqual(("key", ""), parsed)
 
-        parsed = parse_query("key|\"1\"")
+        parsed = parse_query('key|"1"')
         self.assertEqual(("key", "1"), parsed)
 
-        parsed = parse_query("key|\"abc\"")
+        parsed = parse_query('key|"abc"')
         self.assertEqual(("key", "abc"), parsed)
 
-        parsed = parse_query("key|\"あ\"")
+        parsed = parse_query('key|"あ"')
         self.assertEqual(("key", "あ"), parsed)
 
-        parsed = parse_query("key|\"1\"\"")
-        self.assertEqual(("key", "1\""), parsed)
+        parsed = parse_query('key|"1""')
+        self.assertEqual(("key", '1"'), parsed)
 
-        parsed = parse_query("key|\"\"")
+        parsed = parse_query('key|""')
         self.assertEqual(("key", ""), parsed)
 
     def test_parse_query_failed(self):
         self.assertRaises(ValueError, parse_query, "key|0x01")
         self.assertRaises(ValueError, parse_query, "key|a")
-        self.assertRaises(ValueError, parse_query, "key|\"\"a")
+        self.assertRaises(ValueError, parse_query, 'key|""a')
+
 
 class TestGetColumnsAndColumnNames(TestCase):
     def test_get_columns(self):
