@@ -1,13 +1,15 @@
 import os
+
 import sentry_sdk
 from funcy import iffy
 from sentry_sdk.integrations.flask import FlaskIntegration
-from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 from sentry_sdk.integrations.rq import RqIntegration
-from redash import settings, __version__
+from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
-TRACES_SAMPLE_RATE = float(os.environ.get('SENTRY_TRACES_SAMPLE_RATE', '0.0'))
+from redash import __version__, settings
+
+TRACES_SAMPLE_RATE = float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.0"))
 
 NON_REPORTED_EXCEPTIONS = ["QueryExecutionError"]
 

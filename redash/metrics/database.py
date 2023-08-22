@@ -2,12 +2,12 @@ import logging
 import time
 
 from flask import g, has_request_context
-
-from redash import statsd_client
 from sqlalchemy.engine import Engine
 from sqlalchemy.event import listens_for
 from sqlalchemy.orm.util import _ORMJoin
 from sqlalchemy.sql.selectable import Alias
+
+from redash import statsd_client
 
 metrics_logger = logging.getLogger("metrics")
 
