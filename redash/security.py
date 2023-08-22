@@ -40,13 +40,13 @@ def init_app(app):
                 return
 
             # Prevent un-official request entry point
-            if (request.endpoint is None):
+            if request.endpoint is None:
                 return
 
             view = app.view_functions.get(request.endpoint)
 
             # Prevent un-official request entry point
-            if (view is None):
+            if view is None:
                 return
 
             dest = f"{view.__module__}.{view.__name__}"
