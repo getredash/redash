@@ -155,7 +155,7 @@ class GroupMembers extends React.Component {
                 <p>There are no members in this group yet.</p>
                 {currentUser.isAdmin && (
                   <Button type="primary" onClick={this.addMembers}>
-                    <i className="fa fa-plus m-r-5" />
+                    <i className="fa fa-plus m-r-5" aria-hidden="true" />
                     Add Members
                   </Button>
                 )}

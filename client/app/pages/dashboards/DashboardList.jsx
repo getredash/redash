@@ -30,6 +30,13 @@ const sidebarMenu = [
     key: "all",
     href: "dashboards",
     title: "All Dashboards",
+    icon: () => <Sidebar.MenuIcon icon="zmdi zmdi-view-quilt" />,
+  },
+  {
+    key: "my",
+    href: "dashboards/my",
+    title: "My Dashboards",
+    icon: () => <Sidebar.ProfileImage user={currentUser} />,
   },
   {
     key: "favorites",
@@ -89,7 +96,7 @@ function DashboardList({ controller }) {
           actions={
             currentUser.hasPermission("create_dashboard") ? (
               <Button block type="primary" onClick={() => CreateDashboardDialog.showModal()}>
-                <i className="fa fa-plus m-r-5" />
+                <i className="fa fa-plus m-r-5" aria-hidden="true" />
                 New Dashboard
               </Button>
             ) : null
@@ -99,6 +106,7 @@ function DashboardList({ controller }) {
           <Layout.Sidebar className="m-b-0">
             <Sidebar.SearchInput
               placeholder="Search Dashboards..."
+              label="Search dashboards"
               value={controller.searchTerm}
               onChange={controller.updateSearch}
             />
@@ -157,6 +165,7 @@ const DashboardListPage = itemsList(
       getResource({ params: { currentPage } }) {
         return {
           all: Dashboard.query.bind(Dashboard),
+          my: Dashboard.myDashboards.bind(Dashboard),
           favorites: Dashboard.favorites.bind(Dashboard),
         }[currentPage];
       },
@@ -181,5 +190,13 @@ routes.register(
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
     render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
+  })
+);
+routes.register(
+  "Dashboards.My",
+  routeWithUserSession({
+    path: "/dashboards/my",
+    title: "My Dashboards",
+    render: pageProps => <DashboardListPage {...pageProps} currentPage="my" />,
   })
 );

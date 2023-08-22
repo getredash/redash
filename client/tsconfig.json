@@ -15,21 +15,14 @@
     "jsx": "react",
     "allowSyntheticDefaultImports": true,
     "noUnusedLocals": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "forceConsistentCasingInFileNames": true,
     "baseUrl": "./",
     "paths": {
       "@/*": ["./app/*"]
-    }
+    },
+    "skipLibCheck": true
   },
-  "include": [
-    "app/**/*"
-  ],
-  "exclude": [
-    "dist"
-  ]
+  "include": ["app/**/*"],
+  "exclude": ["dist"]
 }

@@ -134,11 +134,10 @@ function QuerySource(props) {
     // choose data source id for new queries
     if (dataSourcesLoaded && queryFlags.isNew) {
       const firstDataSourceId = dataSources.length > 0 ? dataSources[0].id : null;
+      const selectedDataSourceId = parseInt(localStorage.getItem("lastSelectedDataSourceId")) || null;
+
       handleDataSourceChange(
-        chooseDataSourceId(
-          [query.data_source_id, localStorage.getItem("lastSelectedDataSourceId"), firstDataSourceId],
-          dataSources
-        )
+        chooseDataSourceId([query.data_source_id, selectedDataSourceId, firstDataSourceId], dataSources)
       );
     }
   }, [query.data_source_id, queryFlags.isNew, dataSourcesLoaded, dataSources, handleDataSourceChange]);
@@ -336,6 +335,7 @@ function QuerySource(props) {
                   <div className="query-parameters-wrapper">
                     <Parameters
                       editable={queryFlags.canEdit}
+                      sortable={queryFlags.canEdit}
                       disableUrlUpdate={queryFlags.isNew}
                       parameters={parameters}
                       onPendingValuesChange={() => updateParametersDirtyFlag()}

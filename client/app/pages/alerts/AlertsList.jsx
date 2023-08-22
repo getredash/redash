@@ -29,9 +29,19 @@ class AlertsList extends React.Component {
 
   listColumns = [
     Columns.custom.sortable(
-      (text, alert) => <i className={`fa fa-bell-${alert.options.muted ? "slash" : "o"} p-r-0`} />,
+      (text, alert) => (
+        <span title={alert.options.muted ? "Muted" : "Active"}>
+          <i className={`fa fa-bell-${alert.options.muted ? "slash" : "o"} p-r-0`} aria-hidden="true" />
+          <span className="sr-only">{alert.options.muted ? "Muted" : "Active"}</span>
+        </span>
+      ),
       {
-        title: <i className="fa fa-bell p-r-0" />,
+        title: (
+          <>
+            <i className="fa fa-bell p-r-0" aria-hidden="true" />
+            <span className="sr-only">Sort by notification status.</span>
+          </>
+        ),
         field: "muted",
         width: "1%",
       }
@@ -78,7 +88,7 @@ class AlertsList extends React.Component {
             actions={
               currentUser.hasPermission("list_alerts") ? (
                 <Link.Button block type="primary" href="alerts/new">
-                  <i className="fa fa-plus m-r-5" />
+                  <i className="fa fa-plus m-r-5" aria-hidden="true" />
                   New Alert
                 </Link.Button>
               ) : null

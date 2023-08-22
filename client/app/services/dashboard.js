@@ -168,6 +168,7 @@ const DashboardService = {
   delete: ({ id }) => axios.delete(`api/dashboards/${id}`).then(transformResponse),
   query: params => axios.get("api/dashboards", { params }).then(transformResponse),
   recent: params => axios.get("api/dashboards/recent", { params }).then(transformResponse),
+  myDashboards: params => axios.get("api/dashboards/my", { params }).then(transformResponse),
   favorites: params => axios.get("api/dashboards/favorites", { params }).then(transformResponse),
   favorite: ({ id }) => axios.post(`api/dashboards/${id}/favorite`),
   unfavorite: ({ id }) => axios.delete(`api/dashboards/${id}/favorite`),
@@ -208,11 +209,18 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
         });
     }
   });
-  return _.values(
+  const resultingGlobalParams = _.values(
     _.each(globalParams, param => {
       param.setValue(param.value); // apply global param value to all locals
       param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
     })
+  );
+
+  // order dashboard params using paramOrder
+  return _.sortBy(resultingGlobalParams, param =>
+    _.includes(this.options.globalParamOrder, param.name)
+      ? _.indexOf(this.options.globalParamOrder, param.name)
+      : _.size(this.options.globalParamOrder)
   );
 };
 

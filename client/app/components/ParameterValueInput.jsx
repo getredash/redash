@@ -101,7 +101,6 @@ class ParameterValueInput extends React.Component {
       <SelectWithVirtualScroll
         className={this.props.className}
         mode={parameter.multiValuesOptions ? "multiple" : "default"}
-        optionFilterProp="children"
         value={normalize(value)}
         onChange={this.onSelect}
         options={map(enumOptionsArray, opt => ({ label: String(opt), value: opt }))}
@@ -120,7 +119,6 @@ class ParameterValueInput extends React.Component {
       <QueryBasedParameterInput
         className={this.props.className}
         mode={parameter.multiValuesOptions ? "multiple" : "default"}
-        optionFilterProp="children"
         parameter={parameter}
         value={value}
         queryId={queryId}
@@ -138,7 +136,12 @@ class ParameterValueInput extends React.Component {
     const normalize = val => (isNaN(val) ? undefined : val);
 
     return (
-      <InputNumber className={className} value={normalize(value)} onChange={val => this.onSelect(normalize(val))} />
+      <InputNumber
+        className={className}
+        value={normalize(value)}
+        aria-label="Parameter number value"
+        onChange={val => this.onSelect(normalize(val))}
+      />
     );
   }
 
@@ -150,6 +153,7 @@ class ParameterValueInput extends React.Component {
       <Input
         className={className}
         value={value}
+        aria-label="Parameter text value"
         data-test="TextParamInput"
         onChange={e => this.onSelect(e.target.value)}
       />

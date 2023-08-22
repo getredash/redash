@@ -1,4 +1,5 @@
 from passlib.apps import custom_app_context as pwd_context
+
 import redash.models
 from redash.models import db
 from redash.permissions import ACCESS_TYPE_MODIFY
@@ -44,7 +45,7 @@ user_factory = ModelFactory(
     redash.models.User,
     name="John Doe",
     email=Sequence("test{}@example.com"),
-    password_hash=pwd_context.encrypt("test1234"),
+    password_hash=pwd_context.hash("test1234"),
     group_ids=[2],
     org_id=1,
 )
@@ -190,19 +191,13 @@ class Factory(object):
     def data_source(self):
         if self._data_source is None:
             self._data_source = data_source_factory.create(org=self.org)
-            db.session.add(
-                redash.models.DataSourceGroup(
-                    group=self.default_group, data_source=self._data_source
-                )
-            )
+            db.session.add(redash.models.DataSourceGroup(group=self.default_group, data_source=self._data_source))
 
         return self._data_source
 
     def create_org(self, **kwargs):
         org = org_factory.create(**kwargs)
-        self.create_group(
-            org=org, type=redash.models.Group.BUILTIN_GROUP, name="default"
-        )
+        self.create_group(org=org, type=redash.models.Group.BUILTIN_GROUP, name="default")
         self.create_group(
             org=org,
             type=redash.models.Group.BUILTIN_GROUP,
@@ -270,11 +265,7 @@ class Factory(object):
         data_source = data_source_factory.create(**args)
 
         if group:
-            db.session.add(
-                redash.models.DataSourceGroup(
-                    group=group, data_source=data_source, view_only=view_only
-                )
-            )
+            db.session.add(redash.models.DataSourceGroup(group=group, data_source=data_source, view_only=view_only))
 
         return data_source
 

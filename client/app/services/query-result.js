@@ -271,6 +271,10 @@ class QueryResult {
     return this.getColumnNames().map(col => getColumnFriendlyName(col));
   }
 
+  getTruncated() {
+    return this.query_result.data ? this.query_result.data.truncated : null;
+  }
+
   getFilters() {
     if (!this.getColumns()) {
       return [];
@@ -314,6 +318,9 @@ class QueryResult {
         }
         return v;
       });
+      if (filter.values.length > 1 && filter.multiple) {
+        filter.current = filter.values.slice();
+      }
     });
 
     return filters;
