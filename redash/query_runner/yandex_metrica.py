@@ -1,10 +1,17 @@
 import logging
-import yaml
 from urllib.parse import parse_qs, urlparse
 
 import requests
+import yaml
 
-from redash.query_runner import *
+from redash.query_runner import (
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_STRING,
+    BaseSQLQueryRunner,
+    register,
+)
 from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
@@ -100,14 +107,11 @@ class YandexMetrica(BaseSQLQueryRunner):
         self.list_path = "counters"
 
     def _get_tables(self, schema):
-
         counters = self._send_query("management/v1/{0}".format(self.list_path))
 
         for row in counters[self.list_path]:
             owner = row.get("owner_login")
-            counter = "{0} | {1}".format(
-                row.get("name", "Unknown"), row.get("id", "Unknown")
-            )
+            counter = "{0} | {1}".format(row.get("name", "Unknown"), row.get("id", "Unknown"))
             if owner not in schema:
                 schema[owner] = {"name": owner, "columns": []}
 

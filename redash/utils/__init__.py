@@ -1,14 +1,14 @@
+import binascii
 import codecs
-import io
 import csv
 import datetime
 import decimal
 import hashlib
+import io
 import os
 import random
 import re
 import uuid
-import binascii
 
 import pystache
 import pytz
@@ -16,12 +16,13 @@ import simplejson
 import sqlparse
 from flask import current_app
 from funcy import select_values
-from redash import settings
 from sqlalchemy.orm.query import Query
+
+from redash import settings
 
 from .human_time import parse_human_time
 
-COMMENTS_REGEX = re.compile("/\*.*?\*/")
+COMMENTS_REGEX = re.compile(r"/\*.*?\*/")
 WRITER_ENCODING = os.environ.get("REDASH_CSV_WRITER_ENCODING", "utf-8")
 WRITER_ERRORS = os.environ.get("REDASH_CSV_WRITER_ERRORS", "strict")
 
@@ -45,19 +46,19 @@ def dt_from_timestamp(timestamp, tz_aware=True):
 
 
 def slugify(s):
-    return re.sub("[^a-z0-9_\-]+", "-", s.lower())
+    return re.sub(r"[^a-z0-9_\-]+", "-", s.lower())
 
 
 def gen_query_hash(sql):
     """Return hash of the given query after stripping all comments, line breaks
-    and multiple spaces, and lower casing all text.
+    and multiple spaces.
 
-    TODO: possible issue - the following queries will get the same id:
+    The following queries will get different ids:
         1. SELECT 1 FROM table WHERE column='Value';
         2. SELECT 1 FROM table where column='value';
     """
     sql = COMMENTS_REGEX.sub("", sql)
-    sql = "".join(sql.split()).lower()
+    sql = "".join(sql.split())
     return hashlib.md5(sql.encode("utf-8")).hexdigest()
 
 
@@ -116,12 +117,17 @@ def json_dumps(data, *args, **kwargs):
     kwargs.setdefault("encoding", None)
     # Float value nan or inf in Python should be render to None or null in json.
     # Using ignore_nan = False will make Python render nan as NaN, leading to parse error in front-end
-    kwargs.setdefault('ignore_nan', True)
+    kwargs.setdefault("ignore_nan", True)
     return simplejson.dumps(data, *args, **kwargs)
 
 
 def mustache_render(template, context=None, **kwargs):
     renderer = pystache.Renderer(escape=lambda u: u)
+    return renderer.render(template, context, **kwargs)
+
+
+def mustache_render_escape(template, context=None, **kwargs):
+    renderer = pystache.Renderer()
     return renderer.render(template, context, **kwargs)
 
 
@@ -193,8 +199,8 @@ def filter_none(d):
 
 
 def to_filename(s):
-    s = re.sub('[<>:"\\\/|?*]+', " ", s, flags=re.UNICODE)
-    s = re.sub("\s+", "_", s, flags=re.UNICODE)
+    s = re.sub(r'[<>:"\\\/|?*]+', " ", s, flags=re.UNICODE)
+    s = re.sub(r"\s+", "_", s, flags=re.UNICODE)
     return s.strip("_")
 
 
@@ -207,7 +213,7 @@ def deprecated():
 
 
 def render_template(path, context):
-    """ Render a template with context, without loading the entire app context.
+    """Render a template with context, without loading the entire app context.
     Using Flask's `render_template` function requires the entire app context to load, which in turn triggers any
     function decorated with the `context_processor` decorator, which is not explicitly required for rendering purposes.
     """

@@ -1,7 +1,7 @@
 from flask import Flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from . import settings
+from redash import settings
 
 
 class Redash(Flask):
@@ -25,7 +25,6 @@ class Redash(Flask):
 def create_app():
     from . import (
         authentication,
-        extensions,
         handlers,
         limiter,
         mail,
@@ -43,7 +42,7 @@ def create_app():
     app = Redash()
 
     # Check and update the cached version for use by the client
-    app.before_first_request(reset_new_version_status)
+    reset_new_version_status()
 
     security.init_app(app)
     request_metrics.init_app(app)
@@ -54,7 +53,6 @@ def create_app():
     limiter.init_app(app)
     handlers.init_app(app)
     configure_webpack(app)
-    extensions.init_app(app)
     users.init_app(app)
     tasks.init_app(app)
 

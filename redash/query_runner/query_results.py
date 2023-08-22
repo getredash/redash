@@ -5,11 +5,11 @@ import sqlite3
 from redash import models
 from redash.permissions import has_access, view_only
 from redash.query_runner import (
-    BaseQueryRunner,
     TYPE_STRING,
+    BaseQueryRunner,
+    JobTimeoutException,
     guess_type,
     register,
-    JobTimeoutException,
 )
 from redash.utils import json_dumps, json_loads
 
@@ -56,9 +56,7 @@ def get_query_results(user, query_id, bring_from_cache):
         else:
             raise Exception("No cached result available for query {}.".format(query.id))
     else:
-        results, error = query.data_source.query_runner.run_query(
-            query.query_text, user
-        )
+        results, error = query.data_source.query_runner.run_query(query.query_text, user)
         if error:
             raise Exception("Failed loading results for query id {}.".format(query.id))
         else:
@@ -80,7 +78,7 @@ def create_tables_from_query_ids(user, connection, query_ids, cached_query_ids=[
 
 
 def fix_column_name(name):
-    return '"{}"'.format(re.sub('[:."\s]', "_", name, flags=re.UNICODE))
+    return '"{}"'.format(re.sub(r'[:."\s]', "_", name, flags=re.UNICODE))
 
 
 def flatten(value):
@@ -102,9 +100,7 @@ def create_table(connection, table_name, query_results):
         logger.debug("CREATE TABLE query: %s", create_table)
         connection.execute(create_table)
     except sqlite3.OperationalError as exc:
-        raise CreateTableError(
-            "Error creating table {}: {}".format(table_name, str(exc))
-        )
+        raise CreateTableError("Error creating table {}: {}".format(table_name, str(exc)))
 
     insert_template = "insert into {table_name} ({column_list}) values ({place_holders})".format(
         table_name=table_name,
