@@ -45,3 +45,7 @@ python-arango==6.1.0
 pinotdb>=0.4.5
 pygridgain==1.4.0
 pyignite==0.6.1
+# python-oracledb supports Oracle 12c and above without needing the Oracle
+# client libraries installed.  To support Oracle 9.x and above as well,
+# then the Oracle client libraries will need installing first.
+oracledb==1.4.0
