@@ -45,3 +45,4 @@ python-arango==6.1.0
 pinotdb>=0.4.5
 pygridgain==1.4.0
 pyignite==0.6.1
+oracledb==1.4.0
