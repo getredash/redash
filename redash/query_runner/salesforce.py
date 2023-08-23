@@ -82,7 +82,7 @@ class Salesforce(BaseQueryRunner):
                 },
             },
             "required": ["username", "password"],
-            "secret": ["password"],
+            "secret": ["password", "token"],
         }
 
     def test_connection(self):
