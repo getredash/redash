@@ -41,6 +41,7 @@ python-dotenv==0.19.2
 pytz>=2019.3
 PyYAML==6.0.1
 redis==4.4.4
+regex==2023.8.8
 requests==2.31.0
 RestrictedPython==6.1
 rq==1.5.0
