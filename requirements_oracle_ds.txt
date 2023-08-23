@@ -1,4 +1,0 @@
-# Requires installation of, or similar versions of:
-#    oracle-instantclient12.2-basic_12.2.0.1.0-1_x86_64.rpm
-#    oracle-instantclient12.2-devel_12.2.0.1.0-1_x64_64.rpm
-cx_Oracle==5.3
