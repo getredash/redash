@@ -1,7 +1,6 @@
 jwcrypto==1.5.0
 pytest==7.4.0
 pytest-cov==4.1.0
-pytest-sugar==0.9.7
 coverage==7.2.7
 mock==5.0.2
 ptvsd==4.3.2
