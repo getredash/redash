@@ -1,5 +1,5 @@
-from tests import BaseTestCase
 from redash.models import Organization
+from tests import BaseTestCase
 
 
 class TestOrganizationSettings(BaseTestCase):
@@ -12,9 +12,7 @@ class TestOrganizationSettings(BaseTestCase):
             user=admin,
         )
         self.assertEqual(rv.json["settings"]["auth_password_login_enabled"], False)
-        self.assertEqual(
-            self.factory.org.settings["settings"]["auth_password_login_enabled"], False
-        )
+        self.assertEqual(self.factory.org.settings["settings"]["auth_password_login_enabled"], False)
 
         rv = self.make_request(
             "post",
@@ -24,14 +22,12 @@ class TestOrganizationSettings(BaseTestCase):
         )
         updated_org = Organization.get_by_slug(self.factory.org.slug)
         self.assertEqual(rv.json["settings"]["auth_password_login_enabled"], True)
-        self.assertEqual(
-            updated_org.settings["settings"]["auth_password_login_enabled"], True
-        )
+        self.assertEqual(updated_org.settings["settings"]["auth_password_login_enabled"], True)
 
     def test_updates_google_apps_domains(self):
         admin = self.factory.create_admin()
         domains = ["example.com"]
-        rv = self.make_request(
+        self.make_request(
             "post",
             "/api/settings/organization",
             data={"auth_google_apps_domains": domains},

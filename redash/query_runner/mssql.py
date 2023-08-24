@@ -1,8 +1,13 @@
 import logging
-import sys
-import uuid
 
-from redash.query_runner import *
+from redash.query_runner import (
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_STRING,
+    BaseSQLQueryRunner,
+    JobTimeoutException,
+    register,
+)
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
@@ -80,7 +85,7 @@ class SqlServer(BaseSQLQueryRunner):
         results, error = self.run_query(query, None)
 
         if error is not None:
-            raise Exception("Failed getting schema.")
+            self._handle_run_query_error(error)
 
         results = json_loads(results)
 
@@ -131,13 +136,8 @@ class SqlServer(BaseSQLQueryRunner):
             data = cursor.fetchall()
 
             if cursor.description is not None:
-                columns = self.fetch_columns(
-                    [(i[0], types_map.get(i[1], None)) for i in cursor.description]
-                )
-                rows = [
-                    dict(zip((column["name"] for column in columns), row))
-                    for row in data
-                ]
+                columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
+                rows = [dict(zip((column["name"] for column in columns), row)) for row in data]
 
                 data = {"columns": columns, "rows": rows}
                 json_data = json_dumps(data)
@@ -147,6 +147,7 @@ class SqlServer(BaseSQLQueryRunner):
                 json_data = None
 
             cursor.close()
+            connection.commit()
         except pymssql.Error as e:
             try:
                 # Query errors are at `args[1]`
