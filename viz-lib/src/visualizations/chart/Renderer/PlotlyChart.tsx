@@ -5,6 +5,7 @@ import { RendererPropTypes } from "@/visualizations/prop-types";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 import getChartData from "../getChartData";
 import initChart from "./initChart";
+import NotEnoughData from '@/components/NotEnoughData';
 
 export interface PlotlyChartProps {
   data: {
@@ -55,6 +56,8 @@ export default function PlotlyChart({ options, data }: PlotlyChartProps) {
       chart.setZoomEnabled(!isMobile);
     }
   }, [chart, isMobile]);
+
+  if ( data?.rows?.length === 0) return <NotEnoughData />
 
   // @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<null>>' is not assig... Remove this comment to see the full error message
   return <div className="chart-visualization-container" ref={setContainer} />;

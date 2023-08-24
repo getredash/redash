@@ -5,6 +5,7 @@ import prepareData from "./prepareData";
 import "./renderer.less";
 
 import Cornelius from "./Cornelius";
+import NotEnoughData from '@/components/NotEnoughData';
 
 export default function Renderer({ data, options }: any) {
   const { data: cohortData, initialDate } = useMemo(() => prepareData(data, options), [data, options]);
@@ -31,7 +32,7 @@ export default function Renderer({ data, options }: any) {
   );
 
   if (cohortData.length === 0) {
-    return null;
+    return <NotEnoughData />;
   }
 
   return (

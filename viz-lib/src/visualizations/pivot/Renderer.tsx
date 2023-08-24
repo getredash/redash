@@ -7,6 +7,7 @@ import { formatColumnValue } from "@/lib/utils";
 
 import "react-pivottable/pivottable.css";
 import "./renderer.less";
+import NotEnoughData from '@/components/NotEnoughData';
 
 const VALID_OPTIONS = [
   "rows",
@@ -50,6 +51,9 @@ export default function Renderer({ data, options, onOptionsChange }: any) {
   const hideControls = get(options, "controls.enabled");
   const hideRowTotals = !get(options, "rendererOptions.table.rowTotals");
   const hideColumnTotals = !get(options, "rendererOptions.table.colTotals");
+
+  if(data?.rows?.length === 0 || !data?.rows ) return <NotEnoughData />
+
   return (
     <div
       className="pivot-table-visualization-container"

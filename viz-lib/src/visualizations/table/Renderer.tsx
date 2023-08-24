@@ -10,6 +10,7 @@ import { prepareColumns, initRows, filterRows, sortRows } from "./utils";
 import ColumnTypes from "./columns";
 
 import "./renderer.less";
+import NotEnoughData from '@/components/NotEnoughData';
 
 function joinColumns(array: any, separator = ", ") {
   return reduce(
@@ -108,8 +109,8 @@ export default function Renderer({ options, data }: any) {
     orderBy,
   ]);
 
-  const mainRows = useMemo(() => preparedRows.filter((r: any) => !r.record?.['redash-sticky']), [preparedRows])
-  const bottomRows = useMemo(() => preparedRows.filter((r: any) => r.record?.['redash-sticky']), [preparedRows])
+  const mainRows = useMemo(() => preparedRows.filter((r: any) => !r.record?.['redash-sticky']), [preparedRows]) as any[]
+  const bottomRows = useMemo(() => preparedRows.filter((r: any) => r.record?.['redash-sticky']), [preparedRows]) as any[]
 
   // If data or config columns change - reset sorting
   useEffect(() => {
@@ -117,7 +118,7 @@ export default function Renderer({ options, data }: any) {
   }, [options.columns, data.columns]);
 
   if (data.rows.length === 0) {
-    return null;
+    return <NotEnoughData />;
   }
 
   return (
@@ -129,14 +130,7 @@ export default function Renderer({ options, data }: any) {
         // @ts-expect-error ts-migrate(2322) FIXME: Type '{ key: any; dataIndex: string; align: any; s... Remove this comment to see the full error message
         columns={tableColumns}
         dataSource={mainRows}
-        pagination={{
-          size: get(options, "paginationSize", ""),
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'TablePagi... Remove this comment to see the full error message
-          position: "bottom",
-          pageSize: options.itemsPerPage,
-          hideOnSinglePage: true,
-          showSizeChanger: false,
-        }}
+        pagination={false}
         showSorterTooltip={false}
         summary={(pageData) => {
           return (
@@ -145,7 +139,7 @@ export default function Renderer({ options, data }: any) {
                 bottomRows.map((row, index) => (
                   <Table.Summary.Row key={index}>
                     {
-                      tableColumns.map((col, index) => {
+                      tableColumns.map((col: any, index) => {
                         const com = col.render(row, row)
                         return (
                           <Table.Summary.Cell key={index} index={index} className={com.props?.className ?? ''}>
