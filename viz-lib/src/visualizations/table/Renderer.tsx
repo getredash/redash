@@ -110,8 +110,8 @@ export default function Renderer({ options, data }: any) {
   ]);
 
   const specialKeyword = '<b>Total</b>'
-  const mainRows = useMemo(() => preparedRows.filter((r: any) => !Object.keys(r.record ?? {}).includes(specialKeyword)), [preparedRows]) as any[]
-  const bottomRows = useMemo(() => preparedRows.filter((r: any) => Object.keys(r.record ?? {}).includes(specialKeyword)), [preparedRows]) as any[]
+  const mainRows = useMemo(() => preparedRows.filter((r: any) => !Object.values(r.record ?? {}).includes(specialKeyword)), [preparedRows]) as any[]
+  const bottomRows = useMemo(() => preparedRows.filter((r: any) => Object.values(r.record ?? {}).includes(specialKeyword)), [preparedRows]) as any[]
 
   // If data or config columns change - reset sorting
   useEffect(() => {
