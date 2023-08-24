@@ -12,8 +12,9 @@ FILE_SCHEME_PREFIX = "file://"
 jwt_algorithms = {
     "EC": jwt.algorithms.ECAlgorithm,
     "RSA": jwt.algorithms.RSAAlgorithm,
-    "oct": jwt.algorithms.HMACAlgorithm
+    "oct": jwt.algorithms.HMACAlgorithm,
 }
+
 
 def get_public_key_from_file(url):
     file_path = url[len(FILE_SCHEME_PREFIX) :]
