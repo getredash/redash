@@ -109,8 +109,9 @@ export default function Renderer({ options, data }: any) {
     orderBy,
   ]);
 
-  const mainRows = useMemo(() => preparedRows.filter((r: any) => !r.record?.['redash-sticky']), [preparedRows]) as any[]
-  const bottomRows = useMemo(() => preparedRows.filter((r: any) => r.record?.['redash-sticky']), [preparedRows]) as any[]
+  const specialKeyword = '<b>Total</b>'
+  const mainRows = useMemo(() => preparedRows.filter((r: any) => !Object.keys(r.record ?? {}).includes(specialKeyword)), [preparedRows]) as any[]
+  const bottomRows = useMemo(() => preparedRows.filter((r: any) => Object.keys(r.record ?? {}).includes(specialKeyword)), [preparedRows]) as any[]
 
   // If data or config columns change - reset sorting
   useEffect(() => {
@@ -132,7 +133,7 @@ export default function Renderer({ options, data }: any) {
         dataSource={mainRows}
         pagination={false}
         showSorterTooltip={false}
-        summary={(pageData) => {
+        summary={() => {
           return (
             <>
               {
