@@ -59,6 +59,20 @@ describe("Visualizations -> Chart -> Editor -> Y-Axis Settings", () => {
       .simulate("change", { target: { value: "test" } });
   });
 
+  test("Changes axis tick format", done => {
+    const el = mount(
+      {
+        globalSeriesType: "column",
+        yAxis: [],
+      },
+      done
+    );
+
+    findByTestID(el, "Chart.LeftYAxis.TickFormat")
+      .last()
+      .simulate("change", { target: { value: "s" } });
+  });
+
   test("Changes axis min value", done => {
     const el = mount(
       {

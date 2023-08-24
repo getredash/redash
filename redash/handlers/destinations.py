@@ -21,9 +21,7 @@ class DestinationTypeListResource(BaseResource):
 class DestinationResource(BaseResource):
     @require_admin
     def get(self, destination_id):
-        destination = models.NotificationDestination.get_by_id_and_org(
-            destination_id, self.current_org
-        )
+        destination = models.NotificationDestination.get_by_id_and_org(destination_id, self.current_org)
         d = destination.to_dict(all=True)
         self.record_event(
             {
@@ -36,9 +34,7 @@ class DestinationResource(BaseResource):
 
     @require_admin
     def post(self, destination_id):
-        destination = models.NotificationDestination.get_by_id_and_org(
-            destination_id, self.current_org
-        )
+        destination = models.NotificationDestination.get_by_id_and_org(destination_id, self.current_org)
         req = request.get_json(True)
 
         schema = get_configuration_schema_for_destination_type(req["type"])
@@ -58,9 +54,7 @@ class DestinationResource(BaseResource):
             if "name" in str(e):
                 abort(
                     400,
-                    message="Alert Destination with the name {} already exists.".format(
-                        req["name"]
-                    ),
+                    message="Alert Destination with the name {} already exists.".format(req["name"]),
                 )
             abort(500)
 
@@ -68,9 +62,7 @@ class DestinationResource(BaseResource):
 
     @require_admin
     def delete(self, destination_id):
-        destination = models.NotificationDestination.get_by_id_and_org(
-            destination_id, self.current_org
-        )
+        destination = models.NotificationDestination.get_by_id_and_org(destination_id, self.current_org)
         models.db.session.delete(destination)
         models.db.session.commit()
 
@@ -135,9 +127,7 @@ class DestinationListResource(BaseResource):
             if "name" in str(e):
                 abort(
                     400,
-                    message="Alert Destination with the name {} already exists.".format(
-                        req["name"]
-                    ),
+                    message="Alert Destination with the name {} already exists.".format(req["name"]),
                 )
             abort(500)
 
