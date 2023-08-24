@@ -1318,10 +1318,10 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
 
         return notification_destinations
 
-    def notify(self, alert, query, user, new_state, app, host):
+    def notify(self, alert, query, user, new_state, app, host, metadata):
         schema = get_configuration_schema_for_destination_type(self.type)
         self.options.set_schema(schema)
-        return self.destination.notify(alert, query, user, new_state, app, host, self.options)
+        return self.destination.notify(alert, query, user, new_state, app, host, metadata, self.options)
 
 
 @generic_repr("id", "user_id", "destination_id", "alert_id")
@@ -1358,16 +1358,16 @@ class AlertSubscription(TimestampMixin, db.Model):
     def all(cls, alert_id):
         return AlertSubscription.query.join(User).filter(AlertSubscription.alert_id == alert_id)
 
-    def notify(self, alert, query, user, new_state, app, host):
+    def notify(self, alert, query, user, new_state, app, host, metadata):
         if self.destination:
-            return self.destination.notify(alert, query, user, new_state, app, host)
+            return self.destination.notify(alert, query, user, new_state, app, host, metadata)
         else:
             # User email subscription, so create an email destination object
             config = {"addresses": self.user.email}
             schema = get_configuration_schema_for_destination_type("email")
             options = ConfigurationContainer(config, schema)
             destination = get_destination("email", options)
-            return destination.notify(alert, query, user, new_state, app, host, options)
+            return destination.notify(alert, query, user, new_state, app, host, metadata, options)
 
 
 @generic_repr("id", "trigger", "user_id", "org_id")
