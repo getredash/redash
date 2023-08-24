@@ -27,10 +27,10 @@ export function FavoriteList({ title, resource, itemUrl, emptyState }) {
         {loading && <LoadingOutlinedIcon />}
       </div>
       {!isEmpty(items) && (
-        <div className="list-group">
+        <div role="list" className="list-group">
           {items.map(item => (
-            <Link key={itemUrl(item)} className="list-group-item" href={itemUrl(item)}>
-              <span className="btn-favourite m-r-5">
+            <Link key={itemUrl(item)} role="listitem" className="list-group-item" href={itemUrl(item)}>
+              <span className="btn-favorite m-r-5">
                 <i className="fa fa-star" aria-hidden="true" />
               </span>
               {item.name}
@@ -64,7 +64,7 @@ export function DashboardAndQueryFavoritesList() {
               itemUrl={dashboard => dashboard.url}
               emptyState={
                 <p>
-                  <span className="btn-favourite m-r-5">
+                  <span className="btn-favorite m-r-5">
                     <i className="fa fa-star" aria-hidden="true" />
                   </span>
                   Favorite <Link href="dashboards">Dashboards</Link> will appear here
@@ -79,7 +79,7 @@ export function DashboardAndQueryFavoritesList() {
               itemUrl={query => `queries/${query.id}`}
               emptyState={
                 <p>
-                  <span className="btn-favourite m-r-5">
+                  <span className="btn-favorite m-r-5">
                     <i className="fa fa-star" aria-hidden="true" />
                   </span>
                   Favorite <Link href="queries">Queries</Link> will appear here

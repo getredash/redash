@@ -1,9 +1,10 @@
 import datetime
 import re
 from collections import Counter
+
+from redash import models, redis_connection, settings
 from redash.tasks.general import send_mail
-from redash import redis_connection, settings, models
-from redash.utils import json_dumps, json_loads, base_url, render_template
+from redash.utils import base_url, json_dumps, json_loads, render_template
 from redash.worker import get_job_logger
 
 logger = get_job_logger(__name__)
@@ -53,13 +54,11 @@ def send_failure_report(user_id):
             "base_url": base_url(user.org),
         }
 
-        subject = "Redash failed to execute {} of your scheduled queries".format(
-            len(unique_errors.keys())
-        )
+        subject = f"Redash failed to execute {len(unique_errors.keys())} of your scheduled queries"
         html, text = [
             render_template("emails/failures.{}".format(f), context)
             for f in ["html", "txt"]
-        ]
+        ]  # fmt: skip
 
         send_mail.delay([user.email], subject, html, text)
 
@@ -68,9 +67,7 @@ def send_failure_report(user_id):
 
 def notify_of_failure(message, query):
     subscribed = query.org.get_setting("send_email_on_failed_scheduled_queries")
-    exceeded_threshold = (
-        query.schedule_failures >= settings.MAX_FAILURE_REPORTS_PER_QUERY
-    )
+    exceeded_threshold = query.schedule_failures >= settings.MAX_FAILURE_REPORTS_PER_QUERY
 
     if subscribed and not query.user.is_disabled and not exceeded_threshold:
         redis_connection.lpush(
@@ -81,9 +78,7 @@ def notify_of_failure(message, query):
                     "name": query.name,
                     "message": message,
                     "schedule_failures": query.schedule_failures,
-                    "failed_at": datetime.datetime.utcnow().strftime(
-                        "%B %d, %Y %I:%M%p UTC"
-                    ),
+                    "failed_at": datetime.datetime.utcnow().strftime("%B %d, %Y %I:%M%p UTC"),
                 }
             ),
         )

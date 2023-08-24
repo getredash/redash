@@ -12,7 +12,7 @@ import Tag from "antd/lib/tag";
 import Input from "antd/lib/input";
 import Radio from "antd/lib/radio";
 import Form from "antd/lib/form";
-import Tooltip from "antd/lib/tooltip";
+import Tooltip from "@/components/Tooltip";
 import ParameterValueInput from "@/components/ParameterValueInput";
 import { ParameterMappingType } from "@/services/widget";
 import { Parameter, cloneParameter } from "@/services/parameters";
@@ -201,7 +201,13 @@ export class ParameterMappingInput extends React.Component {
     const {
       mapping: { mapTo },
     } = this.props;
-    return <Input value={mapTo} onChange={e => this.updateParamMapping({ mapTo: e.target.value })} />;
+    return (
+      <Input
+        value={mapTo}
+        aria-label="Parameter name (key)"
+        onChange={e => this.updateParamMapping({ mapTo: e.target.value })}
+      />
+    );
   }
 
   renderDashboardMapToExisting() {
@@ -420,6 +426,7 @@ class TitleEditor extends React.Component {
           size="small"
           value={this.state.title}
           placeholder={paramTitle}
+          aria-label="Edit parameter title"
           onChange={this.onEditingTitleChange}
           onPressEnter={this.save}
           maxLength={100}
@@ -440,7 +447,10 @@ class TitleEditor extends React.Component {
     if (mapping.type === MappingType.StaticValue) {
       return (
         <Tooltip placement="right" title="Titles for static values don't appear in widgets">
-          <i className="fa fa-eye-slash" />
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
+          <span tabIndex={0}>
+            <i className="fa fa-eye-slash" aria-hidden="true" />
+          </span>
         </Tooltip>
       );
     }

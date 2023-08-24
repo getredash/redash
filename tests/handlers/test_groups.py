@@ -1,13 +1,13 @@
 from funcy import project
 
+from redash.models import DataSource, Group, db
 from tests import BaseTestCase
-from redash.models import Group, DataSource, NoResultFound, db
 
 
 class TestGroupDataSourceListResource(BaseTestCase):
     def test_returns_only_groups_for_current_org(self):
         group = self.factory.create_group(org=self.factory.create_org())
-        data_source = self.factory.create_data_source(group=group)
+        self.factory.create_data_source(group=group)
         db.session.flush()
         response = self.make_request(
             "get",
@@ -33,9 +33,7 @@ class TestGroupDataSourceListResource(BaseTestCase):
 class TestGroupResourceList(BaseTestCase):
     def test_list_admin(self):
         self.factory.create_group(org=self.factory.create_org())
-        response = self.make_request(
-            "get", "/api/groups", user=self.factory.create_admin()
-        )
+        response = self.make_request("get", "/api/groups", user=self.factory.create_admin())
         g_keys = ["type", "id", "name", "permissions"]
 
         def filtergroups(gs):
@@ -43,20 +41,13 @@ class TestGroupResourceList(BaseTestCase):
 
         self.assertEqual(
             filtergroups(response.json),
-            filtergroups(
-                g.to_dict()
-                for g in [self.factory.admin_group, self.factory.default_group]
-            ),
+            filtergroups(g.to_dict() for g in [self.factory.admin_group, self.factory.default_group]),
         )
 
     def test_list(self):
-        group1 = self.factory.create_group(
-            org=self.factory.create_org(), permissions=["view_dashboard"]
-        )
+        group1 = self.factory.create_group(org=self.factory.create_org(), permissions=["view_dashboard"])
         db.session.flush()
-        u = self.factory.create_user(
-            group_ids=[self.factory.default_group.id, group1.id]
-        )
+        u = self.factory.create_user(group_ids=[self.factory.default_group.id, group1.id])
         db.session.flush()
         response = self.make_request("get", "/api/groups", user=u)
         g_keys = ["type", "id", "name", "permissions"]
@@ -82,9 +73,7 @@ class TestGroupResourcePost(BaseTestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            current_name, Group.query.get(self.factory.default_group.id).name
-        )
+        self.assertEqual(current_name, Group.query.get(self.factory.default_group.id).name)
 
 
 class TestGroupResourceDelete(BaseTestCase):
@@ -128,13 +117,9 @@ class TestGroupResourceDelete(BaseTestCase):
 
 class TestGroupResourceGet(BaseTestCase):
     def test_returns_group(self):
-        rv = self.make_request(
-            "get", "/api/groups/{}".format(self.factory.default_group.id)
-        )
+        rv = self.make_request("get", "/api/groups/{}".format(self.factory.default_group.id))
         self.assertEqual(rv.status_code, 200)
 
     def test_doesnt_return_if_user_not_member_or_admin(self):
-        rv = self.make_request(
-            "get", "/api/groups/{}".format(self.factory.admin_group.id)
-        )
+        rv = self.make_request("get", "/api/groups/{}".format(self.factory.admin_group.id))
         self.assertEqual(rv.status_code, 403)

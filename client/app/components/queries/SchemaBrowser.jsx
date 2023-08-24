@@ -5,9 +5,10 @@ import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import Input from "antd/lib/input";
 import Button from "antd/lib/button";
-import Tooltip from "antd/lib/tooltip";
 import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
 import List from "react-virtualized/dist/commonjs/List";
+import PlainButton from "@/components/PlainButton";
+import Tooltip from "@/components/Tooltip";
 import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import LoadingState from "../items-list/components/LoadingState";
@@ -45,23 +46,27 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
 
   return (
     <div {...props}>
-      <div className="table-name" onClick={onToggle}>
-        <i className="fa fa-table m-r-5" />
-        <strong>
-          <span title={item.name}>{tableDisplayName}</span>
-          {!isNil(item.size) && <span> ({item.size})</span>}
-        </strong>
-
-        <Tooltip title="Insert table name into query text" mouseEnterDelay={0} mouseLeaveDelay={0}>
-          <i
-            className="fa fa-angle-double-right copy-to-editor"
-            aria-hidden="true"
-            onClick={e => handleSelect(e, item.name)}
-          />
+      <div className="schema-list-item">
+        <PlainButton className="table-name" onClick={onToggle}>
+          <i className="fa fa-table m-r-5" aria-hidden="true" />
+          <strong>
+            <span title={item.name}>{tableDisplayName}</span>
+            {!isNil(item.size) && <span> ({item.size})</span>}
+          </strong>
+        </PlainButton>
+        <Tooltip
+          title="Insert table name into query text"
+          mouseEnterDelay={0}
+          mouseLeaveDelay={0}
+          placement="topRight"
+          arrowPointAtCenter>
+          <PlainButton className="copy-to-editor" onClick={e => handleSelect(e, item.name)}>
+            <i className="fa fa-angle-double-right" aria-hidden="true" />
+          </PlainButton>
         </Tooltip>
       </div>
       {expanded && (
-        <div>
+        <div className="table-open">
           {item.loading ? (
             <div className="table-open">Loading...</div>
           ) : (
@@ -69,16 +74,21 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
               const columnName = get(column, "name");
               const columnType = get(column, "type");
               return (
-                <div key={columnName} className="table-open">
-                  {columnName} {columnType && <span className="column-type">{columnType}</span>}
-                  <Tooltip title="Insert column name into query text" mouseEnterDelay={0} mouseLeaveDelay={0}>
-                    <i
-                      className="fa fa-angle-double-right copy-to-editor"
-                      aria-hidden="true"
-                      onClick={e => handleSelect(e, columnName)}
-                    />
-                  </Tooltip>
-                </div>
+                <Tooltip
+                  title="Insert column name into query text"
+                  mouseEnterDelay={0}
+                  mouseLeaveDelay={0}
+                  placement="rightTop">
+                  <PlainButton key={columnName} className="table-open-item" onClick={e => handleSelect(e, columnName)}>
+                    <div>
+                      {columnName} {columnType && <span className="column-type">{columnType}</span>}
+                    </div>
+
+                    <div className="copy-to-editor">
+                      <i className="fa fa-angle-double-right" aria-hidden="true" />
+                    </div>
+                  </PlainButton>
+                </Tooltip>
               );
             })
           )}
@@ -231,13 +241,15 @@ export default function SchemaBrowser({
         <Input
           className="m-r-5"
           placeholder="Search schema..."
+          aria-label="Search schema"
           disabled={schema.length === 0}
           onChange={event => handleFilterChange(event.target.value)}
         />
 
         <Tooltip title="Refresh Schema">
           <Button onClick={() => refreshSchema(true)}>
-            <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": isLoading })} />
+            <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": isLoading })} aria-hidden="true" />
+            <span className="sr-only">{isLoading ? "Loading, please wait." : "Press to refresh."}</span>
           </Button>
         </Tooltip>
       </div>
