@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import Menu from "antd/lib/menu";
-import IframeboxDialog, { toIframe } from '@/components/dashboards/IframeboxDialog';
+import IframeboxDialog, { toIframe } from "@/components/dashboards/IframeboxDialog";
 import Widget from "./Widget";
 
 function IframeboxWidget(props) {
@@ -43,12 +43,9 @@ function IframeboxWidget(props) {
       className="widget-text"
       header={
         <div className="t-header widget clearfix">
-          <div className="th-title">
-            {title}
-          </div>
+          <div className="th-title">{title}</div>
         </div>
-      }
-    >
+      }>
       <div
         className="body-row-auto t-body p-15"
         dangerouslySetInnerHTML={{ __html: toIframe(text || "") }} // eslint-disable-line react/no-danger
