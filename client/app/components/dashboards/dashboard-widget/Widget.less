@@ -1,12 +1,4 @@
-@import "../../../assets/less/inc/variables";
-
-.tile .t-header .th-title a.query-link {
-  color: rgba(0, 0, 0, 0.5);
-}
-
-.th-title p.hidden-print {
-  margin-bottom: 0;
-}
+@import (reference, less) "~@/assets/less/inc/variables";
 
 .widget-wrapper {
   .widget-actions {
@@ -22,10 +14,19 @@
       line-height: 100%;
       display: block;
       padding: 4px 10px 3px;
-    }
 
-    .action:hover {
-      background-color: rgba(0, 0, 0, 0.1);
+      &:focus {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+
+      &:hover {
+        background-color: transparent;
+        color: @blue;
+      }
+
+      &:active {
+        filter: brightness(75%);
+      }
     }
   }
 
@@ -83,7 +84,7 @@
     display: block;
   }
 
-  a.query-link {
+  .query-link {
     pointer-events: none;
     cursor: move;
   }
@@ -190,10 +191,18 @@
     .th-title {
       padding-right: 23px; // no overlap on RefreshIndicator
 
-      a {
+      .hidden-print {
+        margin-bottom: 0;
+      }
+
+      .query-link {
         color: fade(@redash-black, 80%);
         font-size: 15px;
         font-weight: 500;
+
+        &:not(.visualization-name) {
+          color: fade(@redash-black, 50%);
+        }
       }
     }
 
@@ -212,7 +221,10 @@
     padding: 15px;
   }
 
-  &:hover {
+  &:hover,
+  &:focus,
+  &:active,
+  &:focus-within {
     .widget-menu-regular,
     .btn__refresh {
       opacity: 1 !important;
@@ -240,10 +252,12 @@
       }
     }
 
-    a {
+    a,
+    .plain-button {
       color: fade(@redash-black, 65%);
 
-      &:hover {
+      &:hover,
+      &:focus {
         color: fade(@redash-black, 95%);
       }
     }

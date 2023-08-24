@@ -1,8 +1,8 @@
 import sqlite3
 from unittest import TestCase
 
-import pytest
 import mock
+import pytest
 
 from redash.query_runner.query_results import (
     CreateTableError,
@@ -11,10 +11,9 @@ from redash.query_runner.query_results import (
     create_table,
     extract_cached_query_ids,
     extract_query_ids,
-    get_query_results,
     fix_column_name,
+    get_query_results,
 )
-
 from redash.utils import json_dumps
 from tests import BaseTestCase
 
@@ -153,9 +152,7 @@ class TestGetQuery(BaseTestCase):
         self.assertEqual(query, loaded)
 
     def test_returns_query_when_user_has_view_only_access(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, view_only=True
-        )
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
         query = self.factory.create_query(data_source=ds)
         user = self.factory.create_user()
 
@@ -198,6 +195,7 @@ class TestGetQueryResult(BaseTestCase):
         query = self.factory.create_query(latest_query_data=query_result)
 
         from redash.query_runner.pg import PostgreSQL
+
         with mock.patch.object(PostgreSQL, "run_query") as qr:
             query_result_data = {"columns": [], "rows": []}
             qr.return_value = (json_dumps(query_result_data), None)

@@ -12,13 +12,16 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import notification from "@/services/notification";
 import useSearchResults from "@/lib/hooks/useSearchResults";
 
+import "./SelectItemsDialog.less";
+
 function ItemsList({ items, renderItem, onItemClick }) {
   const renderListItem = useCallback(
     item => {
       const { content, className, isDisabled } = renderItem(item);
+
       return (
         <List.Item
-          className={classNames("p-l-10", "p-r-10", { clickable: !isDisabled, disabled: isDisabled }, className)}
+          className={classNames("select-items-list", "w-100", "p-l-10", "p-r-10", { disabled: isDisabled }, className)}
           onClick={isDisabled ? null : () => onItemClick(item)}>
           {content}
         </List.Item>
@@ -117,7 +120,12 @@ function SelectItemsDialog({
       }>
       <div className="d-flex align-items-center m-b-10">
         <div className="flex-fill">
-          <Input.Search onChange={event => search(event.target.value)} placeholder={inputPlaceholder} autoFocus />
+          <Input.Search
+            onChange={event => search(event.target.value)}
+            placeholder={inputPlaceholder}
+            aria-label={inputPlaceholder}
+            autoFocus
+          />
         </div>
         {renderStagedItem && (
           <div className="w-50 m-l-20">

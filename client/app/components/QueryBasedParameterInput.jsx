@@ -77,7 +77,7 @@ export default class QueryBasedParameterInput extends React.Component {
   }
 
   render() {
-    const { className, value, mode, onSelect, ...otherProps } = this.props;
+    const { className, mode, onSelect, queryId, value, ...otherProps } = this.props;
     const { loading, options } = this.state;
     return (
       <span>
@@ -89,7 +89,6 @@ export default class QueryBasedParameterInput extends React.Component {
           value={this.state.value}
           onChange={onSelect}
           options={map(options, ({ value, name }) => ({ label: String(name), value }))}
-          optionFilterProp="children"
           showSearch
           showArrow
           notFoundContent={isEmpty(options) ? "No options available" : null}

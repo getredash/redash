@@ -20,7 +20,9 @@ export default function FormatSettings(props) {
             onChange={value => onChange({ date_format: value })}
             data-test="DateFormatSelect">
             {clientConfig.dateFormatList.map(dateFormat => (
-              <Select.Option key={dateFormat}>{dateFormat}</Select.Option>
+              <Select.Option key={dateFormat} data-test={`DateFormatSelect:${dateFormat}`}>
+                {dateFormat}
+              </Select.Option>
             ))}
           </Select>
         )}

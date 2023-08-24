@@ -1,4 +1,4 @@
-import { map } from "lodash";
+import { map, uniqueId } from "lodash";
 import React from "react";
 
 import Switch from "antd/lib/switch";
@@ -70,6 +70,7 @@ class OutdatedQueries extends React.Component {
   };
 
   _updateTimer = null;
+  autoUpdateSwitchId = uniqueId("auto-update-switch");
 
   componentDidMount() {
     recordEvent("view", "page", "admin/queries/outdated");
@@ -93,11 +94,11 @@ class OutdatedQueries extends React.Component {
       <Layout activeTab={controller.params.currentPage}>
         <div className="m-15">
           <div>
-            <label htmlFor="auto-update-switch" className="m-0">
+            <label htmlFor={this.autoUpdateSwitchId} className="m-0">
               Auto update
             </label>
             <Switch
-              id="auto-update-switch"
+              id={this.autoUpdateSwitchId}
               className="m-l-10"
               checked={this.state.autoUpdate}
               onChange={autoUpdate => this.setState({ autoUpdate })}

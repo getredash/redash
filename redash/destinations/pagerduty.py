@@ -1,5 +1,6 @@
 import logging
-from redash.destinations import *
+
+from redash.destinations import BaseDestination, register
 
 enabled = True
 
@@ -10,7 +11,6 @@ except ImportError:
 
 
 class PagerDuty(BaseDestination):
-
     KEY_STRING = "{alert_id}_{query_id}"
     DESCRIPTION_STR = "Alert: {alert_name}"
 
@@ -32,6 +32,7 @@ class PagerDuty(BaseDestination):
                     "title": "Description for the event, defaults to alert name",
                 },
             },
+            "secret": ["integration_key"],
             "required": ["integration_key"],
         }
 
@@ -39,8 +40,7 @@ class PagerDuty(BaseDestination):
     def icon(cls):
         return "creative-commons-pd-alt"
 
-    def notify(self, alert, query, user, new_state, app, host, options):
-
+    def notify(self, alert, query, user, new_state, app, host, metadata, options):
         if alert.custom_subject:
             default_desc = alert.custom_subject
         elif options.get("description"):
@@ -72,7 +72,6 @@ class PagerDuty(BaseDestination):
             data["event_action"] = "resolve"
 
         try:
-
             ev = pypd.EventV2.create(data=data)
             logging.warning(ev)
 

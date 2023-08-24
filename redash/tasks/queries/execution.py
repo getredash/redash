@@ -1,18 +1,18 @@
 import signal
 import time
-import redis
 
+import redis
 from rq import get_current_job
+from rq.exceptions import NoSuchJobError
 from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
-from rq.exceptions import NoSuchJobError
 
 from redash import models, redis_connection, settings
 from redash.query_runner import InterruptException
-from redash.tasks.worker import Queue, Job
 from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import track_failure
-from redash.utils import gen_query_hash, json_dumps, utcnow
+from redash.tasks.worker import Job, Queue
+from redash.utils import gen_query_hash, utcnow
 from redash.worker import get_job_logger
 
 logger = get_job_logger(__name__)
@@ -27,9 +27,7 @@ def _unlock(query_hash, data_source_id):
     redis_connection.delete(_job_lock_id(query_hash, data_source_id))
 
 
-def enqueue_query(
-    query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}
-):
+def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}):
     query_hash = gen_query_hash(query)
     logger.info("Inserting job for %s with metadata=%s", query_hash, metadata)
     try_count = 0
@@ -79,9 +77,7 @@ def enqueue_query(
                     queue_name = data_source.queue_name
                     scheduled_query_id = None
 
-                time_limit = settings.dynamic_settings.query_time_limit(
-                    scheduled_query, user_id, data_source.org_id
-                )
+                time_limit = settings.dynamic_settings.query_time_limit(scheduled_query, user_id, data_source.org_id)
                 metadata["Queue"] = queue_name
 
                 queue = Queue(queue_name)
@@ -90,11 +86,12 @@ def enqueue_query(
                     "scheduled_query_id": scheduled_query_id,
                     "is_api_key": is_api_key,
                     "job_timeout": time_limit,
+                    "failure_ttl": settings.JOB_DEFAULT_FAILURE_TTL,
                     "meta": {
                         "data_source_id": data_source.id,
                         "org_id": data_source.org_id,
                         "scheduled": scheduled_query_id is not None,
-                        "query_id": metadata.get("Query ID"),
+                        "query_id": metadata.get("query_id"),
                         "user_id": user_id,
                     },
                 }
@@ -102,9 +99,7 @@ def enqueue_query(
                 if not scheduled_query:
                     enqueue_kwargs["result_ttl"] = settings.JOB_EXPIRY_TIME
 
-                job = queue.enqueue(
-                    execute_query, query, data_source.id, metadata, **enqueue_kwargs
-                )
+                job = queue.enqueue(execute_query, query, data_source.id, metadata, **enqueue_kwargs)
 
                 logger.info("[%s] Created new job: %s", query_hash, job.id)
                 pipe.set(
@@ -149,23 +144,27 @@ def _resolve_user(user_id, is_api_key, query_id):
 
 
 class QueryExecutor(object):
-    def __init__(
-        self, query, data_source_id, user_id, is_api_key, metadata, scheduled_query
-    ):
+    def __init__(self, query, data_source_id, user_id, is_api_key, metadata, is_scheduled_query):
         self.job = get_current_job()
         self.query = query
         self.data_source_id = data_source_id
         self.metadata = metadata
         self.data_source = self._load_data_source()
-        self.user = _resolve_user(user_id, is_api_key, metadata.get("Query ID"))
+        self.query_id = metadata.get("query_id")
+        self.user = _resolve_user(user_id, is_api_key, metadata.get("query_id"))
+        self.query_model = (
+            models.Query.query.get(self.query_id)
+            if self.query_id and self.query_id != "adhoc"
+            else None
+        )  # fmt: skip
 
         # Close DB connection to prevent holding a connection for a long time while the query is executing.
         models.db.session.close()
         self.query_hash = gen_query_hash(self.query)
-        self.scheduled_query = scheduled_query
-        # Load existing tracker or create a new one if the job was created before code update:
-        if scheduled_query:
-            models.scheduled_queries_executions.update(scheduled_query.id)
+        self.is_scheduled_query = is_scheduled_query
+        if self.is_scheduled_query:
+            # Load existing tracker or create a new one if the job was created before code update:
+            models.scheduled_queries_executions.update(self.query_model.id)
 
     def run(self):
         signal.signal(signal.SIGINT, signal_handler)
@@ -202,20 +201,16 @@ class QueryExecutor(object):
 
         if error is not None and data is None:
             result = QueryExecutionError(error)
-            if self.scheduled_query is not None:
-                self.scheduled_query = models.db.session.merge(
-                    self.scheduled_query, load=False
-                )
-                track_failure(self.scheduled_query, error)
+            if self.is_scheduled_query:
+                self.query_model = models.db.session.merge(self.query_model, load=False)
+                track_failure(self.query_model, error)
             raise result
         else:
-            if self.scheduled_query and self.scheduled_query.schedule_failures > 0:
-                self.scheduled_query = models.db.session.merge(
-                    self.scheduled_query, load=False
-                )
-                self.scheduled_query.schedule_failures = 0
-                self.scheduled_query.skip_updated_at = True
-                models.db.session.add(self.scheduled_query)
+            if self.query_model and self.query_model.schedule_failures > 0:
+                self.query_model = models.db.session.merge(self.query_model, load=False)
+                self.query_model.schedule_failures = 0
+                self.query_model.skip_updated_at = True
+                models.db.session.add(self.query_model)
 
             query_result = models.QueryResult.store_result(
                 self.data_source.org_id,
@@ -232,7 +227,7 @@ class QueryExecutor(object):
             models.db.session.commit()  # make sure that alert sees the latest query result
             self._log_progress("checking_alerts")
             for query_id in updated_query_ids:
-                check_alerts_for_query.delay(query_id)
+                check_alerts_for_query.delay(query_id, self.metadata)
             self._log_progress("finished")
 
             result = query_result.id
@@ -242,21 +237,21 @@ class QueryExecutor(object):
     def _annotate_query(self, query_runner):
         self.metadata["Job ID"] = self.job.id
         self.metadata["Query Hash"] = self.query_hash
-        self.metadata["Scheduled"] = self.scheduled_query is not None
+        self.metadata["Scheduled"] = self.is_scheduled_query
 
         return query_runner.annotate_query(self.query, self.metadata)
 
     def _log_progress(self, state):
         logger.info(
-            "job=execute_query state=%s query_hash=%s type=%s ds_id=%d  "
-            "job_id=%s queue=%s query_id=%s username=%s",
+            "job=execute_query state=%s query_hash=%s type=%s ds_id=%d "
+            "job_id=%s queue=%s query_id=%s username=%s",  # fmt: skip
             state,
             self.query_hash,
             self.data_source.type,
             self.data_source.id,
             self.job.id,
             self.metadata.get("Queue", "unknown"),
-            self.metadata.get("Query ID", "unknown"),
+            self.metadata.get("query_id", "unknown"),
             self.metadata.get("Username", "unknown"),
         )
 
@@ -275,14 +270,14 @@ def execute_query(
     scheduled_query_id=None,
     is_api_key=False,
 ):
-    if scheduled_query_id is not None:
-        scheduled_query = models.Query.query.get(scheduled_query_id)
-    else:
-        scheduled_query = None
-
     try:
         return QueryExecutor(
-            query, data_source_id, user_id, is_api_key, metadata, scheduled_query
+            query,
+            data_source_id,
+            user_id,
+            is_api_key,
+            metadata,
+            scheduled_query_id is not None,
         ).run()
     except QueryExecutionError as e:
         models.db.session.rollback()
