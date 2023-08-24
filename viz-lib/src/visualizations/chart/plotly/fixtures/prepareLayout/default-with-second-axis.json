@@ -3,11 +3,11 @@
     "options": {
       "globalSeriesType": "column",
       "xAxis": { "type": "-", "labels": { "enabled": true } },
-      "yAxis": [
-        { "type": "linear" },
-        { "type": "linear", "opposite": true }
-      ],
-      "series": { "stacking": null, "error_y": { "type": "data", "visible": true } }
+      "yAxis": [{ "type": "linear" }, { "type": "linear", "opposite": true }],
+      "series": { "stacking": null, "error_y": { "type": "data", "visible": true } },
+      "legend": {
+        "traceorder": "normal"
+      }
     },
     "series": [
       { "name": "a" },
@@ -21,6 +21,9 @@
       "height": 300,
       "autosize": false,
       "showlegend": true,
+      "legend": {
+        "traceorder": "normal"
+      },
       "xaxis": {
         "automargin": true,
         "showticklabels": true,
@@ -30,14 +33,21 @@
       "yaxis": {
         "automargin": true,
         "title": null,
-        "type": "linear"
+        "type": "linear",
+        "autorange": true,
+        "range": null
       },
       "yaxis2": {
         "automargin": true,
         "title": null,
         "type": "linear",
+        "autorange": true,
+        "range": null,
         "overlaying": "y",
         "side": "right"
+      },    
+      "hoverlabel": {
+        "namelength": -1
       }
     }
   }

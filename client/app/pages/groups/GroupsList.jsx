@@ -2,6 +2,7 @@ import React from "react";
 
 import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import Link from "@/components/Link";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
@@ -30,7 +31,7 @@ class GroupsList extends React.Component {
     Columns.custom(
       (text, group) => (
         <div>
-          <a href={"groups/" + group.id}>{group.name}</a>
+          <Link href={"groups/" + group.id}>{group.name}</Link>
           {group.type === "builtin" && <span className="label label-default m-l-10">built-in</span>}
         </div>
       ),
@@ -42,8 +43,8 @@ class GroupsList extends React.Component {
     Columns.custom(
       (text, group) => (
         <Button.Group>
-          <Button href={`groups/${group.id}`}>Members</Button>
-          {currentUser.isAdmin && <Button href={`groups/${group.id}/data_sources`}>Data Sources</Button>}
+          <Link.Button href={`groups/${group.id}`}>Members</Link.Button>
+          {currentUser.isAdmin && <Link.Button href={`groups/${group.id}/data_sources`}>Data Sources</Link.Button>}
         </Button.Group>
       ),
       {
@@ -92,7 +93,7 @@ class GroupsList extends React.Component {
         {currentUser.isAdmin && (
           <div className="m-b-15">
             <Button type="primary" onClick={this.createGroup}>
-              <i className="fa fa-plus m-r-5" />
+              <i className="fa fa-plus m-r-5" aria-hidden="true" />
               New Group
             </Button>
           </div>
@@ -112,8 +113,10 @@ class GroupsList extends React.Component {
               toggleSorting={controller.toggleSorting}
             />
             <Paginator
+              showPageSizeSelect
               totalCount={controller.totalItemsCount}
-              itemsPerPage={controller.itemsPerPage}
+              pageSize={controller.itemsPerPage}
+              onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
               page={controller.page}
               onChange={page => controller.updatePagination({ page })}
             />

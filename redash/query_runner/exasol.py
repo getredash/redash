@@ -1,6 +1,14 @@
 import datetime
 
-from redash.query_runner import *
+from redash.query_runner import (
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseQueryRunner,
+    register,
+)
 from redash.utils import json_dumps
 
 
@@ -95,8 +103,7 @@ class Exasol(BaseQueryRunner):
         try:
             statement = connection.execute(query)
             columns = [
-                {"name": n, "friendly_name": n, "type": _type_mapper(t)}
-                for (n, t) in statement.columns().items()
+                {"name": n, "friendly_name": n, "type": _type_mapper(t)} for (n, t) in statement.columns().items()
             ]
             cnames = statement.column_names()
 
@@ -126,7 +133,7 @@ class Exasol(BaseQueryRunner):
             statement = connection.execute(query)
             result = {}
 
-            for (schema, table_name, column) in statement:
+            for schema, table_name, column in statement:
                 table_name_with_schema = "%s.%s" % (schema, table_name)
 
                 if table_name_with_schema not in result:

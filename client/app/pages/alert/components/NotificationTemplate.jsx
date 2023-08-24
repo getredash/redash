@@ -80,21 +80,25 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
             Preview{" "}
             <Switch size="small" className="alert-template-preview" value={showPreview} onChange={setShowPreview} />
           </div>
+          {/* TODO: consider adding real labels (not clear for sighted users as well) */}
           <Input
             value={showPreview ? render(subject) : subject}
+            aria-label="Subject"
             onChange={e => setSubject(e.target.value)}
             disabled={showPreview}
             data-test="CustomSubject"
           />
           <Input.TextArea
             value={showPreview ? render(body) : body}
-            autosize={{ minRows: 9 }}
+            aria-label="Body"
+            autoSize={{ minRows: 9 }}
             onChange={e => setBody(e.target.value)}
             disabled={showPreview}
             data-test="CustomBody"
           />
           <HelpTrigger type="ALERT_NOTIF_TEMPLATE_GUIDE" className="f-13">
-            <i className="fa fa-question-circle" /> Formatting guide
+            <i className="fa fa-question-circle" aria-hidden="true" /> Formatting guide{" "}
+            <span className="sr-only">(help)</span>
           </HelpTrigger>
         </div>
       )}

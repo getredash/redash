@@ -1,5 +1,152 @@
 # Change Log
 
+## V10.1.0 - 2021-11-23
+
+This release includes patches for three security vulnerabilities:
+
+- Insecure default configuration affects installations where REDASH_COOKIE_SECRET is not set explicitly (CVE-2021-41192)
+- SSRF vulnerability affects installations that enabled URL-loading data sources (CVE-2021-43780)
+- Incorrect usage of state parameter in OAuth client code affects installations where Google Login is enabled (CVE-2021-43777)
+
+And a couple features that didn't merge in time for 10.0.0
+
+- Big Query: Speed up schema loading (#5632)
+- Add support for Firebolt data source (#5606)
+- Fix: Loading schema for Sqlite DB with "Order" column name fails (#5623)
+
+## v10.0.0 - 2021-10-01
+
+A few changes were merged during the V10 beta period.
+
+- New Data Source: CSV/Excel Files
+- Fix: Edit Source button disappeared for users without CanEdit permissions
+- We pinned our docker base image to Python3.7-slim-buster to avoid build issues
+- Fix: dashboard list pagination didn't work
+
+## v10.0.0-beta - 2021-06-16
+
+Just over a year since our last release, the V10 beta is ready. Since we never made a non-beta release of V9, we expect many users will upgrade directly from V8 -> V10. This will bring a lot of exciting features. Please check out the V9 beta release notes below to learn more.
+
+This V10 beta incorporates fixes for the feedback we received on the V9 beta along with a few long-requested features (horizontal bar charts!) and other changes to improve UX and reliability.
+
+This release was made possible by contributions from 35+ people (the Github API didn't let us pull handles this time around): Alex Kovar, Alexander Rusanov, Arik Fraimovich, Ben Amor, Christopher Grant, Đặng Minh Dũng, Daniel Lang, deecay, Elad Ossadon, Gabriel Dutra, iwakiriK, Jannis Leidel, Jerry, Jesse Whitehouse, Jiajie Zhong, Jim Sparkman, Jonathan Hult, Josh Bohde, Justin Talbot, koooge, Lei Ni, Levko Kravets, Lingkai Kong, max-voronov, Mike Nason, Nolan Nichols, Omer Lachish, Patrick Yang, peterlee, Rafael Wendel, Sebastian Tramp, simonschneider-db, Tim Gates, Tobias Macey, Vipul Mathur, and Vladislav Denisov
+
+Our special thanks to [Sohail Ahmed](https://pk.linkedin.com/in/sohail-ahmed-755776184) for reporting a vulnerability in our "forgot password" page (#5425)
+
+### Upgrading
+
+(This section is duplicated from the previous release - since many users will upgrade directly from V8 -> V10)
+
+Typically, if you are running your own instance of Redash and wish to upgrade, you would simply modify the Docker tag in your `docker-compose.yml` file. Since RQ has replaced Celery in this version, there are a couple extra modifications that need to be done in your `docker-compose.yml`:
+
+1. Under `services/scheduler/environment`, omit `QUEUES` and `WORKERS_COUNT` (and omit `environment` altogether if it is empty).
+2. Under `services`, add a new service for general RQ jobs:
+
+```yaml
+worker:
+  <<: *redash-service
+  command: worker
+  environment:
+    QUEUES: "periodic emails default"
+    WORKERS_COUNT: 1
+```
+
+Following that, force a recreation of your containers with `docker-compose up --force-recreate --build` and you should be good to go.
+### UX
+- Redash now uses a vertical navbar
+- Dashboard list now includes “My Dashboards” filter
+- Dashboard parameters can now be re-ordered
+- Queries can now be executed with Shift + Enter on all platforms.
+- Added New Dashboard/Query/Alert buttons to corresponding list pages
+- Dashboard text widgets now prompt to confirm before closing the text editor
+- A plus sign is now shown between tags used for search
+- On the queries list view “My Queries” has moved above “Archived”
+- Improved behavior for filtering by tags in list views
+- When a user’s session expires for inactivity, they are prompted to log-in with a pop-up so they don’t lose their place in the app
+- Numerous accessibility changes towards the a11y standard
+- Hide the “Create” menu button if current user doesn’t have permission to any data sources
+
+### Visualizations
+- Feature: Added support for horizontal box plots
+- Feature: Added support for horizontal bar charts
+- Feature: Added “Reverse” option for Chart visualization legend
+- Feature: Added option to align Chart Y-axes at zero
+- Feature: The table visualization header is now fixed when scrolling
+- Feature: Added USA map to choropleth visualization
+- Fix: Selected filters were reset when switching visualizations
+- Fix: Stacked bar chart showed the wrong Y-axis range in some cases
+- Fix: Bar chart with second y axis overlapped data series
+- Fix: Y-axis autoscale failed when min or max was set
+- Fix: Custom JS visualization was broken because of a typo
+- Fix: Too large visualization caused filters block to collapse
+- Fix: Sankey visualization looked inconsistent if the data source returned VARCHAR instead of numeric types
+
+### Structural Updates
+- Redash now prevents CSRF attacks
+- Migration to TypeScript
+- Upgrade to Antd version 4
+### Data Sources
+- New Data Sources: SPARQL Endpoint, Eccenca Corporate Memory, TrinoDB
+- Databricks
+  - Custom Schema Browser that allows switching between databases
+  - Option added to truncate large results
+  - Support for multiple-statement queries
+  - Schema browser can now use eventlet instead of RQ
+- MongoDB:
+  - Moved Username and Password out of the connection string so that password can be stored secretly
+- Oracle:
+  - Fix: Annotated queries always failed. Annotation is now disabled
+- Postgres/CockroachDB:
+  - SSL certfile/keyfile fields are now handled as secret
+- Python:
+  - Feature: Custom built-ins are now supported
+  - Fix: Query runner was not compatible with Python 3
+- Snowflake:
+  - Data source now accepts a custom host address (for use with proxies)
+- TreasureData:
+  - API key field is now handled as secret
+- Yandex:
+  - OAuth token field is now handled as secret
+
+### Alerts
+- Feature: Added ability to mute alerts without deleting them
+- Change: Non-email alert destination details are now obfuscated to avoid leaking sensitive information (webhook URLs, tokens etc.)
+- Fix: numerical comparisons failed if value from query was a string
+
+### Parameters
+- Added “Last 12 months” option for dynamic date ranges
+
+### Bug Fixes
+- Fix: Private addresses were not allowed even when enforcing was disabled 
+- Fix: Python query runner wasn’t updated for Python 3
+- Fix: Sorting queries by schedule returned the wrong order
+- Fix: Counter visualization was enormous in some cases
+- Fix: Dashboard URL will now change when the dashboard title changes
+- Fix: URL parameters were removed when forking a query
+- Fix: Create link on data sources page was broken
+- Fix: Queries could be reassigned to read-only data sources
+- Fix: Multi-select dropdown was very slow if there were 1k+ options
+- Fix: Search Input couldn’t be focused or updated while editing a dashboard
+- Fix: The CLI command for “status” did not work
+- Fix: The dashboard list screen displayed too few items under certain pagination configurations
+
+### Other
+- Added an environment variable to disable public sharing links for queries and dashboards
+- Alert destinations are now encrypted at the database
+- The base query runner now has stubs to implement result truncating for other data sources
+- Static SAML configuration and assertion encryption are now supported
+- Adds new component for adding extra actions to the query and dashboard pages
+- Non-admins with at least view_only permission on a dashboard can now make GET requests to the data source resource
+- Added a BLOCKED_DOMAINS setting to prevent sign-ups from emails at specific domains
+- Added a rate limit to the “forgot password” page
+- RQ workers will now shutdown gracefully for known error codes
+- Scheduled execution failure counter now resets following a successful ad hoc execution
+- Redash now deletes locks for cancelled queries
+- Upgraded Ace Editor from v6 to v9
+- Added a periodic job to remove ghost locks
+- Removed content width limit on all pages
+- Introduce a <Link> React component
+
 ## v9.0.0-beta - 2020-06-11
 
 This release was long time in the making and has several major changes:

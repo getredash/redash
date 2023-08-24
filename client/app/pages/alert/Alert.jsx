@@ -264,7 +264,7 @@ routes.register(
 routes.register(
   "Alerts.View",
   routeWithUserSession({
-    path: "/alerts/:alertId([0-9]+)",
+    path: "/alerts/:alertId",
     title: "Alert",
     render: pageProps => <Alert {...pageProps} mode={MODES.VIEW} />,
   })
@@ -272,7 +272,7 @@ routes.register(
 routes.register(
   "Alerts.Edit",
   routeWithUserSession({
-    path: "/alerts/:alertId([0-9]+)/edit",
+    path: "/alerts/:alertId/edit",
     title: "Alert",
     render: pageProps => <Alert {...pageProps} mode={MODES.EDIT} />,
   })

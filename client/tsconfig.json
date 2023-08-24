@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    // Target latest version of ECMAScript.
+    "target": "es2019",
+    // Search under node_modules for non-relative imports.
+    "moduleResolution": "node",
+    // Process & infer types from .js files.
+    "allowJs": true,
+    // Don't emit; allow Babel to transform files.
+    "noEmit": true,
+    // Enable strictest settings like strictNullChecks & noImplicitAny.
+    "strict": true,
+    // Import non-ES modules as default imports.
+    "esModuleInterop": true,
+    "jsx": "react",
+    "allowSyntheticDefaultImports": true,
+    "noUnusedLocals": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./app/*"]
+    },
+    "skipLibCheck": true
+  },
+  "include": ["app/**/*"],
+  "exclude": ["dist"]
+}

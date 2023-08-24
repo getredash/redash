@@ -1,6 +1,6 @@
 import logging
 
-from redash.query_runner import *
+from redash.query_runner import BaseQueryRunner, register
 from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
@@ -42,9 +42,7 @@ def _transform_result(results):
                         result_row[column] = value
                 result_rows.append(result_row)
 
-    return json_dumps(
-        {"columns": [{"name": c} for c in result_columns], "rows": result_rows}
-    )
+    return json_dumps({"columns": [{"name": c} for c in result_columns], "rows": result_rows})
 
 
 class InfluxDB(BaseQueryRunner):

@@ -8,11 +8,14 @@ import { MappingType, ParameterMappingListInput } from "@/components/ParameterMa
 import QuerySelector from "@/components/QuerySelector";
 import notification from "@/services/notification";
 import { Query } from "@/services/query";
+import { useUniqueId } from "@/lib/hooks/useUniqueId";
 
 function VisualizationSelect({ query, visualization, onChange }) {
   const visualizationGroups = useMemo(() => {
     return query ? groupBy(query.visualizations, "type") : {};
   }, [query]);
+
+  const vizSelectId = useUniqueId("visualization-select");
 
   const handleChange = useCallback(
     visualizationId => {
@@ -29,9 +32,9 @@ function VisualizationSelect({ query, visualization, onChange }) {
   return (
     <div>
       <div className="form-group">
-        <label htmlFor="choose-visualization">Choose Visualization</label>
+        <label htmlFor={vizSelectId}>Choose Visualization</label>
         <Select
-          id="choose-visualization"
+          id={vizSelectId}
           className="w-100"
           value={visualization ? visualization.id : undefined}
           onChange={handleChange}>
@@ -108,6 +111,7 @@ function AddWidgetDialog({ dialog, dashboard }) {
   }, [dialog, selectedVisualization, parameterMappings]);
 
   const existingParams = dashboard.getParametersDefs();
+  const parameterMappingsId = useUniqueId("parameter-mappings");
 
   return (
     <Modal
@@ -132,12 +136,12 @@ function AddWidgetDialog({ dialog, dashboard }) {
         )}
 
         {parameterMappings.length > 0 && [
-          <label key="parameters-title" htmlFor="parameter-mappings">
+          <label key="parameters-title" htmlFor={parameterMappingsId}>
             Parameters
           </label>,
           <ParameterMappingListInput
             key="parameters-list"
-            id="parameter-mappings"
+            id={parameterMappingsId}
             mappings={parameterMappings}
             existingParams={existingParams}
             onChange={setParameterMappings}

@@ -3,7 +3,7 @@ import React from "react";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
-import Icon from "antd/lib/icon";
+import DownOutlinedIcon from "@ant-design/icons/DownOutlined";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -72,9 +72,9 @@ class GroupDataSources extends React.Component {
 
         return (
           <Dropdown trigger={["click"]} overlay={menu}>
-            <Button className="w-100">
+            <Button className="w-100" aria-label="Permissions">
               {datasource.view_only ? "View Only" : "Full Access"}
-              <Icon type="down" />
+              <DownOutlinedIcon aria-hidden="true" />
             </Button>
           </Dropdown>
         );
@@ -192,7 +192,7 @@ class GroupDataSources extends React.Component {
                 <p>There are no data sources in this group yet.</p>
                 {currentUser.isAdmin && (
                   <Button type="primary" onClick={this.addDataSources}>
-                    <i className="fa fa-plus m-r-5" />
+                    <i className="fa fa-plus m-r-5" aria-hidden="true" />
                     Add Data Sources
                   </Button>
                 )}
@@ -210,8 +210,10 @@ class GroupDataSources extends React.Component {
                   toggleSorting={controller.toggleSorting}
                 />
                 <Paginator
+                  showPageSizeSelect
                   totalCount={controller.totalItemsCount}
-                  itemsPerPage={controller.itemsPerPage}
+                  pageSize={controller.itemsPerPage}
+                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
                   page={controller.page}
                   onChange={page => controller.updatePagination({ page })}
                 />
@@ -246,7 +248,7 @@ const GroupDataSourcesPage = wrapSettingsTab(
 routes.register(
   "Groups.DataSources",
   routeWithUserSession({
-    path: "/groups/:groupId([0-9]+)/data_sources",
+    path: "/groups/:groupId/data_sources",
     title: "Group Data Sources",
     render: pageProps => <GroupDataSourcesPage {...pageProps} currentPage="datasources" />,
   })

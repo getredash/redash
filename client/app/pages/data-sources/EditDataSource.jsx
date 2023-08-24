@@ -112,6 +112,7 @@ class EditDataSource extends React.Component {
       ],
       onSubmit: this.saveDataSource,
       feedbackIcons: true,
+      defaultShowExtraFields: helper.hasFilledExtraField(type, dataSource),
     };
 
     return (
@@ -119,7 +120,8 @@ class EditDataSource extends React.Component {
         <div className="text-right m-r-10">
           {HELP_TRIGGER_TYPES[helpTriggerType] && (
             <HelpTrigger className="f-13" type={helpTriggerType}>
-              Setup Instructions <i className="fa fa-question-circle" />
+              Setup Instructions <i className="fa fa-question-circle" aria-hidden="true" />
+              <span className="sr-only">(help)</span>
             </HelpTrigger>
           )}
         </div>
@@ -144,7 +146,7 @@ const EditDataSourcePage = wrapSettingsTab("DataSources.Edit", null, EditDataSou
 routes.register(
   "DataSources.Edit",
   routeWithUserSession({
-    path: "/data_sources/:dataSourceId([0-9]+)",
+    path: "/data_sources/:dataSourceId",
     title: "Data Sources",
     render: pageProps => <EditDataSourcePage {...pageProps} />,
   })
