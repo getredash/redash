@@ -28,7 +28,7 @@ class TestExtractQueryIds(TestCase):
 
     def test_finds_queries_to_load(self):
         query = "SELECT * FROM query_123"
-        self.assertEqual([123], extract_query_ids(query))source 
+        self.assertEqual([123], extract_query_ids(query))
 
     def test_finds_queries_in_joins(self):
         query = "SELECT * FROM query_123 JOIN query_4566"
@@ -180,6 +180,7 @@ class TestExtractCachedQueryIds(TestCase):
         query = "SELECT * FROM    cached_query_123 a JOIN\tcached_query_4566 b ON a.id=b.parent_id JOIN\r\ncached_query_78 c ON b.id=c.parent_id"
         self.assertEqual([123, 4566, 78], extract_cached_query_ids(query))
 
+
 class TestExtractParamQueryIds(TestCase):
     def test_works_with_simple_query(self):
         query = "SELECT 1"
@@ -195,21 +196,24 @@ class TestExtractParamQueryIds(TestCase):
 
     def test_finds_queries_to_load(self):
         query = "SELECT * FROM param_query_123_{token=test}"
-        self.assertEqual([('123', 'token=test')], extract_query_params(query))
+        self.assertEqual([("123", "token=test")], extract_query_params(query))
 
     def test_finds_queries_in_joins(self):
         query = "SELECT * FROM param_query_123_{token1=test1} JOIN param_query_456_{token2=test2}"
-        self.assertEqual([('123', 'token1=test1'), ('456', 'token2=test2')], extract_query_params(query))
+        self.assertEqual([("123", "token1=test1"), ("456", "token2=test2")], extract_query_params(query))
+
 
 class TestPrepareParameterizedQuery(TestCase):
     def test_param_query_replacement(self):
-        result = prepare_parameterized_query("SELECT * FROM param_query_123_{token=test}", [('123', 'token=test')])
-        self.assertEqual('SELECT * FROM query_123_1c5f1acad40f99b968836273d74baa89', result)
+        result = prepare_parameterized_query("SELECT * FROM param_query_123_{token=test}", [("123", "token=test")])
+        self.assertEqual("SELECT * FROM query_123_1c5f1acad40f99b968836273d74baa89", result)
+
 
 class TestReplaceQueryParameters(TestCase):
     def test_replace_query_params(self):
         result = replace_query_parameters("SELECT '{{token1}}', '{{token2}}'", "token1=test1&token2=test2")
         self.assertEqual("SELECT 'test1', 'test2'", result)
+
 
 class TestFixColumnName(TestCase):
     def test_fix_column_name(self):
