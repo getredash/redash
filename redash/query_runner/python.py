@@ -274,7 +274,7 @@ class Python(BaseQueryRunner):
         result["rows"] = df.to_dict("records")
 
         for column_name, column_type in df.dtypes.items():
-            if column_type == np.bool:
+            if column_type == np.bool_:
                 redash_type = TYPE_BOOLEAN
             elif column_type == np.inexact:
                 redash_type = TYPE_FLOAT
