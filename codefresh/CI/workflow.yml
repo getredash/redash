@@ -5,9 +5,8 @@ stages:
   - build
   - wait-when-pr
   - staging
-#  - wait-before-prod
-#  - production
-#  - after-deployment
+  - production
+  - after-deployment
 
 steps:
   clone:
@@ -89,7 +88,7 @@ steps:
 
   approve:
     title: 'Approve Before Staging'
-    stage: 'wait-when-pr'
+    stage: wait-when-pr
     type: 'pending-approval'
     timeout:
       timeUnit: 'minutes'
@@ -120,66 +119,62 @@ steps:
     title: Deploy staging
     stage: staging
     steps:
-      staging_use1:
-        title: Deploy staging use1
+      staging_argo:
+        title: Deploy staging using argocd
         type: codefresh-run
         arguments:
-          PIPELINE_ID: redash/CD
-          TRIGGER_ID: run-stage-use1
-          BRANCH: '${{CF_BRANCH}}'
-          SHA: '${{CF_REVISION}}'
+          PIPELINE_ID: infra-core/argocd
+          TRIGGER_ID: staging-bigbrain
+          BRANCH: master
           ENABLE_NOTIFICATIONS: true
           FOLLOW_LOGS: false
+          VARIABLE:
+            - REPO_NAME=${{CF_REPO_NAME}}
+            - REVISION=${{CF_REVISION}}
+            - BUILD_ID=${{CF_BUILD_ID}}
+            - APP_TYPE="infra"
+            - CHECK_LOCK="false"
     when:
       condition:
         any:
           isMaster: "'${{CF_BRANCH}}' == 'master'"
           isApproved: 'includes("${{STAGING_APPROVED}}", "{{STAGING_APPROVED}}") == false'
 
-#  approve_prod:
-#    type: pending-approval
-#    title: Approve Before Production
-#    description: Step description
-#    timeout:
-#      timeUnit: 'minutes'
-#      duration: 15
-#      finalState: denied
-#    fail_fast: false
-#    stage: wait-before-prod
-#    when:
-#      condition:
-#        all:
-#          isMaster: "'${{CF_BRANCH}}' == 'master'"
-#          myCondition: deploy_staging.result == 'success'
+  production:
+    type: parallel
+    title: Deploy production
+    stage: production
+    steps:
+      production_argo:
+        type: codefresh-run
+        title: 'Deploy production using ArgoCD'
+        arguments:
+          PIPELINE_ID: infra-core/argocd
+          TRIGGER_ID: production-bigbrain
+          BRANCH: master
+          ENABLE_NOTIFICATIONS: true
+          FOLLOW_LOGS: false
+          VARIABLE:
+            - REPO_NAME=${{CF_REPO_NAME}}
+            - REVISION=${{CF_REVISION}}
+            - BUILD_ID=${{CF_BUILD_ID}}
+            - APP_TYPE="infra"
+            - CHECK_LOCK="false"
+    when:
+      condition:
+        all:
+          isMaster: "'${{CF_BRANCH}}' == 'master'"
+          myCondition: deploy_staging.result == 'success'
 
-#  production:
-#    type: parallel
-#    title: Deploy production
-#    stage: production
-#    steps:
-#      production_use1:
-#        title: Deploy production use1
-#        type: codefresh-run
-#        arguments:
-#          PIPELINE_ID: redash/CD
-#          TRIGGER_ID: run-prod-use1
-#          BRANCH: '${{CF_BRANCH}}'
-#          SHA: '${{CF_REVISION}}'
-#          ENABLE_NOTIFICATIONS: true
-#          FOLLOW_LOGS: false
-#    when:
-#      steps:
-#        - name: approve_prod
-#          'on':
-#            - approved
-#  push_tag:
-#    title: Push latest docker tag
-#    type: push
-#    candidate: '${{build}}'
-#    tag: latest
-#    registry: 'aws-bi-use1'
-#    stage: after-deployment
-#    when:
-#      condition:
-#        all:
-#          myCondition: production.result == 'success'
+
+  push_tag:
+    title: Push latest docker tag
+    type: push
+    candidate: '${{build}}'
+    tag: latest
+    registry: 'aws-bi-use1'
+    stage: after-deployment
+    when:
+      condition:
+        all:
+          myCondition: production.result == 'success'
