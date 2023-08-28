@@ -129,9 +129,6 @@ export default function initChart(container: any, options: any, data: any, addit
 
                   templateValues[`@@y${i + 1}`] = sourceDataElement.y;
                   templateValues[`@@x${i + 1}`] = sourceDataElement.x;
-
-                  // console.debug(`Click point ${i}:\n  x = ` + sourceDataElement.x +
-                  //   '\n  y = ' + sourceDataElement.y.toPrecision(4) + '\n');
                 })
                 navigateToUrl(
                   formatSimpleTemplate(options.linkFormat, templateValues).replace(/{{\s*([^\s]+?)\s*}}/g, () => ''),
