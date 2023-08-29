@@ -1,5 +1,6 @@
 try:
     import snowflake.connector
+
     enabled = True
 except ImportError:
     enabled = False
