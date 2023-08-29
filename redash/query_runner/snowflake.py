@@ -1,11 +1,11 @@
 try:
     import snowflake.connector
-
     enabled = True
 except ImportError:
     enabled = False
 
 
+from redash import __version__
 from redash.query_runner import (
     TYPE_BOOLEAN,
     TYPE_DATE,
@@ -102,6 +102,7 @@ class Snowflake(BaseSQLQueryRunner):
             account=account,
             region=region,
             host=host,
+            application="Redash/{} (Snowflake)".format(__version__.split("-")[0]),
         )
 
         return connection
