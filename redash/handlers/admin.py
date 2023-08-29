@@ -1,14 +1,13 @@
-from flask import request
-from flask_login import login_required, current_user
+from flask_login import current_user, login_required
 
 from redash import models, redis_connection
 from redash.authentication import current_org
 from redash.handlers import routes
 from redash.handlers.base import json_response, record_event
+from redash.monitor import rq_status
 from redash.permissions import require_super_admin
 from redash.serializers import QuerySerializer
 from redash.utils import json_loads
-from redash.monitor import rq_status
 
 
 @routes.route("/api/admin/queries/outdated", methods=["GET"])
@@ -29,13 +28,14 @@ def outdated_queries():
     record_event(
         current_org,
         current_user._get_current_object(),
-        {"action": "list", "object_type": "outdated_queries",},
+        {
+            "action": "list",
+            "object_type": "outdated_queries",
+        },
     )
 
     response = {
-        "queries": QuerySerializer(
-            outdated_queries, with_stats=True, with_last_modified_by=False
-        ).serialize(),
+        "queries": QuerySerializer(outdated_queries, with_stats=True, with_last_modified_by=False).serialize(),
         "updated_at": manager_status["last_refresh_at"],
     }
     return json_response(response)

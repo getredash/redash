@@ -1,7 +1,5 @@
-from __future__ import absolute_import
-import socket
-import sys
 import datetime
+import socket
 from itertools import chain
 
 from click import argument
@@ -14,11 +12,11 @@ from supervisor_checks.check_modules import base
 
 from redash import rq_redis_connection
 from redash.tasks import (
-    Worker,
+    periodic_job_definitions,
     rq_scheduler,
     schedule_periodic_jobs,
-    periodic_job_definitions,
 )
+from redash.tasks.worker import Worker
 from redash.worker import default_queues
 
 manager = AppGroup(help="RQ management commands.")
@@ -55,11 +53,7 @@ class WorkerHealthcheck(base.BaseCheck):
     def __call__(self, process_spec):
         pid = process_spec["pid"]
         all_workers = Worker.all(connection=rq_redis_connection)
-        workers = [
-            w
-            for w in all_workers
-            if w.hostname == socket.gethostname() and w.pid == pid
-        ]
+        workers = [w for w in all_workers if w.hostname == socket.gethostname() and w.pid == pid]
 
         if not workers:
             self._log(f"Cannot find worker for hostname {socket.gethostname()} and pid {pid}. ==> Is healthy? False")
@@ -96,6 +90,4 @@ class WorkerHealthcheck(base.BaseCheck):
 
 @manager.command()
 def healthcheck():
-    return check_runner.CheckRunner(
-        "worker_healthcheck", "worker", None, [(WorkerHealthcheck, {})]
-    ).run()
+    return check_runner.CheckRunner("worker_healthcheck", "worker", None, [(WorkerHealthcheck, {})]).run()

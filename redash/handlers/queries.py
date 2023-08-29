@@ -2,8 +2,8 @@ import sqlparse
 from flask import jsonify, request, url_for
 from flask_login import login_required
 from flask_restful import abort
-from sqlalchemy.orm.exc import StaleDataError
 from funcy import partial
+from sqlalchemy.orm.exc import StaleDataError
 
 from redash import models, settings
 from redash.authentication.org_resolving import current_org
@@ -11,12 +11,11 @@ from redash.handlers.base import (
     BaseResource,
     filter_by_tags,
     get_object_or_404,
-    org_scoped_rule,
-    paginate,
-    routes,
-    order_results as _order_results,
 )
+from redash.handlers.base import order_results as _order_results
+from redash.handlers.base import org_scoped_rule, paginate, routes
 from redash.handlers.query_results import run_query
+from redash.models.parameterized_query import ParameterizedQuery
 from redash.permissions import (
     can_modify,
     not_view_only,
@@ -26,10 +25,8 @@ from redash.permissions import (
     require_permission,
     view_only,
 )
-from redash.utils import collect_parameters_from_request
 from redash.serializers import QuerySerializer
-from redash.models.parameterized_query import ParameterizedQuery
-
+from redash.utils import collect_parameters_from_request
 
 # Ordering map for relationships
 order_map = {
@@ -47,9 +44,7 @@ order_map = {
     "-created_by": "-users-name",
 }
 
-order_results = partial(
-    _order_results, default_order="-created_at", allowed_orders=order_map
-)
+order_results = partial(_order_results, default_order="-created_at", allowed_orders=order_map)
 
 
 @routes.route(org_scoped_rule("/api/queries/format"), methods=["POST"])
@@ -64,9 +59,7 @@ def format_sql_query(org_slug=None):
     arguments = request.get_json(force=True)
     query = arguments.get("query", "")
 
-    return jsonify(
-        {"query": sqlparse.format(query, **settings.SQLPARSE_FORMAT_OPTIONS)}
-    )
+    return jsonify({"query": sqlparse.format(query, **settings.SQLPARSE_FORMAT_OPTIONS)})
 
 
 class QuerySearchResource(BaseResource):
@@ -107,14 +100,8 @@ class QueryRecentResource(BaseResource):
         Responds with a list of :ref:`query <query-response-label>` objects.
         """
 
-        results = (
-            models.Query.by_user(self.current_user)
-            .order_by(models.Query.updated_at.desc())
-            .limit(10)
-        )
-        return QuerySerializer(
-            results, with_last_modified_by=False, with_user=False
-        ).serialize()
+        results = models.Query.by_user(self.current_user).order_by(models.Query.updated_at.desc()).limit(10)
+        return QuerySerializer(results, with_last_modified_by=False, with_user=False).serialize()
 
 
 class BaseQueryListResource(BaseResource):
@@ -128,9 +115,7 @@ class BaseQueryListResource(BaseResource):
                 multi_byte_search=current_org.get_setting("multi_byte_search_enabled"),
             )
         else:
-            results = models.Query.all_queries(
-                self.current_user.group_ids, self.current_user.id, include_drafts=True
-            )
+            results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id, include_drafts=True)
         return filter_by_tags(results, models.Query.tags)
 
     @require_permission("view_query")
@@ -170,9 +155,7 @@ class BaseQueryListResource(BaseResource):
         )
 
         if search_term:
-            self.record_event(
-                {"action": "search", "object_type": "query", "term": search_term}
-            )
+            self.record_event({"action": "search", "object_type": "query", "term": search_term})
         else:
             self.record_event({"action": "list", "object_type": "query"})
 
@@ -181,9 +164,7 @@ class BaseQueryListResource(BaseResource):
 
 def require_access_to_dropdown_queries(user, query_def):
     parameters = query_def.get("options", {}).get("parameters", [])
-    dropdown_query_ids = set(
-        [str(p["queryId"]) for p in parameters if p["type"] == "query"]
-    )
+    dropdown_query_ids = set([str(p["queryId"]) for p in parameters if p["type"] == "query"])
 
     if dropdown_query_ids:
         groups = models.Query.all_groups_for_query_ids(dropdown_query_ids)
@@ -234,9 +215,7 @@ class QueryListResource(BaseQueryListResource):
         :>json number runtime: Runtime of last query execution, in seconds (may be null)
         """
         query_def = request.get_json(force=True)
-        data_source = models.DataSource.get_by_id_and_org(
-            query_def.pop("data_source_id"), self.current_org
-        )
+        data_source = models.DataSource.get_by_id_and_org(query_def.pop("data_source_id"), self.current_org)
         require_access(data_source, self.current_user, not_view_only)
         require_access_to_dropdown_queries(self.current_user, query_def)
 
@@ -259,9 +238,7 @@ class QueryListResource(BaseQueryListResource):
         models.db.session.add(query)
         models.db.session.commit()
 
-        self.record_event(
-            {"action": "create", "object_id": query.id, "object_type": "query"}
-        )
+        self.record_event({"action": "create", "object_id": query.id, "object_type": "query"})
 
         return QuerySerializer(query, with_visualizations=True).serialize()
 
@@ -340,9 +317,7 @@ class QueryResource(BaseResource):
 
         Responds with the updated :ref:`query <query-response-label>` object.
         """
-        query = get_object_or_404(
-            models.Query.get_by_id_and_org, query_id, self.current_org
-        )
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         query_def = request.get_json(force=True)
 
         require_object_modify_permission(query, self.current_user)
@@ -367,9 +342,7 @@ class QueryResource(BaseResource):
             query_def["tags"] = [tag for tag in query_def["tags"] if tag]
 
         if "data_source_id" in query_def:
-            data_source = models.DataSource.get_by_id_and_org(
-                query_def["data_source_id"], self.current_org
-            )
+            data_source = models.DataSource.get_by_id_and_org(query_def["data_source_id"], self.current_org)
             require_access(data_source, self.current_user, not_view_only)
 
         query_def["last_modified_by"] = self.current_user
@@ -397,17 +370,13 @@ class QueryResource(BaseResource):
 
         Responds with the :ref:`query <query-response-label>` contents.
         """
-        q = get_object_or_404(
-            models.Query.get_by_id_and_org, query_id, self.current_org
-        )
+        q = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(q, self.current_user, view_only)
 
         result = QuerySerializer(q, with_visualizations=True).serialize()
         result["can_edit"] = can_modify(q, self.current_user)
 
-        self.record_event(
-            {"action": "view", "object_id": query_id, "object_type": "query"}
-        )
+        self.record_event({"action": "view", "object_id": query_id, "object_type": "query"})
 
         return result
 
@@ -418,9 +387,7 @@ class QueryResource(BaseResource):
 
         :param query_id: ID of query to archive
         """
-        query = get_object_or_404(
-            models.Query.get_by_id_and_org, query_id, self.current_org
-        )
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_admin_or_owner(query.user_id)
         query.archive(self.current_user)
         models.db.session.commit()
@@ -429,9 +396,7 @@ class QueryResource(BaseResource):
 class QueryRegenerateApiKeyResource(BaseResource):
     @require_permission("edit_query")
     def post(self, query_id):
-        query = get_object_or_404(
-            models.Query.get_by_id_and_org, query_id, self.current_org
-        )
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_admin_or_owner(query.user_id)
         query.regenerate_api_key()
         models.db.session.commit()
@@ -458,16 +423,12 @@ class QueryForkResource(BaseResource):
 
         Responds with created :ref:`query <query-response-label>` object.
         """
-        query = get_object_or_404(
-            models.Query.get_by_id_and_org, query_id, self.current_org
-        )
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(query.data_source, self.current_user, not_view_only)
         forked_query = query.fork(self.current_user)
         models.db.session.commit()
 
-        self.record_event(
-            {"action": "fork", "object_id": query_id, "object_type": "query"}
-        )
+        self.record_event({"action": "fork", "object_id": query_id, "object_type": "query"})
 
         return QuerySerializer(forked_query, with_visualizations=True).serialize()
 
@@ -487,17 +448,13 @@ class QueryRefreshResource(BaseResource):
         if self.current_user.is_api_user():
             abort(403, message="Please use a user API key.")
 
-        query = get_object_or_404(
-            models.Query.get_by_id_and_org, query_id, self.current_org
-        )
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(query, self.current_user, not_view_only)
 
         parameter_values = collect_parameters_from_request(request.args)
         parameterized_query = ParameterizedQuery(query.query_text, org=self.current_org)
         should_apply_auto_limit = query.options.get("apply_auto_limit", False)
-        return run_query(
-            parameterized_query, parameter_values, query.data_source, query.id, should_apply_auto_limit
-        )
+        return run_query(parameterized_query, parameter_values, query.data_source, query.id, should_apply_auto_limit)
 
 
 class QueryTagsResource(BaseResource):
