@@ -38,6 +38,7 @@ from redash.utils import (
 
 WRITER_ENCODING = os.environ.get("REDASH_CSV_WRITER_ENCODING", "utf-8")
 
+
 def error_response(message, http_status=400):
     return {"job": {"status": 4, "error": message}}, http_status
 
