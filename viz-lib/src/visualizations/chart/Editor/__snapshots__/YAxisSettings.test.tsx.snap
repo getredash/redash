@@ -47,6 +47,21 @@ Object {
 }
 `;
 
+exports[`Visualizations -> Chart -> Editor -> Y-Axis Settings Changes axis tick format 1`] = `
+Object {
+  "yAxis": Array [
+    Object {
+      "tickFormat": "s",
+      "type": "linear",
+    },
+    Object {
+      "opposite": true,
+      "type": "linear",
+    },
+  ],
+}
+`;
+
 exports[`Visualizations -> Chart -> Editor -> Y-Axis Settings Changes axis type 1`] = `
 Object {
   "yAxis": Array [

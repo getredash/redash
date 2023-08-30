@@ -65,7 +65,7 @@ function prepareOptions(options: any) {
     getColorForValue: chroma
       .scale([options.colors.min, options.colors.max])
       .mode("hsl")
-      .domain([0, 100])
+      .domain([0, 1])
       .classes(options.colors.steps),
   });
 }
@@ -117,7 +117,7 @@ function CorneliusRow({ options, data, index, maxRowLength }: any) {
   const cells = [];
   for (let i = 1; i < maxRowLength; i += 1) {
     const value = data[i];
-    const percentageValue = isFinite(value / baseValue) ? (value / baseValue) * 100 : null;
+    const percentageValue = isFinite(value / baseValue) ? (value / baseValue) : null;
     const cellProps = { key: `col${i}` };
 
     if (isNil(percentageValue)) {

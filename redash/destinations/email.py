@@ -1,8 +1,9 @@
 import logging
 
 from flask_mail import Message
+
 from redash import mail, settings
-from redash.destinations import *
+from redash.destinations import BaseDestination, register
 
 
 class Email(BaseDestination):
@@ -26,10 +27,8 @@ class Email(BaseDestination):
     def icon(cls):
         return "fa-envelope"
 
-    def notify(self, alert, query, user, new_state, app, host, options):
-        recipients = [
-            email for email in options.get("addresses", "").split(",") if email
-        ]
+    def notify(self, alert, query, user, new_state, app, host, metadata, options):
+        recipients = [email for email in options.get("addresses", "").split(",") if email]
 
         if not recipients:
             logging.warning("No emails given. Skipping send.")
@@ -37,12 +36,8 @@ class Email(BaseDestination):
         if alert.custom_body:
             html = alert.custom_body
         else:
-            html = """
-            Check <a href="{host}/alerts/{alert_id}">alert</a> / check
-            <a href="{host}/queries/{query_id}">query</a> </br>.
-            """.format(
-                host=host, alert_id=alert.id, query_id=query.id
-            )
+            with open(settings.REDASH_ALERTS_DEFAULT_MAIL_BODY_TEMPLATE_FILE, "r") as f:
+                html = alert.render_template(f.read())
         logging.debug("Notifying: %s", recipients)
 
         try:
@@ -50,9 +45,7 @@ class Email(BaseDestination):
             if alert.custom_subject:
                 subject = alert.custom_subject
             else:
-                subject_template = options.get(
-                    "subject_template", settings.ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE
-                )
+                subject_template = options.get("subject_template", settings.ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE)
                 subject = subject_template.format(alert_name=alert.name, state=state)
 
             message = Message(recipients=recipients, subject=subject, html=html)
