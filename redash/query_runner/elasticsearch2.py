@@ -34,7 +34,7 @@ TYPES_MAP = {
 }
 
 
-class ElasticSearch2(BaseHTTPQueryRunner):
+class Elasticsearch2(BaseHTTPQueryRunner):
     should_annotate_query = False
 
     @classmethod
@@ -239,7 +239,7 @@ class ElasticSearch2(BaseHTTPQueryRunner):
         return {"columns": result_columns, "rows": result_rows}
 
 
-class OpenDistroSQLElasticsearch(ElasticSearch2):
+class OpenDistroSQLElasticsearch(Elasticsearch2):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.syntax = "sql"
@@ -255,10 +255,10 @@ class OpenDistroSQLElasticsearch(ElasticSearch2):
 
     @classmethod
     def type(cls):
-        return "elasticsearch2_OpenDistroSQLElasticSearch"
+        return "elasticsearch2_OpenDistroSQLElasticsearch"
 
 
-class XPackSQLElasticsearch(ElasticSearch2):
+class XPackSQLElasticsearch(Elasticsearch2):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.syntax = "sql"
@@ -301,9 +301,9 @@ class XPackSQLElasticsearch(ElasticSearch2):
 
     @classmethod
     def type(cls):
-        return "elasticsearch2_XPackSQLElasticSearch"
+        return "elasticsearch2_XPackSQLElasticsearch"
 
 
-register(ElasticSearch2)
+register(Elasticsearch2)
 register(OpenDistroSQLElasticsearch)
 register(XPackSQLElasticsearch)
