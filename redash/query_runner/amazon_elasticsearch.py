@@ -1,5 +1,5 @@
 from . import register
-from .elasticsearch2 import Elasticsearch2
+from .elasticsearch2 import ElasticSearch2
 
 try:
     from botocore import credentials, session
@@ -10,7 +10,7 @@ except ImportError:
     enabled = False
 
 
-class AmazonElasticsearchService(Elasticsearch2):
+class AmazonElasticsearchService(ElasticSearch2):
     @classmethod
     def name(cls):
         return "Amazon Elasticsearch Service"
