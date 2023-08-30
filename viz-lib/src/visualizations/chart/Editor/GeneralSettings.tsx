@@ -346,7 +346,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
-          data-test="Chart.DataLabels.ShowDataLabels"
+          data-test="Chart.EnableClickEvents"
           defaultChecked={options.enableLink}
           onChange={event => onOptionsChange({ enableLink: event.target.checked })}>
           Enable click events
@@ -356,7 +356,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
-          data-test="Chart.DataLabels.ShowDataLabels"
+          data-test="Chart.EnableClickEvents.NewTab"
           defaultChecked={options.linkOpenNewTab}
           onChange={event => onOptionsChange({ linkOpenNewTab: event.target.checked })}
           disabled={!(options.enableLink === true)}
