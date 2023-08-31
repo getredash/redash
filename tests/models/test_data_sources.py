@@ -91,7 +91,9 @@ class DataSourceTest(BaseTestCase):
         # default of 30min + 7 days
         expected_ttl = 606600
 
-        data_source = self.factory.data_source.get_schema(refresh=True)
+        with mock.patch("redash.query_runner.pg.PostgreSQL.get_schema") as patched_get_schema:
+            data_source = self.factory.data_source.get_schema(refresh=True)
+
         mock_redis.assert_called_with(data_source._schema_key, ex=expected_ttl)
 
 
