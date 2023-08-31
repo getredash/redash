@@ -2,8 +2,8 @@ import json
 import textwrap
 from unittest import mock
 
-from redash.destinations.discord import Discord
 from redash.destinations.asana import Asana
+from redash.destinations.discord import Discord
 from redash.models import Alert, NotificationDestination
 from tests import BaseTestCase
 
