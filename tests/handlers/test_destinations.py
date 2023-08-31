@@ -175,7 +175,7 @@ def test_asana_notify_calls_requests_post():
 
         notes = textwrap.dedent(
             f"""
-        {alert.name} has {new_state}.
+        {alert.name} has TRIGGERED.
 
         Query: {host}/queries/{query.id}
         Alert: {host}/alerts/{alert.id}
@@ -183,7 +183,7 @@ def test_asana_notify_calls_requests_post():
         ).strip()
 
         expected_payload = {
-            "name": f"[Redash Alert] {new_state}: {alert.name}",
+            "name": f"[Redash Alert] TRIGGERED: {alert.name}",
             "notes": notes,
             "projects": ["1234"],
         }
@@ -191,8 +191,8 @@ def test_asana_notify_calls_requests_post():
         mock_post.assert_called_once_with(
             destination.api_base_url,
             data=json.dumps(expected_payload),
-            headers={"Content-Type": "application/json"},
             timeout=5.0,
+            headers={"Authorization": "Bearer abcd"},
         )
 
         assert mock_response.status_code == 204
