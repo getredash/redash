@@ -31,7 +31,7 @@
         "values": [10, 60, 100, 30],
         "labels": ["Slice 0", "Slice 0", "Slice 0", "Slice 0"],
         "type": "pie",
-        "hole": 0.4,
+        "hole": 0.9,
         "marker": {
           "colors": ["#356AFF", "#E92828", "#3BD973", "#604FE9"]
         },

@@ -2,6 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import Pagination from "antd/lib/pagination";
 
+import "./Paginator.less";
+
 const MIN_ITEMS_PER_PAGE = 5;
 
 export default function Paginator({ page, showPageSizeSelect, pageSize, onPageSizeChange, totalCount, onChange }) {
@@ -11,7 +13,7 @@ export default function Paginator({ page, showPageSizeSelect, pageSize, onPageSi
   return (
     <div className="paginator-container">
       <Pagination
-        showSizeChanger={showPageSizeSelect}
+        showSizeChanger={false}
         pageSizeOptions={["5", "10", "20", "50", "100"]}
         onShowSizeChange={(_, size) => onPageSizeChange(size)}
         defaultCurrent={page}
