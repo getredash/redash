@@ -92,6 +92,7 @@ class DataSourceTest(BaseTestCase):
         expected_ttl = 606600
 
         with mock.patch("redash.query_runner.pg.PostgreSQL.get_schema") as patched_get_schema:
+            patched_get_schema.return_value = None
             data_source = self.factory.data_source.get_schema(refresh=True)
 
         mock_redis.assert_called_with(data_source._schema_key, ex=expected_ttl)
