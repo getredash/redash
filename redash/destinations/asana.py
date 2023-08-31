@@ -22,7 +22,7 @@ class Asana(BaseDestination):
     def icon(cls):
         return "fa-sticky-note-o"
 
-    def notify(self, alert, query, user, new_state, app, host, options):
+    def notify(self, alert, query, user, new_state, app, host, metadata, options):
         # Documentation: https://developers.asana.com/docs/tasks
         state = "TRIGGERED" if new_state == "triggered" else "RECOVERED"
 
