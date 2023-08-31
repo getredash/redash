@@ -24,6 +24,10 @@ class Asana(BaseDestination):
     def icon(cls):
         return "fa-asana"
 
+    @property
+    def api_base_url(self):
+        return "https://app.asana.com/api/1.0/tasks"
+
     def notify(self, alert, query, user, new_state, app, host, metadata, options):
         # Documentation: https://developers.asana.com/docs/tasks
         state = "TRIGGERED" if new_state == Alert.TRIGGERED_STATE else "RECOVERED"
@@ -45,7 +49,7 @@ class Asana(BaseDestination):
 
         try:
             resp = requests.post(
-                "https://app.asana.com/api/1.0/tasks",
+                self.api_base_url,
                 data=data,
                 timeout=5.0,
                 headers={"Authorization": f"Bearer {options.get('pat')}"},
