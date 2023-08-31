@@ -40,7 +40,7 @@ class PagerDuty(BaseDestination):
     def icon(cls):
         return "creative-commons-pd-alt"
 
-    def notify(self, alert, query, user, new_state, app, host, options):
+    def notify(self, alert, query, user, new_state, app, host, metadata, options):
         if alert.custom_subject:
             default_desc = alert.custom_subject
         elif options.get("description"):

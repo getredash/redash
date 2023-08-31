@@ -8,3 +8,12 @@ repos:
     hooks:
       - id: black
         language_version: python3
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        exclude: "migration/.*|.git|viz-lib|node_modules|migrations|bin/upgrade"
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: requirements-txt-fixer

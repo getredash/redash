@@ -31,7 +31,7 @@ class BaseDestination(object):
     def configuration_schema(cls):
         return {}
 
-    def notify(self, alert, query, user, new_state, app, host, options):
+    def notify(self, alert, query, user, new_state, app, host, metadata, options):
         raise NotImplementedError()
 
     @classmethod

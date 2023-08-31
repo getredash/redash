@@ -1,6 +1,6 @@
 .PHONY: compose_build up test_db create_database clean down tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
 
-compose_build:
+compose_build: .env
 	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
 
 up:
@@ -13,7 +13,7 @@ test_db:
 	done
 	docker-compose exec postgres sh -c 'psql -U postgres -c "drop database if exists tests;" && psql -U postgres -c "create database tests;"'
 
-create_database:
+create_database: .env
 	docker-compose run server create_db
 
 clean:
@@ -22,8 +22,10 @@ clean:
 down:
 	docker-compose down
 
-env:
+.env:
 	printf "REDASH_COOKIE_SECRET=`pwgen -1s 32`\nREDASH_SECRET_KEY=`pwgen -1s 32`\n" >> .env
+
+env: .env
 
 format:
 	pre-commit run --all-files

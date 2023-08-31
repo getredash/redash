@@ -96,7 +96,7 @@ def refresh_queries():
                 query.data_source,
                 query.user_id,
                 scheduled_query=query,
-                metadata={"query_id": query.id, "Username": "Scheduled"},
+                metadata={"query_id": query.id, "Username": query.user.get_actual_user()},
             )
             enqueued.append(query)
         except Exception as e:
@@ -112,7 +112,7 @@ def refresh_queries():
         "query_ids": json_dumps([q.id for q in enqueued]),
     }
 
-    redis_connection.hmset("redash:status", status)
+    redis_connection.hset("redash:status", mapping=status)
     logger.info("Done refreshing queries: %s" % status)
 
 

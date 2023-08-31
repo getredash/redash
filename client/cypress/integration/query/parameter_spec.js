@@ -1,4 +1,5 @@
 import { dragParam } from "../../support/parameters";
+import dayjs from "dayjs";
 
 function openAndSearchAntdDropdown(testId, paramOption) {
   cy.getByTestId(testId)
@@ -310,7 +311,7 @@ describe("Parameter", () => {
 
       cy.getByTestId("ParameterApplyButton").click();
 
-      cy.getByTestId("TableVisualization").should("contain", Cypress.moment(this.now).format("15/MM/YY"));
+      cy.getByTestId("TableVisualization").should("contain", dayjs(this.now).format("15/MM/YY"));
     });
 
     it("allows picking a dynamic date", function() {
@@ -322,7 +323,7 @@ describe("Parameter", () => {
 
       cy.getByTestId("ParameterApplyButton").click();
 
-      cy.getByTestId("TableVisualization").should("contain", Cypress.moment(this.now).format("DD/MM/YY"));
+      cy.getByTestId("TableVisualization").should("contain", dayjs(this.now).format("DD/MM/YY"));
     });
 
     it("sets dirty state when edited", () => {
@@ -364,7 +365,7 @@ describe("Parameter", () => {
 
       cy.getByTestId("ParameterApplyButton").click();
 
-      cy.getByTestId("TableVisualization").should("contain", Cypress.moment(this.now).format("YYYY-MM-15 HH:mm"));
+      cy.getByTestId("TableVisualization").should("contain", dayjs(this.now).format("YYYY-MM-15 HH:mm"));
     });
 
     it("shows the current datetime after clicking in Now", function() {
@@ -379,7 +380,7 @@ describe("Parameter", () => {
 
       cy.getByTestId("ParameterApplyButton").click();
 
-      cy.getByTestId("TableVisualization").should("contain", Cypress.moment(this.now).format("YYYY-MM-DD HH:mm"));
+      cy.getByTestId("TableVisualization").should("contain", dayjs(this.now).format("YYYY-MM-DD HH:mm"));
     });
 
     it("allows picking a dynamic date", function() {
@@ -391,7 +392,7 @@ describe("Parameter", () => {
 
       cy.getByTestId("ParameterApplyButton").click();
 
-      cy.getByTestId("TableVisualization").should("contain", Cypress.moment(this.now).format("YYYY-MM-DD HH:mm"));
+      cy.getByTestId("TableVisualization").should("contain", dayjs(this.now).format("YYYY-MM-DD HH:mm"));
     });
 
     it("sets dirty state when edited", () => {
@@ -449,7 +450,7 @@ describe("Parameter", () => {
 
       cy.getByTestId("ParameterApplyButton").click();
 
-      const now = Cypress.moment(this.now);
+      const now = dayjs(this.now);
       cy.getByTestId("TableVisualization").should(
         "contain",
         now.format("YYYY-MM-15") + " - " + now.format("YYYY-MM-20")
@@ -465,7 +466,7 @@ describe("Parameter", () => {
 
       cy.getByTestId("ParameterApplyButton").click();
 
-      const lastMonth = Cypress.moment(this.now).subtract(1, "month");
+      const lastMonth = dayjs(this.now).subtract(1, "month");
       cy.getByTestId("TableVisualization").should(
         "contain",
         lastMonth.startOf("month").format("YYYY-MM-DD") + " - " + lastMonth.endOf("month").format("YYYY-MM-DD")
