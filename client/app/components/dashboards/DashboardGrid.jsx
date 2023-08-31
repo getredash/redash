@@ -120,7 +120,7 @@ class DashboardGrid extends React.Component {
       x: pos.col,
       y: pos.row,
       w: pos.sizeX,
-      h: pos.sizeY,
+      h: widget.vizualization ? pos.sizeY : pos.sizeY + 0.23,
       minW: pos.minSizeX,
       maxW: pos.maxSizeX,
       minH: pos.minSizeY,
