@@ -190,7 +190,7 @@ def test_asana_notify_calls_requests_post():
 
         mock_post.assert_called_once_with(
             destination.api_base_url,
-            data=json.dumps(expected_payload),
+            data=expected_payload,
             timeout=5.0,
             headers={"Authorization": "Bearer abcd"},
         )
