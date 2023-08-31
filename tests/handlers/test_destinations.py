@@ -161,6 +161,7 @@ def test_asana_notify_calls_requests_post():
     app = mock.Mock()
     host = "https://localhost:5000"
     options = {"pat": "abcd", "project_id": "1234"}
+    metadata = {"Scheduled": False}
 
     new_state = Alert.TRIGGERED_STATE
     destination = Asana(options)
