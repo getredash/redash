@@ -363,6 +363,7 @@ default_destinations = [
     "redash.destinations.pagerduty",
     "redash.destinations.hangoutschat",
     "redash.destinations.microsoft_teams_webhook",
+    "redash.destinations.asana",
 ]
 
 enabled_destinations = array_from_string(os.environ.get("REDASH_ENABLED_DESTINATIONS", ",".join(default_destinations)))
