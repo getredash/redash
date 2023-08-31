@@ -16,6 +16,7 @@ class Asana(BaseDestination):
                 "project_id": {"type": "string", "title": "Asana Project ID"},
             },
             "secret": ["pat"],
+            "required": ["pat", "project_id"],
         }
 
     @classmethod
