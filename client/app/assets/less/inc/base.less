@@ -1,3 +1,5 @@
+@import (reference, less) "~@/assets/less/inc/variables";
+
 *,
 button,
 input,
@@ -149,6 +151,17 @@ text.slicetext {
 
 .markdown img {
   max-width: 100%;
+}
+
+.markdown {
+  h1,
+  h3,
+  h2 {
+    font-size: 30px;
+    line-height: 40px;
+    font-weight: 400;
+    color: @gray-600;
+  }
 }
 
 .dropdown-menu > li > a:hover,
