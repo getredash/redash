@@ -21,7 +21,7 @@ class Asana(BaseDestination):
 
     @classmethod
     def icon(cls):
-        return "fa-sticky-note-o"
+        return "fa-asana"
 
     def notify(self, alert, query, user, new_state, app, host, metadata, options):
         # Documentation: https://developers.asana.com/docs/tasks
