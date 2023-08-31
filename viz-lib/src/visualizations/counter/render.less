@@ -20,20 +20,30 @@
     color: @gray-400;
     font-weight: 400;
 
-    .counter-visualization-value,
+    .counter-visualization-value-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
     .counter-visualization-target {
-      font-size: 32px;
-      font-weight: 400;
+      font-size: 30px;
+      font-weight: 300;
       display: block;
       color: #7E87A8;
-      line-height: 32px;
+      line-height: 40px;
+    }
+
+    .counter-visualization-value,
+    .counter-visualization-label {
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 400;
+      display: block;
     }
 
     .counter-visualization-label {
-      font-size: 14px;
-      line-height: 16px;
-      font-weight: 300;
-      display: block;
       color: #474E6A;
     }
   }

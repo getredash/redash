@@ -77,15 +77,18 @@ export default function Renderer({ data, options, visualizationName }: any) {
       {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<null>>' is not assig... Remove this comment to see the full error message */}
       <div className="counter-visualization-content" ref={setContainer}>
         <div style={getCounterStyles(scale)}>
-          <div className="counter-visualization-value" title={counterValueTooltip}>
-            {format(counterValue)}
-          </div>
-          {targetValue && (
-            <div className="counter-visualization-target" title={targetValueTooltip}>
-              ({format(targetValue)})
-            </div>
-          )}
           <div className="counter-visualization-label">{counterLabel}</div>
+          <div className="counter-visualization-value-wrap">
+            <div className="counter-visualization-target" title={targetValue ? targetValueTooltip : counterValueTooltip}>
+              {format(targetValue ?? counterValue)}
+            </div>
+            {targetValue && (
+              <div className="counter-visualization-value" title={counterValueTooltip}>
+                {showTrend ? trendPositive ? '+' : '-' : ''}
+                {format(counterValue)}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
