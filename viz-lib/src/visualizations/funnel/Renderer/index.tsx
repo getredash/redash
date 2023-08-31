@@ -9,6 +9,7 @@ import { createNumberFormatter } from "@/lib/value-format";
 import prepareData from "./prepareData";
 import FunnelBar from "./FunnelBar";
 import "./index.less";
+import NotEnoughData from '@/components/NotEnoughData';
 
 function generateRowKeyPrefix() {
   return Math.trunc(Math.random() * Number.MAX_SAFE_INTEGER).toString(36) + ":";
@@ -88,7 +89,7 @@ export default function Renderer({ data, options }: any) {
   }, [options.stepCol.displayAs, options.valueCol.displayAs, funnelData, formatValue, formatPercentValue]);
 
   if (funnelData.length === 0) {
-    return null;
+    return <NotEnoughData />;
   }
 
   return (

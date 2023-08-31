@@ -12,7 +12,6 @@ import Filters from "@/components/Filters";
 import { Dashboard } from "@/services/dashboard";
 import routes from "@/services/routes";
 
-
 import useDashboard from "./hooks/useDashboard";
 
 import "./PublicDashboardPage.less";
@@ -26,7 +25,7 @@ function PublicDashboard({ dashboard }) {
     <div className="container p-t-10 p-b-20">
       <PageHeader title={dashboard.name} />
       {!isEmpty(globalParameters) && (
-        <div className="m-b-10 p-15 bg-white tiled">
+        <div className="m-b-10 p-15">
           <Parameters parameters={globalParameters} onValuesChange={refreshDashboard} />
         </div>
       )}

@@ -140,7 +140,7 @@ HSTS_INCLUDE_SUBDOMAINS = parse_boolean(
 # for more information. E.g.:
 CONTENT_SECURITY_POLICY = os.environ.get(
     "REDASH_CONTENT_SECURITY_POLICY",
-    "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data: blob:; object-src 'none'; frame-ancestors 'none'; frame-src redash.io;",
+    "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data: blob:; object-src 'none'; frame-ancestors 'none'; frame-src redash.io; style-src   'self' https://fonts.googleapis.com 'unsafe-inline'; font-src    'self' data: https://fonts.gstatic.com 'unsafe-inline';",
 )
 CONTENT_SECURITY_POLICY_REPORT_URI = os.environ.get(
     "REDASH_CONTENT_SECURITY_POLICY_REPORT_URI", ""

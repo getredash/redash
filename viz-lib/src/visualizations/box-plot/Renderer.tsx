@@ -5,6 +5,7 @@ import resizeObserver from "@/services/resizeObserver";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 import box from "./d3box";
 import "./renderer.less";
+import NotEnoughData from '@/components/NotEnoughData';
 
 function calcIqr(k: any) {
   return (d: any) => {
@@ -197,6 +198,8 @@ export default function Renderer({ data, options }: any) {
       return unwatch;
     }
   }, [container, data, options]);
+
+  if(data?.rows?.length === 0 || !data?.rows ) return <NotEnoughData />
 
   // @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<null>>' is not assig... Remove this comment to see the full error message
   return <div className="box-plot-deprecated-visualization-container" ref={setContainer} />;
