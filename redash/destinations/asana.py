@@ -44,7 +44,7 @@ class Asana(BaseDestination):
         data = {
             "name": f"[Redash Alert] {state}: {alert.name}",
             "notes": notes,
-            "projects": [options.get("project_id")],
+            "projects": [options["project_id"]],
         }
 
         try:
@@ -52,7 +52,7 @@ class Asana(BaseDestination):
                 self.api_base_url,
                 data=data,
                 timeout=5.0,
-                headers={"Authorization": f"Bearer {options.get('pat')}"},
+                headers={"Authorization": f"Bearer {options['pat']}"},
             )
             logging.warning(resp.text)
             if resp.status_code != 201:
