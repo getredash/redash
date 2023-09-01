@@ -95,7 +95,7 @@ class DataSourceTest(BaseTestCase):
             patched_get_schema.return_value = None
             data_source = self.factory.data_source.get_schema(refresh=True)
 
-        mock_redis.assert_called_with(data_source._schema_key, ex=expected_ttl)
+        mock_redis.assert_called_with("data_source:schema:1", ex=expected_ttl)
 
 
 class TestDataSourceCreate(BaseTestCase):
