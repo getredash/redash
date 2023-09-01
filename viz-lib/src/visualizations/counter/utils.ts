@@ -1,12 +1,12 @@
 import { isNumber, isFinite, toString } from "lodash";
-import numeral from "numeral";
+import numbro from "numbro";
 
 // TODO: allow user to specify number format string instead of delimiters only
 // It will allow to remove this function (move all that weird formatting logic to a migration
 // that will set number format for all existing counter visualization)
 function numberFormat(value: any, decimalPoints: any, decimalDelimiter: any, thousandsDelimiter: any) {
   // Temporarily update locale data (restore defaults after formatting)
-  const locale = numeral.localeData();
+  const locale = numbro.languageData();
   const savedDelimiters = locale.delimiters;
 
   // Mimic old behavior - AngularJS `number` filter defaults:
@@ -33,7 +33,7 @@ function numberFormat(value: any, decimalPoints: any, decimalDelimiter: any, tho
       }
     }
   }
-  const result = numeral(value).format(formatString);
+  const result = numbro(value).format(formatString);
 
   locale.delimiters = savedDelimiters;
   return result;
@@ -61,7 +61,7 @@ function formatValue(value: any, { stringPrefix, stringSuffix, stringDecimal, st
 
 function formatTooltip(value: any, formatString: any) {
   if (isNumber(value)) {
-    return numeral(value).format(formatString);
+    return numbro(value).format(formatString);
   }
   return toString(value);
 }
@@ -109,9 +109,9 @@ export function getCounterData(rows: any, options: any, visualizationName: any) 
     }
 
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValueTooltip' does not exist on t... Remove this comment to see the full error message
-    result.counterValueTooltip = formatTooltip(result.counterValue, options.tooltipFormat);
+    result.counterValueTooltip = formatTooltip(result.counterValue, options.tooltipFormat || "0,0");
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValueTooltip' does not exist on ty... Remove this comment to see the full error message
-    result.targetValueTooltip = formatTooltip(result.targetValue, options.tooltipFormat);
+    result.targetValueTooltip = formatTooltip(result.targetValue, options.tooltipFormat || "0,0");
 
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
     result.counterValue = formatValue(result.counterValue, options);
@@ -123,7 +123,7 @@ export function getCounterData(rows: any, options: any, visualizationName: any) 
       // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
       if (isFinite(result.targetValue)) {
         // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
-        result.targetValue = numeral(result.targetValue).format("0[.]00[0]");
+        result.targetValue = numbro(result.targetValue).format("0[.]00[0]");
       }
     }
   }

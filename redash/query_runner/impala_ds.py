@@ -77,8 +77,8 @@ class Impala(BaseSQLQueryRunner):
 
     def _get_tables(self, schema_dict):
         schemas_query = "show schemas;"
-        tables_query = "show tables in %s;"
-        columns_query = "show column stats %s.%s;"
+        tables_query = "show tables in `%s`;"
+        columns_query = "show column stats `%s`.`%s`;"
 
         for schema_name in [str(a["name"]) for a in self._run_query_internal(schemas_query)]:
             for table_name in [str(a["name"]) for a in self._run_query_internal(tables_query % schema_name)]:

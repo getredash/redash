@@ -108,7 +108,7 @@ def test_discord_notify_calls_requests_post():
     app = mock.Mock()
     host = "https://localhost:5000"
     options = {"url": "https://discordapp.com/api/webhooks/test"}
-
+    metadata = {"Scheduled": False}
     new_state = Alert.TRIGGERED_STATE
     destination = Discord(options)
 
@@ -117,7 +117,7 @@ def test_discord_notify_calls_requests_post():
         mock_response.status_code = 204
         mock_post.return_value = mock_response
 
-        destination.notify(alert, query, user, new_state, app, host, options)
+        destination.notify(alert, query, user, new_state, app, host, metadata, options)
 
         expected_payload = {
             "content": "Test custom subject",

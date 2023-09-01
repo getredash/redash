@@ -96,8 +96,11 @@ def _get_total_bytes_processed_for_resp(bq_response):
 
 
 class BigQuery(BaseQueryRunner):
-    should_annotate_query = False
     noop_query = "SELECT 1"
+
+    def __init__(self, configuration):
+        super().__init__(configuration)
+        self.should_annotate_query = configuration["useQueryAnnotation"]
 
     @classmethod
     def enabled(cls):
@@ -129,6 +132,11 @@ class BigQuery(BaseQueryRunner):
                     "type": "number",
                     "title": "Maximum Billing Tier",
                 },
+                "useQueryAnnotation": {
+                    "type": "boolean",
+                    "title": "Use Query Annotation",
+                    "default": False,
+                },
             },
             "required": ["jsonKeyFile", "projectId"],
             "order": [
@@ -140,6 +148,7 @@ class BigQuery(BaseQueryRunner):
                 "totalMBytesProcessedLimit",
                 "maximumBillingTier",
                 "userDefinedFunctionResourceUri",
+                "useQueryAnnotation",
             ],
             "secret": ["jsonKeyFile"],
         }
