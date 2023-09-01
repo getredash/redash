@@ -251,7 +251,7 @@ class OpenDistroSQLElasticSearch(ElasticSearch2):
 
     @classmethod
     def name(cls):
-        return cls.__name__
+        return "Open Distro SQL Elasticsearch"
 
     @classmethod
     def type(cls):
@@ -297,7 +297,7 @@ class XPackSQLElasticSearch(ElasticSearch2):
 
     @classmethod
     def name(cls):
-        return cls.__name__
+        return "X-Pack SQL Elasticsearch"
 
     @classmethod
     def type(cls):
