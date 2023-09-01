@@ -214,7 +214,8 @@ class DataSource(BelongsToOrgMixin, db.Model):
                 logging.exception("Error sorting schema columns for data_source {}".format(self.id))
                 out_schema = schema
             finally:
-                redis_connection.set(self._schema_key, json_dumps(out_schema))
+                ttl = int(datetime.timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE, days=7).total_seconds())
+                redis_connection.set(self._schema_key, json_dumps(out_schema), ex=ttl)
 
         return out_schema
 
