@@ -278,8 +278,11 @@ class MyQueriesResource(BaseResource):
         """
         search_term = request.args.get("q", "")
         if search_term:
-            results = models.Query.search_by_user(search_term, self.current_user, multi_byte_search=current_org.get_setting("multi_byte_search_enabled"),
-                                                  )
+            results = models.Query.search_by_user(
+                search_term,
+                self.current_user,
+                multi_byte_search=current_org.get_setting("multi_byte_search_enabled"),
+            )
         else:
             results = models.Query.by_user(self.current_user)
 

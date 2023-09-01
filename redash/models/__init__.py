@@ -685,11 +685,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             # Since tsvector doesn't work well with CJK languages, use `ilike` too
             pattern = "%{}%".format(term)
             return (
-                cls.by_user(user).filter(
-                    or_(cls.name.ilike(pattern), cls.description.ilike(pattern))
-                )
-                    .order_by(Query.id)
-                    .limit(limit)
+                cls.by_user(user)
+                .filter(or_(cls.name.ilike(pattern), cls.description.ilike(pattern)))
+                .order_by(Query.id)
+                .limit(limit)
             )
 
         return cls.by_user(user).search(term, sort=True).limit(limit)
