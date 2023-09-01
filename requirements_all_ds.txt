@@ -9,7 +9,7 @@ pyhive==0.6.1
 pymongo[tls,srv]==3.9.0
 vertica-python==0.9.5
 td-client==1.0.0
-pymssql==2.1.4
+pymssql==2.2.8
 dql==0.5.26
 dynamo3==0.4.10
 boto3>=1.10.0,<1.11.0
