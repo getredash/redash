@@ -681,7 +681,17 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return all_queries.search(term, sort=True).limit(limit)
 
     @classmethod
-    def search_by_user(cls, term, user, limit=None):
+    def search_by_user(cls, term, user, limit=None, multi_byte_search=False):
+        if multi_byte_search:
+            # Since tsvector doesn't work well with CJK languages, use `ilike` too
+            pattern = "%{}%".format(term)
+            return (
+                cls.by_user(user)
+                .filter(or_(cls.name.ilike(pattern), cls.description.ilike(pattern)))
+                .order_by(Query.id)
+                .limit(limit)
+            )
+
         return cls.by_user(user).search(term, sort=True).limit(limit)
 
     @classmethod
