@@ -21,7 +21,7 @@ class Slack(BaseDestination):
     def icon(cls):
         return "fa-slack"
 
-    def notify(self, alert, query, user, new_state, app, host, options):
+    def notify(self, alert, query, user, new_state, app, host, metadata, options):
         # Documentation: https://api.slack.com/docs/attachments
         fields = [
             {

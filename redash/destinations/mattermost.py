@@ -24,7 +24,7 @@ class Mattermost(BaseDestination):
     def icon(cls):
         return "fa-bolt"
 
-    def notify(self, alert, query, user, new_state, app, host, options):
+    def notify(self, alert, query, user, new_state, app, host, metadata, options):
         if alert.custom_subject:
             text = alert.custom_subject
         elif new_state == "triggered":

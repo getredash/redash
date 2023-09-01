@@ -160,10 +160,7 @@ const config = {
             loader: isProduction ? MiniCssExtractPlugin.loader : "style-loader"
           },
           {
-            loader: "css-loader",
-            options: {
-              minimize: process.env.NODE_ENV === "production"
-            }
+            loader: "css-loader"
           }
         ]
       },
@@ -174,10 +171,7 @@ const config = {
             loader: isProduction ? MiniCssExtractPlugin.loader : "style-loader"
           },
           {
-            loader: "css-loader",
-            options: {
-              minimize: isProduction
-            }
+            loader: "css-loader"
           },
           {
             loader: "less-loader",
@@ -240,14 +234,18 @@ const config = {
     ignored: /\.sw.$/
   },
   devServer: {
-    inline: true,
-    index: "/static/index.html",
+    devMiddleware: {
+      index: "/static/index.html",
+      publicPath: staticPath,
+      stats: {
+        modules: false,
+        chunkModules: false
+      },
+    },
     historyApiFallback: {
       index: "/static/index.html",
       rewrites: [{ from: /./, to: "/static/index.html" }]
     },
-    contentBase: false,
-    publicPath: staticPath,
     proxy: [
       {
         context: [
@@ -273,10 +271,6 @@ const config = {
         secure: false
       }
     ],
-    stats: {
-      modules: false,
-      chunkModules: false
-    },
     hot: isHotReloadingEnabled
   },
   performance: {

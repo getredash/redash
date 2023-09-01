@@ -163,7 +163,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
     @property
     def profile_image_url(self):
-        if self._profile_image_url is not None:
+        if self._profile_image_url:
             return self._profile_image_url
 
         email_md5 = hashlib.md5(self.email.lower().encode()).hexdigest()
@@ -235,6 +235,9 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     def get_id(self):
         identity = hashlib.md5("{},{}".format(self.email, self.password_hash).encode()).hexdigest()
         return "{0}-{1}".format(self.id, identity)
+
+    def get_actual_user(self):
+        return repr(self) if self.is_api_user() else self.email
 
 
 @generic_repr("id", "name", "type", "org_id")
