@@ -39,7 +39,7 @@ class ElasticSearch2(BaseHTTPQueryRunner):
 
     @classmethod
     def name(cls):
-        return "ElasticSearch"
+        return "Elasticsearch"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
