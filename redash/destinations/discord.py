@@ -28,7 +28,7 @@ class Discord(BaseDestination):
     def icon(cls):
         return "fa-discord"
 
-    def notify(self, alert, query, user, new_state, app, host, options):
+    def notify(self, alert, query, user, new_state, app, host, metadata, options):
         # Documentation: https://birdie0.github.io/discord-webhooks-guide/discord_webhook.html
         fields = [
             {

@@ -7,6 +7,7 @@ from redash.query_runner import TYPE_DATETIME, TYPE_FLOAT
 from redash.query_runner.google_spreadsheets import (
     TYPE_BOOLEAN,
     TYPE_STRING,
+    WorksheetNotFoundByTitleError,
     WorksheetNotFoundError,
     _get_columns_and_column_names,
     _value_eval_list,
@@ -51,10 +52,14 @@ class TestParseSpreadsheet(TestCase):
         spreadsheet = MagicMock()
 
         spreadsheet.worksheets = MagicMock(return_value=[])
+        spreadsheet.get_worksheet_by_index = MagicMock(return_value=None)
         self.assertRaises(WorksheetNotFoundError, parse_spreadsheet, spreadsheet, 0)
 
-        spreadsheet.worksheets = MagicMock(return_value=[1, 2])
-        self.assertRaises(WorksheetNotFoundError, parse_spreadsheet, spreadsheet, 2)
+    def test_returns_meaningful_error_for_missing_worksheet_by_title(self):
+        spreadsheet = MagicMock()
+
+        spreadsheet.get_worksheet_by_title = MagicMock(return_value=None)
+        self.assertRaises(WorksheetNotFoundByTitleError, parse_spreadsheet, spreadsheet, "a")
 
 
 empty_worksheet = []
@@ -103,6 +108,40 @@ class TestParseQuery(TestCase):
     def test_parse_query(self):
         parsed = parse_query("key|0")
         self.assertEqual(("key", 0), parsed)
+
+    def test_parse_query_ignored(self):
+        parsed = parse_query("key")
+        self.assertEqual(("key", 0), parsed)
+
+        parsed = parse_query("key|")
+        self.assertEqual(("key", 0), parsed)
+
+        parsed = parse_query("key|1|")
+        self.assertEqual(("key", 0), parsed)
+
+    def test_parse_query_title(self):
+        parsed = parse_query('key|""')
+        self.assertEqual(("key", ""), parsed)
+
+        parsed = parse_query('key|"1"')
+        self.assertEqual(("key", "1"), parsed)
+
+        parsed = parse_query('key|"abc"')
+        self.assertEqual(("key", "abc"), parsed)
+
+        parsed = parse_query('key|"あ"')
+        self.assertEqual(("key", "あ"), parsed)
+
+        parsed = parse_query('key|"1""')
+        self.assertEqual(("key", '1"'), parsed)
+
+        parsed = parse_query('key|""')
+        self.assertEqual(("key", ""), parsed)
+
+    def test_parse_query_failed(self):
+        self.assertRaises(ValueError, parse_query, "key|0x01")
+        self.assertRaises(ValueError, parse_query, "key|a")
+        self.assertRaises(ValueError, parse_query, 'key|""a')
 
 
 class TestGetColumnsAndColumnNames(TestCase):
