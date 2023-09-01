@@ -38,6 +38,7 @@
 @import "~antd/lib/typography/style/index";
 @import "~antd/lib/descriptions/style/index";
 @import "inc/ant-variables";
+@import (reference, less) "inc/variables";
 
 // Increase z-indexes to avoid conflicts with some other libraries (e.g. Plotly)
 @zindex-modal: 2000;
@@ -65,6 +66,79 @@
 .ant-select-dropdown-menu-item em {
   color: @input-color-placeholder;
   font-size: 11px;
+}
+
+.ant-select {
+  color: @gray-700;
+}
+.anticon .anticon-close-circle {
+  color: @gray-500;
+}
+
+.ant-select .ant-select-single {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+  border: 1px solid @gray-200;
+}
+
+.ant-select-single .ant-select-selector .ant-select-selection-search {
+  left: 8px;
+}
+
+.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+}
+
+.ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+  border-color: @primary-300;
+}
+
+.ant-select-focused.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+  border-color: @primary-500;
+  box-shadow: none;
+}
+
+.ant-select-dropdown {
+  padding-inline: 4px;
+  border-radius: 4px;
+  border: 1px solid @gray-200;
+  background-color: @bg-50;
+}
+
+.ant-select-item:not(:last-child) {
+  margin-bottom: 4px;
+}
+
+.ant-select-item {
+  background-color: @bg-50;
+  color: @gray-600;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  height: 28px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.ant-select-item:hover {
+  background-color: @bg-200;
+}
+
+.ant-select-item-option-selected:hover,
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled):hover {
+  background-color: @bg-200 !important;
+}
+
+.ant-select-item-option-selected,
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: @bg-50 !important;
+  color: @gray-600;
+  font-weight: 400;
 }
 
 // Fix for disabled button styles inside Tooltip component.
