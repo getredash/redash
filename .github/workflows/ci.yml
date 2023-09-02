@@ -8,7 +8,7 @@ env:
   NODE_VERSION: 16.20.1
 jobs:
   backend-lint:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
         with:
@@ -22,7 +22,7 @@ jobs:
       - run: isort --check-only --diff .
 
   backend-unit-tests:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     needs: backend-lint
     env:
       COMPOSE_FILE: .ci/docker-compose.ci.yml
@@ -64,7 +64,7 @@ jobs:
           path: coverage.xml
 
   frontend-lint:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
         with:
@@ -86,7 +86,7 @@ jobs:
           path: /tmp/test-results
 
   frontend-unit-tests:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     needs: frontend-lint
     steps:
       - uses: actions/checkout@v3
@@ -107,7 +107,7 @@ jobs:
       - run: yarn lint
 
   frontend-e2e-tests:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     needs: frontend-lint
     env:
       COMPOSE_FILE: .ci/docker-compose.cypress.yml
