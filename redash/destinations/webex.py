@@ -36,7 +36,6 @@ class Webex(BaseDestination):
 
         query_link = f"{host}/queries/{query.id}"
         alert_link = f"{host}/alerts/{alert.id}"
-        description = alert.custom_body if alert.custom_body else ""
 
         if new_state == Alert.TRIGGERED_STATE:
             if alert.custom_subject:
@@ -70,7 +69,7 @@ class Webex(BaseDestination):
                                         },
                                         {
                                             "type": "TextBlock",
-                                            "text": description,
+                                            "text": alert.custom_body,
                                             "isSubtle": True,
                                             "wrap": True,
                                         },
@@ -95,7 +94,7 @@ class Webex(BaseDestination):
             }
         ]
 
-        payload = {"markdown": subject + "\n" + description, "attachments": attachments}
+        payload = {"markdown": subject + "\n" + alert.custom_body, "attachments": attachments}
 
         headers = {"Authorization": f"Bearer {options['webex_bot_token']}"}
 
