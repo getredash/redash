@@ -10,6 +10,7 @@ import detailsVisualization from "./details";
 import funnelVisualization from "./funnel";
 import mapVisualization from "./map";
 import pivotVisualization from "./pivot";
+import redashTableVisualization from "./redash-table";
 import sankeyVisualization from "./sankey";
 import sunburstVisualization from "./sunburst";
 import tableVisualization from "./table";
@@ -87,6 +88,7 @@ each(
     funnelVisualization,
     mapVisualization,
     pivotVisualization,
+    redashTableVisualization,
     sankeyVisualization,
     sunburstVisualization,
     tableVisualization,
