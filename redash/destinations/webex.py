@@ -31,18 +31,9 @@ class Webex(BaseDestination):
     def icon(cls):
         return "fa-webex"
 
-    def notify(self, alert, query, user, new_state, app, host, metadata, options):
-        # Documentation: https://developer.webex.com/docs/api/guides/cards
-
-        query_link = f"{host}/queries/{query.id}"
-        alert_link = f"{host}/alerts/{alert.id}"
-
-        if new_state == Alert.TRIGGERED_STATE:
-            subject = alert.custom_subject or f"{alert.name} just triggered"
-        else:
-            subject = f"{alert.name} went back to normal"
-
-        attachments = [
+    @property
+    def formatted_attachments_template(subject, description, query_link, alert_link):
+        return [
             {
                 "contentType": "application/vnd.microsoft.card.adaptive",
                 "content": {
@@ -59,14 +50,14 @@ class Webex(BaseDestination):
                                     "items": [
                                         {
                                             "type": "TextBlock",
-                                            "text": subject,
+                                            "text": {subject},
                                             "weight": "bolder",
                                             "size": "medium",
                                             "wrap": True,
                                         },
                                         {
                                             "type": "TextBlock",
-                                            "text": alert.custom_body,
+                                            "text": {description},
                                             "isSubtle": True,
                                             "wrap": True,
                                         },
@@ -90,6 +81,21 @@ class Webex(BaseDestination):
                 },
             }
         ]
+
+    def notify(self, alert, query, user, new_state, app, host, metadata, options):
+        # Documentation: https://developer.webex.com/docs/api/guides/cards
+
+        query_link = f"{host}/queries/{query.id}"
+        alert_link = f"{host}/alerts/{alert.id}"
+
+        if new_state == Alert.TRIGGERED_STATE:
+            subject = alert.custom_subject or f"{alert.name} just triggered"
+        else:
+            subject = f"{alert.name} went back to normal"
+
+        attachments = self.formatted_attachments_template(
+            subject=subject, description=alert.custom_body, query_link=query_link, alert_link=alert_link
+        )
 
         payload = {"markdown": subject + "\n" + alert.custom_body, "attachments": attachments}
 
