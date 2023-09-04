@@ -31,8 +31,8 @@ class Webex(BaseDestination):
     def icon(cls):
         return "fa-webex"
 
-    @staticmethod
-    def api_endpoint():
+    @property
+    def api_base_url(self):
         return "https://webexapis.com/v1/messages"
 
     @staticmethod
@@ -123,7 +123,7 @@ class Webex(BaseDestination):
     def post_message(self, payload, headers):
         try:
             resp = requests.post(
-                self.api_endpoint,
+                self.api_base_url,
                 json=payload,
                 headers=headers,
                 timeout=5.0,
