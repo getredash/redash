@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 
 import requests
 
@@ -101,20 +102,24 @@ class Webex(BaseDestination):
             subject=subject, description=alert.custom_body, query_link=query_link, alert_link=alert_link
         )
 
-        payload = {"markdown": subject + "\n" + alert.custom_body, "attachments": attachments}
+        template_payload = {"markdown": subject + "\n" + alert.custom_body, "attachments": attachments}
 
         headers = {"Authorization": f"Bearer {options['webex_bot_token']}"}
 
-        to_person_ids = options.get("to_person_emails").split(",") if options.get("to_person_emails") else []
-        to_room_ids = options.get("to_room_ids").split(",") if options.get("to_room_ids") else []
+        api_destinations = {
+            "toPersonEmail": options.get("to_person_emails"),
+            "roomId": options.get("to_room_ids"),
+        }
 
-        for to_person_email in to_person_ids:
-            payload["toPersonEmail"] = to_person_email
-            self.post_message(payload, headers)
+        for payload_tag, destinations in api_destinations.items():
+            if destinations is None:
+                continue
 
-        for to_room_id in to_room_ids:
-            payload["roomId"] = to_room_id
-            self.post_message(payload, headers)
+            # destinations is guaranteed to be a comma-separated string
+            for destination_id in destinations.split(","):
+                payload = deepcopy(template_payload)
+                payload[payload_tag] = destination_id
+                self.post_message(payload, headers)
 
     def post_message(self, payload, headers):
         try:
