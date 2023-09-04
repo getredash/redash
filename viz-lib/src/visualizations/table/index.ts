@@ -3,8 +3,8 @@ import Renderer from "./Renderer";
 import Editor from "./Editor";
 
 export default {
-  type: "ADDRESSABLETABLE",
-  name: "Table(Addressable)",
+  type: "TABLE",
+  name: "Table",
   getOptions,
   Renderer,
   Editor,
