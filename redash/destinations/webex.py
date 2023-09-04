@@ -23,6 +23,7 @@ class Webex(BaseDestination):
                 "organization": {"type": "string", "title": "Organization"},
             },
             "secret": ["webex_bot_token"],
+            "required": ["webex_bot_token"],
         }
 
     @classmethod
@@ -95,7 +96,7 @@ class Webex(BaseDestination):
 
         payload = {"markdown": subject + "\n" + description, "attachments": attachments}
 
-        headers = {"Authorization": "Bearer {}".format(options.get("webex_bot_token"))}
+        headers = {"Authorization": f"Bearer {options['webex_bot_token']}"}
 
         to_person_ids = options.get("to_person_emails").split(",") if options.get("to_person_emails") else []
         to_room_ids = options.get("to_room_ids").split(",") if options.get("to_room_ids") else []
