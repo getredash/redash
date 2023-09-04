@@ -57,6 +57,14 @@ class TestParameterizedQuery(TestCase):
         with pytest.raises(InvalidParameterError):
             query.apply({"bar": 7})
 
+    @patch("redash.models.parameterized_query._is_number", side_effect=ArithmeticError)
+    def test_raises_on_unexpected_validation_error(self, _):
+        schema = [{"name": "bar", "type": "number"}]
+        query = ParameterizedQuery("foo", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"bar": 5})
+
     def test_validates_text_parameters(self):
         schema = [{"name": "bar", "type": "text"}]
         query = ParameterizedQuery("foo {{bar}}", schema)
