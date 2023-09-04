@@ -32,7 +32,7 @@ class Webex(BaseDestination):
         return "fa-webex"
 
     @staticmethod
-    def api_endpoint(self):
+    def api_endpoint():
         return "https://webexapis.com/v1/messages"
 
     @property
