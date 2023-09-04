@@ -8,21 +8,25 @@ import { getCounterData } from "./utils";
 
 import "./render.less";
 
+import { formatNumber } from '@/services/formatNumber';
+import NotEnoughData from '@/components/NotEnoughData';
+
 function getCounterStyles(scale: any) {
   return {
-    fontSize: `${scale}px`,
+    msTransform: `scale(${scale})`,
+    MozTransform: `scale(${scale})`,
+    WebkitTransform: `scale(${scale})`,
+    transform: `scale(${scale})`,
   };
 }
 
 function getCounterScale(container: any) {
-  // size of font in base container
-  // children use a relative font size (em)
-  if (container.closest('.visualization-preview')) {
-    return "60";
-  }
-  const fontSize = container.clientHeight / 4.5;
-  return fontSize > 60 ? "60" : fontSize < 12 ? "12" : fontSize.toFixed();
+  const inner = container.firstChild;
+  const scale = Math.min(container.offsetWidth / inner.offsetWidth, container.offsetHeight / inner.offsetHeight);
+  return Number(isFinite(scale) ? scale : 1).toFixed(2); // keep only two decimal places
 }
+
+const format = (num: string) => formatNumber(Number(num.replace(/\,/g,'')));
 
 export default function Renderer({ data, options, visualizationName }: any) {
   const [scale, setScale] = useState("1.00");
@@ -61,23 +65,29 @@ export default function Renderer({ data, options, visualizationName }: any) {
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterLabel' does not exist on type '{}... Remove this comment to see the full error message
     counterLabel,
   } = getCounterData(data.rows, options, visualizationName);
+
+  if(data?.rows?.length === 0 || !data?.rows ) return <NotEnoughData />
+
   return (
     <div
-      className={cx("counter-visualization-container", {
+      className={cx("addressable-counter-visualization-container", {
         "trend-positive": showTrend && trendPositive,
         "trend-negative": showTrend && !trendPositive,
       })}>
       {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<null>>' is not assig... Remove this comment to see the full error message */}
       <div className="counter-visualization-content" ref={setContainer}>
         <div style={getCounterStyles(scale)}>
-          <div className="counter-visualization-value" title={counterValueTooltip}>
-            {counterValue}
-          </div>
-          {targetValue && (
-            <div className="counter-visualization-target" title={targetValueTooltip}>
-              ({targetValue})
+          <div className="counter-visualization-value-wrap">
+            <div className="counter-visualization-target" title={targetValue ? targetValueTooltip : counterValueTooltip}>
+              {format(targetValue ?? counterValue)}
             </div>
-          )}
+            {targetValue && (
+              <div className="counter-visualization-value" title={counterValueTooltip}>
+                {showTrend ? trendPositive ? '+' : '-' : ''}
+                {format(counterValue)}
+              </div>
+            )}
+          </div>
           <div className="counter-visualization-label">{counterLabel}</div>
         </div>
       </div>
