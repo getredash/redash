@@ -38,12 +38,9 @@ class Webex(BaseDestination):
         alert_link = f"{host}/alerts/{alert.id}"
 
         if new_state == Alert.TRIGGERED_STATE:
-            if alert.custom_subject:
-                subject = alert.custom_subject
-            else:
-                subject = alert.name + " just triggered"
+            subject = alert.custom_subject or f"{alert.name} just triggered"
         else:
-            subject = alert.name + " went back to normal"
+            subject = f"{alert.name} went back to normal"
 
         attachments = [
             {
