@@ -1,35 +1,57 @@
 @import "../variables";
 
-.redash-table-visualization-container {
+.table-visualization-container {
   .ant-pagination.ant-table-pagination {
     float: none;
-    display: block;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     margin-bottom: 0;
-  }
 
-  .ant-table {
-    overflow-x: auto;
+    .ant-pagination-item {
+      padding: 4px;
+      width: 32px;
+      height: 32px;
+      vertical-align: middle;
+    }
+
+    .ant-pagination-item-active {
+      border-radius: 10rem;
+      background-color: @primary;
+    }
   }
 
   .table-fixed-header {
     table {
       border-top: 0;
 
-      th:not(.table-visualization-search) {
+      thead {
         position: sticky !important;
         left: 0;
         top: 0;
         border-top: 0;
         z-index: 1;
-        background: #fafafa !important;
+        background: #fbfdff !important;
       }
     }
+  }
+
+  .ant-table-summary {
+    background: #ffffff;
+    position: sticky;
+    bottom: 0;
   }
 
   table {
     border-top: @border-width-base @border-style-base @border-color-split;
     border-bottom: 0;
+  }
+
+  .ant-table {
+    overflow-x: auto;
+    max-height: 100%;
 
     .display-as-number,
     .display-as-boolean,
@@ -48,11 +70,39 @@
       }
     }
 
+    tbody tr {
+      background: #fbfdff;
+    }
+
+    tbody tr:nth-child(2n) {
+      background: #F2F7FB;
+    }
+
+    tbody tr:hover {
+      background: #fbfdff;
+      filter: drop-shadow(0 4px 14px rgba(106, 114, 144, 0.4));
+    }
+
     tbody tr:last-child td {
       border-bottom: 0;
     }
 
+    th {
+      color: #474E6A;
+      font-weight: 300;
+      border-bottom: 1px solid #CAD3E5;
+    }
+
+    th:not(:first-child):not(:last-child),td:not(:first-child):not(:last-child) {
+      border-left: 1px solid #CAD3E5;
+    }
+
     thead {
+      .ant-table-column-sorters {
+       width: 100%;
+       justify-content: space-between;
+      }
+
       .ant-table-column-sorter-up,
       .ant-table-column-sorter-down {
         opacity: 0;
@@ -143,17 +193,18 @@
       }
     }
   }
-  /* END */
-}
 
-.table-visualization-search-info-content {
-  max-width: 400px;
-}
-
-.table-visualization-search-info-icon {
-  margin: 0 5px 0 0;
-
-  &:not(:hover):not(:active) {
-    color: @text-color-secondary;
+  .table-visualization-search-info-content {
+    max-width: 400px;
   }
+
+  .table-visualization-search-info-icon {
+    margin: 0 5px 0 0;
+
+    &:not(:hover):not(:active) {
+      color: @text-color-secondary;
+    }
+  }
+
+  /* END */
 }
