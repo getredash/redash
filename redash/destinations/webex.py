@@ -1,7 +1,8 @@
 import logging
+
 import requests
 
-from redash.destinations import *
+from redash.destinations import BaseDestination, register
 
 
 class Webex(BaseDestination):
