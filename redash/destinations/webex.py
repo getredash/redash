@@ -31,6 +31,10 @@ class Webex(BaseDestination):
     def icon(cls):
         return "fa-webex"
 
+    @staticmethod
+    def api_endpoint(self):
+        return "https://webexapis.com/v1/messages"
+
     @property
     def formatted_attachments_template(subject, description, query_link, alert_link):
         return [
@@ -115,7 +119,7 @@ class Webex(BaseDestination):
     def post_message(payload, headers):
         try:
             resp = requests.post(
-                "https://webexapis.com/v1/messages",
+                self.api_endpoint,
                 json=payload,
                 headers=headers,
                 timeout=5.0,
