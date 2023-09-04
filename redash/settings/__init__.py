@@ -334,6 +334,7 @@ default_query_runners = [
     "redash.query_runner.google_analytics4",
     "redash.query_runner.google_search_console",
     "redash.query_runner.ignite",
+    "redash.query_runner.oracle",
 ]
 
 enabled_query_runners = array_from_string(
@@ -362,6 +363,7 @@ default_destinations = [
     "redash.destinations.pagerduty",
     "redash.destinations.hangoutschat",
     "redash.destinations.microsoft_teams_webhook",
+    "redash.destinations.asana",
     "redash.destinations.webex",
 ]
 

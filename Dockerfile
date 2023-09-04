@@ -41,6 +41,7 @@ RUN useradd --create-home redash
 # Ubuntu packages
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
+  pkg-config \
   curl \
   gnupg \
   build-essential \

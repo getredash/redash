@@ -37,7 +37,7 @@ class HangoutsChat(BaseDestination):
     def icon(cls):
         return "fa-bolt"
 
-    def notify(self, alert, query, user, new_state, app, host, options):
+    def notify(self, alert, query, user, new_state, app, host, metadata, options):
         try:
             if new_state == "triggered":
                 message = '<b><font color="#c0392b">Triggered</font></b>'
