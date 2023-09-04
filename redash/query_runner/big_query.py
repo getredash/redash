@@ -1,9 +1,8 @@
 import datetime
 import logging
+import socket
 import time
 from base64 import b64decode
-
-import httplib2
 
 from redash import settings
 from redash.query_runner import (
@@ -23,9 +22,10 @@ logger = logging.getLogger(__name__)
 
 try:
     import apiclient.errors
+    import google.auth
     from apiclient.discovery import build
     from apiclient.errors import HttpError  # noqa: F401
-    from oauth2client.service_account import ServiceAccountCredentials
+    from google.oauth2.service_account import Credentials
 
     enabled = True
 except ImportError:
@@ -112,7 +112,7 @@ class BigQuery(BaseQueryRunner):
             "type": "object",
             "properties": {
                 "projectId": {"type": "string", "title": "Project ID"},
-                "jsonKeyFile": {"type": "string", "title": "JSON Key File"},
+                "jsonKeyFile": {"type": "string", "title": "JSON Key File (ADC is used if omitted)"},
                 "totalMBytesProcessedLimit": {
                     "type": "number",
                     "title": "Scanned Data Limit (MB)",
@@ -138,7 +138,7 @@ class BigQuery(BaseQueryRunner):
                     "default": False,
                 },
             },
-            "required": ["jsonKeyFile", "projectId"],
+            "required": ["projectId"],
             "order": [
                 "projectId",
                 "jsonKeyFile",
@@ -154,18 +154,20 @@ class BigQuery(BaseQueryRunner):
         }
 
     def _get_bigquery_service(self):
-        scope = [
+        socket.setdefaulttimeout(settings.BIGQUERY_HTTP_TIMEOUT)
+
+        scopes = [
             "https://www.googleapis.com/auth/bigquery",
             "https://www.googleapis.com/auth/drive",
         ]
 
-        key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
+        try:
+            key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
+            creds = Credentials.from_service_account_info(key, scopes=scopes)
+        except KeyError:
+            creds = google.auth.default(scopes=scopes)[0]
 
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
-        http = httplib2.Http(timeout=settings.BIGQUERY_HTTP_TIMEOUT)
-        http = creds.authorize(http)
-
-        return build("bigquery", "v2", http=http, cache_discovery=False)
+        return build("bigquery", "v2", credentials=creds, cache_discovery=False)
 
     def _get_project_id(self):
         return self.configuration["projectId"]
