@@ -43,7 +43,7 @@ PyYAML==6.0.1
 redis==4.4.4
 regex==2023.8.8
 requests==2.31.0
-RestrictedPython==6.1
+RestrictedPython==6.2
 rq==1.5.0
 rq-scheduler==0.10.0
 semver==2.8.1

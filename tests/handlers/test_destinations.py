@@ -1,6 +1,8 @@
 import json
+import textwrap
 from unittest import mock
 
+from redash.destinations.asana import Asana
 from redash.destinations.discord import Discord
 from redash.models import Alert, NotificationDestination
 from tests import BaseTestCase
@@ -138,6 +140,59 @@ def test_discord_notify_calls_requests_post():
             data=json.dumps(expected_payload),
             headers={"Content-Type": "application/json"},
             timeout=5.0,
+        )
+
+        assert mock_response.status_code == 204
+
+
+def test_asana_notify_calls_requests_post():
+    alert = mock.Mock(spec_set=["id", "name", "options", "render_template"])
+    alert.id = 1
+    alert.name = "Test Alert"
+    alert.options = {
+        "custom_subject": "Test custom subject",
+        "custom_body": "Test custom body",
+    }
+    alert.render_template = mock.Mock(return_value={"Rendered": "template"})
+    query = mock.Mock()
+    query.id = 1
+
+    user = mock.Mock()
+    app = mock.Mock()
+    host = "https://localhost:5000"
+    options = {"pat": "abcd", "project_id": "1234"}
+    metadata = {"Scheduled": False}
+
+    new_state = Alert.TRIGGERED_STATE
+    destination = Asana(options)
+
+    with mock.patch("redash.destinations.asana.requests.post") as mock_post:
+        mock_response = mock.Mock()
+        mock_response.status_code = 204
+        mock_post.return_value = mock_response
+
+        destination.notify(alert, query, user, new_state, app, host, metadata, options)
+
+        notes = textwrap.dedent(
+            f"""
+        {alert.name} has TRIGGERED.
+
+        Query: {host}/queries/{query.id}
+        Alert: {host}/alerts/{alert.id}
+        """
+        ).strip()
+
+        expected_payload = {
+            "name": f"[Redash Alert] TRIGGERED: {alert.name}",
+            "notes": notes,
+            "projects": ["1234"],
+        }
+
+        mock_post.assert_called_once_with(
+            destination.api_base_url,
+            data=expected_payload,
+            timeout=5.0,
+            headers={"Authorization": "Bearer abcd"},
         )
 
         assert mock_response.status_code == 204

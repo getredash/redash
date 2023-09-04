@@ -6,6 +6,7 @@ cassandra-driver==3.21.0
 # certifi is needed to support MongoDB and SSL:
 certifi>=2019.9.11
 cmem-cmempy==21.2.3
+databend-py==0.4.6
 databend-sqlalchemy==0.2.4
 google-api-python-client==1.7.11
 gspread==3.1.0

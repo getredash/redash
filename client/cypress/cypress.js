@@ -64,6 +64,7 @@ function runCypressCI() {
     CYPRESS_PROJECT_ID_ENCODED,
     CYPRESS_RECORD_KEY_ENCODED,
     GITHUB_REPOSITORY,
+    CYPRESS_OPTIONS, // eslint-disable-line no-unused-vars
   } = process.env;
 
   if (GITHUB_REPOSITORY === "getredash/redash") {
@@ -76,10 +77,11 @@ function runCypressCI() {
     if (CYPRESS_RECORD_KEY_ENCODED) {
       process.env.CYPRESS_RECORD_KEY = atob(`${CYPRESS_RECORD_KEY_ENCODED}`);
     }
+    process.env.CYPRESS_OPTIONS = "--record";
   }
 
   execSync(
-    "COMMIT_INFO_MESSAGE=$(git show -s --format=%s) docker-compose run --name cypress cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run --record",
+    "COMMIT_INFO_MESSAGE=$(git show -s --format=%s) docker-compose run --name cypress cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run $CYPRESS_OPTIONS",
     { stdio: "inherit" }
   );
 }

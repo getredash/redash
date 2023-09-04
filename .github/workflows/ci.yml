@@ -151,3 +151,33 @@ jobs:
         with:
           name: coverage
           path: coverage
+
+  build-docker-image:
+    runs-on: ubuntu-22.04
+    needs:
+      - backend-unit-tests
+      - frontend-unit-tests
+      - frontend-e2e-tests
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+      - name: Install Dependencies
+        run: |
+          npm install --global --force yarn@1.22.19
+          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+      - name: Build and push preview image to Docker Hub
+        env:
+          DOCKER_USER: ${{ vars.DOCKER_USER }}
+          DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+        run: |
+          set -x
+          .ci/update_version
+          .ci/docker_build
+      - name: "Failure: output container logs to console"
+        if: failure()
+        run: docker-compose logs
