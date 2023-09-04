@@ -35,7 +35,7 @@ class Webex(BaseDestination):
     def api_endpoint():
         return "https://webexapis.com/v1/messages"
 
-    @property
+    @staticmethod
     def formatted_attachments_template(subject, description, query_link, alert_link):
         return [
             {
