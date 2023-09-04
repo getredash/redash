@@ -3,6 +3,7 @@ import logging
 import requests
 
 from redash.destinations import BaseDestination, register
+from redash.models import Alert
 
 
 class Webex(BaseDestination):
@@ -37,7 +38,7 @@ class Webex(BaseDestination):
         alert_link = "{host}/alerts/{alert_id}".format(host=host, alert_id=alert.id)
         description = alert.custom_body if alert.custom_body else ""
 
-        if new_state == "triggered":
+        if new_state == Alert.TRIGGERED_STATE:
             if alert.custom_subject:
                 subject = alert.custom_subject
             else:
