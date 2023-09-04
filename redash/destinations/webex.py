@@ -108,14 +108,8 @@ class Webex(BaseDestination):
 
         headers = {"Authorization": "Bearer {}".format(options.get("webex_bot_token"))}
 
-        to_person_ids = (
-            options.get("to_person_emails").split(",")
-            if options.get("to_person_emails")
-            else []
-        )
-        to_room_ids = (
-            options.get("to_room_ids").split(",") if options.get("to_room_ids") else []
-        )
+        to_person_ids = options.get("to_person_emails").split(",") if options.get("to_person_emails") else []
+        to_room_ids = options.get("to_room_ids").split(",") if options.get("to_room_ids") else []
 
         for to_person_email in to_person_ids:
             try:
@@ -128,11 +122,7 @@ class Webex(BaseDestination):
                 )
                 logging.warning(resp.text)
                 if resp.status_code != 200:
-                    logging.error(
-                        "Webex send ERROR. status_code => {status}".format(
-                            status=resp.status_code
-                        )
-                    )
+                    logging.error("Webex send ERROR. status_code => {status}".format(status=resp.status_code))
             except Exception:
                 logging.exception("Webex send ERROR.")
 
@@ -147,11 +137,7 @@ class Webex(BaseDestination):
                 )
                 logging.warning(resp.text)
                 if resp.status_code != 200:
-                    logging.error(
-                        "Webex send ERROR. status_code => {status}".format(
-                            status=resp.status_code
-                        )
-                    )
+                    logging.error("Webex send ERROR. status_code => {status}".format(status=resp.status_code))
             except Exception:
                 logging.exception("Webex send ERROR.")
 
