@@ -105,34 +105,26 @@ class Webex(BaseDestination):
         to_room_ids = options.get("to_room_ids").split(",") if options.get("to_room_ids") else []
 
         for to_person_email in to_person_ids:
-            try:
-                payload["toPersonEmail"] = to_person_email
-                resp = requests.post(
-                    "https://webexapis.com/v1/messages",
-                    json=payload,
-                    headers=headers,
-                    timeout=5.0,
-                )
-                logging.warning(resp.text)
-                if resp.status_code != 200:
-                    logging.error("Webex send ERROR. status_code => {status}".format(status=resp.status_code))
-            except Exception:
-                logging.exception("Webex send ERROR.")
+            payload["toPersonEmail"] = to_person_email
+            self.post_message(payload, headers)
 
         for to_room_id in to_room_ids:
-            try:
-                payload["roomId"] = to_room_id
-                resp = requests.post(
-                    "https://webexapis.com/v1/messages",
-                    json=payload,
-                    headers=headers,
-                    timeout=5.0,
-                )
-                logging.warning(resp.text)
-                if resp.status_code != 200:
-                    logging.error("Webex send ERROR. status_code => {status}".format(status=resp.status_code))
-            except Exception:
-                logging.exception("Webex send ERROR.")
+            payload["roomId"] = to_room_id
+            self.post_message(payload, headers)
+
+    def post_message(payload, headers):
+        try:
+            resp = requests.post(
+                "https://webexapis.com/v1/messages",
+                json=payload,
+                headers=headers,
+                timeout=5.0,
+            )
+            logging.warning(resp.text)
+            if resp.status_code != 200:
+                logging.error("Webex send ERROR. status_code => {status}".format(status=resp.status_code))
+        except Exception:
+            logging.exception("Webex send ERROR.")
 
 
 register(Webex)
