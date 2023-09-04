@@ -31,7 +31,7 @@ class Webex(BaseDestination):
     def icon(cls):
         return "fa-webex"
 
-    def notify(self, alert, query, user, new_state, app, host, options):
+    def notify(self, alert, query, user, new_state, app, host, metadata, options):
         # Documentation: https://developer.webex.com/docs/api/guides/cards
 
         query_link = "{host}/queries/{query_id}".format(host=host, query_id=query.id)
