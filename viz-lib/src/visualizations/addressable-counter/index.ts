@@ -13,7 +13,7 @@ const DEFAULT_OPTIONS = {
 };
 
 export default {
-  type: "ADDRESSABLECOUNTER",
+  type: "ADDRESSABLE COUNTER",
   name: "Counter (Addressable)",
   getOptions: (options: any) => ({
     ...DEFAULT_OPTIONS,
