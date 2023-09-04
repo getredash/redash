@@ -47,6 +47,7 @@
   table {
     border-top: @border-width-base @border-style-base @border-color-split;
     border-bottom: 0;
+    table-layout: fixed !important;
   }
 
   .ant-table {
@@ -118,7 +119,7 @@
       }
 
       th {
-        white-space: nowrap;
+        // white-space: nowrap;
 
         &.table-visualization-search {
           padding-bottom: 0;
@@ -145,7 +146,8 @@
           display: inline-block;
           max-width: 200px;
           vertical-align: middle;
-          white-space: nowrap;
+          text-align: left;
+          // white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
 
