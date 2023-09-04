@@ -118,7 +118,7 @@ export default function Renderer({ options, data }: any) {
     setOrderBy([]);
   }, [options.columns, data.columns]);
 
-  if (data.rows.length === 0) {
+  if (mainRows.length === 0 && !searchTerm) {
     return <NotEnoughData />;
   }
 
