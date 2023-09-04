@@ -86,17 +86,6 @@ class Webex(BaseDestination):
                                         },
                                     ],
                                 },
-                                {
-                                    "type": "Column",
-                                    "width": 1,
-                                    "items": [
-                                        {
-                                            "type": "Image",
-                                            "url": "https://cdn.pixabay.com/photo/2016/09/16/09/20/alarm-1673577_960_720.png",
-                                            "size": "medium",
-                                        }
-                                    ],
-                                },
                             ],
                         }
                     ],
