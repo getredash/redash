@@ -4,7 +4,7 @@ import Editor from "./Editor";
 
 export default {
   type: "ADDRESSABLETABLE",
-  name: "Table(Addressable)",
+  name: "Table (Addressable)",
   getOptions,
   Renderer,
   Editor,

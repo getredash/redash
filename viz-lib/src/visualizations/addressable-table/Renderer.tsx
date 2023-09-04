@@ -123,7 +123,7 @@ export default function Renderer({ options, data }: any) {
   }
 
   return (
-    <div className="table-visualization-container">
+    <div className="addressable-table-visualization-container">
       <Table
         className="table-fixed-header"
         data-percy="show-scrollbars"
