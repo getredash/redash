@@ -3,7 +3,7 @@ import Renderer from "./Renderer";
 import Editor from "./Editor";
 
 export default {
-  type: "REDASH-TABLE",
+  type: "TABLE",
   name: "Table(Redash)",
   getOptions,
   Renderer,
