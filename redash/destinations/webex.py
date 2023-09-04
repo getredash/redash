@@ -22,7 +22,6 @@ class Webex(BaseDestination):
                     "type": "string",
                     "title": "Rooms (comma-separated)",
                 },
-                "organization": {"type": "string", "title": "Organization"},
             },
             "secret": ["webex_bot_token"],
             "required": ["webex_bot_token"],
