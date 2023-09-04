@@ -116,7 +116,7 @@ class Webex(BaseDestination):
             payload["roomId"] = to_room_id
             self.post_message(payload, headers)
 
-    def post_message(payload, headers):
+    def post_message(self, payload, headers):
         try:
             resp = requests.post(
                 self.api_endpoint,
