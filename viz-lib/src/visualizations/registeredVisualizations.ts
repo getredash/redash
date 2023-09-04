@@ -10,10 +10,11 @@ import detailsVisualization from "./details";
 import funnelVisualization from "./funnel";
 import mapVisualization from "./map";
 import pivotVisualization from "./pivot";
+import tableVisualization from "./table";
 import sankeyVisualization from "./sankey";
 import sunburstVisualization from "./sunburst";
-import tableVisualization from "./table";
 import wordCloudVisualization from "./word-cloud";
+import addressableTableVisualization from "./addressable-table";
 
 type VisualizationConfig = {
   type: string;
@@ -91,6 +92,7 @@ each(
     sunburstVisualization,
     tableVisualization,
     wordCloudVisualization,
+    addressableTableVisualization,
   ]),
   registerVisualization
 );
