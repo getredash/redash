@@ -34,8 +34,8 @@ class Webex(BaseDestination):
     def notify(self, alert, query, user, new_state, app, host, metadata, options):
         # Documentation: https://developer.webex.com/docs/api/guides/cards
 
-        query_link = "{host}/queries/{query_id}".format(host=host, query_id=query.id)
-        alert_link = "{host}/alerts/{alert_id}".format(host=host, alert_id=alert.id)
+        query_link = f"{host}/queries/{query.id}"
+        alert_link = f"{host}/alerts/{alert.id}"
         description = alert.custom_body if alert.custom_body else ""
 
         if new_state == Alert.TRIGGERED_STATE:
