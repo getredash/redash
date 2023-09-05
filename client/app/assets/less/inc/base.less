@@ -154,13 +154,44 @@ text.slicetext {
 }
 
 .markdown {
-  h1,
-  h3,
+  h1, h2, h3, h4, h5, h6 {
+    color: @gray-600;
+  }
+
+  h1 {
+    font-size: 48px;
+    line-height: 64px;
+    font-weight: 400;
+  }
+
   h2 {
+    font-size: 42px;
+    line-height: 56px;
+    font-weight: 300;
+  }
+
+  h3 {
     font-size: 30px;
     line-height: 40px;
+    font-weight: 300;
+  }
+
+  h4 {
+    font-size: 24px;
+    line-height: 32px;
     font-weight: 400;
-    color: @gray-600;
+  }
+
+  h5 {
+    font-size: 20px;
+    line-height: 32px;
+    font-weight: 500;
+  }
+
+  h6 {
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 300;
   }
 }
 
