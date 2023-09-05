@@ -1,6 +1,9 @@
 @import "../variables";
 
 .addressable-table-visualization-container {
+  display: flex;
+  flex-direction: column;
+
   .ant-pagination.ant-table-pagination {
     float: none;
     display: flex;
@@ -21,6 +24,12 @@
       border-radius: 10rem;
       background-color: @primary;
     }
+  }
+
+  .ant-table-wrapper {
+    flex-grow: 1;
+    height: 100%;
+    overflow-y: auto;
   }
 
   .table-fixed-header {
@@ -98,6 +107,9 @@
     }
 
     thead {
+      position: sticky;
+      top: 0;
+
       .ant-table-column-sorters {
        width: 100%;
        justify-content: space-between;
@@ -119,54 +131,46 @@
 
       th {
         white-space: nowrap;
+      }
 
-        &.table-visualization-search {
-          padding-bottom: 0;
+      .ant-input-search {
+        font-weight: normal;
 
-          .ant-table-header-column {
-            display: block;
-          }
+        .ant-input-suffix .anticon {
+          cursor: auto;
         }
+      }
 
-        .ant-input-search {
-          font-weight: normal;
+      // optimize room for th content
+      &.ant-table-column-has-actions.ant-table-column-has-sorters {
+        padding-right: 3px;
+      }
 
-          .ant-input-suffix .anticon {
-            cursor: auto;
-          }
-        }
+      .table-visualization-heading {
+        display: inline-block;
+        max-width: 200px;
+        vertical-align: middle;
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
 
-        // optimize room for th content
-        &.ant-table-column-has-actions.ant-table-column-has-sorters {
-          padding-right: 3px;
-        }
+        &[data-sort-column-index]:before {
+          @size: 12px;
 
-        .table-visualization-heading {
+          content: attr(data-sort-column-index);
           display: inline-block;
-          max-width: 200px;
           vertical-align: middle;
-          text-align: left;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-
-          &[data-sort-column-index]:before {
-            @size: 12px;
-
-            content: attr(data-sort-column-index);
-            display: inline-block;
-            vertical-align: middle;
-            min-width: @size;
-            height: @size;
-            font-size: @size * 3/4;
-            border-radius: @size / 2;
-            background: #c0c0c0;
-            text-align: center;
-            line-height: @size;
-            color: #fff;
-            padding: 0 @size * 1/4;
-            margin: 0 5px 0 0;
-          }
+          min-width: @size;
+          height: @size;
+          font-size: @size * 3/4;
+          border-radius: @size / 2;
+          background: #c0c0c0;
+          text-align: center;
+          line-height: @size;
+          color: #fff;
+          padding: 0 @size * 1/4;
+          margin: 0 5px 0 0;
         }
       }
     }
@@ -180,10 +184,6 @@
     top: 0;
     width: 100%;
     height: 100%;
-
-    & div {
-      height: inherit;
-    }
 
     .ant-spin-container {
       display: flex;

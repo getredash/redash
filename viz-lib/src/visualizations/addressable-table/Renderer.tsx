@@ -89,12 +89,7 @@ export default function Renderer({ options, data }: any) {
   const searchColumns = useMemo(() => filter(options.columns, "allowSearch"), [options.columns]);
 
   const tableColumns = useMemo(() => {
-    const searchInput =
-      searchColumns.length > 0 ? (
-        // @ts-expect-error ts-migrate(2322) FIXME: Type '(event: any) => void' is not assignable to t... Remove this comment to see the full error message
-        <SearchInput searchColumns={searchColumns} onChange={(event: any) => setSearchTerm(event.target.value)} />
-      ) : null;
-    return prepareColumns(options.columns, searchInput, orderBy, (newOrderBy: any) => {
+    return prepareColumns(options.columns, orderBy, (newOrderBy: any) => {
       setOrderBy(newOrderBy);
       // Remove text selection - may occur accidentally
       // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
@@ -124,6 +119,14 @@ export default function Renderer({ options, data }: any) {
 
   return (
     <div className="addressable-table-visualization-container">
+      {
+        searchColumns.length > 0 && (
+          <div className="table-visualization-search">
+            { /* @ts-expect-error ts-migrate(2322) FIXME: Type '(event: any) => void' is not assignable to t... Remove this comment to see the full error message */ }
+            <SearchInput searchColumns={searchColumns} onChange={(event: any) => setSearchTerm(event.target.value)} />
+          </div>
+        )
+      }
       <Table
         className="table-fixed-header"
         data-percy="show-scrollbars"

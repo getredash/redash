@@ -50,7 +50,7 @@ function getOrderByInfo(orderBy: any) {
   return result;
 }
 
-export function prepareColumns(columns: any, searchInput: any, orderBy: any, onOrderByChange: any) {
+export function prepareColumns(columns: any, orderBy: any, onOrderByChange: any) {
   columns = filter(columns, "visible");
   columns = sortBy(columns, "order");
 
@@ -121,19 +121,6 @@ export function prepareColumns(columns: any, searchInput: any, orderBy: any, onO
     // @ts-expect-error ts-migrate(2741) FIXME: Property 'onClick' is missing in type '{ className... Remove this comment to see the full error message
     onHeaderCell: () => ({ className: "table-visualization-spacer" }),
   });
-
-  if (searchInput) {
-    // Add searchInput as the ColumnGroup for all table columns
-    tableColumns = [
-      {
-        key: "table-search",
-        title: searchInput,
-        // @ts-expect-error ts-migrate(2741) FIXME: Property 'onClick' is missing in type '{ className... Remove this comment to see the full error message
-        onHeaderCell: () => ({ className: "table-visualization-search" }),
-        children: tableColumns,
-      },
-    ];
-  }
 
   return tableColumns;
 }
