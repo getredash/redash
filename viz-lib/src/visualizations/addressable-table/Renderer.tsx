@@ -10,7 +10,7 @@ import { prepareColumns, initRows, filterRows, sortRows } from "./utils";
 import ColumnTypes from "./columns";
 
 import "./renderer.less";
-import NotEnoughData from '@/components/NotEnoughData'
+import NotEnoughData from '@/components/NotEnoughData';
 
 function joinColumns(array: any, separator = ", ") {
   return reduce(
