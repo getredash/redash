@@ -16,3 +16,30 @@ multi_line_output = 3
 include_trailing_comma = true
 use_parentheses = true
 skip = "migrations"
+
+[tool.poetry]
+name = "redash"
+version = "23.09.0"
+description = "Make Your Company Data Driven. Connect to any data source, easily visualize, dashboard and share your data."
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+advocate = "1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "7.4.0"
+coverage = "7.2.7"
+freezegun = "1.2.1"
+jwcrypto = "1.5.0"
+mock = "5.0.2"
+pre-commit = "3.3.3"
+ptpython = "3.0.23"
+ptvsd = "4.3.2"
+pytest-cov = "4.1.0"
+watchdog = "3.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
