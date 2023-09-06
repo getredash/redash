@@ -160,7 +160,7 @@ jobs:
       - name: Skip?
         id: skip-check
         run: |
-          if [[ ${{ vars.DOCKER_USER }} == '' ]] || [[ ${{ secrets.DOCKER_PASS }} == '' ]]; then
+          if [[ "${{ vars.DOCKER_USER }}" == '' ]] || [[ "${{ secrets.DOCKER_PASS }}" == '' ]]; then
             echo skip=true >> "$GITHUB_OUTPUT"
           else
             echo skip=false >> "$GITHUB_OUTPUT"
