@@ -165,6 +165,7 @@ steps:
         all:
           isMaster: "'${{CF_BRANCH}}' == 'master'"
           myCondition: deploy_staging.result == 'success'
+          isProd: '"${{TRIGGER_TYPE}}" == "prod"'
 
 
   push_tag:
