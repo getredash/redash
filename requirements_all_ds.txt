@@ -35,10 +35,10 @@ pygridgain==1.4.0
 pyhive==0.6.1
 pyignite==0.6.1
 pymongo[tls,srv]==4.3.3
-pymssql==2.1.5
+pymssql==2.2.8
 pyodbc==4.0.28
 python-arango==6.1.0
-python-rapidjson==0.8.0
+python-rapidjson==1.1.0
 qds-sdk>=1.9.6
 requests_aws_sign==0.1.5
 sasl>=0.1.3
