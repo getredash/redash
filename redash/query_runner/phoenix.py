@@ -1,13 +1,21 @@
-from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
-
 import logging
+
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseQueryRunner,
+    register,
+)
+from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
 try:
     import phoenixdb
-    from phoenixdb.errors import *
+    from phoenixdb.errors import Error
 
     enabled = True
 
@@ -87,31 +95,22 @@ class Phoenix(BaseQueryRunner):
         return list(schema.values())
 
     def run_query(self, query, user):
-        connection = phoenixdb.connect(
-            url=self.configuration.get("url", ""), autocommit=True
-        )
+        connection = phoenixdb.connect(url=self.configuration.get("url", ""), autocommit=True)
 
         cursor = connection.cursor()
 
         try:
             cursor.execute(query)
-            column_tuples = [
-                (i[0], TYPES_MAPPING.get(i[1], None)) for i in cursor.description
-            ]
+            column_tuples = [(i[0], TYPES_MAPPING.get(i[1], None)) for i in cursor.description]
             columns = self.fetch_columns(column_tuples)
-            rows = [
-                dict(zip(([column["name"] for column in columns]), r))
-                for i, r in enumerate(cursor.fetchall())
-            ]
+            rows = [dict(zip(([column["name"] for column in columns]), r)) for i, r in enumerate(cursor.fetchall())]
             data = {"columns": columns, "rows": rows}
             json_data = json_dumps(data)
             error = None
             cursor.close()
         except Error as e:
             json_data = None
-            error = "code: {}, sql state:{}, message: {}".format(
-                e.code, e.sqlstate, str(e)
-            )
+            error = "code: {}, sql state:{}, message: {}".format(e.code, e.sqlstate, str(e))
         finally:
             if connection:
                 connection.close()
