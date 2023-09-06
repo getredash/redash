@@ -53,10 +53,6 @@ class ClickHouse(BaseSQLQueryRunner):
             "secret": ["password"],
         }
 
-    @classmethod
-    def type(cls):
-        return "clickhouse"
-
     @property
     def _url(self):
         return urlparse(self.configuration["url"])
@@ -162,7 +158,7 @@ class ClickHouse(BaseSQLQueryRunner):
             return TYPE_STRING
 
     def _clickhouse_query(self, query, session_id=None, session_check=None):
-        logger.debug("Clickhouse is about to execute query: %s", query)
+        logger.debug(f"{self.name()} is about to execute query: %s", query)
 
         query += "\nFORMAT JSON"
 

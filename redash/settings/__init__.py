@@ -296,6 +296,7 @@ default_query_runners = [
     "redash.query_runner.impala_ds",
     "redash.query_runner.vertica",
     "redash.query_runner.clickhouse",
+    "redash.query_runner.tinybird",
     "redash.query_runner.yandex_metrica",
     "redash.query_runner.rockset",
     "redash.query_runner.treasuredata",
