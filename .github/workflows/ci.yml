@@ -152,12 +152,28 @@ jobs:
           name: coverage
           path: coverage
 
+  build-skip-check:
+    runs-on: ubuntu-22.04
+    outputs:
+      skip: ${{ steps.skip-check.outputs.skip }}
+    steps:
+      - name: Skip?
+        id: skip-check
+        run: |
+          if [[ ${{ vars.DOCKER_USER }} == '' ]] || [[ ${{ secrets.DOCKER_PASS }} == '' ]]; then
+            echo skip=true >> "$GITHUB_OUTPUT"
+          else
+            echo skip=false >> "$GITHUB_OUTPUT"
+          fi
+
   build-docker-image:
     runs-on: ubuntu-22.04
     needs:
       - backend-unit-tests
       - frontend-unit-tests
       - frontend-e2e-tests
+      - build-skip-check
+    if: ${{ needs.build-skip-check.outputs.skip == false}}
     steps:
       - uses: actions/checkout@v3
         with:
