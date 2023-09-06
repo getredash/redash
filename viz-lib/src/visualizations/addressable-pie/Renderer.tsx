@@ -8,13 +8,15 @@ import { interpolatePath } from "d3-interpolate-path";
 // import { ReactComponent as ChartSkeleton } from "~/shared/assets/skeletons/pie-chart.svg";
 import { formatNumber } from "@/services/formatNumber";
 
+import getData from "./getData";
+
 // import Typography from "../../Typography";
 
 import "./Renderer.less";
 
 interface Datum {
-  title: string;
-  discountPercentage: number;
+  x: string;
+  y: number;
 }
 
 const CIRCLE_THICKNESS = 20;
@@ -63,9 +65,14 @@ const colors = ["#B045E6", "#EC407A", "#FFD600", "#00BCD4", "#0091EA"];
 // flex gap-1 items-center
 // `;
 
-export default function Renderer({ options, data }: any) {
-  const slicedData = data.rows.slice(0, 4);
-  const sum = slicedData.reduce((sum: any, d: any) => sum + d.discountPercentage, 0);
+export default function Renderer(input: any) {
+  const rawData = getData(input.data.rows, input.options);
+
+  const columns = Object.keys(rawData);
+
+  const data = rawData[columns[0]].data;
+
+  //const sum = slicedData.reduce((sum: any, d: any) => sum + d.y, 0);
 
   //   if (error || !data?.length || loading || sum <= 0) {
   //     return (
@@ -87,7 +94,7 @@ export default function Renderer({ options, data }: any) {
   //     );
   //   }
 
-  return <SafePieChart data={slicedData} />;
+  return <SafePieChart data={data} />;
 }
 
 function SafePieChart({ data }: { data: Datum[] }) {
@@ -107,17 +114,16 @@ function SafePieChart({ data }: { data: Datum[] }) {
 
     const g = svg.append("g").attr("transform", `translate(${chartLeftPadding},${height / 2})`);
 
-    const colorDomain = data.map(({ title }) => title);
+    const colorDomain = data.map(({ x }) => x);
     const colorScale = d3.scale
       .ordinal()
       .domain(colorDomain)
       .range(colors);
-    console.log(colorScale(colorDomain[0]));
 
     const pie = d3.layout
       .pie<Datum>()
       .value(function(d) {
-        return d.discountPercentage;
+        return d.y;
       })
       .sort(null);
 
@@ -139,9 +145,9 @@ function SafePieChart({ data }: { data: Datum[] }) {
           <div className="legend-item" key={i}>
             <div style={{ backgroundColor: colors[i], height: "12px", width: "12px", borderRadius: "9999px" }} />
 
-            <div className="legend-title">{d.title}</div>
+            <div className="legend-title">{d.x}</div>
 
-            <div className="legend-value">{getPercent(data, d.discountPercentage)}%</div>
+            <div className="legend-value">{getPercent(data, d.y)}%</div>
           </div>
         ))}
       </div>
@@ -150,7 +156,7 @@ function SafePieChart({ data }: { data: Datum[] }) {
 }
 
 function getPercent(data: Datum[], y: number) {
-  const sum = data.reduce<number>((s, d) => s + d.discountPercentage, 0);
+  const sum = data.reduce<number>((s, d) => s + d.y, 0);
   const percent = (y / sum) * 100;
 
   if (percent < 1) {
@@ -199,9 +205,7 @@ function createPieChart(
     .attr("stroke-width", "4px")
     .attr("stroke", "white")
     .attr("fill", function(d) {
-      console.log(d.data.title);
-      console.log(colorScale(d.data.title));
-      return colorScale(d.data.title);
+      return colorScale(d.data.x);
     })
     .on("mouseover", function(d) {
       d3.select(this)
@@ -216,18 +220,17 @@ function createPieChart(
           return current ? interpolatePath(previous, current) : null;
         });
 
-      console.log(d);
-      const x = d.data.title;
-      const dataItem = data.find(d => d.title === x);
+      const x = d.data.x;
+      const dataItem = data.find(d => d.x === x);
 
       if (dataItem) {
         d3.select("#pie-value")
-          .text(formatNumber(dataItem.discountPercentage))
+          .text(formatNumber(dataItem.y))
           .transition()
           .duration(300)
           .style("opacity", 1);
         d3.select("#pie-title")
-          .text(d.data.title)
+          .text(d.data.x)
           .transition()
           .duration(300)
           .style("opacity", 1);
@@ -283,34 +286,33 @@ function createPieChartTooltip(g: d3.Selection<SVGGElement, unknown, null, undef
 function createPieData(data: Datum[]) {
   // enlarge small elements to a threshold, calculate pie chart arc lengths (in percent)
   const itemsBelowThreshold = data.filter(d => {
-    const y = d.discountPercentage;
+    const y = d.y;
     const curPercent = getPercent(data, y);
 
     return curPercent <= MIN_ARC;
   });
   const itemsAboveThreshold = data.filter(d => {
-    const y = d.discountPercentage;
+    const y = d.y;
     const curPercent = getPercent(data, y);
 
     return curPercent > MIN_ARC;
   });
 
   const aboveThresholdFraction = 100 - itemsBelowThreshold.length * MIN_ARC;
-  const aboveThresholdSum = itemsAboveThreshold.reduce((s, d) => s + d.discountPercentage, 0);
+  const aboveThresholdSum = itemsAboveThreshold.reduce((s, d) => s + d.y, 0);
 
   const pieData = data
-    .filter(d => d.discountPercentage > 0)
+    .filter(d => d.y > 0)
     .map(d => {
-      const y = d.discountPercentage;
+      const y = d.y;
 
       const curPercent = getPercent(data, y);
 
-      const newPercent =
-        curPercent <= MIN_ARC ? MIN_ARC : (d.discountPercentage / aboveThresholdSum) * aboveThresholdFraction;
+      const newPercent = curPercent <= MIN_ARC ? MIN_ARC : (d.y / aboveThresholdSum) * aboveThresholdFraction;
 
       return {
-        title: d.title,
-        discountPercentage: newPercent,
+        x: d.x,
+        y: newPercent,
       };
     });
 
