@@ -128,7 +128,7 @@ jobs:
       - name: Enable Code Coverage Report For Master Branch
         if: endsWith(github.ref, '/master')
         run: |
-          echo "CODE_COVERAGE=true" >> $GITHUB_ENV
+          echo "CODE_COVERAGE=true" >> "$GITHUB_ENV"
       - name: Install Dependencies
         run: |
           npm install --global --force yarn@1.22.19
