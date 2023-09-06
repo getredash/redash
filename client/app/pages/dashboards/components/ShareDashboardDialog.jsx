@@ -125,8 +125,8 @@ class ShareDashboardDialog extends React.Component {
                     <div>
                       Custom rule for hiding filter components when sharing links:
                       <br />
-                      You can hide filter components by appending `&hide_filter={"{{"} component_name{"}}"}` to
-                      thesharing URL.
+                      You can hide filter components by appending `&hide_filter={"{{"} component_name{"}}"}` to the
+                      sharing URL.
                       <br />
                       Example: http://{"{{"}ip{"}}"}:{"{{"}port{"}}"}/public/dashboards/{"{{"}id{"}}"}
                       ?p_country=ghana&p_site=10&hide_filter=country
