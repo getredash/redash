@@ -40,12 +40,12 @@ python-dateutil==2.8.0
 python-dotenv==0.19.2
 pytz>=2019.3
 PyYAML==6.0.1
-redis==4.4.4
+redis==4.6.0
 regex==2023.8.8
 requests==2.31.0
 RestrictedPython==6.2
-rq==1.5.0
-rq-scheduler==0.10.0
+rq==1.9.0
+rq-scheduler==0.11.0
 semver==2.8.1
 sentry-sdk==1.28.1
 simplejson==3.16.0
