@@ -70,7 +70,9 @@ export default function Renderer(input: any) {
 
   const columns = Object.keys(rawData);
 
-  const data = rawData[columns[0]].data;
+  const selectedColumn = rawData[columns[0]];
+
+  const data = selectedColumn ? selectedColumn.data : [];
 
   //const sum = slicedData.reduce((sum: any, d: any) => sum + d.y, 0);
 
