@@ -4,9 +4,6 @@ concurrency:
   group: production
   cancel-in-progress: true
 
-env:
-  NODE_OPTIONS: "--max_old_space_size=4096"
-
 on:
   push:
     tags:
@@ -21,13 +18,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_REPOSITORY_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_REPOSITORY }} --password-stdin
+
       - name: Build, tag and push docker image
         run: |
-           tag_name="${{ github.ref_name }}"
-           V="${tag_name:1}"
-           echo "Building and pushing docker image for $V"
-           docker build --platform=linux/amd64 --build-arg skip_dev_deps=true -t "custom-redash:$V" .
-           docker tag custom-redash:$V danikenan/custom-redash:$V
-           docker tag custom-redash:$V danikenan/custom-redash:latest
-           docker push danikenan/custom-redash:$V
-           docker push danikenean/custom-redash:latest
+          tag_name="${{ github.ref_name }}"
+          remote_repo="${{ secrets.DOCKER_REPOSITORY }}"
+          V="${tag_name:1}"
+          echo "Building and pushing docker image for $V"
+          docker build --platform=linux/amd64 --build-arg skip_dev_deps=true -t "custom-redash:$V" .
+          docker tag custom-redash:$V ${remote_repo}/custom-redash:$V
+          docker push ${remote_repo}/custom-redash:$V
