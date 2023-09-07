@@ -89,6 +89,9 @@ werkzeug = "2.3.6"
 wtforms = "2.2.1"
 xlsxwriter = "1.2.2"
 
+[tool.poetry.group.all_ds]
+optional = true
+
 [tool.poetry.group.all_ds.dependencies]
 atsd-client = "3.0.5"
 azure-kusto-data = "0.0.35"
@@ -137,6 +140,15 @@ thrift-sasl = ">=0.1.0"
 trino = ">=0.305,<1.0"
 vertica-python = "1.1.1"
 xlrd = "2.0.1"
+
+[tool.poetry.group.ldap3]
+optional = true
+
+[tool.poetry.group.ldap3.dependencies]
+ldap3 = "2.2.4"
+
+[tool.poetry.group.dev]
+optional = true
 
 [tool.poetry.group.dev.dependencies]
 pytest = "7.4.0"

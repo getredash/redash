@@ -1879,6 +1879,20 @@ cryptography = ">=3.4"
 deprecated = "*"
 
 [[package]]
+name = "ldap3"
+version = "2.2.4"
+description = "A strictly RFC 4510 conforming LDAP V3 pure Python client library"
+optional = false
+python-versions = "*"
+files = [
+    {file = "ldap3-2.2.4-py2.py3-none-any.whl", hash = "sha256:f949876bbb54a0a5eb8f15b359d055141782774c89629495bfe842558745804c"},
+    {file = "ldap3-2.2.4.tar.gz", hash = "sha256:40c4d670e8e0f046ba2e29e3d9592b810c22094dcce83240a1c1695fb3602604"},
+]
+
+[package.dependencies]
+pyasn1 = ">=0.1.8"
+
+[[package]]
 name = "limits"
 version = "3.6.0"
 description = "Rate limiting utilities"
@@ -4877,4 +4891,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.9"
-content-hash = "d4bdf2330d60fc2f894d79895977ef60884db46b0a48bc692288b3131b06dd54"
+content-hash = "b82641786a4cb2e4542570316edfeb5aa0926213c6906c53d15c3a04e08624b2"
