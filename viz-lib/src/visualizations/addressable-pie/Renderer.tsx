@@ -65,12 +65,16 @@ const colors = ["#B045E6", "#EC407A", "#FFD600", "#00BCD4", "#0091EA"];
 // flex gap-1 items-center
 // `;
 
+interface SelectedColumn {
+  data: Datum[];
+}
+
 export default function Renderer(input: any) {
-  const rawData = getData(input.data.rows, input.options);
+  const rawData = getData(input.data.rows, input.options) as any;
 
   const columns = Object.keys(rawData);
 
-  const selectedColumn = rawData[columns[0]];
+  const selectedColumn = rawData[columns[0]] as SelectedColumn;
 
   const data = selectedColumn ? selectedColumn.data : [];
 
@@ -117,13 +121,17 @@ function SafePieChart({ data }: { data: Datum[] }) {
     const g = svg.append("g").attr("transform", `translate(${chartLeftPadding},${height / 2})`);
 
     const colorDomain = data.map(({ x }) => x);
+    
+    // @ts-ignore
     const colorScale = d3.scale
       .ordinal()
       .domain(colorDomain)
       .range(colors);
 
+    // @ts-ignore
     const pie = d3.layout
       .pie<Datum>()
+      // @ts-ignore
       .value(function(d) {
         return d.y;
       })
@@ -139,7 +147,10 @@ function SafePieChart({ data }: { data: Datum[] }) {
 
   return (
     <div className="chart-container">
-      <div style={{ flexGrow: "1" }} ref={containerRef}>
+      <div style={{
+          // @ts-ignore
+          flexGrow: "1" 
+        }} ref={containerRef}>
         <svg ref={ref} width="100%" height="100%"></svg>
       </div>
       <div className="legend-container">
@@ -175,18 +186,22 @@ function createPieChart(
   chartRadius: number
 ) {
   const path = d3.svg
+    // @ts-ignore
     .arc<d3.PieArcDatum<Datum>>()
     .outerRadius(chartRadius)
     .innerRadius(chartRadius - CIRCLE_THICKNESS)
+    // @ts-ignore
     .startAngle(function(d) {
       return d.startAngle - SEGMENTS_GROW;
     })
     .cornerRadius(CORNER_RADIUS);
 
   const pathHover = d3.svg
+    // @ts-ignore
     .arc<d3.PieArcDatum<Datum>>()
     .innerRadius(chartRadius + CIRCLE_EXPAND)
     .outerRadius(chartRadius - CIRCLE_THICKNESS - CIRCLE_EXPAND)
+    // @ts-ignore
     .startAngle(function(d) {
       return d.startAngle - SEGMENTS_GROW;
     })
