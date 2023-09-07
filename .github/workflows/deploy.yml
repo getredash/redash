@@ -1,0 +1,32 @@
+name: Deploy
+
+concurrency:
+  group: production
+  cancel-in-progress: true
+
+env:
+  NODE_OPTIONS: "--max_old_space_size=4096"
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build, tag and push docker image
+        run: |
+           V="${{ github.ref }}"
+           echo "Building and pushing docker image for $V"
+           docker build --platform=linux/amd64 --build-arg skip_dev_deps=true -t "custom-redash:$V" .
+           docker tag custom-redash:$V danikenan/custom-redash:$V
+           docker tag custom-redash:$V danikenan/custom-redash:latest
+           docker push danikenan/custom-redash:$V
+           docker push danikenean/custom-redash:latest
