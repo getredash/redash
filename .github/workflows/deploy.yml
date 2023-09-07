@@ -1,7 +1,7 @@
 name: Deploy
 
 concurrency:
-  group: production
+  group: deploy
   cancel-in-progress: true
 
 on:
@@ -21,7 +21,7 @@ jobs:
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_REPOSITORY_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_REPOSITORY }} --password-stdin
 
-      - name: Build, tag and push docker image
+      - name: Build, tag and push docker image for backend and frontend
         run: |
           tag_name="${{ github.ref_name }}"
           remote_repo="${{ secrets.DOCKER_REPOSITORY }}"
