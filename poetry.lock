@@ -3634,17 +3634,17 @@ networkx = ["networkx (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "redis"
-version = "4.4.4"
+version = "4.6.0"
 description = "Python client for Redis database and key-value store"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "redis-4.4.4-py3-none-any.whl", hash = "sha256:da92a39fec86438d3f1e2a1db33c312985806954fe860120b582a8430e231d8f"},
-    {file = "redis-4.4.4.tar.gz", hash = "sha256:68226f7ede928db8302f29ab088a157f41061fa946b7ae865452b6d7838bbffb"},
+    {file = "redis-4.6.0-py3-none-any.whl", hash = "sha256:e2b03db868160ee4591de3cb90d40ebb50a90dd302138775937f6a42b7ed183c"},
+    {file = "redis-4.6.0.tar.gz", hash = "sha256:585dc516b9eb042a619ef0a39c3d7d55fe81bdb4df09a52c9cdde0d07bf1aa7d"},
 ]
 
 [package.dependencies]
-async-timeout = ">=4.0.2"
+async-timeout = {version = ">=4.0.2", markers = "python_full_version <= \"3.11.2\""}
 
 [package.extras]
 hiredis = ["hiredis (>=1.0.0)"]
@@ -3850,13 +3850,13 @@ jupyter = ["ipywidgets (>=7.5.1,<9)"]
 
 [[package]]
 name = "rq"
-version = "1.5.0"
+version = "1.9.0"
 description = "RQ is a simple, lightweight, library for creating background jobs, and processing them."
 optional = false
 python-versions = ">=3.5"
 files = [
-    {file = "rq-1.5.0-py2.py3-none-any.whl", hash = "sha256:3da8554f3ea2ee9e48d54063ebe1437c6aa743483c1f46d2ad65294ab4e38873"},
-    {file = "rq-1.5.0.tar.gz", hash = "sha256:370fc800903c226b898a10174e069a23077b74b22297b4b20e925ca82fcd9471"},
+    {file = "rq-1.9.0-py2.py3-none-any.whl", hash = "sha256:7af1e9706dbe6f1eac16dffacd8271ec27c1369950941f14dab6bb08a62979d7"},
+    {file = "rq-1.9.0.tar.gz", hash = "sha256:bdfef943de838955e474cfd0e25b9b8c53ed4b9c361fe4bb11cf56d17a87acc5"},
 ]
 
 [package.dependencies]
@@ -3865,17 +3865,18 @@ redis = ">=3.5.0"
 
 [[package]]
 name = "rq-scheduler"
-version = "0.10.0"
+version = "0.11.0"
 description = "Provides job scheduling capabilities to RQ (Redis Queue)"
 optional = false
 python-versions = "*"
 files = [
-    {file = "rq-scheduler-0.10.0.tar.gz", hash = "sha256:de2e2754a05549dadbe7422d2d1fa5ad0c1d556280515af9c3b9c1eba0db5ddb"},
-    {file = "rq_scheduler-0.10.0-py2.py3-none-any.whl", hash = "sha256:f19486671473eba42095163f2ae829d5dcb046dde01628233871ee830c1c3c2e"},
+    {file = "rq-scheduler-0.11.0.tar.gz", hash = "sha256:db79bb56cdbc4f7ffdd8bd659e389e91aa0db9c1abf002dc46f5dd6f0dbd2910"},
+    {file = "rq_scheduler-0.11.0-py2.py3-none-any.whl", hash = "sha256:da94e9b6badf112995ff38fe16192e4f4c43c412b3c9614684ed8c8f7ca517d2"},
 ]
 
 [package.dependencies]
 croniter = ">=0.3.9"
+python-dateutil = "*"
 rq = ">=0.13"
 
 [[package]]
@@ -4891,4 +4892,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.9"
-content-hash = "b82641786a4cb2e4542570316edfeb5aa0926213c6906c53d15c3a04e08624b2"
+content-hash = "06d2da017499673062197900818796e2f17c682ef4fb31277b51ba8fb3c01980"
