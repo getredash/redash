@@ -94,12 +94,12 @@ class ShareDashboardDialog extends React.Component {
   };
 
   render() {
-    const { dialog, dashboard } = this.props;
-
+    const { dialog, dashboard, hasOnlySafeQueries } = this.props;
+    const headerContent = this.constructor.headerContent;
     return (
-      <Modal {...dialog.props} title={this.constructor.headerContent} footer={null}>
+      <Modal {...dialog.props} title={headerContent} footer={null}>
         <Form layout="horizontal">
-          {!this.props.hasOnlySafeQueries && (
+          {!hasOnlySafeQueries && (
             <Form.Item>
               <Alert
                 message="For your security, sharing is currently not supported for dashboards containing queries with text parameters. Consider changing the text parameters in your query to a different type."
@@ -107,6 +107,7 @@ class ShareDashboardDialog extends React.Component {
               />
             </Form.Item>
           )}
+
           <Form.Item label="Allow public access" {...this.formItemProps}>
             <Switch
               checked={dashboard.publicAccessEnabled}
@@ -117,9 +118,28 @@ class ShareDashboardDialog extends React.Component {
             />
           </Form.Item>
           {dashboard.public_url && (
-            <Form.Item label="Secret address" {...this.formItemProps}>
-              <InputWithCopy value={dashboard.public_url} data-test="SecretAddress" />
-            </Form.Item>
+            <>
+              <Form.Item>
+                <Alert
+                  message={
+                    <div>
+                      Custom rule for hiding filter components when sharing links:
+                      <br />
+                      You can hide filter components by appending `&hide_filter={"{{"} component_name{"}}"}` to the
+                      sharing URL.
+                      <br />
+                      Example: http://{"{{"}ip{"}}"}:{"{{"}port{"}}"}/public/dashboards/{"{{"}id{"}}"}
+                      ?p_country=ghana&p_site=10&hide_filter=country
+                    </div>
+                  }
+                  type="warning"
+                />
+              </Form.Item>
+
+              <Form.Item label="Secret address" {...this.formItemProps}>
+                <InputWithCopy value={dashboard.public_url} data-test="SecretAddress" />
+              </Form.Item>
+            </>
           )}
         </Form>
       </Modal>

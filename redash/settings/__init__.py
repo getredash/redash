@@ -296,6 +296,7 @@ default_query_runners = [
     "redash.query_runner.impala_ds",
     "redash.query_runner.vertica",
     "redash.query_runner.clickhouse",
+    "redash.query_runner.tinybird",
     "redash.query_runner.yandex_metrica",
     "redash.query_runner.rockset",
     "redash.query_runner.treasuredata",
@@ -364,6 +365,7 @@ default_destinations = [
     "redash.destinations.hangoutschat",
     "redash.destinations.microsoft_teams_webhook",
     "redash.destinations.asana",
+    "redash.destinations.webex",
 ]
 
 enabled_destinations = array_from_string(os.environ.get("REDASH_ENABLED_DESTINATIONS", ",".join(default_destinations)))
