@@ -85,7 +85,7 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 COPY pyproject.toml poetry.lock ./
 
 ARG POETRY_OPTIONS="--no-root --no-interaction --no-ansi"
-# for LDAP authentication, install with `ldap_3` group
+# for LDAP authentication, install with `ldap3` group
 # disabled by default due to GPL license conflict
 ARG install_groups="main,all_ds,dev"
 RUN /etc/poetry/bin/poetry install --only $install_groups $POETRY_OPTIONS
