@@ -23,7 +23,8 @@ jobs:
 
       - name: Build, tag and push docker image
         run: |
-           V="${{ github.ref_name }}"
+           tag_name="${{ github.ref_name }}"
+           V="${tag_name:1}"
            echo "Building and pushing docker image for $V"
            docker build --platform=linux/amd64 --build-arg skip_dev_deps=true -t "custom-redash:$V" .
            docker tag custom-redash:$V danikenan/custom-redash:$V
