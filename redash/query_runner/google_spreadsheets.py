@@ -21,10 +21,11 @@ from redash.utils import json_dumps, json_loads
 logger = logging.getLogger(__name__)
 
 try:
+    import google.auth
     import gspread
+    from google.oauth2.service_account import Credentials
     from gspread.exceptions import APIError
     from gspread.exceptions import WorksheetNotFound as GSWorksheetNotFound
-    from oauth2client.service_account import ServiceAccountCredentials
 
     enabled = True
 except ImportError:
@@ -208,16 +209,19 @@ class GoogleSpreadsheet(BaseQueryRunner):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {"jsonKeyFile": {"type": "string", "title": "JSON Key File"}},
-            "required": ["jsonKeyFile"],
+            "properties": {"jsonKeyFile": {"type": "string", "title": "JSON Key File (ADC is used if omitted)"}},
+            "required": [],
             "secret": ["jsonKeyFile"],
         }
 
     def _get_spreadsheet_service(self):
-        scope = ["https://spreadsheets.google.com/feeds"]
+        scopes = ["https://spreadsheets.google.com/feeds"]
 
-        key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
+        try:
+            key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
+            creds = Credentials.from_service_account_info(key, scopes=scopes)
+        except KeyError:
+            creds = google.auth.default(scopes=scopes)[0]
 
         timeout_session = Session()
         timeout_session.requests_session = TimeoutSession()

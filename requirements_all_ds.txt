@@ -9,14 +9,14 @@ cmem-cmempy==21.2.3
 databend-py==0.4.6
 databend-sqlalchemy==0.2.4
 google-api-python-client==1.7.11
-gspread==3.1.0
+google-auth>=2.22.0
+gspread==5.1.0
 impyla==0.16.0
 influxdb==5.2.3
 memsql==3.2.0
 mysqlclient==2.1.1
 nzalchemy
 nzpy>=1.15
-oauth2client==4.1.3
 openpyxl==3.0.7
 # python-oracledb supports Oracle 12c and above without needing the Oracle
 # client libraries installed.  To support Oracle 9.x and above as well,
