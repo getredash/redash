@@ -30,7 +30,7 @@ DOCKERHUB_REPO="redash/redash"
 DOCKER_TAGS="-t redash/redash:preview -t redash/preview:${VERSION_TAG}"
 
 # Build the docker container
-docker build --build-arg test_all_deps=true ${DOCKER_TAGS} .
+docker build --build-arg install_groups="main,all_ds,dev" ${DOCKER_TAGS} .
 
 # Push the container to the preview build locations
 docker push "${DOCKERHUB_REPO}:preview"
