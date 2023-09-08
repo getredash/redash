@@ -29,13 +29,6 @@ FROM python:3.8-slim-buster
 
 EXPOSE 5000
 
-# Controls whether to install extra dependencies needed for all data sources.
-ARG skip_ds_deps
-# Controls whether to install dev dependencies.
-ARG skip_dev_deps
-# Controls whether to install all dependencies for testing.
-ARG test_all_deps
-
 RUN useradd --create-home redash
 
 # Ubuntu packages
@@ -85,24 +78,18 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
 
 WORKDIR /app
 
-# Disable PIP Cache and Version Check
-ENV PIP_DISABLE_PIP_VERSION_CHECK=1
-ENV PIP_NO_CACHE_DIR=1
+ENV POETRY_VERSION=1.6.1
+ENV POETRY_HOME=/etc/poetry
+ENV POETRY_VIRTUALENVS_CREATE=false
+RUN curl -sSL https://install.python-poetry.org | python3 -
 
-RUN pip install pip==23.1.2;
+COPY pyproject.toml poetry.lock ./
 
-# We first copy only the requirements file, to avoid rebuilding on every file change.
-COPY requirements_all_ds.txt ./
-RUN if [ "x$skip_ds_deps" = "x" ] ; then cat requirements_all_ds.txt | sed -e '/^\s*#.*$/d' -e '/^\s*$/d' | xargs -n 1 pip install || true ; else echo "Skipping pip install -r requirements_all_ds.txt" ; fi
-
-
-COPY requirements_dev.txt ./
-RUN if [ "x$skip_dev_deps" = "x" ] ; then pip install -r requirements_dev.txt ; fi
-
-COPY requirements.txt ./
-RUN pip install -r requirements.txt
-
-RUN if [ "x$test_all_deps" != "x" ] ; then pip3 install -r requirements.txt -r requirements_dev.txt -r requirements_all_ds.txt ; fi
+ARG POETRY_OPTIONS="--no-root --no-interaction --no-ansi"
+# for LDAP authentication, install with `ldap3` group
+# disabled by default due to GPL license conflict
+ARG install_groups="main,all_ds,dev"
+RUN /etc/poetry/bin/poetry install --only $install_groups $POETRY_OPTIONS
 
 COPY --chown=redash . /app
 COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist
