@@ -19,7 +19,7 @@ skip = "migrations"
 
 [tool.poetry]
 name = "redash"
-version = "23.09.0"
+version = "23.09.0-dev"
 description = "Make Your Company Data Driven. Connect to any data source, easily visualize, dashboard and share your data."
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
