@@ -16,10 +16,10 @@ from redash.utils import json_dumps, json_loads
 logger = logging.getLogger(__name__)
 
 try:
-    import httplib2
+    import google.auth
     from apiclient.discovery import build
     from apiclient.errors import HttpError
-    from oauth2client.service_account import ServiceAccountCredentials
+    from google.oauth2.service_account import Credentials
 
     enabled = True
 except ImportError:
@@ -111,9 +111,9 @@ class GoogleSearchConsole(BaseSQLQueryRunner):
             "type": "object",
             "properties": {
                 "siteURL": {"type": "string", "title": "Site URL"},
-                "jsonKeyFile": {"type": "string", "title": "JSON Key File"},
+                "jsonKeyFile": {"type": "string", "title": "JSON Key File (ADC is used if omitted)"},
             },
-            "required": ["jsonKeyFile"],
+            "required": [],
             "secret": ["jsonKeyFile"],
         }
 
@@ -122,10 +122,15 @@ class GoogleSearchConsole(BaseSQLQueryRunner):
         self.syntax = "json"
 
     def _get_search_service(self):
-        scope = ["https://www.googleapis.com/auth/webmasters.readonly"]
-        key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
-        return build("searchconsole", "v1", http=creds.authorize(httplib2.Http()))
+        scopes = ["https://www.googleapis.com/auth/webmasters.readonly"]
+
+        try:
+            key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
+            creds = Credentials.from_service_account_info(key, scopes=scopes)
+        except KeyError:
+            creds = google.auth.default(scopes=scopes)[0]
+
+        return build("searchconsole", "v1", credentials=creds)
 
     def test_connection(self):
         try:

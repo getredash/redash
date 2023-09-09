@@ -44,6 +44,12 @@ Object {
 }
 `;
 
+exports[`Visualizations -> Chart -> Editor -> General Settings Toggles Enable click events 1`] = `
+Object {
+  "enableLink": true,
+}
+`;
+
 exports[`Visualizations -> Chart -> Editor -> General Settings Toggles horizontal bar chart 1`] = `
 Object {
   "seriesOptions": Object {},

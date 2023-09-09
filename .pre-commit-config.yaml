@@ -13,4 +13,3 @@ repos:
     hooks:
       - id: flake8
         exclude: "migration/.*|.git|viz-lib|node_modules|migrations|bin/upgrade"
-
