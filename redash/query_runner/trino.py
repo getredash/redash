@@ -122,10 +122,10 @@ class Trino(BaseQueryRunner):
 
                 if table_name not in schema:
                     schema[table_name] = {"name": table_name, "columns": []}
-                
+
                 column = {"name": row["column_name"], "type": row["data_type"]}
                 schema[table_name]["columns"].append(column)
-                
+
         return list(schema.values())
 
     def run_query(self, query, user):
