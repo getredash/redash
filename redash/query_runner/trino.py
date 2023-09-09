@@ -83,7 +83,7 @@ class Trino(BaseQueryRunner):
         return "trino"
 
     def get_schema(self, get_stats=False):
-        if not self.configuration.get("catalog"):
+        if self.configuration.get("catalog"):
             catalog_prefixes = [""]
         else:
             query = """
