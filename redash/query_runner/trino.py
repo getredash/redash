@@ -97,7 +97,7 @@ class Trino(BaseQueryRunner):
             results = json_loads(results)
 
             catalog_prefixes = []
-            for row in results:
+            for row in results["rows"]:
                 catalog = row["Catalog"]
                 if "." in catalog:
                     catalog = f'"{catalog}"'
@@ -138,8 +138,8 @@ class Trino(BaseQueryRunner):
             http_scheme=self.configuration.get("protocol", "http"),
             host=self.configuration.get("host", ""),
             port=self.configuration.get("port", 8080),
-            catalog=self.configuration.get("catalog", "hive"),
-            schema=self.configuration.get("schema", "default"),
+            catalog=self.configuration.get("catalog", ""),
+            schema=self.configuration.get("schema", ""),
             user=self.configuration.get("username"),
             auth=auth,
         )
