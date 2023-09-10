@@ -10,8 +10,8 @@ from rq.timeouts import HorseMonitorTimeoutException, UnixSignalDeathPenalty
 from rq.utils import utcnow
 from rq.worker import (
     HerokuWorker,  # HerokuWorker implements graceful shutdown on SIGTERM
+    Worker,
 )
-from rq.worker import Worker
 
 from redash import statsd_client
 
