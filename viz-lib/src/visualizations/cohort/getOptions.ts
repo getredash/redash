@@ -22,7 +22,7 @@ const DEFAULT_OPTIONS = {
 
   colors: {
     min: "#ffffff",
-    max: ColorPalette["Dark Blue"],
+    max: ColorPalette["Blue"],
     steps: 7,
   },
 };

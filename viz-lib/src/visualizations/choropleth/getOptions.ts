@@ -16,8 +16,8 @@ const DEFAULT_OPTIONS = {
   valueFormat: "0,0.00",
   noValuePlaceholder: "N/A",
   colors: {
-    min: ColorPalette["Light Blue"],
-    max: ColorPalette["Dark Blue"],
+    min: ColorPalette["Cyan"],
+    max: ColorPalette["Blue"],
     background: ColorPalette.White,
     borders: ColorPalette.White,
     noValue: ColorPalette["Light Gray"],

@@ -109,9 +109,9 @@ export function getCounterData(rows: any, options: any, visualizationName: any) 
     }
 
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValueTooltip' does not exist on t... Remove this comment to see the full error message
-    result.counterValueTooltip = formatTooltip(result.counterValue, options.tooltipFormat);
+    result.counterValueTooltip = formatTooltip(result.counterValue, options.tooltipFormat || "0,0");
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValueTooltip' does not exist on ty... Remove this comment to see the full error message
-    result.targetValueTooltip = formatTooltip(result.targetValue, options.tooltipFormat);
+    result.targetValueTooltip = formatTooltip(result.targetValue, options.tooltipFormat || "0,0");
 
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
     result.counterValue = formatValue(result.counterValue, options);
@@ -123,7 +123,7 @@ export function getCounterData(rows: any, options: any, visualizationName: any) 
       // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
       if (isFinite(result.targetValue)) {
         // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
-        result.targetValue = numeral(result.targetValue).format("0[.]00[0]");
+        result.targetValue = numbro(result.targetValue).format("0[.]00[0]");
       }
     }
   }

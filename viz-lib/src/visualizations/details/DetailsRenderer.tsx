@@ -7,6 +7,7 @@ import Descriptions from "antd/lib/descriptions";
 import Pagination from "antd/lib/pagination";
 
 import "./details.less";
+import NotEnoughData from '@/components/NotEnoughData';
 
 function renderValue(value: any, type: any) {
   const formats = {
@@ -28,7 +29,7 @@ export default function DetailsRenderer({ data }: any) {
   const [page, setPage] = useState(0);
 
   if (!data || !data.rows || data.rows.length === 0) {
-    return null;
+    return <NotEnoughData />;
   }
 
   const types = mapValues(keyBy(data.columns, "name"), "type");

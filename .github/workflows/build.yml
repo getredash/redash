@@ -1,0 +1,23 @@
+name: Deploy
+
+concurrency:
+  group: build
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build image for backend and frontend
+        run: |
+          docker build --platform=linux/amd64 --build-arg skip_dev_deps=true .

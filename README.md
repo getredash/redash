@@ -24,8 +24,8 @@ Redash features:
 
 ## Getting Started
 
-* [Setting up Redash instance](https://redash.io/help/open-source/setup) (includes links to ready-made AWS/GCE images).
-* [Documentation](https://redash.io/help/).
+- [Setting up Redash instance](https://redash.io/help/open-source/setup) (includes links to ready-made AWS/GCE images).
+- [Documentation](https://redash.io/help/).
 
 ## Supported Data Sources
 
@@ -99,13 +99,13 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 
 ## Getting Help
 
-* Issues: https://github.com/getredash/redash/issues
-* Discussion Forum: https://github.com/getredash/redash/discussions/
+- Issues: https://github.com/getredash/redash/issues
+- Discussion Forum: https://github.com/getredash/redash/discussions/
 
 ## Reporting Bugs and Contributing Code
 
-* Want to report a bug or request a feature? Please open [an issue](https://github.com/getredash/redash/issues/new).
-* Want to help us build **_Redash_**? Fork the project, edit in a [dev environment](https://redash.io/help-onpremise/dev/guide.html) and make a pull request. We need all the help we can get!
+- Want to report a bug or request a feature? Please open [an issue](https://github.com/getredash/redash/issues/new).
+- Want to help us build **_Redash_**? Fork the project, edit in a [dev environment](https://redash.io/help-onpremise/dev/guide.html) and make a pull request. We need all the help we can get!
 
 ## Security
 
@@ -114,3 +114,10 @@ Please email security@redash.io to report any security vulnerabilities. We will 
 ## License
 
 BSD-2-Clause.
+
+```
+V="1.4"
+docker build --platform=linux/amd64 --build-arg skip_dev_deps=true -t "custom-redash:$V" .
+docker tag custom-redash:1.3 danikenan/custom-redash:$V
+docker push danikenan/custom-redash:$V
+```

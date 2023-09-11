@@ -21,6 +21,8 @@ function prepareXAxis(axisOptions: any, additionalOptions: any) {
     title: getAxisTitle(axisOptions),
     type: getAxisScaleType(axisOptions),
     automargin: true,
+    showgrid: false,
+    showline: false,
   };
 
   if (additionalOptions.sortX && axis.type === "category") {
@@ -48,6 +50,8 @@ function prepareYAxis(axisOptions: any) {
     automargin: true,
     autorange: true,
     range: null,
+    showgrid: false,
+    showline: false,
   };
 }
 
@@ -108,7 +112,7 @@ function prepareBoxLayout(layout: any, options: any, data: any) {
 
 export default function prepareLayout(element: any, options: any, data: any) {
   const layout = {
-    margin: { l: 10, r: 10, b: 5, t: 20, pad: 4 },
+    margin: { l: 0, r: 0, b: 10, t: 20 },
     // plot size should be at least 5x5px
     width: Math.max(5, Math.floor(element.offsetWidth)),
     height: Math.max(5, Math.floor(element.offsetHeight)),
@@ -120,6 +124,9 @@ export default function prepareLayout(element: any, options: any, data: any) {
     hoverlabel: {
       namelength: -1,
     },
+    plot_bgcolor: "#FBFDFF",
+    paper_bgcolor: "#FBFDFF",
+    font: { family: "'Inter', sans-serif", color: "#474E6A" },
   };
 
   switch (options.globalSeriesType) {

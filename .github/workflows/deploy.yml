@@ -1,0 +1,32 @@
+name: Deploy
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_REPOSITORY_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_REPOSITORY }} --password-stdin
+
+      - name: Build, tag and push docker image for backend and frontend
+        run: |
+          tag_name="${{ github.ref_name }}"
+          remote_repo="${{ secrets.DOCKER_REPOSITORY }}"
+          V="${tag_name:1}"
+          echo "Building and pushing docker image for $V"
+          docker build --platform=linux/amd64 --build-arg skip_dev_deps=true -t "custom-redash:$V" .
+          docker tag custom-redash:$V ${remote_repo}/custom-redash:$V
+          docker push ${remote_repo}/custom-redash:$V

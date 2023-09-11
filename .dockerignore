@@ -13,3 +13,4 @@ venv/
 /.github/
 /netlify.toml
 /setup/
+deploy.sh

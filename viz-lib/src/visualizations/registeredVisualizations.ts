@@ -12,10 +12,13 @@ import detailsVisualization from "./details";
 import funnelVisualization from "./funnel";
 import mapVisualization from "./map";
 import pivotVisualization from "./pivot";
+import tableVisualization from "./table";
 import sankeyVisualization from "./sankey";
 import sunburstVisualization from "./sunburst";
-import tableVisualization from "./table";
 import wordCloudVisualization from "./word-cloud";
+import addressableTableVisualization from "./addressable-table";
+import addressableCounterVisualization from "./addressable-counter";
+import addressablePieVisualization from "./addressable-pie";
 
 import verticalBarChartVisualization from "./custom/vertical-bar-chart";
 import horizontalBarChartVisualization from "./custom/horizontal-bar-chart";
@@ -106,6 +109,9 @@ each(
     listVisualization,
     multiLineChartVisualization,
     singleLineChartVisualization,
+    addressableTableVisualization,
+    addressableCounterVisualization,
+    addressablePieVisualization,
   ]),
   registerVisualization
 );
