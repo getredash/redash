@@ -27,7 +27,7 @@ class TestTrino(TestCase):
             return (f'{{"rows": [{{"Catalog": "{TestTrino.catalog_name}"}}]}}', None)
         elif re.search(schema_query_pattern, query, re.IGNORECASE) is not None:
             return (
-                '{"rows": [{"table_schema": "default", "table_name": "users", "column_name": "id", "data_type": "integer"}]}',
+                f'{{"rows": [{{"table_schema": "{TestTrino.schema_name}", "table_name": "{TestTrino.table_name}", "column_name": "{TestTrino.column_name}", "data_type": "{TestTrino.column_type}"}}]}}',
                 None,
             )
         return (None, "Unknown query")
