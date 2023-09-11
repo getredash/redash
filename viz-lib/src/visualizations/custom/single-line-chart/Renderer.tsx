@@ -177,7 +177,7 @@ function Chart({ data, labels }: { data: number[]; labels: string[] }) {
                   value: v,
                 }))),
 
-              grid: { display: false, drawBorder: false },
+              grid: { display: false, drawBorder: false } as any,
               ticks: {
                 padding: 15,
                 callback: (value) => formatNumber(Number(value)),
@@ -185,7 +185,7 @@ function Chart({ data, labels }: { data: number[]; labels: string[] }) {
             },
             x: {
               offset: true,
-              grid: { display: false, drawBorder: false },
+              grid: { display: false, drawBorder: false } as any,
               ticks: {
                 // padding: 30,
                 // maxTicksLimit: 10,
@@ -233,8 +233,8 @@ export default function Renderer({ options, data }: any) {
   //   );
   // }
 
-  const values = data.rows.map((i) => i.value);
-  const labels = data.rows.map((i) => i.label.toISOString());
+  const values = data.rows.map((i: any) => i.value);
+  const labels = data.rows.map((i: any) => i.label?.toISOString());
 
   console.log(labels);
 
