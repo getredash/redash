@@ -26,8 +26,6 @@ type OwnProps = {
   onChange?: (...args: any[]) => any;
 };
 
-type Props = OwnProps & typeof ColumnMappingSelect.defaultProps;
-
 export default function ColumnMappingSelect({ value, availableColumns, type, onChange, areAxesSwapped }: Props) {
   const options = sortBy(filter(uniq(flatten([availableColumns, value])), v => isString(v) && v !== ""));
 
@@ -65,5 +63,7 @@ ColumnMappingSelect.defaultProps = {
   type: null,
   onChange: () => {},
 };
+
+type Props = OwnProps & typeof ColumnMappingSelect.defaultProps;
 
 ColumnMappingSelect.MappingTypes = MappingTypes;

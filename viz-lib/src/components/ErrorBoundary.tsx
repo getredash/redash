@@ -21,8 +21,6 @@ type OwnErrorMessageProps = {
   children?: React.ReactNode;
 };
 
-type ErrorMessageProps = OwnErrorMessageProps & typeof ErrorMessage.defaultProps;
-
 export function ErrorMessage({ children }: ErrorMessageProps) {
   return <Alert message={children} type="error" showIcon />;
 }
@@ -30,6 +28,8 @@ export function ErrorMessage({ children }: ErrorMessageProps) {
 ErrorMessage.defaultProps = {
   children: "Something went wrong.",
 };
+
+type ErrorMessageProps = OwnErrorMessageProps & typeof ErrorMessage.defaultProps;
 
 type OwnErrorBoundaryProps = {
   renderError?: (...args: any[]) => any;

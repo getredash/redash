@@ -12,8 +12,6 @@ type OwnContextHelpProps = {
   children?: React.ReactNode;
 };
 
-type ContextHelpProps = OwnContextHelpProps & typeof ContextHelp.defaultProps;
-
 export default function ContextHelp({ icon, children, ...props }: ContextHelpProps) {
   return (
     <Popover {...props} content={children}>
@@ -26,6 +24,8 @@ ContextHelp.defaultProps = {
   icon: null,
   children: null,
 };
+
+type ContextHelpProps = OwnContextHelpProps & typeof ContextHelp.defaultProps;
 
 ContextHelp.defaultIcon = <QuestionCircleFilledIcon className="context-help-default-icon" />;
 

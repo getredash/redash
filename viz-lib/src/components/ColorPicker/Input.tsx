@@ -46,8 +46,6 @@ type OwnProps = {
   onPressEnter?: (...args: any[]) => any;
 };
 
-type Props = OwnProps & typeof Input.defaultProps;
-
 export default function Input({ color, presetColors, presetColumns, onChange, onPressEnter }: Props) {
   const [inputValue, setInputValue] = useState("");
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -97,3 +95,5 @@ Input.defaultProps = {
   onChange: () => {},
   onPressEnter: () => {},
 };
+
+type Props = OwnProps & typeof Input.defaultProps;

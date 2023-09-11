@@ -15,8 +15,6 @@ type OwnProps = {
   size?: number;
 };
 
-type Props = OwnProps & typeof Swatch.defaultProps;
-
 // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
 export default function Swatch({ className, color, title, size, style, ...props }: Props) {
   const result = (
@@ -45,3 +43,5 @@ Swatch.defaultProps = {
   color: "transparent",
   size: 12,
 };
+
+type Props = OwnProps & typeof Swatch.defaultProps;
