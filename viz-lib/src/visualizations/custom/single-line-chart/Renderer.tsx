@@ -154,7 +154,7 @@ function Chart({ data, labels }: { data: number[]; labels: string[] }) {
   const yMin = minDataValue - 0.1 * range;
 
   return (
-    <div className="chart-container">
+    <div className="single-line-chart-container">
       <ReactChart
         ref={chartRef}
         className="w-full h-full max-h-[370px]"

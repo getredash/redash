@@ -139,20 +139,18 @@ function SafeVerticalBarChart({ data, maxY }: any) {
   }
 
   return (
-    <div className="wrapper">
-      <div className="container" ref={containerRef}>
-        {tooltipData && <ChartTooltip tooltipData={tooltipData} />}
-        <svg ref={ref} width="100%" height="100%" style={{ minHeight: "280px" }}></svg>
-        {/* <Modal
-          size="medium"
-          onClose={() => setTwitterModal(null)}
-          showModal={!!twitterModal}
-          withPadding={false}
-          closeIconVariant="icon-button"
-          closeIconHasEqualMargin>
-          {twitterModal && <TwitterAccountProfile data={twitterModal} />}
-        </Modal> */}
-      </div>
+    <div className="vertical-bar-chart-container" ref={containerRef}>
+      {tooltipData && <ChartTooltip tooltipData={tooltipData} />}
+      <svg ref={ref} width="100%" height="100%" style={{ minHeight: "280px" }}></svg>
+      {/* <Modal
+        size="medium"
+        onClose={() => setTwitterModal(null)}
+        showModal={!!twitterModal}
+        withPadding={false}
+        closeIconVariant="icon-button"
+        closeIconHasEqualMargin>
+        {twitterModal && <TwitterAccountProfile data={twitterModal} />}
+      </Modal> */}
     </div>
   );
 }

@@ -126,7 +126,7 @@ function SafePieChart({ data }: { data: Datum[] }) {
   }, [width, height]);
 
   return (
-    <div className="chart-container">
+    <div className="pie-chart-container">
       <div style={{ flexGrow: "1" }} ref={containerRef}>
         <svg ref={ref} width="100%" height="100%"></svg>
       </div>
