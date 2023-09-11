@@ -86,22 +86,7 @@ class Trino(BaseQueryRunner):
         if self.configuration.get("catalog"):
             catalogs = [self.configuration.get("catalog")]
         else:
-            query = """
-                SHOW CATALOGS
-            """
-            results, error = self.run_query(query, None)
-
-            if error is not None:
-                self._handle_run_query_error(error)
-
-            results = json_loads(results)
-
-            catalogs = []
-            for row in results["rows"]:
-                catalog = row["Catalog"]
-                if "." in catalog:
-                    catalog = f'"{catalog}"'
-                catalogs.append(catalog)
+            catalogs = self._get_catalogs()
 
         schema = {}
         for catalog in catalogs:
@@ -129,6 +114,25 @@ class Trino(BaseQueryRunner):
                 schema[table_name]["columns"].append(column)
 
         return list(schema.values())
+
+    def _get_catalogs(self):
+        query = """
+            SHOW CATALOGS
+        """
+        results, error = self.run_query(query, None)
+
+        if error is not None:
+            self._handle_run_query_error(error)
+
+        results = json_loads(results)
+
+        catalogs = []
+        for row in results["rows"]:
+            catalog = row["Catalog"]
+            if "." in catalog:
+                catalog = f'"{catalog}"'
+            catalogs.append(catalog)
+        return catalogs
 
     def run_query(self, query, user):
         if self.configuration.get("password"):
