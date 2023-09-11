@@ -117,7 +117,7 @@ def restart_services():
     green("Restarting...")
     try:
         run("sudo /etc/init.d/redash_supervisord restart")
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         run("sudo service supervisor restart")
 
 

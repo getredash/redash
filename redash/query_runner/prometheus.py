@@ -55,7 +55,7 @@ def convert_query_range(payload):
             continue
         value = payload[key][0]
 
-        if type(value) is str:
+        if isinstance(value, str):
             # Don't convert timestamp string
             try:
                 int(value)
