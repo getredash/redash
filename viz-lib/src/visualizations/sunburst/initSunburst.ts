@@ -8,8 +8,7 @@ import * as d3 from "d3";
 import { has, map, keys, groupBy, sortBy, filter, find, compact, first, every, identity } from "lodash";
 
 const exitNode = "<<<Exit>>>";
-// @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-const colors = d3.scale.category10().range(["#00BCD4", "#B045E6", "#EC407A", "#FFD600", "#0091EA"]);
+const colors = d3.scaleOrdinal(d3.schemeCategory10).range(["#00BCD4", "#B045E6", "#EC407A", "#FFD600", "#0091EA"]);
 
 // helper function colorMap - color gray if "end" is detected
 function colorMap(d: any) {
