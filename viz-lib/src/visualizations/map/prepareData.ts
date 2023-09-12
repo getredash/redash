@@ -1,4 +1,4 @@
-import d3 from "d3";
+import * as d3 from "d3";
 import { isNil, extend, map, filter, groupBy, omit } from "lodash";
 
 export default function prepareData(data: any, options: any) {

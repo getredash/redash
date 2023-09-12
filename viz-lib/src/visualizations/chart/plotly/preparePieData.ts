@@ -1,5 +1,5 @@
 import { isString, each, extend, includes, map, reduce } from "lodash";
-import d3 from "d3";
+import * as d3 from "d3";
 import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
 import { ColorPaletteArray } from "@/visualizations/ColorPalette";
 
@@ -96,11 +96,9 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
 
 export default function preparePieData(seriesList: any, options: any) {
   // we will use this to assign colors for values that have no explicitly set color
-  // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-  const getDefaultColor = d3.scale
-    .ordinal()
+  const getDefaultColor = d3.scaleBand()
     .domain([])
-    .range(ColorPaletteArray);
+    .range(ColorPaletteArray as any);
   const valuesColors = {};
   each(options.valuesOptions, (item, key) => {
     if (isString(item.color) && item.color !== "") {

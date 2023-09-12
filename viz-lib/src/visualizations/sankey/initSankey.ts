@@ -16,7 +16,7 @@ import {
   isNumber,
   isString,
 } from "lodash";
-import d3 from "d3";
+import * as d3 from "d3";
 import d3sankey, { NodeType, LinkType, SourceTargetType, DType } from "./d3sankey";
 import { SankeyDataType } from ".";
 
@@ -99,8 +99,7 @@ function graph(data: ExtendedSankeyDataType["rows"]) {
     addLink(row[dataKeys[4]], null, row.value || 0, 5); // this line ensures that the last stage has a corresponding exit node
   });
 
-  // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-  const color = d3.scale.category20().range(["#00BCD4", "#B045E6", "#EC407A", "#FFD600", "#0091EA"]);
+  const color = d3.scaleOrdinal(d3.schemeCategory20).range(["#00BCD4", "#B045E6", "#EC407A", "#FFD600", "#0091EA"]);
 
   return {
     nodes: map(nodes, d => extend(d, { color: color(d.name.replace(/ .*/, "")) })),

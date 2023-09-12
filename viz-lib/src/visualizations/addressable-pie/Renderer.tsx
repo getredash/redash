@@ -121,10 +121,8 @@ function SafePieChart({ data }: { data: Datum[] }) {
     const g = svg.append("g").attr("transform", `translate(${chartLeftPadding},${height / 2})`);
 
     const colorDomain = data.map(({ x }) => x);
-    
-    // @ts-ignore
-    const colorScale = d3.scale
-      .ordinal()
+
+    const colorScale = d3.scaleOrdinal<string>()
       .domain(colorDomain)
       .range(colors);
 
@@ -149,7 +147,7 @@ function SafePieChart({ data }: { data: Datum[] }) {
     <div className="chart-container">
       <div style={{
           // @ts-ignore
-          flexGrow: "1" 
+          flexGrow: "1"
         }} ref={containerRef}>
         <svg ref={ref} width="100%" height="100%"></svg>
       </div>

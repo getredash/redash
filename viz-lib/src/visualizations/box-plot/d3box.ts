@@ -35,20 +35,16 @@ function box() {
         : d3.range(n);
 
       // Compute the new x-scale.
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-      const x1 = d3.scale
-        .linear()
+      const x1 = d3.scaleLinear()
         // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
         .domain((domain && domain.call(this, d, i)) || [min, max])
-        .range([height, 0]);
+        .range([height, 0]) as any;
 
       // Retrieve the old x-scale, if this is an update.
       const x0 =
         // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
         this.__chart__ ||
-        // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-        d3.scale
-          .linear()
+        d3.scaleLinear()
           .domain([0, Infinity])
           .range(x1.range());
 
