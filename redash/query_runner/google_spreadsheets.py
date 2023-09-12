@@ -133,12 +133,12 @@ def parse_worksheet(worksheet):
 
 def parse_spreadsheet(spreadsheet, worksheet_num_or_title):
     worksheet = None
-    if type(worksheet_num_or_title) is int:
+    if isinstance(worksheet_num_or_title, int):
         worksheet = spreadsheet.get_worksheet_by_index(worksheet_num_or_title)
         if worksheet is None:
             worksheet_count = len(spreadsheet.worksheets())
             raise WorksheetNotFoundError(worksheet_num_or_title, worksheet_count)
-    elif type(worksheet_num_or_title) is str:
+    elif isinstance(worksheet_num_or_title, str):
         worksheet = spreadsheet.get_worksheet_by_title(worksheet_num_or_title)
         if worksheet is None:
             raise WorksheetNotFoundByTitleError(worksheet_num_or_title)

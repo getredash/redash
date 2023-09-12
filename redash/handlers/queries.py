@@ -11,9 +11,11 @@ from redash.handlers.base import (
     BaseResource,
     filter_by_tags,
     get_object_or_404,
+    org_scoped_rule,
+    paginate,
+    routes,
 )
 from redash.handlers.base import order_results as _order_results
-from redash.handlers.base import org_scoped_rule, paginate, routes
 from redash.handlers.query_results import run_query
 from redash.models.parameterized_query import ParameterizedQuery
 from redash.permissions import (

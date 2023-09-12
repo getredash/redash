@@ -34,7 +34,8 @@ tests:
 	docker-compose run server tests
 
 lint:
-	./bin/flake8_tests.sh
+	ruff check .
+	black --check . --diff
 
 backend-unit-tests: up test_db
 	docker-compose run --rm --name tests server tests
@@ -43,15 +44,15 @@ frontend-unit-tests:
 	CYPRESS_INSTALL_BINARY=0 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 yarn --frozen-lockfile
 	yarn test
 
-test: lint backend-unit-tests frontend-unit-tests
+test: backend-unit-tests frontend-unit-tests lint
 
-build: 
+build:
 	yarn build
 
-watch: 
+watch:
 	yarn watch
 
-start: 
+start:
 	yarn start
 
 redis-cli:
