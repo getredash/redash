@@ -132,7 +132,7 @@ class DataSourceCommandTests(BaseTestCase):
         self.factory.create_data_source(
             name="test1",
             type="sqlite",
-            options=ConfigurationContainer({"dbpath": __file__}),
+            options=ConfigurationContainer({"dbpath": "/notexist.db"}),
         )
         runner = CliRunner()
         result = runner.invoke(manager, ["ds", "test", "test1"])
