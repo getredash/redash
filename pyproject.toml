@@ -21,11 +21,9 @@ skip = "migrations"
 name = "redash"
 version = "23.09.0-dev"
 description = "Make Your Company Data Driven. Connect to any data source, easily visualize, dashboard and share your data."
-authors = ["Arik Fraimovich <email>"]
+authors = ["Arik Fraimovich <arik@redash.io>"]
 maintainers = [
-    "Justin Clift <email>",
-    "Guido (Sid) Petri <email>",
-    "Eric Radman <email>",
+    "Redash maintainers and contributors <maintainers@redash.io>",
 ]
 readme = "README.md"
 
