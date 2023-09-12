@@ -157,6 +157,7 @@ ptpython = "3.0.23"
 ptvsd = "4.3.2"
 pytest-cov = "4.1.0"
 watchdog = "3.0.0"
+ruff = "0.0.289"
 
 [build-system]
 requires = ["poetry-core"]
