@@ -1,3 +1,6 @@
+// @ts-nocheck
+
+import React from 'react';
 import { find, flatten, each } from "lodash";
 import PropTypes from "prop-types";
 
@@ -24,8 +27,8 @@ type VisualizationConfig = {
   getOptions: (...args: any[]) => any;
   isDefault?: boolean;
   isDeprecated?: boolean;
-  Renderer: (...args: any[]) => any;
-  Editor?: (...args: any[]) => any;
+  Renderer: (...args: any[]) => JSX.Element;
+  Editor: (...args: any[]) => JSX.Element;
   autoHeight?: boolean;
   defaultRows?: number;
   defaultColumns?: number;
@@ -54,7 +57,7 @@ const VisualizationConfig: PropTypes.Requireable<VisualizationConfig> = PropType
   maxColumns: PropTypes.number,
 });
 
-const registeredVisualizations = {};
+const registeredVisualizations: Record<string, VisualizationConfig> = {};
 
 function validateVisualizationConfig(config: any) {
   const typeSpecs = { config: VisualizationConfig };
@@ -70,12 +73,10 @@ function registerVisualization(config: any) {
     isDefault: config.isDefault && !config.isDeprecated,
   };
 
-  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   if (registeredVisualizations[config.type]) {
     throw new Error(`Visualization ${config.type} already registered.`);
   }
 
-  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   registeredVisualizations[config.type] = config;
 }
 
@@ -103,14 +104,30 @@ each(
 
 export default registeredVisualizations;
 
-export function getDefaultVisualization() {
+export function getDefaultVisualization () {
   // return any visualization explicitly marked as default, or any non-deprecated otherwise
   return (
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'isDefault' does not exist on type 'never... Remove this comment to see the full error message
-    find(registeredVisualizations, visualization => visualization.isDefault) ||
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'isDeprecated' does not exist on type 'ne... Remove this comment to see the full error message
+    find(registeredVisualizations, visualization => visualization.isDefault) ??
     find(registeredVisualizations, visualization => !visualization.isDeprecated)
   );
+}
+
+export function getUnknownVisualization (type: string) : VisualizationConfig {
+  return {
+    type: "unknown",
+    name: "Unknown",
+    Renderer: () => (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", height: "100%", fontSize: "1.25em" }}>
+        <span>Unknown visualization type: { type }</span>
+      </div>
+    ),
+    Editor: () => (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", height: "100%", fontSize: "1.25em" }}>
+        <span>Unknown visualization type: { type }</span>
+      </div>
+    ),
+    getOptions: (options: any) => options
+  };
 }
 
 export function newVisualization(type = null, options = {}) {

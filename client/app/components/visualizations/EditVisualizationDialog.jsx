@@ -85,9 +85,9 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
 
   const defaultState = useMemo(() => {
     const config = visualization ? registeredVisualizations[visualization.type] : getDefaultVisualization();
-    const options = config.getOptions(isNew ? {} : visualization.options, data);
+    const options = config?.getOptions(isNew ? {} : visualization.options, data) ?? visualization.options;
     return {
-      type: config.type,
+      type: config?.type ?? visualization.type,
       name: isNew ? config.name : visualization.name,
       options,
       originalOptions: options,
@@ -111,6 +111,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
     setType(newType);
 
     const config = registeredVisualizations[newType];
+    if (!config) return
     if (!nameChanged) {
       setName(config.name);
     }
@@ -125,7 +126,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
 
   function onOptionsChanged(newOptions) {
     const config = registeredVisualizations[type];
-    setOptions(config.getOptions(newOptions, data));
+    setOptions(config?.getOptions(newOptions, data) ?? newOptions);
   }
 
   function save() {
