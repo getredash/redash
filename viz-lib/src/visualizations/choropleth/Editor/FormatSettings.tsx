@@ -20,8 +20,6 @@ type OwnTemplateFormatHintProps = {
   geoJsonProperties?: string[];
 };
 
-type TemplateFormatHintProps = OwnTemplateFormatHintProps & typeof TemplateFormatHint.defaultProps;
-
 function TemplateFormatHint({ geoJsonProperties }: TemplateFormatHintProps) {
   return (
     // @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message
@@ -53,6 +51,8 @@ function TemplateFormatHint({ geoJsonProperties }: TemplateFormatHintProps) {
 TemplateFormatHint.defaultProps = {
   geoJsonProperties: [],
 };
+
+type TemplateFormatHintProps = OwnTemplateFormatHintProps & typeof TemplateFormatHint.defaultProps;
 
 export default function GeneralSettings({ options, onOptionsChange }: any) {
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);

@@ -10,8 +10,6 @@ type OwnProps = {
   alignText?: "left" | "center" | "right";
 };
 
-type Props = OwnProps & typeof Legend.defaultProps;
-
 export default function Legend({ items, alignText }: Props) {
   return (
     <div className="choropleth-visualization-legend">
@@ -30,3 +28,5 @@ Legend.defaultProps = {
   items: [],
   alignText: "left",
 };
+
+type Props = OwnProps & typeof Legend.defaultProps;
