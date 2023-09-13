@@ -49,15 +49,11 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
       render: (unused: any, item: any) => (
         <ColorPicker
           data-test={`Chart.Series.${item.key}.Color`}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
           interactive
           // @ts-expect-error ts-migrate(2322) FIXME: Type '{ "Indian Red": string; "Green 2": string; "... Remove this comment to see the full error message
           presetColors={colors}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           placement="topRight"
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           color={item.color}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '(value: any) => void' is not assignable to t... Remove this comment to see the full error message
           onChange={(value: any) => updateSeriesOption(item.key, "color", value)}
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'never'.
           addonAfter={<ColorPicker.Label color={item.color} presetColors={colors} />}
