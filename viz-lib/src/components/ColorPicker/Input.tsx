@@ -88,10 +88,9 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
 
 Input.defaultProps = {
   color: "#FFFFFF",
-  presetColors: null,
   presetColumns: 8,
   onChange: () => {},
   onPressEnter: () => {},
-};
+} as Props;
 
-type Props = OwnProps & typeof Input.defaultProps;
+type Props = OwnProps;
