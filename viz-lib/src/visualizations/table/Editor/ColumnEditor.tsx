@@ -17,8 +17,6 @@ type OwnProps = {
   onChange?: (...args: any[]) => any;
 };
 
-type Props = OwnProps & typeof ColumnEditor.defaultProps;
-
 export default function ColumnEditor({ column, onChange }: Props) {
   function handleChange(changes: any) {
     onChange({ ...column, ...changes });
@@ -98,3 +96,5 @@ export default function ColumnEditor({ column, onChange }: Props) {
 ColumnEditor.defaultProps = {
   onChange: () => {},
 };
+
+type Props = OwnProps & typeof ColumnEditor.defaultProps;
