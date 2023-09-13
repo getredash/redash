@@ -27,7 +27,14 @@ export default function Renderer({
   const errorHandlerRef = useRef();
 
   // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-  const { Renderer, getOptions } = registeredVisualizations[type];
+  const { Renderer, getOptions } = registeredVisualizations[type] ?? {
+    Renderer: () => (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", height: "100%", fontSize: "1.25em" }}>
+        <span>Unknown Renderer type: {type}</span>
+      </div>
+    ),
+    getOptions: (options: any) => options
+  };
 
   // Avoid unnecessary updates (which may be expensive or cause issues with
   // internal state of some visualizations like Table) - compare options deeply
