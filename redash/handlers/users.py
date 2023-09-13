@@ -13,9 +13,13 @@ from redash.authentication.account import (
     send_password_reset_email,
     send_verify_email,
 )
-from redash.handlers.base import BaseResource, get_object_or_404
+from redash.handlers.base import (
+    BaseResource,
+    get_object_or_404,
+    paginate,
+    require_fields,
+)
 from redash.handlers.base import order_results as _order_results
-from redash.handlers.base import paginate, require_fields
 from redash.permissions import (
     is_admin_or_owner,
     require_admin,

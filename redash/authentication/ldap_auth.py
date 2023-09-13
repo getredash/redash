@@ -11,7 +11,7 @@ try:
 except ImportError:
     if settings.LDAP_LOGIN_ENABLED:
         sys.exit(
-            "The ldap3 library was not found. This is required to use LDAP authentication (see requirements.txt)."
+            "The ldap3 library was not found. This is required to use LDAP authentication. Rebuild the Docker image installing the `ldap3` poetry dependency group."
         )
 
 from redash.authentication import (

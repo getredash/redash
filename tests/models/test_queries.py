@@ -201,6 +201,40 @@ class QueryTest(BaseTestCase):
             self.assertTrue(query1 in res)
             self.assertFalse(query2 in res)
 
+    def test_search_by_user_finds_in_user(self):
+        u1 = self.factory.create_user(name="John")
+        u2 = self.factory.create_user(name="Jane")
+
+        self.factory._user = u1
+        q1 = self.factory.create_query(name="Testing search with John")
+        q2 = self.factory.create_query(description="Description search")
+
+        self.factory._user = u2
+        q3 = self.factory.create_query(name="Testing search with Jane")
+
+        queries = Query.search_by_user("search", u1, multi_byte_search=True)
+
+        self.assertIn(q1, queries)
+        self.assertIn(q2, queries)
+        self.assertNotIn(q3, queries)
+
+    def test_search_by_user_finds_in_multi_byte_user(self):
+        u1 = self.factory.create_user(name="大谷")
+        u2 = self.factory.create_user(name="翔平")
+
+        self.factory._user = u1
+        q1 = self.factory.create_query(name="日本語の名前テスト")
+        q2 = self.factory.create_query(description="日本語の説明文テスト")
+
+        self.factory._user = u2
+        q3 = self.factory.create_query(name="日本語の名前テスト")
+
+        queries = Query.search_by_user("名前", u1, multi_byte_search=True)
+
+        self.assertIn(q1, queries)
+        self.assertNotIn(q2, queries)
+        self.assertNotIn(q3, queries)
+
 
 class QueryRecentTest(BaseTestCase):
     def test_global_recent(self):
