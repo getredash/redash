@@ -7,7 +7,7 @@ import getChartData from "../getChartData";
 import { Plotly, prepareCustomChartData, createCustomChartRenderer } from "../plotly";
 
 export default function CustomPlotlyChart({ options, data }: any) {
-  const [container, setContainer] = useState(null);
+  const [container, setContainer] = useState<Plotly.Root>();
 
   const renderCustomChart = useMemo(() => createCustomChartRenderer(options.customCode, options.enableConsoleLogs), [
     options.customCode,
