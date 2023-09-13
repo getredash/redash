@@ -28,12 +28,9 @@ export default function CustomChartSettings({ options, onOptionsChange }: any) {
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
-        {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
         <Switch
           data-test="Chart.Custom.EnableConsoleLogs"
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.enableConsoleLogs}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '(enableConsoleLogs: any) => any' is not assi... Remove this comment to see the full error message
           onChange={(enableConsoleLogs: any) => onOptionsChange({ enableConsoleLogs })}>
           Show errors in the console
         </Switch>
@@ -41,14 +38,10 @@ export default function CustomChartSettings({ options, onOptionsChange }: any) {
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
-        {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
         <Switch
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           id="chart-editor-auto-update-custom-chart"
           data-test="Chart.Custom.AutoUpdate"
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.autoRedraw}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '(autoRedraw: any) => any' is not assignable ... Remove this comment to see the full error message
           onChange={(autoRedraw: any) => onOptionsChange({ autoRedraw })}>
           Auto update graph
         </Switch>

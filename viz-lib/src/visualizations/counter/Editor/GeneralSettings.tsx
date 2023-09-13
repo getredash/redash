@@ -84,12 +84,9 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
-        {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
         <Switch
           data-test="Counter.General.CountRows"
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.countRow}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '(countRow: any) => any' is not assignable to... Remove this comment to see the full error message
           onChange={(countRow: any) => onOptionsChange({ countRow })}>
           Count Rows
         </Switch>

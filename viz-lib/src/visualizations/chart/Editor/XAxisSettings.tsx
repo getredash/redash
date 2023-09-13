@@ -19,12 +19,9 @@ export default function XAxisSettings({ options, onOptionsChange }: any) {
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
-        {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
         <Switch
           data-test="Chart.XAxis.Sort"
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.sortX}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '(sortX: any) => any' is not assignable to ty... Remove this comment to see the full error message
           onChange={(sortX: any) => onOptionsChange({ sortX })}>
           Sort Values
         </Switch>
@@ -32,12 +29,9 @@ export default function XAxisSettings({ options, onOptionsChange }: any) {
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
-        {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
         <Switch
           data-test="Chart.XAxis.Reverse"
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.reverseX}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '(reverseX: any) => any' is not assignable to... Remove this comment to see the full error message
           onChange={(reverseX: any) => onOptionsChange({ reverseX })}>
           Reverse Order
         </Switch>
@@ -45,12 +39,9 @@ export default function XAxisSettings({ options, onOptionsChange }: any) {
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
-        {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
         <Switch
           data-test="Chart.XAxis.ShowLabels"
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.xAxis.labels.enabled}
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '(enabled: any) => any' is not assignable to ... Remove this comment to see the full error message
           onChange={(enabled: any) => onOptionsChange({ xAxis: { labels: { enabled } } })}>
           Show Labels
         </Switch>
