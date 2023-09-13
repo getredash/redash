@@ -6,7 +6,7 @@ import useSize from "@react-hook/size";
 import { interpolatePath } from "d3-interpolate-path";
 
 // import { ReactComponent as ChartSkeleton } from "~/shared/assets/skeletons/pie-chart.svg";
-import { formatNumber } from "../shared/formatNumber";
+import { formatNumber } from "@/services/formatNumber";
 
 // import Typography from "../../Typography";
 

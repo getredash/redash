@@ -26,3 +26,11 @@ export function formatNumber(v1: number) {
 
   return num + suffix;
 }
+
+export const PositiveDecimalRegex = /^(([1-9]\d*(\.\d+)?)|(\d{1,3}(,\d{3})*(\.\d+)?)|(0\.\d+))$/;
+
+export const numValueOrDefault = (v: number | string | undefined | null, def: number, _debugName?: string) => {
+  const v1 = v === undefined || v === "" || v === null || isNaN(Number(v)) ? def : Number(v);
+  //console.log({ v, v1, d: _debugName });
+  return v1;
+};

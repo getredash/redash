@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { formatNumber } from "../shared/formatNumber";
+import { formatNumber } from "@/services/formatNumber";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const getOrCreateTooltip = (chart: {

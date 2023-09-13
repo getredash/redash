@@ -16,7 +16,7 @@ import {
 } from 'chart.js';
 import { format, parseISO } from 'date-fns';
 
-import { formatNumber } from "../shared/formatNumber";
+import { formatNumber } from "@/services/formatNumber";
 
 import { ExternalTooltipHandler } from './ExternalTooltipHandler';
 

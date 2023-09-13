@@ -7,7 +7,7 @@ import * as d3 from "d3";
 import useSize from "@react-hook/size";
 // import Skeleton from "react-loading-skeleton";
 
-import { formatNumber } from "../shared/formatNumber";
+import { formatNumber } from "@/services/formatNumber";
 // import TwitterAccountProfile from "~/shared/components/TwitterAccountProfile";
 
 // import Modal from "../../Modal";
