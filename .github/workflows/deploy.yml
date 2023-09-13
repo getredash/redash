@@ -2,7 +2,7 @@ name: Deploy
 
 concurrency:
   group: deploy
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 on:
   push:
