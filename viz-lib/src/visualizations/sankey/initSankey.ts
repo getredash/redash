@@ -99,7 +99,7 @@ function graph(data: ExtendedSankeyDataType["rows"]) {
     addLink(row[dataKeys[4]], null, row.value || 0, 5); // this line ensures that the last stage has a corresponding exit node
   });
 
-  const color = d3.scaleOrdinal(d3.schemeCategory20).range(["#00BCD4", "#B045E6", "#EC407A", "#FFD600", "#0091EA"]);
+  const color = d3.scaleOrdinal(d3.schemeCategory10).range(["#00BCD4", "#B045E6", "#EC407A", "#FFD600", "#0091EA"]);
 
   return {
     nodes: map(nodes, d => extend(d, { color: color(d.name.replace(/ .*/, "")) })),
