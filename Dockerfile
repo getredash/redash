@@ -42,6 +42,8 @@ RUN apt-get update && \
   libffi-dev \
   sudo \
   git-core \
+  # Kerberos, needed for MS SQL Python driver to compile on arm64
+  libkrb5-dev \
   # Postgres client
   libpq-dev \
   # ODBC support:
