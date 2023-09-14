@@ -199,7 +199,7 @@
     border-color: transparent;
     color: @pagination-color;
     font-size: 14px;
-    margin-right: 5px;
+    margin-right: 0px;
 
     a {
       color: inherit;
@@ -207,7 +207,7 @@
 
     &:focus,
     &:hover {
-      background-color: @pagination-hover-bg;
+      background-color: @pagination-hover-bg !important;
       border-color: transparent;
       color: @pagination-hover-color;
       a {
@@ -219,7 +219,7 @@
       &,
       &:hover,
       &:focus {
-        background-color: @pagination-active-bg;
+        background-color: @pagination-active-bg !important;
         color: @pagination-active-color;
         border-color: transparent;
         pointer-events: none;
@@ -247,11 +247,6 @@
       background-color: @pagination-bg;
       border-color: transparent;
       color: @pagination-color;
-      line-height: @pagination-item-size - 2px;
-
-      .@{pagination-prefix-cls}.mini & {
-        line-height: @pagination-item-size-sm - 2px;
-      }
     }
 
     &:focus .@{pagination-prefix-cls}-item-link,
@@ -265,7 +260,7 @@
   &-prev,
   &-jump-prev,
   &-jump-next {
-    margin-right: 5px;
+    margin-right: 0px;
   }
 
   &-jump-prev,
