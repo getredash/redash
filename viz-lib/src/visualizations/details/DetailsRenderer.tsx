@@ -52,7 +52,7 @@ export default function DetailsRenderer({ data }: any) {
           <Pagination
             showSizeChanger={false}
             current={page + 1}
-            defaultPageSize={10}
+            defaultPageSize={1}
             total={data.rows.length}
             onChange={p => setPage(p - 1)}
           />
