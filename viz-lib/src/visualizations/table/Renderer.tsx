@@ -113,7 +113,12 @@ export default function Renderer({ options, data }: any) {
   }, [options.columns, data.columns]);
 
   if (data.rows.length === 0) {
-    return null;
+    return <div className="text-center" ng-if="$ctrl.widget.getQueryResult().isEmpty()">
+      <h1><span className="zmdi zmdi-alert-circle-o"></span></h1>
+      <p className="text-muted">
+        No results were returned for this query.
+      </p>
+    </div>;
   }
 
   return (
