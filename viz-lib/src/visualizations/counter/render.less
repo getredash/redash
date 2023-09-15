@@ -1,3 +1,5 @@
+@import (reference, less) "~@/assets/less/inc/variables";
+
 .counter-visualization-container {
   display: block;
   text-align: center;
@@ -16,23 +18,25 @@
 
     .counter-visualization-value,
     .counter-visualization-target {
-      font-size: 1em;
+      font-size: 30px;
+      color: @gray-400;
       display: block;
     }
 
     .counter-visualization-label {
-      font-size: 0.5em;
+      font-size: 12px;
       display: block;
+      color: @gray-400;
     }
 
     .counter-visualization-target {
       color: #ccc;
     }
 
-    .counter-visualization-label {
-      font-size: 0.5em;
-      display: block;
-    }
+    // .counter-visualization-label {
+    //   font-size: 0.5em;
+    //   display: block;
+    // }
   }
 
   &.trend-positive .counter-visualization-value {

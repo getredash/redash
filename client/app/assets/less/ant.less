@@ -75,7 +75,8 @@
   color: @gray-500;
 }
 
-.ant-select .ant-select-single {
+.ant-select .ant-select-single,
+.ant-select .ant-select-multiple {
   height: 36px;
   display: flex;
   align-items: center;
@@ -84,7 +85,8 @@
   border: 1px solid @gray-200;
 }
 
-.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+.ant-select-single:not(.ant-select-customize-input) .ant-select-selector,
+.ant-select-multiple:not(.ant-select-customize-input) .ant-select-selector {
   border-radius: 4px;
 }
 
@@ -94,7 +96,8 @@
   line-height: 24px;
   font-weight: 400;
 }
-.ant-select-single .ant-select-selector .ant-select-selection-search {
+.ant-select-single .ant-select-selector .ant-select-selection-search,
+.ant-select-multiple .ant-select-selector .ant-select-selection-search {
   left: 8px;
 }
 
@@ -104,11 +107,17 @@
   align-items: center;
 }
 
+.ant-select-multiple:not(.ant-select-customize-input) .ant-select-selector {
+  display: flex;
+  align-items: center;
+}
+
 .ant-select:not(.ant-select-disabled):hover .ant-select-selector {
   border-color: @primary-300;
 }
 
-.ant-select-focused.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+.ant-select-focused.ant-select-single:not(.ant-select-customize-input) .ant-select-selector,
+.ant-select-focused.ant-select-multiple:not(.ant-select-customize-input) .ant-select-selector {
   border-color: @primary-500;
   box-shadow: none;
 }
@@ -153,6 +162,49 @@
   font-weight: 400;
 }
 
+.ant-select-multiple .ant-select-selection-item {
+  background: @primary-200;
+  height: 24px;
+  border-radius: 4px;
+  border: unset;
+  color: @primary-500;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  display: flex;
+  justify-items: center;
+  align-items: center;
+}
+
+.ant-select-selection-item-remove > span > svg {
+  fill: @primary-500;
+}
+
+.parameter-input[data-dirty] .ant-select-selector {
+  background-color: @bg-50;
+}
+
+.ant-picker.ant-picker-range {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+  // border: 1px solid @gray-200;
+}
+
+.ant-picker.ant-picker-range:hover {
+  border: 1px solid @primary-300;
+}
+
+.ant-picker.ant-picker-range.ant-picker-focused {
+  border: 1px solid @primary-500;
+  box-shadow: none;
+}
+
+.ant-btn.ant-dropdown-trigger > span > svg {
+  fill: @primary-300;
+}
 // Fix for disabled button styles inside Tooltip component.
 // Tooltip wraps disabled buttons with `<span>` and moves all styles
 // and classes to that `<span>`. This resets all button styles and
