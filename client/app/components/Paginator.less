@@ -8,24 +8,15 @@
     margin-top: 24px !important;
     margin-bottom: 24px !important;
 
-    .ant-pagination-item, .ant-pagination-prev, .ant-pagination-next {
-      width: 20px;
-      height: 20px;
+    .ant-pagination-item, .ant-pagination-prev, .ant-pagination-next, .ant-pagination-item-link {
+      min-width: 20px;
+      aspect-ratio: 1;
+      height: unset;
       border-radius: 10rem;
       display: flex;
       align-items: center;
       justify-content: center;
       background-color: transparent;
-      min-width: unset;
       line-height: 1em;
     }
-
-	.ant-pagination-next .ant-pagination-item-link, .ant-pagination-prev .ant-pagination-item-link {
-		background-color: transparent !important;
-		line-height: 1em !important;
-	}
-
-    .ant-pagination-item-active {
-      background-color: #B045E6;
-    }
-  }
+}

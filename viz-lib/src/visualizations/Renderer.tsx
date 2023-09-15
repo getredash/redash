@@ -2,7 +2,7 @@ import { isEqual } from "lodash";
 import React, { useEffect, useRef } from "react";
 import ErrorBoundary, { ErrorMessage } from "@/components/ErrorBoundary";
 import { RendererPropTypes } from "@/visualizations/prop-types";
-import registeredVisualizations from "@/visualizations/registeredVisualizations";
+import registeredVisualizations, { getUnknownVisualization } from "@/visualizations/registeredVisualizations";
 
 /*
 (ts-migrate) TODO: Migrate the remaining prop types
@@ -26,8 +26,7 @@ export default function Renderer({
   const lastOptions = useRef();
   const errorHandlerRef = useRef();
 
-  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-  const { Renderer, getOptions } = registeredVisualizations[type];
+  const { Renderer, getOptions } = registeredVisualizations[type] ?? getUnknownVisualization(type);
 
   // Avoid unnecessary updates (which may be expensive or cause issues with
   // internal state of some visualizations like Table) - compare options deeply

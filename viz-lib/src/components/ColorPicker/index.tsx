@@ -45,8 +45,6 @@ type OwnProps = {
   onChange?: (...args: any[]) => any;
 };
 
-type Props = OwnProps & typeof ColorPicker.defaultProps;
-
 export default function ColorPicker({
   color,
   placement,
@@ -125,13 +123,10 @@ export default function ColorPicker({
             }}
             actions={actions}>
             <ColorInput
-              // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
               color={currentColor}
               presetColors={presetColors}
               presetColumns={presetColumns}
-              // @ts-expect-error ts-migrate(2322) FIXME: Type '(newColor: any) => void' is not assignable t... Remove this comment to see the full error message
               onChange={handleInputChange}
-              // @ts-expect-error ts-migrate(2322) FIXME: Type '() => void' is not assignable to type 'never... Remove this comment to see the full error message
               onPressEnter={handleApply}
             />
           </Card>
@@ -140,12 +135,11 @@ export default function ColorPicker({
         placement={placement}
         visible={visible}
         onVisibleChange={setVisible}>
-        {children || (
+        {children as any || (
           <Swatch
             color={validatedColor}
             size={30}
-            {...triggerProps}
-            // @ts-expect-error ts-migrate(2339) FIXME: Property 'className' does not exist on type 'never... Remove this comment to see the full error message
+            {...triggerProps as any}
             className={cx("color-picker-trigger", triggerProps.className)}
           />
         )}
@@ -157,8 +151,7 @@ export default function ColorPicker({
 
 ColorPicker.defaultProps = {
   color: "#FFFFFF",
-  placement: "top",
-  presetColors: null,
+  placement: "top" as const,
   presetColumns: 8,
   interactive: false,
   triggerProps: {},
@@ -166,7 +159,9 @@ ColorPicker.defaultProps = {
   addonBefore: null,
   addonAfter: null,
   onChange: () => {},
-};
+} as Props;
+
+type Props = OwnProps;
 
 ColorPicker.Input = ColorInput;
 ColorPicker.Swatch = Swatch;
