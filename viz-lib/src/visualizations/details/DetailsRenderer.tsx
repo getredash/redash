@@ -7,7 +7,7 @@ import Descriptions from "antd/lib/descriptions";
 import Pagination from "antd/lib/pagination";
 
 import "./details.less";
-import NotEnoughData from '@/components/NotEnoughData';
+import NotEnoughData from "@/components/NotEnoughData";
 
 function renderValue(value: any, type: any) {
   const formats = {
@@ -52,7 +52,7 @@ export default function DetailsRenderer({ data }: any) {
           <Pagination
             showSizeChanger={false}
             current={page + 1}
-            defaultPageSize={1}
+            defaultPageSize={10}
             total={data.rows.length}
             onChange={p => setPage(p - 1)}
           />
