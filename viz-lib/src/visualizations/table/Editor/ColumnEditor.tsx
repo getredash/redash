@@ -72,6 +72,16 @@ export default function ColumnEditor({ column, onChange }: Props) {
           onChange={(event: any) => handleChangeDebounced({ description: event.target.value })}
         />
       </Section>
+      
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
+      <Section>
+        <Input
+          label="Width"
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'width' does not exist on type '{ n... Remove this comment to see the full error message
+          defaultValue={column.width}
+          onChange={(event: any) => handleChangeDebounced({ width: event.target.value })}
+        />
+      </Section>
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
