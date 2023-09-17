@@ -1,5 +1,4 @@
-import React from // , { useMemo }
-"react";
+import React from "react"; // , { useMemo }
 // import { maxBy } from "lodash";
 import AntdSelect, { SelectProps, LabeledValue } from "antd/lib/select";
 // import { calculateTextWidth } from "@/lib/calculateTextWidth";
@@ -35,7 +34,7 @@ function SelectWithVirtualScroll({ options, ...props }: VirtualScrollSelectProps
 
   return (
     <AntdSelect<string>
-      dropdownMatchSelectWidth={true}
+      dropdownMatchSelectWidth={false}
       options={options}
       allowClear={true}
       optionFilterProp="label" // as this component expects "options" prop
