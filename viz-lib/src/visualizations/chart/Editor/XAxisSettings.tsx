@@ -19,6 +19,7 @@ export default function XAxisSettings({ options, onOptionsChange }: any) {
 
       {includes(["histogram"], options.globalSeriesType) && (
         <React.Fragment>
+          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Section>
             <InputNumber
               label="Bin Size"
@@ -26,10 +27,11 @@ export default function XAxisSettings({ options, onOptionsChange }: any) {
               placeholder="Auto"
               data-test="Chart.XAxis.BinSize"
               defaultValue={options.binSize}
-              onChange={binSize => onOptionsChange({ binSize: toNumber(binSize) })}
+              onChange={(binSize: any) => onOptionsChange({ binSize: toNumber(binSize) })}
             />
           </Section>
 
+          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Section>
             <InputNumber
               label="Bin Start"
@@ -37,12 +39,13 @@ export default function XAxisSettings({ options, onOptionsChange }: any) {
               placeholder="Auto"
               data-test="Chart.XAxis.BinStart"
               defaultValue={options.binStart}
-              onChange={binStart => onOptionsChange({ binStart: toNumber(binStart) })}
+              onChange={(binStart: any) => onOptionsChange({ binStart: toNumber(binStart) })}
             />
           </Section>
         </React.Fragment>
       )}
 
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
         <Switch
