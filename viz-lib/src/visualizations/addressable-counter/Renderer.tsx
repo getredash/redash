@@ -30,11 +30,7 @@ const format = (num: string) => {
   const re = /^(?<prefix>\D*)(?<value>\d+(\.\d+)?)(?<suffix>\D*)$/;
   const { prefix, value, suffix } = re.exec(num)?.groups || {};
 
-  if (value) {
-    return value + (suffix || "");
-  } else {
-    return formatNumber(Number(num.replace(/\,/g, "")));
-  }
+  return (prefix || "") + formatNumber(Number((value ?? num).replace(/\,/g, ""))) + (suffix || "");
 };
 
 export default function Renderer({ data, options, visualizationName }: any) {
@@ -76,7 +72,6 @@ export default function Renderer({ data, options, visualizationName }: any) {
   } = getCounterData(data.rows, options, visualizationName);
 
   if (data?.rows?.length === 0 || !data?.rows) return <NotEnoughData />;
-
   return (
     <div
       className={cx("addressable-counter-visualization-container", {
