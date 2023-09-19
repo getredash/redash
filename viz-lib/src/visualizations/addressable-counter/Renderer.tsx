@@ -8,8 +8,8 @@ import { getCounterData } from "./utils";
 
 import "./render.less";
 
-import { formatNumber } from '@/services/formatNumber';
-import NotEnoughData from '@/components/NotEnoughData';
+import { formatNumber } from "@/services/formatNumber";
+import NotEnoughData from "@/components/NotEnoughData";
 
 function getCounterStyles(scale: any) {
   return {
@@ -26,7 +26,16 @@ function getCounterScale(container: any) {
   return Number(isFinite(scale) ? scale : 1).toFixed(2); // keep only two decimal places
 }
 
-const format = (num: string) => formatNumber(Number(num.replace(/\,/g,'')));
+const format = (num: string) => {
+  const re = /^(?<prefix>\D*)(?<value>\d+(\.\d+)?)(?<suffix>\D*)$/;
+  const { prefix, value, suffix } = re.exec(num)?.groups || {};
+
+  if (value) {
+    return value + (suffix || "");
+  } else {
+    return formatNumber(Number(num.replace(/\,/g, "")));
+  }
+};
 
 export default function Renderer({ data, options, visualizationName }: any) {
   const [scale, setScale] = useState("1.00");
@@ -66,7 +75,7 @@ export default function Renderer({ data, options, visualizationName }: any) {
     counterLabel,
   } = getCounterData(data.rows, options, visualizationName);
 
-  if(data?.rows?.length === 0 || !data?.rows ) return <NotEnoughData />
+  if (data?.rows?.length === 0 || !data?.rows) return <NotEnoughData />;
 
   return (
     <div
@@ -78,12 +87,14 @@ export default function Renderer({ data, options, visualizationName }: any) {
       <div className="counter-visualization-content" ref={setContainer}>
         <div style={getCounterStyles(scale)}>
           <div className="counter-visualization-value-wrap">
-            <div className="counter-visualization-target" title={targetValue ? targetValueTooltip : counterValueTooltip}>
+            <div
+              className="counter-visualization-target"
+              title={targetValue ? targetValueTooltip : counterValueTooltip}>
               {format(targetValue ?? counterValue)}
             </div>
             {targetValue && (
               <div className="counter-visualization-value" title={counterValueTooltip}>
-                {showTrend ? trendPositive ? '+' : '-' : ''}
+                {showTrend ? (trendPositive ? "+" : "-") : ""}
                 {format(counterValue)}
               </div>
             )}
