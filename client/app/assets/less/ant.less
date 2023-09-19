@@ -83,9 +83,14 @@
   gap: 8px;
   border-radius: 4px;
   border: 1px solid @gray-200;
+  min-width: 100px !important;
 }
 
-.ant-select-single:not(.ant-select-customize-input) .ant-select-selector,
+.ant-select .ant-select-selector {
+  min-width: 100px !important;
+}
+
+.ant-select .ant-select-single:not(.ant-select-customize-input) .ant-select-selector,
 .ant-select-multiple:not(.ant-select-customize-input) .ant-select-selector {
   border-radius: 4px;
 }
