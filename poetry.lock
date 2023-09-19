@@ -1880,17 +1880,17 @@ deprecated = "*"
 
 [[package]]
 name = "ldap3"
-version = "2.2.4"
+version = "2.9.1"
 description = "A strictly RFC 4510 conforming LDAP V3 pure Python client library"
 optional = false
 python-versions = "*"
 files = [
-    {file = "ldap3-2.2.4-py2.py3-none-any.whl", hash = "sha256:f949876bbb54a0a5eb8f15b359d055141782774c89629495bfe842558745804c"},
-    {file = "ldap3-2.2.4.tar.gz", hash = "sha256:40c4d670e8e0f046ba2e29e3d9592b810c22094dcce83240a1c1695fb3602604"},
+    {file = "ldap3-2.9.1-py2.py3-none-any.whl", hash = "sha256:5869596fc4948797020d3f03b7939da938778a0f9e2009f7a072ccf92b8e8d70"},
+    {file = "ldap3-2.9.1.tar.gz", hash = "sha256:f3e7fc4718e3f09dda568b57100095e0ce58633bcabbed8667ce3f8fbaa4229f"},
 ]
 
 [package.dependencies]
-pyasn1 = ">=0.1.8"
+pyasn1 = ">=0.4.6"
 
 [[package]]
 name = "limits"
@@ -2202,7 +2202,7 @@ name = "ndg-httpsclient"
 version = "0.5.1"
 description = "Provides enhanced HTTPS support for httplib and urllib2 using PyOpenSSL"
 optional = false
-python-versions = ">=2.7,<3.0.dev0 || >=3.4.dev0"
+python-versions = ">=2.7,<3.0.0 || >=3.4.0"
 files = [
     {file = "ndg_httpsclient-0.5.1-py2-none-any.whl", hash = "sha256:d2c7225f6a1c6cf698af4ebc962da70178a99bcde24ee6d1961c4f3338130d57"},
     {file = "ndg_httpsclient-0.5.1-py3-none-any.whl", hash = "sha256:dd174c11d971b6244a891f7be2b32ca9853d3797a72edb34fa5d7b07d8fff7d4"},
@@ -4918,4 +4918,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "156152da6cee1d7a5a2eacd03df3377534dd4a5fa9c50fe4c8277ef2752364dd"
+content-hash = "2c6faf1d48c3864e238ac4f49c685709f1e7954896bb4b915f56d3367334a117"
