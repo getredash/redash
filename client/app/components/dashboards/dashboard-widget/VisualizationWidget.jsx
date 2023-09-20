@@ -367,14 +367,18 @@ class VisualizationWidget extends React.Component {
           onParametersEdit: this.editParameterMappings,
         })}
         header={
-          <VisualizationWidgetHeader
-            widget={widget}
-            refreshStartedAt={isRefreshing ? widget.refreshStartedAt : null}
-            parameters={localParameters}
-            isEditing={isEditing}
-            onParametersUpdate={onRefresh}
-            onParametersEdit={onParametersEdit}
-          />
+          widget.visualization.name || widget.visualization.description ? (
+            <VisualizationWidgetHeader
+              widget={widget}
+              refreshStartedAt={isRefreshing ? widget.refreshStartedAt : null}
+              parameters={localParameters}
+              isEditing={isEditing}
+              onParametersUpdate={onRefresh}
+              onParametersEdit={onParametersEdit}
+            />
+          ) : (
+            undefined
+          )
         }
         footer={
           <VisualizationWidgetFooter
