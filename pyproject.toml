@@ -141,7 +141,7 @@ xlrd = "2.0.1"
 optional = true
 
 [tool.poetry.group.ldap3.dependencies]
-ldap3 = "2.2.4"
+ldap3 = "2.9.1"
 
 [tool.poetry.group.dev]
 optional = true
