@@ -376,14 +376,14 @@ class VisualizationWidget extends React.Component {
             onParametersEdit={onParametersEdit}
           />
         }
-        // footer={
-        //   <VisualizationWidgetFooter
-        //     widget={widget}
-        //     isPublic={isPublic}
-        //     onRefresh={onRefresh}
-        //     onExpand={this.expandWidget}
-        //   />
-        // }
+        footer={
+          <VisualizationWidgetFooter
+            widget={widget}
+            isPublic={isPublic}
+            onRefresh={onRefresh}
+            onExpand={this.expandWidget}
+          />
+        }
         tileProps={{ "data-refreshing": isRefreshing }}>
         {this.renderVisualization()}
       </Widget>
