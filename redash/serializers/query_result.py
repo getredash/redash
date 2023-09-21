@@ -1,5 +1,6 @@
 import csv
 import io
+import codecs
 
 import xlsxwriter
 from dateutil.parser import isoparse as parse_date
@@ -81,13 +82,15 @@ def serialize_query_result(query_result, is_api_user):
 
 
 def serialize_query_result_to_dsv(query_result, delimiter):
-    s = io.StringIO()
+    s = io.BytesIO()
+    s.write(codecs.BOM_UTF8)
 
     query_data = query_result.data
 
     fieldnames, special_columns = _get_column_lists(query_data["columns"] or [])
 
-    writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=fieldnames, delimiter=delimiter)
+    text_stream = io.TextIOWrapper(s, encoding='utf-8', write_through=True)
+    writer = csv.DictWriter(text_stream, extrasaction="ignore", fieldnames=fieldnames, delimiter=delimiter)
     writer.writeheader()
 
     for row in query_data["rows"]:
@@ -97,7 +100,7 @@ def serialize_query_result_to_dsv(query_result, delimiter):
 
         writer.writerow(row)
 
-    return s.getvalue()
+    return s.getvalue().decode('utf-8')
 
 
 def serialize_query_result_to_xlsx(query_result):

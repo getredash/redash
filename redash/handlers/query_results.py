@@ -383,12 +383,7 @@ class QueryResultResource(BaseResource):
     @staticmethod
     def make_csv_response(query_result):
         headers = {"Content-Type": "text/csv; charset=UTF-8"}
-        response = make_response(
-            serialize_query_result_to_dsv(query_result, ","), 200, headers
-          )
-        # Add the UTF-8 BOM at the beginning of the response
-        response.data = u'\uFEFF'.encode('utf-8') + response.data
-        return response
+        return make_response(serialize_query_result_to_dsv(query_result, ","), 200, headers)
 
     @staticmethod
     def make_tsv_response(query_result):
