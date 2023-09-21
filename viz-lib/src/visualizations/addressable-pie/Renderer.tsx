@@ -100,17 +100,10 @@ export default function Renderer(input: any) {
   //     );
   //   }
 
-  return (
-    <SafePieChart
-      data={data}
-      id={Math.random()
-        .toString(36)
-        .substring(2, 7)}
-    />
-  );
+  return <SafePieChart data={data} />;
 }
 
-function SafePieChart({ data, id }: { data: Datum[]; id: string }) {
+function SafePieChart({ data }: { data: Datum[] }) {
   const ref = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, height] = useSize(containerRef);
@@ -144,8 +137,8 @@ function SafePieChart({ data, id }: { data: Datum[]; id: string }) {
       })
       .sort(null);
 
-    createPieChart(data, g, pie, colorScale, chartRadius, id);
-    createPieChartTooltip(g, id);
+    createPieChart(data, g, pie, colorScale, chartRadius);
+    createPieChartTooltip(g);
 
     return () => {
       svg.selectAll("*").remove();
@@ -160,7 +153,7 @@ function SafePieChart({ data, id }: { data: Datum[]; id: string }) {
           flexGrow: "1",
         }}
         ref={containerRef}>
-        <svg ref={ref} id={id} width="100%" height="100%"></svg>
+        <svg ref={ref} width="100%" height="100%"></svg>
       </div>
       <div className="legend-container">
         {data.map((d, i) => (
@@ -192,8 +185,7 @@ function createPieChart(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
   pie: d3.Pie<unknown, Datum>,
   colorScale: d3.ScaleOrdinal<string, string, never>,
-  chartRadius: number,
-  id: string
+  chartRadius: number
 ) {
   const path = d3.svg
     // @ts-ignore
@@ -216,7 +208,6 @@ function createPieChart(
       return d.startAngle - SEGMENTS_GROW;
     })
     .cornerRadius(CORNER_RADIUS);
-
   const pieData = createPieData(data);
 
   const arc = g
@@ -251,12 +242,12 @@ function createPieChart(
       const dataItem = data.find(d => d.x === x);
 
       if (dataItem) {
-        d3.select("#pie-value" + id)
+        g.select(".pie-value")
           .text(formatNumber(dataItem.y))
           .transition()
           .duration(300)
           .style("opacity", 1);
-        d3.select("#pie-title" + id)
+        g.select(".pie-title")
           .text(d.data.x)
           .transition()
           .duration(300)
@@ -275,11 +266,11 @@ function createPieChart(
 
           return current ? interpolatePath(previous, current) : null;
         });
-      d3.select("#pie-value" + id)
+      g.select(".pie-value")
         .transition()
         .duration(300)
         .style("opacity", 0);
-      d3.select("#pie-title" + id)
+      g.select(".pie-title")
         .transition()
         .duration(300)
         .style("opacity", 0);
@@ -288,9 +279,9 @@ function createPieChart(
   // g.select(".arc:first-child").raise();
 }
 
-function createPieChartTooltip(g: d3.Selection<SVGGElement, unknown, null, undefined>, id: string) {
+function createPieChartTooltip(g: d3.Selection<SVGGElement, unknown, null, undefined>) {
   g.append("text")
-    .attr("id", "pie-value" + id)
+    .attr("class", "pie-value")
     .attr("text-anchor", "middle")
     .attr("dominant-baseline", "middle")
     .attr("letter-spacing", "-2px")
@@ -301,7 +292,7 @@ function createPieChartTooltip(g: d3.Selection<SVGGElement, unknown, null, undef
     .style("font-size", "48px");
 
   g.append("text")
-    .attr("id", "pie-title" + id)
+    .attr("class", "pie-title")
     .attr("text-anchor", "middle")
     .attr("transform", `translate(0, 40)`)
     .style("opacity", 0)
