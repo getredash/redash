@@ -3,9 +3,9 @@ import textwrap
 from unittest import mock
 
 from redash.destinations.asana import Asana
+from redash.destinations.datadog import Datadog
 from redash.destinations.discord import Discord
 from redash.destinations.webex import Webex
-from redash.destinations.datadog import Datadog
 from redash.models import Alert, NotificationDestination
 from tests import BaseTestCase
 
