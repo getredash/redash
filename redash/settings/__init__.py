@@ -366,6 +366,7 @@ default_destinations = [
     "redash.destinations.microsoft_teams_webhook",
     "redash.destinations.asana",
     "redash.destinations.webex",
+    "redash.destinations.datadog",
 ]
 
 enabled_destinations = array_from_string(os.environ.get("REDASH_ENABLED_DESTINATIONS", ",".join(default_destinations)))
