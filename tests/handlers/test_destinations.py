@@ -286,6 +286,7 @@ def test_datadog_notify_calls_requests_post():
             "alert_type": "error",
             "priority": "normal",
             "source_type_name": "postgres",
+            "aggregation_key": "redash:https://localhost:5000/alerts/1",
             "tags": [
                 "foo:bar",
                 "zoo:baz",

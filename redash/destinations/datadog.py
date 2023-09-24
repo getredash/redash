@@ -63,6 +63,7 @@ class Datadog(BaseDestination):
             "alert_type": alert_type,
             "priority": options.get("priority"),
             "source_type_name": options.get("source_type_name"),
+            "aggregation_key": f"redash:{alert_url}",
             "tags": [],
         }
 
