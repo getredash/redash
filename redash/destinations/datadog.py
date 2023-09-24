@@ -83,7 +83,7 @@ class Datadog(BaseDestination):
         try:
             resp = requests.post(url, headers=headers, data=json_dumps(body), timeout=5.0)
             logging.warning(resp.text)
-            if resp.status_code != 200:
+            if resp.status_code != 202:
                 logging.error(f"Datadog send ERROR. status_code => {resp.status_code}")
         except Exception as e:
             logging.exception("Datadog send ERROR: %s", e)
