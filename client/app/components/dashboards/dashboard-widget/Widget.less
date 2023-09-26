@@ -213,6 +213,9 @@
           color: @gray-700;
         }
       }
+      p {
+        margin-bottom: 0px;
+      }
     }
 
     .query--description {
@@ -227,7 +230,7 @@
   }
 
   .t-header.widget {
-    padding: 24px 24px 10px 24px;
+    padding: 24px 24px 0px;
   }
 
   &:hover,
@@ -246,7 +249,10 @@
   }
 
   .tile__bottom-control {
-    padding: 10px 24px;
+    padding: 0px 24px;
+    position: absolute;
+    bottom: 0%;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
