@@ -34,7 +34,16 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Test SSH
+      - name: Login to remote server, pull new version and restart docker
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.A9E_REDASH_DOCKER_REPO }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "${{ secrets.A9E_REDASH_STAGING_PEM }}" > key.pem && chmod 600 key.pem
-          ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com ls
+          ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com <<EOL
+            cd /opt/redash
+            sudo docker image pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            sudo docker-compose down
+            sudo docker-compose up -d
+          EOL%
