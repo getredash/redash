@@ -221,7 +221,8 @@ class PostgreSQL(BaseSQLQueryRunner):
         AND a.attnum > 0
         AND NOT a.attisdropped
         WHERE c.relkind IN ('m', 'f', 'p')
-
+        AND has_schema_privilege(s.nspname, 'usage')
+        AND has_table_privilege(s.nspname || '.' || c.relname, 'select')
         UNION
 
         SELECT table_schema,
