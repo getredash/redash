@@ -1,0 +1,16 @@
+name: Build and Deploy to Staging
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Test SSH
+        run: |
+          echo ${{secrets.A9E_REDASH_STAGING_PEM}} | ssh -o StrictHostKeyChecking=no -i /dev/stdin ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com ls
+
+          
+    
