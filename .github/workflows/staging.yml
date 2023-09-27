@@ -10,7 +10,8 @@ jobs:
     steps:
       - name: Test SSH
         run: |
-          echo "${{secrets.A9E_REDASH_STAGING_PEM}}" | ssh -i /dev/stdin -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com ls
+          echo "${{secrets.A9E_REDASH_STAGING_PEM}}" > key.pem && chmod 600 key.pem
+          ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com ls
 
           
     
