@@ -29,9 +29,6 @@ jobs:
           ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com <<EOL
             cd /opt/redash
             sudo cp docker-compose.yml docker-compose.yml.copy
-            cat docker-compose.yml.copy
-            echo Original Image $img
-            echo Escaped Image $ESCAPED_IMG
             sudo sed -i "0,/\(image:\).*/s/\(image:\).*/\1 $ESCAPED_IMG/" docker-compose.yml.copy
-            cat docker-compose.yml.copy
+            docker image pull $img
           EOL
