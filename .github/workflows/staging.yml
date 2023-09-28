@@ -21,14 +21,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.A9E_REDASH_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.A9E_REDASH_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
       - name: Login to remote server, pull new version and restart docker
         run: |
-          img=${IMAGE}
-          ESCAPED_IMG=$(printf '%s\n' "$img" | sed -e 's/[\/&]/\\&/g')
+          IMG=${IMAGE}
+          ESCAPED_IMG=$(printf '%s\n' "$IMG" | sed -e 's/[\/&]/\\&/g')
+          echo $GITHUB_OUTPUT
+          ECR_USERNAME=${{ steps.login-ecr.outputs.docker_username_123456789012_dkr_ecr_aws_region_1_amazonaws_com }}
+          ECR_PASSWORD=${{ steps.login-ecr.outputs.docker_password_123456789012_dkr_ecr_aws_region_1_amazonaws_com }}
           echo "${{ secrets.A9E_REDASH_STAGING_PEM }}" > key.pem && chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com <<EOL
             cd /opt/redash
             sudo cp docker-compose.yml docker-compose.yml.copy
             sudo sed -i "0,/\(image:\).*/s/\(image:\).*/\1 $ESCAPED_IMG/" docker-compose.yml.copy
-            docker image pull $img
+            echo $ECR_PASSWORD | docker login --username $ECR_USERNAME --password-stdin $IMG
+            docker image pull $IMG
           EOL
