@@ -1128,7 +1128,12 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
-        return cls.query.filter(cls.slug == slug, cls.org == org).one()
+        pattern = "{}(_[0-9]+)?".format(slug)
+        return (
+            cls.query.filter(cls.slug.op("SIMILAR TO")(pattern), cls.org == org, cls.is_archived.is_(False))
+            .order_by(cls.id.desc())
+            .first()
+        )
 
     @hybrid_property
     def lowercase_name(self):

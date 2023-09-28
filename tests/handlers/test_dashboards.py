@@ -56,12 +56,15 @@ class TestDashboardResourceGet(BaseTestCase):
 
         self.assertResponseEqual(expected, actual)
 
-    def test_get_dashboard_with_slug(self):
+    def test_get_dashboard_with_id_slug(self):
         d1 = self.factory.create_dashboard()
+        d2 = self.factory.create_dashboard()
+        self.factory.create_dashboard(is_archived=True)
+        # Accessible as /dashboard/{slug}
         rv = self.make_request("get", "/api/dashboards/{0}?legacy".format(d1.slug))
         self.assertEqual(rv.status_code, 200)
 
-        expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
+        expected = serialize_dashboard(d2, with_widgets=True, with_favorite_state=False)
         actual = json_loads(rv.data)
 
         self.assertResponseEqual(expected, actual)
