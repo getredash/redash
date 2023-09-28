@@ -26,8 +26,5 @@ jobs:
           echo "${{ secrets.A9E_REDASH_STAGING_PEM }}" > key.pem && chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com <<EOL
             cd /opt/redash
-            cp docker-compose.yml docker-compose.yml.copy
-            cat docker-compose.yml.copy
-            sed -i '' "0,/\(image:\).*/s/\(image:\).*/\1 $img/" docker-compose.yml.copy
-            cat docker-compose.yml.copy
-          EOL%
+            sudo sed -i "1,/\(image:\).*/s/\(image:\).*/\1 $img/" docker-compose.yml
+          EOL
