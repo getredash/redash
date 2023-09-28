@@ -9,7 +9,7 @@ on:
         type: string
 
 env:
-  ECR_REPOSITORY: ${{ secrets.A9E_REDASH_DOCKER_REPO }}
+  ECR_REPOSITORY: 890143176237.dkr.ecr.us-east-1.amazonaws.com/adrsbl_redash
   IMAGE_TAG: ${{ inputs.version || github.ref_name }}
 
 jobs:
