@@ -9,7 +9,7 @@ on:
         type: string
 
 env:
-  ECR_REPOSITORY: 890143176237.dkr.ecr.us-east-1.amazonaws.com/adrsbl_redash
+  ECR_REPOSITORY: 890143176237.dkr.ecr.us-east-1.amazonaws.com/adrsbl-redash
   IMAGE_TAG: ${{ inputs.version || github.ref_name }}
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.A9E_REDASH_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.A9E_REDASH_AWS_SECRET_ACCESS_KEY }}
@@ -29,7 +29,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
+        uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
