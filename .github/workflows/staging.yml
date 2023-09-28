@@ -11,7 +11,6 @@ on:
 env:
   ECR_REPOSITORY: 890143176237.dkr.ecr.us-east-1.amazonaws.com/adrsbl-redash
   IMAGE_TAG: ${{ inputs.version || github.ref_name }}
-  IMAGE: 890143176237.dkr.ecr.us-east-1.amazonaws.com/adrsbl-redash:${{ inputs.version || github.ref_name }}
 
 jobs:
   build-and-deploy:
@@ -23,12 +22,14 @@ jobs:
 
       - name: Login to remote server, pull new version and restart docker
         run: |
-          img=${IMAGE}
+          img=890143176237.dkr.ecr.us-east-1.amazonaws.com/adrsbl-redash:v1.0.1
           echo "${{ secrets.A9E_REDASH_STAGING_PEM }}" > key.pem && chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com <<EOL
             cd /opt/redash
-            sudo cp docker-compose.yml.copy docker-compose.yml
+            sudo cp docker-compose.yml docker-compose.yml.copy
+            echo $img
             ESCAPED_IMG=$(printf '%s\n' "$img" | sed -e 's/[\/&]/\\&/g')
+            echo $ESCAPED_IMG
             sudo sed -i "0,/\(image:\).*/s/\(image:\).*/\1 $ESCAPED_IMG/" docker-compose.yml.copy
             cat docker-compose.yml.copy
           EOL
