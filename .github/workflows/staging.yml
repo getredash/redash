@@ -36,9 +36,7 @@ jobs:
         run: |
           # Build a docker container and push it to ECR so that it can be deployed to ECS.
           img="${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}"
-          echo $img
-          echo $img > a.txt
-          cat a.txt
+          cat ${{ steps.login-ecr.outputs.registry }}
           docker build --platform=linux/amd64 --build-arg skip_dev_deps=true -t $img .
           docker push $img
           echo "IMAGE=$img" >> $GITHUB_ENV
@@ -46,7 +44,6 @@ jobs:
       - name: Login to remote server, pull new version and restart docker
         run: |
           img=${IMAGE}
-          echo $img
           echo "${{ secrets.A9E_REDASH_STAGING_PEM }}" > key.pem && chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com <<EOL
             cd /opt/redash
