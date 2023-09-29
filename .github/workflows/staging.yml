@@ -36,9 +36,16 @@ jobs:
         run: |
           IMG=${IMAGE}
           ESCAPED_IMG=$(printf '%s\n' "$IMG" | sed -e 's/[\/&]/\\&/g')
-          echo $GITHUB_OUTPUT
-          ECR_USERNAME=${{ steps.login-ecr.outputs.docker_username_123456789012_dkr_ecr_aws_region_1_amazonaws_com }}
+
+          ECR_REPOSITORY_SPLIT_BY_SLASHES=($(echo $IMG | tr "\/" "\n"))
+          ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+
+          ECR_USERNAME=${{ steps.login-ecr.outputs.docker_username_890143176237.dkr.ecr.us-east-1.amazonaws.com }}
           ECR_PASSWORD=${{ steps.login-ecr.outputs.docker_password_123456789012_dkr_ecr_aws_region_1_amazonaws_com }}
+          ECR_PASSWORD2=${{ steps.login-ecr.outputs.docker_password_890143176237.dkr.ecr.us-east-1.amazonaws.com }}
+
+          echo reg:$ECR_URI user:$ECR_USERNAME password:$ECR_PASSWORD password2:$ECR_PASSWORD2
+
           echo "${{ secrets.A9E_REDASH_STAGING_PEM }}" > key.pem && chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com <<EOL
             cd /opt/redash
