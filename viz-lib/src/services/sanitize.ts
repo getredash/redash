@@ -14,7 +14,7 @@ DOMPurify.addHook("afterSanitizeAttributes", function(node) {
   if (isString(target) && target.toLowerCase() === "_blank") {
     node.setAttribute("rel", "noopener noreferrer");
   } else {
-    node.removeAttribute("target");
+    // node.removeAttribute("target");
   }
 });
 
