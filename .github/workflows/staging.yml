@@ -11,7 +11,6 @@ on:
 env:
   ECR_REPOSITORY: 890143176237.dkr.ecr.us-east-1.amazonaws.com/adrsbl-redash
   IMAGE_TAG: ${{ inputs.version || github.ref_name }}
-  IMAGE: 890143176237.dkr.ecr.us-east-1.amazonaws.com/adrsbl-redash:${{ inputs.version || github.ref_name }}
 
 jobs:
   build-and-deploy:
@@ -34,21 +33,24 @@ jobs:
         with:
           mask-password: 'false'
 
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        run: |
+          # Build a docker container and push it to ECR so that it can be deployed to ECS.
+          img="${ECR_REPOSITORY}:${IMAGE_TAG}"
+          docker build --platform=linux/amd64 --build-arg skip_dev_deps=true -t $img .
+          docker push $img
+          echo "IMAGE=$img" >> $GITHUB_ENV
+
       - name: Login to remote server, pull new version and restart docker
         run: |
           IMG=${IMAGE}
           ESCAPED_IMG=$(printf '%s\n' "$IMG" | sed -e 's/[\/&]/\\&/g')
 
-          ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
-          ESCAPED_REGISTRY=$(sed -e 's/[^a-zA-Z0-9]/_/g' <<<"$REGISTRY")
-          ECR_USERNAME=${{ steps.login-ecr.outputs.docker_username_890143176237_dkr_ecr_us_east_1_amazonaws_com }}
-          ECR_PASSWORD=${{ steps.login-ecr.outputs.docker_password_890143176237_dkr_ecr_us_east_1_amazonaws_com }}
-
           echo "${{ secrets.A9E_REDASH_STAGING_PEM }}" > key.pem && chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com <<EOL
             cd /opt/redash
             sudo sed -i "0,/\(image:\).*/s/\(image:\).*/\1 $ESCAPED_IMG/" docker-compose.yml
-            echo $ECR_PASSWORD | sudo docker login --username $ECR_USERNAME --password-stdin $ECR_REGISTRY
             sudo docker-compose down
             sudo docker image pull $IMG
             sudo docker-compose up -d
