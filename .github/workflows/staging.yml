@@ -30,7 +30,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v1.7.0
 
       - name: Login to remote server, pull new version and restart docker
         run: |
@@ -41,10 +41,13 @@ jobs:
           ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
 
           ECR_USERNAME=${{ steps.login-ecr.outputs.docker_username_890143176237.dkr.ecr.us-east-1.amazonaws.com }}
+          ECR_USERNAME2=${{ steps.login-ecr.outputs.docker_username }}
+          ECR_USERNAME3=${{ steps.login-ecr.outputs.docker_username_123456789012_dkr_ecr_aws_region_1_amazonaws_com }}
           ECR_PASSWORD=${{ steps.login-ecr.outputs.docker_password_123456789012_dkr_ecr_aws_region_1_amazonaws_com }}
           ECR_PASSWORD2=${{ steps.login-ecr.outputs.docker_password_890143176237.dkr.ecr.us-east-1.amazonaws.com }}
+          ECR_PASSWORD3=${{ steps.login-ecr.outputs.docker_password }}
 
-          echo reg:$ECR_URI user:$ECR_USERNAME password:$ECR_PASSWORD password2:$ECR_PASSWORD2
+          echo reg:$ECR_URI user:$ECR_USERNAME user2:$ECR_USERNAME2 user3:$ECR_USERNAME3 password:$ECR_PASSWORD password2:$ECR_PASSWORD2 password3:$ECR_PASSWORD3
 
           echo "${{ secrets.A9E_REDASH_STAGING_PEM }}" > key.pem && chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com <<EOL
