@@ -29,7 +29,9 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v1.7.0
+        with:
+          mask-password: 'false'
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
@@ -42,12 +44,14 @@ jobs:
 
       - name: Login to remote server, pull new version and restart docker
         run: |
-          img=${IMAGE}
+          IMG=${IMAGE}
+          ESCAPED_IMG=$(printf '%s\n' "$IMG" | sed -e 's/[\/&]/\\&/g')
+
           echo "${{ secrets.A9E_REDASH_STAGING_PEM }}" > key.pem && chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com <<EOL
             cd /opt/redash
-            sudo docker image pull $img
+            sudo docker image pull $IMG
             sudo docker-compose down
-            sed -i '' "1,/\(image:\).*/s/\(image:\).*/\1 $img/" docker-compose.yml
+            sudo sed -i "0,/\(image:\).*/s/\(image:\).*/\1 $ESCAPED_IMG/" docker-compose.yml
             sudo docker-compose up -d
-          EOL%
+          EOL
