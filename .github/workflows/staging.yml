@@ -40,14 +40,16 @@ jobs:
           ESCAPED_IMG=$(printf '%s\n' "$IMG" | sed -e 's/[\/&]/\\&/g')
 
           ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+          ESCAPED_REGISTRY=$(sed -e 's/[^a-zA-Z0-9]/_/g' <<<"$REGISTRY")
           ECR_USERNAME=${{ steps.login-ecr.outputs.docker_username_890143176237_dkr_ecr_us_east_1_amazonaws_com }}
           ECR_PASSWORD=${{ steps.login-ecr.outputs.docker_password_890143176237_dkr_ecr_us_east_1_amazonaws_com }}
 
           echo "${{ secrets.A9E_REDASH_STAGING_PEM }}" > key.pem && chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com <<EOL
             cd /opt/redash
-            sudo cp docker-compose.yml docker-compose.yml.copy
-            sudo sed -i "0,/\(image:\).*/s/\(image:\).*/\1 $ESCAPED_IMG/" docker-compose.yml.copy
+            sudo sed -i "0,/\(image:\).*/s/\(image:\).*/\1 $ESCAPED_IMG/" docker-compose.yml
             echo $ECR_PASSWORD | sudo docker login --username $ECR_USERNAME --password-stdin $ECR_REGISTRY
+            sudo docker-compose down
             sudo docker image pull $IMG
+            sudo docker-compose up -d
           EOL
