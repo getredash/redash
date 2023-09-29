@@ -31,29 +31,23 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1.7.0
+        with:
+          mask-password: 'false'
 
       - name: Login to remote server, pull new version and restart docker
         run: |
           IMG=${IMAGE}
           ESCAPED_IMG=$(printf '%s\n' "$IMG" | sed -e 's/[\/&]/\\&/g')
 
-          ECR_REPOSITORY_SPLIT_BY_SLASHES=($(echo $IMG | tr "\/" "\n"))
           ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
-
-          ECR_USERNAME=${{ steps.login-ecr.outputs.docker_username_890143176237.dkr.ecr.us-east-1.amazonaws.com }}
-          ECR_USERNAME2=${{ steps.login-ecr.outputs.docker_username }}
-          ECR_USERNAME3=${{ steps.login-ecr.outputs.docker_username_123456789012_dkr_ecr_aws_region_1_amazonaws_com }}
-          ECR_PASSWORD=${{ steps.login-ecr.outputs.docker_password_123456789012_dkr_ecr_aws_region_1_amazonaws_com }}
-          ECR_PASSWORD2=${{ steps.login-ecr.outputs.docker_password_890143176237.dkr.ecr.us-east-1.amazonaws.com }}
-          ECR_PASSWORD3=${{ steps.login-ecr.outputs.docker_password }}
-
-          echo reg:$ECR_URI user:$ECR_USERNAME user2:$ECR_USERNAME2 user3:$ECR_USERNAME3 password:$ECR_PASSWORD password2:$ECR_PASSWORD2 password3:$ECR_PASSWORD3
+          ECR_USERNAME=${{ steps.login-ecr.outputs.docker_username_890143176237_dkr_ecr_us_east_1_amazonaws_com }}
+          ECR_PASSWORD=${{ steps.login-ecr.outputs.docker_password_890143176237_dkr_ecr_us_east_1_amazonaws_com }}
 
           echo "${{ secrets.A9E_REDASH_STAGING_PEM }}" > key.pem && chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com <<EOL
             cd /opt/redash
             sudo cp docker-compose.yml docker-compose.yml.copy
             sudo sed -i "0,/\(image:\).*/s/\(image:\).*/\1 $ESCAPED_IMG/" docker-compose.yml.copy
-            echo $ECR_PASSWORD | docker login --username $ECR_USERNAME --password-stdin $IMG
-            docker image pull $IMG
+            echo $ECR_PASSWORD | sudo docker login --username $ECR_USERNAME --password-stdin $ECR_REGISTRY
+            sudo docker image pull $IMG
           EOL
