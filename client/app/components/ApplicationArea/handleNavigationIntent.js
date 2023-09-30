@@ -1,5 +1,5 @@
-import { isString } from "lodash";
-import navigateTo from "./navigateTo";
+import { isString } from "lodash"
+import navigateTo from "./navigateTo"
 
 export default function handleNavigationIntent(event) {
   let element = event.target;
@@ -25,5 +25,5 @@ export default function handleNavigationIntent(event) {
 
   event.preventDefault();
 
-  navigateTo(element.href);
+  navigateTo(element.href, false, target);
 }
