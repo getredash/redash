@@ -32,6 +32,37 @@
     }
   }
 
+  .widget-actions-addressable-counter {
+    display: flex;
+    position: absolute;
+    top: 5px;
+    right: 0;
+    z-index: 1;
+    color: @gray-500A;
+
+    .action {
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 100%;
+      display: block;
+      padding: 4px 10px 3px;
+
+      &:focus {
+        background-color: transparent;
+        color: @primary-500;
+      }
+
+      &:hover {
+        background-color: transparent;
+        color: @primary-300;
+      }
+
+      &:active {
+        filter: brightness(75%);
+      }
+    }
+  }
+
   .widget-header {
     .parameter-container {
       margin-inline: 24px;
