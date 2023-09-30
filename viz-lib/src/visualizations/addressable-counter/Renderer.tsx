@@ -26,13 +26,6 @@ function getCounterScale(container: any) {
   return Number(isFinite(scale) ? scale : 1).toFixed(2); // keep only two decimal places
 }
 
-const format = (num: string) => {
-  const re = /^(?<prefix>\D*)(?<value>\d+(\.\d+)?)(?<suffix>\D*)$/;
-  const { prefix, value, suffix } = re.exec(num)?.groups || {};
-
-  return (prefix || "") + formatNumber(Number((value ?? num).replace(/\,/g, ""))) + (suffix || "");
-};
-
 export default function Renderer({ data, options, visualizationName }: any) {
   const [scale, setScale] = useState("1.00");
   const [container, setContainer] = useState(null);
@@ -85,12 +78,12 @@ export default function Renderer({ data, options, visualizationName }: any) {
             <div
               className="counter-visualization-target"
               title={targetValue ? targetValueTooltip : counterValueTooltip}>
-              {format(targetValue ?? counterValue)}
+              {targetValue ?? counterValue}
             </div>
             {targetValue && (
               <div className="counter-visualization-value" title={counterValueTooltip}>
                 {showTrend ? (trendPositive ? "+" : "-") : ""}
-                {format(counterValue)}
+                {counterValue}
               </div>
             )}
           </div>

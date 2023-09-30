@@ -1,3 +1,4 @@
+import { formatNumber } from "@/services/formatNumber";
 import { isNumber, isFinite, toString } from "lodash";
 import numeral from "numeral";
 
@@ -54,7 +55,7 @@ function getRowNumber(index: any, rowsCount: any) {
 function formatValue(value: any, { stringPrefix, stringSuffix, stringDecimal, stringDecChar, stringThouSep }: any) {
   if (isNumber(value)) {
     value = numberFormat(value, stringDecimal, stringDecChar, stringThouSep);
-    return toString(stringPrefix) + value + toString(stringSuffix);
+    return toString(stringPrefix) + formatNumber(Number(value.replace(/\,/g, ""))) + toString(stringSuffix);
   }
   return toString(value);
 }
