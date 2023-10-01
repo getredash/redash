@@ -72,10 +72,31 @@ function prepareBoxSeries(series: any, options: any, { seriesColor }: any) {
 }
 
 function prepareHistogramSeries(series: any, options: any) {
+  function estimateBinCount(xValues: any) {
+    const start = xValues[0];
+    const end = xValues.slice(-1)[0];
+    if (!isNaN(start)) { // number axis
+      return (end - start) / options.binSize;
+    } else if (!isNaN(new Date(start).getTime())) { // date axis
+      return (Date.parse(end) - Date.parse(start)) / options.binSize;
+    } else { // category axis
+      return xValues.length / options.binSize;
+    }
+  }
+
   series.type = 'histogram';
   series.hoverinfo = 'x+y+name';
 
-  if (!isNil(options.binSize)) {
+  if (!isNil(options.binSize) && (options.binSize !== "")) {
+    // avoid hanging by limiting the number of bins
+    const binCount = estimateBinCount(series.x);
+    if (binCount > 10000) {
+      // throwing error results in visualization page to crash after leaving Editor
+      // so instead draw an empty plot
+      series.x = [];
+      series.y = [];
+    }
+
     series.autobinx = false;
     series.xbins = series.xbins || {};
     series.xbins.size = options.binSize;
