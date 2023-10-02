@@ -48,19 +48,12 @@ export default function Renderer({ data, options, visualizationName }: any) {
   }, [data, options, container]);
 
   const {
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'showTrend' does not exist on type '{}'.
     showTrend,
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'trendPositive' does not exist on type '{... Remove this comment to see the full error message
     trendPositive,
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
     counterValue,
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValueTooltip' does not exist on t... Remove this comment to see the full error message
     counterValueTooltip,
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
     targetValue,
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValueTooltip' does not exist on ty... Remove this comment to see the full error message
     targetValueTooltip,
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterLabel' does not exist on type '{}... Remove this comment to see the full error message
     counterLabel,
   } = getCounterData(data.rows, options, visualizationName);
 
@@ -77,11 +70,11 @@ export default function Renderer({ data, options, visualizationName }: any) {
           <div className="counter-visualization-value-wrap">
             <div
               className="counter-visualization-target"
-              title={targetValue ? targetValueTooltip : counterValueTooltip}>
+              title={(targetValue ? targetValueTooltip : counterValueTooltip) as string}>
               {targetValue ?? counterValue}
             </div>
             {targetValue && (
-              <div className="counter-visualization-value" title={counterValueTooltip}>
+              <div className="counter-visualization-value" title={counterValueTooltip as string}>
                 {showTrend ? (trendPositive ? "+" : "-") : ""}
                 {counterValue}
               </div>
