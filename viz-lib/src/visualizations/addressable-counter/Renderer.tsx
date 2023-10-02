@@ -1,5 +1,5 @@
 import { isFinite } from "lodash";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ReactNode } from "react";
 import cx from "classnames";
 import resizeObserver from "@/services/resizeObserver";
 import { RendererPropTypes } from "@/visualizations/prop-types";
@@ -71,16 +71,16 @@ export default function Renderer({ data, options, visualizationName }: any) {
             <div
               className="counter-visualization-target"
               title={(targetValue ? targetValueTooltip : counterValueTooltip) as string}>
-              {targetValue ?? counterValue}
+              {(targetValue ?? counterValue) as ReactNode}
             </div>
             {targetValue && (
               <div className="counter-visualization-value" title={counterValueTooltip as string}>
                 {showTrend ? (trendPositive ? "+" : "-") : ""}
-                {counterValue}
+                {counterValue as ReactNode}
               </div>
             )}
           </div>
-          <div className="counter-visualization-label">{counterLabel}</div>
+          <div className="counter-visualization-label">{counterLabel as ReactNode}</div>
         </div>
       </div>
     </div>
