@@ -417,4 +417,4 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
         return False
 
     def get_actual_user(self):
-        return repr(self) if self.is_api_user() else self.email
+        return repr(self)
