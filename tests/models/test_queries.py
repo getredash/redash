@@ -462,7 +462,7 @@ class TestQueryUpdateLatestResult(BaseTestCase):
     def test_updates_existing_queries(self):
         query1 = self.factory.create_query(query_text=self.query)
         query2 = self.factory.create_query(query_text=self.query)
-        query3 = self.factory.create_query(query_text=self.query)
+        query3 = self.factory.create_query(query_text=self.query, is_archived=True)
 
         query_result = QueryResult.store_result(
             self.data_source.org_id,
@@ -478,7 +478,7 @@ class TestQueryUpdateLatestResult(BaseTestCase):
 
         self.assertEqual(query1.latest_query_data, query_result)
         self.assertEqual(query2.latest_query_data, query_result)
-        self.assertEqual(query3.latest_query_data, query_result)
+        self.assertEqual(query3.latest_query_data, None)
 
     def test_doesnt_update_queries_with_different_hash(self):
         query1 = self.factory.create_query(query_text=self.query)
