@@ -1,6 +1,7 @@
 import json
-from unittest import TestCase
-from unittest.mock import Mock, patch
+
+import pytest
+import requests
 
 from redash.query_runner import TYPE_FLOAT, TYPE_STRING
 from redash.query_runner.yandex_metrica import YandexMetrica
@@ -11,7 +12,7 @@ date2: '2018-07-01'
 dimensions: 'ym:pv:month'
 metrics: 'ym:pv:pageviews'"""
 
-# пример реального возврата апи метрики
+# an example of a real API metric return
 example_response = {
     "query": {
         "ids": [1234567],
@@ -45,30 +46,37 @@ example_response = {
     "max": [1000.0],
 }
 
+expected_data = {
+    "columns": [
+        {"name": "ym:pv:month", "friendly_name": "month", "type": TYPE_STRING},
+        {"name": "ym:pv:pageviews", "friendly_name": "pageviews", "type": TYPE_FLOAT},
+    ],
+    "rows": [
+        {"ym:pv:month": "7", "ym:pv:pageviews": 1000.0},
+    ],
+}
 
-class TestYandexMetrica(TestCase):
-    @patch("requests.get")
-    def test_simple_query(self, get_request):
-        query_runner = YandexMetrica({"token": "example_token"})
 
-        response = Mock()
-        response.status_code = 200
-        response.text = json.dumps(example_response)
-        response.json.return_value = example_response
-        get_request.return_value = response
+@pytest.fixture
+def mock_yandex_response():
+    class MockResponse:
+        def __init__(self):
+            self.status_code = 200
+            self.text = json.dumps(example_response)
+            self.json = lambda *args, **kwargs: example_response
+            self.ok = True
 
-        data, error = query_runner.run_query(example_query, None)
+    return MockResponse()
 
-        self.assertIsNone(error)
-        self.assertEqual(
-            json.loads(data),
-            {
-                "columns": [
-                    {"name": "ym:pv:month", "friendly_name": "month", "type": TYPE_STRING},
-                    {"name": "ym:pv:pageviews", "friendly_name": "pageviews", "type": TYPE_FLOAT},
-                ],
-                "rows": [
-                    {"ym:pv:month": "7", "ym:pv:pageviews": 1000.0},
-                ],
-            },
-        )
+
+@pytest.fixture
+def mocked_requests_get(monkeypatch, mock_yandex_response):
+    monkeypatch.setattr(requests, "get", lambda *args, **kwargs: mock_yandex_response)
+
+
+def test_yandex_metrica_query(mocked_requests_get):
+    query_runner = YandexMetrica({"token": "example_token"})
+    data, error = query_runner.run_query(example_query, None)
+
+    assert error is None
+    assert json.loads(data) == expected_data
