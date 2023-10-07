@@ -56,22 +56,41 @@ expected_data = {
     ],
 }
 
+N_API_CALLS = 3
+
 
 @pytest.fixture
 def mock_yandex_response():
     class MockResponse:
-        def __init__(self):
-            self.status_code = 200
-            self.text = json.dumps(example_response)
-            self.json = lambda *args, **kwargs: example_response
-            self.ok = True
+        def __init__(self, status="passing"):
+            if status == "passing":
+                self.status_code = 200
+                self.text = json.dumps(example_response)
+                self.json = lambda *args, **kwargs: example_response
+                self.ok = True
+            elif status == "failing":
+                self.status_code = 429
+                self.text = json.dumps(example_response)
+                self.json = lambda *args, **kwargs: example_response
+                self.ok = False
 
-    return MockResponse()
+            # for mocking 429's
+            self.count = 0
+
+        def __call__(self, *args, **kwargs):
+            self.count += 1
+            if self.count == N_API_CALLS:
+                # return a failing response on N_API_CALLS
+                return MockResponse("failing")
+            # before/after we get to the Nth call, just return success
+            return self
+
+    return MockResponse("passing")
 
 
 @pytest.fixture
 def mocked_requests_get(monkeypatch, mock_yandex_response):
-    monkeypatch.setattr(requests, "get", lambda *args, **kwargs: mock_yandex_response)
+    monkeypatch.setattr(requests, "get", mock_yandex_response)
 
 
 def test_yandex_metrica_query(mocked_requests_get):
@@ -80,3 +99,12 @@ def test_yandex_metrica_query(mocked_requests_get):
 
     assert error is None
     assert json.loads(data) == expected_data
+
+
+def test_yandex_metrica_429(mocked_requests_get):
+    query_runner = YandexMetrica({"token": "example_token"})
+    # run 3 times in a row to simulate "too many requests"
+    for _ in range(N_API_CALLS):
+        data, error = query_runner.run_query(example_query, None)
+    # we expect to have called `requests.get` 1 more time than we call `run_query`
+    assert requests.get.count == N_API_CALLS + 1
