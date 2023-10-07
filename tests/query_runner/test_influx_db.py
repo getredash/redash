@@ -8,11 +8,7 @@ from redash.query_runner import (
     TYPE_INTEGER,
     TYPE_STRING,
 )
-
-from redash.query_runner.influx_db import (
-    InfluxDB,
-    _transform_result,
-)
+from redash.query_runner.influx_db import _transform_result
 
 raw = {
     "series": [
