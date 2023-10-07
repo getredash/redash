@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import React from 'react';
+import React from "react";
 import { find, flatten, each } from "lodash";
 import PropTypes from "prop-types";
 
@@ -20,6 +20,7 @@ import wordCloudVisualization from "./word-cloud";
 import addressableTableVisualization from "./addressable-table";
 import addressableCounterVisualization from "./addressable-counter";
 import addressablePieVisualization from "./addressable-pie";
+import addressableLineVisualization from "./addressable-line";
 
 type VisualizationConfig = {
   type: string;
@@ -98,40 +99,57 @@ each(
     addressableTableVisualization,
     addressableCounterVisualization,
     addressablePieVisualization,
+    addressableLineVisualization,
   ]),
   registerVisualization
 );
 
 export default registeredVisualizations;
 
-export function getDefaultVisualization () {
+export function getDefaultVisualization() {
   // return any visualization explicitly marked as default, or any non-deprecated otherwise
   return (
-    find(registeredVisualizations, visualization => visualization.isDefault) ??
-    find(registeredVisualizations, visualization => !visualization.isDeprecated)
+    find(registeredVisualizations, (visualization) => visualization.isDefault) ??
+    find(registeredVisualizations, (visualization) => !visualization.isDeprecated)
   );
 }
 
-export function getUnknownVisualization (type: string) : VisualizationConfig {
+export function getUnknownVisualization(type: string): VisualizationConfig {
   return {
     type: "unknown",
     name: "Unknown",
     Renderer: () => (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", height: "100%", fontSize: "1.25em" }}>
-        <span>Unknown visualization type: { type }</span>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+          height: "100%",
+          fontSize: "1.25em",
+        }}>
+        <span>Unknown visualization type: {type}</span>
       </div>
     ),
     Editor: () => (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", height: "100%", fontSize: "1.25em" }}>
-        <span>Unknown visualization type: { type }</span>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+          height: "100%",
+          fontSize: "1.25em",
+        }}>
+        <span>Unknown visualization type: {type}</span>
       </div>
     ),
-    getOptions: (options: any) => options
+    getOptions: (options: any) => options,
   };
 }
 
 export function newVisualization(type = null, options = {}) {
-  const visualization = type ? registeredVisualizations[type] : getDefaultVisualization() as any;
+  const visualization = type ? registeredVisualizations[type] : (getDefaultVisualization() as any);
   return {
     type: visualization.type,
     name: visualization.name,
