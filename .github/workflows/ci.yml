@@ -172,7 +172,7 @@ jobs:
       - frontend-unit-tests
       - frontend-e2e-tests
       - build-skip-check
-    if: ${{ needs.build-skip-check.outputs.skip == false}}
+    if: ${{ needs.build-skip-check.outputs.skip }} == false
     steps:
       - uses: actions/checkout@v3
         with:
