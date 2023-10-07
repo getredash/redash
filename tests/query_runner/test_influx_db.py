@@ -1,5 +1,4 @@
 import json
-from unittest import TestCase
 
 from influxdb.resultset import ResultSet
 
@@ -26,34 +25,34 @@ raw = {
 raw_no_rows = {"series": [{"name": "typetest", "columns": ["time", "k1", "v1", "v2"], "values": []}]}
 
 
-class TestTransformResult(TestCase):
-    def test_result(self):
-        result = ResultSet(raw)
-        transformed = _transform_result([result])
-        expected = {
-            "columns": [
-                {"name": "time", "type": TYPE_STRING},
-                {"name": "k1", "type": TYPE_STRING},
-                {"name": "v1", "type": TYPE_FLOAT},
-                {"name": "v2", "type": TYPE_INTEGER},
-            ],
-            "rows": [
-                {"k1": "foo", "time": "2023-10-06T13:30:51.323358136Z", "v1": 0.5, "v2": 2},
-                {"k1": "bar", "time": "2023-10-06T13:31:08.882953339Z", "v1": 0.6, "v2": 4},
-            ],
-        }
-        self.assertDictEqual(json.loads(transformed), expected)
+def test_result():
+    result = ResultSet(raw)
+    transformed = _transform_result([result])
+    expected = {
+        "columns": [
+            {"name": "time", "type": TYPE_STRING},
+            {"name": "k1", "type": TYPE_STRING},
+            {"name": "v1", "type": TYPE_FLOAT},
+            {"name": "v2", "type": TYPE_INTEGER},
+        ],
+        "rows": [
+            {"k1": "foo", "time": "2023-10-06T13:30:51.323358136Z", "v1": 0.5, "v2": 2},
+            {"k1": "bar", "time": "2023-10-06T13:31:08.882953339Z", "v1": 0.6, "v2": 4},
+        ],
+    }
+    assert json.loads(transformed) == expected
 
-    def test_no_rows_result(self):
-        result = ResultSet(raw_no_rows)
-        transformed = _transform_result([result])
-        expected = {
-            "columns": [
-                {"name": "time", "type": TYPE_STRING},
-                {"name": "k1", "type": TYPE_STRING},
-                {"name": "v1", "type": TYPE_STRING},
-                {"name": "v2", "type": TYPE_STRING},
-            ],
-            "rows": [],
-        }
-        self.assertDictEqual(json.loads(transformed), expected)
+
+def test_no_rows_result():
+    result = ResultSet(raw_no_rows)
+    transformed = _transform_result([result])
+    expected = {
+        "columns": [
+            {"name": "time", "type": TYPE_STRING},
+            {"name": "k1", "type": TYPE_STRING},
+            {"name": "v1", "type": TYPE_STRING},
+            {"name": "v2", "type": TYPE_STRING},
+        ],
+        "rows": [],
+    }
+    assert json.loads(transformed) == expected
