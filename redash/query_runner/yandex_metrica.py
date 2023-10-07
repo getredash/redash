@@ -140,7 +140,8 @@ class YandexMetrica(BaseSQLQueryRunner):
 
         if not r.ok:
             error_message = f"Code: {r.status_code}, message: {r.text}"
-            if response_data["code"] == 429:
+            if r.status_code == 429:
+                logger.warning("Warning: 429 status code on Yandex Metrica query")
                 raise QuotaException(error_message)
             raise Exception(error_message)
         return response_data
