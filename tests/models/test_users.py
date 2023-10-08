@@ -1,5 +1,5 @@
 from redash import redis_connection
-from redash.models import User, db
+from redash.models import ApiUser, User, db
 from redash.models.users import LAST_ACTIVE_KEY, sync_last_active_at
 from redash.utils import dt_from_timestamp
 from tests import BaseTestCase, authenticated_user
@@ -103,3 +103,16 @@ class TestUserDetail(BaseTestCase):
             user_reloaded = User.query.filter(User.id == user.id).first()
             self.assertIn("active_at", user_reloaded.details)
             self.assertEqual(user_reloaded.active_at, timestamp)
+
+
+class TestUserGetActualUser(BaseTestCase):
+    def test_default_user(self):
+        user_email = "test@example.com"
+        user = self.factory.create_user(email=user_email)
+        self.assertEqual(user.get_actual_user(), user_email)
+
+    def test_api_user(self):
+        user_email = "test@example.com"
+        user = self.factory.create_user(email=user_email)
+        api_user = ApiUser(user.api_key, user.org, user.group_ids)
+        self.assertEqual(api_user.get_actual_user(), repr(api_user))

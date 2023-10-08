@@ -5,8 +5,7 @@ import time
 from functools import reduce
 from operator import or_
 
-from flask import current_app as app
-from flask import request_started, url_for
+from flask import current_app, request_started, url_for
 from flask_login import AnonymousUserMixin, UserMixin, current_user
 from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy.dialects import postgresql
@@ -129,7 +128,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     def to_dict(self, with_api_key=False):
         profile_image_url = self.profile_image_url
         if self.is_disabled:
-            assets = app.extensions["webpack"]["assets"] or {}
+            assets = current_app.extensions["webpack"]["assets"] or {}
             path = "images/avatar.svg"
             profile_image_url = url_for("static", filename=assets.get(path, path))
 
@@ -158,7 +157,8 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
         return d
 
-    def is_api_user(self):
+    @staticmethod
+    def is_api_user():
         return False
 
     @property
@@ -377,7 +377,8 @@ class AnonymousUser(AnonymousUserMixin, PermissionsCheckMixin):
     def permissions(self):
         return []
 
-    def is_api_user(self):
+    @staticmethod
+    def is_api_user():
         return False
 
 
@@ -397,7 +398,8 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
     def __repr__(self):
         return "<{}>".format(self.name)
 
-    def is_api_user(self):
+    @staticmethod
+    def is_api_user():
         return True
 
     @property
@@ -410,5 +412,9 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
     def permissions(self):
         return ["view_query"]
 
-    def has_access(self, obj, access_type):
+    @staticmethod
+    def has_access(obj, access_type):
         return False
+
+    def get_actual_user(self):
+        return repr(self)
