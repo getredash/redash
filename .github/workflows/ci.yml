@@ -35,15 +35,15 @@ jobs:
       - name: Build Docker Images
         run: |
           set -x
-          docker-compose build --build-arg install_groups="main,all_ds,dev" --build-arg skip_frontend_build=true
-          docker-compose up -d
+          docker compose build --build-arg install_groups="main,all_ds,dev" --build-arg skip_frontend_build=true
+          docker compose up -d
           sleep 10
       - name: Create Test Database
-        run: docker-compose -p redash run --rm postgres psql -h postgres -U postgres -c "create database tests;"
+        run: docker compose -p redash run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - name: List Enabled Query Runners
-        run: docker-compose -p redash run --rm redash manage ds list_types
+        run: docker compose -p redash run --rm redash manage ds list_types
       - name: Run Tests
-        run: docker-compose -p redash run --name tests redash tests --junitxml=junit.xml --cov-report=xml --cov=redash --cov-config=.coveragerc tests/
+        run: docker compose -p redash run --name tests redash tests --junitxml=junit.xml --cov-report=xml --cov=redash --cov-config=.coveragerc tests/
       - name: Copy Test Results
         run: |
           mkdir -p /tmp/test-results/unit-tests
@@ -137,12 +137,12 @@ jobs:
           set -x
           yarn cypress build
           yarn cypress start -- --skip-db-seed
-          docker-compose run cypress yarn cypress db-seed
+          docker compose run cypress yarn cypress db-seed
       - name: Execute Cypress Tests
         run: yarn cypress run-ci
       - name: "Failure: output container logs to console"
         if: failure()
-        run: docker-compose logs
+        run: docker compose logs
       - name: Copy Code Coverage Results
         run: docker cp cypress:/usr/src/app/coverage ./coverage || true
       - name: Store Coverage Results
@@ -234,4 +234,4 @@ jobs:
 
       - name: "Failure: output container logs to console"
         if: failure()
-        run: docker-compose logs
+        run: docker compose logs
