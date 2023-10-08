@@ -25,7 +25,7 @@ raw = {
 raw_no_rows = {"series": [{"name": "typetest", "columns": ["time", "k1", "v1", "v2"], "values": []}]}
 
 
-def test_result():
+def test_influxdb_result_types_with_rows():
     result = ResultSet(raw)
     transformed = _transform_result([result])
     expected = {
@@ -43,7 +43,7 @@ def test_result():
     assert json.loads(transformed) == expected
 
 
-def test_no_rows_result():
+def test_influxdb_result_types_with_no_rows_are_string():
     result = ResultSet(raw_no_rows)
     transformed = _transform_result([result])
     expected = {
