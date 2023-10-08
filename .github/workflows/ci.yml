@@ -159,9 +159,18 @@ jobs:
       - name: Skip?
         id: skip-check
         run: |
-          if [[ "${{ vars.DOCKER_USER }}" == '' ]] || [[ "${{ secrets.DOCKER_PASS }}" == '' ]]; then
+          if [[ "${{ vars.DOCKER_USER }}" == '' ]]; then
+            echo 'Docker user is empty. Skipping build+push'
+            echo skip=true >> "$GITHUB_OUTPUT"
+          elif [[ "${{ secrets.DOCKER_PASS }}" == '' ]]; then
+            echo 'Docker password is empty. Skipping build+push'
+            echo skip=true >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref_name }}" != 'master' ]]; then
+            echo 'Ref name is not `master`. Skipping build+push'
             echo skip=true >> "$GITHUB_OUTPUT"
           else
+            echo 'Docker user and password are set and branch is `master`.'
+            echo 'Building + pushing `preview` image.'
             echo skip=false >> "$GITHUB_OUTPUT"
           fi
 
@@ -172,7 +181,7 @@ jobs:
       - frontend-unit-tests
       - frontend-e2e-tests
       - build-skip-check
-    if: ${{ needs.build-skip-check.outputs.skip }} == false
+    if: needs.build-skip-check.outputs.skip == 'false'
     steps:
       - uses: actions/checkout@v3
         with:
