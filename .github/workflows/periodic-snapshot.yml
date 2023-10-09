@@ -12,7 +12,7 @@ jobs:
   bump-version-and-tag:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: |
           date="$(date +%y.%m).0-dev"
           gawk -i inplace -F: -v q=\" -v tag=$date '/^  "version": / { print $1 FS, q tag q ","; next} { print }' package.json
@@ -22,6 +22,5 @@ jobs:
           git config user.email github-actions@github.com
           git add package.json redash/__init__.py pyproject.toml
           git commit -m "Snapshot: ${date}"
-          git push origin
           git tag $date
-          git push origin $date
+          git push --atomic origin master refs/tags/$date
