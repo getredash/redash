@@ -14,8 +14,8 @@ export default function FormatSettings({ options, data, onOptionsChange }: any) 
           layout="horizontal"
           label="Formatting Decimal Place"
           data-test="Counter.Formatting.DecimalPlace"
-          defaultValue={options.stringDecimal}
-          disabled={!inputsEnabled}
+          defaultValue={2}
+          disabled={true}
           onChange={(stringDecimal: any) => onOptionsChange({ stringDecimal })}
         />
       </Section>
@@ -23,16 +23,16 @@ export default function FormatSettings({ options, data, onOptionsChange }: any) 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
+          disabled={true}
           layout="horizontal"
           label="Formatting Decimal Character"
           data-test="Counter.Formatting.DecimalCharacter"
           defaultValue={options.stringDecChar}
-          disabled={!inputsEnabled}
           onChange={(e: any) => onOptionsChange({ stringDecChar: e.target.value })}
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
       <Section>
         <Input
           layout="horizontal"
@@ -42,7 +42,7 @@ export default function FormatSettings({ options, data, onOptionsChange }: any) 
           disabled={!inputsEnabled}
           onChange={(e: any) => onOptionsChange({ stringThouSep: e.target.value })}
         />
-      </Section>
+      </Section> */}
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
@@ -68,7 +68,7 @@ export default function FormatSettings({ options, data, onOptionsChange }: any) 
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
+      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
       <Section>
         <Switch
           data-test="Counter.Formatting.FormatTargetValue"
@@ -76,7 +76,7 @@ export default function FormatSettings({ options, data, onOptionsChange }: any) 
           onChange={(formatTargetValue: any) => onOptionsChange({ formatTargetValue })}>
           Format Target Value
         </Switch>
-      </Section>
+      </Section> */}
     </React.Fragment>
   );
 }

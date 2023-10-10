@@ -3,9 +3,10 @@
 .addressable-counter-visualization-container {
   display: block;
   text-align: center;
-  padding: 15px 24px;
+  padding: 15px 0px;
   overflow: hidden;
   position: relative;
+  height: 100%;
 
   .counter-visualization-content {
     margin: 0;
@@ -19,30 +20,32 @@
     justify-content: center;
     color: @gray-400;
     font-weight: 400;
+    height: 100%;
 
     .counter-visualization-value-wrap {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 4px;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .counter-visualization-target {
       font-size: 20px;
-      line-height: 20px;
+      line-height: 24px;
       font-weight: 400;
       display: block;
-      color: #596284;
+      color: @gray-400;
+      text-transform: uppercase;
     }
 
     .counter-visualization-value,
     .counter-visualization-label {
       font-size: 11px;
       line-height: 16px;
-      font-weight: 400;
+      font-weight: 300;
       display: block;
-      color: #596284;
+      color: @gray-700;
     }
   }
 
@@ -52,5 +55,9 @@
 
   &.trend-negative .counter-visualization-value {
     color: #d9534f;
+  }
+
+  .counter-visualization-content > div {
+    transform: unset !important;
   }
 }

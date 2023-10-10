@@ -1,5 +1,5 @@
 import { isFinite } from "lodash";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ReactNode } from "react";
 import cx from "classnames";
 import resizeObserver from "@/services/resizeObserver";
 import { RendererPropTypes } from "@/visualizations/prop-types";
@@ -8,8 +8,8 @@ import { getCounterData } from "./utils";
 
 import "./render.less";
 
-import { formatNumber } from '@/services/formatNumber';
-import NotEnoughData from '@/components/NotEnoughData';
+import { formatNumber } from "@/services/formatNumber";
+import NotEnoughData from "@/components/NotEnoughData";
 
 function getCounterStyles(scale: any) {
   return {
@@ -25,8 +25,6 @@ function getCounterScale(container: any) {
   const scale = Math.min(container.offsetWidth / inner.offsetWidth, container.offsetHeight / inner.offsetHeight);
   return Number(isFinite(scale) ? scale : 1).toFixed(2); // keep only two decimal places
 }
-
-const format = (num: string) => formatNumber(Number(num.replace(/\,/g,'')));
 
 export default function Renderer({ data, options, visualizationName }: any) {
   const [scale, setScale] = useState("1.00");
@@ -50,24 +48,16 @@ export default function Renderer({ data, options, visualizationName }: any) {
   }, [data, options, container]);
 
   const {
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'showTrend' does not exist on type '{}'.
     showTrend,
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'trendPositive' does not exist on type '{... Remove this comment to see the full error message
     trendPositive,
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
     counterValue,
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValueTooltip' does not exist on t... Remove this comment to see the full error message
     counterValueTooltip,
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
     targetValue,
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValueTooltip' does not exist on ty... Remove this comment to see the full error message
     targetValueTooltip,
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterLabel' does not exist on type '{}... Remove this comment to see the full error message
     counterLabel,
   } = getCounterData(data.rows, options, visualizationName);
 
-  if(data?.rows?.length === 0 || !data?.rows ) return <NotEnoughData />
-
+  if (data?.rows?.length === 0 || !data?.rows) return <NotEnoughData />;
   return (
     <div
       className={cx("addressable-counter-visualization-container", {
@@ -78,17 +68,19 @@ export default function Renderer({ data, options, visualizationName }: any) {
       <div className="counter-visualization-content" ref={setContainer}>
         <div style={getCounterStyles(scale)}>
           <div className="counter-visualization-value-wrap">
-            <div className="counter-visualization-target" title={targetValue ? targetValueTooltip : counterValueTooltip}>
-              {format(targetValue ?? counterValue)}
+            <div
+              className="counter-visualization-target"
+              title={(targetValue ? targetValueTooltip : counterValueTooltip) as string}>
+              {(targetValue ?? counterValue) as ReactNode}
             </div>
             {targetValue && (
-              <div className="counter-visualization-value" title={counterValueTooltip}>
-                {showTrend ? trendPositive ? '+' : '-' : ''}
-                {format(counterValue)}
+              <div className="counter-visualization-value" title={counterValueTooltip as string}>
+                {showTrend ? (trendPositive ? "+" : "-") : ""}
+                {counterValue as ReactNode}
               </div>
             )}
           </div>
-          <div className="counter-visualization-label">{counterLabel}</div>
+          <div className="counter-visualization-label">{counterLabel as ReactNode}</div>
         </div>
       </div>
     </div>

@@ -122,7 +122,9 @@ function SafePieChart({ data }: { data: Datum[] }) {
 
     const colorDomain = data.map(({ x }) => x);
 
-    const colorScale = d3.scaleOrdinal<string>()
+    // @ts-ignore
+    const colorScale = d3.scale
+      .ordinal()
       .domain(colorDomain)
       .range(colors);
 
@@ -145,10 +147,12 @@ function SafePieChart({ data }: { data: Datum[] }) {
 
   return (
     <div className="chart-container">
-      <div style={{
+      <div
+        style={{
           // @ts-ignore
-          flexGrow: "1"
-        }} ref={containerRef}>
+          flexGrow: "1",
+        }}
+        ref={containerRef}>
         <svg ref={ref} width="100%" height="100%"></svg>
       </div>
       <div className="legend-container">
@@ -204,7 +208,6 @@ function createPieChart(
       return d.startAngle - SEGMENTS_GROW;
     })
     .cornerRadius(CORNER_RADIUS);
-
   const pieData = createPieData(data);
 
   const arc = g
@@ -239,12 +242,12 @@ function createPieChart(
       const dataItem = data.find(d => d.x === x);
 
       if (dataItem) {
-        d3.select("#pie-value")
+        g.select(".pie-value")
           .text(formatNumber(dataItem.y))
           .transition()
           .duration(300)
           .style("opacity", 1);
-        d3.select("#pie-title")
+        g.select(".pie-title")
           .text(d.data.x)
           .transition()
           .duration(300)
@@ -263,11 +266,11 @@ function createPieChart(
 
           return current ? interpolatePath(previous, current) : null;
         });
-      d3.select("#pie-value")
+      g.select(".pie-value")
         .transition()
         .duration(300)
         .style("opacity", 0);
-      d3.select("#pie-title")
+      g.select(".pie-title")
         .transition()
         .duration(300)
         .style("opacity", 0);
@@ -278,7 +281,7 @@ function createPieChart(
 
 function createPieChartTooltip(g: d3.Selection<SVGGElement, unknown, null, undefined>) {
   g.append("text")
-    .attr("id", "pie-value")
+    .attr("class", "pie-value")
     .attr("text-anchor", "middle")
     .attr("dominant-baseline", "middle")
     .attr("letter-spacing", "-2px")
@@ -289,7 +292,7 @@ function createPieChartTooltip(g: d3.Selection<SVGGElement, unknown, null, undef
     .style("font-size", "48px");
 
   g.append("text")
-    .attr("id", "pie-title")
+    .attr("class", "pie-title")
     .attr("text-anchor", "middle")
     .attr("transform", `translate(0, 40)`)
     .style("opacity", 0)

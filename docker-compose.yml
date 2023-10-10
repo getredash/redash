@@ -2,6 +2,7 @@
 # For a production example please refer to getredash/setup repository on GitHub.
 version: "2.2"
 x-redash-service: &redash-service
+  image: redash:4.56
   build:
     context: .
     args:

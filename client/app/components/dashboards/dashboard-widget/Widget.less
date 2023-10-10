@@ -32,6 +32,37 @@
     }
   }
 
+  .widget-actions-addressable-counter {
+    display: flex;
+    position: absolute;
+    top: 5px;
+    right: 0;
+    z-index: 1;
+    color: @gray-500A;
+
+    .action {
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 100%;
+      display: block;
+      padding: 4px 10px 3px;
+
+      &:focus {
+        background-color: transparent;
+        color: @primary-500;
+      }
+
+      &:hover {
+        background-color: transparent;
+        color: @primary-300;
+      }
+
+      &:active {
+        filter: brightness(75%);
+      }
+    }
+  }
+
   .widget-header {
     .parameter-container {
       margin-inline: 24px;
@@ -213,6 +244,9 @@
           color: @gray-700;
         }
       }
+      p {
+        margin-bottom: 0px;
+      }
     }
 
     .query--description {
@@ -227,7 +261,7 @@
   }
 
   .t-header.widget {
-    padding: 24px 24px 10px 24px;
+    padding: 24px 24px 0px;
   }
 
   &:hover,
@@ -246,7 +280,10 @@
   }
 
   .tile__bottom-control {
-    padding: 10px 24px;
+    padding: 0px 24px;
+    position: absolute;
+    bottom: 0%;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;

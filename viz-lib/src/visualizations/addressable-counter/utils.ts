@@ -1,3 +1,4 @@
+import { formatNumber } from "@/services/formatNumber";
 import { isNumber, isFinite, toString } from "lodash";
 import numeral from "numeral";
 
@@ -53,8 +54,10 @@ function getRowNumber(index: any, rowsCount: any) {
 
 function formatValue(value: any, { stringPrefix, stringSuffix, stringDecimal, stringDecChar, stringThouSep }: any) {
   if (isNumber(value)) {
-    value = numberFormat(value, stringDecimal, stringDecChar, stringThouSep);
-    return toString(stringPrefix) + value + toString(stringSuffix);
+    // console.log("a", value);
+    // value = numberFormat(value, stringDecimal, stringDecChar, stringThouSep);
+    // console.log("b", value);
+    return toString(stringPrefix) + formatNumber(Number(value.toString().replace(/\,/g, ""))) + toString(stringSuffix);
   }
   return toString(value);
 }
@@ -67,62 +70,47 @@ function formatTooltip(value: any, formatString: any) {
 }
 
 export function getCounterData(rows: any, options: any, visualizationName: any) {
-  const result = {};
+  const result = {} as Record<string, unknown>;
   const rowsCount = rows.length;
 
   if (rowsCount > 0 || options.countRow) {
     const counterColName = options.counterColName;
     const targetColName = options.targetColName;
 
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterLabel' does not exist on type '{}... Remove this comment to see the full error message
     result.counterLabel = options.counterLabel || visualizationName;
 
     if (options.countRow) {
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
       result.counterValue = rowsCount;
     } else if (counterColName) {
       const rowNumber = getRowNumber(options.rowNumber, rowsCount);
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
       result.counterValue = rows[rowNumber][counterColName];
     }
 
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'showTrend' does not exist on type '{}'.
     result.showTrend = false;
 
     if (targetColName) {
       const targetRowNumber = getRowNumber(options.targetRowNumber, rowsCount);
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
       result.targetValue = rows[targetRowNumber][targetColName];
-
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
       if (Number.isFinite(result.counterValue) && isFinite(result.targetValue)) {
-        // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
-        const delta = result.counterValue - result.targetValue;
-        // @ts-expect-error ts-migrate(2339) FIXME: Property 'showTrend' does not exist on type '{}'.
+        const delta = Number(result.counterValue) - Number(result.targetValue);
         result.showTrend = true;
-        // @ts-expect-error ts-migrate(2339) FIXME: Property 'trendPositive' does not exist on type '{... Remove this comment to see the full error message
         result.trendPositive = delta >= 0;
       }
     } else {
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
       result.targetValue = null;
     }
 
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValueTooltip' does not exist on t... Remove this comment to see the full error message
     result.counterValueTooltip = formatTooltip(result.counterValue, options.tooltipFormat);
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValueTooltip' does not exist on ty... Remove this comment to see the full error message
     result.targetValueTooltip = formatTooltip(result.targetValue, options.tooltipFormat);
 
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
+    console.log("before", result.counterValue);
     result.counterValue = formatValue(result.counterValue, options);
+    console.log("after", result.counterValue);
 
     if (options.formatTargetValue) {
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
       result.targetValue = formatValue(result.targetValue, options);
     } else {
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
       if (isFinite(result.targetValue)) {
-        // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
         result.targetValue = numeral(result.targetValue).format("0[.]00[0]");
       }
     }

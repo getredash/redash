@@ -160,22 +160,27 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
     <>
       <span>
         {!isPublic && !!widgetQueryResult && (
-          <PlainButton
-            className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
-            onClick={() => refreshWidget(1)}
-            data-test="RefreshButton">
-            <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 1 })} aria-hidden="true" />
-            <span className="sr-only">
-              {refreshClickButtonId === 1 ? "Refreshing, please wait. " : "Press to refresh. "}
-            </span>{" "}
-            <TimeAgo date={updatedAt} />
-          </PlainButton>
+          <span className="btn__refresh">
+            <PlainButton
+              className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
+              onClick={() => refreshWidget(1)}
+              data-test="RefreshButton">
+              <i
+                className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 1 })}
+                aria-hidden="true"
+              />
+              <span className="sr-only">
+                {refreshClickButtonId === 1 ? "Refreshing, please wait. " : "Press to refresh. "}
+              </span>{" "}
+              <TimeAgo date={updatedAt} />
+            </PlainButton>
+          </span>
         )}
         <span className="visible-print">
           <i className="zmdi zmdi-time-restore" aria-hidden="true" /> {formatDateTime(updatedAt)}
         </span>
         {isPublic && (
-          <span className="small hidden-print">
+          <span className="small hidden-print btn__refresh">
             <i className="zmdi zmdi-time-restore" aria-hidden="true" /> <TimeAgo date={updatedAt} />
           </span>
         )}
@@ -367,14 +372,18 @@ class VisualizationWidget extends React.Component {
           onParametersEdit: this.editParameterMappings,
         })}
         header={
-          <VisualizationWidgetHeader
-            widget={widget}
-            refreshStartedAt={isRefreshing ? widget.refreshStartedAt : null}
-            parameters={localParameters}
-            isEditing={isEditing}
-            onParametersUpdate={onRefresh}
-            onParametersEdit={onParametersEdit}
-          />
+          widget.visualization.name || widget.visualization.description ? (
+            <VisualizationWidgetHeader
+              widget={widget}
+              refreshStartedAt={isRefreshing ? widget.refreshStartedAt : null}
+              parameters={localParameters}
+              isEditing={isEditing}
+              onParametersUpdate={onRefresh}
+              onParametersEdit={onParametersEdit}
+            />
+          ) : (
+            undefined
+          )
         }
         footer={
           <VisualizationWidgetFooter

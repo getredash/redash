@@ -34,14 +34,13 @@ const isDevelopment = !isProduction;
 const isHotReloadingEnabled =
   isDevelopment && process.env.HOT_RELOAD === "true";
 
-const redashBackend = process.env.REDASH_BACKEND || "http://127.0.0.1:5001";
+const redashBackend = process.env.REDASH_BACKEND || "http://127.0.0.1:5010";
 const baseHref = CONFIG.baseHref || "/";
 const staticPath = CONFIG.staticPath || "/static/";
 const htmlTitle = CONFIG.title || "Redash";
 
 const basePath = path.join(__dirname, "client");
 const appPath = path.join(__dirname, "client", "app");
-
 const extensionsRelativePath =
   process.env.EXTENSIONS_DIRECTORY || path.join("client", "app", "extensions");
 const extensionPath = path.join(__dirname, extensionsRelativePath);

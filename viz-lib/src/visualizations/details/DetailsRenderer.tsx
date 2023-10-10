@@ -7,7 +7,7 @@ import Descriptions from "antd/lib/descriptions";
 import Pagination from "antd/lib/pagination";
 
 import "./details.less";
-import NotEnoughData from '@/components/NotEnoughData';
+import NotEnoughData from "@/components/NotEnoughData";
 
 function renderValue(value: any, type: any) {
   const formats = {

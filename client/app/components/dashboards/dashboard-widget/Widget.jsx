@@ -109,12 +109,17 @@ class Widget extends React.Component {
   };
 
   render() {
-    const { className, children, header, footer, canEdit, isPublic, menuOptions, tileProps } = this.props;
+    const { className, children, header, footer, canEdit, isPublic, menuOptions, tileProps, widget } = this.props;
     const showDropdownButton = !isPublic && (canEdit || !isEmpty(menuOptions));
     return (
       <div className="widget-wrapper">
         <div className={cx("tile body-container", className)} {...tileProps}>
-          <div className="widget-actions">
+          <div
+            className={
+              widget.visualization?.type === "ADDRESSABLE COUNTER"
+                ? "widget-actions-addressable-counter"
+                : "widget-actions"
+            }>
             {showDropdownButton && (
               <WidgetDropdownButton
                 extraOptions={menuOptions}
@@ -124,9 +129,18 @@ class Widget extends React.Component {
             )}
             {canEdit && <WidgetDeleteButton onClick={this.deleteWidget} />}
           </div>
-          <div className="body-row widget-header">{header}</div>
-          <div className='widget-main'>{children}</div>
-          {footer && <div className="body-row tile__bottom-control">{footer}</div>}
+          {widget?.visualization?.type !== "ADDRESSABLE COUNTER" && (
+            <div className="body-row widget-header">{header}</div>
+          )}
+          <div
+            className={
+              widget.visualization?.type === "ADDRESSABLE COUNTER" ? "widget-main-addressable-counter " : "widget-main"
+            }>
+            {children}
+          </div>
+          {footer && widget.visualization?.type !== "ADDRESSABLE COUNTER" && (
+            <div className="body-row tile__bottom-control">{footer}</div>
+          )}
         </div>
       </div>
     );

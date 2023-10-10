@@ -1,0 +1,57 @@
+name: Build and Deploy to Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'version to build for'
+        required: true
+        type: string
+
+env:
+  ECR_REPOSITORY: 890143176237.dkr.ecr.us-east-1.amazonaws.com/adrsbl-redash
+  IMAGE_TAG: ${{ inputs.version || github.ref_name }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.A9E_REDASH_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.A9E_REDASH_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1.7.0
+        with:
+          mask-password: 'false'
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        run: |
+          # Build a docker container and push it to ECR so that it can be deployed to ECS.
+          img="${ECR_REPOSITORY}:${IMAGE_TAG}"
+          docker build --platform=linux/amd64 --build-arg skip_dev_deps=true -t $img .
+          docker push $img
+          echo "IMAGE=$img" >> $GITHUB_ENV
+
+      - name: Login to remote server, pull new version and restart docker
+        run: |
+          IMG=${IMAGE}
+          ESCAPED_IMG=$(printf '%s\n' "$IMG" | sed -e 's/[\/&]/\\&/g')
+
+          echo "${{ secrets.A9E_REDASH_STAGING_PEM }}" > key.pem && chmod 600 key.pem
+          ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-50-16-85-10.compute-1.amazonaws.com <<EOL
+            cd /opt/redash
+            sudo docker image pull $IMG
+            sudo docker-compose down
+            sudo sed -i "0,/\(image:\).*/s/\(image:\).*/\1 $ESCAPED_IMG/" docker-compose.yml
+            sudo docker-compose up -d
+          EOL

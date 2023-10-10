@@ -1,4 +1,5 @@
 @import (reference, less) "~@/assets/less/ant";
+@import (reference, less) "~@/assets/less/inc/variables";
 
 .parameter-block {
   display: inline-block;
@@ -32,12 +33,16 @@
   padding-bottom: 4px;
 
   label {
-    margin-bottom: 1px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    color: @gray-500A;
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 100%;
     max-width: 195px;
     white-space: nowrap;
+    margin-bottom: 0px;
 
     .parameter-block[data-editable] & {
       min-width: calc(100% - 27px); // make room for settings button
