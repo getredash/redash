@@ -148,7 +148,6 @@ class TestMongoResults(TestCase):
         rows, columns = parse_results(raw_results)
 
         self.assertDictEqual(rows[0], {"column": 1, "column2": "test", "nested.a": 1, "nested.b": "str"})
-        
         self.assertDictEqual(
             rows[1],
             {
