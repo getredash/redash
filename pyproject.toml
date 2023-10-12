@@ -12,7 +12,7 @@ force-exclude = '''
 
 [tool.poetry]
 name = "redash"
-version = "23.09.0-dev"
+version = "23.10.0-dev"
 description = "Make Your Company Data Driven. Connect to any data source, easily visualize, dashboard and share your data."
 authors = ["Arik Fraimovich <arik@redash.io>"]
 # to be added to/removed from the mailing list, please reach out to Arik via the above email or Discord
@@ -79,7 +79,7 @@ statsd = "3.3.0"
 supervisor = "4.1.0"
 supervisor-checks = "0.8.1"
 ua-parser = "0.18.0"
-urllib3 = "1.26.16"
+urllib3 = "1.26.17"
 user-agents = "2.0"
 werkzeug = "2.3.6"
 wtforms = "2.2.1"

@@ -35,15 +35,15 @@ jobs:
       - name: Build Docker Images
         run: |
           set -x
-          docker-compose build --build-arg install_groups="main,all_ds,dev" --build-arg skip_frontend_build=true
-          docker-compose up -d
+          docker compose build --build-arg install_groups="main,all_ds,dev" --build-arg skip_frontend_build=true
+          docker compose up -d
           sleep 10
       - name: Create Test Database
-        run: docker-compose -p redash run --rm postgres psql -h postgres -U postgres -c "create database tests;"
+        run: docker compose -p redash run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - name: List Enabled Query Runners
-        run: docker-compose -p redash run --rm redash manage ds list_types
+        run: docker compose -p redash run --rm redash manage ds list_types
       - name: Run Tests
-        run: docker-compose -p redash run --name tests redash tests --junitxml=junit.xml --cov-report=xml --cov=redash --cov-config=.coveragerc tests/
+        run: docker compose -p redash run --name tests redash tests --junitxml=junit.xml --cov-report=xml --cov=redash --cov-config=.coveragerc tests/
       - name: Copy Test Results
         run: |
           mkdir -p /tmp/test-results/unit-tests
@@ -137,12 +137,12 @@ jobs:
           set -x
           yarn cypress build
           yarn cypress start -- --skip-db-seed
-          docker-compose run cypress yarn cypress db-seed
+          docker compose run cypress yarn cypress db-seed
       - name: Execute Cypress Tests
         run: yarn cypress run-ci
       - name: "Failure: output container logs to console"
         if: failure()
-        run: docker-compose logs
+        run: docker compose logs
       - name: Copy Code Coverage Results
         run: docker cp cypress:/usr/src/app/coverage ./coverage || true
       - name: Store Coverage Results
@@ -159,9 +159,18 @@ jobs:
       - name: Skip?
         id: skip-check
         run: |
-          if [[ "${{ vars.DOCKER_USER }}" == '' ]] || [[ "${{ secrets.DOCKER_PASS }}" == '' ]]; then
+          if [[ "${{ vars.DOCKER_USER }}" == '' ]]; then
+            echo 'Docker user is empty. Skipping build+push'
+            echo skip=true >> "$GITHUB_OUTPUT"
+          elif [[ "${{ secrets.DOCKER_PASS }}" == '' ]]; then
+            echo 'Docker password is empty. Skipping build+push'
+            echo skip=true >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref_name }}" != 'master' ]]; then
+            echo 'Ref name is not `master`. Skipping build+push'
             echo skip=true >> "$GITHUB_OUTPUT"
           else
+            echo 'Docker user and password are set and branch is `master`.'
+            echo 'Building + pushing `preview` image.'
             echo skip=false >> "$GITHUB_OUTPUT"
           fi
 
@@ -172,7 +181,7 @@ jobs:
       - frontend-unit-tests
       - frontend-e2e-tests
       - build-skip-check
-    if: ${{ needs.build-skip-check.outputs.skip == false}}
+    if: needs.build-skip-check.outputs.skip == 'false'
     steps:
       - uses: actions/checkout@v3
         with:
@@ -225,4 +234,4 @@ jobs:
 
       - name: "Failure: output container logs to console"
         if: failure()
-        run: docker-compose logs
+        run: docker compose logs
