@@ -264,7 +264,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     @property
     def uses_ssh_tunnel(self):
-        return "ssh_tunnel" in self.options
+        return self.options and "ssh_tunnel" in self.options
 
     @property
     def query_runner(self):
