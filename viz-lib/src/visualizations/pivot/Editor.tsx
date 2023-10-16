@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { merge } from "lodash";
 import React from "react";
 import { Section, Switch } from "@/components/visualizations/editor";

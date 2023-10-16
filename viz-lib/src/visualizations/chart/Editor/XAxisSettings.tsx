@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import React from "react";
 import { Section, Switch } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";

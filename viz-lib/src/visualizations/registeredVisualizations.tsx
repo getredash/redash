@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import React from 'react';
 import { find, flatten, each } from "lodash";
 import PropTypes from "prop-types";
@@ -118,7 +116,7 @@ export default registeredVisualizations;
 export function getDefaultVisualization () {
   // return any visualization explicitly marked as default, or any non-deprecated otherwise
   return (
-    find(registeredVisualizations, visualization => visualization.isDefault) ??
+    find(registeredVisualizations, visualization => visualization.isDefault ?? false) ??
     find(registeredVisualizations, visualization => !visualization.isDeprecated)
   );
 }

@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 /*!
  * React port of Cornelius library (based on v0.1 released under the MIT license)
  * Original library: http://restorando.github.io/cornelius

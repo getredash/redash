@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { isFunction, wrap } from "lodash";
 import React, { useRef, useState } from "react";
 import cx from "classnames";

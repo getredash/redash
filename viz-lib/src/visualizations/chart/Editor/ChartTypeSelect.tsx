@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { filter, includes, map } from "lodash";
 import React, { useMemo } from "react";
 import { Select } from "@/components/visualizations/editor";

@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 /* eslint-disable react/prop-types */
 
 import { isFinite, isString, isArray, isObject, keys, map } from "lodash";

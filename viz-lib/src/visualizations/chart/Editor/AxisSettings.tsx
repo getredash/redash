@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { isString, isObject, isFinite, isNumber, merge } from "lodash";
 import React from "react";
 import { useDebouncedCallback } from "use-debounce";

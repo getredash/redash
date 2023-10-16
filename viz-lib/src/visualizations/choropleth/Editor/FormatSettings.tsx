@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { map } from "lodash";
 import React, { useMemo } from "react";
 import { useDebouncedCallback } from "use-debounce";

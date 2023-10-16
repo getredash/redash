@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useRef, useState, MouseEvent } from "react";
 import * as d3 from "d3";
 import useSize from "@react-hook/size";
@@ -9,7 +8,6 @@ import { Moment } from "moment";
 
 import "./Renderer.less";
 
-import ChartPin from "./ChartPin";
 import Cross from "./Cross";
 
 interface Datum {
@@ -62,7 +60,7 @@ function SeriesLineChart({ data, columns }: any) {
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [tooltipData, setTooltipData] = useState<TooltipData>({
     date: "n/a",
-    values: [{ contract: "n/a", y: "0", color: "#FF0000" }],
+    values: [{ contract: "n/a", y: 0, color: "#FF0000" } as any],
   });
 
   const [selectedOptions, setSelectedOptions] = useState([{ value: "primary", label: "primary" }]);
@@ -188,13 +186,13 @@ function SeriesLineChart({ data, columns }: any) {
 }
 
 function createScales(width: number, height: number, sampleData: any) {
-  const xExtent = d3.extent(sampleData, d => d.x);
+  const xExtent = d3.extent(sampleData, (d: any) => d.x) as any;
   const xScale = d3
     .scaleTime()
     .domain(xExtent)
     .range([0, width - AXIS_Y_LEFT_MARGIN]);
 
-  const yExtent = d3.extent(sampleData, d => d.y);
+  const yExtent = d3.extent(sampleData, (d: any) => d.y) as any;
   const yScale = d3
     .scaleLinear()
     .domain([0, yExtent[1]])
@@ -285,7 +283,7 @@ function createSeriesLineChart(
       return yScale(d.y);
     });
 
-  selectedColumns.forEach((columnName, i) => {
+  selectedColumns.forEach((columnName: any, i: any) => {
     if (columnName === "primary") {
       chartArea
         .append("path")
@@ -401,17 +399,17 @@ function createSeriesLineChartCursor(
 
     const closestIndex = d3.leastIndex(
       sampleData,
-      (a, b) => getDistanceFromHoveredDate(a) - getDistanceFromHoveredDate(b)
+      (a: any, b: any) => getDistanceFromHoveredDate(a) - getDistanceFromHoveredDate(b)
     );
 
     if (!closestIndex) return;
 
     const closestDataPoint = sampleData[closestIndex];
-    const closestXValue = xAccessor(closestDataPoint);
+    const closestXValue = xAccessor(closestDataPoint) as any;
 
     xAxisLine.attr("x", xScale(closestXValue));
 
-    columns.forEach(function(column, i) {
+    columns.forEach(function(column: any, i: any) {
       tooltipCircles[i]
         .attr("x", xScale(closestXValue))
         .attr("y", yScale(data[column].data[closestIndex].y))
@@ -419,7 +417,7 @@ function createSeriesLineChartCursor(
     });
 
     const tooltipX = xScale(closestXValue) - parseInt(tooltip.style("width"), 10) / 2;
-    const tooltipValues = columns.map((column, i) => ({
+    const tooltipValues = columns.map((column: any, i: any) => ({
       contract: column,
       y: formatNumber(data[column].data[closestIndex].y),
       color: data[column].data[closestIndex].contract === "primary" ? PRIMARY_COLOR : colors[i],
@@ -436,6 +434,6 @@ function createSeriesLineChartCursor(
   function onMouseLeave() {
     xAxisLine.style("opacity", 0);
     tooltip.style("opacity", 0);
-    tooltipCircles.forEach(d => d.style("opacity", 0));
+    tooltipCircles.forEach((d: any) => d.style("opacity", 0));
   }
 }

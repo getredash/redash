@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { map } from "lodash";
 import React from "react";
 import { Section, Select, Input, InputNumber, Switch } from "@/components/visualizations/editor";

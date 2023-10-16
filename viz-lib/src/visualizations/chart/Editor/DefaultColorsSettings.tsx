@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { map } from "lodash";
 import React, { useMemo, useCallback } from "react";
 import Table from "antd/lib/table";

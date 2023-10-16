@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { isFunction, map, filter, extend, merge } from "lodash";
 import React from "react";
 import Tabs from "antd/lib/tabs";

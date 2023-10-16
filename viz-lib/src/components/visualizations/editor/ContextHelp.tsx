@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import React from "react";
 import Popover from "antd/lib/popover";
 import QuestionCircleFilledIcon from "@ant-design/icons/QuestionCircleFilled";
