@@ -58,35 +58,6 @@ function createGradient(ctx: any, area: ChartArea, variant?: HorizontalBarChartV
 
 export default function Renderer({ data, options }: any) {
   const page = 0;
-  //   if (error || loading) {
-  //     return (
-  //       <Container>
-  //         <div className="flex-y w-full gap-1.5">
-  //           {[25, 90, 33, 33, 13, 18, 65, 60, 25, 63].map((d, i) => (
-  //             <div key={i} className="flex w-full justify-start gap-16">
-  //               <div className="flex gap-3 items-center shrink-0">
-  //                 {skeletonPictures ? (
-  //                   <Skeleton circle containerClassName="h-[30px] w-[30px] flex items-center" width={30} height={30} />
-  //                 ) : (
-  //                   ""
-  //                 )}
-  //                 <Skeleton containerClassName="h-[30px] flex items-center" width={75} height={4} />
-  //               </div>
-  //               <Skeleton containerClassName="w-full flex items-center" width={`${d}%`} height={24} />
-  //             </div>
-  //           ))}
-  //           <div className="flex mt-4">
-  //             <div className={`${skeletonPictures ? "w-48" : "w-36"} shrink-0`}></div>
-  //             <div className="flex w-full justify-between">
-  //               {[...Array(5)].map((_, i) => (
-  //                 <Skeleton key={i} containerClassName="flex items-center" width={40} height={4} />
-  //               ))}
-  //             </div>
-  //           </div>
-  //         </div>
-  //       </Container>
-  //     );
-  //   }
 
   const dataPage = data.rows.slice(PER_PAGE * page, PER_PAGE * (page + 1));
 

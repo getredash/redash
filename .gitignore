@@ -28,4 +28,4 @@ npm-debug.log
 client/cypress/screenshots
 client/cypress/videos
 
-yarn-error.log
+yarn-error.log*

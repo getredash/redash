@@ -157,7 +157,7 @@ function Chart({ data, labels }: { data: number[]; labels: string[] }) {
     <div className="single-line-chart-container">
       <ReactChart
         ref={chartRef}
-        className="w-full h-full max-h-[370px]"
+        style={{ width: '100%', height: '100%', maxHeight: '370px' }}
         options={{
           interaction: {
             mode: 'index',
@@ -220,19 +220,6 @@ function Chart({ data, labels }: { data: number[]; labels: string[] }) {
 }
 
 export default function Renderer({ options, data }: any) {
-  // if (loading || error || !labels?.length || !data?.length) {
-  //   return (
-  //     <Container>
-  //       <ChartSkeleton />
-  //       <div className="flex w-full justify-between">
-  //         {[...Array(9)].map((_, i) => (
-  //           <Skeleton key={i} containerClassName="flex items-center" width={40} height={4} />
-  //         ))}
-  //       </div>
-  //     </Container>
-  //   );
-  // }
-
   const values = data.rows.map((i: any) => i.value);
   const labels = data.rows.map((i: any) => i.label?.toISOString());
 

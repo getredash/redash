@@ -1,5 +1,3 @@
-import "./global.css";
-
 export * from "./visualizations";
 export * from "./visualizations/visualizationsSettings";
 export { VisualizationType } from "./visualizations/prop-types";
