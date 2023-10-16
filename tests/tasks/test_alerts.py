@@ -12,7 +12,7 @@ class TestCheckAlertsForQuery(BaseTestCase):
         Alert.evaluate = MagicMock(return_value=Alert.TRIGGERED_STATE)
 
         alert = self.factory.create_alert()
-        check_alerts_for_query(alert.query_id)
+        check_alerts_for_query(alert.query_id, metadata={"Scheduled": False})
 
         self.assertTrue(redash.tasks.alerts.notify_subscriptions.called)
 
@@ -21,7 +21,7 @@ class TestCheckAlertsForQuery(BaseTestCase):
         Alert.evaluate = MagicMock(return_value=Alert.OK_STATE)
 
         alert = self.factory.create_alert()
-        check_alerts_for_query(alert.query_id)
+        check_alerts_for_query(alert.query_id, metadata={"Scheduled": False})
 
         self.assertFalse(redash.tasks.alerts.notify_subscriptions.called)
 
@@ -30,7 +30,7 @@ class TestCheckAlertsForQuery(BaseTestCase):
         Alert.evaluate = MagicMock(return_value=Alert.TRIGGERED_STATE)
 
         alert = self.factory.create_alert(options={"muted": True})
-        check_alerts_for_query(alert.query_id)
+        check_alerts_for_query(alert.query_id, metadata={"Scheduled": False})
 
         self.assertFalse(redash.tasks.alerts.notify_subscriptions.called)
 
@@ -39,12 +39,13 @@ class TestNotifySubscriptions(BaseTestCase):
     def test_calls_notify_for_subscribers(self):
         subscription = self.factory.create_alert_subscription()
         subscription.notify = MagicMock()
-        notify_subscriptions(subscription.alert, Alert.OK_STATE)
+        notify_subscriptions(subscription.alert, Alert.OK_STATE, metadata={"Scheduled": False})
         subscription.notify.assert_called_with(
             subscription.alert,
             subscription.alert.query_rel,
             subscription.user,
             Alert.OK_STATE,
+            ANY,
             ANY,
             ANY,
         )

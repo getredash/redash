@@ -1,6 +1,8 @@
+import hashlib
 import logging
 import re
 import sqlite3
+from urllib.parse import parse_qs
 
 from redash import models
 from redash.permissions import has_access, view_only
@@ -22,6 +24,10 @@ class PermissionError(Exception):
 
 class CreateTableError(Exception):
     pass
+
+
+def extract_query_params(query):
+    return re.findall(r"(?:join|from)\s+param_query_(\d+)_{([^}]+)}", query, re.IGNORECASE)
 
 
 def extract_query_ids(query):
@@ -48,7 +54,14 @@ def _load_query(user, query_id):
     return query
 
 
-def get_query_results(user, query_id, bring_from_cache):
+def replace_query_parameters(query_text, params):
+    qs = parse_qs(params)
+    for key, value in qs.items():
+        query_text = query_text.replace("{{{{{my_key}}}}}".format(my_key=key), value[0])
+    return query_text
+
+
+def get_query_results(user, query_id, bring_from_cache, params=None):
     query = _load_query(user, query_id)
     if bring_from_cache:
         if query.latest_query_data_id is not None:
@@ -56,7 +69,11 @@ def get_query_results(user, query_id, bring_from_cache):
         else:
             raise Exception("No cached result available for query {}.".format(query.id))
     else:
-        results, error = query.data_source.query_runner.run_query(query.query_text, user)
+        query_text = query.query_text
+        if params is not None:
+            query_text = replace_query_parameters(query_text, params)
+
+        results, error = query.data_source.query_runner.run_query(query_text, user)
         if error:
             raise Exception("Failed loading results for query id {}.".format(query.id))
         else:
@@ -65,10 +82,16 @@ def get_query_results(user, query_id, bring_from_cache):
     return results
 
 
-def create_tables_from_query_ids(user, connection, query_ids, cached_query_ids=[]):
+def create_tables_from_query_ids(user, connection, query_ids, query_params, cached_query_ids=[]):
     for query_id in set(cached_query_ids):
         results = get_query_results(user, query_id, True)
         table_name = "cached_query_{query_id}".format(query_id=query_id)
+        create_table(connection, table_name, results)
+
+    for query in set(query_params):
+        results = get_query_results(user, query[0], False, query[1])
+        table_hash = hashlib.md5("query_{query}_{hash}".format(query=query[0], hash=query[1]).encode()).hexdigest()
+        table_name = "query_{query_id}_{param_hash}".format(query_id=query[0], param_hash=table_hash)
         create_table(connection, table_name, results)
 
     for query_id in set(query_ids):
@@ -113,6 +136,15 @@ def create_table(connection, table_name, query_results):
         connection.execute(insert_template, values)
 
 
+def prepare_parameterized_query(query, query_params):
+    for params in query_params:
+        table_hash = hashlib.md5("query_{query}_{hash}".format(query=params[0], hash=params[1]).encode()).hexdigest()
+        key = "param_query_{query_id}_{{{param_string}}}".format(query_id=params[0], param_string=params[1])
+        value = "query_{query_id}_{param_hash}".format(query_id=params[0], param_hash=table_hash)
+        query = query.replace(key, value)
+    return query
+
+
 class Results(BaseQueryRunner):
     should_annotate_query = False
     noop_query = "SELECT 1"
@@ -129,10 +161,16 @@ class Results(BaseQueryRunner):
         connection = sqlite3.connect(":memory:")
 
         query_ids = extract_query_ids(query)
+
+        query_params = extract_query_params(query)
+
         cached_query_ids = extract_cached_query_ids(query)
-        create_tables_from_query_ids(user, connection, query_ids, cached_query_ids)
+        create_tables_from_query_ids(user, connection, query_ids, query_params, cached_query_ids)
 
         cursor = connection.cursor()
+
+        if query_params is not None:
+            query = prepare_parameterized_query(query, query_params)
 
         try:
             cursor.execute(query)
