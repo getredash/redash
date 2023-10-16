@@ -18,13 +18,6 @@ import wordCloudVisualization from "./word-cloud";
 import addressableTableVisualization from "./addressable-table";
 import addressableCounterVisualization from "./addressable-counter";
 
-import verticalBarChartVisualization from "./custom/vertical-bar-chart";
-import horizontalBarChartVisualization from "./custom/horizontal-bar-chart";
-import pieChartVisualization from "./custom/pie-chart";
-import listVisualization from "./custom/list";
-import multiLineChartVisualization from "./custom/multi-line-chart";
-import singleLineChartVisualization from "./custom/single-line-chart";
-
 type VisualizationConfig = {
   type: string;
   name: string;
@@ -99,12 +92,6 @@ each(
     sunburstVisualization,
     tableVisualization,
     wordCloudVisualization,
-    verticalBarChartVisualization,
-    horizontalBarChartVisualization,
-    pieChartVisualization,
-    listVisualization,
-    multiLineChartVisualization,
-    singleLineChartVisualization,
     addressableTableVisualization,
     addressableCounterVisualization,
   ]),

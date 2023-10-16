@@ -96,9 +96,9 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
 
 export default function preparePieData(seriesList: any, options: any) {
   // we will use this to assign colors for values that have no explicitly set color
-  const getDefaultColor = d3.scaleBand()
+  const getDefaultColor = d3.scaleOrdinal()
     .domain([])
-    .range(ColorPaletteArray as any);
+    .range(ColorPaletteArray);
   const valuesColors = {};
   each(options.valuesOptions, (item, key) => {
     if (isString(item.color) && item.color !== "") {
