@@ -17,11 +17,11 @@ function getCounterStyles(scale: any) {
 function getCounterScale(container: any) {
   // size of font in base container
   // children use a relative font size (em)
-  if (container.closest('.visualization-preview')) {
+  if (container.closest('.visualization-preview') || container.closest('.ant-tabs-tabpane')) {
     return "60";
   }
   const fontSize = container.clientHeight / 4.5;
-  return fontSize > 60 ? "60" : fontSize < 12 ? "12" : fontSize.toFixed();
+  return fontSize > 60 ? "60" : fontSize < 14 ? "14" : fontSize.toFixed();
 }
 
 export default function Renderer({ data, options, visualizationName }: any) {
