@@ -20,7 +20,7 @@ function getCounterScale(container: any) {
   if (container.closest('.visualization-preview') || container.closest('.ant-tabs-tabpane')) {
     return "60";
   }
-  const fontSize = 12 + container.clientHeight / 5;
+  const fontSize = 12 + (container.clientHeight / window.devicePixelRatio / 5);
   return fontSize > 60 ? "60" : fontSize.toFixed();
 }
 
