@@ -85,6 +85,7 @@ user-agents = "2.0"
 werkzeug = "2.3.6"
 wtforms = "2.2.1"
 xlsxwriter = "1.2.2"
+tzlocal = "4.3.1"
 
 [tool.poetry.group.all_ds]
 optional = true
@@ -118,7 +119,6 @@ pyathena = ">=1.5.0,<=1.11.5"
 pydgraph = "2.0.2"
 pydruid = "0.5.7"
 pyexasol = "0.12.0"
-pygridgain = "1.4.0"
 pyhive = "0.6.1"
 pyignite = "0.6.1"
 pymongo = { version = "4.3.3", extras = ["srv", "tls"] }
