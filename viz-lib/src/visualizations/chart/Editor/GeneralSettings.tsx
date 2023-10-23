@@ -3,6 +3,8 @@ import React, { useMemo } from "react";
 import { Section, Select, Checkbox, InputNumber, ContextHelp, Input } from "@/components/visualizations/editor";
 import { UpdateOptionsStrategy } from "@/components/visualizations/editor/createTabbedEditor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
+import * as Grid from "antd/lib/grid";
+import { cleanNumber } from "../plotly/utils";
 
 import ChartTypeSelect from "./ChartTypeSelect";
 import ColumnMappingSelect from "./ColumnMappingSelect";
@@ -343,6 +345,43 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         </Section>
       )}
 
+      {includes(["heatmap"], options.globalSeriesType) && (
+        <React.Fragment>
+          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
+          <Section>
+            <InputNumber
+              label="Brick Spacing"
+              data-test="Chart.HeatmapSpacing"
+              defaultValue={options.heatmapSpacing}
+              onChange={(value: any) => onOptionsChange({ heatmapSpacing: toNumber(value) })}
+            />
+          </Section>
+          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
+          <Section>
+            {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: Element[]; gutter: number; type:... Remove this comment to see the full error message */}
+            <Grid.Row gutter={15} type="flex" align="middle">
+              <Grid.Col span={12}>
+                <InputNumber
+                  label="Color Column Min Value"
+                  placeholder="Auto"
+                  data-test="Chart.RangeZMin"
+                  defaultValue={cleanNumber(options.rangeZMin)}
+                  onChange={(value: any) => onOptionsChange({ rangeZMin: toNumber(value) })}
+                />
+              </Grid.Col>
+              <Grid.Col span={12}>
+                <InputNumber
+                  label="Color Column Max Value"
+                  placeholder="Auto"
+                  data-test="Chart.RangeZMax"
+                  defaultValue={cleanNumber(options.rangeZMax)}
+                  onChange={(value: any) => onOptionsChange({ rangeZMax: toNumber(value) })}
+                />
+              </Grid.Col>
+            </Grid.Row>
+          </Section>
+        </React.Fragment>
+      )}
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox

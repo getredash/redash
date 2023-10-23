@@ -31,7 +31,11 @@
         "colorscale": [
           [ 0, "rgb(0,0,255)" ],
           [ 1, "rgb(255,0,0)" ]
-        ]
+        ],
+        "zmin": false,
+        "zmax": false,
+        "xgap": 0,
+        "ygap": 0
       }
     ]
   }

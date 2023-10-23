@@ -29,7 +29,11 @@
         "colorscale": [
           [ 0, "rgb(0,0,0)" ],
           [ 1, "rgb(255,255,255)" ]
-        ]
+        ],
+        "zmin": false,
+        "zmax": false,
+        "xgap": 0,
+        "ygap": 0
       },
       {
         "x": [12, 11, 12, 11],
