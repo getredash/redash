@@ -10,17 +10,18 @@ import "./render.less";
 
 function getCounterStyles(scale: any) {
   return {
-    msTransform: `scale(${scale})`,
-    MozTransform: `scale(${scale})`,
-    WebkitTransform: `scale(${scale})`,
-    transform: `scale(${scale})`,
+    fontSize: `${scale}px`,
   };
 }
 
 function getCounterScale(container: any) {
-  const inner = container.firstChild;
-  const scale = Math.min(container.offsetWidth / inner.offsetWidth, container.offsetHeight / inner.offsetHeight);
-  return Number(isFinite(scale) ? scale : 1).toFixed(2); // keep only two decimal places
+  // scale font using power(0.5)
+  let fontSize = 6 + (2 * Math.sqrt(container.clientHeight));
+  // decrease font size if target value is displayed
+  if (container.children.length == 3) {
+    fontSize = fontSize * 0.7;
+  }
+  return fontSize.toFixed();
 }
 
 export default function Renderer({ data, options, visualizationName }: any) {
@@ -65,20 +66,19 @@ export default function Renderer({ data, options, visualizationName }: any) {
       className={cx("counter-visualization-container", {
         "trend-positive": showTrend && trendPositive,
         "trend-negative": showTrend && !trendPositive,
-      })}>
+      })}
+      style={getCounterStyles(scale)}>
       {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<null>>' is not assig... Remove this comment to see the full error message */}
       <div className="counter-visualization-content" ref={setContainer}>
-        <div style={getCounterStyles(scale)}>
-          <div className="counter-visualization-value" title={counterValueTooltip}>
-            {counterValue}
-          </div>
-          {targetValue && (
-            <div className="counter-visualization-target" title={targetValueTooltip}>
-              ({targetValue})
-            </div>
-          )}
-          <div className="counter-visualization-label">{counterLabel}</div>
+        <div className="counter-visualization-value" title={counterValueTooltip}>
+          {counterValue}
         </div>
+        {targetValue && (
+          <div className="counter-visualization-target" title={targetValueTooltip}>
+            ({targetValue})
+          </div>
+        )}
+        <div className="counter-visualization-label">{counterLabel}</div>
       </div>
     </div>
   );
