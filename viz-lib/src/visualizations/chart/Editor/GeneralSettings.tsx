@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { Section, Select, Checkbox, InputNumber, ContextHelp, Input } from "@/components/visualizations/editor";
 import { UpdateOptionsStrategy } from "@/components/visualizations/editor/createTabbedEditor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
-import * as Grid from "antd/lib/grid";
+import { Col, Row } from "antd/lib/grid";
 import { cleanNumber } from "../plotly/utils";
 
 import ChartTypeSelect from "./ChartTypeSelect";
@@ -359,8 +359,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Section>
             {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: Element[]; gutter: number; type:... Remove this comment to see the full error message */}
-            <Grid.Row gutter={15} type="flex" align="middle">
-              <Grid.Col span={12}>
+            <Row gutter={15} type="flex" align="middle">
+              <Col span={12}>
                 <InputNumber
                   label="Color Column Min Value"
                   placeholder="Auto"
@@ -368,8 +368,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
                   defaultValue={cleanNumber(options.rangeZMin)}
                   onChange={(value: any) => onOptionsChange({ rangeZMin: toNumber(value) })}
                 />
-              </Grid.Col>
-              <Grid.Col span={12}>
+              </Col>
+              <Col span={12}>
                 <InputNumber
                   label="Color Column Max Value"
                   placeholder="Auto"
@@ -377,8 +377,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
                   defaultValue={cleanNumber(options.rangeZMax)}
                   onChange={(value: any) => onOptionsChange({ rangeZMax: toNumber(value) })}
                 />
-              </Grid.Col>
-            </Grid.Row>
+              </Col>
+            </Row>
           </Section>
         </React.Fragment>
       )}
