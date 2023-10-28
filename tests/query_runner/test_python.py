@@ -20,19 +20,44 @@ class TestPythonQueryRunner(TestCase):
     def test_empty_result(self):
         query_string = "result={}"
         result = self.python.run_query(query_string, "user")
-        self.assertEqual(result[0], '{"log": []}')
+        self.assertEqual(result[0], None)
 
-    def test_invalidate_result_type_string(self):
+    def test_none_result(self):
+        query_string = "result=None"
+        result = self.python.run_query(query_string, "user")
+        self.assertEqual(result[0], None)
+
+    def test_invalid_result_type_string(self):
         query_string = "result='string'"
         result = self.python.run_query(query_string, "user")
         self.assertEqual(result[0], None)
 
-    def test_invalidate_result_type_int(self):
+    def test_invalid_result_type_int(self):
         query_string = "result=100"
         result = self.python.run_query(query_string, "user")
         self.assertEqual(result[0], None)
 
-    def test_validate_result_type(self):
+    def test_invalid_result_missing_rows(self):
+        query_string = "result={'columns': []}"
+        result = self.python.run_query(query_string, "user")
+        self.assertEqual(result[0], None)
+
+    def test_invalid_result_not_list_rows(self):
+        query_string = "result={'rows': {}, 'columns': []}"
+        result = self.python.run_query(query_string, "user")
+        self.assertEqual(result[0], None)
+
+    def test_invalid_result_missing_columns(self):
+        query_string = "result={'rows': []}"
+        result = self.python.run_query(query_string, "user")
+        self.assertEqual(result[0], None)
+
+    def test_invalid_result_not_list_columns(self):
+        query_string = "result={'rows': [], 'columns': {}}"
+        result = self.python.run_query(query_string, "user")
+        self.assertEqual(result[0], None)
+
+    def test_valid_result_type(self):
         query_string = (
             "result="
             '{"columns": [{"name": "col1", "type": TYPE_STRING},'
@@ -51,7 +76,7 @@ class TestPythonQueryRunner(TestCase):
         )
 
     @mock.patch("datetime.datetime")
-    def test_validate_result_type_with_print(self, mock_dt):
+    def test_valid_result_type_with_print(self, mock_dt):
         mock_dt.utcnow = mock.Mock(return_value=datetime(1901, 12, 21))
         query_string = (
             'print("test")\n'

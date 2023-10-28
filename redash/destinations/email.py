@@ -27,7 +27,7 @@ class Email(BaseDestination):
     def icon(cls):
         return "fa-envelope"
 
-    def notify(self, alert, query, user, new_state, app, host, options):
+    def notify(self, alert, query, user, new_state, app, host, metadata, options):
         recipients = [email for email in options.get("addresses", "").split(",") if email]
 
         if not recipients:

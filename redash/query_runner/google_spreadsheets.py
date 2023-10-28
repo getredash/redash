@@ -1,4 +1,5 @@
 import logging
+import re
 from base64 import b64decode
 
 from dateutil import parser
@@ -20,9 +21,11 @@ from redash.utils import json_dumps, json_loads
 logger = logging.getLogger(__name__)
 
 try:
+    import google.auth
     import gspread
+    from google.oauth2.service_account import Credentials
     from gspread.exceptions import APIError
-    from oauth2client.service_account import ServiceAccountCredentials
+    from gspread.exceptions import WorksheetNotFound as GSWorksheetNotFound
 
     enabled = True
 except ImportError:
@@ -88,14 +91,27 @@ class WorksheetNotFoundError(Exception):
         super(WorksheetNotFoundError, self).__init__(message)
 
 
+class WorksheetNotFoundByTitleError(Exception):
+    def __init__(self, worksheet_title):
+        message = "Worksheet title '{}' not found.".format(worksheet_title)
+        super(WorksheetNotFoundByTitleError, self).__init__(message)
+
+
 def parse_query(query):
     values = query.split("|")
     key = values[0]  # key of the spreadsheet
-    worksheet_num = (
-        0 if len(values) != 2 else int(values[1])
-    )  # if spreadsheet contains more than one worksheet - this is the number of it
+    worksheet_num_or_title = 0  # A default value for when a number of inputs is invalid
+    if len(values) == 2:
+        s = values[1].strip()
+        if len(s) > 0:
+            if re.match(r"^\"(.*?)\"$", s):
+                # A string quoted by " means a title of worksheet
+                worksheet_num_or_title = s[1:-1]
+            else:
+                # if spreadsheet contains more than one worksheet - this is the number of it
+                worksheet_num_or_title = int(s)
 
-    return key, worksheet_num
+    return key, worksheet_num_or_title
 
 
 def parse_worksheet(worksheet):
@@ -115,15 +131,21 @@ def parse_worksheet(worksheet):
     return data
 
 
-def parse_spreadsheet(spreadsheet, worksheet_num):
-    worksheets = spreadsheet.worksheets()
-    worksheet_count = len(worksheets)
-    if worksheet_num >= worksheet_count:
-        raise WorksheetNotFoundError(worksheet_num, worksheet_count)
+def parse_spreadsheet(spreadsheet, worksheet_num_or_title):
+    worksheet = None
+    if isinstance(worksheet_num_or_title, int):
+        worksheet = spreadsheet.get_worksheet_by_index(worksheet_num_or_title)
+        if worksheet is None:
+            worksheet_count = len(spreadsheet.worksheets())
+            raise WorksheetNotFoundError(worksheet_num_or_title, worksheet_count)
+    elif isinstance(worksheet_num_or_title, str):
+        worksheet = spreadsheet.get_worksheet_by_title(worksheet_num_or_title)
+        if worksheet is None:
+            raise WorksheetNotFoundByTitleError(worksheet_num_or_title)
 
-    worksheet = worksheets[worksheet_num].get_all_values()
+    worksheet_values = worksheet.get_all_values()
 
-    return parse_worksheet(worksheet)
+    return parse_worksheet(worksheet_values)
 
 
 def is_url_key(key):
@@ -139,6 +161,23 @@ def parse_api_error(error):
         message = str(error)
 
     return message
+
+
+class SpreadsheetWrapper:
+    def __init__(self, spreadsheet):
+        self.spreadsheet = spreadsheet
+
+    def worksheets(self):
+        return self.spreadsheet.worksheets()
+
+    def get_worksheet_by_index(self, index):
+        return self.spreadsheet.get_worksheet(index)
+
+    def get_worksheet_by_title(self, title):
+        try:
+            return self.spreadsheet.worksheet(title)
+        except GSWorksheetNotFound:
+            return None
 
 
 class TimeoutSession(Session):
@@ -170,16 +209,19 @@ class GoogleSpreadsheet(BaseQueryRunner):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {"jsonKeyFile": {"type": "string", "title": "JSON Key File"}},
-            "required": ["jsonKeyFile"],
+            "properties": {"jsonKeyFile": {"type": "string", "title": "JSON Key File (ADC is used if omitted)"}},
+            "required": [],
             "secret": ["jsonKeyFile"],
         }
 
     def _get_spreadsheet_service(self):
-        scope = ["https://spreadsheets.google.com/feeds"]
+        scopes = ["https://spreadsheets.google.com/feeds"]
 
-        key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
+        try:
+            key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
+            creds = Credentials.from_service_account_info(key, scopes=scopes)
+        except KeyError:
+            creds = google.auth.default(scopes=scopes)[0]
 
         timeout_session = Session()
         timeout_session.requests_session = TimeoutSession()
@@ -198,7 +240,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
 
     def run_query(self, query, user):
         logger.debug("Spreadsheet is about to execute query: %s", query)
-        key, worksheet_num = parse_query(query)
+        key, worksheet_num_or_title = parse_query(query)
 
         try:
             spreadsheet_service = self._get_spreadsheet_service()
@@ -208,7 +250,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
             else:
                 spreadsheet = spreadsheet_service.open_by_key(key)
 
-            data = parse_spreadsheet(spreadsheet, worksheet_num)
+            data = parse_spreadsheet(SpreadsheetWrapper(spreadsheet), worksheet_num_or_title)
 
             return json_dumps(data), None
         except gspread.SpreadsheetNotFound:

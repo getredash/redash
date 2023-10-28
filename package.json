@@ -1,6 +1,6 @@
 {
   "name": "redash-client",
-  "version": "11.0.0-dev",
+  "version": "23.10.0-dev",
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
@@ -53,7 +53,7 @@
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.6",
     "d3": "^3.5.17",
-    "debug": "^3.1.0",
+    "debug": "^3.2.7",
     "dompurify": "^2.0.17",
     "font-awesome": "^4.7.0",
     "history": "^4.10.1",
@@ -62,7 +62,7 @@
     "material-design-iconic-font": "^2.2.0",
     "mousetrap": "^1.6.1",
     "mustache": "^2.3.0",
-    "numeral": "^2.0.6",
+    "numbro": "^2.3.6",
     "path-to-regexp": "^3.1.0",
     "prop-types": "^15.6.1",
     "query-string": "^6.9.0",

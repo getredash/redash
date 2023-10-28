@@ -86,6 +86,17 @@ class DataSourceTest(BaseTestCase):
 
             self.assertEqual(out_schema, sorted_schema)
 
+    @patch("redash.redis_connection.set")
+    def test_expires_schema(self, mock_redis):
+        # default of 30min + 7 days
+        expected_ttl = 606600
+
+        with mock.patch("redash.query_runner.pg.PostgreSQL.get_schema") as patched_get_schema:
+            patched_get_schema.return_value = None
+            self.factory.data_source.get_schema(refresh=True)
+
+        mock_redis.assert_called_with("data_source:schema:1", "null", ex=expected_ttl)
+
 
 class TestDataSourceCreate(BaseTestCase):
     def test_adds_data_source_to_default_group(self):

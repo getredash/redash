@@ -10,18 +10,18 @@ import "./render.less";
 
 function getCounterStyles(scale: any) {
   return {
-    fontSize: `${scale}px`,
+    fontSize: `${scale}pt`,
   };
 }
 
 function getCounterScale(container: any) {
   // size of font in base container
   // children use a relative font size (em)
-  if (container.closest('.visualization-preview')) {
+  if (container.closest('.visualization-preview') || container.closest('.ant-tabs-tabpane')) {
     return "60";
   }
-  const fontSize = container.clientHeight / 4.5;
-  return fontSize > 60 ? "60" : fontSize < 12 ? "12" : fontSize.toFixed();
+  const fontSize = 12 + container.clientHeight / 5;
+  return fontSize > 60 ? "60" : fontSize.toFixed();
 }
 
 export default function Renderer({ data, options, visualizationName }: any) {

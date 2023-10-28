@@ -1,0 +1,26 @@
+name: Periodic Snapshot
+
+# 10 minutes after midnight on the first of every month
+on:
+  schedule:
+  - cron: "10 0 1 * *"
+
+permissions:
+  contents: write
+
+jobs:
+  bump-version-and-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          date="$(date +%y.%m).0-dev"
+          gawk -i inplace -F: -v q=\" -v tag=$date '/^  "version": / { print $1 FS, q tag q ","; next} { print }' package.json
+          gawk -i inplace -F= -v q=\" -v tag=$date '/^__version__ =/ { print $1 FS, q tag q; next} { print }' redash/__init__.py
+          gawk -i inplace -F= -v q=\" -v tag=$date '/^version =/ { print $1 FS, q tag q; next} { print }' pyproject.toml
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add package.json redash/__init__.py pyproject.toml
+          git commit -m "Snapshot: ${date}"
+          git tag $date
+          git push --atomic origin master refs/tags/$date

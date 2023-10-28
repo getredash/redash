@@ -14,12 +14,12 @@ from redash.utils import json_dumps
 def reduce_item(reduced_item, key, value):
     """From https://github.com/vinay20045/json-to-csv"""
     # Reduction Condition 1
-    if type(value) is list:
+    if isinstance(value, list):
         for i, sub_item in enumerate(value):
             reduce_item(reduced_item, "{}.{}".format(key, i), sub_item)
 
     # Reduction Condition 2
-    elif type(value) is dict:
+    elif isinstance(value, dict):
         sub_keys = value.keys()
         for sub_key in sub_keys:
             reduce_item(reduced_item, "{}.{}".format(key, sub_key), value[sub_key])
