@@ -157,7 +157,7 @@ class TestMongoResults(TestCase):
                 "nested.a": 2,
                 "nested.b": "str2",
                 "nested.c": "c",
-                "nested.d.e": 3
+                "nested.d.e": 3,
             },
         )
 
