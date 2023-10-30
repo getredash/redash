@@ -10,18 +10,17 @@ import "./render.less";
 
 function getCounterStyles(scale: any) {
   return {
-    fontSize: `${scale}pt`,
+    msTransform: `scale(${scale})`,
+    MozTransform: `scale(${scale})`,
+    WebkitTransform: `scale(${scale})`,
+    transform: `scale(${scale})`,
   };
 }
 
 function getCounterScale(container: any) {
-  // size of font in base container
-  // children use a relative font size (em)
-  if (container.closest('.visualization-preview') || container.closest('.ant-tabs-tabpane')) {
-    return "60";
-  }
-  const fontSize = 12 + container.clientHeight / 5;
-  return fontSize > 60 ? "60" : fontSize.toFixed();
+  const inner = container.firstChild;
+  const scale = Math.min(container.offsetWidth / inner.offsetWidth, container.offsetHeight / inner.offsetHeight);
+  return Number(isFinite(scale) ? scale : 1).toFixed(2); // keep only two decimal places
 }
 
 export default function Renderer({ data, options, visualizationName }: any) {
