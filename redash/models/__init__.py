@@ -819,7 +819,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @property
     def parameters_dict(self):
-        return { p["name"]: p.get("value") for p in self.parameters }
+        return {p["name"]: p.get("value") for p in self.parameters}
 
     @property
     def parameterized(self):
