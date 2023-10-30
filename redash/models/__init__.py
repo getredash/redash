@@ -819,7 +819,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @property
     def parameters_dict(self):
-        return {p["name"]: p.get("value") for p in self.parameters}
+        # ignore the parameter if no default value is set
+        return {p["name"]: p.get("value") for p in self.parameters if p.get("value")}
 
     @property
     def parameterized(self):
