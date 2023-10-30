@@ -811,6 +811,17 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return self.options.get("parameters", [])
 
     @property
+    def default_parameters_query_text(self):
+        if any(self.parameters_dict):
+            return self.parameterized.apply(self.parameters_dict).query
+        else:
+            return self.query_text
+
+    @property
+    def parameters_dict(self):
+        return { p["name"]: p.get("value") for p in self.parameters }
+
+    @property
     def parameterized(self):
         return ParameterizedQuery(self.query_text, self.parameters, self.org)
 
@@ -831,7 +842,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def update_query_hash(self):
         should_apply_auto_limit = self.options.get("apply_auto_limit", False) if self.options else False
         query_runner = self.data_source.query_runner if self.data_source else BaseQueryRunner({})
-        self.query_hash = query_runner.gen_query_hash(self.query_text, should_apply_auto_limit)
+        self.query_hash = query_runner.gen_query_hash(self.default_parameters_query_text, should_apply_auto_limit)
 
 
 @listens_for(Query, "before_insert")
