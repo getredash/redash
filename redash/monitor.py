@@ -20,7 +20,7 @@ def get_object_counts():
     status["queries_count"] = Query.query.count()
     if settings.FEATURE_SHOW_QUERY_RESULTS_COUNT:
         status["query_results_count"] = QueryResult.query.count()
-        status["unused_query_results_count"] = QueryResult.unused().count()
+        status["unused_query_results_count"] = QueryResult.unused(settings.QUERY_RESULTS_CLEANUP_MAX_AGE).count()
     status["dashboards_count"] = Dashboard.query.count()
     status["widgets_count"] = Widget.query.count()
     return status

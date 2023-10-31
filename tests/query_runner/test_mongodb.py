@@ -141,7 +141,7 @@ class TestMongoResults(TestCase):
                 "column": 2,
                 "column2": "test",
                 "column3": "hello",
-                "nested": {"a": 2, "b": "str2", "c": "c"},
+                "nested": {"a": 2, "b": "str2", "c": "c", "d": {"e": 3}},
             },
         ]
 
@@ -157,6 +157,7 @@ class TestMongoResults(TestCase):
                 "nested.a": 2,
                 "nested.b": "str2",
                 "nested.c": "c",
+                "nested.d.e": 3,
             },
         )
 

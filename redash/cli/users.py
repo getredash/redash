@@ -157,7 +157,7 @@ def create_root(email, name, google_auth=False, password=None, organization="def
 
     admin_group = models.Group(
         name="admin",
-        permissions=["admin", "super_admin"],
+        permissions=models.Group.ADMIN_PERMISSIONS,
         org=org,
         type=models.Group.BUILTIN_GROUP,
     )

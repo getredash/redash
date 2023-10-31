@@ -112,6 +112,8 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
 
         except redis.WatchError:
             continue
+        finally:
+            pipe.reset()
 
     if not job:
         logger.error("[Manager][%s] Failed adding job for query.", query_hash)
@@ -227,7 +229,7 @@ class QueryExecutor(object):
             models.db.session.commit()  # make sure that alert sees the latest query result
             self._log_progress("checking_alerts")
             for query_id in updated_query_ids:
-                check_alerts_for_query.delay(query_id)
+                check_alerts_for_query.delay(query_id, self.metadata)
             self._log_progress("finished")
 
             result = query_result.id

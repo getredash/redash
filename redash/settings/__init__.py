@@ -296,6 +296,7 @@ default_query_runners = [
     "redash.query_runner.impala_ds",
     "redash.query_runner.vertica",
     "redash.query_runner.clickhouse",
+    "redash.query_runner.tinybird",
     "redash.query_runner.yandex_metrica",
     "redash.query_runner.rockset",
     "redash.query_runner.treasuredata",
@@ -333,6 +334,8 @@ default_query_runners = [
     "redash.query_runner.arango",
     "redash.query_runner.google_analytics4",
     "redash.query_runner.google_search_console",
+    "redash.query_runner.ignite",
+    "redash.query_runner.oracle",
 ]
 
 enabled_query_runners = array_from_string(
@@ -355,12 +358,15 @@ default_destinations = [
     "redash.destinations.email",
     "redash.destinations.slack",
     "redash.destinations.webhook",
-    "redash.destinations.hipchat",
+    "redash.destinations.discord",
     "redash.destinations.mattermost",
     "redash.destinations.chatwork",
     "redash.destinations.pagerduty",
     "redash.destinations.hangoutschat",
     "redash.destinations.microsoft_teams_webhook",
+    "redash.destinations.asana",
+    "redash.destinations.webex",
+    "redash.destinations.datadog",
 ]
 
 enabled_destinations = array_from_string(os.environ.get("REDASH_ENABLED_DESTINATIONS", ",".join(default_destinations)))

@@ -1,7 +1,14 @@
-from redash.handlers.query_results import error_messages
+from redash.handlers.query_results import error_messages, run_query
 from redash.models import db
 from redash.utils import json_dumps
 from tests import BaseTestCase
+
+
+class TestRunQuery(BaseTestCase):
+    def test_run_query_with_no_data_source(self):
+        response, status = run_query(None, None, None, None, None)
+        self.assertDictEqual(response, error_messages["no_data_source"][0])
+        self.assertEqual(status, error_messages["no_data_source"][1])
 
 
 class TestQueryResultsCacheHeaders(BaseTestCase):
@@ -249,6 +256,19 @@ class TestQueryResultAPI(BaseTestCase):
 
         rv = self.make_request("post", "/api/queries/{}/results".format(query.id), data={"parameters": {}})
         self.assertEqual(rv.status_code, 200)
+
+    def test_get_latest_query_result_with_apply_auto_limit(self):
+        query = self.factory.create_query(
+            options={"parameters": [{"name": "foo", "type": "number"}], "apply_auto_limit": True}
+        )
+        rv = self.make_request(
+            "post",
+            "/api/queries/{}/results".format(query.id),
+            data={"parameters": {}, "apply_auto_limit": True},
+        )
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn("job", rv.json)
 
     def test_prevents_execution_of_unsafe_queries_using_api_key(self):
         ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)

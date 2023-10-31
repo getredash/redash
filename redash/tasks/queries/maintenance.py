@@ -81,6 +81,7 @@ def _apply_auto_limit(query_text, query):
 
 
 def refresh_queries():
+    started_at = time.time()
     logger.info("Refreshing queries...")
     enqueued = []
     for query in models.Query.outdated_queries():
@@ -95,7 +96,7 @@ def refresh_queries():
                 query.data_source,
                 query.user_id,
                 scheduled_query=query,
-                metadata={"query_id": query.id, "Username": "Scheduled"},
+                metadata={"query_id": query.id, "Username": query.user.get_actual_user()},
             )
             enqueued.append(query)
         except Exception as e:
@@ -105,12 +106,13 @@ def refresh_queries():
             sentry.capture_exception(error)
 
     status = {
+        "started_at": started_at,
         "outdated_queries_count": len(enqueued),
         "last_refresh_at": time.time(),
         "query_ids": json_dumps([q.id for q in enqueued]),
     }
 
-    redis_connection.hmset("redash:status", status)
+    redis_connection.hset("redash:status", mapping=status)
     logger.info("Done refreshing queries: %s" % status)
 
 

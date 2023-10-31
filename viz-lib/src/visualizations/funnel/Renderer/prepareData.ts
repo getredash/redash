@@ -32,9 +32,9 @@ export default function prepareData(rows: any, options: any) {
   const maxVal = maxBy(data, d => d.value).value;
   data.forEach((d, i) => {
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'pctMax' does not exist on type '{ step: ... Remove this comment to see the full error message
-    d.pctMax = (d.value / maxVal) * 100.0;
+    d.pctMax = (d.value / maxVal);
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'pctPrevious' does not exist on type '{ s... Remove this comment to see the full error message
-    d.pctPrevious = i === 0 || d.value === data[i - 1].value ? 100.0 : (d.value / data[i - 1].value) * 100.0;
+    d.pctPrevious = i === 0 || d.value === data[i - 1].value ? 1.0 : (d.value / data[i - 1].value);
   });
 
   return data.slice(0, options.itemsLimit);

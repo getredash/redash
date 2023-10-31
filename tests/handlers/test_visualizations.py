@@ -18,7 +18,7 @@ class VisualizationResourceTest(BaseTestCase):
 
         self.assertEqual(rv.status_code, 200)
         data.pop("query_id")
-        self.assertDictContainsSubset(data, rv.json)
+        self.assertEqual(rv.json, {**rv.json, **data})
 
     def test_delete_visualization(self):
         visualization = self.factory.create_visualization()

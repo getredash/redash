@@ -13,22 +13,22 @@ from redash.query_runner import (
 from redash.utils import json_dumps, json_loads
 
 try:
-    import cx_Oracle
+    import oracledb
 
     TYPES_MAP = {
-        cx_Oracle.DATETIME: TYPE_DATETIME,
-        cx_Oracle.CLOB: TYPE_STRING,
-        cx_Oracle.LOB: TYPE_STRING,
-        cx_Oracle.FIXED_CHAR: TYPE_STRING,
-        cx_Oracle.FIXED_NCHAR: TYPE_STRING,
-        cx_Oracle.INTERVAL: TYPE_DATETIME,
-        cx_Oracle.LONG_STRING: TYPE_STRING,
-        cx_Oracle.NATIVE_FLOAT: TYPE_FLOAT,
-        cx_Oracle.NCHAR: TYPE_STRING,
-        cx_Oracle.NUMBER: TYPE_FLOAT,
-        cx_Oracle.ROWID: TYPE_INTEGER,
-        cx_Oracle.STRING: TYPE_STRING,
-        cx_Oracle.TIMESTAMP: TYPE_DATETIME,
+        oracledb.DATETIME: TYPE_DATETIME,
+        oracledb.CLOB: TYPE_STRING,
+        oracledb.LOB: TYPE_STRING,
+        oracledb.FIXED_CHAR: TYPE_STRING,
+        oracledb.FIXED_NCHAR: TYPE_STRING,
+        oracledb.INTERVAL: TYPE_DATETIME,
+        oracledb.LONG_STRING: TYPE_STRING,
+        oracledb.NATIVE_FLOAT: TYPE_FLOAT,
+        oracledb.NCHAR: TYPE_STRING,
+        oracledb.NUMBER: TYPE_FLOAT,
+        oracledb.ROWID: TYPE_INTEGER,
+        oracledb.STRING: TYPE_STRING,
+        oracledb.TIMESTAMP: TYPE_DATETIME,
     }
 
     ENABLED = True
@@ -46,7 +46,7 @@ class Oracle(BaseSQLQueryRunner):
 
     @classmethod
     def get_col_type(cls, col_type, scale):
-        if col_type == cx_Oracle.NUMBER:
+        if col_type == oracledb.NUMBER:
             if scale is None:
                 return TYPE_INTEGER
             if scale > 0:
@@ -66,7 +66,10 @@ class Oracle(BaseSQLQueryRunner):
             "properties": {
                 "user": {"type": "string"},
                 "password": {"type": "string"},
-                "host": {"type": "string"},
+                "host": {
+                    "type": "string",
+                    "title": "Host: To use a DSN Service Name instead, use the text string `_useservicename` in the host name field.",
+                },
                 "port": {"type": "number"},
                 "servicename": {"type": "string", "title": "DSN Service Name"},
                 "encoding": {"type": "string"},
@@ -119,16 +122,16 @@ class Oracle(BaseSQLQueryRunner):
 
     @classmethod
     def output_handler(cls, cursor, name, default_type, length, precision, scale):
-        if default_type in (cx_Oracle.CLOB, cx_Oracle.LOB):
-            return cursor.var(cx_Oracle.LONG_STRING, 80000, cursor.arraysize)
+        if default_type in (oracledb.CLOB, oracledb.LOB):
+            return cursor.var(oracledb.LONG_STRING, 80000, cursor.arraysize)
 
-        if default_type in (cx_Oracle.STRING, cx_Oracle.FIXED_CHAR):
+        if default_type in (oracledb.STRING, oracledb.FIXED_CHAR):
             return cursor.var(str, length, cursor.arraysize)
 
-        if default_type == cx_Oracle.NUMBER:
+        if default_type == oracledb.NUMBER:
             if scale <= 0:
                 return cursor.var(
-                    cx_Oracle.STRING,
+                    oracledb.STRING,
                     255,
                     outconverter=Oracle._convert_number,
                     arraysize=cursor.arraysize,
@@ -138,13 +141,17 @@ class Oracle(BaseSQLQueryRunner):
         if self.configuration.get("encoding"):
             os.environ["NLS_LANG"] = self.configuration["encoding"]
 
-        dsn = cx_Oracle.makedsn(
-            self.configuration["host"],
-            self.configuration["port"],
-            service_name=self.configuration["servicename"],
-        )
+        # To use a DSN Service Name instead, use the text string `_useservicename` in the host name field.
+        if self.configuration["host"].lower() == "_useservicename":
+            dsn = self.configuration["servicename"]
+        else:
+            dsn = oracledb.makedsn(
+                self.configuration["host"],
+                self.configuration["port"],
+                service_name=self.configuration["servicename"],
+            )
 
-        connection = cx_Oracle.connect(
+        connection = oracledb.connect(
             user=self.configuration["user"],
             password=self.configuration["password"],
             dsn=dsn,
@@ -168,8 +175,11 @@ class Oracle(BaseSQLQueryRunner):
                 data = {"columns": columns, "rows": rows}
                 json_data = json_dumps(data)
                 connection.commit()
-        except cx_Oracle.DatabaseError as err:
-            error = "Query failed. {}.".format(str(err))
+        except oracledb.DatabaseError as err:
+            (err_args,) = err.args
+            line_number = query.count("\n", 0, err_args.offset) + 1
+            column_number = err_args.offset - query.rfind("\n", 0, err_args.offset) - 1
+            error = "Query failed at line {}, column {}: {}".format(str(line_number), str(column_number), str(err))
             json_data = None
         except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()

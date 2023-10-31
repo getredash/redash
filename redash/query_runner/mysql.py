@@ -67,8 +67,19 @@ class Mysql(BaseSQLQueryRunner):
                 "connect_timeout": {"type": "number", "default": 60, "title": "Connection Timeout"},
                 "charset": {"type": "string", "default": "utf8"},
                 "use_unicode": {"type": "boolean", "default": True},
+                "autocommit": {"type": "boolean", "default": False},
             },
-            "order": ["host", "port", "user", "passwd", "db", "connect_timeout", "charset", "use_unicode"],
+            "order": [
+                "host",
+                "port",
+                "user",
+                "passwd",
+                "db",
+                "connect_timeout",
+                "charset",
+                "use_unicode",
+                "autocommit",
+            ],
             "required": ["db"],
             "secret": ["passwd"],
         }
@@ -76,6 +87,18 @@ class Mysql(BaseSQLQueryRunner):
         if show_ssl_settings:
             schema["properties"].update(
                 {
+                    "ssl_mode": {
+                        "type": "string",
+                        "title": "SSL Mode",
+                        "default": "preferred",
+                        "extendedEnum": [
+                            {"value": "disabled", "name": "Disabled"},
+                            {"value": "preferred", "name": "Preferred"},
+                            {"value": "required", "name": "Required"},
+                            {"value": "verify-ca", "name": "Verify CA"},
+                            {"value": "verify-identity", "name": "Verify Identity"},
+                        ],
+                    },
                     "use_ssl": {"type": "boolean", "title": "Use SSL"},
                     "ssl_cacert": {
                         "type": "string",
@@ -112,6 +135,7 @@ class Mysql(BaseSQLQueryRunner):
             charset=self.configuration.get("charset", "utf8"),
             use_unicode=self.configuration.get("use_unicode", True),
             connect_timeout=self.configuration.get("connect_timeout", 60),
+            autocommit=self.configuration.get("autocommit", True),
         )
 
         ssl_options = self._get_ssl_parameters()
@@ -216,7 +240,7 @@ class Mysql(BaseSQLQueryRunner):
         ssl_params = {}
 
         if self.configuration.get("use_ssl"):
-            config_map = {"ssl_cacert": "ca", "ssl_cert": "cert", "ssl_key": "key"}
+            config_map = {"ssl_mode": "preferred", "ssl_cacert": "ca", "ssl_cert": "cert", "ssl_key": "key"}
             for key, cfg in config_map.items():
                 val = self.configuration.get(key)
                 if val:

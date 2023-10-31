@@ -15,7 +15,7 @@ def organization_status(org_slug=None):
         "data_sources": models.DataSource.all(current_org, group_ids=current_user.group_ids).count(),
         "queries": models.Query.all_queries(current_user.group_ids, current_user.id, include_drafts=True).count(),
         "dashboards": models.Dashboard.query.filter(
-            models.Dashboard.org == current_org, models.Dashboard.is_archived is False
+            models.Dashboard.org == current_org, models.Dashboard.is_archived.is_(False)
         ).count(),
     }
 
