@@ -4,7 +4,6 @@ x-redash-service: &redash-service
     context: ../
     args:
       install_groups: "main"
-      code_coverage: ${CODE_COVERAGE}
 x-redash-environment: &redash-environment
   REDASH_LOG_LEVEL: "INFO"
   REDASH_REDIS_URL: "redis://redis:6379/0"
@@ -14,6 +13,13 @@ x-redash-environment: &redash-environment
   REDASH_ENFORCE_CSRF: "true"
   REDASH_COOKIE_SECRET: "2H9gNG9obnAQ9qnR9BDTQUph6CbXKCzF"
 services:
+  db-init:
+    <<: *redash-service
+    command: create_db
+    depends_on:
+      - postgres
+    environment:
+      <<: *redash-environment
   server:
     <<: *redash-service
     command: server
