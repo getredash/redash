@@ -143,9 +143,8 @@ jobs:
       - name: Start Redash Server
         run: |
           set -x
-          docker compose up -d server
-          sleep 10
           docker compose up db-init
+          yarn build
           yarn cypress build
           yarn cypress start -- --skip-db-seed
           docker compose run cypress yarn cypress db-seed
