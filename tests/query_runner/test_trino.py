@@ -17,34 +17,25 @@ class TestTrino(TestCase):
     @patch.object(Trino, "_get_catalogs")
     @patch.object(Trino, "run_query")
     def test_get_schema_no_catalog_set(self, mock_run_query, mock__get_catalogs):
-        mock_run_query.return_value = (
-            f'{{"rows": [{{"table_schema": "{TestTrino.schema_name}", "table_name": "{TestTrino.table_name}", "column_name": "{TestTrino.column_name}", "data_type": "{TestTrino.column_type}"}}]}}',
-            None,
-        )
-        mock__get_catalogs.return_value = [TestTrino.catalog_name]
         runner = Trino({})
-        schema = runner.get_schema()
-        expected_schema = [
-            {
-                "name": f"{TestTrino.catalog_name}.{TestTrino.schema_name}.{TestTrino.table_name}",
-                "columns": [{"name": f"{TestTrino.column_name}", "type": f"{TestTrino.column_type}"}],
-            }
-        ]
-        self.assertEqual(schema, expected_schema)
+        self._assert_schema_catalog(mock_run_query, mock__get_catalogs, runner)
 
     @patch.object(Trino, "_get_catalogs")
     @patch.object(Trino, "run_query")
     def test_get_schema_catalog_set(self, mock_run_query, mock__get_catalogs):
+        runner = Trino({"catalog": TestTrino.catalog_name})
+        self._assert_schema_catalog(mock_run_query, mock__get_catalogs, runner)
+
+    def _assert_schema_catalog(self, mock_run_query, mock__get_catalogs, runner):
         mock_run_query.return_value = (
             f'{{"rows": [{{"table_schema": "{TestTrino.schema_name}", "table_name": "{TestTrino.table_name}", "column_name": "{TestTrino.column_name}", "data_type": "{TestTrino.column_type}"}}]}}',
             None,
         )
         mock__get_catalogs.return_value = [TestTrino.catalog_name]
-        runner = Trino({"catalog": TestTrino.catalog_name})
         schema = runner.get_schema()
         expected_schema = [
             {
-                "name": f"{TestTrino.schema_name}.{TestTrino.table_name}",
+                "name": f"{TestTrino.catalog_name}.{TestTrino.schema_name}.{TestTrino.table_name}",
                 "columns": [{"name": f"{TestTrino.column_name}", "type": f"{TestTrino.column_type}"}],
             }
         ]
