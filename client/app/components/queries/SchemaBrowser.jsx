@@ -16,7 +16,7 @@ import LoadingState from "../items-list/components/LoadingState";
 const SchemaItemColumnType = PropTypes.shape({
   name: PropTypes.string.isRequired,
   type: PropTypes.string,
-  comment: PropTypes.string
+  comment: PropTypes.string,
 });
 
 export const SchemaItemType = PropTypes.shape({
@@ -94,12 +94,11 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
               const columnComment = get(column, "comment");
               if (columnComment) {
                 return (
-                  <Tooltip
-                    title={columnComment}
-                    mouseEnterDelay={0}
-                    mouseLeaveDelay={0}
-                    placement="rightTop">
-                    <PlainButton key={columnName} className="table-open-item" onClick={e => handleSelect(e, columnName)}>
+                  <Tooltip title={columnComment} mouseEnterDelay={0} mouseLeaveDelay={0} placement="rightTop">
+                    <PlainButton
+                      key={columnName}
+                      className="table-open-item"
+                      onClick={e => handleSelect(e, columnName)}>
                       <div>
                         {columnName} {columnType && <span className="column-type">{columnType}</span>}
                       </div>
@@ -120,7 +119,7 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
                     <i className="fa fa-angle-double-right" aria-hidden="true" />
                   </div>
                 </PlainButton>
-              )
+              );
             })
           )}
         </div>
