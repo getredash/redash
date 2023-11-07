@@ -18,6 +18,7 @@ services:
     command: create_db
     depends_on:
       - postgres
+      - redis
     environment:
       <<: *redash-environment
   server:
