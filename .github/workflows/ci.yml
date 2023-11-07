@@ -191,6 +191,8 @@ jobs:
 
   build-docker-image:
     runs-on: ubuntu-22.04
+    outputs:
+      version: ${{ steps.version.outputs.VERSION_TAG }}
     needs:
       - backend-unit-tests
       - frontend-unit-tests
@@ -232,6 +234,14 @@ jobs:
           outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
         env:
           DOCKER_CONTENT_TRUST: true
+      - name: Bump version
+        id: version
+        run: |
+          set -x
+          .ci/update_version
+          VERSION=$(jq -r .version package.json)
+          VERSION_TAG="${VERSION}.b${GITHUB_RUN_ID}.${GITHUB_RUN_NUMBER}"
+          echo "VERSION_TAG=$VERSION_TAG" >> "$GITHUB_OUTPUT"
       - name: Export digest
         run: |
           mkdir -p /tmp/digests
@@ -278,16 +288,8 @@ jobs:
       - name: Inspect image
         run: |
           docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }}
-      - name: Bump version
-        id: version
-        run: |
-          set -x
-          .ci/update_version
-          VERSION=$(jq -r .version package.json)
-          VERSION_TAG="${VERSION}.b${GITHUB_RUN_ID}.${GITHUB_RUN_NUMBER}"
-          echo "VERSION_TAG=$VERSION_TAG" >> "$GITHUB_OUTPUT"
       - name: Push image to redash/preview
         run: |
           docker buildx imagetools create \
-            --tag achubatiuk/preview:${{ steps.version.outputs.VERSION_TAG }} \
+            --tag achubatiuk/preview:${{ needs.build-docker-image.outputs.version }} \
             ${{ env.REGISTRY_IMAGE }}:preview
