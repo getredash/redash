@@ -40,7 +40,8 @@ jobs:
           touch client/dist/multi_org.html
           touch client/dist/index.html
           docker compose build --build-arg install_groups="main,all_ds,dev"
-          docker compose up -d --wait
+          docker compose up -d
+          sleep 10
       - name: Create Test Database
         run: docker compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - name: List Enabled Query Runners
