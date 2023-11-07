@@ -37,6 +37,7 @@ RUN apt-get update && \
 ARG TARGETPLATFORM
 ARG DATABRICKS_ODBC_DRIVER_URL=https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/odbc/2.7.5/SimbaSparkODBC-2.7.5.1012-Debian-64bit.zip
 RUN \
+  if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
   curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \
   && curl https://packages.microsoft.com/config/debian/12/prod.list > /etc/apt/sources.list.d/mssql-release.list \
   && apt-get update \
@@ -49,7 +50,7 @@ RUN \
   && dpkg -i /tmp/simba/*.deb \
   && printf "[Simba]\nDriver = /opt/simba/spark/lib/64/libsparkodbc_sb64.so" >> /etc/odbcinst.ini \
   && rm /tmp/simba_odbc.zip \
-  && rm -rf /tmp/simba
+  && rm -rf /tmp/simba; fi
 
 WORKDIR /app
 
