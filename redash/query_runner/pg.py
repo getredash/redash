@@ -109,7 +109,7 @@ def build_schema(query_result, schema):
         if row.get("data_type") is not None:
             column = {"name": row["column_name"], "type": row["data_type"]}
             if "column_comment" in row:
-                column["comment"] = row["column_comment"]})
+                column["comment"] = row["column_comment"]
 
         schema[table_name]["columns"].append(column)
 
