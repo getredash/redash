@@ -26,9 +26,10 @@ def _get_type(value):
 # The following is here, because Rockset's PyPi package is Python 3 only.
 # Should be removed once we move to Python 3.
 class RocksetAPI(object):
-    def __init__(self, api_key, api_server):
+    def __init__(self, api_key, api_server, vi_id):
         self.api_key = api_key
         self.api_server = api_server
+        self.vi_id = vi_id
 
     def _request(self, endpoint, method="GET", body=None):
         headers = {"Authorization": "ApiKey {}".format(self.api_key), "User-Agent": "rest:redash/1.0"}
@@ -56,8 +57,11 @@ class RocksetAPI(object):
         return sorted(set([x["field"][0] for x in response["results"]]))
 
     def query(self, sql):
-        return self._request("queries", "POST", {"sql": {"query": sql}})
-
+        # support for multi-VI: if the VI ID is specified, query that specific VI, otherwise default to the main VI
+        if (self.vi_id is not None and self.vi_id != ""):
+            return self._request("virtualinstances/{}/queries".format(self.vi_id), "POST", {"sql": {"query": sql}})
+        else:
+            return self._request("queries", "POST", {"sql": {"query": sql}})
 
 class Rockset(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
@@ -73,8 +77,9 @@ class Rockset(BaseSQLQueryRunner):
                     "default": "https://api.rs2.usw2.rockset.com",
                 },
                 "api_key": {"title": "API Key", "type": "string"},
+                "vi_id": {"title": "Virtual Instance ID", "type": "string"}
             },
-            "order": ["api_key", "api_server"],
+            "order": ["api_key", "api_server", "vi_id"],
             "required": ["api_server", "api_key"],
             "secret": ["api_key"],
         }
@@ -88,6 +93,7 @@ class Rockset(BaseSQLQueryRunner):
         self.api = RocksetAPI(
             self.configuration.get("api_key"),
             self.configuration.get("api_server", "https://api.rs2.usw2.rockset.com"),
+            self.configuration.get("vi_id")
         )
 
     def _get_tables(self, schema):
