@@ -57,7 +57,6 @@ class RocksetAPI(object):
         return sorted(set([x["field"][0] for x in response["results"]]))
 
     def query(self, sql):
-        # support for multi-VI: if the VI ID is specified, query that specific VI, otherwise default to the main VI
         if (self.vi_id is not None and self.vi_id != ""):
             return self._request("virtualinstances/{}/queries".format(self.vi_id), "POST", {"sql": {"query": sql}})
         else:
