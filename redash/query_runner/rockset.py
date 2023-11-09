@@ -62,6 +62,7 @@ class RocksetAPI(object):
         else:
             return self._request("queries", "POST", {"sql": {"query": sql}})
 
+
 class Rockset(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
@@ -76,7 +77,7 @@ class Rockset(BaseSQLQueryRunner):
                     "default": "https://api.rs2.usw2.rockset.com",
                 },
                 "api_key": {"title": "API Key", "type": "string"},
-                "vi_id": {"title": "Virtual Instance ID", "type": "string"}
+                "vi_id": {"title": "Virtual Instance ID", "type": "string"},
             },
             "order": ["api_key", "api_server", "vi_id"],
             "required": ["api_server", "api_key"],
@@ -92,7 +93,7 @@ class Rockset(BaseSQLQueryRunner):
         self.api = RocksetAPI(
             self.configuration.get("api_key"),
             self.configuration.get("api_server", "https://api.rs2.usw2.rockset.com"),
-            self.configuration.get("vi_id")
+            self.configuration.get("vi_id"),
         )
 
     def _get_tables(self, schema):
