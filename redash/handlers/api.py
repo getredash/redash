@@ -18,6 +18,7 @@ from redash.handlers.dashboards import (
     DashboardTagsResource,
     MyDashboardsResource,
     PublicDashboardResource,
+    DashboardForkResource,
 )
 from redash.handlers.data_sources import (
     DataSourceListResource,
@@ -189,6 +190,11 @@ api.add_org_resource(
     DashboardFavoriteResource,
     "/api/dashboards/<object_id>/favorite",
     endpoint="dashboard_favorite",
+)
+api.add_org_resource(
+    DashboardForkResource,
+    "/api/dashboards/<dashboard_id>/fork",
+    endpoint="dashboard_fork"
 )
 
 api.add_org_resource(MyDashboardsResource, "/api/dashboards/my", endpoint="my_dashboards")
