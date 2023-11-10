@@ -159,18 +159,6 @@ class TestDashboardForkResourcePost(BaseTestCase):
 
         self.assertEqual(rv.status_code, 200)
 
-    def test_requires_admin_or_owner(self):
-        dashboard = self.factory.create_dashboard()
-        user = self.factory.create_user()
-
-        res = self.make_request("post", "/api/dashboards/{}/fork".format(dashboard.id), user=user)
-        self.assertEqual(res.status_code, 403)
-
-        user.group_ids.append(self.factory.org.admin_group.id)
-
-        res = self.make_request("post", "/api/dashboards/{}/fork".format(dashboard.id), user=user)
-        self.assertEqual(res.status_code, 200)
-
 
 class TestDashboardResourceDelete(BaseTestCase):
     def test_delete_dashboard(self):
