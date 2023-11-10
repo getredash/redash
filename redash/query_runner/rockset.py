@@ -57,10 +57,10 @@ class RocksetAPI(object):
         return sorted(set([x["field"][0] for x in response["results"]]))
 
     def query(self, sql):
-        if (self.vi_id is not None and self.vi_id != ""):
-            return self._request("virtualinstances/{}/queries".format(self.vi_id), "POST", {"sql": {"query": sql}})
-        else:
-            return self._request("queries", "POST", {"sql": {"query": sql}})
+        query_path = "queries"
+        if self.vi_id is not None and self.vi_id != "":
+            query_path = f"virtualinstances/{self.vi_id}/queries"
+        return self._request(query_path, "POST", {"sql": {"query": sql}})
 
 
 class Rockset(BaseSQLQueryRunner):
