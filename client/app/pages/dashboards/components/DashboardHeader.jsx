@@ -120,7 +120,7 @@ function DashboardMoreOptionsButton({ dashboardConfiguration }) {
     gridDisabled,
     isDashboardOwnerOrAdmin,
     isDuplicating,
-    duplicateDashboard
+    duplicateDashboard,
   } = dashboardConfiguration;
 
   const archive = () => {

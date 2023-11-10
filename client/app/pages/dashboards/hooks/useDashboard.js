@@ -247,7 +247,7 @@ function useDashboard(dashboardData) {
     showAddWidgetDialog,
     managePermissions,
     isDuplicating,
-    duplicateDashboard
+    duplicateDashboard,
   };
 }
 

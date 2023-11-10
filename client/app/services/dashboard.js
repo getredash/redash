@@ -269,5 +269,4 @@ Dashboard.prototype.unfavorite = function unfavorite() {
 
 Dashboard.prototype.getUrl = function getUrl() {
   return urlForDashboard(this);
-}
-
+};
