@@ -92,7 +92,7 @@ class Rockset(BaseSQLQueryRunner):
         super(Rockset, self).__init__(configuration)
         self.api = RocksetAPI(
             self.configuration.get("api_key"),
-            self.configuration.get("api_server", "https://api.rs2.usw2.rockset.com"),
+            self.configuration.get("api_server", "https://api.usw2a1.rockset.com"),
             self.configuration.get("vi_id"),
         )
 
