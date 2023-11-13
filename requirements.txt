@@ -32,7 +32,8 @@ SQLAlchemy-Utils==0.34.2
 sqlparse==0.3.0
 statsd==3.3.0
 greenlet==0.4.16
-gunicorn==20.0.4
+# gunicorn upgraded to 20.1.0 to allow for --check-config option
+gunicorn==20.1.0
 rq==1.5.0
 rq-scheduler==0.9.1
 jsonschema==3.1.1
@@ -67,3 +68,4 @@ werkzeug==0.16.1
 # ldap3==2.2.4
 Authlib==0.15.5
 advocate==1.0.0
+importlib-metadata==4.13.0
