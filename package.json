@@ -62,7 +62,7 @@
     "material-design-iconic-font": "^2.2.0",
     "mousetrap": "^1.6.1",
     "mustache": "^2.3.0",
-    "numbro": "^2.3.6",
+    "numeral": "^2.0.6",
     "path-to-regexp": "^3.1.0",
     "prop-types": "^15.6.1",
     "query-string": "^6.9.0",
