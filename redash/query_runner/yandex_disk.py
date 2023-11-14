@@ -118,15 +118,15 @@ class YandexDisk(BaseSQLQueryRunner):
 
         file_extension = params["path"].split(".")[-1].lower()
 
+        read_params = {}
+
         if file_extension not in EXTENSIONS_READERS:
             error = f"Unsupported file extension: {file_extension}"
             return data, error
+        elif file_extension in ("xls", "xlsx"):
+            read_params["sheet_name"] = params.get("sheet_name", 0)
 
         file_url = self._send_query("resources/download", path=params["path"])["href"]
-
-        read_params = {}
-        if file_extension in ["xls", "xlsx"]:
-            read_params["sheet_name"] = params.get("sheet_name", 0)
 
         try:
             df = EXTENSIONS_READERS[file_extension](file_url, **read_params)
