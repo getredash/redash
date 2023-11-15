@@ -41,7 +41,7 @@ botocore==1.13
 boto3==1.10.0
 paramiko==2.7.0
 memsql==3.0.0
-snowflake-connector-python==2.3.0
+snowflake-connector-python==2.2.10
 azure-kusto-data==0.0.35
 dql>=0.5.26
 
