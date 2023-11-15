@@ -66,6 +66,11 @@ class YandexDisk(BaseSQLQueryRunner):
             for i in temp_items:
                 file_name = i["name"]
                 file_path = i["path"].replace("disk:", "")
+
+                file_extension = file_name.split(".")[-1].lower()
+                if file_extension not in EXTENSIONS_READERS:
+                    continue
+
                 schema[file_name] = {"name": file_name, "columns": [file_path]}
 
             if len(temp_items) < limit:
