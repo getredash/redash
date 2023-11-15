@@ -16,7 +16,6 @@ test_df = pd.DataFrame(
 )
 
 test_token = "AAAAQAA"
-test_path = "/filename.{format}"
 
 
 class TestYandexDisk(TestCase):
