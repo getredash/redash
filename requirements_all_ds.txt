@@ -15,7 +15,7 @@ sasl>=0.1.3
 cassandra-driver==3.21.0
 atsd_client==3.0.5
 simple_salesforce==0.74.3
-PyAthena==1.5.0
+PyAthena==2.3.1
 qds-sdk>=1.9.6
 ibm-db>=2.0.9
 pydruid==0.5.7
@@ -37,8 +37,8 @@ firebolt-sdk==0.2.1
 pytz<2021.0
 croniter~=1.0
 python-dateutil==2.8.0
-botocore==1.13
-boto3==1.10.0
+botocore==1.13.50
+boto3==1.10.50
 paramiko==2.7.0
 memsql==3.0.0
 snowflake-connector-python==2.2.10
