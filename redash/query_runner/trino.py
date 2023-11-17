@@ -103,9 +103,7 @@ class Trino(BaseQueryRunner):
             results = json_loads(results)
 
             for row in results["rows"]:
-                table_name = f'{row["table_schema"]}.{row["table_name"]}'
-                if not self.configuration.get("catalog"):
-                    table_name = f"{catalog}." + table_name
+                table_name = f'{catalog}.{row["table_schema"]}.{row["table_name"]}'
 
                 if table_name not in schema:
                     schema[table_name] = {"name": table_name, "columns": []}
