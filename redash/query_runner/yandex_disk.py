@@ -57,15 +57,15 @@ class YandexDisk(BaseSQLQueryRunner):
         limit = 100
 
         while True:
-            temp_items = self._send_query(
+            tmp_response = self._send_query(
                 "resources/public", media_type="spreadsheet,text", limit=limit, offset=offset
             )
 
-            temp_items = temp_items["items"]
+            tmp_items = tmp_response["items"]
 
-            for i in temp_items:
-                file_name = i["name"]
-                file_path = i["path"].replace("disk:", "")
+            for file_info in tmp_items:
+                file_name = file_info["name"]
+                file_path = file_info["path"].replace("disk:", "")
 
                 file_extension = file_name.split(".")[-1].lower()
                 if file_extension not in EXTENSIONS_READERS:
@@ -73,7 +73,7 @@ class YandexDisk(BaseSQLQueryRunner):
 
                 schema[file_name] = {"name": file_name, "columns": [file_path]}
 
-            if len(temp_items) < limit:
+            if len(tmp_items) < limit:
                 break
 
             offset += limit
@@ -124,12 +124,15 @@ class YandexDisk(BaseSQLQueryRunner):
         file_extension = params["path"].split(".")[-1].lower()
 
         read_params = {}
+        is_multiple_sheets = False
 
         if file_extension not in EXTENSIONS_READERS:
             error = f"Unsupported file extension: {file_extension}"
             return data, error
         elif file_extension in ("xls", "xlsx"):
             read_params["sheet_name"] = params.get("sheet_name", 0)
+            if read_params["sheet_name"] is None:
+                is_multiple_sheets = True
 
         file_url = self._send_query("resources/download", path=params["path"])["href"]
 
@@ -139,6 +142,14 @@ class YandexDisk(BaseSQLQueryRunner):
             logger.exception(e)
             error = f"Read file error: {str(e)}"
             return data, error
+
+        if is_multiple_sheets:
+            new_df = []
+            for sheet_name, sheet_df in df.items():
+                sheet_df["sheet_name"] = sheet_name
+                new_df.append(sheet_df)
+            new_df = pd.concat(new_df, ignore_index=True)
+            df = new_df.copy()
 
         try:
             data = json_dumps(pandas_to_result(df))
