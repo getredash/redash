@@ -1,7 +1,10 @@
 from io import BytesIO
 from unittest import mock
 
+import yaml
+
 from redash.query_runner.yandex_disk import enabled
+from redash.utils import json_dumps
 
 if enabled:
     import pandas as pd
@@ -23,6 +26,11 @@ import pytest
 
 test_token = "AAAAQAA"
 skip_condition = pytest.mark.skipif(not enabled, reason="pandas and/or openpyxl are not installed")
+
+
+@pytest.fixture
+def mock_yandex_disk():
+    return YandexDisk(configuration={"token": test_token})
 
 
 @skip_condition
@@ -69,6 +77,61 @@ def test_test_connection(mock_requests_get, configuration, error_message):
             disk.test_connection()
     else:
         assert disk.test_connection() is None
+
+
+@skip_condition
+def test_get_tables(mock_yandex_disk):
+    mock_files = {
+        "items": [
+            {"name": "test_file.csv", "path": "disk:/test_path/test_file.csv"},
+            {"name": "invalid_file.txt", "path": "disk:/test_path/invalid_file.txt"},
+        ]
+    }
+    mock_yandex_disk._send_query = mock.MagicMock(return_value=mock_files)
+
+    tables = mock_yandex_disk._get_tables({})
+    assert len(tables) == 1
+    assert tables[0]["name"] == "test_file.csv"
+    assert tables[0]["columns"] == ["/test_path/test_file.csv"]
+
+
+def mock_ext_readers_return(url, **params):
+    return test_df
+
+
+@skip_condition
+@mock.patch("requests.get")
+def test_run_query(mocked_requests, mock_yandex_disk):
+    mocked_response = mock.MagicMock()
+    mocked_response.ok = True
+    mocked_response.json.return_value = {"href": "test_file.csv"}
+    mocked_requests.return_value = mocked_response
+
+    mock_readers = EXTENSIONS_READERS.copy()
+    mock_readers["csv"] = mock_ext_readers_return
+
+    expected_data = json_dumps(
+        {
+            "columns": [
+                {"name": "id", "friendly_name": "id", "type": "integer"},
+                {"name": "name", "friendly_name": "name", "type": "string"},
+                {"name": "age", "friendly_name": "age", "type": "integer"},
+            ],
+            "rows": [
+                {"id": 1, "name": "Alice", "age": 20},
+                {"id": 2, "name": "Bob", "age": 21},
+                {"id": 3, "name": "Charlie", "age": 22},
+                {"id": 4, "name": "Dave", "age": 23},
+                {"id": 5, "name": "Eve", "age": 24},
+            ],
+        }
+    )
+
+    with mock.patch.dict("redash.query_runner.yandex_disk.EXTENSIONS_READERS", mock_readers, clear=True):
+        data, error = mock_yandex_disk.run_query(yaml.dump({"path": "/tmp/file.csv"}), "user")
+
+    assert error is None
+    assert data == expected_data
 
 
 @skip_condition
