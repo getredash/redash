@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import pandas as pd
 
@@ -10,19 +12,18 @@ from redash.query_runner import (
     TYPE_STRING,
 )
 
-column_type_mappings = {
-    np.bool_: TYPE_BOOLEAN,
-    np.inexact: TYPE_FLOAT,
-    np.integer: TYPE_INTEGER,
-}
+logger = logging.getLogger(__name__)
 
 
 def get_column_types_from_dataframe(df: pd.DataFrame) -> list:
     columns = []
-
     for column_name, column_type in df.dtypes.items():
-        if column_type in column_type_mappings:
-            redash_type = column_type_mappings[column_type]
+        if column_type in (np.bool_, "bool"):
+            redash_type = TYPE_BOOLEAN
+        elif column_type in (np.int64, "int64", np.integer):
+            redash_type = TYPE_INTEGER
+        elif column_type in (np.inexact, np.floating, "float64"):
+            redash_type = TYPE_FLOAT
         elif column_type in (np.datetime64, np.dtype("<M8[ns]")):
             if df.empty:
                 redash_type = TYPE_DATETIME
