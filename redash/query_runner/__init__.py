@@ -3,8 +3,6 @@ from collections import defaultdict
 from contextlib import ExitStack
 from functools import wraps
 
-import numpy as np
-import pandas as pd
 import sqlparse
 from dateutil import parser
 from rq.timeouts import JobTimeoutException
@@ -37,7 +35,6 @@ __all__ = [
     "get_query_runner",
     "import_query_runners",
     "guess_type",
-    "pandas_to_result",
 ]
 
 # Valid types of columns returned in results:
@@ -107,37 +104,6 @@ def find_last_keyword_idx(parsed_query):
         if parsed_query.tokens[i].ttype in sqlparse.tokens.Keyword:
             return i
     return -1
-
-
-def get_column_types_from_dataframe(df: pd.DataFrame) -> list:
-    columns = []
-
-    for column_name, column_type in df.dtypes.items():
-        if column_type == np.bool_:
-            redash_type = TYPE_BOOLEAN
-        elif column_type == np.inexact:
-            redash_type = TYPE_FLOAT
-        elif column_type == np.integer:
-            redash_type = TYPE_INTEGER
-        elif column_type in (np.datetime64, np.dtype("<M8[ns]")):
-            if df.empty:
-                redash_type = TYPE_DATETIME
-            elif len(df[column_name].head(1).astype(str).loc[0]) > 10:
-                redash_type = TYPE_DATETIME
-            else:
-                redash_type = TYPE_DATE
-        else:
-            redash_type = TYPE_STRING
-
-        columns.append({"name": column_name, "friendly_name": column_name, "type": redash_type})
-
-    return columns
-
-
-def pandas_to_result(df: pd.DataFrame) -> dict:
-    columns = get_column_types_from_dataframe(df)
-    rows = df.to_dict("records")
-    return {"columns": columns, "rows": rows}
 
 
 class InterruptException(Exception):

@@ -3,7 +3,8 @@ import logging
 import requests
 import yaml
 
-from redash.query_runner import BaseSQLQueryRunner, pandas_to_result, register
+from redash.query_runner import BaseSQLQueryRunner, register
+from redash.query_runner.utils import pandas_to_result
 from redash.utils import json_dumps
 
 try:

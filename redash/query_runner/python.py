@@ -21,9 +21,9 @@ from redash.query_runner import (
     TYPE_INTEGER,
     TYPE_STRING,
     BaseQueryRunner,
-    pandas_to_result,
     register,
 )
+from redash.query_runner.utils import pandas_to_result
 from redash.utils import json_dumps, json_loads
 
 pandas_installed = importlib.util.find_spec("pandas") and importlib.util.find_spec("numpy")
