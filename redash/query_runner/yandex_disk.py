@@ -1,28 +1,33 @@
 import logging
+from importlib.util import find_spec
 
 import requests
 import yaml
 
 from redash.query_runner import BaseSQLQueryRunner, register
-from redash.query_runner.utils import pandas_to_result
 from redash.utils import json_dumps
 
-try:
+pandas_installed = find_spec("pandas") and find_spec("numpy")
+openpyxl_installed = find_spec("openpyxl")
+
+if pandas_installed and openpyxl_installed:
     import openpyxl  # noqa: F401
     import pandas as pd
 
+    from redash.utils.pandas import pandas_to_result
+
     enabled = True
-except ImportError:
+
+    EXTENSIONS_READERS = {
+        "csv": pd.read_csv,
+        "tsv": pd.read_table,
+        "xls": pd.read_excel,
+        "xlsx": pd.read_excel,
+    }
+else:
     enabled = False
 
 logger = logging.getLogger(__name__)
-
-EXTENSIONS_READERS = {
-    "csv": pd.read_csv,
-    "tsv": pd.read_table,
-    "xls": pd.read_excel,
-    "xlsx": pd.read_excel,
-}
 
 
 class YandexDisk(BaseSQLQueryRunner):

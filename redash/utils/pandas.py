@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from . import (
+from redash.query_runner import (
     TYPE_BOOLEAN,
     TYPE_DATE,
     TYPE_DATETIME,

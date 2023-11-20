@@ -1,32 +1,41 @@
 from io import BytesIO
 from unittest import mock
 
-import pandas as pd
+from redash.query_runner.yandex_disk import enabled
+
+if enabled:
+    import pandas as pd
+
+    from redash.query_runner.yandex_disk import EXTENSIONS_READERS, YandexDisk
+
+    test_df = pd.DataFrame(
+        [
+            {"id": 1, "name": "Alice", "age": 20},
+            {"id": 2, "name": "Bob", "age": 21},
+            {"id": 3, "name": "Charlie", "age": 22},
+            {"id": 4, "name": "Dave", "age": 23},
+            {"id": 5, "name": "Eve", "age": 24},
+        ]
+    )
+
+
 import pytest
 
-from redash.query_runner.yandex_disk import EXTENSIONS_READERS, YandexDisk
-
-test_df = pd.DataFrame(
-    [
-        {"id": 1, "name": "Alice", "age": 20},
-        {"id": 2, "name": "Bob", "age": 21},
-        {"id": 3, "name": "Charlie", "age": 22},
-        {"id": 4, "name": "Dave", "age": 23},
-        {"id": 5, "name": "Eve", "age": 24},
-    ]
-)
-
 test_token = "AAAAQAA"
+skip_condition = pytest.mark.skipif(not enabled, reason="pandas and/or openpyxl are not installed")
 
 
+@skip_condition
 def test_yandex_disk_type():
     assert YandexDisk.type() == "yandex_disk"
 
 
+@skip_condition
 def test_yandex_disk_name():
     assert YandexDisk.name() == "Yandex Disk"
 
 
+@skip_condition
 @mock.patch("requests.get")
 def test__send_query(mock_requests_get):
     mock_requests_get.return_value.ok = True
@@ -40,6 +49,7 @@ def test__send_query(mock_requests_get):
     mock_requests_get.assert_called_once()
 
 
+@skip_condition
 @pytest.mark.parametrize(
     "configuration, error_message",
     [({"token": test_token}, None), ({"token": ""}, "Code: 400, message: Unauthorized")],
@@ -61,6 +71,7 @@ def test_test_connection(mock_requests_get, configuration, error_message):
         assert disk.test_connection() is None
 
 
+@skip_condition
 def test_read_xlsx():
     output = BytesIO()
     writer = pd.ExcelWriter(output)
@@ -69,6 +80,7 @@ def test_read_xlsx():
     assert test_df.equals(EXTENSIONS_READERS["xlsx"](output))
 
 
+@skip_condition
 def test_read_csv():
     output = BytesIO()
     test_df.to_csv(output, index=False)
@@ -77,6 +89,7 @@ def test_read_csv():
     assert test_df.equals(EXTENSIONS_READERS["csv"](output))
 
 
+@skip_condition
 def test_tsv():
     output = BytesIO()
     test_df.to_csv(output, index=False, sep="\t")

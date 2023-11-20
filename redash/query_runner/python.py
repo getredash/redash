@@ -2,6 +2,7 @@ import datetime
 import importlib
 import logging
 import sys
+from importlib.util import find_spec
 
 from RestrictedPython import compile_restricted
 from RestrictedPython.Guards import (
@@ -23,12 +24,17 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.query_runner.utils import pandas_to_result
 from redash.utils import json_dumps, json_loads
 
-pandas_installed = importlib.util.find_spec("pandas") and importlib.util.find_spec("numpy")
+pandas_installed = find_spec("pandas") and find_spec("numpy")
 if pandas_installed:
     import pandas as pd
+
+    from redash.utils.pandas import pandas_to_result
+
+    enabled = True
+else:
+    enabled = False
 
 
 logger = logging.getLogger(__name__)
