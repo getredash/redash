@@ -122,6 +122,7 @@ class TestRenderTemplate(TestCase):
 
 
 @pytest.fixture
+@skip_condition
 def mock_dataframe():
     df = pd.DataFrame(
         {
@@ -136,6 +137,7 @@ def mock_dataframe():
     return df
 
 
+@skip_condition
 def test_get_column_types_from_dataframe(mock_dataframe):
     result = get_column_types_from_dataframe(mock_dataframe)
     expected_output = [
@@ -150,6 +152,7 @@ def test_get_column_types_from_dataframe(mock_dataframe):
     assert result == expected_output
 
 
+@skip_condition
 def test_pandas_to_result(mock_dataframe):
     result = pandas_to_result(mock_dataframe)
 

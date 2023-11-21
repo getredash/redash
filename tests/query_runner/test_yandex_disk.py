@@ -135,6 +135,33 @@ def test_run_query(mocked_requests, mock_yandex_disk):
 
 
 @skip_condition
+def test_run_query_with_empty_query(mock_yandex_disk):
+    result = mock_yandex_disk.run_query("", "user")
+    assert result == (None, "Query is empty")
+
+
+@skip_condition
+def test_run_query_bad_yaml(mock_yandex_disk):
+    bad_yaml_query = "unparseable = yaml"
+    result = mock_yandex_disk.run_query(bad_yaml_query, "user")
+    assert result == (None, "The query format must be JSON or YAML")
+
+
+@skip_condition
+def test_run_query_without_path(mock_yandex_disk):
+    bad_yaml_query = "without: path"
+    result = mock_yandex_disk.run_query(bad_yaml_query, "user")
+    assert result == (None, "The query must contain path")
+
+
+@skip_condition
+def test_run_query_unsupported_extension(mock_yandex_disk):
+    bad_yaml_query = "path: /tmp/file.txt"
+    result = mock_yandex_disk.run_query(bad_yaml_query, "user")
+    assert result == (None, "Unsupported file extension: txt")
+
+
+@skip_condition
 def test_read_xlsx():
     output = BytesIO()
     writer = pd.ExcelWriter(output)
