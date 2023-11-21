@@ -1,9 +1,6 @@
 import logging
 from importlib.util import find_spec
 
-import numpy as np
-import pandas as pd
-
 from redash.query_runner import (
     TYPE_BOOLEAN,
     TYPE_DATE,
@@ -16,6 +13,10 @@ from redash.query_runner import (
 logger = logging.getLogger(__name__)
 
 pandas_installed = find_spec("pandas") and find_spec("numpy")
+
+if pandas_installed:
+    import numpy as np
+    import pandas as pd
 
 
 def get_column_types_from_dataframe(df: pd.DataFrame) -> list:
