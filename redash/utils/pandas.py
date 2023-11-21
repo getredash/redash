@@ -1,4 +1,5 @@
 import logging
+from importlib.util import find_spec
 
 import numpy as np
 import pandas as pd
@@ -14,15 +15,17 @@ from redash.query_runner import (
 
 logger = logging.getLogger(__name__)
 
+pandas_installed = find_spec("pandas") and find_spec("numpy")
+
 
 def get_column_types_from_dataframe(df: pd.DataFrame) -> list:
     columns = []
     for column_name, column_type in df.dtypes.items():
-        if column_type in (np.bool_, "bool"):
+        if column_type in (np.bool_,):
             redash_type = TYPE_BOOLEAN
-        elif column_type in (np.int64, "int64", np.integer):
+        elif column_type in (np.int64, np.int32):
             redash_type = TYPE_INTEGER
-        elif column_type in (np.inexact, np.floating, "float64"):
+        elif column_type in (np.float64,):
             redash_type = TYPE_FLOAT
         elif column_type in (np.datetime64, np.dtype("<M8[ns]")):
             if df.empty:

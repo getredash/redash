@@ -6,8 +6,8 @@ import yaml
 
 from redash.query_runner import BaseSQLQueryRunner, register
 from redash.utils import json_dumps
+from redash.utils.pandas import pandas_installed
 
-pandas_installed = find_spec("pandas") and find_spec("numpy")
 openpyxl_installed = find_spec("openpyxl")
 
 if pandas_installed and openpyxl_installed:
