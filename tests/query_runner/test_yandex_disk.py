@@ -145,6 +145,14 @@ def test_run_query_with_empty_query(mock_yandex_disk):
 
 
 @skip_condition
+def test_run_query_nonstring_yaml(mock_yandex_disk):
+    bad_yaml_query = None
+    data, error = mock_yandex_disk.run_query(bad_yaml_query, "user")
+    assert data is None
+    assert error is not None
+
+
+@skip_condition
 def test_run_query_bad_yaml(mock_yandex_disk):
     bad_yaml_query = "unparseable = yaml"
     result = mock_yandex_disk.run_query(bad_yaml_query, "user")
