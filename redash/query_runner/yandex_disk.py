@@ -114,9 +114,9 @@ class YandexDisk(BaseSQLQueryRunner):
 
         try:
             params = yaml.safe_load(query)
-        except ValueError as e:
+        except (ValueError, AttributeError) as e:
             logger.exception(e)
-            error = str(e)
+            error = f"YAML read error: {str(e)}"
             return data, error
 
         if not isinstance(params, dict):
@@ -157,12 +157,8 @@ class YandexDisk(BaseSQLQueryRunner):
             new_df = pd.concat(new_df, ignore_index=True)
             df = new_df.copy()
 
-        try:
-            data = json_dumps(pandas_to_result(df))
-            error = None
-        except Exception as e:
-            logger.exception(e)
-            error = str(e)
+        data = json_dumps(pandas_to_result(df))
+        error = None
 
         return data, error
 

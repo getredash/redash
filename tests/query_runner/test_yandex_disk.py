@@ -146,10 +146,10 @@ def test_run_query_with_empty_query(mock_yandex_disk):
 
 @skip_condition
 def test_run_query_nonstring_yaml(mock_yandex_disk):
-    bad_yaml_query = None
+    bad_yaml_query = [0, 1]
     data, error = mock_yandex_disk.run_query(bad_yaml_query, "user")
     assert data is None
-    assert error is not None
+    assert error.startswith("YAML read error: ")
 
 
 @skip_condition
