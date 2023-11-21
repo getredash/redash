@@ -99,6 +99,10 @@ def mock_ext_readers_return(url, **params):
     return test_df
 
 
+def mock_ext_readers_return_multiple_sheets(url, **params):
+    return {"sheet1": test_df}
+
+
 @skip_condition
 @mock.patch("requests.get")
 def test_run_query(mocked_requests, mock_yandex_disk):
@@ -159,6 +163,56 @@ def test_run_query_unsupported_extension(mock_yandex_disk):
     bad_yaml_query = "path: /tmp/file.txt"
     result = mock_yandex_disk.run_query(bad_yaml_query, "user")
     assert result == (None, "Unsupported file extension: txt")
+
+
+@skip_condition
+def test_run_query_read_file_error(mock_yandex_disk):
+    mock_yandex_disk._send_query = mock.MagicMock(return_value={"href": "test_file.csv"})
+    mock_yandex_disk._get_tables = mock.MagicMock(return_value=[{"name": "test_file.csv", "columns": []}])
+    mock_yandex_disk._read_file = mock.MagicMock(side_effect=Exception("Read file error"))
+
+    data, error = mock_yandex_disk.run_query(yaml.dump({"path": "/tmp/file.csv"}), "user")
+    assert data is None
+    assert error is not None and error.startswith("Read file error")
+
+
+@skip_condition
+@mock.patch("requests.get")
+def test_run_query_multiple_sheets(mocked_requests, mock_yandex_disk):
+    mocked_response = mock.MagicMock()
+    mocked_response.ok = True
+    mocked_response.json.return_value = {"href": "test_file.xlsx"}
+    mocked_requests.return_value = mocked_response
+
+    query = """
+    path: /tmp/file.xlsx
+    sheet_name: null
+    """
+
+    mock_readers = EXTENSIONS_READERS.copy()
+    mock_readers["xlsx"] = mock_ext_readers_return_multiple_sheets
+
+    with mock.patch.dict("redash.query_runner.yandex_disk.EXTENSIONS_READERS", mock_readers, clear=True):
+        data, error = mock_yandex_disk.run_query(query, "user")
+
+    assert error is None
+    assert data == json_dumps(
+        {
+            "columns": [
+                {"name": "id", "friendly_name": "id", "type": "integer"},
+                {"name": "name", "friendly_name": "name", "type": "string"},
+                {"name": "age", "friendly_name": "age", "type": "integer"},
+                {"name": "sheet_name", "friendly_name": "sheet_name", "type": "string"},
+            ],
+            "rows": [
+                {"id": 1, "name": "Alice", "age": 20, "sheet_name": "sheet1"},
+                {"id": 2, "name": "Bob", "age": 21, "sheet_name": "sheet1"},
+                {"id": 3, "name": "Charlie", "age": 22, "sheet_name": "sheet1"},
+                {"id": 4, "name": "Dave", "age": 23, "sheet_name": "sheet1"},
+                {"id": 5, "name": "Eve", "age": 24, "sheet_name": "sheet1"},
+            ],
+        }
+    )
 
 
 @skip_condition
