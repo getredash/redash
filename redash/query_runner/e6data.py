@@ -8,14 +8,11 @@ from redash.query_runner import (
     TYPE_INTEGER,
     TYPE_STRING,
     BaseQueryRunner,
-    InterruptException,
-    JobTimeoutException,
     register,
 )
 
 try:
     from e6data_python_connector import Connection
-    from sqlalchemy.exc import DatabaseError
 
     enabled = True
 
@@ -32,8 +29,8 @@ E6DATA_TYPES_MAPPING = {
     "INTEGER": TYPE_INTEGER,
     "LONG": TYPE_INTEGER,
     "SHORT": TYPE_INTEGER,
-    "FLOAT": TYPE_INTEGER,
-    "DOUBLE": TYPE_INTEGER,
+    "FLOAT": TYPE_FLOAT,
+    "DOUBLE": TYPE_FLOAT,
     "STRING": TYPE_STRING,
     "DATETIME": TYPE_DATETIME,
     "BINARY": TYPE_INTEGER,
@@ -84,7 +81,7 @@ class e6data(BaseQueryRunner):
                 "catalog",
                 "database",
             ],
-            "required": ["host", "username", "password", "catalog", "database"],
+            "required": ["host", "port", "username", "password", "catalog", "database"],
             "secret": ["password"],
         }
 
@@ -97,31 +94,29 @@ class e6data(BaseQueryRunner):
         return "e6data"
 
     def run_query(self, query, user):
-        cursor = self.connection.cursor(catalog_name=self.configuration.get("catalog"))
+        cursor = None
         try:
+            cursor = self.connection.cursor(catalog_name=self.configuration.get("catalog"))
             cursor.execute(query)
             results = cursor.fetchall()
             description = cursor.description
-            columns = self.fetch_columns([(c[0], E6DATA_TYPES_MAPPING.get(c[1], None)) for c in description])
+            columns = []
+            for c in description:
+                column_name, column_type = c[0], E6DATA_TYPES_MAPPING.get(c[1], None)
+                columns.append({"name": column_name, "type": column_type})
             rows = [dict(zip([c["name"] for c in columns], r)) for r in results]
             data = {"columns": columns, "rows": rows}
             json_data = json_dumps(data)
             error = None
-        except DatabaseError as db:
+
+        except Exception as error:
+            logger.debug(error)
             json_data = None
-            default_message = "Unspecified DatabaseError: {0}".format(str(db))
-            if isinstance(db.args[0], dict):
-                message = db.args[0].get("failureInfo", {"message", None}).get("message")
-            else:
-                message = None
-            error = default_message if message is None else message
-        except (KeyboardInterrupt, InterruptException, JobTimeoutException) as intExp:
-            error = intExp
-            json_data = None
-            cursor.cancel()
-        except Exception:
-            error = "Invalid Configuration"
-            json_data = None
+        finally:
+            if cursor is not None:
+                cursor.clear()
+                cursor.close()
+
         return json_data, error
 
     def test_connection(self):
@@ -146,7 +141,8 @@ class e6data(BaseQueryRunner):
             columns_with_type = []
 
             for column in columns:
-                columns_with_type.append({"name": column["fieldName"], "type": column["fieldType"]})
+                redash_type = E6DATA_TYPES_MAPPING.get(column["fieldType"], None)
+                columns_with_type.append({"name": column["fieldName"], "type": redash_type})
 
             table_schema = {"name": table_name, "columns": columns_with_type}
 
