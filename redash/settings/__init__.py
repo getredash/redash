@@ -298,6 +298,7 @@ default_query_runners = [
     "redash.query_runner.clickhouse",
     "redash.query_runner.tinybird",
     "redash.query_runner.yandex_metrica",
+    "redash.query_runner.yandex_disk",
     "redash.query_runner.rockset",
     "redash.query_runner.treasuredata",
     "redash.query_runner.sqlite",
