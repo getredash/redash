@@ -398,3 +398,16 @@ class DashboardFavoriteListResource(BaseResource):
         )
 
         return response
+
+
+class DashboardForkResource(BaseResource):
+    @require_permission("edit_dashboard")
+    def post(self, dashboard_id):
+        dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
+
+        fork_dashboard = dashboard.fork(self.current_user)
+        models.db.session.commit()
+
+        self.record_event({"action": "fork", "object_id": dashboard_id, "object_type": "dashboard"})
+
+        return DashboardSerializer(fork_dashboard, with_widgets=True).serialize()
