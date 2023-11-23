@@ -137,6 +137,7 @@ thrift-sasl = ">=0.1.0"
 trino = ">=0.305,<1.0"
 vertica-python = "1.1.1"
 xlrd = "2.0.1"
+e6data-python-connector = "1.1.9"
 
 [tool.poetry.group.ldap3]
 optional = true
