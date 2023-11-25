@@ -227,7 +227,7 @@ jobs:
           context: .
           build-args: |
             test_all_deps=true
-          cache-from: type=ghq
+          cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
         env:
