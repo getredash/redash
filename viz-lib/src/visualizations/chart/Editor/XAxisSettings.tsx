@@ -1,6 +1,8 @@
+import { includes } from "lodash";
 import React from "react";
-import { Section, Switch } from "@/components/visualizations/editor";
+import { Section, InputNumber, Switch, Input } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
+import { toNumber } from "../plotly/utils";
 
 import AxisSettings from "./AxisSettings";
 
@@ -14,6 +16,34 @@ export default function XAxisSettings({ options, onOptionsChange }: any) {
         // @ts-expect-error ts-migrate(2322) FIXME: Type '(xAxis: any) => any' is not assignable to ty... Remove this comment to see the full error message
         onChange={(xAxis: any) => onOptionsChange({ xAxis })}
       />
+
+      {includes(["histogram"], options.globalSeriesType) && (
+        <React.Fragment>
+          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
+          <Section>
+            <Input
+              label="Bin Size"
+              className="w-100"
+              placeholder="Auto"
+              data-test="Chart.XAxis.BinSize"
+              defaultValue={options.binSize}
+              onChange={(e: any) => onOptionsChange({ binSize: e.target.value })}
+            />
+          </Section>
+
+          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
+          <Section>
+            <InputNumber
+              label="Bin Start"
+              className="w-100"
+              placeholder="Auto"
+              data-test="Chart.XAxis.BinStart"
+              defaultValue={options.binStart}
+              onChange={(binStart: any) => onOptionsChange({ binStart: toNumber(binStart) })}
+            />
+          </Section>
+        </React.Fragment>
+      )}
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>

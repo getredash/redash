@@ -6,6 +6,7 @@ import { visualizationsSettings } from "@/visualizations/visualizationsSettings"
 const allChartTypes = [
   { type: "line", name: "Line", icon: "line-chart" },
   { type: "column", name: "Bar", icon: "bar-chart" },
+  { type: "histogram", name: "Histogram", icon: "bar-chart" },
   { type: "area", name: "Area", icon: "area-chart" },
   { type: "pie", name: "Pie", icon: "pie-chart" },
   { type: "scatter", name: "Scatter", icon: "circle-o" },

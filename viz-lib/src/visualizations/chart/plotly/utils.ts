@@ -1,10 +1,15 @@
-import { isUndefined } from "lodash";
+import { isUndefined, isNumber, isFinite } from "lodash";
 import moment from "moment";
 // @ts-expect-error ts-migrate(7016) FIXME: Could not find a declaration file for module 'plot... Remove this comment to see the full error message
 import plotlyCleanNumber from "plotly.js/src/lib/clean_number";
 
 export function cleanNumber(value: any) {
   return isUndefined(value) ? value : plotlyCleanNumber(value);
+}
+
+export function toNumber(value: any) {
+  value = isNumber(value) ? value : parseFloat(value);
+  return isFinite(value) ? value : null;
 }
 
 export function getSeriesAxis(series: any, options: any) {
