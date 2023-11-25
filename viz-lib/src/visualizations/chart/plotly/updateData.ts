@@ -119,7 +119,7 @@ function updatePercentValues(seriesList: any, options: any) {
           item.yPercent = null;
         } else {
           const sum = sumOfCorrespondingPoints.get(item.x);
-          item.yPercent = (item.y / sum);
+          item.yPercent = (item.y / sum) * 100;
         }
         yValues.push(item.yPercent);
       });
