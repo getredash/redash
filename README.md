@@ -46,6 +46,7 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 - Dgraph
 - Apache Drill
 - Apache Druid
+- e6data
 - Eccenca Corporate Memory
 - Elasticsearch
 - Exasol

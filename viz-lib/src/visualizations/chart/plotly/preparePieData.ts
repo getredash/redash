@@ -60,7 +60,7 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
     sourceData.set(x, {
       x,
       y,
-      yPercent: (y / seriesTotal),
+      yPercent: (y / seriesTotal) * 100,
       row,
     });
   });
