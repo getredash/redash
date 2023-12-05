@@ -18,22 +18,23 @@ from redash.utils import json_dumps
 try:
     from influxdb_client import InfluxDBClient
     from influxdb_client.client.flux_table import TableList
+
     enabled = True
 except ImportError:
     enabled = False
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 TYPES_MAP = {
-    'integer': TYPE_INTEGER,
-    'long': TYPE_INTEGER,
-    'float': TYPE_FLOAT,
-    'double': TYPE_FLOAT,
-    'boolean': TYPE_BOOLEAN,
-    'string': TYPE_STRING,
-    'datetime:RFC3339': TYPE_DATETIME
+    "integer": TYPE_INTEGER,
+    "long": TYPE_INTEGER,
+    "float": TYPE_FLOAT,
+    "double": TYPE_FLOAT,
+    "boolean": TYPE_BOOLEAN,
+    "string": TYPE_STRING,
+    "datetime:RFC3339": TYPE_DATETIME,
 }
 
 
@@ -41,6 +42,7 @@ class InfluxDBv2(BaseQueryRunner):
     """
     Query runner for influxdb version 2.
     """
+
     should_annotate_query = False
 
     def _get_influx_kwargs(self) -> Dict:
@@ -49,12 +51,11 @@ class InfluxDBv2(BaseQueryRunner):
         :return: An object with additional arguments for influxdb client.
         """
         return {
-            'verify_ssl': self.configuration.get('verify_ssl', None),
-            'cert_file': self._create_cert_file('cert_File'),
-            'cert_key_file': self._create_cert_file('cert_key_File'),
-            'cert_key_password':
-                self.configuration.get('cert_key_password', None),
-            'ssl_ca_cert': self._create_cert_file('ssl_ca_cert_File')
+            "verify_ssl": self.configuration.get("verify_ssl", None),
+            "cert_file": self._create_cert_file("cert_File"),
+            "cert_key_file": self._create_cert_file("cert_key_File"),
+            "cert_key_password": self.configuration.get("cert_key_password", None),
+            "ssl_ca_cert": self._create_cert_file("ssl_ca_cert_File"),
         }
 
     def _create_cert_file(self, key: str) -> str:
@@ -67,9 +68,9 @@ class InfluxDBv2(BaseQueryRunner):
         cert_file_name = None
 
         if self.configuration.get(key, None) is not None:
-            with NamedTemporaryFile(mode='w', delete=False) as cert_file:
+            with NamedTemporaryFile(mode="w", delete=False) as cert_file:
                 cert_bytes = b64decode(self.configuration[key])
-                cert_file.write(cert_bytes.decode('utf-8'))
+                cert_file.write(cert_bytes.decode("utf-8"))
                 cert_file_name = cert_file.name
 
         return cert_file_name
@@ -78,7 +79,7 @@ class InfluxDBv2(BaseQueryRunner):
         """
         Deletes temporary stored files in filesystem.
         """
-        for key in ['cert_file', 'cert_key_file', 'ssl_ca_cert']:
+        for key in ["cert_file", "cert_key_file", "ssl_ca_cert"]:
             cert_path = influx_kwargs.get(key, None)
             if cert_path is not None and os.path.exists(cert_path):
                 os.remove(cert_path)
@@ -92,58 +93,21 @@ class InfluxDBv2(BaseQueryRunner):
         """
         # files has to end with "File" in name
         return {
-            'type': 'object',
-            'properties': {
-                'url': {
-                    'type': 'string',
-                    'title': 'URL'
-                },
-                'org': {
-                    'type': 'string',
-                    'title': 'Organization'
-                },
-                'token': {
-                    'type': 'string',
-                    'title': 'Token'
-                },
-                'verify_ssl': {
-                    'type': 'boolean',
-                    'title': 'Verify SSL',
-                    'default': False
-                },
-                'cert_File': {
-                    'type': 'string',
-                    'title': 'SSL Client Certificate',
-                    'default': None
-                },
-                'cert_key_File': {
-                    'type': 'string',
-                    'title': 'SSL Client Key',
-                    'default': None
-                },
-                'cert_key_password': {
-                    'type': 'string',
-                    'title': 'Password for SSL Client Key',
-                    'default': None
-                },
-                'ssl_ca_cert_File': {
-                    'type': 'string',
-                    'title': 'SSL Root Certificate',
-                    'default': None
-                }
+            "type": "object",
+            "properties": {
+                "url": {"type": "string", "title": "URL"},
+                "org": {"type": "string", "title": "Organization"},
+                "token": {"type": "string", "title": "Token"},
+                "verify_ssl": {"type": "boolean", "title": "Verify SSL", "default": False},
+                "cert_File": {"type": "string", "title": "SSL Client Certificate", "default": None},
+                "cert_key_File": {"type": "string", "title": "SSL Client Key", "default": None},
+                "cert_key_password": {"type": "string", "title": "Password for SSL Client Key", "default": None},
+                "ssl_ca_cert_File": {"type": "string", "title": "SSL Root Certificate", "default": None},
             },
-            'order': ['url', 'org', 'token', 'cert_File', 'cert_key_File',
-                      'cert_key_password', 'ssl_ca_cert_File'],
-            'required': ['url', 'org', 'token'],
-            'secret': ['token', 'cert_File', 'cert_key_File',
-                       'cert_key_password', 'ssl_ca_cert_File'],
-            'extra_options': [
-                'verify_ssl',
-                'cert_File',
-                'cert_key_File',
-                'cert_key_password',
-                'ssl_ca_cert_File'
-            ]
+            "order": ["url", "org", "token", "cert_File", "cert_key_File", "cert_key_password", "ssl_ca_cert_File"],
+            "required": ["url", "org", "token"],
+            "secret": ["token", "cert_File", "cert_key_File", "cert_key_password", "ssl_ca_cert_File"],
+            "extra_options": ["verify_ssl", "cert_File", "cert_key_File", "cert_key_password", "ssl_ca_cert_File"],
         }
 
     @classmethod
@@ -165,19 +129,15 @@ class InfluxDBv2(BaseQueryRunner):
         try:
             influx_kwargs = self._get_influx_kwargs()
             with InfluxDBClient(
-                url=self.configuration['url'],
-                token=self.configuration['token'],
-                org=self.configuration['org'],
-                **influx_kwargs
+                url=self.configuration["url"],
+                token=self.configuration["token"],
+                org=self.configuration["org"],
+                **influx_kwargs,
             ) as client:
                 healthy = client.health()
-                if healthy.status == 'fail':
-                    logger.error(
-                        'Connection test failed, due to: '
-                        f'{healthy.message!r}.')
-                    raise Exception(
-                        'InfluxDB is not healthy. Check logs for more '
-                        'information.')
+                if healthy.status == "fail":
+                    logger.error("Connection test failed, due to: " f"{healthy.message!r}.")
+                    raise Exception("InfluxDB is not healthy. Check logs for more " "information.")
         except Exception:
             raise
         finally:
@@ -190,7 +150,7 @@ class InfluxDBv2(BaseQueryRunner):
         :param type_: The type from the database to map to internal datatype.
         :return: The name of the internal datatype.
         """
-        return TYPES_MAP.get(type_, 'string')
+        return TYPES_MAP.get(type_, "string")
 
     def _get_data_from_tables(self, tables: TableList) -> Dict:
         """
@@ -206,23 +166,18 @@ class InfluxDBv2(BaseQueryRunner):
         for table in tables:
             for column in table.columns:
                 column_entry = {
-                    'name': column.label,
-                    'type': self._get_type(column.data_type),
-                    'friendly_name': column.label.title()
+                    "name": column.label,
+                    "type": self._get_type(column.data_type),
+                    "friendly_name": column.label.title(),
                 }
                 if column_entry not in columns:
                     columns.append(column_entry)
 
-            rows.extend(
-                [row.values for row in [record for record in table.records]])
+            rows.extend([row.values for row in [record for record in table.records]])
 
-        return {
-            'columns': columns,
-            'rows': rows
-        }
+        return {"columns": columns, "rows": rows}
 
-    def run_query(self, query: str, user: str) \
-            -> Tuple[Optional[str], Optional[str]]:
+    def run_query(self, query: str, user: str) -> Tuple[Optional[str], Optional[str]]:
         """
         Runs a given query against the influxdb instance and returns its
         result.
@@ -240,13 +195,12 @@ class InfluxDBv2(BaseQueryRunner):
         try:
             influx_kwargs = self._get_influx_kwargs()
             with InfluxDBClient(
-                url=self.configuration['url'],
-                token=self.configuration['token'],
-                org=self.configuration['org'],
-                **influx_kwargs
+                url=self.configuration["url"],
+                token=self.configuration["token"],
+                org=self.configuration["org"],
+                **influx_kwargs,
             ) as client:
-
-                logger.debug(f'InfluxDB got query: {query!r}')
+                logger.debug(f"InfluxDB got query: {query!r}")
 
                 tables = client.query_api().query(query)
 
