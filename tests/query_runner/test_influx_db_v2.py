@@ -1,9 +1,13 @@
 import json
+
 import mock
 import pytest
-
 from influxdb_client.client.flux_table import (
-    FluxTable, FluxColumn, FluxRecord, TableList)
+    FluxColumn,
+    FluxRecord,
+    FluxTable,
+    TableList,
+)
 
 from redash.query_runner.influx_db_v2 import InfluxDBv2
 

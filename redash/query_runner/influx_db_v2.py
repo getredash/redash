@@ -1,27 +1,26 @@
+import logging
+import os
+from base64 import b64decode
+from tempfile import NamedTemporaryFile
+from typing import Dict, Optional, Tuple, Type, TypeVar
+
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseQueryRunner,
+    register,
+)
+from redash.utils import json_dumps
+
 try:
     from influxdb_client import InfluxDBClient
     from influxdb_client.client.flux_table import TableList
     enabled = True
 except ImportError:
     enabled = False
-
-import logging
-import os
-
-from base64 import b64decode
-from tempfile import NamedTemporaryFile
-from typing import Dict, Optional, Tuple, TypeVar, Type
-
-from redash.query_runner import (
-    BaseQueryRunner,
-    register,
-    TYPE_BOOLEAN,
-    TYPE_DATETIME,
-    TYPE_FLOAT,
-    TYPE_INTEGER,
-    TYPE_STRING,
-)
-from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
