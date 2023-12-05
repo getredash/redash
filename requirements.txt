@@ -34,7 +34,7 @@ statsd==3.3.0
 greenlet==0.4.16
 gunicorn==20.0.4
 rq==1.5.0
-rq-scheduler==0.9.1
+rq-scheduler==0.10.0
 jsonschema==3.1.1
 RestrictedPython==5.0
 pysaml2==6.1.0
