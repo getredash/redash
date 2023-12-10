@@ -8,6 +8,13 @@ logger = logging.getLogger("jwt_auth")
 
 FILE_SCHEME_PREFIX = "file://"
 
+# https://tools.ietf.org/html/rfc7518#section-6.1
+jwt_algorithms = {
+    "EC": jwt.algorithms.ECAlgorithm,
+    "RSA": jwt.algorithms.RSAAlgorithm,
+    "oct": jwt.algorithms.HMACAlgorithm,
+}
+
 
 def get_public_key_from_file(url):
     file_path = url[len(FILE_SCHEME_PREFIX) :]
@@ -25,8 +32,12 @@ def get_public_key_from_net(url):
     if "keys" in data:
         public_keys = []
         for key_dict in data["keys"]:
-            public_key = jwt.algorithms.RSAAlgorithm.from_jwk(simplejson.dumps(key_dict))
-            public_keys.append(public_key)
+            try:
+                algorithm = jwt_algorithms[key_dict["kty"]]
+            except KeyError:
+                raise Exception("Unknown key type: {}".format(key_dict["kty"]))
+
+            public_keys.append(algorithm.from_jwk(simplejson.dumps(key_dict)))
 
         get_public_keys.key_cache[url] = public_keys
         return public_keys
@@ -38,7 +49,7 @@ def get_public_key_from_net(url):
 def get_public_keys(url):
     """
     Returns:
-        List of RSA public keys usable by PyJWT.
+        List of RSA, EC or HMAC public keys usable by PyJWT.
     """
     key_cache = get_public_keys.key_cache
     keys = {}
