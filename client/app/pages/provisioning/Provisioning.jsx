@@ -6,13 +6,17 @@ import { SearchResultsList } from "@/components/searchbar/SearchResultsList";
 import recordEvent from "@/services/recordEvent";
 import routes from "@/services/routes";
 import DateRangeInput from "@/components/DateRangeInput";
-import DataList from "./components/DataList";
+
 
 import "./Provisioning.less";
 
 const ProvideData = () => {
   const [results, setResults] = useState([]);
+  const [checked, setChecked] = React.useState(false);
 
+  const handleChange = () => {
+    setChecked(!checked);
+  };
   useEffect(() => {
     recordEvent("view", "page", "personal_homepage");
   }, []);
@@ -28,8 +32,12 @@ const ProvideData = () => {
           </div>
           {results.length > 0 && <SearchResultsList results={results} />}
           <div className="form-group">
-            <label htmlFor="dateRangeInput">Select Date Range:</label>
-            <DateRangeInput id="dateRangeInput" />
+          <label htmlFor="dateRangeInput">Select Date Range:</label>
+          <DateRangeInput id="dateRangeInput" />
+          </div>
+          <div class="form-group">
+            <label htmlFor="keepdata">Keep data up to date</label>
+            <input name="keepdata" id="keepdata" type="checkbox" checked={checked} onChange={handleChange}/>
           </div>
         </form>
       </div>
@@ -42,6 +50,6 @@ routes.register(
   routeWithUserSession({
     path: "/provisioning",
     title: "Provide Data",
-    render: (pageProps) => <ProvideData {...pageProps} />,
+    render: pageProps => <ProvideData {...pageProps} currentPage="all" />,
   })
 );

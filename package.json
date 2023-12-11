@@ -99,6 +99,7 @@
     "@types/sql-formatter": "^2.3.0",
     "@typescript-eslint/eslint-plugin": "^2.10.0",
     "@typescript-eslint/parser": "^2.10.0",
+    "@wixc3/react-board": "2.3.0",
     "atob": "^2.1.2",
     "babel-eslint": "^10.0.3",
     "babel-jest": "^24.1.0",
