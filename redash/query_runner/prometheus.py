@@ -1,5 +1,8 @@
+import os
 import time
+from base64 import b64decode
 from datetime import datetime
+from tempfile import NamedTemporaryFile
 from urllib.parse import parse_qs
 
 import requests
@@ -73,29 +76,103 @@ def convert_query_range(payload):
 class Prometheus(BaseQueryRunner):
     should_annotate_query = False
 
+    def _get_prometheus_kwargs(self):
+        ca_cert_file = self._create_cert_file("ca_cert_File")
+        if ca_cert_file is not None:
+            verify = ca_cert_file
+        else:
+            verify = self.configuration.get("verify_ssl", True)
+
+        cert_file = self._create_cert_file("cert_File")
+        cert_key_file = self._create_cert_file("cert_key_File")
+        if cert_file is not None and cert_key_file is not None:
+            cert = (cert_file, cert_key_file)
+        else:
+            cert = ()
+
+        return {
+            "verify": verify,
+            "cert": cert,
+        }
+
+    def _create_cert_file(self, key):
+        cert_file_name = None
+
+        if self.configuration.get(key, None) is not None:
+            with NamedTemporaryFile(mode="w", delete=False) as cert_file:
+                cert_bytes = b64decode(self.configuration[key])
+                cert_file.write(cert_bytes.decode("utf-8"))
+                cert_file_name = cert_file.name
+
+        return cert_file_name
+
+    def _cleanup_cert_files(self, promehteus_kwargs):
+        verify = promehteus_kwargs.get("verify", True)
+        if isinstance(verify, str) and os.path.exists(verify):
+            os.remove(verify)
+
+        cert = promehteus_kwargs.get("cert", ())
+        for cert_file in cert:
+            if os.path.exists(cert_file):
+                os.remove(cert_file)
+
     @classmethod
     def configuration_schema(cls):
+        # files has to end with "File" in name
         return {
             "type": "object",
-            "properties": {"url": {"type": "string", "title": "Prometheus API URL"}},
+            "properties": {
+                "url": {"type": "string", "title": "Prometheus API URL"},
+                "verify_ssl": {
+                    "type": "boolean",
+                    "title": "Verify SSL (Ignored, if SSL Root Certificate is given)",
+                    "default": True,
+                },
+                "cert_File": {"type": "string", "title": "SSL Client Certificate", "default": None},
+                "cert_key_File": {"type": "string", "title": "SSL Client Key", "default": None},
+                "ca_cert_File": {"type": "string", "title": "SSL Root Certificate", "default": None},
+            },
             "required": ["url"],
+            "extra_options": ["verify_ssl", "cert_File", "cert_key_File", "ca_cert_File"],
         }
 
     def test_connection(self):
-        resp = requests.get(self.configuration.get("url", None))
-        return resp.ok
+        result = False
+        promehteus_kwargs = {}
+        try:
+            promehteus_kwargs = self._get_prometheus_kwargs()
+            resp = requests.get(self.configuration.get("url", None), **promehteus_kwargs)
+            result = resp.ok
+        except Exception:
+            raise
+        finally:
+            self._cleanup_cert_files(promehteus_kwargs)
+
+        return result
 
     def get_schema(self, get_stats=False):
-        base_url = self.configuration["url"]
-        metrics_path = "/api/v1/label/__name__/values"
-        response = requests.get(base_url + metrics_path)
-        response.raise_for_status()
-        data = response.json()["data"]
+        schema = []
+        promehteus_kwargs = {}
+        try:
+            base_url = self.configuration["url"]
+            metrics_path = "/api/v1/label/__name__/values"
+            promehteus_kwargs = self._get_prometheus_kwargs()
 
-        schema = {}
-        for name in data:
-            schema[name] = {"name": name, "columns": []}
-        return list(schema.values())
+            response = requests.get(base_url + metrics_path, **promehteus_kwargs)
+
+            response.raise_for_status()
+            data = response.json()["data"]
+
+            schema = {}
+            for name in data:
+                schema[name] = {"name": name, "columns": []}
+            schema = list(schema.values())
+        except Exception:
+            raise
+        finally:
+            self._cleanup_cert_files(promehteus_kwargs)
+
+        return schema
 
     def run_query(self, query, user):
         """
@@ -120,6 +197,7 @@ class Prometheus(BaseQueryRunner):
             {"friendly_name": "timestamp", "type": TYPE_DATETIME, "name": "timestamp"},
             {"friendly_name": "value", "type": TYPE_STRING, "name": "value"},
         ]
+        promehteus_kwargs = {}
 
         try:
             error = None
@@ -139,7 +217,9 @@ class Prometheus(BaseQueryRunner):
 
             api_endpoint = base_url + "/api/v1/{}".format(query_type)
 
-            response = requests.get(api_endpoint, params=payload)
+            promehteus_kwargs = self._get_prometheus_kwargs()
+
+            response = requests.get(api_endpoint, params=payload, **promehteus_kwargs)
             response.raise_for_status()
 
             metrics = response.json()["data"]["result"]
@@ -167,6 +247,10 @@ class Prometheus(BaseQueryRunner):
 
         except requests.RequestException as e:
             return None, str(e)
+        except Exception:
+            raise
+        finally:
+            self._cleanup_cert_files(promehteus_kwargs)
 
         return json_data, error
 
