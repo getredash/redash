@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 from unittest import TestCase
 
@@ -429,6 +430,8 @@ class TestPrometheus(TestCase):
             json=mock.Mock(return_value={"data": {"result": self.range_query_result}})
         )
 
+        start_timestamp_expected = int(time.mktime(datetime(2018, 1, 26).timetuple()))
+        end_timestamp_expected = int(time.mktime(datetime(2018, 1, 27).timetuple()))
         data, error = prometheus.run_query(
             "http_requests_total&start=2018-01-26T00:00:00.000Z&end=2018-01-27T00:00:00.000Z&step=60s", "user"
         )
@@ -437,7 +440,12 @@ class TestPrometheus(TestCase):
         self.assertIsNone(error)
         requests_get_mock.assert_called_once_with(
             "url/api/v1/query_range",
-            params={"query": ["http_requests_total"], "start": [1516921200], "end": [1517007600], "step": ["60s"]},
+            params={
+                "query": ["http_requests_total"],
+                "start": [start_timestamp_expected],
+                "end": [end_timestamp_expected],
+                "step": ["60s"],
+            },
             **prometheus_kwargs,
         )
         cleanup_cert_files_mock.assert_called_once_with(prometheus_kwargs)
@@ -484,12 +492,15 @@ class TestPrometheus(TestCase):
 
         data_expected = json_dumps({"rows": rows, "columns": columns})
 
+        now_datetime = datetime(2023, 12, 12, 11, 00, 00)
+        end_timestamp_expected = int(time.mktime(now_datetime.timetuple()))
+
         requests_get_mock.return_value = mock.Mock(
             json=mock.Mock(return_value={"data": {"result": self.range_query_result}})
         )
 
         with mock.patch("redash.query_runner.prometheus.Prometheus._get_datetime_now") as get_datetime_now_mock:
-            get_datetime_now_mock.return_value = datetime(2023, 12, 12, 11, 00, 00)
+            get_datetime_now_mock.return_value = now_datetime
             data, error = prometheus.run_query("http_requests_total&start=2018-01-26T00:00:00.000Z&step=60s", "user")
 
         self.assertEqual(data, data_expected)
@@ -498,8 +509,8 @@ class TestPrometheus(TestCase):
             "url/api/v1/query_range",
             params={
                 "query": ["http_requests_total"],
-                "start": [1516921200],
-                "end": [1702375200],
+                "start": [start_timestamp_expected],
+                "end": [end_timestamp_expected],
                 "step": ["60s"],
             },
             **prometheus_kwargs,
