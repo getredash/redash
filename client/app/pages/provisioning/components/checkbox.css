@@ -1,0 +1,10 @@
+.warning {
+    color: red;
+    position: absolute;
+    z-index: 0;
+}
+
+.check {
+    position: absolute;
+    z-index: 1;
+}

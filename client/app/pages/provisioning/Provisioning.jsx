@@ -1,22 +1,39 @@
 import React, { useEffect, useState } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
-import { SearchBar } from "@/components/searchbar/SearchBar";
-import { SearchResultsList } from "@/components/searchbar/SearchResultsList";
+import * as Sidebar from "@/components/items-list/components/Sidebar";
+import Layout from "@/components/layouts/ContentWithSidebar";
+import Checkbox from "./components/CheckBox"
 import recordEvent from "@/services/recordEvent";
 import routes from "@/services/routes";
 import DateRangeInput from "@/components/DateRangeInput";
+import Select from 'antd/lib/select';
+import axios from "axios";
 
 
 import "./Provisioning.less";
 
-const ProvideData = () => {
-  const [results, setResults] = useState([]);
-  const [checked, setChecked] = React.useState(false);
+const baseURL = "http://vs-proddash-dat/api/objects";
 
-  const handleChange = () => {
-    setChecked(!checked);
-  };
+const onChange = (value) => {
+  //console.log(`selected ${value}`);
+};
+const onSearch = (value) => {
+  //console.log('search:', value);
+};
+
+// Filter `option.label` match the user type `input`
+const filterOption = (input, option) =>
+  (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+const ProvideData = () => {
+  const [post, setPost] = React.useState(null);
+
+  useEffect(() => {
+    axios.get(baseURL).then((response) => {
+      setPost(response.data);
+    });
+  }, []);
+
   useEffect(() => {
     recordEvent("view", "page", "personal_homepage");
   }, []);
@@ -25,21 +42,24 @@ const ProvideData = () => {
     <div className="provisioning-page">
       <div className="container">
         <PageHeader title="Provide Historical Data" />
-        <form>
-          <div className="form-group">
-            <label htmlFor="searchInput">Search for Desired Machine:</label>
-            <SearchBar id="searchInput" setResults={setResults} />
-          </div>
-          {results.length > 0 && <SearchResultsList results={results} />}
-          <div className="form-group">
-          <label htmlFor="dateRangeInput">Select Date Range:</label>
-          <DateRangeInput id="dateRangeInput" />
-          </div>
-          <div class="form-group">
-            <label htmlFor="keepdata">Keep data up to date</label>
-            <input name="keepdata" id="keepdata" type="checkbox" checked={checked} onChange={handleChange}/>
-          </div>
-        </form>
+        <Layout>
+          <Layout.Sidebar className="m-b-0">
+            <form>
+              <Select
+                showSearch
+                placeholder="Select a person"
+                optionFilterProp="children"
+                onChange={onChange}
+                onSearch={onSearch}
+                filterOption={filterOption}
+                options={post}
+              />
+              <label htmlFor="dateRangeInput">Select Date Range:</label>
+              <DateRangeInput id="dateRangeInput" />
+              <Checkbox />
+            </form>
+          </Layout.Sidebar>
+        </Layout>
       </div>
     </div>
   );

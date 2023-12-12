@@ -1,0 +1,33 @@
+            <div data-test="DashboardLayoutContent">
+              {controller.isLoaded && controller.isEmpty ? (
+                <DashboardListEmptyState
+                  page={controller.params.currentPage}
+                  searchTerm={controller.searchTerm}
+                  selectedTags={controller.selectedTags}
+                />
+              ) : (
+                <React.Fragment>
+                  <div className={cx({ "m-b-10": areExtraActionsAvailable })}>
+                    <ExtraActionsComponent selectedItems={selectedItems} />
+                  </div>
+                  <div className="bg-white tiled table-responsive">
+                    <ItemsTable
+                      items={controller.pageItems}
+                      loading={!controller.isLoaded}
+                      columns={tableColumns}
+                      orderByField={controller.orderByField}
+                      orderByReverse={controller.orderByReverse}
+                      toggleSorting={controller.toggleSorting}
+                    />
+                    <Paginator
+                      showPageSizeSelect
+                      totalCount={controller.totalItemsCount}
+                      pageSize={controller.itemsPerPage}
+                      onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                      page={controller.page}
+                      onChange={page => controller.updatePagination({ page })}
+                    />
+                  </div>
+                </React.Fragment>
+              )}
+            </div> 
