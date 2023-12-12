@@ -1,9 +1,10 @@
-import datetime
+from datetime import datetime
 from unittest import TestCase
 
 import mock
 
 from redash.query_runner.prometheus import Prometheus, get_instant_rows, get_range_rows
+from redash.utils import json_dumps
 
 
 class TestPrometheus(TestCase):
@@ -35,13 +36,13 @@ class TestPrometheus(TestCase):
             {
                 "name": "example_metric_name",
                 "foo_bar": "foo",
-                "timestamp": datetime.datetime.fromtimestamp(1516937400.781),
+                "timestamp": datetime.fromtimestamp(1516937400.781),
                 "value": "7400_foo",
             },
             {
                 "name": "example_metric_name",
                 "foo_bar": "bar",
-                "timestamp": datetime.datetime.fromtimestamp(1516937400.781),
+                "timestamp": datetime.fromtimestamp(1516937400.781),
                 "value": "7400_bar",
             },
         ]
@@ -54,31 +55,38 @@ class TestPrometheus(TestCase):
             {
                 "name": "example_metric_name",
                 "foo_bar": "foo",
-                "timestamp": datetime.datetime.fromtimestamp(1516937400.781),
+                "timestamp": datetime.fromtimestamp(1516937400.781),
                 "value": "7400_foo",
             },
             {
                 "name": "example_metric_name",
                 "foo_bar": "foo",
-                "timestamp": datetime.datetime.fromtimestamp(1516938000.781),
+                "timestamp": datetime.fromtimestamp(1516938000.781),
                 "value": "8000_foo",
             },
             {
                 "name": "example_metric_name",
                 "foo_bar": "bar",
-                "timestamp": datetime.datetime.fromtimestamp(1516937400.781),
+                "timestamp": datetime.fromtimestamp(1516937400.781),
                 "value": "7400_bar",
             },
             {
                 "name": "example_metric_name",
                 "foo_bar": "bar",
-                "timestamp": datetime.datetime.fromtimestamp(1516938000.781),
+                "timestamp": datetime.fromtimestamp(1516938000.781),
                 "value": "8000_bar",
             },
         ]
 
         rows = get_range_rows(self.range_query_result)
         self.assertEqual(range_rows, rows)
+
+    @mock.patch("redash.query_runner.prometheus.datetime")
+    def test_get_datetime_now(self, datetime_mock: mock.MagicMock):
+        prometheus = Prometheus({"url": "url"})
+        datetime_mock.now.return_value = datetime(2023, 12, 12, 11, 00)
+        now = prometheus._get_datetime_now()
+        self.assertEqual(now, datetime(2023, 12, 12, 11, 00))
 
     @mock.patch("redash.query_runner.prometheus.Prometheus._create_cert_file")
     def test_get_prometheus_kwargs(self, create_cert_file_mock: mock.MagicMock):
@@ -317,7 +325,31 @@ class TestPrometheus(TestCase):
         # 1. case: successful run instant query
         prometheus = Prometheus({"url": "url"})
         prometheus_kwargs = {"verify": True, "cert": ()}
-        data_expected = '{"rows": [{"name": "example_metric_name", "foo_bar": "foo", "timestamp": "2018-01-26T04:30:00.781", "value": "7400_foo"}, {"name": "example_metric_name", "foo_bar": "bar", "timestamp": "2018-01-26T04:30:00.781", "value": "7400_bar"}], "columns": [{"friendly_name": "timestamp", "type": "datetime", "name": "timestamp"}, {"friendly_name": "value", "type": "string", "name": "value"}, {"friendly_name": "name", "type": "string", "name": "name"}, {"friendly_name": "foo_bar", "type": "string", "name": "foo_bar"}]}'
+
+        timestamp_expected_7400 = datetime.fromtimestamp(1516937400.781)
+
+        rows = [
+            {
+                "name": "example_metric_name",
+                "foo_bar": "foo",
+                "timestamp": timestamp_expected_7400,
+                "value": "7400_foo",
+            },
+            {
+                "name": "example_metric_name",
+                "foo_bar": "bar",
+                "timestamp": timestamp_expected_7400,
+                "value": "7400_bar",
+            },
+        ]
+        columns = [
+            {"friendly_name": "timestamp", "type": "datetime", "name": "timestamp"},
+            {"friendly_name": "value", "type": "string", "name": "value"},
+            {"friendly_name": "name", "type": "string", "name": "name"},
+            {"friendly_name": "foo_bar", "type": "string", "name": "foo_bar"},
+        ]
+
+        data_expected = json_dumps({"rows": rows, "columns": columns})
 
         requests_get_mock.return_value = mock.Mock(
             json=mock.Mock(return_value={"data": {"result": self.instant_query_result}})
@@ -356,7 +388,42 @@ class TestPrometheus(TestCase):
         # 3. case: successful run range query with start and end
         prometheus = Prometheus({"url": "url"})
         prometheus_kwargs = {"verify": True, "cert": ()}
-        data_expected = '{"rows": [{"name": "example_metric_name", "foo_bar": "foo", "timestamp": "2018-01-26T04:30:00.781", "value": "7400_foo"}, {"name": "example_metric_name", "foo_bar": "foo", "timestamp": "2018-01-26T04:40:00.781", "value": "8000_foo"}, {"name": "example_metric_name", "foo_bar": "bar", "timestamp": "2018-01-26T04:30:00.781", "value": "7400_bar"}, {"name": "example_metric_name", "foo_bar": "bar", "timestamp": "2018-01-26T04:40:00.781", "value": "8000_bar"}], "columns": [{"friendly_name": "timestamp", "type": "datetime", "name": "timestamp"}, {"friendly_name": "value", "type": "string", "name": "value"}, {"friendly_name": "name", "type": "string", "name": "name"}, {"friendly_name": "foo_bar", "type": "string", "name": "foo_bar"}]}'
+        timestamp_expected_8000 = datetime.fromtimestamp(1516938000.781)
+
+        rows = [
+            {
+                "name": "example_metric_name",
+                "foo_bar": "foo",
+                "timestamp": timestamp_expected_7400,
+                "value": "7400_foo",
+            },
+            {
+                "name": "example_metric_name",
+                "foo_bar": "foo",
+                "timestamp": timestamp_expected_8000,
+                "value": "8000_foo",
+            },
+            {
+                "name": "example_metric_name",
+                "foo_bar": "bar",
+                "timestamp": timestamp_expected_7400,
+                "value": "7400_bar",
+            },
+            {
+                "name": "example_metric_name",
+                "foo_bar": "bar",
+                "timestamp": timestamp_expected_8000,
+                "value": "8000_bar",
+            },
+        ]
+        columns = [
+            {"friendly_name": "timestamp", "type": "datetime", "name": "timestamp"},
+            {"friendly_name": "value", "type": "string", "name": "value"},
+            {"friendly_name": "name", "type": "string", "name": "name"},
+            {"friendly_name": "foo_bar", "type": "string", "name": "foo_bar"},
+        ]
+
+        data_expected = json_dumps({"rows": rows, "columns": columns})
 
         requests_get_mock.return_value = mock.Mock(
             json=mock.Mock(return_value={"data": {"result": self.range_query_result}})
@@ -381,15 +448,48 @@ class TestPrometheus(TestCase):
         # 4. case: successful run range query with start and without end
         prometheus = Prometheus({"url": "url"})
         prometheus_kwargs = {"verify": True, "cert": ()}
-        data_expected = '{"rows": [{"name": "example_metric_name", "foo_bar": "foo", "timestamp": {}, "value": "7400_foo"}, {"name": "example_metric_name", "foo_bar": "foo", "timestamp": {}, "value": "8000_foo"}, {"name": "example_metric_name", "foo_bar": "bar", "timestamp": {}, "value": "7400_bar"}, {"name": "example_metric_name", "foo_bar": "bar", "timestamp": {}, "value": "8000_bar"}], "columns": [{"friendly_name": "timestamp", "type": "datetime", "name": "timestamp"}, {"friendly_name": "value", "type": "string", "name": "value"}, {"friendly_name": "name", "type": "string", "name": "name"}, {"friendly_name": "foo_bar", "type": "string", "name": "foo_bar"}]}'
+
+        rows = [
+            {
+                "name": "example_metric_name",
+                "foo_bar": "foo",
+                "timestamp": timestamp_expected_7400,
+                "value": "7400_foo",
+            },
+            {
+                "name": "example_metric_name",
+                "foo_bar": "foo",
+                "timestamp": timestamp_expected_8000,
+                "value": "8000_foo",
+            },
+            {
+                "name": "example_metric_name",
+                "foo_bar": "bar",
+                "timestamp": timestamp_expected_7400,
+                "value": "7400_bar",
+            },
+            {
+                "name": "example_metric_name",
+                "foo_bar": "bar",
+                "timestamp": timestamp_expected_8000,
+                "value": "8000_bar",
+            },
+        ]
+        columns = [
+            {"friendly_name": "timestamp", "type": "datetime", "name": "timestamp"},
+            {"friendly_name": "value", "type": "string", "name": "value"},
+            {"friendly_name": "name", "type": "string", "name": "name"},
+            {"friendly_name": "foo_bar", "type": "string", "name": "foo_bar"},
+        ]
+
+        data_expected = json_dumps({"rows": rows, "columns": columns})
 
         requests_get_mock.return_value = mock.Mock(
             json=mock.Mock(return_value={"data": {"result": self.range_query_result}})
         )
-        date_now_value = datetime.datetime(2023, 12, 12, 11, 00, 00)
 
-        with mock.patch("redash.query_runner.prometheus.datetime") as datetime_mock:
-            datetime_mock.now.return_value = date_now_value
+        with mock.patch("redash.query_runner.prometheus.Prometheus._get_datetime_now") as get_datetime_now_mock:
+            get_datetime_now_mock.return_value = datetime(2023, 12, 12, 11, 00, 00)
             data, error = prometheus.run_query("http_requests_total&start=2018-01-26T00:00:00.000Z&step=60s", "user")
 
         self.assertEqual(data, data_expected)
@@ -398,8 +498,8 @@ class TestPrometheus(TestCase):
             "url/api/v1/query_range",
             params={
                 "query": ["http_requests_total"],
-                "start": ["2018-01-26T00:00:00.000Z"],
-                "end": [date_now_value],
+                "start": [1516921200],
+                "end": [1702375200],
                 "step": ["60s"],
             },
             **prometheus_kwargs,

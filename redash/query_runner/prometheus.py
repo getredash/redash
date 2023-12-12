@@ -76,6 +76,9 @@ def convert_query_range(payload):
 class Prometheus(BaseQueryRunner):
     should_annotate_query = False
 
+    def _get_datetime_now(self):
+        return datetime.now()
+
     def _get_prometheus_kwargs(self):
         ca_cert_file = self._create_cert_file("ca_cert_File")
         if ca_cert_file is not None:
@@ -211,7 +214,7 @@ class Prometheus(BaseQueryRunner):
 
             # for the range of until now
             if query_type == "query_range" and ("end" not in payload.keys() or "now" in payload["end"]):
-                date_now = datetime.now()
+                date_now = self._get_datetime_now()
                 payload.update({"end": [date_now]})
 
             convert_query_range(payload)
