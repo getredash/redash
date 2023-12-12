@@ -54,7 +54,8 @@ class RocksetAPI(object):
 
     def collection_columns(self, workspace, collection):
         response = self.query('DESCRIBE "{}"."{}" OPTION(max_field_depth=1)'.format(workspace, collection))
-        return sorted(set([x["field"][0] for x in response["results"]]))
+        if "results" in response:
+            return sorted(set([x["field"][0] for x in response["results"]]))
 
     def query(self, sql):
         query_path = "queries"
@@ -100,10 +101,12 @@ class Rockset(BaseSQLQueryRunner):
         for workspace in self.api.list_workspaces():
             for collection in self.api.list_collections(workspace):
                 table_name = collection if workspace == "commons" else "{}.{}".format(workspace, collection)
-                schema[table_name] = {
-                    "name": table_name,
-                    "columns": self.api.collection_columns(workspace, collection),
-                }
+                columns = self.api.collection_columns(workspace, collection)
+                if columns:
+                    schema[table_name] = {
+                        "name": table_name,
+                        "columns": columns,
+                    }
         return sorted(schema.values(), key=lambda x: x["name"])
 
     def run_query(self, query, user):
