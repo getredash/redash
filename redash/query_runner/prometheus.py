@@ -133,6 +133,7 @@ class Prometheus(BaseQueryRunner):
                 "ca_cert_File": {"type": "string", "title": "SSL Root Certificate", "default": None},
             },
             "required": ["url"],
+            "secret": ["cert_File", "cert_key_File", "ca_cert_File"],
             "extra_options": ["verify_ssl", "cert_File", "cert_key_File", "ca_cert_File"],
         }
 
