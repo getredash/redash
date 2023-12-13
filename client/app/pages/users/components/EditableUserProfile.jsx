@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
 import { UserProfile } from "@/components/proptypes";
+import React, { useEffect, useState } from "react";
 
-import UserInfoForm from "./UserInfoForm";
-import ApiKeyForm from "./ApiKeyForm";
 import PasswordForm from "./PasswordForm";
 import ToggleUserForm from "./ToggleUserForm";
+import UserInfoForm from "./UserInfoForm";
 
 export default function EditableUserProfile(props) {
   const [user, setUser] = useState(props.user);
@@ -21,8 +20,6 @@ export default function EditableUserProfile(props) {
       <UserInfoForm user={user} onChange={setUser} />
       {!user.isDisabled && (
         <React.Fragment>
-          <ApiKeyForm user={user} onChange={setUser} />
-          <hr />
           <PasswordForm user={user} />
         </React.Fragment>
       )}
