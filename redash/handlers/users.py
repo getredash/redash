@@ -1,39 +1,33 @@
-import re
-import time
-from flask import request
-from flask_restful import abort
-from flask_login import current_user, login_user
-from funcy import project
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.exc import IntegrityError
 from disposable_email_domains import blacklist
-from funcy import partial
+from flask import request
+from flask_login import current_user, login_user
+from flask_restful import abort
+from funcy import partial, project
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import NoResultFound
 
-from redash import models, limiter
-from redash.permissions import (
-    require_permission,
-    require_admin_or_owner,
-    is_admin_or_owner,
-    require_permission_or_owner,
-    require_admin,
-)
-from redash.handlers.base import (
-    BaseResource,
-    require_fields,
-    get_object_or_404,
-    paginate,
-    order_results as _order_results,
-)
-
+from redash import limiter, models, settings
 from redash.authentication.account import (
     invite_link_for_user,
     send_invite_email,
     send_password_reset_email,
     send_verify_email,
 )
+from redash.handlers.base import (
+    BaseResource,
+    get_object_or_404,
+    paginate,
+    require_fields,
+)
+from redash.handlers.base import order_results as _order_results
+from redash.permissions import (
+    is_admin_or_owner,
+    require_admin,
+    require_admin_or_owner,
+    require_permission,
+    require_permission_or_owner,
+)
 from redash.settings import parse_boolean
-from redash import settings
-
 
 # Ordering map for relationships
 order_map = {
@@ -47,9 +41,7 @@ order_map = {
     "-groups": "-group_ids",
 }
 
-order_results = partial(
-    _order_results, default_order="-created_at", allowed_orders=order_map
-)
+order_results = partial(_order_results, default_order="-created_at", allowed_orders=order_map)
 
 
 def invite_user(org, inviter, user, send_email=True):
@@ -73,9 +65,7 @@ def require_allowed_email(email):
 
 
 class UserListResource(BaseResource):
-    decorators = BaseResource.decorators + [
-        limiter.limit("200/day;50/hour", methods=["POST"])
-    ]
+    decorators = BaseResource.decorators + [limiter.limit("200/day;50/hour", methods=["POST"])]
 
     def get_users(self, disabled, pending, search_term):
         if disabled:
@@ -97,9 +87,7 @@ class UserListResource(BaseResource):
                 }
             )
         else:
-            self.record_event(
-                {"action": "list", "object_type": "user", "pending": pending}
-            )
+            self.record_event({"action": "list", "object_type": "user", "pending": pending})
 
         # order results according to passed order parameter,
         # special-casing search queries where the database
@@ -131,9 +119,7 @@ class UserListResource(BaseResource):
         disabled = request.args.get("disabled", "false")  # get enabled users by default
         disabled = parse_boolean(disabled)
 
-        pending = request.args.get(
-            "pending", None
-        )  # get both active and pending by default
+        pending = request.args.get("pending", None)  # get both active and pending by default
         if pending is not None:
             pending = parse_boolean(pending)
 
@@ -166,14 +152,10 @@ class UserListResource(BaseResource):
                 abort(400, message="Email already taken.")
             abort(500)
 
-        self.record_event(
-            {"action": "create", "object_id": user.id, "object_type": "user"}
-        )
+        self.record_event({"action": "create", "object_id": user.id, "object_type": "user"})
 
         should_send_invitation = "no_invite" not in request.args
-        return invite_user(
-            self.current_org, self.current_user, user, send_email=should_send_invitation
-        )
+        return invite_user(self.current_org, self.current_user, user, send_email=should_send_invitation)
 
 
 class UserInviteResource(BaseResource):
@@ -205,9 +187,7 @@ class UserRegenerateApiKeyResource(BaseResource):
         user.regenerate_api_key()
         models.db.session.commit()
 
-        self.record_event(
-            {"action": "regnerate_api_key", "object_id": user.id, "object_type": "user"}
-        )
+        self.record_event({"action": "regnerate_api_key", "object_id": user.id, "object_type": "user"})
 
         return user.to_dict(with_api_key=True)
 
@@ -217,32 +197,24 @@ class UserResource(BaseResource):
 
     def get(self, user_id):
         require_permission_or_owner("list_users", user_id)
-        user = get_object_or_404(
-            models.User.get_by_id_and_org, user_id, self.current_org
-        )
+        user = get_object_or_404(models.User.get_by_id_and_org, user_id, self.current_org)
 
-        self.record_event(
-            {"action": "view", "object_id": user_id, "object_type": "user"}
-        )
+        self.record_event({"action": "view", "object_id": user_id, "object_type": "user"})
 
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 
-    def post(self, user_id):
+    def post(self, user_id):  # noqa: C901
         require_admin_or_owner(user_id)
         user = models.User.get_by_id_and_org(user_id, self.current_org)
 
         req = request.get_json(True)
 
-        params = project(
-            req, ("email", "name", "password", "old_password", "group_ids")
-        )
+        params = project(req, ("email", "name", "password", "old_password", "group_ids"))
 
         if "password" in params and "old_password" not in params:
             abort(403, message="Must provide current password to update password.")
 
-        if "old_password" in params and not user.verify_password(
-            params["old_password"]
-        ):
+        if "old_password" in params and not user.verify_password(params["old_password"]):
             abort(403, message="Incorrect current password.")
 
         if "password" in params:
@@ -266,9 +238,7 @@ class UserResource(BaseResource):
             require_allowed_email(params["email"])
 
         email_address_changed = "email" in params and params["email"] != user.email
-        needs_to_verify_email = (
-            email_address_changed and settings.email_server_is_configured()
-        )
+        needs_to_verify_email = email_address_changed and settings.email_server_is_configured()
         if needs_to_verify_email:
             user.is_email_verified = False
 
@@ -312,13 +282,13 @@ class UserResource(BaseResource):
             abort(
                 403,
                 message="You cannot delete your own account. "
-                "Please ask another admin to do this for you.",
+                "Please ask another admin to do this for you.",  # fmt: skip
             )
         elif not user.is_invitation_pending:
             abort(
                 403,
                 message="You cannot delete activated users. "
-                "Please disable the user instead.",
+                "Please disable the user instead.",  # fmt: skip
             )
         models.db.session.delete(user)
         models.db.session.commit()
@@ -336,7 +306,7 @@ class UserDisableResource(BaseResource):
             abort(
                 403,
                 message="You cannot disable your own account. "
-                "Please ask another admin to do this for you.",
+                "Please ask another admin to do this for you.",  # fmt: skip
             )
         user.disable()
         models.db.session.commit()

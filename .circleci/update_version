@@ -1,6 +1,0 @@
-#!/bin/bash
-VERSION=$(jq -r .version package.json)
-FULL_VERSION=$VERSION+b$CIRCLE_BUILD_NUM
-
-sed -ri "s/^__version__ = '([A-Za-z0-9.-]*)'/__version__ = '$FULL_VERSION'/" redash/__init__.py
-sed -i "s/dev/$CIRCLE_SHA1/" client/app/version.json

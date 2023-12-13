@@ -2,14 +2,12 @@ import calendar
 import datetime
 from unittest import TestCase
 
-import pytz
 from dateutil.parser import parse as date_parse
 
-from tests import BaseTestCase
-
-from redash import models, redis_connection
-from redash.models import db, types
+from redash import models
+from redash.models import db
 from redash.utils import gen_query_hash, utcnow
+from tests import BaseTestCase
 
 
 class DashboardTest(BaseTestCase):
@@ -44,9 +42,7 @@ class ShouldScheduleNextTest(TestCase):
         yesterday = now - datetime.timedelta(days=1)
         scheduled_datetime = now - datetime.timedelta(hours=3)
         scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
-        self.assertTrue(
-            models.should_schedule_next(yesterday, now, "86400", scheduled_time)
-        )
+        self.assertTrue(models.should_schedule_next(yesterday, now, "86400", scheduled_time))
 
     def test_exact_time_that_doesnt_need_reschedule(self):
         now = date_parse("2015-10-16 20:10")
@@ -57,7 +53,7 @@ class ShouldScheduleNextTest(TestCase):
     def test_exact_time_with_day_change(self):
         now = utcnow().replace(hour=0, minute=1)
         previous = (now - datetime.timedelta(days=2)).replace(hour=23, minute=59)
-        schedule = "23:59".format(now.hour + 3)
+        schedule = "23:59"
         self.assertTrue(models.should_schedule_next(previous, now, "86400", schedule))
 
     def test_exact_time_every_x_days_that_needs_reschedule(self):
@@ -66,11 +62,7 @@ class ShouldScheduleNextTest(TestCase):
         three_day_interval = "259200"
         scheduled_datetime = now - datetime.timedelta(hours=3)
         scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
-        self.assertTrue(
-            models.should_schedule_next(
-                four_days_ago, now, three_day_interval, scheduled_time
-            )
-        )
+        self.assertTrue(models.should_schedule_next(four_days_ago, now, three_day_interval, scheduled_time))
 
     def test_exact_time_every_x_days_that_doesnt_need_reschedule(self):
         now = utcnow()
@@ -78,20 +70,14 @@ class ShouldScheduleNextTest(TestCase):
         three_day_interval = "259200"
         scheduled_datetime = now - datetime.timedelta(hours=3)
         scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
-        self.assertFalse(
-            models.should_schedule_next(
-                four_days_ago, now, three_day_interval, scheduled_time
-            )
-        )
+        self.assertFalse(models.should_schedule_next(four_days_ago, now, three_day_interval, scheduled_time))
 
     def test_exact_time_every_x_days_with_day_change(self):
         now = utcnow().replace(hour=23, minute=59)
         previous = (now - datetime.timedelta(days=2)).replace(hour=0, minute=1)
         schedule = "23:58"
         three_day_interval = "259200"
-        self.assertTrue(
-            models.should_schedule_next(previous, now, three_day_interval, schedule)
-        )
+        self.assertTrue(models.should_schedule_next(previous, now, three_day_interval, schedule))
 
     def test_exact_time_every_x_weeks_that_needs_reschedule(self):
         # Setup:
@@ -112,9 +98,7 @@ class ShouldScheduleNextTest(TestCase):
         scheduled_datetime = now - datetime.timedelta(hours=3)
         scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
         self.assertTrue(
-            models.should_schedule_next(
-                three_weeks_ago, now, three_week_interval, scheduled_time, "Tuesday"
-            )
+            models.should_schedule_next(three_weeks_ago, now, three_week_interval, scheduled_time, "Tuesday")
         )
 
     def test_exact_time_every_x_weeks_that_doesnt_need_reschedule(self):
@@ -136,27 +120,19 @@ class ShouldScheduleNextTest(TestCase):
         scheduled_datetime = now - datetime.timedelta(hours=3)
         scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
         self.assertFalse(
-            models.should_schedule_next(
-                three_weeks_ago, now, three_week_interval, scheduled_time, "Thursday"
-            )
+            models.should_schedule_next(three_weeks_ago, now, three_week_interval, scheduled_time, "Thursday")
         )
 
     def test_backoff(self):
         now = utcnow()
         two_hours_ago = now - datetime.timedelta(hours=2)
-        self.assertTrue(
-            models.should_schedule_next(two_hours_ago, now, "3600", failures=5)
-        )
-        self.assertFalse(
-            models.should_schedule_next(two_hours_ago, now, "3600", failures=10)
-        )
+        self.assertTrue(models.should_schedule_next(two_hours_ago, now, "3600", failures=5))
+        self.assertFalse(models.should_schedule_next(two_hours_ago, now, "3600", failures=10))
 
     def test_next_iteration_overflow(self):
         now = utcnow()
         two_hours_ago = now - datetime.timedelta(hours=2)
-        self.assertFalse(
-            models.should_schedule_next(two_hours_ago, now, "3600", failures=32)
-        )
+        self.assertFalse(models.should_schedule_next(two_hours_ago, now, "3600", failures=32))
 
 
 class QueryOutdatedQueriesTest(BaseTestCase):
@@ -325,7 +301,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         valid_query = self.create_scheduled_query(interval="60")
         self.fake_previous_execution(valid_query, minutes=10)
 
-        queries = models.Query.outdated_queries()
+        models.Query.outdated_queries()
 
         self.assertEqual(list(models.Query.outdated_queries()), [valid_query])
         self.assertTrue(faulty_query.schedule.get("disabled"))
@@ -345,9 +321,7 @@ class QueryArchiveTest(BaseTestCase):
         self.assertEqual(query.is_archived, True)
 
     def test_archived_query_doesnt_return_in_all(self):
-        query = self.factory.create_query(
-            schedule={"interval": "1", "until": None, "time": None, "day_of_week": None}
-        )
+        query = self.factory.create_query(schedule={"interval": "1", "until": None, "time": None, "day_of_week": None})
         yesterday = utcnow() - datetime.timedelta(days=1)
         query_result = models.QueryResult.store_result(
             query.org_id,
@@ -378,9 +352,7 @@ class QueryArchiveTest(BaseTestCase):
         self.assertEqual(models.Widget.query.get(widget.id), None)
 
     def test_removes_scheduling(self):
-        query = self.factory.create_query(
-            schedule={"interval": "1", "until": None, "time": None, "day_of_week": None}
-        )
+        query = self.factory.create_query(schedule={"interval": "1", "until": None, "time": None, "day_of_week": None})
 
         query.archive()
 
@@ -453,9 +425,7 @@ class TestQueryAll(BaseTestCase):
         q = self.factory.create_query(is_draft=True)
         self.assertIn(
             q,
-            models.Query.all_queries(
-                [self.factory.default_group.id], user_id=q.user_id
-            ),
+            models.Query.all_queries([self.factory.default_group.id], user_id=q.user_id),
         )
 
     def test_order_by_relationship(self):
@@ -473,9 +443,7 @@ class TestQueryAll(BaseTestCase):
         self.assertEqual(["bob", "alice"], [q.user.name for q in qs2])
 
     def test_update_query_hash_basesql_with_options(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, type="pg"
-        )
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, type="pg")
         query = self.factory.create_query(query_text="SELECT 2", data_source=ds)
         query.options = {"apply_auto_limit": True}
         origin_hash = query.query_hash
@@ -483,9 +451,7 @@ class TestQueryAll(BaseTestCase):
         self.assertNotEqual(origin_hash, query.query_hash)
 
     def test_update_query_hash_basesql_no_options(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, type="pg"
-        )
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, type="pg")
         query = self.factory.create_query(query_text="SELECT 2", data_source=ds)
         query.options = {}
         origin_hash = query.query_hash
@@ -493,15 +459,12 @@ class TestQueryAll(BaseTestCase):
         self.assertEqual(origin_hash, query.query_hash)
 
     def test_update_query_hash_non_basesql(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, type="prometheus"
-        )
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, type="prometheus")
         query = self.factory.create_query(query_text="SELECT 2", data_source=ds)
         query.options = {"apply_auto_limit": True}
         origin_hash = query.query_hash
         query.update_query_hash()
         self.assertEqual(origin_hash, query.query_hash)
-
 
 
 class TestGroup(BaseTestCase):
@@ -627,9 +590,7 @@ class TestDashboardAll(BaseTestCase):
 
     def test_requires_group_or_user_id(self):
         d1 = self.factory.create_dashboard()
-        self.assertNotIn(
-            d1, list(models.Dashboard.all(d1.user.org, d1.user.group_ids, None))
-        )
+        self.assertNotIn(d1, list(models.Dashboard.all(d1.user.org, d1.user.group_ids, None)))
         l2 = list(models.Dashboard.all(d1.user.org, [0], d1.user.id))
         self.assertIn(d1, l2)
 
@@ -664,13 +625,9 @@ class TestDashboardAll(BaseTestCase):
     def test_returns_dashboards_created_by_user(self):
         d1 = self.factory.create_dashboard(user=self.u1)
         db.session.flush()
-        self.assertIn(
-            d1, list(models.Dashboard.all(self.u1.org, self.u1.group_ids, self.u1.id))
-        )
+        self.assertIn(d1, list(models.Dashboard.all(self.u1.org, self.u1.group_ids, self.u1.id)))
         self.assertIn(d1, list(models.Dashboard.all(self.u1.org, [0], self.u1.id)))
-        self.assertNotIn(
-            d1, list(models.Dashboard.all(self.u2.org, self.u2.group_ids, self.u2.id))
-        )
+        self.assertNotIn(d1, list(models.Dashboard.all(self.u2.org, self.u2.group_ids, self.u2.id)))
 
     def test_returns_dashboards_with_text_widgets_to_creator(self):
         w1 = self.factory.create_widget(visualization=None)
@@ -698,12 +655,6 @@ class TestDashboardAll(BaseTestCase):
 
         self.assertIn(
             w1.dashboard,
-            list(
-                models.Dashboard.all(
-                    self.factory.user.org, self.factory.user.group_ids, None
-                )
-            ),
+            list(models.Dashboard.all(self.factory.user.org, self.factory.user.group_ids, None)),
         )
-        self.assertNotIn(
-            w1.dashboard, list(models.Dashboard.all(user.org, user.group_ids, user.id))
-        )
+        self.assertNotIn(w1.dashboard, list(models.Dashboard.all(user.org, user.group_ids, user.id)))

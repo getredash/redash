@@ -1,18 +1,18 @@
 import signal
 import time
-import redis
 
+import redis
 from rq import get_current_job
+from rq.exceptions import NoSuchJobError
 from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
-from rq.exceptions import NoSuchJobError
 
 from redash import models, redis_connection, settings
 from redash.query_runner import InterruptException
-from redash.tasks.worker import Queue, Job
 from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import track_failure
-from redash.utils import gen_query_hash, json_dumps, utcnow
+from redash.tasks.worker import Job, Queue
+from redash.utils import gen_query_hash, utcnow
 from redash.worker import get_job_logger
 
 logger = get_job_logger(__name__)
@@ -27,9 +27,7 @@ def _unlock(query_hash, data_source_id):
     redis_connection.delete(_job_lock_id(query_hash, data_source_id))
 
 
-def enqueue_query(
-    query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}
-):
+def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}):
     query_hash = gen_query_hash(query)
     logger.info("Inserting job for %s with metadata=%s", query_hash, metadata)
     try_count = 0
@@ -79,9 +77,7 @@ def enqueue_query(
                     queue_name = data_source.queue_name
                     scheduled_query_id = None
 
-                time_limit = settings.dynamic_settings.query_time_limit(
-                    scheduled_query, user_id, data_source.org_id
-                )
+                time_limit = settings.dynamic_settings.query_time_limit(scheduled_query, user_id, data_source.org_id)
                 metadata["Queue"] = queue_name
 
                 queue = Queue(queue_name)
@@ -103,9 +99,7 @@ def enqueue_query(
                 if not scheduled_query:
                     enqueue_kwargs["result_ttl"] = settings.JOB_EXPIRY_TIME
 
-                job = queue.enqueue(
-                    execute_query, query, data_source.id, metadata, **enqueue_kwargs
-                )
+                job = queue.enqueue(execute_query, query, data_source.id, metadata, **enqueue_kwargs)
 
                 logger.info("[%s] Created new job: %s", query_hash, job.id)
                 pipe.set(
@@ -118,6 +112,8 @@ def enqueue_query(
 
         except redis.WatchError:
             continue
+        finally:
+            pipe.reset()
 
     if not job:
         logger.error("[Manager][%s] Failed adding job for query.", query_hash)
@@ -150,9 +146,7 @@ def _resolve_user(user_id, is_api_key, query_id):
 
 
 class QueryExecutor(object):
-    def __init__(
-        self, query, data_source_id, user_id, is_api_key, metadata, is_scheduled_query
-    ):
+    def __init__(self, query, data_source_id, user_id, is_api_key, metadata, is_scheduled_query):
         self.job = get_current_job()
         self.query = query
         self.data_source_id = data_source_id
@@ -164,7 +158,7 @@ class QueryExecutor(object):
             models.Query.query.get(self.query_id)
             if self.query_id and self.query_id != "adhoc"
             else None
-        )
+        )  # fmt: skip
 
         # Close DB connection to prevent holding a connection for a long time while the query is executing.
         models.db.session.close()
@@ -235,7 +229,7 @@ class QueryExecutor(object):
             models.db.session.commit()  # make sure that alert sees the latest query result
             self._log_progress("checking_alerts")
             for query_id in updated_query_ids:
-                check_alerts_for_query.delay(query_id)
+                check_alerts_for_query.delay(query_id, self.metadata)
             self._log_progress("finished")
 
             result = query_result.id
@@ -252,7 +246,7 @@ class QueryExecutor(object):
     def _log_progress(self, state):
         logger.info(
             "job=execute_query state=%s query_hash=%s type=%s ds_id=%d "
-            "job_id=%s queue=%s query_id=%s username=%s",
+            "job_id=%s queue=%s query_id=%s username=%s",  # fmt: skip
             state,
             self.query_hash,
             self.data_source.type,

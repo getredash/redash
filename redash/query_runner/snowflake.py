@@ -6,16 +6,18 @@ except ImportError:
     enabled = False
 
 
-from redash.query_runner import BaseQueryRunner, register
+from redash import __version__
 from redash.query_runner import (
-    TYPE_STRING,
+    TYPE_BOOLEAN,
     TYPE_DATE,
     TYPE_DATETIME,
-    TYPE_INTEGER,
     TYPE_FLOAT,
-    TYPE_BOOLEAN,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseSQLQueryRunner,
+    register,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_dumps
 
 TYPES_MAP = {
     0: TYPE_INTEGER,
@@ -31,7 +33,7 @@ TYPES_MAP = {
 }
 
 
-class Snowflake(BaseQueryRunner):
+class Snowflake(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
     @classmethod
@@ -101,6 +103,7 @@ class Snowflake(BaseQueryRunner):
             account=account,
             region=region,
             host=host,
+            application="Redash/{} (Snowflake)".format(__version__.split("-")[0]),
         )
 
         return connection
@@ -113,14 +116,9 @@ class Snowflake(BaseQueryRunner):
 
     def _parse_results(self, cursor):
         columns = self.fetch_columns(
-            [
-                (self._column_name(i[0]), self.determine_type(i[1], i[5]))
-                for i in cursor.description
-            ]
+            [(self._column_name(i[0]), self.determine_type(i[1], i[5])) for i in cursor.description]
         )
-        rows = [
-            dict(zip((column["name"] for column in columns), row)) for row in cursor
-        ]
+        rows = [dict(zip((column["name"] for column in columns), row)) for row in cursor]
 
         data = {"columns": columns, "rows": rows}
         return data
@@ -173,7 +171,7 @@ class Snowflake(BaseQueryRunner):
         results, error = self._run_query_without_warehouse(query)
 
         if error is not None:
-            raise Exception("Failed getting schema.")
+            self._handle_run_query_error(error)
 
         schema = {}
         for row in results["rows"]:
