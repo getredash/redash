@@ -5,10 +5,11 @@ import time
 from datetime import timedelta
 from urllib.parse import urlsplit, urlunsplit
 
-from flask import safe_join, send_file
+from flask import send_file
 from flask import jsonify, redirect, request, session, url_for
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
 from sqlalchemy.orm.exc import NoResultFound
+from werkzeug.utils import safe_join
 from werkzeug.exceptions import Unauthorized
 from werkzeug.urls import url_parse
 from flask_login import login_url as make_login_url
