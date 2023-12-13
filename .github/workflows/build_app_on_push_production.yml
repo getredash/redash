@@ -1,0 +1,11 @@
+name: Push app image to Amazon ECR (production)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  call-workflow-passing-data:
+    uses: aces-inc/acesmeet-redash/.github/workflows/_build_app_on_push.yml@master
+    with:
+      ENV: production
+      AWS_ROLE_ARN: arn:aws:iam::154399144778:role/acesmeet-production-github-actions

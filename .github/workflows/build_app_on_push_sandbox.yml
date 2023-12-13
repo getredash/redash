@@ -1,0 +1,11 @@
+name: Push app image to Amazon ECR (sandbox)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  call-workflow-passing-data:
+    uses: aces-inc/acesmeet-redash/.github/workflows/_build_app_on_push.yml@master
+    with:
+      ENV: sandbox
+      AWS_ROLE_ARN: arn:aws:iam::566399633171:role/acesmeet-sandbox-github-actions

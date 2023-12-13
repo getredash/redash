@@ -1,0 +1,71 @@
+name: called workflow for push app image to Amazon ECR
+
+on:
+  workflow_call:
+    inputs:
+      ENV:
+        required: true
+        type: string
+      AWS_ROLE_ARN:
+        required: true
+        type: string
+
+env:
+  NODE_VERSION: 16.20.1
+jobs:
+  buildimage:
+    runs-on: ubuntu-22.04
+    environment:
+      name: ${{ inputs.ENV }}
+    env:
+      ENV: ${{ inputs.ENV }}
+      AWS_ROLE_ARN: ${{ inputs.AWS_ROLE_ARN }}
+    strategy:
+      matrix:
+        include:
+          - region: "ap-northeast-1"
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+      - name: Install Dependencies
+        run: |
+          npm install --global --force yarn@1.22.19
+          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ap-northeast-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Set up QEMU
+        timeout-minutes: 1
+        uses: docker/setup-qemu-action@v2.2.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push docker image.
+        id: build-image
+        env:
+          DOCKER_BUILDKIT: 1
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: acesmeet-redash
+        run: |
+          docker build \
+            --platform linux/amd64 \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest

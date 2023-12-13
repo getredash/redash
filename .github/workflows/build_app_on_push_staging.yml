@@ -1,0 +1,11 @@
+name: Push app image to Amazon ECR (staging)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  call-workflow-passing-data:
+    uses: aces-inc/acesmeet-redash/.github/workflows/_build_app_on_push.yml@master
+    with:
+      ENV: staging
+      AWS_ROLE_ARN: arn:aws:iam::974921241676:role/acesmeet-staging-github-actions
