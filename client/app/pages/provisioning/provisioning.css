@@ -12,3 +12,38 @@ div.tags-list {
     width: auto;
   }
 }
+
+.provisioning-page {
+  margin-bottom: 100px;
+}
+
+label {
+  font-size: large;
+  text-align: left;
+  clear: both;
+  float:left;
+}
+
+.form-group {
+  margin-top: 20px;
+}
+
+.m-b-0{
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 auto;
+  margin-bottom: 10px;
+  padding: 10px 0;
+}
+
+.selectionitem{
+  margin-top: 20px;
+  align-items: center;
+}
+
+.submitbutton{
+  color: #fff;
+  margin-bottom: 20px;
+  background: #4db5ff;
+  border-color: #4db5ff;
+}

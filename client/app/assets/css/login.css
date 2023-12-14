@@ -1,6 +1,18 @@
 body {
   padding-top: 0px !important;
   background-color: #FFFFFF;
+  background-image: "/static/images/illustrations/Vetter_RVK.jpg";
+  /* Add the blur effect */
+  filter: blur(8px);
+  -webkit-filter: blur(8px);
+
+  /* Full height */
+  height: 100%;
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .logo-container {
@@ -11,7 +23,7 @@ body {
 }
 
 .content-container {
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.4);
   display: table;
   width: 100%;
   padding: 10px;
@@ -27,7 +39,7 @@ body {
 
   .logo-container {
     height: 100%;
-    width: 40%;
+    width: 100%;
     float: right;
   }
 }

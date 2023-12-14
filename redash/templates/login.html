@@ -29,14 +29,10 @@
     {% endif %}
 
     {% if show_ldap_login %}
-      <a href="{{ url_for('ldap_auth.login', org_slug=org_slug, next=next) }}" class="login-button btn btn-default btn-block">LDAP/SSO Login</a>
+      <a href="{{ url_for('ldap_auth.login', org_slug=org_slug, next=next) }}" class="login-button btn btn-default btn-block">Windows Account Login</a>
     {% endif %}
 
     {% if show_password_login %}
-    {% if show_google_openid or show_saml_login or show_remote_user_login or show_ldap_login %}
-      <hr>
-    {% endif %}
-
     <form role="form" method="post" name="login">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <div class="form-group">
@@ -51,14 +47,18 @@
         <input type="checkbox" id="inputRemember" name="remember" checked>
         <label for="inputRemember">Remember me</label>
       </div>
-
       <button type="submit" class="btn btn-primary btn-block m-t-25">Log In</button>
     </form>
     {% if not hide_forgot_password %}
-      <div class="m-t-25">
-        <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">I forgot my password</a>
-      </div>
+    <div class="m-t-25">
+      <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">I forgot my password</a>
+    </div>
+  {% endif %}
+
+    {% if show_google_openid or show_saml_login or show_remote_user_login or show_ldap_login %}
+      <hr>
     {% endif %}
+
     {% endif %}
   </div>
 </div>
