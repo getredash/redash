@@ -1,119 +1,60 @@
-<p align="center">
-  <img title="Redash" src='https://redash.io/assets/images/logo.png' width="200px"/>
-</p>
+## 概要
 
-[![Documentation](https://img.shields.io/badge/docs-redash.io/help-brightgreen.svg)](https://redash.io/help/)
-[![GitHub Build](https://github.com/getredash/redash/actions/workflows/ci.yml/badge.svg)](https://github.com/getredash/redash/actions)
+`acesmeet-redash` は、[redash](https://github.com/getredash/redash)公式レポから fork したものである。
 
-Redash is designed to enable anyone, regardless of the level of technical sophistication, to harness the power of data big and small. SQL users leverage Redash to explore, query, visualize, and share data from any data sources. Their work in turn enables anybody in their organization to use the data. Every day, millions of users at thousands of organizations around the world use Redash to develop insights and make data-driven decisions.
+## 環境構築
 
-Redash features:
+- `.env` を以下の内容で作成する
 
-1. **Browser-based**: Everything in your browser, with a shareable URL.
-2. **Ease-of-use**: Become immediately productive with data without the need to master complex software.
-3. **Query editor**: Quickly compose SQL and NoSQL queries with a schema browser and auto-complete.
-4. **Visualization and dashboards**: Create [beautiful visualizations](https://redash.io/help/user-guide/visualizations/visualization-types) with drag and drop, and combine them into a single dashboard.
-5. **Sharing**: Collaborate easily by sharing visualizations and their associated queries, enabling peer review of reports and queries.
-6. **Schedule refreshes**: Automatically update your charts and dashboards at regular intervals you define.
-7. **Alerts**: Define conditions and be alerted instantly when your data changes.
-8. **REST API**: Everything that can be done in the UI is also available through REST API.
-9. **Broad support for data sources**: Extensible data source API with native support for a long list of common databases and platforms.
+```bash
+REDASH_HOST=http://localhost
+PYTHONUNBUFFERED=0
+REDASH_LOG_LEVEL=INFO
+REDASH_REDIS_URL=redis://redis:6379/0
+REDASH_DATABASE_URL=postgresql://postgres@postgres/postgres
+POSTGRES_PASSWORD=
+POSTGRES_HOST_AUTH_METHOD=trust
+REDASH_COOKIE_SECRET=redash-hands-on
+REDASH_SECRET_KEY=redash-hands-on
+```
 
-<img src="https://raw.githubusercontent.com/getredash/website/8e820cd02c73a8ddf4f946a9d293c54fd3fb08b9/website/_assets/images/redash-anim.gif" width="80%"/>
+- フロント側をビルドするため、node `16.20.1`, yarn をインストールしておく
 
-## Getting Started
+```bash
+# nodenv の場合
+nodenv install 16.20.1
+npm install -g yarn
+```
 
-* [Setting up Redash instance](https://redash.io/help/open-source/setup) (includes links to ready-made AWS/GCE images).
-* [Documentation](https://redash.io/help/).
+- パッケージをインストールする
 
-## Supported Data Sources
+```bash
+# [Apple Silicon Mac 向けの対応]
+# e2e テストで Puppeteer が使われており、Puppeteer のインストールと同時に chromium-binary をインストールしようとするが、
+# arm64 では提供されていないため、パッケージをインストールしようとするとエラーが発生する。
+# そのため、ローカルで環境構築する場合は Puppeteer のインストールをスキップする
+export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+yarn --frozen-lockfile
+```
 
-Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help/data-sources/supported-data-sources). It can also be extended to support more. Below is a list of built-in sources:
+- UI をビルドする
 
-- Amazon Athena
-- Amazon CloudWatch / Insights
-- Amazon DynamoDB
-- Amazon Redshift
-- ArangoDB
-- Axibase Time Series Database
-- Apache Cassandra
-- ClickHouse
-- CockroachDB
-- Couchbase
-- CSV
-- Databricks
-- DB2 by IBM
-- Dgraph
-- Apache Drill
-- Apache Druid
-- e6data
-- Eccenca Corporate Memory
-- Elasticsearch
-- Exasol
-- Microsoft Excel
-- Firebolt
-- Databend
-- Google Analytics
-- Google BigQuery
-- Google Spreadsheets
-- Graphite
-- Greenplum
-- Apache Hive
-- Apache Impala
-- InfluxDB
-- InfluxDBv2
-- IBM Netezza Performance Server
-- JIRA (JQL)
-- JSON
-- Apache Kylin
-- OmniSciDB (Formerly MapD)
-- MariaDB
-- MemSQL
-- Microsoft Azure Data Warehouse / Synapse
-- Microsoft Azure SQL Database
-- Microsoft Azure Data Explorer / Kusto
-- Microsoft SQL Server
-- MongoDB
-- MySQL
-- Oracle
-- Apache Phoenix
-- Apache Pinot
-- PostgreSQL
-- Presto
-- Prometheus
-- Python
-- Qubole
-- Rockset
-- Salesforce
-- ScyllaDB
-- Shell Scripts
-- Snowflake
-- SPARQL
-- SQLite
-- TiDB
-- Tinybird
-- TreasureData
-- Trino
-- Uptycs
-- Vertica
-- Yandex AppMetrrica
-- Yandex Metrica
+```bash
+yarn build
+```
 
-## Getting Help
+- 先に Redash のメタデータを保存するための DB を作成し、サーバー側のコンテナを起動する
 
-* Issues: https://github.com/getredash/redash/issues
-* Discussion Forum: https://github.com/getredash/redash/discussions/
-* Development Discussion: https://discord.gg/tN5MdmfGBp
+```bash
+docker compose run --rm server create_db
+docker compose up
+```
 
-## Reporting Bugs and Contributing Code
+- http://localhost:5001 にアクセスする
 
-* Want to report a bug or request a feature? Please open [an issue](https://github.com/getredash/redash/issues/new).
-* Want to help us build **_Redash_**? Fork the project, edit in a [dev environment](https://github.com/getredash/redash/wiki/Local-development-setup) and make a pull request. We need all the help we can get!
+## デプロイ方法
 
-## Security
-
-Please email security@redash.io to report any security vulnerabilities. We will acknowledge receipt of your vulnerability and strive to send you regular updates about our progress. If you're curious about the status of your disclosure please feel free to email us again. If you want to encrypt your disclosure email, you can use [this PGP key](https://keybase.io/arikfr/key.asc).
-
-## License
-
-BSD-2-Clause.
+- sandbox 環境
+  - `feeature/sandbox` ブランチにプッシュする
+- production 環境, staging 環境
+  - （コードが `master` にマージされている状態で）Actions の `Push app image to Amazon ECR (production)` をクリックし、`Run workflow` を実行する
