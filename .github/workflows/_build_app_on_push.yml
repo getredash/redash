@@ -69,3 +69,7 @@ jobs:
             -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
             .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+          aws ecs update-service --cluster acesmeet-$ENV-redash --service redash_server --force-new-deployment
+          aws ecs update-service --cluster acesmeet-$ENV-redash --service redash_worker --force-new-deployment
+          aws ecs update-service --cluster acesmeet-$ENV-redash --service redash_scheduler --force-new-deployment
