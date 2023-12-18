@@ -29,21 +29,27 @@ label {
 }
 
 .m-b-0{
-  align-items: center;
+  align-items: left;
   justify-content: space-between;
-  margin: 0 auto;
-  margin-bottom: 10px;
-  padding: 10px 0;
+  margin: 25px 0px 25px 0px;
+  padding: 10px;
 }
-
 .selectionitem{
-  margin-top: 20px;
-  align-items: center;
+  margin: 0px 0px 25px 0px;
+}
+.checkboxcomponent{
+  margin-top:25px;
 }
 
 .submitbutton{
-  color: #fff;
-  margin-bottom: 20px;
-  background: #4db5ff;
-  border-color: #4db5ff;
+  width:100px;
 }
+
+.checkboxcomponent{
+  display:flex;
+  flex-direction: column;
+  float: left;
+}
+
+
+

@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
-import * as Sidebar from "@/components/items-list/components/Sidebar";
+// import * as Sidebar from "@/components/items-list/components/Sidebar";
 import Layout from "@/components/layouts/ContentWithSidebar";
-import recordEvent from "@/services/recordEvent";
+// import recordEvent from "@/services/recordEvent";
 import routes from "@/services/routes";
-import SubmitButton from "./components/SubmitButton";
+import Button from "antd/lib/button";
 import CheckBox from "./components/CheckBox";
 import DateRangePicker from "./components/DateRangePicker";
 import SelectComponent from "./components/SelectComponent";
 import axios from "axios";
+import QueueTable from "./components/QueueTable";
 
 import "./provisioning.css";
 
@@ -48,6 +49,7 @@ const ProvideData = () => {
         <Layout>
           <Layout.Sidebar className="m-b-0">
             <div className="selectcomponent selectionitem">
+              <h5>Add equiptment and date range to queue: </h5>
               <SelectComponent />
             </div>
             <div className="daterangecomponent selectionitem">
@@ -55,13 +57,19 @@ const ProvideData = () => {
               <div />
               <div className="checkboxcomponent selectionitem">
                 <CheckBox checked={isChecked} onChange={handleCheckboxChange} />
-                {isChecked && <p style={{ color: 'red' }}>Warning: This option results in higher data usage and should only be considered if truly neccessary!</p>}
+                {isChecked && <p style={{ color: 'red' }}>Warning: This option results in higher data usage and should only be considered if neccessary!</p>}
               </div>
               <div className="submitbutton selectionitem">
-                <SubmitButton onClick={handleSubmit} />
+                <Button block type="primary" onClick={handleSubmit}>
+                <i className="fa fa-plus m-r-5" aria-hidden="true" />
+                Submit
+              </Button>
               </div>
             </div>
           </Layout.Sidebar>
+          <Layout.Content>
+            <QueueTable/>
+          </Layout.Content>
         </Layout>
       </div>
     </div>

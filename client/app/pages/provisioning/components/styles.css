@@ -8,3 +8,19 @@
     position: absolute;
     z-index: 1;
 }
+
+table{
+    margin: 0 auto;
+  }
+  
+  th{
+    background-color: rgb(68, 109, 109);
+    padding:5px 20px;
+    color:whitesmoke
+  }
+  
+  .table-data {
+    text-align: center;
+    padding: 5px 10px;
+    background-color:rgb(206, 229, 236)
+  }

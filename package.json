@@ -47,6 +47,7 @@
     "@ant-design/icons": "^4.2.1",
     "@redash/viz": "file:viz-lib",
     "react-date-range": "1.4.0",
+    "react-datepicker": "4.24.0",
     "@types/react-datepicker": "4.19.4",
     "date-fns": "3.0.0",
     "ace-builds": "^1.4.12",

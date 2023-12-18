@@ -14,7 +14,6 @@ const SelectComponent = () => {
       setLoading(true);
 
       try {
-        // Replace 'YOUR_API_ENDPOINT' with the actual API endpoint
         const response = await axios.get('http://vs-proddash-dat/api/objects');
         setOptions(response.data);
       } catch (error) {
