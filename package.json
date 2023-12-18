@@ -46,6 +46,9 @@
   "dependencies": {
     "@ant-design/icons": "^4.2.1",
     "@redash/viz": "file:viz-lib",
+    "react-date-range": "1.4.0",
+    "@types/react-datepicker": "4.19.4",
+    "date-fns": "3.0.0",
     "ace-builds": "^1.4.12",
     "antd": "^4.4.3",
     "axios": "0.27.2",

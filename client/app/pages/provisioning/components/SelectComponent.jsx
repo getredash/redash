@@ -30,7 +30,7 @@ const SelectComponent = () => {
   return (
     <Select
       showSearch
-      placeholder="Select an option"
+      placeholder="Select desired equiptment"
       optionFilterProp="children"
       filterOption={(input, option) =>
         option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0

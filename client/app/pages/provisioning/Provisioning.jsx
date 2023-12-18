@@ -36,7 +36,7 @@ const ProvideData = () => {
       isChecked: isChecked,
     };
 
-    axios.post('http://vs-proddash-dat/api/provisioning', postData).then((response) => {
+    axios.post('http://vs-proddash-dat/api/queue', postData).then((response) => {
       // Handle response if needed
     });
   };
