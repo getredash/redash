@@ -36,9 +36,17 @@ const ProvideData = () => {
       dateValue: selectedDate,
       isChecked: isChecked,
     };
-
-    axios.post('http://vs-proddash-dat/api/queue', postData).then((response) => {
-      // Handle response if needed
+    const schema = {
+      "equiptment_ID": 2004755,
+      "from": "2023-12-19",
+      "to": "2023-12-23",
+      "user": "Max Muster",
+      "dbName": "GTXX",
+      "state": "Pending..."
+    }
+    console.log(schema);
+    axios.post('http://vs-proddash-dat/api/queue', schema).then((response) => {
+      console.log(response);
     });
   };
 
