@@ -2,7 +2,7 @@ import logging
 import os
 from base64 import b64decode
 from tempfile import NamedTemporaryFile
-from typing import Dict, Optional, Tuple, Type, TypeVar
+from typing import Any, Dict, Optional, Tuple, Type, TypeVar
 
 from redash.query_runner import (
     TYPE_BOOLEAN,
@@ -17,7 +17,6 @@ from redash.utils import json_dumps
 
 try:
     from influxdb_client import InfluxDBClient
-    from influxdb_client.client.flux_table import TableList
 
     enabled = True
 except ImportError:
@@ -152,7 +151,7 @@ class InfluxDBv2(BaseQueryRunner):
         """
         return TYPES_MAP.get(type_, "string")
 
-    def _get_data_from_tables(self, tables: TableList) -> Dict:
+    def _get_data_from_tables(self, tables: Any) -> Dict:
         """
         Determines the data of the given tables in an appropriate schema for
         redash ui to render it. It retrieves all available columns and records
