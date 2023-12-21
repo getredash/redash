@@ -178,6 +178,10 @@
       "viz-lib/**"
     ]
   },
+  "browser": {
+      "fs": false,
+      "path": false
+  },
   "//": "browserslist set to 'Async functions' compatibility",
   "browserslist": [
     "Edge >= 15",
