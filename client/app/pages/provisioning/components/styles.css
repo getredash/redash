@@ -9,6 +9,13 @@
     z-index: 1;
 }
 
+.checkboxlabel{
+    display: flex;
+    margin-left:2px;
+    vertical-align: middle;
+    font-size: small;
+}
+
 .deletebutton {
     color: red;
     border: none;

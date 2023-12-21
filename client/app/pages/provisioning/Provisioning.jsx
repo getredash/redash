@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
-
 import Layout from "@/components/layouts/ContentWithSidebar";
 import notification from "antd/lib/notification";
 import routes from "@/services/routes";
@@ -26,7 +25,7 @@ const ProvideData = () => {
   const openSuccessNotification = () => {
     notification.success({
       message: 'Success',
-      description: 'The data has been successfully added to the queue!',
+      description: 'The queue has been successfully modified!',
       duration: 5, // Notification will hide after 3 seconds
     });
   };
@@ -51,6 +50,7 @@ const ProvideData = () => {
   };
 
   const handleSubmit = () => {
+    try{
     // Post data to API
     const postData = {
       "equiptment_ID": selectedValue,
@@ -69,6 +69,11 @@ const ProvideData = () => {
         openErrorNotification();
       }
     });
+    }
+    catch(e) {
+        openErrorNotification();
+    }
+
   };
 
   return (
