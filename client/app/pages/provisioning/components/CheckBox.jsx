@@ -1,10 +1,12 @@
 import React from 'react';
+import "./styles.css";
+
 
 const CheckBox = ({ checked, onChange }) => {
   return (
     <label>
-      <input type="checkbox" checked={checked} onChange={onChange} />
-      Keep data up-to-date
+      <input type="checkbox" className="checkbox" checked={checked} onChange={onChange} />
+      Keep data updated
     </label>
   );
 };

@@ -37,9 +37,6 @@ label {
 .selectionitem{
   margin: 0px 0px 25px 0px;
 }
-.checkboxcomponent{
-  margin-top:25px;
-}
 
 .submitbutton{
   width:100px;
@@ -47,6 +44,7 @@ label {
 
 .checkboxcomponent{
   display:flex;
+  margin-top:25px;
   flex-direction: column;
   float: left;
 }

@@ -5,9 +5,10 @@ import axios from 'axios';
 
 import "./styles.css";
 
-const SelectComponent = () => {
+const SelectComponent = ({onChange}) => {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
+
   const { Option } = Select;
   useEffect(() => {
     const fetchData = async () => {
@@ -29,8 +30,9 @@ const SelectComponent = () => {
   return (
     <Select
       showSearch
-      placeholder="Select desired equiptment"
+      placeholder="Select equiptment"
       optionFilterProp="children"
+      onChange={onChange}
       filterOption={(input, option) =>
         option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
       }

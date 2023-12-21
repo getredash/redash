@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Table from "antd/lib/table";
+import axios from "axios";
+import { CloseOutlined, CheckOutlined, DeleteOutlined } from "@ant-design/icons";
+
+import "./styles.css";
 
 export default function QueueTable() {
  const [ queue, setQueue ] = useState([]);
@@ -9,17 +13,24 @@ export default function QueueTable() {
        const response = await fetch(
          'http://vs-proddash-dat/api/queue');
           const data = await response.json();
-          setQueue(data )
+          setQueue(data);
    }
    fetchdata();
 }, []);
 
+const handleDelete = async (id) => {
+  try {
+    await axios.delete(`http://vs-proddash-dat/api/queue/${id}`);
+    // Refresh the table data after successful deletion
+    const response = await fetch('http://vs-proddash-dat/api/queue');
+    const data = await response.json();
+    setQueue(data);
+  } catch (error) {
+    console.error('Error deleting data:', error);
+  }
+};
+
 const columns = [
-  {
-    title: 'ID',
-    dataIndex: 'id',
-    key: 'id',
-  },
   {
     title: 'Equiptment',
     dataIndex: 'equiptment',
@@ -51,16 +62,29 @@ const columns = [
     key: 'state',
   },
   {
-    title: 'Action',
-    dataIndex: '',
+    title: 'Keep Updated',
+    dataIndex: 'keepUpdated',
+    key: 'keepUpdated',
+    render: (keepUpdated) => (keepUpdated ? <CheckOutlined/> : <CloseOutlined/>),
+  },
+  {
+    title: 'Edit',
+    dataIndex: 'id',
     key: 'id',
-    render: () => <a>Delete</a>,
+    render: (id) => (
+      <button type="button" className="deletebutton" onClick={() => handleDelete(id)}>
+        <DeleteOutlined />
+        Delete
+      </button>
+    ),
   },
 ];
  
  return (
-   <div className="Table">
-      <Table dataSource={queue} columns={columns} />
-   </div>
+  <><div className="headinglabel">
+     <h4>Currently available data:</h4>
+   </div><div className="Table">
+       <Table dataSource={queue} columns={columns} />
+     </div></>
  );
 }

@@ -8,3 +8,9 @@
     position: absolute;
     z-index: 1;
 }
+
+.deletebutton {
+    color: red;
+    border: none;
+}
+
