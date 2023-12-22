@@ -1,0 +1,53 @@
+/* Prevent text selection on shift+click. */
+div.tags-list {
+  -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+  -moz-user-select: none; /* mozilla browsers */
+  -khtml-user-select: none; /* webkit (konqueror) browsers */
+  -ms-user-select: none; /* IE10+ */
+}
+
+/* same rule as for sidebar */
+@media (max-width: 990px) {
+  .page-dashboard-list .page-header-actions {
+    width: auto;
+  }
+}
+
+.provisioning-page {
+  margin-bottom: 100px;
+}
+
+label {
+  font-size: large;
+  text-align: left;
+  clear: both;
+  float:left;
+}
+
+.form-group {
+  margin-top: 20px;
+}
+
+.m-b-0{
+  align-items: left;
+  justify-content: space-between;
+  margin: 25px 0px 25px 0px;
+  padding: 10px;
+}
+.selectionitem{
+  margin: 0px 0px 25px 0px;
+}
+
+.submitbutton{
+  width:100px;
+}
+
+.checkboxcomponent{
+  display:flex;
+  margin-top:25px;
+  flex-direction: column;
+  float: left;
+}
+
+
+

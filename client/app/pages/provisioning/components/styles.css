@@ -1,0 +1,23 @@
+.warning {
+    color: red;
+    position: absolute;
+    z-index: 0;
+}
+
+.check {
+    position: absolute;
+    z-index: 1;
+}
+
+.checkboxlabel{
+    display: flex;
+    margin-left:2px;
+    vertical-align: middle;
+    font-size: small;
+}
+
+.deletebutton {
+    color: red;
+    border: none;
+}
+
