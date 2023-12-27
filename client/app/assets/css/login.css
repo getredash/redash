@@ -1,14 +1,7 @@
 body {
   padding-top: 0px !important;
   background-color: #FFFFFF;
-  background-image: "/static/images/illustrations/Vetter_RVK.jpg";
-  /* Add the blur effect */
-  filter: blur(8px);
-  -webkit-filter: blur(8px);
-
-  /* Full height */
-  height: 100%;
-
+  background-image: url(/client/app/assets/images/illustrations/Vetter_RVK.jpg); 
   /* Center and scale the image nicely */
   background-position: center;
   background-repeat: no-repeat;
