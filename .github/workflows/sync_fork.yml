@@ -1,11 +1,1 @@
-- name: Sync and merge upstream repository with your current repository
-  uses: dabreadman/sync-upstream-repo@v1.0.0.b
-  with:
-    # URL of gitHub public upstream repo
-    upstream_repo: "https://github.com/getredash/redash.git"
-    # Branch to merge from upstream (defaults to downstream branch)
-    upstream_branch: master
-    # Branch to merge into downstream
-    downstream_branch: master
-    # GitHub Bot token
-    token: ${{ secrets.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 }}
+
