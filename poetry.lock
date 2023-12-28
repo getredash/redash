@@ -2045,12 +2045,12 @@ format = ["idna", "jsonpointer (>1.13)", "rfc3987", "strict-rfc3339", "webcolors
 
 [[package]]
 name = "jwcrypto"
-version = "1.5.0"
+version = "1.5.1"
 description = "Implementation of JOSE Web standards"
 optional = false
 python-versions = ">= 3.6"
 files = [
-    {file = "jwcrypto-1.5.0.tar.gz", hash = "sha256:2c1dc51cf8e38ddf324795dfe9426dee9dd46caf47f535ccbc18781fba810b8d"},
+    {file = "jwcrypto-1.5.1.tar.gz", hash = "sha256:48bb9bf433777136253579e52b75ffe0f9a4a721d133d01f45a0b91ed5f4f1ae"},
 ]
 
 [package.dependencies]
@@ -5230,4 +5230,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "6a2f57d42669224f371be62213da0e88008928e55296212047419096c11be241"
+content-hash = "760f8331ccc762d310cbafa01544c165815bd4f59b30e45745a2c55dc81a69e8"
