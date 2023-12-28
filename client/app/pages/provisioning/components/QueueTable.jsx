@@ -2,12 +2,32 @@ import React, { useEffect, useState } from "react";
 import Table from "antd/lib/table";
 import axios from "axios";
 import { CloseOutlined, CheckOutlined, DeleteOutlined } from "@ant-design/icons";
+import notification from "antd/lib/notification";
+import { Popconfirm } from "antd/lib/popconfirm";
 
+import 'antd/lib/notification/style/index.css';
 import "./styles.css";
 
 export default function QueueTable() {
  const [ queue, setQueue ] = useState([]);
- 
+
+ const openSuccessNotification = () => {
+  notification.success({
+    message: 'Success',
+    placement: "bottomLeft",
+    description: 'The queue has been successfully modified!',
+    duration: 5, // Notification will hide after 5 seconds
+  });
+};
+
+const openErrorNotification = () => {
+  notification.error({
+    message: 'Error',
+    placement: "bottomLeft",
+    description: 'There was an error submitting your data.',
+    duration: 5, // Notification will hide after 5 seconds
+  });
+};
  useEffect(() => {
    const fetchdata = async () => {
        const response = await fetch(
@@ -18,15 +38,17 @@ export default function QueueTable() {
    fetchdata();
 }, []);
 
-const handleDelete = async (id) => {
+const handleDelete = async (key) => {
   try {
-    await axios.delete(`http://vs-proddash-dat/api/queue/${id}`);
+    await axios.delete(`http://vs-proddash-dat/api/queue/id=${key}`);
     // Refresh the table data after successful deletion
     const response = await fetch('http://vs-proddash-dat/api/queue');
     const data = await response.json();
     setQueue(data);
+    openSuccessNotification();
   } catch (error) {
     console.error('Error deleting data:', error);
+    openErrorNotification();
   }
 };
 
@@ -69,13 +91,20 @@ const columns = [
   },
   {
     title: 'Edit',
-    dataIndex: 'id',
-    key: 'id',
-    render: (id) => (
-      <button type="button" className="deletebutton" onClick={() => handleDelete(id)}>
+    dataIndex: 'key',
+    key: 'key',
+    render: (key) => (
+      <Popconfirm
+      title="Are you sure to delete this item?"
+      onConfirm={() => handleDelete(key)}
+      okText="Yes"
+      cancelText="No"
+    >
+      <button type="button" className="deletebutton">
         <DeleteOutlined />
         Delete
       </button>
+    </Popconfirm>
     ),
   },
 ];

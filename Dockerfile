@@ -55,6 +55,8 @@ RUN apt-get update && \
   default-libmysqlclient-dev \
   freetds-dev \
   libsasl2-dev \
+  # Custom Fonts
+  fonts-indic \
   unzip \
   libsasl2-modules-gssapi-mit && \
   apt-get clean && \

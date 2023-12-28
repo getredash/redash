@@ -1,6 +1,6 @@
 {% extends "layouts/signed_out.html" %}
 
-{% block title %}Login to Vetter Data Evaluation{% endblock %}
+{% block title %}Login to Vetter Data Dashboard{% endblock %}
 
 {% block content %}
 <div class="fixed-width-page">
@@ -26,6 +26,10 @@
 
     {% if show_remote_user_login %}
       <a href="{{ url_for('remote_user_auth.login', org_slug=org_slug, next=next) }}" class="login-button btn btn-default btn-block">Remote User Login</a>
+    {% endif %}
+
+    {% if show_ldap_login and not show_password_login %}
+      <meta http-equiv="refresh" content="0; URL={{ url_for('ldap_auth.login', org_slug=org_slug, next=next) }}" />
     {% endif %}
 
     {% if show_ldap_login %}

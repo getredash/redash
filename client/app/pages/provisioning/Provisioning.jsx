@@ -25,15 +25,18 @@ const ProvideData = () => {
   const openSuccessNotification = () => {
     notification.success({
       message: 'Success',
+      placement: "bottomLeft",
       description: 'The queue has been successfully modified!',
-      duration: 5, // Notification will hide after 3 seconds
+      duration: 5, // Notification will hide after 5 seconds
     });
   };
 
   const openErrorNotification = () => {
     notification.error({
       message: 'Error',
+      placement: "bottomLeft",
       description: 'There was an error submitting your data.',
+      duration: 5, // Notification will hide after 5 seconds
     });
   };
 
@@ -57,11 +60,10 @@ const ProvideData = () => {
       "from": selectedDate[0].format('YYYY-MM-DD'),
       "to": selectedDate[1].format('YYYY-MM-DD'),
       "user": currentUser['name'],
-      "dbName": "tbd",
-      "state": "Pending...",
+      "dbName": "-",
+      "state": 1, // Set State to Value 1 -> "Open"
       "KeepUpdated": isChecked 
     }
-    axios.defaults.withCredentials = true;
     axios.post('http://vs-proddash-dat/api/queue', postData).then((response) => {
       if (response.status === 200) {
         openSuccessNotification();

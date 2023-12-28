@@ -4,7 +4,7 @@ describe("Login", () => {
   });
 
   it("greets the user and take a screenshot", () => {
-    cy.contains("h3", "Login to Vetter Data Evaluation");
+    cy.contains("h3", "Login to Vetter Data Dashboard");
 
     cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.percySnapshot("Login");
