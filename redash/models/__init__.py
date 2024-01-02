@@ -40,7 +40,11 @@ from redash.models.base import (
 from redash.models.changes import Change, ChangeTrackingMixin  # noqa
 from redash.models.mixins import BelongsToOrgMixin, TimestampMixin
 from redash.models.organizations import Organization
-from redash.models.parameterized_query import ParameterizedQuery
+from redash.models.parameterized_query import (
+    InvalidParameterError,
+    ParameterizedQuery,
+    QueryDetachedFromDataSourceError,
+)
 from redash.models.types import (
     Configuration,
     EncryptedConfiguration,
@@ -831,7 +835,20 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def update_query_hash(self):
         should_apply_auto_limit = self.options.get("apply_auto_limit", False) if self.options else False
         query_runner = self.data_source.query_runner if self.data_source else BaseQueryRunner({})
-        self.query_hash = query_runner.gen_query_hash(self.query_text, should_apply_auto_limit)
+        query_text = self.query_text
+
+        parameters_dict = {p["name"]: p.get("value") for p in self.parameters} if self.options else {}
+        if any(parameters_dict):
+            try:
+                query_text = self.parameterized.apply(parameters_dict).query
+            except InvalidParameterError as e:
+                logging.info(f"Unable to update hash for query {self.id} because of invalid parameters: {str(e)}")
+            except QueryDetachedFromDataSourceError as e:
+                logging.info(
+                    f"Unable to update hash for query {self.id} because of dropdown query {e.query_id} is unattached from datasource"
+                )
+
+        self.query_hash = query_runner.gen_query_hash(query_text, should_apply_auto_limit)
 
 
 @listens_for(Query, "before_insert")

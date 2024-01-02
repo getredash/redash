@@ -381,7 +381,7 @@ class TestQueryDropdownsResource(BaseTestCase):
         query_result = self.factory.create_query_result(data=json_dumps(data))
         dropdown_query = self.factory.create_query(latest_query_data=query_result)
 
-        options = {"parameters": [{"type": "query", "queryId": dropdown_query.id}]}
+        options = {"parameters": [{"name": "param", "type": "query", "queryId": dropdown_query.id}]}
         query = self.factory.create_query(options=options)
 
         # dropdown_query has been associated with query
@@ -394,7 +394,7 @@ class TestQueryDropdownsResource(BaseTestCase):
     def test_prevents_access_if_associated_and_doesnt_have_access_to_parent(self):
         ds2 = self.factory.create_data_source(group=self.factory.org.admin_group, view_only=False)
         dropdown_query = self.factory.create_query(data_source=ds2)
-        options = {"parameters": [{"type": "query", "queryId": dropdown_query.id}]}
+        options = {"parameters": [{"name": "param", "type": "query", "queryId": dropdown_query.id}]}
         query = self.factory.create_query(data_source=ds2, options=options)
 
         # dropdown_query has been associated with query
