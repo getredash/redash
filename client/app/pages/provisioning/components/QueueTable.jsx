@@ -3,7 +3,7 @@ import Table from "antd/lib/table";
 import axios from "axios";
 import { CloseOutlined, CheckOutlined, DeleteOutlined } from "@ant-design/icons";
 import notification from "antd/lib/notification";
-import { Popconfirm } from "antd/lib/popconfirm";
+import Popconfirm from "antd/lib/popconfirm";
 
 import 'antd/lib/notification/style/index.css';
 import "./styles.css";
