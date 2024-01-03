@@ -1,15 +1,15 @@
 import requests
-import httplib2
 
 try:
+    import google.auth
     from apiclient.discovery import build
-    from oauth2client.contrib import gce
 
     enabled = True
 except ImportError:
     enabled = False
 
 from redash.query_runner import register
+
 from .big_query import BigQuery
 
 
@@ -59,19 +59,11 @@ class BigQueryGCE(BigQuery):
         }
 
     def _get_project_id(self):
-        return requests.get(
-            "http://metadata/computeMetadata/v1/project/project-id",
-            headers={"Metadata-Flavor": "Google"},
-        ).content
+        google.auth.default()[1]
 
     def _get_bigquery_service(self):
-        credentials = gce.AppAssertionCredentials(
-            scope="https://www.googleapis.com/auth/bigquery"
-        )
-        http = httplib2.Http()
-        http = credentials.authorize(http)
-
-        return build("bigquery", "v2", http=http)
+        creds = google.auth.default(scopes=["https://www.googleapis.com/auth/bigquery"])[0]
+        return build("bigquery", "v2", credentials=creds, cache_discovery=False)
 
 
 register(BigQueryGCE)

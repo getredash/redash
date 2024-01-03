@@ -1,15 +1,16 @@
 from flask import request, url_for
-from funcy import project, partial
-
 from flask_restful import abort
+from funcy import partial, project
+from sqlalchemy.orm.exc import StaleDataError
+
 from redash import models
 from redash.handlers.base import (
     BaseResource,
+    filter_by_tags,
     get_object_or_404,
     paginate,
-    filter_by_tags,
-    order_results as _order_results,
 )
+from redash.handlers.base import order_results as _order_results
 from redash.permissions import (
     can_modify,
     require_admin_or_owner,
@@ -17,12 +18,7 @@ from redash.permissions import (
     require_permission,
 )
 from redash.security import csp_allows_embeding
-from redash.serializers import (
-    DashboardSerializer,
-    public_dashboard,
-)
-from sqlalchemy.orm.exc import StaleDataError
-
+from redash.serializers import DashboardSerializer, public_dashboard
 
 # Ordering map for relationships
 order_map = {
@@ -32,9 +28,7 @@ order_map = {
     "-created_at": "-created_at",
 }
 
-order_results = partial(
-    _order_results, default_order="-created_at", allowed_orders=order_map
-)
+order_results = partial(_order_results, default_order="-created_at", allowed_orders=order_map)
 
 
 class DashboardListResource(BaseResource):
@@ -61,9 +55,7 @@ class DashboardListResource(BaseResource):
                 search_term,
             )
         else:
-            results = models.Dashboard.all(
-                self.current_org, self.current_user.group_ids, self.current_user.id
-            )
+            results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id)
 
         results = filter_by_tags(results, models.Dashboard.tags)
 
@@ -83,9 +75,7 @@ class DashboardListResource(BaseResource):
         )
 
         if search_term:
-            self.record_event(
-                {"action": "search", "object_type": "dashboard", "term": search_term}
-            )
+            self.record_event({"action": "search", "object_type": "dashboard", "term": search_term})
         else:
             self.record_event({"action": "list", "object_type": "dashboard"})
 
@@ -142,12 +132,7 @@ class MyDashboardsResource(BaseResource):
 
         page = request.args.get("page", 1, type=int)
         page_size = request.args.get("page_size", 25, type=int)
-        return paginate(
-            ordered_results,
-            page,
-            page_size,
-            DashboardSerializer
-        )
+        return paginate(ordered_results, page, page_size, DashboardSerializer)
 
 
 class DashboardResource(BaseResource):
@@ -193,9 +178,7 @@ class DashboardResource(BaseResource):
             fn = models.Dashboard.get_by_id_and_org
 
         dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
-        response = DashboardSerializer(
-            dashboard, with_widgets=True, user=self.current_user
-        ).serialize()
+        response = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user).serialize()
 
         api_key = models.ApiKey.get_by_object(dashboard)
         if api_key:
@@ -209,9 +192,7 @@ class DashboardResource(BaseResource):
 
         response["can_edit"] = can_modify(dashboard, self.current_user)
 
-        self.record_event(
-            {"action": "view", "object_id": dashboard.id, "object_type": "dashboard"}
-        )
+        self.record_event({"action": "view", "object_id": dashboard.id, "object_type": "dashboard"})
 
         return response
 
@@ -262,13 +243,9 @@ class DashboardResource(BaseResource):
         except StaleDataError:
             abort(409)
 
-        result = DashboardSerializer(
-            dashboard, with_widgets=True, user=self.current_user
-        ).serialize()
+        result = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user).serialize()
 
-        self.record_event(
-            {"action": "edit", "object_id": dashboard.id, "object_type": "dashboard"}
-        )
+        self.record_event({"action": "edit", "object_id": dashboard.id, "object_type": "dashboard"})
 
         return result
 
@@ -285,14 +262,10 @@ class DashboardResource(BaseResource):
         dashboard.is_archived = True
         dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)
-        d = DashboardSerializer(
-            dashboard, with_widgets=True, user=self.current_user
-        ).serialize()
+        d = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user).serialize()
         models.db.session.commit()
 
-        self.record_event(
-            {"action": "archive", "object_id": dashboard.id, "object_type": "dashboard"}
-        )
+        self.record_event({"action": "archive", "object_id": dashboard.id, "object_type": "dashboard"})
 
         return d
 
@@ -396,9 +369,7 @@ class DashboardFavoriteListResource(BaseResource):
                 self.current_user.id,
                 search_term,
             )
-            favorites = models.Dashboard.favorites(
-                self.current_user, base_query=base_query
-            )
+            favorites = models.Dashboard.favorites(self.current_user, base_query=base_query)
         else:
             favorites = models.Dashboard.favorites(self.current_user)
 
@@ -427,3 +398,16 @@ class DashboardFavoriteListResource(BaseResource):
         )
 
         return response
+
+
+class DashboardForkResource(BaseResource):
+    @require_permission("edit_dashboard")
+    def post(self, dashboard_id):
+        dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
+
+        fork_dashboard = dashboard.fork(self.current_user)
+        models.db.session.commit()
+
+        self.record_event({"action": "fork", "object_id": dashboard_id, "object_type": "dashboard"})
+
+        return DashboardSerializer(fork_dashboard, with_widgets=True).serialize()

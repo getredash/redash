@@ -1,21 +1,20 @@
-from __future__ import absolute_import
 import logging
 import os
 import sys
 
 import redis
-from flask_mail import Mail
 from flask_limiter import Limiter
-from flask_limiter.util import get_ipaddr
+from flask_limiter.util import get_remote_address
+from flask_mail import Mail
 from flask_migrate import Migrate
 from statsd import StatsClient
 
-from . import settings
-from .app import create_app  # noqa
-from .query_runner import import_query_runners
-from .destinations import import_destinations
+from redash import settings
+from redash.app import create_app  # noqa
+from redash.destinations import import_destinations
+from redash.query_runner import import_query_runners
 
-__version__ = "11.0.0-dev"
+__version__ = "23.12.0-dev"
 
 
 if os.environ.get("REMOTE_DEBUG"):
@@ -48,10 +47,8 @@ redis_connection = redis.from_url(settings.REDIS_URL)
 rq_redis_connection = redis.from_url(settings.RQ_REDIS_URL)
 mail = Mail()
 migrate = Migrate(compare_type=True)
-statsd_client = StatsClient(
-    host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX
-)
-limiter = Limiter(key_func=get_ipaddr, storage_uri=settings.LIMITER_STORAGE)
+statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
+limiter = Limiter(key_func=get_remote_address, storage_uri=settings.LIMITER_STORAGE)
 
 import_query_runners(settings.QUERY_RUNNERS)
 import_destinations(settings.DESTINATIONS)

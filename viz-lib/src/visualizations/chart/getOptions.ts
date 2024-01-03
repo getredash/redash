@@ -23,6 +23,10 @@ const DEFAULT_OPTIONS = {
   // dateTimeFormat: 'DD/MM/YYYY HH:mm', // will be set from visualizationsSettings
   textFormat: "", // default: combination of {{ @@yPercent }} ({{ @@y }} ± {{ @@yError }})
 
+  enableLink: false,
+  linkOpenNewTab: true,
+  linkFormat: "", // template like a textFormat
+
   missingValuesAsZero: true,
 };
 

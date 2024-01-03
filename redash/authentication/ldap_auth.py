@@ -1,23 +1,23 @@
 import logging
 import sys
 
-from redash import settings
-
-from flask import flash, redirect, render_template, request, url_for, Blueprint
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user
 
+from redash import settings
+
 try:
-    from ldap3 import Server, Connection
+    from ldap3 import Connection, Server
 except ImportError:
     if settings.LDAP_LOGIN_ENABLED:
         sys.exit(
-            "The ldap3 library was not found. This is required to use LDAP authentication (see requirements.txt)."
+            "The ldap3 library was not found. This is required to use LDAP authentication. Rebuild the Docker image installing the `ldap3` poetry dependency group."
         )
 
 from redash.authentication import (
     create_and_login_user,
-    logout_and_redirect_to_index,
     get_next_path,
+    logout_and_redirect_to_index,
 )
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import org_scoped_rule

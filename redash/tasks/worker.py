@@ -1,13 +1,25 @@
 import errno
 import os
 import signal
-import time
-from redash import statsd_client
-from rq import Queue as BaseQueue, get_current_job
-from rq.worker import HerokuWorker # HerokuWorker implements graceful shutdown on SIGTERM
+import sys
+
+from rq import Queue as BaseQueue
+from rq.job import Job as BaseJob
+from rq.job import JobStatus
+from rq.timeouts import HorseMonitorTimeoutException, UnixSignalDeathPenalty
 from rq.utils import utcnow
-from rq.timeouts import UnixSignalDeathPenalty, HorseMonitorTimeoutException
-from rq.job import Job as BaseJob, JobStatus
+from rq.worker import (
+    HerokuWorker,  # HerokuWorker implements graceful shutdown on SIGTERM
+    Worker,
+)
+
+from redash import statsd_client
+
+# HerokuWorker does not work in OSX https://github.com/getredash/redash/issues/5413
+if sys.platform == "darwin":
+    BaseWorker = Worker
+else:
+    BaseWorker = HerokuWorker
 
 
 class CancellableJob(BaseJob):
@@ -41,7 +53,7 @@ class RedashQueue(StatsdRecordingQueue, CancellableQueue):
     pass
 
 
-class StatsdRecordingWorker(HerokuWorker):
+class StatsdRecordingWorker(BaseWorker):
     """
     RQ Worker Mixin that overrides `execute_job` to increment/modify metrics via Statsd
     """
@@ -59,7 +71,7 @@ class StatsdRecordingWorker(HerokuWorker):
                 statsd_client.incr("rq.jobs.failed.{}".format(queue.name))
 
 
-class HardLimitingWorker(HerokuWorker):
+class HardLimitingWorker(BaseWorker):
     """
     RQ's work horses enforce time limits by setting a timed alarm and stopping jobs
     when they reach their time limits. However, the work horse may be entirely blocked
@@ -110,9 +122,7 @@ class HardLimitingWorker(HerokuWorker):
         job.started_at = utcnow()
         while True:
             try:
-                with UnixSignalDeathPenalty(
-                    self.job_monitoring_interval, HorseMonitorTimeoutException
-                ):
+                with UnixSignalDeathPenalty(self.job_monitoring_interval, HorseMonitorTimeoutException):
                     retpid, ret_val = os.waitpid(self._horse_pid, 0)
                 break
             except HorseMonitorTimeoutException:
@@ -145,7 +155,6 @@ class HardLimitingWorker(HerokuWorker):
         if job_status is None:  # Job completed and its ttl has expired
             return
         if job_status not in [JobStatus.FINISHED, JobStatus.FAILED]:
-
             if not job.ended_at:
                 job.ended_at = utcnow()
 
@@ -153,7 +162,7 @@ class HardLimitingWorker(HerokuWorker):
             self.log.warning(
                 (
                     "Moving job to FailedJobRegistry "
-                    "(work-horse terminated unexpectedly; waitpid returned {})"
+                    "(work-horse terminated unexpectedly; waitpid returned {})"  # fmt: skip
                 ).format(ret_val)
             )
 
@@ -161,7 +170,7 @@ class HardLimitingWorker(HerokuWorker):
                 job,
                 queue=queue,
                 exc_string="Work-horse process was terminated unexpectedly "
-                "(waitpid returned %s)" % ret_val,
+                "(waitpid returned %s)" % ret_val,  # fmt: skip
             )
 
 

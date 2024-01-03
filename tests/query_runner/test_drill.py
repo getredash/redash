@@ -2,10 +2,10 @@ import datetime
 from unittest import TestCase
 
 from redash.query_runner import (
+    TYPE_BOOLEAN,
     TYPE_DATETIME,
     TYPE_FLOAT,
     TYPE_INTEGER,
-    TYPE_BOOLEAN,
     TYPE_STRING,
 )
 from redash.query_runner.drill import convert_type, parse_response

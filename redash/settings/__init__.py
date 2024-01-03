@@ -1,24 +1,23 @@
-import os
 import importlib
+import os
 import ssl
-from funcy import distinct, remove
-from flask_talisman import talisman
 
-from .helpers import (
-    fix_assets_path,
-    array_from_string,
-    parse_boolean,
-    int_or_none,
-    set_from_string,
+from flask_talisman import talisman
+from funcy import distinct, remove
+
+from redash.settings.helpers import (
     add_decode_responses_to_redis_url,
-    cast_int_or_default
+    array_from_string,
+    cast_int_or_default,
+    fix_assets_path,
+    int_or_none,
+    parse_boolean,
+    set_from_string,
 )
-from .organization import DATE_FORMAT, TIME_FORMAT  # noqa
+from redash.settings.organization import DATE_FORMAT, TIME_FORMAT  # noqa
 
 # _REDIS_URL is the unchanged REDIS_URL we get from env vars, to be used later with RQ
-_REDIS_URL = os.environ.get(
-    "REDASH_REDIS_URL", os.environ.get("REDIS_URL", "redis://localhost:6379/0")
-)
+_REDIS_URL = os.environ.get("REDASH_REDIS_URL", os.environ.get("REDIS_URL", "redis://localhost:6379/0"))
 # This is the one to use for Redash' own connection:
 REDIS_URL = add_decode_responses_to_redis_url(_REDIS_URL)
 PROXIES_COUNT = int(os.environ.get("REDASH_PROXIES_COUNT", "1"))
@@ -34,83 +33,61 @@ SQLALCHEMY_DATABASE_URI = os.environ.get(
 )
 SQLALCHEMY_MAX_OVERFLOW = int_or_none(os.environ.get("SQLALCHEMY_MAX_OVERFLOW"))
 SQLALCHEMY_POOL_SIZE = int_or_none(os.environ.get("SQLALCHEMY_POOL_SIZE"))
-SQLALCHEMY_DISABLE_POOL = parse_boolean(
-    os.environ.get("SQLALCHEMY_DISABLE_POOL", "false")
-)
-SQLALCHEMY_ENABLE_POOL_PRE_PING = parse_boolean(
-    os.environ.get("SQLALCHEMY_ENABLE_POOL_PRE_PING", "false")
-)
+SQLALCHEMY_DISABLE_POOL = parse_boolean(os.environ.get("SQLALCHEMY_DISABLE_POOL", "false"))
+SQLALCHEMY_ENABLE_POOL_PRE_PING = parse_boolean(os.environ.get("SQLALCHEMY_ENABLE_POOL_PRE_PING", "false"))
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ECHO = False
 
 RQ_REDIS_URL = os.environ.get("RQ_REDIS_URL", _REDIS_URL)
 
 # The following enables periodic job (every 5 minutes) of removing unused query results.
-QUERY_RESULTS_CLEANUP_ENABLED = parse_boolean(
-    os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_ENABLED", "true")
-)
-QUERY_RESULTS_CLEANUP_COUNT = int(
-    os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_COUNT", "100")
-)
-QUERY_RESULTS_CLEANUP_MAX_AGE = int(
-    os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_MAX_AGE", "7")
-)
+QUERY_RESULTS_CLEANUP_ENABLED = parse_boolean(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_ENABLED", "true"))
+QUERY_RESULTS_CLEANUP_COUNT = int(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_COUNT", "100"))
+QUERY_RESULTS_CLEANUP_MAX_AGE = int(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_MAX_AGE", "7"))
+
+QUERY_RESULTS_EXPIRED_TTL_ENABLED = parse_boolean(os.environ.get("REDASH_QUERY_RESULTS_EXPIRED_TTL_ENABLED", "false"))
+# default set query results expired ttl 86400 seconds
+QUERY_RESULTS_EXPIRED_TTL = int(os.environ.get("REDASH_QUERY_RESULTS_EXPIRED_TTL", "86400"))
 
 SCHEMAS_REFRESH_SCHEDULE = int(os.environ.get("REDASH_SCHEMAS_REFRESH_SCHEDULE", 30))
 
 AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "api_key")
-INVITATION_TOKEN_MAX_AGE = int(
-    os.environ.get("REDASH_INVITATION_TOKEN_MAX_AGE", 60 * 60 * 24 * 7)
-)
+INVITATION_TOKEN_MAX_AGE = int(os.environ.get("REDASH_INVITATION_TOKEN_MAX_AGE", 60 * 60 * 24 * 7))
 
 # The secret key to use in the Flask app for various cryptographic features
 SECRET_KEY = os.environ.get("REDASH_COOKIE_SECRET")
 
 if SECRET_KEY is None:
-    raise Exception("You must set the REDASH_COOKIE_SECRET environment variable. Visit http://redash.io/help/open-source/admin-guide/secrets for more information.")
+    raise Exception(
+        "You must set the REDASH_COOKIE_SECRET environment variable. Visit http://redash.io/help/open-source/admin-guide/secrets for more information."
+    )
 
 # The secret key to use when encrypting data source options
 DATASOURCE_SECRET_KEY = os.environ.get("REDASH_SECRET_KEY", SECRET_KEY)
 
 # Whether and how to redirect non-HTTP requests to HTTPS. Disabled by default.
 ENFORCE_HTTPS = parse_boolean(os.environ.get("REDASH_ENFORCE_HTTPS", "false"))
-ENFORCE_HTTPS_PERMANENT = parse_boolean(
-    os.environ.get("REDASH_ENFORCE_HTTPS_PERMANENT", "false")
-)
+ENFORCE_HTTPS_PERMANENT = parse_boolean(os.environ.get("REDASH_ENFORCE_HTTPS_PERMANENT", "false"))
 # Whether file downloads are enforced or not.
 ENFORCE_FILE_SAVE = parse_boolean(os.environ.get("REDASH_ENFORCE_FILE_SAVE", "true"))
 
 # Whether api calls using the json query runner will block private addresses
-ENFORCE_PRIVATE_ADDRESS_BLOCK = parse_boolean(
-    os.environ.get("REDASH_ENFORCE_PRIVATE_IP_BLOCK", "true")
-)
+ENFORCE_PRIVATE_ADDRESS_BLOCK = parse_boolean(os.environ.get("REDASH_ENFORCE_PRIVATE_IP_BLOCK", "true"))
 
 # Whether to use secure cookies by default.
-COOKIES_SECURE = parse_boolean(
-    os.environ.get("REDASH_COOKIES_SECURE", str(ENFORCE_HTTPS))
-)
+COOKIES_SECURE = parse_boolean(os.environ.get("REDASH_COOKIES_SECURE", str(ENFORCE_HTTPS)))
 # Whether the session cookie is set to secure.
-SESSION_COOKIE_SECURE = parse_boolean(
-    os.environ.get("REDASH_SESSION_COOKIE_SECURE") or str(COOKIES_SECURE)
-)
+SESSION_COOKIE_SECURE = parse_boolean(os.environ.get("REDASH_SESSION_COOKIE_SECURE") or str(COOKIES_SECURE))
 # Whether the session cookie is set HttpOnly.
-SESSION_COOKIE_HTTPONLY = parse_boolean(
-    os.environ.get("REDASH_SESSION_COOKIE_HTTPONLY", "true")
-)
+SESSION_COOKIE_HTTPONLY = parse_boolean(os.environ.get("REDASH_SESSION_COOKIE_HTTPONLY", "true"))
 SESSION_EXPIRY_TIME = int(os.environ.get("REDASH_SESSION_EXPIRY_TIME", 60 * 60 * 6))
 
 # Whether the session cookie is set to secure.
-REMEMBER_COOKIE_SECURE = parse_boolean(
-    os.environ.get("REDASH_REMEMBER_COOKIE_SECURE") or str(COOKIES_SECURE)
-)
+REMEMBER_COOKIE_SECURE = parse_boolean(os.environ.get("REDASH_REMEMBER_COOKIE_SECURE") or str(COOKIES_SECURE))
 # Whether the remember cookie is set HttpOnly.
-REMEMBER_COOKIE_HTTPONLY = parse_boolean(
-    os.environ.get("REDASH_REMEMBER_COOKIE_HTTPONLY", "true")
-)
+REMEMBER_COOKIE_HTTPONLY = parse_boolean(os.environ.get("REDASH_REMEMBER_COOKIE_HTTPONLY", "true"))
 # The amount of time before the remember cookie expires.
-REMEMBER_COOKIE_DURATION = int(
-    os.environ.get("REDASH_REMEMBER_COOKIE_DURATION", 60 * 60 * 24 * 31)
-)
+REMEMBER_COOKIE_DURATION = int(os.environ.get("REDASH_REMEMBER_COOKIE_DURATION", 60 * 60 * 24 * 31))
 
 # Doesn't set X-Frame-Options by default since it's highly dependent
 # on the specific deployment.
@@ -122,14 +99,10 @@ FRAME_OPTIONS_ALLOW_FROM = os.environ.get("REDASH_FRAME_OPTIONS_ALLOW_FROM", "")
 # Whether and how to send Strict-Transport-Security response headers.
 # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
 # for more information.
-HSTS_ENABLED = parse_boolean(
-    os.environ.get("REDASH_HSTS_ENABLED") or str(ENFORCE_HTTPS)
-)
+HSTS_ENABLED = parse_boolean(os.environ.get("REDASH_HSTS_ENABLED") or str(ENFORCE_HTTPS))
 HSTS_PRELOAD = parse_boolean(os.environ.get("REDASH_HSTS_PRELOAD", "false"))
 HSTS_MAX_AGE = int(os.environ.get("REDASH_HSTS_MAX_AGE", talisman.ONE_YEAR_IN_SECS))
-HSTS_INCLUDE_SUBDOMAINS = parse_boolean(
-    os.environ.get("REDASH_HSTS_INCLUDE_SUBDOMAINS", "false")
-)
+HSTS_INCLUDE_SUBDOMAINS = parse_boolean(os.environ.get("REDASH_HSTS_INCLUDE_SUBDOMAINS", "false"))
 
 # Whether and how to send Content-Security-Policy response headers.
 # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
@@ -142,28 +115,22 @@ CONTENT_SECURITY_POLICY = os.environ.get(
     "REDASH_CONTENT_SECURITY_POLICY",
     "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data: blob:; object-src 'none'; frame-ancestors 'none'; frame-src redash.io;",
 )
-CONTENT_SECURITY_POLICY_REPORT_URI = os.environ.get(
-    "REDASH_CONTENT_SECURITY_POLICY_REPORT_URI", ""
-)
+CONTENT_SECURITY_POLICY_REPORT_URI = os.environ.get("REDASH_CONTENT_SECURITY_POLICY_REPORT_URI", "")
 CONTENT_SECURITY_POLICY_REPORT_ONLY = parse_boolean(
     os.environ.get("REDASH_CONTENT_SECURITY_POLICY_REPORT_ONLY", "false")
 )
-CONTENT_SECURITY_POLICY_NONCE_IN = array_from_string(
-    os.environ.get("REDASH_CONTENT_SECURITY_POLICY_NONCE_IN", "")
-)
+CONTENT_SECURITY_POLICY_NONCE_IN = array_from_string(os.environ.get("REDASH_CONTENT_SECURITY_POLICY_NONCE_IN", ""))
 
 # Whether and how to send Referrer-Policy response headers. Defaults to
 # 'strict-origin-when-cross-origin'.
 # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
 # for more information.
-REFERRER_POLICY = os.environ.get(
-    "REDASH_REFERRER_POLICY", "strict-origin-when-cross-origin"
-)
+REFERRER_POLICY = os.environ.get("REDASH_REFERRER_POLICY", "strict-origin-when-cross-origin")
 # Whether and how to send Feature-Policy response headers. Defaults to
 # an empty value.
 # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Feature-Policy
 # for more information.
-FEATURE_POLICY = os.environ.get("REDASH_REFERRER_POLICY", "")
+FEATURE_POLICY = os.environ.get("REDASH_FEATURE_POLICY", "")
 
 MULTI_ORG = parse_boolean(os.environ.get("REDASH_MULTI_ORG", "false"))
 
@@ -205,12 +172,8 @@ SAML_ENCRYPTION_ENABLED = SAML_ENCRYPTION_PEM_PATH != "" and SAML_ENCRYPTION_CER
 # If you also set the organization setting auth_password_login_enabled to false,
 # then your authentication will be seamless.  Otherwise a link will be presented
 # on the login page to trigger remote user auth.
-REMOTE_USER_LOGIN_ENABLED = parse_boolean(
-    os.environ.get("REDASH_REMOTE_USER_LOGIN_ENABLED", "false")
-)
-REMOTE_USER_HEADER = os.environ.get(
-    "REDASH_REMOTE_USER_HEADER", "X-Forwarded-Remote-User"
-)
+REMOTE_USER_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_REMOTE_USER_LOGIN_ENABLED", "false"))
+REMOTE_USER_HEADER = os.environ.get("REDASH_REMOTE_USER_HEADER", "X-Forwarded-Remote-User")
 
 # If the organization setting auth_password_login_enabled is not false, then users will still be
 # able to login through Redash instead of the LDAP server
@@ -229,36 +192,22 @@ LDAP_BIND_DN_PASSWORD = os.environ.get("REDASH_LDAP_BIND_DN_PASSWORD", "")
 LDAP_DISPLAY_NAME_KEY = os.environ.get("REDASH_LDAP_DISPLAY_NAME_KEY", "displayName")
 LDAP_EMAIL_KEY = os.environ.get("REDASH_LDAP_EMAIL_KEY", "mail")
 # Prompt that should be shown above username/email field.
-LDAP_CUSTOM_USERNAME_PROMPT = os.environ.get(
-    "REDASH_LDAP_CUSTOM_USERNAME_PROMPT", "LDAP/AD/SSO username:"
-)
+LDAP_CUSTOM_USERNAME_PROMPT = os.environ.get("REDASH_LDAP_CUSTOM_USERNAME_PROMPT", "LDAP/AD/SSO username:")
 # LDAP Search DN TEMPLATE (for AD this should be "(sAMAccountName=%(username)s)"")
-LDAP_SEARCH_TEMPLATE = os.environ.get(
-    "REDASH_LDAP_SEARCH_TEMPLATE", "(cn=%(username)s)"
-)
+LDAP_SEARCH_TEMPLATE = os.environ.get("REDASH_LDAP_SEARCH_TEMPLATE", "(cn=%(username)s)")
 # The schema to bind to (ex. cn=users,dc=ORG,dc=local)
-LDAP_SEARCH_DN = os.environ.get(
-    "REDASH_LDAP_SEARCH_DN", os.environ.get("REDASH_SEARCH_DN")
-)
+LDAP_SEARCH_DN = os.environ.get("REDASH_LDAP_SEARCH_DN", os.environ.get("REDASH_SEARCH_DN"))
 
-STATIC_ASSETS_PATH = fix_assets_path(
-    os.environ.get("REDASH_STATIC_ASSETS_PATH", "../client/dist/")
-)
-FLASK_TEMPLATE_PATH = fix_assets_path(
-    os.environ.get("REDASH_FLASK_TEMPLATE_PATH", STATIC_ASSETS_PATH)
-)
+STATIC_ASSETS_PATH = fix_assets_path(os.environ.get("REDASH_STATIC_ASSETS_PATH", "../client/dist/"))
+FLASK_TEMPLATE_PATH = fix_assets_path(os.environ.get("REDASH_FLASK_TEMPLATE_PATH", STATIC_ASSETS_PATH))
 # Time limit (in seconds) for scheduled queries. Set this to -1 to execute without a time limit.
-SCHEDULED_QUERY_TIME_LIMIT = int(
-    os.environ.get("REDASH_SCHEDULED_QUERY_TIME_LIMIT", -1)
-)
+SCHEDULED_QUERY_TIME_LIMIT = int(os.environ.get("REDASH_SCHEDULED_QUERY_TIME_LIMIT", -1))
 
 # Time limit (in seconds) for adhoc queries. Set this to -1 to execute without a time limit.
 ADHOC_QUERY_TIME_LIMIT = int(os.environ.get("REDASH_ADHOC_QUERY_TIME_LIMIT", -1))
 
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 12))
-JOB_DEFAULT_FAILURE_TTL = int(
-    os.environ.get("REDASH_JOB_DEFAULT_FAILURE_TTL", 7 * 24 * 60 * 60)
-)
+JOB_DEFAULT_FAILURE_TTL = int(os.environ.get("REDASH_JOB_DEFAULT_FAILURE_TTL", 7 * 24 * 60 * 60))
 
 LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
 LOG_STDOUT = parse_boolean(os.environ.get("REDASH_LOG_STDOUT", "false"))
@@ -285,9 +234,7 @@ MAIL_USERNAME = os.environ.get("REDASH_MAIL_USERNAME", None)
 MAIL_PASSWORD = os.environ.get("REDASH_MAIL_PASSWORD", None)
 MAIL_DEFAULT_SENDER = os.environ.get("REDASH_MAIL_DEFAULT_SENDER", None)
 MAIL_MAX_EMAILS = os.environ.get("REDASH_MAIL_MAX_EMAILS", None)
-MAIL_ASCII_ATTACHMENTS = parse_boolean(
-    os.environ.get("REDASH_MAIL_ASCII_ATTACHMENTS", "false")
-)
+MAIL_ASCII_ATTACHMENTS = parse_boolean(os.environ.get("REDASH_MAIL_ASCII_ATTACHMENTS", "false"))
 
 
 def email_server_is_configured():
@@ -296,15 +243,15 @@ def email_server_is_configured():
 
 HOST = os.environ.get("REDASH_HOST", "")
 
-SEND_FAILURE_EMAIL_INTERVAL = int(
-    os.environ.get("REDASH_SEND_FAILURE_EMAIL_INTERVAL", 60)
-)
-MAX_FAILURE_REPORTS_PER_QUERY = int(
-    os.environ.get("REDASH_MAX_FAILURE_REPORTS_PER_QUERY", 100)
-)
+SEND_FAILURE_EMAIL_INTERVAL = int(os.environ.get("REDASH_SEND_FAILURE_EMAIL_INTERVAL", 60))
+MAX_FAILURE_REPORTS_PER_QUERY = int(os.environ.get("REDASH_MAX_FAILURE_REPORTS_PER_QUERY", 100))
 
 ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get(
-    "REDASH_ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE", "({state}) {alert_name}"
+    "REDASH_ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE", "Alert: {alert_name} changed status to {state}"
+)
+
+REDASH_ALERTS_DEFAULT_MAIL_BODY_TEMPLATE_FILE = os.environ.get(
+    "REDASH_ALERTS_DEFAULT_MAIL_BODY_TEMPLATE_FILE", fix_assets_path("templates/emails/alert.html")
 )
 
 # How many requests are allowed per IP to the login page before
@@ -319,18 +266,12 @@ THROTTLE_PASS_RESET_PATTERN = os.environ.get("REDASH_THROTTLE_PASS_RESET_PATTERN
 # CORS settings for the Query Result API (and possibly future external APIs).
 # In most cases all you need to do is set REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
 # to the calling domain (or domains in a comma separated list).
-ACCESS_CONTROL_ALLOW_ORIGIN = set_from_string(
-    os.environ.get("REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN", "")
-)
+ACCESS_CONTROL_ALLOW_ORIGIN = set_from_string(os.environ.get("REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN", ""))
 ACCESS_CONTROL_ALLOW_CREDENTIALS = parse_boolean(
     os.environ.get("REDASH_CORS_ACCESS_CONTROL_ALLOW_CREDENTIALS", "false")
 )
-ACCESS_CONTROL_REQUEST_METHOD = os.environ.get(
-    "REDASH_CORS_ACCESS_CONTROL_REQUEST_METHOD", "GET, POST, PUT"
-)
-ACCESS_CONTROL_ALLOW_HEADERS = os.environ.get(
-    "REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS", "Content-Type"
-)
+ACCESS_CONTROL_REQUEST_METHOD = os.environ.get("REDASH_CORS_ACCESS_CONTROL_REQUEST_METHOD", "GET, POST, PUT")
+ACCESS_CONTROL_ALLOW_HEADERS = os.environ.get("REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS", "Content-Type")
 
 # Query Runners
 default_query_runners = [
@@ -345,23 +286,25 @@ default_query_runners = [
     "redash.query_runner.url",
     "redash.query_runner.influx_db",
     "redash.query_runner.elasticsearch",
+    "redash.query_runner.elasticsearch2",
     "redash.query_runner.amazon_elasticsearch",
     "redash.query_runner.trino",
     "redash.query_runner.presto",
+    "redash.query_runner.pinot",
     "redash.query_runner.databricks",
     "redash.query_runner.hive_ds",
     "redash.query_runner.impala_ds",
     "redash.query_runner.vertica",
     "redash.query_runner.clickhouse",
+    "redash.query_runner.tinybird",
     "redash.query_runner.yandex_metrica",
+    "redash.query_runner.yandex_disk",
     "redash.query_runner.rockset",
     "redash.query_runner.treasuredata",
     "redash.query_runner.sqlite",
-    "redash.query_runner.dynamodb_sql",
     "redash.query_runner.mssql",
     "redash.query_runner.mssql_odbc",
     "redash.query_runner.memsql_ds",
-    "redash.query_runner.mapd",
     "redash.query_runner.jql",
     "redash.query_runner.google_analytics",
     "redash.query_runner.axibase_tsd",
@@ -387,18 +330,21 @@ default_query_runners = [
     "redash.query_runner.sparql_endpoint",
     "redash.query_runner.excel",
     "redash.query_runner.csv",
-    "redash.query_runner.firebolt"
+    "redash.query_runner.databend",
+    "redash.query_runner.nz",
+    "redash.query_runner.arango",
+    "redash.query_runner.google_analytics4",
+    "redash.query_runner.google_search_console",
+    "redash.query_runner.ignite",
+    "redash.query_runner.oracle",
+    "redash.query_runner.e6data",
 ]
 
 enabled_query_runners = array_from_string(
     os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners))
 )
-additional_query_runners = array_from_string(
-    os.environ.get("REDASH_ADDITIONAL_QUERY_RUNNERS", "")
-)
-disabled_query_runners = array_from_string(
-    os.environ.get("REDASH_DISABLED_QUERY_RUNNERS", "")
-)
+additional_query_runners = array_from_string(os.environ.get("REDASH_ADDITIONAL_QUERY_RUNNERS", ""))
+disabled_query_runners = array_from_string(os.environ.get("REDASH_DISABLED_QUERY_RUNNERS", ""))
 
 QUERY_RUNNERS = remove(
     set(disabled_query_runners),
@@ -414,42 +360,34 @@ default_destinations = [
     "redash.destinations.email",
     "redash.destinations.slack",
     "redash.destinations.webhook",
-    "redash.destinations.hipchat",
+    "redash.destinations.discord",
     "redash.destinations.mattermost",
     "redash.destinations.chatwork",
     "redash.destinations.pagerduty",
     "redash.destinations.hangoutschat",
+    "redash.destinations.microsoft_teams_webhook",
+    "redash.destinations.asana",
+    "redash.destinations.webex",
+    "redash.destinations.datadog",
 ]
 
-enabled_destinations = array_from_string(
-    os.environ.get("REDASH_ENABLED_DESTINATIONS", ",".join(default_destinations))
-)
-additional_destinations = array_from_string(
-    os.environ.get("REDASH_ADDITIONAL_DESTINATIONS", "")
-)
+enabled_destinations = array_from_string(os.environ.get("REDASH_ENABLED_DESTINATIONS", ",".join(default_destinations)))
+additional_destinations = array_from_string(os.environ.get("REDASH_ADDITIONAL_DESTINATIONS", ""))
 
 DESTINATIONS = distinct(enabled_destinations + additional_destinations)
 
-EVENT_REPORTING_WEBHOOKS = array_from_string(
-    os.environ.get("REDASH_EVENT_REPORTING_WEBHOOKS", "")
-)
+EVENT_REPORTING_WEBHOOKS = array_from_string(os.environ.get("REDASH_EVENT_REPORTING_WEBHOOKS", ""))
 
 # Support for Sentry (https://getsentry.com/). Just set your Sentry DSN to enable it:
 SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
 SENTRY_ENVIRONMENT = os.environ.get("REDASH_SENTRY_ENVIRONMENT")
 
 # Client side toggles:
-ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(
-    os.environ.get("REDASH_ALLOW_SCRIPTS_IN_USER_INPUT", "false")
-)
+ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(os.environ.get("REDASH_ALLOW_SCRIPTS_IN_USER_INPUT", "false"))
 DASHBOARD_REFRESH_INTERVALS = list(
     map(
         int,
-        array_from_string(
-            os.environ.get(
-                "REDASH_DASHBOARD_REFRESH_INTERVALS", "60,300,600,1800,3600,43200,86400"
-            )
-        ),
+        array_from_string(os.environ.get("REDASH_DASHBOARD_REFRESH_INTERVALS", "60,300,600,1800,3600,43200,86400")),
     )
 )
 QUERY_REFRESH_INTERVALS = list(
@@ -474,21 +412,13 @@ TABLE_CELL_MAX_JSON_SIZE = int(os.environ.get("REDASH_TABLE_CELL_MAX_JSON_SIZE",
 
 # Features:
 VERSION_CHECK = parse_boolean(os.environ.get("REDASH_VERSION_CHECK", "true"))
-FEATURE_DISABLE_REFRESH_QUERIES = parse_boolean(
-    os.environ.get("REDASH_FEATURE_DISABLE_REFRESH_QUERIES", "false")
-)
-FEATURE_SHOW_QUERY_RESULTS_COUNT = parse_boolean(
-    os.environ.get("REDASH_FEATURE_SHOW_QUERY_RESULTS_COUNT", "true")
-)
+FEATURE_DISABLE_REFRESH_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_DISABLE_REFRESH_QUERIES", "false"))
+FEATURE_SHOW_QUERY_RESULTS_COUNT = parse_boolean(os.environ.get("REDASH_FEATURE_SHOW_QUERY_RESULTS_COUNT", "true"))
 FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS = parse_boolean(
-    os.environ.get("REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS", "false")
+    os.environ.get("REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS", "true")
 )
-FEATURE_AUTO_PUBLISH_NAMED_QUERIES = parse_boolean(
-    os.environ.get("REDASH_FEATURE_AUTO_PUBLISH_NAMED_QUERIES", "true")
-)
-FEATURE_EXTENDED_ALERT_OPTIONS = parse_boolean(
-    os.environ.get("REDASH_FEATURE_EXTENDED_ALERT_OPTIONS", "false")
-)
+FEATURE_AUTO_PUBLISH_NAMED_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_AUTO_PUBLISH_NAMED_QUERIES", "true"))
+FEATURE_EXTENDED_ALERT_OPTIONS = parse_boolean(os.environ.get("REDASH_FEATURE_EXTENDED_ALERT_OPTIONS", "false"))
 
 # BigQuery
 BIGQUERY_HTTP_TIMEOUT = int(os.environ.get("REDASH_BIGQUERY_HTTP_TIMEOUT", "600"))
@@ -496,9 +426,7 @@ BIGQUERY_HTTP_TIMEOUT = int(os.environ.get("REDASH_BIGQUERY_HTTP_TIMEOUT", "600"
 # Allow Parameters in Embeds
 # WARNING: Deprecated!
 # See https://discuss.redash.io/t/support-for-parameters-in-embedded-visualizations/3337 for more details.
-ALLOW_PARAMETERS_IN_EMBEDS = parse_boolean(
-    os.environ.get("REDASH_ALLOW_PARAMETERS_IN_EMBEDS", "false")
-)
+ALLOW_PARAMETERS_IN_EMBEDS = parse_boolean(os.environ.get("REDASH_ALLOW_PARAMETERS_IN_EMBEDS", "false"))
 
 # Enhance schema fetching
 SCHEMA_RUN_TABLE_SIZE_CALCULATIONS = parse_boolean(
@@ -508,9 +436,7 @@ SCHEMA_RUN_TABLE_SIZE_CALCULATIONS = parse_boolean(
 # kylin
 KYLIN_OFFSET = int(os.environ.get("REDASH_KYLIN_OFFSET", 0))
 KYLIN_LIMIT = int(os.environ.get("REDASH_KYLIN_LIMIT", 50000))
-KYLIN_ACCEPT_PARTIAL = parse_boolean(
-    os.environ.get("REDASH_KYLIN_ACCEPT_PARTIAL", "false")
-)
+KYLIN_ACCEPT_PARTIAL = parse_boolean(os.environ.get("REDASH_KYLIN_ACCEPT_PARTIAL", "false"))
 
 # sqlparse
 SQLPARSE_FORMAT_OPTIONS = {
@@ -519,15 +445,11 @@ SQLPARSE_FORMAT_OPTIONS = {
 }
 
 # requests
-REQUESTS_ALLOW_REDIRECTS = parse_boolean(
-    os.environ.get("REDASH_REQUESTS_ALLOW_REDIRECTS", "false")
-)
+REQUESTS_ALLOW_REDIRECTS = parse_boolean(os.environ.get("REDASH_REQUESTS_ALLOW_REDIRECTS", "false"))
 
 # Enforces CSRF token validation on API requests.
 # This is turned off by default to avoid breaking any existing deployments but it is highly recommended to turn this toggle on to prevent CSRF attacks.
-ENFORCE_CSRF = parse_boolean(
-    os.environ.get("REDASH_ENFORCE_CSRF", "false")
-)
+ENFORCE_CSRF = parse_boolean(os.environ.get("REDASH_ENFORCE_CSRF", "false"))
 
 # Databricks
 

@@ -1,19 +1,22 @@
 import datetime
 from unittest import TestCase
 
-from mock import MagicMock
+import pytest
+from google.auth.exceptions import TransportError
+from gspread.exceptions import APIError
+from mock import MagicMock, patch
 
 from redash.query_runner import TYPE_DATETIME, TYPE_FLOAT
 from redash.query_runner.google_spreadsheets import (
     TYPE_BOOLEAN,
     TYPE_STRING,
+    GoogleSpreadsheet,
+    WorksheetNotFoundByTitleError,
+    WorksheetNotFoundError,
     _get_columns_and_column_names,
     _value_eval_list,
     is_url_key,
     parse_query,
-)
-from redash.query_runner.google_spreadsheets import (
-    WorksheetNotFoundError,
     parse_spreadsheet,
     parse_worksheet,
 )
@@ -27,23 +30,17 @@ class TestValueEvalList(TestCase):
     def test_handles_boolean(self):
         values = ["true", "false", "True", "False", "TRUE", "FALSE"]
         converted_values = [True, False, True, False, True, False]
-        self.assertEqual(
-            converted_values, _value_eval_list(values, [TYPE_BOOLEAN] * len(values))
-        )
+        self.assertEqual(converted_values, _value_eval_list(values, [TYPE_BOOLEAN] * len(values)))
 
     def test_handles_empty_values(self):
         values = ["", None]
         converted_values = [None, None]
-        self.assertEqual(
-            converted_values, _value_eval_list(values, [TYPE_STRING, TYPE_STRING])
-        )
+        self.assertEqual(converted_values, _value_eval_list(values, [TYPE_STRING, TYPE_STRING]))
 
     def test_handles_float(self):
         values = ["3.14", "-273.15"]
         converted_values = [3.14, -273.15]
-        self.assertEqual(
-            converted_values, _value_eval_list(values, [TYPE_FLOAT, TYPE_FLOAT])
-        )
+        self.assertEqual(converted_values, _value_eval_list(values, [TYPE_FLOAT, TYPE_FLOAT]))
 
     def test_handles_datetime(self):
         values = ["2018-06-28", "2020-2-29"]
@@ -51,9 +48,7 @@ class TestValueEvalList(TestCase):
             datetime.datetime(2018, 6, 28, 0, 0),
             datetime.datetime(2020, 2, 29, 0, 0),
         ]
-        self.assertEqual(
-            converted_values, _value_eval_list(values, [TYPE_DATETIME, TYPE_DATETIME])
-        )
+        self.assertEqual(converted_values, _value_eval_list(values, [TYPE_DATETIME, TYPE_DATETIME]))
 
 
 class TestParseSpreadsheet(TestCase):
@@ -61,10 +56,14 @@ class TestParseSpreadsheet(TestCase):
         spreadsheet = MagicMock()
 
         spreadsheet.worksheets = MagicMock(return_value=[])
+        spreadsheet.get_worksheet_by_index = MagicMock(return_value=None)
         self.assertRaises(WorksheetNotFoundError, parse_spreadsheet, spreadsheet, 0)
 
-        spreadsheet.worksheets = MagicMock(return_value=[1, 2])
-        self.assertRaises(WorksheetNotFoundError, parse_spreadsheet, spreadsheet, 2)
+    def test_returns_meaningful_error_for_missing_worksheet_by_title(self):
+        spreadsheet = MagicMock()
+
+        spreadsheet.get_worksheet_by_title = MagicMock(return_value=None)
+        self.assertRaises(WorksheetNotFoundByTitleError, parse_spreadsheet, spreadsheet, "a")
 
 
 empty_worksheet = []
@@ -114,6 +113,40 @@ class TestParseQuery(TestCase):
         parsed = parse_query("key|0")
         self.assertEqual(("key", 0), parsed)
 
+    def test_parse_query_ignored(self):
+        parsed = parse_query("key")
+        self.assertEqual(("key", 0), parsed)
+
+        parsed = parse_query("key|")
+        self.assertEqual(("key", 0), parsed)
+
+        parsed = parse_query("key|1|")
+        self.assertEqual(("key", 0), parsed)
+
+    def test_parse_query_title(self):
+        parsed = parse_query('key|""')
+        self.assertEqual(("key", ""), parsed)
+
+        parsed = parse_query('key|"1"')
+        self.assertEqual(("key", "1"), parsed)
+
+        parsed = parse_query('key|"abc"')
+        self.assertEqual(("key", "abc"), parsed)
+
+        parsed = parse_query('key|"あ"')
+        self.assertEqual(("key", "あ"), parsed)
+
+        parsed = parse_query('key|"1""')
+        self.assertEqual(("key", '1"'), parsed)
+
+        parsed = parse_query('key|""')
+        self.assertEqual(("key", ""), parsed)
+
+    def test_parse_query_failed(self):
+        self.assertRaises(ValueError, parse_query, "key|0x01")
+        self.assertRaises(ValueError, parse_query, "key|a")
+        self.assertRaises(ValueError, parse_query, 'key|""a')
+
 
 class TestGetColumnsAndColumnNames(TestCase):
     def test_get_columns(self):
@@ -142,3 +175,32 @@ class TestIsUrlKey(TestCase):
 
         _key = "key|0"
         self.assertFalse(is_url_key(_key))
+
+
+class TestConnection(TestCase):
+    @patch("redash.query_runner.google_spreadsheets.google.auth.default")
+    @patch("redash.query_runner.google_spreadsheets.gspread.Client")
+    def test_connect_succuess(self, mock_client, _mock_auth_default):
+        try:
+            qr_gspread = GoogleSpreadsheet({})
+            qr_gspread.test_connection()
+            mock_client().login.assert_called_once_with()
+            mock_client().open_by_key.assert_called_once()
+        except Exception:
+            self.fail("test_connection failed")
+
+    @patch("redash.query_runner.google_spreadsheets.google.auth.default")
+    def test_connect_fail_with_transport_error(self, mock_auth_default):
+        mock_auth_default.side_effect = TransportError("Connection Refused")
+        qr_gspread = GoogleSpreadsheet({})
+        with pytest.raises(Exception):
+            qr_gspread.test_connection()
+
+    @patch("redash.query_runner.google_spreadsheets.google.auth.default")
+    def test_connect_fail_with_api_error(self, mock_auth_default):
+        mock_response = MagicMock()
+        mock_response.json.return_value = {"error": {"message": "Sheet API is disabled"}}
+        mock_auth_default.side_effect = APIError(mock_response)
+        qr_gspread = GoogleSpreadsheet({})
+        with pytest.raises(Exception):
+            qr_gspread.test_connection()
