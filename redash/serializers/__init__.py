@@ -65,7 +65,7 @@ def public_dashboard(dashboard):
     return dashboard_dict
 
 
-class Serializer(object):
+class Serializer:
     pass
 
 
@@ -157,7 +157,7 @@ def serialize_visualization(object, with_query=True):
     return d
 
 
-def serialize_widget(object):
+def serialize_widget:
     d = {
         "id": object.id,
         "width": object.width,

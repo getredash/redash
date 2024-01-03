@@ -6,7 +6,7 @@ from redash.utils import json_dumps, json_loads
 
 
 # TODO: make this more general and move into __init__.py
-class ResultSet(object):
+class ResultSet:
     def __init__(self):
         self.columns = OrderedDict()
         self.rows = []

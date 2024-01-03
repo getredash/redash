@@ -80,7 +80,7 @@ from redash.utils.configuration import ConfigurationContainer
 logger = logging.getLogger(__name__)
 
 
-class ScheduledQueriesExecutions(object):
+class ScheduledQueriesExecutions:
     KEY_NAME = "sq:executed_at"
 
     def __init__(self):
@@ -302,7 +302,7 @@ class DataSourceGroup(db.Model):
 DESERIALIZED_DATA_ATTR = "_deserialized_data"
 
 
-class DBPersistence(object):
+class DBPersistence:
     @property
     def data(self):
         if self._data is None:
