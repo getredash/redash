@@ -6,7 +6,6 @@ on:
 
 env:
   ECR_REPOSITORY: images
-  GIT_REF: "${{ github.ref }}"
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
@@ -41,6 +40,12 @@ jobs:
     if: startsWith( github.ref, 'refs/heads/dependabot/' ) != true
     steps:
       - uses: actions/checkout@v3
+
+      - name: Set Environment Specific Variables
+        run: |
+          echo "AWS_REGION="${{ vars.AWS_REGION }} >> $GITHUB_ENV
+          echo "ECS_CLUSTER="${{ vars.ECS_SERVICE }} >> $GITHUB_ENV
+          echo "ECS_SERVICE="${{ vars.ECS_SERVICE }} >> $GITHUB_ENV
 
       - uses: actions/setup-node@v2-beta
         with:
