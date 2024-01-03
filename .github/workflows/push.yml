@@ -45,9 +45,9 @@ jobs:
           docker build \
             --file Dockerfile \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:redash_$IMAGE_TAG \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:redash_11 .
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:redash_$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:redash_11
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
       - name: Logout of Amazon ECR
         if: always()
