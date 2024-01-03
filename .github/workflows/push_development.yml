@@ -95,11 +95,11 @@ jobs:
       - name: Stop ECS TASK
         continue-on-error: true
         run: |
-          TASK_ARNS=$(aws ecs list-tasks --cluster $CLUSTER_NAME --query 'taskArns' --output text)
+          TASK_ARNS=$(aws ecs list-tasks --cluster $ECS_CLUSTER --query 'taskArns' --output text)
 
           for TASK_ARN in $TASK_ARNS; do
             echo "Attempting to Stop $TASK_ARN"
-            aws ecs stop-task --cluster $CLUSTER_NAME --task $TASK_ARN
+            aws ecs stop-task --cluster $ECS_CLUSTER --task $TASK_ARN
           done
 
       - name: Deploy Amazon ECS task definition
