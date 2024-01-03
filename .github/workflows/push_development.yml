@@ -90,6 +90,18 @@ jobs:
           container-name: Worker
           image: ${{ steps.build-image.outputs.image }}
 
+      - name: Stop ECS TASK
+        continue-on-error: true
+        run: |
+          CLUSTER_NAME=$(aws ecs list-clusters --query "clusterArns[?contains(@, 'Redash-development-EcsDefaultCluster')]" --output text)
+          SERVICE_ARNS=$(aws ecs list-services --cluster $CLUSTER_NAME --query 'serviceArns' --output text)
+          TASK_ARNS=$(aws ecs list-tasks --cluster $CLUSTER_NAME --query 'taskArns' --output text)
+
+          for TASK_ARN in $TASK_ARNS; do
+            echo "Attempting to Stop $TASK_ARN"
+            aws ecs stop-task --cluster $CLUSTER_NAME --task $TASK_ARN
+          done
+
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
