@@ -1,0 +1,99 @@
+name: Push Development
+on:
+  push:
+    branches:
+      - "development"
+
+env:
+  ECR_REPOSITORY: images
+  GIT_REF: "${{ github.ref }}"
+  IMAGE_TAG: ${{ github.sha }}
+  AWS_REGION: sa-east-1
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    if: startsWith( github.ref, 'refs/heads/dependabot/' ) != true
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: "14"
+
+      - name: Set extra environment variables
+        run: echo "BRANCH_REF_SLUG=$(./infratools/bin/slugify "$GIT_REF")" >> $GITHUB_ENV
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build \
+            --file Dockerfile \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:redash_$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:redash_11 .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:redash_$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:redash_11
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Logout of Amazon ECR
+        if: always()
+        run: docker logout ${{ steps.login-ecr.outputs.registry }}
+
+      - name: Download task definition
+        run: |
+          pwd
+          aws ecs describe-task-definition --task-definition RedashdevelopmentRedashTaskDefinitionB4064C92 --query taskDefinition > task-definition.json
+
+      - name: Add Image ID to Server Container
+        id: render-server-container
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: Server
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Modify Amazon ECS task definition with Scheduler Container
+        id: render-scheduler-container
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-server-container.outputs.task-definition }}
+          container-name: Scheduler
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Modify Amazon ECS task definition with AdHocWorker Container
+        id: render-adhocworker-container
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-scheduler-container.outputs.task-definition }}
+          container-name: AdHocWorker
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Modify Amazon ECS task definition with Worker Container
+        id: render-worker-container
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-adhocworker-container.outputs.task-definition }}
+          container-name: Worker
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container.outputs.task-definition }}
+          service:
+          cluster:
+          wait-for-service-stability: true
