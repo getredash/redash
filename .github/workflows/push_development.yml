@@ -44,7 +44,7 @@ jobs:
       - name: Set Environment Specific Variables
         run: |
           echo "AWS_REGION="${{ vars.AWS_REGION }} >> $GITHUB_ENV
-          echo "ECS_CLUSTER="${{ vars.ECS_SERVICE }} >> $GITHUB_ENV
+          echo "ECS_CLUSTER="${{ vars.ECS_CLUSTER }} >> $GITHUB_ENV
           echo "ECS_SERVICE="${{ vars.ECS_SERVICE }} >> $GITHUB_ENV
 
       - uses: actions/setup-node@v2-beta
