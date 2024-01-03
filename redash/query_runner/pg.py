@@ -282,7 +282,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
                 data = {"columns": columns, "rows": rows}
                 error = None
-                json_data = json_dumps(data, ignore_nan=True, cls=PostgreSQLJSONEncoder)
+                json_data = json_dumps(data, allow_nan=False, cls=PostgreSQLJSONEncoder)
             else:
                 error = "Query completed but it returned no data."
                 json_data = None

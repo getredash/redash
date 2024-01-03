@@ -114,10 +114,10 @@ def json_dumps(data, *args, **kwargs):
     """A custom JSON dumping function which passes all parameters to the
     json.dumps function."""
     kwargs.setdefault("cls", JSONEncoder)
-    kwargs.setdefault("encoding", None)
+    kwargs.setdefault("ensure_ascii", False)
     # Float value nan or inf in Python should be render to None or null in json.
-    # Using ignore_nan = False will make Python render nan as NaN, leading to parse error in front-end
-    kwargs.setdefault("ignore_nan", True)
+    # Using allow_nan = True will make Python render nan as NaN, leading to parse error in front-end
+    kwargs.setdefault("allow_nan", False)
     return json.dumps(data, *args, **kwargs)
 
 
