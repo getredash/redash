@@ -8,31 +8,50 @@ env:
   ECR_REPOSITORY: images
   GIT_REF: "${{ github.ref }}"
   IMAGE_TAG: ${{ github.sha }}
-  AWS_REGION: sa-east-1
-  ECS_SERVICE: Redash-development-RedashService4B0E23F4-SxTi9OCEt5xp
-  ECS_CLUSTER: Redash-development-EcsDefaultClusterMnL3mNNYNCFVPC50666647-bTXfgxCLg4mA
 
 jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-20.04
+    outputs:
+      BRANCH_REF_SLUG: ${{ steps.branch_ref_slug.outputs.slug }}
+    if: startsWith( github.ref, 'refs/heads/dependabot/' ) != true
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set branch ref slug
+        id: branch_ref_slug
+        run: |
+          SLUG=$(echo "${{ github.ref }}" |
+            iconv -t ascii//TRANSLIT |
+            sed -E 's#refs/[^\/]*/##' |
+            sed -E 's/[^a-zA-Z0-9]+/-/g' |
+            sed -E 's/^-+|-+$//g' |
+            tr A-Z a-z)
+
+          echo "BRANCH_REF_SLUG=$SLUG" >> $GITHUB_ENV
+          echo "slug=$SLUG" >> $GITHUB_OUTPUT
+
   build:
     name: Build
+    needs: [prepare]
+    environment:
+      name: ${{ needs.prepare.outputs.BRANCH_REF_SLUG }}
     runs-on: ubuntu-20.04
     if: startsWith( github.ref, 'refs/heads/dependabot/' ) != true
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: actions/setup-node@v2-beta
         with:
           node-version: "14"
-
-      - name: Set extra environment variables
-        run: echo "BRANCH_REF_SLUG=$(./infratools/bin/slugify "$GIT_REF")" >> $GITHUB_ENV
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -106,6 +125,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.render-worker-container.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ vars.ECS_SERVICE }}
+          cluster: ${{ vars.ECS_CLUSTER }}
           wait-for-service-stability: true
