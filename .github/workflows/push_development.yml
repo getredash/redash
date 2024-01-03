@@ -9,6 +9,8 @@ env:
   GIT_REF: "${{ github.ref }}"
   IMAGE_TAG: ${{ github.sha }}
   AWS_REGION: sa-east-1
+  ECS_SERVICE: Redash-development-RedashService4B0E23F4-SxTi9OCEt5xp
+  ECS_CLUSTER: Redash-development-EcsDefaultClusterMnL3mNNYNCFVPC50666647-bTXfgxCLg4mA
 
 jobs:
   build:
@@ -93,8 +95,6 @@ jobs:
       - name: Stop ECS TASK
         continue-on-error: true
         run: |
-          CLUSTER_NAME=$(aws ecs list-clusters --query "clusterArns[?contains(@, 'Redash-development-EcsDefaultCluster')]" --output text)
-          SERVICE_ARNS=$(aws ecs list-services --cluster $CLUSTER_NAME --query 'serviceArns' --output text)
           TASK_ARNS=$(aws ecs list-tasks --cluster $CLUSTER_NAME --query 'taskArns' --output text)
 
           for TASK_ARN in $TASK_ARNS; do
@@ -106,6 +106,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.render-worker-container.outputs.task-definition }}
-          service: Redash-development-RedashService4B0E23F4-SxTi9OCEt5xp
-          cluster: Redash-development-EcsDefaultClusterMnL3mNNYNCFVPC50666647-bTXfgxCLg4mA
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
