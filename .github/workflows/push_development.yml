@@ -44,9 +44,9 @@ jobs:
           docker build \
             --file Dockerfile \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:redash_$IMAGE_TAG \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:redash_11 .
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:redash_$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:redash_11
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Logout of Amazon ECR
@@ -94,6 +94,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.render-worker-container.outputs.task-definition }}
-          service:
-          cluster:
+          service: Redash-development-RedashService4B0E23F4-SxTi9OCEt5xp
+          cluster: Redash-development-EcsDefaultClusterMnL3mNNYNCFVPC50666647-bTXfgxCLg4mA
           wait-for-service-stability: true
