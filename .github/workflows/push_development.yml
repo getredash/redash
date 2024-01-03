@@ -46,6 +46,7 @@ jobs:
           echo "AWS_REGION="${{ vars.AWS_REGION }} >> $GITHUB_ENV
           echo "ECS_CLUSTER="${{ vars.ECS_CLUSTER }} >> $GITHUB_ENV
           echo "ECS_SERVICE="${{ vars.ECS_SERVICE }} >> $GITHUB_ENV
+          echo "TASK_DEFINITION_NAME="${{ vars.TASK_DEFINITION_NAME }} >> $GITHUB_ENV
 
       - uses: actions/setup-node@v2-beta
         with:
@@ -82,7 +83,7 @@ jobs:
       - name: Download task definition
         run: |
           pwd
-          aws ecs describe-task-definition --task-definition RedashdevelopmentRedashTaskDefinitionB4064C92 --query taskDefinition > task-definition.json
+          aws ecs describe-task-definition --task-definition $TASK_DEFINITION_NAME --query taskDefinition > task-definition.json
 
       - name: Add Image ID to Server Container
         id: render-server-container
