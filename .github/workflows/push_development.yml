@@ -117,6 +117,14 @@ jobs:
           container-name: Worker
           image: ${{ steps.build-image.outputs.image }}
 
+      - name: Modify Amazon ECS task definition with Worker Container
+        id: render-scheduledworker-container
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container.outputs.task-definition }}
+          container-name: ScheduledWorker
+          image: ${{ steps.build-image.outputs.image }}
+
       - name: Stop ECS TASK
         continue-on-error: true
         run: |
