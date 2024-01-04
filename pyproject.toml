@@ -169,7 +169,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 exclude = [".git", "viz-lib", "node_modules", "migrations"]
 ignore = ["E501"]
-select = ["C9", "E", "F", "W", "I001"]
+select = ["C9", "E", "F", "W", "I001", "UP004"]
 
 [tool.ruff.mccabe]
 max-complexity = 15
