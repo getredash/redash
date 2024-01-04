@@ -118,6 +118,7 @@ jobs:
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Modify Amazon ECS task definition with Worker Container
+        if: github.ref == 'refs/heads/production'
         id: render-scheduledworker-container
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
@@ -136,9 +137,21 @@ jobs:
           done
 
       - name: Deploy Amazon ECS task definition
+        if: github.ref == 'refs/heads/development'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.render-worker-container.outputs.task-definition }}
           service: ${{ vars.ECS_SERVICE }}
           cluster: ${{ vars.ECS_CLUSTER }}
           wait-for-service-stability: true
+
+      - name: Deploy Amazon ECS task definition
+        if: github.ref == 'refs/heads/production'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-scheduledworker-container.outputs.task-definition }}
+          service: ${{ vars.ECS_SERVICE }}
+          cluster: ${{ vars.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+
