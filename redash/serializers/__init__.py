@@ -157,7 +157,7 @@ def serialize_visualization(object, with_query=True):
     return d
 
 
-def serialize_widget:
+def serialize_widget(object):
     d = {
         "id": object.id,
         "width": object.width,
