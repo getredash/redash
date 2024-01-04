@@ -1,5 +1,6 @@
-import click
 import json
+
+import click
 from flask import current_app
 from flask.cli import FlaskGroup, run_command, with_appcontext
 from rq import Connection

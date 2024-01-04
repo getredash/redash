@@ -1,8 +1,8 @@
+import json
 import logging
 
 import jwt
 import requests
-import json
 
 logger = logging.getLogger("jwt_auth")
 

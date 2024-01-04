@@ -5,6 +5,7 @@ import datetime
 import decimal
 import hashlib
 import io
+import json
 import os
 import random
 import re
@@ -12,7 +13,6 @@ import uuid
 
 import pystache
 import pytz
-import json
 import sqlparse
 from flask import current_app
 from funcy import select_values
