@@ -60,7 +60,7 @@ def init_app(app):
     request_started.connect(update_user_active_at, app)
 
 
-class PermissionsCheckMixin(object):
+class PermissionsCheckMixin:
     def has_permission(self, permission):
         return self.has_permissions((permission,))
 
