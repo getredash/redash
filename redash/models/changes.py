@@ -45,7 +45,7 @@ class Change(GFKBase, db.Model):
         )
 
 
-class ChangeTrackingMixin(object):
+class ChangeTrackingMixin:
     skipped_fields = ("id", "created_at", "updated_at", "version")
     _clean_values = None
 

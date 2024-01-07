@@ -114,7 +114,7 @@ class NotSupported(Exception):
     pass
 
 
-class BaseQueryRunner(object):
+class BaseQueryRunner:
     deprecated = False
     should_annotate_query = True
     noop_query = None

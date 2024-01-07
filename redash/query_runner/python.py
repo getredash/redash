@@ -39,7 +39,7 @@ else:
 logger = logging.getLogger(__name__)
 
 
-class CustomPrint(object):
+class CustomPrint:
     """CustomPrint redirect "print" calls to be sent as "log" on the result object."""
 
     def __init__(self):
