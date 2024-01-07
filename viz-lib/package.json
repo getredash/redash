@@ -111,5 +111,9 @@
       "^@/(.*)": "<rootDir>/$1",
       "\\.(css|less)$": "identity-obj-proxy"
     }
+  },
+  "browser": {
+      "fs": false,
+      "path": false
   }
 }
