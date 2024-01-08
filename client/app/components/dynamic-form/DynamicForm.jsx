@@ -49,7 +49,7 @@ function normalizeEmptyValuesToNull(fields, values) {
 
 function DynamicFormFields({ fields, feedbackIcons, form, useCustomHostPort, isOracle }) {
   return fields.map(field => {
-    if (isOracle && useCustomHostPort && (field.name === 'host' || field.name === 'port')) {
+    if (isOracle && useCustomHostPort && (field.name === "host" || field.name === "port")) {
       return null;
     }
     const { name, type, initialValue, contentAfter } = field;
@@ -160,7 +160,7 @@ export default function DynamicForm({
   const [useCustomHostPort, setUseCustomHostPort] = useState(false);
   const [showExtraFields, setShowExtraFields] = useState(defaultShowExtraFields);
   const [form] = Form.useForm();
-  const isOracle = selectedType === 'oracle';
+  const isOracle = selectedType === "oracle";
   const extraFields = filter(fields, { extra: true });
   const regularFields = difference(fields, extraFields);
 
@@ -191,7 +191,7 @@ export default function DynamicForm({
     [form]
   );
 
-  const handleCheckboxChange = useCallback((e) => {
+  const handleCheckboxChange = useCallback(e => {
     setUseCustomHostPort(e.target.checked);
   }, []);
 
@@ -205,18 +205,14 @@ export default function DynamicForm({
       className="dynamic-form"
       layout="vertical"
       onFinish={handleFinish}
-      onFinishFailed={handleFinishFailed}
-      >
-        {isOracle && (
-          <Form.Item name="useCustomHostPort" valuePropName="checked">
-            <Checkbox
-              checked={useCustomHostPort}
-              onChange={handleCheckboxChange}
-            >
-              Use Custom
-            </Checkbox>
-          </Form.Item>
-        )}
+      onFinishFailed={handleFinishFailed}>
+      {isOracle && (
+        <Form.Item name="useCustomHostPort" valuePropName="checked">
+          <Checkbox checked={useCustomHostPort} onChange={handleCheckboxChange}>
+            Use Custom
+          </Checkbox>
+        </Form.Item>
+      )}
       <DynamicFormFields
         fields={regularFields}
         feedbackIcons={feedbackIcons}
