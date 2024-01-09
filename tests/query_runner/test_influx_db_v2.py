@@ -1,5 +1,3 @@
-import json
-
 import mock
 import pytest
 from influxdb_client.client.flux_table import (
@@ -277,10 +275,8 @@ class TestInfluxDBv2:
     @mock.patch("redash.query_runner.influx_db_v2.InfluxDBClient")
     @mock.patch("redash.query_runner.influx_db_v2.InfluxDBv2." "_cleanup_cert_files")
     @mock.patch("redash.query_runner.influx_db_v2.logger")
-    @mock.patch("redash.query_runner.influx_db_v2.json_dumps")
     def test_run_query(
         self,
-        json_dumps_mock: mock.MagicMock,
         logger_mock: mock.MagicMock,
         cleanup_cert_files_mock: mock.MagicMock,
         influx_db_client_mock: mock.MagicMock,
@@ -310,28 +306,24 @@ class TestInfluxDBv2:
             ],
             "rows": [{"col_1": "col_value_1", "col_2": 1}, {"col_1": "col_value_2", "col_2": 2}, {"col_3": 3.0}],
         }
-        json_dumps_data = json.dumps(result_data)
 
         query_mock = influx_db_client_mock.return_value.__enter__().query_api().query
         query_mock.return_value = influx_table_list
-        json_dumps_mock.return_value = json_dumps_data
 
         # 1. case: successful query data
         data, error = influx_db_v2.run_query(query, "user")
 
-        assert data == json_dumps_data
+        assert data == result_data
         assert error is None
 
         influx_db_client_mock.assert_called_once_with(url="url", token="token", org="org", **influx_kwargs)
         logger_mock.debug.assert_called_once_with(f"InfluxDB got query: {query!r}")
         query_mock.assert_called_once_with(query)
-        json_dumps_mock.assert_called_once_with(result_data)
         cleanup_cert_files_mock.assert_called_once_with(influx_kwargs)
 
         influx_db_client_mock.reset_mock()
         logger_mock.reset_mock()
         query_mock.reset_mock()
-        json_dumps_mock.reset_mock()
         cleanup_cert_files_mock.reset_mock()
 
         # 2. case: unsuccessful query data
@@ -344,5 +336,4 @@ class TestInfluxDBv2:
         influx_db_client_mock.assert_called_once_with(url="url", token="token", org="org", **influx_kwargs)
         logger_mock.debug.assert_called_once_with(f"InfluxDB got query: {query!r}")
         query_mock.assert_called_once_with(query)
-        json_dumps_mock.assert_not_called()
         cleanup_cert_files_mock.assert_called_once_with(influx_kwargs)

@@ -7,7 +7,7 @@ Create Date: 2020-12-14 21:42:48.661684
 """
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import BYTEA
 from sqlalchemy.sql import table
 from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
 
@@ -30,7 +30,7 @@ depends_on = None
 def upgrade():
     op.add_column(
         "notification_destinations",
-        sa.Column("encrypted_options", postgresql.BYTEA(), nullable=True)
+        sa.Column("encrypted_options", BYTEA(), nullable=True)
     )
 
     # copy values

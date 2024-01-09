@@ -9,7 +9,6 @@ import logging
 from os import environ
 
 from redash.query_runner import BaseQueryRunner
-from redash.utils import json_dumps, json_loads
 
 from . import register
 
@@ -115,7 +114,7 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
         logger.info("results are: {}".format(results))
         # Not sure why we do not use the json package here but all other
         # query runner do it the same way :-)
-        sparql_results = json_loads(results)
+        sparql_results = results
         # transform all bindings to redash rows
         rows = []
         for sparql_row in sparql_results["results"]["bindings"]:
@@ -133,7 +132,7 @@ class CorporateMemoryQueryRunner(BaseQueryRunner):
             columns.append({"name": var, "friendly_name": var, "type": "string"})
         # Not sure why we do not use the json package here but all other
         # query runner do it the same way :-)
-        return json_dumps({"columns": columns, "rows": rows})
+        return {"columns": columns, "rows": rows}
 
     @classmethod
     def name(cls):

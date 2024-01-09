@@ -9,7 +9,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.utils import json_dumps
 
 
 def _exasol_type_mapper(val, data_type):
@@ -109,14 +108,13 @@ class Exasol(BaseQueryRunner):
 
             rows = [dict(zip(cnames, row)) for row in statement]
             data = {"columns": columns, "rows": rows}
-            json_data = json_dumps(data)
         finally:
             if statement is not None:
                 statement.close()
 
             connection.close()
 
-        return json_data, error
+        return data, error
 
     def get_schema(self, get_stats=False):
         query = """

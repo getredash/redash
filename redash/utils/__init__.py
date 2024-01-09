@@ -9,6 +9,7 @@ import json
 import os
 import random
 import re
+import sys
 import uuid
 
 import pystache
@@ -69,11 +70,21 @@ def generate_token(length):
     return "".join(rand.choice(chars) for x in range(length))
 
 
+json_encoders = [m.custom_json_encoder for m in sys.modules if hasattr(m, "custom_json_encoder")]
+
+
 class JSONEncoder(json.JSONEncoder):
     """Adapter for `json.dumps`."""
 
+    def __init__(self, **kwargs):
+        self.encoders = json_encoders
+        super().__init__(**kwargs)
+
     def default(self, o):
-        # Some SQLAlchemy collections are lazy.
+        for encoder in self.encoders:
+            result = encoder(self, o)
+            if result:
+                return result
         if isinstance(o, Query):
             result = list(o)
         elif isinstance(o, decimal.Decimal):

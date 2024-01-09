@@ -8,7 +8,7 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_loads
 
 try:
     from azure.kusto.data.exceptions import KustoServiceError
@@ -124,16 +124,15 @@ class AzureKusto(BaseQueryRunner):
 
             error = None
             data = {"columns": columns, "rows": rows}
-            json_data = json_dumps(data)
 
         except KustoServiceError as err:
-            json_data = None
+            data = None
             try:
                 error = err.args[1][0]["error"]["@message"]
             except (IndexError, KeyError):
                 error = err.args[1]
 
-        return json_data, error
+        return data, error
 
     def get_schema(self, get_stats=False):
         query = ".show database schema as json"
@@ -142,8 +141,6 @@ class AzureKusto(BaseQueryRunner):
 
         if error is not None:
             self._handle_run_query_error(error)
-
-        results = json_loads(results)
 
         schema_as_json = json_loads(results["rows"][0]["DatabaseSchema"])
         tables_list = schema_as_json["Databases"][self.configuration["database"]]["Tables"].values()

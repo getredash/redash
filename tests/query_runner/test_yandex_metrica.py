@@ -98,7 +98,7 @@ def test_yandex_metrica_query(mocked_requests_get):
     data, error = query_runner.run_query(example_query, None)
 
     assert error is None
-    assert json.loads(data) == expected_data
+    assert data == expected_data
 
 
 def test_yandex_metrica_429(mocked_requests_get):

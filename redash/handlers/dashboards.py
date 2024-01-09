@@ -96,7 +96,7 @@ class DashboardListResource(BaseResource):
             org=self.current_org,
             user=self.current_user,
             is_draft=True,
-            layout="[]",
+            layout=[],
         )
         models.db.session.add(dashboard)
         models.db.session.commit()
