@@ -27,6 +27,10 @@ defineDummySnippets("sql");
 defineDummySnippets("json");
 defineDummySnippets("yaml");
 
+// without this line, ace will try to load a non-existent mode-custom.js file
+// for data sources with syntax = "custom"
+ace.define("ace/mode/custom", [], () => {});
+
 function buildTableColumnKeywords(table) {
   const keywords = [];
   table.columns.forEach(column => {

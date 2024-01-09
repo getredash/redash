@@ -5,8 +5,7 @@ import time
 from functools import reduce
 from operator import or_
 
-from flask import current_app as app
-from flask import request_started, url_for
+from flask import current_app, request_started, url_for
 from flask_login import AnonymousUserMixin, UserMixin, current_user
 from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy.dialects import postgresql
@@ -61,7 +60,7 @@ def init_app(app):
     request_started.connect(update_user_active_at, app)
 
 
-class PermissionsCheckMixin(object):
+class PermissionsCheckMixin:
     def has_permission(self, permission):
         return self.has_permissions((permission,))
 
@@ -129,7 +128,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     def to_dict(self, with_api_key=False):
         profile_image_url = self.profile_image_url
         if self.is_disabled:
-            assets = app.extensions["webpack"]["assets"] or {}
+            assets = current_app.extensions["webpack"]["assets"] or {}
             path = "images/avatar.svg"
             profile_image_url = url_for("static", filename=assets.get(path, path))
 
@@ -158,12 +157,13 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
         return d
 
-    def is_api_user(self):
+    @staticmethod
+    def is_api_user():
         return False
 
     @property
     def profile_image_url(self):
-        if self._profile_image_url is not None:
+        if self._profile_image_url:
             return self._profile_image_url
 
         email_md5 = hashlib.md5(self.email.lower().encode()).hexdigest()
@@ -217,7 +217,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         return cls.query.filter(cls.email == email)
 
     def hash_password(self, password):
-        self.password_hash = pwd_context.encrypt(password)
+        self.password_hash = pwd_context.hash(password)
 
     def verify_password(self, password):
         return self.password_hash and pwd_context.verify(password, self.password_hash)
@@ -236,6 +236,9 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         identity = hashlib.md5("{},{}".format(self.email, self.password_hash).encode()).hexdigest()
         return "{0}-{1}".format(self.id, identity)
 
+    def get_actual_user(self):
+        return repr(self) if self.is_api_user() else self.email
+
 
 @generic_repr("id", "name", "type", "org_id")
 class Group(db.Model, BelongsToOrgMixin):
@@ -253,6 +256,7 @@ class Group(db.Model, BelongsToOrgMixin):
         "list_alerts",
         "list_data_sources",
     ]
+    ADMIN_PERMISSIONS = ["admin", "super_admin"]
 
     BUILTIN_GROUP = "builtin"
     REGULAR_GROUP = "regular"
@@ -373,7 +377,8 @@ class AnonymousUser(AnonymousUserMixin, PermissionsCheckMixin):
     def permissions(self):
         return []
 
-    def is_api_user(self):
+    @staticmethod
+    def is_api_user():
         return False
 
 
@@ -393,7 +398,8 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
     def __repr__(self):
         return "<{}>".format(self.name)
 
-    def is_api_user(self):
+    @staticmethod
+    def is_api_user():
         return True
 
     @property
@@ -406,5 +412,9 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
     def permissions(self):
         return ["view_query"]
 
-    def has_access(self, obj, access_type):
+    @staticmethod
+    def has_access(obj, access_type):
         return False
+
+    def get_actual_user(self):
+        return repr(self)

@@ -1,6 +1,12 @@
-import { isArray, isObject, isString, isFunction, startsWith, reduce, merge, map, each } from "lodash";
+import { isArray, isObject, isString, isFunction, startsWith, reduce, merge, map, each, isNil } from "lodash";
 import resizeObserver from "@/services/resizeObserver";
 import { Plotly, prepareData, prepareLayout, updateData, updateAxes, updateChartSize } from "../plotly";
+import { formatSimpleTemplate } from "@/lib/value-format";
+
+const navigateToUrl = (url: string, shouldOpenNewTab: boolean = true) =>
+  shouldOpenNewTab
+    ? window.open(url, "_blank")
+    : window.location.href = url;
 
 function createErrorHandler(errorHandler: any) {
   return (error: any) => {
@@ -110,6 +116,28 @@ export default function initChart(container: any, options: any, data: any, addit
         );
         options.onHover && container.on("plotly_hover", options.onHover);
         options.onUnHover && container.on("plotly_unhover", options.onUnHover);
+        container.on('plotly_click',
+          createSafeFunction((data: any) => {
+            if (options.enableLink === true) {
+              try {
+                var templateValues: { [k: string]: any } = {}
+                data.points.forEach((point: any, i: number) => {
+                  var sourceDataElement = [...point.data?.sourceData?.entries()][point.pointNumber ?? 0]?.[1]?.row ?? {};
+
+                  if (isNil(templateValues['@@x'])) templateValues['@@x'] = sourceDataElement.x;
+                  if (isNil(templateValues['@@y'])) templateValues['@@y'] = sourceDataElement.y;
+
+                  templateValues[`@@y${i + 1}`] = sourceDataElement.y;
+                  templateValues[`@@x${i + 1}`] = sourceDataElement.x;
+                })
+                navigateToUrl(
+                  formatSimpleTemplate(options.linkFormat, templateValues).replace(/{{\s*([^\s]+?)\s*}}/g, () => ''),
+                  options.linkOpenNewTab);
+              } catch (error) {
+                console.error('Click error: [%s]', error.message, { error });
+              }
+            }
+          }));
 
         unwatchResize = resizeObserver(
           container,

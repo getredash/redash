@@ -9,6 +9,7 @@ from RestrictedPython.Guards import (
     guarded_unpack_sequence,
     safe_builtins,
 )
+from RestrictedPython.transformer import IOPERATOR_TO_STR
 
 from redash import models
 from redash.query_runner import (
@@ -23,21 +24,22 @@ from redash.query_runner import (
     register,
 )
 from redash.utils import json_dumps, json_loads
+from redash.utils.pandas import pandas_installed
 
-try:
-    import numpy as np
+if pandas_installed:
     import pandas as pd
 
-    pandas_installed = True
-except ImportError:
-    pandas_installed = False
+    from redash.utils.pandas import pandas_to_result
 
-from RestrictedPython.transformer import IOPERATOR_TO_STR
+    enabled = True
+else:
+    enabled = False
+
 
 logger = logging.getLogger(__name__)
 
 
-class CustomPrint(object):
+class CustomPrint:
     """CustomPrint redirect "print" calls to be sent as "log" on the result object."""
 
     def __init__(self):
@@ -213,7 +215,7 @@ class Python(BaseQueryRunner):
         :query string: Query to run
         """
         try:
-            if type(data_source_name_or_id) == int:
+            if isinstance(data_source_name_or_id, int):
                 data_source = models.DataSource.get_by_id(data_source_name_or_id)
             else:
                 data_source = models.DataSource.get_by_name(data_source_name_or_id)
@@ -241,7 +243,7 @@ class Python(BaseQueryRunner):
         :return:
         """
         try:
-            if type(data_source_name_or_id) == int:
+            if isinstance(data_source_name_or_id, int):
                 data_source = models.DataSource.get_by_id(data_source_name_or_id)
             else:
                 data_source = models.DataSource.get_by_name(data_source_name_or_id)
@@ -271,32 +273,36 @@ class Python(BaseQueryRunner):
         return query.latest_query_data.data
 
     def dataframe_to_result(self, result, df):
-        result["rows"] = df.to_dict("records")
+        converted_result = pandas_to_result(df)
 
-        for column_name, column_type in df.dtypes.items():
-            if column_type == np.bool:
-                redash_type = TYPE_BOOLEAN
-            elif column_type == np.inexact:
-                redash_type = TYPE_FLOAT
-            elif column_type == np.integer:
-                redash_type = TYPE_INTEGER
-            elif column_type in (np.datetime64, np.dtype("<M8[ns]")):
-                if df.empty:
-                    redash_type = TYPE_DATETIME
-                elif len(df[column_name].head(1).astype(str).loc[0]) > 10:
-                    redash_type = TYPE_DATETIME
-                else:
-                    redash_type = TYPE_DATE
-            else:
-                redash_type = TYPE_STRING
-
-            self.add_result_column(result, column_name, column_name, redash_type)
+        result["rows"] = converted_result["rows"]
+        for column in converted_result["columns"]:
+            self.add_result_column(result, column["name"], column["friendly_name"], column["type"])
 
     def get_current_user(self):
         return self._current_user.to_dict()
 
     def test_connection(self):
         pass
+
+    def validate_result(self, result):
+        """Validate the result after executing the query.
+
+        Parameters:
+        :result dict: The result dict.
+        """
+        if not result:
+            raise Exception("local variable `result` should not be empty.")
+        if not isinstance(result, dict):
+            raise Exception("local variable `result` should be of type `dict`.")
+        if "rows" not in result:
+            raise Exception("Missing `rows` field in `result` dict.")
+        if "columns" not in result:
+            raise Exception("Missing `columns` field in `result` dict.")
+        if not isinstance(result["rows"], list):
+            raise Exception("`rows` field should be of type `list`.")
+        if not isinstance(result["columns"], list):
+            raise Exception("`columns` field should be of type `list`.")
 
     def run_query(self, query, user):
         self._current_user = user
@@ -352,6 +358,7 @@ class Python(BaseQueryRunner):
             exec(code, restricted_globals, self._script_locals)
 
             result = self._script_locals["result"]
+            self.validate_result(result)
             result["log"] = self._custom_print.lines
             json_data = json_dumps(result)
         except Exception as e:

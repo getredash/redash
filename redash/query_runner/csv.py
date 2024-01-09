@@ -80,7 +80,7 @@ class CSV(BaseQueryRunner):
                     "to_redash": lambda x: x.strftime("%Y-%m-%d %H:%M:%S"),
                 },
                 {"pandas_type": np.bool_, "redash_type": "boolean"},
-                {"pandas_type": np.object, "redash_type": "string"},
+                {"pandas_type": np.object_, "redash_type": "string"},
             ]
             labels = []
             for dtype, label in zip(df.dtypes, df.columns):

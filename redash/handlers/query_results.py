@@ -1,9 +1,10 @@
 import unicodedata
+from urllib.parse import quote
 
+import regex
 from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
-from werkzeug.urls import url_quote
 
 from redash import models, settings
 from redash.handlers.base import BaseResource, get_object_or_404, record_event
@@ -51,10 +52,14 @@ error_messages = {
     ),
     "no_permission": error_response("You do not have permission to run queries with this data source.", 403),
     "select_data_source": error_response("Please select data source to run this query.", 401),
+    "no_data_source": error_response("Target data source not available.", 401),
 }
 
 
 def run_query(query, parameters, data_source, query_id, should_apply_auto_limit, max_age=0):
+    if not data_source:
+        return error_messages["no_data_source"]
+
     if data_source.paused:
         if data_source.pause_reason:
             message = "{} is paused ({}). Please try later.".format(data_source.name, data_source.pause_reason)
@@ -101,7 +106,7 @@ def run_query(query, parameters, data_source, query_id, should_apply_auto_limit,
             current_user.id,
             current_user.is_api_user(),
             metadata={
-                "Username": repr(current_user) if current_user.is_api_user() else current_user.email,
+                "Username": current_user.get_actual_user(),
                 "query_id": query_id,
             },
         )
@@ -111,7 +116,8 @@ def run_query(query, parameters, data_source, query_id, should_apply_auto_limit,
 def get_download_filename(query_result, query, filetype):
     retrieved_at = query_result.retrieved_at.strftime("%Y_%m_%d")
     if query:
-        filename = to_filename(query.name) if query.name != "" else str(query.id)
+        query_name = regex.sub(r"\p{C}", "", query.name)
+        filename = to_filename(query_name) if query_name != "" else str(query.id)
     else:
         filename = str(query_result.id)
     return "{}_{}.{}".format(filename, retrieved_at, filetype)
@@ -126,7 +132,7 @@ def content_disposition_filenames(attachment_filename):
     except UnicodeEncodeError:
         filenames = {
             "filename": unicodedata.normalize("NFKD", attachment_filename).encode("ascii", "ignore"),
-            "filename*": "UTF-8''%s" % url_quote(attachment_filename, safe=b""),
+            "filename*": "UTF-8''%s" % quote(attachment_filename, safe=b""),
         }
     else:
         filenames = {"filename": attachment_filename}
@@ -255,7 +261,10 @@ class QueryResultResource(BaseResource):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
 
         allow_executing_with_view_only_permissions = query.parameterized.is_safe
-        should_apply_auto_limit = params.get("apply_auto_limit", False)
+        if "apply_auto_limit" in params:
+            should_apply_auto_limit = params.get("apply_auto_limit", False)
+        else:
+            should_apply_auto_limit = query.options.get("apply_auto_limit", False)
 
         if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
             return run_query(

@@ -247,7 +247,11 @@ SEND_FAILURE_EMAIL_INTERVAL = int(os.environ.get("REDASH_SEND_FAILURE_EMAIL_INTE
 MAX_FAILURE_REPORTS_PER_QUERY = int(os.environ.get("REDASH_MAX_FAILURE_REPORTS_PER_QUERY", 100))
 
 ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get(
-    "REDASH_ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE", "({state}) {alert_name}"
+    "REDASH_ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE", "Alert: {alert_name} changed status to {state}"
+)
+
+REDASH_ALERTS_DEFAULT_MAIL_BODY_TEMPLATE_FILE = os.environ.get(
+    "REDASH_ALERTS_DEFAULT_MAIL_BODY_TEMPLATE_FILE", fix_assets_path("templates/emails/alert.html")
 )
 
 # How many requests are allowed per IP to the login page before
@@ -281,6 +285,7 @@ default_query_runners = [
     "redash.query_runner.pg",
     "redash.query_runner.url",
     "redash.query_runner.influx_db",
+    "redash.query_runner.influx_db_v2",
     "redash.query_runner.elasticsearch",
     "redash.query_runner.elasticsearch2",
     "redash.query_runner.amazon_elasticsearch",
@@ -292,7 +297,9 @@ default_query_runners = [
     "redash.query_runner.impala_ds",
     "redash.query_runner.vertica",
     "redash.query_runner.clickhouse",
+    "redash.query_runner.tinybird",
     "redash.query_runner.yandex_metrica",
+    "redash.query_runner.yandex_disk",
     "redash.query_runner.rockset",
     "redash.query_runner.treasuredata",
     "redash.query_runner.sqlite",
@@ -327,6 +334,11 @@ default_query_runners = [
     "redash.query_runner.databend",
     "redash.query_runner.nz",
     "redash.query_runner.arango",
+    "redash.query_runner.google_analytics4",
+    "redash.query_runner.google_search_console",
+    "redash.query_runner.ignite",
+    "redash.query_runner.oracle",
+    "redash.query_runner.e6data",
 ]
 
 enabled_query_runners = array_from_string(
@@ -349,12 +361,15 @@ default_destinations = [
     "redash.destinations.email",
     "redash.destinations.slack",
     "redash.destinations.webhook",
-    "redash.destinations.hipchat",
+    "redash.destinations.discord",
     "redash.destinations.mattermost",
     "redash.destinations.chatwork",
     "redash.destinations.pagerduty",
     "redash.destinations.hangoutschat",
     "redash.destinations.microsoft_teams_webhook",
+    "redash.destinations.asana",
+    "redash.destinations.webex",
+    "redash.destinations.datadog",
 ]
 
 enabled_destinations = array_from_string(os.environ.get("REDASH_ENABLED_DESTINATIONS", ",".join(default_destinations)))
@@ -401,7 +416,7 @@ VERSION_CHECK = parse_boolean(os.environ.get("REDASH_VERSION_CHECK", "true"))
 FEATURE_DISABLE_REFRESH_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_DISABLE_REFRESH_QUERIES", "false"))
 FEATURE_SHOW_QUERY_RESULTS_COUNT = parse_boolean(os.environ.get("REDASH_FEATURE_SHOW_QUERY_RESULTS_COUNT", "true"))
 FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS = parse_boolean(
-    os.environ.get("REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS", "false")
+    os.environ.get("REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS", "true")
 )
 FEATURE_AUTO_PUBLISH_NAMED_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_AUTO_PUBLISH_NAMED_QUERIES", "true"))
 FEATURE_VIEW_DRAFT_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_VIEW_UNPUBLISH_QUERIES", "false"))

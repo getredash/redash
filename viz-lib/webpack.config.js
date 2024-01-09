@@ -15,6 +15,10 @@ module.exports = {
   resolve: {
     symlinks: false,
     extensions: [".js", ".jsx", ".ts", ".tsx"],
+    fallback: {
+      fs: false,
+      path: false
+    }
   },
   module: {
     rules: [
@@ -39,8 +43,10 @@ module.exports = {
           {
             loader: "less-loader",
             options: {
-              plugins: [new LessPluginAutoPrefix({ browsers: ["last 3 versions"] })],
-              javascriptEnabled: true,
+              lessOptions: {
+                plugins: [new LessPluginAutoPrefix({ browsers: ["last 3 versions"] })],
+                javascriptEnabled: true,
+	      },
             },
           },
         ],

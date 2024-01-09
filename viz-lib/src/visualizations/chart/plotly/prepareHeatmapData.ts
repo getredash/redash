@@ -1,5 +1,9 @@
-import { map, max, uniq, sortBy, flatten, find } from "lodash";
+import { map, max, uniq, sortBy, flatten, find, findIndex } from "lodash";
 import { createNumberFormatter } from "@/lib/value-format";
+// @ts-expect-error ts-migrate(7016) FIXME: Could not find a declaration file for module 'plot... Remove this comment to see the full error message
+import Colorscale from "plotly.js/src/components/colorscale";
+import d3 from "d3";
+import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
 
 const defaultColorScheme = [
   [0, "#356aff"],
@@ -11,6 +15,13 @@ const defaultColorScheme = [
   [0.86, "#ec4949"],
   [1, "#e92827"],
 ];
+
+function getColor(value: any, scheme: any) {
+  if (value == 1) { return scheme[scheme.length - 1][1]; }
+  const upperboundIndex = findIndex(scheme, (range: any) => value < range[0]);
+  const scale = d3.interpolate(scheme[upperboundIndex - 1][1], scheme[upperboundIndex][1]);
+  return scale(value);
+}
 
 function prepareSeries(series: any, options: any, additionalOptions: any) {
   const { colorScheme, formatNumber } = additionalOptions;
@@ -73,12 +84,11 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
         dataLabels.y.push(plotlySeries.y[i]);
         // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'any' is not assignable to parame... Remove this comment to see the full error message
         dataLabels.text.push(formatNumber(zValue));
-        if (options.colorScheme && options.colorScheme === "Custom...") {
+        if (options.colorScheme) {
+          const bgcolor = getColor(zValue / zMax, colorScheme);
+          const fgcolor = chooseTextColorForBackground(bgcolor);
           // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
-          dataLabels.textfont.color.push("white");
-        } else {
-          // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
-          dataLabels.textfont.color.push(zValue / zMax < 0.25 ? "white" : "black");
+          dataLabels.textfont.color.push(fgcolor);
         }
       }
     }
@@ -103,7 +113,7 @@ export default function prepareHeatmapData(seriesList: any, options: any) {
       [1, options.heatMaxColor],
     ];
   } else {
-    colorScheme = options.colorScheme;
+    colorScheme = Colorscale.getScale(options.colorScheme);
   }
 
   const additionalOptions = {

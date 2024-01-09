@@ -132,7 +132,7 @@ class DataSourceCommandTests(BaseTestCase):
         self.factory.create_data_source(
             name="test1",
             type="sqlite",
-            options=ConfigurationContainer({"dbpath": __file__}),
+            options=ConfigurationContainer({"dbpath": "/notexist.db"}),
         )
         runner = CliRunner()
         result = runner.invoke(manager, ["ds", "test", "test1"])
@@ -352,6 +352,16 @@ class OrganizationCommandTests(BaseTestCase):
         Current list of Google Apps domains: example.org, example.com
         """
         self.assertMultiLineEqual(result.output, textwrap.dedent(output).lstrip())
+
+    def test_create(self):
+        runner = CliRunner()
+        result = runner.invoke(manager, ["org", "create", "test", "--slug", "test"])
+        self.assertFalse(result.exception)
+        self.assertEqual(result.exit_code, 0)
+
+        ucount = Organization.query.count()
+
+        self.assertEqual(ucount, 2)
 
     def test_list(self):
         self.factory.create_org(name="test", slug="test_org")

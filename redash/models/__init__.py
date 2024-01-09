@@ -72,6 +72,7 @@ from redash.utils import (
     json_dumps,
     json_loads,
     mustache_render,
+    mustache_render_escape,
     sentry,
 )
 from redash.utils.configuration import ConfigurationContainer
@@ -79,7 +80,7 @@ from redash.utils.configuration import ConfigurationContainer
 logger = logging.getLogger(__name__)
 
 
-class ScheduledQueriesExecutions(object):
+class ScheduledQueriesExecutions:
     KEY_NAME = "sq:executed_at"
 
     def __init__(self):
@@ -89,7 +90,7 @@ class ScheduledQueriesExecutions(object):
         self.executions = redis_connection.hgetall(self.KEY_NAME)
 
     def update(self, query_id):
-        redis_connection.hmset(self.KEY_NAME, {query_id: time.time()})
+        redis_connection.hset(self.KEY_NAME, mapping={query_id: time.time()})
 
     def get(self, query_id):
         timestamp = self.executions.get(str(query_id))
@@ -213,7 +214,8 @@ class DataSource(BelongsToOrgMixin, db.Model):
                 logging.exception("Error sorting schema columns for data_source {}".format(self.id))
                 out_schema = schema
             finally:
-                redis_connection.set(self._schema_key, json_dumps(out_schema))
+                ttl = int(datetime.timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE, days=7).total_seconds())
+                redis_connection.set(self._schema_key, json_dumps(out_schema), ex=ttl)
 
         return out_schema
 
@@ -262,7 +264,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     @property
     def uses_ssh_tunnel(self):
-        return "ssh_tunnel" in self.options
+        return self.options and "ssh_tunnel" in self.options
 
     @property
     def query_runner(self):
@@ -300,7 +302,7 @@ class DataSourceGroup(db.Model):
 DESERIALIZED_DATA_ATTR = "_deserialized_data"
 
 
-class DBPersistence(object):
+class DBPersistence:
     @property
     def data(self):
         if self._data is None:
@@ -679,7 +681,17 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return all_queries.search(term, sort=True).limit(limit)
 
     @classmethod
-    def search_by_user(cls, term, user, limit=None):
+    def search_by_user(cls, term, user, limit=None, multi_byte_search=False):
+        if multi_byte_search:
+            # Since tsvector doesn't work well with CJK languages, use `ilike` too
+            pattern = "%{}%".format(term)
+            return (
+                cls.by_user(user)
+                .filter(or_(cls.name.ilike(pattern), cls.description.ilike(pattern)))
+                .order_by(Query.id)
+                .limit(limit)
+            )
+
         return cls.by_user(user).search(term, sort=True).limit(limit)
 
     @classmethod
@@ -726,6 +738,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         queries = Query.query.filter(
             Query.query_hash == query_result.query_hash,
             Query.data_source == query_result.data_source,
+            Query.is_archived.is_(False),
         )
 
         for q in queries:
@@ -975,6 +988,10 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         else:
             result_value = None
 
+        result_table = []  # A two-dimensional array which can rendered as a table in Mustache
+        for row in data["rows"]:
+            result_table.append([row[col["name"]] for col in data["columns"]])
+
         context = {
             "ALERT_NAME": self.name,
             "ALERT_URL": "{host}/alerts/{alert_id}".format(host=host, alert_id=self.id),
@@ -986,8 +1003,9 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
             "QUERY_RESULT_VALUE": result_value,
             "QUERY_RESULT_ROWS": data["rows"],
             "QUERY_RESULT_COLS": data["columns"],
+            "QUERY_RESULT_TABLE": result_table,
         }
-        return mustache_render(template, context)
+        return mustache_render_escape(template, context)
 
     @property
     def custom_body(self):
@@ -1113,6 +1131,21 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def get_by_slug_and_org(cls, slug, org):
         return cls.query.filter(cls.slug == slug, cls.org == org).one()
 
+    def fork(self, user):
+        forked_list = ["org", "layout", "dashboard_filters_enabled", "tags"]
+
+        kwargs = {a: getattr(self, a) for a in forked_list}
+        forked_dashboard = Dashboard(name="Copy of (#{}) {}".format(self.id, self.name), user=user, **kwargs)
+
+        for w in self.widgets:
+            forked_w = w.copy(forked_dashboard.id)
+            fw = Widget(**forked_w)
+            db.session.add(fw)
+
+        forked_dashboard.slug = forked_dashboard.id
+        db.session.add(forked_dashboard)
+        return forked_dashboard
+
     @hybrid_property
     def lowercase_name(self):
         "Optional property useful for sorting purposes."
@@ -1171,6 +1204,15 @@ class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
     @classmethod
     def get_by_id_and_org(cls, object_id, org):
         return super(Widget, cls).get_by_id_and_org(object_id, org, Dashboard)
+
+    def copy(self, dashboard_id):
+        return {
+            "options": self.options,
+            "width": self.width,
+            "text": self.text,
+            "visualization_id": self.visualization_id,
+            "dashboard_id": dashboard_id,
+        }
 
 
 @generic_repr("id", "object_type", "object_id", "action", "user_id", "org_id", "created_at")
@@ -1312,10 +1354,10 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
 
         return notification_destinations
 
-    def notify(self, alert, query, user, new_state, app, host):
+    def notify(self, alert, query, user, new_state, app, host, metadata):
         schema = get_configuration_schema_for_destination_type(self.type)
         self.options.set_schema(schema)
-        return self.destination.notify(alert, query, user, new_state, app, host, self.options)
+        return self.destination.notify(alert, query, user, new_state, app, host, metadata, self.options)
 
 
 @generic_repr("id", "user_id", "destination_id", "alert_id")
@@ -1352,16 +1394,16 @@ class AlertSubscription(TimestampMixin, db.Model):
     def all(cls, alert_id):
         return AlertSubscription.query.join(User).filter(AlertSubscription.alert_id == alert_id)
 
-    def notify(self, alert, query, user, new_state, app, host):
+    def notify(self, alert, query, user, new_state, app, host, metadata):
         if self.destination:
-            return self.destination.notify(alert, query, user, new_state, app, host)
+            return self.destination.notify(alert, query, user, new_state, app, host, metadata)
         else:
             # User email subscription, so create an email destination object
             config = {"addresses": self.user.email}
             schema = get_configuration_schema_for_destination_type("email")
             options = ConfigurationContainer(config, schema)
             destination = get_destination("email", options)
-            return destination.notify(alert, query, user, new_state, app, host, options)
+            return destination.notify(alert, query, user, new_state, app, host, metadata, options)
 
 
 @generic_repr("id", "trigger", "user_id", "org_id")
@@ -1399,7 +1441,7 @@ def init_db():
     default_org = Organization(name="Default", slug="default", settings={})
     admin_group = Group(
         name="admin",
-        permissions=["admin", "super_admin"],
+        permissions=Group.ADMIN_PERMISSIONS,
         org=default_org,
         type=Group.BUILTIN_GROUP,
     )

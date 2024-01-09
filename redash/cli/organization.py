@@ -1,4 +1,4 @@
-from click import argument
+from click import argument, option
 from flask.cli import AppGroup
 
 from redash import models
@@ -24,6 +24,25 @@ def set_google_apps_domains(domains):
 def show_google_apps_domains():
     organization = models.Organization.query.first()
     print("Current list of Google Apps domains: {}".format(", ".join(organization.google_apps_domains)))
+
+
+@manager.command(name="create")
+@argument("name")
+@option(
+    "--slug",
+    "slug",
+    default="default",
+    help="The slug the organization belongs to (leave blank for " "'default').",
+)
+def create(name, slug="default"):
+    print("Creating organization (%s)..." % (name))
+
+    try:
+        models.db.session.add(models.Organization(name=name, slug=slug, settings={}))
+        models.db.session.commit()
+    except Exception as e:
+        print("Failed create organization: %s" % e)
+        exit(1)
 
 
 @manager.command(name="list")

@@ -151,6 +151,15 @@ class TestDashboardResourcePost(BaseTestCase):
         self.assertEqual(rv.json["name"], new_name)
 
 
+class TestDashboardForkResourcePost(BaseTestCase):
+    def test_forks_a_dashboard(self):
+        dashboard = self.factory.create_dashboard()
+
+        rv = self.make_request("post", "/api/dashboards/{}/fork".format(dashboard.id))
+
+        self.assertEqual(rv.status_code, 200)
+
+
 class TestDashboardResourceDelete(BaseTestCase):
     def test_delete_dashboard(self):
         d = self.factory.create_dashboard()

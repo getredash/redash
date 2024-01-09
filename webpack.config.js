@@ -75,6 +75,10 @@ const config = {
     filename: isProduction ? "[name].[chunkhash].js" : "[name].js",
     publicPath: staticPath
   },
+  node: {
+    fs: "empty",
+    path: "empty"
+  },
   resolve: {
     symlinks: false,
     extensions: [".js", ".jsx", ".ts", ".tsx"],
@@ -109,13 +113,15 @@ const config = {
       fileName: "asset-manifest.json",
       publicPath: ""
     }),
-    new CopyWebpackPlugin([
-      { from: "client/app/assets/robots.txt" },
-      { from: "client/app/unsupported.html" },
-      { from: "client/app/unsupportedRedirect.js" },
-      { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
-      { from: "client/app/assets/fonts", to: "fonts/" }
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: "client/app/assets/robots.txt" },
+        { from: "client/app/unsupported.html" },
+        { from: "client/app/unsupportedRedirect.js" },
+        { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
+        { from: "client/app/assets/fonts", to: "fonts/" }
+      ],
+    }),
     isHotReloadingEnabled && new ReactRefreshWebpackPlugin({ overlay: false })
   ].filter(Boolean),
   optimization: {
@@ -158,10 +164,7 @@ const config = {
             loader: isProduction ? MiniCssExtractPlugin.loader : "style-loader"
           },
           {
-            loader: "css-loader",
-            options: {
-              minimize: process.env.NODE_ENV === "production"
-            }
+            loader: "css-loader"
           }
         ]
       },
@@ -172,10 +175,7 @@ const config = {
             loader: isProduction ? MiniCssExtractPlugin.loader : "style-loader"
           },
           {
-            loader: "css-loader",
-            options: {
-              minimize: isProduction
-            }
+            loader: "css-loader"
           },
           {
             loader: "less-loader",
@@ -238,14 +238,18 @@ const config = {
     ignored: /\.sw.$/
   },
   devServer: {
-    inline: true,
-    index: "/static/index.html",
+    devMiddleware: {
+      index: "/static/index.html",
+      publicPath: staticPath,
+      stats: {
+        modules: false,
+        chunkModules: false
+      },
+    },
     historyApiFallback: {
       index: "/static/index.html",
       rewrites: [{ from: /./, to: "/static/index.html" }]
     },
-    contentBase: false,
-    publicPath: staticPath,
     proxy: [
       {
         context: [
@@ -271,10 +275,6 @@ const config = {
         secure: false
       }
     ],
-    stats: {
-      modules: false,
-      chunkModules: false
-    },
     hot: isHotReloadingEnabled
   },
   performance: {

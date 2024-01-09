@@ -1,14 +1,11 @@
-import ipaddress
 import logging
-import socket
+from collections import defaultdict
 from contextlib import ExitStack
 from functools import wraps
-from urllib.parse import urlparse
 
 import sqlparse
 from dateutil import parser
 from rq.timeouts import JobTimeoutException
-from six import text_type
 from sshtunnel import open_tunnel
 
 from redash import settings, utils
@@ -76,21 +73,21 @@ def split_sql_statements(query):
         return stmt
 
     def is_empty_statement(stmt):
-        strip_comments = sqlparse.filters.StripCommentsFilter()
-
         # copy statement object. `copy.deepcopy` fails to do this, so just re-parse it
         st = sqlparse.engine.FilterStack()
-        stmt = next(st.run(sqlparse.text_type(stmt)))
+        st.stmtprocess.append(sqlparse.filters.StripCommentsFilter())
+        stmt = next(st.run(str(stmt)), None)
+        if stmt is None:
+            return True
 
-        sql = sqlparse.text_type(strip_comments.process(stmt))
-        return sql.strip() == ""
+        return str(stmt).strip() == ""
 
     stack = sqlparse.engine.FilterStack()
 
     result = [stmt for stmt in stack.run(query)]
     result = [strip_trailing_comments(stmt) for stmt in result]
     result = [strip_trailing_semicolon(stmt) for stmt in result]
-    result = [sqlparse.text_type(stmt).strip() for stmt in result if not is_empty_statement(stmt)]
+    result = [str(stmt).strip() for stmt in result if not is_empty_statement(stmt)]
 
     if len(result) > 0:
         return result
@@ -117,7 +114,7 @@ class NotSupported(Exception):
     pass
 
 
-class BaseQueryRunner(object):
+class BaseQueryRunner:
     deprecated = False
     should_annotate_query = True
     noop_query = None
@@ -216,17 +213,17 @@ class BaseQueryRunner(object):
         raise NotImplementedError()
 
     def fetch_columns(self, columns):
-        column_names = []
-        duplicates_counter = 1
+        column_names = set()
+        duplicates_counters = defaultdict(int)
         new_columns = []
 
         for col in columns:
             column_name = col[0]
-            if column_name in column_names:
-                column_name = "{}{}".format(column_name, duplicates_counter)
-                duplicates_counter += 1
+            while column_name in column_names:
+                duplicates_counters[col[0]] += 1
+                column_name = "{}{}".format(col[0], duplicates_counters[col[0]])
 
-            column_names.append(column_name)
+            column_names.add(column_name)
             new_columns.append({"name": column_name, "friendly_name": column_name, "type": col[1]})
 
         return new_columns
@@ -282,7 +279,7 @@ class BaseSQLQueryRunner(BaseQueryRunner):
 
     def _get_tables_stats(self, tables_dict):
         for t in tables_dict.keys():
-            if type(tables_dict[t]) == dict:
+            if isinstance(tables_dict[t], dict):
                 res = self._run_query_internal("select count(*) as cnt from %s" % t)
                 tables_dict[t]["size"] = res[0]["cnt"]
 
@@ -312,15 +309,13 @@ class BaseSQLQueryRunner(BaseQueryRunner):
         return str(parsed_query)
 
     def apply_auto_limit(self, query_text, should_apply_auto_limit):
+        queries = split_sql_statements(query_text)
         if should_apply_auto_limit:
-            queries = split_sql_statements(query_text)
             # we only check for last one in the list because it is the one that we show result
             last_query = queries[-1]
             if self.query_is_select_no_limit(last_query):
                 queries[-1] = self.add_limit_to_query(last_query)
-            return combine_sql_statements(queries)
-        else:
-            return query_text
+        return combine_sql_statements(queries)
 
 
 class BaseHTTPQueryRunner(BaseQueryRunner):

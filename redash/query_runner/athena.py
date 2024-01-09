@@ -47,7 +47,7 @@ _TYPE_MAPPINGS = {
 }
 
 
-class SimpleFormatter(object):
+class SimpleFormatter:
     def format(self, operation, parameters=None):
         return operation
 

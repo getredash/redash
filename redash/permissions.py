@@ -54,7 +54,7 @@ def require_access(obj, user, need_view_only):
         abort(403)
 
 
-class require_permissions(object):
+class require_permissions:
     def __init__(self, permissions, allow_one=False):
         self.permissions = permissions
         self.allow_one = allow_one

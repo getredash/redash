@@ -7,7 +7,7 @@ from redash.utils import gen_query_hash, utcnow
 from redash.utils.configuration import ConfigurationContainer
 
 
-class ModelFactory(object):
+class ModelFactory:
     def __init__(self, model, **kwargs):
         self.model = model
         self.kwargs = kwargs
@@ -30,7 +30,7 @@ class ModelFactory(object):
         return obj
 
 
-class Sequence(object):
+class Sequence:
     def __init__(self, string):
         self.sequence = 0
         self.string = string
@@ -45,7 +45,7 @@ user_factory = ModelFactory(
     redash.models.User,
     name="John Doe",
     email=Sequence("test{}@example.com"),
-    password_hash=pwd_context.encrypt("test1234"),
+    password_hash=pwd_context.hash("test1234"),
     group_ids=[2],
     org_id=1,
 )
@@ -172,7 +172,7 @@ query_snippet_factory = ModelFactory(
 )
 
 
-class Factory(object):
+class Factory:
     def __init__(self):
         self.org, self.admin_group, self.default_group = redash.models.init_db()
         self._data_source = None
