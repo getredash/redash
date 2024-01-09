@@ -20,5 +20,6 @@ function getQueryResultData(queryResult, queryResultStatus = null) {
 export default function useQueryResultData(queryResult) {
   // make sure it re-executes when queryResult status changes
   const queryResultStatus = invoke(queryResult, "getStatus");
-  return useMemo(() => getQueryResultData(queryResult, queryResultStatus), [queryResult, queryResultStatus]);
+  const queryResultRowCount = get(queryResult, "query_result.data.rows.length");
+  return useMemo(() => getQueryResultData(queryResult, queryResultStatus), [queryResult, queryResultStatus, queryResultRowCount]);
 }

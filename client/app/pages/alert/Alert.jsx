@@ -122,6 +122,20 @@ class Alert extends React.Component {
       });
   };
 
+  handleResult = queryResult => {
+    if (this._isMounted) {
+      this.setState({ queryResult });
+      let { column } = this.state.alert.options;
+      const columns = queryResult.getColumnNames();
+
+      // default to first column name if none chosen, or irrelevant in current query
+      if (!column || !includes(columns, column)) {
+        column = head(queryResult.getColumnNames());
+      }
+      this.setAlertOptions({ column });
+    }
+  }
+
   onQuerySelected = query => {
     this.setState(({ alert }) => ({
       alert: Object.assign(alert, { query }),
@@ -130,19 +144,9 @@ class Alert extends React.Component {
 
     if (query) {
       // get cached result for column names and values
-      new QueryService(query).getQueryResultPromise().then(queryResult => {
-        if (this._isMounted) {
-          this.setState({ queryResult });
-          let { column } = this.state.alert.options;
-          const columns = queryResult.getColumnNames();
-
-          // default to first column name if none chosen, or irrelevant in current query
-          if (!column || !includes(columns, column)) {
-            column = head(queryResult.getColumnNames());
-          }
-          this.setAlertOptions({ column });
-        }
-      });
+      const promises = new QueryService(query).getQueryResultPromises()
+      promises[0].then(queryResult => this.handleResult(queryResult));
+      promises[1].then(queryResult => this.handleResult(queryResult));
     }
   };
 

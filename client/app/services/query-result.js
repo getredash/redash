@@ -8,12 +8,19 @@ import { isString, uniqBy, each, isNumber, includes, extend, forOwn, get } from 
 const logger = debug("redash:services:QueryResult");
 const filterTypes = ["filter", "multi-filter", "multiFilter"];
 
-function defer() {
+function defer(instance = 0) {
   const result = { onStatusChange: status => {} };
-  result.promise = new Promise((resolve, reject) => {
-    result.resolve = resolve;
-    result.reject = reject;
-  });
+  if (instance > 0) {
+    result.promise2 = new Promise((resolve, reject) => {
+      result.resolve2 = resolve;
+      result.reject2 = reject;
+    });
+  } else {
+    result.promise = new Promise((resolve, reject) => {
+      result.resolve = resolve;
+      result.reject = reject;
+    });
+  }
   return result;
 }
 
@@ -64,7 +71,7 @@ const statuses = {
   4: ExecutionStatus.FAILED,
 };
 
-function handleErrorResponse(queryResult, error) {
+function handleErrorResponse(queryResult, error, instance = 0) {
   const status = get(error, "response.status");
   switch (status) {
     case 403:
@@ -93,7 +100,7 @@ function handleErrorResponse(queryResult, error) {
       error: get(error, "response.data.message", "Unknown error occurred. Please try again later."),
       status: 4,
     },
-  });
+  }, instance);
 }
 
 function sleep(ms) {
@@ -115,7 +122,8 @@ export function fetchDataFromJob(jobId, interval = 1000) {
 
 class QueryResult {
   constructor(props) {
-    this.deferred = defer();
+    this.deferred = defer(0);
+    this.deferred2 = defer(1);
     this.job = {};
     this.query_result = {};
     this.status = "waiting";
@@ -130,12 +138,12 @@ class QueryResult {
     }
   }
 
-  update(props) {
+  update(props, instance = 0) {
     extend(this, props);
 
     if ("query_result" in props) {
       this.status = ExecutionStatus.DONE;
-      this.deferred.onStatusChange(ExecutionStatus.DONE);
+      (instance > 0 ? this.deferred : this.deferred2).onStatusChange(ExecutionStatus.DONE);
 
       const columnTypes = {};
 
@@ -178,15 +186,15 @@ class QueryResult {
         }
       });
 
-      this.deferred.resolve(this);
+      instance > 0 ? this.deferred2.resolve2(this) : this.deferred.resolve(this);
     } else if (this.job.status === 3 || this.job.status === 2) {
-      this.deferred.onStatusChange(ExecutionStatus.PROCESSING);
+      (instance > 0 ? this.deferred2 : this.deferred).onStatusChange(ExecutionStatus.PROCESSING);
       this.status = "processing";
     } else if (this.job.status === 4) {
       this.status = statuses[this.job.status];
-      this.deferred.reject(new QueryResultError(this.job.error));
+      (instance > 0 ? this.deferred2.reject2 : this.deferred.reject)(new QueryResultError(this.job.error));
     } else {
-      this.deferred.onStatusChange(undefined);
+      (instance > 0 ? this.deferred2 : this.deferred).onStatusChange(undefined);
       this.status = undefined;
     }
   }
@@ -327,26 +335,39 @@ class QueryResult {
     if (statusCallback) {
       this.deferred.onStatusChange = statusCallback;
     }
-    return this.deferred.promise;
+    return [this.deferred.promise, this.deferred2.promise2];
   }
 
-  static getById(queryId, id) {
+  static getById(queryId, id, partial = false) {
     const queryResult = new QueryResult();
 
     queryResult.isLoadingResult = true;
     queryResult.deferred.onStatusChange(ExecutionStatus.LOADING_RESULT);
 
     axios
-      .get(`api/queries/${queryId}/results/${id}.json`)
+      .get(`api/queries/${queryId}/results/${id}.json?partial=${partial}`)
       .then(response => {
         // Success handler
         queryResult.isLoadingResult = false;
-        queryResult.update(response);
+        queryResult.update(response, 0);
+
+        axios
+          .get(`api/queries/${queryId}/results/${id}.json?partial=false`)
+          .then(response => {
+            // Success handler
+            queryResult.isLoadingResult = false;
+            queryResult.update(response, 1);
+          })
+          .catch(error => {
+            // Error handler
+            queryResult.isLoadingResult = false;
+            handleErrorResponse(queryResult, error, 1);
+          });
       })
       .catch(error => {
         // Error handler
         queryResult.isLoadingResult = false;
-        handleErrorResponse(queryResult, error);
+        handleErrorResponse(queryResult, error, 0);
       });
 
     return queryResult;
@@ -363,11 +384,11 @@ class QueryResult {
       });
   }
 
-  loadResult(tryCount) {
+  loadResult(tryCount, first = true) {
     this.isLoadingResult = true;
     this.deferred.onStatusChange(ExecutionStatus.LOADING_RESULT);
 
-    QueryResultResource.get({ id: this.job.query_result_id })
+    QueryResultResource.get({ id: this.job.query_result_id, partial: first })
       .then(response => {
         this.update(response);
         this.isLoadingResult = false;
@@ -388,7 +409,7 @@ class QueryResult {
           this.isLoadingResult = false;
         } else {
           setTimeout(() => {
-            this.loadResult(tryCount + 1);
+            this.loadResult(tryCount + 1, false);
           }, 1000 * Math.pow(2, tryCount));
         }
       });

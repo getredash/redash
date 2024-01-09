@@ -23,6 +23,7 @@ export default function useQueryExecute(query) {
     queryResult: null,
     isExecuting: false,
     loadedInitialResults: false,
+    loadedFullResults: false,
     executionStatus: null,
     isCancelling: false,
     cancelCallback: null,
@@ -67,46 +68,53 @@ export default function useQueryExecute(query) {
       }
     };
 
-    newQueryResult
-      .toPromise(onStatusChange)
-      .then(queryResult => {
-        if (queryResultInExecution.current === newQueryResult) {
-          // TODO: this should probably belong in the QueryEditor page.
-          if (queryResult && queryResult.query_result.query === query.query) {
-            query.latest_query_data_id = queryResult.getId();
-            query.queryResult = queryResult;
-          }
-
-          if (executionState.loadedInitialResults) {
-            notifications.showNotification("Redash", `${query.name} updated.`);
-          }
-
-          setExecutionState({
-            queryResult,
-            loadedInitialResults: true,
-            error: null,
-            isExecuting: false,
-            isCancelling: false,
-            executionStatus: null,
-          });
+    const successResult = (queryResult, instance) => {
+      if (queryResultInExecution.current === newQueryResult) {
+        // TODO: this should probably belong in the QueryEditor page.
+        if (queryResult && queryResult.query_result.query === query.query) {
+          query.latest_query_data_id = queryResult.getId();
+          query.queryResult = queryResult;
         }
-      })
-      .catch(queryResult => {
-        if (queryResultInExecution.current === newQueryResult) {
-          if (executionState.loadedInitialResults) {
-            notifications.showNotification("Redash", `${query.name} failed to run: ${queryResult.getError()}`);
-          }
 
-          setExecutionState({
-            queryResult,
-            loadedInitialResults: true,
-            error: queryResult.getError(),
-            isExecuting: false,
-            isCancelling: false,
-            executionStatus: ExecutionStatus.FAILED,
-          });
+        if (executionState.loadedInitialResults) {
+          notifications.showNotification("Redash", `${query.name} updated.`);
         }
-      });
+
+        setExecutionState({
+          queryResult,
+          loadedInitialResults: true,
+          loadedFullResults: instance > 0,
+          error: null,
+          isExecuting: false,
+          isCancelling: false,
+          executionStatus: null,
+        });
+      }
+    }
+
+    const errorResult = queryResult => {
+      if (queryResultInExecution.current === newQueryResult) {
+        if (executionState.loadedInitialResults) {
+          notifications.showNotification("Redash", `${query.name} failed to run: ${queryResult.getError()}`);
+        }
+
+        setExecutionState({
+          queryResult,
+          loadedInitialResults: true,
+          loadedFullResults: true,
+          error: queryResult.getError(),
+          isExecuting: false,
+          isCancelling: false,
+          executionStatus: ExecutionStatus.FAILED,
+        });
+      }
+    }
+
+    const promises = newQueryResult.toPromise(onStatusChange);
+    promises[0].then(queryResult => successResult(queryResult, 0)).catch(queryResult => errorResult(queryResult));
+    if (promises[1]) {
+      promises[1].then(queryResult => successResult(queryResult, 1)).catch(queryResult => errorResult(queryResult));
+    }
   });
 
   const queryRef = useRef(query);
