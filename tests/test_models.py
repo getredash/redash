@@ -466,6 +466,14 @@ class TestQueryAll(BaseTestCase):
         query.update_query_hash()
         self.assertEqual(origin_hash, query.query_hash)
 
+    def test_update_query_hash_basesql_with_parameters(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, type="pg")
+        query = self.factory.create_query(query_text="SELECT {{num}}", data_source=ds)
+        query.options = {"parameters": [{"type": "number", "name": "num", "value": 5}]}
+        origin_hash = query.query_hash
+        query.update_query_hash()
+        self.assertNotEqual(origin_hash, query.query_hash)
+
 
 class TestGroup(BaseTestCase):
     def test_returns_groups_with_specified_names(self):
