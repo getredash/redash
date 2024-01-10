@@ -80,16 +80,16 @@ jobs:
         if: always()
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
 
-      # - name: Download task definition
-      #   run: |
-      #     pwd
-      #     aws ecs describe-task-definition --task-definition $TASK_DEFINITION_NAME --query taskDefinition > task-definition.json
+      - name: Download task definition
+        run: |
+          pwd
+          aws ecs describe-task-definition --task-definition $TASK_DEFINITION_NAME --query taskDefinition > task-definition.json
 
       - name: Add Image ID to Server Container
         id: render-server-container
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: development-task-def.json
+          task-definition: task-definition.json
           container-name: Server
           image: ${{ steps.build-image.outputs.image }}
 
