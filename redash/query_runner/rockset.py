@@ -25,7 +25,7 @@ def _get_type(value):
 
 # The following is here, because Rockset's PyPi package is Python 3 only.
 # Should be removed once we move to Python 3.
-class RocksetAPI(object):
+class RocksetAPI:
     def __init__(self, api_key, api_server, vi_id):
         self.api_key = api_key
         self.api_server = api_server

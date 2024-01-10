@@ -68,7 +68,7 @@ def gfk_type(cls):
     return cls
 
 
-class GFKBase(object):
+class GFKBase:
     """
     Compatibility with 'generic foreign key' approach Peewee used.
     """
