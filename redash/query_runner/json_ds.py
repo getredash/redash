@@ -14,7 +14,6 @@ from redash.query_runner import (
     BaseHTTPQueryRunner,
     register,
 )
-from redash.utils import json_dumps
 
 
 class QueryParseError(Exception):
@@ -158,11 +157,10 @@ class JSON(BaseHTTPQueryRunner):
     def run_query(self, query, user):
         query = parse_query(query)
 
-        results, error = self._run_json_query(query)
+        data, error = self._run_json_query(query)
         if error is not None:
             return None, error
 
-        data = json_dumps(results)
         if data:
             return data, None
         return None, "Got empty response from '{}'.".format(query["url"])

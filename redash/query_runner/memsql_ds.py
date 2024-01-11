@@ -10,7 +10,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +129,6 @@ class MemSQL(BaseSQLQueryRunner):
                     columns.append({"name": column, "friendly_name": column, "type": TYPE_STRING})
 
             data = {"columns": columns, "rows": rows}
-            json_data = json_dumps(data)
             error = None
         except (KeyboardInterrupt, JobTimeoutException):
             cursor.close()
@@ -139,7 +137,7 @@ class MemSQL(BaseSQLQueryRunner):
             if cursor:
                 cursor.close()
 
-        return json_data, error
+        return data, error
 
 
 register(MemSQL)

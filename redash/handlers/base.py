@@ -5,7 +5,7 @@ from flask import Blueprint, current_app, request
 from flask_login import current_user, login_required
 from flask_restful import Resource, abort
 from sqlalchemy import cast
-from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils.functions import sort_query
 
@@ -114,7 +114,7 @@ def json_response(response):
 def filter_by_tags(result_set, column):
     if request.args.getlist("tags"):
         tags = request.args.getlist("tags")
-        result_set = result_set.filter(cast(column, postgresql.ARRAY(db.Text)).contains(tags))
+        result_set = result_set.filter(cast(column, ARRAY(db.Text)).contains(tags))
     return result_set
 
 

@@ -10,8 +10,7 @@ import json
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.sql import table
-
-from redash.models import MutableDict, PseudoJSON
+from redash.models import MutableDict
 
 
 # revision identifiers, used by Alembic.
@@ -41,7 +40,7 @@ def upgrade():
         "queries",
         sa.Column(
             "schedule",
-            MutableDict.as_mutable(PseudoJSON),
+            sa.Text(),
             nullable=False,
             server_default=json.dumps({}),
         ),
@@ -51,7 +50,7 @@ def upgrade():
     queries = table(
         "queries",
         sa.Column("id", sa.Integer, primary_key=True),
-        sa.Column("schedule", MutableDict.as_mutable(PseudoJSON)),
+        sa.Column("schedule", sa.Text()),
         sa.Column("old_schedule", sa.String(length=10)),
     )
 
@@ -85,7 +84,7 @@ def downgrade():
         "queries",
         sa.Column(
             "old_schedule",
-            MutableDict.as_mutable(PseudoJSON),
+            sa.Text(),
             nullable=False,
             server_default=json.dumps({}),
         ),
@@ -93,8 +92,8 @@ def downgrade():
 
     queries = table(
         "queries",
-        sa.Column("schedule", MutableDict.as_mutable(PseudoJSON)),
-        sa.Column("old_schedule", MutableDict.as_mutable(PseudoJSON)),
+        sa.Column("schedule", sa.Text()),
+        sa.Column("old_schedule", sa.Text()),
     )
 
     op.execute(queries.update().values({"old_schedule": queries.c.schedule}))
@@ -106,7 +105,7 @@ def downgrade():
         "queries",
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("schedule", sa.String(length=10)),
-        sa.Column("old_schedule", MutableDict.as_mutable(PseudoJSON)),
+        sa.Column("old_schedule", sa.Text()),
     )
 
     conn = op.get_bind()

@@ -5,7 +5,6 @@ from redash.serializers import (
     serialize_query_result,
     serialize_query_result_to_dsv,
 )
-from redash.utils import json_dumps
 from tests import BaseTestCase
 
 data = {
@@ -26,19 +25,19 @@ data = {
 
 class QueryResultSerializationTest(BaseTestCase):
     def test_serializes_all_keys_for_authenticated_users(self):
-        query_result = self.factory.create_query_result(data=json_dumps({}))
+        query_result = self.factory.create_query_result(data={})
         serialized = serialize_query_result(query_result, False)
         self.assertSetEqual(set(query_result.to_dict().keys()), set(serialized.keys()))
 
     def test_doesnt_serialize_sensitive_keys_for_unauthenticated_users(self):
-        query_result = self.factory.create_query_result(data=json_dumps({}))
+        query_result = self.factory.create_query_result(data={})
         serialized = serialize_query_result(query_result, True)
         self.assertSetEqual(set(["data", "retrieved_at"]), set(serialized.keys()))
 
 
 class DsvSerializationTest(BaseTestCase):
     def delimited_content(self, delimiter):
-        query_result = self.factory.create_query_result(data=json_dumps(data))
+        query_result = self.factory.create_query_result(data=data)
         return serialize_query_result_to_dsv(query_result, delimiter)
 
     def test_serializes_booleans_correctly(self):

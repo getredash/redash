@@ -12,7 +12,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -139,7 +138,6 @@ class Hive(BaseSQLQueryRunner):
             rows = [dict(zip(column_names, row)) for row in cursor]
 
             data = {"columns": columns, "rows": rows}
-            json_data = json_dumps(data)
             error = None
         except (KeyboardInterrupt, JobTimeoutException):
             if connection:
@@ -150,12 +148,12 @@ class Hive(BaseSQLQueryRunner):
                 error = e.args[0].status.errorMessage
             except AttributeError:
                 error = str(e)
-            json_data = None
+            data = None
         finally:
             if connection:
                 connection.close()
 
-        return json_data, error
+        return data, error
 
 
 class HiveHttp(Hive):

@@ -10,7 +10,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import json_dumps, json_loads
 
 try:
     import oracledb
@@ -98,8 +97,6 @@ class Oracle(BaseSQLQueryRunner):
         if error is not None:
             self._handle_run_query_error(error)
 
-        results = json_loads(results)
-
         for row in results["rows"]:
             if row["OWNER"] is not None:
                 table_name = "{}.{}".format(row["OWNER"], row["TABLE_NAME"])
@@ -168,19 +165,17 @@ class Oracle(BaseSQLQueryRunner):
                 rows = [dict(zip((c["name"] for c in columns), row)) for row in cursor]
                 data = {"columns": columns, "rows": rows}
                 error = None
-                json_data = json_dumps(data)
             else:
                 columns = [{"name": "Row(s) Affected", "type": "TYPE_INTEGER"}]
                 rows = [{"Row(s) Affected": rows_count}]
                 data = {"columns": columns, "rows": rows}
-                json_data = json_dumps(data)
                 connection.commit()
         except oracledb.DatabaseError as err:
             (err_args,) = err.args
             line_number = query.count("\n", 0, err_args.offset) + 1
             column_number = err_args.offset - query.rfind("\n", 0, err_args.offset) - 1
             error = "Query failed at line {}, column {}: {}".format(str(line_number), str(column_number), str(err))
-            json_data = None
+            data = None
         except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
             raise
@@ -188,7 +183,7 @@ class Oracle(BaseSQLQueryRunner):
             os.environ.pop("NLS_LANG", None)
             connection.close()
 
-        return json_data, error
+        return data, error
 
 
 register(Oracle)

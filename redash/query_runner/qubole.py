@@ -10,7 +10,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import json_dumps
 
 try:
     import qds_sdk  # noqa: F401
@@ -125,13 +124,13 @@ class Qubole(BaseQueryRunner):
                 columns = self.fetch_columns([(i, TYPE_STRING) for i in data.pop(0).split("\t")])
                 rows = [dict(zip((column["name"] for column in columns), row.split("\t"))) for row in data]
 
-            json_data = json_dumps({"columns": columns, "rows": rows})
+            data = {"columns": columns, "rows": rows}
         except (KeyboardInterrupt, JobTimeoutException):
             logging.info("Sending KILL signal to Qubole Command Id: %s", cmd.id)
             cmd.cancel()
             raise
 
-        return json_data, error
+        return data, error
 
     def get_schema(self, get_stats=False):
         schemas = {}

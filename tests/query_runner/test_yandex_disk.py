@@ -4,7 +4,6 @@ from unittest import mock
 import yaml
 
 from redash.query_runner.yandex_disk import enabled
-from redash.utils import json_dumps
 
 if enabled:
     import pandas as pd
@@ -114,22 +113,20 @@ def test_run_query(mocked_requests, mock_yandex_disk):
     mock_readers = EXTENSIONS_READERS.copy()
     mock_readers["csv"] = mock_ext_readers_return
 
-    expected_data = json_dumps(
-        {
-            "columns": [
-                {"name": "id", "friendly_name": "id", "type": "integer"},
-                {"name": "name", "friendly_name": "name", "type": "string"},
-                {"name": "age", "friendly_name": "age", "type": "integer"},
-            ],
-            "rows": [
-                {"id": 1, "name": "Alice", "age": 20},
-                {"id": 2, "name": "Bob", "age": 21},
-                {"id": 3, "name": "Charlie", "age": 22},
-                {"id": 4, "name": "Dave", "age": 23},
-                {"id": 5, "name": "Eve", "age": 24},
-            ],
-        }
-    )
+    expected_data = {
+        "columns": [
+            {"name": "id", "friendly_name": "id", "type": "integer"},
+            {"name": "name", "friendly_name": "name", "type": "string"},
+            {"name": "age", "friendly_name": "age", "type": "integer"},
+        ],
+        "rows": [
+            {"id": 1, "name": "Alice", "age": 20},
+            {"id": 2, "name": "Bob", "age": 21},
+            {"id": 3, "name": "Charlie", "age": 22},
+            {"id": 4, "name": "Dave", "age": 23},
+            {"id": 5, "name": "Eve", "age": 24},
+        ],
+    }
 
     with mock.patch.dict("redash.query_runner.yandex_disk.EXTENSIONS_READERS", mock_readers, clear=True):
         data, error = mock_yandex_disk.run_query(yaml.dump({"path": "/tmp/file.csv"}), "user")
@@ -204,23 +201,21 @@ def test_run_query_multiple_sheets(mocked_requests, mock_yandex_disk):
         data, error = mock_yandex_disk.run_query(query, "user")
 
     assert error is None
-    assert data == json_dumps(
-        {
-            "columns": [
-                {"name": "id", "friendly_name": "id", "type": "integer"},
-                {"name": "name", "friendly_name": "name", "type": "string"},
-                {"name": "age", "friendly_name": "age", "type": "integer"},
-                {"name": "sheet_name", "friendly_name": "sheet_name", "type": "string"},
-            ],
-            "rows": [
-                {"id": 1, "name": "Alice", "age": 20, "sheet_name": "sheet1"},
-                {"id": 2, "name": "Bob", "age": 21, "sheet_name": "sheet1"},
-                {"id": 3, "name": "Charlie", "age": 22, "sheet_name": "sheet1"},
-                {"id": 4, "name": "Dave", "age": 23, "sheet_name": "sheet1"},
-                {"id": 5, "name": "Eve", "age": 24, "sheet_name": "sheet1"},
-            ],
-        }
-    )
+    assert data == {
+        "columns": [
+            {"name": "id", "friendly_name": "id", "type": "integer"},
+            {"name": "name", "friendly_name": "name", "type": "string"},
+            {"name": "age", "friendly_name": "age", "type": "integer"},
+            {"name": "sheet_name", "friendly_name": "sheet_name", "type": "string"},
+        ],
+        "rows": [
+            {"id": 1, "name": "Alice", "age": 20, "sheet_name": "sheet1"},
+            {"id": 2, "name": "Bob", "age": 21, "sheet_name": "sheet1"},
+            {"id": 3, "name": "Charlie", "age": 22, "sheet_name": "sheet1"},
+            {"id": 4, "name": "Dave", "age": 23, "sheet_name": "sheet1"},
+            {"id": 5, "name": "Eve", "age": 24, "sheet_name": "sheet1"},
+        ],
+    }
 
 
 @skip_condition
