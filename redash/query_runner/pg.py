@@ -20,7 +20,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import JSONEncoder, json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -56,18 +55,16 @@ types_map = {
 }
 
 
-class PostgreSQLJSONEncoder(JSONEncoder):
-    def default(self, o):
-        if isinstance(o, Range):
-            # From: https://github.com/psycopg/psycopg2/pull/779
-            if o._bounds is None:
-                return ""
+def json_encoder(dec, o):
+    if isinstance(o, Range):
+        # From: https://github.com/psycopg/psycopg2/pull/779
+        if o._bounds is None:
+            return ""
 
-            items = [o._bounds[0], str(o._lower), ", ", str(o._upper), o._bounds[1]]
+        items = [o._bounds[0], str(o._lower), ", ", str(o._upper), o._bounds[1]]
 
-            return "".join(items)
-
-        return super(PostgreSQLJSONEncoder, self).default(o)
+        return "".join(items)
+    return None
 
 
 def _wait(conn, timeout=None):
@@ -204,8 +201,6 @@ class PostgreSQL(BaseSQLQueryRunner):
         if error is not None:
             self._handle_run_query_error(error)
 
-        results = json_loads(results)
-
         build_schema(results, schema)
 
     def _get_tables(self, schema):
@@ -282,16 +277,15 @@ class PostgreSQL(BaseSQLQueryRunner):
 
                 data = {"columns": columns, "rows": rows}
                 error = None
-                json_data = json_dumps(data, allow_nan=False, cls=PostgreSQLJSONEncoder)
             else:
                 error = "Query completed but it returned no data."
-                json_data = None
+                data = None
         except (select.error, OSError):
             error = "Query interrupted. Please retry."
-            json_data = None
+            data = None
         except psycopg2.DatabaseError as e:
             error = str(e)
-            json_data = None
+            data = None
         except (KeyboardInterrupt, InterruptException, JobTimeoutException):
             connection.cancel()
             raise
@@ -299,7 +293,7 @@ class PostgreSQL(BaseSQLQueryRunner):
             connection.close()
             _cleanup_ssl_certs(self.ssl_config)
 
-        return json_data, error
+        return data, error
 
 
 class Redshift(PostgreSQL):

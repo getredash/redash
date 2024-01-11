@@ -1,6 +1,5 @@
 from redash.handlers.query_results import error_messages, run_query
 from redash.models import db
-from redash.utils import json_dumps
 from tests import BaseTestCase
 
 
@@ -362,7 +361,7 @@ class TestQueryDropdownsResource(BaseTestCase):
 
         query_result = self.factory.create_query_result()
         data = {"rows": [], "columns": [{"name": "whatever"}]}
-        query_result = self.factory.create_query_result(data=json_dumps(data))
+        query_result = self.factory.create_query_result(data=data)
         unrelated_dropdown_query = self.factory.create_query(latest_query_data=query_result)
 
         # unrelated_dropdown_query has not been associated with query
@@ -378,7 +377,7 @@ class TestQueryDropdownsResource(BaseTestCase):
     def test_allows_access_if_associated_and_has_access_to_parent(self):
         query_result = self.factory.create_query_result()
         data = {"rows": [], "columns": [{"name": "whatever"}]}
-        query_result = self.factory.create_query_result(data=json_dumps(data))
+        query_result = self.factory.create_query_result(data=data)
         dropdown_query = self.factory.create_query(latest_query_data=query_result)
 
         options = {"parameters": [{"name": "param", "type": "query", "queryId": dropdown_query.id}]}
@@ -423,7 +422,7 @@ class TestQueryResultExcelResponse(BaseTestCase):
             "rows": [{"test": 1}, {"test": 2, "test2": 3}],
             "columns": [{"name": "test"}, {"name": "test2"}],
         }
-        query_result = self.factory.create_query_result(data=json_dumps(data))
+        query_result = self.factory.create_query_result(data=data)
 
         rv = self.make_request(
             "get",

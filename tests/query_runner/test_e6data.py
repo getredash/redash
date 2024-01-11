@@ -2,7 +2,6 @@ from unittest.mock import patch
 
 from redash.query_runner import TYPE_INTEGER, TYPE_STRING
 from redash.query_runner.e6data import e6data
-from redash.utils import json_dumps
 
 runner = e6data(
     {
@@ -28,15 +27,13 @@ def test_run_query(mock_cursor):
 
     json_data, error = runner.run_query(query, user)
 
-    expected_json_data = json_dumps(
-        {
-            "columns": [
-                {"name": "id", "type": TYPE_INTEGER},
-                {"name": "name", "type": TYPE_STRING},
-            ],
-            "rows": [{"id": 1, "name": "John"}],
-        }
-    )
+    expected_json_data = {
+        "columns": [
+            {"name": "id", "type": TYPE_INTEGER},
+            {"name": "name", "type": TYPE_STRING},
+        ],
+        "rows": [{"id": 1, "name": "John"}],
+    }
 
     assert json_data == expected_json_data
 
@@ -50,7 +47,7 @@ def test_test_connection(mock_cursor):
 
     json_data, error = runner.run_query(query, user)
 
-    expected_json_data = json_dumps({"columns": [{"name": "EXPR$0", "type": TYPE_INTEGER}], "rows": [{"EXPR$0": 1}]})
+    expected_json_data = {"columns": [{"name": "EXPR$0", "type": TYPE_INTEGER}], "rows": [{"EXPR$0": 1}]}
 
     assert json_data == expected_json_data
 

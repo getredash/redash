@@ -87,7 +87,7 @@ class TestClickHouse(TestCase):
 
         self.assertIsNone(error)
         self.assertEqual(
-            json.loads(data),
+            data,
             {
                 "columns": [
                     {"name": "1", "friendly_name": "1", "type": TYPE_INTEGER},
@@ -139,7 +139,7 @@ SELECT * FROM test;
 
         self.assertIsNone(error)
         self.assertEqual(
-            json.loads(data),
+            data,
             {
                 "columns": [
                     {"name": "1", "friendly_name": "1", "type": TYPE_INTEGER},

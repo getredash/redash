@@ -9,7 +9,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -82,8 +81,6 @@ class Phoenix(BaseQueryRunner):
         if error is not None:
             self._handle_run_query_error(error)
 
-        results = json_loads(results)
-
         for row in results["rows"]:
             table_name = "{}.{}".format(row["TABLE_SCHEM"], row["TABLE_NAME"])
 
@@ -105,17 +102,16 @@ class Phoenix(BaseQueryRunner):
             columns = self.fetch_columns(column_tuples)
             rows = [dict(zip(([column["name"] for column in columns]), r)) for i, r in enumerate(cursor.fetchall())]
             data = {"columns": columns, "rows": rows}
-            json_data = json_dumps(data)
             error = None
             cursor.close()
         except Error as e:
-            json_data = None
+            data = None
             error = "code: {}, sql state:{}, message: {}".format(e.code, e.sqlstate, str(e))
         finally:
             if connection:
                 connection.close()
 
-        return json_data, error
+        return data, error
 
 
 register(Phoenix)

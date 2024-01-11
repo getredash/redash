@@ -7,7 +7,6 @@ from redash.permissions import (
     require_permission,
 )
 from redash.serializers import serialize_visualization
-from redash.utils import json_dumps
 
 
 class VisualizationListResource(BaseResource):
@@ -18,7 +17,6 @@ class VisualizationListResource(BaseResource):
         query = get_object_or_404(models.Query.get_by_id_and_org, kwargs.pop("query_id"), self.current_org)
         require_object_modify_permission(query, self.current_user)
 
-        kwargs["options"] = json_dumps(kwargs["options"])
         kwargs["query_rel"] = query
 
         vis = models.Visualization(**kwargs)
@@ -34,8 +32,6 @@ class VisualizationResource(BaseResource):
         require_object_modify_permission(vis.query_rel, self.current_user)
 
         kwargs = request.get_json(force=True)
-        if "options" in kwargs:
-            kwargs["options"] = json_dumps(kwargs["options"])
 
         kwargs.pop("id", None)
         kwargs.pop("query_id", None)

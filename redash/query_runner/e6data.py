@@ -19,7 +19,6 @@ try:
 except ImportError:
     enabled = False
 
-from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -106,18 +105,17 @@ class e6data(BaseQueryRunner):
                 columns.append({"name": column_name, "type": column_type})
             rows = [dict(zip([c["name"] for c in columns], r)) for r in results]
             data = {"columns": columns, "rows": rows}
-            json_data = json_dumps(data)
             error = None
 
         except Exception as error:
             logger.debug(error)
-            json_data = None
+            data = None
         finally:
             if cursor is not None:
                 cursor.clear()
                 cursor.close()
 
-        return json_data, error
+        return data, error
 
     def test_connection(self):
         self.noop_query = "SELECT 1"

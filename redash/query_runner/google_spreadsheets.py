@@ -16,7 +16,7 @@ from redash.query_runner import (
     guess_type,
     register,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -257,7 +257,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
 
             data = parse_spreadsheet(SpreadsheetWrapper(spreadsheet), worksheet_num_or_title)
 
-            return json_dumps(data), None
+            return data, None
         except gspread.SpreadsheetNotFound:
             return (
                 None,
