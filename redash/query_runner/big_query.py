@@ -346,7 +346,7 @@ class BigQuery(BaseQueryRunner):
             data = self._get_query_result(jobs, query)
             error = None
 
-            json_data = json_dumps(data, ignore_nan=True)
+            json_data = json_dumps(data, allow_nan=False)
         except apiclient.errors.HttpError as e:
             json_data = None
             if e.resp.status in [400, 404]:

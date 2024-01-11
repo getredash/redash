@@ -81,7 +81,7 @@ class Arango(BaseQueryRunner):
                 "rows": result,
             }
 
-            json_data = json_dumps(data, ignore_nan=True)
+            json_data = json_dumps(data, allow_nan=False)
             error = None
         except Exception:
             raise
