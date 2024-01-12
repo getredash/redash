@@ -447,7 +447,7 @@
                 },
                 {
                     "name": "QUEUES",
-                    "value": "\temails, queries, scheduled_queries, schemas, default, periodic"
+                    "value": "emails, queries, scheduled_queries, schemas, default, periodic"
                 },
                 {
                     "name": "REDASH_LOG_LEVEL",
