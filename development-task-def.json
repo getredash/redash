@@ -446,10 +446,6 @@
                     "value": "4"
                 },
                 {
-                    "name": "QUEUES",
-                    "value": "emails, queries, scheduled_queries, schemas, default, periodic"
-                },
-                {
                     "name": "REDASH_LOG_LEVEL",
                     "value": "DEBUG"
                 },
