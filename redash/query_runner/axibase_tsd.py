@@ -13,7 +13,7 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -157,17 +157,16 @@ class AxibaseTSD(BaseQueryRunner):
             columns, rows = generate_rows_and_columns(data)
 
             data = {"columns": columns, "rows": rows}
-            json_data = json_dumps(data)
             error = None
 
         except SQLException as e:
-            json_data = None
+            data = None
             error = e.content
         except (KeyboardInterrupt, InterruptException, JobTimeoutException):
             sql.cancel_query(query_id)
             raise
 
-        return json_data, error
+        return data, error
 
     def get_schema(self, get_stats=False):
         connection = atsd_client.connect_url(

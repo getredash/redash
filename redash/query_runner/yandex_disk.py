@@ -5,7 +5,6 @@ import requests
 import yaml
 
 from redash.query_runner import BaseSQLQueryRunner, register
-from redash.utils import json_dumps
 from redash.utils.pandas import pandas_installed
 
 openpyxl_installed = find_spec("openpyxl")
@@ -157,7 +156,7 @@ class YandexDisk(BaseSQLQueryRunner):
             new_df = pd.concat(new_df, ignore_index=True)
             df = new_df.copy()
 
-        data = json_dumps(pandas_to_result(df))
+        data = pandas_to_result(df)
         error = None
 
         return data, error

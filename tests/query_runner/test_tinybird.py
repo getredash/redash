@@ -83,7 +83,7 @@ class TestTinybird(TestCase):
 
         self.assertIsNone(error)
         self.assertEqual(
-            json.loads(data),
+            data,
             {
                 "columns": [
                     {"name": "string_attribute", "friendly_name": "string_attribute", "type": TYPE_STRING},

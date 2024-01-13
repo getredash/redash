@@ -11,7 +11,7 @@ from redash.query_runner import (
     BaseSQLQueryRunner,
     register,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -151,15 +151,14 @@ class GoogleSearchConsole(BaseSQLQueryRunner):
                 response = api.searchanalytics().query(siteUrl=site_url, body=params).execute()
                 data = parse_ga_response(response, params["dimensions"])
                 error = None
-                json_data = json_dumps(data)
             except HttpError as e:
                 # Make sure we return a more readable error to the end user
                 error = e._get_reason()
-                json_data = None
+                data = None
         else:
             error = "Wrong query format."
-            json_data = None
-        return json_data, error
+            data = None
+        return data, error
 
 
 register(GoogleSearchConsole)

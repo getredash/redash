@@ -1,3 +1,4 @@
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy_utils.models import generic_repr
 
@@ -5,7 +6,7 @@ from redash.settings.organization import settings as org_settings
 
 from .base import Column, db, primary_key
 from .mixins import TimestampMixin
-from .types import MutableDict, PseudoJSON
+from .types import MutableDict
 from .users import Group, User
 
 
@@ -17,7 +18,7 @@ class Organization(TimestampMixin, db.Model):
     id = primary_key("Organization")
     name = Column(db.String(255))
     slug = Column(db.String(255), unique=True)
-    settings = Column(MutableDict.as_mutable(PseudoJSON))
+    settings = Column(MutableDict.as_mutable(JSONB), default={})
     groups = db.relationship("Group", lazy="dynamic")
     events = db.relationship("Event", lazy="dynamic", order_by="desc(Event.created_at)")
 

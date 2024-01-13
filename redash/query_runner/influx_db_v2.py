@@ -13,7 +13,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.utils import json_dumps
 
 try:
     from influxdb_client import InfluxDBClient
@@ -188,7 +187,7 @@ class InfluxDBv2(BaseQueryRunner):
             2. element: An error message, if an error occured. None, if no
                 error occurred.
         """
-        json_data = None
+        data = None
         error = None
 
         try:
@@ -204,14 +203,12 @@ class InfluxDBv2(BaseQueryRunner):
                 tables = client.query_api().query(query)
 
                 data = self._get_data_from_tables(tables)
-
-                json_data = json_dumps(data)
         except Exception as ex:
             error = str(ex)
         finally:
             self._cleanup_cert_files(influx_kwargs)
 
-        return json_data, error
+        return data, error
 
 
 register(InfluxDBv2)

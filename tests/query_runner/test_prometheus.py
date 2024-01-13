@@ -5,7 +5,6 @@ from unittest import TestCase
 import mock
 
 from redash.query_runner.prometheus import Prometheus, get_instant_rows, get_range_rows
-from redash.utils import json_dumps
 
 
 class TestPrometheus(TestCase):
@@ -350,7 +349,7 @@ class TestPrometheus(TestCase):
             {"friendly_name": "foo_bar", "type": "string", "name": "foo_bar"},
         ]
 
-        data_expected = json_dumps({"rows": rows, "columns": columns})
+        data_expected = {"rows": rows, "columns": columns}
 
         requests_get_mock.return_value = mock.Mock(
             json=mock.Mock(return_value={"data": {"result": self.instant_query_result}})
@@ -424,7 +423,7 @@ class TestPrometheus(TestCase):
             {"friendly_name": "foo_bar", "type": "string", "name": "foo_bar"},
         ]
 
-        data_expected = json_dumps({"rows": rows, "columns": columns})
+        data_expected = {"rows": rows, "columns": columns}
 
         requests_get_mock.return_value = mock.Mock(
             json=mock.Mock(return_value={"data": {"result": self.range_query_result}})
@@ -490,7 +489,7 @@ class TestPrometheus(TestCase):
             {"friendly_name": "foo_bar", "type": "string", "name": "foo_bar"},
         ]
 
-        data_expected = json_dumps({"rows": rows, "columns": columns})
+        data_expected = {"rows": rows, "columns": columns}
 
         now_datetime = datetime(2023, 12, 12, 11, 00, 00)
         end_timestamp_expected = int(time.mktime(now_datetime.timetuple()))

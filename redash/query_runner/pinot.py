@@ -19,7 +19,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -92,12 +91,11 @@ class Pinot(BaseQueryRunner):
 
             data = {"columns": columns, "rows": rows}
             error = None
-            json_data = json_dumps(data)
             logger.debug("Pinot execute query [%s]", query)
         finally:
             connection.close()
 
-        return json_data, error
+        return data, error
 
     def get_schema(self, get_stats=False):
         schema = {}

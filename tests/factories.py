@@ -70,7 +70,7 @@ dashboard_factory = ModelFactory(
     redash.models.Dashboard,
     name="test",
     user=user_factory.create,
-    layout="[]",
+    layout=[],
     is_draft=False,
     org=1,
 )
@@ -122,7 +122,7 @@ alert_factory = ModelFactory(
 
 query_result_factory = ModelFactory(
     redash.models.QueryResult,
-    data='{"columns":{}, "rows":[]}',
+    data={"columns": {}, "rows": []},
     runtime=1,
     retrieved_at=utcnow,
     query_text="SELECT 1",
@@ -137,13 +137,13 @@ visualization_factory = ModelFactory(
     query_rel=query_factory.create,
     name="Chart",
     description="",
-    options="{}",
+    options={},
 )
 
 widget_factory = ModelFactory(
     redash.models.Widget,
     width=1,
-    options="{}",
+    options={},
     dashboard=dashboard_factory.create,
     visualization=visualization_factory.create,
 )
