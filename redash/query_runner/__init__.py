@@ -309,9 +309,11 @@ class BaseSQLQueryRunner(BaseQueryRunner):
                 parsed_query.tokens += limit_tokens
         else:
             for i in range(length - 1, -1, -1):
-                if parsed_query[i].value.upper() == 'SELECT':
+                if parsed_query[i].value.upper() == "SELECT":
                     index = parsed_query.token_index(parsed_query[i + 1])
-                    parsed_query = sqlparse.sql.Statement(parsed_query.tokens[:index] + limit_tokens + parsed_query.tokens[index:])
+                    parsed_query = sqlparse.sql.Statement(
+                        parsed_query.tokens[:index] + limit_tokens + parsed_query.tokens[index:]
+                    )
                     break
         return str(parsed_query)
 
