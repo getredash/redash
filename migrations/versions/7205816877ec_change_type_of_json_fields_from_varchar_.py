@@ -63,7 +63,7 @@ def upgrade():
         existing_type=sa.Text(),
         type_=JSONB(astext_type=sa.Text()),
         nullable=True,
-        postgresql_using='data::text',
+        postgresql_using='data::jsonb',
         server_default=sa.text("'{}'::jsonb"))
     op.alter_column('changes', 'change',
         existing_type=JSON(astext_type=sa.Text()),
