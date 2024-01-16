@@ -1,11 +1,8 @@
 name: Push Development
 
 on:
-    push:
-        branches:
-            - 'development'
-    # schedule:
-    #     - cron: '30 * * * *'
+    schedule:
+        - cron: '15 * * * *'
 
 jobs:
     test_schedule:
