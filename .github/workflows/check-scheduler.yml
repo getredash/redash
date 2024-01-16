@@ -2,7 +2,7 @@ name: Push Development
 
 on:
     schedule:
-        - cron: '15 * * * *'
+        - cron: '*/15 * * * *'
 
 jobs:
     test_schedule:
