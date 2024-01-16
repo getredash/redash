@@ -1,0 +1,808 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:us-east-2:906503920888:task-definition/RedashRedashTaskDefinition103FC050:45",
+    "containerDefinitions": [
+        {
+            "name": "Scheduler",
+            "image": "906503920888.dkr.ecr.us-east-2.amazonaws.com/images:redash_5be8d6aea09e19749468ee7ef94218a3dddccacc",
+            "cpu": 0,
+            "links": [],
+            "portMappings": [],
+            "essential": true,
+            "entryPoint": [],
+            "command": [
+                "scheduler"
+            ],
+            "environment": [
+                {
+                    "name": "REDASH_WEB_WORKERS",
+                    "value": "2"
+                },
+                {
+                    "name": "REDASH_LOG_LEVEL",
+                    "value": "DEBUG"
+                },
+                {
+                    "name": "REDASH_HOST",
+                    "value": "https://redash.masterworks.io"
+                },
+                {
+                    "name": "REDASH_CONTENT_SECURITY_POLICY",
+                    "value": "frame-ancestors *.masterworks.io *.masterworks.com; frame-src *.masterworks.io *.masterworks.com; default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data: blob:; object-src 'none'"
+                },
+                {
+                    "name": "REDASH_GOOGLE_CLIENT_ID",
+                    "value": "598070089142-1qlhegfrsjd08eks5mnon265hh05cs12.apps.googleusercontent.com"
+                },
+                {
+                    "name": "REDASH_MAIL_SERVER",
+                    "value": "email-smtp.us-east-1.amazonaws.com"
+                },
+                {
+                    "name": "SENTRY_ENVIRONMENT",
+                    "value": "production"
+                },
+                {
+                    "name": "PYTHONUNBUFFERED",
+                    "value": "0"
+                },
+                {
+                    "name": "REDASH_SENTRY_DSN",
+                    "value": "https://c83ffe63a0554426a9bf61084f2c2367@o925557.ingest.sentry.io/5874605"
+                },
+                {
+                    "name": "REDASH_MAIL_USERNAME",
+                    "value": "AKIA5GD6YDT4GEI53KZ2"
+                },
+                {
+                    "name": "SENTRY_TRACES_SAMPLE_RATE",
+                    "value": "1.0"
+                },
+                {
+                    "name": "REDASH_MAIL_USE_TLS",
+                    "value": "true"
+                },
+                {
+                    "name": "REDASH_DATE_FORMAT",
+                    "value": "YYYY-MM-DD"
+                },
+                {
+                    "name": "REDASH_FRAME_OPTIONS",
+                    "value": "ALLOW-FROM *.masterworks.com"
+                },
+                {
+                    "name": "LOGLEVEL",
+                    "value": "INFO"
+                },
+                {
+                    "name": "REDASH_MAIL_PORT",
+                    "value": "587"
+                },
+                {
+                    "name": "REDASH_MAIL_DEFAULT_SENDER",
+                    "value": "redash@masterworks.io"
+                }
+            ],
+            "secrets": [
+                {
+                    "name": "REDASH_DATABASE_URL",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_DATABASE_URL::"
+                },
+                {
+                    "name": "REDASH_GOOGLE_CLIENT_SECRET",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_GOOGLE_CLIENT_SECRET::"
+                },
+                {
+                    "name": "POSTGRES_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:POSTGRES_PASSWORD::"
+                },
+                {
+                    "name": "REDASH_COOKIE_SECRET",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_COOKIE_SECRET::"
+                },
+                {
+                    "name": "REDASH_SECRET_KEY",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_SECRET_KEY::"
+                },
+                {
+                    "name": "REDASH_MAIL_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_MAIL_PASSWORD::"
+                },
+                {
+                    "name": "REDASH_REDIS_URL",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_REDIS_URL::"
+                }
+            ],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "dependsOn": [
+                {
+                    "containerName": "Server",
+                    "condition": "START"
+                }
+            ],
+            "dnsServers": [],
+            "dnsSearchDomains": [],
+            "extraHosts": [],
+            "dockerSecurityOptions": [],
+            "dockerLabels": {},
+            "ulimits": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "Redash-RedashTaskDefinitionSchedulerLogGroup5F7F37A5-rxWgbtZ1FlWu",
+                    "awslogs-region": "us-east-2",
+                    "awslogs-stream-prefix": "redash"
+                },
+                "secretOptions": []
+            },
+            "systemControls": []
+        },
+        {
+            "name": "Server",
+            "image": "906503920888.dkr.ecr.us-east-2.amazonaws.com/images:redash_5be8d6aea09e19749468ee7ef94218a3dddccacc",
+            "cpu": 2048,
+            "links": [],
+            "portMappings": [],
+            "essential": true,
+            "entryPoint": [],
+            "command": [],
+            "environment": [
+                {
+                    "name": "REDASH_WEB_WORKERS",
+                    "value": "4"
+                },
+                {
+                    "name": "REDASH_LOG_LEVEL",
+                    "value": "DEBUG"
+                },
+                {
+                    "name": "REDASH_HOST",
+                    "value": "https://redash.masterworks.io"
+                },
+                {
+                    "name": "REDASH_CONTENT_SECURITY_POLICY",
+                    "value": "frame-ancestors *.masterworks.io *.masterworks.com; frame-src *.masterworks.io *.masterworks.com; default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data: blob:; object-src 'none'"
+                },
+                {
+                    "name": "REDASH_GOOGLE_CLIENT_ID",
+                    "value": "598070089142-1qlhegfrsjd08eks5mnon265hh05cs12.apps.googleusercontent.com"
+                },
+                {
+                    "name": "REDASH_MAIL_SERVER",
+                    "value": "email-smtp.us-east-1.amazonaws.com"
+                },
+                {
+                    "name": "SENTRY_ENVIRONMENT",
+                    "value": "production"
+                },
+                {
+                    "name": "PYTHONUNBUFFERED",
+                    "value": "0"
+                },
+                {
+                    "name": "REDASH_SENTRY_DSN",
+                    "value": "https://c83ffe63a0554426a9bf61084f2c2367@o925557.ingest.sentry.io/5874605"
+                },
+                {
+                    "name": "REDASH_MAIL_USERNAME",
+                    "value": "AKIA5GD6YDT4GEI53KZ2"
+                },
+                {
+                    "name": "SENTRY_TRACES_SAMPLE_RATE",
+                    "value": "1.0"
+                },
+                {
+                    "name": "REDASH_MAIL_USE_TLS",
+                    "value": "true"
+                },
+                {
+                    "name": "REDASH_DATE_FORMAT",
+                    "value": "YYYY-MM-DD"
+                },
+                {
+                    "name": "REDASH_FRAME_OPTIONS",
+                    "value": "ALLOW-FROM *.masterworks.com"
+                },
+                {
+                    "name": "LOGLEVEL",
+                    "value": "INFO"
+                },
+                {
+                    "name": "REDASH_MAIL_PORT",
+                    "value": "587"
+                },
+                {
+                    "name": "REDASH_MAIL_DEFAULT_SENDER",
+                    "value": "redash@masterworks.io"
+                }
+            ],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "REDASH_DATABASE_URL",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_DATABASE_URL::"
+                },
+                {
+                    "name": "REDASH_GOOGLE_CLIENT_SECRET",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_GOOGLE_CLIENT_SECRET::"
+                },
+                {
+                    "name": "POSTGRES_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:POSTGRES_PASSWORD::"
+                },
+                {
+                    "name": "REDASH_COOKIE_SECRET",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_COOKIE_SECRET::"
+                },
+                {
+                    "name": "REDASH_SECRET_KEY",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_SECRET_KEY::"
+                },
+                {
+                    "name": "REDASH_MAIL_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_MAIL_PASSWORD::"
+                },
+                {
+                    "name": "REDASH_REDIS_URL",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_REDIS_URL::"
+                }
+            ],
+            "dnsServers": [],
+            "dnsSearchDomains": [],
+            "extraHosts": [],
+            "dockerSecurityOptions": [],
+            "dockerLabels": {},
+            "ulimits": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "Redash-RedashTaskDefinitionServerLogGroup5370D7BA-IamwokBCmCwA",
+                    "awslogs-region": "us-east-2",
+                    "awslogs-stream-prefix": "redash"
+                },
+                "secretOptions": []
+            },
+            "systemControls": []
+        },
+        {
+            "name": "ScheduledWorker",
+            "image": "906503920888.dkr.ecr.us-east-2.amazonaws.com/images:redash_5be8d6aea09e19749468ee7ef94218a3dddccacc",
+            "cpu": 0,
+            "links": [],
+            "portMappings": [],
+            "essential": false,
+            "entryPoint": [],
+            "command": [
+                "worker"
+            ],
+            "environment": [
+                {
+                    "name": "REDASH_WEB_WORKERS",
+                    "value": "2"
+                },
+                {
+                    "name": "WORKERS_COUNT",
+                    "value": "6"
+                },
+                {
+                    "name": "REDASH_LOG_LEVEL",
+                    "value": "DEBUG"
+                },
+                {
+                    "name": "QUEUES",
+                    "value": "scheduled_queries,schemas,periodic"
+                },
+                {
+                    "name": "REDASH_MAIL_USERNAME",
+                    "value": "AKIA5GD6YDT4GEI53KZ2"
+                },
+                {
+                    "name": "LOGLEVEL",
+                    "value": "INFO"
+                },
+                {
+                    "name": "REDASH_MAIL_DEFAULT_SENDER",
+                    "value": "redash@masterworks.io"
+                },
+                {
+                    "name": "REDASH_HOST",
+                    "value": "https://redash.masterworks.io"
+                },
+                {
+                    "name": "REDASH_CONTENT_SECURITY_POLICY",
+                    "value": "frame-ancestors *.masterworks.io *.masterworks.com; frame-src *.masterworks.io *.masterworks.com; default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data: blob:; object-src 'none'"
+                },
+                {
+                    "name": "REDASH_GOOGLE_CLIENT_ID",
+                    "value": "598070089142-1qlhegfrsjd08eks5mnon265hh05cs12.apps.googleusercontent.com"
+                },
+                {
+                    "name": "REDASH_MAIL_SERVER",
+                    "value": "email-smtp.us-east-1.amazonaws.com"
+                },
+                {
+                    "name": "SENTRY_ENVIRONMENT",
+                    "value": "production"
+                },
+                {
+                    "name": "PYTHONUNBUFFERED",
+                    "value": "0"
+                },
+                {
+                    "name": "REDASH_SENTRY_DSN",
+                    "value": "https://c83ffe63a0554426a9bf61084f2c2367@o925557.ingest.sentry.io/5874605"
+                },
+                {
+                    "name": "SENTRY_TRACES_SAMPLE_RATE",
+                    "value": "1.0"
+                },
+                {
+                    "name": "REDASH_MAIL_USE_TLS",
+                    "value": "true"
+                },
+                {
+                    "name": "REDASH_DATE_FORMAT",
+                    "value": "YYYY-MM-DD"
+                },
+                {
+                    "name": "REDASH_FRAME_OPTIONS",
+                    "value": "ALLOW-FROM *.masterworks.com"
+                },
+                {
+                    "name": "REDASH_MAIL_PORT",
+                    "value": "587"
+                }
+            ],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "REDASH_DATABASE_URL",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_DATABASE_URL::"
+                },
+                {
+                    "name": "REDASH_GOOGLE_CLIENT_SECRET",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_GOOGLE_CLIENT_SECRET::"
+                },
+                {
+                    "name": "POSTGRES_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:POSTGRES_PASSWORD::"
+                },
+                {
+                    "name": "REDASH_COOKIE_SECRET",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_COOKIE_SECRET::"
+                },
+                {
+                    "name": "REDASH_SECRET_KEY",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_SECRET_KEY::"
+                },
+                {
+                    "name": "REDASH_MAIL_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_MAIL_PASSWORD::"
+                },
+                {
+                    "name": "REDASH_REDIS_URL",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_REDIS_URL::"
+                }
+            ],
+            "dependsOn": [
+                {
+                    "containerName": "Server",
+                    "condition": "START"
+                }
+            ],
+            "dnsServers": [],
+            "dnsSearchDomains": [],
+            "extraHosts": [],
+            "dockerSecurityOptions": [],
+            "dockerLabels": {},
+            "ulimits": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "Redash-RedashTaskDefinitionAdHocWorkerLogGroup8B6C2E7F-f6aCAIKJdeDZ",
+                    "awslogs-region": "us-east-2",
+                    "awslogs-stream-prefix": "redash"
+                },
+                "secretOptions": []
+            },
+            "systemControls": []
+        },
+        {
+            "name": "AdHocWorker",
+            "image": "906503920888.dkr.ecr.us-east-2.amazonaws.com/images:redash_5be8d6aea09e19749468ee7ef94218a3dddccacc",
+            "cpu": 0,
+            "links": [],
+            "portMappings": [],
+            "essential": false,
+            "entryPoint": [],
+            "command": [
+                "worker"
+            ],
+            "environment": [
+                {
+                    "name": "REDASH_WEB_WORKERS",
+                    "value": "2"
+                },
+                {
+                    "name": "WORKERS_COUNT",
+                    "value": "6"
+                },
+                {
+                    "name": "QUEUES",
+                    "value": "queries"
+                },
+                {
+                    "name": "REDASH_LOG_LEVEL",
+                    "value": "DEBUG"
+                },
+                {
+                    "name": "REDASH_MAIL_USERNAME",
+                    "value": "AKIA5GD6YDT4GEI53KZ2"
+                },
+                {
+                    "name": "LOGLEVEL",
+                    "value": "INFO"
+                },
+                {
+                    "name": "REDASH_MAIL_DEFAULT_SENDER",
+                    "value": "redash@masterworks.io"
+                },
+                {
+                    "name": "REDASH_HOST",
+                    "value": "https://redash.masterworks.io"
+                },
+                {
+                    "name": "REDASH_CONTENT_SECURITY_POLICY",
+                    "value": "frame-ancestors *.masterworks.io *.masterworks.com; frame-src *.masterworks.io *.masterworks.com; default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data: blob:; object-src 'none'"
+                },
+                {
+                    "name": "REDASH_GOOGLE_CLIENT_ID",
+                    "value": "598070089142-1qlhegfrsjd08eks5mnon265hh05cs12.apps.googleusercontent.com"
+                },
+                {
+                    "name": "REDASH_MAIL_SERVER",
+                    "value": "email-smtp.us-east-1.amazonaws.com"
+                },
+                {
+                    "name": "SENTRY_ENVIRONMENT",
+                    "value": "production"
+                },
+                {
+                    "name": "PYTHONUNBUFFERED",
+                    "value": "0"
+                },
+                {
+                    "name": "REDASH_SENTRY_DSN",
+                    "value": "https://c83ffe63a0554426a9bf61084f2c2367@o925557.ingest.sentry.io/5874605"
+                },
+                {
+                    "name": "SENTRY_TRACES_SAMPLE_RATE",
+                    "value": "1.0"
+                },
+                {
+                    "name": "REDASH_MAIL_USE_TLS",
+                    "value": "true"
+                },
+                {
+                    "name": "REDASH_DATE_FORMAT",
+                    "value": "YYYY-MM-DD"
+                },
+                {
+                    "name": "REDASH_FRAME_OPTIONS",
+                    "value": "ALLOW-FROM *.masterworks.com"
+                },
+                {
+                    "name": "REDASH_MAIL_PORT",
+                    "value": "587"
+                }
+            ],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "REDASH_DATABASE_URL",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_DATABASE_URL::"
+                },
+                {
+                    "name": "REDASH_GOOGLE_CLIENT_SECRET",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_GOOGLE_CLIENT_SECRET::"
+                },
+                {
+                    "name": "POSTGRES_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:POSTGRES_PASSWORD::"
+                },
+                {
+                    "name": "REDASH_COOKIE_SECRET",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_COOKIE_SECRET::"
+                },
+                {
+                    "name": "REDASH_SECRET_KEY",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_SECRET_KEY::"
+                },
+                {
+                    "name": "REDASH_MAIL_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_MAIL_PASSWORD::"
+                },
+                {
+                    "name": "REDASH_REDIS_URL",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_REDIS_URL::"
+                }
+            ],
+            "dependsOn": [
+                {
+                    "containerName": "Server",
+                    "condition": "START"
+                }
+            ],
+            "dnsServers": [],
+            "dnsSearchDomains": [],
+            "extraHosts": [],
+            "dockerSecurityOptions": [],
+            "dockerLabels": {},
+            "ulimits": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "Redash-RedashTaskDefinitionAdHocWorkerLogGroup8B6C2E7F-f6aCAIKJdeDZ",
+                    "awslogs-region": "us-east-2",
+                    "awslogs-stream-prefix": "redash"
+                },
+                "secretOptions": []
+            },
+            "systemControls": []
+        },
+        {
+            "name": "nginx",
+            "image": "906503920888.dkr.ecr.us-east-2.amazonaws.com/images:nginx_redash",
+            "cpu": 0,
+            "links": [],
+            "portMappings": [
+                {
+                    "name": "nginx-80-tcp",
+                    "containerPort": 80,
+                    "hostPort": 80,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "entryPoint": [],
+            "command": [],
+            "environment": [],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "secrets": [],
+            "dnsServers": [],
+            "dnsSearchDomains": [],
+            "extraHosts": [],
+            "dockerSecurityOptions": [],
+            "dockerLabels": {},
+            "ulimits": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "Redash-RedashTaskDefinitionnginxLogGroup71C9B0F8-Cv8rRqvywEW1",
+                    "awslogs-region": "us-east-2",
+                    "awslogs-stream-prefix": "redash"
+                },
+                "secretOptions": []
+            },
+            "systemControls": []
+        },
+        {
+            "name": "Worker",
+            "image": "906503920888.dkr.ecr.us-east-2.amazonaws.com/images:redash_5be8d6aea09e19749468ee7ef94218a3dddccacc",
+            "cpu": 0,
+            "links": [],
+            "portMappings": [],
+            "essential": false,
+            "entryPoint": [],
+            "command": [
+                "worker"
+            ],
+            "environment": [
+                {
+                    "name": "REDASH_WEB_WORKERS",
+                    "value": "2"
+                },
+                {
+                    "name": "WORKERS_COUNT",
+                    "value": "6"
+                },
+                {
+                    "name": "REDASH_LOG_LEVEL",
+                    "value": "DEBUG"
+                },
+                {
+                    "name": "QUEUES",
+                    "value": "emails,queries,scheduled_queries,schemas,default,periodic"
+                },
+                {
+                    "name": "REDASH_MAIL_USERNAME",
+                    "value": "AKIA5GD6YDT4GEI53KZ2"
+                },
+                {
+                    "name": "LOGLEVEL",
+                    "value": "INFO"
+                },
+                {
+                    "name": "REDASH_MAIL_DEFAULT_SENDER",
+                    "value": "redash@masterworks.io"
+                },
+                {
+                    "name": "REDASH_HOST",
+                    "value": "https://redash.masterworks.io"
+                },
+                {
+                    "name": "REDASH_CONTENT_SECURITY_POLICY",
+                    "value": "frame-ancestors *.masterworks.io *.masterworks.com; frame-src *.masterworks.io *.masterworks.com; default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data: blob:; object-src 'none'"
+                },
+                {
+                    "name": "REDASH_GOOGLE_CLIENT_ID",
+                    "value": "598070089142-1qlhegfrsjd08eks5mnon265hh05cs12.apps.googleusercontent.com"
+                },
+                {
+                    "name": "REDASH_MAIL_SERVER",
+                    "value": "email-smtp.us-east-1.amazonaws.com"
+                },
+                {
+                    "name": "SENTRY_ENVIRONMENT",
+                    "value": "production"
+                },
+                {
+                    "name": "PYTHONUNBUFFERED",
+                    "value": "0"
+                },
+                {
+                    "name": "REDASH_SENTRY_DSN",
+                    "value": "https://c83ffe63a0554426a9bf61084f2c2367@o925557.ingest.sentry.io/5874605"
+                },
+                {
+                    "name": "SENTRY_TRACES_SAMPLE_RATE",
+                    "value": "1.0"
+                },
+                {
+                    "name": "REDASH_MAIL_USE_TLS",
+                    "value": "true"
+                },
+                {
+                    "name": "REDASH_DATE_FORMAT",
+                    "value": "YYYY-MM-DD"
+                },
+                {
+                    "name": "REDASH_FRAME_OPTIONS",
+                    "value": "ALLOW-FROM *.masterworks.com"
+                },
+                {
+                    "name": "REDASH_MAIL_PORT",
+                    "value": "587"
+                }
+            ],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "REDASH_DATABASE_URL",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_DATABASE_URL::"
+                },
+                {
+                    "name": "REDASH_GOOGLE_CLIENT_SECRET",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_GOOGLE_CLIENT_SECRET::"
+                },
+                {
+                    "name": "POSTGRES_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:POSTGRES_PASSWORD::"
+                },
+                {
+                    "name": "REDASH_COOKIE_SECRET",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_COOKIE_SECRET::"
+                },
+                {
+                    "name": "REDASH_SECRET_KEY",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_SECRET_KEY::"
+                },
+                {
+                    "name": "REDASH_MAIL_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_MAIL_PASSWORD::"
+                },
+                {
+                    "name": "REDASH_REDIS_URL",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:906503920888:secret:Masterworks/Redash/Production-AoU3iC:REDASH_REDIS_URL::"
+                }
+            ],
+            "dependsOn": [
+                {
+                    "containerName": "Server",
+                    "condition": "START"
+                }
+            ],
+            "dnsServers": [],
+            "dnsSearchDomains": [],
+            "extraHosts": [],
+            "dockerSecurityOptions": [],
+            "dockerLabels": {},
+            "ulimits": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "Redash-RedashTaskDefinitionWorkerLogGroup1709CBA6-OuX1JYJ1dIwD",
+                    "awslogs-region": "us-east-2",
+                    "awslogs-stream-prefix": "redash"
+                },
+                "secretOptions": []
+            },
+            "systemControls": []
+        }
+    ],
+    "family": "RedashRedashTaskDefinition103FC050",
+    "taskRoleArn": "arn:aws:iam::906503920888:role/Redash-RedashTaskDefinitionTaskRole7AF9414C-1DHX0VWUSB1AA",
+    "executionRoleArn": "arn:aws:iam::906503920888:role/Redash-RedashTaskDefinitionExecutionRole47C35CDF-TSE4RFEAKUJK",
+    "networkMode": "awsvpc",
+    "revision": 45,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.17"
+        },
+        {
+            "name": "ecs.capability.increased-task-cpu-limit"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "ecs.capability.container-ordering"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "16384",
+    "memory": "32768",
+    "registeredAt": "2023-01-17T02:49:12.464Z",
+    "registeredBy": "arn:aws:iam::906503920888:user/ddeweerd",
+    "tags": [
+        {
+            "key": "ecs:taskDefinition:createdFrom",
+            "value": "ecs-console-v2"
+        },
+        {
+            "key": "ecs:taskDefinition:stackId",
+            "value": "arn:aws:cloudformation:us-east-2:906503920888:stack/ECS-Console-V2-TaskDefinition-f2420edf-2665-46ad-bd79-1dde1456c0fa/3a2d7a30-9091-11ed-bc59-0293c926a204"
+        }
+    ]
+}

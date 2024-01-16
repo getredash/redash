@@ -41,7 +41,7 @@
                 },
                 {
                     "name": "REDASH_LOG_LEVEL",
-                    "value": "DEBUG"
+                    "value": "INFO"
                 },
                 {
                     "name": "REDASH_MAIL_USERNAME",

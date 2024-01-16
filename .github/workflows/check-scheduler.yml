@@ -1,0 +1,20 @@
+name: Push Development
+
+on:
+    push:
+        branches:
+            - 'development'
+    # schedule:
+    #     - cron: '30 * * * *'
+
+jobs:
+    test_schedule:
+        runs-on: self-hosted
+        env:
+            REDASH_API_KEY: ${{ secrets.REDASH_API_KEY }}
+        steps:
+            - name: checkout repo
+              uses: actions/checkout@v3
+
+            - name: execute python script
+              run: python3 ./cron/checkScheduler.py
