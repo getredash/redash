@@ -1,6 +1,7 @@
 from datetime import datetime
 import requests
 import os
+import sys
 
 api_key = os.environ['REDASH_API_KEY']
 url = f"https://redash.masterworks.com/api/admin/queries/outdated?api_key={api_key}"
@@ -15,8 +16,8 @@ if 'updated_at' in api_response:
     time_difference = current_time - updated_at_datetime
 
     if time_difference.total_seconds() > 10 * 60:
-        exit(1)
-        print("The 'updated_at' value is older than 30 mintues.")
+        sys.exit(1)
+        # print("The 'updated_at' value is older than 30 mintues.")
     else:
         print("The 'updated_at' value is within the last 30 minutes")
 else:
