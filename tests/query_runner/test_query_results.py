@@ -17,7 +17,6 @@ from redash.query_runner.query_results import (
     prepare_parameterized_query,
     replace_query_parameters,
 )
-from redash.utils import json_dumps
 from tests import BaseTestCase
 
 
@@ -235,5 +234,5 @@ class TestGetQueryResult(BaseTestCase):
 
         with mock.patch.object(PostgreSQL, "run_query") as qr:
             query_result_data = {"columns": [], "rows": []}
-            qr.return_value = (json_dumps(query_result_data), None)
+            qr.return_value = (query_result_data, None)
             self.assertEqual(query_result_data, get_query_results(self.factory.user, query.id, False))

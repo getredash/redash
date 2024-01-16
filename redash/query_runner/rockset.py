@@ -8,7 +8,6 @@ from redash.query_runner import (
     BaseSQLQueryRunner,
     register,
 )
-from redash.utils import json_dumps
 
 
 def _get_type(value):
@@ -25,7 +24,7 @@ def _get_type(value):
 
 # The following is here, because Rockset's PyPi package is Python 3 only.
 # Should be removed once we move to Python 3.
-class RocksetAPI(object):
+class RocksetAPI:
     def __init__(self, api_key, api_server, vi_id):
         self.api_key = api_key
         self.api_server = api_server
@@ -121,7 +120,7 @@ class Rockset(BaseSQLQueryRunner):
             columns = []
             for k in rows[0]:
                 columns.append({"name": k, "friendly_name": k, "type": _get_type(rows[0][k])})
-        data = json_dumps({"columns": columns, "rows": rows})
+        data = {"columns": columns, "rows": rows}
         return data, None
 
 

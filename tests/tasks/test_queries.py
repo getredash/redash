@@ -10,7 +10,6 @@ from redash.tasks.queries.execution import (
     enqueue_query,
     execute_query,
 )
-from redash.utils import json_dumps
 from tests import BaseTestCase
 
 
@@ -181,7 +180,7 @@ class QueryExecutorTests(BaseTestCase):
         """
         with patch.object(PostgreSQL, "run_query") as qr:
             query_result_data = {"columns": [], "rows": []}
-            qr.return_value = (json_dumps(query_result_data), None)
+            qr.return_value = (query_result_data, None)
             result_id = execute_query("SELECT 1, 2", self.factory.data_source.id, {})
             self.assertEqual(1, qr.call_count)
             result = models.QueryResult.query.get(result_id)
@@ -193,7 +192,16 @@ class QueryExecutorTests(BaseTestCase):
         """
         q = self.factory.create_query(query_text="SELECT 1, 2", schedule={"interval": 300})
         with patch.object(PostgreSQL, "run_query") as qr:
-            qr.return_value = ([1, 2], None)
+            qr.return_value = (
+                {
+                    "columns": [
+                        {"name": "_col0", "friendly_name": "_col0", "type": "integer"},
+                        {"name": "_col1", "friendly_name": "_col1", "type": "integer"},
+                    ],
+                    "rows": [{"_col0": 1, "_col1": 2}],
+                },
+                None,
+            )
             result_id = execute_query(
                 "SELECT 1, 2",
                 self.factory.data_source.id,
@@ -251,7 +259,16 @@ class QueryExecutorTests(BaseTestCase):
             self.assertEqual(q.schedule_failures, 1)
 
         with patch.object(PostgreSQL, "run_query") as qr:
-            qr.return_value = ([1, 2], None)
+            qr.return_value = (
+                {
+                    "columns": [
+                        {"name": "_col0", "friendly_name": "_col0", "type": "integer"},
+                        {"name": "_col1", "friendly_name": "_col1", "type": "integer"},
+                    ],
+                    "rows": [{"_col0": 1, "_col1": 2}],
+                },
+                None,
+            )
             execute_query(
                 "SELECT 1, 2",
                 self.factory.data_source.id,
@@ -280,7 +297,16 @@ class QueryExecutorTests(BaseTestCase):
             self.assertEqual(q.schedule_failures, 1)
 
         with patch.object(PostgreSQL, "run_query") as qr:
-            qr.return_value = ([1, 2], None)
+            qr.return_value = (
+                {
+                    "columns": [
+                        {"name": "_col0", "friendly_name": "_col0", "type": "integer"},
+                        {"name": "_col1", "friendly_name": "_col1", "type": "integer"},
+                    ],
+                    "rows": [{"_col0": 1, "_col1": 2}],
+                },
+                None,
+            )
             execute_query(
                 "SELECT 1, 2",
                 self.factory.data_source.id,

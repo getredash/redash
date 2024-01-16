@@ -16,7 +16,6 @@ from redash.query_runner import (
     split_sql_statements,
 )
 from redash.settings import cast_int_or_default
-from redash.utils import json_dumps, json_loads
 
 try:
     import pyodbc
@@ -115,16 +114,13 @@ class Databricks(BaseSQLQueryRunner):
                     logger.warning("Truncated result set.")
                     statsd_client.incr("redash.query_runner.databricks.truncated")
                     data["truncated"] = True
-                json_data = json_dumps(data)
                 error = None
             else:
                 error = None
-                json_data = json_dumps(
-                    {
-                        "columns": [{"name": "result", "type": TYPE_STRING}],
-                        "rows": [{"result": "No data was returned."}],
-                    }
-                )
+                data = {
+                    "columns": [{"name": "result", "type": TYPE_STRING}],
+                    "rows": [{"result": "No data was returned."}],
+                }
 
             cursor.close()
         except pyodbc.Error as e:
@@ -132,9 +128,9 @@ class Databricks(BaseSQLQueryRunner):
                 error = str(e.args[1])
             else:
                 error = str(e)
-            json_data = None
+            data = None
 
-        return json_data, error
+        return data, error
 
     def get_schema(self):
         raise NotSupported()
@@ -145,8 +141,6 @@ class Databricks(BaseSQLQueryRunner):
 
         if error is not None:
             self._handle_run_query_error(error)
-
-        results = json_loads(results)
 
         first_column_name = results["columns"][0]["name"]
         return [row[first_column_name] for row in results["rows"]]

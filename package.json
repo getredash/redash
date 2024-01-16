@@ -1,6 +1,6 @@
 {
   "name": "redash-client",
-  "version": "23.12.0-dev",
+  "version": "24.01.0-dev",
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "proxy": "http://vs-proddash01:3000",
@@ -183,6 +183,10 @@
       "client/app/**",
       "viz-lib/**"
     ]
+  },
+  "browser": {
+      "fs": false,
+      "path": false
   },
   "//": "browserslist set to 'Async functions' compatibility",
   "browserslist": [

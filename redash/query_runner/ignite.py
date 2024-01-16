@@ -12,7 +12,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import json_dumps, json_loads
 
 ignite_available = importlib.util.find_spec("pyignite") is not None
 gridgain_available = importlib.util.find_spec("pygridgain") is not None
@@ -80,8 +79,6 @@ class Ignite(BaseSQLQueryRunner):
 
         if error is not None:
             raise Exception("Failed getting schema.")
-
-        results = json_loads(results)
 
         for row in results["rows"]:
             if row["SCHEMA_NAME"] != self.configuration.get("schema", "PUBLIC"):
@@ -160,8 +157,8 @@ class Ignite(BaseSQLQueryRunner):
             )
             logger.debug("Ignite running query: %s", query)
 
-            data = self._parse_results(cursor)
-            json_data = json_dumps({"columns": data[0], "rows": data[1]})
+            result = self._parse_results(cursor)
+            data = {"columns": result[0], "rows": result[1]}
             error = None
 
         except (KeyboardInterrupt, JobTimeoutException):
@@ -171,7 +168,7 @@ class Ignite(BaseSQLQueryRunner):
             if connection:
                 connection.close()
 
-        return json_data, error
+        return data, error
 
 
 register(Ignite)

@@ -12,7 +12,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -100,8 +99,6 @@ class Trino(BaseQueryRunner):
             if error is not None:
                 self._handle_run_query_error(error)
 
-            results = json_loads(results)
-
             for row in results["rows"]:
                 table_name = f'{catalog}.{row["table_schema"]}.{row["table_name"]}'
 
@@ -121,8 +118,6 @@ class Trino(BaseQueryRunner):
 
         if error is not None:
             self._handle_run_query_error(error)
-
-        results = json_loads(results)
 
         catalogs = []
         for row in results["rows"]:
@@ -158,10 +153,9 @@ class Trino(BaseQueryRunner):
             columns = self.fetch_columns([(c[0], TRINO_TYPES_MAPPING.get(c[1], None)) for c in description])
             rows = [dict(zip([c["name"] for c in columns], r)) for r in results]
             data = {"columns": columns, "rows": rows}
-            json_data = json_dumps(data)
             error = None
         except DatabaseError as db:
-            json_data = None
+            data = None
             default_message = "Unspecified DatabaseError: {0}".format(str(db))
             if isinstance(db.args[0], dict):
                 message = db.args[0].get("failureInfo", {"message", None}).get("message")
@@ -172,7 +166,7 @@ class Trino(BaseQueryRunner):
             cursor.cancel()
             raise
 
-        return json_data, error
+        return data, error
 
 
 register(Trino)

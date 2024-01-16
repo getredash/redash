@@ -1,13 +1,13 @@
 import functools
 
 from flask_sqlalchemy import BaseQuery, SQLAlchemy
-from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import object_session
 from sqlalchemy.pool import NullPool
 from sqlalchemy_searchable import SearchQueryMixin, make_searchable, vectorizer
 
 from redash import settings
-from redash.utils import json_dumps
+from redash.utils import json_dumps, json_loads
 
 
 class RedashSQLAlchemy(SQLAlchemy):
@@ -28,7 +28,10 @@ class RedashSQLAlchemy(SQLAlchemy):
         return options
 
 
-db = RedashSQLAlchemy(session_options={"expire_on_commit": False})
+db = RedashSQLAlchemy(
+    session_options={"expire_on_commit": False},
+    engine_options={"json_serializer": json_dumps, "json_deserializer": json_loads},
+)
 # Make sure the SQLAlchemy mappers are all properly configured first.
 # This is required by SQLAlchemy-Searchable as it adds DDL listeners
 # on the configuration phase of models.
@@ -50,7 +53,7 @@ def integer_vectorizer(column):
     return db.func.cast(column, db.Text)
 
 
-@vectorizer(postgresql.UUID)
+@vectorizer(UUID)
 def uuid_vectorizer(column):
     return db.func.cast(column, db.Text)
 
@@ -68,7 +71,7 @@ def gfk_type(cls):
     return cls
 
 
-class GFKBase(object):
+class GFKBase:
     """
     Compatibility with 'generic foreign key' approach Peewee used.
     """
