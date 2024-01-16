@@ -15,11 +15,11 @@ if 'updated_at' in api_response:
     current_time = datetime.utcnow()
     time_difference = current_time - updated_at_datetime
 
-    if time_difference.total_seconds() > 10 * 60:
-        print("The 'updated_at' value is older than 30 mintues.")
-    else:
+    if time_difference.total_seconds() > 15 * 60:
+        print("The 'updated_at' value is older than 15 mintues.")
         sys.exit(1)
-        print("The 'updated_at' value is within the last 30 minutes")
+    else:
+        print("The 'updated_at' value is within the last 15 minutes")
 else:
     print('Error: There is no updated_at')
 
