@@ -9,7 +9,7 @@ on:
 
 jobs:
     test_schedule:
-        runs-on: self-hosted
+        runs-on: ubuntu-latest
         env:
             REDASH_API_KEY: ${{ secrets.REDASH_API_KEY }}
         steps:
