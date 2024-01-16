@@ -64,7 +64,7 @@ const ProvideData = () => {
       "state": 1, // Set State to Value 1 -> "Open"
       "KeepUpdated": isChecked 
     }
-    axios.post('http://vs-proddash-dat/api/queue', postData).then((response) => {
+    axios.post('https://vs-proddash-dat/api/queue', postData).then((response) => {
       if (response.status === 200) {
         openSuccessNotification();
       } else {

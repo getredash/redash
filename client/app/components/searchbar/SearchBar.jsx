@@ -5,7 +5,7 @@ export const SearchBox = ({ setResults }) => {
   const [input, setInput] = useState("");
 
   const fetchData = (value) => {
-    fetch("http://vs-proddash-dat/api/objects")
+    fetch("https://vs-proddash-dat/api/objects")
       .then((response) => response.json())
       .then((json) => {
         const results = json.filter((data) => {
