@@ -3,6 +3,7 @@ from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy_utils import EncryptedType
 
+from redash.utils import json_dumps, json_loads
 from redash.utils.configuration import ConfigurationContainer
 
 from .base import db
@@ -26,6 +27,22 @@ class EncryptedConfiguration(EncryptedType):
         return ConfigurationContainer.from_json(
             super(EncryptedConfiguration, self).process_result_value(value, dialect)
         )
+
+
+# Utilized for cases when JSON size is bigger than JSONB (255MB) or JSON (10MB) limit
+class JSONText(TypeDecorator):
+    impl = db.Text
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+
+        return json_dumps(value)
+
+    def process_result_value(self, value, dialect):
+        if not value:
+            return value
+        return json_loads(value)
 
 
 class MutableDict(Mutable, dict):

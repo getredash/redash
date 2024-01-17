@@ -59,12 +59,6 @@ def upgrade():
         type_=JSONB(astext_type=sa.Text()),
         postgresql_using='layout::jsonb',
         server_default=sa.text("'{}'::jsonb"))
-    op.alter_column('query_results', 'data',
-        existing_type=sa.Text(),
-        type_=JSONB(astext_type=sa.Text()),
-        nullable=True,
-        postgresql_using='data::jsonb',
-        server_default=sa.text("'{}'::jsonb"))
     op.alter_column('changes', 'change',
         existing_type=JSON(astext_type=sa.Text()),
         type_=JSONB(astext_type=sa.Text()),
@@ -123,11 +117,6 @@ def downgrade():
         existing_type=JSONB(astext_type=sa.Text()),
         type_=sa.Text(),
         postgresql_using='layout::text',
-        server_default=sa.text("'{}'::text"))
-    op.alter_column('query_results', 'data',
-        existing_type=JSONB(astext_type=sa.Text()),
-        type_=sa.Text(),
-        postgresql_using='data::text',
         server_default=sa.text("'{}'::text"))
     op.alter_column('changes', 'change',
         existing_type=JSONB(astext_type=sa.Text()),
