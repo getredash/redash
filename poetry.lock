@@ -4161,18 +4161,18 @@ jupyter = ["ipywidgets (>=7.5.1,<9)"]
 
 [[package]]
 name = "rq"
-version = "1.9.0"
+version = "1.15.1"
 description = "RQ is a simple, lightweight, library for creating background jobs, and processing them."
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.6"
 files = [
-    {file = "rq-1.9.0-py2.py3-none-any.whl", hash = "sha256:7af1e9706dbe6f1eac16dffacd8271ec27c1369950941f14dab6bb08a62979d7"},
-    {file = "rq-1.9.0.tar.gz", hash = "sha256:bdfef943de838955e474cfd0e25b9b8c53ed4b9c361fe4bb11cf56d17a87acc5"},
+    {file = "rq-1.15.1-py2.py3-none-any.whl", hash = "sha256:6e243d8d9c4af4686ded4b01b25ea1ff4bac4fc260b02638fbe9c8c17b004bd1"},
+    {file = "rq-1.15.1.tar.gz", hash = "sha256:1f49f4ac1a084044bb8e95b3f305c0bf17e55618b08c18e0b60c080f12d6f008"},
 ]
 
 [package.dependencies]
 click = ">=5.0.0"
-redis = ">=3.5.0"
+redis = ">=4.0.0"
 
 [[package]]
 name = "rq-scheduler"
@@ -5331,4 +5331,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "e8bd51251218101afab4a1081b554c4c5d429b8e92a8193f807712d85bb5a0bf"
+content-hash = "0a0790fa05ea25294cf3961d61c12fee2162bc787163689a3ba8df2424ccbb03"
