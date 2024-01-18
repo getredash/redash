@@ -48,6 +48,7 @@ from redash.models.parameterized_query import (
 from redash.models.types import (
     Configuration,
     EncryptedConfiguration,
+    JSONText,
     MutableDict,
     MutableList,
     json_cast_property,
@@ -315,7 +316,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     data_source = db.relationship(DataSource, backref=backref("query_results"))
     query_hash = Column(db.String(32), index=True)
     query_text = Column("query", db.Text)
-    data = Column(MutableDict.as_mutable(JSONB), nullable=True)
+    data = Column(JSONText, nullable=True)
     runtime = Column(DOUBLE_PRECISION)
     retrieved_at = Column(db.DateTime(True))
 
