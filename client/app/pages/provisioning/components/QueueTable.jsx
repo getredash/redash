@@ -31,7 +31,7 @@ const openErrorNotification = () => {
  useEffect(() => {
    const fetchdata = async () => {
        const response = await fetch(
-         'https://vs-proddash-dat/api/queue');
+         'https://vs-proddash-dat.ad.vetter-group.de/api/queue');
           const data = await response.json();
           setQueue(data);
    }
@@ -40,9 +40,9 @@ const openErrorNotification = () => {
 
 const handleDelete = async (key) => {
   try {
-    await axios.delete(`https://vs-proddash-dat/api/queue/id=${key}`);
+    await axios.delete(`https://vs-proddash-dat.ad.vetter-group.de/api/queue/id=${key}`);
     // Refresh the table data after successful deletion
-    const response = await fetch('https://vs-proddash-dat/api/queue');
+    const response = await fetch('https://vs-proddash-dat.ad.vetter-group.de/api/queue');
     const data = await response.json();
     setQueue(data);
     openSuccessNotification();

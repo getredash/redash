@@ -15,7 +15,7 @@ const SelectComponent = ({onChange}) => {
       setLoading(true);
 
       try {
-        const response = await axios.get('https://vs-proddash-dat/api/objects');
+        const response = await axios.get('https://vs-proddash-dat.ad.vetter-group.de/api/objects');
         setOptions(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
