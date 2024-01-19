@@ -46,7 +46,6 @@ jobs:
           echo "AWS_REGION="${{ vars.AWS_REGION }} >> $GITHUB_ENV
           echo "ECS_CLUSTER="${{ vars.ECS_CLUSTER }} >> $GITHUB_ENV
           echo "ECS_SERVICE="${{ vars.ECS_SERVICE }} >> $GITHUB_ENV
-          echo "TASK_DEFINITION_NAME="${{ vars.TASK_DEFINITION_NAME }} >> $GITHUB_ENV
 
       - uses: actions/setup-node@v2-beta
         with:
@@ -80,32 +79,61 @@ jobs:
         if: always()
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
 
-      # - name: Download task definition
-      #   run: |
-      #     pwd
-      #     aws ecs describe-task-definition --task-definition $TASK_DEFINITION_NAME --query taskDefinition > task-definition.json
+        ### Download and Update Server Task Definition
+      - name: Download Server Task Definition
+        run: |
+          pwd
+          aws ecs describe-task-definition --task-definition RedashDevelopmentV2Server --query taskDefinition > server-task-definition.json
 
       - name: Add Image ID to Server Container
         id: render-server-container
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: development-task-def.json
+          task-definition: server-task-definition.json
           container-name: Server
           image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS Server task definition Development
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-server-container.outputs.task-definition }}
+          service: Server
+          cluster: ${{ vars.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+        ### Download and Update Scheduler Task Definition
+      - name: Download Scheduler Task Definition
+        run: |
+          pwd
+          aws ecs describe-task-definition --task-definition RedashDevelopmentV2Scheduler --query taskDefinition > scheduler-task-definition.json
 
       - name: Modify Amazon ECS task definition with Scheduler Container
         id: render-scheduler-container
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ steps.render-server-container.outputs.task-definition }}
+          task-definition: scheduler-task-definition.json
           container-name: Scheduler
           image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS Server task definition Development
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-scheduler-container.outputs.task-definition }}
+          service: Scheduler
+          cluster: ${{ vars.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+        ### Download and Update Scheduler Task Definition
+      - name: Download Worker Task Definition
+        run: |
+          pwd
+          aws ecs describe-task-definition --task-definition RedashDevelopmentV2Workers --query taskDefinition > workers-task-definition.json
 
       - name: Modify Amazon ECS task definition with AdHocWorker Container
         id: render-adhocworker-container
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ steps.render-scheduler-container.outputs.task-definition }}
+          task-definition: workers-task-definition.json
           container-name: AdHocWorker
           image: ${{ steps.build-image.outputs.image }}
 
@@ -118,7 +146,6 @@ jobs:
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Modify Amazon ECS task definition with ScheduledWorker Container for Production
-        if: github.ref == 'refs/heads/production'
         id: render-scheduledworker-container
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
@@ -126,31 +153,11 @@ jobs:
           container-name: ScheduledWorker
           image: ${{ steps.build-image.outputs.image }}
 
-      - name: Stop ECS TASK
-        continue-on-error: true
-        run: |
-          TASK_ARNS=$(aws ecs list-tasks --cluster $ECS_CLUSTER --query 'taskArns' --output text)
-
-          for TASK_ARN in $TASK_ARNS; do
-            echo "Attempting to Stop $TASK_ARN"
-            aws ecs stop-task --cluster $ECS_CLUSTER --task $TASK_ARN
-          done
-
-      - name: Deploy Amazon ECS task definition Development
-        if: github.ref == 'refs/heads/development'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container.outputs.task-definition }}
-          service: ${{ vars.ECS_SERVICE }}
-          cluster: ${{ vars.ECS_CLUSTER }}
-          wait-for-service-stability: true
-
-      - name: Deploy Amazon ECS task definition Production
-        if: github.ref == 'refs/heads/production'
+      - name: Deploy Amazon ECS Server task definition Development
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.render-scheduledworker-container.outputs.task-definition }}
-          service: ${{ vars.ECS_SERVICE }}
+          service: Workers
           cluster: ${{ vars.ECS_CLUSTER }}
           wait-for-service-stability: true
 
