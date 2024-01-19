@@ -6,11 +6,12 @@ on:
   pull_request:
 env:
   NODE_VERSION: 16.20.1
+  REGISTRY_IMAGE: redash/redash
 jobs:
   backend-lint:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - uses: actions/setup-python@v4
@@ -29,21 +30,24 @@ jobs:
       COMPOSE_DOCKER_CLI_BUILD: 1
       DOCKER_BUILDKIT: 1
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - name: Build Docker Images
         run: |
           set -x
-          docker compose build --build-arg install_groups="main,all_ds,dev" --build-arg skip_frontend_build=true
+          mkdir client/dist
+          touch client/dist/multi_org.html
+          touch client/dist/index.html
+          docker compose build --build-arg install_groups="main,all_ds,dev"
           docker compose up -d
           sleep 10
       - name: Create Test Database
-        run: docker compose -p redash run --rm postgres psql -h postgres -U postgres -c "create database tests;"
+        run: docker compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - name: List Enabled Query Runners
-        run: docker compose -p redash run --rm redash manage ds list_types
+        run: docker compose run --rm redash manage ds list_types
       - name: Run Tests
-        run: docker compose -p redash run --name tests redash tests --junitxml=junit.xml --cov-report=xml --cov=redash --cov-config=.coveragerc tests/
+        run: docker compose run --name tests redash tests --junitxml=junit.xml --cov-report=xml --cov=redash --cov-config=.coveragerc tests/
       - name: Copy Test Results
         run: |
           mkdir -p /tmp/test-results/unit-tests
@@ -65,10 +69,10 @@ jobs:
   frontend-lint:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
@@ -88,17 +92,18 @@ jobs:
     runs-on: ubuntu-22.04
     needs: frontend-lint
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
       - name: Install Dependencies
         run: |
           npm install --global --force yarn@1.22.19
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+          yarn cache clean
+          yarn --frozen-lockfile --network-concurrency 1
       - name: Run App Tests
         run: yarn test
       - name: Run Visualizations Tests
@@ -111,16 +116,18 @@ jobs:
     env:
       COMPOSE_FILE: .ci/docker-compose.cypress.yml
       COMPOSE_PROJECT_NAME: cypress
+      COMPOSE_DOCKER_CLI_BUILD: 1
+      DOCKER_BUILDKIT: 1
       PERCY_TOKEN_ENCODED: ZGRiY2ZmZDQ0OTdjMzM5ZWE0ZGQzNTZiOWNkMDRjOTk4Zjg0ZjMxMWRmMDZiM2RjOTYxNDZhOGExMjI4ZDE3MA==
       CYPRESS_PROJECT_ID_ENCODED: OTI0Y2th
       CYPRESS_RECORD_KEY_ENCODED: YzA1OTIxMTUtYTA1Yy00NzQ2LWEyMDMtZmZjMDgwZGI2ODgx
       CYPRESS_INSTALL_BINARY: 0
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
@@ -131,10 +138,13 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install --global --force yarn@1.22.19
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
-      - name: Setup Redash Server
+          yarn cache clean
+          yarn --frozen-lockfile --network-concurrency 1
+      - name: Start Redash Server
         run: |
           set -x
+          docker compose up db-init
+          yarn build
           yarn cypress build
           yarn cypress start -- --skip-db-seed
           docker compose run cypress yarn cypress db-seed
@@ -150,6 +160,11 @@ jobs:
         with:
           name: coverage
           path: coverage
+      - uses: actions/upload-artifact@v3
+        with:
+          name: frontend
+          path: client/dist
+          retention-days: 1
 
   build-skip-check:
     runs-on: ubuntu-22.04
@@ -176,38 +191,49 @@ jobs:
 
   build-docker-image:
     runs-on: ubuntu-22.04
+    outputs:
+      version: ${{ steps.version.outputs.VERSION_TAG }}
     needs:
       - backend-unit-tests
       - frontend-unit-tests
       - frontend-e2e-tests
       - build-skip-check
     if: needs.build-skip-check.outputs.skip == 'false'
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm64
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - uses: actions/setup-node@v3
+      - uses: actions/download-artifact@v3
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
-      - name: Install Dependencies
-        run: |
-          npm install --global --force yarn@1.22.19
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
-
+          name: frontend
       - name: Set up QEMU
         timeout-minutes: 1
-        uses: docker/setup-qemu-action@v2.2.0
-
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
+        uses: docker/setup-buildx-action@v3
       - name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
-
+      - name: Build and push preview image to Docker Hub
+        uses: docker/build-push-action@v5
+        id: build
+        with:
+          push: true
+          context: .
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: ${{ matrix.platform }}
+          outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
+        env:
+          DOCKER_CONTENT_TRUST: true
       - name: Bump version
         id: version
         run: |
@@ -216,23 +242,54 @@ jobs:
           VERSION=$(jq -r .version package.json)
           VERSION_TAG="${VERSION}.b${GITHUB_RUN_ID}.${GITHUB_RUN_NUMBER}"
           echo "VERSION_TAG=$VERSION_TAG" >> "$GITHUB_OUTPUT"
-
-      - name: Build and push preview image to Docker Hub
-        uses: docker/build-push-action@v4
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+      - name: Upload digest
+        uses: actions/upload-artifact@v3
         with:
-          push: true
-          tags: |
-            redash/redash:preview
-            redash/preview:${{ steps.version.outputs.VERSION_TAG }}
-          context: .
-          build-args: |
-            test_all_deps=true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          platforms: linux/amd64
-        env:
-          DOCKER_CONTENT_TRUST: true
+          name: digests
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
 
-      - name: "Failure: output container logs to console"
-        if: failure()
-        run: docker compose logs
+  publish-docker-manifest:
+    runs-on: ubuntu-22.04
+    needs:
+      - build-skip-check
+      - build-docker-image
+    if: needs.build-skip-check.outputs.skip == 'false'
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v3
+        with:
+          name: digests
+          path: /tmp/digests
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY_IMAGE }}
+          tags: preview
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+      - name: Create manifest list and push
+        working-directory: /tmp/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+          $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }}
+      - name: Push image to redash/preview
+        run: |
+          docker buildx imagetools create \
+            --tag redash/preview:${{ needs.build-docker-image.outputs.version }} \
+            ${{ env.REGISTRY_IMAGE }}:preview
