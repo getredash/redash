@@ -3,12 +3,13 @@
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
-const ManifestPlugin = require("webpack-manifest-plugin");
+const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
+const ESLintPlugin = require("eslint-webpack-plugin")
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 
 const path = require("path");
@@ -75,11 +76,13 @@ const config = {
     filename: isProduction ? "[name].[chunkhash].js" : "[name].js",
     publicPath: staticPath
   },
-  node: {
-    fs: "empty",
-    path: "empty"
-  },
   resolve: {
+    fallback: {
+      path: false,
+      fs: false,
+      url: false, //require.resolve("url"),
+      util: false, //require.resolve("util")
+    },
     symlinks: false,
     extensions: [".js", ".jsx", ".ts", ".tsx"],
     alias: {
@@ -109,7 +112,7 @@ const config = {
       new MiniCssExtractPlugin({
         filename: "[name].[chunkhash].css"
       }),
-    new ManifestPlugin({
+    new WebpackManifestPlugin({
       fileName: "asset-manifest.json",
       publicPath: ""
     }),
@@ -122,6 +125,7 @@ const config = {
         { from: "client/app/assets/fonts", to: "fonts/" }
       ],
     }),
+    new ESLintPlugin(),
     isHotReloadingEnabled && new ReactRefreshWebpackPlugin({ overlay: false })
   ].filter(Boolean),
   optimization: {
@@ -144,8 +148,7 @@ const config = {
                 isHotReloadingEnabled && require.resolve("react-refresh/babel")
               ].filter(Boolean)
             }
-          },
-          require.resolve("eslint-loader")
+          }
         ]
       },
       {

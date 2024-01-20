@@ -32,7 +32,7 @@ function validateColor(value: any, callback: any, prefix = "#") {
   }
 }
 
-type OwnProps = {
+type Props = {
   color?: string;
   presetColors?:
     | string[]
@@ -44,24 +44,22 @@ type OwnProps = {
   onPressEnter?: (...args: any[]) => any;
 };
 
-type Props = OwnProps & typeof Input.defaultProps;
-
-export default function Input({ color, presetColors, presetColumns, onChange, onPressEnter }: Props) {
+export default function Input(props: Props) {
   const [inputValue, setInputValue] = useState("");
   const [isInputFocused, setIsInputFocused] = useState(false);
 
-  const presets = preparePresets(presetColors, presetColumns);
+  const presets = preparePresets(props.presetColors, props.presetColumns);
 
   function handleInputChange(value: any) {
     setInputValue(value);
-    validateColor(value, onChange);
+    validateColor(value, props.onChange);
   }
 
   useEffect(() => {
     if (!isInputFocused) {
-      validateColor(color, setInputValue, "");
+      validateColor(props.color, setInputValue, "");
     }
-  }, [color, isInputFocused]);
+  }, [props.color, isInputFocused]);
 
   return (
     <React.Fragment>
@@ -69,7 +67,7 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
         <div className="color-picker-input-swatches" key={`preset-row-${index}`}>
           {map(group, ([title, value]) => (
             // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
-            <Swatch key={value} color={value} title={title} size={30} onClick={() => validateColor(value, onChange)} />
+            <Swatch key={value} color={value} title={title} size={30} onClick={() => validateColor(value, props.onChange)} />
           ))}
         </div>
       ))}
@@ -81,7 +79,7 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
           onChange={e => handleInputChange(e.target.value)}
           onFocus={() => setIsInputFocused(true)}
           onBlur={() => setIsInputFocused(false)}
-          onPressEnter={onPressEnter}
+          onPressEnter={props.onPressEnter}
         />
       </div>
     </React.Fragment>

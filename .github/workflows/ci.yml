@@ -7,7 +7,7 @@ on:
     branches:
       - master
 env:
-  NODE_VERSION: 16.20.1
+  NODE_VERSION: 18
 jobs:
   backend-lint:
     runs-on: ubuntu-22.04

@@ -134,7 +134,9 @@ export default function initChart(container: any, options: any, data: any, addit
                   formatSimpleTemplate(options.linkFormat, templateValues).replace(/{{\s*([^\s]+?)\s*}}/g, () => ''),
                   options.linkOpenNewTab);
               } catch (error) {
-                console.error('Click error: [%s]', error.message, { error });
+                if (error instanceof Error) {
+                  console.error('Click error: [%s]', error.message, { error });
+                }
               }
             }
           }));

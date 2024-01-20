@@ -1,4 +1,4 @@
-import { find, flatten, each } from "lodash";
+import { flatten, each } from "lodash";
 import PropTypes from "prop-types";
 
 import boxPlotVisualization from "./box-plot";
@@ -51,7 +51,7 @@ const VisualizationConfig: PropTypes.Requireable<VisualizationConfig> = PropType
   maxColumns: PropTypes.number,
 });
 
-const registeredVisualizations = {};
+const registeredVisualizations: Map<string, VisualizationConfig> = new Map();
 
 function validateVisualizationConfig(config: any) {
   const typeSpecs = { config: VisualizationConfig };
@@ -97,19 +97,17 @@ each(
 
 export default registeredVisualizations;
 
-export function getDefaultVisualization() {
+export function getDefaultVisualization(): VisualizationConfig {
   // return any visualization explicitly marked as default, or any non-deprecated otherwise
+  const visualizations: VisualizationConfig[] = Array.from(registeredVisualizations.values())
   return (
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'isDefault' does not exist on type 'never... Remove this comment to see the full error message
-    find(registeredVisualizations, visualization => visualization.isDefault) ||
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'isDeprecated' does not exist on type 'ne... Remove this comment to see the full error message
-    find(registeredVisualizations, visualization => !visualization.isDeprecated)
-  );
+    visualizations.find((v: VisualizationConfig) => v.isDefault) ||
+    visualizations.find((v: VisualizationConfig) => !v.isDeprecated)
+  )!;
 }
 
 export function newVisualization(type = null, options = {}) {
-  // @ts-expect-error ts-migrate(2538) FIXME: Type 'null' cannot be used as an index type.
-  const visualization = type ? registeredVisualizations[type] : getDefaultVisualization();
+  const visualization: VisualizationConfig = type ? registeredVisualizations[type] : getDefaultVisualization();
   return {
     type: visualization.type,
     name: visualization.name,

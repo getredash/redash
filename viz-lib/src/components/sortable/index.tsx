@@ -21,8 +21,6 @@ type OwnProps = {
   children?: React.ReactNode;
 };
 
-type Props = OwnProps & typeof SortableContainer.defaultProps;
-
 export function SortableContainer({ disabled, containerComponent, containerProps, children, ...wrapperProps }: Props) {
   const containerRef = useRef();
   const [isDragging, setIsDragging] = useState(false);
@@ -95,3 +93,5 @@ SortableContainer.defaultProps = {
   containerProps: {},
   children: null,
 };
+
+type Props = OwnProps & typeof SortableContainer.defaultProps;

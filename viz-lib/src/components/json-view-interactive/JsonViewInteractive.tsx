@@ -95,8 +95,6 @@ type OwnJsonViewInteractiveProps = {
   value?: any;
 };
 
-type JsonViewInteractiveProps = OwnJsonViewInteractiveProps & typeof JsonViewInteractive.defaultProps;
-
 export default function JsonViewInteractive({ value }: JsonViewInteractiveProps) {
   return (
     <span className="jvi-item jvi-root">
@@ -109,3 +107,5 @@ JsonViewInteractive.defaultProps = {
   // `null` will be rendered as "null" because it is a valid JSON value, so use `undefined` for no value
   value: undefined,
 };
+
+type JsonViewInteractiveProps = OwnJsonViewInteractiveProps & typeof JsonViewInteractive.defaultProps;

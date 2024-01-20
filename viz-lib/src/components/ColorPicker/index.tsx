@@ -16,7 +16,7 @@ import { validateColor } from "./utils";
 
 import "./index.less";
 
-type OwnProps = {
+type Props = {
   color?: string;
   placement?:
     | "top"
@@ -38,36 +38,23 @@ type OwnProps = {
       };
   presetColumns?: number;
   interactive?: boolean;
-  triggerProps?: any;
+  triggerProps?: object;
   children?: React.ReactNode;
   addonBefore?: React.ReactNode;
   addonAfter?: React.ReactNode;
   onChange?: (...args: any[]) => any;
 };
 
-type Props = OwnProps & typeof ColorPicker.defaultProps;
-
-export default function ColorPicker({
-  color,
-  placement,
-  presetColors,
-  presetColumns,
-  interactive,
-  children,
-  onChange,
-  triggerProps,
-  addonBefore,
-  addonAfter,
-}: Props) {
+export default function ColorPicker(props: Props) {
   const [visible, setVisible] = useState(false);
-  const validatedColor = useMemo(() => validateColor(color), [color]);
+  const validatedColor = useMemo(() => validateColor(props.color), [props.color]);
   const [currentColor, setCurrentColor] = useState("");
 
   function handleApply() {
     setVisible(false);
-    if (!interactive) {
+    if (!props.interactive) {
       // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
-      onChange(currentColor);
+      props.onChange(currentColor);
     }
   }
 
@@ -76,7 +63,7 @@ export default function ColorPicker({
   }
 
   const actions = [];
-  if (!interactive) {
+  if (!props.interactive) {
     actions.push(
       <Tooltip key="cancel" title="Cancel">
         <CloseOutlinedIcon onClick={handleCancel} />
@@ -91,9 +78,9 @@ export default function ColorPicker({
 
   function handleInputChange(newColor: any) {
     setCurrentColor(newColor);
-    if (interactive) {
+    if (props.interactive) {
       // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
-      onChange(newColor);
+      props.onChange(newColor);
     }
   }
 
@@ -106,10 +93,10 @@ export default function ColorPicker({
 
   return (
     <span className="color-picker-wrapper">
-      {addonBefore}
+      {props.addonBefore}
       <Popover
         arrowPointAtCenter
-        overlayClassName={`color-picker ${interactive ? "color-picker-interactive" : "color-picker-with-actions"}`}
+        overlayClassName={`color-picker ${props.interactive ? "color-picker-interactive" : "color-picker-with-actions"}`}
         // @ts-expect-error ts-migrate(2322) FIXME: Type '{ "--color-picker-selected-color": string; }... Remove this comment to see the full error message
         overlayStyle={{ "--color-picker-selected-color": currentColor }}
         content={
@@ -125,32 +112,29 @@ export default function ColorPicker({
             }}
             actions={actions}>
             <ColorInput
-              // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
               color={currentColor}
-              presetColors={presetColors}
-              presetColumns={presetColumns}
-              // @ts-expect-error ts-migrate(2322) FIXME: Type '(newColor: any) => void' is not assignable t... Remove this comment to see the full error message
+              presetColors={props.presetColors}
+              presetColumns={props.presetColumns}
               onChange={handleInputChange}
-              // @ts-expect-error ts-migrate(2322) FIXME: Type '() => void' is not assignable to type 'never... Remove this comment to see the full error message
               onPressEnter={handleApply}
             />
           </Card>
         }
         trigger="click"
-        placement={placement}
+        placement={props.placement}
         visible={visible}
         onVisibleChange={setVisible}>
-        {children || (
+        {props.children || (
           <Swatch
             color={validatedColor}
             size={30}
-            {...triggerProps}
+            {...(props.triggerProps as object)}
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'className' does not exist on type 'never... Remove this comment to see the full error message
-            className={cx("color-picker-trigger", triggerProps.className)}
+            className={cx("color-picker-trigger", props.triggerProps.className)}
           />
         )}
       </Popover>
-      {addonAfter}
+      {props.addonAfter}
     </span>
   );
 }

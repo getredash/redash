@@ -5,7 +5,9 @@ import redashIconUrl from "@/assets/images/redash_icon_small.png";
 
 const logger = debug("redash:notifications");
 
+/* eslint-disable-next-line */
 const Notification = window.Notification || null;
+
 if (!Notification) {
   logger("HTML5 notifications are not supported.");
 }

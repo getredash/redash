@@ -1,7 +1,7 @@
 import { isArray, findKey } from "lodash";
 import tinycolor from "tinycolor2";
 
-export function validateColor(value: any, fallback = null) {
+export function validateColor(value: any, fallback = undefined) {
   value = tinycolor(value);
   return value.isValid() ? "#" + value.toHex().toUpperCase() : fallback;
 }

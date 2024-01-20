@@ -15,7 +15,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
   // While geoJson is loading - show last selected field in select
   const targetFields = isLoadingGeoJson ? filter([options.targetField], isString) : geoJsonFields;
 
-  const fieldNames = get(visualizationsSettings, `choroplethAvailableMaps.${options.mapType}.fieldNames`, {});
+  const fieldNames: Map<string, string> = get(visualizationsSettings, `choroplethAvailableMaps.${options.mapType}.fieldNames`, new Map());
 
   const handleMapChange = useCallback(
     mapType => {
@@ -75,7 +75,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
               {map(targetFields, field => (
                 // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
                 <Select.Option key={field} data-test={`Choropleth.Editor.TargetField.${field}`}>
-                  {fieldNames[field] || field}
+                  {fieldNames.get(field) || field}
                   {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
                 </Select.Option>
               ))}

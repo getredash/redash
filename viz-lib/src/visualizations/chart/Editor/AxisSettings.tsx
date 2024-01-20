@@ -27,8 +27,6 @@ type OwnProps = {
   onChange?: (...args: any[]) => any;
 };
 
-type Props = OwnProps & typeof AxisSettings.defaultProps;
-
 export default function AxisSettings({ id, options, features, onChange }: Props) {
   function optionsChanged(newOptions: any) {
     onChange(merge({}, options, newOptions));
@@ -141,3 +139,5 @@ AxisSettings.defaultProps = {
   features: {},
   onChange: () => {},
 };
+
+type Props = OwnProps & typeof AxisSettings.defaultProps;

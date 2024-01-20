@@ -4,22 +4,16 @@
       "@babel/preset-env",
       {
         "exclude": ["@babel/plugin-transform-async-to-generator", "@babel/plugin-transform-arrow-functions"],
-        "corejs": "2",
-        "useBuiltIns": "usage"
+        "useBuiltIns": "usage",
+        "corejs": "3"
       }
     ],
     "@babel/preset-react",
     "@babel/preset-typescript"
   ],
   "plugins": [
-    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-transform-class-properties",
     "@babel/plugin-transform-object-assign",
-    [
-      "babel-plugin-transform-builtin-extend",
-      {
-        "globals": ["Error"]
-      }
-    ]
   ],
   "env": {
     "test": {
