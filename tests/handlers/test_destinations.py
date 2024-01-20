@@ -104,6 +104,7 @@ def test_discord_notify_calls_requests_post():
         "custom_subject": "Test custom subject",
         "custom_body": "Test custom body",
     }
+    alert.custom_body = alert.options["custom_body"]
     alert.render_template = mock.Mock(return_value={"Rendered": "template"})
     query = mock.Mock()
     query.id = 1
