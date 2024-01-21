@@ -2245,10 +2245,12 @@
   resolved "https://registry.yarnpkg.com/@types/source-list-map/-/source-list-map-0.1.2.tgz#0078836063ffaf17412349bba364087e0ac02ec9"
   integrity sha512-K5K+yml8LTo9bWJI/rECfIPrGgxdpeNbj+d53lwN4QjW1MCwlkhUms+gtdzigTeUyBr09+u8BwOIY3MXvHdcsA==
 
-"@types/sql-formatter@^2.3.0":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@types/sql-formatter/-/sql-formatter-2.3.0.tgz#d2584c54f865fd57a7fe7e88ee8ed3623b23da33"
-  integrity sha512-Xh9kEOaKWhm3vYD5lUjYFFiSfpN4y3/iQCJUAVwFaQ1rVvHs4WXTa5C8E7gyF3kxwsMS8KgttW7WBAPtFlsvAg==
+"@types/sql-formatter@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@types/sql-formatter/-/sql-formatter-4.0.1.tgz#3c15dc3e50335e7909d6c01f1a4fd66da05e82a3"
+  integrity sha512-WLSHjarjiUz4GtQivyaDbagqJNHcFA1XOAvrgXmWLl1OeTCP0RuiFB1PtUIH4ArOqZX1Hk6ANzABWe6nw9nKpg==
+  dependencies:
+    sql-formatter "*"
 
 "@types/stack-utils@^1.0.1":
   version "1.0.1"
@@ -13906,7 +13908,7 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==
 
-sql-formatter@^15.0.2:
+sql-formatter@*, sql-formatter@^15.0.2:
   version "15.0.2"
   resolved "https://registry.yarnpkg.com/sql-formatter/-/sql-formatter-15.0.2.tgz#302b8846c347d5a3d1dd858306727cfeb36d7d0c"
   integrity sha512-B8FTRc1dhb36lfuwSdiLhwrhkvT3PU/3es7YDPPQBOhbGHdXKlweAXTRS+QfCWk06ufAh118yFja6NcukBS4gg==
