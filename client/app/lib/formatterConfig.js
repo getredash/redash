@@ -1,2 +1,1 @@
-export const formatterConfig = {
-}
+export const formatterConfig = {}
