@@ -1,5 +1,5 @@
 import { trim } from "lodash";
-import { format as sqlFormatter } from "sql-formatter";
+import { format } from "sql-formatter";
 import { formatterConfig } from './formatterConfig';
 
 interface QueryFormatterMap {
@@ -7,7 +7,7 @@ interface QueryFormatterMap {
 }
 
 const QueryFormatters: QueryFormatterMap = {
-  sql: queryText => sqlFormatter(trim(queryText), formatterConfig),
+  sql: queryText => format(trim(queryText), formatterConfig),
   json: queryText => JSON.stringify(JSON.parse(queryText), null, 4),
 };
 
