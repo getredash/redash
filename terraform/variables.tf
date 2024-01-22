@@ -23,6 +23,26 @@ variable "TASK_MEMORY" {
   description = "Number of CPU's for each Task Definition"
 }
 
+variable "WORKERS_TASK_CPU" {
+  type        = number
+  description = "Number of CPU's for each Workers Task Definition"
+}
+
+variable "WORKERS_TASK_MEMORY" {
+  type        = number
+  description = "Number of CPU's for each Workers Task Definition"
+}
+
+variable "SCHEDULER_TASK_CPU" {
+  type        = number
+  description = "Number of CPU's for each Scheduler Task Definition"
+}
+
+variable "SCHEDULER_TASK_MEMORY" {
+  type        = number
+  description = "Number of CPU's for each Scheduler Task Definition"
+}
+
 variable "AWS_TASK_ROLE" {
   type        = string
   description = "The role used by AWS Fargate Task"

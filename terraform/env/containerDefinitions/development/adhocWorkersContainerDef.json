@@ -1,37 +1,18 @@
 [
     {
-        "name": "nginx",
-        "image": "906503920888.dkr.ecr.sa-east-1.amazonaws.com/images:nginx_redash",
-        "cpu": 0,
-        "portMappings": [
-            {
-                "name": "nginx-80-tcp",
-                "containerPort": 80,
-                "hostPort": 80,
-                "protocol": "tcp"
-            }
-        ],
-        "essential": true,
-        "environment": [],
-        "mountPoints": [],
-        "volumesFrom": [],
-        "logConfiguration": {
-            "logDriver": "awslogs",
-            "options": {
-                "awslogs-group": "Redash-development-RedashTaskDefinitionnginxLogGroup71C9B0F8-O7yolAJ050oV",
-                "awslogs-region": "sa-east-1",
-                "awslogs-stream-prefix": "redash"
-            },
-            "secretOptions": []
-        }
-    },
-    {
-        "name": "Server",
+        "name": "AdHocWorker",
         "image": "906503920888.dkr.ecr.sa-east-1.amazonaws.com/images:redash_latest",
         "cpu": 0,
         "portMappings": [],
         "essential": true,
+        "command": [
+            "worker"
+        ],
         "environment": [
+            {
+                "name": "QUEUES",
+                "value": "queries"
+            },
             {
                 "name": "POSTGRES_DBNAME",
                 "value": "dwredashdb"
@@ -39,10 +20,6 @@
             {
                 "name": "REDASH_WEB_WORKERS",
                 "value": "2"
-            },
-            {
-                "name": "REDASH_THROTTLE_LOGIN_PATTERN",
-                "value": "500/hour"
             },
             {
                 "name": "REDASH_LOG_LEVEL",
@@ -69,10 +46,6 @@
                 "value": "development"
             },
             {
-                "name": "REDASH_SCHEDULED_QUERY_TIME_LIMIT",
-                "value": "7200"
-            },
-            {
                 "name": "PYTHONUNBUFFERED",
                 "value": "0"
             },
@@ -86,7 +59,7 @@
             },
             {
                 "name": "REDASH_MAIL_USERNAME",
-                "value": "AKIA5GD6YDT4KWASS3S2"
+                "value": "AKIA5GD6YDT4GEI53KZ2"
             },
             {
                 "name": "SENTRY_TRACES_SAMPLE_RATE",
@@ -98,7 +71,7 @@
             },
             {
                 "name": "REDASH_MAIL_USE_TLS",
-                "value": "yes"
+                "value": "true"
             },
             {
                 "name": "REDASH_FRAME_OPTIONS",
@@ -114,7 +87,7 @@
             },
             {
                 "name": "REDASH_MAIL_PORT",
-                "value": "465"
+                "value": "587"
             }
         ],
         "mountPoints": [],
@@ -156,7 +129,7 @@
         "logConfiguration": {
             "logDriver": "awslogs",
             "options": {
-                "awslogs-group": "Redash-development-RedashTaskDefinitionServerLogGroup5370D7BA-wcIbLropTxgQ",
+                "awslogs-group": "Redash-development-RedashTaskDefinitionAdHocWorkerLogGroup8B6C2E7F-GTGBcujgTkDh",
                 "awslogs-region": "sa-east-1",
                 "awslogs-stream-prefix": "redash"
             },
