@@ -97,7 +97,7 @@ class TestDestinationResource(BaseTestCase):
 
 
 def test_discord_notify_calls_requests_post():
-    alert = mock.Mock(spec_set=["id", "name", "options", "render_template"])
+    alert = mock.Mock(spec_set=["id", "name", "options", "custom_body", "render_template"])
     alert.id = 1
     alert.name = "Test Alert"
     alert.options = {
