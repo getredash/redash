@@ -85,7 +85,7 @@ jobs:
           pwd
           aws ecs describe-task-definition --task-definition RedashDevelopmentV2Server --query taskDefinition > server-task-definition.json
 
-      - name: Add Image ID to Server Container
+      - name: Add New Image ID to Server Container
         id: render-server-container
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
@@ -97,7 +97,7 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.render-server-container.outputs.task-definition }}
-          service: Server
+          service: server
           cluster: ${{ vars.ECS_CLUSTER }}
           wait-for-service-stability: true
 
@@ -115,50 +115,76 @@ jobs:
           container-name: Scheduler
           image: ${{ steps.build-image.outputs.image }}
 
-      - name: Deploy Amazon ECS Server task definition Development
+      - name: Deploy Amazon ECS Scheduler task definition Development
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.render-scheduler-container.outputs.task-definition }}
-          service: Scheduler
+          service: scheduler
           cluster: ${{ vars.ECS_CLUSTER }}
           wait-for-service-stability: true
 
-        ### Download and Update Scheduler Task Definition
-      - name: Download Worker Task Definition
+      ### Download and Update Default Worker Task Definition
+      - name: Download Default Worker Task Definition
         run: |
           pwd
-          aws ecs describe-task-definition --task-definition RedashDevelopmentV2Workers --query taskDefinition > workers-task-definition.json
+          aws ecs describe-task-definition --task-definition RedashDevelopmentV2DefaultWorkers --query taskDefinition > default-workers-task-definition.json
 
-      - name: Modify Amazon ECS task definition with AdHocWorker Container
-        id: render-adhocworker-container
+      - name: Modify Amazon ECS task definition with Default Worker Container
+        id: render-default-workers-container
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: workers-task-definition.json
-          container-name: AdHocWorker
-          image: ${{ steps.build-image.outputs.image }}
-
-      - name: Modify Amazon ECS task definition with Worker Container
-        id: render-worker-container
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-adhocworker-container.outputs.task-definition }}
+          task-definition: default-workers-task-definition.json
           container-name: Worker
           image: ${{ steps.build-image.outputs.image }}
 
-      - name: Modify Amazon ECS task definition with ScheduledWorker Container for Production
-        id: render-scheduledworker-container
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container.outputs.task-definition }}
-          container-name: ScheduledWorker
-          image: ${{ steps.build-image.outputs.image }}
-
-      - name: Deploy Amazon ECS Server task definition Development
+      - name: Deploy Amazon ECS Default Worker task definition Development
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.render-scheduledworker-container.outputs.task-definition }}
-          service: Workers
+          task-definition: ${{ steps.render-default-workers-container.outputs.task-definition }}
+          service: default_workers
           cluster: ${{ vars.ECS_CLUSTER }}
           wait-for-service-stability: true
 
+      ### Download and Update Scheduled Worker Task Definition
+      - name: Download Scheduled Worker Task Definition
+        run: |
+          pwd
+          aws ecs describe-task-definition --task-definition RedashDevelopmentV2ScheduledWorkers --query taskDefinition > scheduled-workers-task-definition.json
 
+      - name: Modify Amazon ECS task definition with Scheduled Worker Container
+        id: render-scheduled-workers-container
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: scheduled-workers-task-definition.json
+          container-name: ScheduledWorker
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS Scheduled Worker task definition Development
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-scheduled-workers-container.outputs.task-definition }}
+          service: scheduled_workers
+          cluster: ${{ vars.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+      ### Download and Update AdHoc Worker Task Definition
+      - name: Download AdHoc Worker Task Definition
+        run: |
+          pwd
+          aws ecs describe-task-definition --task-definition RedashDevelopmentV2AdHocWorkers --query taskDefinition > adhoc-workers-task-definition.json
+
+      - name: Modify Amazon ECS task definition with Adhoc Container
+        id: render-adhoc-workers-container
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: adhoc-workers-task-definition.json
+          container-name: AdHocWorker
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS AdHoc Workers task definition Development
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-adhoc-workers-container.outputs.task-definition }}
+          service: adhoc_workers
+          cluster: ${{ vars.ECS_CLUSTER }}
+          wait-for-service-stability: true
