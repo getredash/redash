@@ -1,35 +1,16 @@
 [
     {
-        "name": "nginx",
-        "image": "906503920888.dkr.ecr.sa-east-1.amazonaws.com/images:nginx_redash",
+        "name": "Server",
+        "image": "906503920888.dkr.ecr.sa-east-1.amazonaws.com/images:redash_latest",
         "cpu": 0,
         "portMappings": [
             {
-                "name": "nginx-80-tcp",
+                "name": "server-80-tcp",
                 "containerPort": 80,
                 "hostPort": 80,
                 "protocol": "tcp"
             }
         ],
-        "essential": true,
-        "environment": [],
-        "mountPoints": [],
-        "volumesFrom": [],
-        "logConfiguration": {
-            "logDriver": "awslogs",
-            "options": {
-                "awslogs-group": "Redash-development-RedashTaskDefinitionnginxLogGroup71C9B0F8-O7yolAJ050oV",
-                "awslogs-region": "sa-east-1",
-                "awslogs-stream-prefix": "redash"
-            },
-            "secretOptions": []
-        }
-    },
-    {
-        "name": "Server",
-        "image": "906503920888.dkr.ecr.sa-east-1.amazonaws.com/images:redash_latest",
-        "cpu": 0,
-        "portMappings": [],
         "essential": true,
         "environment": [
             {
