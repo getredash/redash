@@ -1139,6 +1139,20 @@ files = [
 test = ["pytest (>=6)"]
 
 [[package]]
+name = "fdb"
+version = "2.0.2"
+description = "The Python driver for Firebird"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4"
+files = [
+    {file = "fdb-2.0.2-py2.py3-none-any.whl", hash = "sha256:ea54815c33760540ce0619d7ef3e0b33953000683d07ea611809d799153995f2"},
+    {file = "fdb-2.0.2.tar.gz", hash = "sha256:c10c54028308dcd3d5f5f3afe8a4039cbbef22dcd3b041c30b643cf2f0d33120"},
+]
+
+[package.dependencies]
+future = ">=0.16.0"
+
+[[package]]
 name = "filelock"
 version = "3.13.1"
 description = "A platform independent file lock."
@@ -5331,4 +5345,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "e8bd51251218101afab4a1081b554c4c5d429b8e92a8193f807712d85bb5a0bf"
+content-hash = "4b6a7522fdb104c4f2192f6dc3b2dc595762b6006e1e12ebbc18bd14f401ced7"
