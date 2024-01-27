@@ -74,11 +74,13 @@ class FirebirdRunner(BaseSQLQueryRunner):
 
     def _get_tables(self, schema):
         query = """
-        SELECT rdb$relation_name AS table_name
+        SELECT f.rdb$relation_name AS table_name
               ,f.rdb$field_name AS column_name
-        FROM rdb$relations
-        WHERE rdb$view_blr IS NULL
-          AND (rdb$system_flag IS NULL OR rdb$system_flag = 0);
+        FROM rdb$relation_fields f
+        JOIN rdb$relations r ON f.rdb$relation_name = r.rdb$relation_name
+                            AND r.rdb$view_blr IS NULL
+                            AND (r.rdb$system_flag IS NULL OR r.rdb$system_flag = 0)
+        ORDER BY 1, f.rdb$field_position;
         """
 
         results, error = self.run_query(query, None)
