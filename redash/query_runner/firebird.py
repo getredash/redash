@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from redash.query_runner import (
@@ -10,7 +11,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -22,23 +22,20 @@ except ImportError:
     enabled = False
 
 types_map = {
-    7: TYPE_FLOAT,
-    8: TYPE_FLOAT,
-    10: TYPE_FLOAT,
-    12: TYPE_DATE,
-    13: TYPE_DATETIME,
-    14: TYPE_STRING,
-    16: TYPE_FLOAT,
-    27: TYPE_FLOAT,
-    35: TYPE_INTEGER,
-    37: TYPE_STRING,
-    40: TYPE_STRING,
-    45: TYPE_STRING,
+    str: TYPE_STRING,
+    int: TYPE_INTEGER,
+    float: TYPE_FLOAT,
+    datetime.date: TYPE_DATE,
+    datetime.datetime: TYPE_DATETIME,
 }
 
 
-class FirebirdRunner(BaseSQLQueryRunner):
+class firebird(BaseSQLQueryRunner):
     noop_query = "SELECT 1 FROM RDB$DATABASE;"
+
+    limit_query = " FIRST 1000"
+    limit_keywords = ["FIRST"]
+    limit_after_select = True
 
     @classmethod
     def configuration_schema(cls):
@@ -74,8 +71,8 @@ class FirebirdRunner(BaseSQLQueryRunner):
 
     def _get_tables(self, schema):
         query = """
-        SELECT f.rdb$relation_name AS table_name
-              ,f.rdb$field_name AS column_name
+        SELECT TRIM(f.rdb$relation_name) AS table_name
+              ,TRIM(f.rdb$field_name) AS column_name
         FROM rdb$relation_fields f
         JOIN rdb$relations r ON f.rdb$relation_name = r.rdb$relation_name
                             AND r.rdb$view_blr IS NULL
@@ -88,15 +85,13 @@ class FirebirdRunner(BaseSQLQueryRunner):
         if error is not None:
             self._handle_run_query_error(error)
 
-        results = json_loads(results)
-
         for row in results["rows"]:
-            table_name = row["table_name"]
+            table_name = row["TABLE_NAME"]
 
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
 
-            schema[table_name]["columns"].append(row["column_name"])
+            schema[table_name]["columns"].append(row["COLUMN_NAME"])
 
         return list(schema.values())
 
@@ -125,32 +120,26 @@ class FirebirdRunner(BaseSQLQueryRunner):
                 query = query.encode(charset)
 
             cursor = connection.cursor()
-            logger.debug("Firebird running query: %s", query)
 
             cursor.execute(query)
             data = cursor.fetchall()
+            logging.info(f'firebird data: {data}')
 
             if cursor.description is not None:
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
                 rows = [dict(zip((column["name"] for column in columns), row)) for row in data]
 
                 data = {"columns": columns, "rows": rows}
-                json_data = json_dumps(data)
                 error = None
             else:
                 error = "No data was returned."
-                json_data = None
+                data = None
 
             cursor.close()
             connection.commit()
         except fdb.Error as e:
-            try:
-                # Query errors are at `args[1]`
-                error = e.args[1]
-            except IndexError:
-                # Connection errors are `args[0][1]`
-                error = e.args[0][1]
-            json_data = None
+            error = e.args[0]
+            data = None
         except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
             raise
@@ -158,7 +147,7 @@ class FirebirdRunner(BaseSQLQueryRunner):
             if connection:
                 connection.close()
 
-        return json_data, error
+        return data, error
 
 
-register(FirebirdRunner)
+register(firebird)
