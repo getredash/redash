@@ -75,6 +75,10 @@ const config = {
     filename: isProduction ? "[name].[chunkhash].js" : "[name].js",
     publicPath: staticPath
   },
+  node: {
+    fs: "empty",
+    path: "empty"
+  },
   resolve: {
     symlinks: false,
     extensions: [".js", ".jsx", ".ts", ".tsx"],

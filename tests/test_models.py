@@ -328,7 +328,7 @@ class QueryArchiveTest(BaseTestCase):
             query.data_source,
             query.query_hash,
             query.query_text,
-            "1",
+            {"columns": {}, "rows": []},
             123,
             yesterday,
         )
@@ -466,6 +466,14 @@ class TestQueryAll(BaseTestCase):
         query.update_query_hash()
         self.assertEqual(origin_hash, query.query_hash)
 
+    def test_update_query_hash_basesql_with_parameters(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, type="pg")
+        query = self.factory.create_query(query_text="SELECT {{num}}", data_source=ds)
+        query.options = {"parameters": [{"type": "number", "name": "num", "value": 5}]}
+        origin_hash = query.query_hash
+        query.update_query_hash()
+        self.assertNotEqual(origin_hash, query.query_hash)
+
 
 class TestGroup(BaseTestCase):
     def test_returns_groups_with_specified_names(self):
@@ -496,7 +504,7 @@ class TestQueryResultStoreResult(BaseTestCase):
         self.query_hash = gen_query_hash(self.query)
         self.runtime = 123
         self.utcnow = utcnow()
-        self.data = '{"a": 1}'
+        self.data = {"a": 1}
 
     def test_stores_the_result(self):
         query_result = models.QueryResult.store_result(
@@ -509,7 +517,7 @@ class TestQueryResultStoreResult(BaseTestCase):
             self.utcnow,
         )
 
-        self.assertEqual(query_result._data, self.data)
+        self.assertEqual(query_result.data, self.data)
         self.assertEqual(query_result.runtime, self.runtime)
         self.assertEqual(query_result.retrieved_at, self.utcnow)
         self.assertEqual(query_result.query_text, self.query)

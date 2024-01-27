@@ -16,7 +16,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.utils import json_dumps, json_loads
 
 
 class Databend(BaseQueryRunner):
@@ -85,11 +84,10 @@ class Databend(BaseQueryRunner):
 
             data = {"columns": columns, "rows": rows}
             error = None
-            json_data = json_dumps(data)
         finally:
             connection.close()
 
-        return json_data, error
+        return data, error
 
     def get_schema(self, get_stats=False):
         query = """
@@ -106,7 +104,6 @@ class Databend(BaseQueryRunner):
             self._handle_run_query_error(error)
 
         schema = {}
-        results = json_loads(results)
 
         for row in results["rows"]:
             table_name = "{}.{}".format(row["table_schema"], row["table_name"])
@@ -133,7 +130,6 @@ class Databend(BaseQueryRunner):
             self._handle_run_query_error(error)
 
         schema = {}
-        results = json_loads(results)
 
         for row in results["rows"]:
             table_name = "{}.{}".format(row["table_schema"], row["table_name"])

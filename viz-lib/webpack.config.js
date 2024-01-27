@@ -15,6 +15,10 @@ module.exports = {
   resolve: {
     symlinks: false,
     extensions: [".js", ".jsx", ".ts", ".tsx"],
+    fallback: {
+      fs: false,
+      path: false
+    }
   },
   module: {
     rules: [

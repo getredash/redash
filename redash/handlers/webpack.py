@@ -1,6 +1,6 @@
+import json
 import os
 
-import simplejson
 from flask import url_for
 
 WEBPACK_MANIFEST_PATH = os.path.join(os.path.dirname(__file__), "../../client/dist/", "asset-manifest.json")
@@ -15,7 +15,7 @@ def configure_webpack(app):
         if assets is None or app.debug:
             try:
                 with open(WEBPACK_MANIFEST_PATH) as fp:
-                    assets = simplejson.load(fp)
+                    assets = json.load(fp)
             except IOError:
                 app.logger.exception("Unable to load webpack manifest")
                 assets = {}

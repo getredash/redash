@@ -11,7 +11,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -89,8 +88,6 @@ class Presto(BaseQueryRunner):
         if error is not None:
             self._handle_run_query_error(error)
 
-        results = json_loads(results)
-
         for row in results["rows"]:
             table_name = "{}.{}".format(row["table_schema"], row["table_name"])
 
@@ -120,10 +117,9 @@ class Presto(BaseQueryRunner):
             columns = self.fetch_columns(column_tuples)
             rows = [dict(zip(([column["name"] for column in columns]), r)) for i, r in enumerate(cursor.fetchall())]
             data = {"columns": columns, "rows": rows}
-            json_data = json_dumps(data)
             error = None
         except DatabaseError as db:
-            json_data = None
+            data = None
             default_message = "Unspecified DatabaseError: {0}".format(str(db))
             if isinstance(db.args[0], dict):
                 message = db.args[0].get("failureInfo", {"message", None}).get("message")
@@ -134,7 +130,7 @@ class Presto(BaseQueryRunner):
             cursor.cancel()
             raise
 
-        return json_data, error
+        return data, error
 
 
 register(Presto)

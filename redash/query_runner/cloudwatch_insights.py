@@ -4,7 +4,7 @@ import time
 import yaml
 
 from redash.query_runner import BaseQueryRunner, register
-from redash.utils import json_dumps, parse_human_time
+from redash.utils import parse_human_time
 
 try:
     import boto3
@@ -146,7 +146,7 @@ class CloudWatchInsights(BaseQueryRunner):
                 time.sleep(POLL_INTERVAL)
                 elapsed += POLL_INTERVAL
 
-        return json_dumps(data), None
+        return data, None
 
 
 register(CloudWatchInsights)

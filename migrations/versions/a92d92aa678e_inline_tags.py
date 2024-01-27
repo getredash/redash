@@ -9,7 +9,7 @@ import re
 from funcy import flatten, compact
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import ARRAY
 from redash import models
 
 # revision identifiers, used by Alembic.
@@ -21,10 +21,10 @@ depends_on = None
 
 def upgrade():
     op.add_column(
-        "dashboards", sa.Column("tags", postgresql.ARRAY(sa.Unicode()), nullable=True)
+        "dashboards", sa.Column("tags", ARRAY(sa.Unicode()), nullable=True)
     )
     op.add_column(
-        "queries", sa.Column("tags", postgresql.ARRAY(sa.Unicode()), nullable=True)
+        "queries", sa.Column("tags", ARRAY(sa.Unicode()), nullable=True)
     )
 
 

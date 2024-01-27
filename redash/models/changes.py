@@ -1,8 +1,8 @@
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.inspection import inspect
 from sqlalchemy_utils.models import generic_repr
 
 from .base import Column, GFKBase, db, key_type, primary_key
-from .types import PseudoJSON
 
 
 @generic_repr("id", "object_type", "object_id", "created_at")
@@ -13,7 +13,7 @@ class Change(GFKBase, db.Model):
     object_version = Column(db.Integer, default=0)
     user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship("User", backref="changes")
-    change = Column(PseudoJSON)
+    change = Column(JSONB)
     created_at = Column(db.DateTime(True), default=db.func.now())
 
     __tablename__ = "changes"
@@ -45,7 +45,7 @@ class Change(GFKBase, db.Model):
         )
 
 
-class ChangeTrackingMixin(object):
+class ChangeTrackingMixin:
     skipped_fields = ("id", "created_at", "updated_at", "version")
     _clean_values = None
 

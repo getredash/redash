@@ -23,7 +23,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.utils import json_dumps, json_loads
 from redash.utils.pandas import pandas_installed
 
 if pandas_installed:
@@ -39,7 +38,7 @@ else:
 logger = logging.getLogger(__name__)
 
 
-class CustomPrint(object):
+class CustomPrint:
     """CustomPrint redirect "print" calls to be sent as "log" on the result object."""
 
     def __init__(self):
@@ -228,7 +227,7 @@ class Python(BaseQueryRunner):
             raise Exception(error)
 
         # TODO: allow avoiding the JSON dumps/loads in same process
-        query_result = json_loads(data)
+        query_result = data
 
         if result_type == "dataframe" and pandas_installed:
             return pd.DataFrame(query_result["rows"])
@@ -357,15 +356,14 @@ class Python(BaseQueryRunner):
 
             exec(code, restricted_globals, self._script_locals)
 
-            result = self._script_locals["result"]
-            self.validate_result(result)
-            result["log"] = self._custom_print.lines
-            json_data = json_dumps(result)
+            data = self._script_locals["result"]
+            self.validate_result(data)
+            data["log"] = self._custom_print.lines
         except Exception as e:
             error = str(type(e)) + " " + str(e)
-            json_data = None
+            data = None
 
-        return json_data, error
+        return data, error
 
 
 register(Python)

@@ -1,5 +1,3 @@
-import json
-
 from influxdb.resultset import ResultSet
 
 from redash.query_runner import (
@@ -40,7 +38,7 @@ def test_influxdb_result_types_with_rows():
             {"k1": "bar", "time": "2023-10-06T13:31:08.882953339Z", "v1": 0.6, "v2": 4},
         ],
     }
-    assert json.loads(transformed) == expected
+    assert transformed == expected
 
 
 def test_influxdb_result_types_with_no_rows_are_string():
@@ -55,4 +53,4 @@ def test_influxdb_result_types_with_no_rows_are_string():
         ],
         "rows": [],
     }
-    assert json.loads(transformed) == expected
+    assert transformed == expected
