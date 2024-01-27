@@ -67,7 +67,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
   curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \
   && curl https://packages.microsoft.com/config/debian/12/prod.list > /etc/apt/sources.list.d/mssql-release.list \
   && apt-get update \
-  && ACCEPT_EULA=Y apt-get install  -y --no-install-recommends msodbcsql17 \
+  && ACCEPT_EULA=Y apt-get install  -y --no-install-recommends msodbcsql17 libtommath1 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   && curl "$databricks_odbc_driver_url" --location --output /tmp/simba_odbc.zip \
@@ -76,7 +76,19 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
   && dpkg -i /tmp/simba/*.deb \
   && printf "[Simba]\nDriver = /opt/simba/spark/lib/64/libsparkodbc_sb64.so" >> /etc/odbcinst.ini \
   && rm /tmp/simba_odbc.zip \
-  && rm -rf /tmp/simba; fi
+  && rm -rf /tmp/simba; fi \
+  && curl "https://github.com/FirebirdSQL/firebird/releases/download/v5.0.0/Firebird-5.0.0.1306-0-linux-x64.tar.gz" --location --output /tmp/firebird.tar.gz \
+  && mkdir /tmp/firebird \
+  && tar -xvf /tmp/firebird.tar.gz --directory /tmp/firebird \
+  && mkdir /tmp/firebird/buildroot \
+  && tar -xvf /tmp/firebird/Firebird-*/buildroot.tar.gz --directory /tmp/firebird/buildroot \
+  && cp /tmp/firebird/buildroot/opt/firebird/lib/libfbclient.so /usr/lib/libfbclient.so.2 \
+  && ln -s /usr/lib/libfbclient.so.2 /usr/lib/libfbclient.so \
+  && cp /tmp/firebird/buildroot/opt/firebird/lib/libtomcrypt.so /usr/lib/libtomcrypt.so.1 \
+  && ln -s /usr/lib/libtomcrypt.so.1 /usr/lib/libtomcrypt.so \
+  && rm /tmp/firebird.tar.gz \
+  && rm -rf /tmp/firebird \
+  && ln -s /usr/lib/x86_64-linux-gnu/libtommath.so.1 /usr/lib/x86_64-linux-gnu/libtommath.so.0
 
 WORKDIR /app
 
