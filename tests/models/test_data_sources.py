@@ -1,7 +1,8 @@
 import mock
 from mock import patch
+from sqlalchemy.sql.expression import select
 
-from redash.models import DataSource, Query, QueryResult
+from redash.models import DataSource, Query, QueryResult, db
 from redash.utils.configuration import ConfigurationContainer
 from tests import BaseTestCase
 
@@ -144,15 +145,15 @@ class TestDataSourceDelete(BaseTestCase):
         data_source = self.factory.create_data_source()
         data_source.delete()
 
-        self.assertIsNone(DataSource.query.get(data_source.id))
+        self.assertIsNone(db.session.get(DataSource, data_source.id))
 
     def test_sets_queries_data_source_to_null(self):
         data_source = self.factory.create_data_source()
         query = self.factory.create_query(data_source=data_source)
 
         data_source.delete()
-        self.assertIsNone(DataSource.query.get(data_source.id))
-        self.assertIsNone(Query.query.get(query.id).data_source_id)
+        self.assertIsNone(db.session.get(DataSource, data_source.id))
+        self.assertIsNone(db.session.get(Query, query.id).data_source_id)
 
     def test_deletes_child_models(self):
         data_source = self.factory.create_data_source()
@@ -163,8 +164,10 @@ class TestDataSourceDelete(BaseTestCase):
         )
 
         data_source.delete()
-        self.assertIsNone(DataSource.query.get(data_source.id))
-        self.assertEqual(0, QueryResult.query.filter(QueryResult.data_source == data_source).count())
+        self.assertIsNone(db.session.get(DataSource, data_source.id))
+        self.assertEqual(
+            0, len(db.session.scalars(select(QueryResult).where(QueryResult.data_source == data_source)).all())
+        )
 
     @patch("redash.redis_connection.delete")
     def test_deletes_schema(self, mock_redis):

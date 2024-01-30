@@ -3,6 +3,7 @@ import datetime
 from unittest import TestCase
 
 from dateutil.parser import parse as date_parse
+from sqlalchemy.sql.expression import select
 
 from redash import models
 from redash.models import db
@@ -214,7 +215,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         self.fake_previous_execution(query, minutes=10)
         self.fake_previous_execution(query2, minutes=10)
 
-        self.assertEqual(list(models.Query.outdated_queries()), [query2])
+        self.assertEqual(models.Query.outdated_queries(), [query2])
 
     def test_enqueues_query_with_correct_data_source(self):
         """
@@ -252,7 +253,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         self.fake_previous_execution(query, minutes=10)
         self.fake_previous_execution(query2, minutes=10)
 
-        self.assertEqual(list(models.Query.outdated_queries()), [query])
+        self.assertEqual(models.Query.outdated_queries(), [query])
 
     def test_failure_extends_schedule(self):
         """
@@ -265,10 +266,10 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         )
         self.fake_previous_execution(query, minutes=16)
 
-        self.assertEqual(list(models.Query.outdated_queries()), [])
+        self.assertEqual(models.Query.outdated_queries(), [])
 
         self.fake_previous_execution(query, minutes=17)
-        self.assertEqual(list(models.Query.outdated_queries()), [query])
+        self.assertEqual(models.Query.outdated_queries(), [query])
 
     def test_schedule_until_after(self):
         """
@@ -303,7 +304,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
 
         models.Query.outdated_queries()
 
-        self.assertEqual(list(models.Query.outdated_queries()), [valid_query])
+        self.assertEqual(models.Query.outdated_queries(), [valid_query])
         self.assertTrue(faulty_query.schedule.get("disabled"))
 
     def test_skips_disabled_schedules(self):
@@ -334,13 +335,13 @@ class QueryArchiveTest(BaseTestCase):
         )
 
         query.latest_query_data = query_result
-        groups = list(models.Group.query.filter(models.Group.id.in_(query.groups)))
-        self.assertIn(query, list(models.Query.all_queries([g.id for g in groups])))
+        groups = db.session.scalars(select(models.Group).where(models.Group.id.in_(query.groups))).all()
+        self.assertIn(query, db.session.scalars(models.Query.all([g.id for g in groups])))
         self.assertIn(query, models.Query.outdated_queries())
         db.session.flush()
         query.archive()
 
-        self.assertNotIn(query, list(models.Query.all_queries([g.id for g in groups])))
+        self.assertNotIn(query, db.session.scalars(models.Query.all([g.id for g in groups])).all())
         self.assertNotIn(query, models.Query.outdated_queries())
 
     def test_removes_associated_widgets_from_dashboards(self):
@@ -349,7 +350,7 @@ class QueryArchiveTest(BaseTestCase):
         db.session.commit()
         query.archive()
         db.session.flush()
-        self.assertEqual(models.Widget.query.get(widget.id), None)
+        self.assertEqual(db.session.get(models.Widget, widget.id), None)
 
     def test_removes_scheduling(self):
         query = self.factory.create_query(schedule={"interval": "1", "until": None, "time": None, "day_of_week": None})
@@ -364,8 +365,8 @@ class QueryArchiveTest(BaseTestCase):
         db.session.commit()
         query.archive()
         db.session.flush()
-        self.assertEqual(models.Alert.query.get(subscription.alert.id), None)
-        self.assertEqual(models.AlertSubscription.query.get(subscription.id), None)
+        self.assertEqual(db.session.get(models.Alert, subscription.alert.id), None)
+        self.assertEqual(db.session.get(models.AlertSubscription, subscription.id), None)
 
 
 class TestUnusedQueryResults(BaseTestCase):
@@ -375,17 +376,18 @@ class TestUnusedQueryResults(BaseTestCase):
         self.factory.create_query(latest_query_data=qr)
         db.session.flush()
         unused_qr = self.factory.create_query_result(retrieved_at=two_weeks_ago)
-        self.assertIn(unused_qr, list(models.QueryResult.unused()))
-        self.assertNotIn(qr, list(models.QueryResult.unused()))
+        unused = models.db.session.scalars(models.QueryResult.unused()).all()
+        self.assertIn(unused_qr.id, unused)
+        self.assertNotIn(qr.id, unused)
 
     def test_returns_only_over_a_week_old_results(self):
         two_weeks_ago = utcnow() - datetime.timedelta(days=14)
         unused_qr = self.factory.create_query_result(retrieved_at=two_weeks_ago)
         db.session.flush()
         new_unused_qr = self.factory.create_query_result()
-
-        self.assertIn(unused_qr, list(models.QueryResult.unused()))
-        self.assertNotIn(new_unused_qr, list(models.QueryResult.unused()))
+        unused = models.db.session.scalars(models.QueryResult.unused()).all()
+        self.assertIn(unused_qr.id, unused)
+        self.assertNotIn(new_unused_qr.id, unused)
 
 
 class TestQueryAll(BaseTestCase):
@@ -393,8 +395,8 @@ class TestQueryAll(BaseTestCase):
         ds1 = self.factory.create_data_source()
         ds2 = self.factory.create_data_source()
 
-        group1 = models.Group(name="g1", org=ds1.org, permissions=["create", "view"])
-        group2 = models.Group(name="g2", org=ds1.org, permissions=["create", "view"])
+        group1 = self.factory.create_group(name="g1", org=ds1.org, permissions=["create", "view"])
+        group2 = self.factory.create_group(name="g2", org=ds1.org, permissions=["create", "view"])
 
         q1 = self.factory.create_query(data_source=ds1)
         q2 = self.factory.create_query(data_source=ds2)
@@ -412,20 +414,20 @@ class TestQueryAll(BaseTestCase):
             ]
         )
         db.session.flush()
-        self.assertIn(q1, list(models.Query.all_queries([group1.id])))
-        self.assertNotIn(q2, list(models.Query.all_queries([group1.id])))
-        self.assertIn(q1, list(models.Query.all_queries([group1.id, group2.id])))
-        self.assertIn(q2, list(models.Query.all_queries([group1.id, group2.id])))
+        self.assertIn(q1, db.session.scalars(models.Query.all([group1.id])).all())
+        self.assertNotIn(q2, db.session.scalars(models.Query.all([group1.id])).all())
+        self.assertIn(q1, db.session.scalars(models.Query.all([group1.id, group2.id])).all())
+        self.assertIn(q2, db.session.scalars(models.Query.all([group1.id, group2.id])).all())
 
     def test_skips_drafts(self):
         q = self.factory.create_query(is_draft=True)
-        self.assertNotIn(q, models.Query.all_queries([self.factory.default_group.id]))
+        self.assertNotIn(q, db.session.scalars(models.Query.all([self.factory.default_group.id])).all())
 
     def test_includes_drafts_of_given_user(self):
         q = self.factory.create_query(is_draft=True)
         self.assertIn(
             q,
-            models.Query.all_queries([self.factory.default_group.id], user_id=q.user_id),
+            db.session.scalars(models.Query.all([self.factory.default_group.id], user_id=q.user_id)).all(),
         )
 
     def test_order_by_relationship(self):
@@ -434,12 +436,12 @@ class TestQueryAll(BaseTestCase):
         self.factory.create_query(user=u1)
         self.factory.create_query(user=u2)
         db.session.commit()
-        # have to reset the order here with None since all_queries orders by
+        # have to reset the order here with None since all orders by
         # created_at by default
-        base = models.Query.all_queries([self.factory.default_group.id]).order_by(None)
-        qs1 = base.order_by(models.User.name)
+        base = models.Query.all([self.factory.default_group.id]).order_by(None)
+        qs1 = db.session.scalars(base.order_by(models.User.name).distinct(models.User.name)).all()
         self.assertEqual(["alice", "bob"], [q.user.name for q in qs1])
-        qs2 = base.order_by(models.User.name.desc())
+        qs2 = db.session.scalars(base.order_by(models.User.name.desc()).distinct(models.User.name)).all()
         self.assertEqual(["bob", "alice"], [q.user.name for q in qs2])
 
     def test_update_query_hash_basesql_with_options(self):
@@ -480,20 +482,19 @@ class TestGroup(BaseTestCase):
         org1 = self.factory.create_org()
         org2 = self.factory.create_org()
 
-        matching_group1 = models.Group(id=999, name="g1", org=org1)
-        matching_group2 = models.Group(id=888, name="g2", org=org1)
-        non_matching_group = models.Group(id=777, name="g1", org=org2)
+        matching_group1 = self.factory.create_group(id=999, name="g1", org=org1)
+        matching_group2 = self.factory.create_group(id=888, name="g2", org=org1)
+        non_matching_group = self.factory.create_group(id=777, name="g1", org=org2)
 
-        groups = models.Group.find_by_name(org1, ["g1", "g2"])
+        groups = db.session.scalars(models.Group.find_by_name(org1, ["g1", "g2"])).all()
         self.assertIn(matching_group1, groups)
         self.assertIn(matching_group2, groups)
         self.assertNotIn(non_matching_group, groups)
 
     def test_returns_no_groups(self):
         org1 = self.factory.create_org()
-
-        models.Group(id=999, name="g1", org=org1)
-        self.assertEqual([], models.Group.find_by_name(org1, ["non-existing"]))
+        self.factory.create_group(id=999, name="g1", org=org1)
+        self.assertEqual([], db.session.scalars(models.Group.find_by_name(org1, ["non-existing"])).all())
 
 
 class TestQueryResultStoreResult(BaseTestCase):
@@ -522,7 +523,7 @@ class TestQueryResultStoreResult(BaseTestCase):
         self.assertEqual(query_result.retrieved_at, self.utcnow)
         self.assertEqual(query_result.query_text, self.query)
         self.assertEqual(query_result.query_hash, self.query_hash)
-        self.assertEqual(query_result.data_source, self.data_source)
+        self.assertEqual(query_result.data_source_id, self.data_source.id)
 
 
 class TestEvents(BaseTestCase):
@@ -598,44 +599,46 @@ class TestDashboardAll(BaseTestCase):
 
     def test_requires_group_or_user_id(self):
         d1 = self.factory.create_dashboard()
-        self.assertNotIn(d1, list(models.Dashboard.all(d1.user.org, d1.user.group_ids, None)))
-        l2 = list(models.Dashboard.all(d1.user.org, [0], d1.user.id))
+        self.assertNotIn(d1, db.session.scalars(models.Dashboard.all(d1.user.org, d1.user.group_ids, None)).all())
+        l2 = db.session.scalars(models.Dashboard.all(d1.user.org, [0], d1.user.id)).all()
         self.assertIn(d1, l2)
 
     def test_returns_dashboards_based_on_groups(self):
         self.assertIn(
             self.w1.dashboard,
-            list(models.Dashboard.all(self.u1.org, self.u1.group_ids, None)),
+            db.session.scalars(models.Dashboard.all(self.u1.org, self.u1.group_ids, None)).all(),
         )
         self.assertIn(
             self.w2.dashboard,
-            list(models.Dashboard.all(self.u2.org, self.u2.group_ids, None)),
+            db.session.scalars(models.Dashboard.all(self.u2.org, self.u2.group_ids, None)).all(),
         )
         self.assertNotIn(
             self.w1.dashboard,
-            list(models.Dashboard.all(self.u2.org, self.u2.group_ids, None)),
+            db.session.scalars(models.Dashboard.all(self.u2.org, self.u2.group_ids, None)).all(),
         )
         self.assertNotIn(
             self.w2.dashboard,
-            list(models.Dashboard.all(self.u1.org, self.u1.group_ids, None)),
+            db.session.scalars(models.Dashboard.all(self.u1.org, self.u1.group_ids, None)).all(),
         )
 
     def test_returns_each_dashboard_once(self):
-        dashboards = list(models.Dashboard.all(self.u2.org, self.u2.group_ids, None))
+        dashboards = db.session.scalars(models.Dashboard.all(self.u2.org, self.u2.group_ids, None)).all()
         self.assertEqual(len(dashboards), 2)
 
     def test_returns_dashboard_you_have_partial_access_to(self):
         self.assertIn(
             self.w5.dashboard,
-            models.Dashboard.all(self.u1.org, self.u1.group_ids, None),
+            db.session.scalars(models.Dashboard.all(self.u1.org, self.u1.group_ids, None)).all(),
         )
 
     def test_returns_dashboards_created_by_user(self):
         d1 = self.factory.create_dashboard(user=self.u1)
         db.session.flush()
-        self.assertIn(d1, list(models.Dashboard.all(self.u1.org, self.u1.group_ids, self.u1.id)))
-        self.assertIn(d1, list(models.Dashboard.all(self.u1.org, [0], self.u1.id)))
-        self.assertNotIn(d1, list(models.Dashboard.all(self.u2.org, self.u2.group_ids, self.u2.id)))
+        self.assertIn(d1, db.session.scalars(models.Dashboard.all(self.u1.org, self.u1.group_ids, self.u1.id)).all())
+        self.assertIn(d1, db.session.scalars(models.Dashboard.all(self.u1.org, [0], self.u1.id)).all())
+        self.assertNotIn(
+            d1, db.session.scalars(models.Dashboard.all(self.u2.org, self.u2.group_ids, self.u2.id)).all()
+        )
 
     def test_returns_dashboards_with_text_widgets_to_creator(self):
         w1 = self.factory.create_widget(visualization=None)
@@ -643,17 +646,13 @@ class TestDashboardAll(BaseTestCase):
         self.assertEqual(w1.dashboard.user, self.factory.user)
         self.assertIn(
             w1.dashboard,
-            list(
-                models.Dashboard.all(
-                    self.factory.user.org,
-                    self.factory.user.group_ids,
-                    self.factory.user.id,
-                )
-            ),
+            db.session.scalars(
+                models.Dashboard.all(self.factory.user.org, self.factory.user.group_ids, self.factory.user.id)
+            ).all(),
         )
         self.assertNotIn(
             w1.dashboard,
-            list(models.Dashboard.all(self.u1.org, self.u1.group_ids, self.u1.id)),
+            db.session.scalars(models.Dashboard.all(self.u1.org, self.u1.group_ids, self.u1.id)).all(),
         )
 
     def test_returns_dashboards_from_current_org_only(self):
@@ -663,6 +662,8 @@ class TestDashboardAll(BaseTestCase):
 
         self.assertIn(
             w1.dashboard,
-            list(models.Dashboard.all(self.factory.user.org, self.factory.user.group_ids, None)),
+            db.session.scalars(models.Dashboard.all(self.factory.user.org, self.factory.user.group_ids, None)).all(),
         )
-        self.assertNotIn(w1.dashboard, list(models.Dashboard.all(user.org, user.group_ids, user.id)))
+        self.assertNotIn(
+            w1.dashboard, db.session.scalars(models.Dashboard.all(user.org, user.group_ids, user.id)).all()
+        )

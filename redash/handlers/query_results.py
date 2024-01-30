@@ -175,7 +175,6 @@ class QueryResultListResource(BaseResource):
             data_source = models.DataSource.get_by_id_and_org(params.get("data_source_id"), self.current_org)
         else:
             return error_messages["select_data_source"]
-
         if not has_access(data_source, self.current_user, not_view_only):
             return error_messages["no_permission"]
 

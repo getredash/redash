@@ -1,6 +1,6 @@
 from funcy import pairwise
 
-from redash.models import DataSource
+from redash.models import DataSource, db
 from tests import BaseTestCase
 
 
@@ -117,7 +117,7 @@ class TestDataSourceResourcePost(BaseTestCase):
         )
 
         self.assertEqual(rv.status_code, 200)
-        data_source = DataSource.query.get(self.factory.data_source.id)
+        data_source = db.session.get(DataSource, self.factory.data_source.id)
 
         self.assertEqual(data_source.name, new_name)
         self.assertEqual(data_source.options.to_dict(), new_options)
@@ -131,7 +131,7 @@ class TestDataSourceResourceDelete(BaseTestCase):
         rv = self.make_request("delete", "/api/data_sources/{}".format(data_source.id), user=admin)
 
         self.assertEqual(204, rv.status_code)
-        self.assertIsNone(DataSource.query.get(data_source.id))
+        self.assertIsNone(db.session.get(DataSource, data_source.id))
 
 
 class TestDataSourceListResourcePost(BaseTestCase):
@@ -166,7 +166,7 @@ class TestDataSourceListResourcePost(BaseTestCase):
 
         self.assertEqual(rv.status_code, 200)
 
-        self.assertIsNotNone(DataSource.query.get(rv.json["id"]))
+        self.assertIsNotNone(db.session.get(DataSource, rv.json["id"]))
 
 
 class TestDataSourcePausePost(BaseTestCase):
@@ -178,7 +178,7 @@ class TestDataSourcePausePost(BaseTestCase):
             user=admin,
         )
         self.assertEqual(rv.status_code, 200)
-        self.assertEqual(DataSource.query.get(self.factory.data_source.id).paused, True)
+        self.assertEqual(db.session.get(DataSource, self.factory.data_source.id).paused, True)
 
     def test_pause_sets_reason(self):
         admin = self.factory.create_admin()
@@ -189,15 +189,15 @@ class TestDataSourcePausePost(BaseTestCase):
             data={"reason": "testing"},
         )
         self.assertEqual(rv.status_code, 200)
-        self.assertEqual(DataSource.query.get(self.factory.data_source.id).paused, True)
-        self.assertEqual(DataSource.query.get(self.factory.data_source.id).pause_reason, "testing")
+        self.assertEqual(db.session.get(DataSource, self.factory.data_source.id).paused, True)
+        self.assertEqual(db.session.get(DataSource, self.factory.data_source.id).pause_reason, "testing")
 
         rv = self.make_request(
             "post",
             "/api/data_sources/{}/pause?reason=test".format(self.factory.data_source.id),
             user=admin,
         )
-        self.assertEqual(DataSource.query.get(self.factory.data_source.id).pause_reason, "test")
+        self.assertEqual(db.session.get(DataSource, self.factory.data_source.id).pause_reason, "test")
 
     def test_requires_admin(self):
         rv = self.make_request("post", "/api/data_sources/{}/pause".format(self.factory.data_source.id))
@@ -214,7 +214,7 @@ class TestDataSourcePauseDelete(BaseTestCase):
             user=admin,
         )
         self.assertEqual(rv.status_code, 200)
-        self.assertEqual(DataSource.query.get(self.factory.data_source.id).paused, False)
+        self.assertEqual(db.session.get(DataSource, self.factory.data_source.id).paused, False)
 
     def test_requires_admin(self):
         rv = self.make_request("delete", "/api/data_sources/{}/pause".format(self.factory.data_source.id))

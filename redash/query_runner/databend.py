@@ -31,7 +31,7 @@ class Databend(BaseQueryRunner):
                 "username": {"type": "string"},
                 "password": {"type": "string", "default": ""},
                 "database": {"type": "string"},
-                "secure": {"type": "boolean", "default": False},
+                "sslmode": {"type": "string", "title": "SSL Mode", "default": "disable"},
             },
             "order": ["username", "password", "host", "port", "database"],
             "required": ["username", "database"],
@@ -73,8 +73,8 @@ class Databend(BaseQueryRunner):
         username = self.configuration.get("username") or "root"
         password = self.configuration.get("password") or ""
         database = self.configuration.get("database") or "default"
-        secure = self.configuration.get("secure") or False
-        connection = connector.connect(f"databend://{username}:{password}@{host}:{port}/{database}?secure={secure}")
+        sslmode = self.configuration.get("sslmode") or False
+        connection = connector.connect(f"databend://{username}:{password}@{host}:{port}/{database}?sslmode={sslmode}")
         cursor = connection.cursor()
 
         try:

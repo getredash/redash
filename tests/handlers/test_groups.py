@@ -73,7 +73,7 @@ class TestGroupResourcePost(BaseTestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(current_name, Group.query.get(self.factory.default_group.id).name)
+        self.assertEqual(current_name, db.session.get(Group, self.factory.default_group.id).name)
 
 
 class TestGroupResourceDelete(BaseTestCase):
@@ -89,7 +89,7 @@ class TestGroupResourceDelete(BaseTestCase):
             user=self.factory.create_admin(),
         )
         self.assertEqual(response.status_code, 200)
-        self.assertIsNone(Group.query.get(group.id))
+        self.assertIsNone(db.session.get(Group, group.id))
 
     def test_cant_delete_builtin_group(self):
         for group in [self.factory.default_group, self.factory.admin_group]:
@@ -112,7 +112,7 @@ class TestGroupResourceDelete(BaseTestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(data_source, DataSource.query.get(data_source.id))
+        self.assertEqual(data_source, db.session.get(DataSource, data_source.id))
 
 
 class TestGroupResourceGet(BaseTestCase):

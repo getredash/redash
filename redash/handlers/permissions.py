@@ -76,7 +76,7 @@ class ObjectPermissionsListResource(BaseResource):
         grantee_id = req["user_id"]
         access_type = req["access_type"]
 
-        grantee = User.query.get(req["user_id"])
+        grantee = db.session.get(User, req["user_id"])
         if grantee is None:
             abort(400, message="User not found.")
 

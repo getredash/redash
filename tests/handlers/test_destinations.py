@@ -2,12 +2,13 @@ import json
 import textwrap
 from unittest import mock
 
+from redash.alerts import Alerts
 from redash.destinations.asana import Asana
 from redash.destinations.datadog import Datadog
 from redash.destinations.discord import Discord
 from redash.destinations.slack import Slack
 from redash.destinations.webex import Webex
-from redash.models import Alert, NotificationDestination
+from redash.models import NotificationDestination, db
 from tests import BaseTestCase
 
 
@@ -66,13 +67,9 @@ class TestDestinationResource(BaseTestCase):
 
     def test_delete(self):
         d = self.factory.create_destination()
-        rv = self.make_request(
-            "delete",
-            "/api/destinations/{}".format(d.id),
-            user=self.factory.create_admin(),
-        )
+        rv = self.make_request("delete", "/api/destinations/{}".format(d.id), user=self.factory.create_admin())
         self.assertEqual(rv.status_code, 204)
-        self.assertIsNone(NotificationDestination.query.get(d.id))
+        self.assertIsNone(db.session.get(NotificationDestination, d.id))
 
     def test_post(self):
         d = self.factory.create_destination()
@@ -82,17 +79,13 @@ class TestDestinationResource(BaseTestCase):
             "options": {"url": "https://www.slack.com/updated"},
         }
 
-        with self.app.app_context():
-            rv = self.make_request(
-                "post",
-                "/api/destinations/{}".format(d.id),
-                user=self.factory.create_admin(),
-                data=data,
-            )
+        rv = self.make_request(
+            "post", "/api/destinations/{}".format(d.id), user=self.factory.create_admin(), data=data
+        )
 
         self.assertEqual(rv.status_code, 200)
 
-        d = NotificationDestination.query.get(d.id)
+        d = db.session.get(NotificationDestination, d.id)
         self.assertEqual(d.name, data["name"])
         self.assertEqual(d.options["url"], data["options"]["url"])
 
@@ -115,7 +108,7 @@ def test_discord_notify_calls_requests_post():
     host = "https://localhost:5000"
     options = {"url": "https://discordapp.com/api/webhooks/test"}
     metadata = {"Scheduled": False}
-    new_state = Alert.TRIGGERED_STATE
+    new_state = Alerts.TRIGGERED_STATE
     destination = Discord(options)
 
     with mock.patch("redash.destinations.discord.requests.post") as mock_post:
@@ -167,7 +160,7 @@ def test_asana_notify_calls_requests_post():
     options = {"pat": "abcd", "project_id": "1234"}
     metadata = {"Scheduled": False}
 
-    new_state = Alert.TRIGGERED_STATE
+    new_state = Alerts.TRIGGERED_STATE
     destination = Asana(options)
 
     with mock.patch("redash.destinations.asana.requests.post") as mock_post:
@@ -272,7 +265,7 @@ def test_webex_notify_calls_requests_post():
     options = {"webex_bot_token": "abcd", "to_room_ids": "1234"}
     metadata = {"Scheduled": False}
 
-    new_state = Alert.TRIGGERED_STATE
+    new_state = Alerts.TRIGGERED_STATE
     destination = Webex(options)
 
     with mock.patch("redash.destinations.webex.requests.post") as mock_post:
@@ -325,7 +318,7 @@ def test_datadog_notify_calls_requests_post():
         "source_type_name": "postgres",
     }
     metadata = {"Scheduled": False}
-    new_state = Alert.TRIGGERED_STATE
+    new_state = Alerts.TRIGGERED_STATE
     destination = Datadog(options)
 
     with mock.patch("redash.destinations.datadog.requests.post") as mock_post:

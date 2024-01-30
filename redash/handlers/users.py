@@ -3,6 +3,7 @@ from flask import request
 from flask_login import current_user, login_user
 from flask_restful import abort
 from funcy import partial, project
+from sqlalchemy import asc, desc
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -31,17 +32,17 @@ from redash.settings import parse_boolean
 
 # Ordering map for relationships
 order_map = {
-    "name": "name",
-    "-name": "-name",
-    "active_at": "active_at",
-    "-active_at": "-active_at",
-    "created_at": "created_at",
-    "-created_at": "-created_at",
-    "groups": "group_ids",
-    "-groups": "-group_ids",
+    "name": [asc(models.User.name)],
+    "-name": [desc(models.User.name)],
+    "active_at": [asc(models.User.active_at)],
+    "-active_at": [desc(models.User.active_at)],
+    "created_at": [asc(models.User.created_at)],
+    "-created_at": [desc(models.User.created_at)],
+    "groups": [asc(models.User.group_ids)],
+    "-groups": [desc(models.User.group_ids)],
 }
 
-order_results = partial(_order_results, default_order="-created_at", allowed_orders=order_map)
+order_results = partial(_order_results, default_order=order_map["-created_at"], allowed_orders=order_map)
 
 
 def invite_user(org, inviter, user, send_email=True):
@@ -97,22 +98,7 @@ class UserListResource(BaseResource):
     @require_permission("list_users")
     def get(self):
         page = request.args.get("page", 1, type=int)
-        page_size = request.args.get("page_size", 25, type=int)
-
-        groups = {group.id: group for group in models.Group.all(self.current_org)}
-
-        def serialize_user(user):
-            d = user.to_dict()
-            user_groups = []
-            for group_id in set(d["groups"]):
-                group = groups.get(group_id)
-
-                if group:
-                    user_groups.append({"id": group.id, "name": group.name})
-
-            d["groups"] = user_groups
-
-            return d
+        per_page = request.args.get("per_page", 25, type=int)
 
         search_term = request.args.get("q", "")
 
@@ -123,9 +109,21 @@ class UserListResource(BaseResource):
         if pending is not None:
             pending = parse_boolean(pending)
 
-        users = self.get_users(disabled, pending, search_term)
+        groups = models.db.session.scalars(models.Group.all(self.current_org)).all()
+        groups_map = {group.id: group for group in groups}
 
-        return paginate(users, page, page_size, serialize_user)
+        def serialize_user(user):
+            d = user.to_dict()
+            user_groups = []
+            for group_id in set(d["groups"]):
+                group = groups_map.get(group_id)
+                if group:
+                    user_groups.append({"id": group.id, "name": group.name})
+            d["groups"] = user_groups
+            return d
+
+        users = self.get_users(disabled, pending, search_term)
+        return paginate(users, page=page, per_page=per_page, serializer=serialize_user)
 
     @require_admin
     def post(self):

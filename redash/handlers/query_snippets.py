@@ -73,4 +73,5 @@ class QuerySnippetListResource(BaseResource):
 
     def get(self):
         self.record_event({"action": "list", "object_type": "query_snippet"})
-        return [snippet.to_dict() for snippet in models.QuerySnippet.all(org=self.current_org)]
+        snippets = models.db.session.scalars(models.QuerySnippet.all(org=self.current_org)).all()
+        return [snippet.to_dict() for snippet in snippets]

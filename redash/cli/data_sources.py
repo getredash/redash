@@ -4,6 +4,7 @@ import click
 from click.types import convert_type
 from flask.cli import AppGroup
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql.expression import select
 
 from redash import models
 from redash.query_runner import (
@@ -27,13 +28,13 @@ def list_command(organization=None):
     """List currently configured data sources."""
     if organization:
         org = models.Organization.get_by_slug(organization)
-        data_sources = models.DataSource.query.filter(models.DataSource.org == org)
+        data_sources = select(models.DataSource).where(models.DataSource.org == org)
     else:
-        data_sources = models.DataSource.query
-    for i, ds in enumerate(data_sources.order_by(models.DataSource.name)):
+        data_sources = select(models.DataSource)
+    sources = models.db.session.scalars(data_sources.order_by(models.DataSource.name))
+    for i, ds in enumerate(sources):
         if i > 0:
             print("-" * 20)
-
         print("Id: {}\nName: {}\nType: {}\nOptions: {}".format(ds.id, ds.name, ds.type, ds.options.to_json()))
 
 
@@ -69,8 +70,8 @@ def test(name, organization="default"):
     """Test connection to data source by issuing a trivial query."""
     try:
         org = models.Organization.get_by_slug(organization)
-        data_source = models.DataSource.query.filter(
-            models.DataSource.name == name, models.DataSource.org == org
+        data_source = models.db.session.scalars(
+            select(models.DataSource).where(models.DataSource.name == name, models.DataSource.org == org)
         ).one()
         print("Testing connection to data source: {} (id={})".format(name, data_source.id))
         try:
@@ -183,8 +184,8 @@ def delete(name, organization="default"):
     """Delete data source by name."""
     try:
         org = models.Organization.get_by_slug(organization)
-        data_source = models.DataSource.query.filter(
-            models.DataSource.name == name, models.DataSource.org == org
+        data_source = models.db.session.scalars(
+            select(models.DataSource).where(models.DataSource.name == name, models.DataSource.org == org)
         ).one()
         print("Deleting data source: {} (id={})".format(name, data_source.id))
         models.db.session.delete(data_source)
@@ -218,8 +219,8 @@ def edit(name, new_name=None, options=None, type=None, organization="default"):
         if type is not None:
             validate_data_source_type(type)
         org = models.Organization.get_by_slug(organization)
-        data_source = models.DataSource.query.filter(
-            models.DataSource.name == name, models.DataSource.org == org
+        data_source = models.db.session.scalars(
+            select(models.DataSource).where(models.DataSource.name == name, models.DataSource.org == org)
         ).one()
         update_attr(data_source, "name", new_name)
         update_attr(data_source, "type", type)

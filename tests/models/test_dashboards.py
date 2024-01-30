@@ -25,7 +25,7 @@ class DashboardTest(BaseTestCase):
         self.create_tagged_dashboard(tags=["tag1", "tag2", "tag3"])
 
         self.assertEqual(
-            list(Dashboard.all_tags(self.factory.org, self.factory.user)),
+            db.session.execute(Dashboard.all_tags(self.factory.org, self.factory.user)).all(),
             [("tag1", 3), ("tag2", 2), ("tag3", 1)],
         )
 
@@ -35,7 +35,7 @@ class TestDashboardsByUser(BaseTestCase):
         d = self.factory.create_dashboard(user=self.factory.user)
         d2 = self.factory.create_dashboard(user=self.factory.create_user())
 
-        dashboards = Dashboard.by_user(self.factory.user)
+        dashboards = db.session.scalars(Dashboard.by_user(self.factory.user)).all()
 
         # not using self.assertIn/NotIn because otherwise this fails :O
         self.assertTrue(d in list(dashboards))
@@ -45,7 +45,7 @@ class TestDashboardsByUser(BaseTestCase):
         d = self.factory.create_dashboard(is_draft=True)
         d2 = self.factory.create_dashboard(is_draft=True, user=self.factory.create_user())
 
-        dashboards = Dashboard.by_user(self.factory.user)
+        dashboards = db.session.scalars(Dashboard.by_user(self.factory.user)).all()
 
         # not using self.assertIn/NotIn because otherwise this fails :O
         self.assertTrue(d in dashboards)
@@ -79,6 +79,6 @@ class TestDashboardsByUser(BaseTestCase):
         create_dashboard()
         create_dashboard()
 
-        results = Dashboard.all(self.factory.org, usr.group_ids, usr.id)
+        results = db.session.scalars(Dashboard.all(self.factory.org, usr.group_ids, usr.id)).all()
 
-        self.assertEqual(2, results.count(), "The incorrect number of dashboards were returned")
+        self.assertEqual(2, len(results), "The incorrect number of dashboards were returned")

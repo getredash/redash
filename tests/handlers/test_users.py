@@ -310,7 +310,7 @@ class TestUserResourcePost(BaseTestCase):
         )
         self.assertEqual(rv.status_code, 200)
 
-        user = models.User.query.get(self.factory.user.id)
+        user = models.db.session.get(models.User, self.factory.user.id)
         self.assertTrue(user.verify_password(new_password))
 
     def test_returns_400_when_using_temporary_email(self):
@@ -383,7 +383,7 @@ class TestUserResourcePost(BaseTestCase):
         )
 
         self.assertEqual(rv.status_code, 200)
-        self.assertEqual(models.User.query.get(other_user.id).group_ids, [1, 2])
+        self.assertEqual(models.db.session.get(models.User, other_user.id).group_ids, [1, 2])
 
     def test_admin_can_delete_user(self):
         admin_user = self.factory.create_admin()
@@ -392,7 +392,7 @@ class TestUserResourcePost(BaseTestCase):
         rv = self.make_request("delete", "/api/users/{}".format(other_user.id), user=admin_user)
 
         self.assertEqual(rv.status_code, 200)
-        self.assertEqual(models.User.query.get(other_user.id), None)
+        self.assertEqual(models.db.session.get(models.User, other_user.id), None)
 
 
 class TestUserDisable(BaseTestCase):
@@ -404,7 +404,7 @@ class TestUserDisable(BaseTestCase):
         self.assertEqual(rv.status_code, 403)
 
         # user should stay enabled
-        other_user = models.User.query.get(other_user.id)
+        other_user = models.db.session.get(models.User, other_user.id)
         self.assertFalse(other_user.is_disabled)
 
     def test_admin_can_disable_user(self):
@@ -416,7 +416,7 @@ class TestUserDisable(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
 
         # user should become disabled
-        other_user = models.User.query.get(other_user.id)
+        other_user = models.db.session.get(models.User, other_user.id)
         self.assertTrue(other_user.is_disabled)
 
     def test_admin_can_disable_another_admin(self):
@@ -428,7 +428,7 @@ class TestUserDisable(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
 
         # user should become disabled
-        admin_user2 = models.User.query.get(admin_user2.id)
+        admin_user2 = models.db.session.get(models.User, admin_user2.id)
         self.assertTrue(admin_user2.is_disabled)
 
     def test_admin_cannot_disable_self(self):
@@ -439,7 +439,7 @@ class TestUserDisable(BaseTestCase):
         self.assertEqual(rv.status_code, 403)
 
         # user should stay enabled
-        admin_user = models.User.query.get(admin_user.id)
+        admin_user = models.db.session.get(models.User, admin_user.id)
         self.assertFalse(admin_user.is_disabled)
 
     def test_admin_can_enable_user(self):
@@ -451,7 +451,7 @@ class TestUserDisable(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
 
         # user should become enabled
-        other_user = models.User.query.get(other_user.id)
+        other_user = models.db.session.get(models.User, other_user.id)
         self.assertFalse(other_user.is_disabled)
 
     def test_admin_can_enable_another_admin(self):
@@ -463,7 +463,7 @@ class TestUserDisable(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
 
         # user should become enabled
-        admin_user2 = models.User.query.get(admin_user2.id)
+        admin_user2 = models.db.session.get(models.User, admin_user2.id)
         self.assertFalse(admin_user2.is_disabled)
 
     def test_disabled_user_cannot_login(self):
@@ -537,7 +537,7 @@ class TestUserRegenerateApiKey(BaseTestCase):
         )
         self.assertEqual(rv.status_code, 200)
 
-        other_user = models.User.query.get(other_user.id)
+        other_user = models.db.session.get(models.User, other_user.id)
         self.assertNotEqual(orig_api_key, other_user.api_key)
 
     def test_admin_can_regenerate_other_user_api_key(self):
@@ -548,7 +548,7 @@ class TestUserRegenerateApiKey(BaseTestCase):
         rv = self.make_request("post", "/api/users/{}/regenerate_api_key".format(user2.id), user=user1)
         self.assertEqual(rv.status_code, 403)
 
-        user = models.User.query.get(user2.id)
+        user = models.db.session.get(models.User, user2.id)
         self.assertEqual(orig_user2_api_key, user.api_key)
 
     def test_admin_can_regenerate_api_key_myself(self):
@@ -562,7 +562,7 @@ class TestUserRegenerateApiKey(BaseTestCase):
         )
         self.assertEqual(rv.status_code, 200)
 
-        user = models.User.query.get(admin_user.id)
+        user = models.db.session.get(models.User, admin_user.id)
         self.assertNotEqual(orig_api_key, user.api_key)
 
     def test_user_can_regenerate_api_key_myself(self):
@@ -572,5 +572,5 @@ class TestUserRegenerateApiKey(BaseTestCase):
         rv = self.make_request("post", "/api/users/{}/regenerate_api_key".format(user.id), user=user)
         self.assertEqual(rv.status_code, 200)
 
-        user = models.User.query.get(user.id)
+        user = models.db.session.get(models.User, user.id)
         self.assertNotEqual(orig_api_key, user.api_key)

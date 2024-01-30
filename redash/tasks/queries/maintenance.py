@@ -2,6 +2,7 @@ import logging
 import time
 
 from rq.timeouts import JobTimeoutException
+from sqlalchemy.sql.expression import delete
 
 from redash import models, redis_connection, settings, statsd_client
 from redash.models.parameterized_query import (
@@ -10,10 +11,9 @@ from redash.models.parameterized_query import (
 )
 from redash.monitor import rq_job_ids
 from redash.tasks.failure_report import track_failure
+from redash.tasks.queries.execution import enqueue_query
 from redash.utils import json_dumps, sentry
 from redash.worker import get_job_logger, job
-
-from .execution import enqueue_query
 
 logger = get_job_logger(__name__)
 
@@ -131,10 +131,17 @@ def cleanup_query_results():
         settings.QUERY_RESULTS_CLEANUP_MAX_AGE,
     )
 
-    unused_query_results = models.QueryResult.unused(settings.QUERY_RESULTS_CLEANUP_MAX_AGE)
-    deleted_count = models.QueryResult.query.filter(
-        models.QueryResult.id.in_(unused_query_results.limit(settings.QUERY_RESULTS_CLEANUP_COUNT).subquery())
-    ).delete(synchronize_session=False)
+    unused_query_results = models.QueryResult.unused(days=settings.QUERY_RESULTS_CLEANUP_MAX_AGE)
+    deleted_count = len(
+        models.db.session.scalars(
+            delete(models.QueryResult)
+            .where(
+                models.QueryResult.id.in_(unused_query_results.limit(settings.QUERY_RESULTS_CLEANUP_COUNT).subquery())
+            )
+            .execution_options(synchronize_session=False)
+            .returning(models.QueryResult.id)
+        ).all()
+    )
     models.db.session.commit()
     logger.info("Deleted %d unused query results.", deleted_count)
 

@@ -18,7 +18,7 @@ export type GetResourceRequest = any; // TODO: Add stricter type
 export interface ItemsPage<INPUT = any> {
   count: number;
   page: number;
-  page_size: number;
+  per_page: number;
   results: INPUT[];
 }
 

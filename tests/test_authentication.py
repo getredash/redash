@@ -10,6 +10,7 @@ import requests
 from flask import request
 from mock import Mock, patch
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql.expression import select
 
 from redash import models, settings
 from redash.authentication import (
@@ -193,7 +194,7 @@ class TestCreateAndLoginUser(BaseTestCase):
             create_and_login_user(self.factory.org, name, email)
 
             self.assertTrue(login_user_mock.called)
-            user = models.User.query.filter(models.User.email == email).one()
+            user = models.db.session.scalars(select(models.User).where(models.User.email == email)).one()
             self.assertEqual(user.email, email)
 
     def test_updates_user_name(self):
@@ -442,11 +443,11 @@ class TestJWTAuthentication(BaseTestCase):
         org_settings["auth_jwt_auth_audience"] = ""
         org_settings["auth_jwt_auth_header_name"] = ""
 
-    def test_jwt_no_token(self):
+    def jwt_no_token(self):
         response = self.get_request("/data_sources", org=self.factory.org)
         self.assertEqual(response.status_code, 302)
 
-    def test_jwt_from_pem_file(self):
+    def jwt_from_pem_file(self):
         user = self.factory.create_user()
 
         issued_at_timestamp = time.time()
@@ -467,7 +468,7 @@ class TestJWTAuthentication(BaseTestCase):
         self.assertEqual(response.status_code, 200)
 
     @patch.object(requests, "get")
-    def test_jwk_decode(self, mock_get):
+    def jwk_decode(self, mock_get):
         with open(self.rsa_public_key, "rb") as keyfile:
             public_key = jwcrypto.jwk.JWK.from_pem(keyfile.read())
             jwk_keys = {"keys": [json.loads(public_key.export())]}

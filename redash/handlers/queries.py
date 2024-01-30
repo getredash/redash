@@ -3,6 +3,7 @@ from flask import jsonify, request, url_for
 from flask_login import login_required
 from flask_restful import abort
 from funcy import partial
+from sqlalchemy import desc, func
 from sqlalchemy.orm.exc import StaleDataError
 
 from redash import models, settings
@@ -32,21 +33,21 @@ from redash.utils import collect_parameters_from_request
 
 # Ordering map for relationships
 order_map = {
-    "name": "lowercase_name",
-    "-name": "-lowercase_name",
-    "created_at": "created_at",
-    "-created_at": "-created_at",
-    "schedule": "interval",
-    "-schedule": "-interval",
-    "runtime": "query_results-runtime",
-    "-runtime": "-query_results-runtime",
-    "executed_at": "query_results-retrieved_at",
-    "-executed_at": "-query_results-retrieved_at",
-    "created_by": "users-name",
-    "-created_by": "-users-name",
+    "name": [func.lower(models.Query.name)],
+    "-name": [desc(func.lower(models.Query.name))],
+    "created_at": [models.Query.created_at],
+    "-created_at": [desc(models.Query.created_at)],
+    "schedule": [models.Query.interval],
+    "-schedule": [desc(models.Query.interval)],
+    "runtime": [models.QueryResult.runtime],
+    "-runtime": [desc(models.QueryResult.runtime)],
+    "executed_at": [models.QueryResult.retrieved_at],
+    "-executed_at": [desc(models.QueryResult.retrieved_at)],
+    "created_by": [models.User.name],
+    "-created_by": [desc(models.User.name)],
 }
 
-order_results = partial(_order_results, default_order="-created_at", allowed_orders=order_map)
+order_results = partial(_order_results, default_order=order_map["-created_at"], allowed_orders=order_map)
 
 
 @routes.route(org_scoped_rule("/api/queries/format"), methods=["POST"])
@@ -102,7 +103,9 @@ class QueryRecentResource(BaseResource):
         Responds with a list of :ref:`query <query-response-label>` objects.
         """
 
-        results = models.Query.by_user(self.current_user).order_by(models.Query.updated_at.desc()).limit(10)
+        results = models.db.session.scalars(
+            models.Query.by_user(self.current_user).order_by(models.Query.updated_at.desc()).limit(10)
+        ).all()
         return QuerySerializer(results, with_last_modified_by=False, with_user=False).serialize()
 
 
@@ -117,7 +120,7 @@ class BaseQueryListResource(BaseResource):
                 multi_byte_search=current_org.get_setting("multi_byte_search_enabled"),
             )
         else:
-            results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id, include_drafts=True)
+            results = models.Query.all(self.current_user.group_ids, self.current_user.id, include_drafts=True)
         return filter_by_tags(results, models.Query.tags)
 
     @require_permission("view_query")
@@ -125,7 +128,7 @@ class BaseQueryListResource(BaseResource):
         """
         Retrieve a list of queries.
 
-        :qparam number page_size: Number of queries to return per page
+        :qparam number per_page: Number of queries to return per page
         :qparam number page: Page number to retrieve
         :qparam number order: Name of column to order by
         :qparam number q: Full text search term
@@ -145,23 +148,16 @@ class BaseQueryListResource(BaseResource):
         ordered_results = order_results(results, fallback=not bool(search_term))
 
         page = request.args.get("page", 1, type=int)
-        page_size = request.args.get("page_size", 25, type=int)
+        per_page = request.args.get("per_page", 25, type=int)
 
-        response = paginate(
-            ordered_results,
-            page=page,
-            page_size=page_size,
-            serializer=QuerySerializer,
-            with_stats=True,
-            with_last_modified_by=False,
-        )
+        results = paginate(ordered_results, page=page, per_page=per_page, serializer=QuerySerializer)
 
         if search_term:
             self.record_event({"action": "search", "object_type": "query", "term": search_term})
         else:
             self.record_event({"action": "list", "object_type": "query"})
 
-        return response
+        return results
 
 
 def require_access_to_dropdown_queries(user, query_def):
@@ -257,11 +253,8 @@ class QueryArchiveResource(BaseQueryListResource):
                 multi_byte_search=current_org.get_setting("multi_byte_search_enabled"),
             )
         else:
-            return models.Query.all_queries(
-                self.current_user.group_ids,
-                self.current_user.id,
-                include_drafts=False,
-                include_archived=True,
+            return models.Query.all(
+                self.current_user.group_ids, self.current_user.id, include_drafts=False, include_archived=True
             )
 
 
@@ -271,7 +264,7 @@ class MyQueriesResource(BaseResource):
         """
         Retrieve a list of queries created by the current user.
 
-        :qparam number page_size: Number of queries to return per page
+        :qparam number per_page: Number of queries to return per page
         :qparam number page: Page number to retrieve
         :qparam number order: Name of column to order by
         :qparam number search: Full text search term
@@ -296,15 +289,8 @@ class MyQueriesResource(BaseResource):
         ordered_results = order_results(results, fallback=not bool(search_term))
 
         page = request.args.get("page", 1, type=int)
-        page_size = request.args.get("page_size", 25, type=int)
-        return paginate(
-            ordered_results,
-            page,
-            page_size,
-            QuerySerializer,
-            with_stats=True,
-            with_last_modified_by=False,
-        )
+        per_page = request.args.get("per_page", 25, type=int)
+        return paginate(ordered_results, page=page, per_page=per_page, serializer=QuerySerializer)
 
 
 class QueryResource(BaseResource):
@@ -468,7 +454,7 @@ class QueryTagsResource(BaseResource):
         """
         Returns all query tags including those for drafts.
         """
-        tags = models.Query.all_tags(self.current_user, include_drafts=True)
+        tags = models.db.session.execute(models.Query.all_tags(self.current_user, include_drafts=True)).all()
         return {"tags": [{"name": name, "count": count} for name, count in tags]}
 
 
@@ -496,15 +482,8 @@ class QueryFavoriteListResource(BaseResource):
         ordered_favorites = order_results(favorites, fallback=not bool(search_term))
 
         page = request.args.get("page", 1, type=int)
-        page_size = request.args.get("page_size", 25, type=int)
-        response = paginate(
-            ordered_favorites,
-            page,
-            page_size,
-            QuerySerializer,
-            with_stats=True,
-            with_last_modified_by=False,
-        )
+        per_page = request.args.get("per_page", 25, type=int)
+        results = paginate(ordered_favorites, page=page, per_page=per_page, serializer=QuerySerializer)
 
         self.record_event(
             {
@@ -518,4 +497,4 @@ class QueryFavoriteListResource(BaseResource):
             }
         )
 
-        return response
+        return results

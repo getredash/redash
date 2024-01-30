@@ -1,4 +1,5 @@
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql.expression import delete
 
 from redash import models
 from redash.handlers.base import BaseResource, get_object_or_404
@@ -27,11 +28,13 @@ class QueryFavoriteResource(BaseResource):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(query, self.current_user, view_only)
 
-        models.Favorite.query.filter(
-            models.Favorite.object_id == query_id,
-            models.Favorite.object_type == "Query",
-            models.Favorite.user == self.current_user,
-        ).delete()
+        models.db.session.execute(
+            delete(models.Favorite).where(
+                models.Favorite.object_id == query_id,
+                models.Favorite.object_type == "Query",
+                models.Favorite.user == self.current_user,
+            )
+        )
         models.db.session.commit()
 
         self.record_event({"action": "favorite", "object_id": query.id, "object_type": "query"})
@@ -61,10 +64,11 @@ class DashboardFavoriteResource(BaseResource):
 
     def delete(self, object_id):
         dashboard = get_object_or_404(models.Dashboard.get_by_id_and_org, object_id, self.current_org)
-        models.Favorite.query.filter(
-            models.Favorite.object == dashboard,
-            models.Favorite.user == self.current_user,
-        ).delete()
+        models.db.session.execute(
+            delete(models.Favorite).where(
+                models.Favorite.object == dashboard, models.Favorite.user == self.current_user
+            )
+        )
         models.db.session.commit()
         self.record_event(
             {

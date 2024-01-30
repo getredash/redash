@@ -90,7 +90,8 @@ class AlertListResource(BaseResource):
     @require_permission("list_alerts")
     def get(self):
         self.record_event({"action": "list", "object_type": "alert"})
-        return [serialize_alert(alert) for alert in models.Alert.all(group_ids=self.current_user.group_ids)]
+        alerts = models.db.session.scalars(models.Alert.all(group_ids=self.current_user.group_ids)).all()
+        return [serialize_alert(alert) for alert in alerts]
 
 
 class AlertSubscriptionListResource(BaseResource):
@@ -125,13 +126,13 @@ class AlertSubscriptionListResource(BaseResource):
         alert = models.Alert.get_by_id_and_org(alert_id, self.current_org)
         require_access(alert, self.current_user, view_only)
 
-        subscriptions = models.AlertSubscription.all(alert_id)
+        subscriptions = models.db.session.scalars(models.AlertSubscription.all(alert_id)).all()
         return [s.to_dict() for s in subscriptions]
 
 
 class AlertSubscriptionResource(BaseResource):
     def delete(self, alert_id, subscriber_id):
-        subscription = models.AlertSubscription.query.get_or_404(subscriber_id)
+        subscription = get_object_or_404(models.db.session.get, models.AlertSubscription, subscriber_id)
         require_admin_or_owner(subscription.user.id)
         models.db.session.delete(subscription)
         models.db.session.commit()

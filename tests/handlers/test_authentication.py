@@ -4,7 +4,7 @@ import mock
 
 from redash import limiter, settings
 from redash.authentication.account import invite_token
-from redash.models import User
+from redash.models import User, db
 from tests import BaseTestCase
 
 
@@ -99,7 +99,7 @@ class TestInvitePost(BaseTestCase):
             org=self.factory.org,
         )
         self.assertEqual(response.status_code, 302)
-        user = User.query.get(user.id)
+        user = db.session.get(User, user.id)
         self.assertTrue(user.verify_password(password))
         self.assertFalse(user.is_invitation_pending)
 

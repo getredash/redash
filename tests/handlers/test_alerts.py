@@ -47,8 +47,8 @@ class TestAlertResourceDelete(BaseTestCase):
         rv = self.make_request("delete", "/api/alerts/{}".format(alert.id))
         self.assertEqual(rv.status_code, 200)
 
-        self.assertEqual(Alert.query.get(subscription.alert.id), None)
-        self.assertEqual(AlertSubscription.query.get(subscription.id), None)
+        self.assertEqual(db.session.get(Alert, subscription.alert.id), None)
+        self.assertEqual(db.session.get(AlertSubscription, subscription.id), None)
 
     def test_returns_403_if_not_allowed(self):
         alert = self.factory.create_alert()

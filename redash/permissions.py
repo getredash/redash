@@ -66,7 +66,6 @@ class require_permissions:
                 has_permissions = any([current_user.has_permission(permission) for permission in self.permissions])
             else:
                 has_permissions = current_user.has_permissions(self.permissions)
-
             if has_permissions:
                 return fn(*args, **kwargs)
             else:

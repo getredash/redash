@@ -1,3 +1,5 @@
+from sqlalchemy.sql import select
+
 from redash import redis_connection
 from redash.models import ApiUser, User, db
 from redash.models.users import LAST_ACTIVE_KEY, sync_last_active_at
@@ -58,7 +60,7 @@ class TestUserSearch(BaseTestCase):
     def test_non_unicode_search_string(self):
         user = self.factory.create_user(name="אריק")
 
-        assert user in User.search(User.all(user.org), term="א")
+        assert user in db.session.scalars(User.search(User.all(user.org), term="א")).all()
 
 
 class TestUserRegenerateApiKey(BaseTestCase):
@@ -68,7 +70,7 @@ class TestUserRegenerateApiKey(BaseTestCase):
         user.regenerate_api_key()
 
         # check committed by research
-        user = User.query.get(user.id)
+        user = db.session.get(User, user.id)
         self.assertNotEqual(user.api_key, before_api_key)
 
 
@@ -87,11 +89,10 @@ class TestUserDetail(BaseTestCase):
             user.details["test"] = 1
             db.session.commit()
 
-            user_reloaded = User.query.filter_by(id=user.id).first()
+            user_reloaded = db.session.scalar(select(User).filter_by(id=user.id))
             self.assertEqual(user.details["test"], 1)
             self.assertEqual(
-                user_reloaded,
-                User.query.filter(User.details["test"].astext.cast(db.Integer) == 1).first(),
+                user_reloaded, db.session.scalar(select(User).where(User.details["test"].astext.cast(db.Integer) == 1))
             )
 
     def test_sync(self):
@@ -100,7 +101,7 @@ class TestUserDetail(BaseTestCase):
             timestamp = dt_from_timestamp(redis_connection.hget(LAST_ACTIVE_KEY, user.id))
             sync_last_active_at()
 
-            user_reloaded = User.query.filter(User.id == user.id).first()
+            user_reloaded = db.session.scalar(select(User).where(User.id == user.id))
             self.assertIn("active_at", user_reloaded.details)
             self.assertEqual(user_reloaded.active_at, timestamp)
 

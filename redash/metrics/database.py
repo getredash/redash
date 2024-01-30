@@ -4,7 +4,7 @@ import time
 from flask import g, has_request_context
 from sqlalchemy.engine import Engine
 from sqlalchemy.event import listens_for
-from sqlalchemy.orm.util import _ORMJoin
+from sqlalchemy.sql import Join
 from sqlalchemy.sql.selectable import Alias
 
 from redash import statsd_client
@@ -13,24 +13,24 @@ metrics_logger = logging.getLogger("metrics")
 
 
 def _table_name_from_select_element(elt):
-    t = elt.froms[0]
+    t = elt.get_final_froms()[0]
 
     if isinstance(t, Alias):
-        t = t.original.froms[0]
+        t = t.element
 
-    while isinstance(t, _ORMJoin):
+    while isinstance(t, Join):
         t = t.left
 
     return t.name
 
 
 @listens_for(Engine, "before_execute")
-def before_execute(conn, elt, multiparams, params):
+def before_execute(conn, elt, multiparams, params, opts):
     conn.info.setdefault("query_start_time", []).append(time.time())
 
 
 @listens_for(Engine, "after_execute")
-def after_execute(conn, elt, multiparams, params, result):
+def after_execute(conn, elt, multiparams, params, opts, result):
     duration = 1000 * (time.time() - conn.info["query_start_time"].pop(-1))
     action = elt.__class__.__name__
 

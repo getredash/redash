@@ -1,3 +1,5 @@
+from sqlalchemy.sql.expression import select
+
 from redash import models
 from tests import BaseTestCase
 
@@ -150,4 +152,4 @@ class VisualizationResourceTest(BaseTestCase):
 
         self.make_request("delete", "/api/visualizations/{}".format(vis.id))
 
-        self.assertIsNone(models.Widget.query.filter(models.Widget.id == widget.id).first())
+        self.assertIsNone(models.db.session.scalar(select(models.Widget).where(models.Widget.id == widget.id)))

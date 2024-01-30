@@ -1,6 +1,7 @@
 from flask import request, url_for
 from flask_restful import abort
 from funcy import partial, project
+from sqlalchemy import desc, func
 from sqlalchemy.orm.exc import StaleDataError
 
 from redash import models
@@ -22,13 +23,29 @@ from redash.serializers import DashboardSerializer, public_dashboard
 
 # Ordering map for relationships
 order_map = {
-    "name": "lowercase_name",
-    "-name": "-lowercase_name",
-    "created_at": "created_at",
-    "-created_at": "-created_at",
+    "name": [
+        func.lower(models.Dashboard.name),
+        models.Dashboard.created_at,
+        models.Dashboard.slug,
+    ],
+    "-name": [
+        desc(func.lower(models.Dashboard.name)),
+        models.Dashboard.created_at,
+        models.Dashboard.slug,
+    ],
+    "created_at": [
+        func.lower(models.Dashboard.name),
+        models.Dashboard.created_at,
+        models.Dashboard.slug,
+    ],
+    "-created_at": [
+        func.lower(models.Dashboard.name),
+        desc(models.Dashboard.created_at),
+        models.Dashboard.slug,
+    ],
 }
 
-order_results = partial(_order_results, default_order="-created_at", allowed_orders=order_map)
+order_results = partial(_order_results, default_order=order_map["-created_at"], allowed_orders=order_map)
 
 
 class DashboardListResource(BaseResource):
@@ -37,7 +54,7 @@ class DashboardListResource(BaseResource):
         """
         Lists all accessible dashboards.
 
-        :qparam number page_size: Number of queries to return per page
+        :qparam number per_page: Number of queries to return per page
         :qparam number page: Page number to retrieve
         :qparam number order: Name of column to order by
         :qparam number q: Full text search term
@@ -65,21 +82,16 @@ class DashboardListResource(BaseResource):
         ordered_results = order_results(results, fallback=not bool(search_term))
 
         page = request.args.get("page", 1, type=int)
-        page_size = request.args.get("page_size", 25, type=int)
+        per_page = request.args.get("per_page", 25, type=int)
 
-        response = paginate(
-            ordered_results,
-            page=page,
-            page_size=page_size,
-            serializer=DashboardSerializer,
-        )
+        results = paginate(ordered_results, page=page, per_page=per_page, serializer=DashboardSerializer)
 
         if search_term:
             self.record_event({"action": "search", "object_type": "dashboard", "term": search_term})
         else:
             self.record_event({"action": "list", "object_type": "dashboard"})
 
-        return response
+        return results
 
     @require_permission("create_dashboard")
     def post(self):
@@ -109,7 +121,7 @@ class MyDashboardsResource(BaseResource):
         """
         Retrieve a list of dashboards created by the current user.
 
-        :qparam number page_size: Number of dashboards to return per page
+        :qparam number per_page: Number of dashboards to return per page
         :qparam number page: Page number to retrieve
         :qparam number order: Name of column to order by
         :qparam number search: Full text search term
@@ -131,8 +143,8 @@ class MyDashboardsResource(BaseResource):
         ordered_results = order_results(results, fallback=not bool(search_term))
 
         page = request.args.get("page", 1, type=int)
-        page_size = request.args.get("page_size", 25, type=int)
-        return paginate(ordered_results, page, page_size, DashboardSerializer)
+        per_page = request.args.get("per_page", 25, type=int)
+        return paginate(ordered_results, page=page, per_page=per_page, serializer=DashboardSerializer)
 
 
 class DashboardResource(BaseResource):
@@ -354,7 +366,7 @@ class DashboardTagsResource(BaseResource):
         """
         Lists all accessible dashboards.
         """
-        tags = models.Dashboard.all_tags(self.current_org, self.current_user)
+        tags = models.db.session.execute(models.Dashboard.all_tags(self.current_org, self.current_user)).all()
         return {"tags": [{"name": name, "count": count} for name, count in tags]}
 
 
@@ -381,9 +393,9 @@ class DashboardFavoriteListResource(BaseResource):
         favorites = order_results(favorites, fallback=not bool(search_term))
 
         page = request.args.get("page", 1, type=int)
-        page_size = request.args.get("page_size", 25, type=int)
+        per_page = request.args.get("per_page", 25, type=int)
         # TODO: we don't need to check for favorite status here
-        response = paginate(favorites, page, page_size, DashboardSerializer)
+        results = paginate(favorites, page=page, per_page=per_page, serializer=DashboardSerializer)
 
         self.record_event(
             {
@@ -397,7 +409,7 @@ class DashboardFavoriteListResource(BaseResource):
             }
         )
 
-        return response
+        return results
 
 
 class DashboardForkResource(BaseResource):

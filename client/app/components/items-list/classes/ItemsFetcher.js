@@ -74,7 +74,7 @@ export class PaginatedListFetcher extends ItemsFetcher {
     return this._originalGetRequest(
       {
         page: paginator.page,
-        page_size: paginator.itemsPerPage,
+        per_page: paginator.itemsPerPage,
         order: sorter.compiled,
         q: isString(searchTerm) && searchTerm !== "" ? searchTerm : undefined,
         tags: selectedTags,

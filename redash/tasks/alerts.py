@@ -3,6 +3,7 @@ import datetime
 from flask import current_app
 
 from redash import models, utils
+from redash.alerts import Alerts
 from redash.worker import get_job_logger, job
 
 logger = get_job_logger(__name__)
@@ -22,14 +23,14 @@ def should_notify(alert, new_state):
     if alert.rearm and alert.last_triggered_at:
         passed_rearm_threshold = alert.last_triggered_at + datetime.timedelta(seconds=alert.rearm) < utils.utcnow()
 
-    return new_state != alert.state or (alert.state == models.Alert.TRIGGERED_STATE and passed_rearm_threshold)
+    return new_state != alert.state or (alert.state == Alerts.TRIGGERED_STATE and passed_rearm_threshold)
 
 
 @job("default", timeout=300)
 def check_alerts_for_query(query_id, metadata):
     logger.debug("Checking query %d for alerts", query_id)
 
-    query = models.Query.query.get(query_id)
+    query = models.db.session.get(models.Query, query_id)
 
     for alert in query.alerts:
         logger.info("Checking alert (%d) of query %d.", alert.id, query_id)
@@ -43,7 +44,7 @@ def check_alerts_for_query(query_id, metadata):
             alert.last_triggered_at = utils.utcnow()
             models.db.session.commit()
 
-            if old_state == models.Alert.UNKNOWN_STATE and new_state == models.Alert.OK_STATE:
+            if old_state == Alerts.UNKNOWN_STATE and new_state == Alerts.OK_STATE:
                 logger.debug("Skipping notification (previous state was unknown and now it's ok).")
                 continue
 

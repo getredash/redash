@@ -1,5 +1,6 @@
 from flask import request
 from flask_restful import abort
+from sqlalchemy.sql.expression import select
 
 from redash import models
 from redash.handlers.base import BaseResource, get_object_or_404
@@ -22,11 +23,11 @@ class GroupListResource(BaseResource):
         if self.current_user.has_permission("admin"):
             groups = models.Group.all(self.current_org)
         else:
-            groups = models.Group.query.filter(models.Group.id.in_(self.current_user.group_ids))
+            groups = select(models.Group).where(models.Group.id.in_(self.current_user.group_ids))
 
         self.record_event({"action": "list", "object_id": "groups", "object_type": "group"})
 
-        return [g.to_dict() for g in groups]
+        return [g.to_dict() for g in models.db.session.scalars(groups).all()]
 
 
 class GroupResource(BaseResource):
@@ -60,7 +61,7 @@ class GroupResource(BaseResource):
         if group.type == models.Group.BUILTIN_GROUP:
             abort(400, message="Can't delete built-in groups.")
 
-        members = models.Group.members(group_id)
+        members = models.db.session.scalars(models.Group.members(group_id)).all()
         for member in members:
             member.group_ids.remove(int(group_id))
             models.db.session.add(member)
@@ -93,7 +94,7 @@ class GroupMemberListResource(BaseResource):
         if not (self.current_user.has_permission("admin") or int(group_id) in self.current_user.group_ids):
             abort(403)
 
-        members = models.Group.members(group_id)
+        members = models.db.session.scalars(models.Group.members(group_id)).all()
         return [m.to_dict() for m in members]
 
 
@@ -146,9 +147,9 @@ class GroupDataSourceListResource(BaseResource):
         group = get_object_or_404(models.Group.get_by_id_and_org, group_id, self.current_org)
 
         # TOOD: move to models
-        data_sources = models.DataSource.query.join(models.DataSourceGroup).filter(
-            models.DataSourceGroup.group == group
-        )
+        data_sources = models.db.session.scalars(
+            select(models.DataSource).join(models.DataSourceGroup).where(models.DataSourceGroup.group == group)
+        ).all()
 
         self.record_event({"action": "list", "object_id": group_id, "object_type": "group"})
 

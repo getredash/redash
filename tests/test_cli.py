@@ -2,6 +2,7 @@ import textwrap
 
 import mock
 from click.testing import CliRunner
+from sqlalchemy.sql.expression import select
 
 from redash.cli import manager
 from redash.models import DataSource, Group, Organization, User, db
@@ -21,8 +22,8 @@ class DataSourceCommandTests(BaseTestCase):
         )
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(DataSource.query.count(), 1)
-        ds = DataSource.query.first()
+        self.assertEqual(len(db.session.scalars(select(DataSource)).all()), 1)
+        ds = db.session.scalar(select(DataSource))
         self.assertEqual(ds.name, "test")
         self.assertEqual(ds.type, "pg")
         self.assertEqual(ds.options["dbname"], "testdb")
@@ -43,8 +44,8 @@ class DataSourceCommandTests(BaseTestCase):
         )
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(DataSource.query.count(), 1)
-        ds = DataSource.query.first()
+        self.assertEqual(len(db.session.scalars(select(DataSource)).all()), 1)
+        ds = db.session.scalar(select(DataSource))
         self.assertEqual(ds.name, "test")
         self.assertEqual(ds.type, "pg")
         self.assertEqual(ds.options["host"], "example.com")
@@ -56,7 +57,7 @@ class DataSourceCommandTests(BaseTestCase):
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
         self.assertIn("not supported", result.output)
-        self.assertEqual(DataSource.query.count(), 0)
+        self.assertEqual(len(db.session.scalars(select(DataSource)).all()), 0)
 
     def test_bad_options_new(self):
         runner = CliRunner()
@@ -75,7 +76,7 @@ class DataSourceCommandTests(BaseTestCase):
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
         self.assertIn("invalid configuration", result.output)
-        self.assertEqual(DataSource.query.count(), 0)
+        self.assertEqual(len(db.session.scalars(select(DataSource)).all()), 0)
 
     def test_list(self):
         self.factory.create_data_source(
@@ -151,7 +152,7 @@ class DataSourceCommandTests(BaseTestCase):
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         self.assertIn("Deleting", result.output)
-        self.assertEqual(DataSource.query.count(), 0)
+        self.assertEqual(len(db.session.scalars(select(DataSource)).all()), 0)
 
     def test_connection_bad_delete(self):
         self.factory.create_data_source(
@@ -164,7 +165,7 @@ class DataSourceCommandTests(BaseTestCase):
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
         self.assertIn("Couldn't find", result.output)
-        self.assertEqual(DataSource.query.count(), 1)
+        self.assertEqual(len(db.session.scalars(select(DataSource)).all()), 1)
 
     def test_options_edit(self):
         self.factory.create_data_source(
@@ -189,8 +190,8 @@ class DataSourceCommandTests(BaseTestCase):
         )
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(DataSource.query.count(), 1)
-        ds = DataSource.query.first()
+        self.assertEqual(len(db.session.scalars(select(DataSource)).all()), 1)
+        ds = db.session.scalar(select(DataSource))
         self.assertEqual(ds.name, "test2")
         self.assertEqual(ds.type, "pg")
         self.assertEqual(ds.options["host"], "example.com")
@@ -207,7 +208,7 @@ class DataSourceCommandTests(BaseTestCase):
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
         self.assertIn("not supported", result.output)
-        ds = DataSource.query.first()
+        ds = db.session.scalar(select(DataSource))
         self.assertEqual(ds.type, "sqlite")
 
     def test_bad_options_edit(self):
@@ -232,21 +233,21 @@ class DataSourceCommandTests(BaseTestCase):
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
         self.assertIn("invalid configuration", result.output)
-        ds = DataSource.query.first()
+        ds = db.session.scalar(select(DataSource))
         self.assertEqual(ds.type, "sqlite")
         self.assertEqual(ds.options._config, {"dbpath": "/tmp/test.db"})
 
 
 class GroupCommandTests(BaseTestCase):
     def test_create(self):
-        gcount = Group.query.count()
+        gcount = len(db.session.scalars(select(Group)).all())
         perms = ["create_query", "edit_query", "view_query"]
         runner = CliRunner()
         result = runner.invoke(manager, ["groups", "create", "test", "--permissions", ",".join(perms)])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(Group.query.count(), gcount + 1)
-        g = Group.query.order_by(Group.id.desc()).first()
+        self.assertEqual(len(db.session.scalars(select(Group)).all()), gcount + 1)
+        g = db.session.scalar(select(Group).order_by(Group.id.desc()))
         db.session.add(self.factory.org)
         self.assertEqual(g.org_id, self.factory.org.id)
         self.assertEqual(g.permissions, perms)
@@ -269,7 +270,7 @@ class GroupCommandTests(BaseTestCase):
         )
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        g = Group.query.filter(Group.id == g_id).first()
+        g = db.session.scalar(select(Group).where(Group.id == g_id))
         self.assertEqual(g.permissions, perms)
 
     def test_list(self):
@@ -359,7 +360,7 @@ class OrganizationCommandTests(BaseTestCase):
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
 
-        ucount = Organization.query.count()
+        ucount = len(db.session.scalars(select(Organization)).all())
 
         self.assertEqual(ucount, 2)
 
@@ -401,7 +402,7 @@ class UserCommandTests(BaseTestCase):
         )
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.query.filter(User.email == "foobar@example.com").first()
+        u = db.session.scalar(select(User).where(User.email == "foobar@example.com"))
         self.assertEqual(u.name, "Fred Foobar")
         self.assertTrue(u.verify_password("password1"))
         self.assertEqual(u.group_ids, [u.org.default_group.id])
@@ -422,7 +423,7 @@ class UserCommandTests(BaseTestCase):
         )
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.query.filter(User.email == "foobar@example.com").first()
+        u = db.session.scalar(select(User).where(User.email == "foobar@example.com"))
         self.assertEqual(u.name, "Fred Foobar")
         self.assertTrue(u.verify_password("password1"))
         self.assertEqual(u.group_ids, [u.org.default_group.id, u.org.admin_group.id])
@@ -435,7 +436,7 @@ class UserCommandTests(BaseTestCase):
         )
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.query.filter(User.email == "foobar@example.com").first()
+        u = db.session.scalar(select(User).where(User.email == "foobar@example.com"))
         self.assertEqual(u.name, "Fred Foobar")
         self.assertIsNone(u.password_hash)
         self.assertEqual(u.group_ids, [u.org.default_group.id])
@@ -454,20 +455,20 @@ class UserCommandTests(BaseTestCase):
 
     def test_delete(self):
         self.factory.create_user(email="foobar@example.com")
-        ucount = User.query.count()
+        ucount = len(db.session.scalars(select(User)).all())
         runner = CliRunner()
         result = runner.invoke(manager, ["users", "delete", "foobar@example.com"])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(User.query.filter(User.email == "foobar@example.com").count(), 0)
-        self.assertEqual(User.query.count(), ucount - 1)
+        self.assertEqual(len(db.session.scalars(select(User).where(User.email == "foobar@example.com")).all()), 0)
+        self.assertEqual(len(db.session.scalars(select(User)).all()), ucount - 1)
 
     def test_delete_bad(self):
-        ucount = User.query.count()
+        ucount = len(db.session.scalars(select(User)).all())
         runner = CliRunner()
         result = runner.invoke(manager, ["users", "delete", "foobar@example.com"])
         self.assertIn("Deleted 0 users", result.output)
-        self.assertEqual(User.query.count(), ucount)
+        self.assertEqual(len(db.session.scalars(select(User)).all()), ucount)
 
     def test_password(self):
         self.factory.create_user(email="foobar@example.com")
@@ -475,7 +476,7 @@ class UserCommandTests(BaseTestCase):
         result = runner.invoke(manager, ["users", "password", "foobar@example.com", "xyzzy"])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.query.filter(User.email == "foobar@example.com").first()
+        u = db.session.scalar(select(User).where(User.email == "foobar@example.com"))
         self.assertTrue(u.verify_password("xyzzy"))
 
     def test_password_bad(self):
