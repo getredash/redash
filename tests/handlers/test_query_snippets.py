@@ -1,4 +1,4 @@
-from redash.models import QuerySnippet
+from redash.models import QuerySnippet, db
 from tests import BaseTestCase
 
 
@@ -29,7 +29,7 @@ class TestQuerySnippetResource(BaseTestCase):
         snippet = self.factory.create_query_snippet()
         self.make_request("delete", "/api/query_snippets/{}".format(snippet.id))
 
-        self.assertIsNone(QuerySnippet.query.get(snippet.id))
+        self.assertIsNone(db.session.get(QuerySnippet, snippet.id))
 
 
 class TestQuerySnippetListResource(BaseTestCase):

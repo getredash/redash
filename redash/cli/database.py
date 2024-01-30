@@ -7,7 +7,7 @@ from cryptography.fernet import InvalidToken
 from flask.cli import AppGroup
 from flask_migrate import stamp
 from sqlalchemy.exc import DatabaseError
-from sqlalchemy.sql import select
+from sqlalchemy.sql import select, text
 from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
 
 from redash import settings
@@ -22,7 +22,7 @@ def _wait_for_db_connection(db):
     retried = False
     while not retried:
         try:
-            db.engine.execute("SELECT 1;")
+            db.session.execute(text("SELECT 1;"))
             return
         except DatabaseError:
             time.sleep(30)
@@ -33,7 +33,7 @@ def _wait_for_db_connection(db):
 def is_db_empty():
     from redash.models import db
 
-    table_names = sqlalchemy.inspect(db.get_engine()).get_table_names()
+    table_names = sqlalchemy.inspect(db.engine).get_table_names()
     return len(table_names) == 0
 
 

@@ -9,8 +9,7 @@ except ImportError:
     enabled = False
 
 from redash.query_runner import register
-
-from .big_query import BigQuery
+from redash.query_runner.big_query import BigQuery
 
 
 class BigQueryGCE(BigQuery):

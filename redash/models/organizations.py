@@ -1,13 +1,13 @@
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm.attributes import flag_modified
+from sqlalchemy.sql import select
 from sqlalchemy_utils.models import generic_repr
 
+from redash.models.base import Column, db, primary_key
+from redash.models.mixins import TimestampMixin
+from redash.models.types import MutableDict
+from redash.models.users import Group
 from redash.settings.organization import settings as org_settings
-
-from .base import Column, db, primary_key
-from .mixins import TimestampMixin
-from .types import MutableDict
-from .users import Group, User
 
 
 @generic_repr("id", "name", "slug")
@@ -29,15 +29,18 @@ class Organization(TimestampMixin, db.Model):
 
     @classmethod
     def get_by_slug(cls, slug):
-        return cls.query.filter(cls.slug == slug).first()
+        return db.session.scalar(select(cls).where(cls.slug == slug))
 
     @classmethod
     def get_by_id(cls, _id):
-        return cls.query.filter(cls.id == _id).one()
+        return db.session.scalars(select(cls).where(cls.id == _id)).one()
 
     @property
     def default_group(self):
-        return self.groups.filter(Group.name == "default", Group.type == Group.BUILTIN_GROUP).first()
+        for g in self.groups:
+            if g.name == "default" and g.type == Group.BUILTIN_GROUP:
+                return g
+        return None
 
     @property
     def google_apps_domains(self):
@@ -79,7 +82,13 @@ class Organization(TimestampMixin, db.Model):
 
     @property
     def admin_group(self):
-        return self.groups.filter(Group.name == "admin", Group.type == Group.BUILTIN_GROUP).first()
+        for g in self.groups:
+            if g.name == "admin" and g.type == Group.BUILTIN_GROUP:
+                return g
+        return None
 
     def has_user(self, email):
-        return self.users.filter(User.email == email).count() == 1
+        for u in self.users:
+            if u.email == email:
+                return True
+        return False

@@ -65,5 +65,5 @@ class EventsResource(BaseResource):
     @require_admin
     def get(self):
         page = request.args.get("page", 1, type=int)
-        page_size = request.args.get("page_size", 25, type=int)
-        return paginate(self.current_org.events, page, page_size, serialize_event)
+        per_page = request.args.get("per_page", 25, type=int)
+        return paginate(self.current_org.events, page=page, per_page=per_page, serializer=serialize_event)

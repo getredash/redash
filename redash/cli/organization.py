@@ -1,5 +1,6 @@
 from click import argument, option
 from flask.cli import AppGroup
+from sqlalchemy.sql.expression import select
 
 from redash import models
 
@@ -12,7 +13,7 @@ def set_google_apps_domains(domains):
     """
     Sets the allowable domains to the comma separated list DOMAINS.
     """
-    organization = models.Organization.query.first()
+    organization = models.db.session.scalar(select(models.Organization))
     k = models.Organization.SETTING_GOOGLE_APPS_DOMAINS
     organization.settings[k] = domains.split(",")
     models.db.session.add(organization)
@@ -22,7 +23,7 @@ def set_google_apps_domains(domains):
 
 @manager.command(name="show_google_apps_domains")
 def show_google_apps_domains():
-    organization = models.Organization.query.first()
+    organization = models.db.session.scalar(select(models.Organization))
     print("Current list of Google Apps domains: {}".format(", ".join(organization.google_apps_domains)))
 
 

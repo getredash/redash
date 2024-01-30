@@ -20,8 +20,7 @@ from funcy import select_values
 from sqlalchemy.orm.query import Query
 
 from redash import settings
-
-from .human_time import parse_human_time
+from redash.utils.human_time import parse_human_time
 
 COMMENTS_REGEX = re.compile(r"/\*.*?\*/")
 WRITER_ENCODING = os.environ.get("REDASH_CSV_WRITER_ENCODING", "utf-8")
@@ -111,7 +110,7 @@ class JSONEncoder(json.JSONEncoder):
         elif isinstance(o, bytes):
             result = binascii.hexlify(o).decode()
         else:
-            result = super(JSONEncoder, self).default(o)
+            result = super().default(o)
         return result
 
 

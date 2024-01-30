@@ -38,7 +38,7 @@ export class UrlStateStorage extends StateStorage {
 
     return {
       page: parseInt(params.page, 10) || defaultState.page,
-      itemsPerPage: parseInt(params.page_size, 10) || defaultState.itemsPerPage,
+      itemsPerPage: parseInt(params.per_page, 10) || defaultState.itemsPerPage,
       orderByField,
       orderByReverse,
       searchTerm,
@@ -50,7 +50,7 @@ export class UrlStateStorage extends StateStorage {
     location.setSearch(
       {
         page,
-        page_size: itemsPerPage,
+        per_page: itemsPerPage,
         order: compileOrderBy(orderByField, orderByReverse),
         q: searchTerm !== "" ? searchTerm : null,
       },

@@ -7,13 +7,14 @@ from flask_restful import Resource, abort
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy_utils.functions import sort_query
 
 from redash import settings
 from redash.authentication import current_org
 from redash.models import db
 from redash.tasks import record_event as record_event_task
 from redash.utils import json_dumps
+
+MAX_PER_PAGE = 250
 
 routes = Blueprint("redash", __name__, template_folder=settings.fix_assets_path("templates"))
 
@@ -77,27 +78,17 @@ def get_object_or_404(fn, *args, **kwargs):
     return rv
 
 
-def paginate(query_set, page, page_size, serializer, **kwargs):
-    count = query_set.count()
-
-    if page < 1:
-        abort(400, message="Page must be positive integer.")
-
-    if (page - 1) * page_size + 1 > count > 0:
-        abort(400, message="Page is out of range.")
-
-    if page_size > 250 or page_size < 1:
-        abort(400, message="Page size is out of range (1-250).")
-
-    results = query_set.paginate(page, page_size)
+def paginate(query_set, page, per_page, serializer, **kwargs):
+    if per_page > MAX_PER_PAGE:
+        abort(400, message=f"Page size is out of range (1-{MAX_PER_PAGE})")
+    results = db.paginate(query_set, page=page, per_page=per_page, max_per_page=MAX_PER_PAGE)
 
     # support for old function based serializers
     if isclass(serializer):
         items = serializer(results.items, **kwargs).serialize()
     else:
         items = [serializer(result) for result in results.items]
-
-    return {"count": count, "page": page, "page_size": page_size, "results": items}
+    return {"count": results.total, "page": page, "per_page": per_page, "results": items}
 
 
 def org_scoped_rule(rule):
@@ -114,7 +105,7 @@ def json_response(response):
 def filter_by_tags(result_set, column):
     if request.args.getlist("tags"):
         tags = request.args.getlist("tags")
-        result_set = result_set.filter(cast(column, ARRAY(db.Text)).contains(tags))
+        result_set = result_set.where(cast(column, ARRAY(db.Text)).contains(tags))
     return result_set
 
 
@@ -137,4 +128,4 @@ def order_results(results, default_order, allowed_orders, fallback=True):
         selected_order = default_order
     # The query may already have an ORDER BY statement attached
     # so we clear it here and apply the selected order
-    return sort_query(results.order_by(None), selected_order)
+    return results.order_by(*selected_order)

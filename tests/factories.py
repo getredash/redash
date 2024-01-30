@@ -50,6 +50,10 @@ user_factory = ModelFactory(
     org_id=1,
 )
 
+group_factory = ModelFactory(
+    redash.models.Group,
+)
+
 org_factory = ModelFactory(
     redash.models.Organization,
     name=Sequence("Org {}"),
@@ -198,13 +202,7 @@ class Factory:
     def create_org(self, **kwargs):
         org = org_factory.create(**kwargs)
         self.create_group(org=org, type=redash.models.Group.BUILTIN_GROUP, name="default")
-        self.create_group(
-            org=org,
-            type=redash.models.Group.BUILTIN_GROUP,
-            name="admin",
-            permissions=["admin"],
-        )
-
+        self.create_group(org=org, type=redash.models.Group.BUILTIN_GROUP, name="admin", permissions=["admin"])
         return org
 
     def create_user(self, **kwargs):
@@ -219,7 +217,10 @@ class Factory:
     def create_admin(self, **kwargs):
         args = {
             "org": self.org,
-            "group_ids": [self.admin_group.id, self.default_group.id],
+            "group_ids": [
+                self.admin_group.id,
+                self.default_group.id,
+            ],
         }
 
         if "org" in kwargs:
@@ -235,38 +236,32 @@ class Factory:
         args = {"name": "Group", "org": self.org}
 
         args.update(kwargs)
-
-        g = redash.models.Group(**args)
-        return g
+        return group_factory.create(**args)
 
     def create_alert(self, **kwargs):
         args = {"user": self.user, "query_rel": self.create_query()}
 
-        args.update(**kwargs)
+        args.update(kwargs)
         return alert_factory.create(**args)
 
     def create_alert_subscription(self, **kwargs):
         args = {"user": self.user, "alert": self.create_alert()}
 
-        args.update(**kwargs)
+        args.update(kwargs)
         return alert_subscription_factory.create(**args)
 
     def create_data_source(self, **kwargs):
-        group = None
+        dsg_args = {"view_only": kwargs.pop("view_only", False)}
+        ds_args = {"org": self.org}
         if "group" in kwargs:
-            group = kwargs.pop("group")
-        args = {"org": self.org}
-        args.update(kwargs)
-
-        if group and "org" not in kwargs:
-            args["org"] = group.org
-
-        view_only = args.pop("view_only", False)
-        data_source = data_source_factory.create(**args)
-
-        if group:
-            db.session.add(redash.models.DataSourceGroup(group=group, data_source=data_source, view_only=view_only))
-
+            dsg_args["group"] = kwargs.pop("group")
+            if "org" not in kwargs:
+                ds_args["org"] = dsg_args["group"].org
+        ds_args.update(kwargs)
+        data_source = data_source_factory.create(**ds_args)
+        if "group" in dsg_args:
+            dsg_args["data_source"] = data_source
+            db.session.add(redash.models.DataSourceGroup(**dsg_args))
         return data_source
 
     def create_dashboard(self, **kwargs):

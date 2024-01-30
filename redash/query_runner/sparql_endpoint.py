@@ -3,13 +3,11 @@
 seeAlso: https://www.w3.org/TR/rdf-sparql-query/
 """
 
-import json
 import logging
 from os import environ
 
-from redash.query_runner import BaseQueryRunner
-
-from . import register
+from redash.query_runner import BaseQueryRunner, register
+from redash.utils import json_loads
 
 try:
     import requests
@@ -139,7 +137,7 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
             logger.info("Error: {}".format(error))
             try:
                 # try to load Problem Details for HTTP API JSON
-                details = json.loads(error.response.text)
+                details = json_loads(error.response.text)
                 error = ""
                 if "title" in details:
                     error += details["title"] + ": "

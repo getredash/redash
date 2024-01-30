@@ -163,7 +163,7 @@ class TestQueryResourcePost(BaseTestCase):
 
         rv = self.make_request(
             "post",
-            "/api/queries/{0}".format(my_query.id),
+            f"/api/queries/{my_query.id}",
             data={"options": options},
             user=self.factory.user,
         )
@@ -269,7 +269,7 @@ class TestQueryListResourcePost(BaseTestCase):
         self.assertIsNotNone(rv.json["api_key"])
         self.assertIsNotNone(rv.json["query_hash"])
 
-        query = models.Query.query.get(rv.json["id"])
+        query = db.session.get(models.Query, rv.json["id"])
         self.assertEqual(len(list(query.visualizations)), 1)
         self.assertTrue(query.is_draft)
 
@@ -406,7 +406,7 @@ class TestQueryRegenerateApiKey(BaseTestCase):
         )
         self.assertEqual(rv.status_code, 403)
 
-        reloaded_query = models.Query.query.get(query.id)
+        reloaded_query = db.session.get(models.Query, query.id)
         self.assertEqual(orig_api_key, reloaded_query.api_key)
 
     def test_admin_can_regenerate_api_key_of_other_user(self):
@@ -422,7 +422,7 @@ class TestQueryRegenerateApiKey(BaseTestCase):
         )
         self.assertEqual(rv.status_code, 200)
 
-        reloaded_query = models.Query.query.get(query.id)
+        reloaded_query = db.session.get(models.Query, query.id)
         self.assertNotEqual(orig_api_key, reloaded_query.api_key)
 
     def test_admin_can_regenerate_api_key_of_myself(self):
@@ -438,7 +438,7 @@ class TestQueryRegenerateApiKey(BaseTestCase):
         )
         self.assertEqual(rv.status_code, 200)
 
-        updated_query = models.Query.query.get(query.id)
+        updated_query = db.session.get(models.Query, query.id)
         self.assertNotEqual(orig_api_key, updated_query.api_key)
 
     def test_user_can_regenerate_api_key_of_myself(self):
@@ -449,7 +449,7 @@ class TestQueryRegenerateApiKey(BaseTestCase):
         rv = self.make_request("post", "/api/queries/{}/regenerate_api_key".format(query.id), user=user)
         self.assertEqual(rv.status_code, 200)
 
-        updated_query = models.Query.query.get(query.id)
+        updated_query = db.session.get(models.Query, query.id)
         self.assertNotEqual(orig_api_key, updated_query.api_key)
 
 

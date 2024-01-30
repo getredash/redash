@@ -64,7 +64,7 @@ def run_version_check():
 
     data = {"current_version": current_version}
 
-    if Organization.query.first().get_setting("beacon_consent"):
+    if db.session.scalar(Organization).get_setting("beacon_consent"):
         data["usage"] = usage_data()
 
     try:
