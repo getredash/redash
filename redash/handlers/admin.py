@@ -1,4 +1,5 @@
 from flask_login import current_user, login_required
+from sqlalchemy.sql.expression import select
 
 from redash import models, redis_connection
 from redash.authentication import current_org
@@ -17,11 +18,12 @@ def outdated_queries():
     manager_status = redis_connection.hgetall("redash:status")
     query_ids = json_loads(manager_status.get("query_ids", "[]"))
     if query_ids:
-        outdated_queries = (
-            models.Query.query.outerjoin(models.QueryResult)
-            .filter(models.Query.id.in_(query_ids))
+        outdated_queries = models.db.session.scalars(
+            select(models.Query)
+            .outerjoin(models.QueryResult)
+            .where(models.Query.id.in_(query_ids))
             .order_by(models.Query.created_at.desc())
-        )
+        ).all()
     else:
         outdated_queries = []
 

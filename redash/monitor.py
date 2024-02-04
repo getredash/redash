@@ -2,6 +2,9 @@ from funcy import flatten
 from rq import Queue, Worker
 from rq.job import Job
 from rq.registry import StartedJobRegistry
+from sqlalchemy import func
+from sqlalchemy.sql import text
+from sqlalchemy.sql.expression import select
 
 from redash import __version__, redis_connection, rq_redis_connection, settings
 from redash.models import Dashboard, Query, QueryResult, Widget, db
@@ -15,14 +18,22 @@ def get_redis_status():
     }
 
 
+def count(cls):
+    return db.session.execute(select(func.count(cls.id))).first()[0]
+
+
 def get_object_counts():
     status = {}
-    status["queries_count"] = Query.query.count()
+    status["queries_count"] = count(Query)
     if settings.FEATURE_SHOW_QUERY_RESULTS_COUNT:
-        status["query_results_count"] = QueryResult.query.count()
-        status["unused_query_results_count"] = QueryResult.unused(settings.QUERY_RESULTS_CLEANUP_MAX_AGE).count()
-    status["dashboards_count"] = Dashboard.query.count()
-    status["widgets_count"] = Widget.query.count()
+        status["query_results_count"] = count(QueryResult)
+        status["unused_query_results_count"] = db.session.execute(
+            QueryResult.unused(
+                columns=[func.count(QueryResult.id)], days=settings.QUERY_RESULTS_CLEANUP_MAX_AGE
+            )
+        ).first()[0]
+    status["dashboards_count"] = count(Dashboard)
+    status["widgets_count"] = count(Widget)
     return status
 
 
@@ -40,8 +51,8 @@ def get_db_sizes():
         ["Redash DB Size", "select pg_database_size(current_database()) as size"],
     ]
     for query_name, query in queries:
-        result = db.session.execute(query).first()
-        database_metrics.append([query_name, result[0]])
+        result = db.session.scalar(text(query))
+        database_metrics.append([query_name, result])
 
     return database_metrics
 

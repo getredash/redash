@@ -1,8 +1,9 @@
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.inspection import inspect
+from sqlalchemy.sql.expression import select
 from sqlalchemy_utils.models import generic_repr
 
-from .base import Column, GFKBase, db, key_type, primary_key
+from redash.models.base import Column, GFKBase, db, key_type, primary_key
 
 
 @generic_repr("id", "object_type", "object_id", "created_at")
@@ -38,10 +39,10 @@ class Change(GFKBase, db.Model):
 
     @classmethod
     def last_change(cls, obj):
-        return (
-            cls.query.filter(cls.object_id == obj.id, cls.object_type == obj.__class__.__tablename__)
+        return db.session.scalar(
+            select(cls)
+            .where(cls.object_id == obj.id, cls.object_type == obj.__class__.__tablename__)
             .order_by(cls.object_version.desc())
-            .first()
         )
 
 
@@ -65,7 +66,10 @@ class ChangeTrackingMixin:
             self.prep_cleanvalues()
         for attr in inspect(self.__class__).column_attrs:
             (col,) = attr.columns
-            previous = getattr(self, attr.key, None)
+            try:
+                previous = getattr(self, attr.key, None)
+            except Exception:
+                previous = None
             self._clean_values[col.name] = previous
 
         super(ChangeTrackingMixin, self).__setattr__(key, value)

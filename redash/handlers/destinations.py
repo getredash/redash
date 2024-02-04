@@ -79,7 +79,7 @@ class DestinationResource(BaseResource):
 
 class DestinationListResource(BaseResource):
     def get(self):
-        destinations = models.NotificationDestination.all(self.current_org)
+        destinations = models.db.session.scalars(models.NotificationDestination.all(self.current_org)).all()
 
         response = {}
         for ds in destinations:

@@ -3,8 +3,8 @@ import textwrap
 
 import requests
 
+from redash.alerts import Alerts
 from redash.destinations import BaseDestination, register
-from redash.models import Alert
 
 
 class Asana(BaseDestination):
@@ -30,7 +30,7 @@ class Asana(BaseDestination):
 
     def notify(self, alert, query, user, new_state, app, host, metadata, options):
         # Documentation: https://developers.asana.com/docs/tasks
-        state = "TRIGGERED" if new_state == Alert.TRIGGERED_STATE else "RECOVERED"
+        state = "TRIGGERED" if new_state == Alerts.TRIGGERED_STATE else "RECOVERED"
 
         notes = textwrap.dedent(
             f"""

@@ -1,14 +1,14 @@
 from sqlalchemy.ext.indexable import index_property
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.types import TypeDecorator
-from sqlalchemy_utils import EncryptedType
+from sqlalchemy_utils import StringEncryptedType
 
 from redash.models.base import db
 from redash.utils import json_dumps, json_loads
 from redash.utils.configuration import ConfigurationContainer
 
 
-class EncryptedConfiguration(EncryptedType):
+class EncryptedConfiguration(StringEncryptedType):
     def process_bind_param(self, value, dialect):
         return super(EncryptedConfiguration, self).process_bind_param(value.to_json(), dialect)
 

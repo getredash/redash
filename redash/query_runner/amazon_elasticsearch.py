@@ -1,5 +1,5 @@
-from . import register
-from .elasticsearch2 import ElasticSearch2
+from redash.query_runner import register
+from redash.query_runner.elasticsearch2 import ElasticSearch2
 
 try:
     from botocore import credentials, session

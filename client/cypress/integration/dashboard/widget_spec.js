@@ -23,6 +23,7 @@ describe("Widget", () => {
       editDashboard();
       cy.getByTestId("AddWidgetButton").click();
       cy.getByTestId("AddWidgetDialog").within(() => {
+        cy.get("input").type("Test Query");
         cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
       });
       cy.contains("button", "Add to Dashboard").click();

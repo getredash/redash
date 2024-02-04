@@ -1,6 +1,7 @@
 from sqlalchemy.event import listens_for
+from sqlalchemy.sql import select
 
-from .base import Column, db
+from redash.models.base import Column, db
 
 
 class TimestampMixin:
@@ -20,9 +21,9 @@ def timestamp_before_update(mapper, connection, target):
 class BelongsToOrgMixin:
     @classmethod
     def get_by_id_and_org(cls, object_id, org, org_cls=None):
-        query = cls.query.filter(cls.id == object_id)
+        query = select(cls).where(cls.id == object_id)
         if org_cls is None:
-            query = query.filter(cls.org == org)
+            query = query.where(cls.org == org)
         else:
-            query = query.join(org_cls).filter(org_cls.org == org)
-        return query.one()
+            query = query.join(org_cls).where(org_cls.org == org)
+        return db.session.scalars(query).one()

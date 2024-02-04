@@ -1,6 +1,6 @@
 import os
 
-from .helpers import parse_boolean
+from redash.settings.helpers import parse_boolean
 
 if os.environ.get("REDASH_SAML_LOCAL_METADATA_PATH") is not None:
     print("DEPRECATION NOTICE:\n")

@@ -1,9 +1,10 @@
 import functools
 
-from flask_sqlalchemy import BaseQuery, SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, query
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import object_session
 from sqlalchemy.pool import NullPool
+from sqlalchemy.sql.expression import select
 from sqlalchemy_searchable import SearchQueryMixin, make_searchable, vectorizer
 
 from redash import settings
@@ -29,20 +30,21 @@ class RedashSQLAlchemy(SQLAlchemy):
 
 
 db = RedashSQLAlchemy(
-    session_options={"expire_on_commit": False},
-    engine_options={"json_serializer": json_dumps, "json_deserializer": json_loads},
+    session_options={"expire_on_commit": False, "future": True},
+    engine_options={"future": True, "json_serializer": json_dumps, "json_deserializer": json_loads},
 )
-# Make sure the SQLAlchemy mappers are all properly configured first.
-# This is required by SQLAlchemy-Searchable as it adds DDL listeners
-# on the configuration phase of models.
-db.configure_mappers()
 
 # listen to a few database events to set up functions, trigger updates
 # and indexes for the full text search
 make_searchable(db.metadata, options={"regconfig": "pg_catalog.simple"})
 
+# Make sure the SQLAlchemy mappers are all properly configured first.
+# This is required by SQLAlchemy-Searchable as it adds DDL listeners
+# on the configuration phase of models.
+db.configure_mappers()
 
-class SearchBaseQuery(BaseQuery, SearchQueryMixin):
+
+class SearchBaseQuery(query.Query, SearchQueryMixin):
     """
     The SQA query class to use when full text search is wanted.
     """
@@ -88,7 +90,7 @@ class GFKBase:
             return self._object
         else:
             object_class = _gfk_types[self.object_type]
-            self._object = session.query(object_class).filter(object_class.id == self.object_id).first()
+            self._object = session.scalar(select(object_class).where(object_class.id == self.object_id))
             return self._object
 
     @object.setter

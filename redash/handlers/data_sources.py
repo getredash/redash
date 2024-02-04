@@ -107,7 +107,7 @@ class DataSourceListResource(BaseResource):
             data_sources = models.DataSource.all(self.current_org, group_ids=self.current_user.group_ids)
 
         response = {}
-        for ds in data_sources:
+        for ds in models.db.session.scalars(data_sources).all():
             if ds.id in response:
                 continue
 

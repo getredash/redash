@@ -7,6 +7,7 @@ from flask_login import current_user
 from funcy import project
 from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
+from sqlalchemy.sql.expression import select
 
 from redash import models
 from redash.models.parameterized_query import ParameterizedQuery
@@ -54,11 +55,12 @@ def public_dashboard(dashboard):
         ("name", "layout", "dashboard_filters_enabled", "updated_at", "created_at", "options"),
     )
 
-    widget_list = (
-        models.Widget.query.filter(models.Widget.dashboard_id == dashboard.id)
+    widget_list = models.db.session.scalars(
+        select(models.Widget)
+        .where(models.Widget.dashboard_id == dashboard.id)
         .outerjoin(models.Visualization)
         .outerjoin(models.Query)
-    )
+    ).all()
 
     dashboard_dict["widgets"] = [public_widget(w) for w in widget_list]
     return dashboard_dict
@@ -276,6 +278,10 @@ def serialize_job(job):
         JobStatus.STARTED: 2,
         JobStatus.FINISHED: 3,
         JobStatus.FAILED: 4,
+        JobStatus.CANCELED: 5,
+        JobStatus.STOPPED: 6,
+        JobStatus.DEFERRED: 7,
+        JobStatus.SCHEDULED: 8,
     }
 
     job_status = job.get_status()

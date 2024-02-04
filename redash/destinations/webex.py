@@ -3,8 +3,8 @@ from copy import deepcopy
 
 import requests
 
+from redash.alerts import Alerts
 from redash.destinations import BaseDestination, register
-from redash.models import Alert
 
 
 class Webex(BaseDestination):
@@ -92,7 +92,7 @@ class Webex(BaseDestination):
         query_link = f"{host}/queries/{query.id}"
         alert_link = f"{host}/alerts/{alert.id}"
 
-        if new_state == Alert.TRIGGERED_STATE:
+        if new_state == Alerts.TRIGGERED_STATE:
             subject = alert.custom_subject or f"{alert.name} just triggered"
         else:
             subject = f"{alert.name} went back to normal"

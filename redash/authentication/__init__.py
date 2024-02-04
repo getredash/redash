@@ -8,6 +8,7 @@ from urllib.parse import urlsplit, urlunsplit
 from flask import jsonify, redirect, request, session, url_for
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql import select
 from werkzeug.exceptions import Unauthorized
 
 from redash import models, settings
@@ -84,14 +85,14 @@ def hmac_load_user_from_request(request):
     # TODO: 3600 should be a setting
     if signature and time.time() < expires <= time.time() + 3600:
         if user_id:
-            user = models.User.query.get(user_id)
+            user = models.db.session.get(models.User, user_id)
             calculated_signature = sign(user.api_key, request.path, expires)
 
             if user.api_key and signature == calculated_signature:
                 return user
 
         if query_id:
-            query = models.Query.query.filter(models.Query.id == query_id).one()
+            query = models.db.session.scalars(select(models.Query).where(models.Query.id == query_id)).one()
             calculated_signature = sign(query.api_key, request.path, expires)
 
             if query.api_key and signature == calculated_signature:

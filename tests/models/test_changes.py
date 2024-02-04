@@ -1,3 +1,5 @@
+from sqlalchemy.sql.expression import select
+
 from redash.models import Change, ChangeTrackingMixin, Query, db
 from tests import BaseTestCase
 
@@ -19,7 +21,7 @@ class TestChangesProperty(BaseTestCase):
     def test_returns_initial_state(self):
         obj = create_object(self.factory)
 
-        for change in Change.query.filter(Change.object == obj):
+        for change in db.session.scalars(select(Change).where(Change.object == obj)).all():
             self.assertIsNone(change.change["previous"])
 
 

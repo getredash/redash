@@ -1,6 +1,5 @@
 import datetime
 
-import mock
 import pytest
 
 from redash.models import Event, Group, Query, QueryResult, db
@@ -28,7 +27,7 @@ class QueryTest(BaseTestCase):
         self.create_tagged_query(tags=["tag1", "tag2", "tag3"])
 
         self.assertEqual(
-            list(Query.all_tags(self.factory.user)),
+            db.session.execute(Query.all_tags(self.factory.user)).all(),
             [("tag1", 3), ("tag2", 2), ("tag3", 1)],
         )
 
@@ -36,7 +35,7 @@ class QueryTest(BaseTestCase):
         q1 = self.factory.create_query(name="Testing seåřċħ")
         q2 = self.factory.create_query(name="Testing seåřċħing")
         q3 = self.factory.create_query(name="Testing seå řċħ")
-        queries = list(Query.search("seåřċħ", [self.factory.default_group.id]))
+        queries = db.session.scalars(Query.search("seåřċħ", [self.factory.default_group.id])).all()
 
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
@@ -47,7 +46,7 @@ class QueryTest(BaseTestCase):
         q2 = self.factory.create_query(description="Testing seåřċħing")
         q3 = self.factory.create_query(description="Testing seå řċħ")
 
-        queries = Query.search("seåřċħ", [self.factory.default_group.id])
+        queries = db.session.scalars(Query.search("seåřċħ", [self.factory.default_group.id])).all()
 
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
@@ -58,7 +57,9 @@ class QueryTest(BaseTestCase):
         q2 = self.factory.create_query(description="日本語の説明文テスト")
         q3 = self.factory.create_query(description="Testing search")
 
-        queries = Query.search("テスト", [self.factory.default_group.id], multi_byte_search=True)
+        queries = db.session.scalars(
+            Query.search("テスト", [self.factory.default_group.id], multi_byte_search=True)
+        ).all()
 
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
@@ -69,7 +70,7 @@ class QueryTest(BaseTestCase):
         q2 = self.factory.create_query(description="Testing searching")
         q3 = self.factory.create_query(description="Testing sea rch")
         db.session.flush()
-        queries = Query.search(str(q3.id), [self.factory.default_group.id])
+        queries = db.session.scalars(Query.search(str(q3.id), [self.factory.default_group.id])).all()
 
         self.assertIn(q3, queries)
         self.assertNotIn(q1, queries)
@@ -78,7 +79,7 @@ class QueryTest(BaseTestCase):
     def test_search_by_number(self):
         q = self.factory.create_query(description="Testing search 12345")
         db.session.flush()
-        queries = Query.search("12345", [self.factory.default_group.id])
+        queries = db.session.scalars(Query.search("12345", [self.factory.default_group.id])).all()
 
         self.assertIn(q, queries)
 
@@ -91,18 +92,18 @@ class QueryTest(BaseTestCase):
         q2 = self.factory.create_query(description="Testing searching")
         q3 = self.factory.create_query(description="Testing sea rch")
 
-        queries = list(Query.search("Testing", [self.factory.default_group.id]))
+        queries = db.session.scalars(Query.search("Testing", [self.factory.default_group.id])).all()
 
         self.assertNotIn(q1, queries)
         self.assertIn(q2, queries)
         self.assertIn(q3, queries)
 
-        queries = list(Query.search("Testing", [other_group.id, self.factory.default_group.id]))
+        queries = db.session.scalars(Query.search("Testing", [other_group.id, self.factory.default_group.id])).all()
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
         self.assertIn(q3, queries)
 
-        queries = list(Query.search("Testing", [other_group.id]))
+        queries = db.session.scalars(Query.search("Testing", [other_group.id])).all()
         self.assertIn(q1, queries)
         self.assertNotIn(q2, queries)
         self.assertNotIn(q3, queries)
@@ -115,12 +116,9 @@ class QueryTest(BaseTestCase):
 
         self.factory.create_query(description="Testing search", data_source=ds)
         db.session.flush()
-        queries = list(
-            Query.search(
-                "Testing",
-                [self.factory.default_group.id, other_group.id, second_group.id],
-            )
-        )
+        queries = db.session.scalars(
+            Query.search("Testing", [self.factory.default_group.id, other_group.id, second_group.id])
+        ).all()
 
         self.assertEqual(1, len(queries))
 
@@ -136,13 +134,13 @@ class QueryTest(BaseTestCase):
     def test_search_is_case_insensitive(self):
         q = self.factory.create_query(name="Testing search")
 
-        self.assertIn(q, Query.search("testing", [self.factory.default_group.id]))
+        self.assertIn(q, db.session.scalars(Query.search("testing", [self.factory.default_group.id])).all())
 
     def test_search_query_parser_or(self):
         q1 = self.factory.create_query(name="Testing")
         q2 = self.factory.create_query(name="search")
 
-        queries = list(Query.search("testing or search", [self.factory.default_group.id]))
+        queries = db.session.scalars(Query.search("testing or search", [self.factory.default_group.id])).all()
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
 
@@ -150,7 +148,7 @@ class QueryTest(BaseTestCase):
         q1 = self.factory.create_query(name="Testing")
         q2 = self.factory.create_query(name="search")
 
-        queries = list(Query.search("testing -search", [self.factory.default_group.id]))
+        queries = db.session.scalars(Query.search("testing -search", [self.factory.default_group.id])).all()
         self.assertIn(q1, queries)
         self.assertNotIn(q2, queries)
 
@@ -159,7 +157,9 @@ class QueryTest(BaseTestCase):
         q2 = self.factory.create_query(name="Testing searching")
         q3 = self.factory.create_query(name="Testing finding")
 
-        queries = list(Query.search("testing (search or finding)", [self.factory.default_group.id]))
+        queries = db.session.scalars(
+            Query.search("testing (search or finding)", [self.factory.default_group.id])
+        ).all()
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
         self.assertIn(q3, queries)
@@ -168,7 +168,7 @@ class QueryTest(BaseTestCase):
         q1 = self.factory.create_query(name="Testing search")
         q2 = self.factory.create_query(name="Testing-search")
 
-        queries = list(Query.search("testing search", [self.factory.default_group.id]))
+        queries = db.session.scalars(Query.search("testing search", [self.factory.default_group.id])).all()
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
 
@@ -177,15 +177,15 @@ class QueryTest(BaseTestCase):
         q1 = self.factory.create_query(name="janedoe@example.com")
         q2 = self.factory.create_query(name="johndoe@example.com")
 
-        queries = list(Query.search("example", [self.factory.default_group.id]))
+        queries = db.session.scalars(Query.search("example", [self.factory.default_group.id])).all()
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
 
-        queries = list(Query.search("com", [self.factory.default_group.id]))
+        queries = db.session.scalars(Query.search("com", [self.factory.default_group.id])).all()
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
 
-        queries = list(Query.search("johndoe", [self.factory.default_group.id]))
+        queries = db.session.scalars(Query.search("johndoe", [self.factory.default_group.id])).all()
         self.assertNotIn(q1, queries)
         self.assertIn(q2, queries)
 
@@ -195,11 +195,9 @@ class QueryTest(BaseTestCase):
         one_day_later = (utcnow() + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
         query1 = self.factory.create_query(schedule={"interval": "3600", "until": one_day_ago})
         query2 = self.factory.create_query(schedule={"interval": "3600", "until": one_day_later})
-        oq = staticmethod(lambda: [query1, query2])
-        with mock.patch.object(query.query.filter(), "order_by", oq):
-            res = query.past_scheduled_queries()
-            self.assertTrue(query1 in res)
-            self.assertFalse(query2 in res)
+        res = query.past_scheduled_queries()
+        self.assertTrue(query1 in res)
+        self.assertFalse(query2 in res)
 
     def test_search_by_user_finds_in_user(self):
         u1 = self.factory.create_user(name="John")
@@ -212,7 +210,7 @@ class QueryTest(BaseTestCase):
         self.factory._user = u2
         q3 = self.factory.create_query(name="Testing search with Jane")
 
-        queries = Query.search_by_user("search", u1, multi_byte_search=True)
+        queries = db.session.scalars(Query.search_by_user("search", u1, multi_byte_search=True)).all()
 
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
@@ -229,7 +227,7 @@ class QueryTest(BaseTestCase):
         self.factory._user = u2
         q3 = self.factory.create_query(name="日本語の名前テスト")
 
-        queries = Query.search_by_user("名前", u1, multi_byte_search=True)
+        queries = db.session.scalars(Query.search_by_user("名前", u1, multi_byte_search=True)).all()
 
         self.assertIn(q1, queries)
         self.assertNotIn(q2, queries)
@@ -305,21 +303,25 @@ class QueryRecentTest(BaseTestCase):
         q1 = self.factory.create_query()
         ds = self.factory.create_data_source(group=self.factory.create_group())
         q2 = self.factory.create_query(data_source=ds)
+        db.session.add_all(
+            [
+                Event(
+                    org=self.factory.org,
+                    user=self.factory.user,
+                    action="edit",
+                    object_type="query",
+                    object_id=q1.id,
+                ),
+                Event(
+                    org=self.factory.org,
+                    user=self.factory.user,
+                    action="edit",
+                    object_type="query",
+                    object_id=q2.id,
+                ),
+            ]
+        )
         db.session.flush()
-        Event(
-            org=self.factory.org,
-            user=self.factory.user,
-            action="edit",
-            object_type="query",
-            object_id=q1.id,
-        )
-        Event(
-            org=self.factory.org,
-            user=self.factory.user,
-            action="edit",
-            object_type="query",
-            object_id=q2.id,
-        )
 
         recent = Query.recent([self.factory.default_group.id])
 
@@ -332,17 +334,17 @@ class TestQueryByUser(BaseTestCase):
         q = self.factory.create_query(user=self.factory.user)
         q2 = self.factory.create_query(user=self.factory.create_user())
 
-        queries = Query.by_user(self.factory.user)
+        queries = db.session.scalars(Query.by_user(self.factory.user)).all()
 
         # not using self.assertIn/NotIn because otherwise this fails :O
-        self.assertTrue(q in list(queries))
-        self.assertFalse(q2 in list(queries))
+        self.assertTrue(q in queries)
+        self.assertFalse(q2 in queries)
 
     def test_returns_drafts_by_the_user(self):
         q = self.factory.create_query(is_draft=True)
         q2 = self.factory.create_query(is_draft=True, user=self.factory.create_user())
 
-        queries = Query.by_user(self.factory.user)
+        queries = db.session.scalars(Query.by_user(self.factory.user)).all()
 
         # not using self.assertIn/NotIn because otherwise this fails :O
         self.assertTrue(q in queries)
@@ -352,7 +354,7 @@ class TestQueryByUser(BaseTestCase):
         q = self.factory.create_query()
         q2 = self.factory.create_query(data_source=self.factory.create_data_source(group=self.factory.create_group()))
 
-        queries = Query.by_user(self.factory.user)
+        queries = db.session.scalars(Query.by_user(self.factory.user)).all()
 
         # not using self.assertIn/NotIn because otherwise this fails :O
         self.assertTrue(q in queries)
@@ -484,6 +486,8 @@ class TestQueryUpdateLatestResult(BaseTestCase):
             self.utcnow,
         )
 
+        db.session.commit()
+
         Query.update_latest_result(query_result)
 
         self.assertEqual(query1.latest_query_data, query_result)
@@ -505,6 +509,8 @@ class TestQueryUpdateLatestResult(BaseTestCase):
             self.utcnow,
         )
 
+        db.session.commit()
+
         Query.update_latest_result(query_result)
 
         self.assertEqual(query1.latest_query_data, query_result)
@@ -525,6 +531,8 @@ class TestQueryUpdateLatestResult(BaseTestCase):
             self.runtime,
             self.utcnow,
         )
+
+        db.session.commit()
 
         Query.update_latest_result(query_result)
 
