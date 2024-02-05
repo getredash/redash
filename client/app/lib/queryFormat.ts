@@ -1,7 +1,7 @@
 import { trim } from "lodash";
 import { format } from "sql-formatter";
-import { formatterConfig } from './formatterConfig';
-import { defaultFormatterConfig } from './defaultFormatterConfig';
+import formatterConfig from './formatterConfig.json';
+import defaultFormatterConfig from './defaultFormatterConfig.json';
 
 interface QueryFormatterMap {
   [syntax: string]: (queryText: string) => string;
