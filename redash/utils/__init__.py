@@ -74,11 +74,7 @@ class JSONEncoder(json.JSONEncoder):
     """Adapter for `json.dumps`."""
 
     def __init__(self, **kwargs):
-        self.encoders = [
-            m.custom_json_encoder
-            for m in sys.modules.values()
-            if hasattr(m, "custom_json_encoder")
-        ]
+        self.encoders = [m.custom_json_encoder for m in sys.modules.values() if hasattr(m, "custom_json_encoder")]
         super().__init__(**kwargs)
 
     def default(self, o):
