@@ -12,7 +12,7 @@ from redash.query_runner.mongodb import (
     parse_query_json,
     parse_results,
 )
-from redash.utils import json_dumps, json_loads, parse_human_time
+from redash.utils import json_dumps, parse_human_time
 
 
 @patch("redash.query_runner.mongodb.pymongo.MongoClient")
@@ -63,7 +63,7 @@ class TestMongoDB(TestCase):
         result, err = mongo_qr.run_query(json_dumps(query), None)
 
         self.assertIsNone(err)
-        self.assertEqual(expected, json_loads(result))
+        self.assertEqual(expected, result)
 
     def test_run_query_with_aggregate(self, mongo_client):
         config = {
@@ -96,7 +96,7 @@ class TestMongoDB(TestCase):
         mongo_client().__getitem__().__getitem__().aggregate.return_value = return_value
         result, err = mongo_qr.run_query(json_dumps(query), None)
         self.assertIsNone(err)
-        self.assertEqual(expected, json_loads(result))
+        self.assertEqual(expected, result)
 
 
 class TestParseQueryJson(TestCase):
