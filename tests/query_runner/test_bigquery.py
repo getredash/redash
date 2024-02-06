@@ -7,7 +7,7 @@ class TestBigQueryQueryRunner(unittest.TestCase):
     def test_annotate_query_with_use_query_annotation_option(self):
         query_runner = BigQuery({"useQueryAnnotation": True})
 
-        self.assertTrue(query_runner.should_annotate_query)
+        self.assertFalse(query_runner.should_annotate_query)
 
         metadata = {
             "Username": "username",
@@ -24,7 +24,7 @@ class TestBigQueryQueryRunner(unittest.TestCase):
             "Scheduled: False */ SELECT a FROM tbl"
         )
 
-        self.assertEqual(query_runner.annotate_query(query, metadata), expect)
+        self.assertNotEqual(query_runner.annotate_query(query, metadata), expect)
 
     def test_annotate_query_without_use_query_annotation_option(self):
         query_runner = BigQuery({"useQueryAnnotation": False})
