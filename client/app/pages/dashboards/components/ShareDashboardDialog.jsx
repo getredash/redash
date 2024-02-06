@@ -118,28 +118,9 @@ class ShareDashboardDialog extends React.Component {
             />
           </Form.Item>
           {dashboard.public_url && (
-            <>
-              <Form.Item>
-                <Alert
-                  message={
-                    <div>
-                      Custom rule for hiding filter components when sharing links:
-                      <br />
-                      You can hide filter components by appending `&hide_filter={"{{"} component_name{"}}"}` to the
-                      sharing URL.
-                      <br />
-                      Example: http://{"{{"}ip{"}}"}:{"{{"}port{"}}"}/public/dashboards/{"{{"}id{"}}"}
-                      ?p_country=ghana&p_site=10&hide_filter=country
-                    </div>
-                  }
-                  type="warning"
-                />
-              </Form.Item>
-
-              <Form.Item label="Secret address" {...this.formItemProps}>
-                <InputWithCopy value={dashboard.public_url} data-test="SecretAddress" />
-              </Form.Item>
-            </>
+            <Form.Item label="Secret address" {...this.formItemProps}>
+              <InputWithCopy value={dashboard.public_url} data-test="SecretAddress" />
+            </Form.Item>
           )}
         </Form>
       </Modal>

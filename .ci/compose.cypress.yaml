@@ -1,4 +1,3 @@
-version: "2.2"
 x-redash-service: &redash-service
   build:
     context: ../

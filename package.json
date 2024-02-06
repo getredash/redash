@@ -1,6 +1,6 @@
 {
   "name": "redash-client",
-  "version": "24.01.0-dev",
+  "version": "24.02.0-dev",
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
@@ -35,6 +35,7 @@
   },
   "engines": {
     "node": ">14.16.0 <17.0.0",
+    "npm": "please-use-yarn",
     "yarn": "^1.22.10"
   },
   "author": "Redash Contributors",

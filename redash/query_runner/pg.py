@@ -55,7 +55,7 @@ types_map = {
 }
 
 
-def json_encoder(dec, o):
+def custom_json_encoder(dec, o):
     if isinstance(o, Range):
         # From: https://github.com/psycopg/psycopg2/pull/779
         if o._bounds is None:
