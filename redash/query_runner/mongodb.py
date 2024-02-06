@@ -42,7 +42,7 @@ TYPES_MAP = {
 }
 
 
-def json_encoder(dec, o):
+def custom_json_encoder(dec, o):
     if isinstance(o, ObjectId):
         return str(o)
     elif isinstance(o, Timestamp):

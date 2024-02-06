@@ -26,7 +26,7 @@ def generate_ssl_options_dict(protocol, cert_path=None):
     return ssl_options
 
 
-def json_encoder(dec, o):
+def custom_json_encoder(dec, o):
     if isinstance(o, sortedset):
         return list(o)
     return None
