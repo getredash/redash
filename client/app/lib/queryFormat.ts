@@ -7,6 +7,7 @@ interface QueryFormatterMap {
   [syntax: string]: (queryText: string) => string;
 }
 
+// sql-formatter referrence -> https://www.npmjs.com/package/sql-formatter
 const QueryFormatters: QueryFormatterMap = {
   sql: queryText => format(trim(queryText), Object.assign(defaultFormatterConfig, formatterConfig)),
   json: queryText => JSON.stringify(JSON.parse(queryText), null, 4),
