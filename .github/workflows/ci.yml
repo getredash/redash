@@ -15,10 +15,10 @@ jobs:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable
         run: exit 1
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
@@ -38,10 +38,10 @@ jobs:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable
         run: exit 1
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Build Docker Images
         run: |
           set -x
@@ -78,10 +78,10 @@ jobs:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable
         run: exit 1
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -105,10 +105,10 @@ jobs:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable
         run: exit 1
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -138,10 +138,10 @@ jobs:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable
         run: exit 1
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -208,10 +208,10 @@ jobs:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable
         run: exit 1
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
