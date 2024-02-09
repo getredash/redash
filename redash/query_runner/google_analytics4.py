@@ -13,7 +13,7 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -160,9 +160,8 @@ class GoogleAnalytics4(BaseQueryRunner):
         data = parse_ga_response(raw_result)
 
         error = None
-        json_data = json_dumps(data)
 
-        return json_data, error
+        return data, error
 
     def test_connection(self):
         try:

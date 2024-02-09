@@ -9,7 +9,6 @@ from rq.timeouts import JobTimeoutException
 from sshtunnel import open_tunnel
 
 from redash import settings, utils
-from redash.utils import json_loads
 from redash.utils.requests_session import (
     UnacceptableAddressException,
     requests_or_advocate,
@@ -114,7 +113,7 @@ class NotSupported(Exception):
     pass
 
 
-class BaseQueryRunner(object):
+class BaseQueryRunner:
     deprecated = False
     should_annotate_query = True
     noop_query = None
@@ -243,7 +242,7 @@ class BaseQueryRunner(object):
 
         if error is not None:
             raise Exception("Failed running query [%s]." % query)
-        return json_loads(results)["rows"]
+        return results["rows"]
 
     @classmethod
     def to_dict(cls):

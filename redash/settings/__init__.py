@@ -285,6 +285,7 @@ default_query_runners = [
     "redash.query_runner.pg",
     "redash.query_runner.url",
     "redash.query_runner.influx_db",
+    "redash.query_runner.influx_db_v2",
     "redash.query_runner.elasticsearch",
     "redash.query_runner.elasticsearch2",
     "redash.query_runner.amazon_elasticsearch",
@@ -298,6 +299,7 @@ default_query_runners = [
     "redash.query_runner.clickhouse",
     "redash.query_runner.tinybird",
     "redash.query_runner.yandex_metrica",
+    "redash.query_runner.yandex_disk",
     "redash.query_runner.rockset",
     "redash.query_runner.treasuredata",
     "redash.query_runner.sqlite",
@@ -336,6 +338,7 @@ default_query_runners = [
     "redash.query_runner.google_search_console",
     "redash.query_runner.ignite",
     "redash.query_runner.oracle",
+    "redash.query_runner.e6data",
 ]
 
 enabled_query_runners = array_from_string(

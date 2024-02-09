@@ -2,11 +2,11 @@ import re
 from collections import OrderedDict
 
 from redash.query_runner import TYPE_STRING, BaseHTTPQueryRunner, register
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_loads
 
 
 # TODO: make this more general and move into __init__.py
-class ResultSet(object):
+class ResultSet:
     def __init__(self):
         self.columns = OrderedDict()
         self.rows = []
@@ -26,7 +26,7 @@ class ResultSet(object):
             }
 
     def to_json(self):
-        return json_dumps({"rows": self.rows, "columns": list(self.columns.values())})
+        return {"rows": self.rows, "columns": list(self.columns.values())}
 
     def merge(self, set):
         self.rows = self.rows + set.rows

@@ -13,7 +13,7 @@ from redash.query_runner import (
     guess_type,
     register,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -76,8 +76,6 @@ def get_query_results(user, query_id, bring_from_cache, params=None):
         results, error = query.data_source.query_runner.run_query(query_text, user)
         if error:
             raise Exception("Failed loading results for query id {}.".format(query.id))
-        else:
-            results = json_loads(results)
 
     return results
 
@@ -194,16 +192,15 @@ class Results(BaseQueryRunner):
 
                 data = {"columns": columns, "rows": rows}
                 error = None
-                json_data = json_dumps(data)
             else:
                 error = "Query completed but it returned no data."
-                json_data = None
+                data = None
         except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
             raise
         finally:
             connection.close()
-        return json_data, error
+        return data, error
 
 
 register(Results)

@@ -8,7 +8,7 @@ from operator import or_
 from flask import current_app, request_started, url_for
 from flask_login import AnonymousUserMixin, UserMixin, current_user
 from passlib.apps import custom_app_context as pwd_context
-from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy_utils import EmailType
 from sqlalchemy_utils.models import generic_repr
 
@@ -60,7 +60,7 @@ def init_app(app):
     request_started.connect(update_user_active_at, app)
 
 
-class PermissionsCheckMixin(object):
+class PermissionsCheckMixin:
     def has_permission(self, permission):
         return self.has_permissions((permission,))
 
@@ -84,14 +84,14 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     password_hash = Column(db.String(128), nullable=True)
     group_ids = Column(
         "groups",
-        MutableList.as_mutable(postgresql.ARRAY(key_type("Group"))),
+        MutableList.as_mutable(ARRAY(key_type("Group"))),
         nullable=True,
     )
     api_key = Column(db.String(40), default=lambda: generate_token(40), unique=True)
 
     disabled_at = Column(db.DateTime(True), default=None, nullable=True)
     details = Column(
-        MutableDict.as_mutable(postgresql.JSONB),
+        MutableDict.as_mutable(JSONB),
         nullable=True,
         server_default="{}",
         default={},
@@ -267,7 +267,7 @@ class Group(db.Model, BelongsToOrgMixin):
     org = db.relationship("Organization", back_populates="groups")
     type = Column(db.String(255), default=REGULAR_GROUP)
     name = Column(db.String(100))
-    permissions = Column(postgresql.ARRAY(db.String(255)), default=DEFAULT_PERMISSIONS)
+    permissions = Column(ARRAY(db.String(255)), default=DEFAULT_PERMISSIONS)
     created_at = Column(db.DateTime(True), default=db.func.now())
 
     __tablename__ = "groups"

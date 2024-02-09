@@ -14,7 +14,6 @@ from redash.query_runner import (
     register,
 )
 from redash.settings import parse_boolean
-from redash.utils import json_dumps, json_loads
 
 try:
     import MySQLdb
@@ -44,7 +43,7 @@ types_map = {
 }
 
 
-class Result(object):
+class Result:
     def __init__(self):
         pass
 
@@ -161,8 +160,6 @@ class Mysql(BaseSQLQueryRunner):
         if error is not None:
             self._handle_run_query_error(error)
 
-        results = json_loads(results)
-
         for row in results["rows"]:
             if row["table_schema"] != self.configuration["db"]:
                 table_name = "{}.{}".format(row["table_schema"], row["table_name"])
@@ -194,7 +191,7 @@ class Mysql(BaseSQLQueryRunner):
             t.join()
             raise
 
-        return r.json_data, r.error
+        return r.data, r.error
 
     def _run_query(self, query, user, connection, r, ev):
         try:
@@ -216,17 +213,17 @@ class Mysql(BaseSQLQueryRunner):
                 rows = [dict(zip((column["name"] for column in columns), row)) for row in data]
 
                 data = {"columns": columns, "rows": rows}
-                r.json_data = json_dumps(data)
+                r.data = data
                 r.error = None
             else:
-                r.json_data = None
+                r.data = None
                 r.error = "No data was returned."
 
             cursor.close()
         except MySQLdb.Error as e:
             if cursor:
                 cursor.close()
-            r.json_data = None
+            r.data = None
             r.error = e.args[1]
         finally:
             ev.set()

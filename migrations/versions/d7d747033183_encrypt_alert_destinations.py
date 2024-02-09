@@ -7,17 +7,14 @@ Create Date: 2020-12-14 21:42:48.661684
 """
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import BYTEA
 from sqlalchemy.sql import table
 from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
 
 from redash import settings
 from redash.utils.configuration import ConfigurationContainer
 from redash.models.base import key_type
-from redash.models.types import (
-    EncryptedConfiguration,
-    Configuration,
-)
+from redash.models.types import EncryptedConfiguration
 
 
 # revision identifiers, used by Alembic.
@@ -30,7 +27,7 @@ depends_on = None
 def upgrade():
     op.add_column(
         "notification_destinations",
-        sa.Column("encrypted_options", postgresql.BYTEA(), nullable=True)
+        sa.Column("encrypted_options", BYTEA(), nullable=True)
     )
 
     # copy values
@@ -45,7 +42,14 @@ def upgrade():
                 )
             ),
         ),
-        sa.Column("options", ConfigurationContainer.as_mutable(Configuration)),
+        sa.Column(
+            "options", 
+            ConfigurationContainer.as_mutable(
+                EncryptedConfiguration(
+                    sa.Text, settings.DATASOURCE_SECRET_KEY, FernetEngine
+                )
+            ),
+        ),
     )
 
     conn = op.get_bind()

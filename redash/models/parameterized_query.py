@@ -103,7 +103,7 @@ def _is_value_within_options(value, dropdown_options, allow_list=False):
     return str(value) in dropdown_options
 
 
-class ParameterizedQuery(object):
+class ParameterizedQuery:
     def __init__(self, template, schema=None, org=None):
         self.schema = schema or []
         self.org = org

@@ -15,7 +15,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +101,7 @@ class Kylin(BaseQueryRunner):
         columns = self.get_columns(data["columnMetas"])
         rows = self.get_rows(columns, data["results"])
 
-        return json_dumps({"columns": columns, "rows": rows}), None
+        return {"columns": columns, "rows": rows}, None
 
     def get_schema(self, get_stats=False):
         url = self.configuration["url"]

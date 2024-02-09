@@ -6,7 +6,7 @@ import time
 
 import pytz
 from sqlalchemy import UniqueConstraint, and_, cast, distinct, func, or_
-from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import ARRAY, DOUBLE_PRECISION, JSONB
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import (
@@ -40,14 +40,17 @@ from redash.models.base import (
 from redash.models.changes import Change, ChangeTrackingMixin  # noqa
 from redash.models.mixins import BelongsToOrgMixin, TimestampMixin
 from redash.models.organizations import Organization
-from redash.models.parameterized_query import ParameterizedQuery
+from redash.models.parameterized_query import (
+    InvalidParameterError,
+    ParameterizedQuery,
+    QueryDetachedFromDataSourceError,
+)
 from redash.models.types import (
-    Configuration,
     EncryptedConfiguration,
+    JSONText,
     MutableDict,
     MutableList,
-    PseudoJSON,
-    pseudo_json_cast_property,
+    json_cast_property,
 )
 from redash.models.users import (  # noqa
     AccessPermission,
@@ -80,7 +83,7 @@ from redash.utils.configuration import ConfigurationContainer
 logger = logging.getLogger(__name__)
 
 
-class ScheduledQueriesExecutions(object):
+class ScheduledQueriesExecutions:
     KEY_NAME = "sq:executed_at"
 
     def __init__(self):
@@ -123,7 +126,10 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     data_source_groups = db.relationship("DataSourceGroup", back_populates="data_source", cascade="all")
     __tablename__ = "data_sources"
-    __table_args__ = (db.Index("data_sources_org_id_name", "org_id", "name"),)
+    __table_args__ = (
+        db.Index("data_sources_org_id_name", "org_id", "name"),
+        {"extend_existing": True},
+    )
 
     def __eq__(self, other):
         return self.id == other.id
@@ -297,34 +303,11 @@ class DataSourceGroup(db.Model):
     view_only = Column(db.Boolean, default=False)
 
     __tablename__ = "data_source_groups"
-
-
-DESERIALIZED_DATA_ATTR = "_deserialized_data"
-
-
-class DBPersistence(object):
-    @property
-    def data(self):
-        if self._data is None:
-            return None
-
-        if not hasattr(self, DESERIALIZED_DATA_ATTR):
-            setattr(self, DESERIALIZED_DATA_ATTR, json_loads(self._data))
-
-        return self._deserialized_data
-
-    @data.setter
-    def data(self, data):
-        if hasattr(self, DESERIALIZED_DATA_ATTR):
-            delattr(self, DESERIALIZED_DATA_ATTR)
-        self._data = data
-
-
-QueryResultPersistence = settings.dynamic_settings.QueryResultPersistence or DBPersistence
+    __table_args__ = ({"extend_existing": True},)
 
 
 @generic_repr("id", "org_id", "data_source_id", "query_hash", "runtime", "retrieved_at")
-class QueryResult(db.Model, QueryResultPersistence, BelongsToOrgMixin):
+class QueryResult(db.Model, BelongsToOrgMixin):
     id = primary_key("QueryResult")
     org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
     org = db.relationship(Organization)
@@ -332,8 +315,8 @@ class QueryResult(db.Model, QueryResultPersistence, BelongsToOrgMixin):
     data_source = db.relationship(DataSource, backref=backref("query_results"))
     query_hash = Column(db.String(32), index=True)
     query_text = Column("query", db.Text)
-    _data = Column("data", db.Text)
-    runtime = Column(postgresql.DOUBLE_PRECISION)
+    data = Column(JSONText, nullable=True)
+    runtime = Column(DOUBLE_PRECISION)
     retrieved_at = Column(db.DateTime(True))
 
     __tablename__ = "query_results"
@@ -474,11 +457,11 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     last_modified_by = db.relationship(User, backref="modified_queries", foreign_keys=[last_modified_by_id])
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
-    schedule = Column(MutableDict.as_mutable(PseudoJSON), nullable=True)
-    interval = pseudo_json_cast_property(db.Integer, "schedule", "interval", default=0)
+    schedule = Column(MutableDict.as_mutable(JSONB), nullable=True)
+    interval = json_cast_property(db.Integer, "schedule", "interval", default=0)
     schedule_failures = Column(db.Integer, default=0)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
-    options = Column(MutableDict.as_mutable(PseudoJSON), default={})
+    options = Column(MutableDict.as_mutable(JSONB), default={})
     search_vector = Column(
         TSVectorType(
             "id",
@@ -489,7 +472,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         ),
         nullable=True,
     )
-    tags = Column("tags", MutableList.as_mutable(postgresql.ARRAY(db.Unicode)), nullable=True)
+    tags = Column("tags", MutableList.as_mutable(ARRAY(db.Unicode)), nullable=True)
 
     query_class = SearchBaseQuery
     __tablename__ = "queries"
@@ -525,7 +508,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 name="Table",
                 description="",
                 type="TABLE",
-                options="{}",
+                options={},
             )
         )
         return query
@@ -591,7 +574,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     @classmethod
     def past_scheduled_queries(cls):
         now = utils.utcnow()
-        queries = Query.query.filter(Query.schedule.isnot(None)).order_by(Query.id)
+        queries = Query.query.filter(func.jsonb_typeof(Query.schedule) != "null").order_by(Query.id)
         return [
             query
             for query in queries
@@ -603,7 +586,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def outdated_queries(cls):
         queries = (
             Query.query.options(joinedload(Query.latest_query_data).load_only("retrieved_at"))
-            .filter(Query.schedule.isnot(None))
+            .filter(func.jsonb_typeof(Query.schedule) != "null")
             .order_by(Query.id)
             .all()
         )
@@ -831,7 +814,20 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def update_query_hash(self):
         should_apply_auto_limit = self.options.get("apply_auto_limit", False) if self.options else False
         query_runner = self.data_source.query_runner if self.data_source else BaseQueryRunner({})
-        self.query_hash = query_runner.gen_query_hash(self.query_text, should_apply_auto_limit)
+        query_text = self.query_text
+
+        parameters_dict = {p["name"]: p.get("value") for p in self.parameters} if self.options else {}
+        if any(parameters_dict):
+            try:
+                query_text = self.parameterized.apply(parameters_dict).query
+            except InvalidParameterError as e:
+                logging.info(f"Unable to update hash for query {self.id} because of invalid parameters: {str(e)}")
+            except QueryDetachedFromDataSourceError as e:
+                logging.info(
+                    f"Unable to update hash for query {self.id} because of dropdown query {e.query_id} is unattached from datasource"
+                )
+
+        self.query_hash = query_runner.gen_query_hash(query_text, should_apply_auto_limit)
 
 
 @listens_for(Query, "before_insert")
@@ -936,7 +932,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     query_rel = db.relationship(Query, backref=backref("alerts", cascade="all"))
     user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship(User, backref="alerts")
-    options = Column(MutableDict.as_mutable(PseudoJSON))
+    options = Column(MutableDict.as_mutable(JSONB), nullable=True)
     state = Column(db.String(255), default=UNKNOWN_STATE)
     subscriptions = db.relationship("AlertSubscription", cascade="all, delete-orphan")
     last_triggered_at = Column(db.DateTime(True), nullable=True)
@@ -1047,13 +1043,13 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship(User)
     # layout is no longer used, but kept so we know how to render old dashboards.
-    layout = Column(db.Text)
+    layout = Column(MutableList.as_mutable(JSONB), default=[])
     dashboard_filters_enabled = Column(db.Boolean, default=False)
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
     widgets = db.relationship("Widget", backref="dashboard", lazy="dynamic")
-    tags = Column("tags", MutableList.as_mutable(postgresql.ARRAY(db.Unicode)), nullable=True)
-    options = Column(MutableDict.as_mutable(postgresql.JSON), server_default="{}", default={})
+    tags = Column("tags", MutableList.as_mutable(ARRAY(db.Unicode)), nullable=True)
+    options = Column(MutableDict.as_mutable(JSONB), default={})
 
     __tablename__ = "dashboards"
     __mapper_args__ = {"version_id_col": version}
@@ -1166,7 +1162,7 @@ class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
     query_rel = db.relationship(Query, back_populates="visualizations")
     name = Column(db.String(255))
     description = Column(db.String(4096), nullable=True)
-    options = Column(db.Text)
+    options = Column(MutableDict.as_mutable(JSONB), nullable=True)
 
     __tablename__ = "visualizations"
 
@@ -1193,7 +1189,7 @@ class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
     visualization = db.relationship(Visualization, backref=backref("widgets", cascade="delete"))
     text = Column(db.Text, nullable=True)
     width = Column(db.Integer)
-    options = Column(db.Text)
+    options = Column(MutableDict.as_mutable(JSONB), default={})
     dashboard_id = Column(key_type("Dashboard"), db.ForeignKey("dashboards.id"), index=True)
 
     __tablename__ = "widgets"
@@ -1225,7 +1221,7 @@ class Event(db.Model):
     action = Column(db.String(255))
     object_type = Column(db.String(255))
     object_id = Column(db.String(255), nullable=True)
-    additional_properties = Column(MutableDict.as_mutable(PseudoJSON), nullable=True, default={})
+    additional_properties = Column(MutableDict.as_mutable(JSONB), nullable=True, default={})
     created_at = Column(db.DateTime(True), default=db.func.now())
 
     __tablename__ = "events"

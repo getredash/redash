@@ -16,14 +16,13 @@ from redash.serializers.query_result import (
     serialize_query_result_to_dsv,
     serialize_query_result_to_xlsx,
 )
-from redash.utils import json_loads
 
 
 def public_widget(widget):
     res = {
         "id": widget.id,
         "width": widget.width,
-        "options": json_loads(widget.options),
+        "options": widget.options,
         "text": widget.text,
         "updated_at": widget.updated_at,
         "created_at": widget.created_at,
@@ -35,7 +34,7 @@ def public_widget(widget):
             "type": v.type,
             "name": v.name,
             "description": v.description,
-            "options": json_loads(v.options),
+            "options": v.options,
             "updated_at": v.updated_at,
             "created_at": v.created_at,
             "query": {
@@ -65,7 +64,7 @@ def public_dashboard(dashboard):
     return dashboard_dict
 
 
-class Serializer(object):
+class Serializer:
     pass
 
 
@@ -146,7 +145,7 @@ def serialize_visualization(object, with_query=True):
         "type": object.type,
         "name": object.name,
         "description": object.description,
-        "options": json_loads(object.options),
+        "options": object.options,
         "updated_at": object.updated_at,
         "created_at": object.created_at,
     }
@@ -161,7 +160,7 @@ def serialize_widget(object):
     d = {
         "id": object.id,
         "width": object.width,
-        "options": json_loads(object.options),
+        "options": object.options,
         "dashboard_id": object.dashboard_id,
         "text": object.text,
         "updated_at": object.updated_at,
@@ -197,7 +196,7 @@ def serialize_alert(alert, full=True):
 
 
 def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=True):
-    layout = json_loads(obj.layout)
+    layout = obj.layout
 
     widgets = []
 

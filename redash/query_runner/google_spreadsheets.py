@@ -16,13 +16,14 @@ from redash.query_runner import (
     guess_type,
     register,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 
 try:
     import google.auth
     import gspread
+    from google.auth.exceptions import GoogleAuthError
     from google.oauth2.service_account import Credentials
     from gspread.exceptions import APIError
     from gspread.exceptions import WorksheetNotFound as GSWorksheetNotFound
@@ -230,13 +231,17 @@ class GoogleSpreadsheet(BaseQueryRunner):
         return spreadsheetservice
 
     def test_connection(self):
-        service = self._get_spreadsheet_service()
         test_spreadsheet_key = "1S0mld7LMbUad8LYlo13Os9f7eNjw57MqVC0YiCd1Jis"
         try:
+            service = self._get_spreadsheet_service()
             service.open_by_key(test_spreadsheet_key).worksheets()
         except APIError as e:
+            logger.exception(e)
             message = parse_api_error(e)
             raise Exception(message)
+        except GoogleAuthError as e:
+            logger.exception(e)
+            raise Exception(str(e))
 
     def run_query(self, query, user):
         logger.debug("Spreadsheet is about to execute query: %s", query)
@@ -252,7 +257,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
 
             data = parse_spreadsheet(SpreadsheetWrapper(spreadsheet), worksheet_num_or_title)
 
-            return json_dumps(data), None
+            return data, None
         except gspread.SpreadsheetNotFound:
             return (
                 None,

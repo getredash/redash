@@ -16,7 +16,7 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_loads
 
 try:
     import http.client as http_client
@@ -406,18 +406,18 @@ class Kibana(BaseElasticSearch):
                 # TODO: Handle complete ElasticSearch queries (JSON based sent over HTTP POST)
                 raise Exception("Advanced queries are not supported")
 
-            json_data = json_dumps({"columns": result_columns, "rows": result_rows})
+            data = {"columns": result_columns, "rows": result_rows}
         except requests.HTTPError as e:
             logger.exception(e)
             r = e.response
             error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text)
-            json_data = None
+            data = None
         except requests.exceptions.RequestException as e:
             logger.exception(e)
             error = "Connection refused"
-            json_data = None
+            data = None
 
-        return json_data, error
+        return data, error
 
 
 class ElasticSearch(BaseElasticSearch):
@@ -460,20 +460,20 @@ class ElasticSearch(BaseElasticSearch):
             result_rows = []
             self._parse_results(mappings, result_fields, r.json(), result_columns, result_rows)
 
-            json_data = json_dumps({"columns": result_columns, "rows": result_rows})
+            data = {"columns": result_columns, "rows": result_rows}
         except (KeyboardInterrupt, JobTimeoutException) as e:
             logger.exception(e)
             raise
         except requests.HTTPError as e:
             logger.exception(e)
             error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text)
-            json_data = None
+            data = None
         except requests.exceptions.RequestException as e:
             logger.exception(e)
             error = "Connection refused"
-            json_data = None
+            data = None
 
-        return json_data, error
+        return data, error
 
 
 register(Kibana)
