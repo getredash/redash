@@ -74,7 +74,9 @@ class JSONEncoder(json.JSONEncoder):
     """Adapter for `json.dumps`."""
 
     def __init__(self, **kwargs):
-        self.encoders = [m.custom_json_encoder for m in sys.modules.values() if hasattr(m, "custom_json_encoder")]
+        from redash.query_runner import query_runners
+
+        self.encoders = [r.custom_json_encoder for r in query_runners.values() if hasattr(r, "custom_json_encoder")]
         super().__init__(**kwargs)
 
     def default(self, o):
