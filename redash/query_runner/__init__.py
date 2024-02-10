@@ -9,7 +9,6 @@ from rq.timeouts import JobTimeoutException
 from sshtunnel import open_tunnel
 
 from redash import settings, utils
-from redash.query_runner.registry import query_runners
 from redash.utils.requests_session import (
     UnacceptableAddressException,
     requests_or_advocate,
@@ -394,6 +393,9 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
 
         # Return response and error.
         return response, error
+
+
+query_runners = {}
 
 
 def register(query_runner_class):

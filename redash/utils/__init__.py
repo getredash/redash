@@ -20,7 +20,6 @@ from funcy import select_values
 from sqlalchemy.orm.query import Query
 
 from redash import settings
-from redash.query_runner.registry import query_runners
 
 from .human_time import parse_human_time
 
@@ -75,6 +74,8 @@ class JSONEncoder(json.JSONEncoder):
     """Adapter for `json.dumps`."""
 
     def __init__(self, **kwargs):
+        from redash.query_runner import query_runners
+
         self.encoders = [r.custom_json_encoder for r in query_runners.values() if hasattr(r, "custom_json_encoder")]
         super().__init__(**kwargs)
 
@@ -82,8 +83,7 @@ class JSONEncoder(json.JSONEncoder):
         for encoder in self.encoders:
             result = encoder(self, o)
             if result:
-                o = result
-                break
+                return result
         if isinstance(o, Query):
             result = list(o)
         elif isinstance(o, decimal.Decimal):
