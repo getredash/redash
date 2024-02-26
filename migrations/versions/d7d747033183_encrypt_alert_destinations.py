@@ -14,10 +14,7 @@ from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
 from redash import settings
 from redash.utils.configuration import ConfigurationContainer
 from redash.models.base import key_type
-from redash.models.types import (
-    EncryptedConfiguration,
-    Configuration,
-)
+from redash.models.types import EncryptedConfiguration
 
 
 # revision identifiers, used by Alembic.
@@ -45,7 +42,14 @@ def upgrade():
                 )
             ),
         ),
-        sa.Column("options", ConfigurationContainer.as_mutable(Configuration)),
+        sa.Column(
+            "options", 
+            ConfigurationContainer.as_mutable(
+                EncryptedConfiguration(
+                    sa.Text, settings.DATASOURCE_SECRET_KEY, FernetEngine
+                )
+            ),
+        ),
     )
 
     conn = op.get_bind()

@@ -3,16 +3,22 @@ on:
   push:
     branches:
       - master
-  pull_request:
+  pull_request_target:
+    branches:
+      - master
 env:
-  NODE_VERSION: 16.20.1
+  NODE_VERSION: 18
 jobs:
   backend-lint:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - if: github.event.pull_request.mergeable == 'false'
+        name: Exit if PR is not mergeable
+        run: exit 1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
@@ -24,14 +30,18 @@ jobs:
     runs-on: ubuntu-22.04
     needs: backend-lint
     env:
-      COMPOSE_FILE: .ci/docker-compose.ci.yml
+      COMPOSE_FILE: .ci/compose.ci.yaml
       COMPOSE_PROJECT_NAME: redash
       COMPOSE_DOCKER_CLI_BUILD: 1
       DOCKER_BUILDKIT: 1
     steps:
-      - uses: actions/checkout@v3
+      - if: github.event.pull_request.mergeable == 'false'
+        name: Exit if PR is not mergeable
+        run: exit 1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Build Docker Images
         run: |
           set -x
@@ -65,9 +75,13 @@ jobs:
   frontend-lint:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - if: github.event.pull_request.mergeable == 'false'
+        name: Exit if PR is not mergeable
+        run: exit 1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -88,9 +102,13 @@ jobs:
     runs-on: ubuntu-22.04
     needs: frontend-lint
     steps:
-      - uses: actions/checkout@v3
+      - if: github.event.pull_request.mergeable == 'false'
+        name: Exit if PR is not mergeable
+        run: exit 1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -109,17 +127,21 @@ jobs:
     runs-on: ubuntu-22.04
     needs: frontend-lint
     env:
-      COMPOSE_FILE: .ci/docker-compose.cypress.yml
+      COMPOSE_FILE: .ci/compose.cypress.yaml
       COMPOSE_PROJECT_NAME: cypress
-      PERCY_TOKEN_ENCODED: ZGRiY2ZmZDQ0OTdjMzM5ZWE0ZGQzNTZiOWNkMDRjOTk4Zjg0ZjMxMWRmMDZiM2RjOTYxNDZhOGExMjI4ZDE3MA==
-      CYPRESS_PROJECT_ID_ENCODED: OTI0Y2th
-      CYPRESS_RECORD_KEY_ENCODED: YzA1OTIxMTUtYTA1Yy00NzQ2LWEyMDMtZmZjMDgwZGI2ODgx
       CYPRESS_INSTALL_BINARY: 0
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
+      PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+      CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+      CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
     steps:
-      - uses: actions/checkout@v3
+      - if: github.event.pull_request.mergeable == 'false'
+        name: Exit if PR is not mergeable
+        run: exit 1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -183,9 +205,13 @@ jobs:
       - build-skip-check
     if: needs.build-skip-check.outputs.skip == 'false'
     steps:
-      - uses: actions/checkout@v3
+      - if: github.event.pull_request.mergeable == 'false'
+        name: Exit if PR is not mergeable
+        run: exit 1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}

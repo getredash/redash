@@ -42,16 +42,6 @@ TYPES_MAP = {
 }
 
 
-def json_encoder(dec, o):
-    if isinstance(o, ObjectId):
-        return str(o)
-    elif isinstance(o, Timestamp):
-        return dec.default(o.as_datetime())
-    elif isinstance(o, Decimal128):
-        return o.to_decimal()
-    return None
-
-
 date_regex = re.compile(r'ISODate\("(.*)"\)', re.IGNORECASE)
 
 
@@ -169,6 +159,16 @@ class MongoDB(BaseQueryRunner):
         self.is_replica_set = (
             True if "replicaSetName" in self.configuration and self.configuration["replicaSetName"] else False
         )
+
+    @classmethod
+    def custom_json_encoder(cls, dec, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+        elif isinstance(o, Timestamp):
+            return dec.default(o.as_datetime())
+        elif isinstance(o, Decimal128):
+            return o.to_decimal()
+        return None
 
     def _get_db(self):
         kwargs = {}

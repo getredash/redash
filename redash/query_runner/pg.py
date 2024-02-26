@@ -55,18 +55,6 @@ types_map = {
 }
 
 
-def json_encoder(dec, o):
-    if isinstance(o, Range):
-        # From: https://github.com/psycopg/psycopg2/pull/779
-        if o._bounds is None:
-            return ""
-
-        items = [o._bounds[0], str(o._lower), ", ", str(o._upper), o._bounds[1]]
-
-        return "".join(items)
-    return None
-
-
 def _wait(conn, timeout=None):
     while 1:
         try:
@@ -194,6 +182,18 @@ class PostgreSQL(BaseSQLQueryRunner):
     @classmethod
     def type(cls):
         return "pg"
+
+    @classmethod
+    def custom_json_encoder(cls, dec, o):
+        if isinstance(o, Range):
+            # From: https://github.com/psycopg/psycopg2/pull/779
+            if o._bounds is None:
+                return ""
+
+            items = [o._bounds[0], str(o._lower), ", ", str(o._upper), o._bounds[1]]
+
+            return "".join(items)
+        return None
 
     def _get_definitions(self, schema, query):
         results, error = self.run_query(query, None)
