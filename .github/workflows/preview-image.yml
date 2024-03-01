@@ -71,8 +71,8 @@ jobs:
         with:
           push: true
           tags: |
-            ${{ github.repository_owner }}/redash:preview
-            ${{ github.repository_owner }}/preview:${{ steps.version.outputs.VERSION_TAG }}
+            redash/redash:preview
+            redash/preview:${{ steps.version.outputs.VERSION_TAG }}
           context: .
           build-args: |
             test_all_deps=true
