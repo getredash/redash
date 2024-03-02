@@ -1,0 +1,87 @@
+name: Preview Image
+on:
+  push:
+    tags:
+      - '*-dev'
+
+env:
+  NODE_VERSION: 18
+
+jobs:
+  build-skip-check:
+    runs-on: ubuntu-22.04
+    outputs:
+      skip: ${{ steps.skip-check.outputs.skip }}
+    steps:
+      - name: Skip?
+        id: skip-check
+        run: |
+          if [[ "${{ vars.DOCKER_USER }}" == '' ]]; then
+            echo 'Docker user is empty. Skipping build+push'
+            echo skip=true >> "$GITHUB_OUTPUT"
+          elif [[ "${{ secrets.DOCKER_PASS }}" == '' ]]; then
+            echo 'Docker password is empty. Skipping build+push'
+            echo skip=true >> "$GITHUB_OUTPUT"
+          else
+            echo 'Docker user and password are set and branch is `master`.'
+            echo 'Building + pushing `preview` image.'
+            echo skip=false >> "$GITHUB_OUTPUT"
+          fi
+
+  build-docker-image:
+    runs-on: ubuntu-22.04
+    needs:
+      - build-skip-check
+    if: needs.build-skip-check.outputs.skip == 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.push.after }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: Install Dependencies
+        run: |
+          npm install --global --force yarn@1.22.19
+          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+
+      - name: Set version
+        id: version
+        run: |
+          set -x
+          .ci/update_version
+          VERSION_TAG=$(jq -r .version package.json)
+          echo "VERSION_TAG=$VERSION_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push preview image to Docker Hub
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: |
+            redash/redash:preview
+            redash/preview:${{ steps.version.outputs.VERSION_TAG }}
+          context: .
+          build-args: |
+            test_all_deps=true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+        env:
+          DOCKER_CONTENT_TRUST: true
+
+      - name: "Failure: output container logs to console"
+        if: failure()
+        run: docker compose logs

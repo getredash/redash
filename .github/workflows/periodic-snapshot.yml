@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ssh-key: ${{secrets.ACTION_PUSH_KEY}}
       - run: |
           date="$(date +%y.%m).0-dev"
           gawk -i inplace -F: -v q=\" -v tag=$date '/^  "version": / { print $1 FS, q tag q ","; next} { print }' package.json
