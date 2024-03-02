@@ -91,7 +91,7 @@
     "leaflet.markercluster": "^1.1.0",
     "lodash": "^4.17.10",
     "numeral": "^2.0.6",
-    "plotly.js": "1.58.5",
+    "plotly.js": "2.25.2",
     "react-pivottable": "^0.9.0",
     "react-sortable-hoc": "^1.10.1",
     "tinycolor2": "^1.4.1",
