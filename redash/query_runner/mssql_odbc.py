@@ -21,6 +21,10 @@ class SQLServerODBC(BaseSQLQueryRunner):
     should_annotate_query = False
     noop_query = "SELECT 1"
 
+    limit_query = " TOP 1000"
+    limit_keywords = ["TOP"]
+    limit_after_select = True
+
     @classmethod
     def configuration_schema(cls):
         return {
