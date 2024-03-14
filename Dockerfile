@@ -99,5 +99,8 @@ COPY --from=frontend-builder /frontend/client/dist /app/client/dist
 RUN chown -R redash /app
 USER redash
 
+# Customized runtime environment variables
+ENV REDASH_WEB_WORKERS=8
+
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
 CMD ["server"]
