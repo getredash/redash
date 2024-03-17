@@ -339,6 +339,7 @@ default_query_runners = [
     "redash.query_runner.ignite",
     "redash.query_runner.oracle",
     "redash.query_runner.e6data",
+    "redash.query_runner.risingwave",
 ]
 
 enabled_query_runners = array_from_string(
