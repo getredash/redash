@@ -121,7 +121,7 @@ class ClickHouse(BaseSQLQueryRunner):
                 verify=verify,
             )
 
-            if r.status_code != 200:
+            if not r.ok:
                 raise Exception(r.text)
 
             # In certain situations the response body can be empty even if the query was successful, for example
@@ -129,7 +129,11 @@ class ClickHouse(BaseSQLQueryRunner):
             if not r.text:
                 return {}
 
-            return r.json()
+            response = r.json()
+            if "exception" in response:
+                raise Exception(response["exception"])
+
+            return response
         except requests.RequestException as e:
             if e.response:
                 details = "({}, Status Code: {})".format(e.__class__.__name__, e.response.status_code)
