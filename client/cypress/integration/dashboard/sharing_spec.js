@@ -53,11 +53,12 @@ describe("Dashboard Sharing", () => {
     };
 
     const dashboardUrl = this.dashboardUrl;
-    cy.createQuery({ options }).then(({ id: queryId }) => {
+    cy.createQuery({ options }).then(({ id: queryId, name: queryName }) => {
       cy.visit(dashboardUrl);
       editDashboard();
       cy.getByTestId("AddWidgetButton").click();
       cy.getByTestId("AddWidgetDialog").within(() => {
+        cy.get("input").type(queryName);
         cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
       });
       cy.contains("button", "Add to Dashboard").click();
@@ -178,11 +179,12 @@ describe("Dashboard Sharing", () => {
     };
 
     const dashboardUrl = this.dashboardUrl;
-    cy.createQuery({ options }).then(({ id: queryId }) => {
+    cy.createQuery({ options }).then(({ id: queryId, name: queryName }) => {
       cy.visit(dashboardUrl);
       editDashboard();
       cy.getByTestId("AddWidgetButton").click();
       cy.getByTestId("AddWidgetDialog").within(() => {
+        cy.get("input").type(queryName);
         cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
       });
       cy.contains("button", "Add to Dashboard").click();
