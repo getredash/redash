@@ -58,7 +58,7 @@ RUN apt-get update && \
     libsasl2-dev \
     unzip \
     libsasl2-modules-gssapi-mit && \
-  # MSSQL ODBC Driver:  
+  # MSSQL ODBC Driver:
   curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
   curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
   apt-get update && \
@@ -101,6 +101,8 @@ USER redash
 
 # Customized runtime environment variables
 ENV REDASH_WEB_WORKERS=8
+ENV KEEP_ALIVE=305
+ENV LOG_LEVEL=debug
 
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
 CMD ["server"]
