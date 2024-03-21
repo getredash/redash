@@ -100,7 +100,7 @@ class BigQuery(BaseQueryRunner):
 
     def __init__(self, configuration):
         super().__init__(configuration)
-        self.should_annotate_query = configuration["useQueryAnnotation"]
+        self.should_annotate_query = configuration.get("useQueryAnnotation", False)
 
     @classmethod
     def enabled(cls):
