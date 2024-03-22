@@ -16,10 +16,10 @@ from redash.settings.helpers import (
 )
 from redash.settings.organization import DATE_FORMAT, TIME_FORMAT  # noqa
 
-# _REDIS_URL is the unchanged REDIS_URL we get from env vars, to be used later with RQ
-_REDIS_URL = os.environ.get("REDASH_REDIS_URL", os.environ.get("REDIS_URL", "redis://localhost:6379/0"))
+# _CACHE_URL is the unchanged CACHE_URL we get from env vars, to be used later with RQ
+_CACHE_URL = os.environ.get("REDASH_CACHE_URL", os.environ.get("CACHE_URL", "redis://localhost:6379/0"))
 # This is the one to use for Redash' own connection:
-REDIS_URL = add_decode_responses_to_redis_url(_REDIS_URL)
+CACHE_URL = add_decode_responses_to_redis_url(_CACHE_URL)
 PROXIES_COUNT = int(os.environ.get("REDASH_PROXIES_COUNT", "1"))
 
 STATSD_HOST = os.environ.get("REDASH_STATSD_HOST", "127.0.0.1")
@@ -28,9 +28,7 @@ STATSD_PREFIX = os.environ.get("REDASH_STATSD_PREFIX", "redash")
 STATSD_USE_TAGS = parse_boolean(os.environ.get("REDASH_STATSD_USE_TAGS", "false"))
 
 # Connection settings for Redash's own database (where we store the queries, results, etc)
-SQLALCHEMY_DATABASE_URI = os.environ.get(
-    "REDASH_DATABASE_URL", os.environ.get("DATABASE_URL", "postgresql:///postgres")
-)
+SQLALCHEMY_DATABASE_URI = os.environ.get("REDASH_DB_URL", os.environ.get("DB_URL", "postgresql:///postgres"))
 SQLALCHEMY_MAX_OVERFLOW = int_or_none(os.environ.get("SQLALCHEMY_MAX_OVERFLOW"))
 SQLALCHEMY_POOL_SIZE = int_or_none(os.environ.get("SQLALCHEMY_POOL_SIZE"))
 SQLALCHEMY_DISABLE_POOL = parse_boolean(os.environ.get("SQLALCHEMY_DISABLE_POOL", "false"))
@@ -38,7 +36,7 @@ SQLALCHEMY_ENABLE_POOL_PRE_PING = parse_boolean(os.environ.get("SQLALCHEMY_ENABL
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ECHO = False
 
-RQ_REDIS_URL = os.environ.get("RQ_REDIS_URL", _REDIS_URL)
+RQ_CACHE_URL = os.environ.get("RQ_CACHE_URL", _CACHE_URL)
 
 # The following enables periodic job (every 5 minutes) of removing unused query results.
 QUERY_RESULTS_CLEANUP_ENABLED = parse_boolean(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_ENABLED", "true"))
@@ -260,7 +258,7 @@ REDASH_ALERTS_DEFAULT_MAIL_BODY_TEMPLATE_FILE = os.environ.get(
 
 RATELIMIT_ENABLED = parse_boolean(os.environ.get("REDASH_RATELIMIT_ENABLED", "true"))
 THROTTLE_LOGIN_PATTERN = os.environ.get("REDASH_THROTTLE_LOGIN_PATTERN", "50/hour")
-LIMITER_STORAGE = os.environ.get("REDASH_LIMITER_STORAGE", REDIS_URL)
+LIMITER_STORAGE = os.environ.get("REDASH_LIMITER_STORAGE", CACHE_URL)
 THROTTLE_PASS_RESET_PATTERN = os.environ.get("REDASH_THROTTLE_PASS_RESET_PATTERN", "10/hour")
 
 # CORS settings for the Query Result API (and possibly future external APIs).
