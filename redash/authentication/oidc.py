@@ -31,11 +31,11 @@ def create_oidc_blueprint(app):
             return None
         return resp.json()
 
-    oidc_config = get_oidc_config(settings.OIDC_COFIGURATION_URL)
+    oidc_config = get_oidc_config(settings.OIDC_ISSUER_URL)
     oauth = OAuth(app)
     oauth.register(
         name="oidc",
-        server_metadata_url=settings.OIDC_COFIGURATION_URL,
+        server_metadata_url=settings.OIDC_ISSUER_URL,
         client_kwargs={
             "scope": "openid email profile",
         },
