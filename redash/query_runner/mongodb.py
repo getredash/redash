@@ -84,13 +84,17 @@ def _get_column_by_name(columns, column_name):
 
 def _parse_dict(dic):
     res = {}
-    for key, value in dic.items():
-        if isinstance(value, dict):
-            for tmp_key, tmp_value in _parse_dict(value).items():
-                new_key = "{}.{}".format(key, tmp_key)
-                res[new_key] = tmp_value
+
+    def _flatten(x, name=""):
+        if isinstance(x, dict):
+            for k, v in x.items():
+                _flatten(v, "{}.{}".format(name, k))
+        elif isinstance(x, list):
+            for idx, item in enumerate(x):
+                _flatten(item, "{}.{}".format(name, idx))
         else:
-            res[key] = value
+            res[name[1:]] = x
+    _flatten(dic)
     return res
 
 
