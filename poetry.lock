@@ -420,17 +420,6 @@ files = [
 ]
 
 [[package]]
-name = "boto"
-version = "2.49.0"
-description = "Amazon Web Services Library"
-optional = false
-python-versions = "*"
-files = [
-    {file = "boto-2.49.0-py2.py3-none-any.whl", hash = "sha256:147758d41ae7240dc989f0039f27da8ca0d53734be0eb869ef16e3adcfa462e8"},
-    {file = "boto-2.49.0.tar.gz", hash = "sha256:ea0d3b40a2d852767be77ca343b58a9e3a4b00d9db440efb8da74b4e58025e5a"},
-]
-
-[[package]]
 name = "boto3"
 version = "1.28.8"
 description = "The AWS SDK for Python"
@@ -1896,16 +1885,6 @@ thriftpy2 = {version = ">=0.4.0,<0.5.0", markers = "python_version >= \"3.0\""}
 
 [package.extras]
 kerberos = ["thrift_sasl (==0.2.1)"]
-
-[[package]]
-name = "inflection"
-version = "0.3.1"
-description = "A port of Ruby on Rails inflector to Python"
-optional = false
-python-versions = "*"
-files = [
-    {file = "inflection-0.3.1.tar.gz", hash = "sha256:18ea7fb7a7d152853386523def08736aa8c32636b047ade55f7578c4edeb16ca"},
-]
 
 [[package]]
 name = "influxdb"
@@ -3876,23 +3855,6 @@ files = [
 ]
 
 [[package]]
-name = "qds-sdk"
-version = "1.16.1"
-description = "Python SDK for coding to the Qubole Data Service API"
-optional = false
-python-versions = "*"
-files = [
-    {file = "qds_sdk-1.16.1.tar.gz", hash = "sha256:28850682afcf3ab0f2a74a9fd442715519db3ee2ba91c7ecb0b1a56773748ffd"},
-]
-
-[package.dependencies]
-boto = ">=2.45.0"
-inflection = "0.3.1"
-requests = ">=1.0.3"
-six = ">=1.2.0"
-urllib3 = ">=1.0.2"
-
-[[package]]
 name = "rdflib"
 version = "6.3.2"
 description = "RDFLib is a Python library for working with RDF, a simple yet powerful language for representing information."
@@ -5333,4 +5295,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "db3de74fd61befac80d3a2d3351ebffb719aae21686e2f22a5c07b01fea590ce"
+content-hash = "c12875e9f500f6563ea6ccdfc7f816de4bb742fb5faa1cd375a972ef6b64deb8"
