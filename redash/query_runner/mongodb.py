@@ -94,6 +94,7 @@ def _parse_dict(dic):
                 _flatten(item, "{}.{}".format(name, idx))
         else:
             res[name[1:]] = x
+
     _flatten(dic)
     return res
 
