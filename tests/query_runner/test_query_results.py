@@ -1,3 +1,4 @@
+import decimal
 import sqlite3
 from unittest import TestCase
 
@@ -102,6 +103,16 @@ class TestCreateTable(TestCase):
         results = {
             "columns": [{"name": "\xe4"}, {"name": "test2"}],
             "rows": [{"\xe4": 1, "test2": 2}],
+        }
+        table_name = "query_123"
+        create_table(connection, table_name, results)
+        connection.execute("SELECT 1 FROM query_123")
+
+    def test_creates_table_with_decimal_in_column_value(self):
+        connection = sqlite3.connect(":memory:")
+        results = {
+            "columns": [{"name": "test1"}, {"name": "test2"}],
+            "rows": [{"test1": 1, "test2": decimal.Decimal(2)}],
         }
         table_name = "query_123"
         create_table(connection, table_name, results)
