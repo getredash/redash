@@ -7,7 +7,6 @@ from redash.tasks.general import (
     record_event,
     send_mail,
     sync_user_details,
-    version_check,
 )
 from redash.tasks.queries import (
     cleanup_query_results,
