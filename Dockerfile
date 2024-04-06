@@ -53,6 +53,8 @@ RUN apt-get update && \
   xmlsec1 \
   # Additional packages required for data sources:
   libssl-dev \
+  # for JDBC \
+  openjdk-17-jdk \
   default-libmysqlclient-dev \
   freetds-dev \
   libsasl2-dev \
@@ -61,6 +63,7 @@ RUN apt-get update && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
 
 ARG TARGETPLATFORM
 ARG databricks_odbc_driver_url=https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/odbc/2.6.26/SimbaSparkODBC-2.6.26.1045-Debian-64bit.zip
@@ -96,7 +99,9 @@ RUN /etc/poetry/bin/poetry install --only $install_groups $POETRY_OPTIONS
 
 COPY --chown=redash . /app
 COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist
-RUN chown redash /app
+ADD https://github.com/hazelcast/hazelcast-jdbc/releases/download/v5.4.0-BETA-2/hazelcast-jdbc-5.4.0-BETA-2.jar /jdbc/hazelcast-jdbc.jar
+
+RUN chown redash /app /jdbc/*
 USER redash
 
 ENTRYPOINT ["/app/bin/docker-entrypoint"]

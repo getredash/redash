@@ -1,6 +1,7 @@
 """
 Some test cases around the Glue catalog.
 """
+
 from unittest import TestCase
 
 import botocore
