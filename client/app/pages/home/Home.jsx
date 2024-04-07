@@ -6,7 +6,6 @@ import Link from "@/components/Link";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmptyState, { EmptyStateHelpMessage } from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
-import BeaconConsent from "@/components/BeaconConsent";
 import PlainButton from "@/components/PlainButton";
 
 import { axios } from "@/services/axios";
@@ -89,7 +88,6 @@ export default function Home() {
         </DynamicComponent>
         <DynamicComponent name="HomeExtra" />
         <DashboardAndQueryFavoritesList />
-        <BeaconConsent />
       </div>
     </div>
   );

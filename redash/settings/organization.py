@@ -45,7 +45,6 @@ HIDE_PLOTLY_MODE_BAR = parse_boolean(os.environ.get("HIDE_PLOTLY_MODE_BAR", "fal
 DISABLE_PUBLIC_URLS = parse_boolean(os.environ.get("REDASH_DISABLE_PUBLIC_URLS", "false"))
 
 settings = {
-    "beacon_consent": None,
     "auth_password_login_enabled": PASSWORD_LOGIN_ENABLED,
     "auth_saml_enabled": SAML_LOGIN_ENABLED,
     "auth_saml_type": SAML_LOGIN_TYPE,
