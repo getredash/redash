@@ -141,8 +141,53 @@ class TestMongoResults(TestCase):
                 "column": 2,
                 "column2": "test",
                 "column3": "hello",
+                "nested": {"a": 2, "b": "str2", "c": "c", "d": {"e": 3}, "f": {"h": {"i": "j"}}, },
+            }
+        ]
+
+        rows, columns = parse_results(raw_results)
+
+        self.assertDictEqual(rows[0], {"column": 1, "column2": "test", "nested.a": 1, "nested.b": "str"})
+        print(rows[1])
+        self.assertDictEqual(
+            rows[1],
+            {
+                "column": 2,
+                "column2": "test",
+                "column3": "hello",
+                "nested.a": 2,
+                "nested.b": "str2",
+                "nested.c": "c",
+                "nested.d.e": 3,
+                "nested.f.h.i": "j"
+            },
+        )
+
+        self.assertIsNotNone(_get_column_by_name(columns, "column"))
+        self.assertIsNotNone(_get_column_by_name(columns, "column2"))
+        self.assertIsNotNone(_get_column_by_name(columns, "column3"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.a"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.b"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.c"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.d.e"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.f.h.i"))
+
+    def test_parses_flatten_nested_results(self):
+        raw_results = [
+            {"column": 1, "column2": "test", "nested": {"a": 1, "b": "str"}},
+            {
+                "column": 2,
+                "column2": "test",
+                "column3": "hello",
                 "nested": {"a": 2, "b": "str2", "c": "c", "d": {"e": 3}},
             },
+            {
+                "column": 3,
+                "column2": "test",
+                "column3": "hello",
+                "nested": {"a": 2, "b": "str2", "c": "c", "d": {"e": 3}},
+            },
+
         ]
 
         rows, columns = parse_results(raw_results)

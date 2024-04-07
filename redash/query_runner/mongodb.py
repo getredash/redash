@@ -69,7 +69,7 @@ def datetime_parser(dct):
     return bson_object_hook(dct, json_options=opts)
 
 
-def parse_query_json(query):
+def parse_query_json(query: str):
     query_data = json_loads(query, object_hook=datetime_parser)
     return query_data
 
@@ -82,7 +82,7 @@ def _get_column_by_name(columns, column_name):
     return None
 
 
-def _parse_dict(dic, flatten=False):
+def _parse_dict(dic: dict, flatten: bool = False) -> dict:
     res = {}
 
     def _flatten(x, name=""):
@@ -108,7 +108,7 @@ def _parse_dict(dic, flatten=False):
     return res
 
 
-def parse_results(results, flatten):
+def parse_results(results: list, flatten: bool = False) -> list:
     rows = []
     columns = []
 
@@ -160,6 +160,7 @@ class MongoDB(BaseQueryRunner):
                         {"value": "False", "name": "False"},
                         {"value": "True", "name": "True"},
                     ],
+                    "title": "Flatten Results"
                 },
             },
             "secret": ["password"],
@@ -302,8 +303,10 @@ class MongoDB(BaseQueryRunner):
                 if "$sort" in step:
                     sort_list = []
                     for sort_item in step["$sort"]:
-                        sort_list.append((sort_item["name"], sort_item["direction"]))
-
+                        if isinstance(sort_item, dict):
+                            sort_list.append((sort_item["name"], sort_item.get("direction", 1)))
+                        elif isinstance(sort_item, list):
+                            sort_list.append(tuple(sort_item))
                     step["$sort"] = SON(sort_list)
 
         if "fields" in query_data:
@@ -313,7 +316,10 @@ class MongoDB(BaseQueryRunner):
         if "sort" in query_data and query_data["sort"]:
             s = []
             for field_data in query_data["sort"]:
-                s.append((field_data["name"], field_data["direction"]))
+                if isinstance(sort_item, dict):
+                    s.append((field_data["name"], field_data.get("direction", 1)))
+                elif isinstance(sort_item, list):
+                    s.append(tuple(field_data))
 
         columns = []
         rows = []
