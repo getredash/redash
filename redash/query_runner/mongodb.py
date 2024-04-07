@@ -182,6 +182,7 @@ class MongoDB(BaseQueryRunner):
         )
 
         self.flatten = self.configuration.get("flatten", "False").upper() in ["TRUE", "YES", "ON", "1", "Y", "T"]
+        logger.debug("flatten: {}".format(self.flatten))
 
     @classmethod
     def custom_json_encoder(cls, dec, o):
