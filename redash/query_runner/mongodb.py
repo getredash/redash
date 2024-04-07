@@ -157,8 +157,8 @@ class MongoDB(BaseQueryRunner):
                 "flatten": {
                     "type": "string",
                     "extendedEnum": [
-                        {"value": False, "name": "False"},
-                        {"value": True, "name": "True"},
+                        {"value": "False", "name": "False"},
+                        {"value": "True", "name": "True"},
                     ],
                 },
             },
@@ -181,7 +181,7 @@ class MongoDB(BaseQueryRunner):
             True if "replicaSetName" in self.configuration and self.configuration["replicaSetName"] else False
         )
 
-        self.flatten = self.configuration.get("flatten", False)
+        self.flatten = self.configuration.get("flatten", "False").upper() in ["TRUE", "YES", "ON", "1", "Y", "T"]
 
     @classmethod
     def custom_json_encoder(cls, dec, o):
