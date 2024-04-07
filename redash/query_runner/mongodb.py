@@ -316,9 +316,9 @@ class MongoDB(BaseQueryRunner):
         if "sort" in query_data and query_data["sort"]:
             s = []
             for field_data in query_data["sort"]:
-                if isinstance(sort_item, dict):
+                if isinstance(field_data, dict):
                     s.append((field_data["name"], field_data.get("direction", 1)))
-                elif isinstance(sort_item, list):
+                elif isinstance(field_data, list):
                     s.append(tuple(field_data))
 
         columns = []
@@ -370,6 +370,7 @@ class MongoDB(BaseQueryRunner):
                     ordered_columns.append(column)
 
             columns = ordered_columns
+            logger.debug("columns: {}".format(columns))
 
         if query_data.get("sortColumns"):
             reverse = query_data["sortColumns"] == "desc"

@@ -141,14 +141,13 @@ class TestMongoResults(TestCase):
                 "column": 2,
                 "column2": "test",
                 "column3": "hello",
-                "nested": {"a": 2, "b": "str2", "c": "c", "d": {"e": 3}, "f": {"h": {"i": "j"}}, },
+                "nested": {"a": 2, "b": "str2", "c": "c", "d": {"e": 3}, "f": {"h": {"i": ["j", "k", "l"]}}, },
             }
         ]
 
         rows, columns = parse_results(raw_results)
 
         self.assertDictEqual(rows[0], {"column": 1, "column2": "test", "nested.a": 1, "nested.b": "str"})
-        print(rows[1])
         self.assertDictEqual(
             rows[1],
             {
@@ -159,7 +158,7 @@ class TestMongoResults(TestCase):
                 "nested.b": "str2",
                 "nested.c": "c",
                 "nested.d.e": 3,
-                "nested.f.h.i": "j"
+                "nested.f.h.i": ["j", "k", "l"]
             },
         )
 
@@ -174,27 +173,18 @@ class TestMongoResults(TestCase):
 
     def test_parses_flatten_nested_results(self):
         raw_results = [
-            {"column": 1, "column2": "test", "nested": {"a": 1, "b": "str"}},
             {
                 "column": 2,
                 "column2": "test",
                 "column3": "hello",
-                "nested": {"a": 2, "b": "str2", "c": "c", "d": {"e": 3}},
-            },
-            {
-                "column": 3,
-                "column2": "test",
-                "column3": "hello",
-                "nested": {"a": 2, "b": "str2", "c": "c", "d": {"e": 3}},
-            },
-
+                "nested": {"a": 2, "b": "str2", "c": "c", "d": {"e": 3}, "f": {"h": {"i": ["j", "k", "l"]}}, },
+            }
         ]
 
-        rows, columns = parse_results(raw_results)
-
-        self.assertDictEqual(rows[0], {"column": 1, "column2": "test", "nested.a": 1, "nested.b": "str"})
+        rows, columns = parse_results(raw_results, flatten=True)
+        print(rows)
         self.assertDictEqual(
-            rows[1],
+            rows[0],
             {
                 "column": 2,
                 "column2": "test",
@@ -203,6 +193,9 @@ class TestMongoResults(TestCase):
                 "nested.b": "str2",
                 "nested.c": "c",
                 "nested.d.e": 3,
+                "nested.f.h.i.0": "j",
+                "nested.f.h.i.1": "k",
+                "nested.f.h.i.2": "l"
             },
         )
 
@@ -212,3 +205,7 @@ class TestMongoResults(TestCase):
         self.assertIsNotNone(_get_column_by_name(columns, "nested.a"))
         self.assertIsNotNone(_get_column_by_name(columns, "nested.b"))
         self.assertIsNotNone(_get_column_by_name(columns, "nested.c"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.d.e"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.f.h.i.0"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.f.h.i.1"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.f.h.i.2"))
