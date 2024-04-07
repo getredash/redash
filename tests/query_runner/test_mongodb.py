@@ -141,8 +141,14 @@ class TestMongoResults(TestCase):
                 "column": 2,
                 "column2": "test",
                 "column3": "hello",
-                "nested": {"a": 2, "b": "str2", "c": "c", "d": {"e": 3}, "f": {"h": {"i": ["j", "k", "l"]}}, },
-            }
+                "nested": {
+                    "a": 2,
+                    "b": "str2",
+                    "c": "c",
+                    "d": {"e": 3},
+                    "f": {"h": {"i": ["j", "k", "l"]}},
+                },
+            },
         ]
 
         rows, columns = parse_results(raw_results)
@@ -158,7 +164,7 @@ class TestMongoResults(TestCase):
                 "nested.b": "str2",
                 "nested.c": "c",
                 "nested.d.e": 3,
-                "nested.f.h.i": ["j", "k", "l"]
+                "nested.f.h.i": ["j", "k", "l"],
             },
         )
 
@@ -177,7 +183,13 @@ class TestMongoResults(TestCase):
                 "column": 2,
                 "column2": "test",
                 "column3": "hello",
-                "nested": {"a": 2, "b": "str2", "c": "c", "d": {"e": 3}, "f": {"h": {"i": ["j", "k", "l"]}}, },
+                "nested": {
+                    "a": 2,
+                    "b": "str2",
+                    "c": "c",
+                    "d": {"e": 3},
+                    "f": {"h": {"i": ["j", "k", "l"]}},
+                },
             }
         ]
 
@@ -195,7 +207,7 @@ class TestMongoResults(TestCase):
                 "nested.d.e": 3,
                 "nested.f.h.i.0": "j",
                 "nested.f.h.i.1": "k",
-                "nested.f.h.i.2": "l"
+                "nested.f.h.i.2": "l",
             },
         )
 

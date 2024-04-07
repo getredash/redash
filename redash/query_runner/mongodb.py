@@ -160,7 +160,7 @@ class MongoDB(BaseQueryRunner):
                         {"value": "False", "name": "False"},
                         {"value": "True", "name": "True"},
                     ],
-                    "title": "Flatten Results"
+                    "title": "Flatten Results",
                 },
             },
             "secret": ["password"],
