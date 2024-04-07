@@ -101,7 +101,7 @@ COPY --chown=redash . /app
 COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist
 ADD https://github.com/hazelcast/hazelcast-jdbc/releases/download/v5.4.0-BETA-2/hazelcast-jdbc-5.4.0-BETA-2.jar /jdbc/hazelcast-jdbc.jar
 
-RUN chown redash /app /jdbc/*
+RUN chown redash /app /jdbc/hazelcast-jdbc.jar
 USER redash
 
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
