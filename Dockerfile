@@ -63,7 +63,9 @@ RUN apt-get update && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
+# The debian package doesn't provide an architecture independent JAVA_HOME
+RUN find /usr/lib/jvm/ -maxdepth 1 -type d | grep java-17 | xargs -I{} ln -s {} /usr/lib/jvm/java_home
+ENV JAVA_HOME=/usr/lib/jvm/java_home
 
 ARG TARGETPLATFORM
 ARG databricks_odbc_driver_url=https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/odbc/2.6.26/SimbaSparkODBC-2.6.26.1045-Debian-64bit.zip
