@@ -82,7 +82,7 @@ def _get_column_by_name(columns, column_name):
     return None
 
 
-def _parse_dict(dic):
+def _parse_dict(dic, flatten=False):
     res = {}
 
     def _flatten(x, name=""):
@@ -95,18 +95,27 @@ def _parse_dict(dic):
         else:
             res[name[1:]] = x
 
-    _flatten(dic)
+    if flatten:
+        _flatten(dic)
+    else:
+        for key, value in dic.items():
+            if isinstance(value, dict):
+                for tmp_key, tmp_value in _parse_dict(value).items():
+                    new_key = "{}.{}".format(key, tmp_key)
+                    res[new_key] = tmp_value
+            else:
+                res[key] = value
     return res
 
 
-def parse_results(results):
+def parse_results(results, flatten):
     rows = []
     columns = []
 
     for row in results:
         parsed_row = {}
 
-        parsed_row = _parse_dict(row)
+        parsed_row = _parse_dict(row, flatten)
         for column_name, value in parsed_row.items():
             columns.append(
                 {
@@ -145,6 +154,13 @@ class MongoDB(BaseQueryRunner):
                     ],
                     "title": "Replica Set Read Preference",
                 },
+                "flatten": {
+                    "type": "string",
+                    "extendedEnum": [
+                        {"value": False, "name": "False"},
+                        {"value": True, "name": "True"},
+                    ],
+                },
             },
             "secret": ["password"],
             "required": ["connectionString", "dbName"],
@@ -164,6 +180,8 @@ class MongoDB(BaseQueryRunner):
         self.is_replica_set = (
             True if "replicaSetName" in self.configuration and self.configuration["replicaSetName"] else False
         )
+
+        self.flatten = self.configuration.get("flatten", False)
 
     @classmethod
     def custom_json_encoder(cls, dec, o):
@@ -335,7 +353,7 @@ class MongoDB(BaseQueryRunner):
 
             rows.append({"count": cursor})
         else:
-            rows, columns = parse_results(cursor)
+            rows, columns = parse_results(cursor, flatten=self.flatten)
 
         if f:
             ordered_columns = []
