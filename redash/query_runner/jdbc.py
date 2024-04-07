@@ -47,10 +47,13 @@ class JDBC(BaseSQLQueryRunner):
         if self.configuration.get("properties"):
             jdbc_url += "/?" + (self.configuration.get("properties"))
 
-        driver_args = {
-            "user": (self.configuration.get("user") or None),
-            "password": (self.configuration.get("password") or None),
-        }
+        if self.configuration.get("user") or self.configuration.get("password"):
+            driver_args = {
+                "user": (self.configuration.get("user") or None),
+                "password": (self.configuration.get("password") or None),
+            }
+        else:
+            driver_args = None
 
         connection = jdbc.connect(jclassname=jdbc_class, url=jdbc_url, driver_args=driver_args, jars=jars)
 
