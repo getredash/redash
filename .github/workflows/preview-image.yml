@@ -46,7 +46,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm install --global --force yarn@1.22.19
+          npm install --global --force yarn@1.22.22
           yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
 
       - name: Set up Docker Buildx
