@@ -18,11 +18,12 @@ describe("Widget", () => {
   };
 
   it("adds widget", function() {
-    cy.createQuery().then(({ id: queryId }) => {
+    cy.createQuery().then(({ id: queryId, name: queryName }) => {
       cy.visit(this.dashboardUrl);
       editDashboard();
       cy.getByTestId("AddWidgetButton").click();
       cy.getByTestId("AddWidgetDialog").within(() => {
+        cy.get("input").type(queryName);
         cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
       });
       cy.contains("button", "Add to Dashboard").click();
