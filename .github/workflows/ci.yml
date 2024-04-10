@@ -39,7 +39,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.8'
-      - run: sudo pip install black==23.12.1 ruff==0.1.9
+      - run: sudo pip install black==24.3.0 ruff==0.1.9
       - run: ruff check .
       - run: black --check .
 
