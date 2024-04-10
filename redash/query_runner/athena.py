@@ -21,9 +21,9 @@ OPTIONAL_CREDENTIALS = parse_boolean(os.environ.get("ATHENA_OPTIONAL_CREDENTIALS
 
 try:
     import boto3
+    import pandas as pd
     import pyathena
     from pyathena.pandas_cursor import PandasCursor
-    import pandas as pd
 
     enabled = True
 except ImportError:
