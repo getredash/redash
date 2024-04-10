@@ -1,30 +1,38 @@
-FROM node:18-bookworm as frontend-builder
-
-RUN npm install --global --force yarn@1.22.22
-
 # Controls whether to build the frontend assets
-ARG skip_frontend_build
+ARG FRONTEND_BUILD_MODE=0
 
+# MODE 0: create empty files. useful for backend tests
+FROM alpine:3.19 as frontend-builder-0
+RUN \
+  mkdir -p /frontend/client/dist && \
+  touch /frontend/client/dist/multi_org.html && \
+  touch /frontend/client/dist/index.html
+
+# MODE 1: copy static frontend from host, useful for CI to ignore building static content multiple times
+FROM alpine:3.19 as frontend-builder-1
+COPY client/dist /frontend/client/dist
+
+# MODE 2: build static content in docker, can be used for a local development
+FROM node:18.1-bookworm as frontend-builder-2
+RUN npm install --global --force yarn@1.22.22
 ENV CYPRESS_INSTALL_BINARY=0
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
-
 RUN useradd -m -d /frontend redash
 USER redash
-
 WORKDIR /frontend
 COPY --chown=redash package.json yarn.lock .yarnrc /frontend/
 COPY --chown=redash viz-lib /frontend/viz-lib
 COPY --chown=redash scripts /frontend/scripts
 
 # Controls whether to instrument code for coverage information
-ARG code_coverage
-ENV BABEL_ENV=${code_coverage:+test}
-
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
-
+ARG CODE_COVERAGE
+ENV BABEL_ENV=${CODE_COVERAGE:+test}
+RUN yarn --frozen-lockfile --network-concurrency 1;
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn build; else mkdir -p /frontend/client/dist && touch /frontend/client/dist/multi_org.html && touch /frontend/client/dist/index.html; fi
+RUN yarn build
+
+FROM frontend-builder-${FRONTEND_BUILD_MODE} as frontend-builder
 
 FROM python:3.8-slim-bookworm
 
@@ -91,8 +99,8 @@ COPY pyproject.toml poetry.lock ./
 ARG POETRY_OPTIONS="--no-root --no-interaction --no-ansi"
 # for LDAP authentication, install with `ldap3` group
 # disabled by default due to GPL license conflict
-ARG install_groups="main,all_ds,dev"
-RUN /etc/poetry/bin/poetry install --only $install_groups $POETRY_OPTIONS
+ARG INSTALL_GROUPS="main,all_ds,dev"
+RUN /etc/poetry/bin/poetry install --only $INSTALL_GROUPS $POETRY_OPTIONS
 
 COPY --chown=redash . /app
 COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist

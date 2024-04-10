@@ -3,12 +3,28 @@ on:
   push:
     branches:
       - master
+    tags:
+      - '*'
   pull_request_target:
     branches:
       - master
 env:
   NODE_VERSION: 18
   YARN_VERSION: 1.22.22
+  REDASH_COOKIE_SECRET: "2H9gNG9obnAQ9qnR9BDTQUph6CbXKCzF"
+  COMPOSE_DOCKER_CLI_BUILD: 1
+  DOCKER_BUILDKIT: 1
+  FRONTEND_BUILD_MODE: 1
+  INSTALL_GROUPS: main,all_ds,dev
+  SERVER_MOUNT: /ignore
+  PERCY_BRANCH: ${{github.head_ref || github.ref_name}}
+  PERCY_COMMIT: ${{github.sha}}
+  PERCY_PULL_REQUEST: ${{github.event.number}}
+  COMMIT_INFO_BRANCH: ${{github.head_ref || github.ref_name}}
+  COMMIT_INFO_MESSAGE: ${{github.event.head_commit.message}}
+  COMMIT_INFO_AUTHOR: ${{github.event.pull_request.user.login}}
+  COMMIT_INFO_SHA: ${{github.sha}}
+  COMMIT_INFO_REMOTE: ${{github.server_url}}/${{github.repository}}
 jobs:
   backend-lint:
     runs-on: ubuntu-22.04
@@ -23,7 +39,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.8'
-      - run: sudo pip install black==23.1.0 ruff==0.0.287
+      - run: sudo pip install black==24.3.0 ruff==0.1.9
       - run: ruff check .
       - run: black --check .
 
@@ -31,10 +47,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: backend-lint
     env:
-      COMPOSE_FILE: .ci/compose.ci.yaml
-      COMPOSE_PROJECT_NAME: redash
-      COMPOSE_DOCKER_CLI_BUILD: 1
-      DOCKER_BUILDKIT: 1
+      FRONTEND_BUILD_MODE: 0
     steps:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable
@@ -46,31 +59,31 @@ jobs:
       - name: Build Docker Images
         run: |
           set -x
-          docker compose build --build-arg install_groups="main,all_ds,dev" --build-arg skip_frontend_build=true
+          docker compose build
           docker compose up -d
           sleep 10
       - name: Create Test Database
-        run: docker compose -p redash run --rm postgres psql -h postgres -U postgres -c "create database tests;"
+        run: docker compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - name: List Enabled Query Runners
-        run: docker compose -p redash run --rm redash manage ds list_types
+        run: docker compose run --rm server manage ds list_types
       - name: Run Tests
-        run: docker compose -p redash run --name tests redash tests --junitxml=junit.xml --cov-report=xml --cov=redash --cov-config=.coveragerc tests/
+        run: docker compose run --name tests server tests --junitxml=junit.xml --cov-report=xml --cov=redash --cov-config=.coveragerc tests/
       - name: Copy Test Results
         run: |
           mkdir -p /tmp/test-results/unit-tests
           docker cp tests:/app/coverage.xml ./coverage.xml
           docker cp tests:/app/junit.xml /tmp/test-results/unit-tests/results.xml
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
       - name: Store Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: backend-test-results
           path: /tmp/test-results
       - name: Store Coverage Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: backend-coverage
           path: coverage.xml
 
   frontend-lint:
@@ -90,13 +103,14 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install --global --force yarn@$YARN_VERSION
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+          yarn cache clean
+          yarn --frozen-lockfile --network-concurrency 1
       - name: Run Lint
         run: yarn lint:ci
       - name: Store Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: frontend-test-results
           path: /tmp/test-results
 
   frontend-unit-tests:
@@ -117,24 +131,25 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install --global --force yarn@$YARN_VERSION
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+          yarn cache clean
+          yarn --frozen-lockfile --network-concurrency 1
       - name: Run App Tests
         run: yarn test
       - name: Run Visualizations Tests
-        run: cd viz-lib && yarn test
+        run: |
+          cd viz-lib
+          yarn test
       - run: yarn lint
 
   frontend-e2e-tests:
     runs-on: ubuntu-22.04
     needs: frontend-lint
     env:
-      COMPOSE_FILE: .ci/compose.cypress.yaml
-      COMPOSE_PROJECT_NAME: cypress
       CYPRESS_INSTALL_BINARY: 0
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
-      PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
-      CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-      CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+      INSTALL_GROUPS: main
+      COMPOSE_PROFILES: e2e
+      REDASH_PRODUCTION: "true"
     steps:
       - if: github.event.pull_request.mergeable == 'false'
         name: Exit if PR is not mergeable
@@ -154,10 +169,12 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install --global --force yarn@$YARN_VERSION
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+          yarn cache clean
+          yarn --frozen-lockfile --network-concurrency 1
       - name: Setup Redash Server
         run: |
           set -x
+          yarn build
           yarn cypress build
           yarn cypress start -- --skip-db-seed
           docker compose run cypress yarn cypress db-seed
@@ -169,7 +186,12 @@ jobs:
       - name: Copy Code Coverage Results
         run: docker cp cypress:/usr/src/app/coverage ./coverage || true
       - name: Store Coverage Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: frontend-coverage
           path: coverage
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend
+          path: client/dist
+          retention-days: 1

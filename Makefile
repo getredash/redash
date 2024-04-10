@@ -1,10 +1,13 @@
-.PHONY: compose_build up test_db create_database clean clean-all down tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
+.PHONY: compose_build up test_db create_database create_db clean clean-all down tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
+
+export COMPOSE_DOCKER_CLI_BUILD=1
+export DOCKER_BUILDKIT=1
 
 compose_build: .env
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose build
+	docker compose build
 
 up:
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose up -d --build
+	docker compose up -d --build
 
 test_db:
 	@for i in `seq 1 5`; do \
@@ -13,8 +16,10 @@ test_db:
 	done
 	docker compose exec postgres sh -c 'psql -U postgres -c "drop database if exists tests;" && psql -U postgres -c "create database tests;"'
 
-create_database: .env
+create_db: .env
 	docker compose run server create_db
+
+create_database: create_db
 
 clean:
 	docker compose down
