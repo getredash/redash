@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-if [ -z $REDASH_CACHE_URL ]; then
-  export REDASH_CACHE_URL=redis://:${REDASH_CACHE_PASSWORD}@${REDASH_CACHE_HOSTNAME}:${REDASH_CACHE_PORT}/${REDASH_CACHE_NAME}
+if [ -z $REDASH_REDIS_URL ]; then
+  export REDASH_REDIS_URL=redis://:${REDASH_REDIS_PASSWORD}@${REDASH_REDIS_HOSTNAME}:${REDASH_REDIS_PORT}/${REDASH_REDIS_NAME}
 fi
 
-if [ -z $REDASH_DB_URL ]; then
-  export REDASH_DB_URL=postgresql://${REDASH_DB_USER}:${REDASH_DB_PASSWORD}@${REDASH_DB_HOSTNAME}:${REDASH_DB_PORT}/${REDASH_DB_NAME}
+if [ -z $REDASH_DATABASE_URL ]; then
+  export REDASH_DATABASE_URL=postgresql://${REDASH_DATABASE_USER}:${REDASH_DATABASE_PASSWORD}@${REDASH_DATABASE_HOSTNAME}:${REDASH_DATABASE_PORT}/${REDASH_DATABASE_NAME}
 fi
 
 scheduler() {
@@ -48,7 +48,7 @@ worker() {
 workers_healthcheck() {
   WORKERS_COUNT=${WORKERS_COUNT}
   echo "Checking active workers count against $WORKERS_COUNT..."
-  ACTIVE_WORKERS_COUNT=`echo $(rq info --url $REDASH_CACHE_URL -R | grep workers | grep -oP ^[0-9]+)`
+  ACTIVE_WORKERS_COUNT=`echo $(rq info --url $REDASH_REDIS_URL -R | grep workers | grep -oP ^[0-9]+)`
   if [ "$ACTIVE_WORKERS_COUNT" -lt "$WORKERS_COUNT"  ]; then
     echo "$ACTIVE_WORKERS_COUNT workers are active, Exiting"
     exit 1
@@ -82,17 +82,17 @@ server() {
   esac
 }
 
-migrate() {
-  REDASH_DB_MIGRATE_TIMEOUT=${REDASH_DB_UPGRADE_TIMEOUT:-600}
-  REDASH_DB_MIGRATE_MAX_ATTEMPTS=${REDASH_DB_MIGRATE_MAX_ATTEMPTS:-5}
-  REDASH_DB_MIGRATE_RETRY_WAIT=${REDASH_DB_MIGRATE_RETRY_WAIT:-10}
+create_db() {
+  REDASH_DATABASE_MIGRATE_TIMEOUT=${REDASH_DATABASE_UPGRADE_TIMEOUT:-600}
+  REDASH_DATABASE_MIGRATE_MAX_ATTEMPTS=${REDASH_DATABASE_MIGRATE_MAX_ATTEMPTS:-5}
+  REDASH_DATABASE_MIGRATE_RETRY_WAIT=${REDASH_DATABASE_MIGRATE_RETRY_WAIT:-10}
   ATTEMPTS=0
-  while ((ATTEMPTS < REDASH_DB_MIGRATE_MAX_ATTEMPTS)); do
-    echo "Starting attempt ${ATTEMPTS} of ${REDASH_DB_MIGRATE_MAX_ATTEMPTS}"
+  while ((ATTEMPTS < REDASH_DATABASE_MIGRATE_MAX_ATTEMPTS)); do
+    echo "Starting attempt ${ATTEMPTS} of ${REDASH_DATABASE_MIGRATE_MAX_ATTEMPTS}"
     ATTEMPTS=$((ATTEMPTS+1))
-    timeout $REDASH_DB_MIGRATE_TIMEOUT /app/manage.py database create_tables
-    timeout $REDASH_DB_MIGRATE_TIMEOUT /app/manage.py db upgrade
-    STATUS=$(timeout $REDASH_DB_MIGRATE_TIMEOUT /app/manage.py status 2>&1)
+    timeout $REDASH_DATABASE_MIGRATE_TIMEOUT /app/manage.py database create_tables
+    timeout $REDASH_DATABASE_MIGRATE_TIMEOUT /app/manage.py db upgrade
+    STATUS=$(timeout $REDASH_DATABASE_MIGRATE_TIMEOUT /app/manage.py status 2>&1)
     RETCODE=$?
     echo "Return code: ${RETCODE}"
     echo "Status: ${STATUS}"
@@ -101,7 +101,7 @@ migrate() {
         exit 0
         ;;
       124)
-        echo "Status command timed out after ${REDASH_DB_MIGRATE_TIMEOUT} seconds."
+        echo "Status command timed out after ${REDASH_DATABASE_MIGRATE_TIMEOUT} seconds."
         ;;
     esac
     case "$STATUS" in
@@ -112,10 +112,10 @@ migrate() {
         echo "Database does not appear to be installed."
         ;;
     esac
-    echo "Waiting ${REDASH_DB_MIGRATE_RETRY_WAIT} seconds before retrying."
-    sleep ${REDASH_DB_MIGRATE_RETRY_WAIT}
+    echo "Waiting ${REDASH_DATABASE_MIGRATE_RETRY_WAIT} seconds before retrying."
+    sleep ${REDASH_DATABASE_MIGRATE_RETRY_WAIT}
   done
-  echo "Reached ${REDASH_DB_MIGRATE_MAX_ATTEMPTS} attempts, giving up."
+  echo "Reached ${REDASH_DATABASE_MIGRATE_MAX_ATTEMPTS} attempts, giving up."
   exit 1
 }
 
@@ -131,7 +131,7 @@ help() {
   echo ""
   echo "shell -- open shell"
   echo "debug -- start Flask development server with remote debugger via ptvsd"
-  echo "migrate -- create database tables and run migrations"
+  echo "create_db -- create database tables and run migrations"
   echo "manage -- CLI to manage redash"
   echo "tests -- run tests"
 }
@@ -174,8 +174,8 @@ case "$1" in
   shell)
     exec /app/manage.py shell
     ;;
-  migrate)
-    migrate
+  create_db)
+    create_db
     ;;
   manage)
     shift

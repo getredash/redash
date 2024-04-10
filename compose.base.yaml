@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   .redash:
     build:
@@ -12,8 +11,8 @@ services:
     command: manage version
     environment:
       REDASH_LOG_LEVEL: "INFO"
-      REDASH_CACHE_URL: "redis://redis:6379/0"
-      REDASH_DB_URL: "postgresql://postgres@postgres/postgres"
+      REDASH_REDIS_URL: "redis://redis:6379/0"
+      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       REDASH_RATELIMIT_ENABLED: "false"
       REDASH_MAIL_DEFAULT_SENDER: "redash@example.com"
       REDASH_MAIL_SERVER: "email"

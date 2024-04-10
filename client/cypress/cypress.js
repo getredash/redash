@@ -49,7 +49,7 @@ function buildServer() {
 function startServer() {
   console.log("Starting the server...");
   execSync("docker compose up -d", { stdio: "inherit" });
-  execSync("docker compose run server migrate", { stdio: "inherit" });
+  execSync("docker compose run server create_db", { stdio: "inherit" });
 }
 
 function stopServer() {

@@ -1,4 +1,4 @@
-.PHONY: compose_build up test_db create_database clean clean-all down tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
+.PHONY: compose_build up test_db create_db clean clean-all down tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
 
 export COMPOSE_DOCKER_CLI_BUILD=1
 export DOCKER_BUILDKIT=1
@@ -16,8 +16,8 @@ test_db:
 	done
 	docker compose exec postgres sh -c 'psql -U postgres -c "drop database if exists tests;" && psql -U postgres -c "create database tests;"'
 
-create_database: .env
-	docker compose run server migrate
+create_db: .env
+	docker compose run server create_db
 
 clean:
 	docker compose down
