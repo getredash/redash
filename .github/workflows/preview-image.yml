@@ -81,6 +81,9 @@ jobs:
           if [[ "${{ vars.DOCKER_REPO }}" != "" ]]; then
             echo "DOCKER_REPO=${{ vars.DOCKER_REPO }}" >> $GITHUB_ENV
             echo "DOCKER_REPO=${{ vars.DOCKER_REPO }}" >> $GITHUB_OUTPUT
+          else
+            echo "DOCKER_REPO=${DOCKER_REPO}" >> $GITHUB_ENV
+            echo "DOCKER_REPO=${DOCKER_REPO}" >> $GITHUB_OUTPUT
           fi
       - name: Build and push preview image to Docker Hub
         uses: docker/build-push-action@v5
