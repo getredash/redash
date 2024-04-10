@@ -201,15 +201,21 @@ class Athena(BaseQueryRunner):
                                 c["comment"] = cols["Comment"]
                             columns.append(c)
 
-                        schema[table_name] = {"name": table_name, "columns": columns, "description": table.get("Description")}
+                        schema[table_name] = {
+                            "name": table_name,
+                            "columns": columns,
+                            "description": table.get("Description"),
+                        }
                         for idx, partition in enumerate(table.get("PartitionKeys", [])):
-                            schema[table_name]["columns"].append({
-                                "name": partition["Name"],
-                                "type": "partition",
-                                "idx": idx,
-                            })
+                            schema[table_name]["columns"].append(
+                                {
+                                    "name": partition["Name"],
+                                    "type": "partition",
+                                    "idx": idx,
+                                }
+                            )
                             if "Type" in partition:
-                                _type = partition['Type']
+                                _type = partition["Type"]
                                 c["type"] = f"partition ({_type})"
                             if "Comment" in partition:
                                 c["comment"] = partition["Comment"]
