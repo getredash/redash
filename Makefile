@@ -1,4 +1,4 @@
-.PHONY: compose_build up test_db create_db clean clean-all down tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
+.PHONY: compose_build up test_db create_database create_db clean clean-all down tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
 
 export COMPOSE_DOCKER_CLI_BUILD=1
 export DOCKER_BUILDKIT=1
@@ -18,6 +18,8 @@ test_db:
 
 create_db: .env
 	docker compose run server create_db
+
+create_database: create_db
 
 clean:
 	docker compose down
