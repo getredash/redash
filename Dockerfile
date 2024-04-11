@@ -24,9 +24,6 @@ COPY --chown=redash package.json yarn.lock .yarnrc /frontend/
 COPY --chown=redash viz-lib /frontend/viz-lib
 COPY --chown=redash scripts /frontend/scripts
 
-# Controls whether to instrument code for coverage information
-ARG CODE_COVERAGE
-ENV BABEL_ENV=${CODE_COVERAGE:+test}
 RUN yarn --frozen-lockfile --network-concurrency 1;
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/

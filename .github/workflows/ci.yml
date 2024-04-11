@@ -9,6 +9,7 @@ on:
     branches:
       - master
 env:
+  CYPRESS_COVERAGE: "true"
   NODE_VERSION: 18
   YARN_VERSION: 1.22.22
   REDASH_COOKIE_SECRET: "2H9gNG9obnAQ9qnR9BDTQUph6CbXKCzF"
@@ -75,6 +76,8 @@ jobs:
           docker cp tests:/app/junit.xml /tmp/test-results/unit-tests/results.xml
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Store Test Results
         uses: actions/upload-artifact@v4
         with:
@@ -165,10 +168,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
-      - name: Enable Code Coverage Report For Master Branch
-        if: endsWith(github.ref, '/master')
-        run: |
-          echo "CODE_COVERAGE=true" >> "$GITHUB_ENV"
       - name: Install Dependencies
         run: |
           npm install --global --force yarn@$YARN_VERSION
