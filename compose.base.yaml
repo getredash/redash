@@ -5,7 +5,6 @@ services:
       args:
         FRONTEND_BUILD_MODE: ${FRONTEND_BUILD_MODE:-2}
         INSTALL_GROUPS: ${INSTALL_GROUPS:-main,all_ds,dev}
-        CODE_COVERAGE: ${CODE_COVERAGE:-"false"}
     volumes:
       - $PWD:${SERVER_MOUNT:-/app}
     command: manage version
