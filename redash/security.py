@@ -39,7 +39,16 @@ def init_app(app):
             if request.blueprint in csrf._exempt_blueprints:
                 return
 
+            # Prevent un-official request entry point
+            if request.endpoint is None:
+                return
+
             view = app.view_functions.get(request.endpoint)
+
+            # Prevent un-official request entry point
+            if view is None:
+                return
+
             dest = f"{view.__module__}.{view.__name__}"
 
             if dest in csrf._exempt_views:
