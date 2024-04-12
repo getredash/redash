@@ -41,6 +41,9 @@ services:
     image: postgres:16-alpine
     ports:
       - "${POSTGRES_PORT:-15432}:5432"
+    # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
+    # improvement on my personal machine). We should consider moving this into a dedicated Docker Compose configuration for
+    # tests.
     command: postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF
     restart: unless-stopped
     environment:
