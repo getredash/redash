@@ -8,7 +8,7 @@ services:
       - postgres
       - redis
     ports:
-      - "${REDASH_PORT:-5000}:5000"
+      - "${REDASH_PORT:-5001}:5000"
       - "5678:5678"
     environment:
       PYTHONUNBUFFERED: 0
