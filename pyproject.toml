@@ -121,7 +121,7 @@ pydruid = "0.5.7"
 pyexasol = "0.12.0"
 pyhive = "0.6.1"
 pyignite = "0.6.1"
-pymongo = { version = "4.3.3", extras = ["srv", "tls"] }
+pymongo = { version = "4.6.3", extras = ["srv", "tls"] }
 pymssql = "2.2.8"
 pyodbc = "4.0.28"
 python-arango = "6.1.0"
