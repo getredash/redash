@@ -8,7 +8,7 @@ services:
       - postgres
       - redis
     ports:
-      - "${REDASH_PORT:-5000}:5000"
+      - "${REDASH_PORT:-5001}:5000"
       - "5678:5678"
     environment:
       PYTHONUNBUFFERED: 0
@@ -66,7 +66,7 @@ services:
       - worker
       - scheduler
     environment:
-      CYPRESS_baseUrl: http://server:5000
+      CYPRESS_baseUrl: http://server:5001
       PERCY_TOKEN: ${PERCY_TOKEN:-""}
       PERCY_BRANCH: ${PERCY_BRANCH:-""}
       PERCY_COMMIT: ${PERCY_COMMIT:-""}
