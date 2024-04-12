@@ -66,7 +66,7 @@ services:
       - worker
       - scheduler
     environment:
-      CYPRESS_baseUrl: "http://server:5000"
+      CYPRESS_baseUrl: http://server:5000
       PERCY_TOKEN: ${PERCY_TOKEN:-""}
       PERCY_BRANCH: ${PERCY_BRANCH:-""}
       PERCY_COMMIT: ${PERCY_COMMIT:-""}
@@ -78,4 +78,4 @@ services:
       COMMIT_INFO_REMOTE: ${COMMIT_INFO_REMOTE:-""}
       CYPRESS_PROJECT_ID: ${CYPRESS_PROJECT_ID:-""}
       CYPRESS_RECORD_KEY: ${CYPRESS_RECORD_KEY:-""}
-      CYPRESS_COVERAGE: ${CYPRESS_COVERAGE:-""}
+      CYPRESS_COVERAGE: ${CYPRESS_COVERAGE:-true}
