@@ -8,10 +8,11 @@ services:
       - postgres
       - redis
     ports:
-      - "${REDASH_PORT:-5001}:5000"
+      - "${REDASH_PORT:-5001}:${REDASH_PORT:-5001}"
       - "5678:5678"
     environment:
       PYTHONUNBUFFERED: 0
+      REDASH_PORT: ${REDASH_PORT:-5001}
   scheduler:
     extends:
       file: compose.base.yaml
@@ -66,7 +67,7 @@ services:
       - worker
       - scheduler
     environment:
-      CYPRESS_baseUrl: http://server:5000
+      CYPRESS_baseUrl: http://server:${REDASH_PORT:-5001}
       PERCY_TOKEN: ${PERCY_TOKEN:-""}
       PERCY_BRANCH: ${PERCY_BRANCH:-""}
       PERCY_COMMIT: ${PERCY_COMMIT:-""}

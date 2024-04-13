@@ -15,14 +15,14 @@ scheduler() {
   case $REDASH_PRODUCTION in
     true)
       echo "Starting RQ scheduler in production mode"
-      exec ./manage.py rq scheduler
+      exec ./manage.py rq scheduler $@
       ;;
     *)
       echo "Starting RQ scheduler in dev mode"
       exec watchmedo auto-restart \
         --directory=./redash/ \
         --pattern=*.py \
-        --recursive -- ./manage.py rq scheduler $QUEUES
+        --recursive -- ./manage.py rq scheduler $QUEUES $@
       ;;
   esac
 }
@@ -33,14 +33,14 @@ worker() {
   case $REDASH_PRODUCTION in
     true)
       echo "Starting RQ worker in production mode"
-      exec supervisord -c worker.conf
+      exec supervisord -c worker.conf $@
       ;;
     *)
       echo "Starting RQ worker in dev mode"
       exec watchmedo auto-restart \
         --directory=./redash/ \
         --pattern=*.py \
-        --recursive -- ./manage.py rq worker $QUEUES
+        --recursive -- ./manage.py rq worker $QUEUES $@
       ;;
   esac
 }
@@ -67,17 +67,18 @@ server() {
       MAX_REQUESTS_JITTER=${MAX_REQUESTS_JITTER:-100}
       TIMEOUT=${REDASH_GUNICORN_TIMEOUT:-60}
       exec /usr/local/bin/gunicorn \
-        -b 0.0.0.0:5000 \
+        -b 0.0.0.0:${REDASH_PORT} \
+        -w${REDASH_WEB_WORKERS:-4} \
         --name redash \
-        -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app \
         --max-requests $MAX_REQUESTS \
         --max-requests-jitter $MAX_REQUESTS_JITTER \
-        --timeout $TIMEOUT
+        --timeout $TIMEOUT $@ \
+        redash.wsgi:app
       ;;
     *)
       echo "Starting Redash Server in a dev mode"
       export FLASK_DEBUG=1
-      exec /app/manage.py runserver --debugger --reload -h 0.0.0.0
+      exec /app/manage.py runserver --debugger --reload -h 0.0.0.0 $@
       ;;
   esac
 }
@@ -146,7 +147,7 @@ tests() {
 case "$1" in
   worker)
     shift
-    worker
+    worker $@
     ;;
   workers_healthcheck)
     shift
@@ -154,11 +155,11 @@ case "$1" in
     ;;
   server)
     shift
-    server
+    server $@
     ;;
   scheduler)
     shift
-    scheduler
+    scheduler $@
     ;;
   celery_healthcheck)
     shift
