@@ -24,7 +24,7 @@
     "jest": "TZ=Africa/Khartoum jest",
     "test": "run-s type-check jest",
     "test:watch": "jest --watch",
-    "cypress": "node client/cypress/cypress.js",
+    "cypress": "COMPOSE_PROFILES=local node client/cypress/cypress.js",
     "preinstall": "cd viz-lib && yarn link --link-folder ../.yarn",
     "postinstall": "(cd viz-lib && yarn --frozen-lockfile && yarn build:babel) && yarn link --link-folder ./.yarn @redash/viz"
   },
