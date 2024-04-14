@@ -12,3 +12,7 @@ venv/
 /.github/
 /netlify.toml
 /setup/
+compose.*
+*.md
+LICENSE*
+netlify.*

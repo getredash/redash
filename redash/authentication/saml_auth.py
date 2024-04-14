@@ -68,6 +68,9 @@ def get_saml_client(org):
         },
     }
 
+    if settings.SSL_CERT_FILE:
+        saml_settings["ca_certs"] = os.environ["SSL_CERT_FILE"]
+
     if settings.SAML_ENCRYPTION_ENABLED:
         encryption_dict = {
             "xmlsec_binary": get_xmlsec_binary(),
