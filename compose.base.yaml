@@ -1,0 +1,22 @@
+services:
+  .redash:
+    build:
+      context: .
+      args:
+        FRONTEND_BUILD_MODE: ${FRONTEND_BUILD_MODE:-2}
+        INSTALL_GROUPS: ${INSTALL_GROUPS:-main,all_ds,dev}
+    volumes:
+      - $PWD:${SERVER_MOUNT:-/ignore}
+    command: manage version
+    environment:
+      REDASH_LOG_LEVEL: INFO
+      REDASH_REDIS_URL: redis://redis:6379/0
+      REDASH_DATABASE_URL: postgresql://postgres@postgres/postgres
+      REDASH_RATELIMIT_ENABLED: false
+      REDASH_MAIL_DEFAULT_SENDER: redash@example.com
+      REDASH_MAIL_SERVER: email
+      REDASH_MAIL_PORT: 1025
+      REDASH_ENFORCE_CSRF: true
+      REDASH_COOKIE_SECRET: ${REDASH_COOKIE_SECRET}
+      REDASH_SECRET_KEY: ${REDASH_SECRET_KEY}
+      REDASH_PRODUCTION: ${REDASH_PRODUCTION:-true}
