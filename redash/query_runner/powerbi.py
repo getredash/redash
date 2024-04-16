@@ -1,8 +1,15 @@
 # TODO: test
 import logging
 from typing import Optional, Tuple
+from enum import Enum
 
 import yaml
+
+
+class AuthType(Enum):
+    CREDENTIALS = 1
+    LOGIN_PASSWORD = 2
+
 
 from redash.query_runner import (
     TYPE_BOOLEAN,
@@ -68,9 +75,12 @@ class PowerBIDAX(BaseHTTPQueryRunner):
     requires_url = False
     url_title = "Power BI URL"
     username_title = "Username"
-    password_title = "Password"
+    password_title = "Password/Token"
     default_url = "https://api.powerbi.com/v1.0/myorg"
     default_scopes = '["https://analysis.windows.net/powerbi/api/.default"]'
+    default_authority_url = (
+        "https://login.microsoftonline.com/<tenant name/yourdomain.com>"
+    )
 
     @classmethod
     def configuration_schema(cls):
@@ -83,7 +93,7 @@ class PowerBIDAX(BaseHTTPQueryRunner):
                 "authority_url": {
                     "type": "string",
                     "title": cls.authority_url_title,
-                    "default": "https://login.microsoftonline.com/<tenant name/yourdomain.com>",
+                    "default": cls.default_authority_url,
                 },
                 "scopes": {
                     "type": "string",
@@ -96,6 +106,7 @@ class PowerBIDAX(BaseHTTPQueryRunner):
             "client_id",
             "authority_url",
         ]
+        schema["required"].remove("username")
         return schema
 
     @classmethod
@@ -112,7 +123,6 @@ class PowerBIDAX(BaseHTTPQueryRunner):
         self.configuration["url"] = self.configuration.get("url", self.default_url)
         scopes = self.configuration.get("scopes", self.default_scopes)
         self.configuration["scopes"] = scopes
-        self.configuration["scopes_array"] = json_loads(scopes)
 
     def test_connection(self):
         _, error = self.get_response("/availableFeatures")
@@ -122,18 +132,49 @@ class PowerBIDAX(BaseHTTPQueryRunner):
     def get_auth(self):
         return None
 
+    def get_credentials(self):
+        username = self.configuration.get("username")
+        password = self.configuration.get("password")
+        if password:
+            return (username, password)
+        if self.requires_authentication:
+            raise ValueError("Username and Password or Token required")
+        else:
+            return None
+
     def get_authorization(self):
         client_id = self.configuration["client_id"]
         authority_url = self.configuration["authority_url"]
+        self.configuration["scopes_array"] = json_loads(self.configuration["scopes"])
         scopes = self.configuration["scopes_array"]
-        username, password = super().get_auth()
-        app = msal.PublicClientApplication(client_id=client_id, authority=authority_url)
-        result = app.acquire_token_by_username_password(
-            username=username,
-            password=password,
-            scopes=scopes,
-        )
+        username, password = self.get_credentials()
+        if self.configuration.get("username") is None:
+            self.auth_type = AuthType.CREDENTIALS
+        else:
+            self.auth_type = AuthType.LOGIN_PASSWORD
+        if self.auth_type == AuthType.CREDENTIALS:
+            app = msal.ConfidentialClientApplication(
+                authority=authority_url,
+                client_id=client_id,
+                client_credential=password,
+            )
+            result = app.acquire_token_for_client(
+                scopes=scopes,
+            )
+        elif self.auth_type == AuthType.LOGIN_PASSWORD:
+            app = msal.PublicClientApplication(
+                authority=authority_url,
+                client_id=client_id,
+            )
+            result = app.acquire_token_by_username_password(
+                username=username,
+                password=password,
+                scopes=scopes,
+            )
+        if "error" in result:
+            raise ValueError(f"Couldn't acquire token: {result}")
         access_token = result["access_token"]
+        logger.debug(result)
         return f"Bearer {access_token}"
 
     def get_response(self, url: str, auth=None, http_method="get", **kwargs):
