@@ -45,7 +45,7 @@ class ElasticSearch2(BaseHTTPQueryRunner):
         self.syntax = "json"
 
     def get_response(self, url, auth=None, http_method="get", **kwargs):
-        url = "{}{}".format(self.configuration["url"], url)
+        url = "{}{}".format(self.configuration["server"], url)
         headers = kwargs.pop("headers", {})
         headers["Accept"] = "application/json"
         return super().get_response(url, auth, http_method, headers=headers, **kwargs)
