@@ -121,9 +121,11 @@ def run_query(
             current_user.id,
             current_user.is_api_user(),
             metadata={
-                "Username": repr(current_user)
-                if current_user.is_api_user()
-                else current_user.email,
+                "Username": (
+                    repr(current_user)
+                    if current_user.is_api_user()
+                    else current_user.email
+                ),
                 "query_id": query_id,
             },
         )
@@ -262,14 +264,14 @@ class QueryResultResource(BaseResource):
         self.add_cors_headers(headers)
 
         if settings.ACCESS_CONTROL_REQUEST_METHOD:
-            headers[
-                "Access-Control-Request-Method"
-            ] = settings.ACCESS_CONTROL_REQUEST_METHOD
+            headers["Access-Control-Request-Method"] = (
+                settings.ACCESS_CONTROL_REQUEST_METHOD
+            )
 
         if settings.ACCESS_CONTROL_ALLOW_HEADERS:
-            headers[
-                "Access-Control-Allow-Headers"
-            ] = settings.ACCESS_CONTROL_ALLOW_HEADERS
+            headers["Access-Control-Allow-Headers"] = (
+                settings.ACCESS_CONTROL_ALLOW_HEADERS
+            )
 
         return make_response("", 200, headers)
 

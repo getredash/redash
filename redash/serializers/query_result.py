@@ -137,6 +137,7 @@ def serialize_query_result_to_xlsx(query_result):
 
     return output.getvalue()
 
+
 def serialize_query_result_to_parquet(query_result):
     output = io.BytesIO()
     query_data = query_result.data
@@ -148,7 +149,7 @@ def serialize_query_result_to_parquet(query_result):
     ) -> "pyarrow.Table":
         column_index: int = table.schema.get_field_index(field.name)
         column_data = table.column(column_index)
-        
+
         formats = conversion["redash_formats"]
         for datetime_format in formats:
             try:
@@ -214,11 +215,3 @@ def serialize_query_result_to_parquet(query_result):
         writer.write_table(table)
 
     return output.getvalue()
-
-
-
-
-
-
-
-

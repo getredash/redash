@@ -3,6 +3,7 @@ This will eventually replace all the `to_dict` methods of the different model
 classes we have. This will ensure cleaner code and better
 separation of concerns.
 """
+
 from funcy import project
 
 from flask_login import current_user
@@ -56,7 +57,14 @@ def public_widget(widget):
 def public_dashboard(dashboard):
     dashboard_dict = project(
         serialize_dashboard(dashboard, with_favorite_state=False),
-        ("name", "layout", "dashboard_filters_enabled", "updated_at", "created_at", "options"),
+        (
+            "name",
+            "layout",
+            "dashboard_filters_enabled",
+            "updated_at",
+            "created_at",
+            "options",
+        ),
     )
 
     widget_list = (
