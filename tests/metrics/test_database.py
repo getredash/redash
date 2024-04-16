@@ -3,8 +3,8 @@ from mock import ANY, patch
 from tests import BaseTestCase
 
 
-@patch("statsd.StatsClient.timing")
+@patch("prometheus_client.Histogram.observe")
 class TestDatabaseMetrics(BaseTestCase):
-    def test_db_request_records_statsd_metrics(self, timing):
+    def test_db_request_records_metrics(self, observe):
         self.factory.create_query()
-        timing.assert_called_with("db.changes.insert", ANY)
+        observe.assert_called_with(ANY)

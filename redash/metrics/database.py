@@ -2,14 +2,19 @@ import logging
 import time
 
 from flask import g, has_request_context
+from prometheus_client import Histogram
 from sqlalchemy.engine import Engine
 from sqlalchemy.event import listens_for
 from sqlalchemy.orm.util import _ORMJoin
 from sqlalchemy.sql.selectable import Alias
 
-from redash import statsd_client
-
 metrics_logger = logging.getLogger("metrics")
+
+dbActionLatencyHistogram = Histogram(
+    "db_action_latency_milliseconds",
+    "Database operation duration",
+    ["name", "action"],
+)
 
 
 def _table_name_from_select_element(elt):
@@ -48,7 +53,7 @@ def after_execute(conn, elt, multiparams, params, result):
 
     action = action.lower()
 
-    statsd_client.timing("db.{}.{}".format(name, action), duration)
+    dbActionLatencyHistogram.labels(name, action).observe(duration)
     metrics_logger.debug("table=%s query=%s duration=%.2f", name, action, duration)
 
     if has_request_context():

@@ -22,9 +22,11 @@ _REDIS_URL = os.environ.get("REDASH_REDIS_URL", os.environ.get("REDIS_URL", "red
 REDIS_URL = add_decode_responses_to_redis_url(_REDIS_URL)
 PROXIES_COUNT = int(os.environ.get("REDASH_PROXIES_COUNT", "1"))
 
+STATSD_ENABLED = parse_boolean(os.environ.get("REDASH_STATSD_ENABLED", "false"))
 STATSD_HOST = os.environ.get("REDASH_STATSD_HOST", "127.0.0.1")
 STATSD_PORT = int(os.environ.get("REDASH_STATSD_PORT", "8125"))
 STATSD_PREFIX = os.environ.get("REDASH_STATSD_PREFIX", "redash")
+STATSD_PERIOD = float(os.environ.get("REDASH_STATSD_PERIOD", "30.0"))
 STATSD_USE_TAGS = parse_boolean(os.environ.get("REDASH_STATSD_USE_TAGS", "false"))
 
 # Connection settings for Redash's own database (where we store the queries, results, etc)

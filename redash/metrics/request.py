@@ -3,10 +3,15 @@ import time
 from collections import namedtuple
 
 from flask import g, request
-
-from redash import statsd_client
+from prometheus_client import Histogram
 
 metrics_logger = logging.getLogger("metrics")
+
+requestsHistogram = Histogram(
+    "requests_latency_milliseconds",
+    "Requests latency",
+    ["endpoint", "method"],
+)
 
 
 def record_request_start_time():
@@ -35,7 +40,7 @@ def calculate_metrics(response):
         queries_duration,
     )
 
-    statsd_client.timing("requests.{}.{}".format(endpoint, request.method.lower()), request_duration)
+    requestsHistogram.labels(endpoint, request.method.lower()).observe(request_duration)
 
     return response
 

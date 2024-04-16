@@ -2908,6 +2908,20 @@ pyyaml = ">=5.1"
 virtualenv = ">=20.10.0"
 
 [[package]]
+name = "prometheus-client"
+version = "0.20.0"
+description = "Python client for the Prometheus monitoring system."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "prometheus_client-0.20.0-py3-none-any.whl", hash = "sha256:cde524a85bce83ca359cc837f28b8c0db5cac7aa653a588fd7e84ba061c329e7"},
+    {file = "prometheus_client-0.20.0.tar.gz", hash = "sha256:287629d00b147a32dcb2be0b9df905da599b2d82f80377083ec8463309a4bb89"},
+]
+
+[package.extras]
+twisted = ["twisted"]
+
+[[package]]
 name = "prompt-toolkit"
 version = "3.0.43"
 description = "Library for building powerful interactive command lines in Python"
@@ -4655,17 +4669,6 @@ dev = ["check-manifest"]
 test = ["tox (>=1.8.1)"]
 
 [[package]]
-name = "statsd"
-version = "3.3.0"
-description = "A simple statsd client."
-optional = false
-python-versions = "*"
-files = [
-    {file = "statsd-3.3.0-py2.py3-none-any.whl", hash = "sha256:c610fb80347fca0ef62666d241bce64184bd7cc1efe582f9690e045c25535eaa"},
-    {file = "statsd-3.3.0.tar.gz", hash = "sha256:e3e6db4c246f7c59003e51c9720a51a7f39a396541cb9b147ff4b14d15b5dd1f"},
-]
-
-[[package]]
 name = "supervisor"
 version = "4.1.0"
 description = "A system for controlling process state under UNIX"
@@ -5300,4 +5303,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "e7985ee5c3ca3a4389b4e85fda033a9b3b867dbbe4b4a7fca8ea5c35fc401148"
+content-hash = "44e59c1db0eb736c5d9c72aea2ae404256c79981a76f94e1aaf0a2b4ca7aae26"

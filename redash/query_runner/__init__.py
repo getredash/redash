@@ -5,6 +5,7 @@ from functools import wraps
 
 import sqlparse
 from dateutil import parser
+from prometheus_client import Counter
 from rq.timeouts import JobTimeoutException
 from sshtunnel import open_tunnel
 
@@ -120,6 +121,11 @@ class BaseQueryRunner:
     limit_query = " LIMIT 1000"
     limit_keywords = ["LIMIT", "OFFSET"]
     limit_after_select = False
+    queryRunnerResultsCounter = Counter(
+        "query_runner_results",
+        "Query Runner results counter",
+        ["runner", "name", "status"],
+    )
 
     def __init__(self, configuration):
         self.syntax = "sql"

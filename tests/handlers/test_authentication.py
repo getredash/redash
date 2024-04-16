@@ -17,7 +17,8 @@ class TestResetPassword(BaseTestCase):
 
 
 class TestInvite(BaseTestCase):
-    def test_expired_invite_token(self):
+    @mock.patch("prometheus_client.Histogram.observe")
+    def test_expired_invite_token(self, inc):
         with mock.patch("time.time") as patched_time:
             patched_time.return_value = time.time() - (7 * 24 * 3600) - 10
             token = invite_token(self.factory.user)

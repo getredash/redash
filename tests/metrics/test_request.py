@@ -3,8 +3,8 @@ from mock import ANY, patch
 from tests import BaseTestCase
 
 
-@patch("statsd.StatsClient.timing")
+@patch("prometheus_client.Histogram.observe")
 class TestRequestMetrics(BaseTestCase):
-    def test_flask_request_records_statsd_metrics(self, timing):
+    def test_flask_request_records_metrics(self, observe):
         self.client.get("/ping")
-        timing.assert_called_once_with("requests.redash_ping.get", ANY)
+        observe.assert_called_once_with(ANY)

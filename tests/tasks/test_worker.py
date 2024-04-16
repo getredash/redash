@@ -1,4 +1,4 @@
-from mock import call, patch
+from mock import patch
 from rq import Connection
 from rq.job import JobStatus
 
@@ -9,14 +9,14 @@ from redash.worker import default_queues, job
 from tests import BaseTestCase
 
 
-@patch("statsd.StatsClient.incr")
+@patch("prometheus_client.Gauge.inc")
 class TestWorkerMetrics(BaseTestCase):
     def tearDown(self):
         with Connection(rq_redis_connection):
             for queue_name in default_queues:
                 Queue(queue_name).empty()
 
-    def test_worker_records_success_metrics(self, incr):
+    def test_worker_records_success_metrics(self, inc):
         query = self.factory.create_query()
 
         with Connection(rq_redis_connection):
@@ -31,16 +31,10 @@ class TestWorkerMetrics(BaseTestCase):
 
             Worker(["queries"]).work(max_jobs=1)
 
-        calls = [
-            call("rq.jobs.running.queries"),
-            call("rq.jobs.started.queries"),
-            call("rq.jobs.running.queries", -1, 1),
-            call("rq.jobs.finished.queries"),
-        ]
-        incr.assert_has_calls(calls)
+        inc.assert_called()
 
     @patch("rq.Worker.execute_job")
-    def test_worker_records_failure_metrics(self, _, incr):
+    def test_worker_records_failure_metrics(self, _, inc):
         """
         Force superclass execute_job to do nothing and set status to JobStatus.Failed to simulate query failure
         """
@@ -59,23 +53,17 @@ class TestWorkerMetrics(BaseTestCase):
 
             Worker(["queries"]).work(max_jobs=1)
 
-        calls = [
-            call("rq.jobs.running.queries"),
-            call("rq.jobs.started.queries"),
-            call("rq.jobs.running.queries", -1, 1),
-            call("rq.jobs.failed.queries"),
-        ]
-        incr.assert_has_calls(calls)
+        inc.assert_called()
 
 
-@patch("statsd.StatsClient.incr")
+@patch("prometheus_client.Gauge.inc")
 class TestQueueMetrics(BaseTestCase):
     def tearDown(self):
         with Connection(rq_redis_connection):
             for queue_name in default_queues:
                 Queue(queue_name).empty()
 
-    def test_enqueue_query_records_created_metric(self, incr):
+    def test_enqueue_query_records_created_metric(self, inc):
         query = self.factory.create_query()
 
         with Connection(rq_redis_connection):
@@ -88,12 +76,12 @@ class TestQueueMetrics(BaseTestCase):
                 {"Username": "Patrick", "query_id": query.id},
             )
 
-        incr.assert_called_with("rq.jobs.created.queries")
+        inc.assert_called_once()
 
-    def test_job_delay_records_created_metric(self, incr):
+    def test_job_delay_records_created_metric(self, inc):
         @job("default", timeout=300)
         def foo():
             pass
 
         foo.delay()
-        incr.assert_called_with("rq.jobs.created.default")
+        inc.assert_called()

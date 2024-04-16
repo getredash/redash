@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 
-from redash import __version__, statsd_client
+from redash import __version__
 from redash.query_runner import (
     TYPE_BOOLEAN,
     TYPE_DATE,
@@ -112,7 +112,7 @@ class Databricks(BaseSQLQueryRunner):
 
                 if len(result_set) >= ROW_LIMIT and cursor.fetchone() is not None:
                     logger.warning("Truncated result set.")
-                    statsd_client.incr("redash.query_runner.databricks.truncated")
+                    self.queryRunnerResultsCounter.labels("databricks", self.name, "truncated").inc()
                     data["truncated"] = True
                 error = None
             else:

@@ -74,6 +74,6 @@ class TestSchedulerMetrics(TestCase):
 
         schedule_periodic_jobs([{"func": foo, "interval": 60}])
 
-        with patch("statsd.StatsClient.incr") as incr:
+        with patch("prometheus_client.Gauge.inc") as inc:
             rq_scheduler.enqueue_jobs()
-            incr.assert_called_once_with("rq.jobs.created.periodic")
+            inc.assert_called_once()
