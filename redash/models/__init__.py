@@ -1007,8 +1007,8 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
             "QUERY_NAME": self.query_rel.name,
             "QUERY_URL": "{host}/queries/{query_id}".format(host=host, query_id=self.query_rel.id),
             "QUERY_RESULT_VALUE": result_value,
-            "QUERY_RESULT_ROWS": data["rows"],
-            "QUERY_RESULT_COLS": data["columns"],
+            "QUERY_RESULT_ROWS": json_dumps(data["rows"]),
+            "QUERY_RESULT_COLS": json_dumps(data["columns"]),
             "QUERY_RESULT_TABLE": result_table,
         }
         return mustache_render_escape(template, context)
