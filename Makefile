@@ -2,11 +2,16 @@
 
 export COMPOSE_DOCKER_CLI_BUILD=1
 export DOCKER_BUILDKIT=1
+export COMPOSE_PROFILES=local
 
 compose_build: .env
 	docker compose build
 
 up:
+	docker compose up -d redis postgres
+	docker compose exec -u postgres postgres psql postgres --csv \
+		-1tqc "SELECT table_name FROM information_schema.tables WHERE table_name = 'organizations'" 2> /dev/null \
+		| grep -q "organizations" || make create_database
 	docker compose up -d --build
 
 test_db:

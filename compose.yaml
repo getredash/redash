@@ -8,7 +8,7 @@ services:
       - postgres
       - redis
     ports:
-      - "5000:5000"
+      - "${REDASH_PORT:-5001}:5000"
       - "5678:5678"
     environment:
       PYTHONUNBUFFERED: 0
@@ -38,16 +38,16 @@ services:
     image: redis:7-alpine
     restart: unless-stopped
   postgres:
-    image: pgautoupgrade/pgautoupgrade:latest
+    image: postgres:16-alpine
     ports:
-      - "15432:5432"
+      - "${POSTGRES_PORT:-15432}:5432"
     # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
     # improvement on my personal machine). We should consider moving this into a dedicated Docker Compose configuration for
     # tests.
-    command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
+    command: postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF
     restart: unless-stopped
     environment:
-      POSTGRES_HOST_AUTH_METHOD: "trust"
+      POSTGRES_HOST_AUTH_METHOD: trust
   email:
     image: maildev/maildev
     ports:
@@ -66,7 +66,7 @@ services:
       - worker
       - scheduler
     environment:
-      CYPRESS_baseUrl: "http://server:5000"
+      CYPRESS_baseUrl: http://server:5000
       PERCY_TOKEN: ${PERCY_TOKEN:-""}
       PERCY_BRANCH: ${PERCY_BRANCH:-""}
       PERCY_COMMIT: ${PERCY_COMMIT:-""}
@@ -78,4 +78,4 @@ services:
       COMMIT_INFO_REMOTE: ${COMMIT_INFO_REMOTE:-""}
       CYPRESS_PROJECT_ID: ${CYPRESS_PROJECT_ID:-""}
       CYPRESS_RECORD_KEY: ${CYPRESS_RECORD_KEY:-""}
-      CYPRESS_COVERAGE: ${CYPRESS_COVERAGE:-""}
+      CYPRESS_COVERAGE: ${CYPRESS_COVERAGE:-true}

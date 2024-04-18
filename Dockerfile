@@ -13,7 +13,7 @@ FROM alpine:3.19 as frontend-builder-1
 COPY client/dist /frontend/client/dist
 
 # MODE 2: build static content in docker, can be used for a local development
-FROM node:18.1-bookworm as frontend-builder-2
+FROM node:18-bookworm as frontend-builder-2
 RUN npm install --global --force yarn@1.22.22
 ENV CYPRESS_INSTALL_BINARY=0
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
