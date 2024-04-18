@@ -137,6 +137,7 @@ def create_table(connection, table_name, query_results):
 
     for row in query_results["rows"]:
         values = [flatten(row.get(column)) for column in columns]
+        logger.debug("INSERT query: %s. VALUES: %s", insert_template, values)
         connection.execute(insert_template, values)
 
 
