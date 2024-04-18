@@ -28,10 +28,6 @@ class CreateTableError(Exception):
     pass
 
 
-class UnsupportedTypeError(Exception):
-    pass
-
-
 def extract_query_params(query):
     return re.findall(r"(?:join|from)\s+param_query_(\d+)_{([^}]+)}", query, re.IGNORECASE)
 
