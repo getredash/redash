@@ -153,7 +153,9 @@ class Athena(BaseQueryRunner):
         return "athena"
 
     def _get_iam_credentials(self, user=None):
-        if ASSUME_ROLE:
+        # Use the default credentials if iam_role is not provided
+        # 20 is the default botocore ParamValidation: Invalid length for parameter RoleArn, value: 0, valid min length: 20
+        if ASSUME_ROLE and len(self.configuration.get("iam_role")) >= 20:
             role_session_name = "redash" if user is None else user.email
             sts = boto3.client("sts")
             creds = sts.assume_role(
