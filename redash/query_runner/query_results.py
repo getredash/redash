@@ -28,10 +28,6 @@ class CreateTableError(Exception):
     pass
 
 
-class UnsupportedTypeError(Exception):
-    pass
-
-
 def extract_query_params(query):
     return re.findall(r"(?:join|from)\s+param_query_(\d+)_{([^}]+)}", query, re.IGNORECASE)
 
@@ -113,9 +109,13 @@ def flatten(value):
         return json_dumps(value)
     elif isinstance(value, decimal.Decimal):
         return float(value)
-    elif isinstance(value, (datetime.timedelta, datetime.time)):
+    elif isinstance(value, (datetime.date, datetime.time, datetime.datetime, datetime.timedelta)):
         return str(value)
+    elif value is None:
+        return 'NULL'
     else:
+        if not isinstance(value, (str, float, int)):
+            logger.debug("flatten() found new type: %s", str(type(value)))
         return value
 
 
@@ -138,18 +138,19 @@ def create_table(connection, table_name, query_results):
         column_list=column_list,
         place_holders=",".join(["?"] * len(columns)),
     )
+    logger.debug("INSERT template: %s", insert_template)
 
     for row in query_results["rows"]:
         values = [flatten(row.get(column)) for column in columns]
-        try:
-            connection.execute(insert_template, values)
-        except sqlite3.InterfaceError as exc:
-            raise UnsupportedTypeError(
-                "Error inserting data: %s. Template: %s. Value data types: %s",
-                str(exc),
-                insert_template,
-                ",".join(str(type(value)) for value in values),
-            )
+        # try:
+        # for value in values:
+        #     logger.debug("Value: %s, Type: %s", str(value), str(type(value)))
+        connection.execute(insert_template, values)
+        # except Exception as e:
+        #     if logger.isEnabledFor(logging.DEBUG):
+        #         for value in values:
+        #             logger.debug("Value: %s, Type: %s", str(value), str(type(value)))
+        #     raise Exception("Error inserting data: %s", str(e))
 
 
 def prepare_parameterized_query(query, query_params):
