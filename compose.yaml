@@ -1,70 +1,81 @@
-# This configuration file is for the **development** setup.
-# For a production example please refer to getredash/setup repository on GitHub.
-x-redash-service: &redash-service
-  build:
-    context: .
-    args:
-      skip_frontend_build: "true"  # set to empty string to build
-  volumes:
-    - .:/app
-  env_file:
-    - .env
-x-redash-environment: &redash-environment
-  REDASH_LOG_LEVEL: "INFO"
-  REDASH_REDIS_URL: "redis://redis:6379/0"
-  REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
-  REDASH_RATELIMIT_ENABLED: "false"
-  REDASH_MAIL_DEFAULT_SENDER: "redash@example.com"
-  REDASH_MAIL_SERVER: "email"
-  REDASH_MAIL_PORT: 1025
-  REDASH_ENFORCE_CSRF: "true"
-  REDASH_GUNICORN_TIMEOUT: 60
-  # Set secret keys in the .env file
 services:
   server:
-    <<: *redash-service
-    command: dev_server
+    extends:
+      file: compose.base.yaml
+      service: .redash
+    command: server
     depends_on:
       - postgres
       - redis
     ports:
-      - "5001:5000"
+      - "${REDASH_PORT:-5001}:5000"
       - "5678:5678"
     environment:
-      <<: *redash-environment
       PYTHONUNBUFFERED: 0
   scheduler:
-    <<: *redash-service
-    command: dev_scheduler
+    extends:
+      file: compose.base.yaml
+      service: .redash
+    profiles:
+      - e2e
+      - local
+    command: scheduler
     depends_on:
       - server
-    environment:
-      <<: *redash-environment
   worker:
-    <<: *redash-service
-    command: dev_worker
+    extends:
+      file: compose.base.yaml
+      service: .redash
+    profiles:
+      - e2e
+      - local
+    command: worker
     depends_on:
       - server
     environment:
-      <<: *redash-environment
       PYTHONUNBUFFERED: 0
   redis:
     image: redis:7-alpine
     restart: unless-stopped
   postgres:
-    image: pgautoupgrade/pgautoupgrade:15-alpine3.8
+    image: postgres:16-alpine
     ports:
-      - "15432:5432"
+      - "${POSTGRES_PORT:-15432}:5432"
     # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
     # improvement on my personal machine). We should consider moving this into a dedicated Docker Compose configuration for
     # tests.
-    command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
+    command: postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF
     restart: unless-stopped
     environment:
-      POSTGRES_HOST_AUTH_METHOD: "trust"
+      POSTGRES_HOST_AUTH_METHOD: trust
   email:
     image: maildev/maildev
     ports:
       - "1080:1080"
       - "1025:1025"
     restart: unless-stopped
+  cypress:
+    ipc: host
+    build:
+      context: .
+      dockerfile: Dockerfile.cypress
+    profiles:
+      - e2e
+    depends_on:
+      - server
+      - worker
+      - scheduler
+    environment:
+      CYPRESS_baseUrl: http://server:5000
+      PERCY_TOKEN: ${PERCY_TOKEN:-""}
+      PERCY_BRANCH: ${PERCY_BRANCH:-""}
+      PERCY_COMMIT: ${PERCY_COMMIT:-""}
+      PERCY_PULL_REQUEST: ${PERCY_PULL_REQUEST:-}
+      COMMIT_INFO_BRANCH: ${COMMIT_INFO_BRANCH:-""}
+      COMMIT_INFO_MESSAGE: ${COMMIT_INFO_MESSAGE:-""}
+      COMMIT_INFO_AUTHOR: ${COMMIT_INFO_AUTHOR:-""}
+      COMMIT_INFO_SHA: ${COMMIT_INFO_SHA:-""}
+      COMMIT_INFO_REMOTE: ${COMMIT_INFO_REMOTE:-""}
+      CYPRESS_PROJECT_ID: ${CYPRESS_PROJECT_ID:-""}
+      CYPRESS_RECORD_KEY: ${CYPRESS_RECORD_KEY:-""}
+      CYPRESS_COVERAGE: ${CYPRESS_COVERAGE:-true}

@@ -3,6 +3,7 @@ This will eventually replace all the `to_dict` methods of the different model
 classes we have. This will ensure cleaner code and better
 separation of concerns.
 """
+
 from flask_login import current_user
 from funcy import project
 from rq.job import JobStatus
@@ -276,6 +277,9 @@ def serialize_job(job):
         JobStatus.STARTED: 2,
         JobStatus.FINISHED: 3,
         JobStatus.FAILED: 4,
+        JobStatus.CANCELED: 5,
+        JobStatus.DEFERRED: 6,
+        JobStatus.SCHEDULED: 7,
     }
 
     job_status = job.get_status()

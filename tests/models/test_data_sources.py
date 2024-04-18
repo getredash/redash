@@ -8,7 +8,7 @@ from tests import BaseTestCase
 
 class DataSourceTest(BaseTestCase):
     def test_get_schema(self):
-        return_value = [{"name": "table", "columns": []}]
+        return_value = [{"name": "table", "columns": [], "description": None}]
 
         with mock.patch("redash.query_runner.pg.PostgreSQL.get_schema") as patched_get_schema:
             patched_get_schema.return_value = return_value
@@ -18,7 +18,7 @@ class DataSourceTest(BaseTestCase):
             self.assertEqual(return_value, schema)
 
     def test_get_schema_uses_cache(self):
-        return_value = [{"name": "table", "columns": []}]
+        return_value = [{"name": "table", "columns": [], "description": None}]
         with mock.patch("redash.query_runner.pg.PostgreSQL.get_schema") as patched_get_schema:
             patched_get_schema.return_value = return_value
 
@@ -29,12 +29,12 @@ class DataSourceTest(BaseTestCase):
             self.assertEqual(patched_get_schema.call_count, 1)
 
     def test_get_schema_skips_cache_with_refresh_true(self):
-        return_value = [{"name": "table", "columns": []}]
+        return_value = [{"name": "table", "columns": [], "description": None}]
         with mock.patch("redash.query_runner.pg.PostgreSQL.get_schema") as patched_get_schema:
             patched_get_schema.return_value = return_value
 
             self.factory.data_source.get_schema()
-            new_return_value = [{"name": "new_table", "columns": []}]
+            new_return_value = [{"name": "new_table", "columns": [], "description": None}]
             patched_get_schema.return_value = new_return_value
             schema = self.factory.data_source.get_schema(refresh=True)
 
@@ -43,10 +43,11 @@ class DataSourceTest(BaseTestCase):
 
     def test_schema_sorter(self):
         input_data = [
-            {"name": "zoo", "columns": ["is_zebra", "is_snake", "is_cow"]},
+            {"name": "zoo", "columns": ["is_zebra", "is_snake", "is_cow"], "description": None},
             {
                 "name": "all_terain_vehicle",
                 "columns": ["has_wheels", "has_engine", "has_all_wheel_drive"],
+                "description": None,
             },
         ]
 
@@ -54,8 +55,9 @@ class DataSourceTest(BaseTestCase):
             {
                 "name": "all_terain_vehicle",
                 "columns": ["has_all_wheel_drive", "has_engine", "has_wheels"],
+                "description": None,
             },
-            {"name": "zoo", "columns": ["is_cow", "is_snake", "is_zebra"]},
+            {"name": "zoo", "columns": ["is_cow", "is_snake", "is_zebra"], "description": None},
         ]
 
         real_output = self.factory.data_source._sort_schema(input_data)
@@ -64,10 +66,11 @@ class DataSourceTest(BaseTestCase):
 
     def test_model_uses_schema_sorter(self):
         orig_schema = [
-            {"name": "zoo", "columns": ["is_zebra", "is_snake", "is_cow"]},
+            {"name": "zoo", "columns": ["is_zebra", "is_snake", "is_cow"], "description": None},
             {
                 "name": "all_terain_vehicle",
                 "columns": ["has_wheels", "has_engine", "has_all_wheel_drive"],
+                "description": None,
             },
         ]
 
@@ -75,8 +78,9 @@ class DataSourceTest(BaseTestCase):
             {
                 "name": "all_terain_vehicle",
                 "columns": ["has_all_wheel_drive", "has_engine", "has_wheels"],
+                "description": None,
             },
-            {"name": "zoo", "columns": ["is_cow", "is_snake", "is_zebra"]},
+            {"name": "zoo", "columns": ["is_cow", "is_snake", "is_zebra"], "description": None},
         ]
 
         with mock.patch("redash.query_runner.pg.PostgreSQL.get_schema") as patched_get_schema:

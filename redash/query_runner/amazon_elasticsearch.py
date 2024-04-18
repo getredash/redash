@@ -63,5 +63,8 @@ class AmazonElasticsearchService(ElasticSearch2):
 
         self.auth = AWSV4Sign(cred, region, "es")
 
+    def get_auth(self):
+        return self.auth
+
 
 register(AmazonElasticsearchService)
