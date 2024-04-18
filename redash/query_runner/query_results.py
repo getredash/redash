@@ -144,10 +144,12 @@ def create_table(connection, table_name, query_results):
         try:
             connection.execute(insert_template, values)
         except sqlite3.InterfaceError as exc:
-            raise UnsupportedTypeError("Error inserting data: %s. Template: %s. Value data types: %s",
-                                       str(exc),
-                                       insert_template,
-                                       ",".join(str(type(value)) for value in values))
+            raise UnsupportedTypeError(
+                "Error inserting data: %s. Template: %s. Value data types: %s",
+                str(exc),
+                insert_template,
+                ",".join(str(type(value)) for value in values),
+            )
 
 
 def prepare_parameterized_query(query, query_params):
