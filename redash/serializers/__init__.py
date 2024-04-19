@@ -280,6 +280,7 @@ def serialize_job(job):
         JobStatus.CANCELED: 5,
         JobStatus.DEFERRED: 6,
         JobStatus.SCHEDULED: 7,
+        JobStatus.STOPPED: 8
     }
 
     job_status = job.get_status()
@@ -301,7 +302,8 @@ def serialize_job(job):
         error = job.result["error"]
         status = 4
     else:
-        error = ""
+        status = 4
+        error = str(job.exc_info)
         result = query_result_id = job.result
 
     return {
