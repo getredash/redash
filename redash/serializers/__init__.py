@@ -302,7 +302,6 @@ def serialize_job(job):
         error = job.result["error"]
         status = 4
     else:
-        status = 4
         error = str(job.exc_info)
         result = query_result_id = job.result
 
