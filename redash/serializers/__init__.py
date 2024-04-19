@@ -279,7 +279,7 @@ def serialize_job(job):
         JobStatus.FAILED: 4,
         JobStatus.CANCELED: 5,
         JobStatus.DEFERRED: 6,
-        JobStatus.SCHEDULED: 7
+        JobStatus.SCHEDULED: 7,
     }
 
     job_status = job.get_status()
