@@ -111,11 +111,10 @@ def flatten(value):
         return float(value)
     elif isinstance(value, (datetime.date, datetime.time, datetime.datetime, datetime.timedelta)):
         return str(value)
-    elif value is None:
-        return 'NULL'
     else:
-        if not isinstance(value, (str, float, int)):
-            logger.debug("flatten() found new type: %s", str(type(value)))
+        if logging.isEnabledFor(logging.DEBUG):
+            if not isinstance(value, (type(None), str, float, int)):
+                logger.debug("flatten() found unhandled type: %s", str(type(value)))
         return value
 
 
@@ -142,15 +141,7 @@ def create_table(connection, table_name, query_results):
 
     for row in query_results["rows"]:
         values = [flatten(row.get(column)) for column in columns]
-        # try:
-        # for value in values:
-        #     logger.debug("Value: %s, Type: %s", str(value), str(type(value)))
         connection.execute(insert_template, values)
-        # except Exception as e:
-        #     if logger.isEnabledFor(logging.DEBUG):
-        #         for value in values:
-        #             logger.debug("Value: %s, Type: %s", str(value), str(type(value)))
-        #     raise Exception("Error inserting data: %s", str(e))
 
 
 def prepare_parameterized_query(query, query_params):
