@@ -15,9 +15,6 @@ from redash.settings import parse_boolean
 
 logger = logging.getLogger(__name__)
 ANNOTATE_QUERY = parse_boolean(os.environ.get("ATHENA_ANNOTATE_QUERY", "true"))
-SHOW_EXTRA_SETTINGS = parse_boolean(os.environ.get("ATHENA_SHOW_EXTRA_SETTINGS", "true"))
-ASSUME_ROLE = parse_boolean(os.environ.get("ATHENA_ASSUME_ROLE", "false"))
-OPTIONAL_CREDENTIALS = parse_boolean(os.environ.get("ATHENA_OPTIONAL_CREDENTIALS", "true"))
 
 try:
     import boto3
@@ -65,6 +62,11 @@ class Athena(BaseQueryRunner):
         schema = {
             "type": "object",
             "properties": {
+                "iam_role": {"type": "string", "title": "IAM role to assume"},
+                "external_id": {
+                    "type": "string",
+                    "title": "External ID to be used while STS assume role",
+                },
                 "region": {"type": "string", "title": "AWS Region"},
                 "aws_access_key": {"type": "string", "title": "AWS Access Key"},
                 "aws_secret_key": {"type": "string", "title": "AWS Secret Key"},
@@ -88,11 +90,20 @@ class Athena(BaseQueryRunner):
                     "title": "Athena cost per Tb scanned (USD)",
                     "default": 5,
                 },
+                "encryption_option": {
+                    "type": "string",
+                    "title": "Encryption Option",
+                },
+                "kms_key": {"type": "string", "title": "KMS Key"},
             },
             "required": ["region", "s3_staging_dir"],
-            "extra_options": ["glue", "cost_per_tb"],
+            "extra_options": ["glue", "cost_per_tb", "encryption_option", "kms_key"],
             "order": [
+                "aws_access_key",
+                "aws_secret_key",
                 "region",
+                "iam_role",
+                "external_id",
                 "s3_staging_dir",
                 "schema",
                 "work_group",
@@ -100,42 +111,6 @@ class Athena(BaseQueryRunner):
             ],
             "secret": ["aws_secret_key"],
         }
-
-        if SHOW_EXTRA_SETTINGS:
-            schema["properties"].update(
-                {
-                    "encryption_option": {
-                        "type": "string",
-                        "title": "Encryption Option",
-                    },
-                    "kms_key": {"type": "string", "title": "KMS Key"},
-                }
-            )
-            schema["extra_options"].append("encryption_option")
-            schema["extra_options"].append("kms_key")
-
-        if ASSUME_ROLE:
-            del schema["properties"]["aws_access_key"]
-            del schema["properties"]["aws_secret_key"]
-            schema["secret"] = []
-
-            schema["order"].insert(1, "iam_role")
-            schema["order"].insert(2, "external_id")
-            schema["properties"].update(
-                {
-                    "iam_role": {"type": "string", "title": "IAM role to assume"},
-                    "external_id": {
-                        "type": "string",
-                        "title": "External ID to be used while STS assume role",
-                    },
-                }
-            )
-        else:
-            schema["order"].insert(1, "aws_access_key")
-            schema["order"].insert(2, "aws_secret_key")
-
-        if not OPTIONAL_CREDENTIALS and not ASSUME_ROLE:
-            schema["required"] += ["aws_access_key", "aws_secret_key"]
 
         return schema
 
@@ -153,9 +128,14 @@ class Athena(BaseQueryRunner):
         return "athena"
 
     def _get_iam_credentials(self, user=None):
-        if ASSUME_ROLE:
+        args = {
+            "aws_access_key_id": self.configuration.get("aws_access_key", None),
+            "aws_secret_access_key": self.configuration.get("aws_secret_key", None),
+            "region_name": self.configuration["region"],
+        }
+        if self.configuration.get("iam_role"):
             role_session_name = "redash" if user is None else user.email
-            sts = boto3.client("sts")
+            sts = boto3.client("sts", **args)
             creds = sts.assume_role(
                 RoleArn=self.configuration.get("iam_role"),
                 RoleSessionName=role_session_name,
@@ -168,11 +148,7 @@ class Athena(BaseQueryRunner):
                 "region_name": self.configuration["region"],
             }
         else:
-            return {
-                "aws_access_key_id": self.configuration.get("aws_access_key", None),
-                "aws_secret_access_key": self.configuration.get("aws_secret_key", None),
-                "region_name": self.configuration["region"],
-            }
+            return args
 
     def __get_schema_from_glue(self):
         client = boto3.client("glue", **self._get_iam_credentials())
