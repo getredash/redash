@@ -61,12 +61,17 @@ class CloudWatch(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
+                "iam_role": {"type": "string", "title": "IAM role to assume"},
+                "external_id": {
+                    "type": "string",
+                    "title": "External ID to be used while STS assume role",
+                },
                 "region": {"type": "string", "title": "AWS Region"},
                 "aws_access_key": {"type": "string", "title": "AWS Access Key"},
                 "aws_secret_key": {"type": "string", "title": "AWS Secret Key"},
             },
-            "required": ["region", "aws_access_key", "aws_secret_key"],
-            "order": ["region", "aws_access_key", "aws_secret_key"],
+            "required": ["region"],
+            "order": ["region", "aws_access_key", "aws_secret_key", "iam_role", "external_id"],
             "secret": ["aws_secret_key"],
         }
 
@@ -81,14 +86,27 @@ class CloudWatch(BaseQueryRunner):
     def test_connection(self):
         self.get_schema()
 
-    def _get_client(self):
-        cloudwatch = boto3.client(
-            "cloudwatch",
-            region_name=self.configuration.get("region"),
-            aws_access_key_id=self.configuration.get("aws_access_key"),
-            aws_secret_access_key=self.configuration.get("aws_secret_key"),
-        )
-        return cloudwatch
+    def _get_client(self, user=None):
+        args = {
+            "aws_access_key_id": self.configuration.get("aws_access_key", None),
+            "aws_secret_access_key": self.configuration.get("aws_secret_key", None),
+            "region_name": self.configuration["region"],
+        }
+        if self.configuration.get("iam_role"):
+            role_session_name = "redash" if user is None else user.email
+            sts = boto3.client("sts", **args)
+            creds = sts.assume_role(
+                RoleArn=self.configuration.get("iam_role"),
+                RoleSessionName=role_session_name,
+                ExternalId=self.configuration.get("external_id"),
+            )
+            return {
+                "aws_access_key_id": creds["Credentials"]["AccessKeyId"],
+                "aws_secret_access_key": creds["Credentials"]["SecretAccessKey"],
+                "aws_session_token": creds["Credentials"]["SessionToken"],
+                "region_name": self.configuration["region"],
+            }
+        return boto3.client("cloudwatch", **args)
 
     def get_schema(self, get_stats=False):
         client = self._get_client()
@@ -110,7 +128,7 @@ class CloudWatch(BaseQueryRunner):
         return list(metrics.values())
 
     def run_query(self, query, user):
-        cloudwatch = self._get_client()
+        cloudwatch = self._get_client(user)
 
         query = parse_query(query)
 
