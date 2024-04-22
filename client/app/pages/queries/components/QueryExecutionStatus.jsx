@@ -1,4 +1,3 @@
-import { includes } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import Alert from "antd/lib/alert";
@@ -9,7 +8,12 @@ import { ExecutionStatus } from "@/services/query-result";
 export default function QueryExecutionStatus({ status, updatedAt, error, isCancelling, onCancel }) {
   const alertType = status === ExecutionStatus.FAILED ? "error" : "info";
   const showTimer = status !== ExecutionStatus.FAILED && updatedAt;
-  const isCancelButtonAvailable = includes([ExecutionStatus.QUEUED, ExecutionStatus.STARTED], status);
+  const isCancelButtonAvailable = [
+    ExecutionStatus.SCHEDULED,
+    ExecutionStatus.QUEUED,
+    ExecutionStatus.STARTED,
+    ExecutionStatus.DEFERRED,
+  ].includes(status);
   let message = isCancelling ? <React.Fragment>Cancelling&hellip;</React.Fragment> : null;
 
   switch (status) {
