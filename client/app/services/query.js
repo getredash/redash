@@ -2,6 +2,7 @@ import moment from "moment";
 import debug from "debug";
 import Mustache from "mustache";
 import { axios } from "@/services/axios";
+import { ExecutionStatus } from "@/services/query-result";
 import {
   zipObject,
   isEmpty,
@@ -103,7 +104,7 @@ export class Query {
       return new QueryResult({
         job: {
           error: `missing ${valuesWord} for ${missingParams.join(", ")} ${paramsWord}.`,
-          status: 4,
+          status: ExecutionStatus.FAILED,
         },
       });
     }
@@ -360,7 +361,7 @@ export class QueryResultError {
 
   // eslint-disable-next-line class-methods-use-this
   getStatus() {
-    return "failed";
+    return ExecutionStatus.FAILED;
   }
 
   // eslint-disable-next-line class-methods-use-this
