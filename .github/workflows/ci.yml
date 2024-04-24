@@ -60,6 +60,7 @@ jobs:
       - name: Build Docker Images
         run: |
           set -x
+          touch .env
           docker compose build
           docker compose up -d
           sleep 10
@@ -175,6 +176,7 @@ jobs:
       - name: Setup Redash Server
         run: |
           set -x
+          touch .env
           yarn build
           yarn cypress build
           yarn cypress start -- --skip-db-seed
