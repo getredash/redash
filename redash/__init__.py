@@ -45,7 +45,7 @@ setup_logging()
 
 if settings.STATSD_ENABLED:
     gb = GraphiteBridge((settings.STATSD_HOST, settings.STATSD_PORT), tags=settings.STATSD_USE_TAGS)
-    gb.start(settings.STATSD_PERIOD)
+    gb.start(settings.STATSD_PERIOD, settings.STATSD_PREFIX)
 
 redis_connection = redis.from_url(settings.REDIS_URL)
 rq_redis_connection = redis.from_url(settings.RQ_REDIS_URL)

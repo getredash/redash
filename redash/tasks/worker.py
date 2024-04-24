@@ -64,9 +64,9 @@ class StatsdRecordingWorker(BaseWorker):
     """
 
     def execute_job(self, job, queue):
-        rqJobsCounter.labels(queue.name, "running").inc()
         rqJobsCounter.labels(queue.name, "started").inc()
         try:
+            rqJobsCounter.labels(queue.name, "running").inc()
             super().execute_job(job, queue)
         finally:
             rqJobsCounter.labels(queue.name, "running").dec()
