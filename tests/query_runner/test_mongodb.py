@@ -141,7 +141,13 @@ class TestMongoResults(TestCase):
                 "column": 2,
                 "column2": "test",
                 "column3": "hello",
-                "nested": {"a": 2, "b": "str2", "c": "c", "d": {"e": 3}},
+                "nested": {
+                    "a": 2,
+                    "b": "str2",
+                    "c": "c",
+                    "d": {"e": 3},
+                    "f": {"h": {"i": ["j", "k", "l"]}},
+                },
             },
         ]
 
@@ -158,6 +164,7 @@ class TestMongoResults(TestCase):
                 "nested.b": "str2",
                 "nested.c": "c",
                 "nested.d.e": 3,
+                "nested.f.h.i": ["j", "k", "l"],
             },
         )
 
@@ -167,3 +174,50 @@ class TestMongoResults(TestCase):
         self.assertIsNotNone(_get_column_by_name(columns, "nested.a"))
         self.assertIsNotNone(_get_column_by_name(columns, "nested.b"))
         self.assertIsNotNone(_get_column_by_name(columns, "nested.c"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.d.e"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.f.h.i"))
+
+    def test_parses_flatten_nested_results(self):
+        raw_results = [
+            {
+                "column": 2,
+                "column2": "test",
+                "column3": "hello",
+                "nested": {
+                    "a": 2,
+                    "b": "str2",
+                    "c": "c",
+                    "d": {"e": 3},
+                    "f": {"h": {"i": ["j", "k", "l"]}},
+                },
+            }
+        ]
+
+        rows, columns = parse_results(raw_results, flatten=True)
+        print(rows)
+        self.assertDictEqual(
+            rows[0],
+            {
+                "column": 2,
+                "column2": "test",
+                "column3": "hello",
+                "nested.a": 2,
+                "nested.b": "str2",
+                "nested.c": "c",
+                "nested.d.e": 3,
+                "nested.f.h.i.0": "j",
+                "nested.f.h.i.1": "k",
+                "nested.f.h.i.2": "l",
+            },
+        )
+
+        self.assertIsNotNone(_get_column_by_name(columns, "column"))
+        self.assertIsNotNone(_get_column_by_name(columns, "column2"))
+        self.assertIsNotNone(_get_column_by_name(columns, "column3"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.a"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.b"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.c"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.d.e"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.f.h.i.0"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.f.h.i.1"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.f.h.i.2"))
