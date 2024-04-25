@@ -55,18 +55,6 @@ types_map = {
 }
 
 
-def json_encoder(dec, o):
-    if isinstance(o, Range):
-        # From: https://github.com/psycopg/psycopg2/pull/779
-        if o._bounds is None:
-            return ""
-
-        items = [o._bounds[0], str(o._lower), ", ", str(o._upper), o._bounds[1]]
-
-        return "".join(items)
-    return None
-
-
 def _wait(conn, timeout=None):
     while 1:
         try:
@@ -120,6 +108,8 @@ def build_schema(query_result, schema):
         column = row["column_name"]
         if row.get("data_type") is not None:
             column = {"name": row["column_name"], "type": row["data_type"]}
+            if "column_comment" in row:
+                column["comment"] = row["column_comment"]
 
         schema[table_name]["columns"].append(column)
 
@@ -195,6 +185,18 @@ class PostgreSQL(BaseSQLQueryRunner):
     def type(cls):
         return "pg"
 
+    @classmethod
+    def custom_json_encoder(cls, dec, o):
+        if isinstance(o, Range):
+            # From: https://github.com/psycopg/psycopg2/pull/779
+            if o._bounds is None:
+                return ""
+
+            items = [o._bounds[0], str(o._lower), ", ", str(o._upper), o._bounds[1]]
+
+            return "".join(items)
+        return None
+
     def _get_definitions(self, schema, query):
         results, error = self.run_query(query, None)
 
@@ -222,7 +224,9 @@ class PostgreSQL(BaseSQLQueryRunner):
         SELECT s.nspname as table_schema,
                c.relname as table_name,
                a.attname as column_name,
-               null as data_type
+               null as data_type,
+               null as column_comment,
+               null as idx
         FROM pg_class c
         JOIN pg_namespace s
         ON c.relnamespace = s.oid
@@ -238,8 +242,16 @@ class PostgreSQL(BaseSQLQueryRunner):
         SELECT table_schema,
                table_name,
                column_name,
-               data_type
-        FROM information_schema.columns
+               data_type,
+               pgd.description,
+               isc.ordinal_position
+        FROM information_schema.columns as isc
+        LEFT JOIN pg_catalog.pg_statio_all_tables as st
+        ON isc.table_schema = st.schemaname
+        AND isc.table_name = st.relname
+        LEFT JOIN pg_catalog.pg_description pgd
+        ON pgd.objoid=st.relid
+        AND pgd.objsubid=isc.ordinal_position
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
         """
 

@@ -26,18 +26,18 @@ def generate_ssl_options_dict(protocol, cert_path=None):
     return ssl_options
 
 
-def json_encoder(dec, o):
-    if isinstance(o, sortedset):
-        return list(o)
-    return None
-
-
 class Cassandra(BaseQueryRunner):
     noop_query = "SELECT dateof(now()) FROM system.local"
 
     @classmethod
     def enabled(cls):
         return enabled
+
+    @classmethod
+    def custom_json_encoder(cls, dec, o):
+        if isinstance(o, sortedset):
+            return list(o)
+        return None
 
     @classmethod
     def configuration_schema(cls):

@@ -16,6 +16,7 @@ import LoadingState from "../items-list/components/LoadingState";
 const SchemaItemColumnType = PropTypes.shape({
   name: PropTypes.string.isRequired,
   type: PropTypes.string,
+  comment: PropTypes.string,
 });
 
 export const SchemaItemType = PropTypes.shape({
@@ -47,13 +48,30 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
   return (
     <div {...props}>
       <div className="schema-list-item">
-        <PlainButton className="table-name" onClick={onToggle}>
-          <i className="fa fa-table m-r-5" aria-hidden="true" />
-          <strong>
-            <span title={item.name}>{tableDisplayName}</span>
-            {!isNil(item.size) && <span> ({item.size})</span>}
-          </strong>
-        </PlainButton>
+        {item.description ? (
+          <Tooltip
+            title={item.description}
+            mouseEnterDelay={0}
+            mouseLeaveDelay={0}
+            placement="right"
+            arrowPointAtCenter>
+            <PlainButton className="table-name" onClick={onToggle}>
+              <i className="fa fa-table m-r-5" aria-hidden="true" />
+              <strong>
+                <span title={item.name}>{tableDisplayName}</span>
+                {!isNil(item.size) && <span> ({item.size})</span>}
+              </strong>
+            </PlainButton>
+          </Tooltip>
+        ) : (
+          <PlainButton className="table-name" onClick={onToggle}>
+            <i className="fa fa-table m-r-5" aria-hidden="true" />
+            <strong>
+              <span title={item.name}>{tableDisplayName}</span>
+              {!isNil(item.size) && <span> ({item.size})</span>}
+            </strong>
+          </PlainButton>
+        )}
         <Tooltip
           title="Insert table name into query text"
           mouseEnterDelay={0}
@@ -73,22 +91,34 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
             map(item.columns, column => {
               const columnName = get(column, "name");
               const columnType = get(column, "type");
-              return (
-                <Tooltip
-                  title="Insert column name into query text"
-                  mouseEnterDelay={0}
-                  mouseLeaveDelay={0}
-                  placement="rightTop">
-                  <PlainButton key={columnName} className="table-open-item" onClick={e => handleSelect(e, columnName)}>
-                    <div>
-                      {columnName} {columnType && <span className="column-type">{columnType}</span>}
-                    </div>
+              const columnComment = get(column, "comment");
+              if (columnComment) {
+                return (
+                  <Tooltip title={columnComment} mouseEnterDelay={0} mouseLeaveDelay={0} placement="rightTop">
+                    <PlainButton
+                      key={columnName}
+                      className="table-open-item"
+                      onClick={e => handleSelect(e, columnName)}>
+                      <div>
+                        {columnName} {columnType && <span className="column-type">{columnType}</span>}
+                      </div>
 
-                    <div className="copy-to-editor">
-                      <i className="fa fa-angle-double-right" aria-hidden="true" />
-                    </div>
-                  </PlainButton>
-                </Tooltip>
+                      <div className="copy-to-editor">
+                        <i className="fa fa-angle-double-right" aria-hidden="true" />
+                      </div>
+                    </PlainButton>
+                  </Tooltip>
+                );
+              }
+              return (
+                <PlainButton key={columnName} className="table-open-item" onClick={e => handleSelect(e, columnName)}>
+                  <div>
+                    {columnName} {columnType && <span className="column-type">{columnType}</span>}
+                  </div>
+                  <div className="copy-to-editor">
+                    <i className="fa fa-angle-double-right" aria-hidden="true" />
+                  </div>
+                </PlainButton>
               );
             })
           )}

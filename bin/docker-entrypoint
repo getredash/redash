@@ -1,25 +1,48 @@
 #!/bin/bash
 set -e
 
+if [ -z $REDASH_REDIS_URL ]; then
+  export REDASH_REDIS_URL=redis://:${REDASH_REDIS_PASSWORD}@${REDASH_REDIS_HOSTNAME}:${REDASH_REDIS_PORT}/${REDASH_REDIS_NAME}
+fi
+
+if [ -z $REDASH_DATABASE_URL ]; then
+  export REDASH_DATABASE_URL=postgresql://${REDASH_DATABASE_USER}:${REDASH_DATABASE_PASSWORD}@${REDASH_DATABASE_HOSTNAME}:${REDASH_DATABASE_PORT}/${REDASH_DATABASE_NAME}
+fi
+
 scheduler() {
   echo "Starting RQ scheduler..."
 
-  exec /app/manage.py rq scheduler
-}
-
-dev_scheduler() {
-  echo "Starting dev RQ scheduler..."
-
-  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq scheduler
+  case $REDASH_PRODUCTION in
+    true)
+      echo "Starting RQ scheduler in production mode"
+      exec ./manage.py rq scheduler
+      ;;
+    *)
+      echo "Starting RQ scheduler in dev mode"
+      exec watchmedo auto-restart \
+        --directory=./redash/ \
+        --pattern=*.py \
+        --recursive -- ./manage.py rq scheduler $QUEUES
+      ;;
+  esac
 }
 
 worker() {
-  echo "Starting RQ worker..."
-
   export WORKERS_COUNT=${WORKERS_COUNT:-2}
   export QUEUES=${QUEUES:-}
-
-  exec supervisord -c worker.conf
+  case $REDASH_PRODUCTION in
+    true)
+      echo "Starting RQ worker in production mode"
+      exec supervisord -c worker.conf
+      ;;
+    *)
+      echo "Starting RQ worker in dev mode"
+      exec watchmedo auto-restart \
+        --directory=./redash/ \
+        --pattern=*.py \
+        --recursive -- ./manage.py rq worker $QUEUES
+      ;;
+  esac
 }
 
 workers_healthcheck() {
@@ -35,22 +58,63 @@ workers_healthcheck() {
   fi
 }
 
-dev_worker() {
-  echo "Starting dev RQ worker..."
-
-  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq worker $QUEUES
-}
-
 server() {
   # Recycle gunicorn workers every n-th request. See http://docs.gunicorn.org/en/stable/settings.html#max-requests for more details.
-  MAX_REQUESTS=${MAX_REQUESTS:-1000}
-  MAX_REQUESTS_JITTER=${MAX_REQUESTS_JITTER:-100}
-  TIMEOUT=${REDASH_GUNICORN_TIMEOUT:-60}
-  exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app --max-requests $MAX_REQUESTS --max-requests-jitter $MAX_REQUESTS_JITTER --timeout $TIMEOUT
+  case $REDASH_PRODUCTION in
+    true)
+      echo "Starting Redash Server in production mode"
+      MAX_REQUESTS=${MAX_REQUESTS:-1000}
+      MAX_REQUESTS_JITTER=${MAX_REQUESTS_JITTER:-100}
+      TIMEOUT=${REDASH_GUNICORN_TIMEOUT:-60}
+      exec /usr/local/bin/gunicorn \
+        -b 0.0.0.0:5000 \
+        --name redash \
+        -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app \
+        --max-requests $MAX_REQUESTS \
+        --max-requests-jitter $MAX_REQUESTS_JITTER \
+        --timeout $TIMEOUT
+      ;;
+    *)
+      echo "Starting Redash Server in a dev mode"
+      export FLASK_DEBUG=1
+      exec /app/manage.py runserver --debugger --reload -h 0.0.0.0
+      ;;
+  esac
 }
 
 create_db() {
-  exec /app/manage.py database create_tables
+  REDASH_DATABASE_MIGRATE_TIMEOUT=${REDASH_DATABASE_UPGRADE_TIMEOUT:-600}
+  REDASH_DATABASE_MIGRATE_MAX_ATTEMPTS=${REDASH_DATABASE_MIGRATE_MAX_ATTEMPTS:-5}
+  REDASH_DATABASE_MIGRATE_RETRY_WAIT=${REDASH_DATABASE_MIGRATE_RETRY_WAIT:-10}
+  ATTEMPTS=1
+  while ((ATTEMPTS <= REDASH_DATABASE_MIGRATE_MAX_ATTEMPTS)); do
+    echo "Creating or updating Redash database, attempt ${ATTEMPTS} of ${REDASH_DATABASE_MIGRATE_MAX_ATTEMPTS}"
+    ATTEMPTS=$((ATTEMPTS+1))
+    timeout $REDASH_DATABASE_MIGRATE_TIMEOUT /app/manage.py database create_tables
+    timeout $REDASH_DATABASE_MIGRATE_TIMEOUT /app/manage.py db upgrade
+    STATUS=$(timeout $REDASH_DATABASE_MIGRATE_TIMEOUT /app/manage.py status 2>&1)
+    RETCODE=$?
+    case "$RETCODE" in
+      0)
+        exit 0
+        ;;
+      124)
+        echo "Status command timed out after ${REDASH_DATABASE_MIGRATE_TIMEOUT} seconds."
+        ;;
+    esac
+    case "$STATUS" in
+      *sqlalchemy.exc.OperationalError*)
+        echo "Database not yet functional, waiting."
+        ;;
+      *sqlalchemy.exc.ProgrammingError*)
+        echo "Database does not appear to be installed."
+        ;;
+    esac
+    echo "Waiting ${REDASH_DATABASE_MIGRATE_RETRY_WAIT} seconds before retrying."
+    sleep ${REDASH_DATABASE_MIGRATE_RETRY_WAIT}
+  done
+  echo "Reached ${REDASH_DATABASE_MIGRATE_MAX_ATTEMPTS} attempts, giving up."
+  exit 1
 }
 
 help() {
@@ -61,21 +125,16 @@ help() {
 
   echo "server -- start Redash server (with gunicorn)"
   echo "worker -- start a single RQ worker"
-  echo "dev_worker -- start a single RQ worker with code reloading"
   echo "scheduler -- start an rq-scheduler instance"
-  echo "dev_scheduler -- start an rq-scheduler instance with code reloading"
   echo ""
   echo "shell -- open shell"
-  echo "dev_server -- start Flask development server with debugger and auto reload"
   echo "debug -- start Flask development server with remote debugger via ptvsd"
-  echo "create_db -- create database tables"
+  echo "create_db -- create database tables and run migrations"
   echo "manage -- CLI to manage redash"
   echo "tests -- run tests"
 }
 
 tests() {
-  export REDASH_DATABASE_URL="postgresql://postgres@postgres/tests"
-
   if [ $# -eq 0 ]; then
     TEST_ARGS=tests/
   else
@@ -101,21 +160,9 @@ case "$1" in
     shift
     scheduler
     ;;
-  dev_scheduler)
-    shift
-    dev_scheduler
-    ;;
-  dev_worker)
-    shift
-    dev_worker
-    ;;
   celery_healthcheck)
     shift
     echo "DEPRECATED: Celery has been replaced with RQ and now performs healthchecks autonomously as part of the 'worker' entrypoint."
-    ;;
-  dev_server)
-    export FLASK_DEBUG=1
-    exec /app/manage.py runserver --debugger --reload -h 0.0.0.0
     ;;
   debug)
     export FLASK_DEBUG=1
