@@ -67,10 +67,12 @@ function runCypressCI() {
     process.env.CYPRESS_OPTIONS = "--record";
   }
 
-  execSync(
-    "docker compose run --name cypress cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run $CYPRESS_OPTIONS",
-    { stdio: "inherit" }
-  );
+  // Remove four lines below after it's merged
+  delete process.env.CYPRESS_INSTALL_BINARY;
+  execSync("rm -r node_modules", { stdio: "inherit" });
+  execSync("yarn install", { stdio: "inherit" });
+
+  execSync("yarn percy cypress run $CYPRESS_OPTIONS", { stdio: "inherit" });
 }
 
 const command = process.argv[2] || "all";

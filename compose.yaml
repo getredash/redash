@@ -16,9 +16,6 @@ services:
     extends:
       file: compose.base.yaml
       service: .redash
-    profiles:
-      - e2e
-      - local
     command: scheduler
     depends_on:
       - server
@@ -26,9 +23,6 @@ services:
     extends:
       file: compose.base.yaml
       service: .redash
-    profiles:
-      - e2e
-      - local
     command: worker
     depends_on:
       - server
@@ -54,28 +48,10 @@ services:
       - "1080:1080"
       - "1025:1025"
     restart: unless-stopped
+  # temporary container, remove after merge
   cypress:
     ipc: host
-    build:
-      context: .
-      dockerfile: Dockerfile.cypress
-    profiles:
-      - e2e
-    depends_on:
-      - server
-      - worker
-      - scheduler
-    environment:
-      CYPRESS_baseUrl: http://server:5000
-      PERCY_TOKEN: ${PERCY_TOKEN:-""}
-      PERCY_BRANCH: ${PERCY_BRANCH:-""}
-      PERCY_COMMIT: ${PERCY_COMMIT:-""}
-      PERCY_PULL_REQUEST: ${PERCY_PULL_REQUEST:-}
-      COMMIT_INFO_BRANCH: ${COMMIT_INFO_BRANCH:-""}
-      COMMIT_INFO_MESSAGE: ${COMMIT_INFO_MESSAGE:-""}
-      COMMIT_INFO_AUTHOR: ${COMMIT_INFO_AUTHOR:-""}
-      COMMIT_INFO_SHA: ${COMMIT_INFO_SHA:-""}
-      COMMIT_INFO_REMOTE: ${COMMIT_INFO_REMOTE:-""}
-      CYPRESS_PROJECT_ID: ${CYPRESS_PROJECT_ID:-""}
-      CYPRESS_RECORD_KEY: ${CYPRESS_RECORD_KEY:-""}
-      CYPRESS_COVERAGE: ${CYPRESS_COVERAGE:-true}
+    image: node:18-bookworm
+    volumes:
+      - $PWD:/app
+    working_dir: /app

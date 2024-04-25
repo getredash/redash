@@ -6,10 +6,10 @@
   "scripts": {
     "start": "npm-run-all --parallel watch:viz webpack-dev-server",
     "clean": "rm -rf ./client/dist/",
-    "build:viz": "(cd viz-lib && yarn build:babel)",
+    "build:viz": "cd viz-lib && yarn build:babel",
     "build": "yarn clean && yarn build:viz && NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production webpack",
     "watch:app": "NODE_OPTIONS=--openssl-legacy-provider webpack watch --progress",
-    "watch:viz": "(cd viz-lib && yarn watch:babel)",
+    "watch:viz": "cd viz-lib && yarn watch:babel",
     "watch": "npm-run-all --parallel watch:*",
     "webpack-dev-server": "webpack-dev-server",
     "analyze": "yarn clean && BUNDLE_ANALYZER=on NODE_OPTIONS=--openssl-legacy-provider webpack",
@@ -24,16 +24,16 @@
     "jest": "TZ=Africa/Khartoum jest",
     "test": "run-s type-check jest",
     "test:watch": "jest --watch",
-    "cypress": "COMPOSE_PROFILES=local node client/cypress/cypress.js",
-    "preinstall": "cd viz-lib && yarn link --link-folder ../.yarn",
-    "postinstall": "(cd viz-lib && yarn --frozen-lockfile && yarn build:babel) && yarn link --link-folder ./.yarn @redash/viz"
+    "cypress": "node client/cypress/cypress.js",
+    "percy": "percy exec -t 300 -- ",
+    "postinstall": "cd viz-lib && yarn --frozen-lockfile && yarn build:babel"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/getredash/redash.git"
   },
   "engines": {
-    "node": ">16.0 <21.0",
+    "node": ">16.0 <22.0",
     "npm": "please-use-yarn",
     "yarn": "^1.22.10"
   },
@@ -45,7 +45,7 @@
   "homepage": "https://redash.io/",
   "dependencies": {
     "@ant-design/icons": "^4.2.1",
-    "@redash/viz": "file:viz-lib",
+    "@redash/viz": "link:viz-lib",
     "ace-builds": "^1.4.12",
     "antd": "^4.4.3",
     "axios": "0.27.2",
@@ -86,7 +86,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.22.5",
     "@cypress/code-coverage": "^3.11.0",
-    "@percy/agent": "^0.28.7",
+    "@percy/cli": "^1.28.3",
     "@percy/cypress": "^3.1.2",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
     "@testing-library/cypress": "^8.0.7",
