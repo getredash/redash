@@ -5,7 +5,7 @@ WORKDIR $APP
 
 COPY package.json yarn.lock .yarnrc $APP/
 COPY viz-lib $APP/viz-lib
-RUN npm install yarn@1.22.19 -g && yarn --frozen-lockfile --network-concurrency 1 > /dev/null
+RUN npm install yarn@1.22.22 -g && yarn --frozen-lockfile --network-concurrency 1 > /dev/null
 
 COPY . $APP
 

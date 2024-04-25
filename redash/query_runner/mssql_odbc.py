@@ -48,7 +48,7 @@ class SQLServerODBC(BaseSQLQueryRunner):
                 "verify_ssl": {
                     "type": "boolean",
                     "title": "Verify SSL certificate",
-                    "default": True,
+                    "default": False,
                 },
             },
             "order": [
@@ -120,14 +120,29 @@ class SQLServerODBC(BaseSQLQueryRunner):
             db = self.configuration["db"]
             port = self.configuration.get("port", 1433)
 
-            connection_string_fmt = "DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={},{};DATABASE={};UID={};PWD={}"
-            connection_string = connection_string_fmt.format(server, port, db, user, password)
+            connection_params = {
+                "Driver": "{ODBC Driver 18 for SQL Server}",
+                "Server": server,
+                "Port": port,
+                "Database": db,
+                "Uid": user,
+                "Pwd": password,
+            }
 
             if self.configuration.get("use_ssl", False):
-                connection_string += ";Encrypt=YES"
+                connection_params["Encrypt"] = "YES"
 
                 if not self.configuration.get("verify_ssl"):
-                    connection_string += ";TrustServerCertificate=YES"
+                    connection_params["TrustServerCertificate"] = "YES"
+                else:
+                    connection_params["TrustServerCertificate"] = "NO"
+            else:
+                connection_params["Encrypt"] = "NO"
+
+            def fn(k):
+                return "{}={}".format(k, connection_params[k])
+
+            connection_string = ";".join(list(map(fn, connection_params)))
 
             connection = pyodbc.connect(connection_string)
             cursor = connection.cursor()

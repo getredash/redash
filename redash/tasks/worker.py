@@ -65,10 +65,7 @@ class StatsdRecordingWorker(BaseWorker):
             super().execute_job(job, queue)
         finally:
             statsd_client.decr("rq.jobs.running.{}".format(queue.name))
-            if job.get_status() == JobStatus.FINISHED:
-                statsd_client.incr("rq.jobs.finished.{}".format(queue.name))
-            else:
-                statsd_client.incr("rq.jobs.failed.{}".format(queue.name))
+            statsd_client.incr("rq.jobs.{}.{}".format(job.get_status(), queue.name))
 
 
 class HardLimitingWorker(BaseWorker):
@@ -154,7 +151,7 @@ class HardLimitingWorker(BaseWorker):
         job_status = job.get_status()
         if job_status is None:  # Job completed and its ttl has expired
             return
-        if job_status not in [JobStatus.FINISHED, JobStatus.FAILED]:
+        if job_status not in [JobStatus.FINISHED, JobStatus.FAILED, JobStatus.STOPPED, JobStatus.CANCELED]:
             if not job.ended_at:
                 job.ended_at = utcnow()
 

@@ -227,7 +227,16 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     def _sort_schema(self, schema):
         return [
-            {"name": i["name"], "columns": sorted(i["columns"], key=lambda x: x["name"] if isinstance(x, dict) else x)}
+            {
+                "name": i["name"],
+                "description": i.get("description"),
+                "columns": sorted(
+                    i["columns"],
+                    key=lambda col: (
+                        ("partition" in col["type"], col.get("idx", 0), col["name"]) if isinstance(col, dict) else col
+                    ),
+                ),
+            }
             for i in sorted(schema, key=lambda x: x["name"])
         ]
 
