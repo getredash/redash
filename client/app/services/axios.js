@@ -1,11 +1,11 @@
 import { get, includes } from "lodash";
-import { create } from "axios";
+import axiosLib from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
 import { Auth } from "@/services/auth";
 import qs from "query-string";
 import { restoreSession } from "@/services/restoreSession";
 
-export const axios = create({
+export const axios = axiosLib.create({
   paramsSerializer: {
     encode: value => value,
     serialize: params => qs.stringify(params),
