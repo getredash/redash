@@ -1,12 +1,15 @@
 import { get, includes } from "lodash";
-import axiosLib from "axios";
+import { create } from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
 import { Auth } from "@/services/auth";
 import qs from "query-string";
 import { restoreSession } from "@/services/restoreSession";
 
-export const axios = axiosLib.create({
-  paramsSerializer: params => qs.stringify(params),
+export const axios = create({
+  paramsSerializer: {
+    encode: value => value,
+    serialize: params => qs.stringify(params),
+  },
   xsrfCookieName: "csrf_token",
   xsrfHeaderName: "X-CSRF-TOKEN",
 });

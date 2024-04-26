@@ -19,8 +19,7 @@ export function createChartThroughUI(chartName, chartSpecificAssertionFn = () =>
 
   chartSpecificAssertionFn();
 
-  cy.server();
-  cy.route("POST", "**/api/visualizations").as("SaveVisualization");
+  cy.intercept("POST", "**/api/visualizations").as("SaveVisualization");
 
   cy.getByTestId("EditVisualizationDialog")
     .contains("button", "Save")
@@ -30,7 +29,9 @@ export function createChartThroughUI(chartName, chartSpecificAssertionFn = () =>
     .contains("span", chartName)
     .should("exist");
 
-  cy.wait("@SaveVisualization").should("have.property", "status", 200);
+  cy.wait("@SaveVisualization").then(({ response }) => {
+    expect(response.statusCode).to.eq(200);
+  });
 
   return cy.get("@SaveVisualization").then(xhr => {
     const { id, name, options } = xhr.response.body;

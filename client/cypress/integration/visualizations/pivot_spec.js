@@ -63,8 +63,7 @@ describe("Pivot", () => {
 
     const visualizationName = "Pivot";
 
-    cy.server();
-    cy.route("POST", "**/api/visualizations").as("SaveVisualization");
+    cy.intercept("POST", "**/api/visualizations").as("SaveVisualization");
 
     createPivotThroughUI(visualizationName, { hideControls: true });
 

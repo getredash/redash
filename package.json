@@ -6,10 +6,10 @@
   "scripts": {
     "start": "npm-run-all --parallel watch:viz webpack-dev-server",
     "clean": "rm -rf ./client/dist/",
-    "build:viz": "(cd viz-lib && yarn build:babel)",
+    "build:viz": "cd viz-lib && yarn build:babel",
     "build": "yarn clean && yarn build:viz && NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production webpack",
     "watch:app": "NODE_OPTIONS=--openssl-legacy-provider webpack watch --progress",
-    "watch:viz": "(cd viz-lib && yarn watch:babel)",
+    "watch:viz": "cd viz-lib && yarn watch:babel",
     "watch": "npm-run-all --parallel watch:*",
     "webpack-dev-server": "webpack-dev-server",
     "analyze": "yarn clean && BUNDLE_ANALYZER=on NODE_OPTIONS=--openssl-legacy-provider webpack",
@@ -24,9 +24,9 @@
     "jest": "TZ=Africa/Khartoum jest",
     "test": "run-s type-check jest",
     "test:watch": "jest --watch",
-    "cypress": "COMPOSE_PROFILES=local node client/cypress/cypress.js",
-    "preinstall": "cd viz-lib && yarn link --link-folder ../.yarn",
-    "postinstall": "(cd viz-lib && yarn --frozen-lockfile && yarn build:babel) && yarn link --link-folder ./.yarn @redash/viz"
+    "cypress": "node client/cypress/cypress.js",
+    "percy": "percy exec -t 300 -- ",
+    "postinstall": "cd viz-lib && yarn install && yarn build:babel"
   },
   "repository": {
     "type": "git",
@@ -45,10 +45,10 @@
   "homepage": "https://redash.io/",
   "dependencies": {
     "@ant-design/icons": "^4.2.1",
-    "@redash/viz": "file:viz-lib",
+    "@redash/viz": "link:viz-lib",
     "ace-builds": "^1.4.12",
     "antd": "^4.4.3",
-    "axios": "0.27.2",
+    "axios": "1.6.8",
     "axios-auth-refresh": "3.3.6",
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.6",
@@ -85,11 +85,11 @@
     "@babel/preset-env": "^7.22.9",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.22.5",
-    "@cypress/code-coverage": "^3.11.0",
-    "@percy/agent": "^0.28.7",
+    "@cypress/code-coverage": "^3.12.35",
+    "@percy/cli": "^1.28.3",
     "@percy/cypress": "^3.1.2",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
-    "@testing-library/cypress": "^8.0.7",
+    "@testing-library/cypress": "^10.0.1",
     "@types/classnames": "^2.2.10",
     "@types/hoist-non-react-statics": "^3.3.1",
     "@types/lodash": "^4.14.157",
@@ -107,7 +107,7 @@
     "babel-plugin-transform-builtin-extend": "^1.1.2",
     "copy-webpack-plugin": "^6.4.1",
     "css-loader": "^5.2.7",
-    "cypress": "^11.2.0",
+    "cypress": "^13.8.0",
     "dayjs": "^1.11.9",
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.7.1",
@@ -118,7 +118,7 @@
     "eslint-loader": "^4.0.2",
     "eslint-plugin-chai-friendly": "^0.5.0",
     "eslint-plugin-compat": "^3.3.0",
-    "eslint-plugin-cypress": "^2.0.1",
+    "eslint-plugin-cypress": "^2.15.2",
     "eslint-plugin-flowtype": "^3.13.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jest": "^22.2.2",
@@ -141,7 +141,6 @@
     "raw-loader": "^0.5.1",
     "react-refresh": "^0.14.0",
     "react-test-renderer": "^16.14.0",
-    "request-cookies": "^1.1.0",
     "style-loader": "^2.0.0",
     "typescript": "^4.1.2",
     "url-loader": "^4.1.1",
@@ -166,7 +165,8 @@
     ],
     "moduleNameMapper": {
       "^@/(.*)": "<rootDir>/app/$1",
-      "\\.(css|less)$": "identity-obj-proxy"
+      "\\.(css|less)$": "identity-obj-proxy",
+      "^axios$": "axios/dist/node/axios.cjs"
     },
     "testPathIgnorePatterns": [
       "<rootDir>/app/__tests__/"

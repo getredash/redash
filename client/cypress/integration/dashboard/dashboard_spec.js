@@ -14,8 +14,7 @@ describe("Dashboard", () => {
     cy.getByTestId("CreateButton").click();
     cy.getByTestId("CreateDashboardMenuItem").click();
 
-    cy.server();
-    cy.route("POST", "**/api/dashboards").as("NewDashboard");
+    cy.intercept("POST", "**/api/dashboards").as("NewDashboard");
 
     cy.getByTestId("CreateDashboardDialog").within(() => {
       cy.getByTestId("DashboardSaveButton").should("be.disabled");
@@ -57,8 +56,7 @@ describe("Dashboard", () => {
   });
 
   it("is accessible through multiple urls", () => {
-    cy.server();
-    cy.route("GET", "**/api/dashboards/*").as("LoadDashboard");
+    cy.intercept("GET", "**/api/dashboards/*").as("LoadDashboard");
     cy.createDashboard("Dashboard multiple urls").then(({ id, slug }) => {
       [`/dashboards/${id}`, `/dashboards/${id}-anything-here`, `/dashboard/${slug}`].forEach(url => {
         cy.visit(url);

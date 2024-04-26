@@ -26,7 +26,7 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
   useEffect(() => {
     let isCancelled = false;
 
-    getTags(tagsUrl).then(tags => {
+    getTags(tagsUrl).then((tags: any) => {
       if (!isCancelled) {
         setAllTags(tags);
       }

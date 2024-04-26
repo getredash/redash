@@ -53,6 +53,7 @@ describe("Dashboard Parameters", () => {
       .then(() => {
         if (closeMappingMenu) {
           cy.contains("button", "OK").click();
+          return cy.get("@Popover").should("not.exist");
         }
         return cy.get("@Popover").should("not.be.visible");
       });

@@ -103,8 +103,7 @@ describe("Widget", () => {
 
       it("grows when dynamically adding table rows", () => {
         // listen to results
-        cy.server();
-        cy.route("GET", "**/api/query_results/*").as("FreshResults");
+        cy.intercept("GET", "**/api/query_results/*").as("FreshResults");
 
         // start with 1 table row
         cy.get("@paramInput")
@@ -131,8 +130,7 @@ describe("Widget", () => {
 
       it("revokes auto height after manual height adjustment", () => {
         // listen to results
-        cy.server();
-        cy.route("GET", "**/api/query_results/*").as("FreshResults");
+        cy.intercept("GET", "**/api/query_results/*").as("FreshResults");
 
         editDashboard();
 

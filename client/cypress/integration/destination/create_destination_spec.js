@@ -5,8 +5,7 @@ describe("Create Destination", () => {
 
   it("renders the page and takes a screenshot", function() {
     cy.visit("/destinations/new");
-    cy.server();
-    cy.route("**/api/destinations/types").as("DestinationTypesRequest");
+    cy.intercept("**/api/destinations/types").as("DestinationTypesRequest");
 
     cy.wait("@DestinationTypesRequest")
       .then(({ response }) => response.body.filter(type => type.deprecated))
