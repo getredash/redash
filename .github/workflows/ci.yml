@@ -10,6 +10,7 @@ on:
       - master
 env:
   CYPRESS_COVERAGE: "true"
+  CYPRESS_CACHE_FOLDER: ${{ github.workspace }}/node_modules/.cache/Cypress
   NODE_VERSION: 18
   YARN_VERSION: 1.22.22
   REDASH_COOKIE_SECRET: 2H9gNG9obnAQ9qnR9BDTQUph6CbXKCzF
@@ -149,10 +150,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: frontend-lint
     env:
-      CYPRESS_INSTALL_BINARY: 0
-      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
       INSTALL_GROUPS: main
-      COMPOSE_PROFILES: e2e
       PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
       CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
       CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -179,8 +177,7 @@ jobs:
           touch .env
           yarn build
           yarn cypress build
-          yarn cypress start -- --skip-db-seed
-          docker compose run cypress yarn cypress db-seed
+          yarn cypress start
       - name: Execute Cypress Tests
         run: yarn cypress run-ci
       - name: "Failure: output container logs to console"

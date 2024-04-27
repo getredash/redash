@@ -6,7 +6,106 @@ import "@testing-library/cypress/add-commands";
 
 const { each } = Cypress._;
 
-Cypress.Commands.add("login", (email = "admin@redash.io", password = "password") => {
+const LOGIN_NAME = process.env.CYPRESS_LOGIN_NAME || "Example Admin";
+const LOGIN_EMAIL = process.env.CYPRESS_LOGIN_EMAIL || "admin@redash.io";
+const LOGIN_PASSWORD = process.env.CYPRESS_LOGIN_PASSWORD || "password";
+const ORG_NAME = process.env.CYPRESS_ORG_NAME || "Redash";
+
+Cypress.Commands.add("setup", () => {
+  const email = LOGIN_EMAIL;
+  const password = LOGIN_PASSWORD;
+  const org_name = ORG_NAME;
+  const name = LOGIN_NAME;
+  let csrf;
+  cy.visit("/setup");
+  cy.location().then(loc => {
+    if (loc.pathname === "/setup") {
+      cy.getCookie("csrf_token")
+        .then(cookie => {
+          if (cookie) {
+            csrf = cookie.value;
+          } else {
+            cy.visit("/setup").then(() => {
+              cy.get('input[name="csrf_token"]')
+                .invoke("val")
+                .then(csrf_token => {
+                  csrf = csrf_token;
+                });
+            });
+          }
+        })
+        .then(() => {
+          cy.request({
+            url: "/setup",
+            method: "POST",
+            form: true,
+            body: {
+              name,
+              org_name,
+              email,
+              password,
+              csrf_token: csrf,
+            },
+          });
+        });
+      cy.login();
+      cy.setupDatasource();
+      cy.setupDestination();
+    }
+  });
+});
+
+Cypress.Commands.add("setupDatasource", () => {
+  const dbname = "postgres";
+  const host = "postgres";
+  const port = 5432;
+  const sslmode = "prefer";
+  const user = "postgres";
+  cy.getCookie("csrf_token").then(cookie => {
+    cy.request({
+      headers: {
+        "X-CSRF-TOKEN": cookie.value,
+      },
+      url: "/api/data_sources",
+      method: "POST",
+      body: {
+        name: "Test PostgreSQL",
+        options: {
+          dbname,
+          host,
+          port,
+          sslmode,
+          user,
+        },
+        type: "pg",
+      },
+    });
+  });
+});
+
+Cypress.Commands.add("setupDestination", () => {
+  const name = "Test Email Destination";
+  const options = {
+    addresses: "test@example.com",
+  };
+  const type = "email";
+  cy.getCookie("csrf_token").then(cookie => {
+    cy.request({
+      headers: {
+        "X-CSRF-TOKEN": cookie.value,
+      },
+      url: "/api/destinations",
+      method: "POST",
+      body: {
+        name,
+        options,
+        type,
+      },
+    });
+  });
+});
+
+Cypress.Commands.add("login", (email = LOGIN_EMAIL, password = LOGIN_PASSWORD) => {
   let csrf;
   cy.visit("/login");
   cy.getCookie("csrf_token")

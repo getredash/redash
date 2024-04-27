@@ -20,11 +20,10 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
 RUN useradd -m -d /frontend redash
 USER redash
 WORKDIR /frontend
-COPY --chown=redash package.json yarn.lock .yarnrc /frontend/
+COPY --chown=redash package.json yarn.lock /frontend/
 COPY --chown=redash viz-lib /frontend/viz-lib
-COPY --chown=redash scripts /frontend/scripts
 
-RUN yarn --frozen-lockfile --network-concurrency 1;
+RUN yarn --frozen-lockfile --network-concurrency 1
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
 RUN yarn build

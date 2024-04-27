@@ -1,5 +1,6 @@
 services:
   .redash:
+    image: local/redash:latest
     build:
       context: .
       args:
