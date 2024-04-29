@@ -113,7 +113,7 @@ def flatten(value):
         return str(value)
     else:
         if logger.isEnabledFor(logging.DEBUG):
-            if not isinstance(value, (type(None), str, float, int)):
+            if not isinstance(value, (type(None), str, float, int, bool)):
                 logger.debug("flatten() found unhandled type: %s", str(type(value)))
         return value
 
