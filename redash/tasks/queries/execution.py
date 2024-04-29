@@ -43,24 +43,24 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
             if job_id:
                 logger.info("[%s] Found existing job: %s", query_hash, job_id)
                 job_complete = None
-                job_cancelled = None
 
                 try:
                     job = Job.fetch(job_id)
                     job_exists = True
                     status = job.get_status()
-                    job_complete = status in [JobStatus.FINISHED, JobStatus.FAILED]
-                    job_cancelled = job.is_cancelled
-
+                    job_complete = status in [
+                        JobStatus.FINISHED,
+                        JobStatus.FAILED,
+                        JobStatus.STOPPED,
+                        JobStatus.CANCELED,
+                    ]
                     if job_complete:
                         message = "job found is complete (%s)" % status
-                    elif job_cancelled:
-                        message = "job found has ben cancelled"
                 except NoSuchJobError:
                     message = "job found has expired"
                     job_exists = False
 
-                lock_is_irrelevant = job_complete or job_cancelled or not job_exists
+                lock_is_irrelevant = job_complete or not job_exists
 
                 if lock_is_irrelevant:
                     logger.info("[%s] %s, removing lock", query_hash, message)

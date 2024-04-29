@@ -60,6 +60,7 @@ jobs:
       - name: Build Docker Images
         run: |
           set -x
+          touch .env
           docker compose build
           docker compose up -d
           sleep 10
@@ -75,7 +76,7 @@ jobs:
           docker cp tests:/app/coverage.xml ./coverage.xml
           docker cp tests:/app/junit.xml /tmp/test-results/unit-tests/results.xml
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Store Test Results
@@ -175,6 +176,7 @@ jobs:
       - name: Setup Redash Server
         run: |
           set -x
+          touch .env
           yarn build
           yarn cypress build
           yarn cypress start -- --skip-db-seed

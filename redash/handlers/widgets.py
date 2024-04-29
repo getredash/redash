@@ -42,7 +42,6 @@ class WidgetListResource(BaseResource):
 
         widget = models.Widget(**widget_properties)
         models.db.session.add(widget)
-        models.db.session.commit()
 
         models.db.session.commit()
         return serialize_widget(widget)

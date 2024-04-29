@@ -1,6 +1,7 @@
 from mock import Mock, patch
 from rq import Connection
 from rq.exceptions import NoSuchJobError
+from rq.job import JobStatus
 
 from redash import models, rq_redis_connection
 from redash.query_runner.pg import PostgreSQL
@@ -21,7 +22,7 @@ def fetch_job(*args, **kwargs):
 
     result = Mock()
     result.id = job_id
-    result.is_cancelled = False
+    result.get_status = lambda: JobStatus.STARTED
 
     return result
 
@@ -107,7 +108,7 @@ class TestEnqueueTask(BaseTestCase):
             # "cancel" the previous job
             def cancel_job(*args, **kwargs):
                 job = fetch_job(*args, **kwargs)
-                job.is_cancelled = True
+                job.get_status = lambda: JobStatus.CANCELED
                 return job
 
             my_fetch_job.side_effect = cancel_job
