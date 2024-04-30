@@ -5,7 +5,6 @@ from unittest import TestCase
 
 import mock
 import pytest
-import logging
 
 from redash.query_runner.query_results import (
     CreateTableError,
