@@ -1,6 +1,7 @@
 import datetime
 import decimal
 import sqlite3
+import logging
 from unittest import TestCase
 
 import mock
@@ -18,6 +19,7 @@ from redash.query_runner.query_results import (
     get_query_results,
     prepare_parameterized_query,
     replace_query_parameters,
+    flatten,
 )
 from tests import BaseTestCase
 
@@ -248,3 +250,56 @@ class TestGetQueryResult(BaseTestCase):
             query_result_data = {"columns": [], "rows": []}
             qr.return_value = (query_result_data, None)
             self.assertEqual(query_result_data, get_query_results(self.factory.user, query.id, False))
+
+
+class TestFlattenFunction(BaseTestCase):
+    def test_flatten_with_string(self):
+        self.assertEqual(flatten("hello"), "hello")
+
+    def test_flatten_with_integer(self):
+        self.assertEqual(flatten(10), 10)
+
+    def test_flatten_with_float(self):
+        self.assertEqual(flatten(10.5), 10.5)
+
+    def test_flatten_with_boolean(self):
+        self.assertEqual(flatten(True), True)
+
+    def test_flatten_with_decimal(self):
+        self.assertEqual(flatten(decimal.Decimal('10.5')), 10.5)
+
+    def test_flatten_with_date(self):
+        date = datetime.date(2021, 1, 1)
+        self.assertEqual(flatten(date), "2021-01-01")
+
+    def test_flatten_with_time(self):
+        time = datetime.time(12, 30)
+        self.assertEqual(flatten(time), "12:30:00")
+
+    def test_flatten_with_datetime(self):
+        datetime_obj = datetime.datetime(2021, 1, 1, 12, 30)
+        self.assertEqual(flatten(datetime_obj), "2021-01-01 12:30:00")
+
+    def test_flatten_with_timedelta(self):
+        timedelta_obj = datetime.timedelta(days=2)
+        self.assertEqual(flatten(timedelta_obj), "2 days, 0:00:00")
+
+    def test_flatten_with_list(self):
+        self.assertEqual(flatten([1, 2, 3]), '[1, 2, 3]')
+
+    def test_flatten_with_dictionary(self):
+        self.assertEqual(flatten({'key': 'value'}), '{"key": "value"}')
+
+    def test_flatten_with_none(self):
+        self.assertEqual(flatten(None), None)
+
+    def test_flatten_unhandled_type(self):
+        class CustomType:
+            pass
+        instance = CustomType()
+        with self.assertLogs('redash.query_runner.query_results', level='DEBUG') as log:
+            result = flatten(instance)
+            self.assertEqual(result, instance)  # Assuming flatten returns instance directly for unhandled types
+
+        # Check for the presence of a specific log message
+        self.assertIn("flatten() found unhandled type: %s" % str(type(instance)), log.output[0])
