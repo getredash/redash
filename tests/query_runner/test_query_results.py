@@ -1,7 +1,6 @@
 import datetime
 import decimal
 import sqlite3
-import logging
 from unittest import TestCase
 
 import mock
@@ -16,10 +15,10 @@ from redash.query_runner.query_results import (
     extract_query_ids,
     extract_query_params,
     fix_column_name,
+    flatten,
     get_query_results,
     prepare_parameterized_query,
     replace_query_parameters,
-    flatten,
 )
 from tests import BaseTestCase
 
@@ -252,7 +251,7 @@ class TestGetQueryResult(BaseTestCase):
             self.assertEqual(query_result_data, get_query_results(self.factory.user, query.id, False))
 
 
-class TestFlattenFunction(TestCase):
+class TestFlatten(TestCase):
     def test_flatten_with_string(self):
         self.assertEqual(flatten("hello"), "hello")
 
@@ -266,7 +265,7 @@ class TestFlattenFunction(TestCase):
         self.assertEqual(flatten(True), True)
 
     def test_flatten_with_decimal(self):
-        self.assertEqual(flatten(decimal.Decimal('10.5')), 10.5)
+        self.assertEqual(flatten(decimal.Decimal("10.5")), 10.5)
 
     def test_flatten_with_date(self):
         date = datetime.date(2021, 1, 1)
@@ -285,10 +284,10 @@ class TestFlattenFunction(TestCase):
         self.assertEqual(flatten(timedelta_obj), "2 days, 0:00:00")
 
     def test_flatten_with_list(self):
-        self.assertEqual(flatten([1, 2, 3]), '[1, 2, 3]')
+        self.assertEqual(flatten([1, 2, 3]), "[1, 2, 3]")
 
     def test_flatten_with_dictionary(self):
-        self.assertEqual(flatten({'key': 'value'}), '{"key": "value"}')
+        self.assertEqual(flatten({"key": "value"}), '{"key": "value"}')
 
     def test_flatten_with_none(self):
         self.assertEqual(flatten(None), None)
@@ -296,8 +295,9 @@ class TestFlattenFunction(TestCase):
     def test_flatten_unhandled_type(self):
         class CustomType:
             pass
+
         instance = CustomType()
-        with self.assertLogs('redash.query_runner.query_results', level='DEBUG') as log:
+        with self.assertLogs("redash.query_runner.query_results", level="DEBUG") as log:
             result = flatten(instance)
             self.assertEqual(result, instance)  # Assuming flatten returns instance directly for unhandled types
 
