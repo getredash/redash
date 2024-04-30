@@ -1,5 +1,6 @@
 import datetime
 import decimal
+import logging
 import sqlite3
 from unittest import TestCase
 
@@ -292,10 +293,16 @@ class TestFlatten(TestCase):
     def test_flatten_with_none(self):
         self.assertEqual(flatten(None), None)
 
+    @pytest.fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def test_flatten_unhandled_type(self):
         class CustomType:
             pass
 
         instance = CustomType()
-        result = flatten(instance)
-        self.assertEqual(result, instance)
+        with self._caplog.at_level(logging.DEBUG):
+            result = flatten(instance)
+            self.assertEqual(result, instance)
+            self.assertIn("flatten() found unhandled type: %s" % str(type(instance)), self._caplog.records[0].message)
