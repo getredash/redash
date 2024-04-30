@@ -252,7 +252,7 @@ class TestGetQueryResult(BaseTestCase):
             self.assertEqual(query_result_data, get_query_results(self.factory.user, query.id, False))
 
 
-class TestFlattenFunction(BaseTestCase):
+class TestFlattenFunction(TestCase):
     def test_flatten_with_string(self):
         self.assertEqual(flatten("hello"), "hello")
 
