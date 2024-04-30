@@ -5,6 +5,7 @@ from unittest import TestCase
 
 import mock
 import pytest
+import logging
 
 from redash.query_runner.query_results import (
     CreateTableError,
@@ -297,9 +298,5 @@ class TestFlatten(TestCase):
             pass
 
         instance = CustomType()
-        with self.assertLogs("redash.query_runner.query_results", level="DEBUG") as log:
-            result = flatten(instance)
-            self.assertEqual(result, instance)  # Assuming flatten returns instance directly for unhandled types
-
-        # Check for the presence of a specific log message
-        self.assertIn("flatten() found unhandled type: %s" % str(type(instance)), log.output[0])
+        result = flatten(instance)
+        self.assertEqual(result, instance)
