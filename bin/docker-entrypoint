@@ -76,7 +76,6 @@ server() {
       args+=("--reload")
       ;;
   esac
-  echo "${args[@]}"
   exec /usr/local/bin/gunicorn \
     -b 0.0.0.0:5000 \
     --name redash \
