@@ -12,7 +12,7 @@ force-exclude = '''
 
 [tool.poetry]
 name = "redash"
-version = "24.04.0-dev"
+version = "24.05.0-dev"
 description = "Make Your Company Data Driven. Connect to any data source, easily visualize, dashboard and share your data."
 authors = ["Arik Fraimovich <arik@redash.io>"]
 # to be added to/removed from the mailing list, please reach out to Arik via the above email or Discord
