@@ -1,4 +1,3 @@
-
 from unittest.mock import MagicMock
 
 from rq.job import JobStatus
