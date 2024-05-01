@@ -56,3 +56,26 @@ class JobSerializationTest(BaseTestCase):
                 }
             },
         )
+
+    def test_serializes_job_with_dict_that_finished_successfully(self):
+        job = MagicMock()
+        job.id = 0
+        job.is_started = False
+        job.get_status = MagicMock(return_value=JobStatus.FINISHED)
+        result = MagicMock()
+        result.type = Result.Type.SUCCESSFUL
+        result.return_value = 1
+        job.latest_result = MagicMock(return_value=result)
+        result = serialize_job(job)
+        self.assertDictEqual(
+            result,
+            {
+                "job": {
+                    "id": 0,
+                    "updated_at": 0,
+                    "status": JobStatus.FINISHED,
+                    "error": None,
+                    "result_id": 1,
+                }
+            },
+        )
