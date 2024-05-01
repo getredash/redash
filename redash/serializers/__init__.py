@@ -282,10 +282,17 @@ def serialize_job(job):
     job_result = job.latest_result()
     if job_result:
         if job_result.type == Result.Type.SUCCESSFUL:
-            result_id = job_result.return_value
+            result = job_result.return_value
+            if isinstance(result, Exception):
+                error = str(result)
+                status = JobStatus.FAILED
+            elif isinstance(result, dict) and "error" in result:
+                error = result["error"]
+                status = JobStatus.FAILED
+            else:
+                result_id = result
         else:
             error = job_result.exc_string
-
     return {
         "job": {
             "id": job.id,
