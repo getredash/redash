@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, mock
 
 from redash.query_runner.elasticsearch2 import (
     ElasticSearch2,
@@ -137,3 +137,14 @@ class TestXPackSQL(TestCase):
             ],
         }
         self.assertDictEqual(XPackSQLElasticSearch._parse_results(None, response), expected)
+
+
+class TestElasticSearch2(TestCase):
+    @mock.patch("redash.query_runner.elasticsearch2.ElasticSearch2.__init__", return_value=None)
+    def test_build_query(self, mock_init):
+        query_runner = ElasticSearch2()
+        query_str = '{"index": "test_index", "result_fields": ["field1", "field2"]}'
+        query_dict, url, result_fields = query_runner._build_query(query_str)
+        self.assertEqual(query_dict, {})
+        self.assertEqual(url, "/test_index/_search")
+        self.assertEqual(result_fields, ["field1", "field2"])
