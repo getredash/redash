@@ -61,10 +61,6 @@ workers_healthcheck() {
 server() {
   # Recycle gunicorn workers every n-th request. See http://docs.gunicorn.org/en/stable/settings.html#max-requests for more details.
 
-  MAX_REQUESTS=${MAX_REQUESTS:-1000}
-  MAX_REQUESTS_JITTER=${MAX_REQUESTS_JITTER:-100}
-  TIMEOUT=${REDASH_GUNICORN_TIMEOUT:-60}
-
   case $REDASH_PRODUCTION in
     true)
       echo "Starting Redash Server in production mode"
@@ -78,9 +74,9 @@ server() {
     --bind 0.0.0.0:5000 \
     --name redash \
     --workers ${REDASH_WEB_WORKERS:-4} \
-    --max-requests $MAX_REQUESTS \
-    --max-requests-jitter $MAX_REQUESTS_JITTER \
-    --timeout $TIMEOUT $@ \
+    --max-requests ${MAX_REQUESTS:-1000} \
+    --max-requests-jitter ${MAX_REQUESTS_JITTER:-100} \
+    --timeout ${REDASH_GUNICORN_TIMEOUT:-60} $@ \
     redash.wsgi:app
 }
 
