@@ -4,6 +4,10 @@ export COMPOSE_DOCKER_CLI_BUILD=1
 export DOCKER_BUILDKIT=1
 export COMPOSE_PROFILES=local
 
+define random
+$(shell cat /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+endef
+
 compose_build: .env
 	docker compose build
 
@@ -47,7 +51,9 @@ down:
 	docker compose down
 
 .env:
-	printf "REDASH_COOKIE_SECRET=`pwgen -1s 32`\nREDASH_SECRET_KEY=`pwgen -1s 32`\n" >> .env
+	@echo "REDASH_COOKIE_SECRET=$(call random)" >> .env; \
+	echo "REDASH_SECRET_KEY=$(call random)" >> .env; \
+	echo "SERVER_MOUNT=/app" >> .env;
 
 env: .env
 
