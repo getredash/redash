@@ -3,7 +3,7 @@ services:
     extends:
       file: compose.base.yaml
       service: .redash
-    command: server
+    command: server --reload
     depends_on:
       - postgres
       - redis

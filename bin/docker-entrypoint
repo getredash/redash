@@ -65,7 +65,6 @@ server() {
   MAX_REQUESTS_JITTER=${MAX_REQUESTS_JITTER:-100}
   TIMEOUT=${REDASH_GUNICORN_TIMEOUT:-60}
 
-  args=()
   case $REDASH_PRODUCTION in
     true)
       echo "Starting Redash Server in production mode"
@@ -73,16 +72,16 @@ server() {
     *)
       echo "Starting Redash Server in a dev mode"
       export FLASK_DEBUG=1
-      args+=("--reload")
       ;;
   esac
   exec /usr/local/bin/gunicorn \
-    -b 0.0.0.0:5000 \
+    --bind 0.0.0.0:5000 \
     --name redash \
-    -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app \
+    --workers ${REDASH_WEB_WORKERS:-4} \
     --max-requests $MAX_REQUESTS \
     --max-requests-jitter $MAX_REQUESTS_JITTER \
-    --timeout $TIMEOUT ${args[@]}
+    --timeout $TIMEOUT $@ \
+    redash.wsgi:app
 }
 
 create_db() {
@@ -157,7 +156,7 @@ case "$1" in
     ;;
   server)
     shift
-    server
+    server $@
     ;;
   scheduler)
     shift
