@@ -1,12 +1,9 @@
 from unittest import TestCase
 
 import mock
+import requests
 
 from redash.query_runner import BaseHTTPQueryRunner
-from redash.utils.requests_session import (
-    ConfiguredSession,
-    requests_or_advocate,
-)
 
 
 class RequiresAuthQueryRunner(BaseHTTPQueryRunner):
@@ -37,7 +34,7 @@ class TestBaseHTTPQueryRunner(TestCase):
         query_runner = RequiresAuthQueryRunner({})
         self.assertRaisesRegex(ValueError, "Username and Password required", query_runner.get_auth)
 
-    @mock.patch.object(ConfiguredSession, "request")
+    @mock.patch("requests.request")
     def test_get_response_success(self, mock_get):
         mock_response = mock.Mock()
         mock_response.status_code = 200
@@ -51,7 +48,7 @@ class TestBaseHTTPQueryRunner(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(error)
 
-    @mock.patch.object(ConfiguredSession, "request")
+    @mock.patch("requests.request")
     def test_get_response_success_custom_auth(self, mock_get):
         mock_response = mock.Mock()
         mock_response.status_code = 200
@@ -66,7 +63,7 @@ class TestBaseHTTPQueryRunner(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(error)
 
-    @mock.patch.object(ConfiguredSession, "request")
+    @mock.patch("requests.request")
     def test_get_response_failure(self, mock_get):
         mock_response = mock.Mock()
         mock_response.status_code = 301
@@ -79,12 +76,12 @@ class TestBaseHTTPQueryRunner(TestCase):
         mock_get.assert_called_once_with("get", url, auth=None)
         self.assertIn(query_runner.response_error, error)
 
-    @mock.patch.object(ConfiguredSession, "request")
+    @mock.patch("requests.request")
     def test_get_response_httperror_exception(self, mock_get):
         mock_response = mock.Mock()
         mock_response.status_code = 500
         mock_response.text = "Server Error"
-        http_error = requests_or_advocate.HTTPError()
+        http_error = requests.HTTPError()
         mock_response.raise_for_status.side_effect = http_error
         mock_get.return_value = mock_response
 
@@ -95,13 +92,13 @@ class TestBaseHTTPQueryRunner(TestCase):
         self.assertIsNotNone(error)
         self.assertIn("Failed to execute query", error)
 
-    @mock.patch.object(ConfiguredSession, "request")
+    @mock.patch("requests.request")
     def test_get_response_requests_exception(self, mock_get):
         mock_response = mock.Mock()
         mock_response.status_code = 500
         mock_response.text = "Server Error"
         exception_message = "Some requests exception"
-        requests_exception = requests_or_advocate.RequestException(exception_message)
+        requests_exception = requests.RequestException(exception_message)
         mock_response.raise_for_status.side_effect = requests_exception
         mock_get.return_value = mock_response
 
@@ -112,7 +109,7 @@ class TestBaseHTTPQueryRunner(TestCase):
         self.assertIsNotNone(error)
         self.assertEqual(exception_message, error)
 
-    @mock.patch.object(ConfiguredSession, "request")
+    @mock.patch("requests.request")
     def test_get_response_generic_exception(self, mock_get):
         mock_response = mock.Mock()
         mock_response.status_code = 500
