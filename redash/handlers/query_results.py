@@ -313,11 +313,6 @@ class QueryResultResource(BaseResource):
         if query_result_id:
             query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
 
-            for row in query_result.data['rows']:
-                for key, value in row.items():
-                    if isinstance(value, int):
-                        row[key] = str(value)
-
         if query_id is not None:
             query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
 
