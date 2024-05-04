@@ -1,5 +1,6 @@
 import mock
 from mock import patch
+from sqlalchemy import func
 from sqlalchemy.sql.expression import select
 
 from redash.models import DataSource, Query, QueryResult, db
@@ -166,7 +167,7 @@ class TestDataSourceDelete(BaseTestCase):
         data_source.delete()
         self.assertIsNone(db.session.get(DataSource, data_source.id))
         self.assertEqual(
-            0, len(db.session.scalars(select(QueryResult).where(QueryResult.data_source == data_source)).all())
+            0, db.session.scalar(select(func.count(QueryResult.id)).where(QueryResult.data_source == data_source))
         )
 
     @patch("redash.redis_connection.delete")

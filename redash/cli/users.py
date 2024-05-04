@@ -206,13 +206,9 @@ def delete(email, organization=None):
     if organization:
         org = models.Organization.get_by_slug(organization)
         deleted_users_query = deleted_users_query.where(models.User.org == org)
-    deleted_count = len(
-        models.db.session.scalars(
-            deleted_users_query.returning(models.User.id).execution_options(synchronize_session=False)
-        ).all()
-    )
+    result = models.db.session.execute(deleted_users_query.execution_options(synchronize_session=False))
     models.db.session.commit()
-    print("Deleted %d users." % deleted_count)
+    print("Deleted %d users." % result.rowcount)
 
 
 @manager.command()
@@ -293,12 +289,11 @@ def invite(email, name, inviter_email, groups, is_admin=False, organization="def
 )
 def list_command(organization=None):
     """List all users"""
+    query_users = select(models.User)
     if organization:
         org = models.Organization.get_by_slug(organization)
-        qusers = select(models.User).where(models.User.org == org)
-    else:
-        qusers = select(models.User)
-    users = models.db.session.scalars(qusers.order_by(models.User.name)).all()
+        query_users = query_users.where(models.User.org == org)
+    users = models.db.session.scalars(query_users.order_by(models.User.name)).all()
 
     for i, user in enumerate(users):
         if i > 0:

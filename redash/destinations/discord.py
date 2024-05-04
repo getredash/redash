@@ -44,7 +44,7 @@ class Discord(BaseDestination):
         ]
         if alert.custom_body:
             fields.append({"name": "Description", "value": alert.custom_body})
-        if new_state == Alert.TRIGGERED_STATE:
+        if new_state == Alerts.TRIGGERED_STATE:
             if alert.options.get("custom_subject"):
                 text = alert.options["custom_subject"]
             else:

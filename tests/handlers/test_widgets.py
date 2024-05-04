@@ -26,9 +26,9 @@ class WidgetAPITest(BaseTestCase):
         dashboard = self.factory.create_dashboard()
         vis = self.factory.create_visualization()
         ds = self.factory.create_data_source(group=self.factory.create_group())
-        vis.query_rel.data_source = ds
+        vis.query.data_source = ds
 
-        models.db.session.add(vis.query_rel)
+        models.db.session.add(vis.query)
 
         data = {
             "visualization_id": vis.id,
@@ -63,4 +63,4 @@ class WidgetAPITest(BaseTestCase):
 
         self.assertEqual(rv.status_code, 200)
         dashboard = models.Dashboard.get_by_slug_and_org(widget.dashboard.slug, widget.dashboard.org)
-        self.assertEqual(dashboard.widgets.count(), 0)
+        self.assertEqual(len(dashboard.widgets), 0)

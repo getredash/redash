@@ -15,8 +15,8 @@ class TestAlertAll(BaseTestCase):
         query1 = self.factory.create_query(data_source=ds1)
         query2 = self.factory.create_query(data_source=ds2)
 
-        alert1 = self.factory.create_alert(query_rel=query1)
-        alert2 = self.factory.create_alert(query_rel=query2)
+        alert1 = self.factory.create_alert(query=query1)
+        alert2 = self.factory.create_alert(query=query2)
         db.session.flush()
 
         alerts = db.session.scalars(Alert.all(group_ids=[group.id, self.factory.default_group.id])).all()
@@ -50,7 +50,7 @@ class TestAlertEvaluate(BaseTestCase):
     def create_alert(self, results, column="foo", value="1"):
         result = self.factory.create_query_result(data=results)
         query = self.factory.create_query(latest_query_data_id=result.id)
-        alert = self.factory.create_alert(query_rel=query, options={"op": "equals", "column": column, "value": value})
+        alert = self.factory.create_alert(query=query, options={"op": "equals", "column": column, "value": value})
         return alert
 
     def test_evaluate_triggers_alert_when_equal(self):
@@ -95,7 +95,7 @@ class TestAlertRenderTemplate(BaseTestCase):
     def create_alert(self, results, column="foo", value="5"):
         result = self.factory.create_query_result(data=results)
         query = self.factory.create_query(latest_query_data_id=result.id)
-        alert = self.factory.create_alert(query_rel=query, options={"op": "equals", "column": column, "value": value})
+        alert = self.factory.create_alert(query=query, options={"op": "equals", "column": column, "value": value})
         return alert
 
     def test_render_custom_alert_template(self):

@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.sql.expression import select
 
 from redash import models
@@ -28,7 +29,7 @@ class VisualizationResourceTest(BaseTestCase):
         rv = self.make_request("delete", "/api/visualizations/{}".format(visualization.id))
 
         self.assertEqual(rv.status_code, 200)
-        self.assertEqual(models.Visualization.query.count(), 0)
+        self.assertEqual(models.db.session.scalar(select(func.count(models.Visualization.id))), 0)
 
     def test_update_visualization(self):
         visualization = self.factory.create_visualization()

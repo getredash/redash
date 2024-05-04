@@ -366,8 +366,8 @@ class TestQueryFork(BaseTestCase):
         self.assertEqual(origin_v.options, forked_v.options)
         self.assertEqual(origin_v.type, forked_v.type)
         self.assertNotEqual(origin_v.id, forked_v.id)
-        self.assertNotEqual(origin_v.query_rel, forked_v.query_rel)
-        self.assertEqual(forked_q.id, forked_v.query_rel.id)
+        self.assertNotEqual(origin_v.query, forked_v.query)
+        self.assertEqual(forked_q.id, forked_v.query.id)
 
     def test_fork_with_visualizations(self):
         # prepare original query and visualizations
@@ -375,10 +375,10 @@ class TestQueryFork(BaseTestCase):
         query = self.factory.create_query(data_source=data_source, description="this is description")
 
         # create default TABLE - query factory does not create it
-        self.factory.create_visualization(query_rel=query, name="Table", description="", type="TABLE", options={})
+        self.factory.create_visualization(query=query, name="Table", description="", type="TABLE", options={})
 
         visualization_chart = self.factory.create_visualization(
-            query_rel=query,
+            query=query,
             description="chart vis",
             type="CHART",
             options={
@@ -394,7 +394,7 @@ class TestQueryFork(BaseTestCase):
             },
         )
         visualization_box = self.factory.create_visualization(
-            query_rel=query, description="box vis", type="BOXPLOT", options={}
+            query=query, description="box vis", type="BOXPLOT", options={}
         )
         fork_user = self.factory.create_user()
         forked_query = query.fork(fork_user)
@@ -437,7 +437,7 @@ class TestQueryFork(BaseTestCase):
         query = self.factory.create_query(data_source=data_source, description="this is description")
 
         # create default TABLE - query factory does not create it
-        self.factory.create_visualization(query_rel=query, name="Table", description="", type="TABLE", options={})
+        self.factory.create_visualization(query=query, name="Table", description="", type="TABLE", options={})
 
         fork_user = self.factory.create_user()
 
@@ -488,8 +488,6 @@ class TestQueryUpdateLatestResult(BaseTestCase):
 
         db.session.commit()
 
-        Query.update_latest_result(query_result)
-
         self.assertEqual(query1.latest_query_data, query_result)
         self.assertEqual(query2.latest_query_data, query_result)
         self.assertEqual(query3.latest_query_data, None)
@@ -511,8 +509,6 @@ class TestQueryUpdateLatestResult(BaseTestCase):
 
         db.session.commit()
 
-        Query.update_latest_result(query_result)
-
         self.assertEqual(query1.latest_query_data, query_result)
         self.assertEqual(query2.latest_query_data, query_result)
         self.assertNotEqual(query3.latest_query_data, query_result)
@@ -533,8 +529,6 @@ class TestQueryUpdateLatestResult(BaseTestCase):
         )
 
         db.session.commit()
-
-        Query.update_latest_result(query_result)
 
         self.assertEqual(query1.latest_query_data, query_result)
         self.assertEqual(query2.latest_query_data, query_result)

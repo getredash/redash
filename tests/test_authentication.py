@@ -12,15 +12,8 @@ from mock import Mock, patch
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import select
 
+import redash.authentication as auth
 from redash import models, settings
-from redash.authentication import (
-    api_key_load_user_from_request,
-    get_login_url,
-    hmac_load_user_from_request,
-    jwt_auth,
-    org_settings,
-    sign,
-)
 from redash.authentication.google_oauth import (
     create_and_login_user,
     verify_profile,
@@ -43,29 +36,29 @@ class TestApiKeyAuthentication(BaseTestCase):
     def test_no_api_key(self):
         with self.app.test_client() as c:
             c.get(self.query_url)
-            self.assertIsNone(api_key_load_user_from_request(request))
+            self.assertIsNone(auth.api_key_load_user_from_request(request))
 
     def test_wrong_api_key(self):
         with self.app.test_client() as c:
             c.get(self.query_url, query_string={"api_key": "whatever"})
-            self.assertIsNone(api_key_load_user_from_request(request))
+            self.assertIsNone(auth.api_key_load_user_from_request(request))
 
     def test_correct_api_key(self):
         with self.app.test_client() as c:
             c.get(self.query_url, query_string={"api_key": self.api_key})
-            self.assertIsNotNone(api_key_load_user_from_request(request))
+            self.assertIsNotNone(auth.api_key_load_user_from_request(request))
 
     def test_no_query_id(self):
         with self.app.test_client() as c:
             c.get(self.queries_url, query_string={"api_key": self.api_key})
-            self.assertIsNone(api_key_load_user_from_request(request))
+            self.assertIsNone(auth.api_key_load_user_from_request(request))
 
     def test_user_api_key(self):
         user = self.factory.create_user(api_key="user_key")
         models.db.session.flush()
         with self.app.test_client() as c:
             c.get(self.queries_url, query_string={"api_key": user.api_key})
-            self.assertEqual(user.id, api_key_load_user_from_request(request).id)
+            self.assertEqual(user.id, auth.api_key_load_user_from_request(request).id)
 
     def test_disabled_user_api_key(self):
         user = self.factory.create_user(api_key="user_key")
@@ -73,17 +66,17 @@ class TestApiKeyAuthentication(BaseTestCase):
         models.db.session.flush()
         with self.app.test_client() as c:
             c.get(self.queries_url, query_string={"api_key": user.api_key})
-            self.assertEqual(None, api_key_load_user_from_request(request))
+            self.assertEqual(None, auth.api_key_load_user_from_request(request))
 
     def test_api_key_header(self):
         with self.app.test_client() as c:
             c.get(self.query_url, headers={"Authorization": "Key {}".format(self.api_key)})
-            self.assertIsNotNone(api_key_load_user_from_request(request))
+            self.assertIsNotNone(auth.api_key_load_user_from_request(request))
 
     def test_api_key_header_with_wrong_key(self):
         with self.app.test_client() as c:
             c.get(self.query_url, headers={"Authorization": "Key oops"})
-            self.assertIsNone(api_key_load_user_from_request(request))
+            self.assertIsNone(auth.api_key_load_user_from_request(request))
 
     def test_api_key_for_wrong_org(self):
         other_user = self.factory.create_admin(org=self.factory.create_org())
@@ -109,12 +102,12 @@ class TestHMACAuthentication(BaseTestCase):
         self.expires = time.time() + 1800
 
     def signature(self, expires):
-        return sign(self.query.api_key, self.path, expires)
+        return auth.sign(self.query.api_key, self.path, expires)
 
     def test_no_signature(self):
         with self.app.test_client() as c:
             c.get(self.path)
-            self.assertIsNone(hmac_load_user_from_request(request))
+            self.assertIsNone(auth.hmac_load_user_from_request(request))
 
     def test_wrong_signature(self):
         with self.app.test_client() as c:
@@ -122,7 +115,7 @@ class TestHMACAuthentication(BaseTestCase):
                 self.path,
                 query_string={"signature": "whatever", "expires": self.expires},
             )
-            self.assertIsNone(hmac_load_user_from_request(request))
+            self.assertIsNone(auth.hmac_load_user_from_request(request))
 
     def test_correct_signature(self):
         with self.app.test_client() as c:
@@ -133,7 +126,7 @@ class TestHMACAuthentication(BaseTestCase):
                     "expires": self.expires,
                 },
             )
-            self.assertIsNotNone(hmac_load_user_from_request(request))
+            self.assertIsNotNone(auth.hmac_load_user_from_request(request))
 
     def test_no_query_id(self):
         with self.app.test_client() as c:
@@ -141,14 +134,14 @@ class TestHMACAuthentication(BaseTestCase):
                 "/{}/api/queries".format(self.query.org.slug),
                 query_string={"api_key": self.api_key},
             )
-            self.assertIsNone(hmac_load_user_from_request(request))
+            self.assertIsNone(auth.hmac_load_user_from_request(request))
 
     def test_user_api_key(self):
         user = self.factory.create_user(api_key="user_key")
         path = "/api/queries/"
         models.db.session.flush()
 
-        signature = sign(user.api_key, path, self.expires)
+        signature = auth.sign(user.api_key, path, self.expires)
         with self.app.test_client() as c:
             c.get(
                 path,
@@ -158,7 +151,7 @@ class TestHMACAuthentication(BaseTestCase):
                     "user_id": user.id,
                 },
             )
-            self.assertEqual(user.id, hmac_load_user_from_request(request).id)
+            self.assertEqual(user.id, auth.hmac_load_user_from_request(request).id)
 
 
 class TestSessionAuthentication(BaseTestCase):
@@ -242,11 +235,11 @@ class TestVerifyProfile(BaseTestCase):
 class TestGetLoginUrl(BaseTestCase):
     def test_when_multi_org_enabled_and_org_exists(self):
         with self.app.test_request_context("/{}/".format(self.factory.org.slug)):
-            self.assertEqual(get_login_url(next=None), "/{}/login".format(self.factory.org.slug))
+            self.assertEqual(auth.get_login_url(next=None), "/{}/login".format(self.factory.org.slug))
 
     def test_when_multi_org_enabled_and_org_doesnt_exist(self):
         with self.app.test_request_context("/{}_notexists/".format(self.factory.org.slug)):
-            self.assertEqual(get_login_url(next=None), "/")
+            self.assertEqual(auth.get_login_url(next=None), "/")
 
 
 class TestRedirectToUrlAfterLoggingIn(BaseTestCase):
@@ -415,67 +408,58 @@ class TestUserForgotPassword(BaseTestCase):
             send_user_disabled_email_mock.assert_called_with(user)
 
 
+rsa_private_key = "/tmp/jwtRS256.key"
+rsa_public_key = "/tmp/jwtRS256.pem"
+org_settings = dict(auth.org_settings)
+org_settings.update(
+    {
+        "auth_jwt_login_enabled": True,
+        "auth_jwt_auth_public_certs_url": "file:///{}".format(rsa_public_key),
+        "auth_jwt_auth_issuer": "Admin",
+        "auth_jwt_auth_audience": "My Org",
+        "auth_jwt_auth_header_name": "jwt-token",
+    }
+)
+
+
+@patch("redash.authentication.org_settings", org_settings)
 class TestJWTAuthentication(BaseTestCase):
     def setUp(self):
         super(TestJWTAuthentication, self).setUp()
-        self.auth_audience = "My Org"
-        self.auth_issuer = "Admin"
-        self.token_name = "jwt-token"
-        self.rsa_private_key = "/tmp/jwtRS256.key"
-        self.rsa_public_key = "/tmp/jwtRS256.pem"
+        if not os.path.exists(rsa_public_key):
+            subprocess.check_output(["openssl", "genrsa", "-out", rsa_private_key, "4096"])
+            subprocess.check_output(["openssl", "rsa", "-pubout", "-in", rsa_private_key, "-out", rsa_public_key])
 
-        if not os.path.exists(self.rsa_public_key):
-            subprocess.check_output(["openssl", "genrsa", "-out", self.rsa_private_key, "4096"])
-            subprocess.check_output(
-                ["openssl", "rsa", "-pubout", "-in", self.rsa_private_key, "-out", self.rsa_public_key]
-            )
-
-        org_settings["auth_jwt_login_enabled"] = True
-        org_settings["auth_jwt_auth_public_certs_url"] = "file://{}".format(self.rsa_public_key)
-        org_settings["auth_jwt_auth_issuer"] = self.auth_issuer
-        org_settings["auth_jwt_auth_audience"] = self.auth_audience
-        org_settings["auth_jwt_auth_header_name"] = self.token_name
-
-    def tearDown(self):
-        org_settings["auth_jwt_login_enabled"] = False
-        org_settings["auth_jwt_auth_public_certs_url"] = ""
-        org_settings["auth_jwt_auth_issuer"] = ""
-        org_settings["auth_jwt_auth_audience"] = ""
-        org_settings["auth_jwt_auth_header_name"] = ""
-
-    def jwt_no_token(self):
+    def test_jwt_no_token(self):
         response = self.get_request("/data_sources", org=self.factory.org)
         self.assertEqual(response.status_code, 302)
 
-    def jwt_from_pem_file(self):
+    def test_jwt_from_pem_file(self):
         user = self.factory.create_user()
-
         issued_at_timestamp = time.time()
         expiration_timestamp = issued_at_timestamp + 60
-
         data = {
-            "aud": self.auth_audience,
+            "aud": org_settings["auth_jwt_auth_audience"],
             "email": user.email,
             "exp": expiration_timestamp,
             "iat": issued_at_timestamp,
-            "iss": self.auth_issuer,
+            "iss": org_settings["auth_jwt_auth_issuer"],
         }
-        with open(self.rsa_private_key) as keyfile:
+        with open(rsa_private_key) as keyfile:
             sign_key = keyfile.read().strip()
         token_data = jwt.encode(data, sign_key, algorithm="RS256")
-
-        response = self.get_request("/data_sources", org=self.factory.org, headers={self.token_name: token_data})
+        response = self.get_request(
+            "/data_sources", org=self.factory.org, headers={org_settings["auth_jwt_auth_header_name"]: token_data}
+        )
         self.assertEqual(response.status_code, 200)
 
     @patch.object(requests, "get")
-    def jwk_decode(self, mock_get):
-        with open(self.rsa_public_key, "rb") as keyfile:
+    def test_jwk_decode(self, mock_get):
+        with open(rsa_public_key, "rb") as keyfile:
             public_key = jwcrypto.jwk.JWK.from_pem(keyfile.read())
             jwk_keys = {"keys": [json.loads(public_key.export())]}
-
         mockresponse = Mock()
         mockresponse.json = lambda: jwk_keys
         mock_get.return_value = mockresponse
-
-        keys = jwt_auth.get_public_keys("http://localhost/key.jwt")
+        keys = auth.jwt_auth.get_public_keys("http://localhost/key.jwt")
         self.assertEqual(keys[0].key_size, 4096)

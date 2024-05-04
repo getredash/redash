@@ -119,7 +119,7 @@ access_permission_factory = ModelFactory(
 alert_factory = ModelFactory(
     redash.models.Alert,
     name=Sequence("Alert {}"),
-    query_rel=query_factory.create,
+    query=query_factory.create,
     user=user_factory.create,
     options={},
 )
@@ -138,7 +138,7 @@ query_result_factory = ModelFactory(
 visualization_factory = ModelFactory(
     redash.models.Visualization,
     type="CHART",
-    query_rel=query_factory.create,
+    query=query_factory.create,
     name="Chart",
     description="",
     options={},
@@ -239,7 +239,7 @@ class Factory:
         return group_factory.create(**args)
 
     def create_alert(self, **kwargs):
-        args = {"user": self.user, "query_rel": self.create_query()}
+        args = {"user": self.user, "query": self.create_query()}
 
         args.update(kwargs)
         return alert_factory.create(**args)
@@ -295,12 +295,12 @@ class Factory:
         return query_result_factory.create(**args)
 
     def create_visualization(self, **kwargs):
-        args = {"query_rel": self.create_query()}
+        args = {"query": self.create_query()}
         args.update(kwargs)
         return visualization_factory.create(**args)
 
     def create_visualization_with_params(self, **kwargs):
-        args = {"query_rel": self.create_query_with_params()}
+        args = {"query": self.create_query_with_params()}
         args.update(kwargs)
         return visualization_factory.create(**args)
 

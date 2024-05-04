@@ -212,7 +212,7 @@ def test_slack_notify_calls_requests_post():
     options = {"url": "https://slack.com/api/api.test"}
     metadata = {"Scheduled": False}
 
-    new_state = Alert.TRIGGERED_STATE
+    new_state = Alerts.TRIGGERED_STATE
     destination = Slack(options)
 
     with mock.patch("redash.destinations.slack.requests.post") as mock_post:

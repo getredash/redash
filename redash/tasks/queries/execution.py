@@ -204,10 +204,12 @@ class QueryExecutor:
         if error is not None and data is None:
             result = QueryExecutionError(error)
             if self.is_scheduled_query:
+                self.query_model = models.db.session.merge(self.query_model, load=False)
                 track_failure(self.query_model, error)
             raise result
         else:
             if self.query_model and self.query_model.schedule_failures > 0:
+                self.query_model = models.db.session.merge(self.query_model, load=False)
                 self.query_model.schedule_failures = 0
                 self.query_model.skip_updated_at = True
                 models.db.session.add(self.query_model)
@@ -221,14 +223,11 @@ class QueryExecutor:
                 run_time,
                 utcnow(),
             )
-            models.db.session.commit()
-
-            updated_query_ids = models.Query.update_latest_result(query_result)
 
             models.db.session.commit()  # make sure that alert sees the latest query result
             self._log_progress("checking_alerts")
-            for query_id in updated_query_ids:
-                check_alerts_for_query.delay(query_id, self.metadata)
+            for q in query_result.queries:
+                check_alerts_for_query.delay(q.id, self.metadata)
             self._log_progress("finished")
 
             result = query_result.id

@@ -13,7 +13,7 @@ class Change(GFKBase, db.Model):
     object_id = Column(key_type("Change"))
     object_version = Column(db.Integer, default=0)
     user_id = Column(key_type("User"), db.ForeignKey("users.id"))
-    user = db.relationship("User", backref="changes")
+    user = db.relationship("User", back_populates="changes")
     change = Column(JSONB)
     created_at = Column(db.DateTime(True), default=db.func.now())
 

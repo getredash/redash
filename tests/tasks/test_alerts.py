@@ -43,7 +43,7 @@ class TestNotifySubscriptions(BaseTestCase):
         notify_subscriptions(subscription.alert, Alerts.OK_STATE, metadata={"Scheduled": False})
         subscription.notify.assert_called_with(
             subscription.alert,
-            subscription.alert.query_rel,
+            subscription.alert.query,
             subscription.user,
             Alerts.OK_STATE,
             ANY,

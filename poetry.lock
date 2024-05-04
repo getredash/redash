@@ -936,15 +936,16 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "databend-driver"
-version = "0.12.5"
+version = "0.17.1"
 description = "Databend Driver Python Binding"
 optional = false
-python-versions = ">=3.7"
+python-versions = "<3.13,>=3.7"
 files = [
-    {file = "databend_driver-0.12.5-cp37-abi3-macosx_10_12_x86_64.whl", hash = "sha256:91389252dd1a12e645fdb27a6d28203f5481b88b10187305ccc07d0e3e36f52c"},
-    {file = "databend_driver-0.12.5-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:ad256ff5649c1d2fa45e5e541a552d5270a02b287555f627aacf4e288cf12d72"},
-    {file = "databend_driver-0.12.5-cp37-abi3-manylinux_2_31_x86_64.whl", hash = "sha256:c5479e95884a97487f0f916146a2ba5ac771ef28fb0862f81a7267c31d167812"},
-    {file = "databend_driver-0.12.5-cp37-abi3-win_amd64.whl", hash = "sha256:da96dd8fa2bc67d8608921184923ffa485f7d84c503319552cc66c2e49f01f7e"},
+    {file = "databend_driver-0.17.1-cp37-abi3-macosx_10_12_x86_64.whl", hash = "sha256:0e1618c37fe831f271dea7e4a61dbf1e942e9623fbeeb789afb03ad8fbb76e0d"},
+    {file = "databend_driver-0.17.1-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:ee7842630267f882a77912b8cefa1fcdea57bd36ebc545e87fb741f05b1f7b84"},
+    {file = "databend_driver-0.17.1-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e3068248f3d83129375130ac932814e5a79a956e04681b2c853a37328fa34444"},
+    {file = "databend_driver-0.17.1-cp37-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:a681ba8b0379272bb5015c94cd39554b8b6b79a5e20b42f998133b1d5981ec7b"},
+    {file = "databend_driver-0.17.1-cp37-abi3-win_amd64.whl", hash = "sha256:74392c141ad2c15108086d7e46f877a9eb6974fd8f739aff59bfe7bf539cb1b6"},
 ]
 
 [package.extras]
@@ -954,21 +955,20 @@ test = ["behave"]
 
 [[package]]
 name = "databend-sqlalchemy"
-version = "0.4.4"
+version = "0.4.6"
 description = "Sqlalchemy adapter for Databend"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "databend_sqlalchemy-0.4.4-py3-none-any.whl", hash = "sha256:190d85d64aa5207fd72bc9aa1720f465aa415e5aa836ea4805ca3b3dc62e75fd"},
-    {file = "databend_sqlalchemy-0.4.4.tar.gz", hash = "sha256:114256b88f15588dc7ee4d9ef795e676c0ef9351718042ed181ee50158396531"},
+    {file = "databend_sqlalchemy-0.4.6-py3-none-any.whl", hash = "sha256:39ca7d64ce1b2bce066ea1d15f2ef71a9f641588db5e09926cb14f7be4e5e519"},
 ]
 
 [package.dependencies]
-databend-driver = ">=0.12.1"
-sqlalchemy = ">1.3.21"
+databend-driver = ">=0.16.0"
+sqlalchemy = ">=1.4"
 
 [package.extras]
-dev = ["devtools (==0.7.0)", "mock (==4.0.3)", "pre-commit (==2.15.0)", "pytest (==6.2.5)", "pytest-cov (==3.0.0)", "sqlalchemy-stubs (==0.4)"]
+dev = ["devtools (==0.7.0)", "mock (==4.0.3)", "pre-commit (==2.15.0)", "pytest (==8.1.1)", "pytest-cov (==3.0.0)", "pytest-xdist (==3.5.0)", "sqlalchemy-stubs (==0.4)"]
 superset = ["apache-superset (>=1.4.1)"]
 
 [[package]]
@@ -5255,4 +5255,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "1a38e5d879398123b962d610594c3696261367e010052666e6bfda98c9bab936"
+content-hash = "2b98e4fa6b01454b78a76b46df8b12c6200b5310846c213f77e74450b6a1bb5f"

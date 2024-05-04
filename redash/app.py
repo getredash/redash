@@ -28,7 +28,6 @@ def create_app():
     from redash.metrics import request as request_metrics
     from redash.models import db, users
     from redash.utils import sentry
-    from redash.version_check import reset_new_version_status
 
     from . import (
         limiter,

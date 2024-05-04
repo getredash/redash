@@ -19,8 +19,15 @@ class Organization(TimestampMixin, db.Model):
     name = Column(db.String(255))
     slug = Column(db.String(255), unique=True)
     settings = Column(MutableDict.as_mutable(JSONB), default={})
-    groups = db.relationship("Group", lazy="dynamic")
-    events = db.relationship("Event", lazy="dynamic", order_by="desc(Event.created_at)")
+    queries = db.relationship("Query", back_populates="org")
+    groups = db.relationship("Group", back_populates="org")
+    events = db.relationship("Event", lazy="noload", order_by="desc(Event.created_at)")
+    notification_destinations = db.relationship("NotificationDestination", back_populates="org", lazy="noload")
+    query_snippets = db.relationship("QuerySnippet", back_populates="org", lazy="noload")
+    query_results = db.relationship("QueryResult", back_populates="org", lazy="noload")
+    data_sources = db.relationship("DataSource", back_populates="org", lazy="noload")
+    users = db.relationship("User", back_populates="org")
+    dashboards = db.relationship("Dashboard", back_populates="org")
 
     __tablename__ = "organizations"
 

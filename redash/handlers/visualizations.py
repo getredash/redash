@@ -17,7 +17,7 @@ class VisualizationListResource(BaseResource):
         query = get_object_or_404(models.Query.get_by_id_and_org, kwargs.pop("query_id"), self.current_org)
         require_object_modify_permission(query, self.current_user)
 
-        kwargs["query_rel"] = query
+        kwargs["query"] = query
 
         vis = models.Visualization(**kwargs)
         models.db.session.add(vis)
@@ -29,7 +29,7 @@ class VisualizationResource(BaseResource):
     @require_permission("edit_query")
     def post(self, visualization_id):
         vis = get_object_or_404(models.Visualization.get_by_id_and_org, visualization_id, self.current_org)
-        require_object_modify_permission(vis.query_rel, self.current_user)
+        require_object_modify_permission(vis.query, self.current_user)
 
         kwargs = request.get_json(force=True)
 
@@ -44,7 +44,7 @@ class VisualizationResource(BaseResource):
     @require_permission("edit_query")
     def delete(self, visualization_id):
         vis = get_object_or_404(models.Visualization.get_by_id_and_org, visualization_id, self.current_org)
-        require_object_modify_permission(vis.query_rel, self.current_user)
+        require_object_modify_permission(vis.query, self.current_user)
         self.record_event(
             {
                 "action": "delete",

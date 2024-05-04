@@ -13,7 +13,6 @@ from sqlalchemy.dialects.postgresql import ARRAY, DOUBLE_PRECISION, JSONB
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import (
-    backref,
     contains_eager,
     joinedload,
     load_only,
@@ -117,10 +116,16 @@ scheduled_queries_executions = ScheduledQueriesExecutions()
 class DataSource(BelongsToOrgMixin, db.Model):
     id = primary_key("DataSource")
     org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
-    org = db.relationship(Organization, backref="data_sources")
+    org = db.relationship("Organization", back_populates="data_sources", uselist=False)
 
     name = Column(db.String(255))
     type = Column(db.String(255))
+    queries = db.relationship("Query", back_populates="data_source", lazy="noload")
+    query_results = db.relationship(
+        "QueryResult",
+        back_populates="data_source",
+        lazy="noload",
+    )
     options = Column(
         "encrypted_options",
         ConfigurationContainer.as_mutable(
@@ -318,9 +323,9 @@ class DataSourceGroup(db.Model):
     # XXX drop id, use datasource/group as PK
     id = primary_key("DataSourceGroup")
     data_source_id = Column(key_type("DataSource"), db.ForeignKey("data_sources.id"))
-    data_source = db.relationship(DataSource, back_populates="data_source_groups")
+    data_source = db.relationship("DataSource", back_populates="data_source_groups", uselist=False)
     group_id = Column(key_type("Group"), db.ForeignKey("groups.id"))
-    group = db.relationship(Group, back_populates="data_sources")
+    group = db.relationship("Group", back_populates="data_sources", uselist=False)
     view_only = Column(db.Boolean, default=False)
 
     __tablename__ = "data_source_groups"
@@ -331,9 +336,10 @@ class DataSourceGroup(db.Model):
 class QueryResult(db.Model, BelongsToOrgMixin):
     id = primary_key("QueryResult")
     org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
-    org = db.relationship(Organization)
+    org = db.relationship("Organization", back_populates="query_results", uselist=False)
     data_source_id = Column(key_type("DataSource"), db.ForeignKey("data_sources.id"))
-    data_source = db.relationship(DataSource, backref=backref("query_results"))
+    data_source = db.relationship("DataSource", back_populates="query_results", uselist=False)
+    queries = db.relationship("Query", back_populates="latest_query_data", lazy="noload")
     query_hash = Column(db.String(32), index=True)
     query_text = Column("query", db.Text)
     data = Column(JSONText, nullable=True)
@@ -387,6 +393,13 @@ class QueryResult(db.Model, BelongsToOrgMixin):
 
     @classmethod
     def store_result(cls, org, data_source, query_hash, query, data, run_time, retrieved_at):
+        queries = db.session.scalars(
+            select(Query).where(
+                Query.query_hash == query_hash,
+                Query.data_source == data_source,
+                Query.is_archived.is_(False),
+            )
+        ).all()
         query_result = cls(
             org_id=org,
             query_hash=query_hash,
@@ -395,6 +408,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             data_source_id=data_source.id,
             retrieved_at=retrieved_at,
             data=data,
+            queries=queries,
         )
 
         db.session.add(query_result)
@@ -463,20 +477,22 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     id = primary_key("Query")
     version = Column(db.Integer, default=1)
     org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
-    org = db.relationship(Organization, backref="queries")
+    org = db.relationship("Organization", back_populates="queries", uselist=False)
     data_source_id = Column(key_type("DataSource"), db.ForeignKey("data_sources.id"), nullable=True)
-    data_source = db.relationship(DataSource, backref="queries")
+    data_source = db.relationship("DataSource", back_populates="queries", uselist=False)
     latest_query_data_id = Column(key_type("QueryResult"), db.ForeignKey("query_results.id"), nullable=True)
-    latest_query_data = db.relationship(QueryResult)
+    latest_query_data = db.relationship("QueryResult", back_populates="queries", uselist=False)
     name = Column(db.String(255))
     description = Column(db.String(4096), nullable=True)
     query_text = Column("query", db.Text)
     query_hash = Column(db.String(32))
     api_key = Column(db.String(40), default=lambda: generate_token(40))
     user_id = Column(key_type("User"), db.ForeignKey("users.id"))
-    user = db.relationship(User, foreign_keys=[user_id])
+    user = db.relationship("User", foreign_keys="[Query.user_id]", uselist=False)
     last_modified_by_id = Column(key_type("User"), db.ForeignKey("users.id"), nullable=True)
-    last_modified_by = db.relationship(User, backref="modified_queries", foreign_keys=[last_modified_by_id])
+    last_modified_by = db.relationship(
+        "User", back_populates="modified_queries", foreign_keys="[Query.last_modified_by_id]", uselist=False
+    )
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
     schedule = Column(MutableDict.as_mutable(JSONB), nullable=True)
@@ -484,6 +500,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     schedule_failures = Column(db.Integer, default=0)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
     options = Column(MutableDict.as_mutable(JSONB), default={})
+    alerts = db.relationship("Alert", back_populates="query", lazy="noload")
     search_vector = Column(
         TSVectorType(
             "id",
@@ -527,7 +544,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         query = cls(**kwargs)
         db.session.add(
             Visualization(
-                query_rel=query,
+                query=query,
                 name="Table",
                 description="",
                 type="TABLE",
@@ -737,26 +754,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         return db.session.execute(text(query), {"ids": tuple(query_ids)}).all()
 
-    @classmethod
-    def update_latest_result(cls, query_result):
-        # TODO: Investigate how big an impact this select-before-update makes.
-        queries = db.session.scalars(
-            select(Query).where(
-                Query.query_hash == query_result.query_hash,
-                Query.data_source == query_result.data_source,
-                Query.is_archived.is_(False),
-            )
-        ).all()
-        for q in queries:
-            q.latest_query_data = query_result
-            q.skip_updated_at = True
-            db.session.add(q)
-        query_ids = [q.id for q in queries]
-
-        logging.info("Updated %s queries with result (%s).", len(query_ids), query_result.query_hash)
-
-        return query_ids
-
     def fork(self, user):
         forked_list = [
             "org",
@@ -775,7 +772,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         for v in sorted(self.visualizations, key=lambda v: v.id):
             forked_v = v.copy()
-            forked_v["query_rel"] = forked_query
+            forked_v["query"] = forked_query
             fv = Visualization(**forked_v)  # it will magically add it to `forked_query.visualizations`
             db.session.add(fv)
 
@@ -868,19 +865,14 @@ class Favorite(TimestampMixin, db.Model):
     object = generic_relationship(object_type, object_id)
 
     user_id = Column(key_type("User"), db.ForeignKey("users.id"))
-    user = db.relationship(User, backref="favorites")
+    user = db.relationship("User", back_populates="favorites", uselist=False)
 
     __tablename__ = "favorites"
     __table_args__ = (UniqueConstraint("object_type", "object_id", "user_id", name="unique_favorite"),)
 
     @classmethod
     def is_favorite(cls, user, object):
-        return (
-            db.session.execute(
-                select(func.count(cls.id)).where(cls.object == object, cls.user_id == user)
-            ).first()[0]
-            > 0
-        )
+        return db.session.scalar(select(func.count(cls.id)).where(cls.object == object, cls.user_id == user)) > 0
 
     @classmethod
     def are_favorites(cls, user, objects):
@@ -947,9 +939,9 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = primary_key("Alert")
     name = Column(db.String(255))
     query_id = Column(key_type("Query"), db.ForeignKey("queries.id"))
-    query_rel = db.relationship(Query, backref=backref("alerts", cascade="all"))
+    query = db.relationship("Query", back_populates="alerts", cascade="all", uselist=False)
     user_id = Column(key_type("User"), db.ForeignKey("users.id"))
-    user = db.relationship(User, backref="alerts")
+    user = db.relationship("User", back_populates="alerts", uselist=False)
     options = Column(MutableDict.as_mutable(JSONB), nullable=True)
     state = Column(db.String(255), default=Alerts.UNKNOWN_STATE)
     subscriptions = db.relationship("AlertSubscription", cascade="all, delete-orphan")
@@ -977,7 +969,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         return super(Alert, cls).get_by_id_and_org(object_id, org, Query)
 
     def evaluate(self):
-        data = self.query_rel.latest_query_data.data
+        data = self.query.latest_query_data.data
 
         if data["rows"] and self.options["column"] in data["rows"][0]:
             op = OPERATORS.get(self.options["op"], lambda v, t: False)
@@ -998,8 +990,8 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         if template is None:
             return ""
 
-        data = self.query_rel.latest_query_data.data
-        host = base_url(self.query_rel.org)
+        data = self.query.latest_query_data.data
+        host = base_url(self.query.org)
 
         col_name = self.options["column"]
         if data["rows"] and col_name in data["rows"][0]:
@@ -1017,8 +1009,8 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
             "ALERT_STATUS": self.state.upper(),
             "ALERT_CONDITION": self.options["op"],
             "ALERT_THRESHOLD": self.options["value"],
-            "QUERY_NAME": self.query_rel.name,
-            "QUERY_URL": "{host}/queries/{query_id}".format(host=host, query_id=self.query_rel.id),
+            "QUERY_NAME": self.query.name,
+            "QUERY_URL": "{host}/queries/{query_id}".format(host=host, query_id=self.query.id),
             "QUERY_RESULT_VALUE": result_value,
             "QUERY_RESULT_ROWS": data["rows"],
             "QUERY_RESULT_COLS": data["columns"],
@@ -1038,7 +1030,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @property
     def groups(self):
-        return self.query_rel.groups
+        return self.query.groups
 
     @property
     def muted(self):
@@ -1060,17 +1052,17 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     id = primary_key("Dashboard")
     version = Column(db.Integer)
     org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
-    org = db.relationship(Organization, backref="dashboards")
+    org = db.relationship("Organization", back_populates="dashboards", uselist=False)
     slug = Column(db.String(140), index=True, default=generate_slug)
     name = Column(db.String(100))
     user_id = Column(key_type("User"), db.ForeignKey("users.id"))
-    user = db.relationship(User)
+    user = db.relationship("User", back_populates="dashboards", uselist=False)
     # layout is no longer used, but kept so we know how to render old dashboards.
     layout = Column(MutableList.as_mutable(JSONB), default=[])
     dashboard_filters_enabled = Column(db.Boolean, default=False)
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
-    widgets = db.relationship("Widget", backref="dashboard", lazy="dynamic")
+    widgets = db.relationship("Widget", back_populates="dashboard")
     tags = Column("tags", MutableList.as_mutable(ARRAY(db.Unicode)), nullable=True)
     options = Column(MutableDict.as_mutable(JSONB), default={})
 
@@ -1086,10 +1078,19 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def all(cls, org, group_ids, user_id, columns=None, distinct=None):
+        conditions = [
+            cls.is_archived.is_(False),
+            cls.org == org,
+        ]
         if columns is None:
             columns = [cls, User.id, User.name, User.details, User.email]
         if distinct is None:
             distinct = [func.lower(cls.name), cls.created_at, cls.slug]
+        if len(group_ids) > 0 or user_id is not None:
+            conditions = conditions + [
+                or_(DataSourceGroup.group_id.in_(group_ids), cls.user_id == user_id),
+                or_(cls.user_id == user_id, cls.is_draft.is_(False)),
+            ]
         query = (
             select(*columns)
             .join(User)
@@ -1098,12 +1099,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             .outerjoin(Visualization)
             .outerjoin(Query)
             .outerjoin(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
-            .where(
-                cls.is_archived.is_(False),
-                cls.org == org,
-                or_(DataSourceGroup.group_id.in_(group_ids), cls.user_id == user_id),
-                or_(cls.user_id == user_id, cls.is_draft.is_(False)),
-            )
+            .where(*conditions)
         )
 
         return query
@@ -1172,11 +1168,11 @@ class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = primary_key("Visualization")
     type = Column(db.String(100))
     query_id = Column(key_type("Query"), db.ForeignKey("queries.id"))
-    # query_rel and not query, because db.Model already has query defined.
-    query_rel = db.relationship(Query, back_populates="visualizations")
+    query = db.relationship("Query", back_populates="visualizations", uselist=False)
     name = Column(db.String(255))
     description = Column(db.String(4096), nullable=True)
     options = Column(MutableDict.as_mutable(JSONB), nullable=True)
+    widgets = db.relationship("Widget", back_populates="visualization", cascade="all")
 
     __tablename__ = "visualizations"
 
@@ -1200,11 +1196,12 @@ class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
 class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = primary_key("Widget")
     visualization_id = Column(key_type("Visualization"), db.ForeignKey("visualizations.id"), nullable=True)
-    visualization = db.relationship(Visualization, backref=backref("widgets", cascade="delete"))
+    visualization = db.relationship("Visualization", back_populates="widgets", cascade="delete", uselist=False)
     text = Column(db.Text, nullable=True)
     width = Column(db.Integer)
     options = Column(MutableDict.as_mutable(JSONB), default={})
     dashboard_id = Column(key_type("Dashboard"), db.ForeignKey("dashboards.id"), index=True)
+    dashboard = db.relationship("Dashboard", back_populates="widgets", uselist=False)
 
     __tablename__ = "widgets"
 
@@ -1229,9 +1226,9 @@ class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
 class Event(db.Model):
     id = primary_key("Event")
     org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
-    org = db.relationship(Organization, back_populates="events")
+    org = db.relationship(Organization, back_populates="events", uselist=False)
     user_id = Column(key_type("User"), db.ForeignKey("users.id"), nullable=True)
-    user = db.relationship(User, backref="events")
+    user = db.relationship(User, back_populates="events", uselist=False)
     action = Column(db.String(255))
     object_type = Column(db.String(255))
     object_id = Column(db.String(255), nullable=True)
@@ -1286,13 +1283,13 @@ class Event(db.Model):
 class ApiKey(TimestampMixin, GFKBase, db.Model):
     id = primary_key("ApiKey")
     org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
-    org = db.relationship(Organization)
+    org = db.relationship("Organization", uselist=False)
     api_key = Column(db.String(255), index=True, default=lambda: generate_token(40))
     active = Column(db.Boolean, default=True)
     # 'object' provided by GFKBase
     object_id = Column(key_type("ApiKey"))
     created_by_id = Column(key_type("User"), db.ForeignKey("users.id"), nullable=True)
-    created_by = db.relationship(User)
+    created_by = db.relationship("User", uselist=False)
 
     __tablename__ = "api_keys"
     __table_args__ = (db.Index("api_keys_object_type_object_id", "object_type", "object_id"),)
@@ -1320,9 +1317,9 @@ class ApiKey(TimestampMixin, GFKBase, db.Model):
 class NotificationDestination(BelongsToOrgMixin, db.Model):
     id = primary_key("NotificationDestination")
     org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
-    org = db.relationship(Organization, backref="notification_destinations")
+    org = db.relationship("Organization", back_populates="notification_destinations", uselist=False)
     user_id = Column(key_type("User"), db.ForeignKey("users.id"))
-    user = db.relationship(User, backref="notification_destinations")
+    user = db.relationship("User", back_populates="notification_destinations", uselist=False)
     name = Column(db.String(255))
     type = Column(db.String(255))
     options = Column(
@@ -1373,13 +1370,13 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
 class AlertSubscription(TimestampMixin, db.Model):
     id = primary_key("AlertSubscription")
     user_id = Column(key_type("User"), db.ForeignKey("users.id"))
-    user = db.relationship(User)
+    user = db.relationship("User", back_populates="alert_subscriptions", uselist=False)
     destination_id = Column(
         key_type("NotificationDestination"), db.ForeignKey("notification_destinations.id"), nullable=True
     )
-    destination = db.relationship(NotificationDestination)
+    destination = db.relationship("NotificationDestination", uselist=False)
     alert_id = Column(key_type("Alert"), db.ForeignKey("alerts.id"))
-    alert = db.relationship(Alert, back_populates="subscriptions")
+    alert = db.relationship("Alert", back_populates="subscriptions", uselist=False)
 
     __tablename__ = "alert_subscriptions"
     __table_args__ = (
@@ -1419,11 +1416,11 @@ class AlertSubscription(TimestampMixin, db.Model):
 class QuerySnippet(TimestampMixin, db.Model, BelongsToOrgMixin):
     id = primary_key("QuerySnippet")
     org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
-    org = db.relationship(Organization, backref="query_snippets")
+    org = db.relationship("Organization", back_populates="query_snippets", uselist=False)
     trigger = Column(db.String(255), unique=True)
     description = Column(db.Text)
     user_id = Column(key_type("User"), db.ForeignKey("users.id"))
-    user = db.relationship(User, backref="query_snippets")
+    user = db.relationship("User", back_populates="query_snippets", uselist=False)
     snippet = Column(db.Text)
 
     __tablename__ = "query_snippets"

@@ -150,7 +150,14 @@ class BaseQueryListResource(BaseResource):
         page = request.args.get("page", 1, type=int)
         per_page = request.args.get("per_page", 25, type=int)
 
-        results = paginate(ordered_results, page=page, per_page=per_page, serializer=QuerySerializer)
+        results = paginate(
+            ordered_results,
+            page=page,
+            per_page=per_page,
+            serializer=QuerySerializer,
+            with_stats=True,
+            with_last_modified_by=False,
+        )
 
         if search_term:
             self.record_event({"action": "search", "object_type": "query", "term": search_term})
@@ -290,7 +297,14 @@ class MyQueriesResource(BaseResource):
 
         page = request.args.get("page", 1, type=int)
         per_page = request.args.get("per_page", 25, type=int)
-        return paginate(ordered_results, page=page, per_page=per_page, serializer=QuerySerializer)
+        return paginate(
+            ordered_results,
+            page=page,
+            per_page=per_page,
+            serializer=QuerySerializer,
+            with_stats=True,
+            with_last_modified_by=False,
+        )
 
 
 class QueryResource(BaseResource):
@@ -483,7 +497,14 @@ class QueryFavoriteListResource(BaseResource):
 
         page = request.args.get("page", 1, type=int)
         per_page = request.args.get("per_page", 25, type=int)
-        results = paginate(ordered_favorites, page=page, per_page=per_page, serializer=QuerySerializer)
+        results = paginate(
+            ordered_favorites,
+            page=page,
+            per_page=per_page,
+            serializer=QuerySerializer,
+            with_stats=True,
+            with_last_modified_by=False,
+        )
 
         self.record_event(
             {

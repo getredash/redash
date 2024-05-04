@@ -12,7 +12,7 @@ class TestAlertResourceGet(BaseTestCase):
     def test_returns_403_if_not_allowed(self):
         data_source = self.factory.create_data_source(group=self.factory.create_group())
         query = self.factory.create_query(data_source=data_source)
-        alert = self.factory.create_alert(query_rel=query)
+        alert = self.factory.create_alert(query=query)
         db.session.commit()
         rv = self.make_request("get", "/api/alerts/{}".format(alert.id))
         self.assertEqual(rv.status_code, 403)
@@ -88,7 +88,7 @@ class TestAlertListGet(BaseTestCase):
         query = self.factory.create_query(
             data_source=self.factory.create_data_source(group=self.factory.create_group())
         )
-        alert2 = self.factory.create_alert(query_rel=query)
+        alert2 = self.factory.create_alert(query=query)
         rv = self.make_request("get", "/api/alerts")
 
         self.assertEqual(rv.status_code, 200)
@@ -151,7 +151,7 @@ class TestAlertSubscriptionListResourcePost(BaseTestCase):
     def test_doesnt_subscribers_user_to_alert_without_access(self):
         data_source = self.factory.create_data_source(group=self.factory.create_group())
         query = self.factory.create_query(data_source=data_source)
-        alert = self.factory.create_alert(query_rel=query)
+        alert = self.factory.create_alert(query=query)
         destination = self.factory.create_destination()
 
         rv = self.make_request(
@@ -173,7 +173,7 @@ class TestAlertSubscriptionListResourceGet(BaseTestCase):
     def test_doesnt_return_subscribers_when_not_allowed(self):
         data_source = self.factory.create_data_source(group=self.factory.create_group())
         query = self.factory.create_query(data_source=data_source)
-        alert = self.factory.create_alert(query_rel=query)
+        alert = self.factory.create_alert(query=query)
 
         rv = self.make_request("get", "/api/alerts/{}/subscriptions".format(alert.id))
         self.assertEqual(rv.status_code, 403)

@@ -3,7 +3,7 @@ from flask import request
 from flask_login import current_user, login_user
 from flask_restful import abort
 from funcy import partial, project
-from sqlalchemy import asc, desc
+from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -32,13 +32,13 @@ from redash.settings import parse_boolean
 
 # Ordering map for relationships
 order_map = {
-    "name": [asc(models.User.name)],
+    "name": [models.User.name],
     "-name": [desc(models.User.name)],
-    "active_at": [asc(models.User.active_at)],
+    "active_at": [models.User.active_at],
     "-active_at": [desc(models.User.active_at)],
-    "created_at": [asc(models.User.created_at)],
+    "created_at": [models.User.created_at],
     "-created_at": [desc(models.User.created_at)],
-    "groups": [asc(models.User.group_ids)],
+    "groups": [models.User.group_ids],
     "-groups": [desc(models.User.group_ids)],
 }
 

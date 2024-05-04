@@ -95,13 +95,12 @@ def extract_permissions_string(permissions):
 )
 def list_command(organization=None):
     """List all groups"""
+    query_groups = select(models.Group)
     if organization:
         org = models.Organization.get_by_slug(organization)
-        qgroups = select(models.Group).where(models.Group.org == org)
-    else:
-        qgroups = select(models.Group)
+        query_groups = query_groups.where(models.Group.org == org)
 
-    groups = models.db.session.scalars(qgroups.order_by(models.Group.name)).all()
+    groups = models.db.session.scalars(query_groups.order_by(models.Group.name)).all()
     for i, group in enumerate(groups):
         if i > 0:
             print("-" * 20)

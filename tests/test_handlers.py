@@ -1,6 +1,7 @@
 from flask_login import current_user
 from funcy import project
 from mock import patch
+from sqlalchemy import func
 from sqlalchemy.sql.expression import select
 
 from redash import models, settings
@@ -320,4 +321,4 @@ class TestQuerySnippet(BaseTestCase):
         models.db.session.add(qs)
         models.db.session.commit()
         self.make_request("delete", "/api/query_snippets/1", user=self.factory.user)
-        self.assertEqual(len(models.db.session.scalars(select(models.QuerySnippet)).all()), 0)
+        self.assertEqual(models.db.session.scalar(select(func.count(models.QuerySnippet.id))), 0)

@@ -71,7 +71,7 @@ class TestDashboardResourceGet(BaseTestCase):
 
         restricted_ds = self.factory.create_data_source(group=self.factory.create_group())
         query = self.factory.create_query(data_source=restricted_ds)
-        vis = self.factory.create_visualization(query_rel=query)
+        vis = self.factory.create_visualization(query=query)
         restricted_widget = self.factory.create_widget(visualization=vis, dashboard=dashboard)
         widget = self.factory.create_widget(dashboard=dashboard)
         dashboard.layout = [[widget.id, restricted_widget.id]]

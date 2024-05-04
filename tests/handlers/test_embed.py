@@ -14,12 +14,12 @@ class TestUnembedables(BaseTestCase):
 class TestEmbedVisualization(BaseTestCase):
     def test_sucesss(self):
         vis = self.factory.create_visualization()
-        vis.query_rel.latest_query_data = self.factory.create_query_result()
-        db.session.add(vis.query_rel)
+        vis.query.latest_query_data = self.factory.create_query_result()
+        db.session.add(vis.query)
 
         res = self.make_request(
             "get",
-            "/embed/query/{}/visualization/{}".format(vis.query_rel.id, vis.id),
+            "/embed/query/{}/visualization/{}".format(vis.query.id, vis.id),
             is_json=False,
         )
         self.assertEqual(res.status_code, 200)

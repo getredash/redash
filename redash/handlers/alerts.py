@@ -73,7 +73,7 @@ class AlertListResource(BaseResource):
 
         alert = models.Alert(
             name=req["name"],
-            query_rel=query,
+            query=query,
             user=self.current_user,
             rearm=req.get("rearm"),
             options=req["options"],

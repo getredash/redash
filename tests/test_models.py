@@ -193,7 +193,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         half_an_hour_ago = utcnow() - datetime.timedelta(minutes=30)
         query = self.create_scheduled_query(interval="86400", time=half_an_hour_ago.strftime("%H:%M"))
         query_result = self.factory.create_query_result(
-            query=query.query_text,
+            query=query,
             retrieved_at=half_an_hour_ago - datetime.timedelta(days=1),
         )
         query.latest_query_data = query_result
@@ -346,7 +346,7 @@ class QueryArchiveTest(BaseTestCase):
 
     def test_removes_associated_widgets_from_dashboards(self):
         widget = self.factory.create_widget()
-        query = widget.visualization.query_rel
+        query = widget.visualization.query
         db.session.commit()
         query.archive()
         db.session.flush()
@@ -361,7 +361,7 @@ class QueryArchiveTest(BaseTestCase):
 
     def test_deletes_alerts(self):
         subscription = self.factory.create_alert_subscription()
-        query = subscription.alert.query_rel
+        query = subscription.alert.query
         db.session.commit()
         query.archive()
         db.session.flush()
@@ -580,8 +580,8 @@ def _set_up_dashboard_test(d):
     )
     d.q1 = d.factory.create_query(data_source=d.ds1)
     d.q2 = d.factory.create_query(data_source=d.ds2)
-    d.v1 = d.factory.create_visualization(query_rel=d.q1)
-    d.v2 = d.factory.create_visualization(query_rel=d.q2)
+    d.v1 = d.factory.create_visualization(query=d.q1)
+    d.v2 = d.factory.create_visualization(query=d.q2)
     d.w1 = d.factory.create_widget(visualization=d.v1)
     d.w2 = d.factory.create_widget(visualization=d.v2)
     d.w3 = d.factory.create_widget(visualization=d.v2, dashboard=d.w2.dashboard)

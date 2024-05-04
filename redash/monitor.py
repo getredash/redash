@@ -19,7 +19,7 @@ def get_redis_status():
 
 
 def count(cls):
-    return db.session.execute(select(func.count(cls.id))).first()[0]
+    return db.session.scalar(select(func.count(cls.id)))
 
 
 def get_object_counts():
@@ -27,11 +27,9 @@ def get_object_counts():
     status["queries_count"] = count(Query)
     if settings.FEATURE_SHOW_QUERY_RESULTS_COUNT:
         status["query_results_count"] = count(QueryResult)
-        status["unused_query_results_count"] = db.session.execute(
-            QueryResult.unused(
-                columns=[func.count(QueryResult.id)], days=settings.QUERY_RESULTS_CLEANUP_MAX_AGE
-            )
-        ).first()[0]
+        status["unused_query_results_count"] = db.session.scalar(
+            QueryResult.unused(columns=[func.count(QueryResult.id)], days=settings.QUERY_RESULTS_CLEANUP_MAX_AGE)
+        )
     status["dashboards_count"] = count(Dashboard)
     status["widgets_count"] = count(Widget)
     return status
