@@ -5,7 +5,7 @@ import { QueryResultError } from "@/services/query";
 import { Auth } from "@/services/auth";
 import { isString, uniqBy, each, isNumber, includes, extend, forOwn, get } from "lodash";
 
-const JSONbigString = require('json-bigint')({ storeAsString: true });
+const JSONbigString = require("json-bigint")({ storeAsString: true });
 const logger = debug("redash:services:QueryResult");
 const filterTypes = ["filter", "multi-filter", "multiFilter"];
 
@@ -46,9 +46,10 @@ function getColumnFriendlyName(column) {
 
 const createOrSaveUrl = data => (data.id ? `api/query_results/${data.id}` : "api/query_results");
 const QueryResultResource = {
-  get: ({ id }) => axios.get(`api/query_results/${id}`, { 
-    transformResponse: (response) => JSONbigString.parse(response)
-  }),
+  get: ({ id }) =>
+    axios.get(`api/query_results/${id}`, {
+      transformResponse: response => JSONbigString.parse(response),
+    }),
   post: data => axios.post(createOrSaveUrl(data), data),
 };
 
@@ -347,9 +348,9 @@ class QueryResult {
     queryResult.deferred.onStatusChange(ExecutionStatus.LOADING_RESULT);
 
     axios
-      .get(`api/queries/${queryId}/results/${id}.json`, { 
-        transformResponse: (response) => JSONbigString.parse(response)
-      }) 
+      .get(`api/queries/${queryId}/results/${id}.json`, {
+        transformResponse: response => JSONbigString.parse(response),
+      })
       .then(response => {
         // Success handler
         queryResult.isLoadingResult = false;
