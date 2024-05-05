@@ -7,6 +7,7 @@ separation of concerns.
 from flask_login import current_user
 from funcy import project
 from rq.job import JobStatus
+from rq.results import Result
 from rq.timeouts import JobTimeoutException
 
 from redash import models
@@ -271,43 +272,33 @@ class DashboardSerializer(Serializer):
 
 
 def serialize_job(job):
-    # TODO: this is mapping to the old Job class statuses. Need to update the client side and remove this
-    STATUSES = {
-        JobStatus.QUEUED: 1,
-        JobStatus.STARTED: 2,
-        JobStatus.FINISHED: 3,
-        JobStatus.FAILED: 4,
-    }
-
-    job_status = job.get_status()
     if job.is_started:
         updated_at = job.started_at or 0
     else:
         updated_at = 0
 
-    status = STATUSES[job_status]
-    result = query_result_id = None
-
-    if job.is_cancelled:
-        error = "Query cancelled by user."
-        status = 4
-    elif isinstance(job.result, Exception):
-        error = str(job.result)
-        status = 4
-    elif isinstance(job.result, dict) and "error" in job.result:
-        error = job.result["error"]
-        status = 4
-    else:
-        error = ""
-        result = query_result_id = job.result
-
+    status = job.get_status()
+    error = result_id = None
+    job_result = job.latest_result()
+    if job_result:
+        if job_result.type == Result.Type.SUCCESSFUL:
+            result = job_result.return_value
+            if isinstance(result, Exception):
+                error = str(result)
+                status = JobStatus.FAILED
+            elif isinstance(result, dict) and "error" in result:
+                error = result["error"]
+                status = JobStatus.FAILED
+            else:
+                result_id = result
+        else:
+            error = job_result.exc_string
     return {
         "job": {
             "id": job.id,
             "updated_at": updated_at,
             "status": status,
             "error": error,
-            "result": result,
-            "query_result_id": query_result_id,
+            "result_id": result_id,
         }
     }

@@ -1,4 +1,4 @@
-.PHONY: compose_build up test_db create_database create_db clean clean-all down tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
+.PHONY: compose_build up test_db create_database create_db clean clean-all down tests lint backend-unit-tests frontend-unit-tests pydeps test build watch start redis-cli bash
 
 export COMPOSE_DOCKER_CLI_BUILD=1
 export DOCKER_BUILDKIT=1
@@ -53,6 +53,12 @@ env: .env
 
 format:
 	pre-commit run --all-files
+
+pydeps:
+	pip3 install wheel
+	pip3 install --upgrade black ruff launchpadlib pip setuptools
+	pip3 install poetry
+	poetry install --only main,all_ds,dev
 
 tests:
 	docker compose run server tests
