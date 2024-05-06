@@ -4,7 +4,7 @@ import { axios } from "@/services/axios";
 import { QueryResultError } from "@/services/query";
 import { Auth } from "@/services/auth";
 import { isString, uniqBy, each, isNumber, includes, extend, forOwn, get } from "lodash";
-import JSONbig from 'json-bigint';
+import JSONbig from "json-bigint";
 
 const { parse: jsonParse } = JSONbig({ storeAsString: true });
 const logger = debug("redash:services:QueryResult");
