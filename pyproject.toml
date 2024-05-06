@@ -23,7 +23,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
-advocate = "1.0.0"
 aniso8601 = "8.0.0"
 authlib = "0.15.5"
 backoff = "2.2.1"
