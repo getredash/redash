@@ -10,7 +10,7 @@ export interface CurrentRoute<P> {
   routeParams: P;
 }
 
-export interface RedashRoute<P = {}, C extends Context = Context, R = any> extends UniversalRouterRoute<C, R> {
+export interface RedashRoute<P = object, C extends Context = Context, R = any> extends UniversalRouterRoute<C, R> {
   path: string; // we don't use other UniversalRouterRoute options, path should be available and should be a string
   key?: string; // generated in Router.jsx
   title: string;

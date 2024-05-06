@@ -40,8 +40,14 @@ const defaultOptions = {
   timeColumnTitle: "Time",
   peopleColumnTitle: "People",
   stageColumnTitle: "{{ @ }}",
-  numberFormat: "0,0[.]00",
-  percentFormat: "0.00%",
+  numberFormat: {
+    style: "decimal",
+    maximumFractionDigits: 2,
+  },
+  percentFormat: {
+    style: "percent",
+    maximumFractionDigits: 2,
+  },
   timeLabelFormat: timeLabelFormats.monthly,
 
   colors: {
@@ -131,7 +137,7 @@ function CorneliusRow({ options, data, index, maxRowLength }: any) {
       // @ts-expect-error ts-migrate(2339) FIXME: Property 'children' does not exist on type '{ key:... Remove this comment to see the full error message
       cellProps.children = options.displayAbsoluteValues
         ? options.formatNumber(value)
-        : options.formatPercent(percentageValue);
+        : options.formatPercent(percentageValue / 100.0);
 
       const backgroundColor = options.getColorForValue(percentageValue);
       // @ts-expect-error ts-migrate(2339) FIXME: Property 'style' does not exist on type '{ key: st... Remove this comment to see the full error message
@@ -193,7 +199,12 @@ type OwnCorneliusProps = {
   };
 };
 
-type CorneliusProps = OwnCorneliusProps & typeof Cornelius.defaultProps;
+const defaultProps = {
+  data: [],
+  options: {},
+};
+
+type CorneliusProps = OwnCorneliusProps & typeof defaultProps;
 
 export default function Cornelius({ data, options }: CorneliusProps) {
   options = useMemo(() => prepareOptions(options), [options]);
@@ -231,7 +242,4 @@ export default function Cornelius({ data, options }: CorneliusProps) {
   );
 }
 
-Cornelius.defaultProps = {
-  data: [],
-  options: {},
-};
+Cornelius.defaultProps = defaultProps;

@@ -8,7 +8,12 @@ type OwnSectionTitleProps = {
   children?: React.ReactNode;
 };
 
-type SectionTitleProps = OwnSectionTitleProps & typeof SectionTitle.defaultProps;
+const defaultSectionTitleProps = {
+  className: null,
+  children: null,
+};
+
+type SectionTitleProps = OwnSectionTitleProps & typeof defaultSectionTitleProps;
 
 // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
 function SectionTitle({ className, children, ...props }: SectionTitleProps) {
@@ -23,20 +28,21 @@ function SectionTitle({ className, children, ...props }: SectionTitleProps) {
   );
 }
 
-SectionTitle.defaultProps = {
+SectionTitle.defaultProps = defaultSectionTitleProps;
+
+type OwnSectionProps = {
+  className?: string;
+  children?: JSX.Element | JSX.Element[];
+};
+
+const defaultSectionProps = {
   className: null,
   children: null,
 };
 
-type OwnSectionProps = {
-  className?: string;
-  children?: React.ReactNode;
-};
+type SectionProps = OwnSectionProps & typeof defaultSectionProps;
 
-type SectionProps = OwnSectionProps & typeof Section.defaultProps;
-
-// @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
-export default function Section({ className, children, ...props }: SectionProps) {
+export default function Section({ className, children, ...props }: any) {
   return (
     <div className={cx("visualization-editor-section", className)} {...props}>
       {children}
@@ -44,9 +50,5 @@ export default function Section({ className, children, ...props }: SectionProps)
   );
 }
 
-Section.defaultProps = {
-  className: null,
-  children: null,
-};
-
+Section.defaultProps = defaultSectionProps;
 Section.Title = SectionTitle;

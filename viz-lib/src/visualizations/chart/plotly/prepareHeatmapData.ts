@@ -17,7 +17,9 @@ const defaultColorScheme = [
 ];
 
 function getColor(value: any, scheme: any) {
-  if (value == 1) { return scheme[scheme.length - 1][1]; }
+  if (value == 1) {
+    return scheme[scheme.length - 1][1];
+  }
   const upperboundIndex = findIndex(scheme, (range: any) => value < range[0]);
   const scale = d3.interpolate(scheme[upperboundIndex - 1][1], scheme[upperboundIndex][1]);
   return scale(value);

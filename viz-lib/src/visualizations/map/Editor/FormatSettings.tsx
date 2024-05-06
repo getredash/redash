@@ -23,7 +23,6 @@ export default function FormatSettings({ options, onOptionsChange }: any) {
 
   return (
     <div className="map-visualization-editor-format-settings">
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Map.Editor.TooltipEnabled"
@@ -33,7 +32,6 @@ export default function FormatSettings({ options, onOptionsChange }: any) {
         </Checkbox>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label={<React.Fragment>Tooltip template {templateFormatHint}</React.Fragment>}
@@ -45,7 +43,6 @@ export default function FormatSettings({ options, onOptionsChange }: any) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Map.Editor.PopupEnabled"
@@ -55,7 +52,6 @@ export default function FormatSettings({ options, onOptionsChange }: any) {
         </Checkbox>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <TextArea
           label={<React.Fragment>Popup template {templateFormatHint}</React.Fragment>}

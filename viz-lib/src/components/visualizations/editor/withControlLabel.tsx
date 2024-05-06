@@ -11,12 +11,19 @@ type OwnProps = {
   label?: React.ReactNode;
   labelProps?: any;
   disabled?: boolean;
-  children?: React.ReactNode;
+  children?: any;
 };
 
-type Props = OwnProps & typeof ControlLabel.defaultProps;
+const defaultProps = {
+  layout: "vertical",
+  label: null,
+  disabled: false,
+  children: null
+};
 
-export function ControlLabel({ layout, label, labelProps, disabled, children }: Props) {
+type Props = OwnProps & typeof defaultProps;
+
+export function ControlLabel({ layout, label, labelProps, disabled, children }: Props): JSX.Element {
   if (layout === "vertical" && label) {
     return (
       <div className="visualization-editor-control-label visualization-editor-control-label-vertical">
@@ -32,8 +39,6 @@ export function ControlLabel({ layout, label, labelProps, disabled, children }: 
     return (
       <Grid.Row
         className="visualization-editor-control-label visualization-editor-control-label-horizontal"
-        // @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: Element[]; className: string; ty... Remove this comment to see the full error message
-        type="flex"
         align="middle"
         gutter={15}>
         <Grid.Col span={12}>
@@ -49,12 +54,7 @@ export function ControlLabel({ layout, label, labelProps, disabled, children }: 
   return children;
 }
 
-ControlLabel.defaultProps = {
-  layout: "vertical",
-  label: null,
-  disabled: false,
-  children: null,
-};
+ControlLabel.defaultProps = defaultProps;
 
 export default function withControlLabel(WrappedControl: any) {
   // eslint-disable-next-line react/prop-types
@@ -73,7 +73,6 @@ export default function withControlLabel(WrappedControl: any) {
 
     return (
       <ControlLabel layout={layout} label={label} labelProps={labelProps} disabled={disabled}>
-        {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
         <WrappedControl
           className={cx("visualization-editor-input", className)}
           id={labelProps.htmlFor}

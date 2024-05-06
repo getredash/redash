@@ -85,7 +85,7 @@ export type RouteWithUserSessionOptions<P> = {
 
 export const UserSessionWrapperDynamicComponentName = "UserSessionWrapper";
 
-export default function routeWithUserSession<P extends {} = {}>({
+export default function routeWithUserSession<P extends object>({
   render: originalRender,
   bodyClass,
   ...rest

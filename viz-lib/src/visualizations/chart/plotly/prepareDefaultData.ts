@@ -102,10 +102,9 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
     const y = cleanYValue(row.y, seriesYAxis === "y2" ? options.yAxis[1].type : options.yAxis[0].type); // depends on series type!
     const yError = cleanNumber(row.yError); // always number
     const size = cleanNumber(row.size); // always number
-    if (x in labelsValuesDict){
+    if (x in labelsValuesDict) {
       labelsValuesDict[x] += y;
-    }
-    else{
+    } else {
       labelsValuesDict[x] = y;
     }
     const aggregatedY = labelsValuesDict[x];

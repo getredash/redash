@@ -71,50 +71,41 @@ function buildHierarchy(data: any) {
     // build graph, nodes, and child nodes
     let currentNode = root;
     for (let j = 0; j < nodes.length; j += 1) {
-      let children = currentNode.children;
+      let children: any[] = currentNode.children;
       const nodeName = nodes[j];
       const isLeaf = j + 1 === nodes.length;
 
       if (!children) {
         currentNode.children = children = [];
         children.push({
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
           name: exitNode,
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           size: currentNode.size,
         });
       }
 
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'name' does not exist on type 'never'.
-      let childNode = find(children, child => child.name === nodeName);
+      let childNode = children.find(child => child.name === nodeName);
 
       if (isLeaf && childNode) {
-        // @ts-expect-error ts-migrate(2339) FIXME: Property 'children' does not exist on type 'never'... Remove this comment to see the full error message
         childNode.children = childNode.children || [];
-        // @ts-expect-error ts-migrate(2339) FIXME: Property 'children' does not exist on type 'never'... Remove this comment to see the full error message
         childNode.children.push({
           name: exitNode,
           size,
         });
       } else if (isLeaf) {
         children.push({
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           name: nodeName,
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'number' is not assignable to type 'never'.
           size,
         });
       } else {
         if (!childNode) {
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '{ name: any; children: never[]; }' is not as... Remove this comment to see the full error message
           childNode = {
             name: nodeName,
             children: [],
           };
-          // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'undefined' is not assignable to ... Remove this comment to see the full error message
           children.push(childNode);
         }
 
-        // @ts-expect-error ts-migrate(2322) FIXME: Type 'undefined' is not assignable to type '{ name... Remove this comment to see the full error message
         currentNode = childNode;
       }
     }

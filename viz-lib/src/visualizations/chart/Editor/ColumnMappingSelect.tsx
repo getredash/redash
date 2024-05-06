@@ -24,7 +24,14 @@ type OwnProps = {
   onChange?: (...args: any[]) => any;
 };
 
-type Props = OwnProps & typeof ColumnMappingSelect.defaultProps;
+const defaultProps = {
+  value: null,
+  availableColumns: [],
+  type: null,
+  onChange: () => {},
+};
+
+type Props = OwnProps & typeof defaultProps;
 
 export default function ColumnMappingSelect({ value, availableColumns, type, onChange, areAxesSwapped }: Props) {
   const options = sortBy(filter(uniq(flatten([availableColumns, value])), v => isString(v) && v !== ""));
@@ -33,7 +40,6 @@ export default function ColumnMappingSelect({ value, availableColumns, type, onC
   const { label, multiple } = !areAxesSwapped ? MappingTypes[type] : SwappedMappingTypes[type];
 
   return (
-    // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
     <Section>
       <Select
         label={label}
@@ -57,11 +63,5 @@ export default function ColumnMappingSelect({ value, availableColumns, type, onC
   );
 }
 
-ColumnMappingSelect.defaultProps = {
-  value: null,
-  availableColumns: [],
-  type: null,
-  onChange: () => {},
-};
-
+ColumnMappingSelect.defaultProps = defaultProps;
 ColumnMappingSelect.MappingTypes = MappingTypes;

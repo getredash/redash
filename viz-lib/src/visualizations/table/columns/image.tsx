@@ -20,7 +20,6 @@ function Editor({ column, onChange }: Props) {
 
   return (
     <React.Fragment>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label="URL template"
@@ -30,7 +29,6 @@ function Editor({ column, onChange }: Props) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <ControlLabel
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message
@@ -44,7 +42,6 @@ function Editor({ column, onChange }: Props) {
               </ContextHelp>
             </React.Fragment>
           }>
-          {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
           <div className="image-dimension-selector">
             <Input
               data-test="Table.ColumnEditor.Image.Width"
@@ -63,7 +60,6 @@ function Editor({ column, onChange }: Props) {
         </ControlLabel>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label="Title template"
@@ -73,7 +69,6 @@ function Editor({ column, onChange }: Props) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
         <ContextHelp

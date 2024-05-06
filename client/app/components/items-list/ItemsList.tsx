@@ -190,7 +190,7 @@ export function wrap<I, P = any>(
 
     render() {
       // don't pass own props to wrapped component
-      const { children, onError, ...props } = this.props;
+      const { children, onError, ...props } = this.props; // eslint-disable-line @typescript-eslint/no-unused-vars
       return (
         <WrappedComponent {...props} controller={this.state}>
           {children}

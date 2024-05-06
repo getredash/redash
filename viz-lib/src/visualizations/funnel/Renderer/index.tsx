@@ -30,7 +30,7 @@ export default function Renderer({ data, options }: any) {
       if (value > options.percentValuesRange.max) {
         return `>${format(options.percentValuesRange.max)}`;
       }
-      return format(value);
+      return format(value / 100.0);
     };
   }, [options.percentFormat, options.percentValuesRange]);
 

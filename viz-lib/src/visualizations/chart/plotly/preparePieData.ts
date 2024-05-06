@@ -58,10 +58,9 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
     const x = hasX ? normalizeValue(row.x, options.xAxis.type) : `Slice ${index}`;
     const y = cleanNumber(row.y);
 
-    if (x in labelsValuesDict){
+    if (x in labelsValuesDict) {
       labelsValuesDict[x] += y;
-    }
-    else{
+    } else {
       labelsValuesDict[x] = y;
     }
     const aggregatedY = labelsValuesDict[x];

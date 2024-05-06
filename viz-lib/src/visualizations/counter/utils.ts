@@ -1,43 +1,5 @@
 import { isNumber, isFinite, toString } from "lodash";
-import numeral from "numeral";
-
-// TODO: allow user to specify number format string instead of delimiters only
-// It will allow to remove this function (move all that weird formatting logic to a migration
-// that will set number format for all existing counter visualization)
-function numberFormat(value: any, decimalPoints: any, decimalDelimiter: any, thousandsDelimiter: any) {
-  // Temporarily update locale data (restore defaults after formatting)
-  const locale = numeral.localeData();
-  const savedDelimiters = locale.delimiters;
-
-  // Mimic old behavior - AngularJS `number` filter defaults:
-  // - `,` as thousands delimiter
-  // - `.` as decimal delimiter
-  // - three decimal points
-  locale.delimiters = {
-    thousands: ",",
-    decimal: ".",
-  };
-  let formatString = "0,0.000";
-  if ((Number.isFinite(decimalPoints) && decimalPoints >= 0) || decimalDelimiter || thousandsDelimiter) {
-    locale.delimiters = {
-      thousands: thousandsDelimiter,
-      decimal: decimalDelimiter || ".",
-    };
-
-    formatString = "0,0";
-    if (decimalPoints > 0) {
-      formatString += ".";
-      while (decimalPoints > 0) {
-        formatString += "0";
-        decimalPoints -= 1;
-      }
-    }
-  }
-  const result = numeral(value).format(formatString);
-
-  locale.delimiters = savedDelimiters;
-  return result;
-}
+import { createNumberFormatter } from "@/lib/value-format";
 
 // 0 - special case, use first record
 // 1..N - 1-based record number from beginning (wraps if greater than dataset size)
@@ -51,17 +13,10 @@ function getRowNumber(index: any, rowsCount: any) {
   return index > 0 ? wrappedIndex : rowsCount - wrappedIndex - 1;
 }
 
-function formatValue(value: any, { stringPrefix, stringSuffix, stringDecimal, stringDecChar, stringThouSep }: any) {
+function formatValue(value: any, format: any) {
   if (isNumber(value)) {
-    value = numberFormat(value, stringDecimal, stringDecChar, stringThouSep);
-    return toString(stringPrefix) + value + toString(stringSuffix);
-  }
-  return toString(value);
-}
-
-function formatTooltip(value: any, formatString: any) {
-  if (isNumber(value)) {
-    return numeral(value).format(formatString);
+    const formatNumber = createNumberFormatter(format);
+    return formatNumber(value);
   }
   return toString(value);
 }
@@ -109,21 +64,25 @@ export function getCounterData(rows: any, options: any, visualizationName: any) 
     }
 
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValueTooltip' does not exist on t... Remove this comment to see the full error message
-    result.counterValueTooltip = formatTooltip(result.counterValue, options.tooltipFormat);
+    result.counterValueTooltip = formatValue(result.counterValue, options.tooltipFormat);
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValueTooltip' does not exist on ty... Remove this comment to see the full error message
-    result.targetValueTooltip = formatTooltip(result.targetValue, options.tooltipFormat);
+    result.targetValueTooltip = formatValue(result.targetValue, options.tooltipFormat);
 
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'counterValue' does not exist on type '{}... Remove this comment to see the full error message
-    result.counterValue = formatValue(result.counterValue, options);
+    result.counterValue = formatValue(result.counterValue, options.tooltipFormat);
 
     if (options.formatTargetValue) {
       // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
-      result.targetValue = formatValue(result.targetValue, options);
+      result.targetValue = formatValue(result.targetValue, options.tooltipFormat);
     } else {
       // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
       if (isFinite(result.targetValue)) {
         // @ts-expect-error ts-migrate(2339) FIXME: Property 'targetValue' does not exist on type '{}'... Remove this comment to see the full error message
-        result.targetValue = numeral(result.targetValue).format("0[.]00[0]");
+        result.targetValue = formatValue(result.targetValue, {
+          useGrouping: false,
+          style: "decimal",
+          maximumFractionDigits: 3,
+        });
       }
     }
   }

@@ -3,8 +3,14 @@
     "options": {
       "globalSeriesType": "pie",
       "seriesOptions": {},
-      "numberFormat": "0,0[.]00000",
-      "percentFormat": "0[.]00%",
+      "numberFormat": {
+        "style": "decimal",
+        "maximumFractionDigits": 5
+      },
+      "percentFormat": {
+        "style": "percent",
+        "maximumFractionDigits": 2
+      },
       "textFormat": "{{ @@name }}: {{ @@yPercent }} ({{ @@y }})",
       "showDataLabels": true,
       "direction": { "type": "counterclockwise" },

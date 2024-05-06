@@ -27,7 +27,12 @@ type OwnProps = {
   onChange?: (...args: any[]) => any;
 };
 
-type Props = OwnProps & typeof AxisSettings.defaultProps;
+const defaultProps = {
+  features: {},
+  onChange: () => {},
+};
+
+type Props = OwnProps & typeof defaultProps;
 
 export default function AxisSettings({ id, options, features, onChange }: Props) {
   function optionsChanged(newOptions: any) {
@@ -45,7 +50,6 @@ export default function AxisSettings({ id, options, features, onChange }: Props)
 
   return (
     <React.Fragment>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
           label="Scale"
@@ -82,7 +86,6 @@ export default function AxisSettings({ id, options, features, onChange }: Props)
         </Select>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label="Name"
@@ -92,7 +95,6 @@ export default function AxisSettings({ id, options, features, onChange }: Props)
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label={
@@ -108,7 +110,6 @@ export default function AxisSettings({ id, options, features, onChange }: Props)
       </Section>
 
       {features.range && (
-        // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           {/* @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: Element[]; gutter: number; type:... Remove this comment to see the full error message */}
           <Grid.Row gutter={15} type="flex" align="middle">
@@ -137,7 +138,4 @@ export default function AxisSettings({ id, options, features, onChange }: Props)
   );
 }
 
-AxisSettings.defaultProps = {
-  features: {},
-  onChange: () => {},
-};
+AxisSettings.defaultProps = defaultProps;

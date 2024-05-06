@@ -227,6 +227,4 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
       .find("input")
       .simulate("change", { target: { checked: true } });
   });
-
-  
 });

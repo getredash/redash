@@ -6,10 +6,10 @@ const DEFAULT_OPTIONS = {
   counterColName: "counter",
   rowNumber: 1,
   targetRowNumber: 1,
-  stringDecimal: 0,
-  stringDecChar: ".",
-  stringThouSep: ",",
-  tooltipFormat: "0,0.000", // TODO: Show in editor
+  tooltipFormat: {
+    style: "decimal",
+    minimumFractionDigits: 3,
+  },
 };
 
 export default {
@@ -17,11 +17,10 @@ export default {
   name: "Counter",
   getOptions: (options: any) => ({
     ...DEFAULT_OPTIONS,
-    ...options,
+    ...options
   }),
   Renderer,
   Editor,
-
   defaultColumns: 2,
   defaultRows: 5,
 };

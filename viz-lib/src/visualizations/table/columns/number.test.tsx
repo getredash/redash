@@ -27,7 +27,10 @@ describe("Visualizations -> Table -> Columns -> Number", () => {
       const el = mount(
         {
           name: "a",
-          numberFormat: "0[.]0000",
+          numberFormat: {
+            style: "decimal",
+            maximumFractionDigits: 4,
+          },
         },
         done
       );

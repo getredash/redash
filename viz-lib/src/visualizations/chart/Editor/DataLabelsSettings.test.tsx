@@ -43,7 +43,10 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
     const el = mount(
       {
         globalSeriesType: "column",
-        numberFormat: "0[.]0000",
+        numberFormat: {
+          style: "decimal",
+          maximumFractionDigits: 4,
+        },
       },
       done
     );
@@ -57,7 +60,10 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
     const el = mount(
       {
         globalSeriesType: "column",
-        percentFormat: "0[.]00%",
+        percentFormat: {
+          style: "percent",
+          maximumFractionDigits: "2",
+        },
       },
       done
     );

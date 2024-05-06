@@ -45,7 +45,20 @@ type OwnProps = {
   onChange?: (...args: any[]) => any;
 };
 
-type Props = OwnProps & typeof ColorPicker.defaultProps;
+const defaultProps = {
+  color: "#FFFFFF",
+  placement: "top",
+  presetColors: null,
+  presetColumns: 8,
+  interactive: false,
+  triggerProps: {},
+  children: null,
+  addonBefore: null,
+  addonAfter: null,
+  onChange: () => {},
+};
+
+type Props = OwnProps & typeof defaultProps;
 
 export default function ColorPicker({
   color,
@@ -142,9 +155,7 @@ export default function ColorPicker({
         onVisibleChange={setVisible}>
         {children || (
           <Swatch
-            color={validatedColor}
-            size={30}
-            {...triggerProps}
+            {...Object.assign({ color: validatedColor, size: 30 }, triggerProps as object)}
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'className' does not exist on type 'never... Remove this comment to see the full error message
             className={cx("color-picker-trigger", triggerProps.className)}
           />
@@ -154,20 +165,7 @@ export default function ColorPicker({
     </span>
   );
 }
-
-ColorPicker.defaultProps = {
-  color: "#FFFFFF",
-  placement: "top",
-  presetColors: null,
-  presetColumns: 8,
-  interactive: false,
-  triggerProps: {},
-  children: null,
-  addonBefore: null,
-  addonAfter: null,
-  onChange: () => {},
-};
-
+ColorPicker.defaultProps = defaultProps;
 ColorPicker.Input = ColorInput;
 ColorPicker.Swatch = Swatch;
 ColorPicker.Label = Label;

@@ -11,7 +11,6 @@ export default function Editor({ options, data, onOptionsChange }: any) {
 
   return (
     <React.Fragment>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
           label="Words Column"
@@ -27,7 +26,6 @@ export default function Editor({ options, data, onOptionsChange }: any) {
           ))}
         </Select>
       </Section>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
           label="Frequencies Column"
@@ -48,7 +46,6 @@ export default function Editor({ options, data, onOptionsChange }: any) {
           ))}
         </Select>
       </Section>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'null | un... Remove this comment to see the full error message */}
         <ControlLabel label="Words Length Limit">
@@ -75,7 +72,6 @@ export default function Editor({ options, data, onOptionsChange }: any) {
           </Grid.Row>
         </ControlLabel>
       </Section>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'null | un... Remove this comment to see the full error message */}
         <ControlLabel label="Frequencies Limit">

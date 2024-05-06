@@ -16,8 +16,14 @@ const DEFAULT_OPTIONS = {
   peopleColumnTitle: "Users",
   stageColumnTitle: "{{ @ }}",
 
-  numberFormat: "0,0[.]00",
-  percentFormat: "0.00%",
+  numberFormat: {
+    style: "decimal",
+    maximumFractionDigits: 2,
+  },
+  percentFormat: {
+    style: "percent",
+    maximumFractionDigits: 2,
+  },
   noValuePlaceholder: "-",
 
   colors: {

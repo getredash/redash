@@ -59,7 +59,7 @@ describe("Visualizations -> Chart -> Editor -> X-Axis Settings", () => {
     const el = mount(
       {
         globalSeriesType: "column",
-        xAxis: { },
+        xAxis: {},
       },
       done
     );

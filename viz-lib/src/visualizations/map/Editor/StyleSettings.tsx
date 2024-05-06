@@ -85,7 +85,6 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
 
   return (
     <React.Fragment>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
           label="Map Tiles"
@@ -105,7 +104,6 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section.Title>Markers</Section.Title>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Map.Editor.ClusterMarkers"
@@ -115,7 +113,6 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
         </Checkbox>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Map.Editor.CustomizeMarkers"
@@ -136,7 +133,6 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
 
       {isCustomMarkersStyleAllowed && options.customizeMarkers && (
         <React.Fragment>
-          {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Section>
             <Select
               layout="horizontal"
@@ -178,7 +174,6 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
           </Section>
 
           {showIcon && (
-            // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
             <Section>
               <Input
                 layout="horizontal"
@@ -208,7 +203,6 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
           )}
 
           {showIcon && (
-            // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
             <Section>
               <ColorPicker
                 layout="horizontal"
@@ -226,7 +220,6 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
           )}
 
           {showBackgroundColor && (
-            // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
             <Section>
               <ColorPicker
                 layout="horizontal"
@@ -244,7 +237,6 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
           )}
 
           {showBorderColor && (
-            // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
             <Section>
               <ColorPicker
                 layout="horizontal"

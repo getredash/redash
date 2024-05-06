@@ -8,7 +8,6 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
 
   return (
     <React.Fragment>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           layout="horizontal"
@@ -17,7 +16,6 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
           onChange={(e: any) => debouncedOnOptionsChange({ timeColumnTitle: e.target.value })}
         />
       </Section>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           layout="horizontal"
@@ -26,7 +24,6 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
           onChange={(e: any) => debouncedOnOptionsChange({ peopleColumnTitle: e.target.value })}
         />
       </Section>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           layout="horizontal"
@@ -46,7 +43,6 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           layout="horizontal"
@@ -60,7 +56,6 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
           onChange={(e: any) => debouncedOnOptionsChange({ numberFormat: e.target.value })}
         />
       </Section>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           layout="horizontal"
@@ -75,7 +70,6 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           layout="horizontal"
@@ -85,7 +79,6 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           defaultChecked={options.showTooltips}
@@ -93,7 +86,6 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
           Show Tooltips
         </Checkbox>
       </Section>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           defaultChecked={options.percentValues}

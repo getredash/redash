@@ -5,7 +5,6 @@ export default function Editor() {
   return (
     <React.Fragment>
       <p>This visualization expects the query result to have rows in one of the following formats:</p>
-      {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
       <Section>
         <p>
           <strong>Option 1:</strong>
@@ -25,7 +24,6 @@ export default function Editor() {
           </li>
         </ul>
       </Section>
-      {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
       <Section>
         <p>
           <strong>Option 2:</strong>

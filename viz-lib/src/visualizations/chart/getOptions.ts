@@ -18,8 +18,14 @@ const DEFAULT_OPTIONS = {
   coefficient: 1,
 
   // showDataLabels: false, // depends on chart type
-  numberFormat: "0,0[.]00000",
-  percentFormat: "0[.]00%",
+  numberFormat: {
+    style: "decimal",
+    maximumFractionDigits: 5,
+  },
+  percentFormat: {
+    style: "percent",
+    maximumFractionDigits: 2,
+  },
   // dateTimeFormat: 'DD/MM/YYYY HH:mm', // will be set from visualizationsSettings
   textFormat: "", // default: combination of {{ @@yPercent }} ({{ @@y }} ± {{ @@yError }})
 

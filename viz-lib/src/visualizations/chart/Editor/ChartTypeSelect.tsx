@@ -18,7 +18,11 @@ type OwnProps = {
   hiddenChartTypes?: any[]; // TODO: PropTypes.oneOf(map(allChartTypes, "type"))
 };
 
-type Props = OwnProps & typeof ChartTypeSelect.defaultProps;
+const defaultProps = {
+  hiddenChartTypes: [],
+};
+
+type Props = OwnProps & typeof defaultProps;
 
 export default function ChartTypeSelect({ hiddenChartTypes, ...props }: Props) {
   const chartTypes = useMemo(() => {
@@ -49,6 +53,4 @@ export default function ChartTypeSelect({ hiddenChartTypes, ...props }: Props) {
   );
 }
 
-ChartTypeSelect.defaultProps = {
-  hiddenChartTypes: [],
-};
+ChartTypeSelect.defaultProps = defaultProps;

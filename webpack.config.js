@@ -6,6 +6,7 @@ const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
 const ManifestPlugin = require("webpack-manifest-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const ESLintPlugin = require('eslint-webpack-plugin');
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
@@ -122,6 +123,7 @@ const config = {
         { from: "client/app/assets/fonts", to: "fonts/" }
       ],
     }),
+    new ESLintPlugin(),
     isHotReloadingEnabled && new ReactRefreshWebpackPlugin({ overlay: false })
   ].filter(Boolean),
   optimization: {
@@ -145,7 +147,6 @@ const config = {
               ].filter(Boolean)
             }
           },
-          require.resolve("eslint-loader")
         ]
       },
       {

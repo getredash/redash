@@ -2,14 +2,13 @@ module.exports = {
   root: true,
   parser: "@typescript-eslint/parser",
   extends: [
-    "react-app",
     "plugin:compat/recommended",
     "prettier",
     "plugin:jsx-a11y/recommended",
     // Remove any typescript-eslint rules that would conflict with prettier
     "prettier/@typescript-eslint",
   ],
-  plugins: ["jest", "compat", "no-only-tests", "@typescript-eslint", "jsx-a11y"],
+  plugins: ["react", "react-hooks", "import", "jest", "compat", "no-only-tests", "@typescript-eslint", "jsx-a11y"],
   settings: {
     "import/resolver": "webpack",
   },
@@ -20,6 +19,7 @@ module.exports = {
   rules: {
     // allow debugger during development
     "no-debugger": process.env.NODE_ENV === "production" ? 2 : 0,
+    "import/no-anonymous-default-export": "off",
     "jsx-a11y/anchor-is-valid": [
       // TMP
       "off",

@@ -20,7 +20,6 @@ function Editor({ column, onChange }: Props) {
 
   return (
     <React.Fragment>
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label="URL template"
@@ -30,7 +29,6 @@ function Editor({ column, onChange }: Props) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label="Text template"
@@ -40,7 +38,6 @@ function Editor({ column, onChange }: Props) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           label="Title template"
@@ -50,7 +47,6 @@ function Editor({ column, onChange }: Props) {
         />
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Checkbox
           data-test="Table.ColumnEditor.Link.OpenInNewTab"
@@ -60,7 +56,6 @@ function Editor({ column, onChange }: Props) {
         </Checkbox>
       </Section>
 
-      {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
         <ContextHelp
