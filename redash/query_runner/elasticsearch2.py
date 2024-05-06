@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Optional, Tuple
 
@@ -64,6 +65,7 @@ class ElasticSearch2(BaseHTTPQueryRunner):
         return data, error
 
     def _build_query(self, query: str) -> Tuple[dict, str, Optional[list]]:
+        query = json.loads(query)
         index_name = query.pop("index", "")
         result_fields = query.pop("result_fields", None)
         url = "/{}/_search".format(index_name)
