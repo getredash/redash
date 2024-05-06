@@ -8,7 +8,7 @@ import Swatch from "./Swatch";
 import "./input.less";
 
 function preparePresets(presetColors: any, presetColumns: any) {
-  presetColors = isArray(presetColors) ? map(presetColors, v => [null, v]) : toPairs(presetColors);
+  presetColors = isArray(presetColors) ? map(presetColors, (v) => [null, v]) : toPairs(presetColors);
   presetColors = map(presetColors, ([title, value]) => {
     if (isNil(value)) {
       return [title, null];
@@ -78,7 +78,7 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
           data-test="ColorPicker.CustomColor"
           addonBefore={<Typography.Text type="secondary">#</Typography.Text>}
           value={inputValue}
-          onChange={e => handleInputChange(e.target.value)}
+          onChange={(e) => handleInputChange(e.target.value)}
           onFocus={() => setIsInputFocused(true)}
           onBlur={() => setIsInputFocused(false)}
           onPressEnter={onPressEnter}

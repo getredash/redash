@@ -19,7 +19,7 @@ function mount(options: any, done: any) {
       visualizationName="Test"
       data={data}
       options={options}
-      onOptionsChange={changedOptions => {
+      onOptionsChange={(changedOptions) => {
         expect(changedOptions).toMatchSnapshot();
         done();
       }}
@@ -28,30 +28,24 @@ function mount(options: any, done: any) {
 }
 
 describe("Visualizations -> Table -> Editor -> Columns Settings", () => {
-  test("Toggles column visibility", done => {
+  test("Toggles column visibility", (done) => {
     const el = mount({}, done);
 
-    findByTestID(el, "Table.Column.a.Visibility")
-      .last()
-      .simulate("click");
+    findByTestID(el, "Table.Column.a.Visibility").last().simulate("click");
   });
 
-  test("Changes column title", done => {
+  test("Changes column title", (done) => {
     const el = mount({}, done);
-    findByTestID(el, "Table.Column.a.Name")
-      .last()
-      .simulate("click"); // expand settings
+    findByTestID(el, "Table.Column.a.Name").last().simulate("click"); // expand settings
 
     findByTestID(el, "Table.Column.a.Title")
       .last()
       .simulate("change", { target: { value: "test" } });
   });
 
-  test("Changes column alignment", done => {
+  test("Changes column alignment", (done) => {
     const el = mount({}, done);
-    findByTestID(el, "Table.Column.a.Name")
-      .last()
-      .simulate("click"); // expand settings
+    findByTestID(el, "Table.Column.a.Name").last().simulate("click"); // expand settings
 
     findByTestID(el, "Table.Column.a.TextAlignment")
       .last()
@@ -59,11 +53,9 @@ describe("Visualizations -> Table -> Editor -> Columns Settings", () => {
       .simulate("change", { target: { checked: true } });
   });
 
-  test("Enables search by column data", done => {
+  test("Enables search by column data", (done) => {
     const el = mount({}, done);
-    findByTestID(el, "Table.Column.a.Name")
-      .last()
-      .simulate("click"); // expand settings
+    findByTestID(el, "Table.Column.a.Name").last().simulate("click"); // expand settings
 
     findByTestID(el, "Table.Column.a.UseForSearch")
       .last()
@@ -71,17 +63,11 @@ describe("Visualizations -> Table -> Editor -> Columns Settings", () => {
       .simulate("change", { target: { checked: true } });
   });
 
-  test("Changes column display type", done => {
+  test("Changes column display type", (done) => {
     const el = mount({}, done);
-    findByTestID(el, "Table.Column.a.Name")
-      .last()
-      .simulate("click"); // expand settings
+    findByTestID(el, "Table.Column.a.Name").last().simulate("click"); // expand settings
 
-    findByTestID(el, "Table.Column.a.DisplayAs")
-      .last()
-      .simulate("mouseDown");
-    findByTestID(el, "Table.Column.a.DisplayAs.number")
-      .last()
-      .simulate("click");
+    findByTestID(el, "Table.Column.a.DisplayAs").last().simulate("mouseDown");
+    findByTestID(el, "Table.Column.a.DisplayAs.number").last().simulate("click");
   });
 });

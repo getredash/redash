@@ -25,13 +25,13 @@ import usePermissionsEditorDialog from "../hooks/usePermissionsEditorDialog";
 import "./QueryPageHeader.less";
 
 function getQueryTags() {
-  return getTags("api/queries/tags").then(tags => map(tags, t => t.name));
+  return getTags("api/queries/tags").then((tags) => map(tags, (t) => t.name));
 }
 
 function createMenu(menu) {
   const handlers = {};
 
-  const groups = map(menu, group =>
+  const groups = map(menu, (group) =>
     filter(
       map(group, (props, key) => {
         props = extend({ isAvailable: true, isEnabled: true, onClick: () => {} }, props);
@@ -51,7 +51,7 @@ function createMenu(menu) {
   return (
     <Menu onClick={({ key }) => handlers[key]()}>
       {reduce(
-        filter(groups, group => group.length > 0),
+        filter(groups, (group) => group.length > 0),
         (result, items, key) => {
           const divider = result.length > 0 ? <Menu.Divider key={`divider${key}`} /> : null;
           return [...result, divider, ...items];
@@ -189,7 +189,8 @@ export default function QueryPageHeader({
               <Link.Button
                 className="m-r-5"
                 href={query.getUrl(false, selectedVisualization)}
-                data-test="QueryPageShowResultOnly">
+                data-test="QueryPageShowResultOnly"
+              >
                 <i className="fa fa-table" aria-hidden="true" />
                 <span className="m-l-5">Show Results Only</span>
               </Link.Button>

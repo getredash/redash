@@ -35,7 +35,8 @@ export function ControlLabel({ layout, label, labelProps, disabled, children }: 
         // @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: Element[]; className: string; ty... Remove this comment to see the full error message
         type="flex"
         align="middle"
-        gutter={15}>
+        gutter={15}
+      >
         <Grid.Col span={12}>
           <label {...labelProps}>
             <Typography.Text disabled={disabled}>{label}</Typography.Text>
@@ -59,13 +60,7 @@ ControlLabel.defaultProps = {
 export default function withControlLabel(WrappedControl: any) {
   // eslint-disable-next-line react/prop-types
   function ControlWrapper({ className, id, layout, label, labelProps, disabled, ...props }: any) {
-    const fallbackId = useMemo(
-      () =>
-        `visualization-editor-control-${Math.random()
-          .toString(36)
-          .substr(2, 10)}`,
-      []
-    );
+    const fallbackId = useMemo(() => `visualization-editor-control-${Math.random().toString(36).substr(2, 10)}`, []);
     labelProps = {
       ...labelProps,
       htmlFor: id || fallbackId,

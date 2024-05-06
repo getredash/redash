@@ -33,7 +33,7 @@ function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateS
           data-test={`Chart.Series.${item.key}.Label`}
           placeholder={item.key}
           defaultValue={item.name}
-          onChange={event => debouncedUpdateSeriesOption(item.key, "name", event.target.value)}
+          onChange={(event) => debouncedUpdateSeriesOption(item.key, "name", event.target.value)}
         />
       ),
     },
@@ -48,7 +48,8 @@ function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateS
           <Radio.Group
             className="series-settings-y-axis"
             value={item.yAxis === 1 ? 1 : 0}
-            onChange={event => updateSeriesOption(item.key, "yAxis", event.target.value)}>
+            onChange={(event) => updateSeriesOption(item.key, "yAxis", event.target.value)}
+          >
             <Radio value={0} data-test={`Chart.Series.${item.key}.UseLeftAxis`}>
               left
             </Radio>
@@ -114,11 +115,10 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
   );
   const [debouncedUpdateSeriesOption] = useDebouncedCallback(updateSeriesOption, 200);
 
-  const columns = useMemo(() => getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOption), [
-    options,
-    updateSeriesOption,
-    debouncedUpdateSeriesOption,
-  ]);
+  const columns = useMemo(
+    () => getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOption),
+    [options, updateSeriesOption, debouncedUpdateSeriesOption]
+  );
 
   return (
     <SortableContainer
@@ -131,7 +131,8 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
       onSortEnd={handleSortEnd}
       containerProps={{
         className: "chart-editor-series",
-      }}>
+      }}
+    >
       {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
       <Table
         // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean[]' is not assignable to type 'object... Remove this comment to see the full error message
@@ -143,7 +144,7 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
           },
         }}
         // @ts-expect-error ts-migrate(2322) FIXME: Type '(item: object) => { index: any; }' is not as... Remove this comment to see the full error message
-        onRow={item => ({ index: item.zIndex })}
+        onRow={(item) => ({ index: item.zIndex })}
         pagination={false}
       />
     </SortableContainer>

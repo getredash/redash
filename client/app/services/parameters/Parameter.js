@@ -58,7 +58,7 @@ class Parameter {
 
   updateLocals() {
     if (isArray(this.locals)) {
-      each(this.locals, local => {
+      each(this.locals, (local) => {
         local.setValue(this.value);
       });
     }

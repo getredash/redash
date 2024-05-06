@@ -8,7 +8,7 @@ export function prepareCustomChartData(series: any) {
   each(series, ({ name, data }) => {
     // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     ys[name] = [];
-    each(data, point => {
+    each(data, (point) => {
       // @ts-expect-error ts-migrate(2554) FIXME: Expected 2-3 arguments, but got 1.
       x.push(normalizeValue(point.x));
       // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message

@@ -5,7 +5,7 @@ import { Section, Select, Input, Checkbox } from "@/components/visualizations/ed
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function GeneralSettings({ options, data, onOptionsChange }: any) {
-  const columnNames = useMemo(() => map(data.columns, c => c.name), [data]);
+  const columnNames = useMemo(() => map(data.columns, (c) => c.name), [data]);
 
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
 
@@ -19,8 +19,9 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           data-test="Funnel.StepColumn"
           placeholder="Choose column..."
           defaultValue={options.stepCol.colName || undefined}
-          onChange={(colName: any) => onOptionsChange({ stepCol: { colName: colName || null } })}>
-          {map(columnNames, col => (
+          onChange={(colName: any) => onOptionsChange({ stepCol: { colName: colName || null } })}
+        >
+          {map(columnNames, (col) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={col} data-test={`Funnel.StepColumn.${col}`}>
               {col}
@@ -49,8 +50,9 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           data-test="Funnel.ValueColumn"
           placeholder="Choose column..."
           defaultValue={options.valueCol.colName || undefined}
-          onChange={(colName: any) => onOptionsChange({ valueCol: { colName: colName || null } })}>
-          {map(columnNames, col => (
+          onChange={(colName: any) => onOptionsChange({ valueCol: { colName: colName || null } })}
+        >
+          {map(columnNames, (col) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={col} data-test={`Funnel.ValueColumn.${col}`}>
               {col}
@@ -76,7 +78,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         <Checkbox
           data-test="Funnel.CustomSort"
           checked={!options.autoSort}
-          onChange={event => onOptionsChange({ autoSort: !event.target.checked })}>
+          onChange={(event) => onOptionsChange({ autoSort: !event.target.checked })}
+        >
           Custom Sorting
         </Checkbox>
       </Section>
@@ -92,8 +95,9 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
               allowClear
               placeholder="Choose column..."
               defaultValue={options.sortKeyCol.colName || undefined}
-              onChange={(colName: any) => onOptionsChange({ sortKeyCol: { colName: colName || null } })}>
-              {map(columnNames, col => (
+              onChange={(colName: any) => onOptionsChange({ sortKeyCol: { colName: colName || null } })}
+            >
+              {map(columnNames, (col) => (
                 // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
                 <Select.Option key={col} data-test={`Funnel.SortColumn.${col}`}>
                   {col}
@@ -111,7 +115,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
               data-test="Funnel.SortDirection"
               disabled={!options.sortKeyCol.colName}
               defaultValue={options.sortKeyCol.reverse ? "desc" : "asc"}
-              onChange={(order: any) => onOptionsChange({ sortKeyCol: { reverse: order === "desc" } })}>
+              onChange={(order: any) => onOptionsChange({ sortKeyCol: { reverse: order === "desc" } })}
+            >
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option value="asc" data-test="Funnel.SortDirection.Ascending">
                 ascending

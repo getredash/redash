@@ -8,7 +8,8 @@ import { visualizationsSettings } from "@/visualizations/visualizationsSettings"
 numeral.options.scalePercentBy100 = false;
 
 // eslint-disable-next-line
-const urlPattern = /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019@#\/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#\/%=~()_|])/gi;
+const urlPattern =
+  /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019@#\/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#\/%=~()_|])/gi;
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 

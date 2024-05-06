@@ -139,9 +139,9 @@ function DashboardList({ controller }) {
                       showPageSizeSelect
                       totalCount={controller.totalItemsCount}
                       pageSize={controller.itemsPerPage}
-                      onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                      onPageSizeChange={(itemsPerPage) => controller.updatePagination({ itemsPerPage })}
                       page={controller.page}
-                      onChange={page => controller.updatePagination({ page })}
+                      onChange={(page) => controller.updatePagination({ page })}
                     />
                   </div>
                 </React.Fragment>
@@ -170,7 +170,7 @@ const DashboardListPage = itemsList(
         }[currentPage];
       },
       getItemProcessor() {
-        return item => new Dashboard(item);
+        return (item) => new Dashboard(item);
       },
     }),
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
@@ -181,7 +181,7 @@ routes.register(
   routeWithUserSession({
     path: "/dashboards",
     title: "Dashboards",
-    render: pageProps => <DashboardListPage {...pageProps} currentPage="all" />,
+    render: (pageProps) => <DashboardListPage {...pageProps} currentPage="all" />,
   })
 );
 routes.register(
@@ -189,7 +189,7 @@ routes.register(
   routeWithUserSession({
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
-    render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
+    render: (pageProps) => <DashboardListPage {...pageProps} currentPage="favorites" />,
   })
 );
 routes.register(
@@ -197,6 +197,6 @@ routes.register(
   routeWithUserSession({
     path: "/dashboards/my",
     title: "My Dashboards",
-    render: pageProps => <DashboardListPage {...pageProps} currentPage="my" />,
+    render: (pageProps) => <DashboardListPage {...pageProps} currentPage="my" />,
   })
 );

@@ -89,7 +89,8 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
       <Section>
         <Checkbox
           defaultChecked={options.showTooltips}
-          onChange={event => onOptionsChange({ showTooltips: event.target.checked })}>
+          onChange={(event) => onOptionsChange({ showTooltips: event.target.checked })}
+        >
           Show Tooltips
         </Checkbox>
       </Section>
@@ -97,7 +98,8 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
       <Section>
         <Checkbox
           defaultChecked={options.percentValues}
-          onChange={event => onOptionsChange({ percentValues: event.target.checked })}>
+          onChange={(event) => onOptionsChange({ percentValues: event.target.checked })}
+        >
           Normalize Values to Percentage
         </Checkbox>
       </Section>

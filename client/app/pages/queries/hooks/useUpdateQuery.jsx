@@ -54,11 +54,11 @@ function doSaveQuery(data, { canOverwrite = false } = {}) {
   if (isObject(data.options) && data.options.parameters) {
     data.options = {
       ...data.options,
-      parameters: map(data.options.parameters, p => p.toSaveableObject()),
+      parameters: map(data.options.parameters, (p) => p.toSaveableObject()),
     };
   }
 
-  return Query.save(data).catch(error => {
+  return Query.save(data).catch((error) => {
     if (get(error, "response.status") === 409) {
       if (canOverwrite) {
         return confirmOverwrite()
@@ -100,7 +100,7 @@ export default function useUpdateQuery(query, onChange) {
       }
 
       return doSaveQuery(data, { canOverwrite: policy.canEdit(query) })
-        .then(updatedQuery => {
+        .then((updatedQuery) => {
           if (!isNil(successMessage)) {
             notification.success(successMessage);
           }
@@ -113,7 +113,7 @@ export default function useUpdateQuery(query, onChange) {
             )
           );
         })
-        .catch(error => {
+        .catch((error) => {
           const notificationOptions = {};
           if (error instanceof SaveQueryConflictError) {
             notificationOptions.duration = null;

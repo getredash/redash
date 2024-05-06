@@ -30,7 +30,8 @@ function DeprecatedEmbedFeatureAlert() {
           <Link
             href="https://discuss.redash.io/t/support-for-parameters-in-embedded-visualizations/3337"
             target="_blank"
-            rel="noopener noreferrer">
+            rel="noopener noreferrer"
+          >
             Read more
           </Link>
           .
@@ -42,7 +43,7 @@ function DeprecatedEmbedFeatureAlert() {
 
 function EmailNotVerifiedAlert() {
   const verifyEmail = () => {
-    axios.post("verification_email/").then(data => {
+    axios.post("verification_email/").then((data) => {
       notification.success(data.message);
     });
   };
@@ -98,6 +99,6 @@ routes.register(
   routeWithUserSession({
     path: "/",
     title: "Redash",
-    render: pageProps => <Home {...pageProps} />,
+    render: (pageProps) => <Home {...pageProps} />,
   })
 );

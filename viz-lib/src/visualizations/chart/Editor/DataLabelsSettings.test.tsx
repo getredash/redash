@@ -15,7 +15,7 @@ function mount(options: any, done: any) {
       visualizationName="Test"
       data={{ columns: [], rows: [] }}
       options={options}
-      onOptionsChange={changedOptions => {
+      onOptionsChange={(changedOptions) => {
         expect(changedOptions).toMatchSnapshot();
         done();
       }}
@@ -24,7 +24,7 @@ function mount(options: any, done: any) {
 }
 
 describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
-  test("Sets Show Data Labels option", done => {
+  test("Sets Show Data Labels option", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -39,7 +39,7 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
       .simulate("change", { target: { checked: true } });
   });
 
-  test("Changes number format", done => {
+  test("Changes number format", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -53,7 +53,7 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
       .simulate("change", { target: { value: "0.00" } });
   });
 
-  test("Changes percent values format", done => {
+  test("Changes percent values format", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -67,7 +67,7 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
       .simulate("change", { target: { value: "0.0%" } });
   });
 
-  test("Changes date/time format", done => {
+  test("Changes date/time format", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -81,7 +81,7 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
       .simulate("change", { target: { value: "YYYY MMM DD" } });
   });
 
-  test("Changes data labels format", done => {
+  test("Changes data labels format", (done) => {
     const el = mount(
       {
         globalSeriesType: "column",

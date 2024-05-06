@@ -9,7 +9,7 @@ import "./UserGroups.less";
 export default function UserGroups({ groups, linkGroups, ...props }) {
   return (
     <div className="user-groups" {...props}>
-      {map(groups, group => (
+      {map(groups, (group) => (
         <Tag key={group.id}>{linkGroups ? <Link href={`groups/${group.id}`}>{group.name}</Link> : group.name}</Tag>
       ))}
     </div>

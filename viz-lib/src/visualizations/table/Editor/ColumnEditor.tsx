@@ -58,7 +58,8 @@ export default function ColumnEditor({ column, onChange }: Props) {
           data-test={`Table.Column.${column.name}.UseForSearch`}
           // @ts-expect-error ts-migrate(2339) FIXME: Property 'allowSearch' does not exist on type '{ n... Remove this comment to see the full error message
           defaultChecked={column.allowSearch}
-          onChange={event => handleChange({ allowSearch: event.target.checked })}>
+          onChange={(event) => handleChange({ allowSearch: event.target.checked })}
+        >
           Use for search
         </Checkbox>
       </Section>
@@ -79,7 +80,8 @@ export default function ColumnEditor({ column, onChange }: Props) {
           label="Display as:"
           data-test={`Table.Column.${column.name}.DisplayAs`}
           defaultValue={column.displayAs}
-          onChange={(displayAs: any) => handleChange({ displayAs })}>
+          onChange={(displayAs: any) => handleChange({ displayAs })}
+        >
           {map(ColumnTypes, ({ friendlyName }, key) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={key} data-test={`Table.Column.${column.name}.DisplayAs.${key}`}>

@@ -22,7 +22,7 @@ export default function ColumnsSettings({ options, onOptionsChange }: any) {
     if (event) {
       event.stopPropagation();
     }
-    const columns = map(options.columns, c => (c.name === newColumn.name ? newColumn : c));
+    const columns = map(options.columns, (c) => (c.name === newColumn.name ? newColumn : c));
     onOptionsChange({ columns });
   }
 
@@ -42,7 +42,8 @@ export default function ColumnsSettings({ options, onOptionsChange }: any) {
       onSortEnd={handleColumnsReorder}
       containerProps={{
         className: "table-visualization-editor-columns",
-      }}>
+      }}
+    >
       {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
       <Collapse bordered={false} defaultActiveKey={[]} expandIconPosition="right">
         {map(options.columns, (column, index) => (
@@ -67,16 +68,17 @@ export default function ColumnsSettings({ options, onOptionsChange }: any) {
                 {column.visible ? (
                   <EyeOutlinedIcon
                     data-test={`Table.Column.${column.name}.Visibility`}
-                    onClick={event => handleColumnChange({ ...column, visible: !column.visible }, event)}
+                    onClick={(event) => handleColumnChange({ ...column, visible: !column.visible }, event)}
                   />
                 ) : (
                   <EyeInvisibleOutlinedIcon
                     data-test={`Table.Column.${column.name}.Visibility`}
-                    onClick={event => handleColumnChange({ ...column, visible: !column.visible }, event)}
+                    onClick={(event) => handleColumnChange({ ...column, visible: !column.visible }, event)}
                   />
                 )}
               </Tooltip>
-            }>
+            }
+          >
             {/* @ts-expect-error ts-migrate(2322) FIXME: Type '(newColumn: any, event: any) => void' is not... Remove this comment to see the full error message */}
             <ColumnEditor column={column} onChange={handleColumnChange} />
           </SortableItem>

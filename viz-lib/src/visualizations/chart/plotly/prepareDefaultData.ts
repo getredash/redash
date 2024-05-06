@@ -47,7 +47,7 @@ function prepareBubbleSeries(series: any, options: any, { seriesColor, data }: a
   series.mode = "markers";
   series.marker = {
     color: seriesColor,
-    size: map(data, i => i.size * coefficient),
+    size: map(data, (i) => i.size * coefficient),
     sizemode: options.sizemode || "diameter",
   };
   return series;
@@ -79,7 +79,7 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
   const seriesYAxis = getSeriesAxis(series, options);
 
   // Sort by x - `Map` preserves order of items
-  const data = options.sortX ? sortBy(series.data, d => normalizeValue(d.x, options.xAxis.type)) : series.data;
+  const data = options.sortX ? sortBy(series.data, (d) => normalizeValue(d.x, options.xAxis.type)) : series.data;
 
   // For bubble/scatter charts `y` may be any (similar to `x`) - numeric is only bubble size;
   // for other types `y` is always number
@@ -97,15 +97,14 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
   const labelsValuesDict: { [key: string]: any } = {};
 
   const yErrorValues: any = [];
-  each(data, row => {
+  each(data, (row) => {
     const x = normalizeValue(row.x, options.xAxis.type); // number/datetime/category
     const y = cleanYValue(row.y, seriesYAxis === "y2" ? options.yAxis[1].type : options.yAxis[0].type); // depends on series type!
     const yError = cleanNumber(row.yError); // always number
     const size = cleanNumber(row.size); // always number
-    if (x in labelsValuesDict){
+    if (x in labelsValuesDict) {
       labelsValuesDict[x] += y;
-    }
-    else{
+    } else {
       labelsValuesDict[x] = y;
     }
     const aggregatedY = labelsValuesDict[x];

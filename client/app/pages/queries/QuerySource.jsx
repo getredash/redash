@@ -47,8 +47,8 @@ import "./components/QuerySourceDropdown"; // register QuerySourceDropdown
 import "./QuerySource.less";
 
 function chooseDataSourceId(dataSourceIds, availableDataSources) {
-  availableDataSources = map(availableDataSources, ds => ds.id);
-  return find(dataSourceIds, id => includes(availableDataSources, id)) || null;
+  availableDataSources = map(availableDataSources, (ds) => ds.id);
+  return find(dataSourceIds, (id) => includes(availableDataSources, id)) || null;
 }
 
 function QuerySource(props) {
@@ -81,7 +81,7 @@ function QuerySource(props) {
   const [autocompleteAvailable, autocompleteEnabled, toggleAutocomplete] = useAutocompleteFlags(schema);
   const [autoLimitAvailable, autoLimitChecked, setAutoLimit] = useAutoLimitFlags(dataSource, query, setQuery);
 
-  const [handleQueryEditorChange] = useDebouncedCallback(queryText => {
+  const [handleQueryEditorChange] = useDebouncedCallback((queryText) => {
     setQuery(extend(query.clone(), { query: queryText }));
   }, 100);
 
@@ -108,7 +108,7 @@ function QuerySource(props) {
   };
 
   const handleDataSourceChange = useCallback(
-    dataSourceId => {
+    (dataSourceId) => {
       if (dataSourceId) {
         try {
           localStorage.setItem("lastSelectedDataSourceId", dataSourceId);
@@ -151,7 +151,7 @@ function QuerySource(props) {
     setQuery(newQuery);
   });
 
-  const handleSchemaItemSelect = useCallback(schemaItem => {
+  const handleSchemaItemSelect = useCallback((schemaItem) => {
     if (editorRef.current) {
       editorRef.current.paste(schemaItem);
     }
@@ -188,7 +188,7 @@ function QuerySource(props) {
     setQuery(newQuery);
     setSelectedVisualization(visualization.id);
   });
-  const editVisualization = useEditVisualizationDialog(query, queryResult, newQuery => setQuery(newQuery));
+  const editVisualization = useEditVisualizationDialog(query, queryResult, (newQuery) => setQuery(newQuery));
   const deleteVisualization = useDeleteVisualization(query, setQuery);
 
   return (
@@ -223,7 +223,7 @@ function QuerySource(props) {
               <SchemaBrowser
                 dataSource={dataSource}
                 options={query.options.schemaOptions}
-                onOptionsUpdate={schemaOptions =>
+                onOptionsUpdate={(schemaOptions) =>
                   setQuery(extend(query.clone(), { options: { ...query.options, schemaOptions } }))
                 }
                 onSchemaUpdate={setSchema}
@@ -253,7 +253,8 @@ function QuerySource(props) {
           <div className="flex-fill p-relative">
             <div
               className="p-absolute d-flex flex-column p-l-15 p-r-15"
-              style={{ left: 0, top: 0, right: 0, bottom: 0, overflow: "auto" }}>
+              style={{ left: 0, top: 0, right: 0, bottom: 0, overflow: "auto" }}
+            >
               <Resizable direction="vertical" sizeAttribute="flex-basis">
                 <div className="row editor">
                   <section className="query-editor-wrapper" data-test="QueryEditor">
@@ -319,7 +320,7 @@ function QuerySource(props) {
                               disabled: !queryFlags.canEdit,
                               value: dataSource.id,
                               onChange: handleDataSourceChange,
-                              options: map(dataSources, ds => ({ value: ds.id, label: ds.name })),
+                              options: map(dataSources, (ds) => ({ value: ds.id, label: ds.name })),
                             }
                           : false
                       }
@@ -393,7 +394,8 @@ function QuerySource(props) {
                           type="primary"
                           disabled={!queryFlags.canExecute || areParametersDirty}
                           loading={isQueryExecuting}
-                          onClick={doExecuteQuery}>
+                          onClick={doExecuteQuery}
+                        >
                           {!isQueryExecuting && <i className="zmdi zmdi-refresh m-r-5" aria-hidden="true" />}
                           Refresh Now
                         </Button>
@@ -432,7 +434,7 @@ routes.register(
   "Queries.New",
   routeWithUserSession({
     path: "/queries/new",
-    render: pageProps => <QuerySourcePage {...pageProps} />,
+    render: (pageProps) => <QuerySourcePage {...pageProps} />,
     bodyClass: "fixed-layout",
   })
 );
@@ -440,7 +442,7 @@ routes.register(
   "Queries.Edit",
   routeWithUserSession({
     path: "/queries/:queryId/source",
-    render: pageProps => <QuerySourcePage {...pageProps} />,
+    render: (pageProps) => <QuerySourcePage {...pageProps} />,
     bodyClass: "fixed-layout",
   })
 );

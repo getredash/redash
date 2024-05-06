@@ -22,7 +22,7 @@ function EditTagsDialog({ dialog, tags, getAvailableTags }) {
 
   useEffect(() => {
     let isCancelled = false;
-    getAvailableTags().then(availableTags => {
+    getAvailableTags().then((availableTags) => {
       if (!isCancelled) {
         setAvailableTags(uniq(compact(map(availableTags, trim))));
         setIsLoading(false);
@@ -39,17 +39,19 @@ function EditTagsDialog({ dialog, tags, getAvailableTags }) {
       onOk={() => dialog.close(values)}
       title="Add/Edit Tags"
       className="shortModal"
-      wrapProps={{ "data-test": "EditTagsDialog" }}>
+      wrapProps={{ "data-test": "EditTagsDialog" }}
+    >
       <Select
         ref={setSelectRef}
         mode="tags"
         className="w-100"
         placeholder="Add some tags..."
         defaultValue={values}
-        onChange={v => setValues(compact(map(v, trim)))}
+        onChange={(v) => setValues(compact(map(v, trim)))}
         disabled={isLoading}
-        loading={isLoading}>
-        {map(availableTags, tag => (
+        loading={isLoading}
+      >
+        {map(availableTags, (tag) => (
           <Select.Option key={tag}>{tag}</Select.Option>
         ))}
       </Select>

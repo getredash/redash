@@ -45,10 +45,10 @@ export default function EditorControl({
   useEffect(() => {
     const buttons = filter(
       [addParameterButtonProps, formatButtonProps, saveButtonProps, executeButtonProps],
-      b => b.shortcut && isFunction(b.onClick)
+      (b) => b.shortcut && isFunction(b.onClick)
     );
     if (buttons.length > 0) {
-      const shortcuts = fromPairs(map(buttons, b => [b.shortcut, b.disabled ? noop : b.onClick]));
+      const shortcuts = fromPairs(map(buttons, (b) => [b.shortcut, b.disabled ? noop : b.onClick]));
       KeyboardShortcuts.bind(shortcuts);
       return () => {
         KeyboardShortcuts.unbind(shortcuts);
@@ -63,7 +63,8 @@ export default function EditorControl({
           <Button
             className="query-editor-controls-button m-r-5"
             disabled={addParameterButtonProps.disabled}
-            onClick={addParameterButtonProps.onClick}>
+            onClick={addParameterButtonProps.onClick}
+          >
             {"{{"}&nbsp;{"}}"}
           </Button>
         </ButtonTooltip>
@@ -73,7 +74,8 @@ export default function EditorControl({
           <Button
             className="query-editor-controls-button m-r-5"
             disabled={formatButtonProps.disabled}
-            onClick={formatButtonProps.onClick}>
+            onClick={formatButtonProps.onClick}
+          >
             <span className="zmdi zmdi-format-indent-increase" />
             {formatButtonProps.text}
           </Button>
@@ -93,8 +95,9 @@ export default function EditorControl({
           className="w-100 flex-fill datasource-small"
           disabled={dataSourceSelectorProps.disabled}
           value={dataSourceSelectorProps.value}
-          onChange={dataSourceSelectorProps.onChange}>
-          {map(dataSourceSelectorProps.options, option => (
+          onChange={dataSourceSelectorProps.onChange}
+        >
+          {map(dataSourceSelectorProps.options, (option) => (
             <Select.Option key={`option-${option.value}`} value={option.value}>
               {option.label}
             </Select.Option>
@@ -108,7 +111,8 @@ export default function EditorControl({
             disabled={saveButtonProps.disabled}
             loading={saveButtonProps.loading}
             onClick={saveButtonProps.onClick}
-            data-test="SaveButton">
+            data-test="SaveButton"
+          >
             {!saveButtonProps.loading && <span className="fa fa-floppy-o" />}
             {saveButtonProps.text}
           </Button>
@@ -121,7 +125,8 @@ export default function EditorControl({
             type="primary"
             disabled={executeButtonProps.disabled}
             onClick={executeButtonProps.onClick}
-            data-test="ExecuteButton">
+            data-test="ExecuteButton"
+          >
             <span className="zmdi zmdi-play" />
             {executeButtonProps.text}
           </Button>

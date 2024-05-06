@@ -47,7 +47,7 @@ export default class EditInPlace extends React.Component {
     }
   };
 
-  stopEditing = currentValue => {
+  stopEditing = (currentValue) => {
     const newValue = trim(currentValue);
     const ignorableBlank = this.props.ignoreBlanks && newValue === "";
     if (!ignorableBlank && newValue !== this.props.value) {
@@ -56,7 +56,7 @@ export default class EditInPlace extends React.Component {
     this.setState({ editing: false });
   };
 
-  handleKeyDown = event => {
+  handleKeyDown = (event) => {
     if (event.keyCode === 13 && !event.shiftKey) {
       event.preventDefault();
       this.stopEditing(event.target.value);
@@ -71,7 +71,8 @@ export default class EditInPlace extends React.Component {
         role="presentation"
         onFocus={this.startEditing}
         onClick={this.startEditing}
-        className={this.props.isEditable ? "editable" : ""}>
+        className={this.props.isEditable ? "editable" : ""}
+      >
         {this.props.value}
       </span>
     ) : (
@@ -87,7 +88,7 @@ export default class EditInPlace extends React.Component {
       <InputComponent
         defaultValue={value}
         aria-label="Editing"
-        onBlur={e => this.stopEditing(e.target.value)}
+        onBlur={(e) => this.stopEditing(e.target.value)}
         onKeyDown={this.handleKeyDown}
         autoFocus
         {...editorProps}

@@ -28,7 +28,8 @@ export default function QueryControlDropdown(props) {
         <Menu.Item>
           <PlainButton
             onClick={() => props.showEmbedDialog(props.query, props.selectedTab)}
-            data-test="ShowEmbedDialogButton">
+            data-test="ShowEmbedDialogButton"
+          >
             <ShareAltOutlinedIcon /> Embed Elsewhere
           </PlainButton>
         </Menu.Item>
@@ -40,7 +41,8 @@ export default function QueryControlDropdown(props) {
           query={props.query}
           queryResult={props.queryResult}
           embed={props.embed}
-          apiKey={props.apiKey}>
+          apiKey={props.apiKey}
+        >
           <FileOutlinedIcon /> Download as CSV File
         </QueryResultsLink>
       </Menu.Item>
@@ -51,7 +53,8 @@ export default function QueryControlDropdown(props) {
           query={props.query}
           queryResult={props.queryResult}
           embed={props.embed}
-          apiKey={props.apiKey}>
+          apiKey={props.apiKey}
+        >
           <FileOutlinedIcon /> Download as TSV File
         </QueryResultsLink>
       </Menu.Item>
@@ -62,7 +65,8 @@ export default function QueryControlDropdown(props) {
           query={props.query}
           queryResult={props.queryResult}
           embed={props.embed}
-          apiKey={props.apiKey}>
+          apiKey={props.apiKey}
+        >
           <FileExcelOutlinedIcon /> Download as Excel File
         </QueryResultsLink>
       </Menu.Item>

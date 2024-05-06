@@ -22,7 +22,7 @@ import { Renderer, Editor } from "@/components/visualizations/visualizationCompo
 import "./EditVisualizationDialog.less";
 
 function updateQueryVisualizations(query, visualization) {
-  const index = findIndex(query.visualizations, v => v.id === visualization.id);
+  const index = findIndex(query.visualizations, (v) => v.id === visualization.id);
   if (index > -1) {
     query.visualizations[index] = visualization;
   } else {
@@ -40,11 +40,11 @@ function saveVisualization(visualization) {
   }
 
   return Visualization.save(visualization)
-    .then(result => {
+    .then((result) => {
       notification.success("Visualization saved");
       return result;
     })
-    .catch(error => {
+    .catch((error) => {
       notification.error("Visualization could not be saved");
       return Promise.reject(error);
     });
@@ -140,7 +140,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
       options: visualizationOptions,
       query_id: query.id,
     });
-    saveVisualization(visualizationData).then(savedVisualization => {
+    saveVisualization(visualizationData).then((savedVisualization) => {
       updateQueryVisualizations(query, savedVisualization);
       dialog.close(savedVisualization);
     });
@@ -156,7 +156,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
   // When editing existing visualization chart type selector is disabled, so add only existing visualization's
   // descriptor there (to properly render the component). For new visualizations show all types except of deprecated
   const availableVisualizations = isNew
-    ? filter(sortBy(registeredVisualizations, ["name"]), vis => !vis.isDeprecated)
+    ? filter(sortBy(registeredVisualizations, ["name"]), (vis) => !vis.isDeprecated)
     : pick(registeredVisualizations, [type]);
 
   const vizTypeId = useUniqueId("visualization-type");
@@ -174,7 +174,8 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
       }}
       onOk={save}
       onCancel={dismiss}
-      wrapProps={{ "data-test": "EditVisualizationDialog" }}>
+      wrapProps={{ "data-test": "EditVisualizationDialog" }}
+    >
       <div className="edit-visualization-dialog">
         <div className="visualization-settings">
           <div className="m-b-15">
@@ -185,8 +186,9 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
               className="w-100"
               disabled={!isNew}
               value={type}
-              onChange={onTypeChanged}>
-              {map(availableVisualizations, vis => (
+              onChange={onTypeChanged}
+            >
+              {map(availableVisualizations, (vis) => (
                 <Select.Option key={vis.type} data-test={"VisualizationType." + vis.type}>
                   {vis.name}
                 </Select.Option>
@@ -200,7 +202,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
               id={vizNameId}
               className="w-100"
               value={name}
-              onChange={event => onNameChanged(event.target.value)}
+              onChange={(event) => onNameChanged(event.target.value)}
             />
           </div>
           <div data-test="VisualizationEditor">

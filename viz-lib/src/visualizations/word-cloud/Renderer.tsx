@@ -10,9 +10,9 @@ import "./renderer.less";
 function computeWordFrequencies(rows: any, column: any) {
   const result = {};
 
-  each(rows, row => {
+  each(rows, (row) => {
     const wordsList = toString(row[column]).split(/\s/g);
-    each(wordsList, d => {
+    each(wordsList, (d) => {
       // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       result[d] = (result[d] || 0) + 1;
     });
@@ -24,7 +24,7 @@ function computeWordFrequencies(rows: any, column: any) {
 function getWordsWithFrequencies(rows: any, wordColumn: any, frequencyColumn: any) {
   const result = {};
 
-  each(rows, row => {
+  each(rows, (row) => {
     const count = parseFloat(row[frequencyColumn]);
     if (Number.isFinite(count) && count > 0) {
       const word = toString(row[wordColumn]);
@@ -67,7 +67,7 @@ function prepareWords(rows: any, options: any) {
   }
 
   // Add additional attributes
-  const counts = map(result, item => item.count);
+  const counts = map(result, (item) => item.count);
   // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
   const wordSize = d3.scale
     .linear()
@@ -112,8 +112,8 @@ function createLayout() {
       .padding(3)
       .font(fontFamily)
       // @ts-expect-error ts-migrate(2339) FIXME: Property 'angle' does not exist on type 'Word'.
-      .rotate(d => d.angle)
-      .fontSize(d => d.size)
+      .rotate((d) => d.angle)
+      .fontSize((d) => d.size)
       .random(() => 0.5)
   ); // do not place words randomly - use compact layout
 }
@@ -154,7 +154,7 @@ export default function Renderer({ data, options }: any) {
     layout
       .words(prepareWords(data.rows, options))
       // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'Word[]' is not assignable to par... Remove this comment to see the full error message
-      .on("end", w => setWords(w))
+      .on("end", (w) => setWords(w))
       .start();
     // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
     return () => layout.on("end", null).stop();

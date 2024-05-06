@@ -8,8 +8,8 @@ import getChartData from "../getChartData";
 
 function getUniqueValues(chartData: any) {
   const uniqueValuesNames = new Set();
-  each(chartData, series => {
-    each(series.data, row => {
+  each(chartData, (series) => {
+    each(series.data, (row) => {
       uniqueValuesNames.add(row.x);
     });
   });
@@ -27,7 +27,7 @@ export default function PieColorsSettings({ options, data, onOptionsChange }: an
 
   const series = useMemo(
     () =>
-      map(getUniqueValues(getChartData(data.rows, options)), value => ({
+      map(getUniqueValues(getChartData(data.rows, options)), (value) => ({
         key: value,
         // @ts-expect-error ts-migrate(2538) FIXME: Type 'unknown' cannot be used as an index type.
         color: (options.valuesOptions[value] || {}).color || null,

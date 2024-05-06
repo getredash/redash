@@ -17,7 +17,8 @@ function HelpTrigger({ title, href, className, children }: HelpTriggerProps) {
           {title}
           <i className="fa fa-external-link" style={{ marginLeft: 5 }} />
         </React.Fragment>
-      }>
+      }
+    >
       <a className={className} href={href} target="_blank" rel="noopener noreferrer">
         {children}
       </a>

@@ -6,16 +6,16 @@ import qs from "query-string";
 import { restoreSession } from "@/services/restoreSession";
 
 export const axios = axiosLib.create({
-  paramsSerializer: params => qs.stringify(params),
+  paramsSerializer: (params) => qs.stringify(params),
   xsrfCookieName: "csrf_token",
   xsrfHeaderName: "X-CSRF-TOKEN",
 });
 
-axios.interceptors.response.use(response => response.data);
+axios.interceptors.response.use((response) => response.data);
 
 export const csrfRefreshInterceptor = createAuthRefreshInterceptor(
   axios,
-  error => {
+  (error) => {
     const message = get(error, "response.data.message");
     if (error.isAxiosError && includes(message, "CSRF")) {
       return axios.get("/ping");
@@ -28,7 +28,7 @@ export const csrfRefreshInterceptor = createAuthRefreshInterceptor(
 
 export const sessionRefreshInterceptor = createAuthRefreshInterceptor(
   axios,
-  error => {
+  (error) => {
     const status = parseInt(get(error, "response.status"));
     const message = get(error, "response.data.message");
     // TODO: In axios@0.9.1 this check could be replaced with { skipAuthRefresh: true } flag. See axios-auth-refresh docs
@@ -44,7 +44,7 @@ export const sessionRefreshInterceptor = createAuthRefreshInterceptor(
   }
 );
 
-axios.interceptors.request.use(config => {
+axios.interceptors.request.use((config) => {
   const apiKey = Auth.getApiKey();
   if (apiKey) {
     config.headers.Authorization = `Key ${apiKey}`;

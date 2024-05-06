@@ -17,7 +17,8 @@ export default function Editor({ options, data, onOptionsChange }: any) {
           label="Words Column"
           data-test="WordCloud.WordsColumn"
           value={options.column}
-          onChange={(column: any) => optionsChanged({ column })}>
+          onChange={(column: any) => optionsChanged({ column })}
+        >
           {map(data.columns, ({ name }) => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={name} data-test={"WordCloud.WordsColumn." + name}>
@@ -33,7 +34,8 @@ export default function Editor({ options, data, onOptionsChange }: any) {
           label="Frequencies Column"
           data-test="WordCloud.FrequenciesColumn"
           value={options.frequenciesColumn}
-          onChange={(frequenciesColumn: any) => optionsChanged({ frequenciesColumn })}>
+          onChange={(frequenciesColumn: any) => optionsChanged({ frequenciesColumn })}
+        >
           {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option key="none" value="">
             <i>(count word frequencies automatically)</i>

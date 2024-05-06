@@ -31,7 +31,7 @@ class ChangePasswordDialog extends React.Component {
     return null;
   };
 
-  validateFields = callback => {
+  validateFields = (callback) => {
     const { currentPassword, newPassword, repeatPassword } = this.state;
 
     const errors = {
@@ -57,7 +57,7 @@ class ChangePasswordDialog extends React.Component {
     const { currentPassword, newPassword, updatingPassword } = this.state;
 
     if (!updatingPassword) {
-      this.validateFields(err => {
+      this.validateFields((err) => {
         if (!err) {
           const userData = {
             id: this.props.user.id,
@@ -72,12 +72,12 @@ class ChangePasswordDialog extends React.Component {
               notification.success("Saved.");
               this.props.dialog.close({ success: true });
             })
-            .catch(error => {
+            .catch((error) => {
               notification.error(get(error, "response.data.message", "Failed saving."));
               this.setState({ updatingPassword: false });
             });
         } else {
-          this.setState(prevState => ({
+          this.setState((prevState) => ({
             currentPassword: { ...prevState.currentPassword, touched: true },
             newPassword: { ...prevState.newPassword, touched: true },
             repeatPassword: { ...prevState.repeatPassword, touched: true },
@@ -87,7 +87,7 @@ class ChangePasswordDialog extends React.Component {
     }
   };
 
-  handleChange = e => {
+  handleChange = (e) => {
     const { name, value } = e.target;
     const { error } = this.state[name];
 
@@ -112,27 +112,31 @@ class ChangePasswordDialog extends React.Component {
         {...dialog.props}
         okButtonProps={{ loading: updatingPassword }}
         onOk={this.updatePassword}
-        title="Change Password">
+        title="Change Password"
+      >
         <Form layout="vertical">
           <Form.Item
             {...formItemProps}
             validateStatus={currentPassword.touched && currentPassword.error ? "error" : null}
             help={currentPassword.touched ? currentPassword.error : null}
-            label="Current Password">
+            label="Current Password"
+          >
             <Input.Password {...inputProps} name="currentPassword" data-test="CurrentPassword" autoFocus />
           </Form.Item>
           <Form.Item
             {...formItemProps}
             validateStatus={newPassword.touched && newPassword.error ? "error" : null}
             help={newPassword.touched ? newPassword.error : null}
-            label="New Password">
+            label="New Password"
+          >
             <Input.Password {...inputProps} name="newPassword" data-test="NewPassword" />
           </Form.Item>
           <Form.Item
             {...formItemProps}
             validateStatus={repeatPassword.touched && repeatPassword.error ? "error" : null}
             help={repeatPassword.touched ? repeatPassword.error : null}
-            label="Repeat New Password">
+            label="Repeat New Password"
+          >
             <Input.Password {...inputProps} name="repeatPassword" data-test="RepeatPassword" />
           </Form.Item>
         </Form>

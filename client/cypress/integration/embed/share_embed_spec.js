@@ -5,7 +5,7 @@ describe("Embedded Queries", () => {
   });
 
   it("is unavailable when public urls feature is disabled", () => {
-    cy.createQuery({ query: "select name from users order by name" }).then(query => {
+    cy.createQuery({ query: "select name from users order by name" }).then((query) => {
       cy.visit(`/queries/${query.id}/source`);
       cy.getByTestId("ExecuteButton").click();
       cy.getByTestId("QueryPageVisualizationTabs", { timeout: 10000 }).should("exist");
@@ -15,7 +15,7 @@ describe("Embedded Queries", () => {
         `);
       cy.getByTestId("EmbedIframe")
         .invoke("text")
-        .then(embedUrl => {
+        .then((embedUrl) => {
           // disable the feature
           cy.updateOrgSettings({ disable_public_urls: true });
 
@@ -23,9 +23,7 @@ describe("Embedded Queries", () => {
           cy.visit(`/queries/${query.id}/source`);
           cy.getByTestId("QueryPageVisualizationTabs", { timeout: 10000 }).should("exist");
           cy.getByTestId("QueryPageHeaderMoreButton").click();
-          cy.get(".ant-dropdown-menu-item")
-            .should("exist")
-            .should("not.contain", "Show API Key");
+          cy.get(".ant-dropdown-menu-item").should("exist").should("not.contain", "Show API Key");
           cy.getByTestId("QueryControlDropdownButton").click();
           cy.get(".ant-dropdown-menu-item").should("exist");
           cy.getByTestId("ShowEmbedDialogButton").should("not.exist");
@@ -42,7 +40,7 @@ describe("Embedded Queries", () => {
   });
 
   it("can be shared without parameters", () => {
-    cy.createQuery({ query: "select name from users order by name" }).then(query => {
+    cy.createQuery({ query: "select name from users order by name" }).then((query) => {
       cy.visit(`/queries/${query.id}/source`);
       cy.getByTestId("ExecuteButton").click();
       cy.getByTestId("QueryPageVisualizationTabs", { timeout: 10000 }).should("exist");
@@ -52,7 +50,7 @@ describe("Embedded Queries", () => {
         `);
       cy.getByTestId("EmbedIframe")
         .invoke("text")
-        .then(embedUrl => {
+        .then((embedUrl) => {
           cy.logout();
           cy.visit(embedUrl);
           cy.getByTestId("VisualizationEmbed", { timeout: 10000 }).should("exist");
@@ -90,7 +88,7 @@ describe("Embedded Queries", () => {
 
     cy.getByTestId("EmbedIframe")
       .invoke("text")
-      .then(embedUrl => {
+      .then((embedUrl) => {
         cy.logout();
         cy.visit(embedUrl);
         cy.getByTestId("VisualizationEmbed", { timeout: 10000 }).should("exist");

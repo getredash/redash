@@ -52,7 +52,7 @@ function render(container: any, data: any, { xAxisLabel, yAxisLabel }: any) {
   let value = 0;
   let d = [];
 
-  const columns = map(data.columns, col => col.name);
+  const columns = map(data.columns, (col) => col.name);
   // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
   const xscale = d3.scale
     .ordinal()
@@ -69,7 +69,7 @@ function render(container: any, data: any, { xAxisLabel, yAxisLabel }: any) {
 
   each(columns, (column, i) => {
     d = mydata[i] = [];
-    each(data.rows, row => {
+    each(data.rows, (row) => {
       value = row[column];
       d.push(value);
       if (value > max) max = Math.ceil(value);
@@ -146,32 +146,15 @@ function render(container: any, data: any, { xAxisLabel, yAxisLabel }: any) {
     .attr("text-anchor", "middle")
     .text(yAxisLabel);
 
-  plot
-    .append("rect")
-    .attr("class", "grid-background")
-    .attr("width", width)
-    .attr("height", height);
+  plot.append("rect").attr("class", "grid-background").attr("width", width).attr("height", height);
 
-  plot
-    .append("g")
-    .attr("class", "grid")
-    .call(yLines);
+  plot.append("g").attr("class", "grid").call(yLines);
 
-  plot
-    .append("g")
-    .attr("class", "grid")
-    .call(xLines);
+  plot.append("g").attr("class", "grid").call(xLines);
 
-  plot
-    .append("g")
-    .attr("class", "x axis")
-    .attr("transform", `translate(0,${height})`)
-    .call(xAxis);
+  plot.append("g").attr("class", "x axis").attr("transform", `translate(0,${height})`).call(xAxis);
 
-  plot
-    .append("g")
-    .attr("class", "y axis")
-    .call(yAxis);
+  plot.append("g").attr("class", "y axis").call(yAxis);
 
   plot
     .selectAll(".box")

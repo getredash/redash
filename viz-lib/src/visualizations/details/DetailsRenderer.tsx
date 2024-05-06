@@ -40,7 +40,7 @@ export default function DetailsRenderer({ data }: any) {
   return (
     <div className="details-viz">
       <Descriptions size="small" column={1} bordered>
-        {map(columns, key => (
+        {map(columns, (key) => (
           <Descriptions.Item key={key} label={key}>
             {renderValue(row[key], types[key])}
           </Descriptions.Item>
@@ -53,7 +53,7 @@ export default function DetailsRenderer({ data }: any) {
             current={page + 1}
             defaultPageSize={1}
             total={data.rows.length}
-            onChange={p => setPage(p - 1)}
+            onChange={(p) => setPage(p - 1)}
           />
         </div>
       )}

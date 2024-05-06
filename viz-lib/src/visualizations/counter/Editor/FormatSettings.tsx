@@ -77,7 +77,8 @@ export default function FormatSettings({ options, data, onOptionsChange }: any) 
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.formatTargetValue}
           // @ts-expect-error ts-migrate(2322) FIXME: Type '(formatTargetValue: any) => any' is not assi... Remove this comment to see the full error message
-          onChange={(formatTargetValue: any) => onOptionsChange({ formatTargetValue })}>
+          onChange={(formatTargetValue: any) => onOptionsChange({ formatTargetValue })}
+        >
           Format Target Value
         </Switch>
       </Section>

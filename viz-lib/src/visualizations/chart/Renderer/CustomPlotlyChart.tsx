@@ -9,10 +9,10 @@ import { Plotly, prepareCustomChartData, createCustomChartRenderer } from "../pl
 export default function CustomPlotlyChart({ options, data }: any) {
   const [container, setContainer] = useState(null);
 
-  const renderCustomChart = useMemo(() => createCustomChartRenderer(options.customCode, options.enableConsoleLogs), [
-    options.customCode,
-    options.enableConsoleLogs,
-  ]);
+  const renderCustomChart = useMemo(
+    () => createCustomChartRenderer(options.customCode, options.enableConsoleLogs),
+    [options.customCode, options.enableConsoleLogs]
+  );
 
   const plotlyData = useMemo(() => prepareCustomChartData(getChartData(data.rows, options)), [options, data]);
 

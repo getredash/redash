@@ -112,7 +112,7 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
 
   const draggableCoreOptions = useMemo(
     () => ({
-      onMouseDown: e => {
+      onMouseDown: (e) => {
         // In some cases this handler is executed twice during the same resize operation - first time
         // with `touchstart` event and second time with `mousedown` (probably emulated by browser).
         // Therefore we set the flag only when we receive `touchstart` because in ths case it's definitely
@@ -145,7 +145,8 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
       height={direction === "vertical" ? size : 0}
       minConstraints={[0, 0]}
       {...resizeEventHandlers}
-      draggableOpts={draggableCoreOptions}>
+      draggableOpts={draggableCoreOptions}
+    >
       {children}
     </ReactResizable>
   );

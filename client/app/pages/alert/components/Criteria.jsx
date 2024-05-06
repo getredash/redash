@@ -67,10 +67,11 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         {editMode ? (
           <Select
             value={alertOptions.column}
-            onChange={column => onChange({ column })}
+            onChange={(column) => onChange({ column })}
             dropdownMatchSelectWidth={false}
-            style={{ minWidth: 100 }}>
-            {columnNames.map(name => (
+            style={{ minWidth: 100 }}
+          >
+            {columnNames.map((name) => (
               <Select.Option key={name}>{name}</Select.Option>
             ))}
           </Select>
@@ -83,10 +84,11 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         {editMode ? (
           <Select
             value={alertOptions.op}
-            onChange={op => onChange({ op })}
+            onChange={(op) => onChange({ op })}
             optionLabelProp="label"
             dropdownMatchSelectWidth={false}
-            style={{ width: 55 }}>
+            style={{ width: 55 }}
+          >
             <Select.Option value=">" label={CONDITIONS[">"]}>
               {CONDITIONS[">"]} greater than
             </Select.Option>
@@ -125,7 +127,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
             id="threshold-criterion"
             style={{ width: 90 }}
             value={alertOptions.value}
-            onChange={e => onChange({ value: e.target.value })}
+            onChange={(e) => onChange({ value: e.target.value })}
           />
         ) : (
           <DisabledInput minWidth={50}>{alertOptions.value}</DisabledInput>

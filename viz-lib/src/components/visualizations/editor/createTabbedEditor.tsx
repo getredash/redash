@@ -31,14 +31,15 @@ export function TabbedEditor({ tabs, options, data, onOptionsChange, ...restProp
   };
 
   // @ts-expect-error ts-migrate(2322) FIXME: Type '(number | ((() => string) & (() => string)) ... Remove this comment to see the full error message
-  tabs = filter(tabs, tab => (isFunction(tab.isAvailable) ? tab.isAvailable(options, data) : true));
+  tabs = filter(tabs, (tab) => (isFunction(tab.isAvailable) ? tab.isAvailable(options, data) : true));
 
   return (
     <Tabs animated={false} tabBarGutter={20}>
       {map(tabs, ({ key, title, component: Component }) => (
         <Tabs.TabPane
           key={key}
-          tab={<span data-test={`VisualizationEditor.Tabs.${key}`}>{isFunction(title) ? title(options) : title}</span>}>
+          tab={<span data-test={`VisualizationEditor.Tabs.${key}`}>{isFunction(title) ? title(options) : title}</span>}
+        >
           <Component options={options} data={data} onOptionsChange={optionsChanged} {...restProps} />
         </Tabs.TabPane>
       ))}

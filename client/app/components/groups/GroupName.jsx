@@ -23,7 +23,7 @@ export default function GroupName({ group, onChange, ...props }) {
         className="edit-in-place"
         isEditable={canEdit}
         ignoreBlanks
-        onDone={name => updateGroupName(group, name, onChange)}
+        onDone={(name) => updateGroupName(group, name, onChange)}
         value={group.name}
       />
     </h3>

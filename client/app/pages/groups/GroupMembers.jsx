@@ -67,7 +67,7 @@ class GroupMembers extends React.Component {
           return null;
         }
         return (
-          <Button className="w-100" type="danger" onClick={event => this.removeGroupMember(event, user)}>
+          <Button className="w-100" type="danger" onClick={(event) => this.removeGroupMember(event, user)}>
             Remove
           </Button>
         );
@@ -81,11 +81,11 @@ class GroupMembers extends React.Component {
 
   componentDidMount() {
     Group.get({ id: this.groupId })
-      .then(group => {
+      .then((group) => {
         this.group = group;
         this.forceUpdate();
       })
-      .catch(error => {
+      .catch((error) => {
         this.props.controller.handleError(error);
       });
   }
@@ -101,12 +101,12 @@ class GroupMembers extends React.Component {
       });
 
   addMembers = () => {
-    const alreadyAddedUsers = map(this.props.controller.allItems, u => u.id);
+    const alreadyAddedUsers = map(this.props.controller.allItems, (u) => u.id);
     SelectItemsDialog.showModal({
       dialogTitle: "Add Members",
       inputPlaceholder: "Search users...",
       selectedItemsTitle: "New Members",
-      searchItems: searchTerm => User.query({ q: searchTerm }).then(({ results }) => results),
+      searchItems: (searchTerm) => User.query({ q: searchTerm }).then(({ results }) => results),
       renderItem: (item, { isSelected }) => {
         const alreadyInGroup = includes(alreadyAddedUsers, item.id);
         return {
@@ -126,8 +126,8 @@ class GroupMembers extends React.Component {
           </UserPreviewCard>
         ),
       }),
-    }).onClose(items => {
-      const promises = map(items, u => Group.addMember({ id: this.groupId }, { user_id: u.id }));
+    }).onClose((items) => {
+      const promises = map(items, (u) => Group.addMember({ id: this.groupId }, { user_id: u.id }));
       return Promise.all(promises).then(() => this.props.controller.update());
     });
   };
@@ -176,9 +176,9 @@ class GroupMembers extends React.Component {
                   showPageSizeSelect
                   totalCount={controller.totalItemsCount}
                   pageSize={controller.itemsPerPage}
-                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                  onPageSizeChange={(itemsPerPage) => controller.updatePagination({ itemsPerPage })}
                   page={controller.page}
-                  onChange={page => controller.updatePagination({ page })}
+                  onChange={(page) => controller.updatePagination({ page })}
                 />
               </div>
             )}
@@ -213,6 +213,6 @@ routes.register(
   routeWithUserSession({
     path: "/groups/:groupId",
     title: "Group Members",
-    render: pageProps => <GroupMembersPage {...pageProps} currentPage="users" />,
+    render: (pageProps) => <GroupMembersPage {...pageProps} currentPage="users" />,
   })
 );

@@ -65,7 +65,8 @@ export default function Renderer({ data, options, visualizationName }: any) {
       className={cx("counter-visualization-container", {
         "trend-positive": showTrend && trendPositive,
         "trend-negative": showTrend && !trendPositive,
-      })}>
+      })}
+    >
       {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Dispatch<SetStateAction<null>>' is not assig... Remove this comment to see the full error message */}
       <div className="counter-visualization-content" ref={setContainer}>
         <div style={getCounterStyles(scale)}>

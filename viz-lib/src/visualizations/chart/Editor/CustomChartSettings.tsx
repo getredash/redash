@@ -33,7 +33,8 @@ export default function CustomChartSettings({ options, onOptionsChange }: any) {
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.enableConsoleLogs}
           // @ts-expect-error ts-migrate(2322) FIXME: Type '(enableConsoleLogs: any) => any' is not assi... Remove this comment to see the full error message
-          onChange={(enableConsoleLogs: any) => onOptionsChange({ enableConsoleLogs })}>
+          onChange={(enableConsoleLogs: any) => onOptionsChange({ enableConsoleLogs })}
+        >
           Show errors in the console
         </Switch>
       </Section>
@@ -49,7 +50,8 @@ export default function CustomChartSettings({ options, onOptionsChange }: any) {
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.autoRedraw}
           // @ts-expect-error ts-migrate(2322) FIXME: Type '(autoRedraw: any) => any' is not assignable ... Remove this comment to see the full error message
-          onChange={(autoRedraw: any) => onOptionsChange({ autoRedraw })}>
+          onChange={(autoRedraw: any) => onOptionsChange({ autoRedraw })}
+        >
           Auto update graph
         </Switch>
       </Section>

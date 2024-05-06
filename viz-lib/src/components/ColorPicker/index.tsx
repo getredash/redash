@@ -123,7 +123,8 @@ export default function ColorPicker({
               // @ts-expect-error ts-migrate(2322) FIXME: Type 'string | null | undefined' is not assignable... Remove this comment to see the full error message
               color: chooseTextColorForBackground(currentColor),
             }}
-            actions={actions}>
+            actions={actions}
+          >
             <ColorInput
               // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
               color={currentColor}
@@ -139,7 +140,8 @@ export default function ColorPicker({
         trigger="click"
         placement={placement}
         visible={visible}
-        onVisibleChange={setVisible}>
+        onVisibleChange={setVisible}
+      >
         {children || (
           <Swatch
             color={validatedColor}

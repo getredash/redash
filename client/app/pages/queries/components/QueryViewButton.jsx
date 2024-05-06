@@ -42,7 +42,8 @@ export default function QueryViewButton({ title, shortcut, disabled, children, o
           disabled={disabled}
           onClick={onClick}
           style={disabled ? { pointerEvents: "none" } : {}}
-          {...props}>
+          {...props}
+        >
           {children}
         </Button>
       </span>

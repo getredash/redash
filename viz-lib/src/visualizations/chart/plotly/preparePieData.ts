@@ -24,17 +24,8 @@ function getPieHoverInfoPattern(options: any) {
 }
 
 function prepareSeries(series: any, options: any, additionalOptions: any) {
-  const {
-    cellWidth,
-    cellHeight,
-    xPadding,
-    yPadding,
-    cellsInRow,
-    hasX,
-    index,
-    hoverInfoPattern,
-    getValueColor,
-  } = additionalOptions;
+  const { cellWidth, cellHeight, xPadding, yPadding, cellsInRow, hasX, index, hoverInfoPattern, getValueColor } =
+    additionalOptions;
 
   const seriesOptions = extend({ type: options.globalSeriesType, yAxis: 0 }, options.seriesOptions[series.name]);
 
@@ -54,14 +45,13 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
     },
     0
   );
-  each(series.data, row => {
+  each(series.data, (row) => {
     const x = hasX ? normalizeValue(row.x, options.xAxis.type) : `Slice ${index}`;
     const y = cleanNumber(row.y);
 
-    if (x in labelsValuesDict){
+    if (x in labelsValuesDict) {
       labelsValuesDict[x] += y;
-    }
-    else{
+    } else {
       labelsValuesDict[x] = y;
     }
     const aggregatedY = labelsValuesDict[x];
@@ -74,8 +64,8 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
     });
   });
 
-  const markerColors = map(Array.from(sourceData.values()), data => getValueColor(data.row.x));
-  const textColors = map(markerColors, c => chooseTextColorForBackground(c));
+  const markerColors = map(Array.from(sourceData.values()), (data) => getValueColor(data.row.x));
+  const textColors = map(markerColors, (c) => chooseTextColorForBackground(c));
 
   const labels = Object.keys(labelsValuesDict);
   const values = Object.values(labelsValuesDict);
@@ -109,10 +99,7 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
 export default function preparePieData(seriesList: any, options: any) {
   // we will use this to assign colors for values that have no explicitly set color
   // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-  const getDefaultColor = d3.scale
-    .ordinal()
-    .domain([])
-    .range(ColorPaletteArray);
+  const getDefaultColor = d3.scale.ordinal().domain([]).range(ColorPaletteArray);
   const valuesColors = {};
   each(options.valuesOptions, (item, key) => {
     if (isString(item.color) && item.color !== "") {

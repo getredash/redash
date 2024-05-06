@@ -21,7 +21,8 @@ export default function Editor({ options, onOptionsChange }: any) {
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean' is not assignable to type 'never'.
           defaultChecked={!options.controls.enabled}
           // @ts-expect-error ts-migrate(2322) FIXME: Type '(enabled: any) => void' is not assignable to... Remove this comment to see the full error message
-          onChange={(enabled: any) => updateOptions({ controls: { enabled: !enabled } })}>
+          onChange={(enabled: any) => updateOptions({ controls: { enabled: !enabled } })}
+        >
           Show Pivot Controls
         </Switch>
       </Section>
@@ -34,7 +35,8 @@ export default function Editor({ options, onOptionsChange }: any) {
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.rendererOptions.table.rowTotals}
           // @ts-expect-error ts-migrate(2322) FIXME: Type '(rowTotals: any) => void' is not assignable ... Remove this comment to see the full error message
-          onChange={(rowTotals: any) => updateOptions({ rendererOptions: { table: { rowTotals } } })}>
+          onChange={(rowTotals: any) => updateOptions({ rendererOptions: { table: { rowTotals } } })}
+        >
           Show Row Totals
         </Switch>
       </Section>
@@ -47,7 +49,8 @@ export default function Editor({ options, onOptionsChange }: any) {
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'any' is not assignable to type 'never'.
           defaultChecked={options.rendererOptions.table.colTotals}
           // @ts-expect-error ts-migrate(2322) FIXME: Type '(colTotals: any) => void' is not assignable ... Remove this comment to see the full error message
-          onChange={(colTotals: any) => updateOptions({ rendererOptions: { table: { colTotals } } })}>
+          onChange={(colTotals: any) => updateOptions({ rendererOptions: { table: { colTotals } } })}
+        >
           Show Column Totals
         </Switch>
       </Section>

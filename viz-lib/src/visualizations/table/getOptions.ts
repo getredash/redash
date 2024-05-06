@@ -88,13 +88,13 @@ function getDefaultFormatOptions(column: any) {
 }
 
 function wereColumnsReordered(queryColumns: any, visualizationColumns: any) {
-  queryColumns = _.map(queryColumns, col => col.name);
-  visualizationColumns = _.map(visualizationColumns, col => col.name);
+  queryColumns = _.map(queryColumns, (col) => col.name);
+  visualizationColumns = _.map(visualizationColumns, (col) => col.name);
 
   // Some columns may be removed - so skip them (but keep original order)
-  visualizationColumns = _.filter(visualizationColumns, col => _.includes(queryColumns, col));
+  visualizationColumns = _.filter(visualizationColumns, (col) => _.includes(queryColumns, col));
   // Pick query columns that were previously saved with viz (but keep order too)
-  queryColumns = _.filter(queryColumns, col => _.includes(visualizationColumns, col));
+  queryColumns = _.filter(queryColumns, (col) => _.includes(visualizationColumns, col));
 
   // Both array now have the same size as they both contains only common columns
   // (in fact, it was an intersection, that kept order of items on both arrays).
@@ -116,17 +116,17 @@ function getColumnsOptions(columns: any, visualizationColumns: any) {
       _.map(visualizationColumns, (col, index) => [col.name, _.extend({}, col, { order: index })])
     );
   } else {
-    visualizationColumns = _.fromPairs(_.map(visualizationColumns, col => [col.name, _.omit(col, "order")]));
+    visualizationColumns = _.fromPairs(_.map(visualizationColumns, (col) => [col.name, _.omit(col, "order")]));
   }
 
-  _.each(options, col => _.extend(col, visualizationColumns[col.name]));
+  _.each(options, (col) => _.extend(col, visualizationColumns[col.name]));
 
   return _.sortBy(options, "order");
 }
 
 export default function getOptions(options: any, { columns }: any) {
   options = { ...DEFAULT_OPTIONS, ...options };
-  options.columns = _.map(getColumnsOptions(columns, options.columns), col => ({
+  options.columns = _.map(getColumnsOptions(columns, options.columns), (col) => ({
     ...getDefaultFormatOptions(col),
     ...col,
   }));

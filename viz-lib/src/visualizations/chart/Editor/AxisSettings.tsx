@@ -34,14 +34,14 @@ export default function AxisSettings({ id, options, features, onChange }: Props)
     onChange(merge({}, options, newOptions));
   }
 
-  const [handleNameChange] = useDebouncedCallback(text => {
+  const [handleNameChange] = useDebouncedCallback((text) => {
     const title = isString(text) && text !== "" ? { text } : null;
     optionsChanged({ title });
   }, 200);
 
-  const [handleMinMaxChange] = useDebouncedCallback(opts => optionsChanged(opts), 200);
+  const [handleMinMaxChange] = useDebouncedCallback((opts) => optionsChanged(opts), 200);
 
-  const [handleTickFormatChange] = useDebouncedCallback(opts => optionsChanged(opts), 200);
+  const [handleTickFormatChange] = useDebouncedCallback((opts) => optionsChanged(opts), 200);
 
   return (
     <React.Fragment>
@@ -51,7 +51,8 @@ export default function AxisSettings({ id, options, features, onChange }: Props)
           label="Scale"
           data-test={`Chart.${id}.Type`}
           defaultValue={options.type}
-          onChange={(type: any) => optionsChanged({ type })}>
+          onChange={(type: any) => optionsChanged({ type })}
+        >
           {features.autoDetectType && (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option value="-" data-test={`Chart.${id}.Type.Auto`}>

@@ -43,7 +43,8 @@ function Editor({ column, onChange }: Props) {
                 <div>Leave empty to use default value.</div>
               </ContextHelp>
             </React.Fragment>
-          }>
+          }
+        >
           {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
           <div className="image-dimension-selector">
             <Input
@@ -80,7 +81,8 @@ function Editor({ column, onChange }: Props) {
           placement="topLeft"
           arrowPointAtCenter
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message
-          icon={<span style={{ cursor: "default" }}>Format specs {ContextHelp.defaultIcon}</span>}>
+          icon={<span style={{ cursor: "default" }}>Format specs {ContextHelp.defaultIcon}</span>}
+        >
           <div>
             All columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
           </div>

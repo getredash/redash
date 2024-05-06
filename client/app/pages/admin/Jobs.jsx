@@ -43,8 +43,8 @@ class Jobs extends React.Component {
   refresh = () => {
     axios
       .get("/api/admin/queries/rq_status")
-      .then(data => this.processQueues(data))
-      .catch(error => this.handleError(error));
+      .then((data) => this.processQueues(data))
+      .catch((error) => this.handleError(error));
 
     this._refreshTimer = setTimeout(this.refresh, 60 * 1000);
   };
@@ -63,8 +63,8 @@ class Jobs extends React.Component {
       { started: 0, queued: 0 }
     );
 
-    const startedJobs = flatMap(values(queues), queue =>
-      queue.started.map(job => ({
+    const startedJobs = flatMap(values(queues), (queue) =>
+      queue.started.map((job) => ({
         ...job,
         enqueued_at: moment.utc(job.enqueued_at),
         started_at: moment.utc(job.started_at),
@@ -74,7 +74,7 @@ class Jobs extends React.Component {
     this.setState({ isLoading: false, queueCounters, startedJobs, overallCounters, workers });
   };
 
-  handleError = error => {
+  handleError = (error) => {
     this.setState({ isLoading: false, error });
   };
 
@@ -85,7 +85,7 @@ class Jobs extends React.Component {
       "redash.tasks.queries.execution.execute_query",
     ]);
 
-    const changeTab = newTab => {
+    const changeTab = (newTab) => {
       location.setHash(newTab);
       this.setState({ activeTab: newTab });
     };
@@ -133,6 +133,6 @@ routes.register(
   routeWithUserSession({
     path: "/admin/queries/jobs",
     title: "RQ Status",
-    render: pageProps => <Jobs {...pageProps} />,
+    render: (pageProps) => <Jobs {...pageProps} />,
   })
 );

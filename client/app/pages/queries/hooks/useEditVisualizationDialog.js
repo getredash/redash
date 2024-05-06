@@ -13,8 +13,8 @@ export default function useEditVisualizationDialog(query, queryResult, onChange)
         query,
         visualization,
         queryResult,
-      }).onClose(updatedVisualization => {
-        const filteredVisualizations = filter(query.visualizations, v => v.id !== updatedVisualization.id);
+      }).onClose((updatedVisualization) => {
+        const filteredVisualizations = filter(query.visualizations, (v) => v.id !== updatedVisualization.id);
         handleChange(
           extend(query.clone(), { visualizations: [...filteredVisualizations, updatedVisualization] }),
           updatedVisualization
