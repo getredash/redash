@@ -4,8 +4,9 @@ import { axios } from "@/services/axios";
 import { QueryResultError } from "@/services/query";
 import { Auth } from "@/services/auth";
 import { isString, uniqBy, each, isNumber, includes, extend, forOwn, get } from "lodash";
+import JSONbig from 'json-bigint';
 
-const JSONbigString = require("json-bigint")({ storeAsString: true });
+const { parse: jsonParse } = JSONbig({ storeAsString: true });
 const logger = debug("redash:services:QueryResult");
 const filterTypes = ["filter", "multi-filter", "multiFilter"];
 
@@ -48,7 +49,7 @@ const createOrSaveUrl = data => (data.id ? `api/query_results/${data.id}` : "api
 const QueryResultResource = {
   get: ({ id }) =>
     axios.get(`api/query_results/${id}`, {
-      transformResponse: response => JSONbigString.parse(response),
+      transformResponse: response => jsonParse(response),
     }),
   post: data => axios.post(createOrSaveUrl(data), data),
 };
@@ -353,7 +354,7 @@ class QueryResult {
 
     axios
       .get(`api/queries/${queryId}/results/${id}.json`, {
-        transformResponse: response => JSONbigString.parse(response),
+        transformResponse: response => jsonParse(response),
       })
       .then(response => {
         // Success handler

@@ -37,7 +37,7 @@ export default function initNumberColumn(column: any) {
 
   function prepareData(row: any) {
     return {
-      text: format(row[column.name])
+      text: format(row[column.name]),
     };
   }
 
