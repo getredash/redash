@@ -262,7 +262,7 @@ function QuerySource(props) {
                       data-executing={isQueryExecuting ? "true" : null}
                       syntax={dataSource ? dataSource.syntax : null}
                       value={query.query}
-                      schema={schema}
+                      schema={schema.length && schema[0].name ? schema : null}
                       autocompleteEnabled={autocompleteAvailable && autocompleteEnabled}
                       onChange={handleQueryEditorChange}
                       onSelectionChange={setSelectedText}
