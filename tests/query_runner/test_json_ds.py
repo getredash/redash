@@ -87,3 +87,22 @@ class TestJSON(TestCase):
 
         expected = [{"id": 10}, {"id": 11}, {"id": 12}]
         self.assertEqual(results["rows"], expected)
+
+    def test_apply_path_search(self):
+        data = {
+            "a": {
+                "b": [
+                    {"c": [{"d": 1}]},
+                    {"c": [{"d": 2}]}
+                ]
+            }
+        }
+
+        result = self.runner._apply_path_search(data, "a.b.0.c.0.d")
+        self.assertEqual(result, 1)
+
+        result = self.runner._apply_path_search(data, "a.b.1.c.0.d")
+        self.assertEqual(result, 2)
+
+        result = self.runner._apply_path_search(data, "a.b.0.c.0.e")
+        self.assertIsNone(result)

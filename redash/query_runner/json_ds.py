@@ -62,21 +62,44 @@ def add_column(columns, column_name, column_type):
 
 
 def _apply_path_search(response, path, default=None):
+    """
+    Traverse a nested dictionary or list using a dot-notation path, supporting numeric indexes.
+
+    Args:
+        response: The dictionary or list to traverse.
+        path: A dot-notation string representing the path to traverse.
+
+    Returns:
+        The value at the specified path, or None if the path is not found or invalid.
+
+    Example:
+        data = {"a": {"b": [{"c": [{"d": 1}]}, {"c": [{"d": 2}]}]}}
+        print(_apply_path_search(data, "a.b.0.c"))  # Output: [{'d': 1}]
+    """
     if path is None:
         return response
 
+    value = response
     path_parts = path.split(".")
-    path_parts.reverse()
-    while len(path_parts) > 0:
-        current_path = path_parts.pop()
-        if current_path in response:
-            response = response[current_path]
-        elif default is not None:
-            return default
-        else:
-            raise Exception("Couldn't find path {} in response.".format(path))
 
-    return response
+    try:
+        for part in path_parts:
+            if isinstance(value, dict):
+                value = value.get(part)
+            elif default is not None:
+                value = default
+            elif isinstance(value, list):
+                index = int(part)
+                value = value[index] if 0 <= index < len(value) else None
+            else:
+                value = None
+
+            if value is None:
+                break
+    except (ValueError, IndexError):
+        raise Exception("Invalid path: '{}'".format(path))
+
+    return value
 
 
 def _normalize_json(data, path):
