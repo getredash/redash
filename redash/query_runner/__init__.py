@@ -3,13 +3,17 @@ from collections import defaultdict
 from contextlib import ExitStack
 from functools import wraps
 
-import requests
 import sqlparse
 from dateutil import parser
 from rq.timeouts import JobTimeoutException
 from sshtunnel import open_tunnel
 
 from redash import settings, utils
+from redash.utils.requests_session import (
+    UnacceptableAddressException,
+    requests_or_advocate,
+    requests_session,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -375,7 +379,7 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
         error = None
         response = None
         try:
-            response = requests.request(http_method, url, auth=auth, **kwargs)
+            response = requests_session.request(http_method, url, auth=auth, **kwargs)
             # Raise a requests HTTP exception with the appropriate reason
             # for 4xx and 5xx response status codes which is later caught
             # and passed back.
@@ -385,11 +389,14 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
             if response.status_code != 200:
                 error = "{} ({}).".format(self.response_error, response.status_code)
 
-        except requests.HTTPError as exc:
+        except requests_or_advocate.HTTPError as exc:
             logger.exception(exc)
             error = "Failed to execute query. "
             f"Return Code: {response.status_code} Reason: {response.text}"
-        except requests.RequestException as exc:
+        except UnacceptableAddressException as exc:
+            logger.exception(exc)
+            error = "Can't query private addresses."
+        except requests_or_advocate.RequestException as exc:
             # Catch all other requests exceptions and return the error.
             logger.exception(exc)
             error = str(exc)

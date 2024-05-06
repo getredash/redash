@@ -1,9 +1,12 @@
 import logging
 
-import requests
 import yaml
 
 from redash.query_runner import BaseQueryRunner, NotSupported, register
+from redash.utils.requests_session import (
+    UnacceptableAddressException,
+    requests_or_advocate,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +57,7 @@ class Excel(BaseQueryRunner):
             pass
 
         try:
-            response = requests.get(url=path, headers={"User-agent": ua})
+            response = requests_or_advocate.get(url=path, headers={"User-agent": ua})
             workbook = pd.read_excel(response.content, **args)
 
             df = workbook.copy()
@@ -93,6 +96,9 @@ class Excel(BaseQueryRunner):
             error = None
         except KeyboardInterrupt:
             error = "Query cancelled by user."
+            data = None
+        except UnacceptableAddressException:
+            error = "Can't query private addresses."
             data = None
         except Exception as e:
             error = "Error reading {0}. {1}".format(path, str(e))
