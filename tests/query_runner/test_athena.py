@@ -1,7 +1,6 @@
 """
 Some test cases around the Glue catalog.
 """
-
 from unittest import TestCase
 
 import botocore
@@ -75,9 +74,7 @@ class TestGlueSchema(TestCase):
             {"DatabaseName": "test1"},
         )
         with self.stubber:
-            assert query_runner.get_schema() == [
-                {"columns": [{"name": "row_id", "type": "int"}], "name": "test1.jdbc_table", "description": None}
-            ]
+            assert query_runner.get_schema() == [{"columns": ["row_id"], "name": "test1.jdbc_table"}]
 
     def test_partitioned_table(self):
         """
@@ -126,16 +123,7 @@ class TestGlueSchema(TestCase):
             {"DatabaseName": "test1"},
         )
         with self.stubber:
-            assert query_runner.get_schema() == [
-                {
-                    "columns": [
-                        {"name": "sk", "type": "partition (int)"},
-                        {"name": "category", "type": "partition", "idx": 0},
-                    ],
-                    "name": "test1.partitioned_table",
-                    "description": None,
-                }
-            ]
+            assert query_runner.get_schema() == [{"columns": ["sk", "category"], "name": "test1.partitioned_table"}]
 
     def test_view(self):
         query_runner = Athena({"glue": True, "region": "mars-east-1"})
@@ -167,9 +155,7 @@ class TestGlueSchema(TestCase):
             {"DatabaseName": "test1"},
         )
         with self.stubber:
-            assert query_runner.get_schema() == [
-                {"columns": [{"name": "sk", "type": "int"}], "name": "test1.view", "description": None}
-            ]
+            assert query_runner.get_schema() == [{"columns": ["sk"], "name": "test1.view"}]
 
     def test_dodgy_table_does_not_break_schema_listing(self):
         """
@@ -209,9 +195,7 @@ class TestGlueSchema(TestCase):
             {"DatabaseName": "test1"},
         )
         with self.stubber:
-            assert query_runner.get_schema() == [
-                {"columns": [{"name": "region", "type": "string"}], "name": "test1.csv", "description": None}
-            ]
+            assert query_runner.get_schema() == [{"columns": ["region"], "name": "test1.csv"}]
 
     def test_no_storage_descriptor_table(self):
         """

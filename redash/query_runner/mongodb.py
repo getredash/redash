@@ -69,7 +69,7 @@ def datetime_parser(dct):
     return bson_object_hook(dct, json_options=opts)
 
 
-def parse_query_json(query: str):
+def parse_query_json(query):
     query_data = json_loads(query, object_hook=datetime_parser)
     return query_data
 
@@ -82,40 +82,26 @@ def _get_column_by_name(columns, column_name):
     return None
 
 
-def _parse_dict(dic: dict, flatten: bool = False) -> dict:
+def _parse_dict(dic):
     res = {}
-
-    def _flatten(x, name=""):
-        if isinstance(x, dict):
-            for k, v in x.items():
-                _flatten(v, "{}.{}".format(name, k))
-        elif isinstance(x, list):
-            for idx, item in enumerate(x):
-                _flatten(item, "{}.{}".format(name, idx))
+    for key, value in dic.items():
+        if isinstance(value, dict):
+            for tmp_key, tmp_value in _parse_dict(value).items():
+                new_key = "{}.{}".format(key, tmp_key)
+                res[new_key] = tmp_value
         else:
-            res[name[1:]] = x
-
-    if flatten:
-        _flatten(dic)
-    else:
-        for key, value in dic.items():
-            if isinstance(value, dict):
-                for tmp_key, tmp_value in _parse_dict(value).items():
-                    new_key = "{}.{}".format(key, tmp_key)
-                    res[new_key] = tmp_value
-            else:
-                res[key] = value
+            res[key] = value
     return res
 
 
-def parse_results(results: list, flatten: bool = False) -> list:
+def parse_results(results):
     rows = []
     columns = []
 
     for row in results:
         parsed_row = {}
 
-        parsed_row = _parse_dict(row, flatten)
+        parsed_row = _parse_dict(row)
         for column_name, value in parsed_row.items():
             columns.append(
                 {
@@ -154,14 +140,6 @@ class MongoDB(BaseQueryRunner):
                     ],
                     "title": "Replica Set Read Preference",
                 },
-                "flatten": {
-                    "type": "string",
-                    "extendedEnum": [
-                        {"value": "False", "name": "False"},
-                        {"value": "True", "name": "True"},
-                    ],
-                    "title": "Flatten Results",
-                },
             },
             "secret": ["password"],
             "required": ["connectionString", "dbName"],
@@ -181,9 +159,6 @@ class MongoDB(BaseQueryRunner):
         self.is_replica_set = (
             True if "replicaSetName" in self.configuration and self.configuration["replicaSetName"] else False
         )
-
-        self.flatten = self.configuration.get("flatten", "False").upper() in ["TRUE", "YES", "ON", "1", "Y", "T"]
-        logger.debug("flatten: {}".format(self.flatten))
 
     @classmethod
     def custom_json_encoder(cls, dec, o):
@@ -303,10 +278,8 @@ class MongoDB(BaseQueryRunner):
                 if "$sort" in step:
                     sort_list = []
                     for sort_item in step["$sort"]:
-                        if isinstance(sort_item, dict):
-                            sort_list.append((sort_item["name"], sort_item.get("direction", 1)))
-                        elif isinstance(sort_item, list):
-                            sort_list.append(tuple(sort_item))
+                        sort_list.append((sort_item["name"], sort_item["direction"]))
+
                     step["$sort"] = SON(sort_list)
 
         if "fields" in query_data:
@@ -316,10 +289,7 @@ class MongoDB(BaseQueryRunner):
         if "sort" in query_data and query_data["sort"]:
             s = []
             for field_data in query_data["sort"]:
-                if isinstance(field_data, dict):
-                    s.append((field_data["name"], field_data.get("direction", 1)))
-                elif isinstance(field_data, list):
-                    s.append(tuple(field_data))
+                s.append((field_data["name"], field_data["direction"]))
 
         columns = []
         rows = []
@@ -360,7 +330,7 @@ class MongoDB(BaseQueryRunner):
 
             rows.append({"count": cursor})
         else:
-            rows, columns = parse_results(cursor, flatten=self.flatten)
+            rows, columns = parse_results(cursor)
 
         if f:
             ordered_columns = []
@@ -370,7 +340,6 @@ class MongoDB(BaseQueryRunner):
                     ordered_columns.append(column)
 
             columns = ordered_columns
-            logger.debug("columns: {}".format(columns))
 
         if query_data.get("sortColumns"):
             reverse = query_data["sortColumns"] == "desc"

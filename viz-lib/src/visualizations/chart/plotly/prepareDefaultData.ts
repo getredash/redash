@@ -91,38 +91,26 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
       };
 
   const sourceData = new Map();
-
-  //we hold the labels and values in a dictionary so that we can aggregate multiple values for a single label
-  //once we reach the end of the data, we'll convert the dictionary to separate arrays for labels and values
-  const labelsValuesDict: { [key: string]: any } = {};
-
+  const xValues: any = [];
+  const yValues: any = [];
   const yErrorValues: any = [];
   each(data, row => {
     const x = normalizeValue(row.x, options.xAxis.type); // number/datetime/category
     const y = cleanYValue(row.y, seriesYAxis === "y2" ? options.yAxis[1].type : options.yAxis[0].type); // depends on series type!
     const yError = cleanNumber(row.yError); // always number
     const size = cleanNumber(row.size); // always number
-    if (x in labelsValuesDict){
-      labelsValuesDict[x] += y;
-    }
-    else{
-      labelsValuesDict[x] = y;
-    }
-    const aggregatedY = labelsValuesDict[x];
-
     sourceData.set(x, {
       x,
-      y: aggregatedY,
+      y,
       yError,
       size,
       yPercent: null, // will be updated later
       row,
     });
+    xValues.push(x);
+    yValues.push(y);
     yErrorValues.push(yError);
   });
-
-  const xValues = Object.keys(labelsValuesDict);
-  const yValues = Object.values(labelsValuesDict);
 
   const plotlySeries = {
     visible: true,
