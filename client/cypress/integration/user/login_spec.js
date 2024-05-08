@@ -11,15 +11,15 @@ describe("Login", () => {
   });
 
   it("shows message on failed login", () => {
-    cy.getByTestId("Email").type("admin@redash.io");
+    cy.getByTestId("Email").type(Cypress.env("CYPRESS_LOGIN_EMAIL"));
     cy.getByTestId("Password").type("wrongpassword{enter}");
 
     cy.getByTestId("ErrorMessage").should("contain", "Wrong email or password.");
   });
 
   it("navigates to homepage with successful login", () => {
-    cy.getByTestId("Email").type("admin@redash.io");
-    cy.getByTestId("Password").type("password{enter}");
+    cy.getByTestId("Email").type(Cypress.env("CYPRESS_LOGIN_EMAIL"));
+    cy.getByTestId("Password").type(`${Cypress.env("CYPRESS_LOGIN_PASSWORD")}{enter}`);
 
     cy.title().should("eq", "Redash");
     cy.get(`img.profile__image_thumb[alt="Example Admin"]`).should("exist");
