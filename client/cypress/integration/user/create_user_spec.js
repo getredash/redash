@@ -17,8 +17,7 @@ describe("Create User", () => {
     cy.request("GET", "api/users?q=new-user")
       .then(({ body }) => body.results.filter(user => user.email === "new-user@redash.io"))
       .each(user => cy.request("DELETE", `api/users/${user.id}`));
-
-    fillUserFormAndSubmit("New User", "admin@redash.io");
+    fillUserFormAndSubmit("New User", Cypress.env("CYPRESS_LOGIN_EMAIL"));
 
     cy.getByTestId("CreateUserErrorAlert").should("contain", "Email already taken");
 

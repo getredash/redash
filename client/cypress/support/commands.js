@@ -6,10 +6,10 @@ import "@testing-library/cypress/add-commands";
 
 const { each } = Cypress._;
 
-const LOGIN_NAME = process.env.CYPRESS_LOGIN_NAME || "Example Admin";
-const LOGIN_EMAIL = process.env.CYPRESS_LOGIN_EMAIL || "admin@redash.io";
-const LOGIN_PASSWORD = process.env.CYPRESS_LOGIN_PASSWORD || "password";
-const ORG_NAME = process.env.CYPRESS_ORG_NAME || "Redash";
+const LOGIN_NAME = Cypress.env("CYPRESS_LOGIN_NAME");
+const LOGIN_EMAIL = Cypress.env("CYPRESS_LOGIN_EMAIL");
+const LOGIN_PASSWORD = Cypress.env("CYPRESS_LOGIN_PASSWORD");
+const ORG_NAME = Cypress.env("CYPRESS_ORG_NAME");
 
 Cypress.Commands.add("setup", () => {
   const email = LOGIN_EMAIL;
