@@ -3536,24 +3536,42 @@ tests = ["hypothesis (>=3.27.0)", "pytest (>=3.2.1,!=3.3.0)"]
 
 [[package]]
 name = "pyodbc"
-version = "4.0.28"
-description = "DB API Module for ODBC"
+version = "5.1.0"
+description = "DB API module for ODBC"
 optional = false
-python-versions = "*"
+python-versions = ">=3.8"
 files = [
-    {file = "pyodbc-4.0.28-cp27-cp27m-win32.whl", hash = "sha256:2217eb01091a207a9ffa457c49a63a1d0eb8514c810a23b901518348422fcf65"},
-    {file = "pyodbc-4.0.28-cp27-cp27m-win_amd64.whl", hash = "sha256:ae35c455bfbadc631ee20df6657bfda0779bdc80badfd9d13741433dd78785e6"},
-    {file = "pyodbc-4.0.28-cp27-none-macosx_10_15_x86_64.whl", hash = "sha256:f37f26ae909101465a085ef51b9dde35afc93b7c7e38c25b61b124b110aa9998"},
-    {file = "pyodbc-4.0.28-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:5d1abca8f5bdab1515e300d05c63c25d072a123c7089a554290b5b9e83168eb6"},
-    {file = "pyodbc-4.0.28-cp36-cp36m-win32.whl", hash = "sha256:c25e525e0576b1dfa067d3a6530e046a24006d89715026d2d5dbf6d4290093b9"},
-    {file = "pyodbc-4.0.28-cp36-cp36m-win_amd64.whl", hash = "sha256:259b2554d2b8c9a6247871fec741b526f0b63a0e42676bd8f210e214a3015129"},
-    {file = "pyodbc-4.0.28-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:8ad9aa2a851242109141e4275c2a9b4d4379e00288959acd877501ee90aa3955"},
-    {file = "pyodbc-4.0.28-cp37-cp37m-win32.whl", hash = "sha256:2908f73e5a374437fd7a38f14b09f2b96d742235bf2f819fb697f8922e35ddda"},
-    {file = "pyodbc-4.0.28-cp37-cp37m-win_amd64.whl", hash = "sha256:a1a1687edef4319ae533e1d789c6c8241459f04af9e4db76e6e4045c530239de"},
-    {file = "pyodbc-4.0.28-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:4f3c788d231907f45ea329cd245b398b165d9d28809f55814240eea775a6b1cd"},
-    {file = "pyodbc-4.0.28-cp38-cp38-win32.whl", hash = "sha256:93e495c51a5db027c2f7ee2c2c3fe9d6ea86b3a61392c7c8961a1818951868c8"},
-    {file = "pyodbc-4.0.28-cp38-cp38-win_amd64.whl", hash = "sha256:49ba851be2d9d07cc1472b43febc93e3362c1e09ceb3eac84693a6690d090165"},
-    {file = "pyodbc-4.0.28.tar.gz", hash = "sha256:510643354c4c687ed96bf7e7cec4d02d6c626ecf3e18696f5a0228dd6d11b769"},
+    {file = "pyodbc-5.1.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:02fe9821711a2d14415eaeb4deab471d2c8b7034b107e524e414c0e133c42248"},
+    {file = "pyodbc-5.1.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:2cbdbd019756285dc44bc35238a3ed8dfaa454e8c8b2c3462f1710cfeebfb290"},
+    {file = "pyodbc-5.1.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:84df3bbce9bafe65abd25788d55c9f1da304f6115d70f25758ff8c85f3ce0517"},
+    {file = "pyodbc-5.1.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:218bb75d4bc67075529a65ce8ec7daeed1d83c33dd7410450fbf68d43d184d28"},
+    {file = "pyodbc-5.1.0-cp310-cp310-win32.whl", hash = "sha256:eae576b3b67d21d6f237e18bb5f3df8323a2258f52c3e3afeef79269704072a9"},
+    {file = "pyodbc-5.1.0-cp310-cp310-win_amd64.whl", hash = "sha256:c3b65343557f4c7753204e06f4c82c97ed212a636501f4bc27c5ce0e549eb3e8"},
+    {file = "pyodbc-5.1.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:aa6f46377da303bf79bcb4b559899507df4b2559f30dcfdf191358ee4b99f3ab"},
+    {file = "pyodbc-5.1.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:b19d7f44cfee89901e482f554a88177e83fae76b03c3f830e0023a195d840220"},
+    {file = "pyodbc-5.1.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3c36448322f8d6479d87c528cf52401a6ea4f509b9637750b67340382b4e1b40"},
+    {file = "pyodbc-5.1.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1c5e0cb79222aad4b31a3602e39b242683c29c6221a16ed43f45f18fd0b73659"},
+    {file = "pyodbc-5.1.0-cp311-cp311-win32.whl", hash = "sha256:92caed9d445815ed3f7e5a1249e29a4600ebc1e99404df81b6ed7671074c9227"},
+    {file = "pyodbc-5.1.0-cp311-cp311-win_amd64.whl", hash = "sha256:a1bd14633e91b7a9814f4fd944c9ebb89fb7f1fd4710c4e3999b5ef041536347"},
+    {file = "pyodbc-5.1.0-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:d3d9cc4af703c4817b6e604315910b0cf5dcb68056d52b25ca072dd59c52dcbc"},
+    {file = "pyodbc-5.1.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:406b8fa2133a7b6a713aa5187dba2d08cf763b5884606bed77610a7660fdfabe"},
+    {file = "pyodbc-5.1.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f8488c3818f12207650836c5c6f7352f9ff9f56a05a05512145995e497c0bbb1"},
+    {file = "pyodbc-5.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b0df69e3a500791b70b5748c68a79483b24428e4c16027b56aa0305e95c143a4"},
+    {file = "pyodbc-5.1.0-cp312-cp312-win32.whl", hash = "sha256:aa4e02d3a9bf819394510b726b25f1566f8b3f0891ca400ad2d4c8b86b535b78"},
+    {file = "pyodbc-5.1.0-cp312-cp312-win_amd64.whl", hash = "sha256:33f4984af38872e7bdec78007a34e4d43ae72bf9d0bae3344e79d9d0db157c0e"},
+    {file = "pyodbc-5.1.0-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:29425e2d366e7f5828b76c7993f412a3db4f18bd5bcee00186c00b5a5965e205"},
+    {file = "pyodbc-5.1.0-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:a2bbd2e75c77dee9f3cd100c3246110abaeb9af3f7fa304ccc2934ff9c6a4fa4"},
+    {file = "pyodbc-5.1.0-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3602136a936bc0c1bb9722eb2fbf2042b3ff1ddccdc4688e514b82d4b831563b"},
+    {file = "pyodbc-5.1.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bed1c843565d3a4fd8c332ebceaf33efe817657a0505eacb97dd1b786a985b0b"},
+    {file = "pyodbc-5.1.0-cp38-cp38-win32.whl", hash = "sha256:735f6da3762e5856b5580be0ed96bb946948346ebd1e526d5169a5513626a67a"},
+    {file = "pyodbc-5.1.0-cp38-cp38-win_amd64.whl", hash = "sha256:c5bb4e43f6c72f5fa2c634570e0d761767d8ea49f39205229b812fb4d3fe05aa"},
+    {file = "pyodbc-5.1.0-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:33f0f1d7764cefef6f787936bd6359670828a6086be67518ab951f1f7f503cda"},
+    {file = "pyodbc-5.1.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:be3b1c36c31ec7d73d0b34a8ad8743573763fadd8f2bceef1e84408252b48dce"},
+    {file = "pyodbc-5.1.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:e71a51c252b503b4d753e21ed31e640015fc0d00202d42ea42f2396fcc924b4a"},
+    {file = "pyodbc-5.1.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:af5282cc8b667af97d76f4955250619a53f25486cbb6b1f45a06b781006ffa0b"},
+    {file = "pyodbc-5.1.0-cp39-cp39-win32.whl", hash = "sha256:96b2a8dc27693a517e3aad3944a7faa8be95d40d7ec1eda51a1885162eedfa33"},
+    {file = "pyodbc-5.1.0-cp39-cp39-win_amd64.whl", hash = "sha256:e738c5eedb4a0cbab20cc008882f49b106054499db56864057c2530ff208cf32"},
+    {file = "pyodbc-5.1.0.tar.gz", hash = "sha256:397feee44561a6580be08cedbe986436859563f4bb378f48224655c8e987ea60"},
 ]
 
 [[package]]
@@ -5301,4 +5319,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "a65ce99c3f677c9c669cf7bbd385cd6c5980b47dcfa427739ba0d9c4e14f8120"
+content-hash = "d83c04099c45314816923e922b49124679a0802987613a06cf4f24379de7fde4"
