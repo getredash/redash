@@ -11,7 +11,7 @@ x-redash-service: &redash-service
   env_file:
     - .env
 x-redash-environment: &redash-environment
-  REDASH_LOG_LEVEL: "INFO"
+  REDASH_LOG_LEVEL: "WARN"
   REDASH_REDIS_URL: "redis://redis:6379/0"
   REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
   REDASH_RATELIMIT_ENABLED: "false"
@@ -20,16 +20,19 @@ x-redash-environment: &redash-environment
   REDASH_ENFORCE_CSRF: "true"
   # See https://github.com/getredash/redash/pull/5783
   REDASH_WEB_WORKERS: 8
+  WORKERS_COUNT: 3
+  KEEP_ALIVE: 305
+  LOG_LEVEL: warn
   # Set secret keys in the .env file
 services:
   server:
     <<: *redash-service
-    command: dev_server
+    command: server
     depends_on:
       - postgres
       - redis
     ports:
-      - "5000:5000"
+      - "5001:5000"
       - "5678:5678"
     environment:
       <<: *redash-environment

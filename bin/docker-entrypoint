@@ -16,7 +16,7 @@ dev_scheduler() {
 worker() {
   echo "Starting RQ worker..."
 
-  export WORKERS_COUNT=${WORKERS_COUNT:-2}
+  export WORKERS_COUNT=${WORKERS_COUNT:-3}
   export QUEUES=${QUEUES:-}
 
   exec supervisord -c worker.conf
@@ -32,6 +32,7 @@ server() {
   # Recycle gunicorn workers every n-th request. See http://docs.gunicorn.org/en/stable/settings.html#max-requests for more details.
   MAX_REQUESTS=${MAX_REQUESTS:-1000}
   MAX_REQUESTS_JITTER=${MAX_REQUESTS_JITTER:-100}
+  echo "Log level is $LOG_LEVEL;"
   exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 -c /app/gunicorn.conf.py --error-logfile - --log-level $LOG_LEVEL --name redash -w${REDASH_WEB_WORKERS:-4} --max-requests $MAX_REQUESTS --max-requests-jitter $MAX_REQUESTS_JITTER --keep-alive $KEEP_ALIVE redash.wsgi:app
 }
 
