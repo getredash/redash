@@ -436,7 +436,6 @@ class TestQueryResultExcelResponse(BaseTestCase):
 
 class TestJobResource(BaseTestCase):
     def test_cancels_queued_queries(self):
-
         query = self.factory.create_query()
         job_id = self.make_request(
             "post",
