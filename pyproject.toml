@@ -85,6 +85,7 @@ werkzeug = "2.3.8"
 wtforms = "2.2.1"
 xlsxwriter = "1.2.2"
 tzlocal = "4.3.1"
+pyodbc = "5.1.0"
 
 [tool.poetry.group.all_ds]
 optional = true
@@ -123,7 +124,7 @@ pyhive = "0.6.1"
 pyignite = "0.6.1"
 pymongo = { version = "4.6.3", extras = ["srv", "tls"] }
 pymssql = "2.2.8"
-pyodbc = "4.0.28"
+pyodbc = "5.1.0"
 python-arango = "6.1.0"
 python-rapidjson = "1.1.0"
 requests-aws-sign = "0.1.5"
