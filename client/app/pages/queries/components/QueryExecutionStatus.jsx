@@ -1,44 +1,36 @@
+import { includes } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import Alert from "antd/lib/alert";
 import Button from "antd/lib/button";
 import Timer from "@/components/Timer";
-import { ExecutionStatus } from "@/services/query-result";
 
 export default function QueryExecutionStatus({ status, updatedAt, error, isCancelling, onCancel }) {
-  const alertType = status === ExecutionStatus.FAILED ? "error" : "info";
-  const showTimer = status !== ExecutionStatus.FAILED && updatedAt;
-  const isCancelButtonAvailable = [
-    ExecutionStatus.SCHEDULED,
-    ExecutionStatus.QUEUED,
-    ExecutionStatus.STARTED,
-    ExecutionStatus.DEFERRED,
-  ].includes(status);
+  const alertType = status === "failed" ? "error" : "info";
+  const showTimer = status !== "failed" && updatedAt;
+  const isCancelButtonAvailable = includes(["waiting", "processing"], status);
   let message = isCancelling ? <React.Fragment>Cancelling&hellip;</React.Fragment> : null;
 
   switch (status) {
-    case ExecutionStatus.QUEUED:
+    case "waiting":
       if (!isCancelling) {
         message = <React.Fragment>Query in queue&hellip;</React.Fragment>;
       }
       break;
-    case ExecutionStatus.STARTED:
+    case "processing":
       if (!isCancelling) {
         message = <React.Fragment>Executing query&hellip;</React.Fragment>;
       }
       break;
-    case ExecutionStatus.LOADING_RESULT:
+    case "loading-result":
       message = <React.Fragment>Loading results&hellip;</React.Fragment>;
       break;
-    case ExecutionStatus.FAILED:
+    case "failed":
       message = (
         <React.Fragment>
           Error running query: <strong>{error}</strong>
         </React.Fragment>
       );
-      break;
-    case ExecutionStatus.CANCELED:
-      message = <React.Fragment>Query was canceled</React.Fragment>;
       break;
     // no default
   }
@@ -74,7 +66,7 @@ QueryExecutionStatus.propTypes = {
 };
 
 QueryExecutionStatus.defaultProps = {
-  status: ExecutionStatus.QUEUED,
+  status: "waiting",
   updatedAt: null,
   error: null,
   isCancelling: true,

@@ -5,7 +5,6 @@ import regex
 from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
-from rq.job import JobStatus
 
 from redash import models, settings
 from redash.handlers.base import BaseResource, get_object_or_404, record_event
@@ -39,7 +38,7 @@ from redash.utils import (
 
 
 def error_response(message, http_status=400):
-    return {"job": {"status": JobStatus.FAILED, "error": message}}, http_status
+    return {"job": {"status": 4, "error": message}}, http_status
 
 
 error_messages = {
@@ -226,7 +225,7 @@ class QueryResultResource(BaseResource):
                 headers["Access-Control-Allow-Credentials"] = str(settings.ACCESS_CONTROL_ALLOW_CREDENTIALS).lower()
 
     @require_any_of_permission(("view_query", "execute_query"))
-    def options(self, query_id=None, result_id=None, filetype="json"):
+    def options(self, query_id=None, query_result_id=None, filetype="json"):
         headers = {}
         self.add_cors_headers(headers)
 
@@ -286,12 +285,12 @@ class QueryResultResource(BaseResource):
                 return error_messages["no_permission"]
 
     @require_any_of_permission(("view_query", "execute_query"))
-    def get(self, query_id=None, result_id=None, filetype="json"):
+    def get(self, query_id=None, query_result_id=None, filetype="json"):
         """
         Retrieve query results.
 
         :param number query_id: The ID of the query whose results should be fetched
-        :param number result_id: the ID of the query result to fetch
+        :param number query_result_id: the ID of the query result to fetch
         :param string filetype: Format to return. One of 'json', 'xlsx', or 'csv'. Defaults to 'json'.
 
         :<json number id: Query result ID
@@ -306,13 +305,13 @@ class QueryResultResource(BaseResource):
         # This method handles two cases: retrieving result by id & retrieving result by query id.
         # They need to be split, as they have different logic (for example, retrieving by query id
         # should check for query parameters and shouldn't cache the result).
-        should_cache = result_id is not None
+        should_cache = query_result_id is not None
 
         query_result = None
         query = None
 
-        if result_id:
-            query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, result_id, self.current_org)
+        if query_result_id:
+            query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
 
         if query_id is not None:
             query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
@@ -347,7 +346,7 @@ class QueryResultResource(BaseResource):
                     event["object_id"] = query_id
                 else:
                     event["object_type"] = "query_result"
-                    event["object_id"] = result_id
+                    event["object_id"] = query_result_id
 
                 self.record_event(event)
 

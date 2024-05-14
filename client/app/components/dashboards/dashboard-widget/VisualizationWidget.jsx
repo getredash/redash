@@ -19,7 +19,6 @@ import PlainButton from "@/components/PlainButton";
 import ExpandedWidgetDialog from "@/components/dashboards/ExpandedWidgetDialog";
 import EditParameterMappingsDialog from "@/components/dashboards/EditParameterMappingsDialog";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
-import { ExecutionStatus } from "@/services/query-result";
 
 import Widget from "./Widget";
 
@@ -279,7 +278,7 @@ class VisualizationWidget extends React.Component {
     const widgetQueryResult = widget.getQueryResult();
     const widgetStatus = widgetQueryResult && widgetQueryResult.getStatus();
     switch (widgetStatus) {
-      case ExecutionStatus.FAILED:
+      case "failed":
         return (
           <div className="body-row-auto scrollbox">
             {widgetQueryResult.getError() && (
@@ -289,7 +288,7 @@ class VisualizationWidget extends React.Component {
             )}
           </div>
         );
-      case ExecutionStatus.FINISHED:
+      case "done":
         return (
           <div className="body-row-auto scrollbox">
             <VisualizationRenderer

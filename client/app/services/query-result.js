@@ -50,15 +50,18 @@ const QueryResultResource = {
 };
 
 export const ExecutionStatus = {
-  QUEUED: "queued",
-  STARTED: "started",
-  FINISHED: "finished",
+  WAITING: "waiting",
+  PROCESSING: "processing",
+  DONE: "done",
   FAILED: "failed",
   LOADING_RESULT: "loading-result",
-  CANCELED: "canceled",
-  DEFERRED: "deferred",
-  SCHEDULED: "scheduled",
-  STOPPED: "stopped",
+};
+
+const statuses = {
+  1: ExecutionStatus.WAITING,
+  2: ExecutionStatus.PROCESSING,
+  3: ExecutionStatus.DONE,
+  4: ExecutionStatus.FAILED,
 };
 
 function handleErrorResponse(queryResult, error) {
@@ -77,7 +80,7 @@ function handleErrorResponse(queryResult, error) {
       queryResult.update({
         job: {
           error: "cached query result unavailable, please execute again.",
-          status: ExecutionStatus.FAILED,
+          status: 4,
         },
       });
       return;
@@ -88,7 +91,7 @@ function handleErrorResponse(queryResult, error) {
   queryResult.update({
     job: {
       error: get(error, "response.data.message", "Unknown error occurred. Please try again later."),
-      status: ExecutionStatus.FAILED,
+      status: 4,
     },
   });
 }
@@ -99,19 +102,11 @@ function sleep(ms) {
 
 export function fetchDataFromJob(jobId, interval = 1000) {
   return axios.get(`api/jobs/${jobId}`).then(data => {
-    const status = data.job.status;
-    if (
-      [ExecutionStatus.QUEUED, ExecutionStatus.STARTED, ExecutionStatus.SCHEDULED, ExecutionStatus.DEFERRED].includes(
-        status
-      )
-    ) {
+    const status = statuses[data.job.status];
+    if (status === ExecutionStatus.WAITING || status === ExecutionStatus.PROCESSING) {
       return sleep(interval).then(() => fetchDataFromJob(data.job.id));
-    } else if (status === ExecutionStatus.FINISHED) {
-      return data.job.result_id;
-    } else if (status === ExecutionStatus.CANCELED) {
-      return Promise.reject("Job was canceled");
-    } else if (status === ExecutionStatus.STOPPED) {
-      return Promise.reject("Job was stopped");
+    } else if (status === ExecutionStatus.DONE) {
+      return data.job.result;
     } else if (status === ExecutionStatus.FAILED) {
       return Promise.reject(data.job.error);
     }
@@ -127,7 +122,7 @@ class QueryResult {
     this.deferred = defer();
     this.job = {};
     this.query_result = {};
-    this.status = ExecutionStatus.QUEUED;
+    this.status = "waiting";
 
     this.updatedAt = moment();
 
@@ -143,8 +138,8 @@ class QueryResult {
     extend(this, props);
 
     if ("query_result" in props) {
-      this.status = ExecutionStatus.FINISHED;
-      this.deferred.onStatusChange(ExecutionStatus.FINISHED);
+      this.status = ExecutionStatus.DONE;
+      this.deferred.onStatusChange(ExecutionStatus.DONE);
 
       const columnTypes = {};
 
@@ -188,10 +183,11 @@ class QueryResult {
       });
 
       this.deferred.resolve(this);
-    } else if (this.job.status === ExecutionStatus.STARTED || this.job.status === ExecutionStatus.FINISHED) {
-      this.status = ExecutionStatus.STARTED;
-    } else if (this.job.status === ExecutionStatus.FAILED) {
-      this.status = this.job.status;
+    } else if (this.job.status === 3 || this.job.status === 2) {
+      this.deferred.onStatusChange(ExecutionStatus.PROCESSING);
+      this.status = "processing";
+    } else if (this.job.status === 4) {
+      this.status = statuses[this.job.status];
       this.deferred.reject(new QueryResultError(this.job.error));
     } else {
       this.deferred.onStatusChange(undefined);
@@ -215,7 +211,7 @@ class QueryResult {
     if (this.isLoadingResult) {
       return ExecutionStatus.LOADING_RESULT;
     }
-    return this.status || this.job.status;
+    return this.status || statuses[this.job.status];
   }
 
   getError() {
@@ -378,7 +374,7 @@ class QueryResult {
     this.isLoadingResult = true;
     this.deferred.onStatusChange(ExecutionStatus.LOADING_RESULT);
 
-    QueryResultResource.get({ id: this.job.result_id })
+    QueryResultResource.get({ id: this.job.query_result_id })
       .then(response => {
         this.update(response);
         this.isLoadingResult = false;
@@ -393,7 +389,7 @@ class QueryResult {
           this.update({
             job: {
               error: "failed communicating with server. Please check your Internet connection and try again.",
-              status: ExecutionStatus.FAILED,
+              status: 4,
             },
           });
           this.isLoadingResult = false;
@@ -417,9 +413,9 @@ class QueryResult {
       .then(jobResponse => {
         this.update(jobResponse);
 
-        if (this.getStatus() === ExecutionStatus.STARTED && this.job.result_id && this.job.result_id !== "None") {
+        if (this.getStatus() === "processing" && this.job.query_result_id && this.job.query_result_id !== "None") {
           loadResult();
-        } else if (this.getStatus() !== ExecutionStatus.FAILED) {
+        } else if (this.getStatus() !== "failed") {
           const waitTime = tryNumber > 10 ? 3000 : 500;
           setTimeout(() => {
             this.refreshStatus(query, parameters, tryNumber + 1);
@@ -432,7 +428,7 @@ class QueryResult {
         this.update({
           job: {
             error: "failed communicating with server. Please check your Internet connection and try again.",
-            status: ExecutionStatus.FAILED,
+            status: 4,
           },
         });
       });
