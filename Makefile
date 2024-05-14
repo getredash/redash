@@ -1,18 +1,10 @@
-.PHONY: compose_build up test_db create_database create_db clean clean-all down tests lint backend-unit-tests frontend-unit-tests pydeps test build watch start redis-cli bash
-
-export COMPOSE_DOCKER_CLI_BUILD=1
-export DOCKER_BUILDKIT=1
-export COMPOSE_PROFILES=local
+.PHONY: compose_build up test_db create_database clean clean-all down tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
 
 compose_build: .env
-	docker compose build
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose build
 
 up:
-	docker compose up -d redis postgres
-	docker compose exec -u postgres postgres psql postgres --csv \
-		-1tqc "SELECT table_name FROM information_schema.tables WHERE table_name = 'organizations'" 2> /dev/null \
-		| grep -q "organizations" || make create_database
-	docker compose up -d --build
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose up -d --build
 
 test_db:
 	@for i in `seq 1 5`; do \
@@ -21,10 +13,8 @@ test_db:
 	done
 	docker compose exec postgres sh -c 'psql -U postgres -c "drop database if exists tests;" && psql -U postgres -c "create database tests;"'
 
-create_db: .env
+create_database: .env
 	docker compose run server create_db
-
-create_database: create_db
 
 clean:
 	docker compose down
@@ -53,12 +43,6 @@ env: .env
 
 format:
 	pre-commit run --all-files
-
-pydeps:
-	pip3 install wheel
-	pip3 install --upgrade black ruff launchpadlib pip setuptools
-	pip3 install poetry
-	poetry install --only main,all_ds,dev
 
 tests:
 	docker compose run server tests
