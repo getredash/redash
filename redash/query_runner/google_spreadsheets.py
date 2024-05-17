@@ -97,22 +97,38 @@ class WorksheetNotFoundByTitleError(Exception):
         message = "Worksheet title '{}' not found.".format(worksheet_title)
         super(WorksheetNotFoundByTitleError, self).__init__(message)
 
-
 def parse_query(query):
-    values = query.split("|")
-    key = values[0]  # key of the spreadsheet
-    worksheet_num_or_title = 0  # A default value for when a number of inputs is invalid
-    if len(values) == 2:
-        s = values[1].strip()
-        if len(s) > 0:
-            if re.match(r"^\"(.*?)\"$", s):
-                # A string quoted by " means a title of worksheet
-                worksheet_num_or_title = s[1:-1]
-            else:
-                # if spreadsheet contains more than one worksheet - this is the number of it
-                worksheet_num_or_title = int(s)
+    # Check if the query contains a '|' character
+    if '|' in query:
+        # Split the query into key and value parts
+        key, value = query.split("|", 1)
+        value = value.strip()
+    else:
+        # If the query doesn't contain a '|', set default values and return
+        return query, 0, None
 
-    return key, worksheet_num_or_title
+    worksheet_num = None
+    worksheet_title = None
+    
+   
+    if value:
+        # Check if the value is a quoted string
+        if (value[0] == '"' and value[-1] == '"') or (value[0] == "'" and value[-1] == "'"):
+            # Extract the worksheet title without quotes
+            worksheet_title = value[1:-1]
+        elif value.isdigit():
+            # Convert the value to an integer if it's a number
+            worksheet_num = int(value)
+        else:
+            # If neither a quoted string nor a number, consider it as a single-word title
+            worksheet_title = value
+    
+    # If both worksheet_title and worksheet_num are not available, set worksheet_num default value to 0
+    if worksheet_title is None and worksheet_num is None:
+        worksheet_num = 0
+
+    return key, worksheet_num, worksheet_title
+
 
 
 def parse_worksheet(worksheet):
@@ -132,17 +148,17 @@ def parse_worksheet(worksheet):
     return data
 
 
-def parse_spreadsheet(spreadsheet, worksheet_num_or_title):
-    worksheet = None
-    if isinstance(worksheet_num_or_title, int):
-        worksheet = spreadsheet.get_worksheet_by_index(worksheet_num_or_title)
+def parse_spreadsheet(spreadsheet, worksheet_num, worksheet_title):
+
+    if worksheet_title:
+        worksheet = spreadsheet.get_worksheet_by_title(worksheet_title)
+        if worksheet is None:
+            raise WorksheetNotFoundByTitleError(worksheet_title)
+    else:
+        worksheet = spreadsheet.get_worksheet_by_index(worksheet_num)
         if worksheet is None:
             worksheet_count = len(spreadsheet.worksheets())
-            raise WorksheetNotFoundError(worksheet_num_or_title, worksheet_count)
-    elif isinstance(worksheet_num_or_title, str):
-        worksheet = spreadsheet.get_worksheet_by_title(worksheet_num_or_title)
-        if worksheet is None:
-            raise WorksheetNotFoundByTitleError(worksheet_num_or_title)
+            raise WorksheetNotFoundError(worksheet_num, worksheet_count)
 
     worksheet_values = worksheet.get_all_values()
 
@@ -245,7 +261,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
 
     def run_query(self, query, user):
         logger.debug("Spreadsheet is about to execute query: %s", query)
-        key, worksheet_num_or_title = parse_query(query)
+        key, worksheet_num, worksheet_title = parse_query(query)
 
         try:
             spreadsheet_service = self._get_spreadsheet_service()
@@ -255,7 +271,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
             else:
                 spreadsheet = spreadsheet_service.open_by_key(key)
 
-            data = parse_spreadsheet(SpreadsheetWrapper(spreadsheet), worksheet_num_or_title)
+            data = parse_spreadsheet(SpreadsheetWrapper(spreadsheet), worksheet_num, worksheet_title)
 
             return data, None
         except gspread.SpreadsheetNotFound:
