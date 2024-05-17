@@ -1,5 +1,4 @@
 import logging
-import re
 from base64 import b64decode
 
 from dateutil import parser
