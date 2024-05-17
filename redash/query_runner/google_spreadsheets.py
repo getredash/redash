@@ -96,6 +96,7 @@ class WorksheetNotFoundByTitleError(Exception):
         message = "Worksheet title '{}' not found.".format(worksheet_title)
         super(WorksheetNotFoundByTitleError, self).__init__(message)
 
+
 def parse_query(query):
     # Check if the query contains a '|' character
     if '|' in query:
@@ -105,11 +106,8 @@ def parse_query(query):
     else:
         # If the query doesn't contain a '|', set default values and return
         return query, 0, None
-
     worksheet_num = None
     worksheet_title = None
-    
-   
     if value:
         # Check if the value is a quoted string
         if (value[0] == '"' and value[-1] == '"') or (value[0] == "'" and value[-1] == "'"):
@@ -121,13 +119,10 @@ def parse_query(query):
         else:
             # If neither a quoted string nor a number, consider it as a single-word title
             worksheet_title = value
-    
     # If both worksheet_title and worksheet_num are not available, set worksheet_num default value to 0
     if worksheet_title is None and worksheet_num is None:
         worksheet_num = 0
-
     return key, worksheet_num, worksheet_title
-
 
 
 def parse_worksheet(worksheet):
@@ -141,14 +136,13 @@ def parse_worksheet(worksheet):
             columns[j]["type"] = guess_type(value)
 
     column_types = [c["type"] for c in columns]
-    rows = [dict(zip(column_names, _value_eval_list(row, column_types))) for row in worksheet[HEADER_INDEX + 1 :]]
+    rows = [dict(zip(column_names, _value_eval_list(row, column_types))) for row in worksheet[HEADER_INDEX + 1:]]
     data = {"columns": columns, "rows": rows}
 
     return data
 
 
 def parse_spreadsheet(spreadsheet, worksheet_num, worksheet_title):
-
     if worksheet_title:
         worksheet = spreadsheet.get_worksheet_by_title(worksheet_title)
         if worksheet is None:
@@ -158,9 +152,7 @@ def parse_spreadsheet(spreadsheet, worksheet_num, worksheet_title):
         if worksheet is None:
             worksheet_count = len(spreadsheet.worksheets())
             raise WorksheetNotFoundError(worksheet_num, worksheet_count)
-
     worksheet_values = worksheet.get_all_values()
-
     return parse_worksheet(worksheet_values)
 
 
