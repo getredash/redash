@@ -21,9 +21,7 @@ OPTIONAL_CREDENTIALS = parse_boolean(os.environ.get("ATHENA_OPTIONAL_CREDENTIALS
 
 try:
     import boto3
-    import pandas as pd
     import pyathena
-    from pyathena.pandas_cursor import PandasCursor
 
     enabled = True
 except ImportError:
@@ -190,35 +188,10 @@ class Athena(BaseQueryRunner):
                         logger.warning("Glue table doesn't have StorageDescriptor: %s", table_name)
                         continue
                     if table_name not in schema:
-                        columns = []
-                        for cols in table["StorageDescriptor"]["Columns"]:
-                            c = {
-                                "name": cols["Name"],
-                            }
-                            if "Type" in cols:
-                                c["type"] = cols["Type"]
-                            if "Comment" in cols:
-                                c["comment"] = cols["Comment"]
-                            columns.append(c)
-
-                        schema[table_name] = {
-                            "name": table_name,
-                            "columns": columns,
-                            "description": table.get("Description"),
-                        }
-                        for idx, partition in enumerate(table.get("PartitionKeys", [])):
-                            schema[table_name]["columns"].append(
-                                {
-                                    "name": partition["Name"],
-                                    "type": "partition",
-                                    "idx": idx,
-                                }
-                            )
-                            if "Type" in partition:
-                                _type = partition["Type"]
-                                c["type"] = f"partition ({_type})"
-                            if "Comment" in partition:
-                                c["comment"] = partition["Comment"]
+                        column = [columns["Name"] for columns in table["StorageDescriptor"]["Columns"]]
+                        schema[table_name] = {"name": table_name, "columns": column}
+                        for partition in table.get("PartitionKeys", []):
+                            schema[table_name]["columns"].append(partition["Name"])
         return list(schema.values())
 
     def get_schema(self, get_stats=False):
@@ -252,7 +225,6 @@ class Athena(BaseQueryRunner):
             kms_key=self.configuration.get("kms_key", None),
             work_group=self.configuration.get("work_group", "primary"),
             formatter=SimpleFormatter(),
-            cursor_class=PandasCursor,
             **self._get_iam_credentials(user=user),
         ).cursor()
 
@@ -260,8 +232,7 @@ class Athena(BaseQueryRunner):
             cursor.execute(query)
             column_tuples = [(i[0], _TYPE_MAPPINGS.get(i[1], None)) for i in cursor.description]
             columns = self.fetch_columns(column_tuples)
-            df = cursor.as_pandas().replace({pd.NA: None})
-            rows = df.to_dict(orient="records")
+            rows = [dict(zip(([c["name"] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
             qbytes = None
             athena_query_id = None
             try:
