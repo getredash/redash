@@ -99,7 +99,7 @@ class WorksheetNotFoundByTitleError(Exception):
 
 def parse_query(query):
     # Check if the query contains a '|' character
-    if '|' in query:
+    if "|" in query:
         # Split the query into key and value parts
         key, value = query.split("|", 1)
         value = value.strip()
@@ -136,13 +136,14 @@ def parse_worksheet(worksheet):
             columns[j]["type"] = guess_type(value)
 
     column_types = [c["type"] for c in columns]
-    rows = [dict(zip(column_names, _value_eval_list(row, column_types))) for row in worksheet[HEADER_INDEX + 1:]]
+    rows = [dict(zip(column_names, _value_eval_list(row, column_types))) for row in worksheet[HEADER_INDEX + 1 :]]
     data = {"columns": columns, "rows": rows}
 
     return data
 
 
 def parse_spreadsheet(spreadsheet, worksheet_num, worksheet_title):
+    worksheet = None
     if worksheet_title:
         worksheet = spreadsheet.get_worksheet_by_title(worksheet_title)
         if worksheet is None:
