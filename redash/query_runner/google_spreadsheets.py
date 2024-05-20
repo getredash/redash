@@ -98,27 +98,31 @@ class WorksheetNotFoundByTitleError(Exception):
 
 
 def parse_query(query):
-    # Check if the query contains a '|' character
-    if "|" in query:
-        # Split the query into key and value parts
-        key, value = query.split("|", 1)
-        value = value.strip()
-    else:
-        # If the query doesn't contain a '|', set default values and return
+    parts = query.split("|")
+    key = parts[0].strip()
+
+    if len(parts) < 2:
         return query, 0, None
+
     worksheet_num = None
     worksheet_title = None
+    value = parts[1].strip()
     if value:
         # Check if the value is a quoted string
-        if (value[0] == '"' and value[-1] == '"') or (value[0] == "'" and value[-1] == "'"):
+        if value[0] == '"' and value[-1] == '"':
             # Extract the worksheet title without quotes
             worksheet_title = value[1:-1]
         elif value.isdigit():
             # Convert the value to an integer if it's a number
-            worksheet_num = int(value)
+            parsed_value = int(value)
+            # make is zero based indexing
+            if parsed_value > 0:
+                parsed_value -= 1
+            else:
+                parsed_value = 0
+            worksheet_num = parsed_value
         else:
-            # If neither a quoted string nor a number, consider it as a single-word title
-            worksheet_title = value
+            raise ValueError(f"Invalid value: {value}")
     # If both worksheet_title and worksheet_num are not available, set worksheet_num default value to 0
     if worksheet_title is None and worksheet_num is None:
         worksheet_num = 0
