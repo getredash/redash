@@ -7,13 +7,13 @@ from flask_restful import Resource, abort
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy_utils.functions import sort_query
 
 from redash import settings
 from redash.authentication import current_org
 from redash.models import db
 from redash.tasks import record_event as record_event_task
 from redash.utils import json_dumps
+from redash.utils.query_order import sort_query
 
 routes = Blueprint("redash", __name__, template_folder=settings.fix_assets_path("templates"))
 
