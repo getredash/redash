@@ -3,7 +3,7 @@ name: Periodic Snapshot
 # 10 minutes after midnight on the first of every month
 on:
   schedule:
-  - cron: "10 0 1 * *"
+    - cron: '10 0 1 * *'
 
 permissions:
   contents: write
@@ -16,13 +16,15 @@ jobs:
         with:
           ssh-key: ${{secrets.ACTION_PUSH_KEY}}
       - run: |
-          date="$(date +%y.%m).0-dev"
-          gawk -i inplace -F: -v q=\" -v tag=$date '/^  "version": / { print $1 FS, q tag q ","; next} { print }' package.json
-          gawk -i inplace -F= -v q=\" -v tag=$date '/^__version__ =/ { print $1 FS, q tag q; next} { print }' redash/__init__.py
-          gawk -i inplace -F= -v q=\" -v tag=$date '/^version =/ { print $1 FS, q tag q; next} { print }' pyproject.toml
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          # https://api.github.com/users/github-actions[bot]
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          TAG_NAME="$(date +%y.%m).0-dev"
+          gawk -i inplace -F: -v q=\" -v tag=${TAG_NAME} '/^  "version": / { print $1 FS, q tag q ","; next} { print }' package.json
+          gawk -i inplace -F= -v q=\" -v tag=${TAG_NAME} '/^__version__ =/ { print $1 FS, q tag q; next} { print }' redash/__init__.py
+          gawk -i inplace -F= -v q=\" -v tag=${TAG_NAME} '/^version =/ { print $1 FS, q tag q; next} { print }' pyproject.toml
           git add package.json redash/__init__.py pyproject.toml
-          git commit -m "Snapshot: ${date}"
-          git tag $date
-          git push --atomic origin master refs/tags/$date
+          git commit -m "Snapshot: ${TAG_NAME}"
+          git tag ${TAG_NAME}
+          git push --atomic origin master refs/tags/${TAG_NAME}
