@@ -54,11 +54,12 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
   );
   each(series.data, row => {
     const x = hasX ? normalizeValue(row.x, options.xAxis.type) : `Slice ${index}`;
-    const y = cleanNumber(row.y);
+    let y = cleanNumber(row.y);
     const xIdx = labels.indexOf(x)
 
     if (xIdx >= 0){
-      values[xIdx] += y;
+      y += values[xIdx];
+      values[xIdx] = y;
     }
     else{
       labels.push(x);

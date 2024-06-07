@@ -98,13 +98,14 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
   const yErrorValues: any = [];
   each(data, row => {
     const x = normalizeValue(row.x, options.xAxis.type); // number/datetime/category
-    const y = cleanYValue(row.y, seriesYAxis === "y2" ? options.yAxis[1].type : options.yAxis[0].type); // depends on series type!
+    let y = cleanYValue(row.y, seriesYAxis === "y2" ? options.yAxis[1].type : options.yAxis[0].type); // depends on series type!
     const yError = cleanNumber(row.yError); // always number
     const size = cleanNumber(row.size); // always number
     const xIdx = xValues.indexOf(x);
 
     if (xIdx >= 0){
-      yValues[xIdx] += y;
+      y += yValues[xIdx];
+      yValues[xIdx] = y;
     }
     else{
       xValues.push(x);
