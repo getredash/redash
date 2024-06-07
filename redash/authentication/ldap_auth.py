@@ -8,6 +8,7 @@ from redash import settings
 
 try:
     from ldap3 import Connection, Server
+    from ldap3.utils.conv import escape_filter_chars
 except ImportError:
     if settings.LDAP_LOGIN_ENABLED:
         sys.exit(
@@ -69,6 +70,7 @@ def login(org_slug=None):
 
 
 def auth_ldap_user(username, password):
+    clean_username = escape_filter_chars(username)
     server = Server(settings.LDAP_HOST_URL, use_ssl=settings.LDAP_SSL)
     if settings.LDAP_BIND_DN is not None:
         conn = Connection(
@@ -83,7 +85,7 @@ def auth_ldap_user(username, password):
 
     conn.search(
         settings.LDAP_SEARCH_DN,
-        settings.LDAP_SEARCH_TEMPLATE % {"username": username},
+        settings.LDAP_SEARCH_TEMPLATE % {"username": clean_username},
         attributes=[settings.LDAP_DISPLAY_NAME_KEY, settings.LDAP_EMAIL_KEY],
     )
 

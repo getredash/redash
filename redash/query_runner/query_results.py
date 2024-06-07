@@ -1,3 +1,5 @@
+import datetime
+import decimal
 import hashlib
 import logging
 import re
@@ -105,6 +107,10 @@ def fix_column_name(name):
 def flatten(value):
     if isinstance(value, (list, dict)):
         return json_dumps(value)
+    elif isinstance(value, decimal.Decimal):
+        return float(value)
+    elif isinstance(value, datetime.timedelta):
+        return str(value)
     else:
         return value
 

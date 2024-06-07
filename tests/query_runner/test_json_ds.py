@@ -1,6 +1,7 @@
 """
 Some test cases for JSON api runner
 """
+
 from unittest import TestCase
 from urllib.parse import urlencode, urljoin
 

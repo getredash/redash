@@ -66,7 +66,7 @@ services:
     image: redis:7-alpine
     restart: unless-stopped
   postgres:
-    image: pgautoupgrade/pgautoupgrade:15-alpine3.8
+    image: pgautoupgrade/pgautoupgrade:latest
     command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
     restart: unless-stopped
     environment:

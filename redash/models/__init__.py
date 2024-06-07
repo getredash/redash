@@ -578,7 +578,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return [
             query
             for query in queries
-            if query.schedule["until"] is not None
+            if "until" in query.schedule
+            and query.schedule["until"] is not None
             and pytz.utc.localize(datetime.datetime.strptime(query.schedule["until"], "%Y-%m-%d")) <= now
         ]
 

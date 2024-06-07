@@ -26,13 +26,13 @@ class Slack(BaseDestination):
         fields = [
             {
                 "title": "Query",
+                "type": "mrkdwn",
                 "value": "{host}/queries/{query_id}".format(host=host, query_id=query.id),
-                "short": True,
             },
             {
                 "title": "Alert",
+                "type": "mrkdwn",
                 "value": "{host}/alerts/{alert_id}".format(host=host, alert_id=alert.id),
-                "short": True,
             },
         ]
         if alert.custom_body:

@@ -55,7 +55,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                     if job_complete:
                         message = "job found is complete (%s)" % status
                     elif job_cancelled:
-                        message = "job found has ben cancelled"
+                        message = "job found has been cancelled"
                 except NoSuchJobError:
                     message = "job found has expired"
                     job_exists = False

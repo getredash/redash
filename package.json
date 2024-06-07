@@ -7,14 +7,13 @@
     "start": "npm-run-all --parallel watch:viz webpack-dev-server",
     "clean": "rm -rf ./client/dist/",
     "build:viz": "(cd viz-lib && yarn build:babel)",
-    "build": "yarn clean && yarn build:viz && NODE_ENV=production webpack",
-    "build:old-node-version": "yarn clean && NODE_ENV=production node --max-old-space-size=4096 node_modules/.bin/webpack",
-    "watch:app": "webpack watch --progress",
+    "build": "yarn clean && yarn build:viz && NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production webpack",
+    "watch:app": "NODE_OPTIONS=--openssl-legacy-provider webpack watch --progress",
     "watch:viz": "(cd viz-lib && yarn watch:babel)",
     "watch": "npm-run-all --parallel watch:*",
     "webpack-dev-server": "webpack-dev-server",
-    "analyze": "yarn clean && BUNDLE_ANALYZER=on webpack",
-    "analyze:build": "yarn clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
+    "analyze": "yarn clean && BUNDLE_ANALYZER=on NODE_OPTIONS=--openssl-legacy-provider webpack",
+    "analyze:build": "yarn clean && NODE_ENV=production BUNDLE_ANALYZER=on NODE_OPTIONS=--openssl-legacy-provider webpack",
     "lint": "yarn lint:base --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
     "lint:fix": "yarn lint:base  --fix --ext .js --ext .jsx --ext .ts --ext .tsx ./client",
     "lint:base": "eslint --config ./client/.eslintrc.js --ignore-path ./client/.eslintignore",
@@ -34,7 +33,7 @@
     "url": "git+https://github.com/getredash/redash.git"
   },
   "engines": {
-    "node": ">14.16.0 <17.0.0",
+    "node": ">16.0 <21.0",
     "npm": "please-use-yarn",
     "yarn": "^1.22.10"
   },
