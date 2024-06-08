@@ -74,7 +74,7 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
     });
   });
 
-  const markerColors = map(series.data, row => getValueColor(row.x));
+  const markerColors = map(labels, row => getValueColor(row));
   const textColors = map(markerColors, c => chooseTextColorForBackground(c));
 
   return {
