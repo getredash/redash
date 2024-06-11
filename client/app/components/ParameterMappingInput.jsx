@@ -227,6 +227,7 @@ export class ParameterMappingInput extends React.Component {
         queryId={mapping.param.queryId}
         parameter={mapping.param}
         onSelect={value => this.updateParamMapping({ value })}
+        regex={mapping.param.regex}
       />
     );
   }

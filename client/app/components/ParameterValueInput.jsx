@@ -9,6 +9,7 @@ import DateRangeParameter from "@/components/dynamic-parameters/DateRangeParamet
 import QueryBasedParameterInput from "./QueryBasedParameterInput";
 
 import "./ParameterValueInput.less";
+import Tooltip from "./Tooltip";
 
 const multipleValuesProps = {
   maxTagCount: 3,
@@ -25,6 +26,7 @@ class ParameterValueInput extends React.Component {
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     onSelect: PropTypes.func,
     className: PropTypes.string,
+    regex: PropTypes.string,
   };
 
   static defaultProps = {
@@ -35,6 +37,7 @@ class ParameterValueInput extends React.Component {
     parameter: null,
     onSelect: () => {},
     className: "",
+    regex: "",
   };
 
   constructor(props) {
@@ -145,6 +148,24 @@ class ParameterValueInput extends React.Component {
     );
   }
 
+  renderTextPatternInput() {
+    const { className } = this.props;
+    const { value } = this.state;
+
+    return (
+      <React.Fragment>
+        <Tooltip title={`Regex to match: ${this.props.regex}`} placement="right">
+          <Input
+            className={className}
+            value={value}
+            aria-label="Parameter text pattern value"
+            onChange={e => this.onSelect(e.target.value)}
+          />
+        </Tooltip>
+      </React.Fragment>
+    );
+  }
+
   renderTextInput() {
     const { className } = this.props;
     const { value } = this.state;
@@ -177,6 +198,8 @@ class ParameterValueInput extends React.Component {
         return this.renderQueryBasedInput();
       case "number":
         return this.renderNumberInput();
+      case "text-pattern":
+        return this.renderTextPatternInput();
       default:
         return this.renderTextInput();
     }

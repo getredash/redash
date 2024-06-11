@@ -60,6 +60,71 @@ describe("Parameter", () => {
     });
   });
 
+  describe("Text Pattern Parameter", () => {
+    beforeEach(() => {
+      const queryData = {
+        name: "Text Pattern Parameter",
+        query: "SELECT '{{test-parameter}}' AS parameter",
+        options: {
+          parameters: [{ name: "test-parameter", title: "Test Parameter", type: "text-pattern", regex: "a+" }],
+        },
+      };
+
+      cy.createQuery(queryData, false).then(({ id }) => cy.visit(`/queries/${id}/source`));
+    });
+
+    it("updates the results after clicking Apply", () => {
+      cy.getByTestId("ParameterName-test-parameter")
+        .find("input")
+        .type("{selectall}art");
+
+      cy.getByTestId("ParameterApplyButton").click();
+
+      cy.getByTestId("TableVisualization").should("contain", "art");
+
+      cy.getByTestId("ParameterName-test-parameter")
+        .find("input")
+        .type("{selectall}around");
+
+      cy.getByTestId("ParameterApplyButton").click();
+
+      cy.getByTestId("TableVisualization").should("contain", "around");
+    });
+
+    it("throws error message with invalid query request", () => {
+      cy.getByTestId("ParameterName-test-parameter")
+        .find("input")
+        .type("{selectall}art");
+
+      cy.getByTestId("ParameterApplyButton").click();
+
+      cy.getByTestId("ParameterName-test-parameter")
+        .find("input")
+        .type("{selectall}test");
+
+      cy.getByTestId("ParameterApplyButton").click();
+
+      cy.getByTestId("QueryExecutionStatus").should("exist");
+    });
+
+    it("sets dirty state when edited", () => {
+      expectDirtyStateChange(() => {
+        cy.getByTestId("ParameterName-test-parameter")
+          .find("input")
+          .type("{selectall}art");
+      });
+    });
+
+    it("doesn't let user save invalid regex", () => {
+      cy.get(".fa-cog").click();
+      cy.getByTestId("RegexPatternInput").type("{selectall}[");
+      cy.contains("Invalid Regex Pattern").should("exist");
+      cy.getByTestId("SaveParameterSettings").click();
+      cy.get(".fa-cog").click();
+      cy.getByTestId("RegexPatternInput").should("not.equal", "[");
+    });
+  });
+
   describe("Number Parameter", () => {
     beforeEach(() => {
       const queryData = {

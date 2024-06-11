@@ -162,6 +162,7 @@ export default class Parameters extends React.Component {
           enumOptions={param.enumOptions}
           queryId={param.queryId}
           onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
+          regex={param.regex}
         />
       </div>
     );
