@@ -5,6 +5,7 @@ import EnumParameter from "./EnumParameter";
 import QueryBasedDropdownParameter from "./QueryBasedDropdownParameter";
 import DateParameter from "./DateParameter";
 import DateRangeParameter from "./DateRangeParameter";
+import TextPatternParameter from "./TextPatternParameter";
 
 function createParameter(param, parentQueryId) {
   switch (param.type) {
@@ -22,6 +23,8 @@ function createParameter(param, parentQueryId) {
     case "datetime-range":
     case "datetime-range-with-seconds":
       return new DateRangeParameter(param, parentQueryId);
+    case "text-pattern":
+      return new TextPatternParameter({ ...param, type: "text-pattern" }, parentQueryId);
     default:
       return new TextParameter({ ...param, type: "text" }, parentQueryId);
   }
@@ -34,6 +37,7 @@ function cloneParameter(param) {
 export {
   Parameter,
   TextParameter,
+  TextPatternParameter,
   NumberParameter,
   EnumParameter,
   QueryBasedDropdownParameter,
