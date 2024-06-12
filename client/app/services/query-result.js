@@ -114,7 +114,7 @@ export function fetchDataFromJob(jobId, interval = 1000) {
 }
 
 export function isDateTime(v) {
-  return isString(v) && moment(v).isValid() && /^\d{4}-\d{2}-\d{2}T/.test(v);
+  return isString(v) && moment(v, moment.ISO_8601, true).isValid() && /^\d{4}-\d{2}-\d{2}T/.test(v);
 }
 
 class QueryResult {
