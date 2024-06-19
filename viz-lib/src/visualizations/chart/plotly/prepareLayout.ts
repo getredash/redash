@@ -108,6 +108,15 @@ function prepareBoxLayout(layout: any, options: any, data: any) {
   return layout;
 }
 
+function prepareHeatmapLayout(layout: any, options: any, data: any) {
+  layout = prepareDefaultLayout(layout, options, data);
+  layout.xaxis.showgrid = false;
+  layout.xaxis.zeroline = false;
+  layout.yaxis.showgrid = false;
+  layout.yaxis.zeroline = false;
+  return layout;
+}
+
 export default function prepareLayout(element: any, options: any, data: any) {
   const layout = {
     margin: { l: 10, r: 10, b: 5, t: 20, pad: 4 },
@@ -129,6 +138,8 @@ export default function prepareLayout(element: any, options: any, data: any) {
       return preparePieLayout(layout, options, data);
     case "box":
       return prepareBoxLayout(layout, options, data);
+    case "heatmap":
+      return prepareHeatmapLayout(layout, options, data);
     default:
       return prepareDefaultLayout(layout, options, data);
   }
