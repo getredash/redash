@@ -154,7 +154,7 @@ class ParameterValueInput extends React.Component {
 
     return (
       <React.Fragment>
-        <Tooltip title={`Regex to match: ${this.props.regex}`} placement = "right">
+        <Tooltip title={`Regex to match: ${this.props.regex}`} placement="right">
           <Input
             className={className}
             value={value}

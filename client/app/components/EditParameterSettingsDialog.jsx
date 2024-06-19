@@ -72,7 +72,7 @@ function EditParameterSettingsDialog(props) {
   const [param, setParam] = useState(clone(props.parameter));
   const [isNameValid, setIsNameValid] = useState(true);
   const [initialQuery, setInitialQuery] = useState();
-  const [userInput, setUserInput] = useState(param.regex || '');
+  const [userInput, setUserInput] = useState(param.regex || "");
   const [isValidRegex, setIsValidRegex] = useState(true);
 
   const isNew = !props.parameter.name;
@@ -117,16 +117,16 @@ function EditParameterSettingsDialog(props) {
 
   const paramFormId = useUniqueId("paramForm");
 
-  const handleRegexChange = (e) => {
+  const handleRegexChange = e => {
     setUserInput(e.target.value);
     try {
       new RegExp(e.target.value);
-      setParam({ ...param, regex: e.target.value});
+      setParam({ ...param, regex: e.target.value });
       setIsValidRegex(true);
-    } catch(error) {
+    } catch (error) {
       setIsValidRegex(false);
     }
-  }
+  };
 
   return (
     <Modal
@@ -203,7 +203,7 @@ function EditParameterSettingsDialog(props) {
             <Input
               value={userInput}
               onChange={handleRegexChange}
-              className={!isValidRegex ? "input-error" : ''}
+              className={!isValidRegex ? "input-error" : ""}
               data-test="RegexPatternInput"
             />
           </Form.Item>

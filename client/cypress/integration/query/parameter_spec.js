@@ -102,9 +102,9 @@ describe("Parameter", () => {
         .find("input")
         .type("{selectall}test");
 
-        cy.getByTestId("ParameterApplyButton").click();
+      cy.getByTestId("ParameterApplyButton").click();
 
-        cy.getByTestId("QueryExecutionStatus").should("exist");
+      cy.getByTestId("QueryExecutionStatus").should("exist");
     });
 
     it("sets dirty state when edited", () => {
@@ -115,15 +115,14 @@ describe("Parameter", () => {
       });
     });
 
-    it ("doesn't let user save invalid regex", () => {
+    it("doesn't let user save invalid regex", () => {
       cy.get(".fa-cog").click();
       cy.getByTestId("RegexPatternInput").type("{selectall}[");
       cy.contains("Invalid Regex Pattern").should("exist");
       cy.getByTestId("SaveParameterSettings").click();
       cy.get(".fa-cog").click();
       cy.getByTestId("RegexPatternInput").should("not.equal", "[");
-    })
-
+    });
   });
 
   describe("Number Parameter", () => {
