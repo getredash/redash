@@ -64,6 +64,7 @@ class Alert extends React.Component {
       this.setState({
         alert: {
           options: {
+            selector: "first",
             op: ">",
             value: 1,
             muted: false,

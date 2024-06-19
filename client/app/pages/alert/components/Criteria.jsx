@@ -54,14 +54,53 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
     return null;
   })();
 
-  const columnHint = (
-    <small className="alert-criteria-hint">
-      Top row value is <code className="p-0">{toString(columnValue) || "unknown"}</code>
-    </small>
-  );
+  let columnHint;
+
+  if (alertOptions.selector === "first") {
+    columnHint = (
+      <small className="alert-criteria-hint">
+        Top row value is <code className="p-0">{toString(columnValue) || "unknown"}</code>
+      </small>
+    )
+  } else if (alertOptions.selector === "max") {
+    columnHint = (
+      <small className="alert-criteria-hint">
+        Max column value is <code className="p-0">{toString(Math.max(...resultValues.map(o => o[alertOptions.column]))) || "unknown"}</code>
+      </small>
+    )
+  } else if (alertOptions.selector === "min") {
+    columnHint = (
+      <small className="alert-criteria-hint">
+        Min column value is <code className="p-0">{toString(Math.min(...resultValues.map(o => o[alertOptions.column]))) || "unknown"}</code>
+      </small>
+    )
+  }
 
   return (
     <div data-test="Criteria">
+      <div className="input-title">
+        <span className="input-label">Selector</span>
+        {editMode ? (
+          <Select
+            value={alertOptions.selector}
+            onChange={selector => onChange({ selector })}
+            optionLabelProp="label"
+            dropdownMatchSelectWidth={false}
+            style={{ width: 80 }}>
+            <Select.Option value="max" label="max">
+              max
+            </Select.Option>
+            <Select.Option value="min" label="min">
+              min
+            </Select.Option>
+            <Select.Option value="first" label="first">
+              first
+            </Select.Option>
+          </Select>
+        ) : (
+          <DisabledInput minWidth={60}>{alertOptions.selector}</DisabledInput>
+        )}
+      </div>
       <div className="input-title">
         <span className="input-label">Value column</span>
         {editMode ? (

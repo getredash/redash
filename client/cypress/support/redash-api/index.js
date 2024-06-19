@@ -86,6 +86,7 @@ Cypress.Commands.add("addWidget", (dashboardId, visualizationId, options = {}) =
 Cypress.Commands.add("createAlert", (queryId, options = {}, name) => {
   const defaultOptions = {
     column: "?column?",
+    selector: "first",
     op: "greater than",
     rearm: 0,
     value: 1,
