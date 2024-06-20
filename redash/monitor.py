@@ -59,7 +59,7 @@ def get_status():
 
 
 def rq_job_ids():
-    queues = Queue.all(connection=redis_connection)
+    queues = Queue.all(connection=rq_redis_connection)
 
     started_jobs = [StartedJobRegistry(queue=q).get_job_ids() for q in queues]
     queued_jobs = [q.job_ids for q in queues]
