@@ -181,12 +181,12 @@ class Alert extends React.Component {
   evaluate = () => {
     const { alert } = this.state;
     return AlertService.evaluate(alert)
-    .then(() => {
-      notification.success("Alert evaluated. Refresh page for updated status.");
-    })
-    .catch(() => {
-      notifications.error("Failed to evaluate alert.")
-    });
+      .then(() => {
+        notification.success("Alert evaluated. Refresh page for updated status.");
+      })
+      .catch(() => {
+        notifications.error("Failed to evaluate alert.");
+      });
   };
 
   mute = () => {
@@ -235,7 +235,14 @@ class Alert extends React.Component {
     const { queryResult, mode, canEdit, pendingRearm } = this.state;
 
     const menuButton = (
-      <MenuButton doDelete={this.delete} muted={muted} mute={this.mute} unmute={this.unmute} canEdit={canEdit} evaluate={this.evaluate} />
+      <MenuButton
+        doDelete={this.delete}
+        muted={muted}
+        mute={this.mute}
+        unmute={this.unmute}
+        canEdit={canEdit}
+        evaluate={this.evaluate}
+      />
     );
 
     const commonProps = {
