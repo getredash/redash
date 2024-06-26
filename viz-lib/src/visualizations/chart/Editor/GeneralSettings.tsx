@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { Section, Select, Checkbox, InputNumber, ContextHelp, Input } from "@/components/visualizations/editor";
 import { UpdateOptionsStrategy } from "@/components/visualizations/editor/createTabbedEditor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
-
+import { AllColorPalettes } from "@/visualizations/ColorPalette";
 import ChartTypeSelect from "./ChartTypeSelect";
 import ColumnMappingSelect from "./ColumnMappingSelect";
 import { useDebouncedCallback } from "use-debounce/lib";
