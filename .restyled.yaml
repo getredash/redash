@@ -38,7 +38,9 @@ request_review: author
 #
 # These can be used to tell other automation to avoid our PRs.
 #
-labels: ["Skip CI"]
+labels:
+  - restyled
+  - "Skip CI"
 
 # Labels to ignore
 #
