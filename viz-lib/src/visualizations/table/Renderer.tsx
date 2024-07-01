@@ -84,6 +84,13 @@ export default function Renderer({ options, data }: any) {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState([]);
 
+  const columnsToFix = new Set<string>();
+  for (let i = 0; i < options.fixedColumns; i++) {
+    if (options.columns[i]) {
+      columnsToFix.add(options.columns[i].name);
+    }
+  }
+
   const searchColumns = useMemo(() => filter(options.columns, "allowSearch"), [options.columns]);
 
   const tableColumns = useMemo(() => {
@@ -97,7 +104,7 @@ export default function Renderer({ options, data }: any) {
       // Remove text selection - may occur accidentally
       // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
       document.getSelection().removeAllRanges();
-    });
+    }, columnsToFix);
   }, [options.columns, searchColumns, orderBy]);
 
   const preparedRows = useMemo(() => sortRows(filterRows(initRows(data.rows), searchTerm, searchColumns), orderBy), [
@@ -134,6 +141,7 @@ export default function Renderer({ options, data }: any) {
           showSizeChanger: false,
         }}
         showSorterTooltip={false}
+        scroll = {{x : 'max-content'}}
       />
     </div>
   );
