@@ -18,6 +18,8 @@ _build
 .vscode
 .env
 
+.ruff_cache
+
 dump.rdb
 
 node_modules
