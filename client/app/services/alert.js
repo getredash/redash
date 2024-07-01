@@ -36,6 +36,7 @@ const Alert = {
   delete: data => axios.delete(`api/alerts/${data.id}`),
   mute: data => axios.post(`api/alerts/${data.id}/mute`),
   unmute: data => axios.delete(`api/alerts/${data.id}/mute`),
+  evaluate: data => axios.post(`api/alerts/${data.id}/eval`),
 };
 
 export default Alert;
