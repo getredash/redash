@@ -12,6 +12,7 @@ import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import QuerySelector from "@/components/QuerySelector";
 import { Query } from "@/services/query";
 import { useUniqueId } from "@/lib/hooks/useUniqueId";
+import "./EditParameterSettingsDialog.less";
 
 const { Option } = Select;
 const formItemProps = { labelCol: { span: 6 }, wrapperCol: { span: 16 } };
@@ -71,6 +72,8 @@ function EditParameterSettingsDialog(props) {
   const [param, setParam] = useState(clone(props.parameter));
   const [isNameValid, setIsNameValid] = useState(true);
   const [initialQuery, setInitialQuery] = useState();
+  const [userInput, setUserInput] = useState(param.regex || "");
+  const [isValidRegex, setIsValidRegex] = useState(true);
 
   const isNew = !props.parameter.name;
 
@@ -114,6 +117,17 @@ function EditParameterSettingsDialog(props) {
 
   const paramFormId = useUniqueId("paramForm");
 
+  const handleRegexChange = e => {
+    setUserInput(e.target.value);
+    try {
+      new RegExp(e.target.value);
+      setParam({ ...param, regex: e.target.value });
+      setIsValidRegex(true);
+    } catch (error) {
+      setIsValidRegex(false);
+    }
+  };
+
   return (
     <Modal
       {...props.dialog.props}
@@ -155,6 +169,7 @@ function EditParameterSettingsDialog(props) {
             <Option value="text" data-test="TextParameterTypeOption">
               Text
             </Option>
+            <Option value="text-pattern">Text Pattern</Option>
             <Option value="number" data-test="NumberParameterTypeOption">
               Number
             </Option>
@@ -180,6 +195,19 @@ function EditParameterSettingsDialog(props) {
             <Option value="datetime-range-with-seconds">Date and Time Range (with seconds)</Option>
           </Select>
         </Form.Item>
+        {param.type === "text-pattern" && (
+          <Form.Item
+            label="Regex"
+            help={!isValidRegex ? "Invalid Regex Pattern" : "Valid Regex Pattern"}
+            {...formItemProps}>
+            <Input
+              value={userInput}
+              onChange={handleRegexChange}
+              className={!isValidRegex ? "input-error" : ""}
+              data-test="RegexPatternInput"
+            />
+          </Form.Item>
+        )}
         {param.type === "enum" && (
           <Form.Item label="Values" help="Dropdown list values (newline delimited)" {...formItemProps}>
             <Input.TextArea

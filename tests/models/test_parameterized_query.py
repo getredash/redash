@@ -73,6 +73,21 @@ class TestParameterizedQuery(TestCase):
 
         self.assertEqual("foo baz", query.text)
 
+    def test_validates_text_pattern_parameters(self):
+        schema = [{"name": "bar", "type": "text-pattern", "regex": "a+"}]
+        query = ParameterizedQuery("foo {{bar}}", schema)
+
+        query.apply({"bar": "a"})
+
+        self.assertEqual("foo a", query.text)
+
+    def test_raises_on_invalid_text_pattern_parameters(self):
+        schema = schema = [{"name": "bar", "type": "text-pattern", "regex": "a+"}]
+        query = ParameterizedQuery("foo {{bar}}", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"bar": "b"})
+
     def test_raises_on_invalid_number_parameters(self):
         schema = [{"name": "bar", "type": "number"}]
         query = ParameterizedQuery("foo", schema)
