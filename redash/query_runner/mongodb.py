@@ -189,9 +189,9 @@ class MongoDB(BaseQueryRunner):
     def custom_json_encoder(cls, dec, o):
         if isinstance(o, ObjectId):
             return str(o)
-        elif isinstance(o, Timestamp):
+        if isinstance(o, Timestamp):
             return dec.default(o.as_datetime())
-        elif isinstance(o, Decimal128):
+        if isinstance(o, Decimal128):
             return o.to_decimal()
         return None
 
@@ -228,8 +228,7 @@ class MongoDB(BaseQueryRunner):
     def _is_collection_a_view(self, db, collection_name):
         if "viewOn" in db[collection_name].options():
             return True
-        else:
-            return False
+        return False
 
     def _get_collection_fields(self, db, collection_name):
         # Since MongoDB is a document based database and each document doesn't have
@@ -291,8 +290,8 @@ class MongoDB(BaseQueryRunner):
 
         if "collection" not in query_data:
             return None, "'collection' must have a value to run a query"
-        else:
-            collection = query_data["collection"]
+
+        collection = query_data["collection"]
 
         q = query_data.get("query", None)
         f = None
@@ -357,7 +356,6 @@ class MongoDB(BaseQueryRunner):
 
         if "count" in query_data:
             columns.append({"name": "count", "friendly_name": "count", "type": TYPE_INTEGER})
-
             rows.append({"count": cursor})
         else:
             rows, columns = parse_results(cursor, flatten=self.flatten)
