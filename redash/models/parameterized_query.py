@@ -24,8 +24,7 @@ def _load_result(query_id, org):
     if query.data_source:
         query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, org)
         return query_result.data
-    else:
-        raise QueryDetachedFromDataSourceError(query_id)
+    raise QueryDetachedFromDataSourceError(query_id)
 
 
 def dropdown_values(query_id, org):
@@ -83,9 +82,8 @@ def _parameter_names(parameter_values):
 def _is_number(string):
     if isinstance(string, Number):
         return True
-    else:
-        float(string)
-        return True
+    float(string)
+    return True
 
 
 def _is_date(string):
