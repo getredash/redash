@@ -84,8 +84,7 @@ export default class AlertView extends React.Component {
               </Button>
               {menuButton}
             </Tooltip>
-          )
-        }
+          )}
         </Title>
         <div className="bg-white tiled p-20">
           <Grid.Row type="flex" gutter={16}>
