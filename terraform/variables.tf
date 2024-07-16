@@ -1,3 +1,8 @@
+variable "ENV" {
+  type        = string
+  description = "production or development used for prefix"
+}
+
 variable "AWS_VPC_ID" {
   type        = string
   description = "AWS VPC ID to build Infrastructure in"

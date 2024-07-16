@@ -1,11 +1,11 @@
 [
     {
         "name": "ScheduledWorker",
-        "image": "906503920888.dkr.ecr.us-east-2.amazonaws.com/images:redash_5be8d6aea09e19749468ee7ef94218a3dddccacc",
+        "image": "906503920888.dkr.ecr.us-east-2.amazonaws.com/images:redash_9043909ef979b14adfcdda9cb4b573a502bd5858",
         "cpu": 0,
         "links": [],
         "portMappings": [],
-        "essential": false,
+        "essential": true,
         "entryPoint": [],
         "command": [
             "worker"

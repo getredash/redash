@@ -35,8 +35,8 @@ resource "aws_ecs_service" "server" {
 }
 
 resource "aws_ecs_task_definition" "server" {
-  family                = "RedashDevelopmentV2Server"
-  container_definitions = file("./env/containerDefinitions/development/serverContainerDef.json")
+  family                = "Redash${var.ENV}V2Server"
+  container_definitions = file("./env/containerDefinitions/${var.ENV}/serverContainerDef.json")
   cpu                   = var.TASK_CPU
   execution_role_arn    = data.aws_iam_role.execution.arn
   task_role_arn         = data.aws_iam_role.task.arn
@@ -78,8 +78,8 @@ resource "aws_ecs_service" "scheduler" {
 }
 
 resource "aws_ecs_task_definition" "scheduler" {
-  family                = "RedashDevelopmentV2Scheduler"
-  container_definitions = file("./env/containerDefinitions/development/schedulerContainerDef.json")
+  family                = "Redash${var.ENV}V2Scheduler"
+  container_definitions = file("./env/containerDefinitions/${var.ENV}/schedulerContainerDef.json")
   cpu                   = var.SCHEDULER_TASK_CPU
   execution_role_arn    = data.aws_iam_role.execution.arn
   task_role_arn         = data.aws_iam_role.task.arn
@@ -121,8 +121,8 @@ resource "aws_ecs_service" "defaultWorkers" {
 }
 
 resource "aws_ecs_task_definition" "defaultWorkers" {
-  family                = "RedashDevelopmentV2DefaultWorkers"
-  container_definitions = file("./env/containerDefinitions/development/defaultWorkersContainerDef.json")
+  family                = "Redash${var.ENV}V2DefaultWorkers"
+  container_definitions = file("./env/containerDefinitions/${var.ENV}/defaultWorkersContainerDef.json")
   cpu                   = var.WORKERS_TASK_CPU
   execution_role_arn    = data.aws_iam_role.execution.arn
   task_role_arn         = data.aws_iam_role.task.arn
@@ -164,8 +164,8 @@ resource "aws_ecs_service" "adhocWorkers" {
 }
 
 resource "aws_ecs_task_definition" "adhocWorkers" {
-  family                = "RedashDevelopmentV2AdHocWorkers"
-  container_definitions = file("./env/containerDefinitions/development/adhocWorkersContainerDef.json")
+  family                = "Redash${var.ENV}V2AdHocWorkers"
+  container_definitions = file("./env/containerDefinitions/${var.ENV}/adhocWorkersContainerDef.json")
   cpu                   = var.WORKERS_TASK_CPU
   execution_role_arn    = data.aws_iam_role.execution.arn
   task_role_arn         = data.aws_iam_role.task.arn
@@ -207,8 +207,8 @@ resource "aws_ecs_service" "scheduledWorkers" {
 }
 
 resource "aws_ecs_task_definition" "scheduledWorkers" {
-  family                = "RedashDevelopmentV2ScheduledWorkers"
-  container_definitions = file("./env/containerDefinitions/development/scheduledWorkersContainerDef.json")
+  family                = "Redash${var.ENV}V2ScheduledWorkers"
+  container_definitions = file("./env/containerDefinitions/${var.ENV}/scheduledWorkersContainerDef.json")
   cpu                   = var.WORKERS_TASK_CPU
   execution_role_arn    = data.aws_iam_role.execution.arn
   task_role_arn         = data.aws_iam_role.task.arn
