@@ -9,7 +9,7 @@ jobs:
         runs-on: ubuntu-latest
         env:
             REDASH_API_KEY: ${{ secrets.REDASH_API_KEY }}
-            aws-region: us-east-2
+            AWS_REGION: us-east-2
         steps:
             - name: checkout repo
               uses: actions/checkout@v4
