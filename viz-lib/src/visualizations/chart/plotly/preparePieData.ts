@@ -101,6 +101,7 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
     },
     sourceData,
     sort: options.piesort,
+    color_scheme: options.color_scheme,
   };
 }
 
