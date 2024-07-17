@@ -166,7 +166,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         if self._profile_image_url:
             return self._profile_image_url
 
-        email_md5 = hashlib.md5(self.email.lower().encode()).hexdigest()
+        email_md5 = hashlib.md5(self.email.lower().encode(), usedforsecurity=False).hexdigest()
         return "https://www.gravatar.com/avatar/{}?s=40&d=identicon".format(email_md5)
 
     @property
@@ -233,7 +233,9 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         return AccessPermission.exists(obj, access_type, grantee=self)
 
     def get_id(self):
-        identity = hashlib.md5("{},{}".format(self.email, self.password_hash).encode()).hexdigest()
+        identity = hashlib.md5(
+            "{},{}".format(self.email, self.password_hash).encode(), usedforsecurity=False
+        ).hexdigest()
         return "{0}-{1}".format(self.id, identity)
 
     def get_actual_user(self):

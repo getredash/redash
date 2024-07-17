@@ -41,9 +41,7 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
   const xPosition = (index % cellsInRow) * cellWidth;
   const yPosition = Math.floor(index / cellsInRow) * cellHeight;
 
-  //we hold the labels and values in a dictionary so that we can aggregate multiple values for a single label
-  //once we reach the end of the data, we'll convert the dictionary to separate arrays for labels and values
-  const labelsValuesDict: { [key: string]: any } = {};
+  const labelsValuesMap = new Map();
 
   const sourceData = new Map();
   const seriesTotal = reduce(
@@ -58,13 +56,13 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
     const x = hasX ? normalizeValue(row.x, options.xAxis.type) : `Slice ${index}`;
     const y = cleanNumber(row.y);
 
-    if (x in labelsValuesDict){
-      labelsValuesDict[x] += y;
+    if (labelsValuesMap.has(x)) {
+      labelsValuesMap.set(x, labelsValuesMap.get(x) + y);
+    } else {
+      labelsValuesMap.set(x, y);
     }
-    else{
-      labelsValuesDict[x] = y;
-    }
-    const aggregatedY = labelsValuesDict[x];
+    const aggregatedY = labelsValuesMap.get(x);
+
 
     sourceData.set(x, {
       x,
@@ -77,8 +75,8 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
   const markerColors = map(Array.from(sourceData.values()), data => getValueColor(data.row.x));
   const textColors = map(markerColors, c => chooseTextColorForBackground(c));
 
-  const labels = Object.keys(labelsValuesDict);
-  const values = Object.values(labelsValuesDict);
+  const labels = Array.from(labelsValuesMap.keys());
+  const values = Array.from(labelsValuesMap.values());
 
   return {
     visible: true,
