@@ -2,16 +2,38 @@ name: Check Redash Scheduler
 
 on:
     schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/30 * * * *'
 
 jobs:
     test_schedule:
         runs-on: ubuntu-latest
         env:
             REDASH_API_KEY: ${{ secrets.REDASH_API_KEY }}
+            aws-region: us-east-2
         steps:
             - name: checkout repo
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
-            - name: execute python script
+            - name: Check last Scheduler Run
+              id: check_last_run
               run: python3 ./cron/checkScheduler.py
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v1
+              with:
+                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: ${{ env.AWS_REGION }}
+            - name: Restart Schedule Service if Scheduler is not Updating
+              if: failure() && steps.check_last_run.outcome == 'failure'
+              run: |
+                aws ecs update-service --cluster "Redash-EcsDefaultClusterMnL3mNNYNCFVPC50666647-nafwh7AtuVL1" --service "scheduler" --force-new-deployment
+
+            - name: Verify Task Deployment
+              id: verify-deployment
+              run: |
+                if aws ecs wait services-stable --cluster "Redash-EcsDefaultClusterMnL3mNNYNCFVPC50666647-nafwh7AtuVL1" --services "scheduler" --output json; then
+                echo "Success: Service is stable."
+                else
+                echo "Error: The AWS Task Deployment failed, please check logs at https://observability.masterworks.com/"
+                exit 1
+                fi
