@@ -136,5 +136,5 @@ describe("Chart", () => {
     cy.getByTestId("ColorOptionTableau 10").click();
     cy.getByTestId("ColorScheme").click();
     cy.getByTestId("ColorOptionD3 Category 10").click();
-  })
+  });
 });
