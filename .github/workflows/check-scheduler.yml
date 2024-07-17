@@ -3,7 +3,7 @@ name: Check Redash Scheduler
 on:
     schedule:
     - cron: '*/30 * * * *'
-
+    workflow_dispatch:
 jobs:
     test_schedule:
         runs-on: ubuntu-latest
