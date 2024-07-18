@@ -21,7 +21,6 @@
         left: 0;
         top: 0;
         border-top: 0;
-        z-index: 1;
         background: #fafafa !important;
       }
     }
@@ -156,4 +155,12 @@
   &:not(:hover):not(:active) {
     color: @text-color-secondary;
   }
+}
+
+.ant-table-cell-fix-left{
+  background-color: #fff !important;
+}
+
+.ant-table-tbody > tr.ant-table-row:hover > .ant-table-cell-fix-left {
+  background-color: rgb(248, 249, 250) !important;
 }
