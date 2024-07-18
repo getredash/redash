@@ -78,7 +78,7 @@ class Athena(BaseQueryRunner):
                 "glue": {"type": "boolean", "title": "Use Glue Data Catalog"},
                 "catalog_ids": {
                     "type": "string",
-                    "title": "Comma separated Glue Data Catalog IDs (Defaults to the default catalog)",
+                    "title": "Enter Glue Data Catalog IDs, separated by commas (leave blank for default catalog)",
                 },
                 "work_group": {
                     "type": "string",
