@@ -60,7 +60,7 @@ def gen_query_hash(sql):
     """
     sql = COMMENTS_REGEX.sub("", sql)
     sql = "".join(sql.split())
-    return hashlib.md5(sql.encode("utf-8")).hexdigest()
+    return hashlib.md5(sql.encode("utf-8"), usedforsecurity=False).hexdigest()
 
 
 def generate_token(length):
