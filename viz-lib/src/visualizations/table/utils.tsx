@@ -50,7 +50,7 @@ function getOrderByInfo(orderBy: any) {
   return result;
 }
 
-export function prepareColumns(columns: any, searchInput: any, orderBy: any, onOrderByChange: any) {
+export function prepareColumns(columns: any, searchInput: any, orderBy: any, onOrderByChange: any, columnsToFix: Set<string>) {
   columns = filter(columns, "visible");
   columns = sortBy(columns, "order");
 
@@ -96,6 +96,7 @@ export function prepareColumns(columns: any, searchInput: any, orderBy: any, onO
         }),
         onClick: (event: any) => onOrderByChange(toggleOrderBy(column.name, orderBy, event.shiftKey)),
       }),
+      fixed: columnsToFix.has(column.name) ? 'left' : false
     };
 
     // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
