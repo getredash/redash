@@ -14,7 +14,7 @@ import Tooltip from "./Tooltip";
 const multipleValuesProps = {
   maxTagCount: 3,
   maxTagTextLength: 10,
-  maxTagPlaceholder: num => `+${num.length} more`,
+  maxTagPlaceholder: (num) => `+${num.length} more`,
 };
 
 class ParameterValueInput extends React.Component {
@@ -48,7 +48,7 @@ class ParameterValueInput extends React.Component {
     };
   }
 
-  componentDidUpdate = prevProps => {
+  componentDidUpdate = (prevProps) => {
     const { value, parameter } = this.props;
     // if value prop updated, reset dirty state
     if (prevProps.value !== value || prevProps.parameter !== parameter) {
@@ -59,7 +59,7 @@ class ParameterValueInput extends React.Component {
     }
   };
 
-  onSelect = value => {
+  onSelect = (value) => {
     const isDirty = !isEqual(value, this.props.value);
     this.setState({ value, isDirty });
     this.props.onSelect(value, isDirty);
@@ -96,9 +96,9 @@ class ParameterValueInput extends React.Component {
   renderEnumInput() {
     const { enumOptions, parameter } = this.props;
     const { value } = this.state;
-    const enumOptionsArray = enumOptions.split("\n").filter(v => v !== "");
+    const enumOptionsArray = enumOptions.split("\n").filter((v) => v !== "");
     // Antd Select doesn't handle null in multiple mode
-    const normalize = val => (parameter.multiValuesOptions && val === null ? [] : val);
+    const normalize = (val) => (parameter.multiValuesOptions && val === null ? [] : val);
 
     return (
       <SelectWithVirtualScroll
@@ -106,7 +106,7 @@ class ParameterValueInput extends React.Component {
         mode={parameter.multiValuesOptions ? "multiple" : "default"}
         value={normalize(value)}
         onChange={this.onSelect}
-        options={map(enumOptionsArray, opt => ({ label: String(opt), value: opt }))}
+        options={map(enumOptionsArray, (opt) => ({ label: String(opt), value: opt }))}
         showSearch
         showArrow
         notFoundContent={isEmpty(enumOptionsArray) ? "No options available" : null}
@@ -136,14 +136,14 @@ class ParameterValueInput extends React.Component {
     const { className } = this.props;
     const { value } = this.state;
 
-    const normalize = val => (isNaN(val) ? undefined : val);
+    const normalize = (val) => (isNaN(val) ? undefined : val);
 
     return (
       <InputNumber
         className={className}
         value={normalize(value)}
         aria-label="Parameter number value"
-        onChange={val => this.onSelect(normalize(val))}
+        onChange={(val) => this.onSelect(normalize(val))}
       />
     );
   }
@@ -159,7 +159,7 @@ class ParameterValueInput extends React.Component {
             className={className}
             value={value}
             aria-label="Parameter text pattern value"
-            onChange={e => this.onSelect(e.target.value)}
+            onChange={(e) => this.onSelect(e.target.value)}
           />
         </Tooltip>
       </React.Fragment>
@@ -176,7 +176,7 @@ class ParameterValueInput extends React.Component {
         value={value}
         aria-label="Parameter text value"
         data-test="TextParamInput"
-        onChange={e => this.onSelect(e.target.value)}
+        onChange={(e) => this.onSelect(e.target.value)}
       />
     );
   }
