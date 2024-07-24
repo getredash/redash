@@ -60,7 +60,7 @@ describe("Parameter", () => {
         name: "Text Pattern Parameter",
         query: "SELECT '{{test-parameter}}' AS parameter",
         options: {
-          parameters: [{ name: "test-parameter", title: "Test Parameter", type: "text-pattern", regex: "a+" }],
+          parameters: [{ name: "test-parameter", title: "Test Parameter", type: "text-pattern", regex: "a.*a" }],
         },
       };
 
@@ -68,25 +68,25 @@ describe("Parameter", () => {
     });
 
     it("updates the results after clicking Apply", () => {
-      cy.getByTestId("ParameterName-test-parameter").find("input").type("{selectall}art");
+      cy.getByTestId("ParameterName-test-parameter").find("input").type("{selectall}arta");
 
       cy.getByTestId("ParameterApplyButton").click();
 
-      cy.getByTestId("TableVisualization").should("contain", "art");
+      cy.getByTestId("TableVisualization").should("contain", "arta");
 
-      cy.getByTestId("ParameterName-test-parameter").find("input").type("{selectall}around");
+      cy.getByTestId("ParameterName-test-parameter").find("input").type("{selectall}arounda");
 
       cy.getByTestId("ParameterApplyButton").click();
 
-      cy.getByTestId("TableVisualization").should("contain", "around");
+      cy.getByTestId("TableVisualization").should("contain", "arounda");
     });
 
     it("throws error message with invalid query request", () => {
-      cy.getByTestId("ParameterName-test-parameter").find("input").type("{selectall}art");
+      cy.getByTestId("ParameterName-test-parameter").find("input").type("{selectall}arta");
 
       cy.getByTestId("ParameterApplyButton").click();
 
-      cy.getByTestId("ParameterName-test-parameter").find("input").type("{selectall}test");
+      cy.getByTestId("ParameterName-test-parameter").find("input").type("{selectall}abcab");
 
       cy.getByTestId("ParameterApplyButton").click();
 
@@ -95,7 +95,7 @@ describe("Parameter", () => {
 
     it("sets dirty state when edited", () => {
       expectDirtyStateChange(() => {
-        cy.getByTestId("ParameterName-test-parameter").find("input").type("{selectall}art");
+        cy.getByTestId("ParameterName-test-parameter").find("input").type("{selectall}arta");
       });
     });
 
