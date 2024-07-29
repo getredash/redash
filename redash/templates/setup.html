@@ -42,20 +42,6 @@
       {{ render_field(form.email) }}
       {{ render_field(form.password) }}
 
-      <div class="checkbox">
-        <label>
-          {{ form.security_notifications() }}
-          Subscribe to Security Notifications
-        </label>
-      </div>
-
-      <div class="checkbox">
-        <label>
-          {{ form.newsletter() }}
-          Subscribe to newsletter (version updates, no more than once a month)
-        </label>
-      </div>
-
       <h4 class="m-t-25">General</h4>
 
       {{ render_field(form.org_name, help_block="Used in email notifications and the UI.") }}

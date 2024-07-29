@@ -91,26 +91,35 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
       };
 
   const sourceData = new Map();
-  const xValues: any = [];
-  const yValues: any = [];
+
+  const labelsValuesMap = new Map();
+
   const yErrorValues: any = [];
   each(data, row => {
     const x = normalizeValue(row.x, options.xAxis.type); // number/datetime/category
     const y = cleanYValue(row.y, seriesYAxis === "y2" ? options.yAxis[1].type : options.yAxis[0].type); // depends on series type!
     const yError = cleanNumber(row.yError); // always number
     const size = cleanNumber(row.size); // always number
+    if (labelsValuesMap.has(x)) {
+      labelsValuesMap.set(x, labelsValuesMap.get(x) + y);
+    } else {
+      labelsValuesMap.set(x, y);
+    }
+    const aggregatedY = labelsValuesMap.get(x);
+
     sourceData.set(x, {
       x,
-      y,
+      y: aggregatedY,
       yError,
       size,
       yPercent: null, // will be updated later
       row,
     });
-    xValues.push(x);
-    yValues.push(y);
     yErrorValues.push(yError);
   });
+
+  const xValues = Array.from(labelsValuesMap.keys());
+  const yValues = Array.from(labelsValuesMap.values());
 
   const plotlySeries = {
     visible: true,

@@ -41,8 +41,8 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
   const xPosition = (index % cellsInRow) * cellWidth;
   const yPosition = Math.floor(index / cellsInRow) * cellHeight;
 
-  const labels: any = [];
-  const values: any = [];
+  const labelsValuesMap = new Map();
+
   const sourceData = new Map();
   const seriesTotal = reduce(
     series.data,
@@ -55,18 +55,28 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
   each(series.data, row => {
     const x = hasX ? normalizeValue(row.x, options.xAxis.type) : `Slice ${index}`;
     const y = cleanNumber(row.y);
-    labels.push(x);
-    values.push(y);
+
+    if (labelsValuesMap.has(x)) {
+      labelsValuesMap.set(x, labelsValuesMap.get(x) + y);
+    } else {
+      labelsValuesMap.set(x, y);
+    }
+    const aggregatedY = labelsValuesMap.get(x);
+
+
     sourceData.set(x, {
       x,
-      y,
-      yPercent: (y / seriesTotal) * 100,
+      y: aggregatedY,
+      yPercent: (aggregatedY / seriesTotal) * 100,
       row,
     });
   });
 
-  const markerColors = map(series.data, row => getValueColor(row.x));
+  const markerColors = map(Array.from(sourceData.values()), data => getValueColor(data.row.x));
   const textColors = map(markerColors, c => chooseTextColorForBackground(c));
+
+  const labels = Array.from(labelsValuesMap.keys());
+  const values = Array.from(labelsValuesMap.values());
 
   return {
     visible: true,
@@ -91,6 +101,7 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
       y: [yPosition, yPosition + cellHeight - yPadding],
     },
     sourceData,
+    sort: options.piesort,
   };
 }
 

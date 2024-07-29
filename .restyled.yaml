@@ -38,7 +38,9 @@ request_review: author
 #
 # These can be used to tell other automation to avoid our PRs.
 #
-labels: ["Skip CI"]
+labels:
+  - restyled
+  - "Skip CI"
 
 # Labels to ignore
 #
@@ -50,13 +52,13 @@ labels: ["Skip CI"]
 # Restylers to run, and how
 restylers:
   - name: black
-    image: restyled/restyler-black:v19.10b0
+    image: restyled/restyler-black:v24.4.2
     include:
       - redash
       - tests
       - migrations/versions
   - name: prettier
-    image: restyled/restyler-prettier:v1.19.1-2
+    image: restyled/restyler-prettier:v3.3.2-2
     command:
       - prettier
       - --write
