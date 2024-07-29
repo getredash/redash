@@ -81,6 +81,9 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
 
 WORKDIR /app
 
+RUN echo "setuptools<72" > /app/constraints.txt
+ENV PIP_CONSTRAINT=/app/constraints.txt
+
 ENV POETRY_VERSION=1.6.1
 ENV POETRY_HOME=/etc/poetry
 ENV POETRY_VIRTUALENVS_CREATE=false
@@ -88,9 +91,14 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 
 COPY pyproject.toml poetry.lock ./
 
+RUN /etc/poetry/bin/poetry config virtualenvs.create false
+
 ARG POETRY_OPTIONS="--no-root --no-interaction --no-ansi"
 # for LDAP authentication, install with `ldap3` group
 # disabled by default due to GPL license conflict
+RUN /etc/poetry/bin/poetry run pip install sqlalchemy==1.3.24
+RUN /etc/poetry/bin/poetry run pip install memsql==3.2.0
+RUN /etc/poetry/bin/poetry run pip install pyhive==0.6.1
 ARG install_groups="main,all_ds,dev"
 RUN /etc/poetry/bin/poetry install --only $install_groups $POETRY_OPTIONS
 
