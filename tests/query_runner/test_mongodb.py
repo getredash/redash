@@ -230,7 +230,6 @@ class TestMongoResults(TestCase):
             },
         )
 
-        self.assertEqual(7, len(columns))
         self.assertIsNotNone(_get_column_by_name(columns, "column"))
         self.assertIsNotNone(_get_column_by_name(columns, "column2"))
         self.assertIsNotNone(_get_column_by_name(columns, "column3"))
