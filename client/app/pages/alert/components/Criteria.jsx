@@ -94,14 +94,14 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
             dropdownMatchSelectWidth={false}
             style={{ width: 80 }}
           >
-            <Select.Option value="max" label="max">
-              max
+            <Select.Option value="first" label="first">
+              first
             </Select.Option>
             <Select.Option value="min" label="min">
               min
             </Select.Option>
-            <Select.Option value="first" label="first">
-              first
+            <Select.Option value="max" label="max">
+              max
             </Select.Option>
           </Select>
         ) : (

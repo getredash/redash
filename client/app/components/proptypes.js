@@ -65,7 +65,7 @@ export const Query = PropTypes.shape({
 
 export const AlertOptions = PropTypes.shape({
   column: PropTypes.string,
-  selector: PropTypes.oneOf(["max", "min", "first"]),
+  selector: PropTypes.oneOf(["first", "min", "max"]),
   op: PropTypes.oneOf([">", ">=", "<", "<=", "==", "!="]),
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   custom_subject: PropTypes.string,

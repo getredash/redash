@@ -1006,11 +1006,12 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         result_table = []  # A two-dimensional array which can rendered as a table in Mustache
         for row in data["rows"]:
             result_table.append([row[col["name"]] for col in data["columns"]])
-
+        print("OPTIONS", self.options)
         context = {
             "ALERT_NAME": self.name,
             "ALERT_URL": "{host}/alerts/{alert_id}".format(host=host, alert_id=self.id),
             "ALERT_STATUS": self.state.upper(),
+            "ALERT_SELECTOR": self.options["selector"],
             "ALERT_CONDITION": self.options["op"],
             "ALERT_THRESHOLD": self.options["value"],
             "QUERY_NAME": self.query_rel.name,

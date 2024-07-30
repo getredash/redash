@@ -114,7 +114,9 @@ class TestAlertRenderTemplate(BaseTestCase):
     def create_alert(self, results, column="foo", value="5"):
         result = self.factory.create_query_result(data=results)
         query = self.factory.create_query(latest_query_data_id=result.id)
-        alert = self.factory.create_alert(query_rel=query, options={"op": "equals", "column": column, "value": value})
+        alert = self.factory.create_alert(
+            query_rel=query, options={"selector": "first", "op": "equals", "column": column, "value": value}
+        )
         return alert
 
     def test_render_custom_alert_template(self):
@@ -122,6 +124,7 @@ class TestAlertRenderTemplate(BaseTestCase):
         custom_alert = """
         <pre>
         ALERT_STATUS        {{ALERT_STATUS}}
+        ALERT_SELECTOR      {{ALERT_SELECTOR}}
         ALERT_CONDITION     {{ALERT_CONDITION}}
         ALERT_THRESHOLD     {{ALERT_THRESHOLD}}
         ALERT_NAME          {{ALERT_NAME}}
@@ -136,6 +139,7 @@ class TestAlertRenderTemplate(BaseTestCase):
         expected = """
         <pre>
         ALERT_STATUS        UNKNOWN
+        ALERT_SELECTOR      first
         ALERT_CONDITION     equals
         ALERT_THRESHOLD     5
         ALERT_NAME          %s
