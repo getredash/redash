@@ -389,6 +389,8 @@ class QueryResult(db.Model, BelongsToOrgMixin):
 def should_schedule_next(previous_iteration, now, interval, time=None, day_of_week=None, failures=0):
     # if time exists then interval > 23 hours (82800s)
     # if day_of_week exists then interval > 6 days (518400s)
+    if previous_iteration is None:
+        return False
     if time is None:
         ttl = int(interval)
         next_iteration = previous_iteration + datetime.timedelta(seconds=ttl)
@@ -608,17 +610,23 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                     if schedule_until <= now:
                         continue
 
+                if all(value is None for value in query.schedule.values()):
+                    continue
+
                 retrieved_at = scheduled_queries_executions.get(query.id) or (
                     query.latest_query_data and query.latest_query_data.retrieved_at
                 )
 
-                if should_schedule_next(
-                    retrieved_at or now,
-                    now,
-                    query.schedule["interval"],
-                    query.schedule["time"],
-                    query.schedule["day_of_week"],
-                    query.schedule_failures,
+                if (
+                    should_schedule_next(
+                        retrieved_at,
+                        now,
+                        query.schedule["interval"],
+                        query.schedule["time"],
+                        query.schedule["day_of_week"],
+                        query.schedule_failures,
+                    )
+                    or not retrieved_at
                 ):
                     key = "{}:{}".format(query.query_hash, query.data_source_id)
                     outdated_queries[key] = query
