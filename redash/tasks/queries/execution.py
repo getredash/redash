@@ -1,5 +1,7 @@
 import signal
+import sys
 import time
+from collections import deque
 
 import redis
 from rq import get_current_job
