@@ -1,14 +1,15 @@
-import React, { useEffect, useMemo, useState, useCallback, useImperativeHandle } from "react";
-import PropTypes from "prop-types";
-import cx from "classnames";
-import { AceEditor, snippetsModule, updateSchemaCompleter } from "./ace";
-import { srNotify } from "@/lib/accessibility";
-import { SchemaItemType } from "@/components/queries/SchemaBrowser";
-import resizeObserver from "@/services/resizeObserver";
-import QuerySnippet from "@/services/query-snippet";
-
-import QueryEditorControls from "./QueryEditorControls";
 import "./index.less";
+
+import { AceEditor, snippetsModule, updateSchemaCompleter } from "./ace";
+import React, { useCallback, useEffect, useImperativeHandle, useMemo, useState } from "react";
+
+import PropTypes from "prop-types";
+import QueryEditorControls from "./QueryEditorControls";
+import QuerySnippet from "@/services/query-snippet";
+import { SchemaItemType } from "@/components/queries/SchemaBrowser";
+import cx from "classnames";
+import resizeObserver from "@/services/resizeObserver";
+import { srNotify } from "@/lib/accessibility";
 
 const editorProps = { $blockScrolling: Infinity };
 
@@ -21,6 +22,21 @@ const QueryEditor = React.forwardRef(function(
 
   // For some reason, value for AceEditor should be managed in this way - otherwise it goes berserk when selecting text
   const [currentValue, setCurrentValue] = useState(value);
+  
+  // adding callback to get AI feedback on query. NOTE that i don't love putting this code here. I'd prefer to have it 
+  // in the commandbar file, but to do that I'd need to refactor things so that currentValue lives in some sort of
+  // global context that I can then reference from the commandbar file. I went for speed though, so I just put it here.
+  useEffect(() => {
+    const openCopilot = () => {
+      window.CommandBar.openCopilot({ query: `What do you think of this query? ${currentValue}` });
+    };
+
+    window.CommandBar.addCallback('feedback', openCopilot);
+
+    return () => {
+      window.CommandBar.removeCallback('feedback');
+    };
+  }, [currentValue]);
 
   useEffect(() => {
     setCurrentValue(value);
@@ -33,6 +49,18 @@ const QueryEditor = React.forwardRef(function(
     },
     [onChange]
   );
+  
+  // adding callback to replace query text with selected saved query. Similar NOTE here to the above. I'd rather have this 
+  // code in a separate file... but again, going for speed.
+  useEffect(() => {
+    window.CommandBar.addCallback('snippets', (args, context) => {
+      handleChange(args.thisTemplate.query);
+    });
+    return () => {
+      window.CommandBar.removeCallback('snippets');
+    };
+  },
+  [handleChange]);
 
   const editorOptions = useMemo(
     () => ({
