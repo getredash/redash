@@ -105,6 +105,7 @@
     "babel-loader": "^8.3.0",
     "babel-plugin-istanbul": "^6.1.1",
     "babel-plugin-transform-builtin-extend": "^1.1.2",
+    "commandbar": "^1.14.0",
     "copy-webpack-plugin": "^6.4.1",
     "css-loader": "^5.2.7",
     "cypress": "^11.2.0",
@@ -179,8 +180,8 @@
     ]
   },
   "browser": {
-      "fs": false,
-      "path": false
+    "fs": false,
+    "path": false
   },
   "//": "browserslist set to 'Async functions' compatibility",
   "browserslist": [

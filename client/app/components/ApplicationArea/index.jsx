@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from "react";
-import routes from "@/services/routes";
+import React, { useEffect, useState } from "react";
+
+import ErrorMessage from "./ErrorMessage";
 import Router from "./Router";
 import handleNavigationIntent from "./handleNavigationIntent";
-import ErrorMessage from "./ErrorMessage";
+import routes from "@/services/routes";
+import {useCommandBar} from "../../hooks/useCommandbar";
 
 export default function ApplicationArea() {
   const [currentRoute, setCurrentRoute] = useState(null);
   const [unhandledError, setUnhandledError] = useState(null);
 
+  useCommandBar();
+  
   useEffect(() => {
     if (currentRoute && currentRoute.title) {
       document.title = currentRoute.title;

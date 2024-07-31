@@ -111,9 +111,11 @@ HSTS_INCLUDE_SUBDOMAINS = parse_boolean(os.environ.get("REDASH_HSTS_INCLUDE_SUBD
 # as a string in the general CSP format of a semicolon separated list of
 # individual CSP directives, see https://github.com/GoogleCloudPlatform/flask-talisman#example-7
 # for more information. E.g.:
+
+# NOTE: Adding commandbar to CSP
 CONTENT_SECURITY_POLICY = os.environ.get(
     "REDASH_CONTENT_SECURITY_POLICY",
-    "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data: blob:; object-src 'none'; frame-ancestors 'none'; frame-src redash.io;",
+    "default-src 'self'; style-src 'self' 'unsafe-inline' https://*.commandbar.com; script-src 'self' 'unsafe-eval' https://*.commandbar.com; font-src 'self' data:; img-src 'self' http: https: data: blob: https://*.commandbar.com; object-src 'none'; frame-ancestors 'none'; frame-src 'self' https://*.commandbar.com redash.io;",
 )
 CONTENT_SECURITY_POLICY_REPORT_URI = os.environ.get("REDASH_CONTENT_SECURITY_POLICY_REPORT_URI", "")
 CONTENT_SECURITY_POLICY_REPORT_ONLY = parse_boolean(
