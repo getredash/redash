@@ -163,9 +163,9 @@ def _get_size_iterative(dict_obj):
         if isinstance(current, dict):
             objects.extend(current.keys())
             objects.extend(current.values())
-        elif hasattr(current, '__dict__'):
+        elif hasattr(current, "__dict__"):
             objects.append(current.__dict__)
-        elif hasattr(current, '__iter__') and not isinstance(current, (str, bytes, bytearray)):
+        elif hasattr(current, "__iter__") and not isinstance(current, (str, bytes, bytearray)):
             objects.extend(current)
 
     return size
