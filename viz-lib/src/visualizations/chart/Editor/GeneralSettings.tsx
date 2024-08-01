@@ -220,6 +220,21 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
             </Select.Option>
           </Select>
+          <Select
+            label="Sort"
+            defaultValue={options.piesort}
+            onChange={(val: any) => onOptionsChange({ piesort: val })}>
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            <Select.Option value={true}>
+              True
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            </Select.Option>
+            {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            <Select.Option value={false}>
+              False
+              {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
+            </Select.Option>
+          </Select>
         </Section>
       )}
 

@@ -1,4 +1,4 @@
-FROM node:18-bookworm as frontend-builder
+FROM node:18-bookworm AS frontend-builder
 
 RUN npm install --global --force yarn@1.22.22
 
@@ -19,6 +19,9 @@ COPY --chown=redash scripts /frontend/scripts
 # Controls whether to instrument code for coverage information
 ARG code_coverage
 ENV BABEL_ENV=${code_coverage:+test}
+
+# Avoid issues caused by lags in disk and network I/O speeds when working on top of QEMU emulation for multi-platform image building.
+RUN yarn config set network-timeout 300000
 
 RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
 
@@ -85,6 +88,9 @@ ENV POETRY_VERSION=1.6.1
 ENV POETRY_HOME=/etc/poetry
 ENV POETRY_VIRTUALENVS_CREATE=false
 RUN curl -sSL https://install.python-poetry.org | python3 -
+
+# Avoid crashes, including corrupted cache artifacts, when building multi-platform images with GitHub Actions.
+RUN /etc/poetry/bin/poetry cache clear pypi --all
 
 COPY pyproject.toml poetry.lock ./
 
