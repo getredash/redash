@@ -1,4 +1,4 @@
-FROM node:18-bookworm as frontend-builder
+FROM node:18-bookworm AS frontend-builder
 
 RUN npm install --global --force yarn@1.22.22
 
