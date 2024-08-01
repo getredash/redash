@@ -221,3 +221,97 @@ class TestGlueSchema(TestCase):
         )
         with self.stubber:
             assert query_runner.get_schema() == []
+
+    def test_multi_catalog_tables(self):
+        """Tables of multi-catalogs"""
+        query_runner = Athena({"glue": True, "region": "mars-east-1", "catalog_ids": "foo,bar"})
+
+        self.stubber.add_response("get_databases", {"DatabaseList": [{"Name": "test1"}]}, {"CatalogId": "foo"})
+        self.stubber.add_response(
+            "get_tables",
+            {
+                "TableList": [
+                    {
+                        "Name": "jdbc_table",
+                        "StorageDescriptor": {
+                            "Columns": [{"Name": "row_id", "Type": "int"}],
+                            "Location": "Database.Schema.Table",
+                            "Compressed": False,
+                            "NumberOfBuckets": -1,
+                            "SerdeInfo": {"Parameters": {}},
+                            "BucketColumns": [],
+                            "SortColumns": [],
+                            "Parameters": {
+                                "CrawlerSchemaDeserializerVersion": "1.0",
+                                "CrawlerSchemaSerializerVersion": "1.0",
+                                "UPDATED_BY_CRAWLER": "jdbc",
+                                "classification": "sqlserver",
+                                "compressionType": "none",
+                                "connectionName": "jdbctest",
+                                "typeOfData": "view",
+                            },
+                            "StoredAsSubDirectories": False,
+                        },
+                        "PartitionKeys": [],
+                        "TableType": "EXTERNAL_TABLE",
+                        "Parameters": {
+                            "CrawlerSchemaDeserializerVersion": "1.0",
+                            "CrawlerSchemaSerializerVersion": "1.0",
+                            "UPDATED_BY_CRAWLER": "jdbc",
+                            "classification": "sqlserver",
+                            "compressionType": "none",
+                            "connectionName": "jdbctest",
+                            "typeOfData": "view",
+                        },
+                    }
+                ]
+            },
+            {"CatalogId": "foo", "DatabaseName": "test1"},
+        )
+        self.stubber.add_response("get_databases", {"DatabaseList": [{"Name": "test2"}]}, {"CatalogId": "bar"})
+        self.stubber.add_response(
+            "get_tables",
+            {
+                "TableList": [
+                    {
+                        "Name": "jdbc_table",
+                        "StorageDescriptor": {
+                            "Columns": [{"Name": "row_id", "Type": "int"}],
+                            "Location": "Database.Schema.Table",
+                            "Compressed": False,
+                            "NumberOfBuckets": -1,
+                            "SerdeInfo": {"Parameters": {}},
+                            "BucketColumns": [],
+                            "SortColumns": [],
+                            "Parameters": {
+                                "CrawlerSchemaDeserializerVersion": "1.0",
+                                "CrawlerSchemaSerializerVersion": "1.0",
+                                "UPDATED_BY_CRAWLER": "jdbc",
+                                "classification": "sqlserver",
+                                "compressionType": "none",
+                                "connectionName": "jdbctest",
+                                "typeOfData": "view",
+                            },
+                            "StoredAsSubDirectories": False,
+                        },
+                        "PartitionKeys": [],
+                        "TableType": "EXTERNAL_TABLE",
+                        "Parameters": {
+                            "CrawlerSchemaDeserializerVersion": "1.0",
+                            "CrawlerSchemaSerializerVersion": "1.0",
+                            "UPDATED_BY_CRAWLER": "jdbc",
+                            "classification": "sqlserver",
+                            "compressionType": "none",
+                            "connectionName": "jdbctest",
+                            "typeOfData": "view",
+                        },
+                    }
+                ]
+            },
+            {"CatalogId": "bar", "DatabaseName": "test2"},
+        )
+        with self.stubber:
+            assert query_runner.get_schema() == [
+                {"columns": ["row_id"], "name": "test1.jdbc_table"},
+                {"columns": ["row_id"], "name": "test2.jdbc_table"},
+            ]

@@ -101,6 +101,7 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
       y: [yPosition, yPosition + cellHeight - yPadding],
     },
     sourceData,
+    sort: options.piesort,
   };
 }
 

@@ -1,3 +1,4 @@
+import re
 from functools import partial
 from numbers import Number
 
@@ -88,6 +89,16 @@ def _is_number(string):
         return True
 
 
+def _is_regex_pattern(value, regex):
+    try:
+        if re.compile(regex).fullmatch(value):
+            return True
+        else:
+            return False
+    except re.error:
+        return False
+
+
 def _is_date(string):
     parse(string)
     return True
@@ -135,6 +146,7 @@ class ParameterizedQuery:
 
         enum_options = definition.get("enumOptions")
         query_id = definition.get("queryId")
+        regex = definition.get("regex")
         allow_multiple_values = isinstance(definition.get("multiValuesOptions"), dict)
 
         if isinstance(enum_options, str):
@@ -142,6 +154,7 @@ class ParameterizedQuery:
 
         validators = {
             "text": lambda value: isinstance(value, str),
+            "text-pattern": lambda value: _is_regex_pattern(value, regex),
             "number": _is_number,
             "enum": lambda value: _is_value_within_options(value, enum_options, allow_multiple_values),
             "query": lambda value: _is_value_within_options(
