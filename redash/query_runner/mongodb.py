@@ -117,13 +117,14 @@ def parse_results(results: list, flatten: bool = False) -> list:
 
         parsed_row = _parse_dict(row, flatten)
         for column_name, value in parsed_row.items():
-            columns.append(
-                {
-                    "name": column_name,
-                    "friendly_name": column_name,
-                    "type": TYPES_MAP.get(type(value), TYPE_STRING),
-                }
-            )
+            if _get_column_by_name(columns, column_name) is None:
+                columns.append(
+                    {
+                        "name": column_name,
+                        "friendly_name": column_name,
+                        "type": TYPES_MAP.get(type(value), TYPE_STRING),
+                    }
+                )
 
         rows.append(parsed_row)
 
