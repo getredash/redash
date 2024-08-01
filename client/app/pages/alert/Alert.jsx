@@ -16,6 +16,7 @@ import MenuButton from "./components/MenuButton";
 import AlertView from "./AlertView";
 import AlertEdit from "./AlertEdit";
 import AlertNew from "./AlertNew";
+import notifications from "@/services/notifications";
 
 const MODES = {
   NEW: 0,
@@ -178,6 +179,17 @@ class Alert extends React.Component {
       });
   };
 
+  evaluate = () => {
+    const { alert } = this.state;
+    return AlertService.evaluate(alert)
+      .then(() => {
+        notification.success("Alert evaluated. Refresh page for updated status.");
+      })
+      .catch(() => {
+        notifications.error("Failed to evaluate alert.");
+      });
+  };
+
   mute = () => {
     const { alert } = this.state;
     return AlertService.mute(alert)
@@ -224,7 +236,14 @@ class Alert extends React.Component {
     const { queryResult, mode, canEdit, pendingRearm } = this.state;
 
     const menuButton = (
-      <MenuButton doDelete={this.delete} muted={muted} mute={this.mute} unmute={this.unmute} canEdit={canEdit} />
+      <MenuButton
+        doDelete={this.delete}
+        muted={muted}
+        mute={this.mute}
+        unmute={this.unmute}
+        canEdit={canEdit}
+        evaluate={this.evaluate}
+      />
     );
 
     const commonProps = {
