@@ -67,7 +67,7 @@ export default function QueryExecutionMetadata({
           )}
           {isQueryExecuting && <span>Running&hellip;</span>}
         </span>
-        {queryResultData.metadata.data_scanned && (
+        {!isQueryExecuting && (
           <span className="m-l-5">
             Data Scanned
             <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>
