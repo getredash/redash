@@ -71,23 +71,58 @@ class TestAlertEvaluate(BaseTestCase):
         alert = self.create_alert(results)
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
-    def test_evaluates_correctly_with_max_selector(self):
-        results = {"rows": [{"foo": 1}, {"foo": 2}], "columns": [{"name": "foo", "type": "STRING"}]}
-        alert = self.create_alert(results)
-        alert.options["selector"] = "max"
-        self.assertEqual(alert.evaluate(), Alert.OK_STATE)
-
-    def test_evaluates_correctly_with_min_selector(self):
-        results = {"rows": [{"foo": 2}, {"foo": 1}], "columns": [{"name": "foo", "type": "STRING"}]}
-        alert = self.create_alert(results)
-        alert.options["selector"] = "min"
-        self.assertEqual(alert.evaluate(), Alert.TRIGGERED_STATE)
-
     def test_evaluates_correctly_with_first_selector(self):
-        results = {"rows": [{"foo": 1}, {"foo": 2}], "columns": [{"name": "foo", "type": "STRING"}]}
+        results = {"rows": [{"foo": 1}, {"foo": 2}], "columns": [{"name": "foo", "type": "INTEGER"}]}
         alert = self.create_alert(results)
         alert.options["selector"] = "first"
         self.assertEqual(alert.evaluate(), Alert.TRIGGERED_STATE)
+        results = {
+            "rows": [{"foo": "test"}, {"foo": "test"}, {"foo": "test"}],
+            "columns": [{"name": "foo", "type": "STRING"}],
+        }
+        alert = self.create_alert(results)
+        alert.options["selector"] = "first"
+        alert.options["op"] = "<"
+        self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
+
+    def test_evaluates_correctly_with_min_selector(self):
+        results = {"rows": [{"foo": 2}, {"foo": 1}], "columns": [{"name": "foo", "type": "INTEGER"}]}
+        alert = self.create_alert(results)
+        alert.options["selector"] = "min"
+        self.assertEqual(alert.evaluate(), Alert.TRIGGERED_STATE)
+        results = {
+            "rows": [{"foo": "test"}, {"foo": "test"}, {"foo": "test"}],
+            "columns": [{"name": "foo", "type": "STRING"}],
+        }
+        alert = self.create_alert(results)
+        alert.options["selector"] = "min"
+        self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
+
+    def test_evaluates_correctly_with_max_selector(self):
+        results = {"rows": [{"foo": 1}, {"foo": 2}], "columns": [{"name": "foo", "type": "INTEGER"}]}
+        alert = self.create_alert(results)
+        alert.options["selector"] = "max"
+        self.assertEqual(alert.evaluate(), Alert.OK_STATE)
+        results = {
+            "rows": [{"foo": "test"}, {"foo": "test"}, {"foo": "test"}],
+            "columns": [{"name": "foo", "type": "STRING"}],
+        }
+        alert = self.create_alert(results)
+        alert.options["selector"] = "max"
+        self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
+
+    def test_evaluates_correctly_with_avg_selector(self):
+        results = {"rows": [{"foo": 0}, {"foo": 1}, {"foo": 2}], "columns": [{"name": "foo", "type": "INTEGER"}]}
+        alert = self.create_alert(results)
+        alert.options["selector"] = "avg"
+        self.assertEqual(alert.evaluate(), Alert.TRIGGERED_STATE)
+        results = {
+            "rows": [{"foo": "test"}, {"foo": "test"}, {"foo": "test"}],
+            "columns": [{"name": "foo", "type": "STRING"}],
+        }
+        alert = self.create_alert(results)
+        alert.options["selector"] = "avg"
+        self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
 
 class TestNextState(TestCase):

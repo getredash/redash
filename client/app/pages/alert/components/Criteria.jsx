@@ -54,6 +54,10 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
     return null;
   })();
 
+  const average = (array) => {
+    return array.reduce((a, b) => a + b, 0) / array.length;
+  };
+
   let columnHint;
 
   if (alertOptions.selector === "first") {
@@ -67,7 +71,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
       <small className="alert-criteria-hint">
         Max column value is{" "}
         <code className="p-0">
-          {toString(Math.max(...resultValues.map((o) => o[alertOptions.column]))) || "unknown"}
+          {toString(Math.max(...resultValues.map((o) => Number(o[alertOptions.column])).filter((value) => !isNaN(value)))) || "unknown"}
         </code>
       </small>
     );
@@ -76,7 +80,16 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
       <small className="alert-criteria-hint">
         Min column value is{" "}
         <code className="p-0">
-          {toString(Math.min(...resultValues.map((o) => o[alertOptions.column]))) || "unknown"}
+          {toString(Math.min(...resultValues.map((o) => Number(o[alertOptions.column])).filter((value) => !isNaN(value)))) || "unknown"}
+        </code>
+      </small>
+    );
+  } else if (alertOptions.selector === "avg") {
+    columnHint = (
+      <small className="alert-criteria-hint">
+        Average column value is{" "}
+        <code className="p-0">
+          {toString(average(resultValues.map((o) => Number(o[alertOptions.column])))) || "unknown"}
         </code>
       </small>
     );
@@ -102,6 +115,9 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
             </Select.Option>
             <Select.Option value="max" label="max">
               max
+            </Select.Option>
+            <Select.Option value="avg" label="avg">
+              avg
             </Select.Option>
           </Select>
         ) : (
