@@ -16,6 +16,7 @@ import MenuButton from "./components/MenuButton";
 import AlertView from "./AlertView";
 import AlertEdit from "./AlertEdit";
 import AlertNew from "./AlertNew";
+import notifications from "@/services/notifications";
 
 const MODES = {
   NEW: 0,
@@ -64,6 +65,7 @@ class Alert extends React.Component {
       this.setState({
         alert: {
           options: {
+            selector: "first",
             op: ">",
             value: 1,
             muted: false,
@@ -75,7 +77,7 @@ class Alert extends React.Component {
     } else {
       const { alertId } = this.props;
       AlertService.get({ id: alertId })
-        .then(alert => {
+        .then((alert) => {
           if (this._isMounted) {
             const canEdit = currentUser.canEdit(alert);
 
@@ -93,7 +95,7 @@ class Alert extends React.Component {
             this.onQuerySelected(alert.query);
           }
         })
-        .catch(error => {
+        .catch((error) => {
           if (this._isMounted) {
             this.props.onError(error);
           }
@@ -112,7 +114,7 @@ class Alert extends React.Component {
     alert.rearm = pendingRearm || null;
 
     return AlertService.save(alert)
-      .then(alert => {
+      .then((alert) => {
         notification.success("Saved.");
         navigateTo(`alerts/${alert.id}`, true);
         this.setState({ alert, mode: MODES.VIEW });
@@ -122,7 +124,7 @@ class Alert extends React.Component {
       });
   };
 
-  onQuerySelected = query => {
+  onQuerySelected = (query) => {
     this.setState(({ alert }) => ({
       alert: Object.assign(alert, { query }),
       queryResult: null,
@@ -130,7 +132,7 @@ class Alert extends React.Component {
 
     if (query) {
       // get cached result for column names and values
-      new QueryService(query).getQueryResultPromise().then(queryResult => {
+      new QueryService(query).getQueryResultPromise().then((queryResult) => {
         if (this._isMounted) {
           this.setState({ queryResult });
           let { column } = this.state.alert.options;
@@ -146,18 +148,18 @@ class Alert extends React.Component {
     }
   };
 
-  onNameChange = name => {
+  onNameChange = (name) => {
     const { alert } = this.state;
     this.setState({
       alert: Object.assign(alert, { name }),
     });
   };
 
-  onRearmChange = pendingRearm => {
+  onRearmChange = (pendingRearm) => {
     this.setState({ pendingRearm });
   };
 
-  setAlertOptions = obj => {
+  setAlertOptions = (obj) => {
     const { alert } = this.state;
     const options = { ...alert.options, ...obj };
     this.setState({
@@ -174,6 +176,17 @@ class Alert extends React.Component {
       })
       .catch(() => {
         notification.error("Failed deleting alert.");
+      });
+  };
+
+  evaluate = () => {
+    const { alert } = this.state;
+    return AlertService.evaluate(alert)
+      .then(() => {
+        notification.success("Alert evaluated. Refresh page for updated status.");
+      })
+      .catch(() => {
+        notifications.error("Failed to evaluate alert.");
       });
   };
 
@@ -223,7 +236,14 @@ class Alert extends React.Component {
     const { queryResult, mode, canEdit, pendingRearm } = this.state;
 
     const menuButton = (
-      <MenuButton doDelete={this.delete} muted={muted} mute={this.mute} unmute={this.unmute} canEdit={canEdit} />
+      <MenuButton
+        doDelete={this.delete}
+        muted={muted}
+        mute={this.mute}
+        unmute={this.unmute}
+        canEdit={canEdit}
+        evaluate={this.evaluate}
+      />
     );
 
     const commonProps = {
@@ -258,7 +278,7 @@ routes.register(
   routeWithUserSession({
     path: "/alerts/new",
     title: "New Alert",
-    render: pageProps => <Alert {...pageProps} mode={MODES.NEW} />,
+    render: (pageProps) => <Alert {...pageProps} mode={MODES.NEW} />,
   })
 );
 routes.register(
@@ -266,7 +286,7 @@ routes.register(
   routeWithUserSession({
     path: "/alerts/:alertId",
     title: "Alert",
-    render: pageProps => <Alert {...pageProps} mode={MODES.VIEW} />,
+    render: (pageProps) => <Alert {...pageProps} mode={MODES.VIEW} />,
   })
 );
 routes.register(
@@ -274,6 +294,6 @@ routes.register(
   routeWithUserSession({
     path: "/alerts/:alertId/edit",
     title: "Alert",
-    render: pageProps => <Alert {...pageProps} mode={MODES.EDIT} />,
+    render: (pageProps) => <Alert {...pageProps} mode={MODES.EDIT} />,
   })
 );
