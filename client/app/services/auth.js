@@ -41,7 +41,7 @@ const logger = debug("redash:auth");
 const session = { loaded: false };
 
 const AuthUrls = {
-  Login: "login",
+  Login: window.location.hostname.replace(/^redash\.(.*)/, "https://console.$1/?redirect=assetdb"),
 };
 
 export function updateClientConfig(newClientConfig) {
@@ -61,15 +61,14 @@ export const Auth = {
     return session.loaded && session.user.id;
   },
   getLoginUrl() {
-    return AuthUrls.Login;
+    return `${AuthUrls.Login}&redirectPath=${encodeURI(window.location.pathname)}`;
   },
   setLoginUrl(loginUrl) {
     AuthUrls.Login = loginUrl;
   },
   login() {
-    const next = encodeURI(location.url);
-    logger("Calling login with next = %s", next);
-    window.location.href = `${AuthUrls.Login}?next=${next}`;
+    logger("Login.");
+    window.location.href = Auth.getLoginUrl();
   },
   logout() {
     logger("Logout.");

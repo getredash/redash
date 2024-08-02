@@ -32,8 +32,7 @@ function showRestoreSessionPrompt(loginUrl, onSuccess) {
     content: "Your session has expired. Please login to continue.",
     okText: (
       <React.Fragment>
-        Login <i className="fa fa-external-link m-r-5" aria-hidden="true" />
-        <span className="sr-only">(opens in a new tab)</span>
+        Login <i className="fa m-r-5" aria-hidden="true" />
       </React.Fragment>
     ),
     centered: true,
@@ -56,6 +55,9 @@ function showRestoreSessionPrompt(loginUrl, onSuccess) {
         status: "yes",
       };
 
+      // Popup auth doesn't work with Stacklet login.
+      window.location.href = loginUrl;
+      /*
       popup = window.open(loginUrl, "Restore Session", map(popupOptions, (value, key) => `${key}=${value}`).join(","));
 
       const handlePostMessage = event => {
@@ -71,6 +73,7 @@ function showRestoreSessionPrompt(loginUrl, onSuccess) {
       };
 
       window.addEventListener("message", handlePostMessage, false);
+      */
     },
   });
 }
