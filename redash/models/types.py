@@ -3,9 +3,20 @@ from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy_utils import EncryptedType
 
-from redash.models.base import db
 from redash.utils import json_dumps, json_loads
 from redash.utils.configuration import ConfigurationContainer
+
+from .base import db
+
+
+class Configuration(TypeDecorator):
+    impl = db.Text
+
+    def process_bind_param(self, value, dialect):
+        return value.to_json()
+
+    def process_result_value(self, value, dialect):
+        return ConfigurationContainer.from_json(value)
 
 
 class EncryptedConfiguration(EncryptedType):
