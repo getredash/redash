@@ -3,6 +3,7 @@ on:
   push:
     tags:
       - '*-dev'
+  workflow_dispatch:
 
 env:
   NODE_VERSION: 18
