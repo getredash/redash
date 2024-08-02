@@ -46,6 +46,7 @@ from redash.models.parameterized_query import (
     QueryDetachedFromDataSourceError,
 )
 from redash.models.types import (
+    Configuration,
     EncryptedConfiguration,
     JSONText,
     MutableDict,
