@@ -33,6 +33,10 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
     type: "heatmap",
     name: "",
     colorscale: colorScheme,
+    xgap: options.heatmapSpacing || 0,
+    ygap: options.heatmapSpacing || 0,
+    zmin: options.rangeZMin || false,
+    zmax: options.rangeZMax || false,
   };
 
   // @ts-expect-error ts-migrate(2322) FIXME: Type 'any[]' is not assignable to type 'never[]'.
