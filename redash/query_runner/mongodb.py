@@ -137,7 +137,7 @@ def _sorted_fields(fields):
         if isinstance(v, int):
             ord[k] = v
         else:
-            ord[k] = len(fields) + 1
+            ord[k] = len(fields)
 
     return sorted(ord, key=ord.get)
 

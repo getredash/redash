@@ -56,14 +56,14 @@ class TestMongoDB(TestCase):
         query = {
             "collection": "test",
             "query": {"age": 10},
-            "fields": {"_id": 1, "name": 2, "link": {"$concat": ["hoge_", "$name"]}},
+            "fields": {"_id": 1, "name": 4, "link": {"$concat": ["hoge_", "$name"]}},
         }
         return_value = [{"_id": "6569ee53d53db7930aaa0cc0", "name": "test2", "link": "hoge_test2"}]
         expected = {
             "columns": [
                 {"name": "_id", "friendly_name": "_id", "type": TYPE_STRING},
-                {"name": "name", "friendly_name": "name", "type": TYPE_STRING},
                 {"name": "link", "friendly_name": "link", "type": TYPE_STRING},
+                {"name": "name", "friendly_name": "name", "type": TYPE_STRING},
             ],
             "rows": return_value,
         }
