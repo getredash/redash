@@ -39,18 +39,8 @@ class TestMongoDB(TestCase):
         self.assertNotIn("password", mongo_client.call_args.kwargs)
 
     def test_run_query_with_fields(self, mongo_client):
-        config = {
-            "connectionString": "mongodb://localhost:27017/test",
-            "username": "test_user",
-            "password": "test_pass",
-            "dbName": "test",
-        }
-        mongo_qr = MongoDB(config)
-
         query = {"collection": "test", "query": {"age": 10}, "fields": {"_id": 1, "name": 2}}
-
         return_value = [{"_id": "6569ee53d53db7930aaa0cc0", "name": "test2"}]
-
         expected = {
             "columns": [
                 {"name": "_id", "friendly_name": "_id", "type": TYPE_STRING},
@@ -60,20 +50,28 @@ class TestMongoDB(TestCase):
         }
 
         mongo_client().__getitem__().__getitem__().find.return_value = return_value
-        result, err = mongo_qr.run_query(json_dumps(query), None)
+        self._test_query(query, return_value, expected)
 
-        self.assertIsNone(err)
-        self.assertEqual(expected, result)
+    def test_run_query_with_func(self, mongo_client):
+        query = {
+            "collection": "test",
+            "query": {"age": 10},
+            "fields": {"_id": 1, "name": 4, "link": {"$concat": ["hoge_", "$name"]}},
+        }
+        return_value = [{"_id": "6569ee53d53db7930aaa0cc0", "name": "test2", "link": "hoge_test2"}]
+        expected = {
+            "columns": [
+                {"name": "_id", "friendly_name": "_id", "type": TYPE_STRING},
+                {"name": "link", "friendly_name": "link", "type": TYPE_STRING},
+                {"name": "name", "friendly_name": "name", "type": TYPE_STRING},
+            ],
+            "rows": return_value,
+        }
+
+        mongo_client().__getitem__().__getitem__().find.return_value = return_value
+        self._test_query(query, return_value, expected)
 
     def test_run_query_with_aggregate(self, mongo_client):
-        config = {
-            "connectionString": "mongodb://localhost:27017/test",
-            "username": "test_user",
-            "password": "test_pass",
-            "dbName": "test",
-        }
-        mongo_qr = MongoDB(config)
-
         query = {
             "collection": "test",
             "aggregate": [
@@ -82,9 +80,7 @@ class TestMongoDB(TestCase):
                 {"$sort": [{"name": "count", "direction": -1}, {"name": "_id", "direction": -1}]},
             ],
         }
-
         return_value = [{"_id": "foo", "count": 10}, {"_id": "bar", "count": 9}]
-
         expected = {
             "columns": [
                 {"name": "_id", "friendly_name": "_id", "type": TYPE_STRING},
@@ -94,6 +90,17 @@ class TestMongoDB(TestCase):
         }
 
         mongo_client().__getitem__().__getitem__().aggregate.return_value = return_value
+        self._test_query(query, return_value, expected)
+
+    def _test_query(self, query, return_value, expected):
+        config = {
+            "connectionString": "mongodb://localhost:27017/test",
+            "username": "test_user",
+            "password": "test_pass",
+            "dbName": "test",
+        }
+        mongo_qr = MongoDB(config)
+
         result, err = mongo_qr.run_query(json_dumps(query), None)
         self.assertIsNone(err)
         self.assertEqual(expected, result)

@@ -131,6 +131,17 @@ def parse_results(results: list, flatten: bool = False) -> list:
     return rows, columns
 
 
+def _sorted_fields(fields):
+    ord = {}
+    for k, v in fields.items():
+        if isinstance(v, int):
+            ord[k] = v
+        else:
+            ord[k] = len(fields)
+
+    return sorted(ord, key=ord.get)
+
+
 class MongoDB(BaseQueryRunner):
     should_annotate_query = False
 
@@ -365,7 +376,7 @@ class MongoDB(BaseQueryRunner):
 
         if f:
             ordered_columns = []
-            for k in sorted(f, key=f.get):
+            for k in _sorted_fields(f):
                 column = _get_column_by_name(columns, k)
                 if column:
                     ordered_columns.append(column)
