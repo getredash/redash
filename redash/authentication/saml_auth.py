@@ -1,4 +1,5 @@
 import logging
+from itertools import chain
 
 from flask import Blueprint, flash, redirect, request, url_for
 from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT, entity
@@ -138,7 +139,7 @@ def idp_initiated(org_slug=None):
         return logout_and_redirect_to_index()
 
     if "RedashGroups" in authn_response.ava:
-        group_names = authn_response.ava.get("RedashGroups")
+        group_names = chain(*[name.split(",") for name in authn_response.ava.get("RedashGroups")])
         user.update_group_assignments(group_names)
 
     url = url_for("redash.index", org_slug=org_slug)
