@@ -117,17 +117,29 @@ def parse_results(results: list, flatten: bool = False) -> list:
 
         parsed_row = _parse_dict(row, flatten)
         for column_name, value in parsed_row.items():
-            columns.append(
-                {
-                    "name": column_name,
-                    "friendly_name": column_name,
-                    "type": TYPES_MAP.get(type(value), TYPE_STRING),
-                }
-            )
+            if _get_column_by_name(columns, column_name) is None:
+                columns.append(
+                    {
+                        "name": column_name,
+                        "friendly_name": column_name,
+                        "type": TYPES_MAP.get(type(value), TYPE_STRING),
+                    }
+                )
 
         rows.append(parsed_row)
 
     return rows, columns
+
+
+def _sorted_fields(fields):
+    ord = {}
+    for k, v in fields.items():
+        if isinstance(v, int):
+            ord[k] = v
+        else:
+            ord[k] = len(fields)
+
+    return sorted(ord, key=ord.get)
 
 
 class MongoDB(BaseQueryRunner):
@@ -364,7 +376,7 @@ class MongoDB(BaseQueryRunner):
 
         if f:
             ordered_columns = []
-            for k in sorted(f, key=f.get):
+            for k in _sorted_fields(f):
                 column = _get_column_by_name(columns, k)
                 if column:
                     ordered_columns.append(column)

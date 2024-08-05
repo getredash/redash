@@ -67,7 +67,9 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
       <small className="alert-criteria-hint">
         Max column value is{" "}
         <code className="p-0">
-          {toString(Math.max(...resultValues.map((o) => o[alertOptions.column]))) || "unknown"}
+          {toString(
+            Math.max(...resultValues.map((o) => Number(o[alertOptions.column])).filter((value) => !isNaN(value)))
+          ) || "unknown"}
         </code>
       </small>
     );
@@ -76,7 +78,9 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
       <small className="alert-criteria-hint">
         Min column value is{" "}
         <code className="p-0">
-          {toString(Math.min(...resultValues.map((o) => o[alertOptions.column]))) || "unknown"}
+          {toString(
+            Math.min(...resultValues.map((o) => Number(o[alertOptions.column])).filter((value) => !isNaN(value)))
+          ) || "unknown"}
         </code>
       </small>
     );
