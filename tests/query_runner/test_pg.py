@@ -38,4 +38,6 @@ class TestBuildSchema(TestCase):
 
         build_schema(results, schema)
 
-        self.assertListEqual(schema["main.users"]["columns"], [{"name": "id", "type": "integer"}, {"name": "name", "type": "varchar"}])
+        self.assertListEqual(
+            schema["main.users"]["columns"], [{"name": "id", "type": "integer"}, {"name": "name", "type": "varchar"}]
+        )
