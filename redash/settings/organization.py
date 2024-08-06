@@ -38,6 +38,7 @@ JWT_AUTH_CLIENT_ID = os.environ.get("REDASH_JWT_AUTH_CLIENT_ID", "")
 JWT_AUTH_COOKIE_NAME = os.environ.get("REDASH_JWT_AUTH_COOKIE_NAME", "")
 JWT_AUTH_HEADER_NAME = os.environ.get("REDASH_JWT_AUTH_HEADER_NAME", "")
 JWT_AUTH_LOGIN_URL = os.environ.get("REDASH_JWT_AUTH_LOGIN_URL", "")
+JWT_AUTH_LOGOUT_URL = os.environ.get("REDASH_JWT_AUTH_LOGOUT_URL", "")
 
 FEATURE_SHOW_PERMISSIONS_CONTROL = parse_boolean(os.environ.get("REDASH_FEATURE_SHOW_PERMISSIONS_CONTROL", "false"))
 SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = parse_boolean(
@@ -71,6 +72,7 @@ settings = {
     "auth_jwt_auth_cookie_name": JWT_AUTH_COOKIE_NAME,
     "auth_jwt_auth_header_name": JWT_AUTH_HEADER_NAME,
     "auth_jwt_auth_login_url": JWT_AUTH_LOGIN_URL,
+    "auth_jwt_auth_logout_url": JWT_AUTH_LOGOUT_URL,
     "feature_show_permissions_control": FEATURE_SHOW_PERMISSIONS_CONTROL,
     "send_email_on_failed_scheduled_queries": SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES,
     "hide_plotly_mode_bar": HIDE_PLOTLY_MODE_BAR,

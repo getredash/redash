@@ -4,7 +4,7 @@ import json
 import logging
 import time
 from datetime import timedelta
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import quote_plus, urlsplit, urlunsplit
 
 from flask import redirect, request, session, url_for
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
@@ -247,7 +247,7 @@ def redirect_to_login():
         return {"message": "Couldn't find resource. Please login and try again."}, 404
 
     if org_settings["auth_jwt_login_enabled"] and org_settings["auth_jwt_auth_login_url"]:
-        login_url = org_settings["auth_jwt_auth_login_url"]
+        login_url = org_settings["auth_jwt_auth_login_url"].format(next=quote_plus(request.full_path))
     else:
         login_url = get_login_url(next=request.url, external=False)
 

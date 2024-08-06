@@ -15,6 +15,7 @@ from redash.authentication.account import (
 )
 from redash.handlers import routes
 from redash.handlers.base import json_response, org_scoped_rule
+from redash.settings.organization import settings as org_settings
 from redash.version_check import get_latest_version
 
 logger = logging.getLogger(__name__)
@@ -223,6 +224,8 @@ def login(org_slug=None):
 @routes.route(org_scoped_rule("/logout"))
 def logout(org_slug=None):
     logout_user()
+    if org_settings["auth_jwt_login_enabled"] and org_settings["auth_jwt_auth_logout_url"]:
+        return redirect(org_settings["auth_jwt_auth_logout_url"])
     return redirect(get_login_url(next=None))
 
 
