@@ -388,12 +388,13 @@ class Redshift(PostgreSQL):
             SELECT DISTINCT table_name,
                             table_schema,
                             column_name,
+                            data_type,
                             ordinal_position AS pos
             FROM svv_columns
             WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
             AND table_schema NOT LIKE 'pg_temp_%'
         )
-        SELECT table_name, table_schema, column_name
+        SELECT table_name, table_schema, column_name, data_type
         FROM tables
         WHERE
             HAS_SCHEMA_PRIVILEGE(table_schema, 'USAGE') AND

@@ -199,10 +199,20 @@ class Athena(BaseQueryRunner):
                         logger.warning("Glue table doesn't have StorageDescriptor: %s", table_name)
                         continue
                     if table_name not in schema:
-                        column = [columns["Name"] for columns in table["StorageDescriptor"]["Columns"]]
-                        schema[table_name] = {"name": table_name, "columns": column}
-                        for partition in table.get("PartitionKeys", []):
-                            schema[table_name]["columns"].append(partition["Name"])
+                        schema[table_name] = {"name": table_name, "columns": []}
+
+                    for column_data in table["StorageDescriptor"]["Columns"]:
+                        column = {
+                            "name": column_data["Name"],
+                            "type": column_data["Type"] if "Type" in column_data else None,
+                        }
+                        schema[table_name]["columns"].append(column)
+                    for partition in table.get("PartitionKeys", []):
+                        partition_column = {
+                            "name": partition["Name"],
+                            "type": partition["Type"] if "Type" in partition else None,
+                        }
+                        schema[table_name]["columns"].append(partition_column)
         return list(schema.values())
 
     def get_schema(self, get_stats=False):
@@ -212,7 +222,7 @@ class Athena(BaseQueryRunner):
 
         schema = {}
         query = """
-        SELECT table_schema, table_name, column_name
+        SELECT table_schema, table_name, column_name, data_type
         FROM information_schema.columns
         WHERE table_schema NOT IN ('information_schema')
         """
@@ -225,7 +235,7 @@ class Athena(BaseQueryRunner):
             table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
-            schema[table_name]["columns"].append(row["column_name"])
+            schema[table_name]["columns"].append({"name": row["column_name"], "type": row["data_type"]})
 
         return list(schema.values())
 
