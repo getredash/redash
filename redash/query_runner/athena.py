@@ -202,10 +202,16 @@ class Athena(BaseQueryRunner):
                         schema[table_name] = {"name": table_name, "columns": []}
 
                     for column_data in table["StorageDescriptor"]["Columns"]:
-                        column = {"name": column_data["Name"], "type": column_data["Type"] if "Type" in column_data else None}
+                        column = {
+                            "name": column_data["Name"],
+                            "type": column_data["Type"] if "Type" in column_data else None,
+                        }
                         schema[table_name]["columns"].append(column)
                     for partition in table.get("PartitionKeys", []):
-                        partition_column = {"name": partition["Name"], "type": partition["Type"] if "Type" in partition else None}
+                        partition_column = {
+                            "name": partition["Name"],
+                            "type": partition["Type"] if "Type" in partition else None,
+                        }
                         schema[table_name]["columns"].append(partition_column)
         return list(schema.values())
 
@@ -229,9 +235,7 @@ class Athena(BaseQueryRunner):
             table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
-            schema[table_name]["columns"].append(
-                {"name": row["column_name"], "type": row["data_type"]}
-            )
+            schema[table_name]["columns"].append({"name": row["column_name"], "type": row["data_type"]})
 
         return list(schema.values())
 
