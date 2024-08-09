@@ -51,7 +51,8 @@ export default function QueryExecutionMetadata({
                   "Result truncated to " +
                   queryResultData.rows.length +
                   " rows. Databricks may truncate query results that are unstably large."
-                }>
+                }
+              >
                 <WarningTwoTone twoToneColor="#FF9800" />
               </Tooltip>
             </span>
@@ -67,10 +68,9 @@ export default function QueryExecutionMetadata({
           )}
           {isQueryExecuting && <span>Running&hellip;</span>}
         </span>
-        {queryResultData.metadata.data_scanned && (
+        {!isQueryExecuting && (
           <span className="m-l-5">
-            Data Scanned
-            <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>
+            Data Scanned <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>
           </span>
         )}
       </span>
