@@ -50,7 +50,7 @@ def test_connection(data_source_id):
         return True
 
 
-@job("schemas", queue_class=Queue, at_front=True, timeout=300, ttl=90)
+@job("schemas", queue_class=Queue, at_front=True, timeout=settings.SCHEMAS_REFRESH_TIMEOUT, ttl=90)
 def get_schema(data_source_id, refresh):
     try:
         data_source = models.DataSource.get_by_id(data_source_id)

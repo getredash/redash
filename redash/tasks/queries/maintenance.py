@@ -157,7 +157,7 @@ def remove_ghost_locks():
     logger.info("Locks found: {}, Locks removed: {}".format(len(locks), count))
 
 
-@job("schemas")
+@job("schemas", timeout=settings.SCHEMAS_REFRESH_TIMEOUT)
 def refresh_schema(data_source_id):
     ds = models.DataSource.get_by_id(data_source_id)
     logger.info("task=refresh_schema state=start ds_id=%s", ds.id)
