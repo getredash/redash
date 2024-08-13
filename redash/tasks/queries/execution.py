@@ -268,13 +268,14 @@ class QueryExecutor:
 
     def _log_progress(self, state, data_length=0, run_time=0, error=None):
         logger.info(
-            "job=execute_query state=%s query_hash=%s type=%s ds_id=%d "
-            "data_length=%s job_id=%s queue=%s query_id=%s username=%s "
+            "job=execute_query state=%s query_hash=%s type=%s ds_id=%d ds_name"
+            "=%s data_length=%s job_id=%s queue=%s query_id=%s username=%s "
             "query_runtime=%.2f error=[%s]",  # fmt: skip
             state,
             self.query_hash,
             self.data_source.type,
             self.data_source.id,
+            self.data_source.name,
             data_length,
             self.job.id,
             self.metadata.get("Queue", "unknown"),
