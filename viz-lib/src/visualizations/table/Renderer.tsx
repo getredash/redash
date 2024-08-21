@@ -141,7 +141,7 @@ export default function Renderer({ options, data }: any) {
           showSizeChanger: false,
         }}
         showSorterTooltip={false}
-        scroll = {{x : 'max-content'}}
+        scroll={ (get(options, "fixedColumns", 0) > 0 ? { x : 'max-content' } : {}) }
       />
     </div>
   );
