@@ -231,7 +231,9 @@ class PostgreSQL(BaseSQLQueryRunner):
         ON a.attrelid = c.oid
         AND a.attnum > 0
         AND NOT a.attisdropped
-        WHERE c.relkind IN ('m', 'f', 'p') AND has_table_privilege(s.nspname || '.' || c.relname, 'select')
+        WHERE c.relkind IN ('m', 'f', 'p')
+        AND has_table_privilege(s.nspname || '.' || c.relname, 'select')
+        AND has_schema_privilege(s.nspname, 'usage')
 
         UNION
 
@@ -386,12 +388,13 @@ class Redshift(PostgreSQL):
             SELECT DISTINCT table_name,
                             table_schema,
                             column_name,
+                            data_type,
                             ordinal_position AS pos
             FROM svv_columns
             WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
             AND table_schema NOT LIKE 'pg_temp_%'
         )
-        SELECT table_name, table_schema, column_name
+        SELECT table_name, table_schema, column_name, data_type
         FROM tables
         WHERE
             HAS_SCHEMA_PRIVILEGE(table_schema, 'USAGE') AND

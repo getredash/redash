@@ -1,11 +1,24 @@
 name: Periodic Snapshot
 
-# 10 minutes after midnight on the first of every month
 on:
   schedule:
-  - cron: "10 0 1 * *"
+    - cron: '10 0 1 * *'  # 10 minutes after midnight on the first of every month
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Bump the last digit of the version'
+        required: false
+        type: boolean
+      version:
+        description: 'Specific version to set'
+        required: false
+        default: ''
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 permissions:
+  actions: write
   contents: write
 
 jobs:
@@ -14,15 +27,59 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ssh-key: ${{secrets.ACTION_PUSH_KEY}}
+          ssh-key: ${{ secrets.ACTION_PUSH_KEY }}
+
       - run: |
-          date="$(date +%y.%m).0-dev"
-          gawk -i inplace -F: -v q=\" -v tag=$date '/^  "version": / { print $1 FS, q tag q ","; next} { print }' package.json
-          gawk -i inplace -F= -v q=\" -v tag=$date '/^__version__ =/ { print $1 FS, q tag q; next} { print }' redash/__init__.py
-          gawk -i inplace -F= -v q=\" -v tag=$date '/^version =/ { print $1 FS, q tag q; next} { print }' pyproject.toml
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          # Function to bump the version
+          bump_version() {
+            local version="$1"
+            local IFS=.
+            read -r major minor patch <<< "$version"
+            patch=$((patch + 1))
+            echo "$major.$minor.$patch-dev"
+          }
+
+          # Determine the new version tag
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            BUMP_INPUT="${{ github.event.inputs.bump }}"
+            SPECIFIC_VERSION="${{ github.event.inputs.version }}"
+
+            # Check if both bump and specific version are provided
+            if [ "$BUMP_INPUT" = "true" ] && [ -n "$SPECIFIC_VERSION" ]; then
+              echo "::error::Error: Cannot specify both bump and specific version."
+              exit 1
+            fi
+
+            if [ -n "$SPECIFIC_VERSION" ]; then
+              TAG_NAME="$SPECIFIC_VERSION-dev"
+            elif [ "$BUMP_INPUT" = "true" ]; then
+              CURRENT_VERSION=$(grep '"version":' package.json | awk -F\" '{print $4}')
+              TAG_NAME=$(bump_version "$CURRENT_VERSION")
+            else
+              echo "No version bump or specific version provided for manual dispatch."
+              exit 1
+            fi
+          else
+            TAG_NAME="$(date +%y.%m).0-dev"
+          fi
+
+          echo "New version tag: $TAG_NAME"
+
+          # Update version in files
+          gawk -i inplace -F: -v q=\" -v tag=${TAG_NAME} '/^  "version": / { print $1 FS, q tag q ","; next} { print }' package.json
+          gawk -i inplace -F= -v q=\" -v tag=${TAG_NAME} '/^__version__ =/ { print $1 FS, q tag q; next} { print }' redash/__init__.py
+          gawk -i inplace -F= -v q=\" -v tag=${TAG_NAME} '/^version =/ { print $1 FS, q tag q; next} { print }' pyproject.toml
+
           git add package.json redash/__init__.py pyproject.toml
-          git commit -m "Snapshot: ${date}"
-          git tag $date
-          git push --atomic origin master refs/tags/$date
+          git commit -m "Snapshot: ${TAG_NAME}"
+          git tag ${TAG_NAME}
+          git push --atomic origin master refs/tags/${TAG_NAME}
+
+          # Run the 'preview-image' workflow if run this workflow manually
+          # For more information, please see the: https://docs.github.com/en/actions/security-guides/automatic-token-authentication
+          if [ "$BUMP_INPUT" = "true" ] || [ -n "$SPECIFIC_VERSION" ]; then
+            gh workflow run preview-image.yml --ref $TAG_NAME
+          fi

@@ -28,7 +28,7 @@ def upgrade():
                existing_nullable=True,
                existing_server_default=sa.text("'{}'::jsonb"))
     ### end Alembic commands ###
-    
+
     update_query = """
     update users
     set details = details::jsonb || ('{"profile_image_url": "' || profile_image_url || '"}')::jsonb

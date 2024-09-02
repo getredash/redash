@@ -46,6 +46,7 @@ from redash.models.parameterized_query import (
     QueryDetachedFromDataSourceError,
 )
 from redash.models.types import (
+    Configuration,
     EncryptedConfiguration,
     JSONText,
     MutableDict,
@@ -915,6 +916,8 @@ def next_state(op, value, threshold):
 
     if op(value, threshold):
         new_state = Alert.TRIGGERED_STATE
+    elif not value_is_number and op not in [OPERATORS.get("!="), OPERATORS.get("=="), OPERATORS.get("equals")]:
+        new_state = Alert.UNKNOWN_STATE
     else:
         new_state = Alert.OK_STATE
 
@@ -926,6 +929,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     UNKNOWN_STATE = "unknown"
     OK_STATE = "ok"
     TRIGGERED_STATE = "triggered"
+    TEST_STATE = "test"
 
     id = primary_key("Alert")
     name = Column(db.String(255))
@@ -960,7 +964,28 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         if data["rows"] and self.options["column"] in data["rows"][0]:
             op = OPERATORS.get(self.options["op"], lambda v, t: False)
 
-            value = data["rows"][0][self.options["column"]]
+            if "selector" not in self.options:
+                selector = "first"
+            else:
+                selector = self.options["selector"]
+
+            try:
+                if selector == "max":
+                    max_val = float("-inf")
+                    for i in range(len(data["rows"])):
+                        max_val = max(max_val, float(data["rows"][i][self.options["column"]]))
+                    value = max_val
+                elif selector == "min":
+                    min_val = float("inf")
+                    for i in range(len(data["rows"])):
+                        min_val = min(min_val, float(data["rows"][i][self.options["column"]]))
+                    value = min_val
+                else:
+                    value = data["rows"][0][self.options["column"]]
+
+            except ValueError:
+                return self.UNKNOWN_STATE
+
             threshold = self.options["value"]
 
             new_state = next_state(op, value, threshold)
@@ -988,11 +1013,11 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         result_table = []  # A two-dimensional array which can rendered as a table in Mustache
         for row in data["rows"]:
             result_table.append([row[col["name"]] for col in data["columns"]])
-
         context = {
             "ALERT_NAME": self.name,
             "ALERT_URL": "{host}/alerts/{alert_id}".format(host=host, alert_id=self.id),
             "ALERT_STATUS": self.state.upper(),
+            "ALERT_SELECTOR": self.options["selector"],
             "ALERT_CONDITION": self.options["op"],
             "ALERT_THRESHOLD": self.options["value"],
             "QUERY_NAME": self.query_rel.name,

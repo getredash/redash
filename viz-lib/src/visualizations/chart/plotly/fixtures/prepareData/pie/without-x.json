@@ -10,7 +10,8 @@
       "direction": { "type": "counterclockwise" },
       "xAxis": { "type": "-", "labels": { "enabled": true } },
       "yAxis": [{ "type": "linear" }, { "type": "linear", "opposite": true }],
-      "series": { "stacking": null, "error_y": { "type": "data", "visible": true } }
+      "series": { "stacking": null, "error_y": { "type": "data", "visible": true } },
+      "color_scheme": "Redash"
     },
     "data": [
       {
@@ -28,22 +29,23 @@
     "series": [
       {
         "visible": true,
-        "values": [10, 60, 100, 30],
-        "labels": ["Slice 0", "Slice 0", "Slice 0", "Slice 0"],
+        "values": [200],
+        "labels": ["Slice 0"],
         "type": "pie",
         "hole": 0.4,
         "marker": {
-          "colors": ["#356AFF", "#E92828", "#3BD973", "#604FE9"]
+          "colors": ["#356AFF"]
         },
         "hoverinfo": "text+label",
         "hover": [],
-        "text": ["15% (30)", "15% (30)", "15% (30)", "15% (30)"],
+        "text": ["100% (200)"],
         "textinfo": "percent",
         "textposition": "inside",
-        "textfont": { "color": ["#ffffff", "#ffffff", "#333333", "#ffffff"] },
+        "textfont": { "color": ["#ffffff"] },
         "name": "a",
         "direction": "counterclockwise",
-        "domain": { "x": [0, 0.98], "y": [0, 0.9] }
+        "domain": { "x": [0, 0.98], "y": [0, 0.9] },
+        "color_scheme": "Redash"
       }
     ]
   }

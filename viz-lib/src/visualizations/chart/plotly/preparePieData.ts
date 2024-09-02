@@ -1,7 +1,7 @@
 import { isString, each, extend, includes, map, reduce } from "lodash";
 import d3 from "d3";
 import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
-import { ColorPaletteArray } from "@/visualizations/ColorPalette";
+import { AllColorPaletteArrays, ColorPaletteTypes } from "@/visualizations/ColorPalette";
 
 import { cleanNumber, normalizeValue } from "./utils";
 
@@ -35,14 +35,13 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
     hoverInfoPattern,
     getValueColor,
   } = additionalOptions;
-
   const seriesOptions = extend({ type: options.globalSeriesType, yAxis: 0 }, options.seriesOptions[series.name]);
 
   const xPosition = (index % cellsInRow) * cellWidth;
   const yPosition = Math.floor(index / cellsInRow) * cellHeight;
 
-  const labels: any = [];
-  const values: any = [];
+  const labelsValuesMap = new Map();
+
   const sourceData = new Map();
   const seriesTotal = reduce(
     series.data,
@@ -55,18 +54,28 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
   each(series.data, row => {
     const x = hasX ? normalizeValue(row.x, options.xAxis.type) : `Slice ${index}`;
     const y = cleanNumber(row.y);
-    labels.push(x);
-    values.push(y);
+
+    if (labelsValuesMap.has(x)) {
+      labelsValuesMap.set(x, labelsValuesMap.get(x) + y);
+    } else {
+      labelsValuesMap.set(x, y);
+    }
+    const aggregatedY = labelsValuesMap.get(x);
+
+
     sourceData.set(x, {
       x,
-      y,
-      yPercent: (y / seriesTotal) * 100,
+      y: aggregatedY,
+      yPercent: (aggregatedY / seriesTotal) * 100,
       row,
     });
   });
 
-  const markerColors = map(series.data, row => getValueColor(row.x));
+  const markerColors = map(Array.from(sourceData.values()), data => getValueColor(data.row.x));
   const textColors = map(markerColors, c => chooseTextColorForBackground(c));
+
+  const labels = Array.from(labelsValuesMap.keys());
+  const values = Array.from(labelsValuesMap.values());
 
   return {
     visible: true,
@@ -91,17 +100,36 @@ function prepareSeries(series: any, options: any, additionalOptions: any) {
       y: [yPosition, yPosition + cellHeight - yPadding],
     },
     sourceData,
+    sort: options.piesort,
+    color_scheme: options.color_scheme,
   };
 }
 
 export default function preparePieData(seriesList: any, options: any) {
-  // we will use this to assign colors for values that have no explicitly set color
-  // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
-  const getDefaultColor = d3.scale
-    .ordinal()
-    .domain([])
-    .range(ColorPaletteArray);
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+  const palette = AllColorPaletteArrays[options.color_scheme];
   const valuesColors = {};
+  let getDefaultColor : Function;
+
+  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+  if (typeof(seriesList[0]) !== 'undefined' && ColorPaletteTypes[options.color_scheme] === 'continuous') {
+    const uniqueXValues =[... new Set(seriesList[0].data.map((d: any) => d.x))];
+    const step = (palette.length - 1) / (uniqueXValues.length - 1 || 1);
+    const colorIndices = d3.range(uniqueXValues.length).map(function(i) {
+      return Math.round(step * i);
+    });
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
+    getDefaultColor = d3.scale.ordinal()
+      .domain(uniqueXValues) // Set domain as the unique x-values
+      .range(colorIndices.map(index => palette[index]));
+  } else {
+    // @ts-expect-error ts-migrate(2339) FIXME: Property 'scale' does not exist on type 'typeof im... Remove this comment to see the full error message
+    getDefaultColor = d3.scale
+      .ordinal()
+      .domain([])
+      .range(palette);
+  };
+
   each(options.valuesOptions, (item, key) => {
     if (isString(item.color) && item.color !== "") {
       // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message

@@ -5,6 +5,7 @@ from freezegun import freeze_time
 from mock import patch
 from pytz import utc
 
+from redash.query_runner import TYPE_INTEGER, TYPE_STRING
 from redash.query_runner.mongodb import (
     MongoDB,
     _get_column_by_name,
@@ -15,7 +16,7 @@ from redash.utils import json_dumps, parse_human_time
 
 
 @patch("redash.query_runner.mongodb.pymongo.MongoClient")
-class TestUserPassOverride(TestCase):
+class TestMongoDB(TestCase):
     def test_username_password_present_overrides_username_from_uri(self, mongo_client):
         config = {
             "connectionString": "mongodb://localhost:27017/test",
@@ -36,6 +37,73 @@ class TestUserPassOverride(TestCase):
 
         self.assertNotIn("username", mongo_client.call_args.kwargs)
         self.assertNotIn("password", mongo_client.call_args.kwargs)
+
+    def test_run_query_with_fields(self, mongo_client):
+        query = {"collection": "test", "query": {"age": 10}, "fields": {"_id": 1, "name": 2}}
+        return_value = [{"_id": "6569ee53d53db7930aaa0cc0", "name": "test2"}]
+        expected = {
+            "columns": [
+                {"name": "_id", "friendly_name": "_id", "type": TYPE_STRING},
+                {"name": "name", "friendly_name": "name", "type": TYPE_STRING},
+            ],
+            "rows": return_value,
+        }
+
+        mongo_client().__getitem__().__getitem__().find.return_value = return_value
+        self._test_query(query, return_value, expected)
+
+    def test_run_query_with_func(self, mongo_client):
+        query = {
+            "collection": "test",
+            "query": {"age": 10},
+            "fields": {"_id": 1, "name": 4, "link": {"$concat": ["hoge_", "$name"]}},
+        }
+        return_value = [{"_id": "6569ee53d53db7930aaa0cc0", "name": "test2", "link": "hoge_test2"}]
+        expected = {
+            "columns": [
+                {"name": "_id", "friendly_name": "_id", "type": TYPE_STRING},
+                {"name": "link", "friendly_name": "link", "type": TYPE_STRING},
+                {"name": "name", "friendly_name": "name", "type": TYPE_STRING},
+            ],
+            "rows": return_value,
+        }
+
+        mongo_client().__getitem__().__getitem__().find.return_value = return_value
+        self._test_query(query, return_value, expected)
+
+    def test_run_query_with_aggregate(self, mongo_client):
+        query = {
+            "collection": "test",
+            "aggregate": [
+                {"$unwind": "$tags"},
+                {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
+                {"$sort": [{"name": "count", "direction": -1}, {"name": "_id", "direction": -1}]},
+            ],
+        }
+        return_value = [{"_id": "foo", "count": 10}, {"_id": "bar", "count": 9}]
+        expected = {
+            "columns": [
+                {"name": "_id", "friendly_name": "_id", "type": TYPE_STRING},
+                {"name": "count", "friendly_name": "count", "type": TYPE_INTEGER},
+            ],
+            "rows": return_value,
+        }
+
+        mongo_client().__getitem__().__getitem__().aggregate.return_value = return_value
+        self._test_query(query, return_value, expected)
+
+    def _test_query(self, query, return_value, expected):
+        config = {
+            "connectionString": "mongodb://localhost:27017/test",
+            "username": "test_user",
+            "password": "test_pass",
+            "dbName": "test",
+        }
+        mongo_qr = MongoDB(config)
+
+        result, err = mongo_qr.run_query(json_dumps(query), None)
+        self.assertIsNone(err)
+        self.assertEqual(expected, result)
 
 
 class TestParseQueryJson(TestCase):
@@ -130,6 +198,7 @@ class TestMongoResults(TestCase):
         for i, row in enumerate(rows):
             self.assertDictEqual(row, raw_results[i])
 
+        self.assertEqual(3, len(columns))
         self.assertIsNotNone(_get_column_by_name(columns, "column"))
         self.assertIsNotNone(_get_column_by_name(columns, "column2"))
         self.assertIsNotNone(_get_column_by_name(columns, "column3"))
@@ -141,7 +210,13 @@ class TestMongoResults(TestCase):
                 "column": 2,
                 "column2": "test",
                 "column3": "hello",
-                "nested": {"a": 2, "b": "str2", "c": "c", "d": {"e": 3}},
+                "nested": {
+                    "a": 2,
+                    "b": "str2",
+                    "c": "c",
+                    "d": {"e": 3},
+                    "f": {"h": {"i": ["j", "k", "l"]}},
+                },
             },
         ]
 
@@ -158,6 +233,7 @@ class TestMongoResults(TestCase):
                 "nested.b": "str2",
                 "nested.c": "c",
                 "nested.d.e": 3,
+                "nested.f.h.i": ["j", "k", "l"],
             },
         )
 
@@ -167,3 +243,50 @@ class TestMongoResults(TestCase):
         self.assertIsNotNone(_get_column_by_name(columns, "nested.a"))
         self.assertIsNotNone(_get_column_by_name(columns, "nested.b"))
         self.assertIsNotNone(_get_column_by_name(columns, "nested.c"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.d.e"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.f.h.i"))
+
+    def test_parses_flatten_nested_results(self):
+        raw_results = [
+            {
+                "column": 2,
+                "column2": "test",
+                "column3": "hello",
+                "nested": {
+                    "a": 2,
+                    "b": "str2",
+                    "c": "c",
+                    "d": {"e": 3},
+                    "f": {"h": {"i": ["j", "k", "l"]}},
+                },
+            }
+        ]
+
+        rows, columns = parse_results(raw_results, flatten=True)
+        print(rows)
+        self.assertDictEqual(
+            rows[0],
+            {
+                "column": 2,
+                "column2": "test",
+                "column3": "hello",
+                "nested.a": 2,
+                "nested.b": "str2",
+                "nested.c": "c",
+                "nested.d.e": 3,
+                "nested.f.h.i.0": "j",
+                "nested.f.h.i.1": "k",
+                "nested.f.h.i.2": "l",
+            },
+        )
+
+        self.assertIsNotNone(_get_column_by_name(columns, "column"))
+        self.assertIsNotNone(_get_column_by_name(columns, "column2"))
+        self.assertIsNotNone(_get_column_by_name(columns, "column3"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.a"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.b"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.c"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.d.e"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.f.h.i.0"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.f.h.i.1"))
+        self.assertIsNotNone(_get_column_by_name(columns, "nested.f.h.i.2"))

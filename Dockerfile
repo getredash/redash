@@ -1,6 +1,6 @@
-FROM node:18-bookworm as frontend-builder
+FROM node:18-bookworm AS frontend-builder
 
-RUN npm install --global --force yarn@1.22.19
+RUN npm install --global --force yarn@1.22.22
 
 # Controls whether to build the frontend assets
 ARG skip_frontend_build
@@ -20,13 +20,16 @@ COPY --chown=redash scripts /frontend/scripts
 ARG code_coverage
 ENV BABEL_ENV=${code_coverage:+test}
 
+# Avoid issues caused by lags in disk and network I/O speeds when working on top of QEMU emulation for multi-platform image building.
+RUN yarn config set network-timeout 300000
+
 RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
 RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn build; else mkdir -p /frontend/client/dist && touch /frontend/client/dist/multi_org.html && touch /frontend/client/dist/index.html; fi
 
-FROM python:3.8-slim-bookworm
+FROM python:3.10-slim-bookworm
 
 EXPOSE 5000
 
@@ -68,7 +71,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
   curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \
   && curl https://packages.microsoft.com/config/debian/12/prod.list > /etc/apt/sources.list.d/mssql-release.list \
   && apt-get update \
-  && ACCEPT_EULA=Y apt-get install  -y --no-install-recommends msodbcsql17 \
+  && ACCEPT_EULA=Y apt-get install  -y --no-install-recommends msodbcsql18 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   && curl "$databricks_odbc_driver_url" --location --output /tmp/simba_odbc.zip \
@@ -81,10 +84,13 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
 
 WORKDIR /app
 
-ENV POETRY_VERSION=1.6.1
+ENV POETRY_VERSION=1.8.3
 ENV POETRY_HOME=/etc/poetry
 ENV POETRY_VIRTUALENVS_CREATE=false
 RUN curl -sSL https://install.python-poetry.org | python3 -
+
+# Avoid crashes, including corrupted cache artifacts, when building multi-platform images with GitHub Actions.
+RUN /etc/poetry/bin/poetry cache clear pypi --all
 
 COPY pyproject.toml poetry.lock ./
 
