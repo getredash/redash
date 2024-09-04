@@ -123,7 +123,7 @@ pyexasol = "0.12.0"
 pyhive = "0.6.1"
 pyignite = "0.6.1"
 pymongo = { version = "4.6.3", extras = ["srv", "tls"] }
-pymssql = "2.2.8"
+pymssql = "^2.3.1"
 pyodbc = "5.1.0"
 python-arango = "6.1.0"
 python-rapidjson = "1.20"
