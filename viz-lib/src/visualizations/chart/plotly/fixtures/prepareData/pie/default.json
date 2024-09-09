@@ -14,7 +14,8 @@
       "columnMapping": {
         "x": "x",
         "y": "y"
-      }
+      },
+      "color_scheme": "Redash"
     },
     "data": [
       {
@@ -47,7 +48,8 @@
         "textfont": { "color": ["#ffffff", "#ffffff", "#333333", "#ffffff"] },
         "name": "a",
         "direction": "counterclockwise",
-        "domain": { "x": [0, 0.98], "y": [0, 0.9] }
+        "domain": { "x": [0, 0.98], "y": [0, 0.9] },
+        "color_scheme": "Redash"
       }
     ]
   }

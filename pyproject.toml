@@ -12,7 +12,7 @@ force-exclude = '''
 
 [tool.poetry]
 name = "redash"
-version = "24.08.1-dev"
+version = "24.09.0-dev"
 description = "Make Your Company Data Driven. Connect to any data source, easily visualize, dashboard and share your data."
 authors = ["Arik Fraimovich <arik@redash.io>"]
 # to be added to/removed from the mailing list, please reach out to Arik via the above email or Discord
@@ -123,10 +123,10 @@ pyexasol = "0.12.0"
 pyhive = "0.6.1"
 pyignite = "0.6.1"
 pymongo = { version = "4.6.3", extras = ["srv", "tls"] }
-pymssql = "2.2.8"
+pymssql = "^2.3.1"
 pyodbc = "5.1.0"
 python-arango = "6.1.0"
-python-rapidjson = "1.1.0"
+python-rapidjson = "1.20"
 requests-aws-sign = "0.1.5"
 sasl = ">=0.1.3"
 simple-salesforce = "0.74.3"

@@ -4,7 +4,6 @@ import { visualizationsSettings } from "@/visualizations/visualizationsSettings"
 const DEFAULT_OPTIONS = {
   itemsPerPage: 25,
   paginationSize: "default", // not editable through Editor
-  fixedColumns: 0,
 };
 
 const filterTypes = ["filter", "multi-filter", "multiFilter"];
@@ -57,7 +56,6 @@ function getDefaultColumnsOptions(columns: any) {
     // `string` cell options
     allowHTML: true,
     highlightLinks: false,
-    fixed: false,
   }));
 }
 

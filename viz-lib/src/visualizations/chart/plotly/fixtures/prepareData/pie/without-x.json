@@ -10,7 +10,8 @@
       "direction": { "type": "counterclockwise" },
       "xAxis": { "type": "-", "labels": { "enabled": true } },
       "yAxis": [{ "type": "linear" }, { "type": "linear", "opposite": true }],
-      "series": { "stacking": null, "error_y": { "type": "data", "visible": true } }
+      "series": { "stacking": null, "error_y": { "type": "data", "visible": true } },
+      "color_scheme": "Redash"
     },
     "data": [
       {
@@ -43,7 +44,8 @@
         "textfont": { "color": ["#ffffff"] },
         "name": "a",
         "direction": "counterclockwise",
-        "domain": { "x": [0, 0.98], "y": [0, 0.9] }
+        "domain": { "x": [0, 0.98], "y": [0, 0.9] },
+        "color_scheme": "Redash"
       }
     ]
   }

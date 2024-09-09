@@ -17,6 +17,7 @@ const DEFAULT_OPTIONS = {
   sizemode: "diameter",
   coefficient: 1,
   piesort: true,
+  color_scheme: "Redash",
 
   // showDataLabels: false, // depends on chart type
   numberFormat: "0,0[.]00000",
