@@ -2,7 +2,7 @@ name: Push
 on:
   push:
     branches:
-      - "preview23"
+      - "fix_static_unauth_page"
 
 env:
   ECR_REPOSITORY: images
