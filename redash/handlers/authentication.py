@@ -46,12 +46,21 @@ def render_token_login_page(template, org_slug, token, invite):
             ),
             400,
         )
-    except (SignatureExpired, BadSignature):
-        logger.exception("Failed to verify invite token: %s, org=%s", token, org_slug)
+    except SignatureExpired:
+        logger.exception("Token signature has expired. Token: %s, org=%s", token, org_slug)
         return (
             render_template(
                 "error.html",
                 error_message="Your invite link has expired. Please ask for a new one.",
+            ),
+            400,
+        )
+    except BadSignature:
+        logger.exception("Bad signature for the invite token: %s, org=%s", token, org_slug)
+        return (
+            render_template(
+                "error.html",
+                error_message="Your invite link is invalid. Please double-check the token.",
             ),
             400,
         )
