@@ -245,7 +245,7 @@ def custom_unauthorized_handler():
     url = request.referrer
     if url and url_parse(url).host == "admin.masterworks.com":
         full_path = safe_join(settings.STATIC_ASSETS_PATH, "unauthorized.html")
-        response = send_file(full_path, **dict(cache_timeout=0, conditional=True))
+        response = send_file(full_path, max_age=0, conditional=True)
         return response
     else:
         redirect_url = make_login_url("redash.login", next_url=request.url)
