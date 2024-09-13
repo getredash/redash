@@ -28,7 +28,7 @@ def get_google_auth_url(next_path):
 
 
 def render_token_login_page(template, org_slug, token, invite):
-    error_message = ""
+    error_message = None
     try:
         user_id = validate_token(token)
         org = current_org._get_current_object()
