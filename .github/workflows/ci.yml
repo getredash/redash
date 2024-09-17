@@ -160,7 +160,6 @@ jobs:
           set -x
           yarn cypress build
           yarn cypress start -- --skip-db-seed
-          .ci/wait-for-it.sh localhost:5001 --strict --timeout=60 -- echo "Server is ready."
           docker compose run cypress yarn cypress db-seed
       - name: Execute Cypress Tests
         run: yarn cypress run-ci
