@@ -9,6 +9,7 @@ import QueryControlDropdown from "@/components/EditVisualizationButton/QueryCont
 import EditVisualizationButton from "@/components/EditVisualizationButton";
 import useQueryResultData from "@/lib/useQueryResultData";
 import { durationHumanize, pluralize, prettySize } from "@/lib/utils";
+import { isUndefined } from "lodash";
 
 import "./QueryExecutionMetadata.less";
 
@@ -68,7 +69,7 @@ export default function QueryExecutionMetadata({
           )}
           {isQueryExecuting && <span>Running&hellip;</span>}
         </span>
-        {!isQueryExecuting && (
+        {!isUndefined(queryResultData.metadata.data_scanned) && !isQueryExecuting && (
           <span className="m-l-5">
             Data Scanned <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>
           </span>
