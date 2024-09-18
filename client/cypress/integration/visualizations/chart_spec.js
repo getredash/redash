@@ -26,33 +26,33 @@ const SQL = `
 describe("Chart", () => {
   beforeEach(() => {
     cy.login();
-    cy.createQuery({ name: "Chart Visualization", query: SQL })
-      .its("id")
-      .as("queryId");
+    cy.createQuery({ name: "Chart Visualization", query: SQL }).its("id").as("queryId");
   });
 
-  it("creates Bar charts", function() {
+  it("creates Bar charts", function () {
     cy.visit(`queries/${this.queryId}/source`);
     cy.getByTestId("ExecuteButton").click();
 
-    const getBarChartAssertionFunction = (specificBarChartAssertionFn = () => {}) => () => {
-      // checks for TabbedEditor standard tabs
-      assertTabbedEditor();
+    const getBarChartAssertionFunction =
+      (specificBarChartAssertionFn = () => {}) =>
+      () => {
+        // checks for TabbedEditor standard tabs
+        assertTabbedEditor();
 
-      // standard chart should be bar
-      cy.getByTestId("Chart.GlobalSeriesType").contains(".ant-select-selection-item", "Bar");
+        // standard chart should be bar
+        cy.getByTestId("Chart.GlobalSeriesType").contains(".ant-select-selection-item", "Bar");
 
-      // checks the plot canvas exists and is empty
-      assertPlotPreview("not.exist");
+        // checks the plot canvas exists and is empty
+        assertPlotPreview("not.exist");
 
-      // creates a chart and checks it is plotted
-      cy.getByTestId("Chart.ColumnMapping.x").selectAntdOption("Chart.ColumnMapping.x.stage");
-      cy.getByTestId("Chart.ColumnMapping.y").selectAntdOption("Chart.ColumnMapping.y.value1");
-      cy.getByTestId("Chart.ColumnMapping.y").selectAntdOption("Chart.ColumnMapping.y.value2");
-      assertPlotPreview("exist");
+        // creates a chart and checks it is plotted
+        cy.getByTestId("Chart.ColumnMapping.x").selectAntdOption("Chart.ColumnMapping.x.stage");
+        cy.getByTestId("Chart.ColumnMapping.y").selectAntdOption("Chart.ColumnMapping.y.value1");
+        cy.getByTestId("Chart.ColumnMapping.y").selectAntdOption("Chart.ColumnMapping.y.value2");
+        assertPlotPreview("exist");
 
-      specificBarChartAssertionFn();
-    };
+        specificBarChartAssertionFn();
+      };
 
     const chartTests = [
       {
@@ -95,8 +95,8 @@ describe("Chart", () => {
 
     const withDashboardWidgetsAssertionFn = (widgetGetters, dashboardUrl) => {
       cy.visit(dashboardUrl);
-      widgetGetters.forEach(widgetGetter => {
-        cy.get(`@${widgetGetter}`).then(widget => {
+      widgetGetters.forEach((widgetGetter) => {
+        cy.get(`@${widgetGetter}`).then((widget) => {
           cy.getByTestId(getWidgetTestId(widget)).within(() => {
             cy.get("g.points").should("exist");
           });
@@ -106,5 +106,35 @@ describe("Chart", () => {
 
     createDashboardWithCharts("Bar chart visualizations", chartGetters, withDashboardWidgetsAssertionFn);
     cy.percySnapshot("Visualizations - Charts - Bar");
+  });
+  it("colors Bar charts", function () {
+    cy.visit(`queries/${this.queryId}/source`);
+    cy.getByTestId("ExecuteButton").click();
+    cy.getByTestId("NewVisualization").click();
+    cy.getByTestId("Chart.ColumnMapping.x").selectAntdOption("Chart.ColumnMapping.x.stage");
+    cy.getByTestId("Chart.ColumnMapping.y").selectAntdOption("Chart.ColumnMapping.y.value1");
+    cy.getByTestId("VisualizationEditor.Tabs.Colors").click();
+    cy.getByTestId("ColorScheme").click();
+    cy.getByTestId("ColorOptionViridis").click();
+    cy.getByTestId("ColorScheme").click();
+    cy.getByTestId("ColorOptionTableau 10").click();
+    cy.getByTestId("ColorScheme").click();
+    cy.getByTestId("ColorOptionD3 Category 10").click();
+  });
+  it("colors Pie charts", function () {
+    cy.visit(`queries/${this.queryId}/source`);
+    cy.getByTestId("ExecuteButton").click();
+    cy.getByTestId("NewVisualization").click();
+    cy.getByTestId("Chart.GlobalSeriesType").click();
+    cy.getByTestId("Chart.ChartType.pie").click();
+    cy.getByTestId("Chart.ColumnMapping.x").selectAntdOption("Chart.ColumnMapping.x.stage");
+    cy.getByTestId("Chart.ColumnMapping.y").selectAntdOption("Chart.ColumnMapping.y.value1");
+    cy.getByTestId("VisualizationEditor.Tabs.Colors").click();
+    cy.getByTestId("ColorScheme").click();
+    cy.getByTestId("ColorOptionViridis").click();
+    cy.getByTestId("ColorScheme").click();
+    cy.getByTestId("ColorOptionTableau 10").click();
+    cy.getByTestId("ColorScheme").click();
+    cy.getByTestId("ColorOptionD3 Category 10").click();
   });
 });
