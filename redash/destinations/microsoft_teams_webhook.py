@@ -79,8 +79,6 @@ class MicrosoftTeamsWebhook(BaseDestination):
         :type app: redash.Redash
         """
         try:
-            alert_url = "{host}/alerts/{alert_id}".format(host=host, alert_id=alert.id)
-
             query_url = "{host}/queries/{query_id}".format(host=host, query_id=query.id)
 
             message_template = options.get("message_template", MicrosoftTeamsWebhook.ALERTS_DEFAULT_MESSAGE_TEMPLATE)
