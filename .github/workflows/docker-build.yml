@@ -27,5 +27,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: your-username/redash:custom
+          tags: thuanphansts/redash-msteam-custom-alert
 
