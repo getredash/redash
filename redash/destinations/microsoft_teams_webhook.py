@@ -31,7 +31,7 @@ class MicrosoftTeamsWebhook(BaseDestination):
             "@type": "MessageCard",
             "@context": "http://schema.org/extensions",
             "themeColor": "0076D7",
-            "summary": "A Redash Alert was Triggered",
+            "summary": "A Redash Alert just Triggered",
             "sections": [
                 {
                     "activityTitle": "A Redash Alert was Triggered",
