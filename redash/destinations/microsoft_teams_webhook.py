@@ -36,8 +36,8 @@ class MicrosoftTeamsWebhook(BaseDestination):
                 {
                     "activityTitle": "A Redash Alert was Triggered",
                     "facts": [
-                        {"name": "Alert Name", "value": "{alert_name}"},
-                        {"name": "Alert URL", "value": "{alert_url}"},
+                        {"name": "Alert Subject", "value": "{alert_subject}"},
+                        {"name": "Alert Body", "value": "{alert_body}"},
                         {"name": "Query", "value": "{query_text}"},
                         {"name": "Query URL", "value": "{query_url}"},
                     ],
@@ -90,8 +90,8 @@ class MicrosoftTeamsWebhook(BaseDestination):
             payload = json_string_substitute(
                 message_template,
                 {
-                    "alert_name": alert.name,
-                    "alert_url": alert_url,
+                    "alert_subject": alert.custom_subject,
+                    "alert_body": alert.custom_body,
                     "query_text": query.query_text,
                     "query_url": query_url,
                 },
