@@ -137,7 +137,7 @@ MULTI_ORG = parse_boolean(os.environ.get("REDASH_MULTI_ORG", "false"))
 
 # If Redash is behind a proxy it might sometimes receive a X-Forwarded-Proto of HTTP
 # even if your actual Redash URL scheme is HTTPS. This will cause Flask to build
-# the OAuth redirect URL incorrect thus failing auth. This is especially common if
+# the OAuth redirect URL incorrectly thus failing auth. This is especially common if
 # you're behind a SSL/TCP configured AWS ELB or similar.
 # This setting will force the URL scheme.
 GOOGLE_OAUTH_SCHEME_OVERRIDE = os.environ.get("REDASH_GOOGLE_OAUTH_SCHEME_OVERRIDE", "")
