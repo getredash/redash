@@ -88,13 +88,13 @@ def create_google_oauth_blueprint(app):
     @blueprint.route("/<org_slug>/oauth/google", endpoint="authorize_org")
     def org_login(org_slug):
         session["org_slug"] = current_org.slug
-        return redirect(url_for(".authorize", next=request.args.get("next")))
+        return redirect(url_for(".authorize", next=request.args.get("next", None)))
 
     @blueprint.route("/oauth/google", endpoint="authorize")
     def login():
         redirect_uri = build_redirect_uri()
-        next_path = build_next_path()
 
+        next_path = build_next_path()
         logger.debug("Callback url: %s", redirect_uri)
         logger.debug("Next is: %s", next_path)
 
