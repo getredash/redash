@@ -4,7 +4,7 @@ import requests
 from authlib.integrations.flask_client import OAuth
 from flask import Blueprint, flash, redirect, request, session, url_for
 
-from redash import models
+from redash import models, settings
 from redash.authentication import (
     create_and_login_user,
     get_next_path,
@@ -60,9 +60,30 @@ def create_google_oauth_blueprint(app):
 
     @blueprint.route("/oauth/google", endpoint="authorize")
     def login():
-        redirect_uri = url_for(".callback", _external=True)
+        if settings.GOOGLE_OAUTH_SCHEME_OVERRIDE:
+            redirect_uri = url_for(
+                ".callback",
+                _external=True,
+                _scheme=settings.GOOGLE_OAUTH_SCHEME_OVERRIDE,
+            )
+        else:
+            redirect_uri = url_for(".callback", _external=True)
 
-        next_path = request.args.get("next", url_for("redash.index", org_slug=session.get("org_slug")))
+        next_path = request.args.get("next")
+        if not next_path:
+            if settings.GOOGLE_OAUTH_SCHEME_OVERRIDE:
+                next_path = url_for(
+                    "redash.index",
+                    org_slug=session.get("org_slug"),
+                    _external=True,
+                    _scheme=settings.GOOGLE_OAUTH_SCHEME_OVERRIDE,
+                )
+            else:
+                next_path = url_for(
+                    "redash.index",
+                    org_slug=session.get("org_slug"),
+                    _external=True,
+                )
         logger.debug("Callback url: %s", redirect_uri)
         logger.debug("Next is: %s", next_path)
 
@@ -110,7 +131,21 @@ def create_google_oauth_blueprint(app):
         if user is None:
             return logout_and_redirect_to_index()
 
-        unsafe_next_path = session.get("next_url") or url_for("redash.index", org_slug=org.slug)
+        unsafe_next_path = session.get("next_url")
+        if not unsafe_next_path:
+            if settings.GOOGLE_OAUTH_SCHEME_OVERRIDE:
+                unsafe_next_path = url_for(
+                    "redash.index",
+                    org_slug=org.slug,
+                    _external=True,
+                    _scheme=settings.GOOGLE_OAUTH_SCHEME_OVERRIDE,
+                )
+            else:
+                unsafe_next_path = url_for(
+                    "redash.index",
+                    org_slug=org.slug,
+                    _external=True,
+                )
         next_path = get_next_path(unsafe_next_path)
 
         return redirect(next_path)
