@@ -107,11 +107,12 @@ def create_google_oauth_blueprint(app):
         logger.debug("Authorized user inbound")
 
         resp = oauth.google.authorize_access_token()
-        user_info = resp.get("userinfo")
-        if user_info:
-            session["user"] = user_info
+        user = resp.get("userinfo")
+        if user:
+            session["user"] = user
 
-        access_token = resp.get("access_token")
+        access_token = resp["access_token"]
+
         if access_token is None:
             logger.warning("Access token missing in call back request.")
             flash("Validation error. Please retry.")
@@ -136,7 +137,7 @@ def create_google_oauth_blueprint(app):
             flash("Your Google Apps account ({}) isn't allowed.".format(profile["email"]))
             return redirect(url_for("redash.login", org_slug=org.slug))
 
-        picture_url = f"{profile['picture']}?sz=40"
+        picture_url = "%s?sz=40" % profile["picture"]
         user = create_and_login_user(org, profile["name"], profile["email"], picture_url)
         if user is None:
             return logout_and_redirect_to_index()
