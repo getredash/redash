@@ -31,9 +31,7 @@ def verify_profile(org, profile):
 
 def get_user_profile(access_token, logger):
     headers = {"Authorization": f"OAuth {access_token}"}
-    response = requests.get(
-        "https://www.googleapis.com/oauth2/v1/userinfo", headers=headers
-    )
+    response = requests.get("https://www.googleapis.com/oauth2/v1/userinfo", headers=headers)
 
     if response.status_code == 401:
         logger.warning("Failed getting user profile (response code 401).")
@@ -139,9 +137,7 @@ def create_google_oauth_blueprint(app):
             return redirect(url_for("redash.login", org_slug=org.slug))
 
         picture_url = f"{profile['picture']}?sz=40"
-        user = create_and_login_user(
-            org, profile["name"], profile["email"], picture_url
-        )
+        user = create_and_login_user(org, profile["name"], profile["email"], picture_url)
         if user is None:
             return logout_and_redirect_to_index()
 
