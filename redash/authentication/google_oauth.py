@@ -75,10 +75,12 @@ def build_next_path():
 
 def create_google_oauth_blueprint(app):
     oauth = OAuth(app)
+
     logger = logging.getLogger("google_oauth")
     blueprint = Blueprint("google_oauth", __name__)
 
     CONF_URL = "https://accounts.google.com/.well-known/openid-configuration"
+    oauth = OAuth(app)
     oauth.register(
         name="google",
         server_metadata_url=CONF_URL,
