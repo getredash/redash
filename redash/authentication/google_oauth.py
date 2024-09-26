@@ -29,61 +29,72 @@ def verify_profile(org, profile):
     return False
 
 
+def get_user_profile(access_token, logger):
+    headers = {"Authorization": f"OAuth {access_token}"}
+    response = requests.get(
+        "https://www.googleapis.com/oauth2/v1/userinfo", headers=headers
+    )
+
+    if response.status_code == 401:
+        logger.warning("Failed getting user profile (response code 401).")
+        return None
+
+    return response.json()
+
+
+def build_redirect_uri():
+    if settings.GOOGLE_OAUTH_SCHEME_OVERRIDE:
+        redirect_uri = url_for(
+            ".callback",
+            _external=True,
+            _scheme=settings.GOOGLE_OAUTH_SCHEME_OVERRIDE,
+        )
+    else:
+        redirect_uri = url_for(".callback", _external=True)
+    return redirect_uri
+
+
+def build_next_path():
+    next_path = request.args.get("next")
+    if not next_path:
+        if settings.GOOGLE_OAUTH_SCHEME_OVERRIDE:
+            next_path = url_for(
+                "redash.index",
+                org_slug=session.get("org_slug"),
+                _external=True,
+                _scheme=settings.GOOGLE_OAUTH_SCHEME_OVERRIDE,
+            )
+        else:
+            next_path = url_for(
+                "redash.index",
+                org_slug=session.get("org_slug"),
+                _external=True,
+            )
+    return next_path
+
+
 def create_google_oauth_blueprint(app):
     oauth = OAuth(app)
-
     logger = logging.getLogger("google_oauth")
     blueprint = Blueprint("google_oauth", __name__)
 
     CONF_URL = "https://accounts.google.com/.well-known/openid-configuration"
-    oauth = OAuth(app)
     oauth.register(
         name="google",
         server_metadata_url=CONF_URL,
         client_kwargs={"scope": "openid email profile"},
     )
 
-    def get_user_profile(access_token):
-        headers = {"Authorization": "OAuth {}".format(access_token)}
-        response = requests.get("https://www.googleapis.com/oauth2/v1/userinfo", headers=headers)
-
-        if response.status_code == 401:
-            logger.warning("Failed getting user profile (response code 401).")
-            return None
-
-        return response.json()
-
     @blueprint.route("/<org_slug>/oauth/google", endpoint="authorize_org")
     def org_login(org_slug):
         session["org_slug"] = current_org.slug
-        return redirect(url_for(".authorize", next=request.args.get("next", None)))
+        return redirect(url_for(".authorize", next=request.args.get("next")))
 
     @blueprint.route("/oauth/google", endpoint="authorize")
     def login():
-        if settings.GOOGLE_OAUTH_SCHEME_OVERRIDE:
-            redirect_uri = url_for(
-                ".callback",
-                _external=True,
-                _scheme=settings.GOOGLE_OAUTH_SCHEME_OVERRIDE,
-            )
-        else:
-            redirect_uri = url_for(".callback", _external=True)
+        redirect_uri = build_redirect_uri()
+        next_path = build_next_path()
 
-        next_path = request.args.get("next")
-        if not next_path:
-            if settings.GOOGLE_OAUTH_SCHEME_OVERRIDE:
-                next_path = url_for(
-                    "redash.index",
-                    org_slug=session.get("org_slug"),
-                    _external=True,
-                    _scheme=settings.GOOGLE_OAUTH_SCHEME_OVERRIDE,
-                )
-            else:
-                next_path = url_for(
-                    "redash.index",
-                    org_slug=session.get("org_slug"),
-                    _external=True,
-                )
         logger.debug("Callback url: %s", redirect_uri)
         logger.debug("Next is: %s", next_path)
 
@@ -96,18 +107,17 @@ def create_google_oauth_blueprint(app):
         logger.debug("Authorized user inbound")
 
         resp = oauth.google.authorize_access_token()
-        user = resp.get("userinfo")
-        if user:
-            session["user"] = user
+        user_info = resp.get("userinfo")
+        if user_info:
+            session["user"] = user_info
 
-        access_token = resp["access_token"]
-
+        access_token = resp.get("access_token")
         if access_token is None:
             logger.warning("Access token missing in call back request.")
             flash("Validation error. Please retry.")
             return redirect(url_for("redash.login"))
 
-        profile = get_user_profile(access_token)
+        profile = get_user_profile(access_token, logger)
         if profile is None:
             flash("Validation error. Please retry.")
             return redirect(url_for("redash.login"))
@@ -126,8 +136,10 @@ def create_google_oauth_blueprint(app):
             flash("Your Google Apps account ({}) isn't allowed.".format(profile["email"]))
             return redirect(url_for("redash.login", org_slug=org.slug))
 
-        picture_url = "%s?sz=40" % profile["picture"]
-        user = create_and_login_user(org, profile["name"], profile["email"], picture_url)
+        picture_url = f"{profile['picture']}?sz=40"
+        user = create_and_login_user(
+            org, profile["name"], profile["email"], picture_url
+        )
         if user is None:
             return logout_and_redirect_to_index()
 
