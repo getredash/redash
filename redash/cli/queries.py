@@ -5,6 +5,22 @@ from sqlalchemy.orm.exc import NoResultFound
 manager = AppGroup(help="Queries management commands.")
 
 
+@manager.command(name="rehash")
+def rehash():
+    from redash import models
+
+    for q in models.Query.query.all():
+        old_hash = q.query_hash
+        q.update_query_hash()
+        new_hash = q.query_hash
+
+        if old_hash != new_hash:
+            print(f"Query {q.id} has changed hash from {old_hash} to {new_hash}")
+            models.db.session.add(q)
+
+    models.db.session.commit()
+
+
 @manager.command(name="add_tag")
 @argument("query_id")
 @argument("tag")
