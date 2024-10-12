@@ -11,12 +11,12 @@ from redash.query_runner import (
 from redash.utils import json_loads
 
 try:
-    from azure.kusto.data.exceptions import KustoServiceError
-    from azure.kusto.data.request import (
+    from azure.kusto.data import (
         ClientRequestProperties,
         KustoClient,
         KustoConnectionStringBuilder,
     )
+    from azure.kusto.data.exceptions import KustoServiceError
 
     enabled = True
 except ImportError:
@@ -44,8 +44,6 @@ class AzureKusto(BaseQueryRunner):
     def __init__(self, configuration):
         super(AzureKusto, self).__init__(configuration)
         self.syntax = "custom"
-        self.client_request_properties = ClientRequestProperties()
-        self.client_request_properties.application = "redash"
 
     @classmethod
     def configuration_schema(cls):
@@ -60,12 +58,14 @@ class AzureKusto(BaseQueryRunner):
                 },
                 "azure_ad_tenant_id": {"type": "string", "title": "Azure AD Tenant Id"},
                 "database": {"type": "string"},
+                "msi": {"type": "boolean", "title": "Use Managed Service Identity"},
+                "user_msi": {
+                    "type": "string",
+                    "title": "User-assigned managed identity client ID",
+                },
             },
             "required": [
                 "cluster",
-                "azure_ad_client_id",
-                "azure_ad_client_secret",
-                "azure_ad_tenant_id",
                 "database",
             ],
             "order": [
@@ -91,18 +91,38 @@ class AzureKusto(BaseQueryRunner):
         return "Azure Data Explorer (Kusto)"
 
     def run_query(self, query, user):
-        kcsb = KustoConnectionStringBuilder.with_aad_application_key_authentication(
-            connection_string=self.configuration["cluster"],
-            aad_app_id=self.configuration["azure_ad_client_id"],
-            app_key=self.configuration["azure_ad_client_secret"],
-            authority_id=self.configuration["azure_ad_tenant_id"],
-        )
+        cluster = self.configuration["cluster"]
+        msi = self.configuration.get("msi", False)
+        # Managed Service Identity(MSI)
+        if msi:
+            kcsb = KustoConnectionStringBuilder.with_aad_managed_service_identity_authentication(cluster)
+        # Specific user assigned Managed Service Identity
+        elif msi and self.configuration["user_msi"]:
+            kcsb = KustoConnectionStringBuilder.with_aad_managed_service_identity_authentication(
+                cluster,
+                client_id=self.configuration["user_msi"],
+            )
+        # Service Principal auth
+        else:
+            kcsb = KustoConnectionStringBuilder.with_aad_application_key_authentication(
+                connection_string=cluster,
+                aad_app_id=self.configuration["azure_ad_client_id"],
+                app_key=self.configuration["azure_ad_client_secret"],
+                authority_id=self.configuration["azure_ad_tenant_id"],
+            )
 
         client = KustoClient(kcsb)
 
+        request_properties = ClientRequestProperties()
+        request_properties.application = "redash"
+
+        if user:
+            request_properties.user = user.email
+            request_properties.set_option("request_description", user.email)
+
         db = self.configuration["database"]
         try:
-            response = client.execute(db, query, self.client_request_properties)
+            response = client.execute(db, query, request_properties)
 
             result_cols = response.primary_results[0].columns
             result_rows = response.primary_results[0].rows
@@ -127,10 +147,7 @@ class AzureKusto(BaseQueryRunner):
 
         except KustoServiceError as err:
             data = None
-            try:
-                error = err.args[1][0]["error"]["@message"]
-            except (IndexError, KeyError):
-                error = err.args[1]
+            error = str(err)
 
         return data, error
 
@@ -143,7 +160,10 @@ class AzureKusto(BaseQueryRunner):
             self._handle_run_query_error(error)
 
         schema_as_json = json_loads(results["rows"][0]["DatabaseSchema"])
-        tables_list = schema_as_json["Databases"][self.configuration["database"]]["Tables"].values()
+        tables_list = [
+            *(schema_as_json["Databases"][self.configuration["database"]]["Tables"].values()),
+            *(schema_as_json["Databases"][self.configuration["database"]]["MaterializedViews"].values()),
+        ]
 
         schema = {}
 
