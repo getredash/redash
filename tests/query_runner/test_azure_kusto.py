@@ -1,5 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch
+
 from redash.query_runner.azure_kusto import AzureKusto
 
 
