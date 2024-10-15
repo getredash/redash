@@ -4,6 +4,12 @@ on:
     branches:
       - "fix_static_unauth_page"
 
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+  actions: write
+
 env:
   ECR_REPOSITORY: images
   GIT_REF: "${{ github.ref }}"

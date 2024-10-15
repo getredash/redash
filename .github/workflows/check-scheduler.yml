@@ -4,6 +4,13 @@ on:
     schedule:
     - cron: '*/30 * * * *'
     workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+  actions: write
+
 jobs:
     test_schedule:
         runs-on: ubuntu-latest
