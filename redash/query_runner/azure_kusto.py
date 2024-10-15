@@ -37,6 +37,34 @@ TYPES_MAP = {
 }
 
 
+def _get_data_scanned(kusto_response):
+    try:
+        metadata_table = next(
+            (table for table in kusto_response.tables if table.table_name == "QueryCompletionInformation"),
+            None,
+        )
+
+        if metadata_table:
+            resource_usage_json = next(
+                (row["Payload"] for row in metadata_table.rows if row["EventTypeName"] == "QueryResourceConsumption"),
+                "{}",
+            )
+            resource_usage = json_loads(resource_usage_json).get("resource_usage", {})
+
+        data_scanned = (
+            resource_usage["cache"]["shards"]["cold"]["hitbytes"]
+            + resource_usage["cache"]["shards"]["cold"]["missbytes"]
+            + resource_usage["cache"]["shards"]["hot"]["hitbytes"]
+            + resource_usage["cache"]["shards"]["hot"]["missbytes"]
+            + resource_usage["cache"]["shards"]["bypassbytes"]
+        )
+
+    except Exception:
+        data_scanned = 0
+
+    return int(data_scanned)
+
+
 class AzureKusto(BaseQueryRunner):
     should_annotate_query = False
     noop_query = "let noop = datatable (Noop:string)[1]; noop"
@@ -143,7 +171,11 @@ class AzureKusto(BaseQueryRunner):
                 rows.append(row.to_dict())
 
             error = None
-            data = {"columns": columns, "rows": rows}
+            data = {
+                "columns": columns,
+                "rows": rows,
+                "metadata": {"data_scanned": _get_data_scanned(response)},
+            }
 
         except KustoServiceError as err:
             data = None
