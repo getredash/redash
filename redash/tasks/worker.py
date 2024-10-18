@@ -1,13 +1,8 @@
-import errno
-import os
-import signal
 import sys
 
 from rq import Queue as BaseQueue
 from rq.job import Job as BaseJob
 from rq.job import JobStatus
-from rq.timeouts import HorseMonitorTimeoutException
-from rq.utils import utcnow
 from rq.worker import (
     HerokuWorker,  # HerokuWorker implements graceful shutdown on SIGTERM
     Worker,
