@@ -28,7 +28,7 @@ def update_query_hash(record):
 
     parameters_dict = {p["name"]: p.get("value") for p in record['options'].get('parameters', [])} if record.options else {}
     if any(parameters_dict):
-        print(f"Query {record.id} has parameters. Hash might be incorrect.")
+        print(f"Query {record['query_id']} has parameters. Hash might be incorrect.")
 
     return query_runner.gen_query_hash(query_text, should_apply_auto_limit)
 
