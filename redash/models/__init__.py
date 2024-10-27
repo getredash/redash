@@ -387,10 +387,12 @@ class QueryResult(db.Model, BelongsToOrgMixin):
 
 
 def should_schedule_next(previous_iteration, now, interval, time=None, day_of_week=None, failures=0):
+    # if previous_iteration is None, it means the query has never been run before
+    # so we should schedule it immediately
+    if previous_iteration is None:
+        return True
     # if time exists then interval > 23 hours (82800s)
     # if day_of_week exists then interval > 6 days (518400s)
-    if previous_iteration is None:
-        return False
     if time is None:
         ttl = int(interval)
         next_iteration = previous_iteration + datetime.timedelta(seconds=ttl)
@@ -604,29 +606,28 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 if query.schedule.get("disabled"):
                     continue
 
+                # Skip queries that have None for all schedule values. It's unclear whether this
+                # something that can happen in practice, but we have a test case for it.
+                if all(value is None for value in query.schedule.values()):
+                    continue
+
                 if query.schedule["until"]:
                     schedule_until = pytz.utc.localize(datetime.datetime.strptime(query.schedule["until"], "%Y-%m-%d"))
 
                     if schedule_until <= now:
                         continue
 
-                if all(value is None for value in query.schedule.values()):
-                    continue
-
                 retrieved_at = scheduled_queries_executions.get(query.id) or (
                     query.latest_query_data and query.latest_query_data.retrieved_at
                 )
 
-                if (
-                    should_schedule_next(
-                        retrieved_at,
-                        now,
-                        query.schedule["interval"],
-                        query.schedule["time"],
-                        query.schedule["day_of_week"],
-                        query.schedule_failures,
-                    )
-                    or not retrieved_at
+                if should_schedule_next(
+                    retrieved_at,
+                    now,
+                    query.schedule["interval"],
+                    query.schedule["time"],
+                    query.schedule["day_of_week"],
+                    query.schedule_failures,
                 ):
                     key = "{}:{}".format(query.query_hash, query.data_source_id)
                     outdated_queries[key] = query
