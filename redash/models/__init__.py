@@ -959,9 +959,9 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         return super(Alert, cls).get_by_id_and_org(object_id, org, Query)
 
     def evaluate(self):
-        data = self.query_rel.latest_query_data.data
+        data = self.query_rel.latest_query_data.data if self.query_rel.latest_query_data else None
 
-        if data["rows"] and self.options["column"] in data["rows"][0]:
+        if data and data["rows"] and self.options["column"] in data["rows"][0]:
             op = OPERATORS.get(self.options["op"], lambda v, t: False)
 
             if "selector" not in self.options:
