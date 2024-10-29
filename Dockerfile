@@ -27,7 +27,15 @@ RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn build; else mkdir -p /frontend/client/dist && touch /frontend/client/dist/multi_org.html && touch /frontend/client/dist/index.html; fi
+RUN <<EOF
+  if [ "x$skip_frontend_build" = "x" ]; then
+    yarn build
+  else
+    mkdir -p /frontend/client/dist
+    touch /frontend/client/dist/multi_org.html
+    touch /frontend/client/dist/index.html
+  fi
+EOF
 
 FROM python:3.10-slim-bookworm
 
@@ -67,20 +75,23 @@ RUN apt-get update && \
 
 ARG TARGETPLATFORM
 ARG databricks_odbc_driver_url=https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/odbc/2.6.26/SimbaSparkODBC-2.6.26.1045-Debian-64bit.zip
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-  curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \
-  && curl https://packages.microsoft.com/config/debian/12/prod.list > /etc/apt/sources.list.d/mssql-release.list \
-  && apt-get update \
-  && ACCEPT_EULA=Y apt-get install  -y --no-install-recommends msodbcsql18 \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* \
-  && curl "$databricks_odbc_driver_url" --location --output /tmp/simba_odbc.zip \
-  && chmod 600 /tmp/simba_odbc.zip \
-  && unzip /tmp/simba_odbc.zip -d /tmp/simba \
-  && dpkg -i /tmp/simba/*.deb \
-  && printf "[Simba]\nDriver = /opt/simba/spark/lib/64/libsparkodbc_sb64.so" >> /etc/odbcinst.ini \
-  && rm /tmp/simba_odbc.zip \
-  && rm -rf /tmp/simba; fi
+RUN <<EOF
+  if [ "$TARGETPLATFORM" = "linux/amd64" ]; then
+    curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+    curl https://packages.microsoft.com/config/debian/12/prod.list > /etc/apt/sources.list.d/mssql-release.list
+    apt-get update
+    ACCEPT_EULA=Y apt-get install  -y --no-install-recommends msodbcsql18
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+    curl "$databricks_odbc_driver_url" --location --output /tmp/simba_odbc.zip
+    chmod 600 /tmp/simba_odbc.zip
+    unzip /tmp/simba_odbc.zip -d /tmp/simba
+    dpkg -i /tmp/simba/*.deb
+    printf "[Simba]\nDriver = /opt/simba/spark/lib/64/libsparkodbc_sb64.so" >> /etc/odbcinst.ini
+    rm /tmp/simba_odbc.zip
+    rm -rf /tmp/simba
+  fi
+EOF
 
 WORKDIR /app
 
