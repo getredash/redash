@@ -66,8 +66,7 @@ function BeaconConsent() {
           </div>
           <div className="m-t-15">
             <Text type="secondary">
-              You can change this setting anytime from the{" "}
-              <Link href="settings/organization">Organization Settings</Link> page.
+              You can change this setting anytime from the <Link href="settings/general">Settings</Link> page.
             </Text>
           </div>
         </Card>
