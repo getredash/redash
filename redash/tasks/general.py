@@ -48,7 +48,7 @@ def subscribe(form):
         "security_notifications": form["security_notifications"],
         "newsletter": form["newsletter"],
     }
-    requests.post("https://beacon.redash.io/subscribe", json=data)
+    requests.post("https://version.redash.io/subscribe", json=data)
 
 
 @job("emails")
