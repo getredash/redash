@@ -35,7 +35,7 @@ def sync_last_active_at():
     user_ids = redis_connection.hkeys(LAST_ACTIVE_KEY)
     for user_id in user_ids:
         timestamp = redis_connection.hget(LAST_ACTIVE_KEY, user_id)
-        active_at = dt_from_timestamp(timestamp)
+        active_at = dt_from_timestamp(timestamp).strftime("%Y-%m-%dT%H:%M:%SZ")
         user = User.query.filter(User.id == user_id).first()
         if user:
             user.active_at = active_at
