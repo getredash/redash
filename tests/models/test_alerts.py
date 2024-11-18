@@ -118,6 +118,10 @@ class TestAlertEvaluate(BaseTestCase):
         )
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
+    def test_evaluate_return_unknown_when_value_is_none(self):
+        alert = self.create_alert(get_results(None))
+        self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
+
 
 class TestNextState(TestCase):
     def test_numeric_value(self):
