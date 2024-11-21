@@ -1,3 +1,9 @@
+import os
+import tempfile
+
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+
 try:
     import snowflake.connector
 
@@ -96,16 +102,31 @@ class Snowflake(BaseSQLQueryRunner):
             else:
                 host = "{}.snowflakecomputing.com".format(account)
 
-        connection = snowflake.connector.connect(
-            user=self.configuration["user"],
-            password=self.configuration["password"],
-            account=account,
-            region=region,
-            host=host,
-            application="Redash/{} (Snowflake)".format(__version__.split("-")[0]),
-        )
+        connection_parameters = {
+            "user": self.configuration["user"],
+            "password": self.configuration["password"],
+            "account": account,
+            "region": region,
+            "host": host,
+            "application": "Redash/{} (Snowflake)".format(__version__.split("-")[0]),
+        }
 
-        return connection
+        private_key_content = os.getenv("SNOWFLAKE_PRIVATE_KEY")
+        private_key_password = os.getenv("SNOWFLAKE_KEY_PASSWORD")
+
+        if private_key_content and private_key_password:
+
+            key_file = tempfile.NamedTemporaryFile(delete=False)
+            key_file.write(private_key_content.encode('UTF-8'))
+            key_file.close()
+
+            connection_parameters['private_key_file'] = key_file.name
+            connection_parameters["private_key_file_pwd"] = private_key_password
+
+            # password is not needed
+            connection_parameters.pop('password')
+
+        return snowflake.connector.connect(**connection_parameters)
 
     def _column_name(self, column_name):
         if self.configuration.get("lower_case_columns", False):
