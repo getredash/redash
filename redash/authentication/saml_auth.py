@@ -1,16 +1,20 @@
 import logging
-from flask import flash, redirect, url_for, Blueprint, request
-from redash import settings
-from redash.authentication import create_and_login_user, logout_and_redirect_to_index
-from redash.authentication.org_resolving import current_org
-from redash.handlers.base import org_scoped_rule
-from redash.utils import mustache_render
+
+from flask import Blueprint, flash, redirect, request, url_for
 from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT, entity
 from saml2.client import Saml2Client
 from saml2.config import Config as Saml2Config
 from saml2.saml import NAMEID_FORMAT_TRANSIENT
 from saml2.sigver import get_xmlsec_binary
 
+from redash import settings
+from redash.authentication import (
+    create_and_login_user,
+    logout_and_redirect_to_index,
+)
+from redash.authentication.org_resolving import current_org
+from redash.handlers.base import org_scoped_rule
+from redash.utils import mustache_render
 
 logger = logging.getLogger("saml_auth")
 blueprint = Blueprint("saml_auth", __name__)
@@ -86,11 +90,12 @@ def get_saml_client(org):
 
         saml_settings["metadata"] = {"inline": [metadata_inline]}
 
-    if acs_url is not None and acs_url != "":
-        saml_settings["entityid"] = acs_url
+    if entity_id is not None and entity_id != "":
+        saml_settings["entityid"] = entity_id
 
     if sp_settings:
         import json
+
         saml_settings["service"]["sp"].update(json.loads(sp_settings))
 
     sp_config = Saml2Config()

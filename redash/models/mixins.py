@@ -1,9 +1,9 @@
 from sqlalchemy.event import listens_for
 
-from .base import db, Column
+from .base import Column, db
 
 
-class TimestampMixin(object):
+class TimestampMixin:
     updated_at = Column(db.DateTime(True), default=db.func.now(), nullable=False)
     created_at = Column(db.DateTime(True), default=db.func.now(), nullable=False)
 
@@ -17,7 +17,7 @@ def timestamp_before_update(mapper, connection, target):
     target.updated_at = db.func.now()
 
 
-class BelongsToOrgMixin(object):
+class BelongsToOrgMixin:
     @classmethod
     def get_by_id_and_org(cls, object_id, org, org_cls=None):
         query = cls.query.filter(cls.id == object_id)

@@ -1,16 +1,20 @@
 import datetime
 import logging
 
-from dateutil.parser import parse
-
-from redash.query_runner import *
-from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
-import json
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseQueryRunner,
+    register,
+)
 
 logger = logging.getLogger(__name__)
 try:
+    import httplib2  # noqa: F401
     import requests
-    import httplib2
 except ImportError as e:
     logger.error("Failed to import: " + str(e))
 
@@ -48,9 +52,7 @@ def parse_results(results):
                             {
                                 "name": column_name,
                                 "friendly_name": column_name,
-                                "type": TYPES_MAP.get(
-                                    type(row[key][inner_key]), TYPE_STRING
-                                ),
+                                "type": TYPES_MAP.get(type(row[key][inner_key]), TYPE_STRING),
                             }
                         )
 
@@ -104,7 +106,7 @@ class Couchbase(BaseQueryRunner):
         return True
 
     def test_connection(self):
-        result = self.call_service(self.noop_query, "")
+        self.call_service(self.noop_query, "")
 
     def get_buckets(self, query, name_param):
         defaultColumns = ["meta().id"]
@@ -117,7 +119,6 @@ class Couchbase(BaseQueryRunner):
         return list(schema.values())
 
     def get_schema(self, get_stats=False):
-
         try:
             # Try fetch from Analytics
             return self.get_buckets(
@@ -153,7 +154,7 @@ class Couchbase(BaseQueryRunner):
         rows, columns = parse_results(result.json()["results"])
         data = {"columns": columns, "rows": rows}
 
-        return json_dumps(data), None
+        return data, None
 
     @classmethod
     def name(cls):

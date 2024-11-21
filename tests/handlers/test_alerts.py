@@ -1,6 +1,10 @@
-from tests import BaseTestCase
+import datetime
+
+from mock import patch
 
 from redash.models import Alert, AlertSubscription, db
+from redash.utils import utcnow
+from tests import BaseTestCase
 
 
 class TestAlertResourceGet(BaseTestCase):
@@ -36,9 +40,28 @@ class TestAlertResourceGet(BaseTestCase):
 class TestAlertResourcePost(BaseTestCase):
     def test_updates_alert(self):
         alert = self.factory.create_alert()
-        rv = self.make_request(
-            "post", "/api/alerts/{}".format(alert.id), data={"name": "Testing"}
+        rv = self.make_request("post", "/api/alerts/{}".format(alert.id), data={"name": "Testing"})
+        self.assertEqual(rv.status_code, 200)
+
+
+class TestAlertEvaluateResource(BaseTestCase):
+    @patch("redash.handlers.alerts.notify_subscriptions")
+    def test_evaluates_alert_and_notifies(self, mock_notify_subscriptions):
+        query = self.factory.create_query(
+            data_source=self.factory.create_data_source(group=self.factory.create_group())
         )
+        retrieved_at = utcnow() - datetime.timedelta(days=1)
+        query_result = self.factory.create_query_result(
+            retrieved_at=retrieved_at,
+            query_text=query.query_text,
+            query_hash=query.query_hash,
+        )
+        query.latest_query_data = query_result
+        alert = self.factory.create_alert(query_rel=query)
+        rv = self.make_request("post", "/api/alerts/{}/eval".format(alert.id))
+
+        self.assertEqual(rv.status_code, 200)
+        mock_notify_subscriptions.assert_called()
 
 
 class TestAlertResourceDelete(BaseTestCase):
@@ -71,9 +94,7 @@ class TestAlertResourceDelete(BaseTestCase):
 
         second_org = self.factory.create_org()
         second_org_admin = self.factory.create_admin(org=second_org)
-        rv = self.make_request(
-            "delete", "/api/alerts/{}".format(alert.id), user=second_org_admin
-        )
+        rv = self.make_request("delete", "/api/alerts/{}".format(alert.id), user=second_org_admin)
         self.assertEqual(rv.status_code, 404)
 
 
@@ -90,9 +111,7 @@ class TestAlertListGet(BaseTestCase):
     def test_returns_alerts_only_from_users_groups(self):
         alert = self.factory.create_alert()
         query = self.factory.create_query(
-            data_source=self.factory.create_data_source(
-                group=self.factory.create_group()
-            )
+            data_source=self.factory.create_data_source(group=self.factory.create_group())
         )
         alert2 = self.factory.create_alert(query_rel=query)
         rv = self.make_request("get", "/api/alerts")

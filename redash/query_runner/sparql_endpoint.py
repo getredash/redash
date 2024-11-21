@@ -3,19 +3,18 @@
 seeAlso: https://www.w3.org/TR/rdf-sparql-query/
 """
 
-import logging
 import json
+import logging
 from os import environ
-import re
 
 from redash.query_runner import BaseQueryRunner
-from redash.utils import json_dumps, json_loads
+
 from . import register
 
 try:
     import requests
     from cmem.cmempy.queries import SparqlQuery
-    from rdflib.plugins.sparql import prepareQuery
+    from rdflib.plugins.sparql import prepareQuery  # noqa
 
     enabled = True
 except ImportError:
@@ -83,7 +82,7 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
         logger.info("results are: {}".format(results))
         # Not sure why we do not use the json package here but all other
         # query runner do it the same way :-)
-        sparql_results = json_loads(results)
+        sparql_results = results
         # transform all bindings to redash rows
         rows = []
         for sparql_row in sparql_results["results"]["bindings"]:
@@ -101,7 +100,7 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
             columns.append({"name": var, "friendly_name": var, "type": "string"})
         # Not sure why we do not use the json package here but all other
         # query runner do it the same way :-)
-        return json_dumps({"columns": columns, "rows": rows})
+        return {"columns": columns, "rows": rows}
 
     @classmethod
     def name(cls):
@@ -125,9 +124,7 @@ class SPARQLEndpointQueryRunner(BaseQueryRunner):
         query = SparqlQuery(query_text)
         query_type = query.get_query_type()
         if query_type not in ["SELECT", None]:
-            raise ValueError(
-                "Queries of type {} can not be processed by redash.".format(query_type)
-            )
+            raise ValueError("Queries of type {} can not be processed by redash.".format(query_type))
 
         self._setup_environment()
         try:

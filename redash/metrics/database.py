@@ -2,12 +2,12 @@ import logging
 import time
 
 from flask import g, has_request_context
-
-from redash import statsd_client
 from sqlalchemy.engine import Engine
 from sqlalchemy.event import listens_for
 from sqlalchemy.orm.util import _ORMJoin
-from sqlalchemy.sql.selectable import Alias
+from sqlalchemy.sql.selectable import Alias, Join
+
+from redash import statsd_client
 
 metrics_logger = logging.getLogger("metrics")
 
@@ -18,7 +18,7 @@ def _table_name_from_select_element(elt):
     if isinstance(t, Alias):
         t = t.original.froms[0]
 
-    while isinstance(t, _ORMJoin):
+    while isinstance(t, _ORMJoin) or isinstance(t, Join):
         t = t.left
 
     return t.name

@@ -1,14 +1,17 @@
-import yaml
 import datetime
 
+import yaml
+
 from redash.query_runner import BaseQueryRunner, register
-from redash.utils import json_dumps, parse_human_time
+from redash.utils import parse_human_time
 
 try:
     import boto3
+
     enabled = True
 except ImportError:
     enabled = False
+
 
 def parse_response(results):
     columns = [
@@ -118,7 +121,7 @@ class CloudWatch(BaseQueryRunner):
 
         rows, columns = parse_response(results)
 
-        return json_dumps({"rows": rows, "columns": columns}), None
+        return {"rows": rows, "columns": columns}, None
 
 
 register(CloudWatch)

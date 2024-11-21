@@ -1,8 +1,10 @@
+import datetime
+import decimal
 import sqlite3
 from unittest import TestCase
 
-import pytest
 import mock
+import pytest
 
 from redash.query_runner.query_results import (
     CreateTableError,
@@ -11,11 +13,12 @@ from redash.query_runner.query_results import (
     create_table,
     extract_cached_query_ids,
     extract_query_ids,
-    get_query_results,
+    extract_query_params,
     fix_column_name,
+    get_query_results,
+    prepare_parameterized_query,
+    replace_query_parameters,
 )
-
-from redash.utils import json_dumps
 from tests import BaseTestCase
 
 
@@ -106,6 +109,16 @@ class TestCreateTable(TestCase):
         create_table(connection, table_name, results)
         connection.execute("SELECT 1 FROM query_123")
 
+    def test_creates_table_with_decimal_and_timedelta_in_column_value(self):
+        connection = sqlite3.connect(":memory:")
+        results = {
+            "columns": [{"name": "test1"}, {"name": "test2"}, {"name": "test3"}],
+            "rows": [{"test1": 1, "test2": decimal.Decimal(2), "test3": datetime.timedelta(seconds=3)}],
+        }
+        table_name = "query_123"
+        create_table(connection, table_name, results)
+        connection.execute("SELECT 1 FROM query_123")
+
     def test_shows_meaningful_error_on_failure_to_create_table(self):
         connection = sqlite3.connect(":memory:")
         results = {"columns": [], "rows": []}
@@ -153,9 +166,7 @@ class TestGetQuery(BaseTestCase):
         self.assertEqual(query, loaded)
 
     def test_returns_query_when_user_has_view_only_access(self):
-        ds = self.factory.create_data_source(
-            group=self.factory.org.default_group, view_only=True
-        )
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
         query = self.factory.create_query(data_source=ds)
         user = self.factory.create_user()
 
@@ -181,6 +192,40 @@ class TestExtractCachedQueryIds(TestCase):
         self.assertEqual([123, 4566, 78], extract_cached_query_ids(query))
 
 
+class TestExtractParamQueryIds(TestCase):
+    def test_works_with_simple_query(self):
+        query = "SELECT 1"
+        self.assertEqual([], extract_query_params(query))
+
+    def test_ignores_non_param_queries(self):
+        query = "SELECT * FROM query_123"
+        self.assertEqual([], extract_query_params(query))
+
+    def test_ignores_cached_queries_to_load(self):
+        query = "SELECT * FROM cached_query_123"
+        self.assertEqual([], extract_query_params(query))
+
+    def test_finds_queries_to_load(self):
+        query = "SELECT * FROM param_query_123_{token=test}"
+        self.assertEqual([("123", "token=test")], extract_query_params(query))
+
+    def test_finds_queries_in_joins(self):
+        query = "SELECT * FROM param_query_123_{token1=test1} JOIN param_query_456_{token2=test2}"
+        self.assertEqual([("123", "token1=test1"), ("456", "token2=test2")], extract_query_params(query))
+
+
+class TestPrepareParameterizedQuery(TestCase):
+    def test_param_query_replacement(self):
+        result = prepare_parameterized_query("SELECT * FROM param_query_123_{token=test}", [("123", "token=test")])
+        self.assertEqual("SELECT * FROM query_123_1c5f1acad40f99b968836273d74baa89", result)
+
+
+class TestReplaceQueryParameters(TestCase):
+    def test_replace_query_params(self):
+        result = replace_query_parameters("SELECT '{{token1}}', '{{token2}}'", "token1=test1&token2=test2")
+        self.assertEqual("SELECT 'test1', 'test2'", result)
+
+
 class TestFixColumnName(TestCase):
     def test_fix_column_name(self):
         self.assertEqual('"a_b_c_d"', fix_column_name("a:b.c d"))
@@ -198,7 +243,8 @@ class TestGetQueryResult(BaseTestCase):
         query = self.factory.create_query(latest_query_data=query_result)
 
         from redash.query_runner.pg import PostgreSQL
+
         with mock.patch.object(PostgreSQL, "run_query") as qr:
             query_result_data = {"columns": [], "rows": []}
-            qr.return_value = (json_dumps(query_result_data), None)
+            qr.return_value = (query_result_data, None)
             self.assertEqual(query_result_data, get_query_results(self.factory.user, query.id, False))

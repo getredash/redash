@@ -1,6 +1,5 @@
-from tests import BaseTestCase
-
 from redash import models
+from tests import BaseTestCase
 
 
 class VisualizationResourceTest(BaseTestCase):
@@ -19,14 +18,12 @@ class VisualizationResourceTest(BaseTestCase):
 
         self.assertEqual(rv.status_code, 200)
         data.pop("query_id")
-        self.assertDictContainsSubset(data, rv.json)
+        self.assertEqual(rv.json, {**rv.json, **data})
 
     def test_delete_visualization(self):
         visualization = self.factory.create_visualization()
         models.db.session.commit()
-        rv = self.make_request(
-            "delete", "/api/visualizations/{}".format(visualization.id)
-        )
+        rv = self.make_request("delete", "/api/visualizations/{}".format(visualization.id))
 
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(models.Visualization.query.count(), 0)
@@ -63,9 +60,7 @@ class VisualizationResourceTest(BaseTestCase):
         rv = self.make_request("post", "/api/visualizations", data=data, user=admin)
         self.assertEqual(rv.status_code, 200)
 
-        rv = self.make_request(
-            "post", "/api/visualizations", data=data, user=other_user
-        )
+        rv = self.make_request("post", "/api/visualizations", data=data, user=other_user)
         self.assertEqual(rv.status_code, 403)
 
         self.make_request(
@@ -73,14 +68,10 @@ class VisualizationResourceTest(BaseTestCase):
             "/api/queries/{}/acl".format(query.id),
             data={"access_type": "modify", "user_id": other_user.id},
         )
-        rv = self.make_request(
-            "post", "/api/visualizations", data=data, user=other_user
-        )
+        rv = self.make_request("post", "/api/visualizations", data=data, user=other_user)
         self.assertEqual(rv.status_code, 200)
 
-        rv = self.make_request(
-            "post", "/api/visualizations", data=data, user=admin_from_diff_org
-        )
+        rv = self.make_request("post", "/api/visualizations", data=data, user=admin_from_diff_org)
         self.assertEqual(rv.status_code, 404)
 
     def test_only_owner_collaborator_or_admin_can_edit_visualization(self):
@@ -157,8 +148,6 @@ class VisualizationResourceTest(BaseTestCase):
         vis = self.factory.create_visualization()
         widget = self.factory.create_widget(visualization=vis)
 
-        rv = self.make_request("delete", "/api/visualizations/{}".format(vis.id))
+        self.make_request("delete", "/api/visualizations/{}".format(vis.id))
 
-        self.assertIsNone(
-            models.Widget.query.filter(models.Widget.id == widget.id).first()
-        )
+        self.assertIsNone(models.Widget.query.filter(models.Widget.id == widget.id).first())

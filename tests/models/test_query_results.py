@@ -1,35 +1,25 @@
 import datetime
 
-from unittest import TestCase
-from tests import BaseTestCase
-from mock import patch
-
 from redash import models
-from redash.models import DBPersistence
-from redash.utils import utcnow, json_dumps
+from redash.utils import utcnow
+from tests import BaseTestCase
 
 
 class QueryResultTest(BaseTestCase):
     def test_get_latest_returns_none_if_not_found(self):
-        found_query_result = models.QueryResult.get_latest(
-            self.factory.data_source, "SELECT 1", 60
-        )
+        found_query_result = models.QueryResult.get_latest(self.factory.data_source, "SELECT 1", 60)
         self.assertIsNone(found_query_result)
 
     def test_get_latest_returns_when_found(self):
         qr = self.factory.create_query_result()
-        found_query_result = models.QueryResult.get_latest(
-            qr.data_source, qr.query_text, 60
-        )
+        found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query_text, 60)
 
         self.assertEqual(qr, found_query_result)
 
     def test_get_latest_doesnt_return_query_from_different_data_source(self):
         qr = self.factory.create_query_result()
         data_source = self.factory.create_data_source()
-        found_query_result = models.QueryResult.get_latest(
-            data_source, qr.query_text, 60
-        )
+        found_query_result = models.QueryResult.get_latest(data_source, qr.query_text, 60)
 
         self.assertIsNone(found_query_result)
 
@@ -37,9 +27,7 @@ class QueryResultTest(BaseTestCase):
         yesterday = utcnow() - datetime.timedelta(days=1)
         qr = self.factory.create_query_result(retrieved_at=yesterday)
 
-        found_query_result = models.QueryResult.get_latest(
-            qr.data_source, qr.query_text, max_age=60
-        )
+        found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query_text, max_age=60)
 
         self.assertIsNone(found_query_result)
 
@@ -47,9 +35,7 @@ class QueryResultTest(BaseTestCase):
         yesterday = utcnow() - datetime.timedelta(seconds=30)
         qr = self.factory.create_query_result(retrieved_at=yesterday)
 
-        found_query_result = models.QueryResult.get_latest(
-            qr.data_source, qr.query_text, max_age=120
-        )
+        found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query_text, max_age=120)
 
         self.assertEqual(found_query_result, qr)
 
@@ -58,9 +44,7 @@ class QueryResultTest(BaseTestCase):
         self.factory.create_query_result(retrieved_at=yesterday)
         qr = self.factory.create_query_result()
 
-        found_query_result = models.QueryResult.get_latest(
-            qr.data_source, qr.query_text, 60
-        )
+        found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query_text, 60)
 
         self.assertEqual(found_query_result.id, qr.id)
 
@@ -70,9 +54,7 @@ class QueryResultTest(BaseTestCase):
 
         yesterday = utcnow() + datetime.timedelta(days=-1)
         qr = self.factory.create_query_result(retrieved_at=yesterday)
-        found_query_result = models.QueryResult.get_latest(
-            qr.data_source, qr.query_text, -1
-        )
+        found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query_text, -1)
 
         self.assertEqual(found_query_result.id, qr.id)
 
@@ -85,28 +67,9 @@ class QueryResultTest(BaseTestCase):
             query.data_source,
             query.query_hash,
             query.query_text,
-            "",
+            {},
             0,
             utcnow(),
         )
 
         self.assertEqual(original_updated_at, query.updated_at)
-
-
-class TestDBPersistence(TestCase):
-    def test_updating_data_removes_cached_result(self):
-        p = DBPersistence()
-        p.data = '{"test": 1}'
-        self.assertDictEqual(p.data, {"test": 1})
-        p.data = '{"test": 2}'
-        self.assertDictEqual(p.data, {"test": 2})
-
-    @patch("redash.models.json_loads")
-    def test_calls_json_loads_only_once(self, json_loads_patch):
-        json_loads_patch.return_value = "1"
-        p = DBPersistence()
-        json_data = '{"test": 1}'
-        p.data = json_data
-        a = p.data
-        b = p.data
-        json_loads_patch.assert_called_once_with(json_data)

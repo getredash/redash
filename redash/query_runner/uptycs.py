@@ -1,10 +1,11 @@
-from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
+import datetime
+import logging
 
 import jwt
-import datetime
 import requests
-import logging
+
+from redash.query_runner import BaseSQLQueryRunner, register
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -57,14 +58,11 @@ class Uptycs(BaseSQLQueryRunner):
         if "items" in data:
             rows = data["items"]
 
-        redash_json_data = {"columns": transformed_columns, "rows": rows}
-        return redash_json_data
+        return {"columns": transformed_columns, "rows": rows}
 
     def api_call(self, sql):
         # JWT encoded header
-        header = self.generate_header(
-            self.configuration.get("key"), self.configuration.get("secret")
-        )
+        header = self.generate_header(self.configuration.get("key"), self.configuration.get("secret"))
 
         # URL form using API key file based on GLOBAL
         url = "%s/public/api/customers/%s/query" % (
@@ -87,34 +85,29 @@ class Uptycs(BaseSQLQueryRunner):
         else:
             error = "status_code " + str(response.status_code) + "\n"
             error = error + "failed to connect"
-            json_data = {}
-            return json_data, error
+            data = {}
+            return data, error
         # if we get right status code then call transfored_to_redash
-        json_data = self.transformed_to_redash_json(response_output)
+        data = self.transformed_to_redash_json(response_output)
         error = None
         # if we got error from Uptycs include error information
         if "error" in response_output:
             error = response_output["error"]["message"]["brief"]
             error = error + "\n" + response_output["error"]["message"]["detail"]
-        return json_data, error
+        return data, error
 
     def run_query(self, query, user):
         data, error = self.api_call(query)
-        json_data = json_dumps(data)
-        logger.debug("%s", json_data)
-        return json_data, error
+        logger.debug("%s", data)
+        return data, error
 
     def get_schema(self, get_stats=False):
-        header = self.generate_header(
-            self.configuration.get("key"), self.configuration.get("secret")
-        )
+        header = self.generate_header(self.configuration.get("key"), self.configuration.get("secret"))
         url = "%s/public/api/customers/%s/schema/global" % (
             self.configuration.get("url"),
             self.configuration.get("customer_id"),
         )
-        response = requests.get(
-            url, headers=header, verify=self.configuration.get("verify_ssl", True)
-        )
+        response = requests.get(url, headers=header, verify=self.configuration.get("verify_ssl", True))
         redash_json = []
         schema = json_loads(response.content)
         for each_def in schema["tables"]:

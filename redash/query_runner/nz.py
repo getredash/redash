@@ -1,40 +1,47 @@
-from dataclasses import dataclass
 import logging
 import traceback
-import json
 
-from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseSQLQueryRunner,
+    register,
+)
 
 logger = logging.getLogger(__name__)
 
 try:
     import nzpy
     import nzpy.core
+
     _enabled = True
     _nztypes = {
-        nzpy.core.NzTypeInt1 : TYPE_INTEGER,
-        nzpy.core.NzTypeInt2 : TYPE_INTEGER,
-        nzpy.core.NzTypeInt : TYPE_INTEGER,
-        nzpy.core.NzTypeInt8 : TYPE_INTEGER,
-        nzpy.core.NzTypeBool : TYPE_BOOLEAN,
-        nzpy.core.NzTypeDate : TYPE_DATE,
-        nzpy.core.NzTypeTimestamp : TYPE_DATETIME,
-        nzpy.core.NzTypeDouble : TYPE_FLOAT, 
-        nzpy.core.NzTypeFloat : TYPE_FLOAT, 
-        nzpy.core.NzTypeChar : TYPE_STRING, 
-        nzpy.core.NzTypeNChar : TYPE_STRING, 
-        nzpy.core.NzTypeNVarChar : TYPE_STRING, 
-        nzpy.core.NzTypeVarChar : TYPE_STRING, 
-        nzpy.core.NzTypeVarFixedChar : TYPE_STRING, 
-        nzpy.core.NzTypeNumeric : TYPE_FLOAT, 
+        nzpy.core.NzTypeInt1: TYPE_INTEGER,
+        nzpy.core.NzTypeInt2: TYPE_INTEGER,
+        nzpy.core.NzTypeInt: TYPE_INTEGER,
+        nzpy.core.NzTypeInt8: TYPE_INTEGER,
+        nzpy.core.NzTypeBool: TYPE_BOOLEAN,
+        nzpy.core.NzTypeDate: TYPE_DATE,
+        nzpy.core.NzTypeTimestamp: TYPE_DATETIME,
+        nzpy.core.NzTypeDouble: TYPE_FLOAT,
+        nzpy.core.NzTypeFloat: TYPE_FLOAT,
+        nzpy.core.NzTypeChar: TYPE_STRING,
+        nzpy.core.NzTypeNChar: TYPE_STRING,
+        nzpy.core.NzTypeNVarChar: TYPE_STRING,
+        nzpy.core.NzTypeVarChar: TYPE_STRING,
+        nzpy.core.NzTypeVarFixedChar: TYPE_STRING,
+        nzpy.core.NzTypeNumeric: TYPE_FLOAT,
     }
-    
+
     _cat_types = {
         16: TYPE_BOOLEAN,  # boolean
-        17: TYPE_STRING,   # bytea
+        17: TYPE_STRING,  # bytea
         19: TYPE_STRING,  # name type
-        20: TYPE_INTEGER, # int8
+        20: TYPE_INTEGER,  # int8
         21: TYPE_INTEGER,  # int2
         23: TYPE_INTEGER,  # int4
         25: TYPE_STRING,  # TEXT type
@@ -52,12 +59,13 @@ try:
         1184: TYPE_DATETIME,
         1700: TYPE_FLOAT,  # NUMERIC
         2275: TYPE_STRING,  # cstring
-        2950: TYPE_STRING  # uuid
+        2950: TYPE_STRING,  # uuid
     }
-except:
+except ImportError:
     _enabled = False
     _nztypes = {}
     _cat_types = {}
+
 
 class Netezza(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
@@ -71,7 +79,7 @@ class Netezza(BaseSQLQueryRunner):
                 "password": {"type": "string"},
                 "host": {"type": "string", "default": "127.0.0.1"},
                 "port": {"type": "number", "default": 5480},
-                "database": {"type": "string", "title": "Database Name", "default":"system"},
+                "database": {"type": "string", "title": "Database Name", "default": "system"},
             },
             "order": ["host", "port", "user", "password", "database"],
             "required": ["user", "password", "database"],
@@ -90,26 +98,26 @@ class Netezza(BaseSQLQueryRunner):
     def connection(self):
         if self._conn is None:
             self._conn = nzpy.connect(
-                host = self.configuration.get("host"),
-                user = self.configuration.get("user"),
-                password = self.configuration.get("password"),
-                port = self.configuration.get("port"),
-                database = self.configuration.get("database")
+                host=self.configuration.get("host"),
+                user=self.configuration.get("user"),
+                password=self.configuration.get("password"),
+                port=self.configuration.get("port"),
+                database=self.configuration.get("database"),
             )
         return self._conn
 
     def get_schema(self, get_stats=False):
-        qry = '''
+        qry = """
         select
             table_schema || '.' || table_name as table_name,
             column_name,
             data_type
-        from 
+        from
             columns
         where
-            table_schema not in (^information_schema^, ^definition_schema^) and 
+            table_schema not in (^information_schema^, ^definition_schema^) and
             table_catalog = current_catalog;
-        '''
+        """
         schema = {}
         with self.connection.cursor() as cursor:
             cursor.execute(qry)
@@ -131,35 +139,35 @@ class Netezza(BaseSQLQueryRunner):
             return _cat_types.get(typid)
         # check for conflicts
         if typid == nzpy.core.NzTypeVarChar:
-            return TYPE_BOOLEAN if 'bool' in func.__name__ else typ
+            return TYPE_BOOLEAN if "bool" in func.__name__ else typ
 
         if typid == nzpy.core.NzTypeInt2:
-            return TYPE_STRING if 'text' in func.__name__ else typ
+            return TYPE_STRING if "text" in func.__name__ else typ
 
-        if typid in (nzpy.core.NzTypeVarFixedChar, nzpy.core.NzTypeVarBinary,
-                     nzpy.core.NzTypeNVarChar):
-            return TYPE_INTEGER if 'int' in func.__name__ else typ
+        if typid in (nzpy.core.NzTypeVarFixedChar, nzpy.core.NzTypeVarBinary, nzpy.core.NzTypeNVarChar):
+            return TYPE_INTEGER if "int" in func.__name__ else typ
         return typ
 
     def run_query(self, query, user):
-        json_data, error = None, None
+        data, error = None, None
         try:
             with self.connection.cursor() as cursor:
                 cursor.execute(query)
                 if cursor.description is None:
-                    columns = {"columns":[], "rows":[]}
+                    columns = {"columns": [], "rows": []}
                 else:
                     columns = self.fetch_columns(
-                        [(val[0], self.type_map(val[1], cursor.ps['row_desc'][i]['func']))
-                            for i, val in enumerate(cursor.description)])
-                rows = [
-                    dict(zip((column["name"] for column in columns), row))
-                    for row in cursor
-                ]
+                        [
+                            (val[0], self.type_map(val[1], cursor.ps["row_desc"][i]["func"]))
+                            for i, val in enumerate(cursor.description)
+                        ]
+                    )
+                rows = [dict(zip((column["name"] for column in columns), row)) for row in cursor]
 
-                json_data = json.dumps({"columns": columns, "rows": rows})
-        except:
+                data = {"columns": columns, "rows": rows}
+        except Exception:
             error = traceback.format_exc()
-        return json_data, error
+        return data, error
+
 
 register(Netezza)

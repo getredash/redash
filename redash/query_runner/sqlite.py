@@ -1,8 +1,11 @@
 import logging
 import sqlite3
 
-from redash.query_runner import BaseSQLQueryRunner, register, JobTimeoutException
-from redash.utils import json_dumps, json_loads
+from redash.query_runner import (
+    BaseSQLQueryRunner,
+    JobTimeoutException,
+    register,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -29,14 +32,12 @@ class Sqlite(BaseSQLQueryRunner):
 
     def _get_tables(self, schema):
         query_table = "select tbl_name from sqlite_master where type='table'"
-        query_columns = "PRAGMA table_info(\"%s\")"
+        query_columns = 'PRAGMA table_info("%s")'
 
         results, error = self.run_query(query_table, None)
 
         if error is not None:
             raise Exception("Failed getting schema.")
-
-        results = json_loads(results)
 
         for row in results["rows"]:
             table_name = row["tbl_name"]
@@ -45,7 +46,6 @@ class Sqlite(BaseSQLQueryRunner):
             if error is not None:
                 self._handle_run_query_error(error)
 
-            results_table = json_loads(results_table)
             for row_column in results_table["rows"]:
                 schema[table_name]["columns"].append(row_column["name"])
 
@@ -61,23 +61,19 @@ class Sqlite(BaseSQLQueryRunner):
 
             if cursor.description is not None:
                 columns = self.fetch_columns([(i[0], None) for i in cursor.description])
-                rows = [
-                    dict(zip((column["name"] for column in columns), row))
-                    for row in cursor
-                ]
+                rows = [dict(zip((column["name"] for column in columns), row)) for row in cursor]
 
                 data = {"columns": columns, "rows": rows}
                 error = None
-                json_data = json_dumps(data)
             else:
                 error = "Query completed but it returned no data."
-                json_data = None
+                data = None
         except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
             raise
         finally:
             connection.close()
-        return json_data, error
+        return data, error
 
 
 register(Sqlite)

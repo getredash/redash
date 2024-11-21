@@ -54,7 +54,7 @@ def require_access(obj, user, need_view_only):
         abort(403)
 
 
-class require_permissions(object):
+class require_permissions:
     def __init__(self, permissions, allow_one=False):
         self.permissions = permissions
         self.allow_one = allow_one
@@ -92,9 +92,7 @@ def require_super_admin(fn):
 
 
 def has_permission_or_owner(permission, object_owner_id):
-    return int(object_owner_id) == current_user.id or current_user.has_permission(
-        permission
-    )
+    return int(object_owner_id) == current_user.id or current_user.has_permission(permission)
 
 
 def is_admin_or_owner(object_owner_id):

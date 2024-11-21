@@ -1,6 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies, no-console */
 const { find } = require("lodash");
-const atob = require("atob");
 const { execSync } = require("child_process");
 const { get, post } = require("request").defaults({ jar: true });
 const { seedData } = require("./seed-data");
@@ -44,42 +43,32 @@ function seedDatabase(seedValues) {
 
 function buildServer() {
   console.log("Building the server...");
-  execSync("docker-compose -p cypress build", { stdio: "inherit" });
+  execSync("docker compose -p cypress build", { stdio: "inherit" });
 }
 
 function startServer() {
   console.log("Starting the server...");
-  execSync("docker-compose -p cypress up -d", { stdio: "inherit" });
-  execSync("docker-compose -p cypress run server create_db", { stdio: "inherit" });
+  execSync("docker compose -p cypress up -d", { stdio: "inherit" });
+  execSync("docker compose -p cypress run server create_db", { stdio: "inherit" });
 }
 
 function stopServer() {
   console.log("Stopping the server...");
-  execSync("docker-compose -p cypress down", { stdio: "inherit" });
+  execSync("docker compose -p cypress down", { stdio: "inherit" });
 }
 
 function runCypressCI() {
   const {
-    PERCY_TOKEN_ENCODED,
-    CYPRESS_PROJECT_ID_ENCODED,
-    CYPRESS_RECORD_KEY_ENCODED,
-    CIRCLE_REPOSITORY_URL,
+    GITHUB_REPOSITORY,
+    CYPRESS_OPTIONS, // eslint-disable-line no-unused-vars
   } = process.env;
 
-  if (CIRCLE_REPOSITORY_URL && CIRCLE_REPOSITORY_URL.includes("getredash/redash")) {
-    if (PERCY_TOKEN_ENCODED) {
-      process.env.PERCY_TOKEN = atob(`${PERCY_TOKEN_ENCODED}`);
-    }
-    if (CYPRESS_PROJECT_ID_ENCODED) {
-      process.env.CYPRESS_PROJECT_ID = atob(`${CYPRESS_PROJECT_ID_ENCODED}`);
-    }
-    if (CYPRESS_RECORD_KEY_ENCODED) {
-      process.env.CYPRESS_RECORD_KEY = atob(`${CYPRESS_RECORD_KEY_ENCODED}`);
-    }
+  if (GITHUB_REPOSITORY === "getredash/redash") {
+    process.env.CYPRESS_OPTIONS = "--record";
   }
 
   execSync(
-    "COMMIT_INFO_MESSAGE=$(git show -s --format=%s) docker-compose run --name cypress cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run --record",
+    "COMMIT_INFO_MESSAGE=$(git show -s --format=%s) docker compose run --name cypress cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run $CYPRESS_OPTIONS",
     { stdio: "inherit" }
   );
 }

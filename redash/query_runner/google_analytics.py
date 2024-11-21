@@ -3,19 +3,27 @@ from base64 import b64decode
 from datetime import datetime
 from urllib.parse import parse_qs, urlparse
 
-from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
+from redash.query_runner import (
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseSQLQueryRunner,
+    register,
+)
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 
 try:
-    from oauth2client.service_account import ServiceAccountCredentials
+    import google.auth
     from apiclient.discovery import build
     from apiclient.errors import HttpError
-    import httplib2
+    from google.oauth2.service_account import Credentials
 
     enabled = True
-except ImportError as e:
+except ImportError:
     enabled = False
 
 
@@ -48,9 +56,7 @@ def parse_ga_response(response):
         d = {}
         for c, value in enumerate(r):
             column_name = response["columnHeaders"][c]["name"]
-            column_type = [col for col in columns if col["name"] == column_name][0][
-                "type"
-            ]
+            column_type = [col for col in columns if col["name"] == column_name][0]["type"]
 
             # mcf results come a bit different than ga results:
             if isinstance(value, dict):
@@ -59,9 +65,7 @@ def parse_ga_response(response):
                 elif "conversionPathValue" in value:
                     steps = []
                     for step in value["conversionPathValue"]:
-                        steps.append(
-                            "{}:{}".format(step["interactionType"], step["nodeValue"])
-                        )
+                        steps.append("{}:{}".format(step["interactionType"], step["nodeValue"]))
                     value = ", ".join(steps)
                 else:
                     raise Exception("Results format not supported")
@@ -74,9 +78,7 @@ def parse_ga_response(response):
                 elif len(value) == 12:
                     value = datetime.strptime(value, "%Y%m%d%H%M")
                 else:
-                    raise Exception(
-                        "Unknown date/time format in results: '{}'".format(value)
-                    )
+                    raise Exception("Unknown date/time format in results: '{}'".format(value))
 
             d[column_name] = value
         rows.append(d)
@@ -103,8 +105,8 @@ class GoogleAnalytics(BaseSQLQueryRunner):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {"jsonKeyFile": {"type": "string", "title": "JSON Key File"}},
-            "required": ["jsonKeyFile"],
+            "properties": {"jsonKeyFile": {"type": "string", "title": "JSON Key File (ADC is used if omitted)"}},
+            "required": [],
             "secret": ["jsonKeyFile"],
         }
 
@@ -113,20 +115,18 @@ class GoogleAnalytics(BaseSQLQueryRunner):
         self.syntax = "json"
 
     def _get_analytics_service(self):
-        scope = ["https://www.googleapis.com/auth/analytics.readonly"]
-        key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
-        return build("analytics", "v3", http=creds.authorize(httplib2.Http()))
+        scopes = ["https://www.googleapis.com/auth/analytics.readonly"]
+
+        try:
+            key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
+            creds = Credentials.from_service_account_info(key, scopes=scopes)
+        except KeyError:
+            creds = google.auth.default(scopes=scopes)[0]
+
+        return build("analytics", "v3", credentials=creds)
 
     def _get_tables(self, schema):
-        accounts = (
-            self._get_analytics_service()
-            .management()
-            .accounts()
-            .list()
-            .execute()
-            .get("items")
-        )
+        accounts = self._get_analytics_service().management().accounts().list().execute().get("items")
         if accounts is None:
             raise Exception("Failed getting accounts.")
         else:
@@ -143,9 +143,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
                 for property_ in properties:
                     if "defaultProfileId" in property_ and "name" in property_:
                         schema[account["name"]]["columns"].append(
-                            "{0} (ga:{1})".format(
-                                property_["name"], property_["defaultProfileId"]
-                            )
+                            "{0} (ga:{1})".format(property_["name"], property_["defaultProfileId"])
                         )
 
         return list(schema.values())
@@ -162,16 +160,14 @@ class GoogleAnalytics(BaseSQLQueryRunner):
         logger.debug("Analytics is about to execute query: %s", query)
         try:
             params = json_loads(query)
-        except:
-            query_string = parse_qs(urlparse(query).query, keep_blank_values=True) 
-            params = {k.replace('-', '_'): ",".join(v) for k,v in query_string.items()}
+        except Exception:
+            query_string = parse_qs(urlparse(query).query, keep_blank_values=True)
+            params = {k.replace("-", "_"): ",".join(v) for k, v in query_string.items()}
 
         if "mcf:" in params["metrics"] and "ga:" in params["metrics"]:
             raise Exception("Can't mix mcf: and ga: metrics.")
 
-        if "mcf:" in params.get("dimensions", "") and "ga:" in params.get(
-            "dimensions", ""
-        ):
+        if "mcf:" in params.get("dimensions", "") and "ga:" in params.get("dimensions", ""):
             raise Exception("Can't mix mcf: and ga: dimensions.")
 
         if "mcf:" in params["metrics"]:
@@ -184,15 +180,14 @@ class GoogleAnalytics(BaseSQLQueryRunner):
                 response = api.get(**params).execute()
                 data = parse_ga_response(response)
                 error = None
-                json_data = json_dumps(data)
             except HttpError as e:
                 # Make sure we return a more readable error to the end user
                 error = e._get_reason()
-                json_data = None
+                data = None
         else:
             error = "Wrong query format."
-            json_data = None
-        return json_data, error
+            data = None
+        return data, error
 
 
 register(GoogleAnalytics)

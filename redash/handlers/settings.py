@@ -1,7 +1,7 @@
 from flask import request
 
-from redash.models import db, Organization
-from redash.handlers.base import BaseResource, record_event
+from redash.handlers.base import BaseResource
+from redash.models import Organization, db
 from redash.permissions import require_admin
 from redash.settings.organization import settings as org_settings
 
@@ -45,9 +45,7 @@ class OrganizationSettings(BaseResource):
                 previous_values[k] = self.current_org.google_apps_domains
                 self.current_org.settings[Organization.SETTING_GOOGLE_APPS_DOMAINS] = v
             else:
-                previous_values[k] = self.current_org.get_setting(
-                    k, raise_on_missing=False
-                )
+                previous_values[k] = self.current_org.get_setting(k, raise_on_missing=False)
                 self.current_org.set_setting(k, v)
 
         db.session.add(self.current_org)

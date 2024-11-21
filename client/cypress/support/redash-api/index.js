@@ -2,12 +2,12 @@
 
 const { extend, get, merge, find } = Cypress._;
 
-const post = options =>
+const post = (options) =>
   cy
     .getCookie("csrf_token")
-    .then(csrf => cy.request({ ...options, method: "POST", headers: { "X-CSRF-TOKEN": csrf.value } }));
+    .then((csrf) => cy.request({ ...options, method: "POST", headers: { "X-CSRF-TOKEN": csrf.value } }));
 
-Cypress.Commands.add("createDashboard", name => {
+Cypress.Commands.add("createDashboard", (name) => {
   return post({ url: "api/dashboards", body: { name } }).then(({ body }) => body);
 });
 
@@ -28,7 +28,7 @@ Cypress.Commands.add("createQuery", (data, shouldPublish = true) => {
   // eslint-disable-next-line cypress/no-assigning-return-values
   let request = post({ url: "/api/queries", body: merged }).then(({ body }) => body);
   if (shouldPublish) {
-    request = request.then(query =>
+    request = request.then((query) =>
       post({ url: `/api/queries/${query.id}`, body: { is_draft: false } }).then(() => query)
     );
   }
@@ -86,6 +86,7 @@ Cypress.Commands.add("addWidget", (dashboardId, visualizationId, options = {}) =
 Cypress.Commands.add("createAlert", (queryId, options = {}, name) => {
   const defaultOptions = {
     column: "?column?",
+    selector: "first",
     op: "greater than",
     rearm: 0,
     value: 1,
@@ -109,7 +110,7 @@ Cypress.Commands.add("createUser", ({ name, email, password }) => {
     url: "api/users?no_invite=yes",
     body: { name, email },
     failOnStatusCode: false,
-  }).then(xhr => {
+  }).then((xhr) => {
     const { status, body } = xhr;
     if (status < 200 || status > 400) {
       throw new Error(xhr);
@@ -146,7 +147,7 @@ Cypress.Commands.add("getDestinations", () => {
 Cypress.Commands.add("addDestinationSubscription", (alertId, destinationName) => {
   return cy
     .getDestinations()
-    .then(destinations => {
+    .then((destinations) => {
       const destination = find(destinations, { name: destinationName });
       if (!destination) {
         throw new Error("Destination not found");
@@ -166,6 +167,6 @@ Cypress.Commands.add("addDestinationSubscription", (alertId, destinationName) =>
     });
 });
 
-Cypress.Commands.add("updateOrgSettings", settings => {
+Cypress.Commands.add("updateOrgSettings", (settings) => {
   return post({ url: "api/settings/organization", body: settings }).then(({ body }) => body);
 });

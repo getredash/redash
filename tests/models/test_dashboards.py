@@ -1,5 +1,5 @@
+from redash.models import Dashboard, db
 from tests import BaseTestCase
-from redash.models import db, Dashboard
 
 
 class DashboardTest(BaseTestCase):
@@ -15,7 +15,7 @@ class DashboardTest(BaseTestCase):
         widget1 = self.factory.create_widget(visualization=vis1, dashboard=dashboard)
         widget2 = self.factory.create_widget(visualization=vis2, dashboard=dashboard)
         widget3 = self.factory.create_widget(visualization=vis3, dashboard=dashboard)
-        dashboard.layout = "[[{}, {}, {}]]".format(widget1.id, widget2.id, widget3.id)
+        dashboard.layout = [[widget1.id, widget2.id, widget3.id]]
         db.session.commit()
         return dashboard
 
@@ -51,10 +51,9 @@ class TestDashboardsByUser(BaseTestCase):
         self.assertTrue(d in dashboards)
         self.assertFalse(d2 in dashboards)
 
-
     def test_returns_correct_number_of_dashboards(self):
         # Solving https://github.com/getredash/redash/issues/5466
-        
+
         usr = self.factory.create_user()
 
         ds1 = self.factory.create_data_source()
@@ -63,8 +62,12 @@ class TestDashboardsByUser(BaseTestCase):
         qry1 = self.factory.create_query(data_source=ds1, user=usr)
         qry2 = self.factory.create_query(data_source=ds2, user=usr)
 
-        viz1 = self.factory.create_visualization(query_rel=qry1, )
-        viz2 = self.factory.create_visualization(query_rel=qry2, )
+        viz1 = self.factory.create_visualization(
+            query_rel=qry1,
+        )
+        viz2 = self.factory.create_visualization(
+            query_rel=qry2,
+        )
 
         def create_dashboard():
             dash = self.factory.create_dashboard(name="boy howdy", user=usr)
@@ -73,9 +76,9 @@ class TestDashboardsByUser(BaseTestCase):
 
             return dash
 
-        d1 = create_dashboard()
-        d2 = create_dashboard()
-        
+        create_dashboard()
+        create_dashboard()
+
         results = Dashboard.all(self.factory.org, usr.group_ids, usr.id)
 
         self.assertEqual(2, results.count(), "The incorrect number of dashboards were returned")

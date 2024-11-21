@@ -1,11 +1,20 @@
-import os
 import logging
+import os
+
 import requests
 from requests.auth import HTTPBasicAuth
 
 from redash import settings
-from redash.query_runner import *
-from redash.utils import json_dumps
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseQueryRunner,
+    register,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +101,7 @@ class Kylin(BaseQueryRunner):
         columns = self.get_columns(data["columnMetas"])
         rows = self.get_rows(columns, data["results"])
 
-        return json_dumps({"columns": columns, "rows": rows}), None
+        return {"columns": columns, "rows": rows}, None
 
     def get_schema(self, get_stats=False):
         url = self.configuration["url"]
@@ -127,9 +136,7 @@ class Kylin(BaseQueryRunner):
         )
 
     def get_rows(self, columns, results):
-        return [
-            dict(zip((column["name"] for column in columns), row)) for row in results
-        ]
+        return [dict(zip((column["name"] for column in columns), row)) for row in results]
 
     def get_table_schema(self, table):
         name = table["table_NAME"]

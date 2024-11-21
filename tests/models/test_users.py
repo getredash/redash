@@ -1,13 +1,8 @@
-from tests import BaseTestCase, authenticated_user
-
 from redash import redis_connection
-from redash.models import User, db
+from redash.models import ApiUser, User, db
+from redash.models.users import LAST_ACTIVE_KEY, sync_last_active_at
 from redash.utils import dt_from_timestamp
-from redash.models.users import (
-    sync_last_active_at,
-    update_user_active_at,
-    LAST_ACTIVE_KEY,
-)
+from tests import BaseTestCase, authenticated_user
 
 
 class TestUserUpdateGroupAssignments(BaseTestCase):
@@ -32,9 +27,7 @@ class TestUserUpdateGroupAssignments(BaseTestCase):
 class TestUserFindByEmail(BaseTestCase):
     def test_finds_users(self):
         user = self.factory.create_user(email="test@example.com")
-        user2 = self.factory.create_user(
-            email="test@example.com", org=self.factory.create_org()
-        )
+        user2 = self.factory.create_user(email="test@example.com", org=self.factory.create_org())
 
         users = User.find_by_email(user.email)
         self.assertIn(user, users)
@@ -98,19 +91,28 @@ class TestUserDetail(BaseTestCase):
             self.assertEqual(user.details["test"], 1)
             self.assertEqual(
                 user_reloaded,
-                User.query.filter(
-                    User.details["test"].astext.cast(db.Integer) == 1
-                ).first(),
+                User.query.filter(User.details["test"].astext.cast(db.Integer) == 1).first(),
             )
 
     def test_sync(self):
         with authenticated_user(self.client) as user:
-            rv = self.client.get("/default/")
-            timestamp = dt_from_timestamp(
-                redis_connection.hget(LAST_ACTIVE_KEY, user.id)
-            )
+            self.client.get("/default/")
+            timestamp = dt_from_timestamp(redis_connection.hget(LAST_ACTIVE_KEY, user.id))
             sync_last_active_at()
 
             user_reloaded = User.query.filter(User.id == user.id).first()
             self.assertIn("active_at", user_reloaded.details)
             self.assertEqual(user_reloaded.active_at, timestamp)
+
+
+class TestUserGetActualUser(BaseTestCase):
+    def test_default_user(self):
+        user_email = "test@example.com"
+        user = self.factory.create_user(email=user_email)
+        self.assertEqual(user.get_actual_user(), user_email)
+
+    def test_api_user(self):
+        user_email = "test@example.com"
+        user = self.factory.create_user(email=user_email)
+        api_user = ApiUser(user.api_key, user.org, user.group_ids)
+        self.assertEqual(api_user.get_actual_user(), repr(api_user))

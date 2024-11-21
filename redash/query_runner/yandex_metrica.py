@@ -1,11 +1,18 @@
 import logging
-import yaml
 from urllib.parse import parse_qs, urlparse
 
+import backoff
 import requests
+import yaml
 
-from redash.query_runner import *
-from redash.utils import json_dumps
+from redash.query_runner import (
+    TYPE_DATE,
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_STRING,
+    BaseSQLQueryRunner,
+    register,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +79,10 @@ def parse_ym_response(response):
     return {"columns": columns, "rows": rows}
 
 
+class QuotaException(Exception):
+    pass
+
+
 class YandexMetrica(BaseSQLQueryRunner):
     should_annotate_query = False
 
@@ -100,14 +111,11 @@ class YandexMetrica(BaseSQLQueryRunner):
         self.list_path = "counters"
 
     def _get_tables(self, schema):
-
-        counters = self._send_query("management/v1/{0}".format(self.list_path))
+        counters = self._send_query(f"management/v1/{self.list_path}")
 
         for row in counters[self.list_path]:
             owner = row.get("owner_login")
-            counter = "{0} | {1}".format(
-                row.get("name", "Unknown"), row.get("id", "Unknown")
-            )
+            counter = f"{row.get('name', 'Unknown')} | {row.get('id', 'Unknown')}"
             if owner not in schema:
                 schema[owner] = {"name": owner, "columns": []}
 
@@ -116,18 +124,26 @@ class YandexMetrica(BaseSQLQueryRunner):
         return list(schema.values())
 
     def test_connection(self):
-        self._send_query("management/v1/{0}".format(self.list_path))
+        self._send_query(f"management/v1/{self.list_path}")
 
+    @backoff.on_exception(backoff.fibo, QuotaException, max_tries=10)
     def _send_query(self, path="stat/v1/data", **kwargs):
         token = kwargs.pop("oauth_token", self.configuration["token"])
         r = requests.get(
-            "{0}/{1}".format(self.url, path),
-            headers={"Authorization": "OAuth {}".format(token)},
+            f"{self.url}/{path}",
+            headers={"Authorization": f"OAuth {token}"},
             params=kwargs,
         )
-        if r.status_code != 200:
-            raise Exception(r.text)
-        return r.json()
+
+        response_data = r.json()
+
+        if not r.ok:
+            error_message = f"Code: {r.status_code}, message: {r.text}"
+            if r.status_code == 429:
+                logger.warning("Warning: 429 status code on Yandex Metrica query")
+                raise QuotaException(error_message)
+            raise Exception(error_message)
+        return response_data
 
     def run_query(self, query, user):
         logger.debug("Metrica is about to execute query: %s", query)
@@ -151,7 +167,7 @@ class YandexMetrica(BaseSQLQueryRunner):
             return data, error
 
         try:
-            data = json_dumps(parse_ym_response(self._send_query(**params)))
+            data = parse_ym_response(self._send_query(**params))
             error = None
         except Exception as e:
             logging.exception(e)

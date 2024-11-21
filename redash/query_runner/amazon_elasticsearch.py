@@ -1,9 +1,9 @@
-from .elasticsearch2 import ElasticSearch2
 from . import register
+from .elasticsearch2 import ElasticSearch2
 
 try:
+    from botocore import credentials, session
     from requests_aws_sign import AWSV4Sign
-    from botocore import session, credentials
 
     enabled = True
 except ImportError:
@@ -62,6 +62,9 @@ class AmazonElasticsearchService(ElasticSearch2):
             )
 
         self.auth = AWSV4Sign(cred, region, "es")
+
+    def get_auth(self):
+        return self.auth
 
 
 register(AmazonElasticsearchService)

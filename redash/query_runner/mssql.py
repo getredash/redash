@@ -1,9 +1,13 @@
 import logging
-import sys
-import uuid
 
-from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
+from redash.query_runner import (
+    TYPE_DATETIME,
+    TYPE_FLOAT,
+    TYPE_STRING,
+    BaseSQLQueryRunner,
+    JobTimeoutException,
+    register,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +33,10 @@ types_map = {
 class SqlServer(BaseSQLQueryRunner):
     should_annotate_query = False
     noop_query = "SELECT 1"
+
+    limit_query = " TOP 1000"
+    limit_keywords = ["TOP"]
+    limit_after_select = True
 
     @classmethod
     def configuration_schema(cls):
@@ -82,8 +90,6 @@ class SqlServer(BaseSQLQueryRunner):
         if error is not None:
             self._handle_run_query_error(error)
 
-        results = json_loads(results)
-
         for row in results["rows"]:
             if row["table_schema"] != self.configuration["db"]:
                 table_name = "{}.{}".format(row["table_schema"], row["table_name"])
@@ -131,22 +137,17 @@ class SqlServer(BaseSQLQueryRunner):
             data = cursor.fetchall()
 
             if cursor.description is not None:
-                columns = self.fetch_columns(
-                    [(i[0], types_map.get(i[1], None)) for i in cursor.description]
-                )
-                rows = [
-                    dict(zip((column["name"] for column in columns), row))
-                    for row in data
-                ]
+                columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
+                rows = [dict(zip((column["name"] for column in columns), row)) for row in data]
 
                 data = {"columns": columns, "rows": rows}
-                json_data = json_dumps(data)
                 error = None
             else:
                 error = "No data was returned."
-                json_data = None
+                data = None
 
             cursor.close()
+            connection.commit()
         except pymssql.Error as e:
             try:
                 # Query errors are at `args[1]`
@@ -154,7 +155,7 @@ class SqlServer(BaseSQLQueryRunner):
             except IndexError:
                 # Connection errors are `args[0][1]`
                 error = e.args[0][1]
-            json_data = None
+            data = None
         except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
             raise
@@ -162,7 +163,7 @@ class SqlServer(BaseSQLQueryRunner):
             if connection:
                 connection.close()
 
-        return json_data, error
+        return data, error
 
 
 register(SqlServer)

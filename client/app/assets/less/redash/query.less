@@ -90,6 +90,23 @@ body.fixed-layout {
 .embed__vis {
   display: flex;
   flex-flow: column;
+  height: calc(~'100vh - 25px');
+
+  > .embed-heading {
+    flex: 0 0 auto;
+  }
+
+  > .query__vis {
+    flex: 1 1 auto;
+
+    .chart-visualization-container, .visualization-renderer-wrapper, .visualization-renderer {
+      height: 100%
+    }
+  }
+
+  > .tile__bottom-control {
+    flex: 0 0 auto;
+  }
   width: 100%;
 }
 
@@ -206,6 +223,7 @@ body.fixed-layout {
     }
 
     .editor__left__schema {
+      min-height: 120px;
       flex-grow: 1;
       display: flex;
       flex-direction: column;

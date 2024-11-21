@@ -1,9 +1,16 @@
+import json
 import logging
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
-from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
-
+from redash.query_runner import (
+    TYPE_BOOLEAN,
+    TYPE_DATE,
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    BaseHTTPQueryRunner,
+    register,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -28,21 +35,20 @@ TYPES_MAP = {
 
 
 class ElasticSearch2(BaseHTTPQueryRunner):
-
     should_annotate_query = False
 
     @classmethod
     def name(cls):
-        return "ElasticSearch"
+        return "Elasticsearch"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.syntax = 'json'
+        self.syntax = "json"
 
-    def get_response(self, url, auth=None, http_method='get', **kwargs):
-        url = "{}{}".format(self.configuration["url"], url)
-        headers = kwargs.pop('headers', {})
-        headers['Accept'] = 'application/json'
+    def get_response(self, url, auth=None, http_method="get", **kwargs):
+        url = "{}{}".format(self.configuration["server"], url)
+        headers = kwargs.pop("headers", {})
+        headers["Accept"] = "application/json"
         return super().get_response(url, auth, http_method, headers=headers, **kwargs)
 
     def test_connection(self):
@@ -52,21 +58,16 @@ class ElasticSearch2(BaseHTTPQueryRunner):
 
     def run_query(self, query, user):
         query, url, result_fields = self._build_query(query)
-        response, error = self.get_response(
-            url,
-            http_method='post',
-            json=query
-        )
+        response, error = self.get_response(url, http_method="post", json=query)
         query_results = response.json()
         data = self._parse_results(result_fields, query_results)
         error = None
-        json_data = json_dumps(data)
-        return json_data, error
+        return data, error
 
     def _build_query(self, query: str) -> Tuple[dict, str, Optional[list]]:
-        query = json_loads(query)
-        index_name = query.pop('index', '')
-        result_fields = query.pop('result_fields', None)
+        query = json.loads(query)
+        index_name = query.pop("index", "")
+        result_fields = query.pop("result_fields", None)
         url = "/{}/_search".format(index_name)
         return query, url, result_fields
 
@@ -77,14 +78,14 @@ class ElasticSearch2(BaseHTTPQueryRunner):
         def _parse_properties(prefix: str, properties: dict):
             for property_name, property_data in properties.items():
                 if property_name not in mappings:
-                    property_type = property_data.get('type', None)
-                    nested_properties = property_data.get('properties', None)
+                    property_type = property_data.get("type", None)
+                    nested_properties = property_data.get("properties", None)
                     if property_type:
-                        mappings[index_name][prefix + property_name] = (
-                            ELASTICSEARCH_TYPES_MAPPING.get(property_type, TYPE_STRING)
+                        mappings[index_name][prefix + property_name] = ELASTICSEARCH_TYPES_MAPPING.get(
+                            property_type, TYPE_STRING
                         )
                     elif nested_properties:
-                        new_prefix = prefix + property_name + '.'
+                        new_prefix = prefix + property_name + "."
                         _parse_properties(new_prefix, nested_properties)
 
         for index_name in mappings_data:
@@ -92,27 +93,24 @@ class ElasticSearch2(BaseHTTPQueryRunner):
             index_mappings = mappings_data[index_name]
             try:
                 for m in index_mappings.get("mappings", {}):
-                    _parse_properties('', index_mappings['mappings'][m]['properties'])
+                    _parse_properties("", index_mappings["mappings"][m]["properties"])
             except KeyError:
-                _parse_properties('', index_mappings['mappings']['properties'])
+                _parse_properties("", index_mappings["mappings"]["properties"])
 
         return mappings
 
     def get_mappings(self):
-        response, error = self.get_response('/_mappings')
+        response, error = self.get_response("/_mappings")
         return self._parse_mappings(response.json())
 
     def get_schema(self, *args, **kwargs):
         schema = {}
         for name, columns in self.get_mappings().items():
-            schema[name] = {
-                'name': name,
-                'columns': list(columns.keys())
-            }
+            schema[name] = {"name": name, "columns": list(columns.keys())}
         return list(schema.values())
 
     @classmethod
-    def _parse_results(cls, result_fields, raw_result):
+    def _parse_results(cls, result_fields, raw_result):  # noqa: C901
         result_columns = []
         result_rows = []
         result_columns_index = {c["name"]: c for c in result_columns}
@@ -120,11 +118,13 @@ class ElasticSearch2(BaseHTTPQueryRunner):
 
         def add_column_if_needed(column_name, value=None):
             if column_name not in result_columns_index:
-                result_columns.append({
-                    'name': column_name,
-                    'friendly_name': column_name,
-                    'type': TYPES_MAP.get(type(value), TYPE_STRING)
-                })
+                result_columns.append(
+                    {
+                        "name": column_name,
+                        "friendly_name": column_name,
+                        "type": TYPES_MAP.get(type(value), TYPE_STRING),
+                    }
+                )
                 result_columns_index[column_name] = result_columns[-1]
 
         def get_row(rows, row):
@@ -143,23 +143,23 @@ class ElasticSearch2(BaseHTTPQueryRunner):
         def parse_bucket_to_row(data, row, agg_key):
             sub_agg_key = ""
             for key, item in data.items():
-                if key == 'key_as_string':
+                if key == "key_as_string":
                     continue
-                if key == 'key':
-                    if 'key_as_string' in data:
-                        collect_value(row, agg_key, data['key_as_string'])
+                if key == "key":
+                    if "key_as_string" in data:
+                        collect_value(row, agg_key, data["key_as_string"])
                     else:
-                        collect_value(row, agg_key, data['key'])
+                        collect_value(row, agg_key, data["key"])
                     continue
 
                 if isinstance(item, (str, int, float)):
-                    collect_value(row, agg_key + '.' + key, item)
+                    collect_value(row, agg_key + "." + key, item)
                 elif isinstance(item, dict):
-                    if 'buckets' not in item:
+                    if "buckets" not in item:
                         for sub_key, sub_item in item.items():
                             collect_value(
                                 row,
-                                agg_key + '.' + key + '.' + sub_key,
+                                agg_key + "." + key + "." + sub_key,
                                 sub_item,
                             )
                     else:
@@ -179,18 +179,18 @@ class ElasticSearch2(BaseHTTPQueryRunner):
                     rows.append(row)
                 else:
                     depth += 1
-                    parse_buckets_list(rows, sub_agg_key, value[sub_agg_key]['buckets'], row, depth)
+                    parse_buckets_list(rows, sub_agg_key, value[sub_agg_key]["buckets"], row, depth)
 
         def collect_aggregations(rows, parent_key, data, row, depth):
             row = get_row(rows, row)
             parse_bucket_to_row(data, row, parent_key)
 
-            if 'buckets' in data:
-                parse_buckets_list(rows, parent_key, data['buckets'], row, depth)
+            if "buckets" in data:
+                parse_buckets_list(rows, parent_key, data["buckets"], row, depth)
 
             return None
 
-        def get_flatten_results(dd, separator='.', prefix=''):
+        def get_flatten_results(dd, separator=".", prefix=""):
             if isinstance(dd, dict):
                 return {
                     prefix + separator + k if prefix else k: v
@@ -206,17 +206,17 @@ class ElasticSearch2(BaseHTTPQueryRunner):
             for r in result_fields:
                 result_fields_index[r] = None
 
-        if 'error' in raw_result:
-            error = raw_result['error']
+        if "error" in raw_result:
+            error = raw_result["error"]
             if len(error) > 10240:
-                error = error[:10240] + '... continues'
+                error = error[:10240] + "... continues"
 
             raise Exception(error)
-        elif 'aggregations' in raw_result:
+        elif "aggregations" in raw_result:
             for key, data in raw_result["aggregations"].items():
                 collect_aggregations(result_rows, key, data, None, 0)
 
-        elif 'hits' in raw_result and 'hits' in raw_result['hits']:
+        elif "hits" in raw_result and "hits" in raw_result["hits"]:
             for h in raw_result["hits"]["hits"]:
                 row = {}
 
@@ -235,82 +235,72 @@ class ElasticSearch2(BaseHTTPQueryRunner):
         else:
             raise Exception("Redash failed to parse the results it got from Elasticsearch.")
 
-        return {
-            'columns': result_columns,
-            'rows': result_rows
-        }
+        return {"columns": result_columns, "rows": result_rows}
 
 
 class OpenDistroSQLElasticSearch(ElasticSearch2):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.syntax = 'sql'
+        self.syntax = "sql"
 
     def _build_query(self, query: str) -> Tuple[dict, str, Optional[list]]:
-        sql_query = {
-            'query': query
-        }
-        sql_query_url = '/_opendistro/_sql'
+        sql_query = {"query": query}
+        sql_query_url = "/_opendistro/_sql"
         return sql_query, sql_query_url, None
 
     @classmethod
     def name(cls):
-        return cls.__name__
+        return "Open Distro SQL Elasticsearch"
 
     @classmethod
     def type(cls):
         return "elasticsearch2_OpenDistroSQLElasticSearch"
 
 
-
 class XPackSQLElasticSearch(ElasticSearch2):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.syntax = 'sql'
+        self.syntax = "sql"
 
     def _build_query(self, query: str) -> Tuple[dict, str, Optional[list]]:
-        sql_query = {
-            'query': query
-        }
-        sql_query_url = '/_xpack/sql'
+        sql_query = {"query": query}
+        sql_query_url = "/_xpack/sql"
         return sql_query, sql_query_url, None
 
     @classmethod
     def _parse_results(cls, result_fields, raw_result):
-        error = raw_result.get('error')
+        error = raw_result.get("error")
         if error:
             raise Exception(error)
 
         rv = {
-            'columns': [
+            "columns": [
                 {
-                    'name': c['name'],
-                    'friendly_name': c['name'],
-                    'type': ELASTICSEARCH_TYPES_MAPPING.get(c['type'], 'string')
-                } for c in raw_result['columns']
+                    "name": c["name"],
+                    "friendly_name": c["name"],
+                    "type": ELASTICSEARCH_TYPES_MAPPING.get(c["type"], "string"),
+                }
+                for c in raw_result["columns"]
             ],
-            'rows': []
+            "rows": [],
         }
-        query_results_rows = raw_result['rows']
+        query_results_rows = raw_result["rows"]
 
         for query_results_row in query_results_rows:
             result_row = dict()
-            for column, column_value in zip(rv['columns'], query_results_row):
-                result_row[column['name']] = column_value
-            rv['rows'].append(result_row)
+            for column, column_value in zip(rv["columns"], query_results_row):
+                result_row[column["name"]] = column_value
+            rv["rows"].append(result_row)
 
         return rv
 
     @classmethod
     def name(cls):
-        return cls.__name__
-    
+        return "X-Pack SQL Elasticsearch"
+
     @classmethod
     def type(cls):
         return "elasticsearch2_XPackSQLElasticSearch"
-
 
 
 register(ElasticSearch2)
