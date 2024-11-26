@@ -4,6 +4,7 @@
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
+    "auth": "just pkg-login",
     "start": "npm-run-all --parallel watch:viz webpack-dev-server",
     "clean": "rm -rf ./client/dist/",
     "build:viz": "(cd viz-lib && yarn build:babel)",
@@ -46,6 +47,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.2.1",
     "@redash/viz": "file:viz-lib",
+    "@stacklet/ui": "^0.1.0",
     "ace-builds": "^1.4.12",
     "antd": "^4.4.3",
     "axios": "0.27.2",

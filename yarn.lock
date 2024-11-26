@@ -1195,6 +1195,13 @@
   dependencies:
     regenerator-runtime "^0.13.11"
 
+"@babel/runtime@^7.23.8", "@babel/runtime@^7.23.9":
+  version "7.26.0"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/@babel/runtime/-/runtime-7.26.0.tgz#8600c2f595f277c60815256418b85356a65173c1"
+  integrity sha512-FDSOghenHTiToteC/QRlv2q3DhPZ/oOXTBoirfWNx1Cx3TMVcGWQtMMmQcSvb/JjpNeGzx8Pq/b4fKEJuWm1sw==
+  dependencies:
+    regenerator-runtime "^0.14.0"
+
 "@babel/runtime@^7.4.5":
   version "7.7.4"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.7.4.tgz#b23a856751e4bf099262f867767889c0e3fe175b"
@@ -1368,6 +1375,48 @@
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
+
+"@floating-ui/core@^1.6.0":
+  version "1.6.8"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/@floating-ui/core/-/core-1.6.8.tgz#aa43561be075815879305965020f492cdb43da12"
+  integrity sha512-7XJ9cPU+yI2QeLS+FCSlqNFZJq8arvswefkZrYI1yQBbftw6FyrZOxYSh+9S7z7TpeWlRt9zJ5IhM1WIL334jA==
+  dependencies:
+    "@floating-ui/utils" "^0.2.8"
+
+"@floating-ui/dom@^1.0.0":
+  version "1.6.12"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/@floating-ui/dom/-/dom-1.6.12.tgz#6333dcb5a8ead3b2bf82f33d6bc410e95f54e556"
+  integrity sha512-NP83c0HjokcGVEMeoStg317VD9W7eDlGK7457dMBANbKA6GJZdc7rjujdgqzTaz93jkGgc5P/jeWbaCHnMNc+w==
+  dependencies:
+    "@floating-ui/core" "^1.6.0"
+    "@floating-ui/utils" "^0.2.8"
+
+"@floating-ui/react-dom@^2.0.6":
+  version "2.1.2"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/@floating-ui/react-dom/-/react-dom-2.1.2.tgz#a1349bbf6a0e5cb5ded55d023766f20a4d439a31"
+  integrity sha512-06okr5cgPzMNBy+Ycse2A6udMi4bqwW/zgBF/rwjcNqWkyr82Mcg8b0vjX8OJpZFy/FKjJmw6wV7t44kK6kW7A==
+  dependencies:
+    "@floating-ui/dom" "^1.0.0"
+
+"@floating-ui/utils@^0.2.8":
+  version "0.2.8"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/@floating-ui/utils/-/utils-0.2.8.tgz#21a907684723bbbaa5f0974cf7730bd797eb8e62"
+  integrity sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==
+
+"@fontsource-variable/dm-sans@^5.1.0":
+  version "5.1.0"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/@fontsource-variable/dm-sans/-/dm-sans-5.1.0.tgz#c371e4d2a9f43fa0df5779f5567099f2434610bf"
+  integrity sha512-wPhOMY/3ipy0t5ZIQk7FTKd3uZqE1XP2Yd2oKe3HfMWCYkotbcoMLkBQXcZzf/SgdCdczSP/hiO/PAZb84Kbxw==
+
+"@fontsource/dm-mono@^5.1.0":
+  version "5.1.0"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/@fontsource/dm-mono/-/dm-mono-5.1.0.tgz#e1bf9bc173e5d2b25af738ca037506c5643b1c80"
+  integrity sha512-cfowZUJJDHjgVFOEQmIn2KHtQ8LDXnTGgTTunUImzzg3Xf6V92MlYR/pmkqIt7lXq7lfP/pQZ9ph/9JeLDRsCQ==
+
+"@fontsource/material-icons@^5.0.7":
+  version "5.1.0"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/@fontsource/material-icons/-/material-icons-5.1.0.tgz#84cec5fad3d91a5269d08d4d27a0c572311988fe"
+  integrity sha512-xqTEO5vcVl8saTAi3QBRpGot4pX9WkqR7lOp07NfHwizigIPUTWnCc9UNlotWs3Jt4TWI8GKomDn2HdK2GwOtw==
 
 "@gar/promisify@^1.0.1":
   version "1.1.3"
@@ -1652,6 +1701,36 @@
     quickselect "^2.0.0"
     rw "^1.3.3"
     tinyqueue "^3.0.0"
+
+"@mui/base@5.0.0-beta.33":
+  version "5.0.0-beta.33"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/@mui/base/-/base-5.0.0-beta.33.tgz#fbb844e2d840d47dd7a48850a03152aed2381d10"
+  integrity sha512-WcSpoJUw/UYHXpvgtl4HyMar2Ar97illUpqiS/X1gtSBp6sdDW6kB2BJ9OlVQ+Kk/RL2GDp/WHA9sbjAYV35ow==
+  dependencies:
+    "@babel/runtime" "^7.23.8"
+    "@floating-ui/react-dom" "^2.0.6"
+    "@mui/types" "^7.2.13"
+    "@mui/utils" "^5.15.6"
+    "@popperjs/core" "^2.11.8"
+    clsx "^2.1.0"
+    prop-types "^15.8.1"
+
+"@mui/types@^7.2.13", "@mui/types@^7.2.15":
+  version "7.2.19"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/@mui/types/-/types-7.2.19.tgz#c941954dd24393fdce5f07830d44440cf4ab6c80"
+  integrity sha512-6XpZEM/Q3epK9RN8ENoXuygnqUQxE+siN/6rGRi2iwJPgBUR25mphYQ9ZI87plGh58YoZ5pp40bFvKYOCDJ3tA==
+
+"@mui/utils@^5.15.6":
+  version "5.16.6"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/@mui/utils/-/utils-5.16.6.tgz#905875bbc58d3dcc24531c3314a6807aba22a711"
+  integrity sha512-tWiQqlhxAt3KENNiSRL+DIn9H5xNVK6Jjf70x3PnfQPz1MPBdh7yyIcAyVBT9xiw7hP3SomRhPR7hzBMBCjqEA==
+  dependencies:
+    "@babel/runtime" "^7.23.9"
+    "@mui/types" "^7.2.15"
+    "@types/prop-types" "^15.7.12"
+    clsx "^2.1.1"
+    prop-types "^15.8.1"
+    react-is "^18.3.1"
 
 "@nicolo-ribaudo/chokidar-2@2.1.8-no-fsevents.3":
   version "2.1.8-no-fsevents.3"
@@ -1941,6 +2020,11 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.21.tgz#5de5a2385a35309427f6011992b544514d559aa1"
   integrity sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==
 
+"@popperjs/core@^2.11.8":
+  version "2.11.8"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
+  integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
+
 "@redash/viz@file:viz-lib":
   version "1.0.0"
   dependencies:
@@ -1966,6 +2050,17 @@
     tinycolor2 "^1.4.1"
     use-debounce "^3.4.1"
     use-media "^1.4.0"
+
+"@stacklet/ui@^0.1.0":
+  version "0.1.0"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/@stacklet/ui/-/ui-0.1.0.tgz#34c54f258f6a3c3c8c0009a25cf8b85bd9cedcb2"
+  integrity sha512-NuZGOqHXwZwHczO2VXaR7EeY6CphX5F3NLhA62P/25V4fjz+PJ7sMCR1k7sMrrseevv/FaHnM0Kiy+wzHjE58Q==
+  dependencies:
+    "@fontsource-variable/dm-sans" "^5.1.0"
+    "@fontsource/dm-mono" "^5.1.0"
+    "@fontsource/material-icons" "^5.0.7"
+    "@mui/base" "5.0.0-beta.33"
+    date-fns-tz "^3.1.0"
 
 "@testing-library/cypress@^8.0.7":
   version "8.0.7"
@@ -2256,6 +2351,11 @@
   version "15.7.3"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.3.tgz#2ab0d5da2e5815f94b0b9d4b95d1e5f243ab2ca7"
   integrity sha512-KfRL3PuHmqQLOG+2tGpRO26Ctg+Cq1E01D2DMriKEATHgWLfeNDmq9e29Q9WIky0dQ3NPkd1mzYH8Lm936Z9qw==
+
+"@types/prop-types@^15.7.12":
+  version "15.7.13"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/@types/prop-types/-/prop-types-15.7.13.tgz#2af91918ee12d9d32914feb13f5326658461b451"
+  integrity sha512-hCZTSvwbzWGvhqxp/RqVqwU999pBf2vp7hzIjiYOsl8wqOmUxkQ6ddw1cV3l8811+kdUFus/q4d1Y3E3SyEifA==
 
 "@types/qs@*":
   version "6.9.7"
@@ -4222,6 +4322,11 @@ clsx@^1.0.1:
   resolved "https://registry.yarnpkg.com/clsx/-/clsx-1.0.4.tgz#0c0171f6d5cb2fe83848463c15fcc26b4df8c2ec"
   integrity sha512-1mQ557MIZTrL/140j+JVdRM6e31/OA4vTYxXgqIIZlndyfjHpyawKZia1Im05Vp9BWmImkcNrNtFYQMyFcgJDg==
 
+clsx@^2.1.0, clsx@^2.1.1:
+  version "2.1.1"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/clsx/-/clsx-2.1.1.tgz#eed397c9fd8bd882bfb18deab7102049a2f32999"
+  integrity sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==
+
 co@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
@@ -5007,6 +5112,11 @@ data-urls@^1.0.0:
     abab "^2.0.0"
     whatwg-mimetype "^2.2.0"
     whatwg-url "^7.0.0"
+
+date-fns-tz@^3.1.0:
+  version "3.2.0"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/date-fns-tz/-/date-fns-tz-3.2.0.tgz#647dc56d38ac33a3e37b65e9d5c4cda5af5e58e6"
+  integrity sha512-sg8HqoTEulcbbbVXeg84u5UnlsQa8GS5QXMqjjYIhS4abEVVKIUwe0/l/UhrZdKaL/W5eWZNlbTeEIiOXTcsBQ==
 
 date-now@^0.1.4:
   version "0.1.4"
@@ -11251,6 +11361,15 @@ prop-types@15.x, prop-types@>=15.0.0, prop-types@^15.0.0, prop-types@^15.5.10, p
     object-assign "^4.1.1"
     react-is "^16.8.1"
 
+prop-types@^15.8.1:
+  version "15.8.1"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
+  integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
+  dependencies:
+    loose-envify "^1.4.0"
+    object-assign "^4.1.1"
+    react-is "^16.13.1"
+
 protocol-buffers-schema@^3.3.1:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/protocol-buffers-schema/-/protocol-buffers-schema-3.4.0.tgz#2f0ea31ca96627d680bf2fefae7ebfa2b6453eae"
@@ -11836,7 +11955,7 @@ react-grid-layout@^0.18.2:
     react-draggable "^4.0.0"
     react-resizable "^1.9.0"
 
-react-is@^16.12.0, react-is@^16.8.4, react-is@^16.8.6:
+react-is@^16.12.0, react-is@^16.13.1, react-is@^16.8.4, react-is@^16.8.6:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
@@ -11850,6 +11969,11 @@ react-is@^17.0.1:
   version "17.0.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.1.tgz#5b3531bd76a645a4c9fb6e693ed36419e3301339"
   integrity sha512-NAnt2iGDXohE5LI7uBnLnqvLQMtzhkiAOLXTmv+qnF9Ky7xAPcX8Up/xWIhxvLVGJvuLiNc4xQLtuqDRzb4fSA==
+
+react-is@^18.3.1:
+  version "18.3.1"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/react-is/-/react-is-18.3.1.tgz#e83557dc12eae63a99e003a46388b1dcbb44db7e"
+  integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
 
 react-lifecycles-compat@^3.0.4:
   version "3.0.4"
@@ -12117,6 +12241,11 @@ regenerator-runtime@^0.13.2:
   version "0.13.3"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.3.tgz#7cf6a77d8f5c6f60eb73c5fc1955b2ceb01e6bf5"
   integrity sha512-naKIZz2GQ8JWh///G7L3X6LaQUAMp2lvb1rvwwsURe/VXwD6VMfr+/1NuNw3ag8v2kY1aQ/go5SNn79O9JU7yw==
+
+regenerator-runtime@^0.14.0:
+  version "0.14.1"
+  resolved "https://stacklet-653993915282.d.codeartifact.us-east-1.amazonaws.com/npm/stacklet.client.ui/regenerator-runtime/-/regenerator-runtime-0.14.1.tgz#356ade10263f685dda125100cd862c1db895327f"
+  integrity sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==
 
 regenerator-transform@^0.15.1:
   version "0.15.1"
