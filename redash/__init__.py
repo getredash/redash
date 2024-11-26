@@ -18,9 +18,10 @@ __version__ = "24.11.0-dev"
 
 
 if os.environ.get("REMOTE_DEBUG"):
-    import ptvsd
+    import debugpy
 
-    ptvsd.enable_attach(address=("0.0.0.0", 5678))
+    debugpy.listen(("0.0.0.0", 5678))
+    debugpy.wait_for_client()
 
 
 def setup_logging():
