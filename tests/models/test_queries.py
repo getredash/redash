@@ -159,7 +159,7 @@ class QueryTest(BaseTestCase):
         q2 = self.factory.create_query(name="Testing searching")
         q3 = self.factory.create_query(name="Testing finding")
 
-        queries = list(Query.search("(testing search) or finding", [self.factory.default_group.id]))
+        queries = list(Query.search("testing (search or finding)", [self.factory.default_group.id]))
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
         self.assertIn(q3, queries)
@@ -373,16 +373,26 @@ class TestQueryFork(BaseTestCase):
         query = self.factory.create_query(data_source=data_source, description="this is description")
 
         # create default TABLE - query factory does not create it
-        self.factory.create_visualization(query_rel=query, name="Table", description="", type="TABLE", options="{}")
+        self.factory.create_visualization(query_rel=query, name="Table", description="", type="TABLE", options={})
 
         visualization_chart = self.factory.create_visualization(
             query_rel=query,
             description="chart vis",
             type="CHART",
-            options="""{"yAxis": [{"type": "linear"}, {"type": "linear", "opposite": true}], "series": {"stacking": null}, "globalSeriesType": "line", "sortX": true, "seriesOptions": {"count": {"zIndex": 0, "index": 0, "type": "line", "yAxis": 0}}, "xAxis": {"labels": {"enabled": true}, "type": "datetime"}, "columnMapping": {"count": "y", "created_at": "x"}, "bottomMargin": 50, "legend": {"enabled": true}}""",
+            options={
+                "yAxis": [{"type": "linear"}, {"type": "linear", "opposite": True}],
+                "series": {"stacking": None},
+                "globalSeriesType": "line",
+                "sortX": True,
+                "seriesOptions": {"count": {"zIndex": 0, "index": 0, "type": "line", "yAxis": 0}},
+                "xAxis": {"labels": {"enabled": True}, "type": "datetime"},
+                "columnMapping": {"count": "y", "created_at": "x"},
+                "bottomMargin": 50,
+                "legend": {"enabled": True},
+            },
         )
         visualization_box = self.factory.create_visualization(
-            query_rel=query, description="box vis", type="BOXPLOT", options="{}"
+            query_rel=query, description="box vis", type="BOXPLOT", options={}
         )
         fork_user = self.factory.create_user()
         forked_query = query.fork(fork_user)
@@ -417,7 +427,7 @@ class TestQueryFork(BaseTestCase):
         self.assertEqual(count_table, 1)
         self.assertEqual(forked_table.name, "Table")
         self.assertEqual(forked_table.description, "")
-        self.assertEqual(forked_table.options, "{}")
+        self.assertEqual(forked_table.options, {})
 
     def test_fork_from_query_that_has_no_visualization(self):
         # prepare original query and visualizations
@@ -425,7 +435,7 @@ class TestQueryFork(BaseTestCase):
         query = self.factory.create_query(data_source=data_source, description="this is description")
 
         # create default TABLE - query factory does not create it
-        self.factory.create_visualization(query_rel=query, name="Table", description="", type="TABLE", options="{}")
+        self.factory.create_visualization(query_rel=query, name="Table", description="", type="TABLE", options={})
 
         fork_user = self.factory.create_user()
 
@@ -457,7 +467,7 @@ class TestQueryUpdateLatestResult(BaseTestCase):
         self.query_hash = gen_query_hash(self.query)
         self.runtime = 123
         self.utcnow = utcnow()
-        self.data = "data"
+        self.data = {"columns": {}, "rows": []}
 
     def test_updates_existing_queries(self):
         query1 = self.factory.create_query(query_text=self.query)

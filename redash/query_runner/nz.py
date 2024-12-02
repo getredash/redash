@@ -1,4 +1,3 @@
-import json
 import logging
 import traceback
 
@@ -150,7 +149,7 @@ class Netezza(BaseSQLQueryRunner):
         return typ
 
     def run_query(self, query, user):
-        json_data, error = None, None
+        data, error = None, None
         try:
             with self.connection.cursor() as cursor:
                 cursor.execute(query)
@@ -165,10 +164,10 @@ class Netezza(BaseSQLQueryRunner):
                     )
                 rows = [dict(zip((column["name"] for column in columns), row)) for row in cursor]
 
-                json_data = json.dumps({"columns": columns, "rows": rows})
+                data = {"columns": columns, "rows": rows}
         except Exception:
             error = traceback.format_exc()
-        return json_data, error
+        return data, error
 
 
 register(Netezza)

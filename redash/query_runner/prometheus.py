@@ -14,7 +14,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.utils import json_dumps
 
 
 def get_instant_rows(metrics_data):
@@ -247,7 +246,7 @@ class Prometheus(BaseQueryRunner):
             else:
                 rows = get_instant_rows(metrics)
 
-            json_data = json_dumps({"rows": rows, "columns": columns})
+            data = {"rows": rows, "columns": columns}
 
         except requests.RequestException as e:
             return None, str(e)
@@ -256,7 +255,7 @@ class Prometheus(BaseQueryRunner):
         finally:
             self._cleanup_cert_files(promehteus_kwargs)
 
-        return json_data, error
+        return data, error
 
 
 register(Prometheus)

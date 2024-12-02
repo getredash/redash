@@ -1,3 +1,5 @@
+import datetime
+import decimal
 import sqlite3
 from unittest import TestCase
 
@@ -17,7 +19,6 @@ from redash.query_runner.query_results import (
     prepare_parameterized_query,
     replace_query_parameters,
 )
-from redash.utils import json_dumps
 from tests import BaseTestCase
 
 
@@ -103,6 +104,16 @@ class TestCreateTable(TestCase):
         results = {
             "columns": [{"name": "\xe4"}, {"name": "test2"}],
             "rows": [{"\xe4": 1, "test2": 2}],
+        }
+        table_name = "query_123"
+        create_table(connection, table_name, results)
+        connection.execute("SELECT 1 FROM query_123")
+
+    def test_creates_table_with_decimal_and_timedelta_in_column_value(self):
+        connection = sqlite3.connect(":memory:")
+        results = {
+            "columns": [{"name": "test1"}, {"name": "test2"}, {"name": "test3"}],
+            "rows": [{"test1": 1, "test2": decimal.Decimal(2), "test3": datetime.timedelta(seconds=3)}],
         }
         table_name = "query_123"
         create_table(connection, table_name, results)
@@ -235,5 +246,5 @@ class TestGetQueryResult(BaseTestCase):
 
         with mock.patch.object(PostgreSQL, "run_query") as qr:
             query_result_data = {"columns": [], "rows": []}
-            qr.return_value = (json_dumps(query_result_data), None)
+            qr.return_value = (query_result_data, None)
             self.assertEqual(query_result_data, get_query_results(self.factory.user, query.id, False))

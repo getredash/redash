@@ -13,7 +13,6 @@ from redash.query_runner import (
     BaseSQLQueryRunner,
     register,
 )
-from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -168,7 +167,7 @@ class YandexMetrica(BaseSQLQueryRunner):
             return data, error
 
         try:
-            data = json_dumps(parse_ym_response(self._send_query(**params)))
+            data = parse_ym_response(self._send_query(**params))
             error = None
         except Exception as e:
             logging.exception(e)

@@ -8,7 +8,7 @@ from operator import or_
 from flask import current_app, request_started, url_for
 from flask_login import AnonymousUserMixin, UserMixin, current_user
 from passlib.apps import custom_app_context as pwd_context
-from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy_utils import EmailType
 from sqlalchemy_utils.models import generic_repr
 
@@ -84,14 +84,14 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     password_hash = Column(db.String(128), nullable=True)
     group_ids = Column(
         "groups",
-        MutableList.as_mutable(postgresql.ARRAY(key_type("Group"))),
+        MutableList.as_mutable(ARRAY(key_type("Group"))),
         nullable=True,
     )
     api_key = Column(db.String(40), default=lambda: generate_token(40), unique=True)
 
     disabled_at = Column(db.DateTime(True), default=None, nullable=True)
     details = Column(
-        MutableDict.as_mutable(postgresql.JSONB),
+        MutableDict.as_mutable(JSONB),
         nullable=True,
         server_default="{}",
         default={},
@@ -166,7 +166,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         if self._profile_image_url:
             return self._profile_image_url
 
-        email_md5 = hashlib.md5(self.email.lower().encode()).hexdigest()
+        email_md5 = hashlib.md5(self.email.lower().encode(), usedforsecurity=False).hexdigest()
         return "https://www.gravatar.com/avatar/{}?s=40&d=identicon".format(email_md5)
 
     @property
@@ -233,7 +233,9 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         return AccessPermission.exists(obj, access_type, grantee=self)
 
     def get_id(self):
-        identity = hashlib.md5("{},{}".format(self.email, self.password_hash).encode()).hexdigest()
+        identity = hashlib.md5(
+            "{},{}".format(self.email, self.password_hash).encode(), usedforsecurity=False
+        ).hexdigest()
         return "{0}-{1}".format(self.id, identity)
 
     def get_actual_user(self):
@@ -267,7 +269,7 @@ class Group(db.Model, BelongsToOrgMixin):
     org = db.relationship("Organization", back_populates="groups")
     type = Column(db.String(255), default=REGULAR_GROUP)
     name = Column(db.String(100))
-    permissions = Column(postgresql.ARRAY(db.String(255)), default=DEFAULT_PERMISSIONS)
+    permissions = Column(ARRAY(db.String(255)), default=DEFAULT_PERMISSIONS)
     created_at = Column(db.DateTime(True), default=db.func.now())
 
     __tablename__ = "groups"

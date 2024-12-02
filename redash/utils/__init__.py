@@ -5,14 +5,15 @@ import datetime
 import decimal
 import hashlib
 import io
+import json
 import os
 import random
 import re
+import sys
 import uuid
 
 import pystache
 import pytz
-import simplejson
 import sqlparse
 from flask import current_app
 from funcy import select_values
@@ -59,7 +60,7 @@ def gen_query_hash(sql):
     """
     sql = COMMENTS_REGEX.sub("", sql)
     sql = "".join(sql.split())
-    return hashlib.md5(sql.encode("utf-8")).hexdigest()
+    return hashlib.md5(sql.encode("utf-8"), usedforsecurity=False).hexdigest()
 
 
 def generate_token(length):
@@ -69,11 +70,20 @@ def generate_token(length):
     return "".join(rand.choice(chars) for x in range(length))
 
 
-class JSONEncoder(simplejson.JSONEncoder):
-    """Adapter for `simplejson.dumps`."""
+class JSONEncoder(json.JSONEncoder):
+    """Adapter for `json.dumps`."""
+
+    def __init__(self, **kwargs):
+        from redash.query_runner import query_runners
+
+        self.encoders = [r.custom_json_encoder for r in query_runners.values() if hasattr(r, "custom_json_encoder")]
+        super().__init__(**kwargs)
 
     def default(self, o):
-        # Some SQLAlchemy collections are lazy.
+        for encoder in self.encoders:
+            result = encoder(self, o)
+            if result:
+                return result
         if isinstance(o, Query):
             result = list(o)
         elif isinstance(o, decimal.Decimal):
@@ -100,25 +110,25 @@ class JSONEncoder(simplejson.JSONEncoder):
         elif isinstance(o, bytes):
             result = binascii.hexlify(o).decode()
         else:
-            result = super(JSONEncoder, self).default(o)
+            result = super().default(o)
         return result
 
 
 def json_loads(data, *args, **kwargs):
     """A custom JSON loading function which passes all parameters to the
-    simplejson.loads function."""
-    return simplejson.loads(data, *args, **kwargs)
+    json.loads function."""
+    return json.loads(data, *args, **kwargs)
 
 
 def json_dumps(data, *args, **kwargs):
     """A custom JSON dumping function which passes all parameters to the
-    simplejson.dumps function."""
+    json.dumps function."""
     kwargs.setdefault("cls", JSONEncoder)
-    kwargs.setdefault("encoding", None)
+    kwargs.setdefault("ensure_ascii", False)
     # Float value nan or inf in Python should be render to None or null in json.
-    # Using ignore_nan = False will make Python render nan as NaN, leading to parse error in front-end
-    kwargs.setdefault("ignore_nan", True)
-    return simplejson.dumps(data, *args, **kwargs)
+    # Using allow_nan = True will make Python render nan as NaN, leading to parse error in front-end
+    kwargs.setdefault("allow_nan", False)
+    return json.dumps(data, *args, **kwargs)
 
 
 def mustache_render(template, context=None, **kwargs):

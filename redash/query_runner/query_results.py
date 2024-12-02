@@ -1,3 +1,5 @@
+import datetime
+import decimal
 import hashlib
 import logging
 import re
@@ -13,7 +15,7 @@ from redash.query_runner import (
     guess_type,
     register,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -76,8 +78,6 @@ def get_query_results(user, query_id, bring_from_cache, params=None):
         results, error = query.data_source.query_runner.run_query(query_text, user)
         if error:
             raise Exception("Failed loading results for query id {}.".format(query.id))
-        else:
-            results = json_loads(results)
 
     return results
 
@@ -90,7 +90,9 @@ def create_tables_from_query_ids(user, connection, query_ids, query_params, cach
 
     for query in set(query_params):
         results = get_query_results(user, query[0], False, query[1])
-        table_hash = hashlib.md5("query_{query}_{hash}".format(query=query[0], hash=query[1]).encode()).hexdigest()
+        table_hash = hashlib.md5(
+            "query_{query}_{hash}".format(query=query[0], hash=query[1]).encode(), usedforsecurity=False
+        ).hexdigest()
         table_name = "query_{query_id}_{param_hash}".format(query_id=query[0], param_hash=table_hash)
         create_table(connection, table_name, results)
 
@@ -107,6 +109,10 @@ def fix_column_name(name):
 def flatten(value):
     if isinstance(value, (list, dict)):
         return json_dumps(value)
+    elif isinstance(value, decimal.Decimal):
+        return float(value)
+    elif isinstance(value, datetime.timedelta):
+        return str(value)
     else:
         return value
 
@@ -138,7 +144,9 @@ def create_table(connection, table_name, query_results):
 
 def prepare_parameterized_query(query, query_params):
     for params in query_params:
-        table_hash = hashlib.md5("query_{query}_{hash}".format(query=params[0], hash=params[1]).encode()).hexdigest()
+        table_hash = hashlib.md5(
+            "query_{query}_{hash}".format(query=params[0], hash=params[1]).encode(), usedforsecurity=False
+        ).hexdigest()
         key = "param_query_{query_id}_{{{param_string}}}".format(query_id=params[0], param_string=params[1])
         value = "query_{query_id}_{param_hash}".format(query_id=params[0], param_hash=table_hash)
         query = query.replace(key, value)
@@ -194,16 +202,15 @@ class Results(BaseQueryRunner):
 
                 data = {"columns": columns, "rows": rows}
                 error = None
-                json_data = json_dumps(data)
             else:
                 error = "Query completed but it returned no data."
-                json_data = None
+                data = None
         except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
             raise
         finally:
             connection.close()
-        return json_data, error
+        return data, error
 
 
 register(Results)

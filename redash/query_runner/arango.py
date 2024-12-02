@@ -7,7 +7,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -81,12 +80,11 @@ class Arango(BaseQueryRunner):
                 "rows": result,
             }
 
-            json_data = json_dumps(data, ignore_nan=True)
             error = None
         except Exception:
             raise
 
-        return json_data, error
+        return data, error
 
 
 register(Arango)

@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Optional, Tuple
 
@@ -10,7 +11,6 @@ from redash.query_runner import (
     BaseHTTPQueryRunner,
     register,
 )
-from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class ElasticSearch2(BaseHTTPQueryRunner):
         self.syntax = "json"
 
     def get_response(self, url, auth=None, http_method="get", **kwargs):
-        url = "{}{}".format(self.configuration["url"], url)
+        url = "{}{}".format(self.configuration["server"], url)
         headers = kwargs.pop("headers", {})
         headers["Accept"] = "application/json"
         return super().get_response(url, auth, http_method, headers=headers, **kwargs)
@@ -62,11 +62,10 @@ class ElasticSearch2(BaseHTTPQueryRunner):
         query_results = response.json()
         data = self._parse_results(result_fields, query_results)
         error = None
-        json_data = json_dumps(data)
-        return json_data, error
+        return data, error
 
     def _build_query(self, query: str) -> Tuple[dict, str, Optional[list]]:
-        query = json_loads(query)
+        query = json.loads(query)
         index_name = query.pop("index", "")
         result_fields = query.pop("result_fields", None)
         url = "/{}/_search".format(index_name)

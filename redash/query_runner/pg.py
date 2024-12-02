@@ -20,7 +20,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import JSONEncoder, json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -54,20 +53,6 @@ types_map = {
     1002: TYPE_STRING,
     1003: TYPE_STRING,
 }
-
-
-class PostgreSQLJSONEncoder(JSONEncoder):
-    def default(self, o):
-        if isinstance(o, Range):
-            # From: https://github.com/psycopg/psycopg2/pull/779
-            if o._bounds is None:
-                return ""
-
-            items = [o._bounds[0], str(o._lower), ", ", str(o._upper), o._bounds[1]]
-
-            return "".join(items)
-
-        return super(PostgreSQLJSONEncoder, self).default(o)
 
 
 def _wait(conn, timeout=None):
@@ -198,13 +183,23 @@ class PostgreSQL(BaseSQLQueryRunner):
     def type(cls):
         return "pg"
 
+    @classmethod
+    def custom_json_encoder(cls, dec, o):
+        if isinstance(o, Range):
+            # From: https://github.com/psycopg/psycopg2/pull/779
+            if o._bounds is None:
+                return ""
+
+            items = [o._bounds[0], str(o._lower), ", ", str(o._upper), o._bounds[1]]
+
+            return "".join(items)
+        return None
+
     def _get_definitions(self, schema, query):
         results, error = self.run_query(query, None)
 
         if error is not None:
             self._handle_run_query_error(error)
-
-        results = json_loads(results)
 
         build_schema(results, schema)
 
@@ -236,7 +231,9 @@ class PostgreSQL(BaseSQLQueryRunner):
         ON a.attrelid = c.oid
         AND a.attnum > 0
         AND NOT a.attisdropped
-        WHERE c.relkind IN ('m', 'f', 'p') AND has_table_privilege(s.nspname || '.' || c.relname, 'select')
+        WHERE c.relkind IN ('m', 'f', 'p')
+        AND has_table_privilege(s.nspname || '.' || c.relname, 'select')
+        AND has_schema_privilege(s.nspname, 'usage')
 
         UNION
 
@@ -282,16 +279,15 @@ class PostgreSQL(BaseSQLQueryRunner):
 
                 data = {"columns": columns, "rows": rows}
                 error = None
-                json_data = json_dumps(data, ignore_nan=True, cls=PostgreSQLJSONEncoder)
             else:
                 error = "Query completed but it returned no data."
-                json_data = None
+                data = None
         except (select.error, OSError):
             error = "Query interrupted. Please retry."
-            json_data = None
+            data = None
         except psycopg2.DatabaseError as e:
             error = str(e)
-            json_data = None
+            data = None
         except (KeyboardInterrupt, InterruptException, JobTimeoutException):
             connection.cancel()
             raise
@@ -299,7 +295,7 @@ class PostgreSQL(BaseSQLQueryRunner):
             connection.close()
             _cleanup_ssl_certs(self.ssl_config)
 
-        return json_data, error
+        return data, error
 
 
 class Redshift(PostgreSQL):
@@ -392,12 +388,13 @@ class Redshift(PostgreSQL):
             SELECT DISTINCT table_name,
                             table_schema,
                             column_name,
+                            data_type,
                             ordinal_position AS pos
             FROM svv_columns
             WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
             AND table_schema NOT LIKE 'pg_temp_%'
         )
-        SELECT table_name, table_schema, column_name
+        SELECT table_name, table_schema, column_name, data_type
         FROM tables
         WHERE
             HAS_SCHEMA_PRIVILEGE(table_schema, 'USAGE') AND
