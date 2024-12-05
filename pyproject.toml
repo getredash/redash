@@ -87,6 +87,7 @@ xlsxwriter = "1.2.2"
 tzlocal = "4.3.1"
 pyodbc = "5.1.0"
 debugpy = "^1.8.9"
+paramiko = "3.4.1"
 
 [tool.poetry.group.all_ds]
 optional = true
