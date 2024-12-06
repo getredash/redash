@@ -20,15 +20,14 @@ jobs:
         steps:
             - name: checkout repo
               uses: actions/checkout@v4
-
-            - name: Check last Scheduler Run
-              id: check_last_run
-              run: python3 ./cron/checkScheduler.py
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
               with:
                 role-to-assume: arn:aws:iam::906503920888:role/github-actions-oidc-redash
                 aws-region: ${{ env.AWS_REGION }}
+            - name: Check last Scheduler Run
+              id: check_last_run
+              run: python3 ./cron/checkScheduler.py
             - name: Restart Schedule Service if Scheduler is not Updating
               if: failure() && steps.check_last_run.outcome == 'failure'
               run: |
