@@ -10,6 +10,11 @@ force-exclude = '''
 )/
 '''
 
+[[tool.poetry.source]]
+name = "mirrors"
+url = "http://mirrors.aliyun.com/pypi/simple/"
+priority = "primary"
+
 [tool.poetry]
 name = "redash"
 version = "24.12.0-dev"
