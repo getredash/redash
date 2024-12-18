@@ -3,48 +3,58 @@ on:
   push:
     branches:
       - master
-  pull_request:
+  pull_request_target:
+    branches:
+      - master
 env:
-  NODE_VERSION: 16.20.1
+  NODE_VERSION: 18
+  YARN_VERSION: 1.22.22
 jobs:
   backend-lint:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - if: github.event.pull_request.mergeable == 'false'
+        name: Exit if PR is not mergeable
+        run: exit 1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - uses: actions/setup-python@v4
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.8'
-      - run: sudo pip install flake8==6.1.0 black==23.1.0 isort==5.12.0
-      - run: flake8 .
+      - run: sudo pip install black==23.1.0 ruff==0.0.287
+      - run: ruff check .
       - run: black --check .
-      - run: isort --check-only --diff .
 
   backend-unit-tests:
     runs-on: ubuntu-22.04
     needs: backend-lint
     env:
-      COMPOSE_FILE: .ci/docker-compose.ci.yml
+      COMPOSE_FILE: .ci/compose.ci.yaml
       COMPOSE_PROJECT_NAME: redash
       COMPOSE_DOCKER_CLI_BUILD: 1
       DOCKER_BUILDKIT: 1
     steps:
-      - uses: actions/checkout@v3
+      - if: github.event.pull_request.mergeable == 'false'
+        name: Exit if PR is not mergeable
+        run: exit 1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Build Docker Images
         run: |
           set -x
-          docker-compose build --build-arg test_all_deps=true --build-arg skip_frontend_build=true
-          docker-compose up -d
+          docker compose build --build-arg install_groups="main,all_ds,dev" --build-arg skip_frontend_build=true
+          docker compose up -d
           sleep 10
       - name: Create Test Database
-        run: docker-compose -p redash run --rm postgres psql -h postgres -U postgres -c "create database tests;"
+        run: docker compose -p redash run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - name: List Enabled Query Runners
-        run: docker-compose -p redash run --rm redash manage ds list_types
+        run: docker compose -p redash run --rm redash manage ds list_types
       - name: Run Tests
-        run: docker-compose -p redash run --name tests redash tests --junitxml=junit.xml --cov-report=xml --cov=redash --cov-config=.coveragerc tests/
+        run: docker compose -p redash run --name tests redash tests --junitxml=junit.xml --cov-report=xml --cov=redash --cov-config=.coveragerc tests/
       - name: Copy Test Results
         run: |
           mkdir -p /tmp/test-results/unit-tests
@@ -66,16 +76,20 @@ jobs:
   frontend-lint:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - if: github.event.pull_request.mergeable == 'false'
+        name: Exit if PR is not mergeable
+        run: exit 1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - uses: actions/setup-node@v3
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
       - name: Install Dependencies
         run: |
-          npm install --global --force yarn@1.22.19
+          npm install --global --force yarn@$YARN_VERSION
           yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
       - name: Run Lint
         run: yarn lint:ci
@@ -89,16 +103,20 @@ jobs:
     runs-on: ubuntu-22.04
     needs: frontend-lint
     steps:
-      - uses: actions/checkout@v3
+      - if: github.event.pull_request.mergeable == 'false'
+        name: Exit if PR is not mergeable
+        run: exit 1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - uses: actions/setup-node@v3
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
       - name: Install Dependencies
         run: |
-          npm install --global --force yarn@1.22.19
+          npm install --global --force yarn@$YARN_VERSION
           yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
       - name: Run App Tests
         run: yarn test
@@ -110,40 +128,44 @@ jobs:
     runs-on: ubuntu-22.04
     needs: frontend-lint
     env:
-      COMPOSE_FILE: .ci/docker-compose.cypress.yml
+      COMPOSE_FILE: .ci/compose.cypress.yaml
       COMPOSE_PROJECT_NAME: cypress
-      PERCY_TOKEN_ENCODED: ZGRiY2ZmZDQ0OTdjMzM5ZWE0ZGQzNTZiOWNkMDRjOTk4Zjg0ZjMxMWRmMDZiM2RjOTYxNDZhOGExMjI4ZDE3MA==
-      CYPRESS_PROJECT_ID_ENCODED: OTI0Y2th
-      CYPRESS_RECORD_KEY_ENCODED: YzA1OTIxMTUtYTA1Yy00NzQ2LWEyMDMtZmZjMDgwZGI2ODgx
       CYPRESS_INSTALL_BINARY: 0
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
+      PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+      CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+      CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
     steps:
-      - uses: actions/checkout@v3
+      - if: github.event.pull_request.mergeable == 'false'
+        name: Exit if PR is not mergeable
+        run: exit 1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - uses: actions/setup-node@v3
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
       - name: Enable Code Coverage Report For Master Branch
         if: endsWith(github.ref, '/master')
         run: |
-          echo "CODE_COVERAGE=true" >> $GITHUB_ENV
+          echo "CODE_COVERAGE=true" >> "$GITHUB_ENV"
       - name: Install Dependencies
         run: |
-          npm install --global --force yarn@1.22.19
+          npm install --global --force yarn@$YARN_VERSION
           yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
       - name: Setup Redash Server
         run: |
           set -x
           yarn cypress build
           yarn cypress start -- --skip-db-seed
-          docker-compose run cypress yarn cypress db-seed
+          docker compose run cypress yarn cypress db-seed
       - name: Execute Cypress Tests
         run: yarn cypress run-ci
       - name: "Failure: output container logs to console"
         if: failure()
-        run: docker-compose logs
+        run: docker compose logs
       - name: Copy Code Coverage Results
         run: docker cp cypress:/usr/src/app/coverage ./coverage || true
       - name: Store Coverage Results

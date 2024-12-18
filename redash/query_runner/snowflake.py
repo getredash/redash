@@ -6,6 +6,7 @@ except ImportError:
     enabled = False
 
 
+from redash import __version__
 from redash.query_runner import (
     TYPE_BOOLEAN,
     TYPE_DATE,
@@ -16,7 +17,6 @@ from redash.query_runner import (
     BaseSQLQueryRunner,
     register,
 )
-from redash.utils import json_dumps
 
 TYPES_MAP = {
     0: TYPE_INTEGER,
@@ -102,6 +102,7 @@ class Snowflake(BaseSQLQueryRunner):
             account=account,
             region=region,
             host=host,
+            application="Redash/{} (Snowflake)".format(__version__.split("-")[0]),
         )
 
         return connection
@@ -133,12 +134,11 @@ class Snowflake(BaseSQLQueryRunner):
 
             data = self._parse_results(cursor)
             error = None
-            json_data = json_dumps(data)
         finally:
             cursor.close()
             connection.close()
 
-        return json_data, error
+        return data, error
 
     def _run_query_without_warehouse(self, query):
         connection = self._get_connection()

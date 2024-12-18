@@ -6,7 +6,7 @@ from werkzeug.exceptions import BadRequest
 from redash.handlers.base import paginate
 
 
-class DummyResults(object):
+class DummyResults:
     items = [i for i in range(25)]
 
 

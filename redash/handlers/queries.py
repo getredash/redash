@@ -11,9 +11,11 @@ from redash.handlers.base import (
     BaseResource,
     filter_by_tags,
     get_object_or_404,
+    org_scoped_rule,
+    paginate,
+    routes,
 )
 from redash.handlers.base import order_results as _order_results
-from redash.handlers.base import org_scoped_rule, paginate, routes
 from redash.handlers.query_results import run_query
 from redash.models.parameterized_query import ParameterizedQuery
 from redash.permissions import (
@@ -278,7 +280,11 @@ class MyQueriesResource(BaseResource):
         """
         search_term = request.args.get("q", "")
         if search_term:
-            results = models.Query.search_by_user(search_term, self.current_user)
+            results = models.Query.search_by_user(
+                search_term,
+                self.current_user,
+                multi_byte_search=current_org.get_setting("multi_byte_search_enabled"),
+            )
         else:
             results = models.Query.by_user(self.current_user)
 
@@ -476,6 +482,7 @@ class QueryFavoriteListResource(BaseResource):
                 self.current_user.group_ids,
                 include_drafts=True,
                 limit=None,
+                multi_byte_search=current_org.get_setting("multi_byte_search_enabled"),
             )
             favorites = models.Query.favorites(self.current_user, base_query=base_query)
         else:

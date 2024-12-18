@@ -1,9 +1,11 @@
 import React from "react";
 import ReactDOMServer from "react-dom/server";
 import moment from "moment/moment";
-import numbro from "numbro";
+import numeral from "numeral";
 import { isString, isArray, isUndefined, isFinite, isNil, toString } from "lodash";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
+
+numeral.options.scalePercentBy100 = false;
 
 // eslint-disable-next-line
 const urlPattern = /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019@#\/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#\/%=~()_|])/gi;
@@ -76,7 +78,7 @@ export function createBooleanFormatter(values: any) {
 
 export function createNumberFormatter(format: any) {
   if (isString(format) && format !== "") {
-    const n = numbro(0); // cache `numbro` instance
+    const n = numeral(0); // cache `numeral` instance
     return (value: any) => (value === null || value === "" ? "" : n.set(value).format(format));
   }
   return (value: any) => toString(value);

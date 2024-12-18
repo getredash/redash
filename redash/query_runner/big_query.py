@@ -1,9 +1,8 @@
 import datetime
 import logging
+import socket
 import time
 from base64 import b64decode
-
-import httplib2
 
 from redash import settings
 from redash.query_runner import (
@@ -17,15 +16,16 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 
 try:
     import apiclient.errors
+    import google.auth
     from apiclient.discovery import build
     from apiclient.errors import HttpError  # noqa: F401
-    from oauth2client.service_account import ServiceAccountCredentials
+    from google.oauth2.service_account import Credentials
 
     enabled = True
 except ImportError:
@@ -96,8 +96,11 @@ def _get_total_bytes_processed_for_resp(bq_response):
 
 
 class BigQuery(BaseQueryRunner):
-    should_annotate_query = False
     noop_query = "SELECT 1"
+
+    def __init__(self, configuration):
+        super().__init__(configuration)
+        self.should_annotate_query = configuration.get("useQueryAnnotation", False)
 
     @classmethod
     def enabled(cls):
@@ -109,7 +112,7 @@ class BigQuery(BaseQueryRunner):
             "type": "object",
             "properties": {
                 "projectId": {"type": "string", "title": "Project ID"},
-                "jsonKeyFile": {"type": "string", "title": "JSON Key File"},
+                "jsonKeyFile": {"type": "string", "title": "JSON Key File (ADC is used if omitted)"},
                 "totalMBytesProcessedLimit": {
                     "type": "number",
                     "title": "Scanned Data Limit (MB)",
@@ -129,8 +132,13 @@ class BigQuery(BaseQueryRunner):
                     "type": "number",
                     "title": "Maximum Billing Tier",
                 },
+                "useQueryAnnotation": {
+                    "type": "boolean",
+                    "title": "Use Query Annotation",
+                    "default": False,
+                },
             },
-            "required": ["jsonKeyFile", "projectId"],
+            "required": ["projectId"],
             "order": [
                 "projectId",
                 "jsonKeyFile",
@@ -140,23 +148,26 @@ class BigQuery(BaseQueryRunner):
                 "totalMBytesProcessedLimit",
                 "maximumBillingTier",
                 "userDefinedFunctionResourceUri",
+                "useQueryAnnotation",
             ],
             "secret": ["jsonKeyFile"],
         }
 
     def _get_bigquery_service(self):
-        scope = [
+        socket.setdefaulttimeout(settings.BIGQUERY_HTTP_TIMEOUT)
+
+        scopes = [
             "https://www.googleapis.com/auth/bigquery",
             "https://www.googleapis.com/auth/drive",
         ]
 
-        key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
+        try:
+            key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
+            creds = Credentials.from_service_account_info(key, scopes=scopes)
+        except KeyError:
+            creds = google.auth.default(scopes=scopes)[0]
 
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
-        http = httplib2.Http(timeout=settings.BIGQUERY_HTTP_TIMEOUT)
-        http = creds.authorize(http)
-
-        return build("bigquery", "v2", http=http, cache_discovery=False)
+        return build("bigquery", "v2", credentials=creds, cache_discovery=False)
 
     def _get_project_id(self):
         return self.configuration["projectId"]
@@ -290,8 +301,8 @@ class BigQuery(BaseQueryRunner):
         datasets = self._get_project_datasets(project_id)
 
         query_base = """
-        SELECT table_schema, table_name, column_name
-        FROM `{dataset_id}`.INFORMATION_SCHEMA.COLUMNS
+        SELECT table_schema, table_name, field_path
+        FROM `{dataset_id}`.INFORMATION_SCHEMA.COLUMN_FIELD_PATHS
         WHERE table_schema NOT IN ('information_schema')
         """
 
@@ -307,12 +318,11 @@ class BigQuery(BaseQueryRunner):
         if error is not None:
             self._handle_run_query_error(error)
 
-        results = json_loads(results)
         for row in results["rows"]:
             table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
-            schema[table_name]["columns"].append(row["column_name"])
+            schema[table_name]["columns"].append(row["field_path"])
 
         return list(schema.values())
 
@@ -335,9 +345,8 @@ class BigQuery(BaseQueryRunner):
             data = self._get_query_result(jobs, query)
             error = None
 
-            json_data = json_dumps(data, ignore_nan=True)
         except apiclient.errors.HttpError as e:
-            json_data = None
+            data = None
             if e.resp.status in [400, 404]:
                 error = json_loads(e.content)["error"]["message"]
             else:
@@ -352,7 +361,7 @@ class BigQuery(BaseQueryRunner):
 
             raise
 
-        return json_data, error
+        return data, error
 
 
 register(BigQuery)

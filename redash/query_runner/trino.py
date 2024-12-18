@@ -12,7 +12,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -83,28 +82,50 @@ class Trino(BaseQueryRunner):
         return "trino"
 
     def get_schema(self, get_stats=False):
+        if self.configuration.get("catalog"):
+            catalogs = [self.configuration.get("catalog")]
+        else:
+            catalogs = self._get_catalogs()
+
+        schema = {}
+        for catalog in catalogs:
+            query = f"""
+                SELECT table_schema, table_name, column_name, data_type
+                FROM {catalog}.information_schema.columns
+                WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+            """
+            results, error = self.run_query(query, None)
+
+            if error is not None:
+                self._handle_run_query_error(error)
+
+            for row in results["rows"]:
+                table_name = f'{catalog}.{row["table_schema"]}.{row["table_name"]}'
+
+                if table_name not in schema:
+                    schema[table_name] = {"name": table_name, "columns": []}
+
+                column = {"name": row["column_name"], "type": row["data_type"]}
+                schema[table_name]["columns"].append(column)
+
+        return list(schema.values())
+
+    def _get_catalogs(self):
         query = """
-            SELECT table_schema, table_name, column_name, data_type
-            FROM information_schema.columns
-            WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+            SHOW CATALOGS
         """
         results, error = self.run_query(query, None)
 
         if error is not None:
             self._handle_run_query_error(error)
 
-        results = json_loads(results)
-        schema = {}
+        catalogs = []
         for row in results["rows"]:
-            table_name = f'{row["table_schema"]}.{row["table_name"]}'
-
-            if table_name not in schema:
-                schema[table_name] = {"name": table_name, "columns": []}
-
-            column = {"name": row["column_name"], "type": row["data_type"]}
-            schema[table_name]["columns"].append(column)
-
-        return list(schema.values())
+            catalog = row["Catalog"]
+            if "." in catalog:
+                catalog = f'"{catalog}"'
+            catalogs.append(catalog)
+        return catalogs
 
     def run_query(self, query, user):
         if self.configuration.get("password"):
@@ -117,8 +138,8 @@ class Trino(BaseQueryRunner):
             http_scheme=self.configuration.get("protocol", "http"),
             host=self.configuration.get("host", ""),
             port=self.configuration.get("port", 8080),
-            catalog=self.configuration.get("catalog", "hive"),
-            schema=self.configuration.get("schema", "default"),
+            catalog=self.configuration.get("catalog", ""),
+            schema=self.configuration.get("schema", ""),
             user=self.configuration.get("username"),
             auth=auth,
         )
@@ -132,10 +153,9 @@ class Trino(BaseQueryRunner):
             columns = self.fetch_columns([(c[0], TRINO_TYPES_MAPPING.get(c[1], None)) for c in description])
             rows = [dict(zip([c["name"] for c in columns], r)) for r in results]
             data = {"columns": columns, "rows": rows}
-            json_data = json_dumps(data)
             error = None
         except DatabaseError as db:
-            json_data = None
+            data = None
             default_message = "Unspecified DatabaseError: {0}".format(str(db))
             if isinstance(db.args[0], dict):
                 message = db.args[0].get("failureInfo", {"message", None}).get("message")
@@ -146,7 +166,7 @@ class Trino(BaseQueryRunner):
             cursor.cancel()
             raise
 
-        return json_data, error
+        return data, error
 
 
 register(Trino)

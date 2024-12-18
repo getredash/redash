@@ -10,18 +10,17 @@ import "./render.less";
 
 function getCounterStyles(scale: any) {
   return {
-    fontSize: `${scale}px`,
+    msTransform: `scale(${scale})`,
+    MozTransform: `scale(${scale})`,
+    WebkitTransform: `scale(${scale})`,
+    transform: `scale(${scale})`,
   };
 }
 
 function getCounterScale(container: any) {
-  // size of font in base container
-  // children use a relative font size (em)
-  if (container.closest('.visualization-preview')) {
-    return "60";
-  }
-  const fontSize = container.clientHeight / 4.5;
-  return fontSize > 60 ? "60" : fontSize < 12 ? "12" : fontSize.toFixed();
+  const inner = container.firstChild;
+  const scale = Math.min(container.offsetWidth / inner.offsetWidth, container.offsetHeight / inner.offsetHeight);
+  return Number(isFinite(scale) ? scale : 1).toFixed(2); // keep only two decimal places
 }
 
 export default function Renderer({ data, options, visualizationName }: any) {

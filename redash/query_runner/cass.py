@@ -5,7 +5,6 @@ from base64 import b64decode
 from tempfile import NamedTemporaryFile
 
 from redash.query_runner import BaseQueryRunner, register
-from redash.utils import JSONEncoder, json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -27,19 +26,18 @@ def generate_ssl_options_dict(protocol, cert_path=None):
     return ssl_options
 
 
-class CassandraJSONEncoder(JSONEncoder):
-    def default(self, o):
-        if isinstance(o, sortedset):
-            return list(o)
-        return super(CassandraJSONEncoder, self).default(o)
-
-
 class Cassandra(BaseQueryRunner):
     noop_query = "SELECT dateof(now()) FROM system.local"
 
     @classmethod
     def enabled(cls):
         return enabled
+
+    @classmethod
+    def custom_json_encoder(cls, dec, o):
+        if isinstance(o, sortedset):
+            return list(o)
+        return None
 
     @classmethod
     def configuration_schema(cls):
@@ -86,7 +84,6 @@ class Cassandra(BaseQueryRunner):
         select release_version from system.local;
         """
         results, error = self.run_query(query, None)
-        results = json_loads(results)
         release_version = results["rows"][0]["release_version"]
 
         query = """
@@ -107,7 +104,6 @@ class Cassandra(BaseQueryRunner):
             )
 
         results, error = self.run_query(query, None)
-        results = json_loads(results)
 
         schema = {}
         for row in results["rows"]:
@@ -155,9 +151,8 @@ class Cassandra(BaseQueryRunner):
         rows = [dict(zip(column_names, row)) for row in result]
 
         data = {"columns": columns, "rows": rows}
-        json_data = json_dumps(data, cls=CassandraJSONEncoder)
 
-        return json_data, None
+        return data, None
 
     def _generate_cert_file(self):
         cert_encoded_bytes = self.configuration.get("sslCertificateFile", None)

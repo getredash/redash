@@ -1,5 +1,7 @@
 import signal
+import sys
 import time
+from collections import deque
 
 import redis
 from rq import get_current_job
@@ -55,7 +57,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                     if job_complete:
                         message = "job found is complete (%s)" % status
                     elif job_cancelled:
-                        message = "job found has ben cancelled"
+                        message = "job found has been cancelled"
                 except NoSuchJobError:
                     message = "job found has expired"
                     job_exists = False
@@ -112,6 +114,8 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
 
         except redis.WatchError:
             continue
+        finally:
+            pipe.reset()
 
     if not job:
         logger.error("[Manager][%s] Failed adding job for query.", query_hash)
@@ -143,7 +147,31 @@ def _resolve_user(user_id, is_api_key, query_id):
         return None
 
 
-class QueryExecutor(object):
+def _get_size_iterative(dict_obj):
+    """Iteratively finds size of objects in bytes"""
+    seen = set()
+    size = 0
+    objects = deque([dict_obj])
+
+    while objects:
+        current = objects.popleft()
+        if id(current) in seen:
+            continue
+        seen.add(id(current))
+        size += sys.getsizeof(current)
+
+        if isinstance(current, dict):
+            objects.extend(current.keys())
+            objects.extend(current.values())
+        elif hasattr(current, "__dict__"):
+            objects.append(current.__dict__)
+        elif hasattr(current, "__iter__") and not isinstance(current, (str, bytes, bytearray)):
+            objects.extend(current)
+
+    return size
+
+
+class QueryExecutor:
     def __init__(self, query, data_source_id, user_id, is_api_key, metadata, is_scheduled_query):
         self.job = get_current_job()
         self.query = query
@@ -193,7 +221,7 @@ class QueryExecutor(object):
             "job=execute_query query_hash=%s ds_id=%d data_length=%s error=[%s]",
             self.query_hash,
             self.data_source_id,
-            data and len(data),
+            data and _get_size_iterative(data),
             error,
         )
 
@@ -227,7 +255,7 @@ class QueryExecutor(object):
             models.db.session.commit()  # make sure that alert sees the latest query result
             self._log_progress("checking_alerts")
             for query_id in updated_query_ids:
-                check_alerts_for_query.delay(query_id)
+                check_alerts_for_query.delay(query_id, self.metadata)
             self._log_progress("finished")
 
             result = query_result.id

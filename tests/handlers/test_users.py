@@ -102,7 +102,7 @@ class TestUserListResourcePost(BaseTestCase):
 
 class TestUserListGet(BaseTestCase):
     def create_filters_fixtures(self):
-        class PlainObject(object):
+        class PlainObject:
             pass
 
         result = PlainObject()

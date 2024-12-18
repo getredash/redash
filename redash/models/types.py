@@ -1,5 +1,3 @@
-from sqlalchemy import cast
-from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.ext.indexable import index_property
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.types import TypeDecorator
@@ -31,8 +29,8 @@ class EncryptedConfiguration(EncryptedType):
         )
 
 
-# XXX replace PseudoJSON and MutableDict with real JSON field
-class PseudoJSON(TypeDecorator):
+# Utilized for cases when JSON size is bigger than JSONB (255MB) or JSON (10MB) limit
+class JSONText(TypeDecorator):
     impl = db.Text
 
     def process_bind_param(self, value, dialect):
@@ -106,20 +104,4 @@ class json_cast_property(index_property):
 
     def expr(self, model):
         expr = super(json_cast_property, self).expr(model)
-        return expr.astext.cast(self.cast_type)
-
-
-class pseudo_json_cast_property(index_property):
-    """
-    A SQLAlchemy index property that is able to cast the
-    entity attribute as the specified cast type. Useful
-    for PseudoJSON colums for easier querying/filtering.
-    """
-
-    def __init__(self, cast_type, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.cast_type = cast_type
-
-    def expr(self, model):
-        expr = cast(getattr(model, self.attr_name), JSON)[self.index]
         return expr.astext.cast(self.cast_type)

@@ -6,7 +6,7 @@ from redash import models, settings
 from tests import BaseTestCase, authenticated_user
 
 
-class AuthenticationTestMixin(object):
+class AuthenticationTestMixin:
     def test_returns_404_when_not_unauthenticated(self):
         for path in self.paths:
             rv = self.client.get(path)

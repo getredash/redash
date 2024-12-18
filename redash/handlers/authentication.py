@@ -29,6 +29,7 @@ def get_google_auth_url(next_path):
 
 
 def render_token_login_page(template, org_slug, token, invite):
+    error_message = None
     try:
         user_id = validate_token(token)
         org = current_org._get_current_object()
@@ -40,19 +41,19 @@ def render_token_login_page(template, org_slug, token, invite):
             user_id,
             org_slug,
         )
+        error_message = "Your invite link is invalid. Bad user id in token. Please ask for a new one."
+    except SignatureExpired:
+        logger.exception("Token signature has expired. Token: %s, org=%s", token, org_slug)
+        error_message = "Your invite link has expired. Please ask for a new one."
+    except BadSignature:
+        logger.exception("Bad signature for the token: %s, org=%s", token, org_slug)
+        error_message = "Your invite link is invalid. Bad signature. Please double-check the token."
+
+    if error_message:
         return (
             render_template(
                 "error.html",
-                error_message="Invalid invite link. Please ask for a new one.",
-            ),
-            400,
-        )
-    except (SignatureExpired, BadSignature):
-        logger.exception("Failed to verify invite token: %s, org=%s", token, org_slug)
-        return (
-            render_template(
-                "error.html",
-                error_message="Your invite link has expired. Please ask for a new one.",
+                error_message=error_message,
             ),
             400,
         )

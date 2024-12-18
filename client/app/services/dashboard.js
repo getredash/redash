@@ -172,6 +172,7 @@ const DashboardService = {
   favorites: params => axios.get("api/dashboards/favorites", { params }).then(transformResponse),
   favorite: ({ id }) => axios.post(`api/dashboards/${id}/favorite`),
   unfavorite: ({ id }) => axios.delete(`api/dashboards/${id}/favorite`),
+  fork: ({ id }) => axios.post(`api/dashboards/${id}/fork`, { id }).then(transformResponse),
 };
 
 _.extend(Dashboard, DashboardService);
@@ -264,4 +265,8 @@ Dashboard.prototype.favorite = function favorite() {
 
 Dashboard.prototype.unfavorite = function unfavorite() {
   return Dashboard.unfavorite(this);
+};
+
+Dashboard.prototype.getUrl = function getUrl() {
+  return urlForDashboard(this);
 };
