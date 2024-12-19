@@ -7,6 +7,7 @@ const CohortTimeIntervals = {
   daily: "Daily",
   weekly: "Weekly",
   monthly: "Monthly",
+  quarterly: "Quarterly",
 };
 
 const CohortModes = {
