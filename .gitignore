@@ -18,6 +18,7 @@ _build
 .vscode
 .env
 .tool-versions
+*.iml
 
 dump.rdb
 
