@@ -67,7 +67,7 @@ help() {
   echo ""
   echo "shell -- open shell"
   echo "dev_server -- start Flask development server with debugger and auto reload"
-  echo "debug -- start Flask development server with remote debugger via ptvsd"
+  echo "debug -- start Flask development server with remote debugger via debugpy"
   echo "create_db -- create database tables"
   echo "manage -- CLI to manage redash"
   echo "tests -- run tests"

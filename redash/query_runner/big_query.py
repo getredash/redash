@@ -7,6 +7,7 @@ from base64 import b64decode
 from redash import settings
 from redash.query_runner import (
     TYPE_BOOLEAN,
+    TYPE_DATE,
     TYPE_DATETIME,
     TYPE_FLOAT,
     TYPE_INTEGER,
@@ -37,6 +38,8 @@ types_map = {
     "BOOLEAN": TYPE_BOOLEAN,
     "STRING": TYPE_STRING,
     "TIMESTAMP": TYPE_DATETIME,
+    "DATETIME": TYPE_DATETIME,
+    "DATE": TYPE_DATE,
 }
 
 

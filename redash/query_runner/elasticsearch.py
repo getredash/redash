@@ -91,7 +91,7 @@ class BaseElasticSearch(BaseQueryRunner):
 
             logger.setLevel(logging.DEBUG)
 
-        self.server_url = self.configuration["server"]
+        self.server_url = self.configuration.get("server", "")
         if self.server_url[-1] == "/":
             self.server_url = self.server_url[:-1]
 

@@ -111,6 +111,17 @@ class TestAlertEvaluate(BaseTestCase):
         alert.options["selector"] = "max"
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
+    def test_evaluate_alerts_without_query_rel(self):
+        query = self.factory.create_query(latest_query_data_id=None)
+        alert = self.factory.create_alert(
+            query_rel=query, options={"selector": "first", "op": "equals", "column": "foo", "value": "1"}
+        )
+        self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
+
+    def test_evaluate_return_unknown_when_value_is_none(self):
+        alert = self.create_alert(get_results(None))
+        self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
+
 
 class TestNextState(TestCase):
     def test_numeric_value(self):

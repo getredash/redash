@@ -4,6 +4,15 @@ on:
     tags:
       - '*-dev'
   workflow_dispatch:
+    inputs:
+      dockerRepository:
+        description: 'Docker repository'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - preview
+          - redash
 
 env:
   NODE_VERSION: 18
@@ -75,11 +84,28 @@ jobs:
       # TODO: We can use GitHub Actions's matrix option to reduce the build time.
       - name: Build and push preview image to Docker Hub
         uses: docker/build-push-action@v4
+        if: ${{ github.event.inputs.dockerRepository == 'preview' || !github.event.workflow_run }}
         with:
           push: true
           tags: |
             redash/redash:preview
             redash/preview:${{ steps.version.outputs.VERSION_TAG }}
+          context: .
+          build-args: |
+            test_all_deps=true
+          cache-from: type=gha,scope=multi-platform
+          cache-to: type=gha,mode=max,scope=multi-platform
+          platforms: linux/amd64,linux/arm64
+        env:
+          DOCKER_CONTENT_TRUST: true
+
+      - name: Build and push release image to Docker Hub
+        uses: docker/build-push-action@v4
+        if: ${{ github.event.inputs.dockerRepository == 'redash' }}
+        with:
+          push: true
+          tags: |
+            redash/redash:${{ steps.version.outputs.VERSION_TAG }}
           context: .
           build-args: |
             test_all_deps=true
