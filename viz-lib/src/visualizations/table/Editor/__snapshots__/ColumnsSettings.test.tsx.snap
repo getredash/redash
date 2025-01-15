@@ -5,7 +5,7 @@ Object {
   "columns": Array [
     Object {
       "alignContent": "right",
-      "allowHTML": true,
+      "allowHTML": false,
       "allowSearch": false,
       "booleanValues": Array [
         "false",
@@ -38,7 +38,7 @@ Object {
   "columns": Array [
     Object {
       "alignContent": "left",
-      "allowHTML": true,
+      "allowHTML": false,
       "allowSearch": false,
       "booleanValues": Array [
         "false",
@@ -71,7 +71,7 @@ Object {
   "columns": Array [
     Object {
       "alignContent": "left",
-      "allowHTML": true,
+      "allowHTML": false,
       "allowSearch": false,
       "booleanValues": Array [
         "false",
@@ -104,7 +104,7 @@ Object {
   "columns": Array [
     Object {
       "alignContent": "left",
-      "allowHTML": true,
+      "allowHTML": false,
       "allowSearch": true,
       "booleanValues": Array [
         "false",
@@ -137,7 +137,7 @@ Object {
   "columns": Array [
     Object {
       "alignContent": "left",
-      "allowHTML": true,
+      "allowHTML": false,
       "allowSearch": false,
       "booleanValues": Array [
         "false",
