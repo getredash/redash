@@ -305,7 +305,7 @@ class BigQuery(BaseQueryRunner):
 
         query_base = """
         SELECT table_schema, table_name, field_path
-        FROM `{dataset_id}`.INFORMATION_SCHEMA.COLUMN_FIELD_PATHS
+        FROM region-`{dataset_id}`.INFORMATION_SCHEMA.COLUMN_FIELD_PATHS
         WHERE table_schema NOT IN ('information_schema')
         """
 
