@@ -13,7 +13,7 @@ x-redash-environment: &redash-environment
   REDASH_HOST: http://localhost:5001
   REDASH_LOG_LEVEL: "INFO"
   REDASH_REDIS_URL: "redis://redis:6379/0"
-  REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+  REDASH_DATABASE_URL: "postgresql://postgres@postgres:15432/postgres"
   REDASH_RATELIMIT_ENABLED: "false"
   REDASH_MAIL_DEFAULT_SENDER: "redash@example.com"
   REDASH_MAIL_SERVER: "email"
@@ -34,6 +34,8 @@ services:
     environment:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
+    networks:
+      - redash-network
   scheduler:
     <<: *redash-service
     command: dev_scheduler
@@ -41,6 +43,8 @@ services:
       - server
     environment:
       <<: *redash-environment
+    networks:
+      - redash-network
   worker:
     <<: *redash-service
     command: dev_worker
@@ -49,23 +53,37 @@ services:
     environment:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
+    networks:
+      - redash-network
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    networks:
+      - redash-network
   postgres:
     image: pgautoupgrade/pgautoupgrade:latest
     ports:
-      - "15432:5432"
+      - "15432:15432"
     # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
     # improvement on my personal machine). We should consider moving this into a dedicated Docker Compose configuration for
     # tests.
-    command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
+    command: "postgres -p 15432 -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
     restart: unless-stopped
     environment:
       POSTGRES_HOST_AUTH_METHOD: "trust"
+    networks:
+      - redash-network
   email:
     image: maildev/maildev
     ports:
       - "1080:1080"
       - "1025:1025"
     restart: unless-stopped
+    networks:
+      - redash-network
+
+# https://docs.docker.com/compose/how-tos/networking/#use-a-pre-existing-network
+networks:
+  redash-network:
+    name: easiware-start-network
+    external: true
