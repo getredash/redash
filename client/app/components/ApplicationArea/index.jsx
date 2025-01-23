@@ -24,6 +24,10 @@ export default function ApplicationArea() {
           `[Uncaught SyntaxError: Unexpected token '<'] usually means that a fallback html file was returned from server rather than the expected script. Check that the server is properly serving the file ${event.filename}.`
         );
       }
+      if (event.message === "ResizeObserver loop completed with undelivered notifications.") {
+        // swallowing this error until https://issues.chromium.org/issues/391393420 is resolved
+        return;
+      }
       setUnhandledError(event.error);
     }
 
