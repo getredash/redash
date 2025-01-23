@@ -1,5 +1,6 @@
+/* eslint-disable no-unused-expressions, compat/compat, no-console, no-unused-vars */
 import { isEmpty } from "lodash";
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
@@ -20,6 +21,22 @@ function PublicDashboard({ dashboard }) {
   const { globalParameters, filters, setFilters, refreshDashboard, loadWidget, refreshWidget } = useDashboard(
     dashboard
   );
+
+  useEffect(() => {
+    window.top?.postMessage({ type: "ready", value: undefined }, "*");
+
+    const observer = new ResizeObserver(entries => {
+      const wholeHeight = entries[0]?.target?.scrollHeight;
+      if (!wholeHeight) return;
+      window.top?.postMessage({ type: "height", value: wholeHeight }, "*");
+    });
+
+    observer.observe(document.body);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   return (
     <div className="container p-t-10 p-b-20">
