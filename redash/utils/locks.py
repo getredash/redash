@@ -42,12 +42,16 @@ def release_lock(name, identifier):
                     logger.info("Lock released successfully, lock_name=[%s], identifier=[%s]", lock_name, identifier)
                     return True
                 pipe.unwatch()
-                logger.warning("Lock not owned by this identifier, lock_name=[%s], identifier=[%s]", lock_name,
-                               identifier)
+                logger.warning(
+                    "Lock not owned by this identifier, lock_name=[%s], identifier=[%s]", lock_name, identifier
+                )
                 break
             except WatchError:
-                logger.warning("WatchError occurred, retrying lock release, lock_name=[%s], identifier=[%s]", lock_name,
-                               identifier)
+                logger.warning(
+                    "WatchError occurred, retrying lock release, lock_name=[%s], identifier=[%s]",
+                    lock_name,
+                    identifier,
+                )
             except Exception as e:
                 logger.error("Error releasing lock: %s", str(e))
                 break
