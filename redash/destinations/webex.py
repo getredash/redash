@@ -186,6 +186,10 @@ class Webex(BaseDestination):
 
             # destinations is guaranteed to be a comma-separated string
             for destination_id in destinations.split(","):
+                destination_id = destination_id.strip()  # Remove any leading or trailing whitespace
+                if not destination_id:  # Check if the destination_id is empty or blank
+                    continue  # Skip to the next iteration if it's empty or blank
+
                 payload = deepcopy(template_payload)
                 payload[payload_tag] = destination_id
                 self.post_message(payload, headers)
