@@ -60,40 +60,49 @@ class Webex(BaseDestination):
                 # Create a table for the Adaptive Card
                 table_rows = []
                 for row in data_array:
-                    table_rows.append({
-                        "type": "ColumnSet",
-                        "columns": [{"type": "Column", "items": [{"type": "TextBlock", "text": str(item), "wrap": True}]} for item in row]
-                    })
+                    table_rows.append(
+                        {
+                            "type": "ColumnSet",
+                            "columns": [
+                                {"type": "Column", "items": [{"type": "TextBlock", "text": str(item), "wrap": True}]}
+                                for item in row
+                            ],
+                        }
+                    )
 
                 # Create the body of the card with the table
-                body = [
-                    {
-                        "type": "TextBlock",
-                        "text": f"{subject}",
-                        "weight": "bolder",
-                        "size": "medium",
-                        "wrap": True,
-                    },
-                    {
-                        "type": "TextBlock",
-                        "text": f"{description[:start_index]}",
-                        "isSubtle": True,
-                        "wrap": True,
-                    },
-                ] + table_rows + [
-                    {
-                        "type": "TextBlock",
-                        "text": f"Click [here]({query_link}) to check your query!",
-                        "wrap": True,
-                        "isSubtle": True,
-                    },
-                    {
-                        "type": "TextBlock",
-                        "text": f"Click [here]({alert_link}) to check your alert!",
-                        "wrap": True,
-                        "isSubtle": True,
-                    },
-                ]
+                body = (
+                    [
+                        {
+                            "type": "TextBlock",
+                            "text": f"{subject}",
+                            "weight": "bolder",
+                            "size": "medium",
+                            "wrap": True,
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": f"{description[:start_index]}",
+                            "isSubtle": True,
+                            "wrap": True,
+                        },
+                    ]
+                    + table_rows
+                    + [
+                        {
+                            "type": "TextBlock",
+                            "text": f"Click [here]({query_link}) to check your query!",
+                            "wrap": True,
+                            "isSubtle": True,
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": f"Click [here]({alert_link}) to check your alert!",
+                            "wrap": True,
+                            "isSubtle": True,
+                        },
+                    ]
+                )
             else:
                 # Fallback to the original description if no valid 2D array is found
                 body = [
