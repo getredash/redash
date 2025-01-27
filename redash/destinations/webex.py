@@ -54,14 +54,14 @@ class Webex(BaseDestination):
                                     "items": [
                                         {
                                             "type": "TextBlock",
-                                            "text": {subject},
+                                            "text": f"{subject}",
                                             "weight": "bolder",
                                             "size": "medium",
                                             "wrap": True,
                                         },
                                         {
                                             "type": "TextBlock",
-                                            "text": {description},
+                                            "text": f"{description}",
                                             "isSubtle": True,
                                             "wrap": True,
                                         },
