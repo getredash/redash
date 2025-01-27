@@ -1,6 +1,6 @@
-import logging
+import html
 import json
-import html  # Add this import at the top of your file
+import logging
 from copy import deepcopy
 
 import requests
