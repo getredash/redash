@@ -1,5 +1,6 @@
 import logging
 import json
+import html  # Add this import at the top of your file
 from copy import deepcopy
 
 import requests
@@ -44,6 +45,14 @@ class Webex(BaseDestination):
             start_index = description.find("[")
             end_index = description.rfind("]") + 1
             json_array_str = description[start_index:end_index]
+
+            # Decode HTML entities
+            json_array_str = html.unescape(json_array_str)
+
+            # Replace single quotes with double quotes for valid JSON
+            json_array_str = json_array_str.replace("'", '"')
+
+            # Load the JSON array
             data_array = json.loads(json_array_str)
 
             # Check if it's a 2D array
