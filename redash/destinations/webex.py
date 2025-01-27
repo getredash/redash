@@ -1,4 +1,5 @@
 import logging
+import json
 from copy import deepcopy
 
 import requests
@@ -37,6 +38,112 @@ class Webex(BaseDestination):
 
     @staticmethod
     def formatted_attachments_template(subject, description, query_link, alert_link):
+        # Attempt to parse the description to find a 2D array
+        try:
+            # Extract the part of the description that looks like a JSON array
+            start_index = description.find("[")
+            end_index = description.rfind("]") + 1
+            json_array_str = description[start_index:end_index]
+            data_array = json.loads(json_array_str)
+
+            # Check if it's a 2D array
+            if isinstance(data_array, list) and all(isinstance(i, list) for i in data_array):
+                # Create a table for the Adaptive Card
+                table_rows = []
+                for row in data_array:
+                    table_rows.append({
+                        "type": "ColumnSet",
+                        "columns": [{"type": "Column", "items": [{"type": "TextBlock", "text": str(item), "wrap": True}]} for item in row]
+                    })
+
+                # Create the body of the card with the table
+                body = [
+                    {
+                        "type": "TextBlock",
+                        "text": f"{subject}",
+                        "weight": "bolder",
+                        "size": "medium",
+                        "wrap": True,
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": f"{description[:start_index]}",
+                        "isSubtle": True,
+                        "wrap": True,
+                    },
+                ] + table_rows + [
+                    {
+                        "type": "TextBlock",
+                        "text": f"Click [here]({query_link}) to check your query!",
+                        "wrap": True,
+                        "isSubtle": True,
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": f"Click [here]({alert_link}) to check your alert!",
+                        "wrap": True,
+                        "isSubtle": True,
+                    },
+                ]
+            else:
+                # Fallback to the original description if no valid 2D array is found
+                body = [
+                    {
+                        "type": "TextBlock",
+                        "text": f"{subject}",
+                        "weight": "bolder",
+                        "size": "medium",
+                        "wrap": True,
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": f"{description}",
+                        "isSubtle": True,
+                        "wrap": True,
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": f"Click [here]({query_link}) to check your query!",
+                        "wrap": True,
+                        "isSubtle": True,
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": f"Click [here]({alert_link}) to check your alert!",
+                        "wrap": True,
+                        "isSubtle": True,
+                    },
+                ]
+        except json.JSONDecodeError:
+            # If parsing fails, fallback to the original description
+            body = [
+                {
+                    "type": "TextBlock",
+                    "text": f"{subject}",
+                    "weight": "bolder",
+                    "size": "medium",
+                    "wrap": True,
+                },
+                {
+                    "type": "TextBlock",
+                    "text": f"{description}",
+                    "isSubtle": True,
+                    "wrap": True,
+                },
+                {
+                    "type": "TextBlock",
+                    "text": f"Click [here]({query_link}) to check your query!",
+                    "wrap": True,
+                    "isSubtle": True,
+                },
+                {
+                    "type": "TextBlock",
+                    "text": f"Click [here]({alert_link}) to check your alert!",
+                    "wrap": True,
+                    "isSubtle": True,
+                },
+            ]
+
         return [
             {
                 "contentType": "application/vnd.microsoft.card.adaptive",
@@ -44,44 +151,7 @@ class Webex(BaseDestination):
                     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
                     "type": "AdaptiveCard",
                     "version": "1.0",
-                    "body": [
-                        {
-                            "type": "ColumnSet",
-                            "columns": [
-                                {
-                                    "type": "Column",
-                                    "width": 4,
-                                    "items": [
-                                        {
-                                            "type": "TextBlock",
-                                            "text": f"{subject}",
-                                            "weight": "bolder",
-                                            "size": "medium",
-                                            "wrap": True,
-                                        },
-                                        {
-                                            "type": "TextBlock",
-                                            "text": f"{description}",
-                                            "isSubtle": True,
-                                            "wrap": True,
-                                        },
-                                        {
-                                            "type": "TextBlock",
-                                            "text": f"Click [here]({query_link}) to check your query!",
-                                            "wrap": True,
-                                            "isSubtle": True,
-                                        },
-                                        {
-                                            "type": "TextBlock",
-                                            "text": f"Click [here]({alert_link}) to check your alert!",
-                                            "wrap": True,
-                                            "isSubtle": True,
-                                        },
-                                    ],
-                                },
-                            ],
-                        }
-                    ],
+                    "body": body,
                 },
             }
         ]
