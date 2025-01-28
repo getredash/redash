@@ -92,7 +92,7 @@ class Spanner(BaseQueryRunner):
         try:
             cursor.execute(query)
             columns = self.fetch_columns([(i[0], i[1]) for i in cursor.description])
-            rows = [dict(zip((column["name"] for column in columns), row)) for row in cursor.fetchall()]
+            rows = [self.prepare_col_value(cursor.description, row) for row in cursor.fetchall()]
 
             data = {
                 "columns": columns,
@@ -109,6 +109,18 @@ class Spanner(BaseQueryRunner):
             connection.close()
 
         return data, error
+
+
+    @staticmethod
+    def prepare_col_value(col_descriptions, row):
+
+        row_dict = {}
+        for (desc, val) in zip(col_descriptions, row):
+            if desc[1] == 'BYTES':
+                val = b64decode(val)
+            row_dict[desc[0]] = val
+
+        return row_dict
 
 
     def fetch_columns(self, columns):
