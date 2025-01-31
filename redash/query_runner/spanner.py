@@ -133,6 +133,7 @@ class Spanner(BaseQueryRunner):
             TypeCode.BOOL : TYPE_BOOLEAN,
             TypeCode.DATE: TYPE_DATE,
             TypeCode.TIMESTAMP: TYPE_DATETIME,
+            TypeCode.FLOAT32: TYPE_FLOAT,
             TypeCode.FLOAT64: TYPE_FLOAT,
         }
 
