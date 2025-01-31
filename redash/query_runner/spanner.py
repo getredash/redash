@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 try:
     from google.cloud.spanner_dbapi.connection import connect
     from google.oauth2.service_account import Credentials
+    from google.cloud.spanner_v1 import TypeCode
 
     enabled = True
 except ImportError:
@@ -92,7 +93,7 @@ class Spanner(BaseQueryRunner):
         try:
             cursor.execute(query)
             columns = self.fetch_columns([(i[0], i[1]) for i in cursor.description])
-            rows = [dict(zip((column["name"] for column in columns), row)) for row in cursor.fetchall()]
+            rows = [self.prepare_col_value(cursor.description, row) for row in cursor.fetchall()]
 
             data = {
                 "columns": columns,
@@ -111,15 +112,28 @@ class Spanner(BaseQueryRunner):
         return data, error
 
 
+    @staticmethod
+    def prepare_col_value(col_descriptions, row):
+
+        row_dict = {}
+        for (desc, val) in zip(col_descriptions, row):
+            if desc[1] == TypeCode.BYTES:
+                val = b64decode(val)
+            row_dict[desc[0]] = val
+
+        return row_dict
+
+
     def fetch_columns(self, columns):
 
         column_types = {
-            "STRING": TYPE_STRING,
-            "INT64": TYPE_INTEGER,
-            "BOOL": TYPE_BOOLEAN,
-            "DATE": TYPE_DATE,
-            "TIMESTAMP": TYPE_DATETIME,
-            "FLOAT64": TYPE_FLOAT
+            TypeCode.STRING : TYPE_STRING,
+            TypeCode.BYTES : TYPE_STRING, # Redash does not recognize BYTES
+            TypeCode.INT64 : TYPE_INTEGER,
+            TypeCode.BOOL : TYPE_BOOLEAN,
+            TypeCode.DATE: TYPE_DATE,
+            TypeCode.TIMESTAMP: TYPE_DATETIME,
+            TypeCode.FLOAT64: TYPE_FLOAT,
         }
 
         return [
