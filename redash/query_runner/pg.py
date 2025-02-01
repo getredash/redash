@@ -24,13 +24,6 @@ from redash.query_runner import (
 
 logger = logging.getLogger(__name__)
 
-try:
-    import boto3
-
-    IAM_ENABLED = True
-except ImportError:
-    IAM_ENABLED = False
-
 types_map = {
     20: TYPE_INTEGER,
     21: TYPE_INTEGER,
@@ -442,7 +435,7 @@ class RedshiftIAM(Redshift):
 
     @classmethod
     def enabled(cls):
-        return IAM_ENABLED
+        return True
 
     def _login_method_selection(self):
         if self.configuration.get("rolename"):
