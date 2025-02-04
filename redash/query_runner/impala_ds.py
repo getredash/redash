@@ -10,7 +10,6 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -77,8 +76,8 @@ class Impala(BaseSQLQueryRunner):
 
     def _get_tables(self, schema_dict):
         schemas_query = "show schemas;"
-        tables_query = "show tables in %s;"
-        columns_query = "show column stats %s.%s;"
+        tables_query = "show tables in `%s`;"
+        columns_query = "show column stats `%s`.`%s`;"
 
         for schema_name in [str(a["name"]) for a in self._run_query_internal(schemas_query)]:
             for table_name in [str(a["name"]) for a in self._run_query_internal(tables_query % schema_name)]:
@@ -120,14 +119,13 @@ class Impala(BaseSQLQueryRunner):
             rows = [dict(zip(column_names, row)) for row in cursor]
 
             data = {"columns": columns, "rows": rows}
-            json_data = json_dumps(data)
             error = None
             cursor.close()
         except DatabaseError as e:
-            json_data = None
+            data = None
             error = str(e)
         except RPCError as e:
-            json_data = None
+            data = None
             error = "Metastore Error [%s]" % str(e)
         except (KeyboardInterrupt, JobTimeoutException):
             connection.cancel()
@@ -136,7 +134,7 @@ class Impala(BaseSQLQueryRunner):
             if connection:
                 connection.close()
 
-        return json_data, error
+        return data, error
 
 
 register(Impala)

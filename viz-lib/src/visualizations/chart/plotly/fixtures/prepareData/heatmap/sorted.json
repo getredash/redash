@@ -28,7 +28,10 @@
         "z": [[1, 3], [2, 4]],
         "type": "heatmap",
         "name": "",
-        "colorscale": "Bluered"
+        "colorscale": [
+          [ 0, "rgb(0,0,255)" ],
+          [ 1, "rgb(255,0,0)" ]
+        ]
       }
     ]
   }

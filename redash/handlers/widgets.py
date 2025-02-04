@@ -9,7 +9,6 @@ from redash.permissions import (
     view_only,
 )
 from redash.serializers import serialize_widget
-from redash.utils import json_dumps
 
 
 class WidgetListResource(BaseResource):
@@ -30,7 +29,6 @@ class WidgetListResource(BaseResource):
         dashboard = models.Dashboard.get_by_id_and_org(widget_properties.get("dashboard_id"), self.current_org)
         require_object_modify_permission(dashboard, self.current_user)
 
-        widget_properties["options"] = json_dumps(widget_properties["options"])
         widget_properties.pop("id", None)
 
         visualization_id = widget_properties.pop("visualization_id")
@@ -44,7 +42,6 @@ class WidgetListResource(BaseResource):
 
         widget = models.Widget(**widget_properties)
         models.db.session.add(widget)
-        models.db.session.commit()
 
         models.db.session.commit()
         return serialize_widget(widget)
@@ -65,7 +62,7 @@ class WidgetResource(BaseResource):
         require_object_modify_permission(widget.dashboard, self.current_user)
         widget_properties = request.get_json(force=True)
         widget.text = widget_properties["text"]
-        widget.options = json_dumps(widget_properties["options"])
+        widget.options = widget_properties["options"]
         models.db.session.commit()
         return serialize_widget(widget)
 

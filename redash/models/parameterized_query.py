@@ -1,3 +1,4 @@
+import re
 from functools import partial
 from numbers import Number
 
@@ -84,26 +85,27 @@ def _is_number(string):
     if isinstance(string, Number):
         return True
     else:
-        try:
-            float(string)
+        float(string)
+        return True
+
+
+def _is_regex_pattern(value, regex):
+    try:
+        if re.compile(regex).fullmatch(value):
             return True
-        except ValueError:
+        else:
             return False
+    except re.error:
+        return False
 
 
 def _is_date(string):
-    try:
-        parse(string)
-        return True
-    except (ValueError, TypeError):
-        return False
+    parse(string)
+    return True
 
 
 def _is_date_range(obj):
-    try:
-        return _is_date(obj["start"]) and _is_date(obj["end"])
-    except (KeyError, TypeError):
-        return False
+    return _is_date(obj["start"]) and _is_date(obj["end"])
 
 
 def _is_value_within_options(value, dropdown_options, allow_list=False):
@@ -112,7 +114,7 @@ def _is_value_within_options(value, dropdown_options, allow_list=False):
     return str(value) in dropdown_options
 
 
-class ParameterizedQuery(object):
+class ParameterizedQuery:
     def __init__(self, template, schema=None, org=None):
         self.schema = schema or []
         self.org = org
@@ -144,6 +146,7 @@ class ParameterizedQuery(object):
 
         enum_options = definition.get("enumOptions")
         query_id = definition.get("queryId")
+        regex = definition.get("regex")
         allow_multiple_values = isinstance(definition.get("multiValuesOptions"), dict)
 
         if isinstance(enum_options, str):
@@ -151,6 +154,7 @@ class ParameterizedQuery(object):
 
         validators = {
             "text": lambda value: isinstance(value, str),
+            "text-pattern": lambda value: _is_regex_pattern(value, regex),
             "number": _is_number,
             "enum": lambda value: _is_value_within_options(value, enum_options, allow_multiple_values),
             "query": lambda value: _is_value_within_options(
@@ -168,7 +172,14 @@ class ParameterizedQuery(object):
 
         validate = validators.get(definition["type"], lambda x: False)
 
-        return validate(value)
+        try:
+            # multiple error types can be raised here; but we want to convert
+            # all except QueryDetached to InvalidParameterError in `apply`
+            return validate(value)
+        except QueryDetachedFromDataSourceError:
+            raise
+        except Exception:
+            return False
 
     @property
     def is_safe(self):

@@ -26,12 +26,13 @@ class Webhook(BaseDestination):
     def icon(cls):
         return "fa-bolt"
 
-    def notify(self, alert, query, user, new_state, app, host, options):
+    def notify(self, alert, query, user, new_state, app, host, metadata, options):
         try:
             data = {
                 "event": "alert_state_change",
                 "alert": serialize_alert(alert, full=False),
                 "url_base": host,
+                "metadata": metadata,
             }
 
             data["alert"]["description"] = alert.custom_body

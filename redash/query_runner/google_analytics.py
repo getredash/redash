@@ -12,15 +12,15 @@ from redash.query_runner import (
     BaseSQLQueryRunner,
     register,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 
 try:
-    import httplib2
+    import google.auth
     from apiclient.discovery import build
     from apiclient.errors import HttpError
-    from oauth2client.service_account import ServiceAccountCredentials
+    from google.oauth2.service_account import Credentials
 
     enabled = True
 except ImportError:
@@ -105,8 +105,8 @@ class GoogleAnalytics(BaseSQLQueryRunner):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {"jsonKeyFile": {"type": "string", "title": "JSON Key File"}},
-            "required": ["jsonKeyFile"],
+            "properties": {"jsonKeyFile": {"type": "string", "title": "JSON Key File (ADC is used if omitted)"}},
+            "required": [],
             "secret": ["jsonKeyFile"],
         }
 
@@ -115,10 +115,15 @@ class GoogleAnalytics(BaseSQLQueryRunner):
         self.syntax = "json"
 
     def _get_analytics_service(self):
-        scope = ["https://www.googleapis.com/auth/analytics.readonly"]
-        key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
-        return build("analytics", "v3", http=creds.authorize(httplib2.Http()))
+        scopes = ["https://www.googleapis.com/auth/analytics.readonly"]
+
+        try:
+            key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
+            creds = Credentials.from_service_account_info(key, scopes=scopes)
+        except KeyError:
+            creds = google.auth.default(scopes=scopes)[0]
+
+        return build("analytics", "v3", credentials=creds)
 
     def _get_tables(self, schema):
         accounts = self._get_analytics_service().management().accounts().list().execute().get("items")
@@ -175,15 +180,14 @@ class GoogleAnalytics(BaseSQLQueryRunner):
                 response = api.get(**params).execute()
                 data = parse_ga_response(response)
                 error = None
-                json_data = json_dumps(data)
             except HttpError as e:
                 # Make sure we return a more readable error to the end user
                 error = e._get_reason()
-                json_data = None
+                data = None
         else:
             error = "Wrong query format."
-            json_data = None
-        return json_data, error
+            data = None
+        return data, error
 
 
 register(GoogleAnalytics)

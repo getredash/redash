@@ -12,7 +12,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.utils import json_dumps, json_loads
 
 TYPES_MAP = {1: TYPE_STRING, 2: TYPE_INTEGER, 3: TYPE_BOOLEAN}
 
@@ -59,12 +58,10 @@ class Druid(BaseQueryRunner):
 
             data = {"columns": columns, "rows": rows}
             error = None
-            json_data = json_dumps(data)
-            print(json_data)
         finally:
             connection.close()
 
-        return json_data, error
+        return data, error
 
     def get_schema(self, get_stats=False):
         query = """
@@ -81,7 +78,6 @@ class Druid(BaseQueryRunner):
             self._handle_run_query_error(error)
 
         schema = {}
-        results = json_loads(results)
 
         for row in results["rows"]:
             table_name = "{}.{}".format(row["TABLE_SCHEMA"], row["TABLE_NAME"])

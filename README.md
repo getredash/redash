@@ -3,7 +3,6 @@
 </p>
 
 [![Documentation](https://img.shields.io/badge/docs-redash.io/help-brightgreen.svg)](https://redash.io/help/)
-[![Datree](https://s3.amazonaws.com/catalog.static.datree.io/datree-badge-20px.svg)](https://datree.io/?src=badge)
 [![GitHub Build](https://github.com/getredash/redash/actions/workflows/ci.yml/badge.svg)](https://github.com/getredash/redash/actions)
 
 Redash is designed to enable anyone, regardless of the level of technical sophistication, to harness the power of data big and small. SQL users leverage Redash to explore, query, visualize, and share data from any data sources. Their work in turn enables anybody in their organization to use the data. Every day, millions of users at thousands of organizations around the world use Redash to develop insights and make data-driven decisions.
@@ -47,6 +46,7 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 - Dgraph
 - Apache Drill
 - Apache Druid
+- e6data
 - Eccenca Corporate Memory
 - Elasticsearch
 - Exasol
@@ -61,6 +61,7 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 - Apache Hive
 - Apache Impala
 - InfluxDB
+- InfluxDBv2
 - IBM Netezza Performance Server
 - JIRA (JQL)
 - JSON
@@ -83,6 +84,7 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 - Python
 - Qubole
 - Rockset
+- RisingWave
 - Salesforce
 - ScyllaDB
 - Shell Scripts
@@ -90,6 +92,7 @@ Redash supports more than 35 SQL and NoSQL [data sources](https://redash.io/help
 - SPARQL
 - SQLite
 - TiDB
+- Tinybird
 - TreasureData
 - Trino
 - Uptycs

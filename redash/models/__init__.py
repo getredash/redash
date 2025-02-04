@@ -6,7 +6,7 @@ import time
 
 import pytz
 from sqlalchemy import UniqueConstraint, and_, cast, distinct, func, or_
-from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import ARRAY, DOUBLE_PRECISION, JSONB
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import (
@@ -40,14 +40,18 @@ from redash.models.base import (
 from redash.models.changes import Change, ChangeTrackingMixin  # noqa
 from redash.models.mixins import BelongsToOrgMixin, TimestampMixin
 from redash.models.organizations import Organization
-from redash.models.parameterized_query import ParameterizedQuery
+from redash.models.parameterized_query import (
+    InvalidParameterError,
+    ParameterizedQuery,
+    QueryDetachedFromDataSourceError,
+)
 from redash.models.types import (
     Configuration,
     EncryptedConfiguration,
+    JSONText,
     MutableDict,
     MutableList,
-    PseudoJSON,
-    pseudo_json_cast_property,
+    json_cast_property,
 )
 from redash.models.users import (  # noqa
     AccessPermission,
@@ -80,7 +84,7 @@ from redash.utils.configuration import ConfigurationContainer
 logger = logging.getLogger(__name__)
 
 
-class ScheduledQueriesExecutions(object):
+class ScheduledQueriesExecutions:
     KEY_NAME = "sq:executed_at"
 
     def __init__(self):
@@ -123,7 +127,10 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     data_source_groups = db.relationship("DataSourceGroup", back_populates="data_source", cascade="all")
     __tablename__ = "data_sources"
-    __table_args__ = (db.Index("data_sources_org_id_name", "org_id", "name"),)
+    __table_args__ = (
+        db.Index("data_sources_org_id_name", "org_id", "name"),
+        {"extend_existing": True},
+    )
 
     def __eq__(self, other):
         return self.id == other.id
@@ -214,7 +221,8 @@ class DataSource(BelongsToOrgMixin, db.Model):
                 logging.exception("Error sorting schema columns for data_source {}".format(self.id))
                 out_schema = schema
             finally:
-                redis_connection.set(self._schema_key, json_dumps(out_schema))
+                ttl = int(datetime.timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE, days=7).total_seconds())
+                redis_connection.set(self._schema_key, json_dumps(out_schema), ex=ttl)
 
         return out_schema
 
@@ -263,7 +271,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     @property
     def uses_ssh_tunnel(self):
-        return "ssh_tunnel" in self.options
+        return self.options and "ssh_tunnel" in self.options
 
     @property
     def query_runner(self):
@@ -296,34 +304,11 @@ class DataSourceGroup(db.Model):
     view_only = Column(db.Boolean, default=False)
 
     __tablename__ = "data_source_groups"
-
-
-DESERIALIZED_DATA_ATTR = "_deserialized_data"
-
-
-class DBPersistence(object):
-    @property
-    def data(self):
-        if self._data is None:
-            return None
-
-        if not hasattr(self, DESERIALIZED_DATA_ATTR):
-            setattr(self, DESERIALIZED_DATA_ATTR, json_loads(self._data))
-
-        return self._deserialized_data
-
-    @data.setter
-    def data(self, data):
-        if hasattr(self, DESERIALIZED_DATA_ATTR):
-            delattr(self, DESERIALIZED_DATA_ATTR)
-        self._data = data
-
-
-QueryResultPersistence = settings.dynamic_settings.QueryResultPersistence or DBPersistence
+    __table_args__ = ({"extend_existing": True},)
 
 
 @generic_repr("id", "org_id", "data_source_id", "query_hash", "runtime", "retrieved_at")
-class QueryResult(db.Model, QueryResultPersistence, BelongsToOrgMixin):
+class QueryResult(db.Model, BelongsToOrgMixin):
     id = primary_key("QueryResult")
     org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
     org = db.relationship(Organization)
@@ -331,8 +316,8 @@ class QueryResult(db.Model, QueryResultPersistence, BelongsToOrgMixin):
     data_source = db.relationship(DataSource, backref=backref("query_results"))
     query_hash = Column(db.String(32), index=True)
     query_text = Column("query", db.Text)
-    _data = Column("data", db.Text)
-    runtime = Column(postgresql.DOUBLE_PRECISION)
+    data = Column(JSONText, nullable=True)
+    runtime = Column(DOUBLE_PRECISION)
     retrieved_at = Column(db.DateTime(True))
 
     __tablename__ = "query_results"
@@ -402,6 +387,10 @@ class QueryResult(db.Model, QueryResultPersistence, BelongsToOrgMixin):
 
 
 def should_schedule_next(previous_iteration, now, interval, time=None, day_of_week=None, failures=0):
+    # if previous_iteration is None, it means the query has never been run before
+    # so we should schedule it immediately
+    if previous_iteration is None:
+        return True
     # if time exists then interval > 23 hours (82800s)
     # if day_of_week exists then interval > 6 days (518400s)
     if time is None:
@@ -473,11 +462,11 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     last_modified_by = db.relationship(User, backref="modified_queries", foreign_keys=[last_modified_by_id])
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
-    schedule = Column(MutableDict.as_mutable(PseudoJSON), nullable=True)
-    interval = pseudo_json_cast_property(db.Integer, "schedule", "interval", default=0)
+    schedule = Column(MutableDict.as_mutable(JSONB), nullable=True)
+    interval = json_cast_property(db.Integer, "schedule", "interval", default=0)
     schedule_failures = Column(db.Integer, default=0)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
-    options = Column(MutableDict.as_mutable(PseudoJSON), default={})
+    options = Column(MutableDict.as_mutable(JSONB), default={})
     search_vector = Column(
         TSVectorType(
             "id",
@@ -488,7 +477,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         ),
         nullable=True,
     )
-    tags = Column("tags", MutableList.as_mutable(postgresql.ARRAY(db.Unicode)), nullable=True)
+    tags = Column("tags", MutableList.as_mutable(ARRAY(db.Unicode)), nullable=True)
 
     query_class = SearchBaseQuery
     __tablename__ = "queries"
@@ -524,7 +513,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 name="Table",
                 description="",
                 type="TABLE",
-                options="{}",
+                options={},
             )
         )
         return query
@@ -590,11 +579,12 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     @classmethod
     def past_scheduled_queries(cls):
         now = utils.utcnow()
-        queries = Query.query.filter(Query.schedule.isnot(None)).order_by(Query.id)
+        queries = Query.query.filter(func.jsonb_typeof(Query.schedule) != "null").order_by(Query.id)
         return [
             query
             for query in queries
-            if query.schedule["until"] is not None
+            if "until" in query.schedule
+            and query.schedule["until"] is not None
             and pytz.utc.localize(datetime.datetime.strptime(query.schedule["until"], "%Y-%m-%d")) <= now
         ]
 
@@ -602,7 +592,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def outdated_queries(cls):
         queries = (
             Query.query.options(joinedload(Query.latest_query_data).load_only("retrieved_at"))
-            .filter(Query.schedule.isnot(None))
+            .filter(func.jsonb_typeof(Query.schedule) != "null")
             .order_by(Query.id)
             .all()
         )
@@ -616,6 +606,11 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 if query.schedule.get("disabled"):
                     continue
 
+                # Skip queries that have None for all schedule values. It's unclear whether this
+                # something that can happen in practice, but we have a test case for it.
+                if all(value is None for value in query.schedule.values()):
+                    continue
+
                 if query.schedule["until"]:
                     schedule_until = pytz.utc.localize(datetime.datetime.strptime(query.schedule["until"], "%Y-%m-%d"))
 
@@ -627,7 +622,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 )
 
                 if should_schedule_next(
-                    retrieved_at or now,
+                    retrieved_at,
                     now,
                     query.schedule["interval"],
                     query.schedule["time"],
@@ -680,7 +675,17 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return all_queries.search(term, sort=True).limit(limit)
 
     @classmethod
-    def search_by_user(cls, term, user, limit=None):
+    def search_by_user(cls, term, user, limit=None, multi_byte_search=False):
+        if multi_byte_search:
+            # Since tsvector doesn't work well with CJK languages, use `ilike` too
+            pattern = "%{}%".format(term)
+            return (
+                cls.by_user(user)
+                .filter(or_(cls.name.ilike(pattern), cls.description.ilike(pattern)))
+                .order_by(Query.id)
+                .limit(limit)
+            )
+
         return cls.by_user(user).search(term, sort=True).limit(limit)
 
     @classmethod
@@ -727,6 +732,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         queries = Query.query.filter(
             Query.query_hash == query_result.query_hash,
             Query.data_source == query_result.data_source,
+            Query.is_archived.is_(False),
         )
 
         for q in queries:
@@ -819,7 +825,20 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def update_query_hash(self):
         should_apply_auto_limit = self.options.get("apply_auto_limit", False) if self.options else False
         query_runner = self.data_source.query_runner if self.data_source else BaseQueryRunner({})
-        self.query_hash = query_runner.gen_query_hash(self.query_text, should_apply_auto_limit)
+        query_text = self.query_text
+
+        parameters_dict = {p["name"]: p.get("value") for p in self.parameters} if self.options else {}
+        if any(parameters_dict):
+            try:
+                query_text = self.parameterized.apply(parameters_dict).query
+            except InvalidParameterError as e:
+                logging.info(f"Unable to update hash for query {self.id} because of invalid parameters: {str(e)}")
+            except QueryDetachedFromDataSourceError as e:
+                logging.info(
+                    f"Unable to update hash for query {self.id} because of dropdown query {e.query_id} is unattached from datasource"
+                )
+
+        self.query_hash = query_runner.gen_query_hash(query_text, should_apply_auto_limit)
 
 
 @listens_for(Query, "before_insert")
@@ -906,6 +925,8 @@ def next_state(op, value, threshold):
 
     if op(value, threshold):
         new_state = Alert.TRIGGERED_STATE
+    elif not value_is_number and op not in [OPERATORS.get("!="), OPERATORS.get("=="), OPERATORS.get("equals")]:
+        new_state = Alert.UNKNOWN_STATE
     else:
         new_state = Alert.OK_STATE
 
@@ -917,6 +938,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     UNKNOWN_STATE = "unknown"
     OK_STATE = "ok"
     TRIGGERED_STATE = "triggered"
+    TEST_STATE = "test"
 
     id = primary_key("Alert")
     name = Column(db.String(255))
@@ -924,7 +946,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     query_rel = db.relationship(Query, backref=backref("alerts", cascade="all"))
     user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship(User, backref="alerts")
-    options = Column(MutableDict.as_mutable(PseudoJSON))
+    options = Column(MutableDict.as_mutable(JSONB), nullable=True)
     state = Column(db.String(255), default=UNKNOWN_STATE)
     subscriptions = db.relationship("AlertSubscription", cascade="all, delete-orphan")
     last_triggered_at = Column(db.DateTime(True), nullable=True)
@@ -946,17 +968,38 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         return super(Alert, cls).get_by_id_and_org(object_id, org, Query)
 
     def evaluate(self):
-        data = self.query_rel.latest_query_data.data
+        data = self.query_rel.latest_query_data.data if self.query_rel.latest_query_data else None
+        new_state = self.UNKNOWN_STATE
 
-        if data["rows"] and self.options["column"] in data["rows"][0]:
+        if data and data["rows"] and self.options["column"] in data["rows"][0]:
             op = OPERATORS.get(self.options["op"], lambda v, t: False)
 
-            value = data["rows"][0][self.options["column"]]
+            if "selector" not in self.options:
+                selector = "first"
+            else:
+                selector = self.options["selector"]
+
+            try:
+                if selector == "max":
+                    max_val = float("-inf")
+                    for i in range(len(data["rows"])):
+                        max_val = max(max_val, float(data["rows"][i][self.options["column"]]))
+                    value = max_val
+                elif selector == "min":
+                    min_val = float("inf")
+                    for i in range(len(data["rows"])):
+                        min_val = min(min_val, float(data["rows"][i][self.options["column"]]))
+                    value = min_val
+                else:
+                    value = data["rows"][0][self.options["column"]]
+
+            except ValueError:
+                return self.UNKNOWN_STATE
+
             threshold = self.options["value"]
 
-            new_state = next_state(op, value, threshold)
-        else:
-            new_state = self.UNKNOWN_STATE
+            if value is not None:
+                new_state = next_state(op, value, threshold)
 
         return new_state
 
@@ -979,11 +1022,11 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         result_table = []  # A two-dimensional array which can rendered as a table in Mustache
         for row in data["rows"]:
             result_table.append([row[col["name"]] for col in data["columns"]])
-
         context = {
             "ALERT_NAME": self.name,
             "ALERT_URL": "{host}/alerts/{alert_id}".format(host=host, alert_id=self.id),
             "ALERT_STATUS": self.state.upper(),
+            "ALERT_SELECTOR": self.options["selector"],
             "ALERT_CONDITION": self.options["op"],
             "ALERT_THRESHOLD": self.options["value"],
             "QUERY_NAME": self.query_rel.name,
@@ -1035,13 +1078,13 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     user_id = Column(key_type("User"), db.ForeignKey("users.id"))
     user = db.relationship(User)
     # layout is no longer used, but kept so we know how to render old dashboards.
-    layout = Column(db.Text)
+    layout = Column(MutableList.as_mutable(JSONB), default=[])
     dashboard_filters_enabled = Column(db.Boolean, default=False)
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
     widgets = db.relationship("Widget", backref="dashboard", lazy="dynamic")
-    tags = Column("tags", MutableList.as_mutable(postgresql.ARRAY(db.Unicode)), nullable=True)
-    options = Column(MutableDict.as_mutable(postgresql.JSON), server_default="{}", default={})
+    tags = Column("tags", MutableList.as_mutable(ARRAY(db.Unicode)), nullable=True)
+    options = Column(MutableDict.as_mutable(JSONB), default={})
 
     __tablename__ = "dashboards"
     __mapper_args__ = {"version_id_col": version}
@@ -1119,6 +1162,21 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def get_by_slug_and_org(cls, slug, org):
         return cls.query.filter(cls.slug == slug, cls.org == org).one()
 
+    def fork(self, user):
+        forked_list = ["org", "layout", "dashboard_filters_enabled", "tags"]
+
+        kwargs = {a: getattr(self, a) for a in forked_list}
+        forked_dashboard = Dashboard(name="Copy of (#{}) {}".format(self.id, self.name), user=user, **kwargs)
+
+        for w in self.widgets:
+            forked_w = w.copy(forked_dashboard.id)
+            fw = Widget(**forked_w)
+            db.session.add(fw)
+
+        forked_dashboard.slug = forked_dashboard.id
+        db.session.add(forked_dashboard)
+        return forked_dashboard
+
     @hybrid_property
     def lowercase_name(self):
         "Optional property useful for sorting purposes."
@@ -1139,7 +1197,7 @@ class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
     query_rel = db.relationship(Query, back_populates="visualizations")
     name = Column(db.String(255))
     description = Column(db.String(4096), nullable=True)
-    options = Column(db.Text)
+    options = Column(MutableDict.as_mutable(JSONB), nullable=True)
 
     __tablename__ = "visualizations"
 
@@ -1166,7 +1224,7 @@ class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
     visualization = db.relationship(Visualization, backref=backref("widgets", cascade="delete"))
     text = Column(db.Text, nullable=True)
     width = Column(db.Integer)
-    options = Column(db.Text)
+    options = Column(MutableDict.as_mutable(JSONB), default={})
     dashboard_id = Column(key_type("Dashboard"), db.ForeignKey("dashboards.id"), index=True)
 
     __tablename__ = "widgets"
@@ -1177,6 +1235,15 @@ class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
     @classmethod
     def get_by_id_and_org(cls, object_id, org):
         return super(Widget, cls).get_by_id_and_org(object_id, org, Dashboard)
+
+    def copy(self, dashboard_id):
+        return {
+            "options": self.options,
+            "width": self.width,
+            "text": self.text,
+            "visualization_id": self.visualization_id,
+            "dashboard_id": dashboard_id,
+        }
 
 
 @generic_repr("id", "object_type", "object_id", "action", "user_id", "org_id", "created_at")
@@ -1189,7 +1256,7 @@ class Event(db.Model):
     action = Column(db.String(255))
     object_type = Column(db.String(255))
     object_id = Column(db.String(255), nullable=True)
-    additional_properties = Column(MutableDict.as_mutable(PseudoJSON), nullable=True, default={})
+    additional_properties = Column(MutableDict.as_mutable(JSONB), nullable=True, default={})
     created_at = Column(db.DateTime(True), default=db.func.now())
 
     __tablename__ = "events"
@@ -1318,10 +1385,10 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
 
         return notification_destinations
 
-    def notify(self, alert, query, user, new_state, app, host):
+    def notify(self, alert, query, user, new_state, app, host, metadata):
         schema = get_configuration_schema_for_destination_type(self.type)
         self.options.set_schema(schema)
-        return self.destination.notify(alert, query, user, new_state, app, host, self.options)
+        return self.destination.notify(alert, query, user, new_state, app, host, metadata, self.options)
 
 
 @generic_repr("id", "user_id", "destination_id", "alert_id")
@@ -1358,16 +1425,16 @@ class AlertSubscription(TimestampMixin, db.Model):
     def all(cls, alert_id):
         return AlertSubscription.query.join(User).filter(AlertSubscription.alert_id == alert_id)
 
-    def notify(self, alert, query, user, new_state, app, host):
+    def notify(self, alert, query, user, new_state, app, host, metadata):
         if self.destination:
-            return self.destination.notify(alert, query, user, new_state, app, host)
+            return self.destination.notify(alert, query, user, new_state, app, host, metadata)
         else:
             # User email subscription, so create an email destination object
             config = {"addresses": self.user.email}
             schema = get_configuration_schema_for_destination_type("email")
             options = ConfigurationContainer(config, schema)
             destination = get_destination("email", options)
-            return destination.notify(alert, query, user, new_state, app, host, options)
+            return destination.notify(alert, query, user, new_state, app, host, metadata, options)
 
 
 @generic_repr("id", "trigger", "user_id", "org_id")

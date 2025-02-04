@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 __all__ = ["BaseDestination", "register", "get_destination", "import_destinations"]
 
 
-class BaseDestination(object):
+class BaseDestination:
     deprecated = False
 
     def __init__(self, configuration):
@@ -31,7 +31,7 @@ class BaseDestination(object):
     def configuration_schema(cls):
         return {}
 
-    def notify(self, alert, query, user, new_state, app, host, options):
+    def notify(self, alert, query, user, new_state, app, host, metadata, options):
         raise NotImplementedError()
 
     @classmethod

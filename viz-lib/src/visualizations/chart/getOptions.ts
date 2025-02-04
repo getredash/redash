@@ -16,12 +16,18 @@ const DEFAULT_OPTIONS = {
   direction: { type: "counterclockwise" },
   sizemode: "diameter",
   coefficient: 1,
+  piesort: true,
+  color_scheme: "Redash",
 
   // showDataLabels: false, // depends on chart type
   numberFormat: "0,0[.]00000",
   percentFormat: "0[.]00%",
   // dateTimeFormat: 'DD/MM/YYYY HH:mm', // will be set from visualizationsSettings
   textFormat: "", // default: combination of {{ @@yPercent }} ({{ @@y }} ± {{ @@yError }})
+
+  enableLink: false,
+  linkOpenNewTab: true,
+  linkFormat: "", // template like a textFormat
 
   missingValuesAsZero: true,
 };

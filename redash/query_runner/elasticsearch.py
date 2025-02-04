@@ -16,7 +16,7 @@ from redash.query_runner import (
     JobTimeoutException,
     register,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_loads
 
 try:
     import http.client as http_client
@@ -91,8 +91,8 @@ class BaseElasticSearch(BaseQueryRunner):
 
             logger.setLevel(logging.DEBUG)
 
-        self.server_url = self.configuration["server"]
-        if self.server_url[-1] == "/":
+        self.server_url = self.configuration.get("server", "")
+        if self.server_url and self.server_url[-1] == "/":
             self.server_url = self.server_url[:-1]
 
         basic_auth_user = self.configuration.get("basic_auth_user", None)
@@ -129,6 +129,8 @@ class BaseElasticSearch(BaseQueryRunner):
         for index_name in mappings_data:
             index_mappings = mappings_data[index_name]
             for m in index_mappings.get("mappings", {}):
+                if not isinstance(index_mappings["mappings"][m], dict):
+                    continue
                 if "properties" not in index_mappings["mappings"][m]:
                     continue
                 for property_name in index_mappings["mappings"][m]["properties"]:
@@ -406,18 +408,18 @@ class Kibana(BaseElasticSearch):
                 # TODO: Handle complete ElasticSearch queries (JSON based sent over HTTP POST)
                 raise Exception("Advanced queries are not supported")
 
-            json_data = json_dumps({"columns": result_columns, "rows": result_rows})
+            data = {"columns": result_columns, "rows": result_rows}
         except requests.HTTPError as e:
             logger.exception(e)
             r = e.response
             error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text)
-            json_data = None
+            data = None
         except requests.exceptions.RequestException as e:
             logger.exception(e)
             error = "Connection refused"
-            json_data = None
+            data = None
 
-        return json_data, error
+        return data, error
 
 
 class ElasticSearch(BaseElasticSearch):
@@ -460,20 +462,20 @@ class ElasticSearch(BaseElasticSearch):
             result_rows = []
             self._parse_results(mappings, result_fields, r.json(), result_columns, result_rows)
 
-            json_data = json_dumps({"columns": result_columns, "rows": result_rows})
+            data = {"columns": result_columns, "rows": result_rows}
         except (KeyboardInterrupt, JobTimeoutException) as e:
             logger.exception(e)
             raise
         except requests.HTTPError as e:
             logger.exception(e)
             error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text)
-            json_data = None
+            data = None
         except requests.exceptions.RequestException as e:
             logger.exception(e)
             error = "Connection refused"
-            json_data = None
+            data = None
 
-        return json_data, error
+        return data, error
 
 
 register(Kibana)

@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from contextlib import ExitStack
 from functools import wraps
 
@@ -8,7 +9,6 @@ from rq.timeouts import JobTimeoutException
 from sshtunnel import open_tunnel
 
 from redash import settings, utils
-from redash.utils import json_loads
 from redash.utils.requests_session import (
     UnacceptableAddressException,
     requests_or_advocate,
@@ -113,12 +113,13 @@ class NotSupported(Exception):
     pass
 
 
-class BaseQueryRunner(object):
+class BaseQueryRunner:
     deprecated = False
     should_annotate_query = True
     noop_query = None
     limit_query = " LIMIT 1000"
     limit_keywords = ["LIMIT", "OFFSET"]
+    limit_after_select = False
 
     def __init__(self, configuration):
         self.syntax = "sql"
@@ -213,14 +214,14 @@ class BaseQueryRunner(object):
 
     def fetch_columns(self, columns):
         column_names = set()
-        duplicates_counter = 1
+        duplicates_counters = defaultdict(int)
         new_columns = []
 
         for col in columns:
             column_name = col[0]
-            if column_name in column_names:
-                column_name = "{}{}".format(column_name, duplicates_counter)
-                duplicates_counter += 1
+            while column_name in column_names:
+                duplicates_counters[col[0]] += 1
+                column_name = "{}{}".format(col[0], duplicates_counters[col[0]])
 
             column_names.add(column_name)
             new_columns.append({"name": column_name, "friendly_name": column_name, "type": col[1]})
@@ -242,7 +243,7 @@ class BaseQueryRunner(object):
 
         if error is not None:
             raise Exception("Failed running query [%s]." % query)
-        return json_loads(results)["rows"]
+        return results["rows"]
 
     @classmethod
     def to_dict(cls):
@@ -301,10 +302,19 @@ class BaseSQLQueryRunner(BaseQueryRunner):
         parsed_query = sqlparse.parse(query)[0]
         limit_tokens = sqlparse.parse(self.limit_query)[0].tokens
         length = len(parsed_query.tokens)
-        if parsed_query.tokens[length - 1].ttype == sqlparse.tokens.Punctuation:
-            parsed_query.tokens[length - 1 : length - 1] = limit_tokens
+        if not self.limit_after_select:
+            if parsed_query.tokens[length - 1].ttype == sqlparse.tokens.Punctuation:
+                parsed_query.tokens[length - 1 : length - 1] = limit_tokens
+            else:
+                parsed_query.tokens += limit_tokens
         else:
-            parsed_query.tokens += limit_tokens
+            for i in range(length - 1, -1, -1):
+                if parsed_query[i].value.upper() == "SELECT":
+                    index = parsed_query.token_index(parsed_query[i + 1])
+                    parsed_query = sqlparse.sql.Statement(
+                        parsed_query.tokens[:index] + limit_tokens + parsed_query.tokens[index:]
+                    )
+                    break
         return str(parsed_query)
 
     def apply_auto_limit(self, query_text, should_apply_auto_limit):

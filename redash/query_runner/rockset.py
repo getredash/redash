@@ -8,7 +8,6 @@ from redash.query_runner import (
     BaseSQLQueryRunner,
     register,
 )
-from redash.utils import json_dumps
 
 
 def _get_type(value):
@@ -25,10 +24,11 @@ def _get_type(value):
 
 # The following is here, because Rockset's PyPi package is Python 3 only.
 # Should be removed once we move to Python 3.
-class RocksetAPI(object):
-    def __init__(self, api_key, api_server):
+class RocksetAPI:
+    def __init__(self, api_key, api_server, vi_id):
         self.api_key = api_key
         self.api_server = api_server
+        self.vi_id = vi_id
 
     def _request(self, endpoint, method="GET", body=None):
         headers = {"Authorization": "ApiKey {}".format(self.api_key), "User-Agent": "rest:redash/1.0"}
@@ -56,7 +56,10 @@ class RocksetAPI(object):
         return sorted(set([x["field"][0] for x in response["results"]]))
 
     def query(self, sql):
-        return self._request("queries", "POST", {"sql": {"query": sql}})
+        query_path = "queries"
+        if self.vi_id is not None and self.vi_id != "":
+            query_path = f"virtualinstances/{self.vi_id}/queries"
+        return self._request(query_path, "POST", {"sql": {"query": sql}})
 
 
 class Rockset(BaseSQLQueryRunner):
@@ -73,8 +76,9 @@ class Rockset(BaseSQLQueryRunner):
                     "default": "https://api.rs2.usw2.rockset.com",
                 },
                 "api_key": {"title": "API Key", "type": "string"},
+                "vi_id": {"title": "Virtual Instance ID", "type": "string"},
             },
-            "order": ["api_key", "api_server"],
+            "order": ["api_key", "api_server", "vi_id"],
             "required": ["api_server", "api_key"],
             "secret": ["api_key"],
         }
@@ -87,7 +91,8 @@ class Rockset(BaseSQLQueryRunner):
         super(Rockset, self).__init__(configuration)
         self.api = RocksetAPI(
             self.configuration.get("api_key"),
-            self.configuration.get("api_server", "https://api.rs2.usw2.rockset.com"),
+            self.configuration.get("api_server", "https://api.usw2a1.rockset.com"),
+            self.configuration.get("vi_id"),
         )
 
     def _get_tables(self, schema):
@@ -115,7 +120,7 @@ class Rockset(BaseSQLQueryRunner):
             columns = []
             for k in rows[0]:
                 columns.append({"name": k, "friendly_name": k, "type": _get_type(rows[0][k])})
-        data = json_dumps({"columns": columns, "rows": rows})
+        data = {"columns": columns, "rows": rows}
         return data, None
 
 

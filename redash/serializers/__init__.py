@@ -3,6 +3,7 @@ This will eventually replace all the `to_dict` methods of the different model
 classes we have. This will ensure cleaner code and better
 separation of concerns.
 """
+
 from flask_login import current_user
 from funcy import project
 from rq.job import JobStatus
@@ -16,14 +17,13 @@ from redash.serializers.query_result import (
     serialize_query_result_to_dsv,
     serialize_query_result_to_xlsx,
 )
-from redash.utils import json_loads
 
 
 def public_widget(widget):
     res = {
         "id": widget.id,
         "width": widget.width,
-        "options": json_loads(widget.options),
+        "options": widget.options,
         "text": widget.text,
         "updated_at": widget.updated_at,
         "created_at": widget.created_at,
@@ -35,7 +35,7 @@ def public_widget(widget):
             "type": v.type,
             "name": v.name,
             "description": v.description,
-            "options": json_loads(v.options),
+            "options": v.options,
             "updated_at": v.updated_at,
             "created_at": v.created_at,
             "query": {
@@ -65,7 +65,7 @@ def public_dashboard(dashboard):
     return dashboard_dict
 
 
-class Serializer(object):
+class Serializer:
     pass
 
 
@@ -146,7 +146,7 @@ def serialize_visualization(object, with_query=True):
         "type": object.type,
         "name": object.name,
         "description": object.description,
-        "options": json_loads(object.options),
+        "options": object.options,
         "updated_at": object.updated_at,
         "created_at": object.created_at,
     }
@@ -161,7 +161,7 @@ def serialize_widget(object):
     d = {
         "id": object.id,
         "width": object.width,
-        "options": json_loads(object.options),
+        "options": object.options,
         "dashboard_id": object.dashboard_id,
         "text": object.text,
         "updated_at": object.updated_at,
@@ -197,7 +197,7 @@ def serialize_alert(alert, full=True):
 
 
 def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=True):
-    layout = json_loads(obj.layout)
+    layout = obj.layout
 
     widgets = []
 
@@ -277,6 +277,9 @@ def serialize_job(job):
         JobStatus.STARTED: 2,
         JobStatus.FINISHED: 3,
         JobStatus.FAILED: 4,
+        JobStatus.CANCELED: 5,
+        JobStatus.DEFERRED: 6,
+        JobStatus.SCHEDULED: 7,
     }
 
     job_status = job.get_status()

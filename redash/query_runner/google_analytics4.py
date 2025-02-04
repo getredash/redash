@@ -13,14 +13,14 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 
 try:
-    import httplib2
-    from apiclient.discovery import build
-    from oauth2client.service_account import ServiceAccountCredentials
+    import google.auth
+    import google.auth.transport.requests
+    from google.oauth2.service_account import Credentials
 
     enabled = True
 except ImportError:
@@ -124,21 +124,24 @@ class GoogleAnalytics4(BaseQueryRunner):
             "type": "object",
             "properties": {
                 "propertyId": {"type": "number", "title": "Property Id"},
-                "jsonKeyFile": {"type": "string", "title": "JSON Key File"},
+                "jsonKeyFile": {"type": "string", "title": "JSON Key File (ADC is used if omitted)"},
             },
-            "required": ["propertyId", "jsonKeyFile"],
+            "required": ["propertyId"],
             "secret": ["jsonKeyFile"],
         }
 
     def _get_access_token(self):
-        key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
+        scopes = ["https://www.googleapis.com/auth/analytics.readonly"]
 
-        scope = ["https://www.googleapis.com/auth/analytics.readonly"]
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
+        try:
+            key = json_loads(b64decode(self.configuration["jsonKeyFile"]))
+            creds = Credentials.from_service_account_info(key, scopes=scopes)
+        except KeyError:
+            creds = google.auth.default(scopes=scopes)[0]
 
-        build("analyticsdata", "v1beta", http=creds.authorize(httplib2.Http()))
+        creds.refresh(google.auth.transport.requests.Request())
 
-        return creds.access_token
+        return creds.token
 
     def run_query(self, query, user):
         access_token = self._get_access_token()
@@ -157,9 +160,8 @@ class GoogleAnalytics4(BaseQueryRunner):
         data = parse_ga_response(raw_result)
 
         error = None
-        json_data = json_dumps(data)
 
-        return json_data, error
+        return data, error
 
     def test_connection(self):
         try:

@@ -10,7 +10,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 try:
@@ -155,7 +154,7 @@ class Couchbase(BaseQueryRunner):
         rows, columns = parse_results(result.json()["results"])
         data = {"columns": columns, "rows": rows}
 
-        return json_dumps(data), None
+        return data, None
 
     @classmethod
     def name(cls):

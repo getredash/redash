@@ -1,12 +1,17 @@
 import datetime
 from unittest import TestCase
 
-from mock import MagicMock
+import pytest
+from google.auth.exceptions import TransportError
+from gspread.exceptions import APIError
+from mock import MagicMock, patch
 
 from redash.query_runner import TYPE_DATETIME, TYPE_FLOAT
 from redash.query_runner.google_spreadsheets import (
     TYPE_BOOLEAN,
     TYPE_STRING,
+    GoogleSpreadsheet,
+    WorksheetNotFoundByTitleError,
     WorksheetNotFoundError,
     _get_columns_and_column_names,
     _value_eval_list,
@@ -51,10 +56,14 @@ class TestParseSpreadsheet(TestCase):
         spreadsheet = MagicMock()
 
         spreadsheet.worksheets = MagicMock(return_value=[])
+        spreadsheet.get_worksheet_by_index = MagicMock(return_value=None)
         self.assertRaises(WorksheetNotFoundError, parse_spreadsheet, spreadsheet, 0)
 
-        spreadsheet.worksheets = MagicMock(return_value=[1, 2])
-        self.assertRaises(WorksheetNotFoundError, parse_spreadsheet, spreadsheet, 2)
+    def test_returns_meaningful_error_for_missing_worksheet_by_title(self):
+        spreadsheet = MagicMock()
+
+        spreadsheet.get_worksheet_by_title = MagicMock(return_value=None)
+        self.assertRaises(WorksheetNotFoundByTitleError, parse_spreadsheet, spreadsheet, "a")
 
 
 empty_worksheet = []
@@ -104,6 +113,40 @@ class TestParseQuery(TestCase):
         parsed = parse_query("key|0")
         self.assertEqual(("key", 0), parsed)
 
+    def test_parse_query_ignored(self):
+        parsed = parse_query("key")
+        self.assertEqual(("key", 0), parsed)
+
+        parsed = parse_query("key|")
+        self.assertEqual(("key", 0), parsed)
+
+        parsed = parse_query("key|1|")
+        self.assertEqual(("key", 0), parsed)
+
+    def test_parse_query_title(self):
+        parsed = parse_query('key|""')
+        self.assertEqual(("key", ""), parsed)
+
+        parsed = parse_query('key|"1"')
+        self.assertEqual(("key", "1"), parsed)
+
+        parsed = parse_query('key|"abc"')
+        self.assertEqual(("key", "abc"), parsed)
+
+        parsed = parse_query('key|"あ"')
+        self.assertEqual(("key", "あ"), parsed)
+
+        parsed = parse_query('key|"1""')
+        self.assertEqual(("key", '1"'), parsed)
+
+        parsed = parse_query('key|""')
+        self.assertEqual(("key", ""), parsed)
+
+    def test_parse_query_failed(self):
+        self.assertRaises(ValueError, parse_query, "key|0x01")
+        self.assertRaises(ValueError, parse_query, "key|a")
+        self.assertRaises(ValueError, parse_query, 'key|""a')
+
 
 class TestGetColumnsAndColumnNames(TestCase):
     def test_get_columns(self):
@@ -132,3 +175,32 @@ class TestIsUrlKey(TestCase):
 
         _key = "key|0"
         self.assertFalse(is_url_key(_key))
+
+
+class TestConnection(TestCase):
+    @patch("redash.query_runner.google_spreadsheets.google.auth.default")
+    @patch("redash.query_runner.google_spreadsheets.gspread.Client")
+    def test_connect_succuess(self, mock_client, _mock_auth_default):
+        try:
+            qr_gspread = GoogleSpreadsheet({})
+            qr_gspread.test_connection()
+            mock_client().login.assert_called_once_with()
+            mock_client().open_by_key.assert_called_once()
+        except Exception:
+            self.fail("test_connection failed")
+
+    @patch("redash.query_runner.google_spreadsheets.google.auth.default")
+    def test_connect_fail_with_transport_error(self, mock_auth_default):
+        mock_auth_default.side_effect = TransportError("Connection Refused")
+        qr_gspread = GoogleSpreadsheet({})
+        with pytest.raises(Exception):
+            qr_gspread.test_connection()
+
+    @patch("redash.query_runner.google_spreadsheets.google.auth.default")
+    def test_connect_fail_with_api_error(self, mock_auth_default):
+        mock_response = MagicMock()
+        mock_response.json.return_value = {"error": {"message": "Sheet API is disabled"}}
+        mock_auth_default.side_effect = APIError(mock_response)
+        qr_gspread = GoogleSpreadsheet({})
+        with pytest.raises(Exception):
+            qr_gspread.test_connection()

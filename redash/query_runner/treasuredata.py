@@ -9,7 +9,6 @@ from redash.query_runner import (
     BaseQueryRunner,
     register,
 )
-from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -112,15 +111,14 @@ class TreasureData(BaseQueryRunner):
             else:
                 rows = [dict(zip(([column["name"] for column in columns]), r)) for r in cursor.fetchall()]
             data = {"columns": columns, "rows": rows}
-            json_data = json_dumps(data)
             error = None
         except errors.InternalError as e:
-            json_data = None
+            data = None
             error = "%s: %s" % (
                 str(e),
                 cursor.show_job().get("debug", {}).get("stderr", "No stderr message in the response"),
             )
-        return json_data, error
+        return data, error
 
 
 register(TreasureData)

@@ -2,7 +2,6 @@ import textwrap
 from unittest import TestCase
 
 from redash.models import OPERATORS, Alert, db, next_state
-from redash.utils import json_dumps
 from tests import BaseTestCase
 
 
@@ -43,14 +42,16 @@ class TestAlertAll(BaseTestCase):
 
 
 def get_results(value):
-    return json_dumps({"rows": [{"foo": value}], "columns": [{"name": "foo", "type": "STRING"}]})
+    return {"rows": [{"foo": value}], "columns": [{"name": "foo", "type": "STRING"}]}
 
 
 class TestAlertEvaluate(BaseTestCase):
     def create_alert(self, results, column="foo", value="1"):
         result = self.factory.create_query_result(data=results)
         query = self.factory.create_query(latest_query_data_id=result.id)
-        alert = self.factory.create_alert(query_rel=query, options={"op": "equals", "column": column, "value": value})
+        alert = self.factory.create_alert(
+            query_rel=query, options={"selector": "first", "op": "equals", "column": column, "value": value}
+        )
         return alert
 
     def test_evaluate_triggers_alert_when_equal(self):
@@ -66,8 +67,59 @@ class TestAlertEvaluate(BaseTestCase):
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
     def test_evaluate_return_unknown_when_empty_results(self):
-        results = json_dumps({"rows": [], "columns": [{"name": "foo", "type": "STRING"}]})
+        results = {"rows": [], "columns": [{"name": "foo", "type": "STRING"}]}
         alert = self.create_alert(results)
+        self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
+
+    def test_evaluates_correctly_with_first_selector(self):
+        results = {"rows": [{"foo": 1}, {"foo": 2}], "columns": [{"name": "foo", "type": "INTEGER"}]}
+        alert = self.create_alert(results)
+        alert.options["selector"] = "first"
+        self.assertEqual(alert.evaluate(), Alert.TRIGGERED_STATE)
+        results = {
+            "rows": [{"foo": "test"}, {"foo": "test"}, {"foo": "test"}],
+            "columns": [{"name": "foo", "type": "STRING"}],
+        }
+        alert = self.create_alert(results)
+        alert.options["selector"] = "first"
+        alert.options["op"] = "<"
+        self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
+
+    def test_evaluates_correctly_with_min_selector(self):
+        results = {"rows": [{"foo": 2}, {"foo": 1}], "columns": [{"name": "foo", "type": "INTEGER"}]}
+        alert = self.create_alert(results)
+        alert.options["selector"] = "min"
+        self.assertEqual(alert.evaluate(), Alert.TRIGGERED_STATE)
+        results = {
+            "rows": [{"foo": "test"}, {"foo": "test"}, {"foo": "test"}],
+            "columns": [{"name": "foo", "type": "STRING"}],
+        }
+        alert = self.create_alert(results)
+        alert.options["selector"] = "min"
+        self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
+
+    def test_evaluates_correctly_with_max_selector(self):
+        results = {"rows": [{"foo": 1}, {"foo": 2}], "columns": [{"name": "foo", "type": "INTEGER"}]}
+        alert = self.create_alert(results)
+        alert.options["selector"] = "max"
+        self.assertEqual(alert.evaluate(), Alert.OK_STATE)
+        results = {
+            "rows": [{"foo": "test"}, {"foo": "test"}, {"foo": "test"}],
+            "columns": [{"name": "foo", "type": "STRING"}],
+        }
+        alert = self.create_alert(results)
+        alert.options["selector"] = "max"
+        self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
+
+    def test_evaluate_alerts_without_query_rel(self):
+        query = self.factory.create_query(latest_query_data_id=None)
+        alert = self.factory.create_alert(
+            query_rel=query, options={"selector": "first", "op": "equals", "column": "foo", "value": "1"}
+        )
+        self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
+
+    def test_evaluate_return_unknown_when_value_is_none(self):
+        alert = self.create_alert(get_results(None))
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
 
@@ -95,7 +147,9 @@ class TestAlertRenderTemplate(BaseTestCase):
     def create_alert(self, results, column="foo", value="5"):
         result = self.factory.create_query_result(data=results)
         query = self.factory.create_query(latest_query_data_id=result.id)
-        alert = self.factory.create_alert(query_rel=query, options={"op": "equals", "column": column, "value": value})
+        alert = self.factory.create_alert(
+            query_rel=query, options={"selector": "first", "op": "equals", "column": column, "value": value}
+        )
         return alert
 
     def test_render_custom_alert_template(self):
@@ -103,6 +157,7 @@ class TestAlertRenderTemplate(BaseTestCase):
         custom_alert = """
         <pre>
         ALERT_STATUS        {{ALERT_STATUS}}
+        ALERT_SELECTOR      {{ALERT_SELECTOR}}
         ALERT_CONDITION     {{ALERT_CONDITION}}
         ALERT_THRESHOLD     {{ALERT_THRESHOLD}}
         ALERT_NAME          {{ALERT_NAME}}
@@ -117,6 +172,7 @@ class TestAlertRenderTemplate(BaseTestCase):
         expected = """
         <pre>
         ALERT_STATUS        UNKNOWN
+        ALERT_SELECTOR      first
         ALERT_CONDITION     equals
         ALERT_THRESHOLD     5
         ALERT_NAME          %s

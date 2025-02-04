@@ -17,6 +17,7 @@ client/dist
 _build
 .vscode
 .env
+.tool-versions
 
 dump.rdb
 

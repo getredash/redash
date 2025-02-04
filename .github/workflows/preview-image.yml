@@ -1,0 +1,182 @@
+name: Preview Image
+on:
+  push:
+    tags:
+      - '*-dev'
+  workflow_dispatch:
+    inputs:
+      dockerRepository:
+        description: 'Docker repository'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - preview
+          - redash
+
+env:
+  NODE_VERSION: 18
+
+jobs:
+  build-skip-check:
+    runs-on: ubuntu-22.04
+    outputs:
+      skip: ${{ steps.skip-check.outputs.skip }}
+    steps:
+      - name: Skip?
+        id: skip-check
+        run: |
+          if [[ "${{ vars.DOCKER_USER }}" == '' ]]; then
+            echo 'Docker user is empty. Skipping build+push'
+            echo skip=true >> "$GITHUB_OUTPUT"
+          elif [[ "${{ secrets.DOCKER_PASS }}" == '' ]]; then
+            echo 'Docker password is empty. Skipping build+push'
+            echo skip=true >> "$GITHUB_OUTPUT"
+          else
+            echo 'Docker user and password are set and branch is `master`.'
+            echo 'Building + pushing `preview` image.'
+            echo skip=false >> "$GITHUB_OUTPUT"
+          fi
+
+  build-docker-image:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - amd64
+          - arm64
+        include:
+          - arch: amd64
+            os: ubuntu-22.04
+          - arch: arm64
+            os: ubuntu-22.04-arm
+    outputs:
+      VERSION_TAG: ${{ steps.version.outputs.VERSION_TAG }}
+    needs:
+      - build-skip-check
+    if: needs.build-skip-check.outputs.skip == 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.push.after }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+
+      - name: Install Dependencies
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+        run: |
+          npm install --global --force yarn@1.22.22
+          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+
+      - name: Set version
+        id: version
+        run: |
+          set -x
+          .ci/update_version
+          VERSION_TAG=$(jq -r .version package.json)
+          echo "VERSION_TAG=$VERSION_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push preview image to Docker Hub
+        id: build-preview
+        uses: docker/build-push-action@v4
+        if: ${{ github.event.inputs.dockerRepository == 'preview' || !github.event.workflow_run }}
+        with:
+          tags: |
+            ${{ vars.DOCKER_USER }}/redash
+            ${{ vars.DOCKER_USER }}/preview
+          context: .
+          build-args: |
+            test_all_deps=true
+          outputs: type=image,push-by-digest=true,push=true
+          cache-from: type=gha,scope=${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
+        env:
+          DOCKER_CONTENT_TRUST: true
+
+      - name: Build and push release image to Docker Hub
+        id: build-release
+        uses: docker/build-push-action@v4
+        if: ${{ github.event.inputs.dockerRepository == 'redash' }}
+        with:
+          tags: |
+            ${{ vars.DOCKER_USER }}/redash:${{ steps.version.outputs.VERSION_TAG }}
+          context: .
+          build-args: |
+            test_all_deps=true
+          outputs: type=image,push-by-digest=true,push=true
+          cache-from: type=gha,scope=${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
+        env:
+          DOCKER_CONTENT_TRUST: true
+
+      - name: "Failure: output container logs to console"
+        if: failure()
+        run: docker compose logs
+
+      - name: Export digest
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          if [[ "${{ github.event.inputs.dockerRepository }}" == 'preview' || !github.event.workflow_run ]]; then
+            digest="${{ steps.build-preview.outputs.digest}}"
+          else
+            digest="${{ steps.build-release.outputs.digest}}"
+          fi
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+
+  merge-docker-image:
+    runs-on: ubuntu-22.04
+    needs: build-docker-image
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: Create and push manifest for the preview image
+        if: ${{ github.event.inputs.dockerRepository == 'preview' || !github.event.workflow_run }}
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create -t ${{ vars.DOCKER_USER }}/redash:preview \
+            $(printf '${{ vars.DOCKER_USER }}/redash:preview@sha256:%s ' *)
+          docker buildx imagetools create -t ${{ vars.DOCKER_USER }}/preview:${{ needs.build-docker-image.outputs.VERSION_TAG }} \
+            $(printf '${{ vars.DOCKER_USER }}/preview:${{ needs.build-docker-image.outputs.VERSION_TAG }}@sha256:%s ' *)
+
+      - name: Create and push manifest for the release image
+        if: ${{ github.event.inputs.dockerRepository == 'redash' }}
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create -t ${{ vars.DOCKER_USER }}/redash:${{ needs.build-docker-image.outputs.VERSION_TAG }} \
+            $(printf '${{ vars.DOCKER_USER }}/redash:${{ needs.build-docker-image.outputs.VERSION_TAG }}@sha256:%s ' *)
