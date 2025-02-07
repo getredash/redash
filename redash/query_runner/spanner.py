@@ -117,7 +117,7 @@ class Spanner(BaseQueryRunner):
 
         row_dict = {}
         for (desc, val) in zip(col_descriptions, row):
-            if desc[1] == TypeCode.BYTES:
+            if desc[1] == TypeCode.BYTES and val:
                 val = b64decode(val)
             row_dict[desc[0]] = val
 
