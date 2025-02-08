@@ -63,7 +63,7 @@ function runCypressCI() {
     CYPRESS_OPTIONS, // eslint-disable-line no-unused-vars
   } = process.env;
 
-  if (GITHUB_REPOSITORY === "getredash/redash") {
+  if (GITHUB_REPOSITORY === "getredash/redash" && process.env.CYPRESS_RECORD_KEY) {
     process.env.CYPRESS_OPTIONS = "--record";
   }
 
