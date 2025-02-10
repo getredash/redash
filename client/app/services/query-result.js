@@ -416,7 +416,14 @@ class QueryResult {
         if (this.getStatus() === "processing" && this.job.query_result_id && this.job.query_result_id !== "None") {
           loadResult();
         } else if (this.getStatus() !== "failed") {
-          const waitTime = tryNumber > 10 ? 3000 : 500;
+          let waitTime;
+          if (tryNumber <= 10) {
+            waitTime = 500;
+          } else if (tryNumber <= 50) {
+            waitTime = 1000;
+          } else {
+            waitTime = 3000;
+          }
           setTimeout(() => {
             this.refreshStatus(query, parameters, tryNumber + 1);
           }, waitTime);
