@@ -181,7 +181,7 @@ function EmptyState({
   ];
 
   const stepsItems = getStepsItems ? getStepsItems(defaultStepsItems) : defaultStepsItems;
-  const imageSource = illustrationPath ? illustrationPath : "static/images/illustrations/" + illustration + ".svg";
+  const imageSource = illustrationPath ? illustrationPath : "/static/images/illustrations/" + illustration + ".svg";
 
   return (
     <div className="empty-state-wrapper">
