@@ -314,7 +314,7 @@ class BigQuery(BaseSQLQueryRunner):
         for dataset in datasets:
             dataset_id = dataset["datasetReference"]["datasetId"]
             location = dataset["location"]
-            if location != self._get_location():
+            if self._get_location() and location != self._get_location():
                 logger.debug("dataset location is different: %s", location)
                 continue
             query = query_base.format(dataset_id=dataset_id)
