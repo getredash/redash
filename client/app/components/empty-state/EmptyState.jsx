@@ -96,7 +96,7 @@ function EmptyState({
   }, []);
 
   // Show if `onboardingMode=false` or any requested step not completed
-  const shouldShow = !onboardingMode || some(keys(isAvailable), step => isAvailable[step] && !isCompleted[step]);
+  const shouldShow = !onboardingMode || some(keys(isAvailable), (step) => isAvailable[step] && !isCompleted[step]);
 
   if (!shouldShow) {
     return null;
@@ -181,7 +181,7 @@ function EmptyState({
   ];
 
   const stepsItems = getStepsItems ? getStepsItems(defaultStepsItems) : defaultStepsItems;
-  const imageSource = illustrationPath ? illustrationPath : "static/images/illustrations/" + illustration + ".svg";
+  const imageSource = illustrationPath ? illustrationPath : "/static/images/illustrations/" + illustration + ".svg";
 
   return (
     <div className="empty-state-wrapper">
@@ -196,7 +196,7 @@ function EmptyState({
         </div>
         <div className="empty-state__steps">
           <h4>Let&apos;s get started</h4>
-          <ol>{stepsItems.map(item => item.node)}</ol>
+          <ol>{stepsItems.map((item) => item.node)}</ol>
           {helpMessage}
         </div>
       </div>
