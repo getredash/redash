@@ -239,9 +239,7 @@ def logout_and_redirect_to_index():
 
 def init_app(app):
     from redash.authentication import ldap_auth, remote_user_auth, saml_auth
-    from redash.authentication.google_oauth import (
-        create_google_oauth_blueprint,
-    )
+    from redash.authentication.google_oauth import create_google_oauth_blueprint
     from redash.authentication.oidc import create_oidc_blueprint
 
     login_manager.init_app(app)
@@ -279,7 +277,7 @@ def create_and_login_user(org, name, email, picture=None):
         if user_object.is_invitation_pending:
             user_object.is_invitation_pending = False
             models.db.session.commit()
-        if user_object.name != name:
+        if name and user_object.name != name:
             logger.debug("Updating user name (%r -> %r)", user_object.name, name)
             user_object.name = name
             models.db.session.commit()
@@ -287,7 +285,7 @@ def create_and_login_user(org, name, email, picture=None):
         logger.debug("Creating user object (%r)", name)
         user_object = models.User(
             org=org,
-            name=name,
+            name=name if name else email,
             email=email,
             is_invitation_pending=False,
             _profile_image_url=picture,
