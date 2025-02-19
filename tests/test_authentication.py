@@ -25,7 +25,70 @@ from redash.authentication.google_oauth import (
     create_and_login_user,
     verify_profile,
 )
+from redash.authentication.oidc import (
+    create_oidc_blueprint,
+    get_name_from_user_info,
+    verify_account,
+)
 from tests import BaseTestCase
+
+
+class TestOIDCAuthentication(BaseTestCase):
+    def setUp(self):
+        super(TestOIDCAuthentication, self).setUp()
+        self.app.secret_key = "test_secret"
+        # Setup and register the blueprint in setup to avoid multiple registrations
+        if not self.app.blueprints.get("oidc"):
+            with patch.object(settings, "OIDC_ENABLED", True):
+                blueprint = create_oidc_blueprint(self.app)
+                if blueprint is not None:
+                    self.app.register_blueprint(blueprint, url_prefix="/<org_slug>")
+
+    def test_oidc_blueprint_enabled(self):
+        # Ensure OIDC is enabled in settings
+        with patch.object(settings, "OIDC_ENABLED", True):
+            blueprint = create_oidc_blueprint(self.app)
+            self.assertIsNotNone(blueprint)
+
+    def test_oidc_blueprint_disabled(self):
+        with patch.object(settings, "OIDC_ENABLED", False):
+            blueprint = create_oidc_blueprint(self.app)
+            self.assertIsNone(blueprint)
+
+    def test_get_name_from_user_info(self):
+        user_info_samples = [
+            {"name": "John Doe", "given_name": "John", "family_name": "Doe", "preferred_username": "", "nickname": ""},
+            {"name": "", "given_name": "John", "family_name": "Doe", "preferred_username": "", "nickname": ""},
+            {"name": "", "given_name": "", "family_name": "", "preferred_username": "johnd", "nickname": ""},
+            {"name": "", "given_name": "", "family_name": "", "preferred_username": "", "nickname": "Johnny"},
+        ]
+
+        expected_names = ["John Doe", "John Doe", "johnd", "Johnny"]
+
+        for user_info, expected in zip(user_info_samples, expected_names):
+            self.assertEqual(get_name_from_user_info(user_info), expected)
+
+    def test_verify_account(self):
+        mock_org = Mock()
+
+        # Public org should allow any account
+        mock_org.is_public = True
+        self.assertTrue(verify_account(mock_org, "user@example.com"))
+
+        # Non-public, domain allowed
+        mock_org.is_public = False
+        mock_org.oidc_domains = ["example.com"]
+        mock_org.has_user = Mock(return_value=0)
+        self.assertTrue(verify_account(mock_org, "user@example.com"))
+
+        # Non-public, domain not allowed, user exists
+        mock_org.oidc_domains = ["another.com"]
+        mock_org.has_user = Mock(return_value=1)
+        self.assertTrue(verify_account(mock_org, "user@example.com"))
+
+        # Non-public, domain not allowed, user does not exist
+        mock_org.has_user = Mock(return_value=0)
+        self.assertFalse(verify_account(mock_org, "user@example.com"))
 
 
 class TestApiKeyAuthentication(BaseTestCase):
