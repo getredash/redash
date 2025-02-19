@@ -1,6 +1,5 @@
 import logging
 
-import requests
 from authlib.integrations.flask_client import OAuth
 from flask import Blueprint, flash, redirect, request, session, url_for
 
@@ -12,6 +11,47 @@ from redash.authentication import (
 )
 from redash.authentication.org_resolving import current_org
 
+logger = logging.getLogger(__name__)
+
+
+def verify_account(org, email):
+    if org.is_public:
+        return True
+
+    domain = email.split("@")[-1]
+    logger.info(f"org domains: {org.oidc_domains}")
+
+    if domain in org.oidc_domains:
+        return True
+
+    if org.has_user(email) == 1:
+        return True
+
+    return False
+
+
+def ensure_required_scope(scope):
+    """
+    Ensures that the required scopes 'openid', 'email', and 'profile' are present in the scope string.
+    """
+    scope_set = set(scope.split()) if scope else set()
+    required_scopes = {"openid", "email", "profile"}
+    scope_set.update(required_scopes)
+    return " ".join(scope_set)
+
+
+def get_name_from_user_info(user_info):
+    name = user_info.get("name")
+    if not name:
+        given_name = user_info.get("given_name", "")
+        family_name = user_info.get("family_name", "")
+        name = f"{given_name} {family_name}".strip()
+    if not name:
+        name = user_info.get("preffered_username", "")
+    if not name:
+        name = user_info.get("nickname", "")
+    return name
+
 
 def create_oidc_blueprint(app):
     if not settings.OIDC_ENABLED:
@@ -19,37 +59,17 @@ def create_oidc_blueprint(app):
 
     oauth = OAuth(app)
 
-    logger = logging.getLogger("oidc")
     blueprint = Blueprint("oidc", __name__)
 
-    def get_oidc_config(url):
-        resp = requests.get(url=url)
-        if resp.status_code != 200:
-            logger.warning(
-                f"Unable to get configuration details (response code {resp.status_code}). Configuration URL: {url}"
-            )
-            return None
-        return resp.json()
-
-    oidc_config = get_oidc_config(settings.OIDC_ISSUER_URL)
     oauth = OAuth(app)
+    scope = ensure_required_scope(settings.OIDC_SCOPE)
     oauth.register(
         name="oidc",
         server_metadata_url=settings.OIDC_ISSUER_URL,
         client_kwargs={
-            "scope": "openid email profile",
+            "scope": scope,
         },
     )
-
-    def get_user_profile(access_token):
-        headers = {"Authorization": "Bearer {}".format(access_token)}
-        response = requests.get(oidc_config["userinfo_endpoint"], headers=headers)
-
-        if response.status_code == 401:
-            logger.warning("Failed getting user profile (response code 401).")
-            return None
-
-        return response.json()
 
     @blueprint.route("/<org_slug>/oidc", endpoint="authorize_org")
     def org_login(org_slug):
@@ -72,20 +92,19 @@ def create_oidc_blueprint(app):
     def authorized():
         logger.debug("Authorized user inbound")
 
-        resp = oauth.oidc.authorize_access_token()
-        user = resp.get("userinfo")
-        if user:
-            session["user"] = user
-
-        access_token = resp["access_token"]
-
-        if access_token is None:
-            logger.warning("Access token missing in call back request.")
+        token = oauth.oidc.authorize_access_token()
+        user_info = oauth.oidc.parse_id_token(token)
+        if user_info:
+            session["user"] = user_info
+        else:
+            logger.warning("Unable to get userinfo from returned token")
             flash("Validation error. Please retry.")
             return redirect(url_for("redash.login"))
 
-        profile = get_user_profile(access_token)
-        if profile is None:
+        access_token = token["access_token"]
+
+        if access_token is None:
+            logger.warning("Access token missing in the callback request.")
             flash("Validation error. Please retry.")
             return redirect(url_for("redash.login"))
 
@@ -94,7 +113,24 @@ def create_oidc_blueprint(app):
         else:
             org = current_org
 
-        user = create_and_login_user(org, profile["name"], profile["email"])
+        if not verify_account(org, user_info["email"]):
+            logger.warning(
+                "User tried to login with unauthorized domain name: %s (org: %s)",
+                user_info["email"],
+                org,
+            )
+            flash("Your account ({}) isn't allowed.".format(user_info["email"]))
+            return redirect(url_for("redash.login", org_slug=org.slug))
+
+        # see if email is verified
+        email_verified = user_info.get("email_verified", False)
+        if not email_verified:
+            flash("Email not verified.")
+            return redirect(url_for("redash.login"))
+
+        user_name = get_name_from_user_info(user_info)
+
+        user = create_and_login_user(org, user_name, user_info["email"])
         if user is None:
             return logout_and_redirect_to_index()
 
