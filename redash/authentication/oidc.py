@@ -47,7 +47,7 @@ def get_name_from_user_info(user_info):
         family_name = user_info.get("family_name", "")
         name = f"{given_name} {family_name}".strip()
     if not name:
-        name = user_info.get("preffered_username", "")
+        name = user_info.get("preferred_username", "")
     if not name:
         name = user_info.get("nickname", "")
     return name
