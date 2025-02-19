@@ -1,3 +1,4 @@
+import math
 import signal
 import sys
 import time
@@ -171,6 +172,17 @@ def _get_size_iterative(dict_obj):
     return size
 
 
+# Convert NaN, Inf, and -Inf to None, which PostgreSQL cannot handle.
+def _sanitize_data(data):
+    if isinstance(data, dict):
+        return {k: _sanitize_data(v) for k, v in data.items()}
+    if isinstance(data, list):
+        return [_sanitize_data(v) for v in data]
+    if isinstance(data, float) and (math.isnan(data) or math.isinf(data)):
+        return None
+    return data
+
+
 class QueryExecutor:
     def __init__(self, query, data_source_id, user_id, is_api_key, metadata, is_scheduled_query):
         self.job = get_current_job()
@@ -245,7 +257,7 @@ class QueryExecutor:
                 self.data_source,
                 self.query_hash,
                 self.query,
-                data,
+                _sanitize_data(data),
                 run_time,
                 utcnow(),
             )
