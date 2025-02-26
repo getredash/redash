@@ -17,7 +17,7 @@ env:
 jobs:
   prepare:
     name: Prepare
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     outputs:
       BRANCH_REF_SLUG: ${{ steps.branch_ref_slug.outputs.slug }}
     if: startsWith( github.ref, 'refs/heads/dependabot/' ) != true
@@ -42,7 +42,7 @@ jobs:
     needs: [prepare]
     environment:
       name: ${{ needs.prepare.outputs.BRANCH_REF_SLUG }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     if: startsWith( github.ref, 'refs/heads/dependabot/' ) != true
     steps:
       - uses: actions/checkout@v3

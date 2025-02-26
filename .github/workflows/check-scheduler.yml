@@ -13,7 +13,7 @@ permissions:
 
 jobs:
     test_schedule:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         env:
             REDASH_API_KEY: ${{ secrets.REDASH_API_KEY }}
             AWS_REGION: us-east-2

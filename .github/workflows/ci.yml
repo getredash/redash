@@ -8,7 +8,7 @@ env:
   NODE_VERSION: 16.20.1
 jobs:
   backend-lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v3
         with:
@@ -21,7 +21,7 @@ jobs:
       - run: black --check .
 
   backend-unit-tests:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: backend-lint
     env:
       COMPOSE_FILE: .ci/docker-compose.ci.yml
@@ -63,7 +63,7 @@ jobs:
           path: coverage.xml
 
   frontend-lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v3
         with:
@@ -85,7 +85,7 @@ jobs:
           path: /tmp/test-results
 
   frontend-unit-tests:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: frontend-lint
     steps:
       - uses: actions/checkout@v3
@@ -106,7 +106,7 @@ jobs:
       - run: yarn lint
 
   frontend-e2e-tests:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: frontend-lint
     env:
       COMPOSE_FILE: .ci/docker-compose.cypress.yml
@@ -152,7 +152,7 @@ jobs:
           path: coverage
 
   build-skip-check:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       skip: ${{ steps.skip-check.outputs.skip }}
     steps:
@@ -175,7 +175,7 @@ jobs:
           fi
 
   build-docker-image:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - backend-unit-tests
       - frontend-unit-tests
