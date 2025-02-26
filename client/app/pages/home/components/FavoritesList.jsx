@@ -15,7 +15,7 @@ export function FavoriteList({ title, resource, itemUrl, emptyState }) {
   useEffect(() => {
     setLoading(true);
     resource
-      .favorites()
+      .favorites({ order: "-starred_at" })
       .then(({ results }) => setItems(results))
       .finally(() => setLoading(false));
   }, [resource]);

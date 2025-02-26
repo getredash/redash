@@ -81,12 +81,19 @@ function DashboardListExtraActions(props) {
 }
 
 function DashboardList({ controller }) {
+  let usedListColumns = listColumns;
+  if (controller.params.currentPage === "favorites") {
+    usedListColumns = [
+      ...usedListColumns,
+      Columns.dateTime.sortable({ title: "Starred At", field: "starred_at", width: "1%" }),
+    ];
+  }
   const {
     areExtraActionsAvailable,
     listColumns: tableColumns,
     Component: ExtraActionsComponent,
     selectedItems,
-  } = useItemsListExtraActions(controller, listColumns, DashboardListExtraActions);
+  } = useItemsListExtraActions(controller, usedListColumns, DashboardListExtraActions);
 
   return (
     <div className="page-dashboard-list">
@@ -173,7 +180,7 @@ const DashboardListPage = itemsList(
         return item => new Dashboard(item);
       },
     }),
-  () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
+  ({ ...props }) => new UrlStateStorage({ orderByField: props.orderByField ?? "created_at", orderByReverse: true })
 );
 
 routes.register(
@@ -189,7 +196,7 @@ routes.register(
   routeWithUserSession({
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
-    render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
+    render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" orderByField="starred_at" />,
   })
 );
 routes.register(
