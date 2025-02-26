@@ -186,6 +186,41 @@ class QueryExecutorTests(BaseTestCase):
             result = models.QueryResult.query.get(result_id)
             self.assertEqual(result.data, query_result_data)
 
+    def test_sanitize_nan_inf(self, _):
+        """
+        NaN, Inf, and -Inf are sanitized to None.
+        """
+        with patch.object(PostgreSQL, "run_query") as qr:
+            qr.return_value = (
+                {
+                    "columns": [
+                        {"name": "_col0", "friendly_name": "_col0", "type": "float"},
+                        {"name": "_col1", "friendly_name": "_col1", "type": "float"},
+                        {"name": "_col2", "friendly_name": "_col1", "type": "float"},
+                        {"name": "_col3", "friendly_name": "_col1", "type": "float"},
+                    ],
+                    "rows": [{"_col0": 1.0, "_col1": float("nan"), "_col2": float("inf"), "_col3": float("-inf")}],
+                },
+                None,
+            )
+            query_result_data = {
+                "columns": [
+                    {"name": "_col0", "friendly_name": "_col0", "type": "float"},
+                    {"name": "_col1", "friendly_name": "_col1", "type": "float"},
+                    {"name": "_col2", "friendly_name": "_col1", "type": "float"},
+                    {"name": "_col3", "friendly_name": "_col1", "type": "float"},
+                ],
+                "rows": [{"_col0": 1.0, "_col1": None, "_col2": None, "_col3": None}],
+            }
+            result_id = execute_query(
+                "select 1.0::float, 'NaN'::float, 'Infinity'::float, '-Infinity'::float",
+                self.factory.data_source.id,
+                {},
+            )
+            self.assertEqual(1, qr.call_count)
+            result = models.QueryResult.query.get(result_id)
+            self.assertEqual(result.data, query_result_data)
+
     def test_success_scheduled(self, _):
         """
         Scheduled queries remember their latest results.
