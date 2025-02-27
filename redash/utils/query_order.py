@@ -33,7 +33,7 @@ from sqlalchemy.orm import mapperlib
 from sqlalchemy.orm.properties import ColumnProperty
 from sqlalchemy.orm.query import _ColumnEntity
 from sqlalchemy.orm.util import AliasedInsp
-from sqlalchemy.sql.expression import asc, desc
+from sqlalchemy.sql.expression import asc, desc, nullslast
 
 
 def get_query_descriptor(query, entity, attr):
@@ -225,7 +225,7 @@ class QuerySorter:
     def assign_order_by(self, entity, attr, func):
         expr = get_query_descriptor(self.query, entity, attr)
         if expr is not None:
-            return self.query.order_by(func(expr))
+            return self.query.order_by(nullslast(func(expr)))
         if not self.silent:
             raise QuerySorterException("Could not sort query with expression '%s'" % attr)
         return self.query
