@@ -121,7 +121,7 @@ def json_loads(data, *args, **kwargs):
     return json.loads(data, *args, **kwargs)
 
 
-# Convert NaN, Inf, and -Inf to None, which PostgreSQL cannot handle.
+# Convert NaN, Inf, and -Inf to None, as they are not valid JSON values.
 def _sanitize_data(data):
     if isinstance(data, dict):
         return {k: _sanitize_data(v) for k, v in data.items()}
