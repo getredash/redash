@@ -38,4 +38,10 @@
     font-size: 12px !important;
     font-weight: 400 !important;
   }
+
+
+  // Cache le bandeau des filtres dashboard avec celui dédié au choix des organisations.
+  > .container > .tiled:has(> .parameter-container) {
+    display: none !important;
+  }
 }
