@@ -4,7 +4,7 @@
  */
 export function assertPlotPreview(should = "exist") {
   cy.getByTestId("VisualizationPreview")
-    .find("g.plot")
+    .find("g.overplot")
     .should("exist")
     .find("g.points")
     .should(should);
