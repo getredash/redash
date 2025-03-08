@@ -130,6 +130,13 @@ export class ItemsSource {
     this._changed({ sorting: true });
   };
 
+  setSorting = (orderByField, orderByReverse) => {
+    this._sorter.setField(orderByField);
+    this._sorter.setReverse(orderByReverse);
+    this._savedOrderByField = this._sorter.field;
+    this._changed({ sorting: true });
+  };
+
   updateSearch = searchTerm => {
     // here we update state directly, but later `fetchData` will update it properly
     this._searchTerm = searchTerm;

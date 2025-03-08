@@ -160,6 +160,7 @@ function QueriesList({ controller }) {
                     orderByField={controller.orderByField}
                     orderByReverse={controller.orderByReverse}
                     toggleSorting={controller.toggleSorting}
+                    setSorting={controller.setSorting}
                   />
                   <Paginator
                     showPageSizeSelect

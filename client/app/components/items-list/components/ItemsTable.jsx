@@ -110,6 +110,7 @@ export default class ItemsTable extends React.Component {
     orderByField: PropTypes.string,
     orderByReverse: PropTypes.bool,
     toggleSorting: PropTypes.func,
+    setSorting: PropTypes.func,
     "data-test": PropTypes.string,
     rowKey: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   };
@@ -127,7 +128,7 @@ export default class ItemsTable extends React.Component {
   };
 
   prepareColumns() {
-    const { orderByField, orderByReverse, toggleSorting } = this.props;
+    const { orderByField, orderByReverse } = this.props;
     const orderByDirection = orderByReverse ? "descend" : "ascend";
 
     return map(
@@ -136,9 +137,6 @@ export default class ItemsTable extends React.Component {
         column => extend(column, { orderByField: column.orderByField || column.field })
       ),
       (column, index) => {
-        // Bind click events only to sortable columns
-        const onHeaderCell = column.sorter ? () => ({ onClick: () => toggleSorting(column.orderByField) }) : null;
-
         // Wrap render function to pass correct arguments
         const render = isFunction(column.render) ? (text, row) => column.render(text, row.item) : identity;
 
@@ -146,7 +144,6 @@ export default class ItemsTable extends React.Component {
           key: "column" + index,
           dataIndex: ["item", column.field],
           defaultSortOrder: column.orderByField === orderByField ? orderByDirection : null,
-          onHeaderCell,
           render,
         });
       }
@@ -179,6 +176,27 @@ export default class ItemsTable extends React.Component {
         })
       : null;
 
+    const onChange = (pagination, filters, sorter, extra) => {
+      const action = extra?.action;
+      if (action === "sort") {
+        const propsColumn = this.props.columns.find(column => column.field === sorter.field[1]);
+        if (!propsColumn.sorter) {
+          return;
+        }
+        let orderByField = propsColumn.orderByField;
+        const orderByReverse = sorter.order === "descend";
+
+        if (orderByReverse === undefined) {
+          orderByField = null;
+        }
+        if (this.props.setSorting) {
+          this.props.setSorting(orderByField, orderByReverse);
+        } else {
+          this.props.toggleSorting(orderByField);
+        }
+      }
+    };
+
     const { showHeader } = this.props;
     if (this.props.loading) {
       if (isEmpty(tableDataProps.dataSource)) {
@@ -200,6 +218,7 @@ export default class ItemsTable extends React.Component {
         rowKey={this.getRowKey}
         pagination={false}
         onRow={onTableRow}
+        onChange={onChange}
         data-test={this.props["data-test"]}
         {...tableDataProps}
       />
