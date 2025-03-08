@@ -166,9 +166,9 @@ function QueriesList({ controller }) {
                     showPageSizeSelect
                     totalCount={controller.totalItemsCount}
                     pageSize={controller.itemsPerPage}
-                    onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                    onPageSizeChange={(itemsPerPage) => controller.updatePagination({ itemsPerPage })}
                     page={controller.page}
-                    onChange={page => controller.updatePagination({ page })}
+                    onChange={(page) => controller.updatePagination({ page })}
                   />
                 </div>
               </React.Fragment>
@@ -197,7 +197,7 @@ const QueriesListPage = itemsList(
         }[currentPage];
       },
       getItemProcessor() {
-        return item => new Query(item);
+        return (item) => new Query(item);
       },
     }),
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
@@ -208,7 +208,7 @@ routes.register(
   routeWithUserSession({
     path: "/queries",
     title: "Queries",
-    render: pageProps => <QueriesListPage {...pageProps} currentPage="all" />,
+    render: (pageProps) => <QueriesListPage {...pageProps} currentPage="all" />,
   })
 );
 routes.register(
@@ -216,7 +216,7 @@ routes.register(
   routeWithUserSession({
     path: "/queries/favorites",
     title: "Favorite Queries",
-    render: pageProps => <QueriesListPage {...pageProps} currentPage="favorites" />,
+    render: (pageProps) => <QueriesListPage {...pageProps} currentPage="favorites" />,
   })
 );
 routes.register(
@@ -224,7 +224,7 @@ routes.register(
   routeWithUserSession({
     path: "/queries/archive",
     title: "Archived Queries",
-    render: pageProps => <QueriesListPage {...pageProps} currentPage="archive" />,
+    render: (pageProps) => <QueriesListPage {...pageProps} currentPage="archive" />,
   })
 );
 routes.register(
@@ -232,6 +232,6 @@ routes.register(
   routeWithUserSession({
     path: "/queries/my",
     title: "My Queries",
-    render: pageProps => <QueriesListPage {...pageProps} currentPage="my" />,
+    render: (pageProps) => <QueriesListPage {...pageProps} currentPage="my" />,
   })
 );

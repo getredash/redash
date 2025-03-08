@@ -44,7 +44,7 @@ export const Columns = {
   date(overrides) {
     return extend(
       {
-        render: text => formatDate(text),
+        render: (text) => formatDate(text),
       },
       overrides
     );
@@ -52,7 +52,7 @@ export const Columns = {
   dateTime(overrides) {
     return extend(
       {
-        render: text => formatDateTime(text),
+        render: (text) => formatDateTime(text),
       },
       overrides
     );
@@ -62,7 +62,7 @@ export const Columns = {
       {
         width: "1%",
         className: "text-nowrap",
-        render: text => durationHumanize(text),
+        render: (text) => durationHumanize(text),
       },
       overrides
     );
@@ -70,7 +70,7 @@ export const Columns = {
   timeAgo(overrides, timeAgoCustomProps = undefined) {
     return extend(
       {
-        render: value => <TimeAgo date={value} {...timeAgoCustomProps} />,
+        render: (value) => <TimeAgo date={value} {...timeAgoCustomProps} />,
       },
       overrides
     );
@@ -133,8 +133,8 @@ export default class ItemsTable extends React.Component {
 
     return map(
       map(
-        filter(this.props.columns, column => (isFunction(column.isAvailable) ? column.isAvailable() : true)),
-        column => extend(column, { orderByField: column.orderByField || column.field })
+        filter(this.props.columns, (column) => (isFunction(column.isAvailable) ? column.isAvailable() : true)),
+        (column) => extend(column, { orderByField: column.orderByField || column.field })
       ),
       (column, index) => {
         // Wrap render function to pass correct arguments
@@ -150,7 +150,7 @@ export default class ItemsTable extends React.Component {
     );
   }
 
-  getRowKey = record => {
+  getRowKey = (record) => {
     const { rowKey } = this.props;
     if (rowKey) {
       if (isFunction(rowKey)) {
@@ -169,8 +169,8 @@ export default class ItemsTable extends React.Component {
 
     // Bind events only if `onRowClick` specified
     const onTableRow = isFunction(this.props.onRowClick)
-      ? row => ({
-          onClick: event => {
+      ? (row) => ({
+          onClick: (event) => {
             this.props.onRowClick(event, row.item);
           },
         })
@@ -179,7 +179,7 @@ export default class ItemsTable extends React.Component {
     const onChange = (pagination, filters, sorter, extra) => {
       const action = extra?.action;
       if (action === "sort") {
-        const propsColumn = this.props.columns.find(column => column.field === sorter.field[1]);
+        const propsColumn = this.props.columns.find((column) => column.field === sorter.field[1]);
         if (!propsColumn.sorter) {
           return;
         }
@@ -200,12 +200,12 @@ export default class ItemsTable extends React.Component {
     const { showHeader } = this.props;
     if (this.props.loading) {
       if (isEmpty(tableDataProps.dataSource)) {
-        tableDataProps.columns = tableDataProps.columns.map(column => ({
+        tableDataProps.columns = tableDataProps.columns.map((column) => ({
           ...column,
           sorter: false,
           render: () => <Skeleton active paragraph={false} />,
         }));
-        tableDataProps.dataSource = range(10).map(key => ({ key: `${key}` }));
+        tableDataProps.dataSource = range(10).map((key) => ({ key: `${key}` }));
       } else {
         tableDataProps.loading = { indicator: null };
       }
