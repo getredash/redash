@@ -1,9 +1,11 @@
+import logging
 import random
 import time
 import uuid
-import logging
-from redash import redis_connection
+
 from redis import WatchError
+
+from redash import redis_connection
 
 logger = logging.getLogger(__name__)
 
