@@ -108,7 +108,7 @@ class Snowflake(BaseSQLQueryRunner):
                 application="Redash/{} (Snowflake)".format(__version__.split("-")[0]),
             )
         else:
-            private_key = load_pem_private_key(self.configuration['PRIVATE_KEY'].encode())
+            private_key = load_pem_private_key(self.configuration['private_key'].encode())
             connection = snowflake.connector.connect(
                 user=self.configuration["user"],
                 private_key=private_key,
