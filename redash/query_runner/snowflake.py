@@ -1,5 +1,6 @@
 try:
     import snowflake.connector
+    from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
     enabled = True
 except ImportError:
@@ -43,6 +44,7 @@ class Snowflake(BaseSQLQueryRunner):
                 "account": {"type": "string"},
                 "user": {"type": "string"},
                 "password": {"type": "string"},
+                "private_key": {"type": "string"},
                 "warehouse": {"type": "string"},
                 "database": {"type": "string"},
                 "region": {"type": "string", "default": "us-west"},
@@ -62,8 +64,8 @@ class Snowflake(BaseSQLQueryRunner):
                 "region",
                 "host",
             ],
-            "required": ["user", "password", "account", "database", "warehouse"],
-            "secret": ["password"],
+            "required": ["user", "account", "database", "warehouse"],
+            "secret": ["password", "private_key"],
             "extra_options": [
                 "host",
             ],
@@ -95,15 +97,26 @@ class Snowflake(BaseSQLQueryRunner):
                 host = "{}.{}.snowflakecomputing.com".format(account, region)
             else:
                 host = "{}.snowflakecomputing.com".format(account)
-
-        connection = snowflake.connector.connect(
-            user=self.configuration["user"],
-            password=self.configuration["password"],
-            account=account,
-            region=region,
-            host=host,
-            application="Redash/{} (Snowflake)".format(__version__.split("-")[0]),
-        )
+                
+        if self.configuration.__contains__("password"):
+            connection = snowflake.connector.connect(
+                user=self.configuration["user"],
+                password=self.configuration["password"],
+                account=account,
+                region=region,
+                host=host,
+                application="Redash/{} (Snowflake)".format(__version__.split("-")[0]),
+            )
+        else:
+            private_key = load_pem_private_key(self.configuration['PRIVATE_KEY'].encode())
+            connection = snowflake.connector.connect(
+                user=self.configuration["user"],
+                private_key=private_key,
+                account=account,
+                region=region,
+                host=host,
+                application="Redash/{} (Snowflake)".format(__version__.split("-")[0]),
+            )
 
         return connection
 
