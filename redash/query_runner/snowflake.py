@@ -59,6 +59,7 @@ class Snowflake(BaseSQLQueryRunner):
                 "account",
                 "user",
                 "password",
+                "private_key",
                 "warehouse",
                 "database",
                 "region",
@@ -81,6 +82,33 @@ class Snowflake(BaseSQLQueryRunner):
         if t == TYPE_INTEGER and scale > 0:
             return TYPE_FLOAT
         return t
+    
+    def _clean_newlines(self,s):
+
+        s = s.strip().replace(" ","").replace("\n","")
+
+        chunks = []
+        chunk_size = 64
+        start = 0
+        while len(s) > start:
+            chunks.append(s[start:start+chunk_size])
+            start = start+chunk_size
+        
+        return '\n'.join(chunks)
+    
+    def _get_private_key(self):
+
+        private_key_str = self.configuration["private_key"]
+
+        header = "-----BEGIN PRIVATE KEY-----"
+        footer = "-----END PRIVATE KEY-----"
+        private_key_str = private_key_str.replace(footer,"").replace(header,"")
+
+        private_key_str = self._clean_newlines(private_key_str)
+        private_key_str = f"{header}\n{private_key_str}\n{footer}\n"
+        private_key = load_pem_private_key(private_key_str.encode(),None)
+
+        return private_key
 
     def _get_connection(self):
         region = self.configuration.get("region")
@@ -108,10 +136,9 @@ class Snowflake(BaseSQLQueryRunner):
                 application="Redash/{} (Snowflake)".format(__version__.split("-")[0]),
             )
         else:
-            private_key = load_pem_private_key(self.configuration['private_key'].encode())
             connection = snowflake.connector.connect(
                 user=self.configuration["user"],
-                private_key=private_key,
+                private_key=self._get_private_key(),
                 account=account,
                 region=region,
                 host=host,
