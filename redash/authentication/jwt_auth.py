@@ -38,7 +38,7 @@ def get_signing_key(url, jwt_token):
         key = key_cache[url]
     else:
         if url.startswith(FILE_SCHEME_PREFIX):
-            key = [get_signing_key_from_file(url)]
+            key = get_signing_key_from_file(url)
         else:
             key = get_signing_key_from_net(url, jwt_token)
     return key
