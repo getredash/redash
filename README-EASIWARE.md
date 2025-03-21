@@ -69,7 +69,7 @@ https://www.scaleway.com/en/docs/iam/how-to/create-api-keys/
 
 Build the same version of Docker images for all environment (preview, staging, production).
 ```bash
- build-all-dockerImg.sh
+./build-all-dockerImg.sh
 ```
 
 ### just for preview
