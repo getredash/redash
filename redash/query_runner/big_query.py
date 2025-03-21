@@ -12,7 +12,7 @@ from redash.query_runner import (
     TYPE_FLOAT,
     TYPE_INTEGER,
     TYPE_STRING,
-    BaseQueryRunner,
+    BaseSQLQueryRunner,
     InterruptException,
     JobTimeoutException,
     register,
@@ -98,7 +98,7 @@ def _get_total_bytes_processed_for_resp(bq_response):
     return int(bq_response.get("totalBytesProcessed", "0"))
 
 
-class BigQuery(BaseQueryRunner):
+class BigQuery(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
     def __init__(self, configuration):
