@@ -65,17 +65,27 @@ https://www.scaleway.com/en/docs/identity-and-access-management/organizations-an
 
 https://www.scaleway.com/en/docs/iam/how-to/create-api-keys/
 
-## preview
-```
- ./build-push-dockerImg.sh preview
+## Build Docker images
+
+Build the same version of Docker images for all environment (preview, staging, production).
+```bash
+ build-all-dockerImg.sh
 ```
 
-## staging
+### just for preview
+```bash
+ ./build-push-dockerImg.sh preview
+ # with version for tag image = "redash:2025.03.21-22.48.42"
+ ./build-push-dockerImg.sh preview 2025.03.21-22.48.42
 ```
+
+## just  staging
+```bash
  ./build-push-dockerImg.sh staging
 ```
 
-## production
-```
+## just production
+```bash
  ./build-push-dockerImg.sh production
 ```
+

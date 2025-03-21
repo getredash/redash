@@ -8,19 +8,21 @@ white=$(tput setaf 7)
 
 echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
 echo "┃ 🟡  Build and push Docker image in Sacelway ┃"
-echo "┠─────────────────────────────────────────────┨"
-if ! [ $# -eq 1 ]; then
+echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
+if [ $# -eq 0 ]; then
   echo "$red┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo "$red┃$white 🔥FATAL ERROR: No arguments supplied for environment ${bold}preview/staging/production${normal}"
   echo "$red┠────────────────────────────────────────────"
-  echo "$red┃$white $ ./deploy.sh ${bold}preview${normal}"
-  echo "$red┃$white $ ./deploy.sh ${bold}staging${normal}"
-  echo "$red┃$white $ ./deploy.sh ${bold}production${normal}"
+  echo "$red┃$white $ ./build-push-dockerImg.sh ${bold}preview${normal}"
+  echo "$red┃$white $ ./build-push-dockerImg.sh ${bold}staging${normal}"
+  echo "$red┃$white $ ./build-push-dockerImg.sh ${bold}production${normal}"
   echo "$red┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$normal"
   exit 1
 fi
 
 ENV=$1
+DOCKER_VERSION=$2
+
 RG_SCW_URI=rg.fr-par.scw.cloud
 REGISTERY_URI=""
 
@@ -64,13 +66,16 @@ if ! [ $? -eq 0 ]; then
     exit 1
 fi
 
-DATE=$(date '+%Y.%m.%d-%H.%M.%S')
-DOCKER_IMG="redash:$DATE"
+if [ "$DOCKER_VERSION" == "" ]; then
+  DATE=$(date '+%Y.%m.%d-%H.%M.%S')
+  DOCKER_IMG="redash:$DATE"
+else
+  DOCKER_IMG="redash:$DOCKER_VERSION"
+fi
 
 ./build-tag-push.sh $REGISTERY_URI $DOCKER_IMG
-
 if ! [ $? -eq 0 ]; then
-#    docker logout $REGISTERY_URI
+    docker logout $REGISTERY_URI
     exit 1
 fi
 
@@ -79,10 +84,12 @@ echo "┃ 📞 🔴 Logout $REGISTERY_URI"
 echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 docker logout $REGISTERY_URI
 
-echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
-echo "┃ 😀  Redash Docker image pushed   ┃"
-echo "┠──────────────────────────────────┨"
-echo "┃ ✅ ${blue}${bold}$REGISTERY_URI${normal}"
-echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
+if [ "$DOCKER_VERSION" == "" ]
+  echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
+  echo "┃ 😀  Redash Docker image pushed   ┃"
+  echo "┠──────────────────────────────────┨"
+  echo "┃ ✅ ${blue}${bold}$REGISTERY_URI${normal}"
+  echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
+fi
 
 exit 0
