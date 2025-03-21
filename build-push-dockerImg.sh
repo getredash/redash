@@ -84,7 +84,7 @@ echo "┃ 📞 🔴 Logout $REGISTERY_URI"
 echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 docker logout $REGISTERY_URI
 
-if [ "$DOCKER_VERSION" == "" ]
+if [ "$DOCKER_VERSION" == "" ]; then
   echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
   echo "┃ 😀  Redash Docker image pushed   ┃"
   echo "┠──────────────────────────────────┨"

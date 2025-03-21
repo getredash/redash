@@ -67,24 +67,35 @@ https://www.scaleway.com/en/docs/iam/how-to/create-api-keys/
 
 ## Build Docker images
 
+Berfore Building images, create all needed folders doing:
+1. yarn install
+```bash
+yarn install
+```
+2. npm run build
+```bash
+npm run build
+```
+
+### Build images of all environments
 Build the same version of Docker images for all environment (preview, staging, production).
 ```bash
 ./build-all-dockerImg.sh
 ```
 
-### just for preview
+### Build image for preview
 ```bash
  ./build-push-dockerImg.sh preview
  # with version for tag image = "redash:2025.03.21-22.48.42"
  ./build-push-dockerImg.sh preview 2025.03.21-22.48.42
 ```
 
-## just  staging
+## Build image staging
 ```bash
  ./build-push-dockerImg.sh staging
 ```
 
-## just production
+## Build image production
 ```bash
  ./build-push-dockerImg.sh production
 ```
