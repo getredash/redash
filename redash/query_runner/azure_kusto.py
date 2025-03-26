@@ -216,7 +216,9 @@ class AzureKusto(BaseQueryRunner):
                 schema[table_name] = {"name": table_name, "columns": []}
 
             for column in table["OrderedColumns"]:
-                schema[table_name]["columns"].append({"name": column["Name"], "type": TYPES_MAP.get(column["CslType"], None)})
+                schema[table_name]["columns"].append(
+                    {"name": column["Name"], "type": TYPES_MAP.get(column["CslType"], None)}
+                )
 
         return list(schema.values())
 
