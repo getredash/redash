@@ -29,6 +29,8 @@ function prepareBarSeries(series: any, options: any, additionalOptions: any) {
   series.offsetgroup = toString(additionalOptions.index);
   if (options.showDataLabels) {
     series.textposition = "inside";
+  } else {
+    series.textposition = "none";
   }
   return series;
 }
@@ -99,8 +101,8 @@ function prepareSeries(series: any, options: any, numSeries: any, additionalOpti
       };
 
   const sourceData = new Map();
-
-  const labelsValuesMap = new Map();
+  const xValues: any[] = [];
+  const yValues: any[] = [];
 
   const yErrorValues: any = [];
   each(data, row => {
@@ -108,26 +110,19 @@ function prepareSeries(series: any, options: any, numSeries: any, additionalOpti
     const y = cleanYValue(row.y, seriesYAxis === "y2" ? options.yAxis[1].type : options.yAxis[0].type); // depends on series type!
     const yError = cleanNumber(row.yError); // always number
     const size = cleanNumber(row.size); // always number
-    if (labelsValuesMap.has(x)) {
-      labelsValuesMap.set(x, labelsValuesMap.get(x) + y);
-    } else {
-      labelsValuesMap.set(x, y);
-    }
-    const aggregatedY = labelsValuesMap.get(x);
 
     sourceData.set(x, {
       x,
-      y: aggregatedY,
+      y,
       yError,
       size,
       yPercent: null, // will be updated later
       row,
     });
+    xValues.push(x);
+    yValues.push(y);
     yErrorValues.push(yError);
   });
-
-  const xValues = Array.from(labelsValuesMap.keys());
-  const yValues = Array.from(labelsValuesMap.values());
 
   const plotlySeries = {
     visible: true,
