@@ -20,13 +20,14 @@ class TestAzureKusto(TestCase):
         mock_response = {
             "rows": [
                 {
-                    "DatabaseSchema": '{"Databases": {"sample_db": {"Tables": {"Table1": {"Name": "Table1", "OrderedColumns": [{"Name": "Column1"}, {"Name": "Column2"}]}}, "MaterializedViews": {}}}}'
+                    "DatabaseSchema": '{"Databases":{"sample_db":{"Tables":{"Table1":{"Name":"Table1","OrderedColumns":[{"Name":"Column1","Type":"System.String","CslType":"string"},{"Name":"Column2","Type":"System.DateTime","CslType":"datetime"}]}},"MaterializedViews":{"View1":{"Name":"View1","OrderedColumns":[{"Name":"Column1","Type":"System.String","CslType":"string"},{"Name":"Column2","Type":"System.DateTime","CslType":"datetime"}]}}}}}'
                 }
             ]
         }
         mock_run_query.return_value = (mock_response, None)
 
-        expected_schema = [{"name": "Table1", "columns": ["Column1", "Column2"]}]
+        expected_schema = [{"name": "Table1", "columns": [{"name": "Column1", "type": "string"}, {"name": "Column2", "type": "datetime"} ]},{"name": "View1", "columns": [{"name": "Column1", "type": "string"}, {"name": "Column2", "type": "datetime"} ]}]
 
         schema = self.kusto.get_schema()
+        print(schema)
         self.assertEqual(schema, expected_schema)
