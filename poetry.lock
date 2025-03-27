@@ -200,22 +200,22 @@ typing-extensions = ">=4.0.0"
 
 [[package]]
 name = "azure-kusto-data"
-version = "5.0.1"
+version = "4.6.3"
 description = "Kusto Data Client"
 optional = false
 python-versions = "*"
 files = [
-    {file = "azure-kusto-data-5.0.1.tar.gz", hash = "sha256:438c030f1cc1fa02e7c68021738fffae27a35b08b777b9e8244bde5817c15a21"},
-    {file = "azure_kusto_data-5.0.1-py2.py3-none-any.whl", hash = "sha256:7bff06782a7a6a6712e45bee3ef536e0f1f566e71d76ad7a30e97da8bf05c9df"},
+    {file = "azure-kusto-data-4.6.3.tar.gz", hash = "sha256:0a00c62c594decd68b14d69fd394f0008136c6ce512ee375f9c73e7a0c90a34d"},
+    {file = "azure_kusto_data-4.6.3-py2.py3-none-any.whl", hash = "sha256:d6991d9c776bf14d3ad49f9330e250b98976720539d357d42ec60af80bb9e514"},
 ]
 
 [package.dependencies]
 azure-core = ">=1.11.0,<2"
-azure-identity = ">=1.21.0,<2"
+azure-identity = ">=1.5.0,<2"
 ijson = ">=3.1,<4.0"
 msal = ">=1.9.0,<2"
 python-dateutil = ">=2.8.0"
-requests = ">=2.32.3"
+requests = ">=2.13.0"
 
 [package.extras]
 aio = ["aiohttp (>=3.8.0,<4)", "asgiref (>=3.2.3,<4)"]
@@ -5792,4 +5792,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "b9987b1f5b7e05ad2c4ef75609e374e726e76a1b32f0777ce003284bed29ffa9"
+content-hash = "29d941080087df517c66c230b45586f12ffb624fc6e9081c5b69546f97e2bb84"
