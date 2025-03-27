@@ -26,7 +26,16 @@ class TestAzureKusto(TestCase):
         }
         mock_run_query.return_value = (mock_response, None)
 
-        expected_schema = [{"name": "Table1", "columns": [{"name": "Column1", "type": "string"}, {"name": "Column2", "type": "datetime"} ]},{"name": "View1", "columns": [{"name": "Column1", "type": "string"}, {"name": "Column2", "type": "datetime"} ]}]
+        expected_schema = [
+            {
+                "name": "Table1",
+                "columns": [{"name": "Column1", "type": "string"}, {"name": "Column2", "type": "datetime"}],
+            },
+            {
+                "name": "View1",
+                "columns": [{"name": "Column1", "type": "string"}, {"name": "Column2", "type": "datetime"}],
+            },
+        ]
 
         schema = self.kusto.get_schema()
         print(schema)
