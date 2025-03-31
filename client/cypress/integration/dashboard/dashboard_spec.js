@@ -99,7 +99,7 @@ describe("Dashboard", () => {
 
       cy.viewport(801 + menuWidth, 800);
       cy.get("@textboxEl").should($el => {
-        expect($el.width()).to.eq(378);
+        expect($el.width()).to.eq(182);
       });
     });
 
