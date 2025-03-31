@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-expressions, compat/compat, no-console, no-unused-vars */
 import { isEmpty } from "lodash";
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
@@ -22,6 +22,14 @@ function PublicDashboard({ dashboard }) {
   const { globalParameters, filters, setFilters, refreshDashboard, loadWidget, refreshWidget } = useDashboard(
     dashboard
   );
+  const [loading, setLoading] = useState(false);
+
+    const execute = useCallback(action => {
+    setLoading(true);
+    action().finally(() => {
+      setLoading(false);
+    });
+  }, []);
 
   useEffect(() => {
     window.top?.postMessage({ type: "ready", value: undefined }, "*");
