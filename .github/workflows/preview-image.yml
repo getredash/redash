@@ -39,7 +39,20 @@ jobs:
           fi
 
   build-docker-image:
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - amd64
+          - arm64
+        include:
+          - arch: amd64
+            os: ubuntu-22.04
+          - arch: arm64
+            os: ubuntu-22.04-arm
+    outputs:
+      VERSION_TAG: ${{ steps.version.outputs.VERSION_TAG }}
     needs:
       - build-skip-check
     if: needs.build-skip-check.outputs.skip == 'false'
@@ -54,11 +67,6 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -69,6 +77,8 @@ jobs:
           password: ${{ secrets.DOCKER_PASS }}
 
       - name: Install Dependencies
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
         run: |
           npm install --global --force yarn@1.22.22
           yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
@@ -81,40 +91,92 @@ jobs:
           VERSION_TAG=$(jq -r .version package.json)
           echo "VERSION_TAG=$VERSION_TAG" >> "$GITHUB_OUTPUT"
 
-      # TODO: We can use GitHub Actions's matrix option to reduce the build time.
       - name: Build and push preview image to Docker Hub
+        id: build-preview
         uses: docker/build-push-action@v4
         if: ${{ github.event.inputs.dockerRepository == 'preview' || !github.event.workflow_run }}
         with:
-          push: true
           tags: |
-            redash/redash:preview
-            redash/preview:${{ steps.version.outputs.VERSION_TAG }}
+            ${{ vars.DOCKER_USER }}/redash
+            ${{ vars.DOCKER_USER }}/preview
           context: .
           build-args: |
             test_all_deps=true
-          cache-from: type=gha,scope=multi-platform
-          cache-to: type=gha,mode=max,scope=multi-platform
-          platforms: linux/amd64,linux/arm64
+          outputs: type=image,push-by-digest=true,push=true
+          cache-from: type=gha,scope=${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
         env:
           DOCKER_CONTENT_TRUST: true
 
       - name: Build and push release image to Docker Hub
+        id: build-release
         uses: docker/build-push-action@v4
         if: ${{ github.event.inputs.dockerRepository == 'redash' }}
         with:
-          push: true
           tags: |
-            redash/redash:${{ steps.version.outputs.VERSION_TAG }}
+            ${{ vars.DOCKER_USER }}/redash:${{ steps.version.outputs.VERSION_TAG }}
           context: .
           build-args: |
             test_all_deps=true
-          cache-from: type=gha,scope=multi-platform
-          cache-to: type=gha,mode=max,scope=multi-platform
-          platforms: linux/amd64,linux/arm64
+          outputs: type=image,push-by-digest=true,push=true
+          cache-from: type=gha,scope=${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
         env:
           DOCKER_CONTENT_TRUST: true
 
       - name: "Failure: output container logs to console"
         if: failure()
         run: docker compose logs
+
+      - name: Export digest
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          if [[ "${{ github.event.inputs.dockerRepository }}" == 'preview' || !github.event.workflow_run ]]; then
+            digest="${{ steps.build-preview.outputs.digest}}"
+          else
+            digest="${{ steps.build-release.outputs.digest}}"
+          fi
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+
+  merge-docker-image:
+    runs-on: ubuntu-22.04
+    needs: build-docker-image
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: Create and push manifest for the preview image
+        if: ${{ github.event.inputs.dockerRepository == 'preview' || !github.event.workflow_run }}
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create -t ${{ vars.DOCKER_USER }}/redash:preview \
+            $(printf '${{ vars.DOCKER_USER }}/redash:preview@sha256:%s ' *)
+          docker buildx imagetools create -t ${{ vars.DOCKER_USER }}/preview:${{ needs.build-docker-image.outputs.VERSION_TAG }} \
+            $(printf '${{ vars.DOCKER_USER }}/preview:${{ needs.build-docker-image.outputs.VERSION_TAG }}@sha256:%s ' *)
+
+      - name: Create and push manifest for the release image
+        if: ${{ github.event.inputs.dockerRepository == 'redash' }}
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create -t ${{ vars.DOCKER_USER }}/redash:${{ needs.build-docker-image.outputs.VERSION_TAG }} \
+            $(printf '${{ vars.DOCKER_USER }}/redash:${{ needs.build-docker-image.outputs.VERSION_TAG }}@sha256:%s ' *)
