@@ -27,6 +27,7 @@ function PublicDashboard({ dashboard }) {
     const execute = useCallback(action => {
     setLoading(true);
     action().finally(() => {
+      window.location.reload();
       setLoading(false);
     });
   }, []);
