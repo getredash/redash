@@ -209,7 +209,7 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
               <span className="fa fa-paper-plane m-r-5" /> Publish
             </Button>
           )}
-          {showRefreshButton && <RefreshButton dashboardConfiguration={dashboardConfiguration} />}
+          <RefreshButton dashboardConfiguration={dashboardConfiguration} />
           {showFullscreenButton && (
             <Tooltip className="hidden-xs" title="Enable/Disable Fullscreen display">
               <Button
