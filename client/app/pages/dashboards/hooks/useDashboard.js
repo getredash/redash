@@ -37,6 +37,7 @@ function getAffectedWidgets(widgets, updatedParameters = []) {
 
 function useDashboard(dashboardData) {
   const [dashboard, setDashboard] = useState(dashboardData);
+  const initialLoadRef = useRef(true);
   const [filters, setFilters] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [gridDisabled, setGridDisabled] = useState(false);
@@ -217,6 +218,16 @@ function useDashboard(dashboardData) {
   useEffect(() => {
     loadDashboard();
   }, [dashboard.dashboard_filters_enabled]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    setDashboard(dashboardData);
+    if (initialLoadRef.current) {
+      initialLoadRef.current = false;
+      loadDashboard(true);
+    } else {
+      loadDashboard();
+    }
+  }, [dashboardData]);
 
   return {
     dashboard,
