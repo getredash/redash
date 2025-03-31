@@ -43,6 +43,9 @@ EXPOSE 5000
 
 RUN useradd --create-home redash
 
+# DB2 for IBM i support - Official IBM repo
+RUN curl https://public.dhe.ibm.com/software/ibmi/products/odbc/debs/dists/1.1.0/ibmi-acs-1.1.0.list | sudo tee /etc/apt/sources.list.d/ibmi-acs-1.1.0.list
+
 # Ubuntu packages
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
@@ -68,6 +71,8 @@ RUN apt-get update && \
   freetds-dev \
   libsasl2-dev \
   unzip \
+  # DB2 for IBM i support - ODBC driver
+  ibm-iaccess \
   libsasl2-modules-gssapi-mit && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
