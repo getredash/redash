@@ -16,6 +16,7 @@ import routes from "@/services/routes";
 import useDashboard from "./hooks/useDashboard";
 
 import "./PublicDashboardPage.less";
+import PlainButton from "@/components/PlainButton";
 
 function PublicDashboard({ dashboard }) {
   const { globalParameters, filters, setFilters, refreshDashboard, loadWidget, refreshWidget } = useDashboard(
@@ -51,6 +52,7 @@ function PublicDashboard({ dashboard }) {
         </div>
       )}
       <div id="dashboard-container">
+        <PlainButton onClick={refreshDashboard}/>
         <DashboardGrid
           dashboard={dashboard}
           widgets={dashboard.widgets}
