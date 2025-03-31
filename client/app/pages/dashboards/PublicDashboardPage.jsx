@@ -1,11 +1,10 @@
 /* eslint-disable no-unused-expressions, compat/compat, no-console, no-unused-vars */
 import { isEmpty } from "lodash";
-import React, { useEffect, useCallback, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
 import BigMessage from "@/components/BigMessage";
-import PageHeader from "@/components/PageHeader";
 import Parameters from "@/components/Parameters";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Filters from "@/components/Filters";
@@ -60,7 +59,9 @@ function PublicDashboard({ dashboard }) {
         </div>
       )}
       <div id="dashboard-container">
-        <PlainButton onClick={() => setIsRefreshing(true)}>Refresh dashboard</PlainButton>
+        <PlainButton className="public-dashboard-refreshButton" onClick={() => setIsRefreshing(true)}>
+            <i className="fa fa-refresh" aria-hidden="true"></i>
+        </PlainButton>
         <DashboardGrid
           dashboard={dashboard}
           widgets={dashboard.widgets}
