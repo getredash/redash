@@ -44,7 +44,7 @@ EXPOSE 5000
 RUN useradd --create-home redash
 
 # DB2 for IBM i support - Official IBM repo
-RUN curl https://public.dhe.ibm.com/software/ibmi/products/odbc/debs/dists/1.1.0/ibmi-acs-1.1.0.list | sudo tee /etc/apt/sources.list.d/ibmi-acs-1.1.0.list
+RUN curl https://public.dhe.ibm.com/software/ibmi/products/odbc/debs/dists/1.1.0/ibmi-acs-1.1.0.list | tee /etc/apt/sources.list.d/ibmi-acs-1.1.0.list
 
 # Ubuntu packages
 RUN apt-get update && \
