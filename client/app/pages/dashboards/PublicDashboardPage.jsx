@@ -22,15 +22,8 @@ function PublicDashboard({ dashboard }) {
   const { globalParameters, filters, setFilters, refreshDashboard, loadWidget, refreshWidget } = useDashboard(
     dashboard
   );
-  const [loading, setLoading] = useState(false);
 
-    const execute = useCallback(action => {
-    setLoading(true);
-    action().finally(() => {
-      setLoading(false);
-      window.location.reload();
-    });
-  }, []);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     window.top?.postMessage({ type: "ready", value: undefined }, "*");
@@ -50,7 +43,9 @@ function PublicDashboard({ dashboard }) {
 
   useEffect(() => {
     refreshDashboard();
-  }, [refreshDashboard]);
+    setIsRefreshing(false);
+    // eslint-disable-next-line
+  }, [isRefreshing]);
 
   return (
     <div className="container p-t-10 p-b-20">
@@ -65,7 +60,7 @@ function PublicDashboard({ dashboard }) {
         </div>
       )}
       <div id="dashboard-container">
-        <PlainButton onClick={() => execute(refreshDashboard)}>Refresh dashboard</PlainButton>
+        <PlainButton onClick={() => setIsRefreshing(true)}>Refresh dashboard</PlainButton>
         <DashboardGrid
           dashboard={dashboard}
           widgets={dashboard.widgets}
