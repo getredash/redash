@@ -51,6 +51,7 @@ function PublicDashboard({ dashboard }) {
         </div>
       )}
       <div id="dashboard-container">
+        <PlainButton onClick={refreshDashboard}/>
         <DashboardGrid
           dashboard={dashboard}
           widgets={dashboard.widgets}
