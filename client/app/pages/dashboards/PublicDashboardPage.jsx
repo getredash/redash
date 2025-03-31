@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-expressions, compat/compat, no-console, no-unused-vars */
 import { isEmpty } from "lodash";
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import PropTypes from "prop-types";
 
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
@@ -27,8 +27,8 @@ function PublicDashboard({ dashboard }) {
     const execute = useCallback(action => {
     setLoading(true);
     action().finally(() => {
-      window.location.reload();
       setLoading(false);
+      window.location.reload();
     });
   }, []);
 
@@ -47,6 +47,10 @@ function PublicDashboard({ dashboard }) {
       observer.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    refreshDashboard();
+  }, [refreshDashboard]);
 
   return (
     <div className="container p-t-10 p-b-20">
