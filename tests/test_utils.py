@@ -1,8 +1,8 @@
-from collections import namedtuple
 import datetime
 import decimal
-from unittest import TestCase
 import uuid
+from collections import namedtuple
+from unittest import TestCase
 
 import pytest
 
