@@ -5,7 +5,7 @@ import { getWidgetTestId, editDashboard, resizeBy } from "../../support/dashboar
 const menuWidth = 80;
 
 describe("Grid compliant widgets", () => {
-  beforeEach(function() {
+  beforeEach(function () {
     cy.login();
     cy.viewport(1215 + menuWidth, 800);
     cy.createDashboard("Foo Bar")
@@ -13,7 +13,7 @@ describe("Grid compliant widgets", () => {
         this.dashboardUrl = `/dashboards/${id}`;
         return cy.addTextbox(id, "Hello World!").then(getWidgetTestId);
       })
-      .then(elTestId => {
+      .then((elTestId) => {
         cy.visit(this.dashboardUrl);
         cy.getByTestId(elTestId).as("textboxEl");
       });
@@ -106,9 +106,9 @@ describe("Grid compliant widgets", () => {
 
       it("shrinks to minimum", () => {
         cy.get("@textboxEl")
-          .then($el => resizeBy(cy.get("@textboxEl"), -$el.width(), -$el.height())) // resize to 0,0
+          .then(($el) => resizeBy(cy.get("@textboxEl"), -$el.width(), -$el.height())) // resize to 0,0
           .then(() => cy.get("@textboxEl"))
-          .should($el => {
+          .should(($el) => {
             expect($el.width()).to.eq(185); // min textbox width
             expect($el.height()).to.eq(85); // min textbox height
           });
