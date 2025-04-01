@@ -92,7 +92,7 @@ class BaseElasticSearch(BaseQueryRunner):
             logger.setLevel(logging.DEBUG)
 
         self.server_url = self.configuration.get("server", "")
-        if self.server_url[-1] == "/":
+        if self.server_url and self.server_url[-1] == "/":
             self.server_url = self.server_url[:-1]
 
         basic_auth_user = self.configuration.get("basic_auth_user", None)
