@@ -118,7 +118,7 @@ jobs:
           context: .
           build-args: |
             test_all_deps=true
-          outputs: type=image,push-by-digest=true,push=true
+          outputs: type=image,push-by-digest=false,push=true
           cache-from: type=gha,scope=${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
         env:
