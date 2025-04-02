@@ -148,7 +148,7 @@ def json_dumps(data, *args, **kwargs):
     try:
         # Preprocess data before sending to orjson.dumps
         preprocessed_data = _preprocess_json_data(data, JSONEncoder())
-        return orjson.dumps(preprocessed_data, option=options).decode('utf-8')
+        return orjson.dumps(preprocessed_data, option=options).decode("utf-8")
     except orjson.JSONEncodeError as e:
         raise TypeError(f"Object not serializable: {e}")
 
