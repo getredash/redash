@@ -7,7 +7,7 @@ on:
     branches:
       - master
 env:
-  NODE_VERSION: 18
+  NODE_VERSION: 20.18.0
   YARN_VERSION: 1.22.22
 jobs:
   backend-lint:

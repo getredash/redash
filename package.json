@@ -33,9 +33,9 @@
     "url": "git+https://github.com/getredash/redash.git"
   },
   "engines": {
-    "node": ">16.0 <21.0",
+    "node": "20.19.0",
     "npm": "please-use-yarn",
-    "yarn": "^1.22.10"
+    "yarn": "1.22.22"
   },
   "author": "Redash Contributors",
   "license": "BSD-2-Clause",
