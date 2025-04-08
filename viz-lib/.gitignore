@@ -6,6 +6,7 @@ node_modules
 /dist
 /lib
 .rpt2_cache
+.yarn
 
 # misc
 .DS_Store

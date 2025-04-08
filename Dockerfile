@@ -1,6 +1,6 @@
-FROM node:20.18.0-bookworm AS frontend-builder
+FROM node:22.14.0-bookworm AS frontend-builder
 
-RUN npm install --global --force yarn@1.22.22
+RUN corepack enable && corepack prepare yarn@4.8.1 --activate
 
 # Controls whether to build the frontend assets
 ARG skip_frontend_build
@@ -12,7 +12,7 @@ RUN useradd -m -d /frontend redash
 USER redash
 
 WORKDIR /frontend
-COPY --chown=redash package.json yarn.lock .yarnrc /frontend/
+COPY --chown=redash package.json yarn.lock .yarnrc.yml /frontend/
 COPY --chown=redash viz-lib /frontend/viz-lib
 COPY --chown=redash scripts /frontend/scripts
 
@@ -20,16 +20,13 @@ COPY --chown=redash scripts /frontend/scripts
 ARG code_coverage
 ENV BABEL_ENV=${code_coverage:+test}
 
-# Avoid issues caused by lags in disk and network I/O speeds when working on top of QEMU emulation for multi-platform image building.
-RUN yarn config set network-timeout 300000
-
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
+RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn install --no-immutable; fi
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
 RUN <<EOF
   if [ "x$skip_frontend_build" = "x" ]; then
-    yarn build
+    YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn build
   else
     mkdir -p /frontend/client/dist
     touch /frontend/client/dist/multi_org.html

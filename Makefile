@@ -1,4 +1,4 @@
-.PHONY: compose_build up test_db create_database clean clean-all down tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
+.PHONY: compose_build up test_db create_database clean clean-all down tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash yarn-setup
 
 compose_build: .env
 	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose build
@@ -59,22 +59,28 @@ backend-unit-tests: up test_db
 	docker compose run --rm --name tests server tests
 
 frontend-unit-tests:
-	CYPRESS_INSTALL_BINARY=0 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 yarn --frozen-lockfile
+	CYPRESS_INSTALL_BINARY=0 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 yarn install
 	yarn test
 
 test: backend-unit-tests frontend-unit-tests lint
 
 build:
-	yarn build
+	yarn install --no-immutable
+	YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn build
 
 watch:
-	yarn watch
+	yarn install --no-immutable
+	YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn watch
 
 start:
-	yarn start
+	yarn install --no-immutable
+	YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn start
 
 redis-cli:
 	docker compose run --rm redis redis-cli -h redis
 
 bash:
 	docker compose run --rm server bash
+
+yarn-setup:
+	CYPRESS_INSTALL_BINARY=0 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install --no-immutable

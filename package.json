@@ -3,6 +3,9 @@
   "version": "25.04.0-dev",
   "description": "The frontend part of Redash.",
   "main": "index.js",
+  "workspaces": [
+    "viz-lib"
+  ],
   "scripts": {
     "start": "npm-run-all --parallel watch:viz webpack-dev-server",
     "clean": "rm -rf ./client/dist/",
@@ -25,17 +28,17 @@
     "test": "run-s type-check jest",
     "test:watch": "jest --watch",
     "cypress": "node client/cypress/cypress.js",
-    "preinstall": "cd viz-lib && yarn link --link-folder ../.yarn",
-    "postinstall": "(cd viz-lib && yarn --frozen-lockfile && yarn build:babel) && yarn link --link-folder ./.yarn @redash/viz"
+    "preinstall": "mkdir -p .yarn",
+    "postinstall": "cd viz-lib && yarn install && yarn build:babel"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/getredash/redash.git"
   },
   "engines": {
-    "node": "20.19.0",
+    "node": "22.14.0",
     "npm": "please-use-yarn",
-    "yarn": "1.22.22"
+    "yarn": "4.8.1"
   },
   "author": "Redash Contributors",
   "license": "BSD-2-Clause",
@@ -73,7 +76,7 @@
     "react-grid-layout": "^0.18.2",
     "react-resizable": "^1.10.1",
     "react-virtualized": "^9.21.2",
-    "sql-formatter": "git+https://github.com/getredash/sql-formatter.git",
+    "sql-formatter": "^4.0.2",
     "universal-router": "^8.3.0",
     "use-debounce": "^3.1.0",
     "use-media": "^1.4.0"
@@ -197,5 +200,6 @@
     "and_ff >= 64",
     "and_uc >= 11.8",
     "samsung >= 6.2"
-  ]
+  ],
+  "packageManager": "yarn@4.8.1+sha512.bc946f2a022d7a1a38adfc15b36a66a3807a67629789496c3714dd1703d2e6c6b1c69ff9ec3b43141ac7a1dd853b7685638eb0074300386a59c18df351ef8ff6"
 }
