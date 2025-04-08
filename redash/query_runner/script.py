@@ -55,12 +55,13 @@ class Script(BaseQueryRunner):
     def __init__(self, configuration):
         super(Script, self).__init__(configuration)
 
+        path = self.configuration.get("path", "")
         # If path is * allow any execution path
-        if self.configuration["path"] == "*":
+        if path == "*":
             return
 
         # Poor man's protection against running scripts from outside the scripts directory
-        if self.configuration["path"].find("../") > -1:
+        if path.find("../") > -1:
             raise ValueError("Scripts can only be run from the configured scripts directory")
 
     def test_connection(self):

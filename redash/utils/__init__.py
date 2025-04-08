@@ -6,6 +6,7 @@ import decimal
 import hashlib
 import io
 import json
+import math
 import os
 import random
 import re
@@ -60,7 +61,7 @@ def gen_query_hash(sql):
     """
     sql = COMMENTS_REGEX.sub("", sql)
     sql = "".join(sql.split())
-    return hashlib.md5(sql.encode("utf-8")).hexdigest()
+    return hashlib.md5(sql.encode("utf-8"), usedforsecurity=False).hexdigest()
 
 
 def generate_token(length):
@@ -120,6 +121,17 @@ def json_loads(data, *args, **kwargs):
     return json.loads(data, *args, **kwargs)
 
 
+# Convert NaN, Inf, and -Inf to None, as they are not valid JSON values.
+def _sanitize_data(data):
+    if isinstance(data, dict):
+        return {k: _sanitize_data(v) for k, v in data.items()}
+    if isinstance(data, list):
+        return [_sanitize_data(v) for v in data]
+    if isinstance(data, float) and (math.isnan(data) or math.isinf(data)):
+        return None
+    return data
+
+
 def json_dumps(data, *args, **kwargs):
     """A custom JSON dumping function which passes all parameters to the
     json.dumps function."""
@@ -128,7 +140,7 @@ def json_dumps(data, *args, **kwargs):
     # Float value nan or inf in Python should be render to None or null in json.
     # Using allow_nan = True will make Python render nan as NaN, leading to parse error in front-end
     kwargs.setdefault("allow_nan", False)
-    return json.dumps(data, *args, **kwargs)
+    return json.dumps(_sanitize_data(data), *args, **kwargs)
 
 
 def mustache_render(template, context=None, **kwargs):

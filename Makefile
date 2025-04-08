@@ -4,7 +4,11 @@ compose_build: .env
 	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose build
 
 up:
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose up -d --build
+	docker compose up -d redis postgres --remove-orphans
+	docker compose exec -u postgres postgres psql postgres --csv \
+		-1tqc "SELECT table_name FROM information_schema.tables WHERE table_name = 'organizations'" 2> /dev/null \
+		| grep -q "organizations" || make create_database
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose up -d --build --remove-orphans
 
 test_db:
 	@for i in `seq 1 5`; do \
@@ -30,7 +34,7 @@ clean:
 
 clean-all: clean
 	docker image rm --force \
-		redash/redash:10.1.0.b50633 redis:7-alpine maildev/maildev:latest \
+		redash/redash:latest redis:7-alpine maildev/maildev:latest \
 		pgautoupgrade/pgautoupgrade:15-alpine3.8 pgautoupgrade/pgautoupgrade:latest
 
 down:

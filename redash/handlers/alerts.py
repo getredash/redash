@@ -1,7 +1,7 @@
 from flask import request
 from funcy import project
 
-from redash import models
+from redash import models, utils
 from redash.handlers.base import (
     BaseResource,
     get_object_or_404,
@@ -14,6 +14,10 @@ from redash.permissions import (
     view_only,
 )
 from redash.serializers import serialize_alert
+from redash.tasks.alerts import (
+    notify_subscriptions,
+    should_notify,
+)
 
 
 class AlertResource(BaseResource):
@@ -41,6 +45,21 @@ class AlertResource(BaseResource):
         require_admin_or_owner(alert.user_id)
         models.db.session.delete(alert)
         models.db.session.commit()
+
+
+class AlertEvaluateResource(BaseResource):
+    def post(self, alert_id):
+        alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
+        require_admin_or_owner(alert.user.id)
+
+        new_state = alert.evaluate()
+        if should_notify(alert, new_state):
+            alert.state = new_state
+            alert.last_triggered_at = utils.utcnow()
+            models.db.session.commit()
+
+        notify_subscriptions(alert, new_state, {})
+        self.record_event({"action": "evaluate", "object_id": alert.id, "object_type": "alert"})
 
 
 class AlertMuteResource(BaseResource):

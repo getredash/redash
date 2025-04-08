@@ -8,7 +8,7 @@ from rq_scheduler import Scheduler
 
 from redash import rq_redis_connection, settings
 from redash.tasks.failure_report import send_aggregated_errors
-from redash.tasks.general import sync_user_details
+from redash.tasks.general import sync_user_details, version_check
 from redash.tasks.queries import (
     cleanup_query_results,
     empty_schedules,
@@ -78,6 +78,9 @@ def periodic_job_definitions():
             "interval": timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL),
         },
     ]
+
+    if settings.VERSION_CHECK:
+        jobs.append({"func": version_check, "interval": timedelta(days=1)})
 
     if settings.QUERY_RESULTS_CLEANUP_ENABLED:
         jobs.append({"func": cleanup_query_results, "interval": timedelta(minutes=5)})

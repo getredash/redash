@@ -76,6 +76,10 @@ class Athena(BaseQueryRunner):
                     "default": "default",
                 },
                 "glue": {"type": "boolean", "title": "Use Glue Data Catalog"},
+                "catalog_ids": {
+                    "type": "string",
+                    "title": "Enter Glue Data Catalog IDs, separated by commas (leave blank for default catalog)",
+                },
                 "work_group": {
                     "type": "string",
                     "title": "Athena Work Group",
@@ -86,15 +90,26 @@ class Athena(BaseQueryRunner):
                     "title": "Athena cost per Tb scanned (USD)",
                     "default": 5,
                 },
+                "result_reuse_enable": {
+                    "type": "boolean",
+                    "title": "Reuse Athena query results",
+                },
+                "result_reuse_minutes": {
+                    "type": "number",
+                    "title": "Minutes to reuse Athena query results",
+                    "default": 60,
+                },
             },
             "required": ["region", "s3_staging_dir"],
-            "extra_options": ["glue", "cost_per_tb"],
+            "extra_options": ["glue", "catalog_ids", "cost_per_tb", "result_reuse_enable", "result_reuse_minutes"],
             "order": [
                 "region",
                 "s3_staging_dir",
                 "schema",
                 "work_group",
                 "cost_per_tb",
+                "result_reuse_enable",
+                "result_reuse_minutes",
             ],
             "secret": ["aws_secret_key"],
         }
@@ -172,35 +187,53 @@ class Athena(BaseQueryRunner):
                 "region_name": self.configuration["region"],
             }
 
-    def __get_schema_from_glue(self):
+    def __get_schema_from_glue(self, catalog_id=""):
         client = boto3.client("glue", **self._get_iam_credentials())
         schema = {}
 
         database_paginator = client.get_paginator("get_databases")
         table_paginator = client.get_paginator("get_tables")
 
-        for databases in database_paginator.paginate():
+        databases_iterator = database_paginator.paginate(
+            **({"CatalogId": catalog_id} if catalog_id != "" else {}),
+        )
+
+        for databases in databases_iterator:
             for database in databases["DatabaseList"]:
-                iterator = table_paginator.paginate(DatabaseName=database["Name"])
+                iterator = table_paginator.paginate(
+                    DatabaseName=database["Name"],
+                    **({"CatalogId": catalog_id} if catalog_id != "" else {}),
+                )
                 for table in iterator.search("TableList[]"):
                     table_name = "%s.%s" % (database["Name"], table["Name"])
                     if "StorageDescriptor" not in table:
                         logger.warning("Glue table doesn't have StorageDescriptor: %s", table_name)
                         continue
                     if table_name not in schema:
-                        column = [columns["Name"] for columns in table["StorageDescriptor"]["Columns"]]
-                        schema[table_name] = {"name": table_name, "columns": column}
-                        for partition in table.get("PartitionKeys", []):
-                            schema[table_name]["columns"].append(partition["Name"])
+                        schema[table_name] = {"name": table_name, "columns": []}
+
+                    for column_data in table["StorageDescriptor"]["Columns"]:
+                        column = {
+                            "name": column_data["Name"],
+                            "type": column_data["Type"] if "Type" in column_data else None,
+                        }
+                        schema[table_name]["columns"].append(column)
+                    for partition in table.get("PartitionKeys", []):
+                        partition_column = {
+                            "name": partition["Name"],
+                            "type": partition["Type"] if "Type" in partition else None,
+                        }
+                        schema[table_name]["columns"].append(partition_column)
         return list(schema.values())
 
     def get_schema(self, get_stats=False):
         if self.configuration.get("glue", False):
-            return self.__get_schema_from_glue()
+            catalog_ids = [id.strip() for id in self.configuration.get("catalog_ids", "").split(",")]
+            return sum([self.__get_schema_from_glue(catalog_id) for catalog_id in catalog_ids], [])
 
         schema = {}
         query = """
-        SELECT table_schema, table_name, column_name
+        SELECT table_schema, table_name, column_name, data_type
         FROM information_schema.columns
         WHERE table_schema NOT IN ('information_schema')
         """
@@ -213,7 +246,7 @@ class Athena(BaseQueryRunner):
             table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
-            schema[table_name]["columns"].append(row["column_name"])
+            schema[table_name]["columns"].append({"name": row["column_name"], "type": row["data_type"]})
 
         return list(schema.values())
 
@@ -225,6 +258,8 @@ class Athena(BaseQueryRunner):
             kms_key=self.configuration.get("kms_key", None),
             work_group=self.configuration.get("work_group", "primary"),
             formatter=SimpleFormatter(),
+            result_reuse_enable=self.configuration.get("result_reuse_enable", False),
+            result_reuse_minutes=self.configuration.get("result_reuse_minutes", 60),
             **self._get_iam_credentials(user=user),
         ).cursor()
 

@@ -46,6 +46,7 @@ from redash.models.parameterized_query import (
     QueryDetachedFromDataSourceError,
 )
 from redash.models.types import (
+    Configuration,
     EncryptedConfiguration,
     JSONText,
     MutableDict,
@@ -386,6 +387,10 @@ class QueryResult(db.Model, BelongsToOrgMixin):
 
 
 def should_schedule_next(previous_iteration, now, interval, time=None, day_of_week=None, failures=0):
+    # if previous_iteration is None, it means the query has never been run before
+    # so we should schedule it immediately
+    if previous_iteration is None:
+        return True
     # if time exists then interval > 23 hours (82800s)
     # if day_of_week exists then interval > 6 days (518400s)
     if time is None:
@@ -601,6 +606,11 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 if query.schedule.get("disabled"):
                     continue
 
+                # Skip queries that have None for all schedule values. It's unclear whether this
+                # something that can happen in practice, but we have a test case for it.
+                if all(value is None for value in query.schedule.values()):
+                    continue
+
                 if query.schedule["until"]:
                     schedule_until = pytz.utc.localize(datetime.datetime.strptime(query.schedule["until"], "%Y-%m-%d"))
 
@@ -612,7 +622,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 )
 
                 if should_schedule_next(
-                    retrieved_at or now,
+                    retrieved_at,
                     now,
                     query.schedule["interval"],
                     query.schedule["time"],
@@ -898,6 +908,7 @@ def next_state(op, value, threshold):
         # boolean value is Python specific and most likely will be confusing to
         # users.
         value = str(value).lower()
+        value_is_number = False
     else:
         try:
             value = float(value)
@@ -915,6 +926,8 @@ def next_state(op, value, threshold):
 
     if op(value, threshold):
         new_state = Alert.TRIGGERED_STATE
+    elif not value_is_number and op not in [OPERATORS.get("!="), OPERATORS.get("=="), OPERATORS.get("equals")]:
+        new_state = Alert.UNKNOWN_STATE
     else:
         new_state = Alert.OK_STATE
 
@@ -926,6 +939,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     UNKNOWN_STATE = "unknown"
     OK_STATE = "ok"
     TRIGGERED_STATE = "triggered"
+    TEST_STATE = "test"
 
     id = primary_key("Alert")
     name = Column(db.String(255))
@@ -955,17 +969,38 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         return super(Alert, cls).get_by_id_and_org(object_id, org, Query)
 
     def evaluate(self):
-        data = self.query_rel.latest_query_data.data
+        data = self.query_rel.latest_query_data.data if self.query_rel.latest_query_data else None
+        new_state = self.UNKNOWN_STATE
 
-        if data["rows"] and self.options["column"] in data["rows"][0]:
+        if data and data["rows"] and self.options["column"] in data["rows"][0]:
             op = OPERATORS.get(self.options["op"], lambda v, t: False)
 
-            value = data["rows"][0][self.options["column"]]
+            if "selector" not in self.options:
+                selector = "first"
+            else:
+                selector = self.options["selector"]
+
+            try:
+                if selector == "max":
+                    max_val = float("-inf")
+                    for i in range(len(data["rows"])):
+                        max_val = max(max_val, float(data["rows"][i][self.options["column"]]))
+                    value = max_val
+                elif selector == "min":
+                    min_val = float("inf")
+                    for i in range(len(data["rows"])):
+                        min_val = min(min_val, float(data["rows"][i][self.options["column"]]))
+                    value = min_val
+                else:
+                    value = data["rows"][0][self.options["column"]]
+
+            except ValueError:
+                return self.UNKNOWN_STATE
+
             threshold = self.options["value"]
 
-            new_state = next_state(op, value, threshold)
-        else:
-            new_state = self.UNKNOWN_STATE
+            if value is not None:
+                new_state = next_state(op, value, threshold)
 
         return new_state
 
@@ -988,11 +1023,11 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         result_table = []  # A two-dimensional array which can rendered as a table in Mustache
         for row in data["rows"]:
             result_table.append([row[col["name"]] for col in data["columns"]])
-
         context = {
             "ALERT_NAME": self.name,
             "ALERT_URL": "{host}/alerts/{alert_id}".format(host=host, alert_id=self.id),
             "ALERT_STATUS": self.state.upper(),
+            "ALERT_SELECTOR": self.options["selector"],
             "ALERT_CONDITION": self.options["op"],
             "ALERT_THRESHOLD": self.options["value"],
             "QUERY_NAME": self.query_rel.name,

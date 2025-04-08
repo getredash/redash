@@ -65,6 +65,7 @@ export const Query = PropTypes.shape({
 
 export const AlertOptions = PropTypes.shape({
   column: PropTypes.string,
+  selector: PropTypes.oneOf(["first", "min", "max"]),
   op: PropTypes.oneOf([">", ">=", "<", "<=", "==", "!="]),
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   custom_subject: PropTypes.string,
@@ -83,6 +84,7 @@ export const Alert = PropTypes.shape({
   query: Query,
   options: PropTypes.shape({
     column: PropTypes.string,
+    selector: PropTypes.string,
     op: PropTypes.string,
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   }).isRequired,

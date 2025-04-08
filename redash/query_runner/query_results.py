@@ -90,7 +90,9 @@ def create_tables_from_query_ids(user, connection, query_ids, query_params, cach
 
     for query in set(query_params):
         results = get_query_results(user, query[0], False, query[1])
-        table_hash = hashlib.md5("query_{query}_{hash}".format(query=query[0], hash=query[1]).encode()).hexdigest()
+        table_hash = hashlib.md5(
+            "query_{query}_{hash}".format(query=query[0], hash=query[1]).encode(), usedforsecurity=False
+        ).hexdigest()
         table_name = "query_{query_id}_{param_hash}".format(query_id=query[0], param_hash=table_hash)
         create_table(connection, table_name, results)
 
@@ -142,7 +144,9 @@ def create_table(connection, table_name, query_results):
 
 def prepare_parameterized_query(query, query_params):
     for params in query_params:
-        table_hash = hashlib.md5("query_{query}_{hash}".format(query=params[0], hash=params[1]).encode()).hexdigest()
+        table_hash = hashlib.md5(
+            "query_{query}_{hash}".format(query=params[0], hash=params[1]).encode(), usedforsecurity=False
+        ).hexdigest()
         key = "param_query_{query_id}_{{{param_string}}}".format(query_id=params[0], param_string=params[1])
         value = "query_{query_id}_{param_hash}".format(query_id=params[0], param_hash=table_hash)
         query = query.replace(key, value)

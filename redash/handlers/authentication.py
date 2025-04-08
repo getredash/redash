@@ -15,6 +15,7 @@ from redash.authentication.account import (
 )
 from redash.handlers import routes
 from redash.handlers.base import json_response, org_scoped_rule
+from redash.version_check import get_latest_version
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,7 @@ def get_google_auth_url(next_path):
 
 
 def render_token_login_page(template, org_slug, token, invite):
+    error_message = None
     try:
         user_id = validate_token(token)
         org = current_org._get_current_object()
@@ -39,19 +41,19 @@ def render_token_login_page(template, org_slug, token, invite):
             user_id,
             org_slug,
         )
+        error_message = "Your invite link is invalid. Bad user id in token. Please ask for a new one."
+    except SignatureExpired:
+        logger.exception("Token signature has expired. Token: %s, org=%s", token, org_slug)
+        error_message = "Your invite link has expired. Please ask for a new one."
+    except BadSignature:
+        logger.exception("Bad signature for the token: %s, org=%s", token, org_slug)
+        error_message = "Your invite link is invalid. Bad signature. Please double-check the token."
+
+    if error_message:
         return (
             render_template(
                 "error.html",
-                error_message="Invalid invite link. Please ask for a new one.",
-            ),
-            400,
-        )
-    except (SignatureExpired, BadSignature):
-        logger.exception("Failed to verify invite token: %s, org=%s", token, org_slug)
-        return (
-            render_template(
-                "error.html",
-                error_message="Your invite link has expired. Please ask for a new one.",
+                error_message=error_message,
             ),
             400,
         )
@@ -255,11 +257,15 @@ def number_format_config():
 
 def client_config():
     if not current_user.is_api_user() and current_user.is_authenticated:
-        client_config_inner = {
+        client_config = {
+            "newVersionAvailable": bool(get_latest_version()),
             "version": __version__,
         }
     else:
-        client_config_inner = {}
+        client_config = {}
+
+    if current_user.has_permission("admin") and current_org.get_setting("beacon_consent") is None:
+        client_config["showBeaconConsentMessage"] = True
 
     defaults = {
         "allowScriptsInUserInput": settings.ALLOW_SCRIPTS_IN_USER_INPUT,
@@ -279,12 +285,12 @@ def client_config():
         "tableCellMaxJSONSize": settings.TABLE_CELL_MAX_JSON_SIZE,
     }
 
-    client_config_inner.update(defaults)
-    client_config_inner.update({"basePath": base_href()})
-    client_config_inner.update(date_time_format_config())
-    client_config_inner.update(number_format_config())
+    client_config.update(defaults)
+    client_config.update({"basePath": base_href()})
+    client_config.update(date_time_format_config())
+    client_config.update(number_format_config())
 
-    return client_config_inner
+    return client_config
 
 
 def messages():
