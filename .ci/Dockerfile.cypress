@@ -1,13 +1,13 @@
 FROM cypress/browsers:node-22.14.0-chrome-134.0.6998.165-1-ff-136.0.3-edge-134.0.3124.85-1
 
-ENV APP /usr/src/app
+ENV APP=/usr/src/app
 WORKDIR $APP
 
 COPY package.json yarn.lock .yarnrc.yml $APP/
 COPY viz-lib $APP/viz-lib
 RUN corepack enable \
     && corepack prepare yarn@4.8.1 --activate \
-    && yarn install --no-immutable 1 > /dev/null
+    && yarn install --no-immutable > /dev/null
 
 COPY . $APP
 
