@@ -8,7 +8,9 @@
     corepack prepare yarn@$YARN_VERSION --activate && \
     yarn cache clean && \
     yarn install --no-immutable && \
+    cd viz-lib && yarn install && yarn build:babel && cd ../ && \
     YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn build && \
+    echo "Build complete" && \
     cd ./client
   """
 
