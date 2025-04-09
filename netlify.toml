@@ -2,7 +2,15 @@
   base    = "client"
   publish = "client/dist"
   # Netlify doesn't seem to install Yarn even though NETLIFY_USE_YARN is set below
-  command = "cd ../ && corepack enable && corepack prepare yarn@$YARN_VERSION --activate && yarn cache clean && yarn install --no-immutable && yarn build && cd ./client"
+  command = """
+    cd ../ && \
+    corepack enable && \
+    corepack prepare yarn@$YARN_VERSION --activate && \
+    yarn cache clean && \
+    yarn install --no-immutable && \
+    YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn build && \
+    cd ./client
+  """
 
 [build.environment]
   NODE_VERSION = "22.14.0"
