@@ -4063,16 +4063,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polka/url@npm:^1.0.0-next.20":
-  version: 1.0.0-next.21
-  resolution: "@polka/url@npm:1.0.0-next.21"
-  checksum: 10c0/53c1f28683a075aac41f8ce2a54eb952b6bc67a03494b2dca1cb63d833a6da898cea6a92df8e1e6b680db985fb7f9c16e11c20afa6584bcdda68a16fb4c18737
+"@polka/url@npm:^1.0.0-next.24":
+  version: 1.0.0-next.28
+  resolution: "@polka/url@npm:1.0.0-next.28"
+  checksum: 10c0/acc5ea62597e4da2fb42dbee02749d07f102ae7d6d2c966bf7e423c79cd65d1621da305af567e6e7c232f3b565e242d1ec932cbb3dcc0db1508d02e9a2cafa2e
   languageName: node
   linkType: hard
 
 "@redash/viz@file:viz-lib::locator=redash-client%40workspace%3A.":
   version: 1.0.0
-  resolution: "@redash/viz@file:viz-lib#viz-lib::hash=46f569&locator=redash-client%40workspace%3A."
+  resolution: "@redash/viz@file:viz-lib#viz-lib::hash=7625ee&locator=redash-client%40workspace%3A."
   dependencies:
     axios: "npm:0.28.0"
     axios-auth-refresh: "npm:3.3.6"
@@ -4100,7 +4100,7 @@ __metadata:
     "@ant-design/icons": ">=4.0.0"
     antd: ">=4.0.0"
     react-dom: ">=16.14.0"
-  checksum: 10c0/7a4ca228db3f1b788a53a2d70534cad46551388c78fe4517adb24e7015acd4baf5f6ded96856781aa62def14b4e2d3442a34bc6df5d0b87c326402cb331e0458
+  checksum: 10c0/8b9cba7496d27513b3e867c6d7596d80b306d8c2c06a98722ce2dd5489f000bcc7f01db34828d4c534dbcc2e1ca42b112d144d769c80d78433d2b28c2fde2b17
   languageName: node
   linkType: hard
 
@@ -9276,6 +9276,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"debounce@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "debounce@npm:1.2.1"
+  checksum: 10c0/6c9320aa0973fc42050814621a7a8a78146c1975799b5b3cc1becf1f77ba9a5aa583987884230da0842a03f385def452fad5d60db97c3d1c8b824e38a8edf500
+  languageName: node
+  linkType: hard
+
 "debug@npm:2, debug@npm:2.6.9, debug@npm:^2.2.0, debug@npm:^2.3.3, debug@npm:^2.6.8, debug@npm:^2.6.9":
   version: 2.6.9
   resolution: "debug@npm:2.6.9"
@@ -13285,7 +13292,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"html-escaper@npm:^2.0.0":
+"html-escaper@npm:^2.0.0, html-escaper@npm:^2.0.2":
   version: 2.0.2
   resolution: "html-escaper@npm:2.0.2"
   checksum: 10c0/208e8a12de1a6569edbb14544f4567e6ce8ecc30b9394fcaa4e7bb1e60c12a7c9a1ed27e31290817157e8626f3a4f29e76c8747030822eb84a6abb15c255f0a0
@@ -16980,10 +16987,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mrmime@npm:^1.0.0":
-  version: 1.0.1
-  resolution: "mrmime@npm:1.0.1"
-  checksum: 10c0/ab071441da76fd23b3b0d1823d77aacf8679d379a4a94cacd83e487d3d906763b277f3203a594c613602e31ab5209c26a8119b0477c4541ef8555b293a9db6d3
+"mrmime@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "mrmime@npm:2.0.1"
+  checksum: 10c0/af05afd95af202fdd620422f976ad67dc18e6ee29beb03dd1ce950ea6ef664de378e44197246df4c7cdd73d47f2e7143a6e26e473084b9e4aa2095c0ad1e1761
   languageName: node
   linkType: hard
 
@@ -20353,12 +20360,12 @@ __metadata:
     url-loader: "npm:^4.1.1"
     use-debounce: "npm:^3.1.0"
     use-media: "npm:^1.4.0"
-    webpack: "npm:^4.46.0"
+    webpack: "npm:^4.47.0"
     webpack-build-notifier: "npm:^2.3.0"
-    webpack-bundle-analyzer: "npm:^4.9.0"
+    webpack-bundle-analyzer: "npm:^4.10.2"
     webpack-cli: "npm:^4.10.0"
-    webpack-dev-server: "npm:^4.15.1"
-    webpack-manifest-plugin: "npm:^2.0.4"
+    webpack-dev-server: "npm:^4.15.2"
+    webpack-manifest-plugin: "npm:^2.2.0"
   dependenciesMeta:
     fsevents:
       optional: true
@@ -21851,14 +21858,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sirv@npm:^1.0.7":
-  version: 1.0.19
-  resolution: "sirv@npm:1.0.19"
+"sirv@npm:^2.0.3":
+  version: 2.0.4
+  resolution: "sirv@npm:2.0.4"
   dependencies:
-    "@polka/url": "npm:^1.0.0-next.20"
-    mrmime: "npm:^1.0.0"
-    totalist: "npm:^1.0.0"
-  checksum: 10c0/393cc0471e82d3e754a8c1b2b348a86249db1f686aeb11c17e4217326a8b1a96029d9f1b58362ebb3e511b7b98c47cd43c4305dde98322bb1259d07dec2d4908
+    "@polka/url": "npm:^1.0.0-next.24"
+    mrmime: "npm:^2.0.0"
+    totalist: "npm:^3.0.0"
+  checksum: 10c0/68f8ee857f6a9415e9c07a1f31c7c561df8d5f1b1ba79bee3de583fa37da8718def5309f6b1c6e2c3ef77de45d74f5e49efc7959214443aa92d42e9c99180a4e
   languageName: node
   linkType: hard
 
@@ -23361,10 +23368,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"totalist@npm:^1.0.0":
-  version: 1.1.0
-  resolution: "totalist@npm:1.1.0"
-  checksum: 10c0/2adbd4501c8290c2a96617a83dc67dfdd02bcbd360032017e27ccf27bbb09649bbe8dad1c45d97be6874281178aca5b3f62ed059d1eeda77c479cfb8eb3a9266
+"totalist@npm:^3.0.0":
+  version: 3.0.1
+  resolution: "totalist@npm:3.0.1"
+  checksum: 10c0/4bb1fadb69c3edbef91c73ebef9d25b33bbf69afe1e37ce544d5f7d13854cda15e47132f3e0dc4cafe300ddb8578c77c50a65004d8b6e97e77934a69aa924863
   languageName: node
   linkType: hard
 
@@ -24365,23 +24372,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-bundle-analyzer@npm:^4.9.0":
-  version: 4.9.0
-  resolution: "webpack-bundle-analyzer@npm:4.9.0"
+"webpack-bundle-analyzer@npm:^4.10.2":
+  version: 4.10.2
+  resolution: "webpack-bundle-analyzer@npm:4.10.2"
   dependencies:
     "@discoveryjs/json-ext": "npm:0.5.7"
     acorn: "npm:^8.0.4"
     acorn-walk: "npm:^8.0.0"
-    chalk: "npm:^4.1.0"
     commander: "npm:^7.2.0"
+    debounce: "npm:^1.2.1"
+    escape-string-regexp: "npm:^4.0.0"
     gzip-size: "npm:^6.0.0"
-    lodash: "npm:^4.17.20"
+    html-escaper: "npm:^2.0.2"
     opener: "npm:^1.5.2"
-    sirv: "npm:^1.0.7"
+    picocolors: "npm:^1.0.0"
+    sirv: "npm:^2.0.3"
     ws: "npm:^7.3.1"
   bin:
     webpack-bundle-analyzer: lib/bin/analyzer.js
-  checksum: 10c0/fe7ab4fd129bf9e3291345c8e9db889b10df36cbc3bb58add5bddef078429336d1066395a605e6948bd7af91f604ae229de9ef2dcd4aa95e5ab3d49934d67368
+  checksum: 10c0/00603040e244ead15b2d92981f0559fa14216381349412a30070a7358eb3994cd61a8221d34a3b3fb8202dc3d1c5ee1fbbe94c5c52da536e5b410aa1cf279a48
   languageName: node
   linkType: hard
 
@@ -24450,7 +24459,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-dev-middleware@npm:^5.3.1":
+"webpack-dev-middleware@npm:^5.3.4":
   version: 5.3.4
   resolution: "webpack-dev-middleware@npm:5.3.4"
   dependencies:
@@ -24465,9 +24474,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-dev-server@npm:^4.15.1":
-  version: 4.15.1
-  resolution: "webpack-dev-server@npm:4.15.1"
+"webpack-dev-server@npm:^4.15.2":
+  version: 4.15.2
+  resolution: "webpack-dev-server@npm:4.15.2"
   dependencies:
     "@types/bonjour": "npm:^3.5.9"
     "@types/connect-history-api-fallback": "npm:^1.3.5"
@@ -24497,7 +24506,7 @@ __metadata:
     serve-index: "npm:^1.9.1"
     sockjs: "npm:^0.3.24"
     spdy: "npm:^4.0.2"
-    webpack-dev-middleware: "npm:^5.3.1"
+    webpack-dev-middleware: "npm:^5.3.4"
     ws: "npm:^8.13.0"
   peerDependencies:
     webpack: ^4.37.0 || ^5.0.0
@@ -24508,20 +24517,21 @@ __metadata:
       optional: true
   bin:
     webpack-dev-server: bin/webpack-dev-server.js
-  checksum: 10c0/2cf3edf556dcafdfc938e0adeac3dadf97fb959ed66b88bdd70acdb0b77b0f25be5e2d4b30cca2da8732548451418cadf00eb09e751e7674ff914fd9ab646b26
+  checksum: 10c0/625bd5b79360afcf98782c8b1fd710b180bb0e96d96b989defff550c546890010ceea82ffbecb2a0a23f7f018bc72f2dee7b3070f7b448fb0110df6657fb2904
   languageName: node
   linkType: hard
 
-"webpack-manifest-plugin@npm:^2.0.4":
-  version: 2.0.4
-  resolution: "webpack-manifest-plugin@npm:2.0.4"
+"webpack-manifest-plugin@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "webpack-manifest-plugin@npm:2.2.0"
   dependencies:
     fs-extra: "npm:^7.0.0"
     lodash: "npm:>=3.5 <5"
+    object.entries: "npm:^1.1.0"
     tapable: "npm:^1.0.0"
   peerDependencies:
     webpack: 2 || 3 || 4
-  checksum: 10c0/2f8a90ad330e5c7c63b8f42d988df87fa1634e510138f00cff16d057296ff5df6f0234d42a5b7017c8705dd887e46290207dbaceed7c8916e849e9ce9133f3e1
+  checksum: 10c0/8755152d448bd26a5164ccb173ba6971b64891894a680e477baad434f9c4a78e707e6e40f59447998427d0a7e00e1b027306a671f9fedaf6b19007577de9e235
   languageName: node
   linkType: hard
 
@@ -24562,9 +24572,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:^4.46.0":
-  version: 4.46.0
-  resolution: "webpack@npm:4.46.0"
+"webpack@npm:^4.47.0":
+  version: 4.47.0
+  resolution: "webpack@npm:4.47.0"
   dependencies:
     "@webassemblyjs/ast": "npm:1.9.0"
     "@webassemblyjs/helper-module-context": "npm:1.9.0"
@@ -24596,7 +24606,7 @@ __metadata:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: 10c0/3451b48b926d7c295a4eba65bb7ff9a7d2d49a848014ea0945f446ebf4c1ca5bdd15681b444f5dfd8bbc4856afda55211d30a173ae721b8108f229792e6fb509
+  checksum: 10c0/bc90202110a341359c11ead60ea09bd5cfa51e2c93004d7e40b7c2f76208cc6717e39c9d9544825cc44958046ada762c78a8cf9848619ea450315bce98228701
   languageName: node
   linkType: hard
 
