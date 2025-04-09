@@ -7,7 +7,7 @@ COPY package.json yarn.lock .yarnrc.yml $APP/
 COPY viz-lib $APP/viz-lib
 RUN corepack enable \
     && corepack prepare yarn@4.8.1 --activate \
-    && yarn --frozen-lockfile --network-concurrency 1 > /dev/null
+    && yarn install --no-immutable 1 > /dev/null
 
 COPY . $APP
 
