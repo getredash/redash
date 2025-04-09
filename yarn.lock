@@ -4072,7 +4072,7 @@ __metadata:
 
 "@redash/viz@file:viz-lib::locator=redash-client%40workspace%3A.":
   version: 1.0.0
-  resolution: "@redash/viz@file:viz-lib#viz-lib::hash=7625ee&locator=redash-client%40workspace%3A."
+  resolution: "@redash/viz@file:viz-lib#viz-lib::hash=bd9192&locator=redash-client%40workspace%3A."
   dependencies:
     axios: "npm:0.28.0"
     axios-auth-refresh: "npm:3.3.6"
@@ -4100,7 +4100,7 @@ __metadata:
     "@ant-design/icons": ">=4.0.0"
     antd: ">=4.0.0"
     react-dom: ">=16.14.0"
-  checksum: 10c0/8b9cba7496d27513b3e867c6d7596d80b306d8c2c06a98722ce2dd5489f000bcc7f01db34828d4c534dbcc2e1ca42b112d144d769c80d78433d2b28c2fde2b17
+  checksum: 10c0/c693c6dd302e362048d1211ca954e9386c58471f515fe47293793c66641fe7c408193df35244e55a5be9e635dad0c5ebb2a57f3bfc0e897218e62fb8b8340fb4
   languageName: node
   linkType: hard
 
@@ -16932,6 +16932,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"moo@npm:^0.5.0":
+  version: 0.5.2
+  resolution: "moo@npm:0.5.2"
+  checksum: 10c0/a9d9ad8198a51fe35d297f6e9fdd718298ca0b39a412e868a0ebd92286379ab4533cfc1f1f34516177f5129988ab25fe598f78e77c84e3bfe0d4a877b56525a8
+  languageName: node
+  linkType: hard
+
 "mouse-change@npm:^1.4.0":
   version: 1.4.0
   resolution: "mouse-change@npm:1.4.0"
@@ -17114,6 +17121,23 @@ __metadata:
   version: 1.4.0
   resolution: "natural-compare@npm:1.4.0"
   checksum: 10c0/f5f9a7974bfb28a91afafa254b197f0f22c684d4a1731763dda960d2c8e375b36c7d690e0d9dc8fba774c537af14a7e979129bca23d88d052fbeb9466955e447
+  languageName: node
+  linkType: hard
+
+"nearley@npm:^2.20.1":
+  version: 2.20.1
+  resolution: "nearley@npm:2.20.1"
+  dependencies:
+    commander: "npm:^2.19.0"
+    moo: "npm:^0.5.0"
+    railroad-diagrams: "npm:^1.0.0"
+    randexp: "npm:0.4.6"
+  bin:
+    nearley-railroad: bin/nearley-railroad.js
+    nearley-test: bin/nearley-test.js
+    nearley-unparse: bin/nearley-unparse.js
+    nearleyc: bin/nearleyc.js
+  checksum: 10c0/d25e1fd40b19c53a0ada6a688670f4a39063fd9553ab62885e81a82927d51572ce47193b946afa3d85efa608ba2c68f433c421f69b854bfb7f599eacb5fae37e
   languageName: node
   linkType: hard
 
@@ -20353,7 +20377,7 @@ __metadata:
     react-test-renderer: "npm:^16.14.0"
     react-virtualized: "npm:^9.21.2"
     request-cookies: "npm:^1.1.0"
-    sql-formatter: "npm:^4.0.2"
+    sql-formatter: "npm:^15.5.2"
     style-loader: "npm:^2.0.0"
     typescript: "npm:^4.1.2"
     universal-router: "npm:^8.3.0"
@@ -22192,14 +22216,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sql-formatter@npm:^4.0.2":
-  version: 4.0.2
-  resolution: "sql-formatter@npm:4.0.2"
+"sql-formatter@npm:^15.5.2":
+  version: 15.5.2
+  resolution: "sql-formatter@npm:15.5.2"
   dependencies:
     argparse: "npm:^2.0.1"
+    nearley: "npm:^2.20.1"
   bin:
-    sql-formatter: bin/sqlfmt.js
-  checksum: 10c0/aaa91da417cd9cc6cc40b2108731995ec17a40b0d92e43ec5a6bb74ecb1611f4a28838d534f939c6f643f23ec36d4f2c3c5d32da05d7c28f0e0f6dbb09f8051b
+    sql-formatter: bin/sql-formatter-cli.cjs
+  checksum: 10c0/1c7a441e441ebea1458240f56d60fb731c6163b2da62037572d6ec9971b6cee3a9f4f53d29b74a7492ab7f13fcc481f90de45edbfad60249dd3e8ca68d7da17f
   languageName: node
   linkType: hard
 

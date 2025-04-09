@@ -76,7 +76,7 @@
     "react-grid-layout": "^0.18.2",
     "react-resizable": "^1.10.1",
     "react-virtualized": "^9.21.2",
-    "sql-formatter": "^4.0.2",
+    "sql-formatter": "^15.5.2",
     "universal-router": "^8.3.0",
     "use-debounce": "^3.1.0",
     "use-media": "^1.4.0"
