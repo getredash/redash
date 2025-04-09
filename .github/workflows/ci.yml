@@ -91,7 +91,7 @@ jobs:
           cache: 'yarn'
       - name: Install Dependencies
         run: |
-          orepack enable && corepack prepare yarn@$YARN_VERSION --activate
+          corepack enable && corepack prepare yarn@$YARN_VERSION --activate
           yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
       - name: Run Lint
         run: yarn lint:ci
