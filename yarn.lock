@@ -4072,7 +4072,7 @@ __metadata:
 
 "@redash/viz@file:viz-lib::locator=redash-client%40workspace%3A.":
   version: 1.0.0
-  resolution: "@redash/viz@file:viz-lib#viz-lib::hash=bd9192&locator=redash-client%40workspace%3A."
+  resolution: "@redash/viz@file:viz-lib#viz-lib::hash=397c62&locator=redash-client%40workspace%3A."
   dependencies:
     axios: "npm:0.28.0"
     axios-auth-refresh: "npm:3.3.6"
@@ -4100,7 +4100,7 @@ __metadata:
     "@ant-design/icons": ">=4.0.0"
     antd: ">=4.0.0"
     react-dom: ">=16.14.0"
-  checksum: 10c0/c693c6dd302e362048d1211ca954e9386c58471f515fe47293793c66641fe7c408193df35244e55a5be9e635dad0c5ebb2a57f3bfc0e897218e62fb8b8340fb4
+  checksum: 10c0/8a62e5a19b3c69dfc48f89c050d9caf80ad4bf0497fdf44fd426e5b54640aff17ee5b709ae68263fdf227b6c3f7a258d3c32cee6eb345d430e9240c57557bf0e
   languageName: node
   linkType: hard
 
@@ -5757,10 +5757,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ace-builds@npm:^1.4.12, ace-builds@npm:^1.4.6":
-  version: 1.4.12
-  resolution: "ace-builds@npm:1.4.12"
-  checksum: 10c0/00f5bdfb4c98a08b54eaa114c4cc7159edaa5fa92692ded3ca8ec19afd8404b2f092f24acc56e5f45aed8c01be9160760053e9bb4477e377c5378ee3e5f2db4c
+"ace-builds@npm:^1.36.3, ace-builds@npm:^1.39.1":
+  version: 1.39.1
+  resolution: "ace-builds@npm:1.39.1"
+  checksum: 10c0/37b6e224067405100a6dd0192cd5b10ba83242e43584518fe139cb889daac350ee06565754cb3bba9d382cb5eb988be219b06c2665761fa12126b59687545173
   languageName: node
   linkType: hard
 
@@ -9537,7 +9537,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"diff-match-patch@npm:^1.0.4":
+"diff-match-patch@npm:^1.0.5":
   version: 1.0.5
   resolution: "diff-match-patch@npm:1.0.5"
   checksum: 10c0/142b6fad627b9ef309d11bd935e82b84c814165a02500f046e2773f4ea894d10ed3017ac20454900d79d4a0322079f5b713cf0986aaf15fce0ec4a2479980c86
@@ -19879,19 +19879,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-ace@npm:^9.1.1":
-  version: 9.1.1
-  resolution: "react-ace@npm:9.1.1"
+"react-ace@npm:^14.0.1":
+  version: 14.0.1
+  resolution: "react-ace@npm:14.0.1"
   dependencies:
-    ace-builds: "npm:^1.4.6"
-    diff-match-patch: "npm:^1.0.4"
+    ace-builds: "npm:^1.36.3"
+    diff-match-patch: "npm:^1.0.5"
     lodash.get: "npm:^4.4.2"
     lodash.isequal: "npm:^4.5.0"
-    prop-types: "npm:^15.7.2"
+    prop-types: "npm:^15.8.1"
   peerDependencies:
-    react: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0
-    react-dom: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0
-  checksum: 10c0/012277c68c1bfb624523c881072a0d0f2640f0fdcefddac11d5ff236e959c08cf69ad030f311a60678b2d35b6044ecf224060673900363dbff90b9fce8b4b73e
+    react: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10c0/dbc77970836f13bad88365903d077edd68cc1955857290475bc067e0b801181c1d60a9ee08cf89b20895fe312dbb169c072c5b23338d7176f9f658db7929732f
   languageName: node
   linkType: hard
 
@@ -20306,7 +20306,7 @@ __metadata:
     "@types/sql-formatter": "npm:^2.3.0"
     "@typescript-eslint/eslint-plugin": "npm:^2.10.0"
     "@typescript-eslint/parser": "npm:^2.10.0"
-    ace-builds: "npm:^1.4.12"
+    ace-builds: "npm:^1.39.1"
     antd: "npm:^4.4.3"
     atob: "npm:^2.1.2"
     axios: "npm:0.27.2"
@@ -20369,7 +20369,7 @@ __metadata:
     query-string: "npm:^6.9.0"
     raw-loader: "npm:^0.5.1"
     react: "npm:16.14.0"
-    react-ace: "npm:^9.1.1"
+    react-ace: "npm:^14.0.1"
     react-dom: "npm:^16.14.0"
     react-grid-layout: "npm:^0.18.2"
     react-refresh: "npm:^0.14.0"

@@ -2,6 +2,7 @@ import { capitalize, isNil, map, get } from "lodash";
 import AceEditor from "react-ace";
 import ace from "ace-builds";
 
+// Import required Ace modules
 import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/mode-json";
 import "ace-builds/src-noconflict/mode-python";
@@ -10,8 +11,8 @@ import "ace-builds/src-noconflict/mode-yaml";
 import "ace-builds/src-noconflict/theme-textmate";
 import "ace-builds/src-noconflict/ext-searchbox";
 
-const langTools = ace.acequire("ace/ext/language_tools");
-const snippetsModule = ace.acequire("ace/snippets");
+const langTools = ace.require("ace/ext/language_tools");
+const snippetsModule = ace.require("ace/snippets");
 
 // By default Ace will try to load snippet files for the different modes and fail.
 // We don't need them, so we use these placeholders until we define our own.
