@@ -89,10 +89,10 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
+      - name: Install Yarn
+        run: corepack enable && corepack prepare yarn@$YARN_VERSION --activate
       - name: Install Dependencies
-        run: |
-          corepack enable && corepack prepare yarn@$YARN_VERSION --activate
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+        run: cache clean && yarn install --no-immutable
       - name: Run Lint
         run: yarn lint:ci
       - name: Store Test Results
