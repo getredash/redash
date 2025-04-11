@@ -6,7 +6,7 @@ WORKDIR $APP
 COPY package.json yarn.lock .yarnrc.yml $APP/
 COPY viz-lib $APP/viz-lib
 RUN corepack enable \
-    && corepack prepare yarn@4.8.1 --activate \
+    && corepack prepare yarn@4.9.0 --activate \
     && yarn install --no-immutable > /dev/null
 
 COPY . $APP

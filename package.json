@@ -38,7 +38,7 @@
   "engines": {
     "node": "22.14.0",
     "npm": "please-use-yarn",
-    "yarn": "4.8.1"
+    "yarn": "4.9.0"
   },
   "author": "Redash Contributors",
   "license": "BSD-2-Clause",

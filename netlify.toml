@@ -6,9 +6,9 @@
     corepack enable && \
     corepack prepare yarn@$YARN_VERSION --activate && \
     yarn cache clean && \
-    yarn install --immutable && \
+    yarn install --no-immutable && \
     echo "Install complete" && \
-    yarn build && \
+    YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn build && \
     echo "Build complete" && \
     cd ./client
   """
@@ -16,7 +16,7 @@
 [build.environment]
   NODE_VERSION = "22.14.0"
   NETLIFY_USE_YARN = "true"
-  YARN_VERSION = "4.8.1"
+  YARN_VERSION = "4.9.0"
   CYPRESS_INSTALL_BINARY = "0"
   PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "1"
 

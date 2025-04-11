@@ -8,7 +8,7 @@ on:
       - master
 env:
   NODE_VERSION: 22.14.0
-  YARN_VERSION: 4.8.1
+  YARN_VERSION: 4.9.0
 jobs:
   backend-lint:
     runs-on: ubuntu-22.04
