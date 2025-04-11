@@ -1,6 +1,11 @@
 import React, { forwardRef } from "react";
 import AceEditor from "react-ace";
 
+// Import required Ace modules to ensure proper loading
+import "ace-builds/src-noconflict/mode-sql";
+import "ace-builds/src-noconflict/theme-textmate";
+import "ace-builds/src-noconflict/ext-language_tools";
+
 import "./AceEditorInput.less";
 
 function AceEditorInput(props, ref) {

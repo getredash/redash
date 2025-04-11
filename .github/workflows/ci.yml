@@ -7,8 +7,8 @@ on:
     branches:
       - master
 env:
-  NODE_VERSION: 18
-  YARN_VERSION: 1.22.22
+  NODE_VERSION: 22.14.0
+  YARN_VERSION: 4.8.1
 jobs:
   backend-lint:
     runs-on: ubuntu-22.04
@@ -85,14 +85,14 @@ jobs:
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
+      - name: Install Yarn
+        run: corepack enable && corepack prepare yarn@$YARN_VERSION --activate
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
       - name: Install Dependencies
-        run: |
-          npm install --global --force yarn@$YARN_VERSION
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+        run: yarn cache clean && yarn install --no-immutable
       - name: Run Lint
         run: yarn lint:ci
       - name: Store Test Results
@@ -112,14 +112,14 @@ jobs:
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
+      - name: Install Yarn
+        run: corepack enable && corepack prepare yarn@$YARN_VERSION --activate
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
       - name: Install Dependencies
-        run: |
-          npm install --global --force yarn@$YARN_VERSION
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+        run: yarn cache clean && yarn install --no-immutable
       - name: Run App Tests
         run: yarn test
       - name: Run Visualizations Tests
@@ -145,6 +145,8 @@ jobs:
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
+      - name: Install Yarn
+        run: corepack enable && corepack prepare yarn@$YARN_VERSION --activate
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -154,9 +156,7 @@ jobs:
         run: |
           echo "CODE_COVERAGE=true" >> "$GITHUB_ENV"
       - name: Install Dependencies
-        run: |
-          npm install --global --force yarn@$YARN_VERSION
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+        run: yarn cache clean && yarn install --no-immutable
       - name: Setup Redash Server
         run: |
           set -x

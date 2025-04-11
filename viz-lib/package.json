@@ -25,6 +25,11 @@
   },
   "author": "Redash",
   "license": "BSD-2-Clause",
+  "engines": {
+    "node": "22.14.0",
+    "npm": "please-use-yarn",
+    "yarn": "4.8.1"
+  },
   "peerDependencies": {
     "@ant-design/icons": ">=4.0.0",
     "antd": ">=4.0.0",
@@ -113,7 +118,7 @@
     }
   },
   "browser": {
-      "fs": false,
-      "path": false
+    "fs": false,
+    "path": false
   }
 }

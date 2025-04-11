@@ -3,6 +3,9 @@
   "version": "25.04.0-dev",
   "description": "The frontend part of Redash.",
   "main": "index.js",
+  "workspaces": [
+    "viz-lib"
+  ],
   "scripts": {
     "start": "npm-run-all --parallel watch:viz webpack-dev-server",
     "clean": "rm -rf ./client/dist/",
@@ -25,17 +28,17 @@
     "test": "run-s type-check jest",
     "test:watch": "jest --watch",
     "cypress": "node client/cypress/cypress.js",
-    "preinstall": "cd viz-lib && yarn link --link-folder ../.yarn",
-    "postinstall": "(cd viz-lib && yarn --frozen-lockfile && yarn build:babel) && yarn link --link-folder ./.yarn @redash/viz"
+    "preinstall": "mkdir -p .yarn",
+    "postinstall": "cd viz-lib && yarn install && yarn build:babel"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/getredash/redash.git"
   },
   "engines": {
-    "node": ">16.0 <21.0",
+    "node": "22.14.0",
     "npm": "please-use-yarn",
-    "yarn": "^1.22.10"
+    "yarn": "4.8.1"
   },
   "author": "Redash Contributors",
   "license": "BSD-2-Clause",
@@ -46,7 +49,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.2.1",
     "@redash/viz": "file:viz-lib",
-    "ace-builds": "^1.4.12",
+    "ace-builds": "^1.39.1",
     "antd": "^4.4.3",
     "axios": "0.27.2",
     "axios-auth-refresh": "3.3.6",
@@ -68,12 +71,12 @@
     "prop-types": "^15.6.1",
     "query-string": "^6.9.0",
     "react": "16.14.0",
-    "react-ace": "^9.1.1",
+    "react-ace": "^14.0.1",
     "react-dom": "^16.14.0",
     "react-grid-layout": "^0.18.2",
     "react-resizable": "^1.10.1",
     "react-virtualized": "^9.21.2",
-    "sql-formatter": "git+https://github.com/getredash/sql-formatter.git",
+    "sql-formatter": "^15.5.2",
     "universal-router": "^8.3.0",
     "use-debounce": "^3.1.0",
     "use-media": "^1.4.0"
@@ -146,12 +149,12 @@
     "style-loader": "^2.0.0",
     "typescript": "^4.1.2",
     "url-loader": "^4.1.1",
-    "webpack": "^4.46.0",
+    "webpack": "^4.47.0",
     "webpack-build-notifier": "^2.3.0",
-    "webpack-bundle-analyzer": "^4.9.0",
+    "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.15.1",
-    "webpack-manifest-plugin": "^2.0.4"
+    "webpack-dev-server": "^4.15.2",
+    "webpack-manifest-plugin": "^2.2.0"
   },
   "optionalDependencies": {
     "fsevents": "^2.3.2"
@@ -197,5 +200,6 @@
     "and_ff >= 64",
     "and_uc >= 11.8",
     "samsung >= 6.2"
-  ]
+  ],
+  "packageManager": "yarn@4.8.1+sha512.bc946f2a022d7a1a38adfc15b36a66a3807a67629789496c3714dd1703d2e6c6b1c69ff9ec3b43141ac7a1dd853b7685638eb0074300386a59c18df351ef8ff6"
 }
