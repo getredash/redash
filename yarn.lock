@@ -4072,7 +4072,7 @@ __metadata:
 
 "@redash/viz@file:viz-lib::locator=redash-client%40workspace%3A.":
   version: 1.0.0
-  resolution: "@redash/viz@file:viz-lib#viz-lib::hash=397c62&locator=redash-client%40workspace%3A."
+  resolution: "@redash/viz@file:viz-lib#viz-lib::hash=928581&locator=redash-client%40workspace%3A."
   dependencies:
     axios: "npm:0.28.0"
     axios-auth-refresh: "npm:3.3.6"
@@ -4100,7 +4100,7 @@ __metadata:
     "@ant-design/icons": ">=4.0.0"
     antd: ">=4.0.0"
     react-dom: ">=16.14.0"
-  checksum: 10c0/8a62e5a19b3c69dfc48f89c050d9caf80ad4bf0497fdf44fd426e5b54640aff17ee5b709ae68263fdf227b6c3f7a258d3c32cee6eb345d430e9240c57557bf0e
+  checksum: 10c0/a8656410f002e1b4b3b0fac38a0c4c5e4a2241612adc599a43a32d0d8eb5d25b4014bc4469ab5cd4ec7c769fee0df327d2cbcf347801a8c827c8f1bc5e5fd272
   languageName: node
   linkType: hard
 

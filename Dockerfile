@@ -1,6 +1,6 @@
 FROM node:22.14.0-bookworm AS frontend-builder
 
-RUN corepack enable && corepack prepare yarn@4.9.0 --activate
+RUN corepack enable && corepack prepare yarn@4.9.1 --activate
 
 # Controls whether to build the frontend assets
 ARG skip_frontend_build

@@ -38,7 +38,7 @@
   "engines": {
     "node": "22.14.0",
     "npm": "please-use-yarn",
-    "yarn": "4.9.0"
+    "yarn": "4.9.1"
   },
   "author": "Redash Contributors",
   "license": "BSD-2-Clause",
@@ -201,5 +201,5 @@
     "and_uc >= 11.8",
     "samsung >= 6.2"
   ],
-  "packageManager": "yarn@4.8.1+sha512.bc946f2a022d7a1a38adfc15b36a66a3807a67629789496c3714dd1703d2e6c6b1c69ff9ec3b43141ac7a1dd853b7685638eb0074300386a59c18df351ef8ff6"
+  "packageManager": "yarn@4.9.1"
 }
