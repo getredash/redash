@@ -1,14 +1,69 @@
-client/.tmp/
+# Dependency directories
 node_modules/
 viz-lib/node_modules/
-.tmp/
+.pnp/
+.pnp.js
+.npm/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+viz-lib/.yarn/cache
+viz-lib/.yarn/unplugged
+viz-lib/.yarn/build-state.yml
+viz-lib/.yarn/install-state.gz
+
+# Python virtual environments
 .venv/
 venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Version control
 .git/
+.gitignore
+.gitattributes
+
+# Test and coverage
+.coverage
+coverage/
+.nyc_output/
+coverage.xml
+*.lcov
+.pytest_cache/
+/cypress/screenshots/
+/cypress/videos/
+client/cypress/screenshots/
+client/cypress/videos/
+
+# Build and temporary directories
+dist/
+client/dist/
+viz-lib/dist/
+viz-lib/lib/
+.tmp/
+client/.tmp/
+.cache/
+.rpt2_cache/
+
+# CI/CD and config files
 /.codeclimate.yml
-/.coverage
-/coverage.xml
 /.circleci/
 /.github/
 /netlify.toml
 /setup/
+.editorconfig
+.eslintrc*
+.prettierrc*
+*.md
+LICENSE*
+*.log
+
+# Development env files
+.env
+.env.*
+.tool-versions
+.vscode/

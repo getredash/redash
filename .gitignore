@@ -1,30 +1,95 @@
-.venv
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
 venv/
-.cache
+env/
+ENV/
+.pytest_cache/
+.coverage
 .coverage.*
+coverage.xml
 .coveralls.yml
-.idea
-*.pyc
-.nyc_output
-coverage
+htmlcov/
+.tox/
+.nox/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp/
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+viz-lib/.yarn/cache
+viz-lib/.yarn/unplugged
+viz-lib/.yarn/build-state.yml
+viz-lib/.yarn/install-state.gz
+.npm/
+.eslintcache
+.node_repl_history
+
+# Coverage and reports
+.nyc_output/
+coverage/
 .coverage
 coverage.xml
-client/dist
-.DS_Store
+
+# Build directories and files
+client/dist/
+viz-lib/dist/
+viz-lib/lib/
+viz-lib/build/
+dist/
+.tmp/
+_build/
+.sass-cache/
+.cache/
+.rpt2_cache/
+*.tsbuildinfo
+
+# Logs and databases
+*.log
+dump.rdb
+.db
+*.db
+*.sqlite3
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
 .#*
 \#*#
 *~
-_build
-.vscode
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment and configuration
 .env
+.env.*
+!.env.example
+.envrc
 .tool-versions
 
-dump.rdb
+# Test artifacts
+client/cypress/screenshots/
+client/cypress/videos/
 
-node_modules
-.tmp
-.sass-cache
-npm-debug.log
-
-client/cypress/screenshots
-client/cypress/videos
+# Misc
+.history/
