@@ -74,7 +74,7 @@
     "react-ace": "^14.0.1",
     "react-dom": "^16.14.0",
     "react-grid-layout": "^0.18.2",
-    "react-resizable": "^1.10.1",
+    "react-resizable": "^3.0.5",
     "react-virtualized": "^9.21.2",
     "sql-formatter": "^15.5.2",
     "universal-router": "^8.3.0",

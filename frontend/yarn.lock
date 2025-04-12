@@ -4121,7 +4121,7 @@ __metadata:
 
 "@redash/viz@file:viz-lib::locator=redash-client%40workspace%3A.":
   version: 1.0.0
-  resolution: "@redash/viz@file:viz-lib#viz-lib::hash=eb84d8&locator=redash-client%40workspace%3A."
+  resolution: "@redash/viz@file:viz-lib#viz-lib::hash=4990ca&locator=redash-client%40workspace%3A."
   dependencies:
     "@dnd-kit/core": "npm:^6.0.8"
     "@dnd-kit/sortable": "npm:^7.0.2"
@@ -4151,7 +4151,7 @@ __metadata:
     "@ant-design/icons": ">=4.0.0"
     antd: ">=4.0.0"
     react-dom: ">=16.14.0"
-  checksum: 10c0/79c4b35250ff17da77e84a3c3c626c2ed4ac3bec0ad6b34a4acb0dbd41d03dade6ebf8ac40eccebe971cce43aa8655d2277c295b6a8e64157faf6e9ca8697974
+  checksum: 10c0/aa95b8311dd8f0f2b987aba703e123f2b04ce482799faec013b3bc880b2eeb0767de080b65b1a8f30344d876b341bbc42833cdc45209624edc9a34086e057bf3
   languageName: node
   linkType: hard
 
@@ -20039,7 +20039,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-resizable@npm:^1.10.1, react-resizable@npm:^1.9.0":
+"react-resizable@npm:^1.9.0":
   version: 1.10.1
   resolution: "react-resizable@npm:1.10.1"
   dependencies:
@@ -20049,6 +20049,18 @@ __metadata:
     react: 0.14.x || 15.x || 16.x
     react-dom: 0.14.x || 15.x || 16.x
   checksum: 10c0/1f487f04f3b1db9ae8ebdf23fa59a2ec5637373cea1cf28453798618ef99d4daa0645bd997a4e3904fd409c11893257fd956a2e7bc4793dcc005c765fa7ac36f
+  languageName: node
+  linkType: hard
+
+"react-resizable@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "react-resizable@npm:3.0.5"
+  dependencies:
+    prop-types: "npm:15.x"
+    react-draggable: "npm:^4.0.3"
+  peerDependencies:
+    react: ">= 16.3"
+  checksum: 10c0/cfe50aa6efb79e0aa09bd681a5beab2fcd1186737c4952eb4c3974ed9395d5d263ccd1130961d06b8f5e24c8f544dd2967b5c740ce68719962d1771de7bdb350
   languageName: node
   linkType: hard
 
@@ -20404,7 +20416,7 @@ __metadata:
     react-dom: "npm:^16.14.0"
     react-grid-layout: "npm:^0.18.2"
     react-refresh: "npm:^0.14.0"
-    react-resizable: "npm:^1.10.1"
+    react-resizable: "npm:^3.0.5"
     react-test-renderer: "npm:^16.14.0"
     react-virtualized: "npm:^9.21.2"
     request-cookies: "npm:^1.1.0"
