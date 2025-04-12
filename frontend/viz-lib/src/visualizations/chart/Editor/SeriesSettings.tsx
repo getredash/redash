@@ -4,14 +4,12 @@ import { useDebouncedCallback } from "use-debounce";
 import Table from "antd/lib/table";
 import Input from "antd/lib/input";
 import Radio from "antd/lib/radio";
-// @ts-expect-error ts-migrate(2724) FIXME: Module '"../../../../node_modules/react-sortable-h... Remove this comment to see the full error message
-import { sortableElement } from "react-sortable-hoc";
-import { SortableContainer, DragHandle } from "@/components/sortable";
+import { SortableContainer, DragHandle, SortableElement } from "@/components/sortable";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 import ChartTypeSelect from "./ChartTypeSelect";
 import getChartData from "../getChartData";
 
-const SortableBodyRow = sortableElement((props: any) => <tr {...props} />);
+const SortableBodyRow = (props: any) => <SortableElement {...props}><tr {...props} /></SortableElement>;
 
 function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateSeriesOption: any) {
   const result = [

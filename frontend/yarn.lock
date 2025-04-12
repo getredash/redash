@@ -2887,7 +2887,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.2.0":
+"@babel/runtime@npm:^7.1.2":
   version: 7.7.7
   resolution: "@babel/runtime@npm:7.7.7"
   dependencies:
@@ -3186,6 +3186,55 @@ __metadata:
   version: 0.5.7
   resolution: "@discoveryjs/json-ext@npm:0.5.7"
   checksum: 10c0/e10f1b02b78e4812646ddf289b7d9f2cb567d336c363b266bd50cd223cf3de7c2c74018d91cd2613041568397ef3a4a2b500aba588c6e5bd78c38374ba68f38c
+  languageName: node
+  linkType: hard
+
+"@dnd-kit/accessibility@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "@dnd-kit/accessibility@npm:3.1.1"
+  dependencies:
+    tslib: "npm:^2.0.0"
+  peerDependencies:
+    react: ">=16.8.0"
+  checksum: 10c0/be0bf41716dc58f9386bc36906ec1ce72b7b42b6d1d0e631d347afe9bd8714a829bd6f58a346dd089b1519e93918ae2f94497411a61a4f5e4d9247c6cfd1fef8
+  languageName: node
+  linkType: hard
+
+"@dnd-kit/core@npm:^6.0.8":
+  version: 6.3.1
+  resolution: "@dnd-kit/core@npm:6.3.1"
+  dependencies:
+    "@dnd-kit/accessibility": "npm:^3.1.1"
+    "@dnd-kit/utilities": "npm:^3.2.2"
+    tslib: "npm:^2.0.0"
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 10c0/196db95d81096d9dc248983533eab91ba83591770fa5c894b1ac776f42af0d99522b3fd5bb3923411470e4733fcfa103e6ee17adc17b9b7eb54c7fbec5ff7c52
+  languageName: node
+  linkType: hard
+
+"@dnd-kit/sortable@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "@dnd-kit/sortable@npm:7.0.2"
+  dependencies:
+    "@dnd-kit/utilities": "npm:^3.2.0"
+    tslib: "npm:^2.0.0"
+  peerDependencies:
+    "@dnd-kit/core": ^6.0.7
+    react: ">=16.8.0"
+  checksum: 10c0/06aeb113eeeb470bb2443bf1c48d597157bb3a1caa9740e60c2fa73a3076e753cd083a2d381f0556bd7e9873e851a49ce8ea14796ac02e2d796eabea4e27196d
+  languageName: node
+  linkType: hard
+
+"@dnd-kit/utilities@npm:^3.2.0, @dnd-kit/utilities@npm:^3.2.1, @dnd-kit/utilities@npm:^3.2.2":
+  version: 3.2.2
+  resolution: "@dnd-kit/utilities@npm:3.2.2"
+  dependencies:
+    tslib: "npm:^2.0.0"
+  peerDependencies:
+    react: ">=16.8.0"
+  checksum: 10c0/9aa90526f3e3fd567b5acc1b625a63177b9e8d00e7e50b2bd0e08fa2bf4dba7e19529777e001fdb8f89a7ce69f30b190c8364d390212634e0afdfa8c395e85a0
   languageName: node
   linkType: hard
 
@@ -4072,8 +4121,11 @@ __metadata:
 
 "@redash/viz@file:viz-lib::locator=redash-client%40workspace%3A.":
   version: 1.0.0
-  resolution: "@redash/viz@file:viz-lib#viz-lib::hash=20cc42&locator=redash-client%40workspace%3A."
+  resolution: "@redash/viz@file:viz-lib#viz-lib::hash=eb84d8&locator=redash-client%40workspace%3A."
   dependencies:
+    "@dnd-kit/core": "npm:^6.0.8"
+    "@dnd-kit/sortable": "npm:^7.0.2"
+    "@dnd-kit/utilities": "npm:^3.2.1"
     axios: "npm:0.28.0"
     axios-auth-refresh: "npm:3.3.6"
     beautifymarker: "npm:^1.0.7"
@@ -4092,7 +4144,6 @@ __metadata:
     numeral: "npm:^2.0.6"
     plotly.js: "npm:2.35.3"
     react-pivottable: "npm:^0.9.0"
-    react-sortable-hoc: "npm:^1.10.1"
     tinycolor2: "npm:^1.4.1"
     use-debounce: "npm:^3.4.1"
     use-media: "npm:^1.4.0"
@@ -4100,7 +4151,7 @@ __metadata:
     "@ant-design/icons": ">=4.0.0"
     antd: ">=4.0.0"
     react-dom: ">=16.14.0"
-  checksum: 10c0/5c003dec812022ef93620fba113b2f6dad5276c68d3c61238a1e88ce6739d109115043e677cc145f4eaa81465fcbc4d710555a730520b4919128de08ddc76456
+  checksum: 10c0/79c4b35250ff17da77e84a3c3c626c2ed4ac3bec0ad6b34a4acb0dbd41d03dade6ebf8ac40eccebe971cce43aa8655d2277c295b6a8e64157faf6e9ca8697974
   languageName: node
   linkType: hard
 
@@ -4114,6 +4165,9 @@ __metadata:
     "@babel/preset-env": "npm:^7.22.9"
     "@babel/preset-react": "npm:^7.9.4"
     "@babel/preset-typescript": "npm:^7.22.5"
+    "@dnd-kit/core": "npm:^6.0.8"
+    "@dnd-kit/sortable": "npm:^7.0.2"
+    "@dnd-kit/utilities": "npm:^3.2.1"
     "@types/chroma-js": "npm:^2.1.2"
     "@types/d3": "npm:^6.2.0"
     "@types/d3-cloud": "npm:^1.2.3"
@@ -4159,7 +4213,6 @@ __metadata:
     prettier: "npm:^1.19.1"
     prop-types: "npm:^15.7.2"
     react-pivottable: "npm:^0.9.0"
-    react-sortable-hoc: "npm:^1.10.1"
     style-loader: "npm:^3.3.3"
     tinycolor2: "npm:^1.4.1"
     ts-migrate: "npm:^0.1.35"
@@ -19133,7 +19186,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:15.x, prop-types@npm:>=15.0.0, prop-types@npm:^15.0.0, prop-types@npm:^15.5.10, prop-types@npm:^15.5.7, prop-types@npm:^15.6.0, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2":
+"prop-types@npm:15.x, prop-types@npm:>=15.0.0, prop-types@npm:^15.0.0, prop-types@npm:^15.5.10, prop-types@npm:^15.6.0, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2":
   version: 15.7.2
   resolution: "prop-types@npm:15.7.2"
   dependencies:
@@ -19996,21 +20049,6 @@ __metadata:
     react: 0.14.x || 15.x || 16.x
     react-dom: 0.14.x || 15.x || 16.x
   checksum: 10c0/1f487f04f3b1db9ae8ebdf23fa59a2ec5637373cea1cf28453798618ef99d4daa0645bd997a4e3904fd409c11893257fd956a2e7bc4793dcc005c765fa7ac36f
-  languageName: node
-  linkType: hard
-
-"react-sortable-hoc@npm:^1.10.1":
-  version: 1.11.0
-  resolution: "react-sortable-hoc@npm:1.11.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.2.0"
-    invariant: "npm:^2.2.4"
-    prop-types: "npm:^15.5.7"
-  peerDependencies:
-    prop-types: ^15.5.7
-    react: ^0.14.0 || ^15.0.0 || ^16.0.0
-    react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0
-  checksum: 10c0/d226693ba7b24e86be81c639fd489ccb461e7f3b625faa991f67b68e72bb9349bae57f2135c158691afe08c7459b5183a65a8fff709eb32f2b18c68d00caf522
   languageName: node
   linkType: hard
 

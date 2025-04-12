@@ -3,9 +3,7 @@ import React from "react";
 import Collapse from "antd/lib/collapse";
 import Tooltip from "antd/lib/tooltip";
 import Typography from "antd/lib/typography";
-// @ts-expect-error ts-migrate(2724) FIXME: Module '"../../../../node_modules/react-sortable-h... Remove this comment to see the full error message
-import { sortableElement } from "react-sortable-hoc";
-import { SortableContainer, DragHandle } from "@/components/sortable";
+import { SortableContainer, DragHandle, SortableElement } from "@/components/sortable";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 import EyeOutlinedIcon from "@ant-design/icons/EyeOutlined";
@@ -15,7 +13,12 @@ import ColumnEditor from "./ColumnEditor";
 
 const { Text } = Typography;
 
-const SortableItem = sortableElement(Collapse.Panel);
+// Create a SortableItem that wraps Collapse.Panel
+const SortableItem = (props: any) => (
+  <SortableElement id={props.key || props.id} {...props}>
+    <Collapse.Panel {...props} />
+  </SortableElement>
+);
 
 export default function ColumnsSettings({ options, onOptionsChange }: any) {
   function handleColumnChange(newColumn: any, event: any) {
