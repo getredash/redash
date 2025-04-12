@@ -59,22 +59,31 @@ backend-unit-tests: up test_db
 	docker compose run --rm --name tests server tests
 
 frontend-unit-tests:
-	CYPRESS_INSTALL_BINARY=0 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 yarn install
-	yarn test
+	cd frontend && \
+		CYPRESS_INSTALL_BINARY=0 \
+		PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 \
+		yarn install
+	cd frontend && yarn test
 
 test: backend-unit-tests frontend-unit-tests lint
 
 build:
-	yarn install --no-immutable
-	YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn build
+	cd frontend && \
+		yarn install --no-immutable && \
+		YARN_ENABLE_IMMUTABLE_INSTALLS=false \
+		yarn build
 
 watch:
-	yarn install --no-immutable
-	YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn watch
+	cd frontend && \
+		yarn install --no-immutable && \
+		YARN_ENABLE_IMMUTABLE_INSTALLS=false \
+		yarn watch
 
 start:
-	yarn install --no-immutable
-	YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn start
+	cd frontend && \
+		yarn install --no-immutable && \
+		YARN_ENABLE_IMMUTABLE_INSTALLS=false \
+		yarn start
 
 redis-cli:
 	docker compose run --rm redis redis-cli -h redis
@@ -83,4 +92,4 @@ bash:
 	docker compose run --rm server bash
 
 yarn-setup:
-	CYPRESS_INSTALL_BINARY=0 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install --no-immutable
+	cd frontend && CYPRESS_INSTALL_BINARY=0 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install --no-immutable

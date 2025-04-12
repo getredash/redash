@@ -18,23 +18,24 @@ htmlcov/
 .nox/
 
 # Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnp/
-.pnp.js
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-viz-lib/.yarn/cache
-viz-lib/.yarn/unplugged
-viz-lib/.yarn/build-state.yml
-viz-lib/.yarn/install-state.gz
-.npm/
-.eslintcache
-.node_repl_history
+frontend/node_modules/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.pnp/
+frontend/.pnp.js
+frontend/.yarn/cache
+frontend/.yarn/unplugged
+frontend/.yarn/build-state.yml
+frontend/.yarn/install-state.gz
+frontend/viz-lib/.yarn/cache
+frontend/viz-lib/.yarn/unplugged
+frontend/viz-lib/.yarn/build-state.yml
+frontend/viz-lib/.yarn/install-state.gz
+frontend/viz-lib/node_modules/
+frontend/.npm/
+frontend/.eslintcache
+frontend/.node_repl_history
 
 # Coverage and reports
 .nyc_output/
@@ -43,11 +44,11 @@ coverage/
 coverage.xml
 
 # Build directories and files
-client/dist/
-viz-lib/dist/
-viz-lib/lib/
-viz-lib/build/
-dist/
+frontend/client/dist/
+frontend/viz-lib/dist/
+frontend/viz-lib/lib/
+frontend/viz-lib/build/
+frontend/dist/
 .tmp/
 _build/
 .sass-cache/
@@ -88,8 +89,10 @@ Thumbs.db
 .tool-versions
 
 # Test artifacts
-client/cypress/screenshots/
-client/cypress/videos/
+frontend/client/cypress/screenshots/
+frontend/client/cypress/videos/
+frontend/cypress/screenshots/
+frontend/cypress/videos/
 
 # Misc
 .history/

@@ -12,25 +12,20 @@ RUN useradd -m -d /frontend redash
 USER redash
 
 WORKDIR /frontend
-COPY --chown=redash package.json yarn.lock .yarnrc.yml /frontend/
-COPY --chown=redash viz-lib /frontend/viz-lib
-COPY --chown=redash scripts /frontend/scripts
+COPY --chown=redash frontend /frontend
 
 # Controls whether to instrument code for coverage information
 ARG code_coverage
 ENV BABEL_ENV=${code_coverage:+test}
 
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn install --no-immutable; fi
-
-COPY --chown=redash client /frontend/client
-COPY --chown=redash webpack.config.js /frontend/
 RUN <<EOF
   if [ "x$skip_frontend_build" = "x" ]; then
-    YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn build
+    yarn install --no-immutable &&
+    YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn build;
   else
-    mkdir -p /frontend/client/dist
-    touch /frontend/client/dist/multi_org.html
-    touch /frontend/client/dist/index.html
+    mkdir -p /frontend/client/dist &&
+    touch /frontend/client/dist/multi_org.html &&
+    touch /frontend/client/dist/index.html;
   fi
 EOF
 
