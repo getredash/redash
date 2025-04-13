@@ -3,7 +3,7 @@
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
-const ManifestPlugin = require("webpack-manifest-plugin");
+const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
@@ -75,20 +75,28 @@ const config = {
     filename: isProduction ? "[name].[chunkhash].js" : "[name].js",
     publicPath: staticPath
   },
-  node: {
-    fs: "empty",
-    path: "empty"
-  },
   resolve: {
     symlinks: false,
     extensions: [".js", ".jsx", ".ts", ".tsx"],
+    fullySpecified: false,
     alias: {
       "@": appPath,
       extensions: extensionPath
+    },
+    fallback: {
+      // Add fallbacks for Node.js core modules
+      "url": require.resolve("url/"),
+      "util": require.resolve("util/"),
+      "stream": require.resolve("stream-browserify"),
+      "assert": require.resolve("assert/")
     }
   },
   plugins: [
     new WebpackBuildNotifierPlugin({ title: "Redash" }),
+    // Provide process polyfill
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
     // bundle only default `moment` locale (`en`)
     new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
     new HtmlWebpackPlugin({
@@ -109,7 +117,7 @@ const config = {
       new MiniCssExtractPlugin({
         filename: "[name].[chunkhash].css"
       }),
-    new ManifestPlugin({
+    new WebpackManifestPlugin({
       fileName: "asset-manifest.json",
       publicPath: ""
     }),
@@ -189,6 +197,12 @@ const config = {
         ]
       },
       {
+        test: /\.m?js/, // Add this rule for .js and .mjs files
+        resolve: {
+          fullySpecified: false, // Allow extensionless imports within node_modules
+        },
+      },
+      {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         use: [
           {
@@ -228,7 +242,7 @@ const config = {
       }
     ]
   },
-  devtool: isProduction ? "source-map" : "cheap-eval-module-source-map",
+  devtool: isProduction ? "source-map" : "eval-cheap-module-source-map",
   stats: {
     children: false,
     modules: false,
