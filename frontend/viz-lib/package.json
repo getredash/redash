@@ -32,8 +32,7 @@
   },
   "peerDependencies": {
     "@ant-design/icons": ">=4.0.0",
-    "antd": ">=4.0.0",
-    "react-dom": ">=16.14.0"
+    "antd": ">=4.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.22.9",
@@ -52,15 +51,15 @@
     "@types/leaflet": "^1.5.19",
     "@types/numeral": "0.0.28",
     "@types/plotly.js": "^2.35.2",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
+    "@types/react": "^17.0.25",
+    "@types/react-dom": "^17.0.25",
     "@types/tinycolor2": "^1.4.2",
+    "@wojtekmaj/enzyme-adapter-react-17": "^0.6.5",
     "babel-loader": "^8.1.0",
     "babel-plugin-istanbul": "^6.1.1",
     "babel-plugin-module-resolver": "^5.0.0",
     "css-loader": "^3.5.2",
     "enzyme": "^3.8.0",
-    "enzyme-adapter-react-16": "^1.15.7",
     "enzyme-to-json": "^3.3.5",
     "jest": "^24.1.0",
     "less": "^4.1.3",
