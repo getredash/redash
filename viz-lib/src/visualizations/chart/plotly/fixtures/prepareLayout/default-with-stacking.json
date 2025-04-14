@@ -24,18 +24,21 @@
         "automargin": true,
         "showticklabels": true,
         "title": null,
+        "tickformat": null,
         "type": "-"
       },
       "yaxis": {
         "automargin": true,
         "title": null,
+        "tickformat": null,
         "type": "linear",
         "autorange": true,
         "range": null
-      },    
+      },
       "hoverlabel": {
         "namelength": -1
-      }
+      },
+      "hovermode": "x"
     }
   }
 }
