@@ -5,9 +5,9 @@
     corepack enable && \
     corepack prepare yarn@$YARN_VERSION --activate && \
     yarn cache clean && \
-    yarn install --no-immutable && \
+    yarn install && \
     echo "Install complete" && \
-    YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn build && \
+    yarn build && \
     echo "Build complete"
   """
 
