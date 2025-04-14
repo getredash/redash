@@ -91,6 +91,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock # Add path to yarn.lock
       - name: Install Dependencies
         run: yarn cache clean && yarn install --no-immutable
         working-directory: ./frontend # Add working directory
@@ -120,6 +121,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock # Add path to yarn.lock
       - name: Install Dependencies
         run: yarn cache clean && yarn install --no-immutable
         working-directory: ./frontend # Add working directory
@@ -157,6 +159,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock # Add path to yarn.lock
       - name: Enable Code Coverage Report For Master Branch
         if: endsWith(github.ref, '/master')
         run: |
