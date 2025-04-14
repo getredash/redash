@@ -1,16 +1,14 @@
 [build]
-  base    = "client"
-  publish = "client/dist"
+  publish = "frontend/client/dist"
   command = """
-    cd ../ && \
+    cd frontend && \
     corepack enable && \
     corepack prepare yarn@$YARN_VERSION --activate && \
     yarn cache clean && \
     yarn install --no-immutable && \
     echo "Install complete" && \
     YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn build && \
-    echo "Build complete" && \
-    cd ./client
+    echo "Build complete"
   """
 
 [build.environment]
