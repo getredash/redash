@@ -61,8 +61,12 @@
       }
 
       .desktop-navbar-label {
+        margin: 0;
         margin-top: 4px;
         font-size: 11px;
+        display: block;
+        text-align: center;
+        line-height: 1.2;
       }
 
       a,
@@ -119,6 +123,20 @@
         height: @iconSize;
       }
     }
+  }
+
+  .ant-menu-item > a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .anticon {
+    font-size: @iconSize;
+    display: block;
+    margin: 0 auto;
   }
 }
 

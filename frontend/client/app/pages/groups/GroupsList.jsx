@@ -1,6 +1,7 @@
 import React from "react";
 
 import Button from "antd/lib/button";
+import Space from "antd/lib/space"; // Import Space from antd
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -42,10 +43,10 @@ class GroupsList extends React.Component {
     ),
     Columns.custom(
       (text, group) => (
-        <Button.Group>
+        <Space> // Replace Button.Group with Space
           <Link.Button href={`groups/${group.id}`}>Members</Link.Button>
           {currentUser.isAdmin && <Link.Button href={`groups/${group.id}/data_sources`}>Data Sources</Link.Button>}
-        </Button.Group>
+        </Space> // Replace Button.Group with Space
       ),
       {
         width: "1%",

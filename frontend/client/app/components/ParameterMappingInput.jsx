@@ -581,7 +581,12 @@ export class ParameterMappingListInput extends React.Component {
 
     return (
       <div className="parameters-mapping-list">
-        <Table dataSource={dataSource} size="middle" pagination={false} rowKey={(record, idx) => `row${idx}`}>
+        <Table
+          dataSource={dataSource}
+          size="middle"
+          pagination={false}
+          rowKey={(record, idx) => record.mapping && record.mapping.name ? record.mapping.name : idx}
+        >
           <Table.Column
             title="Title"
             dataIndex="mapping"

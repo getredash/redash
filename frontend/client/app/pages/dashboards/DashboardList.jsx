@@ -24,13 +24,14 @@ import routes from "@/services/routes";
 import DashboardListEmptyState from "./components/DashboardListEmptyState";
 
 import "./dashboard-list.css";
+import { DashboardOutlined, StarOutlined } from "@ant-design/icons";
 
 const sidebarMenu = [
   {
     key: "all",
     href: "dashboards",
     title: "All Dashboards",
-    icon: () => <Sidebar.MenuIcon icon="zmdi zmdi-view-quilt" />,
+    icon: <DashboardOutlined />,
   },
   {
     key: "my",
@@ -42,7 +43,7 @@ const sidebarMenu = [
     key: "favorites",
     href: "dashboards/favorites",
     title: "Favorites",
-    icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
+    icon: <StarOutlined />,
   },
 ];
 

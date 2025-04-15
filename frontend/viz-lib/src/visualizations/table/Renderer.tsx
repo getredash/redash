@@ -122,13 +122,11 @@ export default function Renderer({ options, data }: any) {
         className="table-fixed-header"
         data-percy="show-scrollbars"
         data-test="TableVisualization"
-        // @ts-expect-error ts-migrate(2322) FIXME: Type '{ key: any; dataIndex: string; align: any; s... Remove this comment to see the full error message
         columns={tableColumns}
         dataSource={preparedRows}
         pagination={{
           size: get(options, "paginationSize", ""),
-          // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'TablePagi... Remove this comment to see the full error message
-          position: "bottom",
+          position: ["bottomRight"],
           pageSize: options.itemsPerPage,
           hideOnSinglePage: true,
           showSizeChanger: false,

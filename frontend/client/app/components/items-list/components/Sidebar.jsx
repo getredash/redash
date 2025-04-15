@@ -1,3 +1,14 @@
+// NOTE: After upgrading to antd 4.x, use Ant Design icon components directly in your sidebar items definition.
+// Example:
+// import { DashboardOutlined, TableOutlined } from "@ant-design/icons";
+// ...
+// items: [
+//   { key: "dashboards", href: "/dashboards", title: "Dashboards", icon: <DashboardOutlined /> },
+//   { key: "queries", href: "/queries", title: "Queries", icon: <TableOutlined /> },
+//   ...
+// ]
+// This ensures correct icon rendering and alignment in the sidebar.
+
 import { isFunction, isString, filter, map } from "lodash";
 import React, { useState, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
@@ -69,13 +80,14 @@ export function Menu({ items, selected }) {
         {map(items, item => (
           <AntdMenu.Item key={item.key} className="m-0">
             <Link href={item.href}>
-              {isString(item.icon) && item.icon !== "" && (
-                <span className="btn-favorite m-r-5">
-                  <i className={item.icon} aria-hidden="true" />
-                </span>
-              )}
-              {isFunction(item.icon) && (item.icon(item) || null)}
-              {item.title}
+              <span className="sidebar-menu-item-content">
+                {item.icon && (
+                  <span className="btn-favorite m-r-5 sidebar-menu-item-icon">
+                    {typeof item.icon === "function" ? item.icon(item) : item.icon}
+                  </span>
+                )}
+                <span className="sidebar-menu-item-title">{item.title}</span>
+              </span>
             </Link>
           </AntdMenu.Item>
         ))}

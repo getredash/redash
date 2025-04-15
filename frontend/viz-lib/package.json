@@ -31,8 +31,10 @@
     "yarn": "4.9.1"
   },
   "peerDependencies": {
-    "@ant-design/icons": ">=4.0.0",
-    "antd": ">=4.0.0"
+    "@ant-design/icons": "^4.4.0",
+    "antd": "^4.19.5",
+    "react": "^17.0.25",
+    "react-dom": "^17.0.25"
   },
   "devDependencies": {
     "@babel/cli": "^7.22.9",
@@ -95,7 +97,7 @@
     "hoist-non-react-statics": "^3.3.0",
     "leaflet": "1.5.1",
     "leaflet-fullscreen": "^1.0.2",
-    "leaflet.markercluster": "^1.1.0",
+    "leaflet.markercluster": "^1.5.3",
     "lodash": "^4.17.10",
     "numeral": "^2.0.6",
     "plotly.js": "2.35.3",

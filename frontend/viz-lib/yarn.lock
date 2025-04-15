@@ -2563,7 +2563,7 @@ __metadata:
     jest: "npm:^24.1.0"
     leaflet: "npm:1.5.1"
     leaflet-fullscreen: "npm:^1.0.2"
-    leaflet.markercluster: "npm:^1.1.0"
+    leaflet.markercluster: "npm:^1.5.3"
     less: "npm:^4.1.3"
     less-loader: "npm:^11.1.3"
     less-plugin-autoprefix: "npm:^2.0.0"
@@ -2583,8 +2583,10 @@ __metadata:
     webpack: "npm:^5.93.0"
     webpack-cli: "npm:^5.1.4"
   peerDependencies:
-    "@ant-design/icons": ">=4.0.0"
-    antd: ">=4.0.0"
+    "@ant-design/icons": ^4.4.0
+    antd: ^4.19.5
+    react: ^17.0.25
+    react-dom: ^17.0.25
   languageName: unknown
   linkType: soft
 
@@ -9580,12 +9582,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"leaflet.markercluster@npm:^1.1.0":
-  version: 1.4.1
-  resolution: "leaflet.markercluster@npm:1.4.1"
+"leaflet.markercluster@npm:^1.5.3":
+  version: 1.5.3
+  resolution: "leaflet.markercluster@npm:1.5.3"
   peerDependencies:
-    leaflet: ~1.3.1
-  checksum: 10c0/08c9faad98417bfa3f04f839e553d31f93f9c9c9ad246a2d55b9c94f7b7eb66b7b88acd986f6be77657344a4b0a62d05cf803c0421079588fd45be76a9f7b3d5
+    leaflet: ^1.3.1
+  checksum: 10c0/ce2d4065da00c727f5b05fe4568e5239ebd2556e45d859307ff9c44a6f7ecb9658cd91d055f5723d93f3e491c48949cf78109f50533b0b36b9a226e4d339213f
   languageName: node
   linkType: hard
 

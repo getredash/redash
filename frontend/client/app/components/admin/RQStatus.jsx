@@ -60,7 +60,7 @@ const workersColumns = [
       </span>
     ),
     { title: "State", dataIndex: "state" }
-  ),
+  )
 ]
   .concat(
     map(["Hostname", "PID", "Name", "Queues", "Current Job", "Successful Jobs", "Failed Jobs"], c => ({
@@ -85,7 +85,7 @@ export function WorkersTable({ loading, items }) {
     <Table
       loading={loading}
       columns={workersColumns}
-      rowKey="name"
+      rowKey={record => record.name}
       dataSource={items}
       pagination={{
         defaultPageSize: 25,
@@ -103,7 +103,7 @@ export function QueuesTable({ loading, items }) {
     <Table
       loading={loading}
       columns={queuesColumns}
-      rowKey="name"
+      rowKey={record => record.name}
       dataSource={items}
       pagination={{
         defaultPageSize: 25,
@@ -121,7 +121,7 @@ export function QueryJobsTable({ loading, items }) {
     <Table
       loading={loading}
       columns={queryJobsColumns}
-      rowKey="id"
+      rowKey={record => record.id}
       dataSource={items}
       pagination={{
         defaultPageSize: 25,
@@ -139,7 +139,7 @@ export function OtherJobsTable({ loading, items }) {
     <Table
       loading={loading}
       columns={otherJobsColumns}
-      rowKey="id"
+      rowKey={record => record.id}
       dataSource={items}
       pagination={{
         defaultPageSize: 25,

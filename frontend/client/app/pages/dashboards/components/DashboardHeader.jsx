@@ -18,6 +18,7 @@ import { policy } from "@/services/policy";
 import recordEvent from "@/services/recordEvent";
 import { durationHumanize } from "@/lib/utils";
 import { DashboardStatusEnum } from "../hooks/useDashboard";
+import Space from "antd/lib/space";
 
 import "./DashboardHeader.less";
 
@@ -77,7 +78,7 @@ function RefreshButton({ dashboardConfiguration }) {
     }
   };
   return (
-    <Button.Group>
+    <Space>
       <Tooltip title={refreshRate ? `Auto Refreshing every ${durationHumanize(refreshRate)}` : null}>
         <Button type={buttonType(refreshRate)} onClick={() => refreshDashboard()}>
           <i className={cx("zmdi zmdi-refresh m-r-5", { "zmdi-hc-spin": refreshing })} aria-hidden="true" />
@@ -102,7 +103,7 @@ function RefreshButton({ dashboardConfiguration }) {
           <span className="sr-only">Split button!</span>
         </Button>
       </Dropdown>
-    </Button.Group>
+    </Space>
   );
 }
 
