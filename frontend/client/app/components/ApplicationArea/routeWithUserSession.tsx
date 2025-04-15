@@ -61,14 +61,14 @@ export function UserSessionWrapper<P>({ bodyClass, currentRoute, render }: UserS
   return (
     <ApplicationLayout>
       <React.Fragment key={currentRoute.key}>
-        {/* @ts-expect-error FIXME */}
-        <ErrorBoundary renderError={(error: Error) => <ErrorMessage error={error} />}>
+        {/* @ts-ignore */}
+        <ErrorBoundary renderError={(error: any) => <ErrorMessage error={error} />}>
           <ErrorBoundaryContext.Consumer>
-            {(
-              {
-                handleError,
-              } /* : { handleError: UserSessionWrapperRenderChildrenProps<P>["onError"] } FIXME bring back type */
-            ) => render({ ...currentRoute.routeParams, pageTitle: currentRoute.title, onError: handleError })}
+            {(context) => render({ 
+              ...currentRoute.routeParams, 
+              pageTitle: currentRoute.title, 
+              onError: context.handleError 
+            })}
           </ErrorBoundaryContext.Consumer>
         </ErrorBoundary>
       </React.Fragment>
