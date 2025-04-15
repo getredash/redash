@@ -9,7 +9,7 @@
 // ]
 // This ensures correct icon rendering and alignment in the sidebar.
 
-import { isFunction, isString, filter, map } from "lodash";
+import { isFunction, isString, filter} from "lodash";
 import React, { useState, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import Input from "antd/lib/input";
@@ -74,24 +74,32 @@ export function Menu({ items, selected }) {
   if (items.length === 0) {
     return null;
   }
+  // Build menu items for AntdMenu
+  const menuItems = items.map(item => ({
+    key: item.key,
+    className: "m-0",
+    label: (
+      <Link href={item.href}>
+        <span className="sidebar-menu-item-content">
+          {item.icon && (
+            <span className="btn-favorite m-r-5 sidebar-menu-item-icon">
+              {typeof item.icon === "function" ? item.icon(item) : item.icon}
+            </span>
+          )}
+          <span className="sidebar-menu-item-title">{item.title}</span>
+        </span>
+      </Link>
+    ),
+  }));
   return (
     <div className="m-b-10 tags-list tiled">
-      <AntdMenu className="invert-stripe-position" mode="inline" selectable={false} selectedKeys={[selected]}>
-        {map(items, item => (
-          <AntdMenu.Item key={item.key} className="m-0">
-            <Link href={item.href}>
-              <span className="sidebar-menu-item-content">
-                {item.icon && (
-                  <span className="btn-favorite m-r-5 sidebar-menu-item-icon">
-                    {typeof item.icon === "function" ? item.icon(item) : item.icon}
-                  </span>
-                )}
-                <span className="sidebar-menu-item-title">{item.title}</span>
-              </span>
-            </Link>
-          </AntdMenu.Item>
-        ))}
-      </AntdMenu>
+      <AntdMenu
+        className="invert-stripe-position"
+        mode="inline"
+        selectable={false}
+        selectedKeys={[selected]}
+        items={menuItems}
+      />
     </div>
   );
 }

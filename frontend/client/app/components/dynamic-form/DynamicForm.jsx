@@ -46,9 +46,19 @@ function normalizeEmptyValuesToNull(fields, values) {
   });
 }
 
+function getInitialValues(fields) {
+  const initialValues = {};
+  fields.forEach(field => {
+    if (field.name && field.initialValue !== undefined) {
+      initialValues[field.name] = field.initialValue;
+    }
+  });
+  return initialValues;
+}
+
 function DynamicFormFields({ fields, feedbackIcons, form }) {
   return fields.map(field => {
-    const { name, type, initialValue, contentAfter } = field;
+    const { name, type, contentAfter } = field;
     const fieldLabel = getFieldLabel(field);
 
     const formItemProps = {
@@ -58,7 +68,6 @@ function DynamicFormFields({ fields, feedbackIcons, form }) {
       label: type === "checkbox" ? "" : fieldLabel,
       rules: fieldRules(field),
       valuePropName: type === "checkbox" ? "checked" : "value",
-      initialValue,
     };
 
     if (type === "file") {
@@ -122,7 +131,7 @@ function DynamicFormActions({ actions, isFormDirty }) {
       htmlType="button"
       className={cx("m-t-10", { "pull-right": action.pullRight })}
       type={action.type}
-      disabled={isFormDirty && action.disableWhenDirty}
+      disabled={isFormDirty && action.disabledWhenDirty}
       loading={inProgressActions.has(action.name)}
       onClick={() => handleAction(action)}>
       {action.name}
@@ -156,6 +165,7 @@ export default function DynamicForm({
   const [form] = Form.useForm();
   const extraFields = filter(fields, { extra: true });
   const regularFields = difference(fields, extraFields);
+  const initialValues = getInitialValues(fields);
 
   const handleFinish = useCallback(
     values => {
@@ -194,7 +204,9 @@ export default function DynamicForm({
       className="dynamic-form"
       layout="vertical"
       onFinish={handleFinish}
-      onFinishFailed={handleFinishFailed}>
+      onFinishFailed={handleFinishFailed}
+      initialValues={initialValues}
+    >
       <DynamicFormFields fields={regularFields} feedbackIcons={feedbackIcons} form={form} />
       {!isEmpty(extraFields) && (
         <div className="extra-options">

@@ -32,7 +32,7 @@
   },
   "peerDependencies": {
     "@ant-design/icons": "^4.4.0",
-    "antd": "^4.19.5",
+    "antd": "^4.22.8",
     "react": "^17.0.25",
     "react-dom": "^17.0.25"
   },

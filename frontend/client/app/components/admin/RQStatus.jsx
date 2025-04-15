@@ -91,6 +91,7 @@ export function WorkersTable({ loading, items }) {
         defaultPageSize: 25,
         pageSizeOptions: ["10", "25", "50"],
         showSizeChanger: true,
+        showQuickJumper: true,
       }}
     />
   );
@@ -109,6 +110,7 @@ export function QueuesTable({ loading, items }) {
         defaultPageSize: 25,
         pageSizeOptions: ["10", "25", "50"],
         showSizeChanger: true,
+        showQuickJumper: true,
       }}
     />
   );
@@ -127,6 +129,7 @@ export function QueryJobsTable({ loading, items }) {
         defaultPageSize: 25,
         pageSizeOptions: ["10", "25", "50"],
         showSizeChanger: true,
+        showQuickJumper: true,
       }}
     />
   );
@@ -145,6 +148,7 @@ export function OtherJobsTable({ loading, items }) {
         defaultPageSize: 25,
         pageSizeOptions: ["10", "25", "50"],
         showSizeChanger: true,
+        showQuickJumper: true,
       }}
     />
   );

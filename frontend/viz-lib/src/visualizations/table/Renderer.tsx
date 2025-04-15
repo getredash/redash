@@ -130,6 +130,7 @@ export default function Renderer({ options, data }: any) {
           pageSize: options.itemsPerPage,
           hideOnSinglePage: true,
           showSizeChanger: false,
+          showQuickJumper: true,
         }}
         showSorterTooltip={false}
       />
