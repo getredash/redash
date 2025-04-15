@@ -16821,13 +16821,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"os-browserify@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "os-browserify@npm:0.3.0"
-  checksum: 10c0/6ff32cb1efe2bc6930ad0fd4c50e30c38010aee909eba8d65be60af55efd6cbb48f0287e3649b4e3f3a63dce5a667b23c187c4293a75e557f0d5489d735bcf52
-  languageName: node
-  linkType: hard
-
 "os-tmpdir@npm:~1.0.2":
   version: 1.0.2
   resolution: "os-tmpdir@npm:1.0.2"
@@ -17787,31 +17780,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-sql-cst@npm:^0.13.0":
-  version: 0.13.0
-  resolution: "prettier-plugin-sql-cst@npm:0.13.0"
-  dependencies:
-    prettier: "npm:^3.0.3"
-    sql-parser-cst: "npm:^0.33.1"
-  checksum: 10c0/c3aef9efdab44812af439078cb379c668479a83c1cccaab4182ee4e5c8c891a21258b9997bb2186a2e39b787dcc59c16b1a4b2630ff2995ddbba99eaaf342472
-  languageName: node
-  linkType: hard
-
 "prettier@npm:^1.19.1":
   version: 1.19.1
   resolution: "prettier@npm:1.19.1"
   bin:
     prettier: ./bin-prettier.js
   checksum: 10c0/12efb4e486c1e1d006e9eadd3b6585fc6beb9481dc801080fc23d3e75ec599d88c6fea1b40aef167128069e8fe76b4205bb8306ad145575d1b051b8fa70cfaae
-  languageName: node
-  linkType: hard
-
-"prettier@npm:^3.0.3, prettier@npm:^3.5.3":
-  version: 3.5.3
-  resolution: "prettier@npm:3.5.3"
-  bin:
-    prettier: bin/prettier.cjs
-  checksum: 10c0/3880cb90b9dc0635819ab52ff571518c35bd7f15a6e80a2054c05dbc8a3aa6e74f135519e91197de63705bcb38388ded7e7230e2178432a1468005406238b877
   languageName: node
   linkType: hard
 
@@ -19113,11 +19087,8 @@ __metadata:
     mustache: "npm:^2.3.0"
     npm-run-all: "npm:^4.1.5"
     numeral: "npm:^2.0.6"
-    os-browserify: "npm:^0.3.0"
-    path-browserify: "npm:^1.0.1"
     path-to-regexp: "npm:^3.3.0"
-    prettier: "npm:^3.5.3"
-    prettier-plugin-sql-cst: "npm:^0.13.0"
+    prettier: "npm:^1.19.1"
     process: "npm:^0.11.10"
     prop-types: "npm:^15.6.1"
     query-string: "npm:^6.9.0"
@@ -20856,13 +20827,6 @@ __metadata:
   bin:
     sql-formatter: bin/sql-formatter-cli.cjs
   checksum: 10c0/1c7a441e441ebea1458240f56d60fb731c6163b2da62037572d6ec9971b6cee3a9f4f53d29b74a7492ab7f13fcc481f90de45edbfad60249dd3e8ca68d7da17f
-  languageName: node
-  linkType: hard
-
-"sql-parser-cst@npm:^0.33.1":
-  version: 0.33.1
-  resolution: "sql-parser-cst@npm:0.33.1"
-  checksum: 10c0/7053a60cab1ec04658e2d9b9a422585e76dec0515e20c112340932648dc99924c20cd0d6ecc6f5ffa9dc8039a0ed2d8efa800059c15ed4a04946abb1890eac28
   languageName: node
   linkType: hard
 

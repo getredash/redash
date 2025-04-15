@@ -172,6 +172,9 @@
       "./app/__tests__/enzyme_setup.js",
       "./app/__tests__/mocks.js"
     ],
+    "setupFilesAfterEnv": [
+      "../jest.setup.js"
+    ],
     "snapshotSerializers": [
       "enzyme-to-json/serializer"
     ],
