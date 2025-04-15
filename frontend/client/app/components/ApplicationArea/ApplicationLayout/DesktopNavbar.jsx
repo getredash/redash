@@ -75,8 +75,8 @@ export default function DesktopNavbar() {
   return (
     <nav className="desktop-navbar">
       <NavbarSection className="desktop-navbar-logo">
-        <Menu.Item key="logo" style={{ height: "auto", cursor: "default" }} disabled>
-          <Link href="./">
+        <Menu.Item key="logo" style={{ height: "auto", cursor: "pointer" }}>
+          <Link href="/">
             <img src={logoUrl} alt="Redash" />
           </Link>
         </Menu.Item>
