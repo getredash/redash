@@ -2,7 +2,8 @@ import { map } from "lodash";
 import React from "react";
 import ColorPicker from "@/components/ColorPicker";
 
-type OwnProps = {
+// Define the props directly, making them optional
+type LegendProps = {
   items?: {
     color: string;
     text: string;
@@ -10,9 +11,8 @@ type OwnProps = {
   alignText?: "left" | "center" | "right";
 };
 
-type Props = OwnProps & typeof Legend.defaultProps;
-
-export default function Legend({ items, alignText }: Props) {
+// Use default values directly in the function signature or body
+export default function Legend({ items = [], alignText = "left" }: LegendProps) {
   return (
     <div className="choropleth-visualization-legend">
       {map(items, (item, index) => (
@@ -25,8 +25,3 @@ export default function Legend({ items, alignText }: Props) {
     </div>
   );
 }
-
-Legend.defaultProps = {
-  items: [],
-  alignText: "left",
-};

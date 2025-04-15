@@ -15,7 +15,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
   // While geoJson is loading - show last selected field in select
   const targetFields = isLoadingGeoJson ? filter([options.targetField], isString) : geoJsonFields;
 
-  const fieldNames = get(visualizationsSettings, `choroplethAvailableMaps.${options.mapType}.fieldNames`, {});
+  const fieldNames: Record<string, string> = get(visualizationsSettings, `choroplethAvailableMaps.${options.mapType}.fieldNames`, {});
 
   const handleMapChange = useCallback(
     mapType => {

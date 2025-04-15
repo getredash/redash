@@ -7,11 +7,11 @@ import createReferenceCountingCache from "@/lib/referenceCountingCache";
 const cache = createReferenceCountingCache();
 
 export default function useLoadGeoJson(mapType: any) {
-  const [geoJson, setGeoJson] = useState(null);
+  const [geoJson, setGeoJson] = useState<object | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const mapUrl = get(visualizationsSettings, `choroplethAvailableMaps.${mapType}.url`, undefined);
+    const mapUrl = get(visualizationsSettings, `choroplethAvailableMaps.${mapType}.url`, "");
 
     if (isString(mapUrl)) {
       setIsLoading(true);
@@ -20,7 +20,6 @@ export default function useLoadGeoJson(mapType: any) {
       const promise = cache.get(mapUrl, () => axios.get(mapUrl).catch(() => null));
       promise.then(({ data }: any) => {
         if (!cancelled) {
-          // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'object | null' is not assignable... Remove this comment to see the full error message
           setGeoJson(isObject(data) ? data : null);
           setIsLoading(false);
         }

@@ -16,11 +16,10 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 import useLoadGeoJson from "../hooks/useLoadGeoJson";
 import { getGeoJsonFields } from "./utils";
 
-type OwnTemplateFormatHintProps = {
-  geoJsonProperties?: string[];
+// Define props directly, including defaults
+type TemplateFormatHintProps = {
+  geoJsonProperties: string[];
 };
-
-type TemplateFormatHintProps = OwnTemplateFormatHintProps & typeof TemplateFormatHint.defaultProps;
 
 function TemplateFormatHint({ geoJsonProperties }: TemplateFormatHintProps) {
   return (

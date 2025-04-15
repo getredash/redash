@@ -27,7 +27,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-// @ts-expect-error ts-migrate(2339) FIXME: Property '_getIconUrl' does not exist on type 'Def... Remove this comment to see the full error message
 delete L.Icon.Default.prototype._getIconUrl;
 
 const iconAnchors = {
@@ -47,15 +46,13 @@ const popupAnchors = {
 const createHeatpointMarker = (lat: any, lon: any, color: any) =>
   L.circleMarker([lat, lon], { fillColor: color, fillOpacity: 0.9, stroke: false });
 
-// @ts-expect-error ts-migrate(2339) FIXME: Property 'MarkerClusterIcon' does not exist on typ... Remove this comment to see the full error message
 L.MarkerClusterIcon = L.DivIcon.extend({
   options: {
     color: null,
     className: "marker-cluster",
     iconSize: new L.Point(40, 40),
   },
-  // @ts-expect-error ts-migrate(7019) FIXME: Rest parameter 'args' implicitly has an 'any[]' ty... Remove this comment to see the full error message
-  createIcon(...args) {
+  createIcon(...args: any[]) {
     const color = chroma(this.options.color);
     const textColor = chooseTextColorForBackground(color);
     const borderColor = color.alpha(0.4).css();
@@ -71,15 +68,13 @@ L.MarkerClusterIcon = L.DivIcon.extend({
     return icon;
   },
 });
-// @ts-expect-error ts-migrate(2339) FIXME: Property 'markerClusterIcon' does not exist on typ... Remove this comment to see the full error message
-L.markerClusterIcon = (...args) => new L.MarkerClusterIcon(...args);
+L.markerClusterIcon = (...args: any[]) => new L.MarkerClusterIcon(...args);
 
 function createIconMarker(
   lat: any,
   lon: any,
   { iconShape, iconFont, foregroundColor, backgroundColor, borderColor }: any
 ) {
-  // @ts-expect-error ts-migrate(2339) FIXME: Property 'BeautifyIcon' does not exist on type 'ty... Remove this comment to see the full error message
   const icon = L.BeautifyIcon.icon({
     iconShape,
     icon: iconFont,
@@ -98,10 +93,8 @@ function createIconMarker(
 }
 
 function createMarkerClusterGroup(color: any) {
-  // @ts-expect-error ts-migrate(2339) FIXME: Property 'markerClusterGroup' does not exist on ty... Remove this comment to see the full error message
   return L.markerClusterGroup({
     iconCreateFunction(cluster: any) {
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'markerClusterIcon' does not exist on typ... Remove this comment to see the full error message
       return L.markerClusterIcon({ color, html: cluster.getChildCount() });
     },
   });
@@ -162,7 +155,6 @@ export default function initMap(container: any) {
     center: [0.0, 0.0],
     zoom: 1,
     scrollWheelZoom: false,
-    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '{ center: [number, number]; zoom... Remove this comment to see the full error message
     fullscreenControl: true,
   });
   const _tileLayer = L.tileLayer("//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -171,12 +163,12 @@ export default function initMap(container: any) {
   const _markerLayers = L.featureGroup().addTo(_map);
   const _layersControls = L.control.layers().addTo(_map);
 
-  let onBoundsChange = () => {};
+  // Adjust type to allow for bounds argument
+  let onBoundsChange: (bounds?: L.LatLngBounds) => void = () => {};
 
   let boundsChangedFromMap = false;
   const onMapMoveEnd = () => {
-    // @ts-expect-error ts-migrate(2554) FIXME: Expected 0 arguments, but got 1.
-    onBoundsChange(_map.getBounds());
+    onBoundsChange(_map.getBounds()); // Now matches the adjusted type
   };
   _map.on("focus", () => {
     boundsChangedFromMap = true;
@@ -190,7 +182,7 @@ export default function initMap(container: any) {
   function updateLayers(groups: any, options: any) {
     _tileLayer.setUrl(options.mapTileUrl);
 
-    _markerLayers.eachLayer(layer => {
+    _markerLayers.eachLayer((layer: L.Layer) => {
       _markerLayers.removeLayer(layer);
       _layersControls.removeLayer(layer);
     });

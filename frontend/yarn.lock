@@ -4107,7 +4107,7 @@ __metadata:
 
 "@redash/viz@file:viz-lib::locator=redash-client%40workspace%3A.":
   version: 1.0.0
-  resolution: "@redash/viz@file:viz-lib#viz-lib::hash=bf4a0f&locator=redash-client%40workspace%3A."
+  resolution: "@redash/viz@file:viz-lib#viz-lib::hash=c215e8&locator=redash-client%40workspace%3A."
   dependencies:
     "@dnd-kit/core": "npm:^6.0.8"
     "@dnd-kit/sortable": "npm:^7.0.2"
@@ -4123,7 +4123,7 @@ __metadata:
     dompurify: "npm:^2.0.7"
     font-awesome: "npm:^4.7.0"
     hoist-non-react-statics: "npm:^3.3.0"
-    leaflet: "npm:~1.3.1"
+    leaflet: "npm:1.5.1"
     leaflet-fullscreen: "npm:^1.0.2"
     leaflet.markercluster: "npm:^1.1.0"
     lodash: "npm:^4.17.10"
@@ -4136,7 +4136,7 @@ __metadata:
   peerDependencies:
     "@ant-design/icons": ">=4.0.0"
     antd: ">=4.0.0"
-  checksum: 10c0/e3378b41cdb44724e94e9743109f840fdd54d1e3217e3128f29594992d36edcabe299560bda88ef76e53957b15e8efe8f3ba39ac7c8656bc8d5f1d5212d2b8eb
+  checksum: 10c0/e1496c3143655ddcec243388d7c304627ac0840a74a2283790cb169f2be417a01467f621d112d424fdc71993c29fd60f70ed24a05e804ad2ffb1d0d5c8aa0cfb
   languageName: node
   linkType: hard
 
@@ -4160,7 +4160,7 @@ __metadata:
     "@types/dompurify": "npm:^2.0.4"
     "@types/enzyme": "npm:^3.10.8"
     "@types/jest": "npm:^26.0.18"
-    "@types/leaflet": "npm:^1.5.19"
+    "@types/leaflet": "npm:1.5.12"
     "@types/numeral": "npm:0.0.28"
     "@types/plotly.js": "npm:^2.35.2"
     "@types/react": "npm:^17.0.25"
@@ -4185,7 +4185,7 @@ __metadata:
     font-awesome: "npm:^4.7.0"
     hoist-non-react-statics: "npm:^3.3.0"
     jest: "npm:^24.1.0"
-    leaflet: "npm:~1.3.1"
+    leaflet: "npm:1.5.1"
     leaflet-fullscreen: "npm:^1.0.2"
     leaflet.markercluster: "npm:^1.1.0"
     less: "npm:^4.1.3"
@@ -4942,19 +4942,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/leaflet@npm:^1.5.19":
-  version: 1.9.17
-  resolution: "@types/leaflet@npm:1.9.17"
+"@types/leaflet@npm:1.5.12":
+  version: 1.5.12
+  resolution: "@types/leaflet@npm:1.5.12"
   dependencies:
     "@types/geojson": "npm:*"
-  checksum: 10c0/b03c98921a1874212d456f5bddb2e2eda87c1a82b458a73d2df844af2ebe59eba869294b563637f4e52b38a5cd8f88c84febd519feb4bc6f3d14768822c1189c
+  checksum: 10c0/b968b830de3144de580f9b36b74357f99fed7e1461371d438e55b76905e0e95a105b039716ad496c5318df0384f2f9c3919d790b5ff94646f66a3ef3176c123a
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.14.157":
-  version: 4.14.157
-  resolution: "@types/lodash@npm:4.14.157"
-  checksum: 10c0/258be58a8b1fa63c18093081b797dbde85efe9a7df66c20f22eff683ccf459eafcd6ca2cc98a2888df97e3c3eb8752edd8aa541c3f312bc406cb7a3ed79a96bc
+"@types/lodash@npm:~4.14.190":
+  version: 4.14.202
+  resolution: "@types/lodash@npm:4.14.202"
+  checksum: 10c0/6064d43c8f454170841bd67c8266cc9069d9e570a72ca63f06bceb484cb4a3ee60c9c1f305c1b9e3a87826049fd41124b8ef265c4dd08b00f6766609c7fe9973
   languageName: node
   linkType: hard
 
@@ -5184,10 +5184,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sql-formatter@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "@types/sql-formatter@npm:2.3.0"
-  checksum: 10c0/cb2028dd81fd5e1f88de65e6841c9366403b3983dcf6d62ea1d9aeafb00a96cef427622649459b39310280192bf4034bab008d3c72d9af2a4d57e71d57143e2d
+"@types/sql-formatter@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "@types/sql-formatter@npm:4.0.1"
+  dependencies:
+    sql-formatter: "npm:*"
+  checksum: 10c0/96a7465aff588a33a44a43e67b059dc8b7e329543f7bd2dfd01fe15e3f02af021da720a8dc7ed9970971100f04043639e9671e62ced48482d49a619639c86eb9
   languageName: node
   linkType: hard
 
@@ -14825,10 +14827,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"leaflet@npm:~1.3.1":
-  version: 1.3.4
-  resolution: "leaflet@npm:1.3.4"
-  checksum: 10c0/ac8ec3e1b5fb478897aac4114e3ff2b8ec9281085a3b18df8d115a8bf18be0f5af58dbdc1e992af5eb2a01b3eb9f65c7dea392d057daf02fdee30bf3431d2102
+"leaflet@npm:1.5.1":
+  version: 1.5.1
+  resolution: "leaflet@npm:1.5.1"
+  checksum: 10c0/2a99ab371f15b8b00ca0a174e7be52c5b9feb116a41a3ec42c618020b082ed2817d9338d4d9e93a0c684265b852b27edc7c6f54a25f9f04390739fcb5f7f1a61
   languageName: node
   linkType: hard
 
@@ -16819,6 +16821,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"os-browserify@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "os-browserify@npm:0.3.0"
+  checksum: 10c0/6ff32cb1efe2bc6930ad0fd4c50e30c38010aee909eba8d65be60af55efd6cbb48f0287e3649b4e3f3a63dce5a667b23c187c4293a75e557f0d5489d735bcf52
+  languageName: node
+  linkType: hard
+
 "os-tmpdir@npm:~1.0.2":
   version: 1.0.2
   resolution: "os-tmpdir@npm:1.0.2"
@@ -17778,12 +17787,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prettier-plugin-sql-cst@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "prettier-plugin-sql-cst@npm:0.13.0"
+  dependencies:
+    prettier: "npm:^3.0.3"
+    sql-parser-cst: "npm:^0.33.1"
+  checksum: 10c0/c3aef9efdab44812af439078cb379c668479a83c1cccaab4182ee4e5c8c891a21258b9997bb2186a2e39b787dcc59c16b1a4b2630ff2995ddbba99eaaf342472
+  languageName: node
+  linkType: hard
+
 "prettier@npm:^1.19.1":
   version: 1.19.1
   resolution: "prettier@npm:1.19.1"
   bin:
     prettier: ./bin-prettier.js
   checksum: 10c0/12efb4e486c1e1d006e9eadd3b6585fc6beb9481dc801080fc23d3e75ec599d88c6fea1b40aef167128069e8fe76b4205bb8306ad145575d1b051b8fa70cfaae
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^3.0.3, prettier@npm:^3.5.3":
+  version: 3.5.3
+  resolution: "prettier@npm:3.5.3"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: 10c0/3880cb90b9dc0635819ab52ff571518c35bd7f15a6e80a2054c05dbc8a3aa6e74f135519e91197de63705bcb38388ded7e7230e2178432a1468005406238b877
   languageName: node
   linkType: hard
 
@@ -19020,11 +19048,11 @@ __metadata:
     "@testing-library/cypress": "npm:^8.0.7"
     "@types/classnames": "npm:^2.2.10"
     "@types/hoist-non-react-statics": "npm:^3.3.1"
-    "@types/lodash": "npm:^4.14.157"
+    "@types/lodash": "npm:~4.14.190"
     "@types/prop-types": "npm:^15.7.3"
     "@types/react": "npm:^17.0.25"
     "@types/react-dom": "npm:^17.0.25"
-    "@types/sql-formatter": "npm:^2.3.0"
+    "@types/sql-formatter": "npm:^4.0.1"
     "@typescript-eslint/eslint-plugin": "npm:^2.10.0"
     "@typescript-eslint/parser": "npm:^2.10.0"
     "@wojtekmaj/enzyme-adapter-react-17": "npm:^0.6.5"
@@ -19085,8 +19113,11 @@ __metadata:
     mustache: "npm:^2.3.0"
     npm-run-all: "npm:^4.1.5"
     numeral: "npm:^2.0.6"
+    os-browserify: "npm:^0.3.0"
+    path-browserify: "npm:^1.0.1"
     path-to-regexp: "npm:^3.3.0"
-    prettier: "npm:^1.19.1"
+    prettier: "npm:^3.5.3"
+    prettier-plugin-sql-cst: "npm:^0.13.0"
     process: "npm:^0.11.10"
     prop-types: "npm:^15.6.1"
     query-string: "npm:^6.9.0"
@@ -20816,7 +20847,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sql-formatter@npm:^15.5.2":
+"sql-formatter@npm:*, sql-formatter@npm:^15.5.2":
   version: 15.5.2
   resolution: "sql-formatter@npm:15.5.2"
   dependencies:
@@ -20825,6 +20856,13 @@ __metadata:
   bin:
     sql-formatter: bin/sql-formatter-cli.cjs
   checksum: 10c0/1c7a441e441ebea1458240f56d60fb731c6163b2da62037572d6ec9971b6cee3a9f4f53d29b74a7492ab7f13fcc481f90de45edbfad60249dd3e8ca68d7da17f
+  languageName: node
+  linkType: hard
+
+"sql-parser-cst@npm:^0.33.1":
+  version: 0.33.1
+  resolution: "sql-parser-cst@npm:0.33.1"
+  checksum: 10c0/7053a60cab1ec04658e2d9b9a422585e76dec0515e20c112340932648dc99924c20cd0d6ecc6f5ffa9dc8039a0ed2d8efa800059c15ed4a04946abb1890eac28
   languageName: node
   linkType: hard
 

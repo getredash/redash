@@ -1,14 +1,28 @@
 import { isObject, isArray, reduce, keys, uniq } from "lodash";
 import L from "leaflet";
 
-export function getGeoJsonFields(geoJson: any) {
-  // @ts-expect-error ts-migrate(2339) FIXME: Property 'features' does not exist on type 'object... Remove this comment to see the full error message
-  const features = isObject(geoJson) && isArray(geoJson.features) ? geoJson.features : [];
+// Define interfaces for GeoJSON types
+interface GeoJsonProperties {
+  [key: string]: any;
+}
+
+interface GeoJsonFeature {
+  type: string;
+  properties: GeoJsonProperties | null;
+  geometry: any; // Can be more specific if needed
+}
+
+interface GeoJsonFeatureCollection {
+  type: string;
+  features: GeoJsonFeature[];
+}
+
+export function getGeoJsonFields(geoJson: GeoJsonFeatureCollection | any) {
+  // Use a more specific check for FeatureCollection
+  const features = geoJson && geoJson.type === "FeatureCollection" && isArray(geoJson.features) ? geoJson.features : [];
   return reduce(
     features,
-    // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
-    (result, feature) => {
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'properties' does not exist on type 'obje... Remove this comment to see the full error message
+    (result: string[], feature: GeoJsonFeature) => {
       const properties = isObject(feature) && isObject(feature.properties) ? feature.properties : {};
       return uniq([...result, ...keys(properties)]);
     },
@@ -16,17 +30,16 @@ export function getGeoJsonFields(geoJson: any) {
   );
 }
 
-export function getGeoJsonBounds(geoJson: any) {
+export function getGeoJsonBounds(geoJson: GeoJsonFeatureCollection | any) {
   if (isObject(geoJson)) {
-    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'object' is not assignable to par... Remove this comment to see the full error message
-    const layer = L.geoJSON(geoJson);
+    // L.geoJSON can accept various GeoJSON object types, keep 'any' here for flexibility
+    // or use a broader GeoJSON type if available/installed.
+    const layer = L.geoJSON(geoJson as any);
     const bounds = layer.getBounds();
     if (bounds.isValid()) {
       return [
-        // @ts-expect-error ts-migrate(2551) FIXME: Property '_southWest' does not exist on type 'LatL... Remove this comment to see the full error message
-        [bounds._southWest.lat, bounds._southWest.lng],
-        // @ts-expect-error ts-migrate(2551) FIXME: Property '_northEast' does not exist on type 'LatL... Remove this comment to see the full error message
-        [bounds._northEast.lat, bounds._northEast.lng],
+        [bounds.getSouthWest().lat, bounds.getSouthWest().lng],
+        [bounds.getNorthEast().lat, bounds.getNorthEast().lng],
       ];
     }
   }

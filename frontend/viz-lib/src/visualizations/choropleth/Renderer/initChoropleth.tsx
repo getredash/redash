@@ -30,7 +30,6 @@ const CustomControl = L.Control.extend({
     return div;
   },
   onRemove() {
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'getContainer' does not exist on type '{ ... Remove this comment to see the full error message
     ReactDOM.unmountComponentAtNode(this.getContainer());
   },
 });
@@ -91,7 +90,6 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
     scrollWheelZoom: false,
     maxBoundsViscosity: 1,
     attributionControl: false,
-    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type '{ center: [number, number]; zoom... Remove this comment to see the full error message
     fullscreenControl: true,
   });
   let _choropleth: any = null;
@@ -101,10 +99,8 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
     if (isFunction(onBoundsChange)) {
       const bounds = _map.getBounds();
       onBoundsChange([
-        // @ts-expect-error ts-migrate(2551) FIXME: Property '_southWest' does not exist on type 'LatL... Remove this comment to see the full error message
-        [bounds._southWest.lat, bounds._southWest.lng],
-        // @ts-expect-error ts-migrate(2551) FIXME: Property '_northEast' does not exist on type 'LatL... Remove this comment to see the full error message
-        [bounds._northEast.lat, bounds._northEast.lng],
+        [bounds.getSouthWest().lat, bounds.getSouthWest().lng],
+        [bounds.getNorthEast().lat, bounds.getNorthEast().lng],
       ]);
     }
   }
@@ -122,25 +118,23 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
     boundsChangedFromMap = false;
   });
 
-  function updateLayers(geoJson: any, data: any, options: any) {
-    _map.eachLayer(layer => _map.removeLayer(layer));
+  function updateLayers(geoJson: any, data: any, options: any) { // Keep 'any' for flexibility, but check type internally
+    _map.eachLayer((layer: L.Layer) => _map.removeLayer(layer));
     _map.removeControl(_legend);
 
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'features' does not exist on type 'object... Remove this comment to see the full error message
-    if (!isObject(geoJson) || !isArray(geoJson.features)) {
+    // Use a more specific check for FeatureCollection
+    if (!geoJson || geoJson.type !== "FeatureCollection" || !isArray(geoJson.features)) {
       _choropleth = null;
-      // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'null' is not assignable to param... Remove this comment to see the full error message
       _map.setMaxBounds(null);
       return;
     }
 
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'features' does not exist on type 'object... Remove this comment to see the full error message
+    // Now TypeScript knows geoJson has a 'features' property here
     const { limits, colors, legend } = createScale(geoJson.features, data, options);
     const formatValue = createNumberFormatter(options.valueFormat, options.noValuePlaceholder);
 
-    // @ts-expect-error ts-migrate(2345) FIXME: Argument of type 'object' is not assignable to par... Remove this comment to see the full error message
     _choropleth = L.geoJSON(geoJson, {
-      onEachFeature(feature, layer) {
+      onEachFeature(feature: any, layer: L.Layer) {
         prepareLayer({ feature, layer, data, options, limits, colors, formatValue });
       },
     }).addTo(_map);
@@ -158,10 +152,9 @@ export default function initChoropleth(container: any, onBoundsChange: any) {
       _legend.setPosition(options.legend.position.replace("-", ""));
       _map.addControl(_legend);
       ReactDOM.render(
-        // @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call.
         <Legend
-          // @ts-expect-error ts-migrate(2322) FIXME: Type '{ text: any; color: any; limit: any; }[]' is... Remove this comment to see the full error message
-          items={map(legend, item => ({ ...item, text: formatValue(item.limit) }))}
+          // Explicitly cast color and text to string to match expected type
+          items={map(legend, item => ({ color: String(item.color), text: String(formatValue(item.limit)) }))}
           alignText={options.legend.alignText}
         />,
         _legend.getContainer()
