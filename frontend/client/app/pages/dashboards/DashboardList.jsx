@@ -31,7 +31,7 @@ const sidebarMenu = [
     key: "all",
     href: "dashboards",
     title: "All Dashboards",
-    icon: <DashboardOutlined />,
+    icon: () => <DashboardOutlined />,
   },
   {
     key: "my",
@@ -43,7 +43,7 @@ const sidebarMenu = [
     key: "favorites",
     href: "dashboards/favorites",
     title: "Favorites",
-    icon: <StarOutlined />,
+    icon: () => <StarOutlined />,
   },
 ];
 

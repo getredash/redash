@@ -20,9 +20,10 @@ import VersionInfo from "./VersionInfo";
 
 import "./DesktopNavbar.less";
 
-function NavbarSection({ children, ...props }) {
+function NavbarSection({ children, className, style }) {
+  // Only pass className and style to Menu to avoid passing unwanted props
   return (
-    <Menu selectable={false} mode="vertical" theme="dark" {...props}>
+    <Menu selectable={false} mode="vertical" theme="dark" className={className} style={style}>
       {children}
     </Menu>
   );
@@ -74,11 +75,11 @@ export default function DesktopNavbar() {
   return (
     <nav className="desktop-navbar">
       <NavbarSection className="desktop-navbar-logo">
-        <div role="menuitem">
+        <Menu.Item key="logo" style={{ height: "auto", cursor: "default" }} disabled>
           <Link href="./">
             <img src={logoUrl} alt="Redash" />
           </Link>
-        </div>
+        </Menu.Item>
       </NavbarSection>
 
       <NavbarSection>
@@ -165,7 +166,7 @@ export default function DesktopNavbar() {
 
       <NavbarSection className="desktop-navbar-profile-menu">
         <Menu.SubMenu
-          key="profile"
+          key="profile-menu"
           popupClassName="desktop-navbar-submenu"
           tabIndex={0}
           title={

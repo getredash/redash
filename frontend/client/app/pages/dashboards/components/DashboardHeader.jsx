@@ -18,7 +18,6 @@ import { policy } from "@/services/policy";
 import recordEvent from "@/services/recordEvent";
 import { durationHumanize } from "@/lib/utils";
 import { DashboardStatusEnum } from "../hooks/useDashboard";
-import Space from "antd/lib/space";
 
 import "./DashboardHeader.less";
 
@@ -78,7 +77,7 @@ function RefreshButton({ dashboardConfiguration }) {
     }
   };
   return (
-    <Space>
+    <div className="refresh-button-group">
       <Tooltip title={refreshRate ? `Auto Refreshing every ${durationHumanize(refreshRate)}` : null}>
         <Button type={buttonType(refreshRate)} onClick={() => refreshDashboard()}>
           <i className={cx("zmdi zmdi-refresh m-r-5", { "zmdi-hc-spin": refreshing })} aria-hidden="true" />
@@ -103,7 +102,7 @@ function RefreshButton({ dashboardConfiguration }) {
           <span className="sr-only">Split button!</span>
         </Button>
       </Dropdown>
-    </Space>
+    </div>
   );
 }
 
@@ -204,7 +203,7 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
     <div className="dashboard-control">
       {dashboard.can_edit && dashboard.is_archived && <Button onClick={unarchiveDashboard}>Unarchive</Button>}
       {!dashboard.is_archived && (
-        <span className="hidden-print">
+        <div className="dashboard-control-row hidden-print">
           {showPublishButton && (
             <Button className="m-r-5 hidden-xs" onClick={togglePublished}>
               <span className="fa fa-paper-plane m-r-5" /> Publish
@@ -236,7 +235,7 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
             </Tooltip>
           )}
           {showMoreOptionsButton && <DashboardMoreOptionsButton dashboardConfiguration={dashboardConfiguration} />}
-        </span>
+        </div>
       )}
     </div>
   );

@@ -64,7 +64,21 @@
     }
   }
 
+  .dashboard-control-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 8px;
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+  }
+
   .dashboard-control {
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+
     .icon-button {
       width: 32px;
       padding: 0 10px;
@@ -91,9 +105,32 @@
         color: #f44336;
       }
     }
+  }
 
-    @media (max-width: 515px) {
+  .refresh-button-group {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  @media (max-width: 1023px) {
+    .dashboard-control-row {
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 100%;
+      gap: 4px;
+    }
+  }
+
+  @media (max-width: 515px) {
+    .dashboard-control {
       flex-basis: 100%;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .dashboard-control {
+      justify-content: flex-start;
     }
   }
 
