@@ -199,7 +199,7 @@ LDAP_SEARCH_TEMPLATE = os.environ.get("REDASH_LDAP_SEARCH_TEMPLATE", "(cn=%(user
 # The schema to bind to (ex. cn=users,dc=ORG,dc=local)
 LDAP_SEARCH_DN = os.environ.get("REDASH_LDAP_SEARCH_DN", os.environ.get("REDASH_SEARCH_DN"))
 
-STATIC_ASSETS_PATH = fix_assets_path(os.environ.get("REDASH_STATIC_ASSETS_PATH", "../client/dist/"))
+STATIC_ASSETS_PATH = fix_assets_path(os.environ.get("REDASH_STATIC_ASSETS_PATH", "../frontend/client/dist/"))
 FLASK_TEMPLATE_PATH = fix_assets_path(os.environ.get("REDASH_FLASK_TEMPLATE_PATH", STATIC_ASSETS_PATH))
 # Time limit (in seconds) for scheduled queries. Set this to -1 to execute without a time limit.
 SCHEDULED_QUERY_TIME_LIMIT = int(os.environ.get("REDASH_SCHEDULED_QUERY_TIME_LIMIT", -1))

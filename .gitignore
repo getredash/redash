@@ -1,30 +1,98 @@
-.venv
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
 venv/
-.cache
+env/
+ENV/
+.pytest_cache/
+.coverage
 .coverage.*
+coverage.xml
 .coveralls.yml
-.idea
-*.pyc
-.nyc_output
-coverage
+htmlcov/
+.tox/
+.nox/
+
+# Node.js
+frontend/node_modules/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.pnp/
+frontend/.pnp.js
+frontend/.yarn/cache
+frontend/.yarn/unplugged
+frontend/.yarn/build-state.yml
+frontend/.yarn/install-state.gz
+frontend/viz-lib/.yarn/cache
+frontend/viz-lib/.yarn/unplugged
+frontend/viz-lib/.yarn/build-state.yml
+frontend/viz-lib/.yarn/install-state.gz
+frontend/viz-lib/node_modules/
+frontend/.npm/
+frontend/.eslintcache
+frontend/.node_repl_history
+
+# Coverage and reports
+.nyc_output/
+coverage/
 .coverage
 coverage.xml
-client/dist
-.DS_Store
+
+# Build directories and files
+frontend/client/dist/
+frontend/viz-lib/dist/
+frontend/viz-lib/lib/
+frontend/viz-lib/build/
+frontend/dist/
+.tmp/
+_build/
+.sass-cache/
+.cache/
+.rpt2_cache/
+*.tsbuildinfo
+
+# Logs and databases
+*.log
+dump.rdb
+.db
+*.db
+*.sqlite3
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
 .#*
 \#*#
 *~
-_build
-.vscode
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment and configuration
 .env
+.env.*
+!.env.example
+.envrc
 .tool-versions
 
-dump.rdb
+# Test artifacts
+frontend/client/cypress/screenshots/
+frontend/client/cypress/videos/
+frontend/cypress/screenshots/
+frontend/cypress/videos/
 
-node_modules
-.tmp
-.sass-cache
-npm-debug.log
-
-client/cypress/screenshots
-client/cypress/videos
+# Misc
+.history/

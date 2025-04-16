@@ -7,8 +7,8 @@ on:
     branches:
       - master
 env:
-  NODE_VERSION: 18
-  YARN_VERSION: 1.22.22
+  NODE_VERSION: 22.14.0
+  YARN_VERSION: 4.9.1
 jobs:
   backend-lint:
     runs-on: ubuntu-22.04
@@ -85,16 +85,19 @@ jobs:
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
+      - name: Install Yarn
+        run: corepack enable && corepack prepare yarn@$YARN_VERSION --activate
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock # Add path to yarn.lock
       - name: Install Dependencies
-        run: |
-          npm install --global --force yarn@$YARN_VERSION
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+        run: yarn cache clean && yarn install --no-immutable
+        working-directory: ./frontend # Add working directory
       - name: Run Lint
         run: yarn lint:ci
+        working-directory: ./frontend # Add working directory
       - name: Store Test Results
         uses: actions/upload-artifact@v4
         with:
@@ -112,19 +115,24 @@ jobs:
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
+      - name: Install Yarn
+        run: corepack enable && corepack prepare yarn@$YARN_VERSION --activate
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock # Add path to yarn.lock
       - name: Install Dependencies
-        run: |
-          npm install --global --force yarn@$YARN_VERSION
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+        run: yarn cache clean && yarn install --no-immutable
+        working-directory: ./frontend # Add working directory
       - name: Run App Tests
         run: yarn test
+        working-directory: ./frontend # Add working directory
       - name: Run Visualizations Tests
         run: cd viz-lib && yarn test
+        working-directory: ./frontend # Add working directory
       - run: yarn lint
+        working-directory: ./frontend # Add working directory
 
   frontend-e2e-tests:
     runs-on: ubuntu-22.04
@@ -145,26 +153,30 @@ jobs:
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
+      - name: Install Yarn
+        run: corepack enable && corepack prepare yarn@$YARN_VERSION --activate
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock # Add path to yarn.lock
       - name: Enable Code Coverage Report For Master Branch
         if: endsWith(github.ref, '/master')
         run: |
           echo "CODE_COVERAGE=true" >> "$GITHUB_ENV"
       - name: Install Dependencies
-        run: |
-          npm install --global --force yarn@$YARN_VERSION
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+        run: yarn cache clean && yarn install --no-immutable
+        working-directory: ./frontend # Add working directory
       - name: Setup Redash Server
         run: |
           set -x
           yarn cypress build
           yarn cypress start -- --skip-db-seed
           docker compose run cypress yarn cypress db-seed
+        working-directory: ./frontend # Add working directory
       - name: Execute Cypress Tests
         run: yarn cypress run-ci
+        working-directory: ./frontend # Add working directory
       - name: "Failure: output container logs to console"
         if: failure()
         run: docker compose logs

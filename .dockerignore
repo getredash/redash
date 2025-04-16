@@ -1,14 +1,76 @@
-client/.tmp/
-node_modules/
-viz-lib/node_modules/
-.tmp/
+# Dependency directories
+frontend/node_modules/
+frontend/viz-lib/node_modules/
+frontend/.pnp/
+frontend/.pnp.js
+frontend/.npm/
+frontend/.yarn/cache
+frontend/.yarn/unplugged
+frontend/.yarn/build-state.yml
+frontend/.yarn/install-state.gz
+frontend/viz-lib/.yarn/cache
+frontend/viz-lib/.yarn/unplugged
+frontend/viz-lib/.yarn/build-state.yml
+frontend/viz-lib/.yarn/install-state.gz
+
+# Python virtual environments
 .venv/
 venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Version control
 .git/
+.gitignore
+.gitattributes
+
+# Test and coverage
+.coverage
+coverage/
+frontend/coverage/
+.nyc_output/
+frontend/.nyc_output/
+coverage.xml
+*.lcov
+.pytest_cache/
+/cypress/screenshots/
+/cypress/videos/
+frontend/cypress/screenshots/
+frontend/cypress/videos/
+frontend/client/cypress/screenshots/
+frontend/client/cypress/videos/
+
+# Build and temporary directories
+dist/
+frontend/dist/
+frontend/client/dist/
+frontend/viz-lib/dist/
+.tmp/
+frontend/.tmp/
+frontend/client/.tmp/
+.cache/
+frontend/.cache/
+.rpt2_cache/
+frontend/.rpt2_cache/
+
+# CI/CD and config files
 /.codeclimate.yml
-/.coverage
-/coverage.xml
 /.circleci/
 /.github/
 /netlify.toml
 /setup/
+.editorconfig
+.eslintrc*
+.prettierrc*
+*.md
+LICENSE*
+*.log
+
+# Development env files
+.env
+.env.*
+.tool-versions
+.vscode/
