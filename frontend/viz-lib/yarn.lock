@@ -2584,7 +2584,7 @@ __metadata:
     webpack-cli: "npm:^5.1.4"
   peerDependencies:
     "@ant-design/icons": ^4.4.0
-    antd: ^4.22.8
+    antd: 4.24.16
     react: ^17.0.25
     react-dom: ^17.0.25
   languageName: unknown

@@ -198,7 +198,23 @@ export default function QueryPageHeader({
         )}
 
         {!queryFlags.isNew && (
-          <Dropdown overlay={moreActionsMenu} trigger={["click"]}>
+          <Dropdown
+            menu={{
+              items: React.Children.toArray(moreActionsMenu.props.children)
+                .filter(Boolean)
+                .map((item, idx) => {
+                  if (item.type && (item.type.displayName === "MenuDivider" || item.type.name === "MenuDivider")) {
+                    return { key: item.key || `divider-${idx}`, type: "divider" };
+                  }
+                  return {
+                    key: item.key || idx,
+                    label: item.props.children,
+                    ...item.props,
+                  };
+                }),
+            }}
+            trigger={["click"]}
+          >
             <Button data-test="QueryPageHeaderMoreButton" aria-label="More actions">
               <EllipsisOutlinedIcon rotate={90} aria-hidden="true" />
             </Button>

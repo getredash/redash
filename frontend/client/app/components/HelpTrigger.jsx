@@ -196,7 +196,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
             placement="right"
             closable={false}
             onClose={this.closeDrawer}
-            visible={this.state.visible}
+            open={this.state.visible}
             className={cx("help-drawer", drawerClassName)}
             destroyOnClose
             width={400}

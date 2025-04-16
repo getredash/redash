@@ -12,18 +12,38 @@ import PlainButton from "@/components/PlainButton";
 import "./Widget.less";
 
 function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
-  const WidgetMenu = (
-    <Menu data-test="WidgetDropdownButtonMenu">
-      {extraOptions}
-      {showDeleteOption && extraOptions && <Menu.Divider />}
-      {showDeleteOption && <Menu.Item onClick={onDelete}>Remove from Dashboard</Menu.Item>}
-    </Menu>
-  );
-
   return (
     <div className="widget-menu-regular">
-      <Dropdown overlay={WidgetMenu} placement="bottomRight" trigger={["click"]}>
-        <PlainButton className="action p-l-15 p-r-15" data-test="WidgetDropdownButton" aria-label="More options">
+      <Dropdown
+        menu={{
+          items: [
+            ...React.Children.toArray(extraOptions).map((option, idx) => ({
+              key: option.key || idx,
+              label: option,
+            })),
+            ...(showDeleteOption && extraOptions
+              ? [{ key: "divider", type: "divider" }]
+              : []),
+            ...(showDeleteOption
+              ? [
+                  {
+                    key: "delete",
+                    label: (
+                      <Menu.Item onClick={onDelete}>Remove from Dashboard</Menu.Item>
+                    ),
+                  },
+                ]
+              : []),
+          ],
+        }}
+        placement="bottomRight"
+        trigger={["click"]}
+      >
+        <PlainButton
+          className="action p-l-15 p-r-15"
+          data-test="WidgetDropdownButton"
+          aria-label="More options"
+        >
           <i className="zmdi zmdi-more-vert" aria-hidden="true" />
         </PlainButton>
       </Dropdown>
@@ -51,7 +71,8 @@ function WidgetDeleteButton({ onClick }) {
         title="Remove From Dashboard"
         onClick={onClick}
         data-test="WidgetDeleteButton"
-        aria-label="Close">
+        aria-label="Close"
+      >
         <i className="zmdi zmdi-close" aria-hidden="true" />
       </PlainButton>
     </div>

@@ -11,8 +11,6 @@ import PlainButton from "@/components/PlainButton";
 
 import "./QueryVisualizationTabs.less";
 
-const { TabPane } = Tabs;
-
 function EmptyState({ title, message, refreshButton }) {
   return (
     <div className="query-results-empty-state">
@@ -135,41 +133,37 @@ export default function QueryVisualizationTabs({
       tabBarGutter={0}
       onChange={(activeKey) => onChangeTab(+activeKey)}
       destroyInactiveTabPane
-    >
-      {orderedVisualizations.map((visualization) => (
-        <TabPane
-          key={`${visualization.id}`}
-          tab={
-            <TabWithDeleteButton
-              data-test={`QueryPageVisualizationTab${visualization.id}`}
-              canDelete={!isMobile && canDeleteVisualizations && !isFirstVisualization(visualization.id)}
-              visualizationName={visualization.name}
-              onDelete={() => onDeleteVisualization(visualization.id)}
-            />
-          }
-        >
-          {queryResult ? (
-            <VisualizationRenderer
-              visualization={visualization}
-              queryResult={queryResult}
-              context="query"
-              filters={filters}
-              onFiltersChange={setFilters}
-            />
-          ) : (
-            <EmptyState
-              title="Query has no result"
-              message={
-                canRefresh
-                  ? "Execute/Refresh the query to show results."
-                  : "You do not have a permission to execute/refresh this query."
-              }
-              refreshButton={refreshButton}
-            />
-          )}
-        </TabPane>
-      ))}
-    </Tabs>
+      items={orderedVisualizations.map((visualization) => ({
+        key: `${visualization.id}`,
+        label: (
+          <TabWithDeleteButton
+            data-test={`QueryPageVisualizationTab${visualization.id}`}
+            canDelete={!isMobile && canDeleteVisualizations && !isFirstVisualization(visualization.id)}
+            visualizationName={visualization.name}
+            onDelete={() => onDeleteVisualization(visualization.id)}
+          />
+        ),
+        children: queryResult ? (
+          <VisualizationRenderer
+            visualization={visualization}
+            queryResult={queryResult}
+            context="query"
+            filters={filters}
+            onFiltersChange={setFilters}
+          />
+        ) : (
+          <EmptyState
+            title="Query has no result"
+            message={
+              canRefresh
+                ? "Execute/Refresh the query to show results."
+                : "You do not have a permission to execute/refresh this query."
+            }
+            refreshButton={refreshButton}
+          />
+        ),
+      }))}
+    />
   );
 }
 

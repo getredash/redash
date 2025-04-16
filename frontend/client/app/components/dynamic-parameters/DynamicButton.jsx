@@ -44,7 +44,18 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled, stati
     <div ref={containerRef}>
       <div role="presentation" onClick={e => e.stopPropagation()}>
         <Dropdown.Button
-          overlay={menu}
+          menu={{
+            items: React.Children.toArray(menu.props.children).filter(Boolean).map((item, idx) => {
+              if (item.type && (item.type.displayName === "MenuDivider" || item.type.name === "MenuDivider")) {
+                return { key: item.key || `divider-${idx}`, type: "divider" };
+              }
+              return {
+                key: item.key || idx,
+                label: item.props.children,
+                ...item.props,
+              };
+            }),
+          }}
           className="dynamic-button"
           placement="bottomRight"
           trigger={["click"]}

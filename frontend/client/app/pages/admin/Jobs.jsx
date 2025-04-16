@@ -106,20 +106,33 @@ class Jobs extends React.Component {
                 </Grid.Col>
               </Grid.Row>
 
-              <Tabs activeKey={activeTab || "queues"} onTabClick={changeTab} animated={false}>
-                <Tabs.TabPane key="queues" tab="Queues">
-                  <QueuesTable loading={isLoading} items={queueCounters} />
-                </Tabs.TabPane>
-                <Tabs.TabPane key="workers" tab="Workers">
-                  <WorkersTable loading={isLoading} items={workers} />
-                </Tabs.TabPane>
-                <Tabs.TabPane key="queries" tab="Queries">
-                  <QueryJobsTable loading={isLoading} items={startedQueryJobs} />
-                </Tabs.TabPane>
-                <Tabs.TabPane key="other" tab="Other Jobs">
-                  <OtherJobsTable loading={isLoading} items={otherStartedJobs} />
-                </Tabs.TabPane>
-              </Tabs>
+              <Tabs
+                activeKey={activeTab || "queues"}
+                onTabClick={changeTab}
+                animated={false}
+                items={[
+                  {
+                    key: "queues",
+                    label: "Queues",
+                    children: <QueuesTable loading={isLoading} items={queueCounters} />,
+                  },
+                  {
+                    key: "workers",
+                    label: "Workers",
+                    children: <WorkersTable loading={isLoading} items={workers} />,
+                  },
+                  {
+                    key: "queries",
+                    label: "Queries",
+                    children: <QueryJobsTable loading={isLoading} items={startedQueryJobs} />,
+                  },
+                  {
+                    key: "other",
+                    label: "Other Jobs",
+                    children: <OtherJobsTable loading={isLoading} items={otherStartedJobs} />,
+                  },
+                ]}
+              />
             </React.Fragment>
           )}
         </div>

@@ -138,8 +138,8 @@ export default function ColorPicker({
         }
         trigger="click"
         placement={placement}
-        visible={visible}
-        onVisibleChange={setVisible}>
+        open={visible}
+        onOpenChange={setVisible}>
         {children || (
           <Swatch
             color={validatedColor}

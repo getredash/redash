@@ -43,23 +43,18 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, evaluate, 
       className={cx("m-l-5", { disabled: !canEdit })}
       trigger={[canEdit ? "click" : undefined]}
       placement="bottomRight"
-      overlay={
-        <Menu>
-          <Menu.Item>
-            {muted ? (
-              <PlainButton onClick={() => execute(unmute)}>Unmute Notifications</PlainButton>
-            ) : (
-              <PlainButton onClick={() => execute(mute)}>Mute Notifications</PlainButton>
-            )}
-          </Menu.Item>
-          <Menu.Item>
-            <PlainButton onClick={confirmDelete}>Delete</PlainButton>
-          </Menu.Item>
-          <Menu.Item>
-            <PlainButton onClick={() => execute(evaluate)}>Evaluate</PlainButton>
-          </Menu.Item>
-        </Menu>
-      }>
+      menu={{
+        items: React.Children.toArray([
+          <Menu.Item key="mute">{muted ? (
+            <PlainButton onClick={() => execute(unmute)}>Unmute Notifications</PlainButton>
+          ) : (
+            <PlainButton onClick={() => execute(mute)}>Mute Notifications</PlainButton>
+          )}</Menu.Item>,
+          <Menu.Item key="delete"><PlainButton onClick={confirmDelete}>Delete</PlainButton></Menu.Item>,
+          <Menu.Item key="evaluate"><PlainButton onClick={() => execute(evaluate)}>Evaluate</PlainButton></Menu.Item>,
+        ]),
+      }}
+    >
       <Button aria-label="More actions">
         {loading ? <LoadingOutlinedIcon /> : <EllipsisOutlinedIcon rotate={90} aria-hidden="true" />}
       </Button>

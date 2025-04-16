@@ -125,7 +125,18 @@ function VisualizationEmbedFooter({
             </Link.Button>
           </Tooltip>
           {!query.hasParameters() && (
-            <Dropdown overlay={downloadMenu} disabled={!queryResults} trigger={["click"]} placement="topLeft">
+            <Dropdown
+              menu={{
+                items: downloadMenu.props.children.map((item, idx) => ({
+                  key: item.key || idx,
+                  label: item.props.children,
+                  ...item.props,
+                })),
+              }}
+              disabled={!queryResults}
+              trigger={["click"]}
+              placement="topLeft"
+            >
               <Button loading={!queryResults && !!refreshStartedAt} className="m-l-5">
                 Download Dataset
                 <i className="fa fa-caret-up m-l-5" aria-hidden="true" />
