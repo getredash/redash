@@ -44,15 +44,16 @@ export const SortableElement = ({ id, index, children }: any) => {
     opacity: isDragging ? 0.4 : 1
   };
 
+  // children is a function that receives dragHandleProps
   return (
-    <div 
+    <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
       className={cx("sortable-element", { "sortable-element-dragging": isDragging })}
     >
-      {children}
+      {typeof children === "function"
+        ? children({ dragHandleProps: { ...attributes, ...listeners } })
+        : children}
     </div>
   );
 };
