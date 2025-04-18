@@ -68,6 +68,7 @@ from redash.handlers.queries import (
     QueryResource,
     QuerySearchResource,
     QueryTagsResource,
+    QueryUnassignedResource,
 )
 from redash.handlers.query_results import (
     JobResource,
@@ -202,6 +203,7 @@ api.add_org_resource(DashboardTagsResource, "/api/dashboards/tags", endpoint="da
 
 api.add_org_resource(QuerySearchResource, "/api/queries/search", endpoint="queries_search")
 api.add_org_resource(QueryRecentResource, "/api/queries/recent", endpoint="recent_queries")
+api.add_org_resource(QueryUnassignedResource, "/api/queries/unassigned", endpoint="unassigned_queries")
 api.add_org_resource(QueryArchiveResource, "/api/queries/archive", endpoint="queries_archive")
 api.add_org_resource(QueryListResource, "/api/queries", endpoint="queries")
 api.add_org_resource(MyQueriesResource, "/api/queries/my", endpoint="my_queries")

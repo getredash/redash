@@ -36,6 +36,12 @@ const sidebarMenu = [
     icon: () => <Sidebar.MenuIcon icon="fa fa-code" />,
   },
   {
+    key: "unassigned",
+    href: "queries/unassigned",
+    title: "Unassigned Queries",
+    icon: () => <Sidebar.MenuIcon icon="fa fa-code" />,
+  },
+  {
     key: "my",
     href: "queries/my",
     title: "My Queries",
@@ -194,6 +200,7 @@ const QueriesListPage = itemsList(
           my: Query.myQueries.bind(Query),
           favorites: Query.favorites.bind(Query),
           archive: Query.archive.bind(Query),
+          unassigned: Query.unassigned.bind(Query),
         }[currentPage];
       },
       getItemProcessor() {
@@ -217,6 +224,14 @@ routes.register(
     path: "/queries/favorites",
     title: "Favorite Queries",
     render: (pageProps) => <QueriesListPage {...pageProps} currentPage="favorites" />,
+  })
+);
+routes.register(
+  "Queries.Unassigned",
+  routeWithUserSession({
+    path: "/queries/unassigned",
+    title: "Unassigned Queries",
+    render: (pageProps) => <QueriesListPage {...pageProps} currentPage="unassigned" />,
   })
 );
 routes.register(

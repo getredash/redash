@@ -245,6 +245,28 @@ class QueryListResource(BaseQueryListResource):
         return QuerySerializer(query, with_visualizations=True).serialize()
 
 
+class QueryUnassignedResource(BaseQueryListResource):
+    def get_queries(self, search_term):
+        if search_term:
+            return models.Query.search(
+                search_term,
+                self.current_user.group_ids,
+                self.current_user.id,
+                include_drafts=False,
+                include_archived=False,
+                unassigned_only=True,
+                multi_byte_search=current_org.get_setting("multi_byte_search_enabled"),
+            )
+        else:
+            return models.Query.all_queries(
+                self.current_user.group_ids,
+                self.current_user.id,
+                include_drafts=False,
+                include_archived=False,
+                unassigned_only=True,
+            )
+
+
 class QueryArchiveResource(BaseQueryListResource):
     def get_queries(self, search_term):
         if search_term:
