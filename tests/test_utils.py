@@ -1,3 +1,6 @@
+import datetime
+import decimal
+import uuid
 from collections import namedtuple
 from unittest import TestCase
 
@@ -92,6 +95,48 @@ class TestSkipNones(TestCase):
 class TestJsonDumps(TestCase):
     def test_handles_binary(self):
         self.assertEqual(json_dumps(memoryview(b"test")), '"74657374"')
+
+    def test_handles_bytes(self):
+        assert json_dumps({"data": b"hello"}) == '{"data":"68656c6c6f"}'
+
+    def test_handles_decimal(self):
+        assert json_dumps({"price": decimal.Decimal("19.99")}) == '{"price":19.99}'
+
+    def test_handles_uuid(self):
+        test_uuid = uuid.uuid4()
+        assert json_dumps({"id": test_uuid}) == f'{{"id":"{str(test_uuid)}"}}'
+
+    def test_handles_date(self):
+        d = datetime.date(2024, 3, 1)
+        assert json_dumps({"date": d}) == '{"date":"2024-03-01"}'
+
+    def test_handles_datetime(self):
+        dt = datetime.datetime(2024, 3, 1, 15, 30, 45, 123456)
+        result = json_dumps({"time": dt})
+        assert result.startswith('{"time":"2024-03-01T15:30:45.123"}')
+        assert result.endswith('"}') or result.endswith('Z"}')  # handles Z for UTC
+
+    def test_handles_timedelta(self):
+        delta = datetime.timedelta(days=2, hours=3)
+        assert json_dumps({"delta": delta}) == '{"delta":"2 days, 3:00:00"}'
+
+    def test_handles_time(self):
+        t = datetime.time(13, 45, 30, 123456)
+        assert json_dumps({"time": t}) == '{"time":"13:45:30.123"}'
+
+    def test_handles_time_with_timezone_raises(self):
+        t = datetime.time(13, 45, tzinfo=datetime.timezone.utc)
+        with pytest.raises(ValueError, match="timezone-aware times"):
+            json_dumps({"time": t})
+
+    def test_handles_sort_keys_true(self):
+        self.assertEqual(json_dumps({"b": 1, "a": 2, "c": 3}, sort_keys=True), '{"a":2,"b":1,"c":3}')
+
+    def test_handles_sort_keys_false(self):
+        result = json_dumps({"b": 1, "a": 2, "c": 3}, sort_keys=False)
+        assert '"a":2' in result
+        assert '"b":1' in result
+        assert '"c":3' in result
 
 
 class TestGenerateToken(TestCase):
