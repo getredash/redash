@@ -106,6 +106,11 @@ const DYNAMIC_DATE_OPTIONS = [
     value: getDynamicDateRangeFromString("d_last_12_months"),
     label: null,
   },
+  {
+    name: "Last 10 years",
+    value: getDynamicDateRangeFromString("d_last_10_years"),
+    label: null,
+  },
 ];
 
 const DYNAMIC_DATETIME_OPTIONS = [

@@ -152,6 +152,16 @@ const DYNAMIC_DATE_RANGES = {
       () => moment().endOf("day")
     ),
   },
+  last_10_years: {
+    name: "Last 10 years",
+    value: untilNow(
+      () =>
+        moment()
+          .subtract(10, "years")
+          .startOf("day"),
+      () => moment().endOf("day")
+    ),
+  },
 };
 
 export const DynamicDateRangeType = PropTypes.oneOf(values(DYNAMIC_DATE_RANGES));
