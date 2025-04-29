@@ -216,6 +216,20 @@ class QueryOutdatedQueriesTest(BaseTestCase):
 
         self.assertEqual(list(models.Query.outdated_queries()), [query2])
 
+    def test_enqueues_scheduled_query_without_latest_query_data(self):
+        """
+        Queries with a schedule but no latest_query_data will still be reported by Query.outdated_queries()
+        """
+        query = self.factory.create_query(
+            schedule=self.schedule(interval="60"),
+            data_source=self.factory.create_data_source(),
+        )
+
+        outdated_queries = models.Query.outdated_queries()
+        self.assertEqual(query.latest_query_data, None)
+        self.assertEqual(len(outdated_queries), 1)
+        self.assertIn(query, outdated_queries)
+
     def test_enqueues_query_with_correct_data_source(self):
         """
         Queries from different data sources will be reported by

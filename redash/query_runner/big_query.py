@@ -7,11 +7,12 @@ from base64 import b64decode
 from redash import settings
 from redash.query_runner import (
     TYPE_BOOLEAN,
+    TYPE_DATE,
     TYPE_DATETIME,
     TYPE_FLOAT,
     TYPE_INTEGER,
     TYPE_STRING,
-    BaseQueryRunner,
+    BaseSQLQueryRunner,
     InterruptException,
     JobTimeoutException,
     register,
@@ -37,6 +38,8 @@ types_map = {
     "BOOLEAN": TYPE_BOOLEAN,
     "STRING": TYPE_STRING,
     "TIMESTAMP": TYPE_DATETIME,
+    "DATETIME": TYPE_DATETIME,
+    "DATE": TYPE_DATE,
 }
 
 
@@ -83,7 +86,7 @@ def _get_query_results(jobs, project_id, location, job_id, start_index):
     ).execute()
     logging.debug("query_reply %s", query_reply)
     if not query_reply["jobComplete"]:
-        time.sleep(10)
+        time.sleep(1)
         return _get_query_results(jobs, project_id, location, job_id, start_index)
 
     return query_reply
@@ -95,7 +98,7 @@ def _get_total_bytes_processed_for_resp(bq_response):
     return int(bq_response.get("totalBytesProcessed", "0"))
 
 
-class BigQuery(BaseQueryRunner):
+class BigQuery(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
     def __init__(self, configuration):
@@ -301,7 +304,7 @@ class BigQuery(BaseQueryRunner):
         datasets = self._get_project_datasets(project_id)
 
         query_base = """
-        SELECT table_schema, table_name, field_path
+        SELECT table_schema, table_name, field_path, data_type
         FROM `{dataset_id}`.INFORMATION_SCHEMA.COLUMN_FIELD_PATHS
         WHERE table_schema NOT IN ('information_schema')
         """
@@ -322,7 +325,7 @@ class BigQuery(BaseQueryRunner):
             table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
-            schema[table_name]["columns"].append(row["field_path"])
+            schema[table_name]["columns"].append({"name": row["field_path"], "type": row["data_type"]})
 
         return list(schema.values())
 
