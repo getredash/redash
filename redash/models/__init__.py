@@ -908,6 +908,7 @@ def next_state(op, value, threshold):
         # boolean value is Python specific and most likely will be confusing to
         # users.
         value = str(value).lower()
+        value_is_number = False
     else:
         try:
             value = float(value)
