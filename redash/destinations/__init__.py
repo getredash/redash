@@ -47,6 +47,7 @@ class BaseDestination:
 
 destinations = {}
 
+
 def register(destination_class):
     if destination_class.enabled():
         logger.debug(

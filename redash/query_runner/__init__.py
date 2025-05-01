@@ -407,6 +407,7 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
 
 query_runners = {}
 
+
 def register(query_runner_class):
     if query_runner_class.enabled():
         logger.debug(
