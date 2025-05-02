@@ -6,16 +6,14 @@ import decimal
 import hashlib
 import io
 import json
-import math
 import os
 import random
 import re
-import sys
 import uuid
 
+import orjson
 import pystache
 import pytz
-import sqlparse
 from flask import current_app
 from funcy import select_values
 from sqlalchemy.orm.query import Query
@@ -111,7 +109,7 @@ class JSONEncoder(json.JSONEncoder):
         elif isinstance(o, bytes):
             result = binascii.hexlify(o).decode()
         else:
-            result = super().default(o)
+            result = o  # Pass object as it is to orjson.dumps
         return result
 
 
@@ -121,26 +119,38 @@ def json_loads(data, *args, **kwargs):
     return json.loads(data, *args, **kwargs)
 
 
-# Convert NaN, Inf, and -Inf to None, as they are not valid JSON values.
-def _sanitize_data(data):
-    if isinstance(data, dict):
-        return {k: _sanitize_data(v) for k, v in data.items()}
-    if isinstance(data, list):
-        return [_sanitize_data(v) for v in data]
-    if isinstance(data, float) and (math.isnan(data) or math.isinf(data)):
-        return None
-    return data
+def _preprocess_json_data(data, encoder):
+    """Recursively preprocess data for JSON serialization using JSONEncoder."""
+    if isinstance(data, (str, int, float, bool, type(None))):
+        return data
+    elif isinstance(data, dict):
+        return {_preprocess_json_data(k, encoder): _preprocess_json_data(v, encoder) for k, v in data.items()}
+    elif isinstance(data, (list, tuple)):
+        return [_preprocess_json_data(item, encoder) for item in data]
+    else:
+        return encoder.default(data)
 
 
 def json_dumps(data, *args, **kwargs):
-    """A custom JSON dumping function which passes all parameters to the
-    json.dumps function."""
-    kwargs.setdefault("cls", JSONEncoder)
-    kwargs.setdefault("ensure_ascii", False)
-    # Float value nan or inf in Python should be render to None or null in json.
-    # Using allow_nan = True will make Python render nan as NaN, leading to parse error in front-end
-    kwargs.setdefault("allow_nan", False)
-    return json.dumps(_sanitize_data(data), *args, **kwargs)
+    """A custom JSON dump function which uses orjson for better performance."""
+
+    # Map common json.dumps kwargs to orjson options
+    options = orjson.OPT_SERIALIZE_NUMPY | orjson.OPT_NON_STR_KEYS | orjson.OPT_UTC_Z
+    if kwargs.get("indent") == 2:
+        options |= orjson.OPT_INDENT_2
+
+    if kwargs.get("sort_keys"):
+        options |= orjson.OPT_SORT_KEYS
+
+    # orjson always uses compact separators (no equivalent to json.dumps(separators=...))
+    # orjson doesn't support skipkeys – invalid keys raise TypeError
+
+    try:
+        # Preprocess data before sending to orjson.dumps
+        preprocessed_data = _preprocess_json_data(data, JSONEncoder())
+        return orjson.dumps(preprocessed_data, option=options).decode("utf-8")
+    except orjson.JSONEncodeError as e:
+        raise TypeError(f"Object not serializable: {e}")
 
 
 def mustache_render(template, context=None, **kwargs):

@@ -141,7 +141,7 @@ def test_discord_notify_calls_requests_post():
 
         mock_post.assert_called_once_with(
             "https://discordapp.com/api/webhooks/test",
-            data=json.dumps(expected_payload),
+            data=json.dumps(expected_payload, separators=(",", ":")),  # orjson.dumps always uses compact separators
             headers={"Content-Type": "application/json"},
             timeout=5.0,
         )
@@ -248,7 +248,7 @@ def test_slack_notify_calls_requests_post():
 
         mock_post.assert_called_once_with(
             "https://slack.com/api/api.test",
-            data=json.dumps(expected_payload).encode(),
+            data=json.dumps(expected_payload, separators=(",", ":")).encode(),
             timeout=5.0,
         )
 
@@ -508,7 +508,7 @@ def test_datadog_notify_calls_requests_post():
 
         mock_post.assert_called_once_with(
             "https://api.datadoghq.com/api/v1/events",
-            data=json.dumps(expected_payload),
+            data=json.dumps(expected_payload, separators=(",", ":")),
             headers={
                 "Accept": "application/json",
                 "Content-Type": "application/json",
