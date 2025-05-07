@@ -309,3 +309,10 @@ def list_command(organization=None):
         groups = models.Group.query.filter(models.Group.id.in_(user.group_ids)).all()
         group_names = [group.name for group in groups]
         print("Groups: {}".format(", ".join(group_names)))
+
+
+@manager.command()
+@option("--user-id", "user_id", type=int, required=True)
+def stacklet_get_api_key(user_id):
+    user = models.User.get_by_id(user_id)
+    print(user.api_key)
