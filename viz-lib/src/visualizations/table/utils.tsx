@@ -4,6 +4,34 @@ import cx from "classnames";
 import Tooltip from "antd/lib/tooltip";
 import ColumnTypes from "./columns";
 
+function highlightSearchTerm(text: string, searchTerm: string) {
+    if (!searchTerm || searchTerm === "" || !text) {
+        return text;
+    }
+
+    const textStr = toString(text);
+    const upperText = textStr.toUpperCase();
+    const upperSearchTerm = searchTerm.toUpperCase();
+
+    const index = upperText.indexOf(upperSearchTerm);
+
+    if (index >= 0) {
+        const before = textStr.substring(0, index);
+        const match = textStr.substring(index, index + searchTerm.length);
+        const after = textStr.substring(index + searchTerm.length);
+
+        return (
+            <React.Fragment>
+                {before}
+                <span style={{ backgroundColor: '#ffff00', fontWeight: 'bold' }}>{match}</span>
+                {after}
+            </React.Fragment>
+        );
+    }
+
+    return text;
+}
+
 function nextOrderByDirection(direction: any) {
   switch (direction) {
     case "ascend":
@@ -50,7 +78,7 @@ function getOrderByInfo(orderBy: any) {
   return result;
 }
 
-export function prepareColumns(columns: any, searchInput: any, orderBy: any, onOrderByChange: any) {
+export function prepareColumns(columns: any, searchInput: any, orderBy: any, onOrderByChange: any, searchTerm: string = '') {
   columns = filter(columns, "visible");
   columns = sortBy(columns, "order");
 
@@ -102,10 +130,26 @@ export function prepareColumns(columns: any, searchInput: any, orderBy: any, onO
     const initColumn = ColumnTypes[column.displayAs];
     const Component = initColumn(column);
     // @ts-expect-error ts-migrate(2339) FIXME: Property 'render' does not exist on type '{ key: a... Remove this comment to see the full error message
-    result.render = (unused: any, row: any) => ({
-      children: <Component row={row.record} />,
-      props: { className: `display-as-${column.displayAs}` },
-    });
+      result.render = (unused: any, row: any) => {
+        const isSearchable = column.allowSearch === true;
+
+      // 검색어가 있고 컬럼이 검색 가능하면 하이라이트 적용
+        if (searchTerm && isSearchable) {
+          const { prepareData } = initColumn(column);
+          const { text } = prepareData(row.record);
+
+          return {
+            children: highlightSearchTerm(text, searchTerm),
+            props: { className: `display-as-${column.displayAs}` },
+        };
+      }
+
+      // 기존 렌더링 로직
+        return {
+          children: <Component row={row.record} />,
+          props: { className: `display-as-${column.displayAs}` },
+        };
+      };
 
     return result;
   });
