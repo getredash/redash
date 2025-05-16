@@ -133,7 +133,6 @@ export function prepareColumns(columns: any, searchInput: any, orderBy: any, onO
       result.render = (unused: any, row: any) => {
         const isSearchable = column.allowSearch === true;
 
-      // 검색어가 있고 컬럼이 검색 가능하면 하이라이트 적용
         if (searchTerm && isSearchable) {
           const { prepareData } = initColumn(column);
           const { text } = prepareData(row.record);
@@ -144,7 +143,6 @@ export function prepareColumns(columns: any, searchInput: any, orderBy: any, onO
         };
       }
 
-      // 기존 렌더링 로직
         return {
           children: <Component row={row.record} />,
           props: { className: `display-as-${column.displayAs}` },
