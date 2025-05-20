@@ -74,6 +74,17 @@ RUN apt-get update && \
 
 
 ARG TARGETPLATFORM
+
+# DB2 for IBM i support - Official IBM repo
+RUN <<EOF
+  if [ "$TARGETPLATFORM" = "linux/amd64" ]; then
+    curl https://public.dhe.ibm.com/software/ibmi/products/odbc/debs/dists/1.1.0/ibmi-acs-1.1.0.list | tee /etc/apt/sources.list.d/ibmi-acs-1.1.0.list
+    apt-get update
+    apt-get install -y ibm-iaccess
+    apt-get clean
+  fi
+EOF
+
 ARG databricks_odbc_driver_url=https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/odbc/2.6.26/SimbaSparkODBC-2.6.26.1045-Debian-64bit.zip
 RUN <<EOF
   if [ "$TARGETPLATFORM" = "linux/amd64" ]; then
