@@ -90,7 +90,7 @@ export default function DesktopNavbar() {
             </Link>
           </Menu.Item>
         )}
-        {currentUser.hasPermission("view_query") && (
+        {!currentUser.isDashboardOnlyViewer() && currentUser.hasPermission("view_query") && (
           <Menu.Item key="queries" className={activeState.queries ? "navbar-active-item" : null}>
             <Link href="queries">
               <CodeOutlinedIcon aria-label="Queries navigation button" />
@@ -98,7 +98,7 @@ export default function DesktopNavbar() {
             </Link>
           </Menu.Item>
         )}
-        {currentUser.hasPermission("list_alerts") && (
+        {!currentUser.isDashboardOnlyViewer() && currentUser.hasPermission("list_alerts") && (
           <Menu.Item key="alerts" className={activeState.alerts ? "navbar-active-item" : null}>
             <Link href="alerts">
               <AlertOutlinedIcon aria-label="Alerts navigation button" />

@@ -34,12 +34,12 @@ export default function MobileNavbar({ getPopupContainer }) {
                   <Link href="dashboards">Dashboards</Link>
                 </Menu.Item>
               )}
-              {currentUser.hasPermission("view_query") && (
+              {!currentUser.isDashboardOnlyViewer() && currentUser.hasPermission("view_query") && (
                 <Menu.Item key="queries">
                   <Link href="queries">Queries</Link>
                 </Menu.Item>
               )}
-              {currentUser.hasPermission("list_alerts") && (
+              {!currentUser.isDashboardOnlyViewer() && currentUser.hasPermission("list_alerts") && (
                 <Menu.Item key="alerts">
                   <Link href="alerts">Alerts</Link>
                 </Menu.Item>

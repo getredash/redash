@@ -28,43 +28,63 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
   const widgetQueryResult = widget.getQueryResult();
   const isQueryResultEmpty = !widgetQueryResult || !widgetQueryResult.isEmpty || widgetQueryResult.isEmpty();
 
-  const downloadLink = fileType => widgetQueryResult.getLink(widget.getQuery().id, fileType);
-  const downloadName = fileType => widgetQueryResult.getName(widget.getQuery().name, fileType);
-  return compact([
-    <Menu.Item key="download_csv" disabled={isQueryResultEmpty}>
-      {!isQueryResultEmpty ? (
-        <Link href={downloadLink("csv")} download={downloadName("csv")} target="_self">
-          Download as CSV File
-        </Link>
-      ) : (
-        "Download as CSV File"
-      )}
-    </Menu.Item>,
-    <Menu.Item key="download_tsv" disabled={isQueryResultEmpty}>
-      {!isQueryResultEmpty ? (
-        <Link href={downloadLink("tsv")} download={downloadName("tsv")} target="_self">
-          Download as TSV File
-        </Link>
-      ) : (
-        "Download as TSV File"
-      )}
-    </Menu.Item>,
-    <Menu.Item key="download_excel" disabled={isQueryResultEmpty}>
-      {!isQueryResultEmpty ? (
-        <Link href={downloadLink("xlsx")} download={downloadName("xlsx")} target="_self">
-          Download as Excel File
-        </Link>
-      ) : (
-        "Download as Excel File"
-      )}
-    </Menu.Item>,
-    (canViewQuery || canEditParameters) && <Menu.Divider key="divider" />,
-    canViewQuery && (
-      <Menu.Item key="view_query">
-        <Link href={widget.getQuery().getUrl(true, widget.visualization.id)}>View Query</Link>
+  const query = widget.getQuery();
+  const queryId = query && query.id;
+  const queryName = (query && query.name) || "Query"; // Fallback name
+
+  const downloadLink = fileType => (queryId && widgetQueryResult ? widgetQueryResult.getLink(queryId, fileType) : null);
+  const downloadName = fileType => (queryId && widgetQueryResult ? widgetQueryResult.getName(queryName, fileType) : `download.${fileType}`);
+
+  const options = [];
+
+  if (queryId) { // Only add download options if queryId exists
+    options.push(
+      <Menu.Item key="download_csv" disabled={isQueryResultEmpty || !downloadLink("csv")}>
+        {!isQueryResultEmpty && downloadLink("csv") ? (
+          <Link href={downloadLink("csv")} download={downloadName("csv")} target="_self">
+            Download as CSV File
+          </Link>
+        ) : (
+          "Download as CSV File"
+        )}
+      </Menu.Item>,
+      <Menu.Item key="download_tsv" disabled={isQueryResultEmpty || !downloadLink("tsv")}>
+        {!isQueryResultEmpty && downloadLink("tsv") ? (
+          <Link href={downloadLink("tsv")} download={downloadName("tsv")} target="_self">
+            Download as TSV File
+          </Link>
+        ) : (
+          "Download as TSV File"
+        )}
+      </Menu.Item>,
+      <Menu.Item key="download_excel" disabled={isQueryResultEmpty || !downloadLink("xlsx")}>
+        {!isQueryResultEmpty && downloadLink("xlsx") ? (
+          <Link href={downloadLink("xlsx")} download={downloadName("xlsx")} target="_self">
+            Download as Excel File
+          </Link>
+        ) : (
+          "Download as Excel File"
+        )}
       </Menu.Item>
-    ),
-    canEditParameters && (
+    );
+  }
+
+  if (canViewQuery || canEditParameters) {
+    if (options.length > 0) { // Add divider only if download options were added
+      options.push(<Menu.Divider key="divider" />);
+    }
+  }
+
+  if (canViewQuery && queryId) { // "View Query" only if canViewQuery and queryId exists
+    options.push(
+      <Menu.Item key="view_query">
+        <Link href={query.getUrl(true, widget.visualization.id)}>View Query</Link>
+      </Menu.Item>
+    );
+  }
+
+  if (canEditParameters) { // Edit parameters visibility is already fine
+    options.push(
       <Menu.Item key="edit_parameters" onClick={onParametersEdit}>
         Edit Parameters
       </Menu.Item>
@@ -245,7 +265,11 @@ class VisualizationWidget extends React.Component {
 
   componentDidMount() {
     const { widget, onLoad } = this.props;
-    recordEvent("view", "query", widget.visualization.query.id, { dashboard: true });
+    // Safely access query.id for event recording
+    const queryId = widget.visualization && widget.visualization.query && widget.visualization.query.id;
+    if (queryId) {
+      recordEvent("view", "query", queryId, { dashboard: true });
+    }
     recordEvent("view", "visualization", widget.visualization.id, { dashboard: true });
     onLoad();
   }

@@ -28,6 +28,9 @@ class AlertResource(BaseResource):
         return serialize_alert(alert)
 
     def post(self, alert_id):
+        # Users need at least 'list_alerts' to modify an alert, on top of ownership.
+        if not self.current_user.has_permission("list_alerts"):
+            abort(403, message="You do not have permission to modify alerts.")
         req = request.get_json(True)
         params = project(req, ("options", "name", "query_id", "rearm"))
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
@@ -41,6 +44,9 @@ class AlertResource(BaseResource):
         return serialize_alert(alert)
 
     def delete(self, alert_id):
+        # Users need at least 'list_alerts' to delete an alert, on top of ownership.
+        if not self.current_user.has_permission("list_alerts"):
+            abort(403, message="You do not have permission to delete alerts.")
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
         require_admin_or_owner(alert.user_id)
         models.db.session.delete(alert)
@@ -49,6 +55,9 @@ class AlertResource(BaseResource):
 
 class AlertEvaluateResource(BaseResource):
     def post(self, alert_id):
+        # Users need at least 'list_alerts' to evaluate an alert.
+        if not self.current_user.has_permission("list_alerts"):
+            abort(403, message="You do not have permission to evaluate alerts.")
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
         require_admin_or_owner(alert.user.id)
 
@@ -64,6 +73,9 @@ class AlertEvaluateResource(BaseResource):
 
 class AlertMuteResource(BaseResource):
     def post(self, alert_id):
+        # Users need at least 'list_alerts' to mute an alert.
+        if not self.current_user.has_permission("list_alerts"):
+            abort(403, message="You do not have permission to mute alerts.")
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
         require_admin_or_owner(alert.user.id)
 
@@ -73,6 +85,9 @@ class AlertMuteResource(BaseResource):
         self.record_event({"action": "mute", "object_id": alert.id, "object_type": "alert"})
 
     def delete(self, alert_id):
+        # Users need at least 'list_alerts' to unmute an alert.
+        if not self.current_user.has_permission("list_alerts"):
+            abort(403, message="You do not have permission to unmute alerts.")
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
         require_admin_or_owner(alert.user.id)
 
@@ -83,6 +98,7 @@ class AlertMuteResource(BaseResource):
 
 
 class AlertListResource(BaseResource):
+    @require_permission("list_alerts")
     def post(self):
         req = request.get_json(True)
         require_fields(req, ("options", "name", "query_id"))
@@ -150,7 +166,12 @@ class AlertSubscriptionListResource(BaseResource):
 
 class AlertSubscriptionResource(BaseResource):
     def delete(self, alert_id, subscriber_id):
+        # Users need at least 'list_alerts' to manage alert subscriptions.
+        if not self.current_user.has_permission("list_alerts"):
+            abort(403, message="You do not have permission to manage alert subscriptions.")
         subscription = models.AlertSubscription.query.get_or_404(subscriber_id)
+        # The require_admin_or_owner check is about the subscription's user, not the alert's user.
+        # This allows users to delete their own subscriptions or admins to delete any.
         require_admin_or_owner(subscription.user.id)
         models.db.session.delete(subscription)
         models.db.session.commit()

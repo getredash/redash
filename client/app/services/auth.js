@@ -32,6 +32,16 @@ export const currentUser = {
   set isAdmin(isAdmin) {
     this._isAdmin = isAdmin;
   },
+
+  get isDashboardOnlyViewer() {
+    // User is a dashboard-only viewer if they can list dashboards,
+    // but cannot edit dashboards and cannot view queries.
+    return (
+      this.hasPermission("list_dashboards") &&
+      !this.hasPermission("edit_dashboard") &&
+      !this.hasPermission("view_query")
+    );
+  },
 };
 
 export const clientConfig = {};

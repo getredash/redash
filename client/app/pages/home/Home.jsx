@@ -11,13 +11,65 @@ import PlainButton from "@/components/PlainButton";
 
 import { axios } from "@/services/axios";
 import recordEvent from "@/services/recordEvent";
-import { messages } from "@/services/auth";
+import { currentUser, messages } from "@/services/auth"; // Import currentUser
 import notification from "@/services/notification";
 import routes from "@/services/routes";
-
 import { DashboardAndQueryFavoritesList } from "./components/FavoritesList";
 
 import "./Home.less";
+
+// New component for dashboard-only viewers
+function ViewerDashboardList() {
+  const [dashboards, setDashboards] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
+
+  useEffect(() => {
+    let isCancelled = false;
+    axios.get("api/dashboards")
+      .then(response => {
+        if (!isCancelled) {
+          setDashboards(response.data.results);
+          setLoading(false);
+        }
+      })
+      .catch(err => {
+        if (!isCancelled) {
+          setError(err);
+          setLoading(false);
+          notification.error("Failed to load dashboards.");
+        }
+      });
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
+
+  if (loading) {
+    return <div className="text-center">Loading dashboards...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-danger">Error loading dashboards. Please try again later.</div>;
+  }
+
+  if (dashboards.length === 0) {
+    return <div className="text-center">No dashboards have been shared with you yet.</div>;
+  }
+
+  return (
+    <div className="viewer-dashboard-list m-t-30">
+      <h4>Dashboards</h4>
+      <div className="list-group">
+        {dashboards.map(dashboard => (
+          <Link key={dashboard.id} href={`dashboards/${dashboard.id}-${dashboard.slug}`} className="list-group-item">
+            {dashboard.name}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function DeprecatedEmbedFeatureAlert() {
   return (
@@ -70,8 +122,37 @@ function EmailNotVerifiedAlert() {
 export default function Home() {
   useEffect(() => {
     recordEvent("view", "page", "personal_homepage");
+    // For dashboard viewers, we might want a different event or additional properties
+    if (currentUser.isDashboardOnlyViewer()) {
+      recordEvent("view", "page", "personal_homepage_dashboard_viewer");
+    }
   }, []);
 
+  // Conditional rendering for dashboard-only viewers
+  if (currentUser.isDashboardOnlyViewer()) {
+    return (
+      <div className="home-page viewer-home-page">
+        <div className="container">
+          {includes(messages, "email-not-verified") && <EmailNotVerifiedAlert />}
+          <DynamicComponent name="Home.EmptyState">
+            <EmptyState
+              header="Welcome to Redash 👋"
+              description="View and interact with dashboards shared with you." // Updated description
+              illustration="dashboard"
+              helpMessage={<EmptyStateHelpMessage helpTriggerType="VIEWER_HOMEPAGE" />} // Could be a new type
+              showDashboardStep={false} // Hide default steps
+              showInviteStep={false}    // Hide default steps
+              onboardingMode={false}    // Disable default onboarding
+            />
+          </DynamicComponent>
+          <ViewerDashboardList />
+          <BeaconConsent />
+        </div>
+      </div>
+    );
+  }
+
+  // Original Home page content for other users
   return (
     <div className="home-page">
       <div className="container">
@@ -88,8 +169,8 @@ export default function Home() {
             onboardingMode
           />
         </DynamicComponent>
-        <DynamicComponent name="HomeExtra" />
-        <DashboardAndQueryFavoritesList />
+        {!currentUser.isDashboardOnlyViewer() && <DynamicComponent name="HomeExtra" />}
+        {!currentUser.isDashboardOnlyViewer() && <DashboardAndQueryFavoritesList />}
         <BeaconConsent />
       </div>
     </div>

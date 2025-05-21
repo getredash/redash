@@ -259,9 +259,11 @@ class Group(db.Model, BelongsToOrgMixin):
         "list_data_sources",
     ]
     ADMIN_PERMISSIONS = ["admin", "super_admin"]
+    DASHBOARD_VIEWER_PERMISSIONS = ["list_dashboards"]
 
     BUILTIN_GROUP = "builtin"
     REGULAR_GROUP = "regular"
+    DASHBOARD_VIEWER_GROUP = "dashboard_viewer"
 
     id = primary_key("Group")
     data_sources = db.relationship("DataSourceGroup", back_populates="group", cascade="all")
@@ -269,10 +271,17 @@ class Group(db.Model, BelongsToOrgMixin):
     org = db.relationship("Organization", back_populates="groups")
     type = Column(db.String(255), default=REGULAR_GROUP)
     name = Column(db.String(100))
-    permissions = Column(ARRAY(db.String(255)), default=DEFAULT_PERMISSIONS)
+    permissions = Column(ARRAY(db.String(255))) # Default handled in __init__
     created_at = Column(db.DateTime(True), default=db.func.now())
 
     __tablename__ = "groups"
+
+    def __init__(self, *args, **kwargs):
+        super(Group, self).__init__(*args, **kwargs)
+        if self.type == self.DASHBOARD_VIEWER_GROUP:
+            self.permissions = self.DASHBOARD_VIEWER_PERMISSIONS
+        elif self.permissions is None: # Only set default if not already set (e.g. by hydration from DB)
+            self.permissions = self.DEFAULT_PERMISSIONS
 
     def __str__(self):
         return str(self.id)

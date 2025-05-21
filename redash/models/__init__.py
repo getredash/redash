@@ -80,6 +80,9 @@ from redash.utils import (
     sentry,
 )
 from redash.utils.configuration import ConfigurationContainer
+# Import permission types for clarity, though not strictly used in column definition itself
+from redash.permissions import ACCESS_TYPE_VIEW, ACCESS_TYPE_MODIFY
+
 
 logger = logging.getLogger(__name__)
 
@@ -1086,6 +1089,9 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     widgets = db.relationship("Widget", backref="dashboard", lazy="dynamic")
     tags = Column("tags", MutableList.as_mutable(ARRAY(db.Unicode)), nullable=True)
     options = Column(MutableDict.as_mutable(JSONB), default={})
+    # New field for group-level dashboard permissions
+    # Stores a map like: {<group_id_str>: "view" or "modify"}
+    group_access_permissions = Column(MutableDict.as_mutable(JSONB), nullable=False, server_default='{}', default={})
 
     __tablename__ = "dashboards"
     __mapper_args__ = {"version_id_col": version}
@@ -1099,21 +1105,93 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def all(cls, org, group_ids, user_id):
+        # Base query setup:
         query = (
             Dashboard.query.options(joinedload(Dashboard.user).load_only("id", "name", "details", "email"))
-            .distinct(cls.lowercase_name, Dashboard.created_at, Dashboard.slug)
-            .outerjoin(Widget)
-            .outerjoin(Visualization)
-            .outerjoin(Query)
-            .outerjoin(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
-            .filter(
-                Dashboard.is_archived.is_(False),
-                (DataSourceGroup.group_id.in_(group_ids) | (Dashboard.user_id == user_id)),
-                Dashboard.org == org,
-            )
+            .outerjoin(Widget, Widget.dashboard_id == Dashboard.id) # Ensure correct ON condition
+            .outerjoin(Visualization, Visualization.id == Widget.visualization_id)
+            .outerjoin(Query, Query.id == Visualization.query_id)
+            .outerjoin(DataSourceGroup, DataSourceGroup.data_source_id == Query.data_source_id)
+            .filter(Dashboard.is_archived.is_(False), Dashboard.org == org)
         )
 
-        query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft.is_(False)))
+        # Build permission conditions
+        permission_conditions = []
+
+        # 1. User owns the dashboard (can see drafts too)
+        permission_conditions.append(cls.user_id == user_id)
+
+        # 2. For non-owned dashboards:
+        # They must not be drafts AND (shared via group_access_permissions OR via DataSourceGroup)
+        non_owned_access_sub_conditions = []
+
+        # 2a. Direct sharing via group_access_permissions
+        if group_ids: # Check only if the user belongs to any groups
+            direct_share_conditions = []
+            for group_id in group_ids:
+                # Check if group_id (as string) is a key and its value indicates view or modify access
+                direct_share_conditions.append(
+                    cls.group_access_permissions[str(group_id)].astext.in_([ACCESS_TYPE_VIEW, ACCESS_TYPE_MODIFY])
+                )
+            if direct_share_conditions:
+                non_owned_access_sub_conditions.append(or_(*direct_share_conditions))
+        
+        # 2b. Indirect access via DataSourceGroup permissions
+        if group_ids: # Check only if the user belongs to any groups
+            non_owned_access_sub_conditions.append(DataSourceGroup.group_id.in_(group_ids))
+
+        if non_owned_access_sub_conditions:
+            permission_conditions.append(
+                and_(
+                    cls.is_draft.is_(False), # Must not be a draft
+                    or_(*non_owned_access_sub_conditions) # And satisfy at least one sharing/access mechanism
+                )
+            )
+        else:
+            # If user has no groups, or no group_ids were provided,
+            # they can only see non-drafts if this path is taken (apart from ownership)
+            # This handles the case for users not in any groups that might have specific non-owned, non-draft access.
+            # However, ownership (condition 1) already covers owned drafts.
+            # So this effectively means non-owners without group affiliations (or if group_ids is empty)
+            # won't see any additional dashboards via this path.
+            # If group_ids is empty, non_owned_access_sub_conditions will be empty.
+            # If group_ids is not empty, it will contain at least the DataSourceGroup check.
+            # A user not in any groups won't get anything from direct_share_conditions or DataSourceGroup.group_id.in_
+            # So, effectively, for users not in groups, only ownership applies.
+            # For users in groups, they get owned + non-drafts shared directly or via DS.
+            # The original query had: or_(Dashboard.user_id == user_id, Dashboard.is_draft.is_(False))
+            # which meant any non-draft was potentially visible if DS condition met.
+            # Let's ensure non-owned, non-draft, public-like (no specific share) are not listed unless via DS
+            # If non_owned_access_sub_conditions is empty (e.g. user has no groups), this and_ block is skipped.
+            # This is fine as ownership is the primary way then.
+            pass
+
+
+        if not permission_conditions:
+            # Should not happen if user_id is always present. Fallback to prevent error.
+            # This would mean no dashboards are accessible.
+            return query.filter(sqlalchemy.sql.false())
+
+        query = query.filter(or_(*permission_conditions))
+        
+        # Apply distinct after all joins and filters to avoid duplicates from multiple access paths
+        # The distinct columns should be on the Dashboard entity itself to ensure unique dashboards.
+        # Using specific columns like name, created_at, slug is a common way to do this with Postgres.
+        # If dashboard ID is sufficient, distinct(Dashboard.id) would be simpler if ORM handles it well with joins.
+        # Let's use Dashboard.id for simplicity if it works, otherwise revert to multiple columns.
+        query = query.distinct(Dashboard.id)
+        # Reverting to original distinct columns as it's safer with complex joins and specific DB behaviors.
+        # query = query.distinct(cls.lowercase_name, Dashboard.created_at, Dashboard.slug)
+
+
+        # The original distinct was: .distinct(cls.lowercase_name, Dashboard.created_at, Dashboard.slug)
+        # This was applied before the final draft filter.
+        # Let's apply a simpler distinct on ID if possible, or ensure the multi-column distinct is correctly placed.
+        # For now, let's stick to distinct(Dashboard.id) as it's cleaner and usually sufficient.
+        # If duplicates persist for dashboards with same name/slug/created_at but different access paths,
+        # then the more complex distinct is needed.
+        # The joins could cause duplicates if a dashboard is accessible via multiple groups through DataSourceGroup.
+        # Thus, a distinct on Dashboard.id is essential.
 
         return query
 

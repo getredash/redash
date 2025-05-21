@@ -152,24 +152,48 @@ def serialize_visualization(object, with_query=True):
     }
 
     if with_query:
-        d["query"] = serialize_query(object.query_rel)
+        # For restricted view, we might not want to serialize the full query,
+        # or serialize it with restrictions.
+        # However, public_widget *does* serialize some query details.
+        # Let's adapt based on restricted_view flag.
+        if restricted_view:
+            # Mimic public_widget's query serialization:
+            # It includes id, name, description, options.
+            # For a logged-in restricted viewer, we might want to omit 'id'
+            # to prevent easy linking to the query editor.
+            # 'options' can contain parameters, which are needed.
+            query_rel = object.query_rel
+            d["query"] = {
+                "name": query_rel.name,
+                "description": query_rel.description,
+                "options": query_rel.options, # Ensure parameters are available
+                # "id": query_rel.id, # Omit ID for restricted internal viewers
+            }
+        else:
+            d["query"] = serialize_query(object.query_rel)
 
     return d
 
 
-def serialize_widget(object):
+def serialize_widget(obj, restricted_view=False): # Renamed 'object' to 'obj' to avoid conflict
     d = {
-        "id": object.id,
-        "width": object.width,
-        "options": object.options,
-        "dashboard_id": object.dashboard_id,
-        "text": object.text,
-        "updated_at": object.updated_at,
-        "created_at": object.created_at,
+        "id": obj.id,
+        "width": obj.width,
+        "options": obj.options, # TODO: Filter options if restricted_view? public_widget doesn't heavily filter widget options.
+        "dashboard_id": obj.dashboard_id,
+        "text": obj.text,
+        "updated_at": obj.updated_at,
+        "created_at": obj.created_at,
     }
 
-    if object.visualization and object.visualization.id:
-        d["visualization"] = serialize_visualization(object.visualization)
+    if obj.visualization and obj.visualization.id:
+        # Pass restricted_view to serialize_visualization
+        d["visualization"] = serialize_visualization(obj.visualization, with_query=True, restricted_view=restricted_view)
+    elif restricted_view and obj.visualization: # Handle case where viz might exist but no ID (though unlikely for valid viz)
+        # Fallback for restricted view if visualization is present but somehow minimal
+        # This case might not be strictly necessary if object.visualization.id check is sufficient
+        d["visualization"] = {"type": obj.visualization.type, "name": obj.visualization.name, "description": "", "options": {}}
+
 
     return d
 
@@ -196,33 +220,40 @@ def serialize_alert(alert, full=True):
     return d
 
 
-def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=True):
+def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=True, restricted_view=False):
     layout = obj.layout
-
-    widgets = []
+    widgets_list = [] # Renamed to avoid conflict with 'widgets' property of dashboard obj
 
     if with_widgets:
         for w in obj.widgets:
-            if w.visualization_id is None:
-                widgets.append(serialize_widget(w))
+            if restricted_view:
+                # For dashboard viewers, serialize widget with restrictions
+                widgets_list.append(serialize_widget(w, restricted_view=True))
+            elif w.visualization_id is None: # Text box
+                widgets_list.append(serialize_widget(w))
             elif user and has_access(w.visualization.query_rel, user, view_only):
-                widgets.append(serialize_widget(w))
+                # Regular user with access to query
+                widgets_list.append(serialize_widget(w))
             else:
-                widget = project(
-                    serialize_widget(w),
+                # Regular user, but no access to the query
+                widget_data = project(
+                    serialize_widget(w), # Serialize normally first to get all basic fields
                     (
                         "id",
                         "width",
                         "dashboard_id",
-                        "options",
+                        "options", # Keep widget options like parameters
+                        "text", # Keep text for textbox widgets
                         "created_at",
                         "updated_at",
                     ),
                 )
-                widget["restricted"] = True
-                widgets.append(widget)
+                # No visualization data, and explicitly mark as restricted for client UI
+                widget_data.pop("visualization", None)
+                widget_data["restricted"] = True
+                widgets_list.append(widget_data)
     else:
-        widgets = None
+        widgets_list = None
 
     d = {
         "id": obj.id,
@@ -237,8 +268,8 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
         },
         "layout": layout,
         "dashboard_filters_enabled": obj.dashboard_filters_enabled,
-        "widgets": widgets,
-        "options": obj.options,
+        "widgets": widgets_list, # Use the new list name
+        "options": obj.options, # TODO: Filter dashboard options if restricted_view?
         "is_archived": obj.is_archived,
         "is_draft": obj.is_draft,
         "tags": obj.tags or [],
@@ -251,18 +282,28 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
 
 
 class DashboardSerializer(Serializer):
-    def __init__(self, object_or_list, **kwargs):
+    def __init__(self, object_or_list, restricted_view=False, **kwargs):
         self.object_or_list = object_or_list
+        self.restricted_view = restricted_view
         self.options = kwargs
+        # Ensure 'user' is in options for serialize_dashboard if needed for has_access checks
+        # when not in restricted_view
+        if 'user' not in self.options and not restricted_view:
+            self.options['user'] = current_user
+
 
     def serialize(self):
+        # Pass restricted_view to serialize_dashboard
+        current_options = self.options.copy()
+        current_options['restricted_view'] = self.restricted_view
+
         if isinstance(self.object_or_list, models.Dashboard):
-            result = serialize_dashboard(self.object_or_list, **self.options)
-            if self.options.get("with_favorite_state", True) and not current_user.is_api_user():
+            result = serialize_dashboard(self.object_or_list, **current_options)
+            if current_options.get("with_favorite_state", True) and not current_user.is_api_user():
                 result["is_favorite"] = models.Favorite.is_favorite(current_user.id, self.object_or_list)
         else:
-            result = [serialize_dashboard(obj, **self.options) for obj in self.object_or_list]
-            if self.options.get("with_favorite_state", True):
+            result = [serialize_dashboard(obj, **current_options) for obj in self.object_or_list]
+            if current_options.get("with_favorite_state", True):
                 favorite_ids = models.Favorite.are_favorites(current_user.id, self.object_or_list)
                 for obj in result:
                     obj["is_favorite"] = obj["id"] in favorite_ids

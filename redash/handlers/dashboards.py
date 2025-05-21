@@ -16,6 +16,8 @@ from redash.permissions import (
     require_admin_or_owner,
     require_object_modify_permission,
     require_permission,
+    ACCESS_TYPE_VIEW,
+    ACCESS_TYPE_MODIFY,
 )
 from redash.security import csp_allows_embeding
 from redash.serializers import DashboardSerializer, public_dashboard
@@ -178,8 +180,35 @@ class DashboardResource(BaseResource):
             fn = models.Dashboard.get_by_id_and_org
 
         dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
-        response = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user).serialize()
 
+        # Determine if the current user should get a restricted view
+        # This user should only have 'list_dashboards' and basic built-in group permissions.
+        # They should not have 'edit_dashboard' or 'view_query'.
+        is_dashboard_viewer = (
+            self.current_user.has_permission("list_dashboards") and
+            not self.current_user.has_permission("edit_dashboard") and
+            not self.current_user.has_permission("view_query")
+        )
+
+        serializer = DashboardSerializer(
+            dashboard,
+            with_widgets=True,
+            user=self.current_user, # Still needed for has_access checks in non-restricted path
+            restricted_view=is_dashboard_viewer
+        )
+        response = serializer.serialize()
+
+        if is_dashboard_viewer:
+            response["can_edit"] = False
+        else:
+            # Original logic for can_edit for other users
+            response["can_edit"] = can_modify(dashboard, self.current_user)
+
+        # Public URL and API key info should likely be hidden for dashboard viewers,
+        # as they are logged-in users, not anonymous users of a public link.
+        # However, the original code shows this for all authenticated users.
+        # For a strict "like public_dashboard" feel, these would be omitted for is_dashboard_viewer.
+        # For now, let's keep original logic unless explicitly told to remove for this role.
         api_key = models.ApiKey.get_by_object(dashboard)
         if api_key:
             response["public_url"] = url_for(
@@ -411,3 +440,106 @@ class DashboardForkResource(BaseResource):
         self.record_event({"action": "fork", "object_id": dashboard_id, "object_type": "dashboard"})
 
         return DashboardSerializer(fork_dashboard, with_widgets=True).serialize()
+
+
+class DashboardGroupAccessResource(BaseResource):
+    def post(self, dashboard_id, group_id):
+        """
+        Grants or updates a group's permission for a dashboard.
+        """
+        dashboard = get_object_or_404(models.Dashboard.get_by_id_and_org, dashboard_id, self.current_org)
+        require_admin_or_owner(dashboard.user_id)
+
+        group = get_object_or_404(models.Group.get_by_id_and_org, group_id, self.current_org)
+
+        data = request.get_json(force=True)
+        access_type = data.get("access_type")
+
+        if access_type not in [ACCESS_TYPE_VIEW, ACCESS_TYPE_MODIFY]:
+            abort(400, message="Invalid access_type. Must be 'view' or 'modify'.")
+
+        if dashboard.group_access_permissions is None:
+            dashboard.group_access_permissions = {}
+        
+        dashboard.group_access_permissions[str(group.id)] = access_type
+        # Mark as modified for SQLAlchemy to pick up the change in MutableDict
+        dashboard.group_access_permissions.changed()
+
+        models.db.session.add(dashboard)
+        models.db.session.commit()
+
+        self.record_event({
+            "action": "grant_dashboard_group_access",
+            "object_id": dashboard.id,
+            "object_type": "dashboard",
+            "group_id": group.id,
+            "access_type": access_type
+        })
+
+        return {"group_id": group.id, "access_type": access_type}
+
+    def delete(self, dashboard_id, group_id):
+        """
+        Revokes a group's permission for a dashboard.
+        """
+        dashboard = get_object_or_404(models.Dashboard.get_by_id_and_org, dashboard_id, self.current_org)
+        require_admin_or_owner(dashboard.user_id)
+
+        # Validate group exists, though not strictly necessary for deletion if only group_id is used as key
+        group = get_object_or_404(models.Group.get_by_id_and_org, group_id, self.current_org)
+
+        if dashboard.group_access_permissions and str(group.id) in dashboard.group_access_permissions:
+            del dashboard.group_access_permissions[str(group.id)]
+            # Mark as modified
+            dashboard.group_access_permissions.changed()
+            
+            models.db.session.add(dashboard)
+            models.db.session.commit()
+
+            self.record_event({
+                "action": "revoke_dashboard_group_access",
+                "object_id": dashboard.id,
+                "object_type": "dashboard",
+                "group_id": group.id
+            })
+            return {"status": "success"}
+        else:
+            abort(404, message="Group permission not found for this dashboard or dashboard has no group permissions set.")
+
+
+class DashboardGroupPermissionListResource(BaseResource):
+    def get(self, dashboard_id):
+        """
+        Lists group permissions for a specific dashboard.
+        """
+        dashboard = get_object_or_404(models.Dashboard.get_by_id_and_org, dashboard_id, self.current_org)
+        require_admin_or_owner(dashboard.user_id)
+
+        permissions_list = []
+        if dashboard.group_access_permissions: # Check if dict is not None and not empty
+            for group_id_str, access_type in dashboard.group_access_permissions.items():
+                try:
+                    group_id_int = int(group_id_str)
+                    # Querying group by ID. Ensure group belongs to the same org for consistency,
+                    # though group_access_permissions should ideally only store relevant group_ids.
+                    # models.Group.get_by_id_and_org might be too restrictive if a group from another org was somehow added.
+                    # For now, a simple .get() is fine, but consider implications if groups can be cross-org.
+                    # The current Group model does have org_id, so filtering by current_org is safer.
+                    group = models.Group.query.filter(models.Group.id == group_id_int, models.Group.org_id == self.current_org.id).first()
+
+                    if group:
+                        permissions_list.append({
+                            "group_id": group.id,
+                            "group_name": group.name,
+                            "access_type": access_type
+                        })
+                    else:
+                        # Optionally log that a group_id in permissions was not found or not in the current org
+                        # logger.warning(f"Group ID {group_id_str} in dashboard {dashboard_id} permissions not found in org {self.current_org.id}")
+                        pass
+                except ValueError:
+                    # Optionally log invalid group_id format
+                    # logger.warning(f"Invalid group ID format '{group_id_str}' in dashboard {dashboard_id} permissions.")
+                    pass
+        
+        return permissions_list

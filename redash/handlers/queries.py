@@ -393,7 +393,12 @@ class QueryResource(BaseResource):
 
         :param query_id: ID of query to archive
         """
+        # First check general permission to edit/modify queries
+        if not self.current_user.has_permission("edit_query"):
+            abort(403, message="You do not have permission to archive queries.")
+
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        # Then check ownership for the specific query
         require_admin_or_owner(query.user_id)
         query.archive(self.current_user)
         models.db.session.commit()
@@ -464,6 +469,7 @@ class QueryRefreshResource(BaseResource):
 
 
 class QueryTagsResource(BaseResource):
+    @require_permission("view_query")
     def get(self):
         """
         Returns all query tags including those for drafts.
@@ -473,6 +479,7 @@ class QueryTagsResource(BaseResource):
 
 
 class QueryFavoriteListResource(BaseResource):
+    @require_permission("view_query")
     def get(self):
         search_term = request.args.get("q")
 
