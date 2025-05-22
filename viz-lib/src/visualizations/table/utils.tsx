@@ -23,7 +23,7 @@ function highlightSearchTerm(text: string, searchTerm: string) {
         return (
             <React.Fragment>
                 {before}
-                <span style={{ backgroundColor: '#ffff00', fontWeight: 'bold' }}>{match}</span>
+                <mark>{match}</mark>
                 {after}
             </React.Fragment>
         );
