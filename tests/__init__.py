@@ -80,7 +80,9 @@ class BaseTestCase(TestCase):
         if org is None:
             org = self.factory.org
 
-        if org is not False:
+        # Only add org slug if MULTI_ORG is enabled
+        from redash import settings
+        if org is not False and settings.MULTI_ORG:
             path = "/{}{}".format(org.slug, path)
 
         if user:
@@ -107,7 +109,8 @@ class BaseTestCase(TestCase):
         return response
 
     def get_request(self, path, org=None, headers=None, client=None):
-        if org:
+        from redash import settings
+        if org and settings.MULTI_ORG:
             path = "/{}{}".format(org.slug, path)
 
         if client is None:
@@ -115,7 +118,8 @@ class BaseTestCase(TestCase):
         return client.get(path, headers=headers)
 
     def post_request(self, path, data=None, org=None, headers=None):
-        if org:
+        from redash import settings
+        if org and settings.MULTI_ORG:
             path = "/{}{}".format(org.slug, path)
 
         return self.client.post(path, data=data, headers=headers)

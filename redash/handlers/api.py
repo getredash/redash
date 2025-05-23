@@ -21,10 +21,6 @@ from redash.handlers.dashboards import (
     MyDashboardsResource,
     PublicDashboardResource,
 )
-from redash.handlers.dashboard_permissions import (
-    DashboardPermissionListResource,
-    DashboardPermissionResource,
-)
 from redash.handlers.data_sources import (
     DataSourceListResource,
     DataSourcePauseResource,
@@ -146,16 +142,6 @@ api.add_org_resource(
     DashboardShareResource,
     "/api/dashboards/<dashboard_id>/share",
     endpoint="dashboard_share",
-)
-api.add_org_resource(
-    DashboardPermissionListResource,
-    "/api/dashboards/<dashboard_id>/permissions",
-    endpoint="dashboard_permissions",
-)
-api.add_org_resource(
-    DashboardPermissionResource,
-    "/api/dashboards/<dashboard_id>/permissions/<permission_id>",
-    endpoint="dashboard_permission",
 )
 
 api.add_org_resource(DataSourceTypeListResource, "/api/data_sources/types", endpoint="data_source_types")
