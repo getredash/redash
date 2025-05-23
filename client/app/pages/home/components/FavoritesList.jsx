@@ -7,6 +7,7 @@ import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 
 import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";
+import { currentUser } from "@/services/auth";
 
 export function FavoriteList({ title, resource, itemUrl, emptyState }) {
   const [items, setItems] = useState([]);
@@ -53,11 +54,13 @@ FavoriteList.propTypes = {
 FavoriteList.defaultProps = { emptyState: null };
 
 export function DashboardAndQueryFavoritesList() {
+  const isDashboardOnlyUser = currentUser.is_dashboard_only_user;
+  
   return (
     <div className="tile">
       <div className="t-body tb-padding">
         <div className="row home-favorites-list">
-          <div className="col-sm-6 m-t-20">
+          <div className={isDashboardOnlyUser ? "col-sm-12 m-t-20" : "col-sm-6 m-t-20"}>
             <FavoriteList
               title="Favorite Dashboards"
               resource={Dashboard}
@@ -72,21 +75,23 @@ export function DashboardAndQueryFavoritesList() {
               }
             />
           </div>
-          <div className="col-sm-6 m-t-20">
-            <FavoriteList
-              title="Favorite Queries"
-              resource={Query}
-              itemUrl={query => `queries/${query.id}`}
-              emptyState={
-                <p>
-                  <span className="btn-favorite m-r-5">
-                    <i className="fa fa-star" aria-hidden="true" />
-                  </span>
-                  Favorite <Link href="queries">Queries</Link> will appear here
-                </p>
-              }
-            />
-          </div>
+          {!isDashboardOnlyUser && (
+            <div className="col-sm-6 m-t-20">
+              <FavoriteList
+                title="Favorite Queries"
+                resource={Query}
+                itemUrl={query => `queries/${query.id}`}
+                emptyState={
+                  <p>
+                    <span className="btn-favorite m-r-5">
+                      <i className="fa fa-star" aria-hidden="true" />
+                    </span>
+                    Favorite <Link href="queries">Queries</Link> will appear here
+                  </p>
+                }
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

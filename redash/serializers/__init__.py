@@ -25,6 +25,7 @@ def public_widget(widget):
         "width": widget.width,
         "options": widget.options,
         "text": widget.text,
+        "dashboard_id": widget.dashboard_id,
         "updated_at": widget.updated_at,
         "created_at": widget.created_at,
     }
@@ -52,7 +53,22 @@ def public_widget(widget):
 def public_dashboard(dashboard):
     dashboard_dict = project(
         serialize_dashboard(dashboard, with_favorite_state=False),
-        ("name", "layout", "dashboard_filters_enabled", "updated_at", "created_at", "options"),
+        (
+            "id",
+            "slug", 
+            "name", 
+            "user_id",
+            "user",
+            "layout", 
+            "dashboard_filters_enabled", 
+            "updated_at", 
+            "created_at", 
+            "options",
+            "is_archived",
+            "is_draft",
+            "tags",
+            "version"
+        ),
     )
 
     widget_list = (

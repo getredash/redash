@@ -145,6 +145,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
             "active_at": self.active_at,
             "is_invitation_pending": self.is_invitation_pending,
             "is_email_verified": self.is_email_verified,
+            "is_dashboard_only_user": self.is_dashboard_only_user(),
         }
 
         if self.password_hash is None:
@@ -241,6 +242,13 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     def get_actual_user(self):
         return repr(self) if self.is_api_user() else self.email
 
+    def is_dashboard_only_user(self):
+        groups = Group.query.filter(Group.id.in_(self.group_ids))
+        for group in groups:
+            if group.type == Group.DASHBOARD_ONLY_GROUP:
+                return True
+        return False
+
 
 @generic_repr("id", "name", "type", "org_id")
 class Group(db.Model, BelongsToOrgMixin):
@@ -259,9 +267,11 @@ class Group(db.Model, BelongsToOrgMixin):
         "list_data_sources",
     ]
     ADMIN_PERMISSIONS = ["admin", "super_admin"]
+    DASHBOARD_ONLY_PERMISSIONS = ["list_dashboards"]
 
     BUILTIN_GROUP = "builtin"
     REGULAR_GROUP = "regular"
+    DASHBOARD_ONLY_GROUP = "dashboard_only"
 
     id = primary_key("Group")
     data_sources = db.relationship("DataSourceGroup", back_populates="group", cascade="all")

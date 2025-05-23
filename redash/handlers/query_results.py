@@ -237,7 +237,6 @@ class QueryResultResource(BaseResource):
 
         return make_response("", 200, headers)
 
-    @require_any_of_permission(("view_query", "execute_query"))
     def post(self, query_id):
         """
         Execute a saved query.
@@ -249,6 +248,15 @@ class QueryResultResource(BaseResource):
                                 any cached result, or executes if not available. Set to zero to
                                 always execute.
         """
+        # Custom permission check for dashboard-only users
+        has_standard_permissions = (
+            self.current_user.has_permission("view_query") or 
+            self.current_user.has_permission("execute_query")
+        )
+        
+        if not has_standard_permissions and not self.current_user.is_dashboard_only_user():
+            abort(403, message="You don't have permission to execute queries.")
+            
         params = request.get_json(force=True, silent=True) or {}
         parameter_values = params.get("parameters", {})
 
@@ -266,7 +274,21 @@ class QueryResultResource(BaseResource):
         else:
             should_apply_auto_limit = query.options.get("apply_auto_limit", False)
 
-        if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
+        has_query_access = has_access(query, self.current_user, allow_executing_with_view_only_permissions)
+        
+        # Allow dashboard-only users to execute queries if they have dashboard access
+        if not has_query_access and self.current_user.is_dashboard_only_user():
+            dashboard_widgets = models.Widget.query.join(models.Visualization).filter(
+                models.Visualization.query_id == query.id
+            ).all()
+            
+            for widget in dashboard_widgets:
+                dashboard = widget.dashboard
+                if self.current_user.has_access(dashboard, "view"):
+                    has_query_access = True
+                    break
+
+        if has_query_access:
             return run_query(
                 query.parameterized,
                 parameter_values,
@@ -284,7 +306,6 @@ class QueryResultResource(BaseResource):
             else:
                 return error_messages["no_permission"]
 
-    @require_any_of_permission(("view_query", "execute_query"))
     def get(self, query_id=None, query_result_id=None, filetype="json"):
         """
         Retrieve query results.
@@ -301,6 +322,15 @@ class QueryResultResource(BaseResource):
         :<json number runtime: Length of execution time in seconds
         :<json string retrieved_at: Query retrieval date/time, in ISO format
         """
+        # Custom permission check for dashboard-only users
+        has_standard_permissions = (
+            self.current_user.has_permission("view_query") or 
+            self.current_user.has_permission("execute_query")
+        )
+        
+        if not has_standard_permissions and not self.current_user.is_dashboard_only_user():
+            abort(403, message="You don't have permission to access query results.")
+        
         # TODO:
         # This method handles two cases: retrieving result by id & retrieving result by query id.
         # They need to be split, as they have different logic (for example, retrieving by query id
@@ -328,7 +358,27 @@ class QueryResultResource(BaseResource):
                     abort(404, message="No cached result found for this query.")
 
         if query_result:
-            require_access(query_result.data_source, self.current_user, view_only)
+            # Allow dashboard-only users to access query results if they have access
+            # to a dashboard that contains this query
+            has_data_source_access = has_access(query_result.data_source, self.current_user, view_only)
+            
+            if not has_data_source_access and self.current_user.is_dashboard_only_user() and query:
+                # Check if user has access to any dashboard containing this query
+                dashboard_widgets = models.Widget.query.join(models.Visualization).filter(
+                    models.Visualization.query_id == query.id
+                ).all()
+                
+                has_dashboard_access = False
+                for widget in dashboard_widgets:
+                    dashboard = widget.dashboard
+                    if self.current_user.has_access(dashboard, "view"):
+                        has_dashboard_access = True
+                        break
+                
+                if not has_dashboard_access:
+                    abort(403, message="You don't have permission to access this query result.")
+            elif not has_data_source_access:
+                abort(403, message="You don't have permission to access this data source.")
 
             if isinstance(self.current_user, models.ApiUser):
                 event = {

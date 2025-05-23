@@ -1118,6 +1118,31 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         return query
 
     @classmethod
+    def all_for_dashboard_only_user(cls, org, user):
+        from .users import AccessPermission
+        
+        permitted_dashboard_ids = (
+            db.session.query(AccessPermission.object_id)
+            .filter(
+                AccessPermission.object_type == "dashboards",
+                AccessPermission.access_type == "view",
+                AccessPermission.grantee_id == user.id
+            )
+        )
+        
+        query = (
+            Dashboard.query.options(joinedload(Dashboard.user).load_only("id", "name", "details", "email"))
+            .filter(
+                Dashboard.is_archived.is_(False),
+                Dashboard.org == org,
+                Dashboard.id.in_(permitted_dashboard_ids),
+                Dashboard.is_draft.is_(False)
+            )
+        )
+        
+        return query
+
+    @classmethod
     def search(cls, org, groups_ids, user_id, search_term):
         # TODO: switch to FTS
         return cls.all(org, groups_ids, user_id).filter(cls.name.ilike("%{}%".format(search_term)))

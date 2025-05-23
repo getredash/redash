@@ -61,11 +61,13 @@ class GroupDataSources extends React.Component {
     }),
     Columns.custom(
       (text, datasource) => {
+        const isDashboardOnlyGroup = this.group && this.group.type === "dashboard_only";
+        
         const menu = (
           <Menu
             selectedKeys={[datasource.view_only ? "viewonly" : "full"]}
             onClick={item => this.setDataSourcePermissions(datasource, item.key)}>
-            <Menu.Item key="full">Full Access</Menu.Item>
+            {!isDashboardOnlyGroup && <Menu.Item key="full">Full Access</Menu.Item>}
             <Menu.Item key="viewonly">View Only</Menu.Item>
           </Menu>
         );
@@ -121,7 +123,8 @@ class GroupDataSources extends React.Component {
   };
 
   setDataSourcePermissions = (datasource, permission) => {
-    const viewOnly = permission !== "full";
+    const isDashboardOnlyGroup = this.group && this.group.type === "dashboard_only";
+    const viewOnly = permission !== "full" || isDashboardOnlyGroup;
 
     Group.updateDataSource({ id: this.groupId, dataSourceId: datasource.id }, { view_only: viewOnly })
       .then(() => {

@@ -47,15 +47,23 @@ class DashboardListResource(BaseResource):
         """
         search_term = request.args.get("q")
 
-        if search_term:
-            results = models.Dashboard.search(
-                self.current_org,
-                self.current_user.group_ids,
-                self.current_user.id,
-                search_term,
-            )
+        if self.current_user.is_dashboard_only_user():
+            if search_term:
+                results = models.Dashboard.all_for_dashboard_only_user(self.current_org, self.current_user).filter(
+                    models.Dashboard.name.ilike("%{}%".format(search_term))
+                )
+            else:
+                results = models.Dashboard.all_for_dashboard_only_user(self.current_org, self.current_user)
         else:
-            results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id)
+            if search_term:
+                results = models.Dashboard.search(
+                    self.current_org,
+                    self.current_user.group_ids,
+                    self.current_user.id,
+                    search_term,
+                )
+            else:
+                results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id)
 
         results = filter_by_tags(results, models.Dashboard.tags)
 
@@ -178,19 +186,28 @@ class DashboardResource(BaseResource):
             fn = models.Dashboard.get_by_id_and_org
 
         dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
-        response = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user).serialize()
+        
+        if self.current_user.is_dashboard_only_user():
+            if not self.current_user.has_access(dashboard, "view"):
+                abort(403, message="You don't have permission to view this dashboard.")
+            response = public_dashboard(dashboard)
+        else:
+            response = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user).serialize()
 
-        api_key = models.ApiKey.get_by_object(dashboard)
-        if api_key:
-            response["public_url"] = url_for(
-                "redash.public_dashboard",
-                token=api_key.api_key,
-                org_slug=self.current_org.slug,
-                _external=True,
-            )
-            response["api_key"] = api_key.api_key
+        if not self.current_user.is_dashboard_only_user():
+            api_key = models.ApiKey.get_by_object(dashboard)
+            if api_key:
+                response["public_url"] = url_for(
+                    "redash.public_dashboard",
+                    token=api_key.api_key,
+                    org_slug=self.current_org.slug,
+                    _external=True,
+                )
+                response["api_key"] = api_key.api_key
 
-        response["can_edit"] = can_modify(dashboard, self.current_user)
+            response["can_edit"] = can_modify(dashboard, self.current_user)
+        else:
+            response["can_edit"] = False
 
         self.record_event({"action": "view", "object_id": dashboard.id, "object_type": "dashboard"})
 
@@ -362,16 +379,26 @@ class DashboardFavoriteListResource(BaseResource):
     def get(self):
         search_term = request.args.get("q")
 
-        if search_term:
-            base_query = models.Dashboard.search(
-                self.current_org,
-                self.current_user.group_ids,
-                self.current_user.id,
-                search_term,
-            )
-            favorites = models.Dashboard.favorites(self.current_user, base_query=base_query)
+        if self.current_user.is_dashboard_only_user():
+            if search_term:
+                base_query = models.Dashboard.all_for_dashboard_only_user(self.current_org, self.current_user).filter(
+                    models.Dashboard.name.ilike("%{}%".format(search_term))
+                )
+                favorites = models.Dashboard.favorites(self.current_user, base_query=base_query)
+            else:
+                base_query = models.Dashboard.all_for_dashboard_only_user(self.current_org, self.current_user)
+                favorites = models.Dashboard.favorites(self.current_user, base_query=base_query)
         else:
-            favorites = models.Dashboard.favorites(self.current_user)
+            if search_term:
+                base_query = models.Dashboard.search(
+                    self.current_org,
+                    self.current_user.group_ids,
+                    self.current_user.id,
+                    search_term,
+                )
+                favorites = models.Dashboard.favorites(self.current_user, base_query=base_query)
+            else:
+                favorites = models.Dashboard.favorites(self.current_user)
 
         favorites = filter_by_tags(favorites, models.Dashboard.tags)
 

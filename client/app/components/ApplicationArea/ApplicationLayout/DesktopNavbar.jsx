@@ -90,7 +90,7 @@ export default function DesktopNavbar() {
             </Link>
           </Menu.Item>
         )}
-        {currentUser.hasPermission("view_query") && (
+        {currentUser.hasPermission("view_query") && !currentUser.is_dashboard_only_user && (
           <Menu.Item key="queries" className={activeState.queries ? "navbar-active-item" : null}>
             <Link href="queries">
               <CodeOutlinedIcon aria-label="Queries navigation button" />
@@ -98,7 +98,7 @@ export default function DesktopNavbar() {
             </Link>
           </Menu.Item>
         )}
-        {currentUser.hasPermission("list_alerts") && (
+        {currentUser.hasPermission("list_alerts") && !currentUser.is_dashboard_only_user && (
           <Menu.Item key="alerts" className={activeState.alerts ? "navbar-active-item" : null}>
             <Link href="alerts">
               <AlertOutlinedIcon aria-label="Alerts navigation button" />
@@ -109,7 +109,7 @@ export default function DesktopNavbar() {
       </NavbarSection>
 
       <NavbarSection className="desktop-navbar-spacer">
-        {(canCreateQuery || canCreateDashboard || canCreateAlert) && (
+        {(canCreateQuery || canCreateDashboard || canCreateAlert) && !currentUser.is_dashboard_only_user && (
           <Menu.SubMenu
             key="create"
             popupClassName="desktop-navbar-submenu"
@@ -121,21 +121,21 @@ export default function DesktopNavbar() {
                 <span className="desktop-navbar-label">Create</span>
               </React.Fragment>
             }>
-            {canCreateQuery && (
+            {canCreateQuery && !currentUser.is_dashboard_only_user && (
               <Menu.Item key="new-query">
                 <Link href="queries/new" data-test="CreateQueryMenuItem">
                   New Query
                 </Link>
               </Menu.Item>
             )}
-            {canCreateDashboard && (
+            {canCreateDashboard && !currentUser.is_dashboard_only_user && (
               <Menu.Item key="new-dashboard">
                 <PlainButton data-test="CreateDashboardMenuItem" onClick={() => CreateDashboardDialog.showModal()}>
                   New Dashboard
                 </PlainButton>
               </Menu.Item>
             )}
-            {canCreateAlert && (
+            {canCreateAlert && !currentUser.is_dashboard_only_user && (
               <Menu.Item key="new-alert">
                 <Link data-test="CreateAlertMenuItem" href="alerts/new">
                   New Alert
