@@ -2,7 +2,7 @@ import sqlparse
 from flask import jsonify, request, url_for
 from flask_login import login_required
 from flask_restful import abort
-from funcy import partial
+from funcy import partial, project
 from sqlalchemy.orm.exc import StaleDataError
 
 from redash import models, settings
@@ -193,6 +193,8 @@ class QueryListResource(BaseQueryListResource):
         :<json string description:
         :<json string schedule: Schedule interval, in seconds, for repeated execution of this query
         :<json object options: Query options
+        :<json string tags: Query tags
+
 
         .. _query-response-label:
 
@@ -221,15 +223,21 @@ class QueryListResource(BaseQueryListResource):
         require_access(data_source, self.current_user, not_view_only)
         require_access_to_dropdown_queries(self.current_user, query_def)
 
-        for field in [
-            "id",
-            "created_at",
-            "api_key",
-            "visualizations",
-            "latest_query_data",
-            "last_modified_by",
-        ]:
-            query_def.pop(field, None)
+        query_def = project(
+            query_def,
+            (
+                "data_source_id",
+                "query",
+                "name",
+                "description",
+                "schedule",
+                "options",
+                "tags",
+            ),
+        )
+
+        if "tags" in query_def:
+            query_def["tags"] = [tag for tag in set(query_def["tags"]) if tag]
 
         query_def["query_text"] = query_def.pop("query")
         query_def["user"] = self.current_user
@@ -320,6 +328,7 @@ class QueryResource(BaseResource):
         :<json string description:
         :<json string schedule: Schedule interval, in seconds, for repeated execution of this query
         :<json object options: Query options
+        :<json string tags: Query tags
 
         Responds with the updated :ref:`query <query-response-label>` object.
         """
@@ -329,23 +338,24 @@ class QueryResource(BaseResource):
         require_object_modify_permission(query, self.current_user)
         require_access_to_dropdown_queries(self.current_user, query_def)
 
-        for field in [
-            "id",
-            "created_at",
-            "api_key",
-            "visualizations",
-            "latest_query_data",
-            "user",
-            "last_modified_by",
-            "org",
-        ]:
-            query_def.pop(field, None)
+        query_def = project(
+            query_def,
+            (
+                "data_source_id",
+                "query",
+                "name",
+                "description",
+                "schedule",
+                "options",
+                "tags",
+            ),
+        )
 
         if "query" in query_def:
             query_def["query_text"] = query_def.pop("query")
 
         if "tags" in query_def:
-            query_def["tags"] = [tag for tag in query_def["tags"] if tag]
+            query_def["tags"] = [tag for tag in set(query_def["tags"]) if tag]
 
         if "data_source_id" in query_def:
             data_source = models.DataSource.get_by_id_and_org(query_def["data_source_id"], self.current_org)
