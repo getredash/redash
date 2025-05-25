@@ -75,6 +75,53 @@ class TestQueryResourceGet(BaseTestCase):
 
 
 class TestQueryResourcePost(BaseTestCase):
+    def test_prevents_update_query_owner(self):
+        query = self.factory.create_query()
+        user = self.factory.create_user()
+        owner = query.user
+        owner_id = query.user.id
+        query_id = query.id
+        data={"user_id": user.id, "name": "testing"}
+        db.session.expire_all()
+        rv = self.make_request(
+            "post",
+            "/api/queries/{0}".format(query_id),
+            data=data,
+            user=owner,
+        )
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json["user"]["id"], owner_id)
+
+    def test_pervents_create_query_as_archived(self):
+        user = self.factory.create_admin()
+        ds = self.factory.create_data_source()
+        rv = self.make_request(
+            "post",
+            "/api/queries",
+            data={"name": "Testing", "data_source_id": ds.id, "query": "test", "is_archived": True},
+            user=user
+        )
+        self.assertEqual(rv.status_code, 200)
+        self.assertNotEqual(rv.json["is_archived"], True)
+
+    def test_pervents_update_query_skip_updated_at(self):
+        query = self.factory.create_query()
+        user = self.factory.create_user()
+        owner = query.user
+        updated_at = query.updated_at
+        query_id = query.id
+        data={"skip_updated_at": True}
+        db.session.expire_all()
+        rv = self.make_request(
+            "post",
+            "/api/queries/{0}".format(query_id),
+            data=data,
+            user=owner,
+        )
+        self.assertEqual(rv.status_code, 200)
+        db.session.expire_all()
+        self.assertNotEqual(query.updated_at, updated_at)
+
     def test_update_query(self):
         admin = self.factory.create_admin()
         query = self.factory.create_query()
