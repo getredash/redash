@@ -81,7 +81,7 @@ class TestQueryResourcePost(BaseTestCase):
         owner = query.user
         owner_id = query.user.id
         query_id = query.id
-        data={"user_id": user.id, "name": "testing"}
+        data = {"user_id": user.id, "name": "testing"}
         db.session.expire_all()
         rv = self.make_request(
             "post",
@@ -99,18 +99,17 @@ class TestQueryResourcePost(BaseTestCase):
             "post",
             "/api/queries",
             data={"name": "Testing", "data_source_id": ds.id, "query": "test", "is_archived": True},
-            user=user
+            user=user,
         )
         self.assertEqual(rv.status_code, 200)
         self.assertNotEqual(rv.json["is_archived"], True)
 
     def test_pervents_update_query_skip_updated_at(self):
         query = self.factory.create_query()
-        user = self.factory.create_user()
         owner = query.user
         updated_at = query.updated_at
         query_id = query.id
-        data={"skip_updated_at": True}
+        data = {"skip_updated_at": True}
         db.session.expire_all()
         rv = self.make_request(
             "post",
