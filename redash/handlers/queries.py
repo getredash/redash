@@ -348,6 +348,8 @@ class QueryResource(BaseResource):
                 "schedule",
                 "options",
                 "tags",
+                "version",
+                "latest_query_data_id",
             ),
         )
 
