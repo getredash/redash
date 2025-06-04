@@ -40,9 +40,7 @@ def init_app(app):
                 return
 
             view = app.view_functions.get(request.endpoint)
-            dest = f"{view.__module__}.{view.__name__}"
-
-            if dest in csrf._exempt_views:
+            if view is not None and f"{view.__module__}.{view.__name__}" in csrf._exempt_views:
                 return
             # END workaround
 

@@ -148,7 +148,9 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
 
   function dismiss() {
     const optionsChanged = !isEqual(options, defaultState.originalOptions);
-    confirmDialogClose(nameChanged || optionsChanged).then(dialog.dismiss);
+    confirmDialogClose(nameChanged || optionsChanged)
+      .then(dialog.dismiss)
+      .catch(() => {});
   }
 
   // When editing existing visualization chart type selector is disabled, so add only existing visualization's

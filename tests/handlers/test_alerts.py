@@ -1,4 +1,9 @@
+import datetime
+
+from mock import patch
+
 from redash.models import Alert, AlertSubscription, db
+from redash.utils import utcnow
 from tests import BaseTestCase
 
 
@@ -37,6 +42,26 @@ class TestAlertResourcePost(BaseTestCase):
         alert = self.factory.create_alert()
         rv = self.make_request("post", "/api/alerts/{}".format(alert.id), data={"name": "Testing"})
         self.assertEqual(rv.status_code, 200)
+
+
+class TestAlertEvaluateResource(BaseTestCase):
+    @patch("redash.handlers.alerts.notify_subscriptions")
+    def test_evaluates_alert_and_notifies(self, mock_notify_subscriptions):
+        query = self.factory.create_query(
+            data_source=self.factory.create_data_source(group=self.factory.create_group())
+        )
+        retrieved_at = utcnow() - datetime.timedelta(days=1)
+        query_result = self.factory.create_query_result(
+            retrieved_at=retrieved_at,
+            query_text=query.query_text,
+            query_hash=query.query_hash,
+        )
+        query.latest_query_data = query_result
+        alert = self.factory.create_alert(query_rel=query)
+        rv = self.make_request("post", "/api/alerts/{}/eval".format(alert.id))
+
+        self.assertEqual(rv.status_code, 200)
+        mock_notify_subscriptions.assert_called()
 
 
 class TestAlertResourceDelete(BaseTestCase):

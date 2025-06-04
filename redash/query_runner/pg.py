@@ -55,18 +55,6 @@ types_map = {
 }
 
 
-def json_encoder(dec, o):
-    if isinstance(o, Range):
-        # From: https://github.com/psycopg/psycopg2/pull/779
-        if o._bounds is None:
-            return ""
-
-        items = [o._bounds[0], str(o._lower), ", ", str(o._upper), o._bounds[1]]
-
-        return "".join(items)
-    return None
-
-
 def _wait(conn, timeout=None):
     while 1:
         try:
@@ -195,6 +183,18 @@ class PostgreSQL(BaseSQLQueryRunner):
     def type(cls):
         return "pg"
 
+    @classmethod
+    def custom_json_encoder(cls, dec, o):
+        if isinstance(o, Range):
+            # From: https://github.com/psycopg/psycopg2/pull/779
+            if o._bounds is None:
+                return ""
+
+            items = [o._bounds[0], str(o._lower), ", ", str(o._upper), o._bounds[1]]
+
+            return "".join(items)
+        return None
+
     def _get_definitions(self, schema, query):
         results, error = self.run_query(query, None)
 
@@ -231,7 +231,9 @@ class PostgreSQL(BaseSQLQueryRunner):
         ON a.attrelid = c.oid
         AND a.attnum > 0
         AND NOT a.attisdropped
-        WHERE c.relkind IN ('m', 'f', 'p') AND has_table_privilege(s.nspname || '.' || c.relname, 'select')
+        WHERE c.relkind IN ('m', 'f', 'p')
+        AND has_table_privilege(s.nspname || '.' || c.relname, 'select')
+        AND has_schema_privilege(s.nspname, 'usage')
 
         UNION
 
@@ -386,12 +388,13 @@ class Redshift(PostgreSQL):
             SELECT DISTINCT table_name,
                             table_schema,
                             column_name,
+                            data_type,
                             ordinal_position AS pos
             FROM svv_columns
             WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
             AND table_schema NOT LIKE 'pg_temp_%'
         )
-        SELECT table_name, table_schema, column_name
+        SELECT table_name, table_schema, column_name, data_type
         FROM tables
         WHERE
             HAS_SCHEMA_PRIVILEGE(table_schema, 'USAGE') AND

@@ -5,6 +5,7 @@ from unittest import mock
 from redash.destinations.asana import Asana
 from redash.destinations.datadog import Datadog
 from redash.destinations.discord import Discord
+from redash.destinations.slack import Slack
 from redash.destinations.webex import Webex
 from redash.models import Alert, NotificationDestination
 from tests import BaseTestCase
@@ -97,13 +98,14 @@ class TestDestinationResource(BaseTestCase):
 
 
 def test_discord_notify_calls_requests_post():
-    alert = mock.Mock(spec_set=["id", "name", "options", "render_template"])
+    alert = mock.Mock(spec_set=["id", "name", "options", "custom_body", "render_template"])
     alert.id = 1
     alert.name = "Test Alert"
     alert.options = {
         "custom_subject": "Test custom subject",
         "custom_body": "Test custom body",
     }
+    alert.custom_body = alert.options["custom_body"]
     alert.render_template = mock.Mock(return_value={"Rendered": "template"})
     query = mock.Mock()
     query.id = 1
@@ -200,7 +202,7 @@ def test_asana_notify_calls_requests_post():
         assert mock_response.status_code == 204
 
 
-def test_webex_notify_calls_requests_post():
+def test_slack_notify_calls_requests_post():
     alert = mock.Mock(spec_set=["id", "name", "custom_subject", "custom_body", "render_template"])
     alert.id = 1
     alert.name = "Test Alert"
@@ -214,13 +216,13 @@ def test_webex_notify_calls_requests_post():
     user = mock.Mock()
     app = mock.Mock()
     host = "https://localhost:5000"
-    options = {"webex_bot_token": "abcd", "to_room_ids": "1234"}
+    options = {"url": "https://slack.com/api/api.test"}
     metadata = {"Scheduled": False}
 
     new_state = Alert.TRIGGERED_STATE
-    destination = Webex(options)
+    destination = Slack(options)
 
-    with mock.patch("redash.destinations.webex.requests.post") as mock_post:
+    with mock.patch("redash.destinations.slack.requests.post") as mock_post:
         mock_response = mock.Mock()
         mock_response.status_code = 204
         mock_post.return_value = mock_response
@@ -230,13 +232,168 @@ def test_webex_notify_calls_requests_post():
         query_link = f"{host}/queries/{query.id}"
         alert_link = f"{host}/alerts/{alert.id}"
 
-        formatted_attachments = Webex.formatted_attachments_template(
+        expected_payload = {
+            "attachments": [
+                {
+                    "text": "Test custom subject",
+                    "color": "#c0392b",
+                    "fields": [
+                        {"title": "Query", "type": "mrkdwn", "value": query_link},
+                        {"title": "Alert", "type": "mrkdwn", "value": alert_link},
+                        {"title": "Description", "value": "Test custom body"},
+                    ],
+                }
+            ]
+        }
+
+        mock_post.assert_called_once_with(
+            "https://slack.com/api/api.test",
+            data=json.dumps(expected_payload).encode(),
+            timeout=5.0,
+        )
+
+        assert mock_response.status_code == 204
+
+
+def test_webex_notify_calls_requests_post():
+    alert = mock.Mock(spec_set=["id", "name", "custom_subject", "custom_body", "render_template"])
+    alert.id = 1
+    alert.name = "Test Alert"
+    alert.custom_subject = "Test custom subject"
+    alert.custom_body = "Test custom body"
+    alert.render_template = mock.Mock(return_value={"Rendered": "template"})
+
+    query = mock.Mock()
+    query.id = 1
+
+    user = mock.Mock()
+    app = mock.Mock()
+    host = "https://localhost:5000"
+    options = {
+        "webex_bot_token": "abcd",
+        "to_room_ids": "1234,5678",
+        "to_person_emails": "example1@test.com,example2@test.com",
+    }
+    metadata = {"Scheduled": False}
+
+    new_state = Alert.TRIGGERED_STATE
+    destination = Webex(options)
+
+    with mock.patch("redash.destinations.webex.requests.post") as mock_post:
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_post.return_value = mock_response
+
+        destination.notify(alert, query, user, new_state, app, host, metadata, options)
+
+        query_link = f"{host}/queries/{query.id}"
+        alert_link = f"{host}/alerts/{alert.id}"
+
+        expected_attachments = Webex.formatted_attachments_template(
+            alert.custom_subject, alert.custom_body, query_link, alert_link
+        )
+
+        expected_payload_room = {
+            "markdown": alert.custom_subject + "\n" + alert.custom_body,
+            "attachments": expected_attachments,
+            "roomId": "1234",
+        }
+
+        expected_payload_email = {
+            "markdown": alert.custom_subject + "\n" + alert.custom_body,
+            "attachments": expected_attachments,
+            "toPersonEmail": "example1@test.com",
+        }
+
+        # Check that requests.post was called for both roomId and toPersonEmail destinations
+        mock_post.assert_any_call(
+            destination.api_base_url,
+            json=expected_payload_room,
+            headers={"Authorization": "Bearer abcd"},
+            timeout=5.0,
+        )
+
+        mock_post.assert_any_call(
+            destination.api_base_url,
+            json=expected_payload_email,
+            headers={"Authorization": "Bearer abcd"},
+            timeout=5.0,
+        )
+
+        assert mock_response.status_code == 200
+
+
+def test_webex_notify_handles_blank_entries():
+    alert = mock.Mock(spec_set=["id", "name", "custom_subject", "custom_body", "render_template"])
+    alert.id = 1
+    alert.name = "Test Alert"
+    alert.custom_subject = "Test custom subject"
+    alert.custom_body = "Test custom body"
+    alert.render_template = mock.Mock(return_value={"Rendered": "template"})
+
+    query = mock.Mock()
+    query.id = 1
+
+    user = mock.Mock()
+    app = mock.Mock()
+    host = "https://localhost:5000"
+    options = {
+        "webex_bot_token": "abcd",
+        "to_room_ids": "",
+        "to_person_emails": "",
+    }
+    metadata = {"Scheduled": False}
+
+    new_state = Alert.TRIGGERED_STATE
+    destination = Webex(options)
+
+    with mock.patch("redash.destinations.webex.requests.post") as mock_post:
+        destination.notify(alert, query, user, new_state, app, host, metadata, options)
+
+        # Ensure no API calls are made when destinations are blank
+        mock_post.assert_not_called()
+
+
+def test_webex_notify_handles_2d_array():
+    alert = mock.Mock(spec_set=["id", "name", "custom_subject", "custom_body", "render_template"])
+    alert.id = 1
+    alert.name = "Test Alert"
+    alert.custom_subject = "Test custom subject"
+    alert.custom_body = "Test custom body with table [['Col1', 'Col2'], ['Val1', 'Val2']]"
+    alert.render_template = mock.Mock(return_value={"Rendered": "template"})
+
+    query = mock.Mock()
+    query.id = 1
+
+    user = mock.Mock()
+    app = mock.Mock()
+    host = "https://localhost:5000"
+    options = {
+        "webex_bot_token": "abcd",
+        "to_room_ids": "1234",
+    }
+    metadata = {"Scheduled": False}
+
+    new_state = Alert.TRIGGERED_STATE
+    destination = Webex(options)
+
+    with mock.patch("redash.destinations.webex.requests.post") as mock_post:
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_post.return_value = mock_response
+
+        destination.notify(alert, query, user, new_state, app, host, metadata, options)
+
+        query_link = f"{host}/queries/{query.id}"
+        alert_link = f"{host}/alerts/{alert.id}"
+
+        expected_attachments = Webex.formatted_attachments_template(
             alert.custom_subject, alert.custom_body, query_link, alert_link
         )
 
         expected_payload = {
             "markdown": alert.custom_subject + "\n" + alert.custom_body,
-            "attachments": formatted_attachments,
+            "attachments": expected_attachments,
             "roomId": "1234",
         }
 
@@ -247,7 +404,60 @@ def test_webex_notify_calls_requests_post():
             timeout=5.0,
         )
 
-        assert mock_response.status_code == 204
+        assert mock_response.status_code == 200
+
+
+def test_webex_notify_handles_1d_array():
+    alert = mock.Mock(spec_set=["id", "name", "custom_subject", "custom_body", "render_template"])
+    alert.id = 1
+    alert.name = "Test Alert"
+    alert.custom_subject = "Test custom subject"
+    alert.custom_body = "Test custom body with 1D array, however unlikely ['Col1', 'Col2']"
+    alert.render_template = mock.Mock(return_value={"Rendered": "template"})
+
+    query = mock.Mock()
+    query.id = 1
+
+    user = mock.Mock()
+    app = mock.Mock()
+    host = "https://localhost:5000"
+    options = {
+        "webex_bot_token": "abcd",
+        "to_room_ids": "1234",
+    }
+    metadata = {"Scheduled": False}
+
+    new_state = Alert.TRIGGERED_STATE
+    destination = Webex(options)
+
+    with mock.patch("redash.destinations.webex.requests.post") as mock_post:
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_post.return_value = mock_response
+
+        destination.notify(alert, query, user, new_state, app, host, metadata, options)
+
+        query_link = f"{host}/queries/{query.id}"
+        alert_link = f"{host}/alerts/{alert.id}"
+
+        expected_attachments = Webex.formatted_attachments_template(
+            alert.custom_subject, alert.custom_body, query_link, alert_link
+        )
+
+        expected_payload = {
+            "markdown": alert.custom_subject + "\n" + alert.custom_body,
+            "attachments": expected_attachments,
+            "roomId": "1234",
+        }
+
+        mock_post.assert_called_once_with(
+            destination.api_base_url,
+            json=expected_payload,
+            headers={"Authorization": "Bearer abcd"},
+            timeout=5.0,
+        )
+
+        assert mock_response.status_code == 200
 
 
 def test_datadog_notify_calls_requests_post():

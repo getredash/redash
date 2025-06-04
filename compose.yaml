@@ -1,6 +1,5 @@
 # This configuration file is for the **development** setup.
 # For a production example please refer to getredash/setup repository on GitHub.
-version: "2.2"
 x-redash-service: &redash-service
   build:
     context: .
@@ -11,6 +10,7 @@ x-redash-service: &redash-service
   env_file:
     - .env
 x-redash-environment: &redash-environment
+  REDASH_HOST: http://localhost:5001
   REDASH_LOG_LEVEL: "INFO"
   REDASH_REDIS_URL: "redis://redis:6379/0"
   REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
@@ -53,7 +53,7 @@ services:
     image: redis:7-alpine
     restart: unless-stopped
   postgres:
-    image: pgautoupgrade/pgautoupgrade:15-alpine3.8
+    image: pgautoupgrade/pgautoupgrade:latest
     ports:
       - "15432:5432"
     # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3

@@ -119,6 +119,7 @@ class BaseQueryRunner:
     noop_query = None
     limit_query = " LIMIT 1000"
     limit_keywords = ["LIMIT", "OFFSET"]
+    limit_after_select = False
 
     def __init__(self, configuration):
         self.syntax = "sql"
@@ -287,7 +288,10 @@ class BaseSQLQueryRunner(BaseQueryRunner):
         return True
 
     def query_is_select_no_limit(self, query):
-        parsed_query = sqlparse.parse(query)[0]
+        parsed_query_list = sqlparse.parse(query)
+        if len(parsed_query_list) == 0:
+            return False
+        parsed_query = parsed_query_list[0]
         last_keyword_idx = find_last_keyword_idx(parsed_query)
         # Either invalid query or query that is not select
         if last_keyword_idx == -1 or parsed_query.tokens[0].value.upper() != "SELECT":
@@ -301,10 +305,19 @@ class BaseSQLQueryRunner(BaseQueryRunner):
         parsed_query = sqlparse.parse(query)[0]
         limit_tokens = sqlparse.parse(self.limit_query)[0].tokens
         length = len(parsed_query.tokens)
-        if parsed_query.tokens[length - 1].ttype == sqlparse.tokens.Punctuation:
-            parsed_query.tokens[length - 1 : length - 1] = limit_tokens
+        if not self.limit_after_select:
+            if parsed_query.tokens[length - 1].ttype == sqlparse.tokens.Punctuation:
+                parsed_query.tokens[length - 1 : length - 1] = limit_tokens
+            else:
+                parsed_query.tokens += limit_tokens
         else:
-            parsed_query.tokens += limit_tokens
+            for i in range(length - 1, -1, -1):
+                if parsed_query[i].value.upper() == "SELECT":
+                    index = parsed_query.token_index(parsed_query[i + 1])
+                    parsed_query = sqlparse.sql.Statement(
+                        parsed_query.tokens[:index] + limit_tokens + parsed_query.tokens[index:]
+                    )
+                    break
         return str(parsed_query)
 
     def apply_auto_limit(self, query_text, should_apply_auto_limit):
