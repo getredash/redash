@@ -92,11 +92,15 @@ DynamicFormFields.propTypes = {
   fields: PropTypes.arrayOf(FieldType),
   feedbackIcons: PropTypes.bool,
   form: AntdFormType.isRequired,
+  useCustomHostPort: PropTypes.bool,
+  isOracle: PropTypes.bool,
 };
 
 DynamicFormFields.defaultProps = {
   fields: [],
   feedbackIcons: false,
+  useCustomHostPort: false,
+  isOracle: false,
 };
 
 const reducerForActionSet = (state, action) => {
@@ -168,11 +172,19 @@ export default function DynamicForm({
     values => {
       setIsSubmitting(true);
       values = normalizeEmptyValuesToNull(fields, values);
+      values.useCustomHostPort = useCustomHostPort;
+
+      // Apply override if using custom UI for Oracle
+      if (isOracle && useCustomHostPort) {
+        values.host = "_useservicename";
+        values.port = 0;
+      }
+
       onSubmit(
         values,
         msg => {
           setIsSubmitting(false);
-          setIsTouched(false); // reset form touched state
+          setIsTouched(false);
           notification.success(msg);
         },
         msg => {
@@ -181,7 +193,7 @@ export default function DynamicForm({
         }
       );
     },
-    [fields, onSubmit]
+    [fields, onSubmit, useCustomHostPort, isOracle]
   );
 
   const handleFinishFailed = useCallback(
@@ -195,6 +207,15 @@ export default function DynamicForm({
     setUseCustomHostPort(e.target.checked);
   }, []);
 
+  // Checkbox for using custom host/port for Oracle UI
+  const useCustomHostPortCheckbox = (
+    <Form.Item name="useCustomHostPort" valuePropName="checked">
+      <Checkbox checked={useCustomHostPort} onChange={handleCheckboxChange}>
+        Use Custom
+      </Checkbox>
+    </Form.Item>
+  );
+
   return (
     <Form
       form={form}
@@ -206,13 +227,7 @@ export default function DynamicForm({
       layout="vertical"
       onFinish={handleFinish}
       onFinishFailed={handleFinishFailed}>
-      {isOracle && (
-        <Form.Item name="useCustomHostPort" valuePropName="checked">
-          <Checkbox checked={useCustomHostPort} onChange={handleCheckboxChange}>
-            Use Custom
-          </Checkbox>
-        </Form.Item>
-      )}
+      {isOracle && useCustomHostPortCheckbox}
       <DynamicFormFields
         fields={regularFields}
         feedbackIcons={feedbackIcons}
@@ -226,7 +241,7 @@ export default function DynamicForm({
             type="dashed"
             block
             className="extra-options-button"
-            onClick={() => setShowExtraFields(currentShowExtraFields => !currentShowExtraFields)}>
+            onClick={() => setShowExtraFields(current => !current)}>
             Additional Settings
             <i
               className={cx("fa m-l-5", { "fa-caret-up": showExtraFields, "fa-caret-down": !showExtraFields })}
@@ -234,7 +249,13 @@ export default function DynamicForm({
             />
           </Button>
           <Collapse collapsed={!showExtraFields} className="extra-options-content">
-            <DynamicFormFields fields={extraFields} feedbackIcons={feedbackIcons} form={form} />
+            <DynamicFormFields
+              fields={extraFields}
+              feedbackIcons={feedbackIcons}
+              form={form}
+              useCustomHostPort={useCustomHostPort}
+              isOracle={isOracle}
+            />
           </Collapse>
         </div>
       )}
@@ -257,6 +278,7 @@ DynamicForm.propTypes = {
   defaultShowExtraFields: PropTypes.bool,
   saveText: PropTypes.string,
   onSubmit: PropTypes.func,
+  selectedType: PropTypes.string,
 };
 
 DynamicForm.defaultProps = {
@@ -268,4 +290,5 @@ DynamicForm.defaultProps = {
   defaultShowExtraFields: false,
   saveText: "Save",
   onSubmit: () => {},
+  selectedType: null,
 };
