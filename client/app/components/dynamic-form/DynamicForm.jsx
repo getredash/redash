@@ -55,10 +55,10 @@ function getInitialValuesFromFields(fields) {
 }
 
 function DynamicFormFields({ fields, feedbackIcons, form, useCustomHostPort, isOracle }) {
-  return fields.map(field => {
-    if (isOracle && useCustomHostPort && (field.name === "host" || field.name === "port")) {
-      return null;
-    }
+  const filteredFields = isOracle && useCustomHostPort
+  ? fields.filter(field => field.name !== "host" && field.name !== "port")
+  : fields;
+  return filteredFields.map(field => {
     const { name, type, contentAfter } = field;
     const fieldLabel = getFieldLabel(field);
 
@@ -172,6 +172,8 @@ export default function DynamicForm({
   const [showExtraFields, setShowExtraFields] = useState(defaultShowExtraFields);
   const [form] = Form.useForm();
   const isOracle = selectedType === "oracle";
+  const DEFAULT_SERVICE_NAME = "_useservicename";
+  const DEFAULT_PORT = 0;
 
   useEffect(() => {
     if (isOracle && useCustomHostPort) {
@@ -189,8 +191,8 @@ export default function DynamicForm({
       values.useCustomHostPort = useCustomHostPort;
 
       if (isOracle && useCustomHostPort) {
-        values.host = "_useservicename";
-        values.port = 0;
+        values.host = DEFAULT_SERVICE_NAME;
+        values.port = DEFAULT_PORT;
       }
 
       onSubmit(
