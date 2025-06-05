@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useCallback } from "react";
+import React, { useState, useReducer, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import Form from "antd/lib/form";
@@ -47,22 +47,29 @@ function normalizeEmptyValuesToNull(fields, values) {
   });
 }
 
+function getInitialValuesFromFields(fields) {
+  return fields.reduce((acc, field) => {
+    acc[field.name] = field.initialValue;
+    return acc;
+  }, {});
+}
+
 function DynamicFormFields({ fields, feedbackIcons, form, useCustomHostPort, isOracle }) {
   return fields.map(field => {
     if (isOracle && useCustomHostPort && (field.name === "host" || field.name === "port")) {
       return null;
     }
-    const { name, type, initialValue, contentAfter } = field;
+    const { name, type, contentAfter } = field;
     const fieldLabel = getFieldLabel(field);
 
     const formItemProps = {
       name,
+      key: name,
       className: "m-b-10",
       hasFeedback: type !== "checkbox" && type !== "file" && feedbackIcons,
       label: type === "checkbox" ? "" : fieldLabel,
       rules: fieldRules(field),
       valuePropName: type === "checkbox" ? "checked" : "value",
-      initialValue,
     };
 
     if (type === "file") {
@@ -165,6 +172,13 @@ export default function DynamicForm({
   const [showExtraFields, setShowExtraFields] = useState(defaultShowExtraFields);
   const [form] = Form.useForm();
   const isOracle = selectedType === "oracle";
+
+  useEffect(() => {
+    if (isOracle && useCustomHostPort) {
+      form.setFieldsValue({ host: "", port: "" });
+    }
+  }, [useCustomHostPort, isOracle, form]);
+
   const extraFields = filter(fields, { extra: true });
   const regularFields = difference(fields, extraFields);
 
@@ -174,7 +188,6 @@ export default function DynamicForm({
       values = normalizeEmptyValuesToNull(fields, values);
       values.useCustomHostPort = useCustomHostPort;
 
-      // Apply override if using custom UI for Oracle
       if (isOracle && useCustomHostPort) {
         values.host = "_useservicename";
         values.port = 0;
@@ -185,6 +198,7 @@ export default function DynamicForm({
         msg => {
           setIsSubmitting(false);
           setIsTouched(false);
+          setUseCustomHostPort(false);
           notification.success(msg);
         },
         msg => {
@@ -207,27 +221,23 @@ export default function DynamicForm({
     setUseCustomHostPort(e.target.checked);
   }, []);
 
-  // Checkbox for using custom host/port for Oracle UI
-  const useCustomHostPortCheckbox = (
-    <Form.Item name="useCustomHostPort" valuePropName="checked">
-      <Checkbox checked={useCustomHostPort} onChange={handleCheckboxChange}>
-        Use Custom
-      </Checkbox>
-    </Form.Item>
-  );
-
   return (
     <Form
       form={form}
-      onFieldsChange={() => {
-        setIsTouched(true);
-      }}
       id={id}
-      className="dynamic-form"
       layout="vertical"
+      className="dynamic-form"
+      initialValues={getInitialValuesFromFields(fields)}
+      onFieldsChange={() => setIsTouched(true)}
       onFinish={handleFinish}
       onFinishFailed={handleFinishFailed}>
-      {isOracle && useCustomHostPortCheckbox}
+      {isOracle && (
+        <Form.Item valuePropName="checked">
+          <Checkbox checked={useCustomHostPort} onChange={handleCheckboxChange}>
+            Use custom host/port
+          </Checkbox>
+        </Form.Item>
+      )}
       <DynamicFormFields
         fields={regularFields}
         feedbackIcons={feedbackIcons}
