@@ -165,6 +165,8 @@ export default function DynamicForm({
   saveText,
   onSubmit,
   selectedType,
+  defaultServiceName,
+  defaultPort,
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
@@ -172,8 +174,6 @@ export default function DynamicForm({
   const [showExtraFields, setShowExtraFields] = useState(defaultShowExtraFields);
   const [form] = Form.useForm();
   const isOracle = selectedType === "oracle";
-  const DEFAULT_SERVICE_NAME = "_useservicename";
-  const DEFAULT_PORT = 0;
 
   useEffect(() => {
     if (isOracle && useCustomHostPort) {
@@ -191,8 +191,8 @@ export default function DynamicForm({
       values.useCustomHostPort = useCustomHostPort;
 
       if (isOracle && useCustomHostPort) {
-        values.host = DEFAULT_SERVICE_NAME;
-        values.port = DEFAULT_PORT;
+        values.host = defaultServiceName;
+        values.port = defaultPort;
       }
 
       onSubmit(
@@ -209,7 +209,7 @@ export default function DynamicForm({
         }
       );
     },
-    [fields, onSubmit, useCustomHostPort, isOracle]
+    [fields, onSubmit, useCustomHostPort, isOracle, defaultServiceName, defaultPort]
   );
 
   const handleFinishFailed = useCallback(
@@ -291,6 +291,8 @@ DynamicForm.propTypes = {
   saveText: PropTypes.string,
   onSubmit: PropTypes.func,
   selectedType: PropTypes.string,
+  defaultServiceName: PropTypes.string,
+  defaultPort: PropTypes.number,
 };
 
 DynamicForm.defaultProps = {
@@ -303,4 +305,6 @@ DynamicForm.defaultProps = {
   saveText: "Save",
   onSubmit: () => {},
   selectedType: null,
+  defaultServiceName: "_useservicename",
+  defaultPort: 0,
 };
