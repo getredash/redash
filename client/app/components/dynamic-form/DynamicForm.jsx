@@ -1,7 +1,8 @@
-import React, { useState, useReducer, useCallback } from "react";
+import React, { useState, useReducer, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import Form from "antd/lib/form";
+import Checkbox from "antd/lib/checkbox";
 import Button from "antd/lib/button";
 import { includes, isFunction, filter, find, difference, isEmpty, mapValues } from "lodash";
 import notification from "@/services/notification";
@@ -46,19 +47,29 @@ function normalizeEmptyValuesToNull(fields, values) {
   });
 }
 
-function DynamicFormFields({ fields, feedbackIcons, form }) {
-  return fields.map(field => {
-    const { name, type, initialValue, contentAfter } = field;
+function getInitialValuesFromFields(fields) {
+  return fields.reduce((acc, field) => {
+    acc[field.name] = field.initialValue;
+    return acc;
+  }, {});
+}
+
+function DynamicFormFields({ fields, feedbackIcons, form, useCustomHostPort, isOracle }) {
+  const filteredFields = isOracle && useCustomHostPort
+  ? fields.filter(field => field.name !== "host" && field.name !== "port")
+  : fields;
+  return filteredFields.map(field => {
+    const { name, type, contentAfter } = field;
     const fieldLabel = getFieldLabel(field);
 
     const formItemProps = {
       name,
+      key: name,
       className: "m-b-10",
       hasFeedback: type !== "checkbox" && type !== "file" && feedbackIcons,
       label: type === "checkbox" ? "" : fieldLabel,
       rules: fieldRules(field),
       valuePropName: type === "checkbox" ? "checked" : "value",
-      initialValue,
     };
 
     if (type === "file") {
@@ -88,11 +99,15 @@ DynamicFormFields.propTypes = {
   fields: PropTypes.arrayOf(FieldType),
   feedbackIcons: PropTypes.bool,
   form: AntdFormType.isRequired,
+  useCustomHostPort: PropTypes.bool,
+  isOracle: PropTypes.bool,
 };
 
 DynamicFormFields.defaultProps = {
   fields: [],
   feedbackIcons: false,
+  useCustomHostPort: false,
+  isOracle: false,
 };
 
 const reducerForActionSet = (state, action) => {
@@ -149,11 +164,23 @@ export default function DynamicForm({
   defaultShowExtraFields,
   saveText,
   onSubmit,
+  selectedType,
+  defaultServiceName,
+  defaultPort,
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
+  const [useCustomHostPort, setUseCustomHostPort] = useState(false);
   const [showExtraFields, setShowExtraFields] = useState(defaultShowExtraFields);
   const [form] = Form.useForm();
+  const isOracle = selectedType === "oracle";
+
+  useEffect(() => {
+    if (isOracle && useCustomHostPort) {
+      form.setFieldsValue({ host: "", port: "" });
+    }
+  }, [useCustomHostPort, isOracle, form]);
+
   const extraFields = filter(fields, { extra: true });
   const regularFields = difference(fields, extraFields);
 
@@ -161,11 +188,19 @@ export default function DynamicForm({
     values => {
       setIsSubmitting(true);
       values = normalizeEmptyValuesToNull(fields, values);
+      values.useCustomHostPort = useCustomHostPort;
+
+      if (isOracle && useCustomHostPort) {
+        values.host = defaultServiceName;
+        values.port = defaultPort;
+      }
+
       onSubmit(
         values,
         msg => {
           setIsSubmitting(false);
-          setIsTouched(false); // reset form touched state
+          setIsTouched(false);
+          setUseCustomHostPort(false);
           notification.success(msg);
         },
         msg => {
@@ -174,7 +209,7 @@ export default function DynamicForm({
         }
       );
     },
-    [fields, onSubmit]
+    [fields, onSubmit, useCustomHostPort, isOracle, defaultServiceName, defaultPort]
   );
 
   const handleFinishFailed = useCallback(
@@ -184,25 +219,41 @@ export default function DynamicForm({
     [form]
   );
 
+  const handleCheckboxChange = useCallback(e => {
+    setUseCustomHostPort(e.target.checked);
+  }, []);
+
   return (
     <Form
       form={form}
-      onFieldsChange={() => {
-        setIsTouched(true);
-      }}
       id={id}
-      className="dynamic-form"
       layout="vertical"
+      className="dynamic-form"
+      initialValues={getInitialValuesFromFields(fields)}
+      onFieldsChange={() => setIsTouched(true)}
       onFinish={handleFinish}
       onFinishFailed={handleFinishFailed}>
-      <DynamicFormFields fields={regularFields} feedbackIcons={feedbackIcons} form={form} />
+      {isOracle && (
+        <Form.Item valuePropName="checked">
+          <Checkbox checked={useCustomHostPort} onChange={handleCheckboxChange}>
+            Use custom host/port
+          </Checkbox>
+        </Form.Item>
+      )}
+      <DynamicFormFields
+        fields={regularFields}
+        feedbackIcons={feedbackIcons}
+        form={form}
+        useCustomHostPort={useCustomHostPort}
+        isOracle={isOracle}
+      />
       {!isEmpty(extraFields) && (
         <div className="extra-options">
           <Button
             type="dashed"
             block
             className="extra-options-button"
-            onClick={() => setShowExtraFields(currentShowExtraFields => !currentShowExtraFields)}>
+            onClick={() => setShowExtraFields(current => !current)}>
             Additional Settings
             <i
               className={cx("fa m-l-5", { "fa-caret-up": showExtraFields, "fa-caret-down": !showExtraFields })}
@@ -210,7 +261,13 @@ export default function DynamicForm({
             />
           </Button>
           <Collapse collapsed={!showExtraFields} className="extra-options-content">
-            <DynamicFormFields fields={extraFields} feedbackIcons={feedbackIcons} form={form} />
+            <DynamicFormFields
+              fields={extraFields}
+              feedbackIcons={feedbackIcons}
+              form={form}
+              useCustomHostPort={useCustomHostPort}
+              isOracle={isOracle}
+            />
           </Collapse>
         </div>
       )}
@@ -233,6 +290,9 @@ DynamicForm.propTypes = {
   defaultShowExtraFields: PropTypes.bool,
   saveText: PropTypes.string,
   onSubmit: PropTypes.func,
+  selectedType: PropTypes.string,
+  defaultServiceName: PropTypes.string,
+  defaultPort: PropTypes.number,
 };
 
 DynamicForm.defaultProps = {
@@ -244,4 +304,7 @@ DynamicForm.defaultProps = {
   defaultShowExtraFields: false,
   saveText: "Save",
   onSubmit: () => {},
+  selectedType: null,
+  defaultServiceName: "_useservicename",
+  defaultPort: 0,
 };
