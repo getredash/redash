@@ -1,4 +1,5 @@
 from flask import request
+from flask_restful import abort
 from funcy import project
 
 from redash import models, utils
@@ -12,6 +13,7 @@ from redash.permissions import (
     require_admin_or_owner,
     require_permission,
     view_only,
+    can_create_alert,
 )
 from redash.serializers import serialize_alert
 from redash.tasks.alerts import (
@@ -84,6 +86,9 @@ class AlertMuteResource(BaseResource):
 
 class AlertListResource(BaseResource):
     def post(self):
+        if not can_create_alert(self.current_user):
+            abort(403, message="You do not have permission to create alerts.")
+            
         req = request.get_json(True)
         require_fields(req, ("options", "name", "query_id"))
 

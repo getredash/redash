@@ -32,6 +32,31 @@ export const currentUser = {
   set isAdmin(isAdmin) {
     this._isAdmin = isAdmin;
   },
+
+  isViewOnly() {
+    // Check if user is in any view-only group
+    if (!this.groups) return false;
+    return this.groups.some(group => group.is_view_only === true);
+  },
+
+  canViewQuerySource() {
+    // Admin can always view query source
+    if (this.isAdmin) return true;
+    // If user is in any view-only group, they cannot view source
+    return !this.isViewOnly();
+  },
+
+  canDownloadResults() {
+    // Admin can always download
+    if (this.isAdmin) return true;
+    // If user is in any view-only group, they cannot download
+    return !this.isViewOnly();
+  },
+
+  canCreateAlert() {
+    // Must have list_alerts permission AND not be view-only
+    return this.hasPermission("list_alerts") && !this.isViewOnly();
+  }
 };
 
 export const clientConfig = {};

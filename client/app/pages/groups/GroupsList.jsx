@@ -33,6 +33,7 @@ class GroupsList extends React.Component {
         <div>
           <Link href={"groups/" + group.id}>{group.name}</Link>
           {group.type === "builtin" && <span className="label label-default m-l-10">built-in</span>}
+          {group.is_view_only && <span className="label label-warning m-l-10" data-test="GroupViewOnlyBadge">View Only</span>}
         </div>
       ),
       {

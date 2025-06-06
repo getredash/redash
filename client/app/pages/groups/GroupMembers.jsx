@@ -1,6 +1,8 @@
 import { includes, map } from "lodash";
 import React from "react";
 import Button from "antd/lib/button";
+import Modal from "antd/lib/modal";
+import Checkbox from "antd/lib/checkbox";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -35,6 +37,11 @@ class GroupMembers extends React.Component {
   groupId = parseInt(this.props.controller.params.groupId, 10);
 
   group = null;
+
+  state = {
+    editingViewOnly: false,
+    isViewOnly: false,
+  };
 
   sidebarMenu = [
     {
@@ -83,6 +90,7 @@ class GroupMembers extends React.Component {
     Group.get({ id: this.groupId })
       .then(group => {
         this.group = group;
+        this.setState({ isViewOnly: group.is_view_only || false });
         this.forceUpdate();
       })
       .catch(error => {
@@ -132,11 +140,41 @@ class GroupMembers extends React.Component {
     });
   };
 
+  editViewOnlyStatus = () => {
+    this.setState({ editingViewOnly: true });
+  };
+
+  saveViewOnlyStatus = () => {
+    this.group.is_view_only = this.state.isViewOnly;
+    Group.save(this.group)
+      .then(() => {
+        this.setState({ editingViewOnly: false });
+        notification.success("Group settings updated successfully.");
+      })
+      .catch(() => {
+        notification.error("Failed to update group settings.");
+      });
+  };
+
   render() {
     const { controller } = this.props;
     return (
       <div data-test="Group">
-        <GroupName className="d-block m-t-0 m-b-15" group={this.group} onChange={() => this.forceUpdate()} />
+        <div className="d-flex align-items-center m-b-15">
+          <GroupName className="d-inline-block m-t-0 m-b-0 m-r-10" group={this.group} onChange={() => this.forceUpdate()} />
+          {this.group && this.group.is_view_only && (
+            <span className="label label-warning" data-test="GroupViewOnlyBadge">View Only</span>
+          )}
+          {currentUser.isAdmin && this.group && this.group.type !== "builtin" && (
+            <Button 
+              className="m-l-10" 
+              size="small" 
+              onClick={this.editViewOnlyStatus}
+              data-test="EditGroupButton">
+              <i className="fa fa-edit" /> Edit
+            </Button>
+          )}
+        </div>
         <Layout>
           <Layout.Sidebar>
             <Sidebar
@@ -184,6 +222,22 @@ class GroupMembers extends React.Component {
             )}
           </Layout.Content>
         </Layout>
+        
+        <Modal
+          title="Edit Group Settings"
+          visible={this.state.editingViewOnly}
+          onOk={this.saveViewOnlyStatus}
+          onCancel={() => this.setState({ editingViewOnly: false })}>
+          <Checkbox
+            data-test="GroupViewOnly"
+            checked={this.state.isViewOnly}
+            onChange={e => this.setState({ isViewOnly: e.target.checked })}>
+            View Only Group
+          </Checkbox>
+          <div className="text-muted m-t-5">
+            Users in this group can only view queries and dashboards, but cannot see SQL or download results.
+          </div>
+        </Modal>
       </div>
     );
   }

@@ -31,7 +31,11 @@ from inspect import isclass
 import sqlalchemy as sa
 from sqlalchemy.orm import mapperlib
 from sqlalchemy.orm.properties import ColumnProperty
-from sqlalchemy.orm.query import _ColumnEntity
+try:
+    from sqlalchemy.orm.query import _ColumnEntity
+except ImportError:
+    # SQLAlchemy 1.4+ compatibility
+    _ColumnEntity = None
 from sqlalchemy.orm.util import AliasedInsp
 from sqlalchemy.sql.expression import asc, desc, nullslast
 
@@ -59,9 +63,13 @@ def query_labels(query):
         query_labels(query)  # ['articles']
     :param query: SQLAlchemy Query object
     """
-    return [
-        entity._label_name for entity in query._entities if isinstance(entity, _ColumnEntity) and entity._label_name
-    ]
+    if _ColumnEntity:
+        return [
+            entity._label_name for entity in query._entities if isinstance(entity, _ColumnEntity) and entity._label_name
+        ]
+    else:
+        # SQLAlchemy 1.4+ compatibility
+        return []
 
 
 def get_query_entity_by_alias(query, alias):
@@ -137,7 +145,7 @@ def get_mapper(mixed):
         mixed = mixed.expr
     elif isinstance(mixed, sa.Column):
         mixed = mixed.table
-    elif isinstance(mixed, sa.orm.query._ColumnEntity):
+    elif _ColumnEntity and isinstance(mixed, _ColumnEntity):
         mixed = mixed.expr
     if isinstance(mixed, sa.orm.Mapper):
         return mixed

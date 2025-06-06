@@ -11,7 +11,7 @@ from rq.timeouts import JobTimeoutException
 
 from redash import models
 from redash.models.parameterized_query import ParameterizedQuery
-from redash.permissions import has_access, view_only
+from redash.permissions import has_access, view_only, can_view_query_source
 from redash.serializers.query_result import (
     serialize_query_result,
     serialize_query_result_to_dsv,
@@ -101,7 +101,6 @@ def serialize_query(
         "latest_query_data_id": query.latest_query_data_id,
         "name": query.name,
         "description": query.description,
-        "query": query.query_text,
         "query_hash": query.query_hash,
         "schedule": query.schedule,
         "api_key": query.api_key,
@@ -115,6 +114,14 @@ def serialize_query(
         "tags": query.tags or [],
         "is_safe": query.parameterized.is_safe,
     }
+    
+    # Only include query text if user can view query source
+    if current_user and not current_user.is_anonymous:
+        if can_view_query_source(current_user):
+            d["query"] = query.query_text
+    elif not current_user:
+        # If no current user (e.g., in tests or non-request contexts), include query by default
+        d["query"] = query.query_text
 
     if with_user:
         d["user"] = query.user.to_dict()

@@ -69,7 +69,7 @@ export default function DesktopNavbar() {
 
   const canCreateQuery = currentUser.hasPermission("create_query");
   const canCreateDashboard = currentUser.hasPermission("create_dashboard");
-  const canCreateAlert = currentUser.hasPermission("list_alerts");
+  const canCreateAlert = currentUser.canCreateAlert();
 
   return (
     <nav className="desktop-navbar">

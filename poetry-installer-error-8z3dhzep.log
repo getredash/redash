@@ -1,0 +1,14 @@
+Looking in indexes: https://aws:****@eoch-python-435902186182.d.codeartifact.us-east-1.amazonaws.com/pypi/eoch-python/simple/
+ERROR: Could not find a version that satisfies the requirement poetry==2.1.3 (from versions: none)
+ERROR: No matching distribution found for poetry==2.1.3
+WARNING: There was an error checking the latest version of pip.
+
+Traceback:
+
+  File "<stdin>", line 937, in main
+  File "<stdin>", line 574, in run
+  File "<stdin>", line 596, in install
+  File "<stdin>", line 699, in install_poetry
+  File "<stdin>", line 389, in pip
+  File "<stdin>", line 386, in python
+  File "<stdin>", line 379, in run

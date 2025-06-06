@@ -21,6 +21,7 @@ from redash.permissions import (
     require_any_of_permission,
     require_permission,
     view_only,
+    can_download_results,
 )
 from redash.serializers import (
     serialize_job,
@@ -301,6 +302,10 @@ class QueryResultResource(BaseResource):
         :<json number runtime: Length of execution time in seconds
         :<json string retrieved_at: Query retrieval date/time, in ISO format
         """
+        # Check if user can download results for non-JSON formats
+        if filetype != "json" and not can_download_results(self.current_user):
+            abort(403, message="You do not have permission to download query results.")
+        
         # TODO:
         # This method handles two cases: retrieving result by id & retrieving result by query id.
         # They need to be split, as they have different logic (for example, retrieving by query id

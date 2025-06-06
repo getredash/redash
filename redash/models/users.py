@@ -271,6 +271,7 @@ class Group(db.Model, BelongsToOrgMixin):
     name = Column(db.String(100))
     permissions = Column(ARRAY(db.String(255)), default=DEFAULT_PERMISSIONS)
     created_at = Column(db.DateTime(True), default=db.func.now())
+    is_view_only = Column(db.Boolean, default=False)
 
     __tablename__ = "groups"
 
@@ -284,6 +285,7 @@ class Group(db.Model, BelongsToOrgMixin):
             "permissions": self.permissions,
             "type": self.type,
             "created_at": self.created_at,
+            "is_view_only": self.is_view_only,
         }
 
     @classmethod

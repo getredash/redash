@@ -15,6 +15,7 @@ import { ExecutionStatus } from "@/services/query-result";
 import routes from "@/services/routes";
 import notification from "@/services/notification";
 import * as queryFormat from "@/lib/queryFormat";
+import { currentUser } from "@/services/auth";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryMetadata from "./components/QueryMetadata";
@@ -257,33 +258,39 @@ function QuerySource(props) {
               <Resizable direction="vertical" sizeAttribute="flex-basis">
                 <div className="row editor">
                   <section className="query-editor-wrapper" data-test="QueryEditor">
-                    <QueryEditor
-                      ref={editorRef}
-                      data-executing={isQueryExecuting ? "true" : null}
-                      syntax={dataSource ? dataSource.syntax : null}
-                      value={query.query}
-                      schema={schema}
-                      autocompleteEnabled={autocompleteAvailable && autocompleteEnabled}
-                      onChange={handleQueryEditorChange}
-                      onSelectionChange={setSelectedText}
-                    />
+                    {currentUser.canViewQuerySource() && (
+                      <QueryEditor
+                        ref={editorRef}
+                        data-executing={isQueryExecuting ? "true" : null}
+                        syntax={dataSource ? dataSource.syntax : null}
+                        value={query.query}
+                        schema={schema}
+                        autocompleteEnabled={autocompleteAvailable && autocompleteEnabled}
+                        onChange={handleQueryEditorChange}
+                        onSelectionChange={setSelectedText}
+                      />
+                    )}
 
                     <QueryEditor.Controls
-                      addParameterButtonProps={{
-                        title: "Add New Parameter",
-                        shortcut: "mod+p",
-                        onClick: openAddNewParameterDialog,
-                      }}
-                      formatButtonProps={{
-                        title: isFormatQueryAvailable
-                          ? "Format Query"
-                          : "Query formatting is not supported for your Data Source syntax",
-                        disabled: !dataSource || !isFormatQueryAvailable,
-                        shortcut: isFormatQueryAvailable ? "mod+shift+f" : null,
-                        onClick: formatQuery,
-                      }}
+                      addParameterButtonProps={
+                        currentUser.canViewQuerySource() && {
+                          title: "Add New Parameter",
+                          shortcut: "mod+p",
+                          onClick: openAddNewParameterDialog,
+                        }
+                      }
+                      formatButtonProps={
+                        currentUser.canViewQuerySource() && {
+                          title: isFormatQueryAvailable
+                            ? "Format Query"
+                            : "Query formatting is not supported for your Data Source syntax",
+                          disabled: !dataSource || !isFormatQueryAvailable,
+                          shortcut: isFormatQueryAvailable ? "mod+shift+f" : null,
+                          onClick: formatQuery,
+                        }
+                      }
                       saveButtonProps={
-                        queryFlags.canEdit && {
+                        queryFlags.canEdit && currentUser.canViewQuerySource() && {
                           text: (
                             <React.Fragment>
                               <span className="hidden-xs">Save</span>
@@ -303,18 +310,22 @@ function QuerySource(props) {
                           <span className="hidden-xs">{selectedText === null ? "Execute" : "Execute Selected"}</span>
                         ),
                       }}
-                      autocompleteToggleProps={{
-                        available: autocompleteAvailable,
-                        enabled: autocompleteEnabled,
-                        onToggle: toggleAutocomplete,
-                      }}
-                      autoLimitCheckboxProps={{
-                        available: autoLimitAvailable,
-                        checked: autoLimitChecked,
-                        onChange: setAutoLimit,
-                      }}
+                      autocompleteToggleProps={
+                        currentUser.canViewQuerySource() && {
+                          available: autocompleteAvailable,
+                          enabled: autocompleteEnabled,
+                          onToggle: toggleAutocomplete,
+                        }
+                      }
+                      autoLimitCheckboxProps={
+                        currentUser.canViewQuerySource() && {
+                          available: autoLimitAvailable,
+                          checked: autoLimitChecked,
+                          onChange: setAutoLimit,
+                        }
+                      }
                       dataSourceSelectorProps={
-                        dataSource
+                        dataSource && currentUser.canViewQuerySource()
                           ? {
                               disabled: !queryFlags.canEdit,
                               value: dataSource.id,

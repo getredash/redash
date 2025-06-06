@@ -116,3 +116,70 @@ def can_modify(obj, user):
 def require_object_modify_permission(obj, user):
     if not can_modify(obj, user):
         abort(403)
+
+
+def can_view_query_source(user):
+    """Check if user can view query source (SQL)"""
+    if user.is_api_user():
+        return False
+    
+    if "admin" in user.permissions:
+        return True
+    
+    # Get all groups for the user
+    from redash.models import Group
+    user_groups = Group.query.filter(Group.id.in_(user.group_ids)).all()
+    
+    # If user is in any non-view-only group, they can view source
+    for group in user_groups:
+        if not group.is_view_only:
+            return True
+    
+    return False
+
+
+def can_download_results(user):
+    """Check if user can download query results"""
+    if user.is_api_user():
+        return False
+    
+    if "admin" in user.permissions:
+        return True
+    
+    # Get all groups for the user
+    from redash.models import Group
+    user_groups = Group.query.filter(Group.id.in_(user.group_ids)).all()
+    
+    # If user is in any non-view-only group, they can download
+    for group in user_groups:
+        if not group.is_view_only:
+            return True
+    
+    return False
+
+
+def can_create_alert(user):
+    """Check if user can create alerts"""
+    if user.is_api_user():
+        return False
+    
+    if "admin" in user.permissions:
+        return True
+    
+    # Get all groups for the user
+    from redash.models import Group
+    user_groups = Group.query.filter(Group.id.in_(user.group_ids)).all()
+    
+    # If user is in any non-view-only group, they can create alerts
+    for group in user_groups:
+        if not group.is_view_only:
+            return True
+    
+    return False
+
+
+def can_view_all_queries(user):
+    """Check if user can view all queries (not restricted by data source)"""
+    # For now, this follows the same logic as other permissions
+    # In the future, we might want to restrict view-only users to specific data sources
+    return not all(group.is_view_only for group in user.groups) if hasattr(user, 'groups') else True
