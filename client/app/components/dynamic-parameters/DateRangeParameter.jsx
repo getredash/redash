@@ -110,12 +110,12 @@ const DYNAMIC_DATE_OPTIONS = [
 
 const DYNAMIC_DATETIME_OPTIONS = [
   {
-    name: "Last 15 miniutes",
+    name: "Last 15 minutes",
     value: getDynamicDateRangeFromString("d_last_15_minutes"),
     label: null
   },
   {
-    name: "Last 30 miniutes",
+    name: "Last 30 minutes",
     value: getDynamicDateRangeFromString("d_last_30_minutes"),
     label: null
   },
