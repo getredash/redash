@@ -110,7 +110,7 @@ ARG POETRY_OPTIONS="--no-root --no-interaction --no-ansi"
 # disabled by default due to GPL license conflict
 ARG install_groups="main,all_ds,dev"
 RUN /etc/poetry/bin/poetry install --only $install_groups $POETRY_OPTIONS
-
+RUN rm -f /etc/poetry/venv/lib/python3.10/site-packages/setuptools-65.5.0.dist-info/METADATA
 COPY --chown=redash . /app
 COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist
 RUN chown redash /app
