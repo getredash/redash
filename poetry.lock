@@ -1274,13 +1274,13 @@ redis = ["limits[redis]"]
 
 [[package]]
 name = "flask-login"
-version = "0.6.0"
+version = "0.6.3"
 description = "User authentication and session management for Flask."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "Flask-Login-0.6.0.tar.gz", hash = "sha256:aa84fcfb4c3cf09ca58c08e816b7bce73f1349ba1cf13d00d8dffc5872d5fcf6"},
-    {file = "Flask_Login-0.6.0-py3-none-any.whl", hash = "sha256:5cb01ce4dc253967b6ac722a11e46de83b6272ef7a19cc7b5725ae636916d04d"},
+    {file = "Flask-Login-0.6.3.tar.gz", hash = "sha256:5e23d14a607ef12806c699590b89d0f0e0d67baeec599d75947bf9c147330333"},
+    {file = "Flask_Login-0.6.3-py3-none-any.whl", hash = "sha256:849b25b82a436bf830a054e74214074af59097171562ab10bfa999e6b78aae5d"},
 ]
 
 [package.dependencies]
@@ -1368,19 +1368,19 @@ six = ">=1.9.0"
 
 [[package]]
 name = "flask-wtf"
-version = "1.1.1"
+version = "1.1.2"
 description = "Form rendering, validation, and CSRF protection for Flask with WTForms."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "Flask-WTF-1.1.1.tar.gz", hash = "sha256:41c4244e9ae626d63bed42ae4785b90667b885b1535d5a4095e1f63060d12aa9"},
-    {file = "Flask_WTF-1.1.1-py3-none-any.whl", hash = "sha256:7887d6f1ebb3e17bf648647422f0944c9a469d0fcf63e3b66fb9a83037e38b2c"},
+    {file = "flask_wtf-1.1.2-py3-none-any.whl", hash = "sha256:134f45f3155ebdbb2b44fe8e5b498a0956d34a16b10a53fadcb7a865c0b3cea2"},
+    {file = "flask_wtf-1.1.2.tar.gz", hash = "sha256:b51cfa7ad14e03de432a6268e8341354939d0beebf30fce66f8617a93e55e2a0"},
 ]
 
 [package.dependencies]
-Flask = "*"
+flask = "*"
 itsdangerous = "*"
-WTForms = "*"
+wtforms = "*"
 
 [package.extras]
 email = ["email-validator"]
@@ -4438,17 +4438,17 @@ requests = ">=2.0.1,<3.0.0"
 
 [[package]]
 name = "restrictedpython"
-version = "7.3"
+version = "8.0"
 description = "RestrictedPython is a defined subset of the Python language which allows to provide a program input into a trusted environment."
 optional = false
-python-versions = "<3.13,>=3.7"
+python-versions = "<3.14,>=3.9"
 files = [
-    {file = "RestrictedPython-7.3-py3-none-any.whl", hash = "sha256:40a6170bbcfc48b32962831d9281a61608c8e56e7c02fd8e2397225f516a6ed4"},
-    {file = "RestrictedPython-7.3.tar.gz", hash = "sha256:8888304c7858fdcfd86c50b58561797375ba40319d2b6ffb5d24b08b6a2dcd61"},
+    {file = "RestrictedPython-8.0-py3-none-any.whl", hash = "sha256:ed3d894efd7d6cac0a5f13f75583b8458378d400d7dd4c083b59233eba85fe69"},
+    {file = "restrictedpython-8.0.tar.gz", hash = "sha256:3af2312bc67e5fced887fb85b006c89861da72488128b155beea81eb6a0a9b24"},
 ]
 
 [package.extras]
-docs = ["Sphinx", "sphinx-rtd-theme"]
+docs = ["Sphinx", "furo"]
 test = ["pytest", "pytest-mock"]
 
 [[package]]
@@ -5360,13 +5360,13 @@ test = ["websockets"]
 
 [[package]]
 name = "werkzeug"
-version = "2.3.8"
+version = "3.0.6"
 description = "The comprehensive WSGI web application library."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "werkzeug-2.3.8-py3-none-any.whl", hash = "sha256:bba1f19f8ec89d4d607a3bd62f1904bd2e609472d93cd85e9d4e178f472c3748"},
-    {file = "werkzeug-2.3.8.tar.gz", hash = "sha256:554b257c74bbeb7a0d254160a4f8ffe185243f52a52035060b761ca62d977f03"},
+    {file = "werkzeug-3.0.6-py3-none-any.whl", hash = "sha256:1bc0c2310d2fbb07b1dd1105eba2f7af72f322e1e455f2f93c993bee8c8a5f17"},
+    {file = "werkzeug-3.0.6.tar.gz", hash = "sha256:a8dd59d4de28ca70471a34cba79bed5f7ef2e036a76b3ab0835474246eb41f8d"},
 ]
 
 [package.dependencies]
@@ -5627,4 +5627,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">3.9.0,<3.9.1 || >3.9.1,<3.11"
-content-hash = "270a0cfe587acb5bbdf2ec9b084c77bd149ff1dd699536b3c092f3d411e04922"
+content-hash = "f558b46aeadf95d30d8a8375b3a4aa59390371f670d6d7e18ebb82a5926d5055"
