@@ -1,4 +1,5 @@
 [project]
+name = "redash"
 requires-python = ">=3.8"
 
 [tool.black]
