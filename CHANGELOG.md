@@ -1,5 +1,133 @@
 # Change Log
 
+**Note**: For a concise list of changes with GitHub pull request references, see the [Release Notes wiki page](https://github.com/getredash/redash/wiki/Release-Notes). This changelog provides comprehensive summaries and context, while the wiki offers brief descriptions linked to specific pull requests.
+
+## v25.01.0 - 2025-01-08
+
+This major release represents the most significant update in Redash history, spanning over 3 years of development. With 458 files changed, 13,659 insertions, and 7,378 deletions, this release modernizes the entire platform while dramatically expanding integration capabilities.
+
+This release was made possible by contributions from 100+ contributors across the community. Special thanks to all maintainers and contributors who helped bring these features to life.
+
+### 🔧 Upgrading from v10.1.0
+
+**Important**: This is a major version jump that includes significant infrastructure changes. Please review the migration guide carefully before upgrading.
+
+### 🏗️ Infrastructure & Development
+
+- **Migration to Poetry**: Complete transition from requirements.txt to pyproject.toml for modern dependency management
+- **Python Version Support**: Updated to support Python 3.8-3.10, dropped support for older Python versions
+- **CI/CD Modernization**: Migrated from CircleCI to GitHub Actions with improved build pipelines
+- **Docker Improvements**: Updated base images and optimized build processes
+- **Development Tools**: Replaced flake8/isort with Ruff for faster linting and code formatting
+
+### 🔌 New Data Sources (13 New Connectors)
+
+This release adds extensive new data source support:
+
+- **ArangoDB**: Multi-model database (documents, graphs, key-value)
+- **Databend**: Modern cloud data warehouse
+- **E6Data**: Cloud analytics platform
+- **Google Analytics 4**: Updated GA4 API integration (replacing Universal Analytics)
+- **Google Search Console**: SEO and search performance data
+- **Ignite**: Apache Ignite in-memory computing platform
+- **InfluxDB v2**: Time series database with updated v2 API
+- **Netezza (NZ)**: IBM data warehouse appliance
+- **Pinot**: Apache Pinot real-time OLAP datastore
+- **RisingWave**: PostgreSQL-compatible streaming database
+- **Tinybird**: Real-time analytics API platform
+- **Yandex Disk**: File storage and sharing service integration
+- **Enhanced Elasticsearch**: Added Elasticsearch2 query runner with improved features
+
+### 📧 New Alert Destinations (5 New Integrations)
+
+- **Asana**: Project management tool integration
+- **Datadog**: Monitoring and analytics platform
+- **Discord**: Chat platform with rich embed support
+- **Microsoft Teams Webhook**: Enhanced Teams integration with formatting
+- **Webex**: Cisco collaboration platform
+
+### 🎨 Visualizations & UI Improvements
+
+- **Major viz-lib Modernization**: Complete overhaul of the visualization library with new features, enhanced user experience, and improved build infrastructure (unreleased as separate viz-lib version)
+  - Multiple color palette support (Viridis, Tableau 10, D3 Category 10)
+  - Interactive chart click events with drill-down capabilities
+  - Advanced axis formatting with D3 format strings
+  - Full Plotly.js integration with all visualization types
+  - Webpack 5 migration and modern build system
+  - See [viz-lib/CHANGELOG.md](viz-lib/CHANGELOG.md) for detailed visualization library changes
+- **Chart Enhancements**:
+  - Enhanced chart labels and data formatting
+  - Improved hover functionality and click interactions
+  - Better Y-axis aggregation for multiple data points
+- **Table Improvements**:
+  - Better column handling and display options
+  - Enhanced table visualization reliability
+- **TypeScript Migration**: Partial migration with 20+ new TypeScript files for better type safety
+
+### ⚡ Performance & Reliability
+
+- **Query Processing**: Reduced query processing wait time for faster response times
+- **BigQuery Optimization**:
+  - Faster schema loading and API integration
+  - Added date/datetime type mapping
+  - Improved large result handling
+- **Athena Improvements**: Added result reuse support for better performance
+- **MongoDB Enhancements**: Flatten all levels for better data structure handling
+- **RQ Job Processing**: Fixed issues with job status handling and error management
+
+### 🔐 Security Improvements
+
+- **Dependency Updates**:
+  - Updated cryptography library with multiple security fixes
+  - Gevent CVE patches applied
+  - Gunicorn security improvements
+  - Sentry SDK major version upgrade for better error tracking
+- **Security Hardening**: Added `usedforsecurity=False` flag to MD5 hashes where appropriate
+- **Authentication**: Enhanced authentication systems and security measures
+
+### ✨ New Features
+
+- **Dashboard Duplication**: Added ability to fork/duplicate dashboards
+- **Parameter System**:
+  - New text pattern parameter type for advanced filtering
+  - Improved parameter validation and handling
+- **Query Improvements**:
+  - Added NULLS LAST option for query ordering
+  - Enhanced query result handling and error management
+- **API Enhancements**: Improved error responses and API reliability
+
+### 🔧 Bug Fixes & Stability
+
+- **Chart Fixes**:
+  - Fixed scatter/line/bubble charts with same x-values showing wrong y-values
+  - Fixed bar chart data labels display
+  - Resolved chart UI crashes with Plotly upgrades
+- **Query Execution**: Fixed UnboundLocalError when checking alerts for queries
+- **BigQuery**: Fixed interval handling for API result fetching
+- **Error Handling**: Improved error serialization and display
+- **Table Visualization**: Fixed various table display and sorting issues
+
+### 🗑️ Removals & Deprecations
+
+- **Qubole Query Runner**: Removed (service discontinued)
+- **Legacy Code**: Cleaned up deprecated code paths and unused dependencies
+- **HipChat Destination**: Removed (service discontinued)
+
+### 📋 Other Improvements
+
+- **Schema Browser**: Enhanced with column comments and table descriptions for PostgreSQL and Athena
+- **Embed Functionality**: Fixed and improved embedded query displays
+- **Monitoring**: Better health checks and system monitoring capabilities
+- **Testing**: Enhanced test coverage and reliability across the platform
+
+### 📚 Documentation & Developer Experience
+
+- **Updated Documentation**: Comprehensive updates to setup and configuration guides
+- **Development Environment**: Improved local development setup for ARM64 architectures
+- **Code Quality**: Consistent formatting and linting across the entire codebase
+
+This release represents a complete modernization of the Redash platform, bringing it up to current standards while dramatically expanding its capabilities. The addition of 13 new data sources and 5 new alert destinations, combined with significant performance improvements and security enhancements, makes this the most comprehensive Redash update to date.
+
 ## V10.1.0 - 2021-11-23
 
 This release includes patches for three security vulnerabilities:
@@ -117,7 +245,7 @@ Following that, force a recreation of your containers with `docker-compose up --
 - Added “Last 12 months” option for dynamic date ranges
 
 ### Bug Fixes
-- Fix: Private addresses were not allowed even when enforcing was disabled 
+- Fix: Private addresses were not allowed even when enforcing was disabled
 - Fix: Python query runner wasn’t updated for Python 3
 - Fix: Sorting queries by schedule returned the wrong order
 - Fix: Counter visualization was enormous in some cases
