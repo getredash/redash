@@ -19,6 +19,9 @@ depends_on = None
 
 def upgrade():
     connection = op.get_bind()
+    op.alter_column('queries', 'schedule',
+        server_default=None
+        )
     op.alter_column('queries', 'options',
         existing_type=sa.Text(),
         type_=JSONB(astext_type=sa.Text()),
