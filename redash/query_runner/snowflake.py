@@ -32,15 +32,6 @@ TYPES_MAP = {
 }
 
 
-def is_large_integer(data_type, precision, scale):
-    """
-    Checks if the column type is NUMBER(38,0) to avoid integer overflow.
-    """
-    if data_type == 0 and precision == 38 and scale == 0:
-        return True
-    return False
-
-
 class Snowflake(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
@@ -95,11 +86,11 @@ class Snowflake(BaseSQLQueryRunner):
         return enabled
 
     @classmethod
-    def determine_type(cls, data_type, precision, scale):
+    def determine_type(cls, data_type, scale):
         t = TYPES_MAP.get(data_type, None)
         if t == TYPE_INTEGER and scale > 0:
             return TYPE_FLOAT
-        elif t == TYPE_INTEGER and precision == 38:
+        elif t == TYPE_INTEGER:
             return TYPE_STRING
         else:
             return t
@@ -150,23 +141,25 @@ class Snowflake(BaseSQLQueryRunner):
         return column_name
 
     def _parse_results(self, cursor):
-        rows = []
-        for row in cursor:
-            row_dict = {}
-            for column, value in zip(cursor.description, row):
-                column_name = self._column_name(column[0])
-                if is_large_integer(column[1], column[4], column[5]):
-                    row_dict[column_name] = str(value)  # Cast INT to STRING
-                else:
-                    row_dict[column_name] = value
-            rows.append(row_dict)
+       rows = []
+       for row in cursor:
+           row_dict = {}
+           for column, value in zip(cursor.description, row):
+               column_name = self._column_name(column[0])
+               # Same as _determine_type, we need to check the data type [1] and scale [5].
+               if column[1] == 0 and (column[5] == 0 or column[5] is None):
+                   # Cast INT to STRING to avoid potential overflow in JS
+                   row_dict[column_name] = str(value)
+               else:
+                   row_dict[column_name] = value
+           rows.append(row_dict)
 
-        columns = self.fetch_columns(
-            [(self._column_name(i[0]), self.determine_type(i[1], i[4], i[5])) for i in cursor.description]
-        )
+       columns = self.fetch_columns(
+           [(self._column_name(i[0]), self.determine_type(i[1], i[5])) for i in cursor.description]
+       )
 
-        data = {"columns": columns, "rows": rows}
-        return data
+       data = {"columns": columns, "rows": rows}
+       return data
 
     def run_query(self, query, user):
         connection = self._get_connection()
