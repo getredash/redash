@@ -1027,7 +1027,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
             "ALERT_NAME": self.name,
             "ALERT_URL": "{host}/alerts/{alert_id}".format(host=host, alert_id=self.id),
             "ALERT_STATUS": self.state.upper(),
-            "ALERT_SELECTOR": self.options["selector"],
+            "ALERT_SELECTOR": self.options.get("selector", "first"),
             "ALERT_CONDITION": self.options["op"],
             "ALERT_THRESHOLD": self.options["value"],
             "QUERY_NAME": self.query_rel.name,
