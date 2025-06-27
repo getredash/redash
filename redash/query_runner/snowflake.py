@@ -86,11 +86,11 @@ class Snowflake(BaseSQLQueryRunner):
         return enabled
 
     @classmethod
-    def determine_type(cls, data_type, precision, scale):
+    def determine_type(cls, data_type, scale):
         t = TYPES_MAP.get(data_type, None)
         if t == TYPE_INTEGER and scale > 0:
             return TYPE_FLOAT
-        elif t == TYPE_INTEGER and precision >= 16:
+        elif t == TYPE_INTEGER:
             return TYPE_STRING
         else:
             return t
@@ -141,13 +141,25 @@ class Snowflake(BaseSQLQueryRunner):
         return column_name
 
     def _parse_results(self, cursor):
-        columns = self.fetch_columns(
-            [(self._column_name(i[0]), self.determine_type(i[1], i[4], i[5])) for i in cursor.description]
-        )
-        rows = [dict(zip((column["name"] for column in columns), row)) for row in cursor]
+       rows = []
+       for row in cursor:
+           row_dict = {}
+           for column, value in zip(cursor.description, row):
+               column_name = self._column_name(column[0])
+               # Same as _determine_type, we need to check the data type [1] and scale [5].
+               if column[1] == 0 and (column[5] == 0 or column[5] is None):
+                   # Cast INT to STRING to avoid potential overflow in JS
+                   row_dict[column_name] = str(value)
+               else:
+                   row_dict[column_name] = value
+           rows.append(row_dict)
 
-        data = {"columns": columns, "rows": rows}
-        return data
+       columns = self.fetch_columns(
+           [(self._column_name(i[0]), self.determine_type(i[1], i[5])) for i in cursor.description]
+       )
+
+       data = {"columns": columns, "rows": rows}
+       return data
 
     def run_query(self, query, user):
         connection = self._get_connection()
