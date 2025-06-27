@@ -152,6 +152,15 @@ class TestAlertRenderTemplate(BaseTestCase):
         )
         return alert
 
+    def create_legacy_alert(self, results, column="foo", value="5"):
+        """Create alert without selector field to test backward compatibility"""
+        result = self.factory.create_query_result(data=results)
+        query = self.factory.create_query(latest_query_data_id=result.id)
+        alert = self.factory.create_alert(
+            query_rel=query, options={"op": "equals", "column": column, "value": value}
+        )
+        return alert
+
     def test_render_custom_alert_template(self):
         alert = self.create_alert(get_results(1))
         custom_alert = """
@@ -190,6 +199,21 @@ class TestAlertRenderTemplate(BaseTestCase):
         )
         result = alert.render_template(textwrap.dedent(custom_alert))
         self.assertMultiLineEqual(result, textwrap.dedent(expected))
+
+    def test_render_template_with_legacy_alert_without_selector(self):
+        """Test that alerts without selector field render correctly with fallback"""
+        alert = self.create_legacy_alert(get_results(5))
+        template = "Selector: {{ALERT_SELECTOR}}"
+        result = alert.render_template(template)
+        self.assertEqual(result, "Selector: first")
+
+    def test_evaluate_legacy_alert_without_selector(self):
+        """Test that alerts without selector field evaluate correctly"""
+        results = {"rows": [{"foo": 5}], "columns": [{"name": "foo", "type": "STRING"}]}
+        alert = self.create_legacy_alert(results)
+        # Should not crash and should use "first" as default
+        state = alert.evaluate()
+        self.assertEqual(state, Alert.TRIGGERED_STATE)
 
     def test_render_custom_alert_template_query_table(self):
         alert = self.create_alert(get_results(1))
