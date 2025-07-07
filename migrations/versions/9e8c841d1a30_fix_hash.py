@@ -16,7 +16,7 @@ from redash.query_runner import BaseQueryRunner, get_query_runner
 
 # revision identifiers, used by Alembic.
 revision = '9e8c841d1a30'
-down_revision = '7205816877ec'
+down_revision = ('7205816877ec', '4afa4a1dd310')
 branch_labels = None
 depends_on = None
 
