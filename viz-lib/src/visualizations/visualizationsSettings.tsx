@@ -42,6 +42,7 @@ export const visualizationsSettings = {
   dateTimeFormat: "DD/MM/YYYY HH:mm",
   integerFormat: "0,0",
   floatFormat: "0,0.00",
+  nullValue: "null",
   booleanValues: ["false", "true"],
   tableCellMaxJSONSize: 50000,
   allowCustomJSVisualizations: false,

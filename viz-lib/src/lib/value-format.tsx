@@ -5,6 +5,7 @@ import numeral from "numeral";
 import { isString, isArray, isUndefined, isFinite, isNil, toString } from "lodash";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
+
 numeral.options.scalePercentBy100 = false;
 
 // eslint-disable-next-line
@@ -13,7 +14,7 @@ const urlPattern = /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 function NullValueComponent() {
-  return <span className="text-muted"><i>null</i></span>;
+  return <span className="text-muted"><i>{visualizationsSettings.nullValue}</i></span>;
 }
 
 export function createTextFormatter(highlightLinks: any) {
