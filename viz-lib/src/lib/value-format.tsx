@@ -5,6 +5,7 @@ import numeral from "numeral";
 import { isString, isArray, isUndefined, isFinite, isNil, toString } from "lodash";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
+
 numeral.options.scalePercentBy100 = false;
 
 // eslint-disable-next-line
@@ -12,9 +13,16 @@ const urlPattern = /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
+function NullValueComponent() {
+  return <span className="display-as-null">{visualizationsSettings.nullValue}</span>;
+}
+
 export function createTextFormatter(highlightLinks: any) {
   if (highlightLinks) {
     return (value: any) => {
+      if (value === null) {
+        return <NullValueComponent/>
+      }
       if (isString(value)) {
         const Link = visualizationsSettings.LinkComponent;
         value = value.replace(urlPattern, (unused, prefix, href) => {
@@ -29,7 +37,7 @@ export function createTextFormatter(highlightLinks: any) {
       return toString(value);
     };
   }
-  return (value: any) => toString(value);
+  return (value: any) => value === null ? <NullValueComponent/> : toString(value);
 }
 
 function toMoment(value: any) {
@@ -46,11 +54,14 @@ function toMoment(value: any) {
 export function createDateTimeFormatter(format: any) {
   if (isString(format) && format !== "") {
     return (value: any) => {
+      if (value === null) {
+        return <NullValueComponent/>;
+      }
       const wrapped = toMoment(value);
       return wrapped.isValid() ? wrapped.format(format) : toString(value);
     };
   }
-  return (value: any) => toString(value);
+  return (value: any) => value === null ? <NullValueComponent/> : toString(value);
 }
 
 export function createBooleanFormatter(values: any) {
@@ -58,6 +69,9 @@ export function createBooleanFormatter(values: any) {
     if (values.length >= 2) {
       // Both `true` and `false` specified
       return (value: any) => {
+        if (value === null) {
+          return <NullValueComponent/>;
+        }
         if (isNil(value)) {
           return "";
         }
@@ -69,6 +83,9 @@ export function createBooleanFormatter(values: any) {
     }
   }
   return (value: any) => {
+    if (value === null) {
+      return <NullValueComponent/>;
+    }
     if (isNil(value)) {
       return "";
     }
@@ -76,12 +93,20 @@ export function createBooleanFormatter(values: any) {
   };
 }
 
-export function createNumberFormatter(format: any) {
+export function createNumberFormatter(format: any, canReturnHTMLElement: boolean = false) {
   if (isString(format) && format !== "") {
     const n = numeral(0); // cache `numeral` instance
-    return (value: any) => (value === null || value === "" ? "" : n.set(value).format(format));
+    return (value: any) => {
+        if (canReturnHTMLElement && value === null) {
+            return <NullValueComponent/>;
+        }
+        if (value === "" || value === null) {
+            return "";
+        }
+        return n.set(value).format(format);
+    }
   }
-  return (value: any) => toString(value);
+  return (value: any) => (canReturnHTMLElement && value === null) ? <NullValueComponent/> : toString(value);
 }
 
 export function formatSimpleTemplate(str: any, data: any) {
