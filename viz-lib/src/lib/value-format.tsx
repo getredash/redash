@@ -14,7 +14,7 @@ const urlPattern = /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 function NullValueComponent() {
-  return <span className="text-muted"><i>{visualizationsSettings.nullValue}</i></span>;
+  return <span className="display-as-null">{visualizationsSettings.nullValue}</span>;
 }
 
 export function createTextFormatter(highlightLinks: any) {
