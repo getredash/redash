@@ -45,6 +45,7 @@ class Snowflake(BaseSQLQueryRunner):
                 "user": {"type": "string"},
                 "password": {"type": "string"},
                 "private_key": {"type": "string"},
+                "private_key_pwd": {"type": "string"},
                 "warehouse": {"type": "string"},
                 "database": {"type": "string"},
                 "region": {"type": "string", "default": "us-west"},
@@ -60,13 +61,14 @@ class Snowflake(BaseSQLQueryRunner):
                 "user",
                 "password",
                 "private_key",
+                "private_key_pwd",
                 "warehouse",
                 "database",
                 "region",
                 "host",
             ],
             "required": ["user", "account", "database", "warehouse"],
-            "secret": ["password", "private_key"],
+            "secret": ["password", "private_key","private_key_pwd"],
             "extra_options": [
                 "host",
             ],
@@ -106,7 +108,8 @@ class Snowflake(BaseSQLQueryRunner):
 
         private_key_str = self._clean_newlines(private_key_str)
         private_key_str = f"{header}\n{private_key_str}\n{footer}\n"
-        private_key = load_pem_private_key(private_key_str.encode(),None)
+        private_key_pwd = self.configuration.get("private_key_pwd")
+        private_key = load_pem_private_key(private_key_str.encode(),private_key_pwd)
 
         return private_key
 
@@ -125,25 +128,23 @@ class Snowflake(BaseSQLQueryRunner):
                 host = "{}.{}.snowflakecomputing.com".format(account, region)
             else:
                 host = "{}.snowflakecomputing.com".format(account)
-                
+
+        params = {
+            "user": self.configuration["user"],
+            "account": account,
+            "region": region,
+            "host": host,
+            "application": "Redash/{} (Snowflake)".format(__version__.split("-")[0])
+        }
+
         if self.configuration.__contains__("password"):
-            connection = snowflake.connector.connect(
-                user=self.configuration["user"],
-                password=self.configuration["password"],
-                account=account,
-                region=region,
-                host=host,
-                application="Redash/{} (Snowflake)".format(__version__.split("-")[0]),
-            )
+            params["password"] = self.configuration["password"]
+        elif self.configuration.__contains__("private_key"):
+            params["private_key"]=self._get_private_key()
         else:
-            connection = snowflake.connector.connect(
-                user=self.configuration["user"],
-                private_key=self._get_private_key(),
-                account=account,
-                region=region,
-                host=host,
-                application="Redash/{} (Snowflake)".format(__version__.split("-")[0]),
-            )
+            raise Exception("Neither password nor private_key is set.")
+
+        connection = snowflake.connector.connect(**params)
 
         return connection
 
