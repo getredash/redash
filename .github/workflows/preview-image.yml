@@ -32,6 +32,9 @@ jobs:
           elif [[ "${{ secrets.DOCKER_PASS }}" == '' ]]; then
             echo 'Docker password is empty. Skipping build+push'
             echo skip=true >> "$GITHUB_OUTPUT"
+          elif [[ "${{ vars.DOCKER_REPOSITORY }}" == '' ]]; then
+            echo 'Docker repository is empty. Skipping build+push'
+            echo skip=true >> "$GITHUB_OUTPUT"
           else
             echo 'Docker user and password are set and branch is `master`.'
             echo 'Building + pushing `preview` image.'
@@ -97,8 +100,8 @@ jobs:
         if: ${{ github.event.inputs.dockerRepository == 'preview' || !github.event.workflow_run }}
         with:
           tags: |
-            ${{ vars.DOCKER_USER }}/redash
-            ${{ vars.DOCKER_USER }}/preview
+            ${{ vars.DOCKER_REPOSITORY }}/redash
+            ${{ vars.DOCKER_REPOSITORY }}/preview
           context: .
           build-args: |
             test_all_deps=true
@@ -114,7 +117,7 @@ jobs:
         if: ${{ github.event.inputs.dockerRepository == 'redash' }}
         with:
           tags: |
-            ${{ vars.DOCKER_USER }}/redash:${{ steps.version.outputs.VERSION_TAG }}
+            ${{ vars.DOCKER_REPOSITORY }}/redash:${{ steps.version.outputs.VERSION_TAG }}
           context: .
           build-args: |
             test_all_deps=true
@@ -169,14 +172,14 @@ jobs:
         if: ${{ github.event.inputs.dockerRepository == 'preview' || !github.event.workflow_run }}
         working-directory: ${{ runner.temp }}/digests
         run: |
-          docker buildx imagetools create -t ${{ vars.DOCKER_USER }}/redash:preview \
-            $(printf '${{ vars.DOCKER_USER }}/redash:preview@sha256:%s ' *)
-          docker buildx imagetools create -t ${{ vars.DOCKER_USER }}/preview:${{ needs.build-docker-image.outputs.VERSION_TAG }} \
-            $(printf '${{ vars.DOCKER_USER }}/preview:${{ needs.build-docker-image.outputs.VERSION_TAG }}@sha256:%s ' *)
+          docker buildx imagetools create -t ${{ vars.DOCKER_REPOSITORY }}/redash:preview \
+            $(printf '${{ vars.DOCKER_REPOSITORY }}/redash:preview@sha256:%s ' *)
+          docker buildx imagetools create -t ${{ vars.DOCKER_REPOSITORY }}/preview:${{ needs.build-docker-image.outputs.VERSION_TAG }} \
+            $(printf '${{ vars.DOCKER_REPOSITORY }}/preview:${{ needs.build-docker-image.outputs.VERSION_TAG }}@sha256:%s ' *)
 
       - name: Create and push manifest for the release image
         if: ${{ github.event.inputs.dockerRepository == 'redash' }}
         working-directory: ${{ runner.temp }}/digests
         run: |
-          docker buildx imagetools create -t ${{ vars.DOCKER_USER }}/redash:${{ needs.build-docker-image.outputs.VERSION_TAG }} \
-            $(printf '${{ vars.DOCKER_USER }}/redash:${{ needs.build-docker-image.outputs.VERSION_TAG }}@sha256:%s ' *)
+          docker buildx imagetools create -t ${{ vars.DOCKER_REPOSITORY }}/redash:${{ needs.build-docker-image.outputs.VERSION_TAG }} \
+            $(printf '${{ vars.DOCKER_REPOSITORY }}/redash:${{ needs.build-docker-image.outputs.VERSION_TAG }}@sha256:%s ' *)
