@@ -73,6 +73,7 @@ function getDefaultFormatOptions(column: any) {
     dateTimeFormat: dateTimeFormat[column.type],
     // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     numberFormat: numberFormat[column.type],
+    nullValue: visualizationsSettings.nullValue,
     booleanValues: visualizationsSettings.booleanValues || ["false", "true"],
     // `image` cell options
     imageUrlTemplate: "{{ @ }}",

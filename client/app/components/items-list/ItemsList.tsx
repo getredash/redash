@@ -28,6 +28,7 @@ export interface Controller<I, P = any> {
   orderByField?: string;
   orderByReverse: boolean;
   toggleSorting: (orderByField: string) => void;
+  setSorting: (orderByField: string, orderByReverse: boolean) => void;
 
   // pagination
   page: number;
@@ -139,10 +140,11 @@ export function wrap<I, P = any>(
         this.props.onError!(error);
 
       const initialState = this.getState({ ...itemsSource.getState(), isLoaded: false });
-      const { updatePagination, toggleSorting, updateSearch, updateSelectedTags, update, handleError } = itemsSource;
+      const { updatePagination, toggleSorting, setSorting, updateSearch, updateSelectedTags, update, handleError } = itemsSource;
       this.state = {
         ...initialState,
         toggleSorting, // eslint-disable-line react/no-unused-state
+        setSorting, // eslint-disable-line react/no-unused-state
         updateSearch: debounce(updateSearch, 200), // eslint-disable-line react/no-unused-state
         updateSelectedTags, // eslint-disable-line react/no-unused-state
         updatePagination, // eslint-disable-line react/no-unused-state
