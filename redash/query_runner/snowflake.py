@@ -1,5 +1,6 @@
 try:
     import snowflake.connector
+    from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
     enabled = True
 except ImportError:
@@ -43,6 +44,8 @@ class Snowflake(BaseSQLQueryRunner):
                 "account": {"type": "string"},
                 "user": {"type": "string"},
                 "password": {"type": "string"},
+                "private_key": {"type": "string"},
+                "private_key_pwd": {"type": "string"},
                 "warehouse": {"type": "string"},
                 "database": {"type": "string"},
                 "region": {"type": "string", "default": "us-west"},
@@ -57,13 +60,15 @@ class Snowflake(BaseSQLQueryRunner):
                 "account",
                 "user",
                 "password",
+                "private_key",
+                "private_key_pwd",
                 "warehouse",
                 "database",
                 "region",
                 "host",
             ],
-            "required": ["user", "password", "account", "database", "warehouse"],
-            "secret": ["password"],
+            "required": ["user", "account", "database", "warehouse"],
+            "secret": ["password", "private_key","private_key_pwd"],
             "extra_options": [
                 "host",
             ],
@@ -79,6 +84,34 @@ class Snowflake(BaseSQLQueryRunner):
         if t == TYPE_INTEGER and scale > 0:
             return TYPE_FLOAT
         return t
+    
+    def _clean_newlines(self,s):
+
+        s = s.strip().replace(" ","").replace("\n","")
+
+        chunks = []
+        chunk_size = 64
+        start = 0
+        while len(s) > start:
+            chunks.append(s[start:start+chunk_size])
+            start = start+chunk_size
+        
+        return '\n'.join(chunks)
+    
+    def _get_private_key(self):
+
+        private_key_str = self.configuration["private_key"]
+
+        header = "-----BEGIN PRIVATE KEY-----"
+        footer = "-----END PRIVATE KEY-----"
+        private_key_str = private_key_str.replace(footer,"").replace(header,"")
+
+        private_key_str = self._clean_newlines(private_key_str)
+        private_key_str = f"{header}\n{private_key_str}\n{footer}\n"
+        private_key_pwd = self.configuration.get("private_key_pwd")
+        private_key = load_pem_private_key(private_key_str.encode(),private_key_pwd)
+
+        return private_key
 
     def _get_connection(self):
         region = self.configuration.get("region")
@@ -96,14 +129,22 @@ class Snowflake(BaseSQLQueryRunner):
             else:
                 host = "{}.snowflakecomputing.com".format(account)
 
-        connection = snowflake.connector.connect(
-            user=self.configuration["user"],
-            password=self.configuration["password"],
-            account=account,
-            region=region,
-            host=host,
-            application="Redash/{} (Snowflake)".format(__version__.split("-")[0]),
-        )
+        params = {
+            "user": self.configuration["user"],
+            "account": account,
+            "region": region,
+            "host": host,
+            "application": "Redash/{} (Snowflake)".format(__version__.split("-")[0])
+        }
+
+        if self.configuration.__contains__("password"):
+            params["password"] = self.configuration["password"]
+        elif self.configuration.__contains__("private_key"):
+            params["private_key"]=self._get_private_key()
+        else:
+            raise Exception("Neither password nor private_key is set.")
+
+        connection = snowflake.connector.connect(**params)
 
         return connection
 
