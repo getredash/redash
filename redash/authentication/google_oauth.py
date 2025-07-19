@@ -41,33 +41,26 @@ def get_user_profile(access_token, logger):
 
 
 def build_redirect_uri():
-    if settings.GOOGLE_OAUTH_SCHEME_OVERRIDE:
-        redirect_uri = url_for(
-            ".callback",
-            _external=True,
-            _scheme=settings.GOOGLE_OAUTH_SCHEME_OVERRIDE,
-        )
-    else:
-        redirect_uri = url_for(".callback", _external=True)
-    return redirect_uri
+    scheme = settings.GOOGLE_OAUTH_SCHEME_OVERRIDE or None
+    return url_for(".callback", _external=True, _scheme=scheme)
 
 
-def build_next_path():
+def build_next_path(org_slug=None):
     next_path = request.args.get("next")
     if not next_path:
+        if org_slug is None:
+            org_slug = session.get("org_slug")
+
+        scheme = None
         if settings.GOOGLE_OAUTH_SCHEME_OVERRIDE:
-            next_path = url_for(
-                "redash.index",
-                org_slug=session.get("org_slug"),
-                _external=True,
-                _scheme=settings.GOOGLE_OAUTH_SCHEME_OVERRIDE,
-            )
-        else:
-            next_path = url_for(
-                "redash.index",
-                org_slug=session.get("org_slug"),
-                _external=True,
-            )
+            scheme = settings.GOOGLE_OAUTH_SCHEME_OVERRIDE
+
+        next_path = url_for(
+            "redash.index",
+            org_slug=org_slug,
+            _external=True,
+            _scheme=scheme,
+        )
     return next_path
 
 
@@ -78,7 +71,6 @@ def create_google_oauth_blueprint(app):
     blueprint = Blueprint("google_oauth", __name__)
 
     CONF_URL = "https://accounts.google.com/.well-known/openid-configuration"
-    oauth = OAuth(app)
     oauth.register(
         name="google",
         server_metadata_url=CONF_URL,
@@ -144,19 +136,7 @@ def create_google_oauth_blueprint(app):
 
         unsafe_next_path = session.get("next_url")
         if not unsafe_next_path:
-            if settings.GOOGLE_OAUTH_SCHEME_OVERRIDE:
-                unsafe_next_path = url_for(
-                    "redash.index",
-                    org_slug=org.slug,
-                    _external=True,
-                    _scheme=settings.GOOGLE_OAUTH_SCHEME_OVERRIDE,
-                )
-            else:
-                unsafe_next_path = url_for(
-                    "redash.index",
-                    org_slug=org.slug,
-                    _external=True,
-                )
+            unsafe_next_path = build_next_path(org.slug)
         next_path = get_next_path(unsafe_next_path)
 
         return redirect(next_path)
