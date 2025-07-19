@@ -27,6 +27,7 @@ DATE_FORMAT = os.environ.get("REDASH_DATE_FORMAT", "DD/MM/YY")
 TIME_FORMAT = os.environ.get("REDASH_TIME_FORMAT", "HH:mm")
 INTEGER_FORMAT = os.environ.get("REDASH_INTEGER_FORMAT", "0,0")
 FLOAT_FORMAT = os.environ.get("REDASH_FLOAT_FORMAT", "0,0.00")
+NULL_VALUE = os.environ.get("REDASH_NULL_VALUE", "null")
 MULTI_BYTE_SEARCH_ENABLED = parse_boolean(os.environ.get("MULTI_BYTE_SEARCH_ENABLED", "false"))
 
 JWT_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_JWT_LOGIN_ENABLED", "false"))
@@ -45,6 +46,7 @@ HIDE_PLOTLY_MODE_BAR = parse_boolean(os.environ.get("HIDE_PLOTLY_MODE_BAR", "fal
 DISABLE_PUBLIC_URLS = parse_boolean(os.environ.get("REDASH_DISABLE_PUBLIC_URLS", "false"))
 
 settings = {
+    "beacon_consent": None,
     "auth_password_login_enabled": PASSWORD_LOGIN_ENABLED,
     "auth_saml_enabled": SAML_LOGIN_ENABLED,
     "auth_saml_type": SAML_LOGIN_TYPE,
@@ -58,6 +60,7 @@ settings = {
     "time_format": TIME_FORMAT,
     "integer_format": INTEGER_FORMAT,
     "float_format": FLOAT_FORMAT,
+    "null_value": NULL_VALUE,
     "multi_byte_search_enabled": MULTI_BYTE_SEARCH_ENABLED,
     "auth_jwt_login_enabled": JWT_LOGIN_ENABLED,
     "auth_jwt_auth_issuer": JWT_AUTH_ISSUER,

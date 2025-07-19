@@ -82,6 +82,7 @@ SESSION_COOKIE_SECURE = parse_boolean(os.environ.get("REDASH_SESSION_COOKIE_SECU
 # Whether the session cookie is set HttpOnly.
 SESSION_COOKIE_HTTPONLY = parse_boolean(os.environ.get("REDASH_SESSION_COOKIE_HTTPONLY", "true"))
 SESSION_EXPIRY_TIME = int(os.environ.get("REDASH_SESSION_EXPIRY_TIME", 60 * 60 * 6))
+SESSION_COOKIE_NAME = os.environ.get("REDASH_SESSION_COOKIE_NAME", "session")
 
 # Whether the session cookie is set to secure.
 REMEMBER_COOKIE_SECURE = parse_boolean(os.environ.get("REDASH_REMEMBER_COOKIE_SECURE") or str(COOKIES_SECURE))
@@ -420,6 +421,7 @@ PAGE_SIZE_OPTIONS = list(
 TABLE_CELL_MAX_JSON_SIZE = int(os.environ.get("REDASH_TABLE_CELL_MAX_JSON_SIZE", 50000))
 
 # Features:
+VERSION_CHECK = parse_boolean(os.environ.get("REDASH_VERSION_CHECK", "true"))
 FEATURE_DISABLE_REFRESH_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_DISABLE_REFRESH_QUERIES", "false"))
 FEATURE_SHOW_QUERY_RESULTS_COUNT = parse_boolean(os.environ.get("REDASH_FEATURE_SHOW_QUERY_RESULTS_COUNT", "true"))
 FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS = parse_boolean(

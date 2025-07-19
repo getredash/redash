@@ -23,6 +23,7 @@ export const TYPES = mapValues(
     VALUE_SOURCE_OPTIONS: ["/user-guide/querying/query-parameters#Value-Source-Options", "Guide: Value Source Options"],
     SHARE_DASHBOARD: ["/user-guide/dashboards/sharing-dashboards", "Guide: Sharing and Embedding Dashboards"],
     AUTHENTICATION_OPTIONS: ["/user-guide/users/authentication-options", "Guide: Authentication Options"],
+    USAGE_DATA_SHARING: ["/open-source/admin-guide/usage-data", "Help: Anonymous Usage Data Sharing"],
     DS_ATHENA: ["/data-sources/amazon-athena-setup", "Guide: Help Setting up Amazon Athena"],
     DS_BIGQUERY: ["/data-sources/bigquery-setup", "Guide: Help Setting up BigQuery"],
     DS_URL: ["/data-sources/querying-urls", "Guide: Help Setting up URL"],
@@ -100,7 +101,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
       clearTimeout(this.iframeLoadingTimeout);
     }
 
-    loadIframe = url => {
+    loadIframe = (url) => {
       clearTimeout(this.iframeLoadingTimeout);
       this.setState({ loading: true, error: false });
 
@@ -115,8 +116,8 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
       clearTimeout(this.iframeLoadingTimeout);
     };
 
-    onPostMessageReceived = event => {
-      if (!some(allowedDomains, domain => startsWith(event.origin, domain))) {
+    onPostMessageReceived = (event) => {
+      if (!some(allowedDomains, (domain) => startsWith(event.origin, domain))) {
         return;
       }
 
@@ -133,7 +134,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
       return helpTriggerType ? helpTriggerType[0] : this.props.href;
     };
 
-    openDrawer = e => {
+    openDrawer = (e) => {
       // keep "open in new tab" behavior
       if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
@@ -143,7 +144,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
       }
     };
 
-    closeDrawer = event => {
+    closeDrawer = (event) => {
       if (event) {
         event.preventDefault();
       }
@@ -160,7 +161,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
       const tooltip = get(types, `${this.props.type}[1]`, this.props.title);
       const className = cx("help-trigger", this.props.className);
       const url = this.state.currentUrl;
-      const isAllowedDomain = some(allowedDomains, domain => startsWith(url || targetUrl, domain));
+      const isAllowedDomain = some(allowedDomains, (domain) => startsWith(url || targetUrl, domain));
       const shouldRenderAsLink = this.props.renderAsLink || !isAllowedDomain;
 
       return (
@@ -179,13 +180,15 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
                   )}
                 </>
               ) : null
-            }>
+            }
+          >
             <Link
               href={url || this.getUrl()}
               className={className}
               rel="noopener noreferrer"
               target="_blank"
-              onClick={shouldRenderAsLink ? () => {} : this.openDrawer}>
+              onClick={shouldRenderAsLink ? () => {} : this.openDrawer}
+            >
               {this.props.children}
             </Link>
           </Tooltip>
@@ -196,7 +199,8 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
             visible={this.state.visible}
             className={cx("help-drawer", drawerClassName)}
             destroyOnClose
-            width={400}>
+            width={400}
+          >
             <div className="drawer-wrapper">
               <div className="drawer-menu">
                 {url && (
