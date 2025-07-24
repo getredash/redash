@@ -45,7 +45,7 @@ TRINO_TYPES_MAPPING = {
 
 class Trino(BaseQueryRunner):
     noop_query = "SELECT 1"
-    should_annotate_query = False
+    should_annotate_query = True
 
     @classmethod
     def configuration_schema(cls):
