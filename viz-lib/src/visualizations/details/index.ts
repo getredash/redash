@@ -10,6 +10,6 @@ export default {
     ...options,
   }),
   Renderer: DetailsRenderer,
-  defaultColumns: 2,
+  defaultColumns: 4,
   defaultRows: 2,
 };
