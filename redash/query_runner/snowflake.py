@@ -45,6 +45,7 @@ class Snowflake(BaseSQLQueryRunner):
                 "account": {"type": "string"},
                 "user": {"type": "string"},
                 "password": {"type": "string"},
+                "private_key_File": {"type": "string"},
                 "private_key_b64": {"type": "string"},
                 "private_key_pwd": {"type": "string"},
                 "warehouse": {"type": "string"},
@@ -61,6 +62,7 @@ class Snowflake(BaseSQLQueryRunner):
                 "account",
                 "user",
                 "password",
+                "private_key_File",
                 "private_key_b64",
                 "private_key_pwd",
                 "warehouse",
@@ -69,7 +71,7 @@ class Snowflake(BaseSQLQueryRunner):
                 "host",
             ],
             "required": ["user", "account", "database", "warehouse"],
-            "secret": ["password", "private_key_b64", "private_key_pwd"],
+            "secret": ["password", "private_key_File", "private_key_b64", "private_key_pwd"],
             "extra_options": [
                 "host",
             ],
@@ -112,8 +114,8 @@ class Snowflake(BaseSQLQueryRunner):
 
         if self.configuration.__contains__("password"):
             params["password"] = self.configuration["password"]
-        elif self.configuration.__contains__("private_key_b64"):
-            private_key_b64 = self.configuration["private_key_b64"]
+        elif self.configuration.__contains__("private_key_b64") or self.configuration.__contains__("private_key_File"):
+            private_key_b64 = self.configuration.get("private_key_b64") or self.configuration.get("private_key_File")
             private_key_bytes = b64decode(private_key_b64)
             private_key_pwd = self.configuration.get("private_key_pwd")
             private_key_pem = load_pem_private_key(private_key_bytes,private_key_pwd)
