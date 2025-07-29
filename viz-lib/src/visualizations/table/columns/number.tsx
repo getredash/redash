@@ -33,7 +33,7 @@ function Editor({ column, onChange }: Props) {
 }
 
 export default function initNumberColumn(column: any) {
-  const format = createNumberFormatter(column.numberFormat);
+  const format = createNumberFormatter(column.numberFormat, true);
 
   function prepareData(row: any) {
     return {
