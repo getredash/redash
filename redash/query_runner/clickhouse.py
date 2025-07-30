@@ -77,7 +77,11 @@ class ClickHouse(BaseSQLQueryRunner):
         self._url = self._url._replace(netloc="{}:{}".format(self._url.hostname, port))
 
     def _get_tables(self, schema):
-        query = "SELECT database, table, name FROM system.columns WHERE database NOT IN ('system')"
+        query = """
+        SELECT database, table, name
+        FROM system.columns
+        WHERE database NOT IN ('system', 'information_schema', 'INFORMATION_SCHEMA')
+        """
 
         results, error = self.run_query(query, None)
 
