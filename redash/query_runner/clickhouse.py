@@ -78,7 +78,7 @@ class ClickHouse(BaseSQLQueryRunner):
 
     def _get_tables(self, schema):
         query = """
-        SELECT database, table, name
+        SELECT database, table, name, type as data_type
         FROM system.columns
         WHERE database NOT IN ('system', 'information_schema', 'INFORMATION_SCHEMA')
         """
@@ -94,7 +94,7 @@ class ClickHouse(BaseSQLQueryRunner):
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
 
-            schema[table_name]["columns"].append(row["name"])
+            schema[table_name]["columns"].append({"name": row["name"], "type": row["data_type"]})
 
         return list(schema.values())
 
