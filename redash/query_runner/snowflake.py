@@ -108,7 +108,7 @@ class Snowflake(BaseSQLQueryRunner):
             "account": account,
             "region": region,
             "host": host,
-            "application": "Redash/{} (Snowflake)".format(__version__.split("-")[0])
+            "application": "Redash/{} (Snowflake)".format(__version__.split("-")[0]),
         }
 
         if self.configuration.get("password"):
@@ -120,7 +120,7 @@ class Snowflake(BaseSQLQueryRunner):
                 private_key_pwd = self.configuration.get("private_key_pwd").encode()
             else:
                 private_key_pwd = None
-            private_key_pem = load_pem_private_key(private_key_bytes,private_key_pwd)
+            private_key_pem = load_pem_private_key(private_key_bytes, private_key_pwd)
             params["private_key"] = private_key_pem
         else:
             raise Exception("Neither password nor private_key_b64 is set.")
