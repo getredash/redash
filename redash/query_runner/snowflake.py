@@ -7,6 +7,8 @@ except ImportError:
     enabled = False
 
 
+from base64 import b64decode
+
 from redash import __version__
 from redash.query_runner import (
     TYPE_BOOLEAN,
@@ -18,7 +20,6 @@ from redash.query_runner import (
     BaseSQLQueryRunner,
     register,
 )
-from base64 import b64decode
 
 TYPES_MAP = {
     0: TYPE_INTEGER,
@@ -117,7 +118,7 @@ class Snowflake(BaseSQLQueryRunner):
             private_key_bytes = b64decode(private_key_b64)
             if self.configuration.get("private_key_pwd"):
                 private_key_pwd = self.configuration.get("private_key_pwd").encode()
-            else: 
+            else:
                 private_key_pwd = None
             private_key_pem = load_pem_private_key(private_key_bytes,private_key_pwd)
             params["private_key"] = private_key_pem
