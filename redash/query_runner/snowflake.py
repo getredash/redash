@@ -46,7 +46,6 @@ class Snowflake(BaseSQLQueryRunner):
                 "user": {"type": "string"},
                 "password": {"type": "string"},
                 "private_key_File": {"type": "string"},
-                "private_key_b64": {"type": "string"},
                 "private_key_pwd": {"type": "string"},
                 "warehouse": {"type": "string"},
                 "database": {"type": "string"},
@@ -63,7 +62,6 @@ class Snowflake(BaseSQLQueryRunner):
                 "user",
                 "password",
                 "private_key_File",
-                "private_key_b64",
                 "private_key_pwd",
                 "warehouse",
                 "database",
@@ -71,7 +69,7 @@ class Snowflake(BaseSQLQueryRunner):
                 "host",
             ],
             "required": ["user", "account", "database", "warehouse"],
-            "secret": ["password", "private_key_File", "private_key_b64", "private_key_pwd"],
+            "secret": ["password", "private_key_File", "private_key_pwd"],
             "extra_options": [
                 "host",
             ],
@@ -96,7 +94,7 @@ class Snowflake(BaseSQLQueryRunner):
         if region == "us-west":
             region = None
 
-        if self.configuration.__contains__("host"):
+        if self.configuration.get("host"):
             host = self.configuration.get("host")
         else:
             if region:
@@ -112,12 +110,12 @@ class Snowflake(BaseSQLQueryRunner):
             "application": "Redash/{} (Snowflake)".format(__version__.split("-")[0])
         }
 
-        if self.configuration.__contains__("password"):
+        if self.configuration.get("password"):
             params["password"] = self.configuration["password"]
-        elif self.configuration.__contains__("private_key_b64") or self.configuration.__contains__("private_key_File"):
-            private_key_b64 = self.configuration.get("private_key_b64") or self.configuration.get("private_key_File")
+        elif self.configuration.get("private_key_File"):
+            private_key_b64 = self.configuration.get("private_key_File")
             private_key_bytes = b64decode(private_key_b64)
-            private_key_pwd = self.configuration.get("private_key_pwd")
+            private_key_pwd = self.configuration.get("private_key_pwd") or None
             private_key_pem = load_pem_private_key(private_key_bytes,private_key_pwd)
             params["private_key"] = private_key_pem
         else:
