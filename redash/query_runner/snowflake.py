@@ -115,7 +115,10 @@ class Snowflake(BaseSQLQueryRunner):
         elif self.configuration.get("private_key_File"):
             private_key_b64 = self.configuration.get("private_key_File")
             private_key_bytes = b64decode(private_key_b64)
-            private_key_pwd = self.configuration.get("private_key_pwd") or None
+            if self.configuration.get("private_key_pwd"):
+                private_key_pwd = self.configuration.get("private_key_pwd").encode()
+            else: 
+                private_key_pwd = None
             private_key_pem = load_pem_private_key(private_key_bytes,private_key_pwd)
             params["private_key"] = private_key_pem
         else:
