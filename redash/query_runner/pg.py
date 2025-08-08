@@ -5,6 +5,7 @@ from base64 import b64decode
 from tempfile import NamedTemporaryFile
 from uuid import uuid4
 
+import boto3
 import psycopg2
 from psycopg2.extras import Range
 
@@ -22,13 +23,6 @@ from redash.query_runner import (
 )
 
 logger = logging.getLogger(__name__)
-
-try:
-    import boto3
-
-    IAM_ENABLED = True
-except ImportError:
-    IAM_ENABLED = False
 
 types_map = {
     20: TYPE_INTEGER,
@@ -167,6 +161,8 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "sslrootcertFile": {"type": "string", "title": "SSL Root Certificate"},
                 "sslcertFile": {"type": "string", "title": "SSL Client Certificate"},
                 "sslkeyFile": {"type": "string", "title": "SSL Client Key"},
+                "iamAuth": {"type": "boolean", "title": "IAM authentication"},
+                "awsRegion": {"type": "string", "title": "AWS Region"},
             },
             "order": ["host", "port", "user", "password"],
             "required": ["dbname"],
@@ -176,6 +172,8 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "sslrootcertFile",
                 "sslcertFile",
                 "sslkeyFile",
+                "iamAuth",
+                "awsRegion",
             ],
         }
 
@@ -251,11 +249,27 @@ class PostgreSQL(BaseSQLQueryRunner):
 
     def _get_connection(self):
         self.ssl_config = _get_ssl_config(self.configuration)
+
+        user = self.configuration.get("user")
+        password = self.configuration.get("password")
+        host = self.configuration.get("host")
+        port = self.configuration.get("port")
+
+        if self.configuration.get("iamAuth", False):
+            region_name = self.configuration.get("awsRegion")
+            rds_client = boto3.client("rds", region_name=region_name)
+            auth_token = rds_client.generate_db_auth_token(
+                DBHostname=host,
+                Port=port,
+                DBUsername=user,
+            )
+            password = auth_token
+
         connection = psycopg2.connect(
-            user=self.configuration.get("user"),
-            password=self.configuration.get("password"),
-            host=self.configuration.get("host"),
-            port=self.configuration.get("port"),
+            user=user,
+            password=password,
+            host=host,
+            port=port,
             dbname=self.configuration.get("dbname"),
             async_=True,
             **self.ssl_config,
@@ -421,7 +435,7 @@ class RedshiftIAM(Redshift):
 
     @classmethod
     def enabled(cls):
-        return IAM_ENABLED
+        return True
 
     def _login_method_selection(self):
         if self.configuration.get("rolename"):
