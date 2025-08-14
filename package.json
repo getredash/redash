@@ -55,7 +55,7 @@
     "d3": "^3.5.17",
     "debug": "^3.2.7",
     "dompurify": "^2.0.17",
-    "elliptic": "^6.6.0",
+    "elliptic": "^6.6.1",
     "font-awesome": "^4.7.0",
     "history": "^4.10.1",
     "hoist-non-react-statics": "^3.3.0",
