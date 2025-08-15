@@ -126,26 +126,38 @@ def serialize_query(
     else:
         d["last_modified_by_id"] = query.last_modified_by_id
 
-    if with_stats:
-        if query.latest_query_data is not None:
-            d["retrieved_at"] = query.retrieved_at
-            d["runtime"] = query.runtime
-        else:
-            d["retrieved_at"] = None
-            d["runtime"] = None
-
     if with_visualizations:
         d["visualizations"] = [serialize_visualization(vis, with_query=False) for vis in query.visualizations]
 
-    if getattr(current_user, "db_role", None):
-        # Override the latest_query_data_id for users with a db_role because
-        # they may not actually be able to see that one due to their db_role
-        # and may have one specific to them instead.
+    if with_stats:
+        # If we're serializing queries with stats, we can show last run
+        # data even if it's not specific to the current user's db_role.
+        # The downside is that the latest run may come from another
+        # permission level, but the upside is that we don't need to
+        # fetch latest runs on demand for each query.
+        #
+        # This affects API paths such like:
+        # - /api/queries
+        # - /api/queries/my
+        # - /api/queries/favorites
+        d["retrieved_at"] = query.latest_query_data and query.retrieved_at or None
+        d["runtime"] = query.latest_query_data and query.runtime or None
+    else:
+        # When we're _not_ fetching stats, we care more about the details
+        # of a latest run. This affects API paths like:
+        #
+        # - /api/queries/<query_id>
+        #
+        # Override the latest_query_data_id to use results matching the active
+        # user's db_role. This ensures that users with full row-level access
+        # get complete result sets, and users with restrictions only get result
+        # sets with those same restrictions applied.
         latest_result = models.QueryResult.get_latest(
             data_source=query.data_source,
             query=query.query_hash,
             max_age=-1,
             is_hash=True,
+            db_role=getattr(current_user, "db_role", None),
         )
         d["latest_query_data_id"] = latest_result and latest_result.id or None
 

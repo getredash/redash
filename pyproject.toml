@@ -1,5 +1,7 @@
 [project]
 requires-python = ">=3.8"
+name = "redash"
+version = "25.06.0-dev"
 
 [tool.black]
 target-version = ['py38']

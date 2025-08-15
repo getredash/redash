@@ -56,7 +56,7 @@ error_messages = {
 }
 
 
-def run_query(query, parameters, data_source, query_id, should_apply_auto_limit, max_age=0):
+def run_query(query, parameters, data_source, query_id, should_apply_auto_limit, max_age=0, db_role=None):
     if not data_source:
         return error_messages["no_data_source"]
 
@@ -81,7 +81,7 @@ def run_query(query, parameters, data_source, query_id, should_apply_auto_limit,
     if max_age == 0:
         query_result = None
     else:
-        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
+        query_result = models.QueryResult.get_latest(data_source, query_text, max_age, db_role=db_role)
 
     record_event(
         current_user.org,
@@ -185,6 +185,7 @@ class QueryResultListResource(BaseResource):
             query_id,
             should_apply_auto_limit,
             max_age,
+            db_role=getattr(self.current_user, "db_role", None),
         )
 
 
@@ -274,6 +275,7 @@ class QueryResultResource(BaseResource):
                 query_id,
                 should_apply_auto_limit,
                 max_age,
+                db_role=getattr(self.current_user, "db_role", None),
             )
         else:
             if not query.parameterized.is_safe:

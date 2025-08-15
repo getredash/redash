@@ -13,6 +13,7 @@ x-redash-environment: &redash-environment
   REDASH_HOST: http://localhost:5001
   REDASH_LOG_LEVEL: "INFO"
   REDASH_REDIS_URL: "redis://redis:6379/0"
+  ASSETDB_DATABASE_URI: "postgresql://postgres@postgres/postgres"
   REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
   REDASH_RATELIMIT_ENABLED: "false"
   REDASH_MAIL_DEFAULT_SENDER: "redash@example.com"

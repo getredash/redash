@@ -48,6 +48,17 @@ class QueryResultTest(BaseTestCase):
 
         self.assertEqual(found_query_result.id, qr.id)
 
+    def test_get_latest_returns_results_per_db_role(self):
+        before = utcnow() - datetime.timedelta(seconds=30)
+        qr = self.factory.create_query_result(retrieved_at=before)
+        limited_role_qr = self.factory.create_query_result(db_role='limited')
+
+        default_role_latest_results = models.QueryResult.get_latest(qr.data_source, qr.query_text, 60)
+        limited_role_latest_results = models.QueryResult.get_latest(qr.data_source, qr.query_text, 60, db_role="limited")
+
+        self.assertEqual(qr.id, default_role_latest_results.id)
+        self.assertEqual(limited_role_qr.id, limited_role_latest_results.id)
+
     def test_get_latest_returns_the_last_cached_result_for_negative_ttl(self):
         yesterday = utcnow() + datetime.timedelta(days=-100)
         self.factory.create_query_result(retrieved_at=yesterday)
