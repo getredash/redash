@@ -255,6 +255,12 @@ def number_format_config():
     }
 
 
+def null_value_config():
+    return {
+        "nullValue": current_org.get_setting("null_value"),
+    }
+
+
 def client_config():
     if not current_user.is_api_user() and current_user.is_authenticated:
         client_config = {
@@ -289,6 +295,7 @@ def client_config():
     client_config.update({"basePath": base_href()})
     client_config.update(date_time_format_config())
     client_config.update(number_format_config())
+    client_config.update(null_value_config())
 
     return client_config
 
