@@ -19,6 +19,7 @@ COPY --chown=redash scripts /frontend/scripts
 # Controls whether to instrument code for coverage information
 ARG code_coverage
 ENV BABEL_ENV=${code_coverage:+test}
+ENV GITHUB_PAT=${GITHUB_PAT}
 
 # Avoid issues caused by lags in disk and network I/O speeds when working on top of QEMU emulation for multi-platform image building.
 RUN yarn config set network-timeout 300000
@@ -37,7 +38,7 @@ RUN <<EOF
   fi
 EOF
 
-FROM python:3.10-slim-bookworm
+FROM python:3.11-slim-bookworm
 
 EXPOSE 5000
 
@@ -98,18 +99,18 @@ WORKDIR /app
 ENV POETRY_VERSION=1.8.3
 ENV POETRY_HOME=/etc/poetry
 ENV POETRY_VIRTUALENVS_CREATE=false
+ENV PIP_PREFER_BINARY=1
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
-# Avoid crashes, including corrupted cache artifacts, when building multi-platform images with GitHub Actions.
-RUN /etc/poetry/bin/poetry cache clear pypi --all
-
+# Use BuildKit cache mount for Poetry cache to speed up builds
 COPY pyproject.toml poetry.lock ./
 
-ARG POETRY_OPTIONS="--no-root --no-interaction --no-ansi"
+ARG POETRY_OPTIONS="--no-root --no-ansi --no-interaction"
 # for LDAP authentication, install with `ldap3` group
 # disabled by default due to GPL license conflict
 ARG install_groups="main,all_ds,dev"
-RUN /etc/poetry/bin/poetry install --only $install_groups $POETRY_OPTIONS
+RUN --mount=type=cache,target=/root/.cache/pypoetry \
+    /etc/poetry/bin/poetry install --only $install_groups $POETRY_OPTIONS
 
 COPY --chown=redash . /app
 COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist

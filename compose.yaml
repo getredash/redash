@@ -5,6 +5,8 @@ x-redash-service: &redash-service
     context: .
     args:
       skip_frontend_build: "true"  # set to empty string to build
+    # Enable BuildKit for faster builds with cache mounts
+    dockerfile: Dockerfile
   volumes:
     - .:/app
   env_file:
