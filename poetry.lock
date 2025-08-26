@@ -4078,17 +4078,22 @@ s2repoze = ["paste", "repoze.who", "zope.interface"]
 
 [[package]]
 name = "pystache"
-version = "0.6.0"
+version = "0.6.8"
 description = "Mustache for Python"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.8"
 files = [
-    {file = "pystache-0.6.0.tar.gz", hash = "sha256:93bf92b2149a4c4b58d12142e2c4c6dd5c08d89e4c95afccd4b6efe2ee1d470d"},
+    {file = "pystache-0.6.8-py3-none-any.whl", hash = "sha256:7211e000974a6e06bce2d4d5cad8df03bcfffefd367209117376e4527a1c3cb8"},
+    {file = "pystache-0.6.8.tar.gz", hash = "sha256:3707518e6a4d26dd189b07c10c669b1fc17df72684617c327bd3550e7075c72c"},
 ]
+
+[package.dependencies]
+importlib-metadata = {version = ">=4.6", markers = "python_version < \"3.10\""}
 
 [package.extras]
 cov = ["coverage", "coverage_python_version"]
-test = ["nose"]
+doc = ["recommonmark", "sphinx", "sphinx_git", "sphinx_rtd_theme", "sphinxcontrib-apidoc"]
+test = ["pytest", "pytest-cov"]
 
 [[package]]
 name = "pytest"
@@ -5968,4 +5973,4 @@ cffi = ["cffi (>=1.17)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "f4dad4865e7db781922d3ec57a4d2134913165e6837aa021e462a7162d34bd47"
+content-hash = "7f8c1c0b95f15cd19ff65ec69c56a713dcaa294c7d0fb785e24d35d07d2add63"
