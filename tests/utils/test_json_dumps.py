@@ -28,4 +28,4 @@ class TestJsonDumps(BaseTestCase):
         }
         json_data = json_dumps(input_data)
         actual_output_data = json_loads(json_data)
-        self.assertEquals(actual_output_data, expected_output_data)
+        self.assertEqual(actual_output_data, expected_output_data)

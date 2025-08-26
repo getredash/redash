@@ -564,7 +564,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             db.session.query(tag_column, usage_count)
             .group_by(tag_column)
             .filter(Query.id.in_(queries.options(load_only("id"))))
-            .order_by(usage_count.desc())
+            .order_by(tag_column)
         )
         return query
 
@@ -1137,7 +1137,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             db.session.query(tag_column, usage_count)
             .group_by(tag_column)
             .filter(Dashboard.id.in_(dashboards.options(load_only("id"))))
-            .order_by(usage_count.desc())
+            .order_by(tag_column)
         )
         return query
 

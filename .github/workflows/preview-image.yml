@@ -100,8 +100,8 @@ jobs:
         if: ${{ github.event.inputs.dockerRepository == 'preview' || !github.event.workflow_run }}
         with:
           tags: |
-            ${{ vars.DOCKER_USER }}/redash
-            ${{ vars.DOCKER_USER }}/preview
+            ${{ vars.DOCKER_REPOSITORY }}/redash
+            ${{ vars.DOCKER_REPOSITORY }}/preview
           context: .
           build-args: |
             test_all_deps=true
@@ -117,11 +117,11 @@ jobs:
         if: ${{ github.event.inputs.dockerRepository == 'redash' }}
         with:
           tags: |
-            ${{ vars.DOCKER_USER }}/redash:${{ steps.version.outputs.VERSION_TAG }}
+            ${{ vars.DOCKER_REPOSITORY }}/redash:${{ steps.version.outputs.VERSION_TAG }}
           context: .
           build-args: |
             test_all_deps=true
-          outputs: type=image,push-by-digest=true,push=true
+          outputs: type=image,push-by-digest=false,push=true
           cache-from: type=gha,scope=${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
         env:

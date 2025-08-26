@@ -15,7 +15,7 @@ body {
   display: table;
   width: 100%;
   padding: 10px;
-  height: calc(100vh - 116px);
+  height: calc(100% - 116px);
 }
 
 @media (min-width: 992px) {
