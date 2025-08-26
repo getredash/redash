@@ -5,12 +5,14 @@ x-redash-service: &redash-service
     context: .
     args:
       skip_frontend_build: "true"  # set to empty string to build
+    # Enable BuildKit for faster builds with cache mounts
+    dockerfile: Dockerfile
   volumes:
     - .:/app
   env_file:
     - .env
 x-redash-environment: &redash-environment
-  REDASH_HOST: http://localhost:5001
+  REDASH_HOST: http://localhost:5000
   REDASH_LOG_LEVEL: "INFO"
   REDASH_REDIS_URL: "redis://redis:6379/0"
   REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
@@ -29,7 +31,7 @@ services:
       - postgres
       - redis
     ports:
-      - "5001:5000"
+      - "5000:5000"
       - "5678:5678"
     environment:
       <<: *redash-environment

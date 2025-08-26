@@ -12,6 +12,8 @@ os.environ["RQ_REDIS_URL"] = os.environ.get("REDASH_REDIS_URL", "redis://localho
 os.environ["REDASH_GOOGLE_CLIENT_ID"] = "dummy"
 os.environ["REDASH_GOOGLE_CLIENT_SECRET"] = "dummy"
 os.environ["REDASH_MULTI_ORG"] = "true"
+# Force relative URLs in tests by setting empty host
+os.environ["REDASH_HOST"] = ""
 
 # Make sure rate limit is enabled
 os.environ["REDASH_RATELIMIT_ENABLED"] = "true"
