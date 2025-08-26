@@ -1,4 +1,4 @@
-FROM node:20-bookworm AS frontend-builder
+FROM node:20-trixie AS frontend-builder
 
 RUN npm install --global --force yarn@1.22.22
 
@@ -38,7 +38,7 @@ RUN <<EOF
   fi
 EOF
 
-FROM python:3.11-slim-bookworm
+FROM python:3.11-slim-trixie
 
 EXPOSE 5000
 
