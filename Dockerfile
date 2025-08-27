@@ -43,8 +43,8 @@ EXPOSE 5000
 
 RUN useradd --create-home redash
 
-# Add Debian trixie-proposed-updates repository
-RUN echo "deb http://deb.debian.org/debian trixie-proposed-updates main" > /etc/apt/sources.list.d/trixie-proposed-updates.list
+# OPTIONAL: Add Debian trixie-proposed-updates repository to fix more recent vulnerabilities
+# RUN echo "deb http://deb.debian.org/debian trixie-proposed-updates main" > /etc/apt/sources.list.d/trixie-proposed-updates.list
 
 # Ubuntu packages
 RUN apt-get update && \
