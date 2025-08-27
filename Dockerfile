@@ -19,7 +19,6 @@ COPY --chown=redash scripts /frontend/scripts
 # Controls whether to instrument code for coverage information
 ARG code_coverage
 ENV BABEL_ENV=${code_coverage:+test}
-ENV GITHUB_PAT=${GITHUB_PAT}
 
 # Avoid issues caused by lags in disk and network I/O speeds when working on top of QEMU emulation for multi-platform image building.
 RUN yarn config set network-timeout 300000
