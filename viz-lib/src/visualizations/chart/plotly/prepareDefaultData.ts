@@ -26,7 +26,9 @@ function getHoverInfoPattern(options: any) {
 
 function prepareBarSeries(series: any, options: any, additionalOptions: any) {
   series.type = "bar";
-  series.offsetgroup = toString(additionalOptions.index);
+  if (!options.series.stacking) {
+    series.offsetgroup = toString(additionalOptions.index);
+  }
   if (options.showDataLabels) {
     series.textposition = "inside";
   } else {
