@@ -7,10 +7,10 @@ body #application-root {
   flex-direction: row;
   justify-content: stretch;
   padding-bottom: 0 !important;
-  height: 100vh;
+  height: 100%;
 
   .application-layout-side-menu {
-    height: 100vh;
+    height: 100%;
     position: relative;
 
     @media @mobileBreakpoint {
@@ -45,6 +45,10 @@ body #application-root {
       margin-top: @topMenuHeight; // compensate for app header fixed position
     }
   }
+}
+
+body > section {
+  height: 100%;
 }
 
 body.fixed-layout #application-root {

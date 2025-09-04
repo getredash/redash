@@ -8,7 +8,6 @@ import updateAxes from "./updateAxes";
 import updateChartSize from "./updateChartSize";
 import { prepareCustomChartData, createCustomChartRenderer } from "./customChartUtils";
 
-// @ts-expect-error ts-migrate(2339) FIXME: Property 'setPlotConfig' does not exist on type 't... Remove this comment to see the full error message
 Plotly.setPlotConfig({
   modeBarButtonsToRemove: ["sendDataToCloud"],
   modeBarButtonsToAdd: ["togglespikelines", "v1hovermode"],
