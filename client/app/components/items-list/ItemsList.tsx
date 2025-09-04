@@ -10,6 +10,10 @@ export interface PaginationOptions {
   itemsPerPage?: number;
 }
 
+export interface SearchOptions {
+  isServerSideFTS?: boolean;
+}
+
 export interface Controller<I, P = any> {
   params: P; // TODO: Find out what params is (except merging with props)
 
@@ -18,7 +22,7 @@ export interface Controller<I, P = any> {
 
   // search
   searchTerm?: string;
-  updateSearch: (searchTerm: string) => void;
+  updateSearch: (searchTerm: string, searchOptions?: SearchOptions) => void;
 
   // tags
   selectedTags: string[];
