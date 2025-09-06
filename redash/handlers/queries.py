@@ -44,6 +44,8 @@ order_map = {
     "-executed_at": "-query_results-retrieved_at",
     "created_by": "users-name",
     "-created_by": "-users-name",
+    "starred_at": "favorites-created_at",
+    "-starred_at": "-favorites-created_at",
 }
 
 order_results = partial(_order_results, default_order="-created_at", allowed_orders=order_map)

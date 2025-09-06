@@ -108,12 +108,19 @@ function QueriesList({ controller }) {
     };
   }, []);
 
+  let usedListColumns = listColumns;
+  if (controller.params.currentPage === "favorites") {
+    usedListColumns = [
+      ...usedListColumns,
+      Columns.dateTime.sortable({ title: "Starred At", field: "starred_at", width: "1%" }),
+    ];
+  }
   const {
     areExtraActionsAvailable,
     listColumns: tableColumns,
     Component: ExtraActionsComponent,
     selectedItems,
-  } = useItemsListExtraActions(controller, listColumns, QueriesListExtraActions);
+  } = useItemsListExtraActions(controller, usedListColumns, QueriesListExtraActions);
 
   return (
     <div className="page-queries-list">
@@ -200,7 +207,7 @@ const QueriesListPage = itemsList(
         return (item) => new Query(item);
       },
     }),
-  () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
+  ({ ...props }) => new UrlStateStorage({ orderByField: props.orderByField ?? "created_at", orderByReverse: true })
 );
 
 routes.register(
@@ -216,7 +223,7 @@ routes.register(
   routeWithUserSession({
     path: "/queries/favorites",
     title: "Favorite Queries",
-    render: (pageProps) => <QueriesListPage {...pageProps} currentPage="favorites" />,
+    render: (pageProps) => <QueriesListPage {...pageProps} currentPage="favorites" orderByField="starred_at" />,
   })
 );
 routes.register(
