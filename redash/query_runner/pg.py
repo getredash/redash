@@ -205,24 +205,15 @@ class PostgreSQL(BaseSQLQueryRunner):
 
     def _get_tables(self, schema):
         """
-        relkind constants per https://www.postgresql.org/docs/10/static/catalog-pg-class.html
-        r = regular table
-        v = view
+        relkind constants from https://www.postgresql.org/docs/current/catalog-pg-class.html
         m = materialized view
-        f = foreign table
-        p = partitioned table (new in 10)
-        ---
-        i = index
-        S = sequence
-        t = TOAST table
-        c = composite type
         """
 
         query = """
-        SELECT s.nspname as table_schema,
-               c.relname as table_name,
-               a.attname as column_name,
-               null as data_type
+        SELECT s.nspname AS table_schema,
+               c.relname AS table_name,
+               a.attname AS column_name,
+               NULL AS data_type
         FROM pg_class c
         JOIN pg_namespace s
         ON c.relnamespace = s.oid
@@ -231,7 +222,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         ON a.attrelid = c.oid
         AND a.attnum > 0
         AND NOT a.attisdropped
-        WHERE c.relkind IN ('m', 'f', 'p')
+        WHERE c.relkind = 'm'
         AND has_table_privilege(s.nspname || '.' || c.relname, 'select')
         AND has_schema_privilege(s.nspname, 'usage')
 
@@ -243,6 +234,8 @@ class PostgreSQL(BaseSQLQueryRunner):
                data_type
         FROM information_schema.columns
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+        AND has_table_privilege(table_schema || '.' || table_name, 'select')
+        AND has_schema_privilege(table_schema, 'usage')
         """
 
         self._get_definitions(schema, query)
