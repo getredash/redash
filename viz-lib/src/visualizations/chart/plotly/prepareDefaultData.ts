@@ -96,7 +96,10 @@ function prepareSeries(series: any, options: any, numSeries: any, additionalOpti
   // For bubble/scatter charts `y` may be any (similar to `x`) - numeric is only bubble size;
   // for other types `y` is always number
   const cleanYValue = includes(["bubble", "scatter"], seriesOptions.type)
-    ? normalizeValue
+    ? (v: any, axixType: any) => {
+        v = normalizeValue(v, axixType);
+        return includes(["scatter"], seriesOptions.type) && options.missingValuesAsZero && isNil(v) ? 0.0 : v;
+      }
     : (v: any) => {
         v = cleanNumber(v);
         return options.missingValuesAsZero && isNil(v) ? 0.0 : v;
