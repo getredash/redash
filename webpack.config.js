@@ -151,7 +151,10 @@ const config = {
         use: ["source-map-loader"],
         resolve: {
           fullySpecified: false
-        }
+        },
+        exclude: [
+          /node_modules\/@plotly\/mapbox-gl/,
+        ],
       },
       {
         test: /\.(t|j)sx?$/,
