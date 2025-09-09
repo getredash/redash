@@ -26,7 +26,9 @@ function getHoverInfoPattern(options: any) {
 
 function prepareBarSeries(series: any, options: any, additionalOptions: any) {
   series.type = "bar";
-  series.offsetgroup = toString(additionalOptions.index);
+  if (!options.series.stacking) {
+    series.offsetgroup = toString(additionalOptions.index);
+  }
   if (options.showDataLabels) {
     series.textposition = "inside";
   } else {
@@ -94,7 +96,10 @@ function prepareSeries(series: any, options: any, numSeries: any, additionalOpti
   // For bubble/scatter charts `y` may be any (similar to `x`) - numeric is only bubble size;
   // for other types `y` is always number
   const cleanYValue = includes(["bubble", "scatter"], seriesOptions.type)
-    ? normalizeValue
+    ? (v: any, axixType: any) => {
+        v = normalizeValue(v, axixType);
+        return includes(["scatter"], seriesOptions.type) && options.missingValuesAsZero && isNil(v) ? 0.0 : v;
+      }
     : (v: any) => {
         v = cleanNumber(v);
         return options.missingValuesAsZero && isNil(v) ? 0.0 : v;
