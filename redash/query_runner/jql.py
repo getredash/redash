@@ -183,6 +183,9 @@ class JiraJQL(BaseHTTPQueryRunner):
         else:
             query["maxResults"] = query.get("maxResults", 1000)
 
+        if "fields" not in query:
+            query["fields"] = "*all"
+
         response, error = self.get_response(jql_url, params=query)
         if error is not None:
             return None, error
