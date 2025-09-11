@@ -65,7 +65,9 @@ const location = {
       }
     }
     if (replace) {
-      history.replace(newLocation);
+      if (newLocation.pathname !== location.path || newLocation.search !== qs.stringify(location.search) || newLocation.hash !== location.hash) {
+        history.replace(newLocation);
+      }
     } else {
       history.push(newLocation);
     }
