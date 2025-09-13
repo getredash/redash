@@ -98,7 +98,7 @@ export interface ItemsListWrappedComponentProps<I, P = any> {
 export function wrap<I, P = any>(
   WrappedComponent: React.ComponentType<ItemsListWrappedComponentProps<I>>,
   createItemsSource: () => ItemsSource,
-  createStateStorage: () => StateStorage
+  createStateStorage: ( { ...props }) => StateStorage
 ) {
   class ItemsListWrapper extends React.Component<ItemsListWrapperProps, ItemsListWrapperState<I, P>> {
     private _itemsSource: ItemsSource;
@@ -121,7 +121,7 @@ export function wrap<I, P = any>(
     constructor(props: ItemsListWrapperProps) {
       super(props);
 
-      const stateStorage = createStateStorage();
+      const stateStorage = createStateStorage({ ...props });
       const itemsSource = createItemsSource();
       this._itemsSource = itemsSource;
 
