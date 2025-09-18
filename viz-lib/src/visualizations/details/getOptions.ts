@@ -15,7 +15,7 @@ export default function getOptions(options: any, data: any) {
 
   const { columns } = data;
   options = { ...DEFAULT_OPTIONS, ...options };
-  options.columns = _.map(getColumnsOptions(columns, options.columns), col => ({
+  options.columns = _.map(getColumnsOptions(columns, options.columns, { alignContent: "left" }), col => ({
     ...getDefaultFormatOptions(col),
     ...col,
   }));

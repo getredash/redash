@@ -21,7 +21,7 @@ describe("Visualizations -> Details -> getOptions", () => {
         type: "integer",
         displayAs: "number",
         visible: true,
-        alignContent: "right",
+        alignContent: "left",
         title: "id",
         description: "",
         allowHTML: false,
@@ -77,11 +77,11 @@ describe("Visualizations -> Details -> getOptions", () => {
       return acc;
     }, {} as any);
 
-    expect(columnsByName.id.alignContent).toBe("right");
+    expect(columnsByName.id.alignContent).toBe("left");
     expect(columnsByName.name.alignContent).toBe("left");
-    expect(columnsByName.created_at.alignContent).toBe("right");
-    expect(columnsByName.is_active.alignContent).toBe("right");
-    expect(columnsByName.score.alignContent).toBe("right");
+    expect(columnsByName.created_at.alignContent).toBe("left");
+    expect(columnsByName.is_active.alignContent).toBe("left");
+    expect(columnsByName.score.alignContent).toBe("left");
   });
 
   test("Handles column name type suffixes", () => {
