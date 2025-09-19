@@ -7,7 +7,7 @@ export default function ColumnsSettings({ options, onOptionsChange, data }: any)
     <SharedColumnsSettings
       options={options}
       onOptionsChange={onOptionsChange}
-      variant="table"
+      variant="details"
     />
   );
 }

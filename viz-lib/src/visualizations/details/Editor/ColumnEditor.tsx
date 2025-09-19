@@ -8,7 +8,6 @@ type OwnProps = {
     visible?: boolean;
     alignContent?: "left" | "center" | "right";
     displayAs?: any;
-    allowSearch?: boolean;
     description?: string;
   };
   onChange?: (...args: any[]) => any;
@@ -21,12 +20,12 @@ export default function ColumnEditor({ column, onChange }: Props) {
     <SharedColumnEditor
       column={column}
       onChange={onChange}
-      variant="table"
-      showSearch={true}
+      variant="details"
+      showSearch={false}
     />
   );
 }
 
 ColumnEditor.defaultProps = {
-  onChange: () => {},
+  onChange: (...args: any[]) => {},
 };
