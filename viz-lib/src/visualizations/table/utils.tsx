@@ -2,7 +2,7 @@ import { isNil, map, get, filter, each, sortBy, some, findIndex, toString } from
 import React from "react";
 import cx from "classnames";
 import Tooltip from "antd/lib/tooltip";
-import ColumnTypes from "./columns";
+import ColumnTypes from "../shared/columns";
 
 function nextOrderByDirection(direction: any) {
   switch (direction) {

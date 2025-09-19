@@ -5,7 +5,7 @@ import Descriptions from "antd/lib/descriptions";
 import Pagination from "antd/lib/pagination";
 import Tooltip from "antd/lib/tooltip";
 
-import ColumnTypes from "../table/columns";
+import ColumnTypes from "../shared/columns";
 import "./details.less";
 
 
