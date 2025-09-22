@@ -73,15 +73,16 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
             map(item.columns, column => {
               const columnName = get(column, "name");
               const columnType = get(column, "type");
+              const columnDescription = get(column, "description");
               return (
                 <Tooltip
-                  title="Insert column name into query text"
+                  title={"Insert column name into query text" + (columnDescription ? "\n" + columnDescription : "")}
                   mouseEnterDelay={0}
                   mouseLeaveDelay={0}
                   placement="rightTop">
                   <PlainButton key={columnName} className="table-open-item" onClick={e => handleSelect(e, columnName)}>
                     <div>
-                      {columnName} {columnType && <span className="column-type">{columnType}</span>}
+                      {columnName} {columnType && <span className="column-type">{columnType}</span>}{columnDescription && <span className="column-description"> - {columnDescription}</span>}
                     </div>
 
                     <div className="copy-to-editor">
