@@ -59,8 +59,9 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
           mouseEnterDelay={0}
           mouseLeaveDelay={0}
           placement="topRight"
-          arrowPointAtCenter>
-          <PlainButton className="copy-to-editor" onClick={e => handleSelect(e, item.name)}>
+          arrowPointAtCenter
+        >
+          <PlainButton className="copy-to-editor" onClick={(e) => handleSelect(e, item.name)}>
             <i className="fa fa-angle-double-right" aria-hidden="true" />
           </PlainButton>
         </Tooltip>
@@ -70,7 +71,7 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
           {item.loading ? (
             <div className="table-open">Loading...</div>
           ) : (
-            map(item.columns, column => {
+            map(item.columns, (column) => {
               const columnName = get(column, "name");
               const columnType = get(column, "type");
               const columnDescription = get(column, "description");
@@ -79,10 +80,16 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
                   title={"Insert column name into query text" + (columnDescription ? "\n" + columnDescription : "")}
                   mouseEnterDelay={0}
                   mouseLeaveDelay={0}
-                  placement="rightTop">
-                  <PlainButton key={columnName} className="table-open-item" onClick={e => handleSelect(e, columnName)}>
+                  placement="rightTop"
+                >
+                  <PlainButton
+                    key={columnName}
+                    className="table-open-item"
+                    onClick={(e) => handleSelect(e, columnName)}
+                  >
                     <div>
-                      {columnName} {columnType && <span className="column-type">{columnType}</span>}{columnDescription && <span className="column-description"> - {columnDescription}</span>}
+                      {columnName} {columnType && <span className="column-type">{columnType}</span>}
+                      {columnDescription && <span className="column-description"> - {columnDescription}</span>}
                     </div>
 
                     <div className="copy-to-editor">
@@ -169,7 +176,7 @@ export function SchemaList({ loading, schema, expandedFlags, onTableExpand, onIt
 }
 
 export function applyFilterOnSchema(schema, filterString) {
-  const filters = filter(filterString.toLowerCase().split(/\s+/), s => s.length > 0);
+  const filters = filter(filterString.toLowerCase().split(/\s+/), (s) => s.length > 0);
 
   // Empty string: return original schema
   if (filters.length === 0) {
@@ -182,9 +189,9 @@ export function applyFilterOnSchema(schema, filterString) {
     const columnFilter = filters[0];
     return filter(
       schema,
-      item =>
+      (item) =>
         includes(item.name.toLowerCase(), nameFilter) ||
-        some(item.columns, column => includes(get(column, "name").toLowerCase(), columnFilter))
+        some(item.columns, (column) => includes(get(column, "name").toLowerCase(), columnFilter))
     );
   }
 
@@ -192,11 +199,11 @@ export function applyFilterOnSchema(schema, filterString) {
   const nameFilter = filters[0];
   const columnFilter = filters[1];
   return filter(
-    map(schema, item => {
+    map(schema, (item) => {
       if (includes(item.name.toLowerCase(), nameFilter)) {
         item = {
           ...item,
-          columns: filter(item.columns, column => includes(get(column, "name").toLowerCase(), columnFilter)),
+          columns: filter(item.columns, (column) => includes(get(column, "name").toLowerCase(), columnFilter)),
         };
         return item.columns.length > 0 ? item : null;
       }
@@ -244,7 +251,7 @@ export default function SchemaBrowser({
           placeholder="Search schema..."
           aria-label="Search schema"
           disabled={schema.length === 0}
-          onChange={event => handleFilterChange(event.target.value)}
+          onChange={(event) => handleFilterChange(event.target.value)}
         />
 
         <Tooltip title="Refresh Schema">
