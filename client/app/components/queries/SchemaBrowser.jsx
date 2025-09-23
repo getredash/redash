@@ -89,7 +89,6 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
                   >
                     <div>
                       {columnName} {columnType && <span className="column-type">{columnType}</span>}
-                      {columnDescription && <span className="column-description"> - {columnDescription}</span>}
                     </div>
 
                     <div className="copy-to-editor">
