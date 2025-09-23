@@ -220,11 +220,12 @@ class BigQuery(BaseSQLQueryRunner):
         job_data = self._get_job_data(query)
         insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
         self.current_job_id = insert_response["jobReference"]["jobId"]
+        self.current_job_location = insert_response["jobReference"]["location"]
         current_row = 0
         query_reply = _get_query_results(
             jobs,
             project_id=project_id,
-            location=self._get_location(),
+            location=self.current_job_location,
             job_id=self.current_job_id,
             start_index=current_row,
         )
@@ -241,12 +242,10 @@ class BigQuery(BaseSQLQueryRunner):
 
             query_result_request = {
                 "projectId": project_id,
-                "jobId": query_reply["jobReference"]["jobId"],
+                "jobId": self.current_job_id,
                 "startIndex": current_row,
+                "location": self.current_job_location,
             }
-
-            if self._get_location():
-                query_result_request["location"] = self._get_location()
 
             query_reply = jobs.getQueryResults(**query_result_request).execute()
 
@@ -314,33 +313,41 @@ class BigQuery(BaseSQLQueryRunner):
         WHERE table_schema NOT IN ('information_schema')
         """
 
+        location_dataset_ids = {}
         schema = {}
-        queries = []
         for dataset in datasets:
             dataset_id = dataset["datasetReference"]["datasetId"]
             location = dataset["location"]
             if self._get_location() and location != self._get_location():
                 logger.debug("dataset location is different: %s", location)
                 continue
-            query = query_base.format(dataset_id=dataset_id)
-            queries.append(query)
 
-        query = "\nUNION ALL\n".join(queries)
-        results, error = self.run_query(query, None)
-        if error is not None:
-            self._handle_run_query_error(error)
+            if location not in location_dataset_ids:
+                location_dataset_ids[location] = []
+            location_dataset_ids[location].append(dataset_id)
 
-        for row in results["rows"]:
-            table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
-            if table_name not in schema:
-                schema[table_name] = {"name": table_name, "columns": []}
-            schema[table_name]["columns"].append(
-                {
-                    "name": row["field_path"],
-                    "type": row["data_type"],
-                    "description": row["description"],
-                }
-            )
+        for location, datasets in location_dataset_ids.items():
+            queries = []
+            for dataset_id in datasets:
+                query = query_base.format(dataset_id=dataset_id)
+                queries.append(query)
+
+            query = "\nUNION ALL\n".join(queries)
+            results, error = self.run_query(query, None)
+            if error is not None:
+                self._handle_run_query_error(error)
+
+            for row in results["rows"]:
+                table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
+                if table_name not in schema:
+                    schema[table_name] = {"name": table_name, "columns": []}
+                schema[table_name]["columns"].append(
+                    {
+                        "name": row["field_path"],
+                        "type": row["data_type"],
+                        "description": row["description"],
+                    }
+                )
 
         return list(schema.values())
 
@@ -374,7 +381,7 @@ class BigQuery(BaseSQLQueryRunner):
                 self._get_bigquery_service().jobs().cancel(
                     projectId=self._get_project_id(),
                     jobId=self.current_job_id,
-                    location=self._get_location(),
+                    location=self.current_job_location,
                 ).execute()
 
             raise
