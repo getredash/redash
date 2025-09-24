@@ -156,6 +156,11 @@ class BigQuery(BaseSQLQueryRunner):
             "secret": ["jsonKeyFile"],
         }
 
+    def annotate_query(self, query, metadata):
+        # Remove "Job ID" before annotating the query to avoid cache misses
+        metadata = {k: v for k, v in metadata.items() if k != "Job ID"}
+        return super().annotate_query(query, metadata)
+
     def _get_bigquery_service(self):
         socket.setdefaulttimeout(settings.BIGQUERY_HTTP_TIMEOUT)
 
