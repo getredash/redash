@@ -11,7 +11,7 @@ from redash.query_runner import (
     InterruptException,
     register,
 )
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +96,7 @@ class DuckDB(BaseSQLQueryRunner):
             )
             rows = [dict(zip((col["name"] for col in columns), row)) for row in cursor.fetchall()]
             data = {"columns": columns, "rows": rows}
-            return json_dumps(data), None
+            return data, None
         except duckdb.duckdb.InterruptException:
             raise InterruptException("Query cancelled by user.")
         except Exception as e:
@@ -104,28 +104,33 @@ class DuckDB(BaseSQLQueryRunner):
             return None, str(e)
 
     def get_schema(self, get_stats=False) -> list:
-        query = """
-        SELECT table_schema, table_name, column_name, data_type
-        FROM information_schema.columns
-        WHERE table_schema NOT IN ('information_schema', 'pg_catalog')
-        ORDER BY table_schema, table_name, ordinal_position
+        tables_query = """
+            SELECT table_schema, table_name FROM information_schema.tables
+            WHERE table_schema NOT IN ('information_schema', 'pg_catalog');
         """
-        results, error = self.run_query(query, None)
-        if error is not None:
-            raise Exception(f"Failed to get schema: {error}")
+        tables_results, error = self.run_query(tables_query, None)
+        if error:
+            raise Exception(f"Failed to get tables: {error}")
 
-        results = json_loads(results)
         schema = {}
+        for table_row in tables_results["rows"]:
+            full_table_name = f"{table_row['table_schema']}.{table_row['table_name']}"
+            schema[full_table_name] = {"name": full_table_name, "columns": []}
 
-        for row in results["rows"]:
-            table = f"{row['table_schema']}.{row['table_name']}"
-            if table not in schema:
-                schema[table] = {"name": table, "columns": []}
-            schema[table]["columns"].append({"name": row["column_name"], "type": row["data_type"]})
+            # Run a DESCRIBE query for each table.
+            # It is an N+1 problem but necessary for exctracting struct fields as columns for autocomplete.
+            describe_query = f"DESCRIBE \"{table_row['table_schema']}\".\"{table_row['table_name']}\";"
+            columns_results, error = self.run_query(describe_query, None)
+            if error:
+                logger.warning("Failed to describe table %s: %s", full_table_name, error)
+                continue
 
-            if row["data_type"].startswith("STRUCT"):
-                self._expand_struct(row["table_schema"], row["table_name"], row["column_name"], schema)
-
+            for col_row in columns_results["rows"]:
+                # DESCRIBE returns 'column_name' and 'column_type'
+                schema[full_table_name]["columns"].append(
+                    {"name": col_row["column_name"], "type": col_row["column_type"]}
+                )
+                
         return list(schema.values())
 
     def _expand_struct(self, schema_name, table_name, column_name, schema) -> None:
