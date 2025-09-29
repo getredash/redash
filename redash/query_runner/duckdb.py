@@ -133,24 +133,4 @@ class DuckDB(BaseSQLQueryRunner):
 
         return list(schema.values())
 
-    def _expand_struct(self, schema_name, table_name, column_name, schema) -> None:
-        try:
-            describe_query = f'DESCRIBE "{schema_name}"."{table_name}"'
-            results, error = self.run_query(describe_query, None)
-            if error is not None:
-                return
-            results = json_loads(results)
-
-            for r in results["rows"]:
-                if r["column_name"] == column_name and r["column_type"].startswith("STRUCT"):
-                    fields = r["column_type"][len("STRUCT(") : -1].split(",")
-                    for f in fields:
-                        fname, ftype = f.strip().split(" ")
-                        schema[f"{schema_name}.{table_name}"]["columns"].append(
-                            {"name": f"{column_name}.{fname}", "type": ftype}
-                        )
-        except Exception as e:
-            logger.warning("Failed to expand struct column %s.%s.%s: %s", schema_name, table_name, column_name, e)
-
-
 register(DuckDB)
