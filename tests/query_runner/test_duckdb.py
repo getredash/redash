@@ -20,7 +20,7 @@ class TestDuckDBSchema(TestCase):
             None,
         )
 
-        schema = {}
+        schema: dict = {}
         self.runner._get_tables(schema)
         self.assertIn("main.users", schema)
         self.assertListEqual(
@@ -48,7 +48,7 @@ class TestDuckDBSchema(TestCase):
             None,
         )
 
-        schema = {}
+        schema: dict = {}
         self.runner._get_tables(schema)
 
         self.assertIn("main.events", schema)
@@ -61,7 +61,7 @@ class TestDuckDBSchema(TestCase):
     @patch.object(DuckDB, "run_query")
     def test_error_propagation(self, mock_run_query) -> None:
         mock_run_query.return_value = (None, "boom")
-        schema = {}
+        schema: dict = {}
         with self.assertRaises(Exception) as ctx:
             self.runner._get_tables(schema)
         self.assertIn("boom", str(ctx.exception))

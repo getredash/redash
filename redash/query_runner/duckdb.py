@@ -130,7 +130,7 @@ class DuckDB(BaseSQLQueryRunner):
                 schema[full_table_name]["columns"].append(
                     {"name": col_row["column_name"], "type": col_row["column_type"]}
                 )
-                
+
         return list(schema.values())
 
     def _expand_struct(self, schema_name, table_name, column_name, schema) -> None:
@@ -143,7 +143,7 @@ class DuckDB(BaseSQLQueryRunner):
 
             for r in results["rows"]:
                 if r["column_name"] == column_name and r["column_type"].startswith("STRUCT"):
-                    fields = r["column_type"][len("STRUCT(") : -1].split(",")
+                    fields = r["column_type"][len("STRUCT("): -1].split(",")
                     for f in fields:
                         fname, ftype = f.strip().split(" ")
                         schema[f"{schema_name}.{table_name}"]["columns"].append(
