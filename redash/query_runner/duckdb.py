@@ -11,7 +11,6 @@ from redash.query_runner import (
     InterruptException,
     register,
 )
-from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -92,12 +91,14 @@ class DuckDB(BaseSQLQueryRunner):
             cursor = self.con.cursor()
             cursor.execute(query)
             columns = self.fetch_columns(
-                [(d[0], TYPES_MAP.get(d[1].upper(), TYPE_STRING)) for d in cursor.description]
+                [(d[0], TYPES_MAP.get(d[1].upper(), TYPE_STRING))
+                 for d in cursor.description]
             )
-            rows = [dict(zip((col["name"] for col in columns), row)) for row in cursor.fetchall()]
+            rows = [dict(zip((col["name"] for col in columns), row))
+                    for row in cursor.fetchall()]
             data = {"columns": columns, "rows": rows}
             return data, None
-        except duckdb.duckdb.InterruptException:
+        except duckdb.InterruptException:
             raise InterruptException("Query cancelled by user.")
         except Exception as e:
             logger.exception("Error running query: %s", e)
@@ -117,20 +118,37 @@ class DuckDB(BaseSQLQueryRunner):
             full_table_name = f"{table_row['table_schema']}.{table_row['table_name']}"
             schema[full_table_name] = {"name": full_table_name, "columns": []}
 
-            # Run a DESCRIBE query for each table.
-            # It is an N+1 problem but necessary for exctracting struct fields as columns for autocomplete.
-            describe_query = f"DESCRIBE \"{table_row['table_schema']}\".\"{table_row['table_name']}\";"
+            describe_query = f'DESCRIBE "{table_row["table_schema"]}"."{table_row["table_name"]}";'
             columns_results, error = self.run_query(describe_query, None)
             if error:
-                logger.warning("Failed to describe table %s: %s", full_table_name, error)
+                logger.warning("Failed to describe table %s: %s",
+                               full_table_name, error)
                 continue
 
             for col_row in columns_results["rows"]:
-                # DESCRIBE returns 'column_name' and 'column_type'
+                col_name = col_row["column_name"]
+                col_type = col_row["column_type"]
+
+                # Always include the raw column
                 schema[full_table_name]["columns"].append(
-                    {"name": col_row["column_name"], "type": col_row["column_type"]}
-                )
+                    {"name": col_name, "type": col_type})
+
+                # If STRUCT, expand into pseudo-columns for autocomplete
+                if col_type.startswith("STRUCT(") and col_type.endswith(")"):
+                    inner = col_type[len("STRUCT("): -1]
+                    fields = [f.strip() for f in inner.split(",")]
+                    for f in fields:
+                        try:
+                            fname, ftype = f.split(" ", 1)
+                        except ValueError:
+                            logger.warning(
+                                "Failed to parse struct field %s in column %s.%s", f, full_table_name, col_name
+                            )
+                            continue
+                        schema[full_table_name]["columns"].append(
+                            {"name": f"{col_name}.{fname}", "type": ftype})
 
         return list(schema.values())
+
 
 register(DuckDB)

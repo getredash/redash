@@ -36,33 +36,42 @@ class TestDuckDBSchema(TestCase):
                 "name": "name", "type": "VARCHAR"}],
         )
 
-
     @patch.object(DuckDB, "run_query")
-    def test_struct_column_handling(self, mock_run_query) -> None:
-        # First call: get tables
+    def test_struct_column_expansion(self, mock_run_query) -> None:
+        # First call to run_query -> tables list
         mock_run_query.side_effect = [
             (
                 {"rows": [{"table_schema": "main", "table_name": "events"}]},
                 None,
             ),
-            # Second call: DESCRIBE table
+            # Second call -> DESCRIBE output
             (
                 {
                     "rows": [
-                        {"column_name": "payload",
-                            "column_type": "STRUCT(a INTEGER, b VARCHAR)"}
+                        {
+                            "column_name": "payload",
+                            "column_type": "STRUCT(a INTEGER, b VARCHAR)",
+                        }
                     ]
                 },
                 None,
             ),
         ]
 
-        schema = self.runner.get_schema()
+        schema_list = self.runner.get_schema()
+        self.assertEqual(len(schema_list), 1)
+        schema = schema_list[0]
 
-        self.assertEqual(len(schema), 1)
-        self.assertEqual(schema[0]["name"], "main.events")
-        self.assertEqual(schema[0]["columns"][0]["name"], "payload")
-        self.assertTrue(schema[0]["columns"][0]["type"].startswith("STRUCT"))
+        # Ensure both raw and expanded struct fields are present
+        self.assertIn("main.events", schema["name"])
+        self.assertListEqual(
+            schema["columns"],
+            [
+                {"name": "payload", "type": "STRUCT(a INTEGER, b VARCHAR)"},
+                {"name": "payload.a", "type": "INTEGER"},
+                {"name": "payload.b", "type": "VARCHAR"},
+            ],
+        )
 
     @patch.object(DuckDB, "run_query")
     def test_error_propagation(self, mock_run_query) -> None:
