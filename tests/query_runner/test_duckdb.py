@@ -73,6 +73,32 @@ class TestDuckDBSchema(TestCase):
             ],
         )
 
+    def test_nested_struct_expansion(self) -> None:
+        runner = DuckDB({"dbpath": ":memory:"})
+        runner.con.execute("""
+            CREATE TABLE sample_struct_table (
+                id INTEGER,
+                info STRUCT(
+                    name VARCHAR,
+                    metrics STRUCT(score DOUBLE, rank INTEGER),
+                    tags STRUCT(primary_tag VARCHAR, secondary_tag VARCHAR)
+                )
+            );
+        """)
+
+        schema = runner.get_schema()
+        table = next(t for t in schema if t["name"] == "main.sample_struct_table")
+        colnames = [c["name"] for c in table["columns"]]
+
+        assert "info" in colnames
+        assert "info.name" in colnames
+        assert "info.metrics" in colnames
+        assert "info.metrics.score" in colnames
+        assert "info.metrics.rank" in colnames
+        assert "info.tags.primary_tag" in colnames
+        assert "info.tags.secondary_tag" in colnames
+
+
     @patch.object(DuckDB, "run_query")
     def test_error_propagation(self, mock_run_query) -> None:
         mock_run_query.return_value = (None, "boom")

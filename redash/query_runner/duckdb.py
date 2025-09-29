@@ -126,29 +126,45 @@ class DuckDB(BaseSQLQueryRunner):
                 continue
 
             for col_row in columns_results["rows"]:
-                col_name = col_row["column_name"]
-                col_type = col_row["column_type"]
+                col = {"name": col_row["column_name"], "type": col_row["column_type"]}
+                schema[full_table_name]["columns"].append(col)
 
-                # Always include the raw column
-                schema[full_table_name]["columns"].append(
-                    {"name": col_name, "type": col_type})
-
-                # If STRUCT, expand into pseudo-columns for autocomplete
-                if col_type.startswith("STRUCT(") and col_type.endswith(")"):
-                    inner = col_type[len("STRUCT("): -1]
-                    fields = [f.strip() for f in inner.split(",")]
-                    for f in fields:
-                        try:
-                            fname, ftype = f.split(" ", 1)
-                        except ValueError:
-                            logger.warning(
-                                "Failed to parse struct field %s in column %s.%s", f, full_table_name, col_name
-                            )
-                            continue
-                        schema[full_table_name]["columns"].append(
-                            {"name": f"{col_name}.{fname}", "type": ftype})
+                if col_row["column_type"].startswith("STRUCT("):
+                    schema[full_table_name]["columns"].extend(
+                        self._expand_struct_fields(col["name"], col_row["column_type"])
+                    )
 
         return list(schema.values())
+
+
+    def _expand_struct_fields(self, base_name: str, struct_type: str) -> list:
+        """Recursively expand STRUCT(...) definitions into pseudo-columns."""
+        fields = []
+        # strip STRUCT( ... )
+        inner = struct_type[len("STRUCT("):-1].strip()
+        # careful: nested structs, so parse comma-separated parts properly
+        depth, current, parts = 0, [], []
+        for c in inner:
+            if c == '(':
+                depth += 1
+            elif c == ')':
+                depth -= 1
+            if c == ',' and depth == 0:
+                parts.append(''.join(current).strip())
+                current = []
+            else:
+                current.append(c)
+        if current:
+            parts.append(''.join(current).strip())
+
+        for part in parts:
+            # each part looks like: "fieldname TYPE"
+            fname, ftype = part.split(" ", 1)
+            colname = f"{base_name}.{fname}"
+            fields.append({"name": colname, "type": ftype})
+            if ftype.startswith("STRUCT("):
+                fields.extend(self._expand_struct_fields(colname, ftype))
+        return fields
 
 
 register(DuckDB)
