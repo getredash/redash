@@ -91,13 +91,12 @@ class TestDuckDBSchema(TestCase):
         colnames = [c["name"] for c in table["columns"]]
 
         assert "info" in colnames
-        assert "info.name" in colnames
+        assert 'info."name"' in colnames
         assert "info.metrics" in colnames
         assert "info.metrics.score" in colnames
         assert "info.metrics.rank" in colnames
         assert "info.tags.primary_tag" in colnames
         assert "info.tags.secondary_tag" in colnames
-
 
     @patch.object(DuckDB, "run_query")
     def test_error_propagation(self, mock_run_query) -> None:
