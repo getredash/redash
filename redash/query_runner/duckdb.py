@@ -83,11 +83,11 @@ class DuckDB(BaseSQLQueryRunner):
             try:
                 if "." in ext:
                     prefix, name = ext.split(".", 1)
-                    if prefix == 'community':
+                    if prefix == "community":
                         self.con.execute(f"INSTALL {name} FROM community")
                         self.con.execute(f"LOAD {name}")
                     else:
-                        raise Exception('Unknown extension prefix.')
+                        raise Exception("Unknown extension prefix.")
                 else:
                     self.con.execute(f"INSTALL {ext}")
                     self.con.execute(f"LOAD {ext}")
@@ -134,36 +134,37 @@ class DuckDB(BaseSQLQueryRunner):
                 continue
 
             for col_row in columns_results["rows"]:
-                col = {"name": col_row["column_name"], "type": col_row["column_type"]}
+                col = {"name": col_row["column_name"],
+                       "type": col_row["column_type"]}
                 schema[full_table_name]["columns"].append(col)
 
                 if col_row["column_type"].startswith("STRUCT("):
                     schema[full_table_name]["columns"].extend(
-                        self._expand_struct_fields(col["name"], col_row["column_type"])
+                        self._expand_struct_fields(
+                            col["name"], col_row["column_type"])
                     )
 
         return list(schema.values())
-
 
     def _expand_struct_fields(self, base_name: str, struct_type: str) -> list:
         """Recursively expand STRUCT(...) definitions into pseudo-columns."""
         fields = []
         # strip STRUCT( ... )
-        inner = struct_type[len("STRUCT("):-1].strip()
+        inner = struct_type[len("STRUCT("): -1].strip()
         # careful: nested structs, so parse comma-separated parts properly
         depth, current, parts = 0, [], []
         for c in inner:
-            if c == '(':
+            if c == "(":
                 depth += 1
-            elif c == ')':
+            elif c == ")":
                 depth -= 1
-            if c == ',' and depth == 0:
-                parts.append(''.join(current).strip())
+            if c == "," and depth == 0:
+                parts.append("".join(current).strip())
                 current = []
             else:
                 current.append(c)
         if current:
-            parts.append(''.join(current).strip())
+            parts.append("".join(current).strip())
 
         for part in parts:
             # each part looks like: "fieldname TYPE"
