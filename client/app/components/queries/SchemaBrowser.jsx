@@ -47,13 +47,22 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
   return (
     <div {...props}>
       <div className="schema-list-item">
-        <PlainButton className="table-name" onClick={onToggle}>
-          <i className="fa fa-table m-r-5" aria-hidden="true" />
-          <strong>
-            <span title={item.name}>{tableDisplayName}</span>
-            {!isNil(item.size) && <span> ({item.size})</span>}
-          </strong>
-        </PlainButton>
+        <Tooltip
+          title={item.description}
+          mouseEnterDelay={0}
+          mouseLeaveDelay={0}
+          placement="rightTop"
+          trigger={item.description ? "hover" : ""}
+          overlayStyle={{ whiteSpace: "pre-line" }}
+        >
+          <PlainButton className="table-name" onClick={onToggle}>
+            <i className="fa fa-table m-r-5" aria-hidden="true" />
+            <strong>
+              <span title={item.name}>{tableDisplayName}</span>
+              {!isNil(item.size) && <span> ({item.size})</span>}
+            </strong>
+          </PlainButton>
+        </Tooltip>
         <Tooltip
           title="Insert table name into query text"
           mouseEnterDelay={0}
