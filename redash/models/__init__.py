@@ -228,7 +228,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     def _sort_schema(self, schema):
         return [
-            {"name": i["name"], "columns": sorted(i["columns"], key=lambda x: x["name"] if isinstance(x, dict) else x)}
+            {**i, "columns": sorted(i["columns"], key=lambda x: x["name"] if isinstance(x, dict) else x)}
             for i in sorted(schema, key=lambda x: x["name"])
         ]
 

@@ -313,6 +313,13 @@ class BigQuery(BaseSQLQueryRunner):
         WHERE table_schema NOT IN ('information_schema')
         """
 
+        table_query_base = """
+        SELECT table_schema, table_name, JSON_VALUE(option_value) as table_description
+        FROM `{dataset_id}`.INFORMATION_SCHEMA.TABLE_OPTIONS
+        WHERE table_schema NOT IN ('information_schema')
+        AND option_name = 'description'
+        """
+
         location_dataset_ids = {}
         schema = {}
         for dataset in datasets:
@@ -348,6 +355,23 @@ class BigQuery(BaseSQLQueryRunner):
                         "description": row["description"],
                     }
                 )
+
+            table_queries = []
+            for dataset_id in datasets:
+                table_query = table_query_base.format(dataset_id=dataset_id)
+                table_queries.append(table_query)
+
+            table_query = "\nUNION ALL\n".join(table_queries)
+            results, error = self.run_query(table_query, None)
+            if error is not None:
+                self._handle_run_query_error(error)
+
+            for row in results["rows"]:
+                table_name = "{0}.{1}".format(row["table_schema"], row["table_name"])
+                if table_name not in schema:
+                    schema[table_name] = {"name": table_name, "columns": []}
+                if "table_description" in row:
+                    schema[table_name]["description"] = row["table_description"]
 
         return list(schema.values())
 
