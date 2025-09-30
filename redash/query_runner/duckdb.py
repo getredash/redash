@@ -81,8 +81,16 @@ class DuckDB(BaseSQLQueryRunner):
         self.con = duckdb.connect(self.dbpath)
         for ext in self.extensions:
             try:
-                self.con.execute(f"INSTALL {ext}")
-                self.con.execute(f"LOAD {ext}")
+                if "." in ext:
+                    prefix, name = ext.split(".", 1)
+                    if prefix == 'community':
+                        self.con.execute(f"INSTALL {name} FROM community")
+                        self.con.execute(f"LOAD {name}")
+                    else:
+                        raise Exception('Unknown extension prefix.')
+                else:
+                    self.con.execute(f"INSTALL {ext}")
+                    self.con.execute(f"LOAD {ext}")
             except Exception as e:
                 logger.warning("Failed to load extension %s: %s", ext, e)
 
