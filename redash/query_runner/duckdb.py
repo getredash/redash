@@ -99,11 +99,9 @@ class DuckDB(BaseSQLQueryRunner):
             cursor = self.con.cursor()
             cursor.execute(query)
             columns = self.fetch_columns(
-                [(d[0], TYPES_MAP.get(d[1].upper(), TYPE_STRING))
-                 for d in cursor.description]
+                [(d[0], TYPES_MAP.get(d[1].upper(), TYPE_STRING)) for d in cursor.description]
             )
-            rows = [dict(zip((col["name"] for col in columns), row))
-                    for row in cursor.fetchall()]
+            rows = [dict(zip((col["name"] for col in columns), row)) for row in cursor.fetchall()]
             data = {"columns": columns, "rows": rows}
             return data, None
         except duckdb.InterruptException:
@@ -129,19 +127,16 @@ class DuckDB(BaseSQLQueryRunner):
             describe_query = f'DESCRIBE "{table_row["table_schema"]}"."{table_row["table_name"]}";'
             columns_results, error = self.run_query(describe_query, None)
             if error:
-                logger.warning("Failed to describe table %s: %s",
-                               full_table_name, error)
+                logger.warning("Failed to describe table %s: %s", full_table_name, error)
                 continue
 
             for col_row in columns_results["rows"]:
-                col = {"name": col_row["column_name"],
-                       "type": col_row["column_type"]}
+                col = {"name": col_row["column_name"], "type": col_row["column_type"]}
                 schema[full_table_name]["columns"].append(col)
 
                 if col_row["column_type"].startswith("STRUCT("):
                     schema[full_table_name]["columns"].extend(
-                        self._expand_struct_fields(
-                            col["name"], col_row["column_type"])
+                        self._expand_struct_fields(col["name"], col_row["column_type"])
                     )
 
         return list(schema.values())
@@ -150,7 +145,7 @@ class DuckDB(BaseSQLQueryRunner):
         """Recursively expand STRUCT(...) definitions into pseudo-columns."""
         fields = []
         # strip STRUCT( ... )
-        inner = struct_type[len("STRUCT("): -1].strip()
+        inner = struct_type[len("STRUCT(") : -1].strip()
         # careful: nested structs, so parse comma-separated parts properly
         depth, current, parts = 0, [], []
         for c in inner:

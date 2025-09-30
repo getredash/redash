@@ -32,8 +32,7 @@ class TestDuckDBSchema(TestCase):
         self.assertEqual(schema[0]["name"], "main.users")
         self.assertListEqual(
             schema[0]["columns"],
-            [{"name": "id", "type": "INTEGER"}, {
-                "name": "name", "type": "VARCHAR"}],
+            [{"name": "id", "type": "INTEGER"}, {"name": "name", "type": "VARCHAR"}],
         )
 
     @patch.object(DuckDB, "run_query")
@@ -89,8 +88,7 @@ class TestDuckDBSchema(TestCase):
         )
 
         schema = runner.get_schema()
-        table = next(
-            t for t in schema if t["name"] == "main.sample_struct_table")
+        table = next(t for t in schema if t["name"] == "main.sample_struct_table")
         colnames = [c["name"] for c in table["columns"]]
 
         assert "info" in colnames
