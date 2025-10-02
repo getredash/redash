@@ -90,6 +90,7 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
                   mouseEnterDelay={0}
                   mouseLeaveDelay={0}
                   placement="rightTop"
+                  overlayStyle={{ whiteSpace: "pre-line" }}
                 >
                   <PlainButton
                     key={columnName}
