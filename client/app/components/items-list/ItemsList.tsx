@@ -145,11 +145,32 @@ export function wrap<I, P = any>(
 
       const initialState = this.getState({ ...itemsSource.getState(), isLoaded: false });
       const { updatePagination, toggleSorting, setSorting, updateSearch, updateSelectedTags, update, handleError } = itemsSource;
+
+      let isRunningUpdateSearch = false;
+      let pendingUpdateSearchParams: any[] | null = null;
+      const debouncedUpdateSearch = debounce(async (...params) => {
+        // Avoid running multiple updateSerch concurrently.
+        // If an updateSearch is already running, we save the params for the latest call.
+        // When the current updateSearch is finished, we call debouncedUpdateSearch again with the saved params.
+        if (isRunningUpdateSearch) {
+          pendingUpdateSearchParams = params;
+          return;
+        }
+        isRunningUpdateSearch = true;
+        await updateSearch(...params);
+        isRunningUpdateSearch = false;
+        if (pendingUpdateSearchParams) {
+          const pendingParams = pendingUpdateSearchParams;
+          pendingUpdateSearchParams = null;
+          debouncedUpdateSearch(...pendingParams);
+        }
+      }, 200);
+
       this.state = {
         ...initialState,
         toggleSorting, // eslint-disable-line react/no-unused-state
         setSorting, // eslint-disable-line react/no-unused-state
-        updateSearch: debounce(updateSearch, 200), // eslint-disable-line react/no-unused-state
+        updateSearch: debouncedUpdateSearch, // eslint-disable-line react/no-unused-state
         updateSelectedTags, // eslint-disable-line react/no-unused-state
         updatePagination, // eslint-disable-line react/no-unused-state
         update, // eslint-disable-line react/no-unused-state
