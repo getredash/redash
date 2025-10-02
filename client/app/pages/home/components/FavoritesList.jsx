@@ -15,7 +15,7 @@ export function FavoriteList({ title, resource, itemUrl, emptyState }) {
   useEffect(() => {
     setLoading(true);
     resource
-      .favorites()
+      .favorites({ order: "-starred_at" })
       .then(({ results }) => setItems(results))
       .finally(() => setLoading(false));
   }, [resource]);
@@ -28,7 +28,7 @@ export function FavoriteList({ title, resource, itemUrl, emptyState }) {
       </div>
       {!isEmpty(items) && (
         <div role="list" className="list-group">
-          {items.map(item => (
+          {items.map((item) => (
             <Link key={itemUrl(item)} role="listitem" className="list-group-item" href={itemUrl(item)}>
               <span className="btn-favorite m-r-5">
                 <i className="fa fa-star" aria-hidden="true" />
@@ -61,7 +61,7 @@ export function DashboardAndQueryFavoritesList() {
             <FavoriteList
               title="Favorite Dashboards"
               resource={Dashboard}
-              itemUrl={dashboard => dashboard.url}
+              itemUrl={(dashboard) => dashboard.url}
               emptyState={
                 <p>
                   <span className="btn-favorite m-r-5">
@@ -76,7 +76,7 @@ export function DashboardAndQueryFavoritesList() {
             <FavoriteList
               title="Favorite Queries"
               resource={Query}
-              itemUrl={query => `queries/${query.id}`}
+              itemUrl={(query) => `queries/${query.id}`}
               emptyState={
                 <p>
                   <span className="btn-favorite m-r-5">

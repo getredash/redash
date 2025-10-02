@@ -228,7 +228,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     def _sort_schema(self, schema):
         return [
-            {"name": i["name"], "columns": sorted(i["columns"], key=lambda x: x["name"] if isinstance(x, dict) else x)}
+            {**i, "columns": sorted(i["columns"], key=lambda x: x["name"] if isinstance(x, dict) else x)}
             for i in sorted(schema, key=lambda x: x["name"])
         ]
 
@@ -1145,15 +1145,19 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def favorites(cls, user, base_query=None):
         if base_query is None:
             base_query = cls.all(user.org, user.group_ids, user.id)
-        return base_query.join(
-            (
-                Favorite,
-                and_(
-                    Favorite.object_type == "Dashboard",
-                    Favorite.object_id == Dashboard.id,
-                ),
+        return (
+            base_query.distinct(cls.lowercase_name, Dashboard.created_at, Dashboard.slug, Favorite.created_at)
+            .join(
+                (
+                    Favorite,
+                    and_(
+                        Favorite.object_type == "Dashboard",
+                        Favorite.object_id == Dashboard.id,
+                    ),
+                )
             )
-        ).filter(Favorite.user_id == user.id)
+            .filter(Favorite.user_id == user.id)
+        )
 
     @classmethod
     def by_user(cls, user):
