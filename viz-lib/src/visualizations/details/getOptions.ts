@@ -1,19 +1,15 @@
 import _ from "lodash";
 import {
-  getDefaultColumnsOptions,
   getDefaultFormatOptions,
   getColumnsOptions,
 } from "@/visualizations/shared/columnUtils";
 
-const DEFAULT_OPTIONS = {
-  itemsPerPage: 25,
-  paginationSize: "default", // not editable through Editor
-};
+const DEFAULT_OPTIONS = {};
 
 
 export default function getOptions(options: any, { columns }: any) {
   options = { ...DEFAULT_OPTIONS, ...options };
-  options.columns = _.map(getColumnsOptions(columns, options.columns, { allowSearch: false }), col => ({
+  options.columns = _.map(getColumnsOptions(columns, options.columns, { alignContent: "left" }), col => ({
     ...getDefaultFormatOptions(col),
     ...col,
   }));
