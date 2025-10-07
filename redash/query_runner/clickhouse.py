@@ -97,6 +97,19 @@ class ClickHouse(BaseSQLQueryRunner):
 
     def _send_query(self, data, session_id=None, session_check=None):
         url = self.configuration.get("url", "http://127.0.0.1:8123")
+        timeout = self.configuration.get("timeout", 30)
+        params = {
+            "user": self.configuration.get("user", "default"),
+            "password": self.configuration.get("password", ""),
+            "database": self.configuration["dbname"],
+            "default_format": "JSON",
+        }
+
+        if session_id:
+            params["session_id"] = session_id
+            params["session_check"] = "1" if session_check else "0"
+            params["session_timeout"] = timeout
+
         try:
             verify = self.configuration.get("verify", True)
             r = requests.post(
