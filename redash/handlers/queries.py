@@ -229,6 +229,7 @@ class QueryListResource(BaseQueryListResource):
             "api_key",
             "visualizations",
             "latest_query_data",
+            "latest_query_data_id",
             "last_modified_by",
         ]:
             query_def.pop(field, None)
@@ -337,6 +338,7 @@ class QueryResource(BaseResource):
             "api_key",
             "visualizations",
             "latest_query_data",
+            "latest_query_data_id",
             "user",
             "last_modified_by",
             "org",
