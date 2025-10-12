@@ -75,6 +75,9 @@ export default function useQueryExecute(query) {
           if (queryResult && queryResult.query_result.query === query.query) {
             query.latest_query_data_id = queryResult.getId();
             query.queryResult = queryResult;
+          } else {
+            query.latest_query_data = null;
+            query.latest_query_data_id = undefined;
           }
 
           if (executionState.loadedInitialResults) {
