@@ -24,6 +24,7 @@ describe("Map (Markers)", () => {
       .then(({ id }) => cy.createVisualization(id, "MAP", "Map (Markers)", { mapTileUrl }))
       .then(({ id: visualizationId, query_id: queryId }) => {
         cy.visit(`queries/${queryId}/source#${visualizationId}`);
+        cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
         cy.getByTestId("ExecuteButton").click();
       });
   });

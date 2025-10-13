@@ -52,6 +52,7 @@ describe("Dashboard Filters", () => {
         .click();
     });
 
+    cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.contains(".ant-select-item-option-content:visible", "b").click();
 
     cy.getByTestId(this.widget1TestId).within(() => {
@@ -74,6 +75,7 @@ describe("Dashboard Filters", () => {
         .click();
     });
 
+    cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.contains(".ant-select-item-option-content:visible", "c").click();
 
     [this.widget1TestId, this.widget2TestId].forEach(widgetTestId =>

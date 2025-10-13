@@ -25,6 +25,7 @@ describe("Funnel", () => {
     cy.login();
     cy.createQuery({ query: SQL }).then(({ id }) => {
       cy.visit(`queries/${id}/source`);
+      cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.getByTestId("ExecuteButton").click();
     });
   });

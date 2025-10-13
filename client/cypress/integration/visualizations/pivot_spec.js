@@ -47,6 +47,7 @@ describe("Pivot", () => {
 
   it("creates Pivot with controls", function() {
     cy.visit(`queries/${this.queryId}/source`);
+    cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId("ExecuteButton").click();
 
     const visualizationName = "Pivot";
@@ -59,6 +60,7 @@ describe("Pivot", () => {
 
   it("creates Pivot without controls", function() {
     cy.visit(`queries/${this.queryId}/source`);
+    cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId("ExecuteButton").click();
 
     const visualizationName = "Pivot";
@@ -88,6 +90,7 @@ describe("Pivot", () => {
 
     cy.createVisualization(this.queryId, "PIVOT", "Pivot", options).then(visualization => {
       cy.visit(`queries/${this.queryId}/source#${visualization.id}`);
+      cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.getByTestId("ExecuteButton").click();
 
       // assert number of rows is 11

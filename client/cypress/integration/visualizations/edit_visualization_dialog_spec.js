@@ -5,6 +5,7 @@ describe("Edit visualization dialog", () => {
     cy.login();
     cy.createQuery().then(({ id }) => {
       cy.visit(`queries/${id}/source`);
+      cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.getByTestId("ExecuteButton").click();
     });
   });

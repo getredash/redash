@@ -7,6 +7,7 @@ describe("Embedded Queries", () => {
   it("is unavailable when public urls feature is disabled", () => {
     cy.createQuery({ query: "select name from users order by name" }).then(query => {
       cy.visit(`/queries/${query.id}/source`);
+      cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.getByTestId("ExecuteButton").click();
       cy.getByTestId("QueryPageVisualizationTabs", { timeout: 10000 }).should("exist");
       cy.clickThrough(`
@@ -44,6 +45,7 @@ describe("Embedded Queries", () => {
   it("can be shared without parameters", () => {
     cy.createQuery({ query: "select name from users order by name" }).then(query => {
       cy.visit(`/queries/${query.id}/source`);
+      cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.getByTestId("ExecuteButton").click();
       cy.getByTestId("QueryPageVisualizationTabs", { timeout: 10000 }).should("exist");
       cy.clickThrough(`
