@@ -60,9 +60,7 @@ describe("Funnel", () => {
 
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.getByTestId("VisualizationPreview")
-      .find("table")
-      .should("exist");
+    cy.getByTestId("VisualizationPreview").find("table").should("exist");
     cy.percySnapshot("Visualizations - Funnel (basic)", { widths: [viewportWidth] });
 
     cy.clickThrough(`
@@ -82,9 +80,7 @@ describe("Funnel", () => {
 
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.getByTestId("VisualizationPreview")
-      .find("table")
-      .should("exist");
+    cy.getByTestId("VisualizationPreview").find("table").should("exist");
     cy.percySnapshot("Visualizations - Funnel (extra options)", { widths: [viewportWidth] });
   });
 });

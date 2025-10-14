@@ -81,9 +81,7 @@ describe("Word Cloud", () => {
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
 
-    cy.getByTestId("VisualizationPreview")
-      .find("svg text")
-      .should("have.length", 11);
+    cy.getByTestId("VisualizationPreview").find("svg text").should("have.length", 11);
 
     cy.percySnapshot("Visualizations - Word Cloud (Automatic word frequencies)", { widths: [viewportWidth] });
   });
@@ -100,9 +98,7 @@ describe("Word Cloud", () => {
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
 
-    cy.getByTestId("VisualizationPreview")
-      .find("svg text")
-      .should("have.length", 5);
+    cy.getByTestId("VisualizationPreview").find("svg text").should("have.length", 5);
 
     cy.percySnapshot("Visualizations - Word Cloud (Frequencies from another column)", { widths: [viewportWidth] });
   });
@@ -126,9 +122,7 @@ describe("Word Cloud", () => {
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
 
-    cy.getByTestId("VisualizationPreview")
-      .find("svg text")
-      .should("have.length", 2);
+    cy.getByTestId("VisualizationPreview").find("svg text").should("have.length", 2);
 
     cy.percySnapshot("Visualizations - Word Cloud (With filters)", { widths: [viewportWidth] });
   });
