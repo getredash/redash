@@ -753,6 +753,23 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         return db.session.execute(query, {"ids": tuple(query_ids)}).fetchall()
 
+    def update_latest_result_by_query_hash(self):
+        query_hash = self.query_hash
+        data_source_id = self.data_source_id
+        query_result = (
+            QueryResult.query.options(load_only("id"))
+            .filter(
+                QueryResult.query_hash == query_hash,
+                QueryResult.data_source_id == data_source_id,
+            )
+            .order_by(QueryResult.retrieved_at.desc())
+            .first()
+        )
+        if query_result:
+            latest_query_data_id = query_result.id
+            self.latest_query_data_id = latest_query_data_id
+            db.session.add(self)
+
     @classmethod
     def update_latest_result(cls, query_result):
         # TODO: Investigate how big an impact this select-before-update makes.
