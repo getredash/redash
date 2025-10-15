@@ -27,23 +27,6 @@ import routes from "@/services/routes";
 import QueriesListEmptyState from "./QueriesListEmptyState";
 
 import "./queries-list.css";
-import QuestionCircleFilledIcon from "@ant-design/icons/QuestionCircleFilled";
-import Tooltip from "@/components/Tooltip";
-
-const searchQueryTooltipTitle = `Search Syntax:
-- term
-    => find queries containing 'term' in the query name or description
-- term1 term2
-    => find queries containing both term1 and term2
-- "exact phrase"
-    => find queries containing the exact phrase
-- query:term
-    => find queries containing 'term' in the query text
-- term1 query:term2
-    => find queries containing 'term' in the query name/description and 'term2' in the query text
-- query:"exact phrase"
-    => find queries containing the exact phrase in the query text
-`;
 
 const sidebarMenu = [
   {
@@ -162,17 +145,6 @@ function QueriesList({ controller }) {
         />
         <Layout>
           <Layout.Sidebar className="m-b-0">
-            {clientConfig.multiByteSearchEnabled && (
-              <div className="text-right">
-                <Tooltip
-                  title={searchQueryTooltipTitle}
-                  overlayStyle={{ whiteSpace: "pre-wrap", maxWidth: "500px" }}
-                  placement="bottom"
-                >
-                  <QuestionCircleFilledIcon />
-                </Tooltip>
-              </div>
-            )}
             <Sidebar.SearchInput
               placeholder="Search Queries..."
               label="Search queries"
