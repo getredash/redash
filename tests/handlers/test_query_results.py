@@ -329,6 +329,41 @@ class TestQueryResultAPI(BaseTestCase):
         rv = self.make_request("get", "/api/queries/{}/results/{}.json".format(query.id, query_result2.id))
         self.assertEqual(rv.status_code, 403)
 
+    def test_query_results_by_db_role(self):
+        query = self.factory.create_query()
+        admin_result = self.factory.create_query_result(
+            query_text=query.query_text, query_hash=query.query_hash
+        )
+        limited_result = self.factory.create_query_result(
+            query_text=query.query_text,
+            query_hash=query.query_hash,
+            db_role="limited",
+        )
+        query.latest_query_data = limited_result
+        admin_user = self.factory.create_user()
+        limited_user = self.factory.create_user()
+        limited_user.db_role = "limited"
+
+        admin_response = self.make_request(
+            "get",
+            "/api/queries/{}/results.json".format(query.id),
+            user=admin_user,
+        )
+        limited_response = self.make_request(
+            "get",
+            "/api/queries/{}/results.json".format(query.id),
+            user=limited_user,
+        )
+        self.assertEqual(query.latest_query_data_id, limited_result.id)
+        self.assertEqual(admin_response.status_code, 200)
+        self.assertEqual(
+            admin_response.get_json()["query_result"]["id"], admin_result.id
+        )
+        self.assertEqual(limited_response.status_code, 200)
+        self.assertEqual(
+            limited_response.get_json()["query_result"]["id"], limited_result.id
+        )
+
 
 class TestQueryResultDropdownResource(BaseTestCase):
     def test_checks_for_access_to_the_query(self):

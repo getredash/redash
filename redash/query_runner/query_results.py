@@ -66,18 +66,24 @@ def replace_query_parameters(query_text, params):
 def get_query_results(user, query_id, bring_from_cache, params=None):
     query = _load_query(user, query_id)
     if bring_from_cache:
-        if query.latest_query_data_id is not None:
-            results = query.latest_query_data.data
-        else:
+        results = models.QueryResult.get_latest(
+            data_source=query.data_source,
+            query=query.query_hash,
+            max_age=-1,
+            is_hash=True,
+            db_role=getattr(user, "db_role", None),
+        )
+        if not results:
             raise Exception("No cached result available for query {}.".format(query.id))
-    else:
-        query_text = query.query_text
-        if params is not None:
-            query_text = replace_query_parameters(query_text, params)
+        return results.data
 
-        results, error = query.data_source.query_runner.run_query(query_text, user)
-        if error:
-            raise Exception("Failed loading results for query id {}.".format(query.id))
+    query_text = query.query_text
+    if params is not None:
+        query_text = replace_query_parameters(query_text, params)
+
+    results, error = query.data_source.query_runner.run_query(query_text, user)
+    if error:
+        raise Exception("Failed loading results for query id {}.".format(query.id))
 
     return results
 
@@ -200,7 +206,19 @@ class Results(BaseQueryRunner):
 
                     rows.append(dict(zip(column_names, row)))
 
-                data = {"columns": columns, "rows": rows}
+                # Track the db role associated with the cached query result.
+                # Without this we know the db_role context of the user running
+                # a query against the Query Results Data Source, but not necessarily
+                # the role of the cached query data it referenced.
+                #
+                # TODO: Potentially use this data, either as an extra check
+                #       when fetching query results or to clean up cached QRDS
+                #       results that don't specify a db_role (via migration perhaps)
+                data = {
+                    "columns": columns,
+                    "rows": rows,
+                    "db_role": getattr(user, "db_role", None),
+                }
                 error = None
             else:
                 error = "Query completed but it returned no data."

@@ -318,11 +318,17 @@ class QueryResultResource(BaseResource):
         if query_id is not None:
             query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
 
-            if query_result is None and query is not None and query.latest_query_data_id is not None:
+            if query_result is None and query is not None:
+                # query.latest_query_data_id isn't db_role-specific, so
+                # ignore it and fetch the latest results for the current
+                # user's role.
                 query_result = get_object_or_404(
-                    models.QueryResult.get_by_id_and_org,
-                    query.latest_query_data_id,
-                    self.current_org,
+                    models.QueryResult.get_latest,
+                    data_source=query.data_source,
+                    query=query.query_hash,
+                    max_age=-1,
+                    is_hash=True,
+                    db_role=getattr(self.current_user, "db_role", None),
                 )
 
             if query is not None and query_result is not None and self.current_user.is_api_user():
