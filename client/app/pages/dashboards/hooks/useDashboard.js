@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { isEmpty, includes, compact, map, has, pick, keys, extend, every, get } from "lodash";
+import { isEmpty, includes, compact, map, has, pick, keys, extend, every, get, isEqual } from "lodash";
 import notification from "@/services/notification";
 import location from "@/services/location";
 import url from "@/services/url";
@@ -144,14 +144,52 @@ function useDashboard(dashboardData) {
     [loadWidget]
   );
 
+  const persistParameterValues = useCallback(
+    updatedParameters => {
+      if (!canEditDashboard || isEmpty(updatedParameters)) {
+        return Promise.resolve();
+      }
+
+      const currentDashboard = dashboardRef.current;
+      const currentValues = get(currentDashboard, "options.parameterValues", {});
+      const nextValues = extend({}, currentValues);
+      let hasChanges = false;
+
+      updatedParameters.forEach(param => {
+        if (!param) {
+          return;
+        }
+
+        if (!isEqual(nextValues[param.name], param.value)) {
+          nextValues[param.name] = param.value === undefined ? null : param.value;
+          hasChanges = true;
+        }
+      });
+
+      if (!hasChanges) {
+        return Promise.resolve();
+      }
+
+      return updateDashboard({
+        options: extend({}, get(currentDashboard, "options", {}), { parameterValues: nextValues }),
+      });
+    },
+    [canEditDashboard, updateDashboard]
+  );
+
   const refreshDashboard = useCallback(
     updatedParameters => {
-      if (!refreshing) {
-        setRefreshing(true);
-        loadDashboard(true, updatedParameters).finally(() => setRefreshing(false));
+      if (refreshing) {
+        return;
       }
+
+      setRefreshing(true);
+      Promise.resolve(persistParameterValues(updatedParameters))
+        .catch(() => {})
+        .then(() => loadDashboard(true, updatedParameters))
+        .finally(() => setRefreshing(false));
     },
-    [refreshing, loadDashboard]
+    [refreshing, loadDashboard, persistParameterValues]
   );
 
   const archiveDashboard = useCallback(() => {
