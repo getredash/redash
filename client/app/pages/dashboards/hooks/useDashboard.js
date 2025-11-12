@@ -161,7 +161,7 @@ function useDashboard(dashboardData) {
         }
 
         if (!isEqual(nextValues[param.name], param.value)) {
-          nextValues[param.name] = param.value === undefined ? null : param.value;
+          nextValues[param.name] = param.value;
           hasChanges = true;
         }
       });
@@ -185,7 +185,10 @@ function useDashboard(dashboardData) {
 
       setRefreshing(true);
       Promise.resolve(persistParameterValues(updatedParameters))
-        .catch(() => {})
+        .catch(error => {
+          console.error("Failed to persist parameter values:", error);
+          notification.error("Parameter values could not be saved. Your changes may not be persisted.");
+        })
         .then(() => loadDashboard(true, updatedParameters))
         .finally(() => setRefreshing(false));
     },
