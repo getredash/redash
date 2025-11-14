@@ -27,7 +27,7 @@ class TestRefreshSchemas(BaseTestCase):
 
     def test_skips_excluded_datasource_types(self):
         ds = self.factory.data_source
-        
+
         with patch.object(settings, "SCHEMAS_REFRESH_EXCLUDED_TYPES", {ds.type}):
             with patch("redash.tasks.queries.maintenance.refresh_schema.delay") as refresh_job:
                 refresh_schemas()
