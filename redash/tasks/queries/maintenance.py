@@ -205,6 +205,8 @@ def refresh_schemas():
             )
         elif ds.id in blacklist:
             logger.info("task=refresh_schema state=skip ds_id=%s reason=blacklist", ds.id)
+        elif ds.type in settings.SCHEMAS_REFRESH_EXCLUDED_TYPES:
+            logger.info("task=refresh_schema state=skip ds_id=%s reason=type_excluded", ds.id)
         elif ds.org.is_disabled:
             logger.info("task=refresh_schema state=skip ds_id=%s reason=org_disabled", ds.id)
         else:
