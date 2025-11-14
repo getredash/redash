@@ -127,6 +127,8 @@ function useDashboard(dashboardData) {
 
   const dashboardRef = useRef();
   dashboardRef.current = dashboard;
+  const pendingParameterValuesRef = useRef({});
+  const editingLayoutRef = useRef(false);
 
   const loadDashboard = useCallback(
     (forceRefresh = false, updatedParameters = []) => {
@@ -145,8 +147,8 @@ function useDashboard(dashboardData) {
   );
 
   const persistParameterValues = useCallback(
-    updatedParameters => {
-      if (!canEditDashboard || isEmpty(updatedParameters)) {
+    parameterValues => {
+      if (!canEditDashboard || !parameterValues || isEmpty(parameterValues)) {
         return Promise.resolve();
       }
 
@@ -155,13 +157,9 @@ function useDashboard(dashboardData) {
       const nextValues = extend({}, currentValues);
       let hasChanges = false;
 
-      updatedParameters.forEach(param => {
-        if (!param) {
-          return;
-        }
-
-        if (!isEqual(nextValues[param.name], param.value)) {
-          nextValues[param.name] = param.value;
+      Object.entries(parameterValues).forEach(([name, value]) => {
+        if (!isEqual(nextValues[name], value)) {
+          nextValues[name] = value;
           hasChanges = true;
         }
       });
@@ -183,16 +181,25 @@ function useDashboard(dashboardData) {
         return;
       }
 
+      if (editingLayoutRef.current && !isEmpty(updatedParameters)) {
+        const queuedValues = {};
+        updatedParameters.forEach(param => {
+          if (!param) {
+            return;
+          }
+
+          queuedValues[param.name] = param.value === undefined ? null : param.value;
+        });
+
+        if (!isEmpty(queuedValues)) {
+          pendingParameterValuesRef.current = extend({}, pendingParameterValuesRef.current, queuedValues);
+        }
+      }
+
       setRefreshing(true);
-      Promise.resolve(persistParameterValues(updatedParameters))
-        .catch(error => {
-          console.error("Failed to persist parameter values:", error);
-          notification.error("Parameter values could not be saved. Your changes may not be persisted.");
-        })
-        .then(() => loadDashboard(true, updatedParameters))
-        .finally(() => setRefreshing(false));
+      loadDashboard(true, updatedParameters).finally(() => setRefreshing(false));
     },
-    [refreshing, loadDashboard, persistParameterValues]
+    [refreshing, loadDashboard]
   );
 
   const archiveDashboard = useCallback(() => {
@@ -244,6 +251,30 @@ function useDashboard(dashboardData) {
   const [refreshRate, setRefreshRate, disableRefreshRate] = useRefreshRateHandler(refreshDashboard);
   const [fullscreen, toggleFullscreen] = useFullscreenHandler();
   const editModeHandler = useEditModeHandler(!gridDisabled && canEditDashboard, dashboard.widgets);
+
+  useEffect(() => {
+    const wasEditing = editingLayoutRef.current;
+    const isEditing = editModeHandler.editingLayout;
+
+    if (!wasEditing && isEditing) {
+      pendingParameterValuesRef.current = {};
+    }
+
+    if (wasEditing && !isEditing) {
+      const pendingValues = pendingParameterValuesRef.current;
+      pendingParameterValuesRef.current = {};
+
+      if (!isEmpty(pendingValues)) {
+        Promise.resolve(persistParameterValues(pendingValues)).catch(error => {
+          console.error("Failed to persist parameter values:", error);
+          notification.error("Parameter values could not be saved. Your changes may not be persisted.");
+          pendingParameterValuesRef.current = pendingValues;
+        });
+      }
+    }
+
+    editingLayoutRef.current = isEditing;
+  }, [editModeHandler.editingLayout, persistParameterValues]);
 
   useEffect(() => {
     setDashboard(dashboardData);
